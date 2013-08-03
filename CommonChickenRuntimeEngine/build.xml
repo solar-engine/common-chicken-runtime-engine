@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- This file contains the modifications used to allow the CCRE to be built
+     properly and downgraded to Java 1.3 so that Squawk can use the data.-->
+<project name="CommonChickenRuntimeEngine" default="default" basedir=".">
+    <description>Builds, tests, and runs the project CommonChickenRuntimeEngine.</description>
+    <!-- Use NetBeans' build script as the basis. -->
+    <import file="nbproject/build-impl.xml"/>
+    <!-- A task definition so that Retrotranslator (see the subdirectory) can be invoked here. -->
+    <taskdef name="retrotranslator" classname="net.sf.retrotranslator.transformer.RetrotranslatorTask">
+        <classpath>
+            <fileset dir="Retrotranslator-1.2.9-bin">
+                <include name="retrotranslator-transformer-1.2.9.jar" />
+                <include name="retrotranslator-runtime-1.2.9.jar" />
+                <include name="backport-util-concurrent-3.1.jar" />
+            </fileset>
+        </classpath>
+    </taskdef>
+    <!-- Get the properties (backport and backport.remove) that are needed to control backporting. -->
+    <property file="src/backport.properties"/>
+    <!-- Get the properties that specify where the sunspotfrcsdk exists. This is so that we can find the squawk jar. -->
+    <property file="${user.home}/.sunspotfrc.properties"/>
+    
+    <!-- Once the jar is created, backport it to Java 1.3 so that Squawk can use it. -->
+    <target name="-post-jar">
+        <!-- Strip out the backport.remove files so that the backporter doesn't try (and fail) to downgrade them. -->
+        <jar destfile="dist\CCRE-1.5-STRIP.jar">
+            <zipfileset src="dist\CCRE-1.5.jar" excludes="${backport.remove}"/>
+        </jar>
+        <!-- Use retrotranslator to downgrade to 1.3. -->
+        <retrotranslator target="1.3" destjar="dist/CCRE.jar"
+                         smart="true" verify="true" failonwarning="true" backport="${backport}">
+            <jarfileset dir="dist" includes="CCRE-1.5-STRIP.jar" />
+            <classpath>
+                <fileset dir="${sunspot.home}/lib" includes="squawk.jar" />
+            </classpath>
+        </retrotranslator>
+    </target>
+</project>

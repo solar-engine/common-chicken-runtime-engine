@@ -1,0 +1,9 @@
+Manifest-Version: 1.0
+Ant-Version: Apache Ant 1.8.3
+Created-By: 1.6.0_29-b11 (Sun Microsystems Inc.)
+Build-Number: 307
+Built-On: 2012-12-16_16-59-42
+Built-From: SVN r366
+Build-Type: Developer
+Build-Target: cRIO
+

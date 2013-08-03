@@ -1,0 +1,6 @@
+MIDlet-Name: CCRE_Igneous
+MIDlet-Version: 1.0.0
+MIDlet-Vendor: FIRST
+MIDlet-1: IgneousApp, , org.team1540.infernodante.Inferno
+MicroEdition-Profile: IMP-1.0
+MicroEdition-Configuration: CLDC-1.1

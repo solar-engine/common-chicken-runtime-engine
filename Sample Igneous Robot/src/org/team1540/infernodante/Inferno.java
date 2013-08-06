@@ -70,7 +70,7 @@ public class Inferno extends SimpleCore {
     }
 
     private void createPotentiometerReadout(FloatInputPoll pot) {
-        makeDSFloatReadout("Poten: ", DriverStationLCD.Line.kUser2, pot, globalPeriodic);
+        makeDSFloatReadout("Poten: ", 2, pot, globalPeriodic);
     }
 
     private void createArmButtonActions(BooleanStatus deactivateBrake) {

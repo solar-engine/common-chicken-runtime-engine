@@ -1,4 +1,4 @@
-package test;
+package org.team1540.example;
 
 import ccre.chan.*;
 import ccre.ctrl.DriverImpls;

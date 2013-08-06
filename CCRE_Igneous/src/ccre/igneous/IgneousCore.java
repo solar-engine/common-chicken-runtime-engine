@@ -1,17 +1,8 @@
 package ccre.igneous;
 
 import ccre.chan.*;
-import ccre.cluck.CluckGlobals;
 import ccre.ctrl.*;
-import ccre.event.Event;
 import ccre.event.EventSource;
-import ccre.log.LogLevel;
-import ccre.log.Logger;
-import ccre.net.IgneousNetworkProvider;
-import ccre.saver.IgneousStorageProvider;
-import ccre.workarounds.IgneousThrowablePrinter;
-import edu.wpi.first.wpilibj.*;
-import java.io.IOException;
 
 /**
  * A Core class for Igneous. Extend this (or SimpleCore, which is easier) in
@@ -20,102 +11,54 @@ import java.io.IOException;
  * @see SimpleCore
  * @author skeggsc
  */
-public abstract class IgneousCore extends IterativeRobot {
+public abstract class IgneousCore {
 
-    static {
-        CluckGlobals.ensureInitializedCore();
-        IgneousNetworkProvider.register();
-        IgneousThrowablePrinter.register();
-        IgneousStorageProvider.register();
-    }
+    /**
+     * The launcher that provides all implementations for this.
+     */
+    IgneousLauncher launcher;
+    /**
+     * Produced during every state where the driver station is attached.
+     */
+    protected EventSource globalPeriodic;
+    /**
+     * Produced when the robot enters autonomous mode.
+     */
+    protected EventSource startedAutonomous;
+    /**
+     * Produced during autonomous mode.
+     */
+    protected EventSource duringAutonomous;
+    /**
+     * Produced when the robot enters disabled mode.
+     */
+    protected EventSource robotDisabled;
+    /**
+     * Produced while the robot is disabled.
+     */
+    protected EventSource duringDisabled;
+    /**
+     * Produced when the robot enters teleop mode.
+     */
+    protected EventSource startedTeleop;
+    /**
+     * Produced during teleop mode.
+     */
+    protected EventSource duringTeleop;
+    /**
+     * Produced when the robot enters testing mode.
+     */
+    protected EventSource startedTesting;
+    /**
+     * Produced during testing mode.
+     */
+    protected EventSource duringTesting;
 
     /**
      * Implement this method - it should set up everything that your robot needs
      * to do.
      */
     protected abstract void createRobotControl();
-    // Default events
-    /**
-     * Produced during every state where the driver station is attached.
-     */
-    protected Event globalPeriodic = new Event();
-
-    public final void robotInit() {
-        try {
-            CluckGlobals.initializeServer(80);
-        } catch (IOException ex) {
-            Logger.log(LogLevel.SEVERE, "Could not start Cluck server!", ex);
-        }
-        createRobotControl();
-    }
-    /**
-     * Produced when the robot enters autonomous mode.
-     */
-    protected Event startedAutonomous = new Event();
-
-    public final void autonomousInit() {
-        startedAutonomous.produce();
-    }
-    /**
-     * Produced during autonomous mode.
-     */
-    protected Event duringAutonomous = new Event();
-
-    public final void autonomousPeriodic() {
-        duringAutonomous.produce();
-        globalPeriodic.produce();
-    }
-    /**
-     * Produced when the robot enters disabled mode.
-     */
-    protected Event robotDisabled = new Event();
-
-    public final void disabledInit() {
-        robotDisabled.produce();
-    }
-    /**
-     * Produced while the robot is disabled.
-     */
-    protected Event duringDisabled = new Event();
-
-    public final void disabledPeriodic() {
-        duringDisabled.produce();
-        globalPeriodic.produce();
-    }
-    /**
-     * Produced when the robot enters teleop mode.
-     */
-    protected Event startedTeleop = new Event();
-
-    public final void teleopInit() {
-        Logger.finer("Start teleop dispatch");
-        startedTeleop.produce();
-    }
-    /**
-     * Produced during teleop mode.
-     */
-    protected Event duringTeleop = new Event();
-
-    public final void teleopPeriodic() {
-        duringTeleop.produce();
-        globalPeriodic.produce();
-    }
-    /**
-     * Produced when the robot enters testing mode.
-     */
-    protected Event startedTesting = new Event();
-
-    public final void testInit() {
-        startedTesting.produce();
-    }
-    /**
-     * Produced during testing mode.
-     */
-    protected Event duringTesting = new Event();
-
-    public final void testPeriodic() {
-        duringTesting.produce();
-    }
 
     // Factory methods
     /**
@@ -126,7 +69,7 @@ public abstract class IgneousCore extends IterativeRobot {
      * @see #makeDispatchJoystick(int)
      */
     protected final ISimpleJoystick makeSimpleJoystick(int id) {
-        return new CSimpleJoystick(id);
+        return launcher.makeSimpleJoystick(id);
     }
 
     /**
@@ -142,7 +85,7 @@ public abstract class IgneousCore extends IterativeRobot {
      * @see #makeDispatchJoystick(int, ccre.event.EventSource)
      */
     protected final IDispatchJoystick makeDispatchJoystick(int id) {
-        return new CDispatchJoystick(id, duringTeleop);
+        return launcher.makeDispatchJoystick(id, duringTeleop);
     }
 
     /**
@@ -155,8 +98,8 @@ public abstract class IgneousCore extends IterativeRobot {
      * @see #makeSimpleJoystick(int)
      * @see #makeDispatchJoystick(int)
      */
-    protected IDispatchJoystick makeDispatchJoystick(int id, EventSource source) {
-        return new CDispatchJoystick(id, source);
+    protected final IDispatchJoystick makeDispatchJoystick(int id, EventSource source) {
+        return launcher.makeDispatchJoystick(id, source);
     }
     /**
      * Signifies that the motor should be directly outputted without negation.
@@ -178,8 +121,8 @@ public abstract class IgneousCore extends IterativeRobot {
      * @see #MOTOR_FORWARD
      * @see #MOTOR_FREVERSE
      */
-    protected FloatOutput makeJaguarMotor(int id, boolean negate) {
-        return wrapSpeedController(new Jaguar(id), negate);
+    protected final FloatOutput makeJaguarMotor(int id, boolean negate) {
+        return launcher.makeJaguar(id, negate);
     }
 
     /**
@@ -193,8 +136,8 @@ public abstract class IgneousCore extends IterativeRobot {
      * @see #MOTOR_FORWARD
      * @see #MOTOR_FREVERSE
      */
-    protected FloatOutput makeVictorMotor(int id, boolean negate) {
-        return wrapSpeedController(new Victor(id), negate);
+    protected final FloatOutput makeVictorMotor(int id, boolean negate) {
+        return launcher.makeVictor(id, negate);
     }
 
     /**
@@ -208,8 +151,8 @@ public abstract class IgneousCore extends IterativeRobot {
      * @see #MOTOR_FORWARD
      * @see #MOTOR_FREVERSE
      */
-    protected FloatOutput makeTalonMotor(int id, boolean negate) {
-        return wrapSpeedController(new Talon(id), negate);
+    protected final FloatOutput makeTalonMotor(int id, boolean negate) {
+        return launcher.makeTalon(id, negate);
     }
 
     /**
@@ -218,13 +161,8 @@ public abstract class IgneousCore extends IterativeRobot {
      * @param id the port of the solenoid.
      * @return the output that will control the solenoid.
      */
-    protected BooleanOutput makeSolenoid(int id) {
-        final Solenoid sol = new Solenoid(id);
-        return new BooleanOutput() {
-            public void writeValue(boolean bln) {
-                sol.set(bln);
-            }
-        };
+    protected final BooleanOutput makeSolenoid(int id) {
+        return launcher.makeSolenoid(id);
     }
 
     /**
@@ -235,14 +173,8 @@ public abstract class IgneousCore extends IterativeRobot {
      * @param averageBits the number of averaging bits.
      * @return the analog input, reporting in voltage.
      */
-    protected FloatInputPoll makeAnalogInput(int id, int averageBits) {
-        final AnalogChannel chan = new AnalogChannel(id);
-        chan.setAverageBits(averageBits);
-        return new FloatInputPoll() {
-            public float readValue() {
-                return (float) chan.getAverageVoltage();
-            }
-        };
+    protected final FloatInputPoll makeAnalogInput(int id, int averageBits) {
+        return launcher.makeAnalogInput(id, averageBits);
     }
 
     /**
@@ -253,14 +185,8 @@ public abstract class IgneousCore extends IterativeRobot {
      * @param averageBits the number of averaging bits.
      * @return the analog input, reporting in uncalibrated units.
      */
-    protected FloatInputPoll makeAnalogInput_ValueBased(int id, int averageBits) {
-        final AnalogChannel chan = new AnalogChannel(id);
-        chan.setAverageBits(averageBits);
-        return new FloatInputPoll() {
-            public float readValue() {
-                return (float) chan.getAverageValue();
-            }
-        };
+    protected final FloatInputPoll makeAnalogInput_ValueBased(int id, int averageBits) {
+        return launcher.makeAnalogInput_ValuedBased(id, averageBits);
     }
 
     /**
@@ -269,13 +195,8 @@ public abstract class IgneousCore extends IterativeRobot {
      * @param id the port number.
      * @return the digital input.
      */
-    protected BooleanInputPoll makeDigitalInput(int id) {
-        final DigitalInput dinput = new DigitalInput(id);
-        return new BooleanInputPoll() {
-            public boolean readValue() {
-                return dinput.get();
-            }
-        };
+    protected final BooleanInputPoll makeDigitalInput(int id) {
+        return launcher.makeDigitalInput(id);
     }
 
     /**
@@ -289,14 +210,8 @@ public abstract class IgneousCore extends IterativeRobot {
      * servo's maximum position.
      * @return
      */
-    protected FloatOutput makeServo(int id, final float minInput, float maxInput) {
-        final Servo servo = new Servo(id);
-        final float deltaInput = maxInput - minInput;
-        return new FloatOutput() {
-            public void writeValue(float f) {
-                servo.set((f - minInput) / deltaInput);
-            }
-        };
+    protected final FloatOutput makeServo(int id, float minInput, float maxInput) {
+        return launcher.makeServo(id, minInput, maxInput);
     }
 
     /**
@@ -305,18 +220,11 @@ public abstract class IgneousCore extends IterativeRobot {
      *
      * @param prefix the prefix, or label, of the output. this is prepended to
      * the value.
-     * @param line the line to display the value on.
+     * @param line the line to display the value on, from 1 to 6.
      * @return the output that will write to the LCD.
      */
-    protected FloatOutput makeDSFloatReadout(final String prefix, final DriverStationLCD.Line line) {
-        return new FloatOutput() {
-            public void writeValue(float f) {
-                DriverStationLCD dslcd = DriverStationLCD.getInstance();
-                dslcd.println(line, 1, "                    ");
-                dslcd.println(line, 1, prefix + f);
-                dslcd.updateLCD();
-            }
-        };
+    protected final FloatOutput makeDSFloatReadout(String prefix, int line) {
+        return launcher.makeDSFloatReadout(prefix, line);
     }
 
     /**
@@ -325,12 +233,12 @@ public abstract class IgneousCore extends IterativeRobot {
      *
      * @param prefix the prefix, or label, of the output. this is prepended to
      * the value.
-     * @param line the line to display the value on.
+     * @param line the line to display the value on, from 1 to 6.
      * @param value the value to display.
      * @param when when to update the output.
      */
-    protected void makeDSFloatReadout(String prefix, DriverStationLCD.Line line, FloatInputPoll value, EventSource when) {
-        Mixing.pumpWhen(when, value, makeDSFloatReadout(prefix, line));
+    protected final void makeDSFloatReadout(String prefix, int line, FloatInputPoll value, EventSource when) {
+        Mixing.pumpWhen(when, value, launcher.makeDSFloatReadout(prefix, line));
     }
 
     /**
@@ -338,12 +246,8 @@ public abstract class IgneousCore extends IterativeRobot {
      *
      * @return the input.
      */
-    protected BooleanInputPoll getIsDisabled() {
-        return new BooleanInputPoll() {
-            public boolean readValue() {
-                return DriverStation.getInstance().isDisabled();
-            }
-        };
+    protected final BooleanInputPoll getIsDisabled() {
+        return launcher.getIsDisabled();
     }
 
     /**
@@ -352,36 +256,9 @@ public abstract class IgneousCore extends IterativeRobot {
      *
      * @return the input.
      */
-    protected BooleanInputPoll getIsAutonomous() {
-        return new BooleanInputPoll() {
-            public boolean readValue() {
-                return DriverStation.getInstance().isAutonomous();
-            }
-        };
+    protected final BooleanInputPoll getIsAutonomous() {
+        return launcher.getIsAutonomous();
     }
-
-    /**
-     * Return a FloatOutput that writes to the specified speed controller.
-     *
-     * @param spc
-     * @param negate
-     * @return
-     */
-    static FloatOutput wrapSpeedController(final SpeedController spc, final boolean negate) {
-        return new FloatOutput() {
-            public void writeValue(float f) {
-                if (negate) {
-                    spc.set(-f);
-                } else {
-                    spc.set(f);
-                }
-            }
-        };
-    }
-    /**
-     * The robot's compressor.
-     */
-    private CCustomCompressor compressor;
 
     /**
      * Activate the compressor on the given pressure switch channel and
@@ -391,28 +268,18 @@ public abstract class IgneousCore extends IterativeRobot {
      * input.
      * @param compressorRelayChannel the channel of the compressor's relay.
      */
-    protected void useCompressor(int pressureSwitchChannel, int compressorRelayChannel) {
-        if (compressor == null) {
-            compressor = new CCustomCompressor(makeDigitalInput(pressureSwitchChannel), compressorRelayChannel);
-            compressor.start();
-        } else {
-            throw new IllegalStateException("Compressor already started!");
-        }
+    protected final void useCompressor(int pressureSwitchChannel, int compressorRelayChannel) {
+        useCustomCompressor(makeDigitalInput(pressureSwitchChannel), compressorRelayChannel);
     }
 
     /**
-     * Activate the compressor on the given pressure switch input and
-     * compressor relay channel.
+     * Activate the compressor on the given pressure switch input and compressor
+     * relay channel.
      *
      * @param shouldDisable should the compressor be turned off.
      * @param compressorRelayChannel the channel of the compressor's relay.
      */
-    protected void useCustomCompressor(BooleanInputPoll shouldDisable, int compressorRelayChannel) {
-        if (compressor == null) {
-            compressor = new CCustomCompressor(shouldDisable, compressorRelayChannel);
-            compressor.start();
-        } else {
-            throw new IllegalStateException("Compressor already started!");
-        }
+    protected final void useCustomCompressor(BooleanInputPoll shouldDisable, int compressorRelayChannel) {
+        launcher.useCustomCompressor(shouldDisable, compressorRelayChannel);
     }
 }

@@ -163,6 +163,7 @@ class IgneousLauncherImpl extends IterativeRobot implements IgneousLauncher {
 
     public final void testPeriodic() {
         duringTesting.produce();
+        globalPeriodic.produce();
     }
 
     /**

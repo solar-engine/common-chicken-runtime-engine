@@ -120,6 +120,8 @@ public class CluckNetworkedClient extends ReporterThread implements CluckChannel
                     Logger.warning("Invalid messagetype byte: " + type);
                 }
             }
+        } catch (IOException e) {
+            Logger.log(LogLevel.FINER, "IOException in client", e);
         } finally {
             node.unsubscribe(null, this);
             node.unsubscribeFromSubscriptions(this);
@@ -150,6 +152,7 @@ public class CluckNetworkedClient extends ReporterThread implements CluckChannel
                 dout.writeShort(data.length);
                 dout.write(data);
             } catch (IOException ex) {
+                node.unsubscribe(null, this);
                 Logger.log(LogLevel.WARNING, "Disconnect during Cluck send", ex);
                 try {
                     sock.close();

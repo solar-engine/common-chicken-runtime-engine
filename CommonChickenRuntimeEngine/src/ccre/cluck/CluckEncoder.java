@@ -604,7 +604,7 @@ public class CluckEncoder {
                 if (!chan.equals(channel)) {
                     return;
                 }
-                if (data[0] == 0) {
+                if (data[0] == 0 && strh.hasModified()) {
                     byte[] b = strh.get().getBytes();
                     byte[] out = new byte[b.length + 1];
                     out[0] = 1;

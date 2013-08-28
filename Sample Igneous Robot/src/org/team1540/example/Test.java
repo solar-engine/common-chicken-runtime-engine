@@ -11,6 +11,9 @@ public class Test extends SimpleCore {
         FloatInputPoll leftAxis = joystick1.getAxisChannel(2);
         FloatInputPoll forwardAxis = joystick1.getAxisChannel(3);
         FloatInputPoll rightAxis = joystick1.getAxisChannel(5);
+        this.makeDSFloatReadout("Left", 1, leftAxis, duringTeleop);
+        this.makeDSFloatReadout("Right", 2, rightAxis, duringTeleop);
+        this.makeDSFloatReadout("Forward", 3, forwardAxis, duringTeleop);
         FloatOutput leftOut = makeTalonMotor(2, MOTOR_FORWARD);
         FloatOutput rightOut = makeTalonMotor(1, MOTOR_REVERSE);
         DriverImpls.createExtendedSynchTankDriver(duringTeleop, leftAxis, rightAxis, forwardAxis, leftOut, rightOut);

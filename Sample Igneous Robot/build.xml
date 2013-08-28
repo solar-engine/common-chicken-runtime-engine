@@ -6,6 +6,7 @@
     <import file="${sunspot.home}/build.xml"/>
     <property name="ccrejar" value="../CCRE_Igneous/dist/Igneous.jar"/>
     <property name="manifest.name" value="${resources.dir}/META-INF/MANIFEST.MF"/>
+    <property name="emulatee.name" value="${build.dir}/Emulatee.jar"/>
     <property file="${src.dir}/main.properties"/>
     <target name="insert-manifest">
         <fail unless="igneous.main" message="igneous.main property required in ${src.dir}/main.properties" />
@@ -24,6 +25,11 @@
         <crio-compile src.dir="${src.dir}" classes.dir="${classes.dir}" classpath="${classpath};${ccrejar}" bootclasspath="${bootclasspath}"/>
     </target>
     <target name="paste-ccre">
+        <jar destfile="${emulatee.name}" manifest="${manifest.name}">
+            <fileset dir="${classes.dir}">
+                <exclude name="**/*.java"/>
+            </fileset>
+        </jar>
         <unjar src="${ccrejar}" dest="${classes.dir}" />
     </target>
     <target name="compile" depends="insert-manifest,-actual-compile-compile,-post-compile,paste-ccre"/>
@@ -33,6 +39,11 @@
             <replace path="/*[local-name()='project']/*[local-name()='configuration']/*[local-name()='java-data']/*[local-name()='compilation-unit']/*[local-name()='classpath'][@mode='boot']/text()" withText="${bootclasspath}"/>
             <replace path="/*[local-name()='project']/*[local-name()='configuration']/*[local-name()='java-data']/*[local-name()='compilation-unit']/*[local-name()='classpath'][@mode='compile']/text()" withText="${classpath};${ccrejar}"/>
         </xmltask>
+    </target>
+    <target name="run-emulator" depends="compile">
+        <java jar="../Igneous Emulator/dist/Igneous_Emulator.jar">
+            <arg value="${emulatee.name}" />
+        </java>
     </target>
 
 </project>

@@ -54,7 +54,7 @@ public class PhidgetReader {
 
     static {
         for (int i = 0; i < 2; i++) {
-            lcdLines[i] = CluckGlobals.encoder.subscribeStringHolder("phidget-lcd0", "?");
+            lcdLines[i] = CluckGlobals.encoder.subscribeStringHolder("phidget-lcd" + i, "?");
         }
     }
 }

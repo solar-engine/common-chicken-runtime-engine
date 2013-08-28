@@ -16,7 +16,6 @@ public class Inferno extends SimpleCore {
 
     public static final boolean IS_COMPETITION_ROBOT = true;
     public static final long FRISBEE_SERVO_DELAY_MILLIS = 500;
-    
     private BooleanInput isKiddieMode;
 
     private void createShifting() {
@@ -70,7 +69,7 @@ public class Inferno extends SimpleCore {
     }
 
     private void createPotentiometerReadout(FloatInputPoll pot) {
-        makeDSFloatReadout("Poten: ", 2, pot, globalPeriodic);
+        makeDSFloatReadout("Poten", 2, pot, globalPeriodic);
     }
 
     private void createArmButtonActions(BooleanStatus deactivateBrake) {
@@ -128,12 +127,13 @@ public class Inferno extends SimpleCore {
 
         final BooleanOutput leftLEDs = Mixing.combineBooleans(backArmLED, topArmLED, frontArmLED);
         final BooleanOutput rightLEDs = Mixing.combineBooleans(dropSuctionLED, leftSuctionLED, rightSuctionLED);
+        final BooleanInputPoll isDisabled = this.getIsDisabled(), isAuto = this.getIsAutonomous();
         new Timer().schedule(new TimerTask() {
             private int frame = 0;
 
             public void run() {
                 frame++;
-                if (DriverStation.getInstance().isDisabled()) {
+                if (isDisabled.readValue()) {
                     frame %= 12;
                     backArmLED.writeValue(frame < 2);
                     topArmLED.writeValue(frame >= 2 && frame < 4);
@@ -141,7 +141,7 @@ public class Inferno extends SimpleCore {
                     rightSuctionLED.writeValue(frame >= 6 && frame < 8);
                     dropSuctionLED.writeValue(frame >= 8 && frame < 10);
                     leftSuctionLED.writeValue(frame >= 10);
-                } else if (DriverStation.getInstance().isAutonomous()) {
+                } else if (isAuto.readValue()) {
                     frame %= 8;
                     boolean on = frame < 4;
                     leftLEDs.writeValue(on);
@@ -203,7 +203,7 @@ public class Inferno extends SimpleCore {
         final FloatInputPoll pressure = Mixing.normalizeFloat(makeAnalogInput_ValueBased(1, 14), 100, 587);
         globalPeriodic.addListener(new EventConsumer() {
             public void eventFired() {
-                PhidgetReader.lcdLines[0].set("Pressure: " + ((int) (pressure.readValue() / 100)) + "%");
+                PhidgetReader.lcdLines[0].set("Pressure: " + ((int) (pressure.readValue() * 100)) + "%");
             }
         });
         useCustomCompressor(Mixing.floatIsAtLeast(pressure, 1.0f), 1);

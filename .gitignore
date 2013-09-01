@@ -1,7 +1,5 @@
-/CommonChickenRuntimeEngine/build/
-/CommonChickenRuntimeEngine/dist/
+/CommonChickenRuntimeEngine/build
 /CCRE_Igneous/build/
 /Sample Igneous Robot/build/
 /Igneous Emulator/nbproject/private/
 /Igneous Emulator/build/
-/Igneous Emulator/dist/

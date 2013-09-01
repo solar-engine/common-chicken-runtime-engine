@@ -1,10 +1,11 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <!--
 
     This is a sample netbeans project file for a Sun Spot Application project.
     You may edit it freely, it doesn't affect the ant-powered build.
 
- --><project xmlns="http://www.netbeans.org/ns/project/1">
+ -->
+<project xmlns="http://www.netbeans.org/ns/project/1">
     <type>org.netbeans.modules.ant.freeform</type>
     <configuration>
         <general-data xmlns="http://www.netbeans.org/ns/freeform-project/1">
@@ -43,6 +44,9 @@
                 <action name="javadoc">
                     <target>javadoc</target>
                 </action>
+                <action name="test">
+                    <target>run-emulator</target>
+                </action>
             </ide-actions>
             <export>
                 <type>folder</type>
@@ -61,11 +65,12 @@
                 </items>
                 <context-menu>
                     <ide-action name="build"/>
-                    <ide-action name="clean"/>
-                    <ide-action name="run"/>
                     <ide-action name="rebuild"/>
-                    <ide-action name="debug"/>
+                    <ide-action name="clean"/>
                     <ide-action name="javadoc"/>
+                    <ide-action name="run"/>
+                    <ide-action name="test"/>
+                    <ide-action name="debug"/>
                     <action>
                         <label>Sun SPOT-deploy</label>
                         <target>deploy</target>
@@ -83,7 +88,7 @@
             <compilation-unit>
                 <package-root>src</package-root>
                 <classpath mode="boot">${sunspot.home}\lib\squawk.jar</classpath>
-                <classpath mode="compile">${sunspot.home}\lib\wpilibj.jar;${sunspot.home}\lib\networktables-crio.jar</classpath>
+                <classpath mode="compile">${sunspot.home}\lib\wpilibj.jar;${sunspot.home}\lib\networktables-crio.jar;../CCRE_Igneous/dist/Igneous.jar</classpath>
                 <built-to>build</built-to>
                 <source-level>1.4</source-level>
             </compilation-unit>

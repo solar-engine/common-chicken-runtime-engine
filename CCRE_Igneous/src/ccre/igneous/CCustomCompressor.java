@@ -1,7 +1,6 @@
 package ccre.igneous;
 
 import ccre.chan.BooleanInputPoll;
-import ccre.chan.BooleanStatus;
 import ccre.concurrency.ReporterThread;
 import edu.wpi.first.wpilibj.Relay;
 
@@ -19,11 +18,6 @@ class CCustomCompressor extends ReporterThread {
      */
     private BooleanInputPoll pressureSwitch;
     /**
-     * The status that represents whether or not this is enabled (independently
-     * of the pressure switch).
-     */
-    public BooleanStatus isEnabled = new BooleanStatus();
-    /**
      * The relay that controls the compressor.
      */
     private Relay relay;
@@ -40,16 +34,11 @@ class CCustomCompressor extends ReporterThread {
         super("Custom-Compressor");
         this.pressureSwitch = pressureSwitch;
         relay = new Relay(compressorRelayChannel, Relay.Direction.kForward);
-        start();
     }
 
     protected void threadBody() throws InterruptedException {
         while (true) {
-            if (isEnabled.readValue()) {
-                relay.set(!pressureSwitch.readValue() ? Relay.Value.kOn : Relay.Value.kOff);
-            } else {
-                relay.set(Relay.Value.kOff);
-            }
+            relay.set(pressureSwitch.readValue() ? Relay.Value.kOff : Relay.Value.kOn);
             Thread.sleep(500);
         }
     }

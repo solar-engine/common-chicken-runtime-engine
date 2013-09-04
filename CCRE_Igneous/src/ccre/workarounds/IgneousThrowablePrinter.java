@@ -44,6 +44,8 @@ public class IgneousThrowablePrinter extends ThrowablePrinter {
         if (message != null) {
             pstr.print(": ");
             pstr.println(message);
+        } else {
+            pstr.println();
         }
         ExecutionPoint[] trace = (ExecutionPoint[]) NativeUnsafe.getObject(thr, (int) FieldOffsets.java_lang_Throwable$trace);
         if (thr != VM.getOutOfMemoryError() && trace != null) {
@@ -51,8 +53,9 @@ public class IgneousThrowablePrinter extends ThrowablePrinter {
                 if (trace[i] != null) {
                     pstr.print("    ");
                     trace[i].print(pstr);
+                    pstr.println();
                 } else {
-                    pstr.print("    undecipherable");
+                    pstr.println("    undecipherable");
                 }
             }
         }

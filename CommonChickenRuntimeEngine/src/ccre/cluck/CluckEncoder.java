@@ -310,6 +310,7 @@ public class CluckEncoder {
                         }
                     }
                 });
+                server.publish(chan, new byte[] {0});
                 return this;
             }
         }.register();

@@ -1,7 +1,9 @@
 package ccre.chan;
 
+import ccre.cluck.CluckEncoder;
 import ccre.event.EventConsumer;
 import ccre.event.EventSource;
+import ccre.holders.FloatTuner;
 import ccre.util.CArrayList;
 import ccre.util.CArrayUtils;
 
@@ -15,7 +17,7 @@ import ccre.util.CArrayUtils;
  *
  * @author skeggsc
  */
-public class FloatStatus implements FloatOutput, FloatInput {
+public class FloatStatus implements FloatOutput, FloatInput, FloatTuner {
 
     /**
      * Create a new FloatStatus.
@@ -160,5 +162,25 @@ public class FloatStatus implements FloatOutput, FloatInput {
         } else {
             return false;
         }
+    }
+
+    public FloatInputProducer getAutomaticChannel() {
+        return null;
+    }
+
+    public FloatInputProducer getAutomaticChannel(CluckEncoder encoder) {
+        return null;
+    }
+
+    public Float getCurrentValue() {
+        return readValue();
+    }
+
+    public String getNetworkChannelForAutomatic() {
+        return null;
+    }
+
+    public void tuneTo(float newValue) {
+        writeValue(newValue);
     }
 }

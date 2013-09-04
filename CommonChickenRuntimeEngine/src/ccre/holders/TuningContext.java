@@ -71,20 +71,38 @@ public class TuningContext {
 
     /**
      * Get a FloatStatus with the specified name and default value. This will be
-     * tunable over the network (shared as a FloatOutput) and saved on the cRIO
-     * once flush() is called.
+     * tunable over the network and saved on the cRIO once flush() is called.
      *
      * @param name the name of the tunable value.
      * @param default_ the default value.
      * @return the FloatStatus representing the current value.
      */
     public FloatStatus getFloat(String name, float default_) {
-        name = "tune-" + name;
         FloatStatus out = new FloatStatus();
         out.writeValue(default_);
         out.hasBeenModified = false;
         seg.attachFloatHolder(name, out);
-        enc.publishFloatOutput(name, out);
+        enc.publishTunableFloat(name, out, null);
+        return out;
+    }
+
+    /**
+     * Get a FloatStatus with the specified name, default value, and the name of
+     * a encoded channel for a FloatInputProducer that should be an option to
+     * tune the variable to. This will be tunable over the network and saved on
+     * the cRIO once flush() is called.
+     *
+     * @param name the name of the tunable value.
+     * @param default_ the default value.
+     * @param targetref the name of the shared value for the tuning's default.
+     * @return the FloatStatus representing the current value.
+     */
+    public FloatStatus getFloat(String name, float default_, String targetref) {
+        FloatStatus out = new FloatStatus();
+        out.writeValue(default_);
+        out.hasBeenModified = false;
+        seg.attachFloatHolder(name, out);
+        enc.publishTunableFloat(name, out, targetref);
         return out;
     }
 

@@ -11,6 +11,8 @@ import ccre.chan.FloatStatus;
 import ccre.event.Event;
 import ccre.event.EventConsumer;
 import ccre.event.EventSource;
+import ccre.holders.AbstractFloatTuner;
+import ccre.holders.FloatTuner;
 import ccre.holders.StringHolder;
 import ccre.log.LogLevel;
 import ccre.log.Logger;
@@ -175,6 +177,144 @@ public class CluckEncoder {
      */
     public void unsubscribePublished(AvailableListener listener) {
         server.unsubscribe("ENCODER-LIST-RESPONSE", listener);
+    }
+
+    /**
+     * Publish a FloatTuner that allows for it to be easily tuned remotely. Also
+     * takes an optional argument that represents a previously shared channel
+     * that should be the default tuning target (a published
+     * FloatInputProducer).
+     *
+     * @param name the name to put the tuning under.
+     * @param tune the FloatTuner to share.
+     * @param targetref (optional) the name of the FloatInputProducer to use as
+     * a default.
+     */
+    public void publishTunableFloat(String name, final FloatTuner tune, String targetref) {
+        final String chan = "TUNE:" + name;
+        if (targetref == null) {
+            targetref = tune.getNetworkChannelForAutomatic();
+        }
+        final byte[] bts;
+        if (targetref != null) {
+            byte[] bts_orig = targetref.getBytes();
+            // preallocate and fill with default values for use in ping responses.
+            bts = new byte[bts_orig.length + 5];
+            bts[0] = 1;
+            System.arraycopy(bts_orig, 0, bts, 5, bts_orig.length);
+        } else {
+            bts = new byte[5];
+            bts[0] = 2;
+        }
+        provided.add(chan);
+        server.subscribe(chan, new CluckChannelListener() {
+            public void receive(String channel, byte[] data) {
+                if (!chan.equals(channel)) {
+                    return;
+                }
+                int cti;
+                Float cur;
+                switch (data[0]) {
+                    case 0: // ping for current value and target
+                        cur = tune.getCurrentValue();
+                        if (cur != null) {
+                            cti = Float.floatToIntBits(cur);
+                            bts[1] = (byte) cti;
+                            bts[2] = (byte) (cti >> 8);
+                            bts[3] = (byte) (cti >> 16);
+                            bts[4] = (byte) (cti >> 24);
+                            server.publish(channel, bts);
+                        }
+                        break;
+                    case 1: // notify current value and target
+                        for (int i = 5; i < bts.length; i++) {
+                            if (bts[i] != data[i]) {
+                                Logger.warning("Tuning publisher received mismatched tuning name broadcast!");
+                            }
+                        }
+                    case 2: // notify updated value
+                        cur = tune.getCurrentValue();
+                        if (cur != null) {
+                            cti = Float.floatToIntBits(cur);
+                            if (data[1] != (byte) cti || data[2] != (byte) (cti >> 8) || data[3] != (byte) (cti >> 16) || data[4] != (byte) (cti >> 24)) {
+                                Logger.warning("Tuning publisher received mismatched tuning value broadcast!");
+                            }
+                        }
+                        break;
+                    case 3: // request modification of current value
+                        tune.tuneTo(Float.intBitsToFloat((data[1] & 0xff) | ((data[2] & 0xff) << 8) | ((data[3] & 0xff) << 16) | ((data[4] & 0xff) << 24)));
+                        break;
+                }
+            }
+        });
+        tune.addTarget(new FloatOutput() {
+            public void writeValue(float value) {
+                int cti = Float.floatToIntBits(tune.readValue());
+                server.publish(chan, new byte[]{2, (byte) cti, (byte) (cti >> 8), (byte) (cti >> 16), (byte) (cti >> 24)});
+            }
+        });
+        server.publish("ENCODER-LIST-RESPONSE", chan.getBytes());
+    }
+
+    /**
+     * Subscribe to a FloatStatus and return a FloatTuner for easy tuning.
+     *
+     * @param name the name to look for the tuning under.
+     * @return the FloatTuner that has been received.
+     */
+    public FloatTuner subscribeTunableFloat(String name) {
+        final String chan = "TUNE:" + name;
+        FloatTuner out = (FloatTuner) cache.get(chan);
+        if (out != null) {
+            return out;
+        }
+        out = new AbstractFloatTuner() {
+            public Float curval = null;
+            public String nettarget = null;
+
+            @Override
+            public void tuneTo(float newValue) {
+                int cti = Float.floatToIntBits(newValue);
+                server.publish(chan, new byte[]{3, (byte) cti, (byte) (cti >> 8), (byte) (cti >> 16), (byte) (cti >> 24)});
+            }
+
+            @Override
+            public Float getCurrentValue() {
+                return curval;
+            }
+
+            @Override
+            public String getNetworkChannelForAutomatic() {
+                return nettarget;
+            }
+
+            private FloatTuner register() {
+                server.subscribe(chan, new CluckChannelListener() {
+                    public void receive(String channel, byte[] data) {
+                        if (!chan.equals(channel)) {
+                            return;
+                        }
+                        switch (data[0]) {
+                            case 1: // notify current value and target
+                                String tgt = new String(data, 5, data.length - 5);
+                                if (nettarget != null) {
+                                    if (!tgt.equals(nettarget)) {
+                                        Logger.warning("Automatic tuning targets should not generally be updated!");
+                                    }
+                                }
+                                nettarget = tgt;
+                            case 2: // notify updated value
+                                curval = Float.intBitsToFloat((data[1] & 0xff) | ((data[2] & 0xff) << 8) | ((data[3] & 0xff) << 16) | ((data[4] & 0xff) << 24));
+                                notifyConsumers();
+                                break;
+                        }
+                    }
+                });
+                return this;
+            }
+        }.register();
+        cache.put(chan, out);
+        return out;
     }
 
     /**
@@ -649,8 +789,8 @@ public class CluckEncoder {
      * Subscribe to a StringHolder on the network. This will synchronize the
      * StringHolder with all other registered StringHolders of the same name.
      *
-     * This is the same as a call to registerStringHolder, except
-     * that it creates a StringHolder beforehand.
+     * This is the same as a call to registerStringHolder, except that it
+     * creates a StringHolder beforehand.
      *
      * @param name the name of the StringHolder
      * @param default_ the default value of the new StringHolder (does not

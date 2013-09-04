@@ -24,10 +24,10 @@ public class PController implements EventConsumer {
     private static final float DEF_ARM_DRIVE_PRESET = Inferno.IS_COMPETITION_ROBOT ? 0.571f : 4.777641946f;
     private static final float DEF_ARM_LOAD_PRESET = Inferno.IS_COMPETITION_ROBOT ? 0.571f : 3.693807046f;
     // These are not used in this file, but are in Inferno.java
-    public static final FloatStatus ARM_PICKUP_PRESET = context.getFloat("arm-pickup", DEF_ARM_PICKUP_PRESET);
-    public static final FloatStatus ARM_DROP_PRESET = context.getFloat("arm-drop", DEF_ARM_DROP_PRESET);
-    public static final FloatStatus ARM_DRIVE_PRESET = context.getFloat("arm-drive", DEF_ARM_DRIVE_PRESET);
-    public static final FloatStatus ARM_LOAD_PRESET = context.getFloat("arm-load", DEF_ARM_LOAD_PRESET);
+    public static final FloatStatus ARM_PICKUP_PRESET = context.getFloat("arm-pickup", DEF_ARM_PICKUP_PRESET, "arm-potentiometer");
+    public static final FloatStatus ARM_DROP_PRESET = context.getFloat("arm-drop", DEF_ARM_DROP_PRESET, "arm-potentiometer");
+    public static final FloatStatus ARM_DRIVE_PRESET = context.getFloat("arm-drive", DEF_ARM_DRIVE_PRESET, "arm-potentiometer");
+    public static final FloatStatus ARM_LOAD_PRESET = context.getFloat("arm-load", DEF_ARM_LOAD_PRESET, "arm-potentiometer");
     public BooleanStatus enabled = new BooleanStatus();
     public BooleanInputPoll suspendOnceStable = Mixing.alwaysFalse;
     public BooleanInputPoll isBrakeDeactivated = Mixing.alwaysFalse;
@@ -55,6 +55,7 @@ public class PController implements EventConsumer {
     }
 
     public void eventFired() {
+        System.out.println("arm pickup preset: " + ARM_PICKUP_PRESET.readValue());
         if (!enabled.readValue()) {
             output.writeValue(disabledSource.readValue());
         } else {

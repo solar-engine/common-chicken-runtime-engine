@@ -54,6 +54,7 @@ public class Inferno extends SimpleCore {
     private void createArm() {
         FloatInputPoll manualArm = PhidgetReader.analogInputs[5];
         FloatInputPoll armPotentiometer = makeAnalogInput(2, 9);
+        CluckGlobals.encoder.publishFloatInputProducer("arm-potentiometer", Mixing.createDispatch(armPotentiometer, globalPeriodic));
         FloatOutput armMotor = IS_COMPETITION_ROBOT ? makeTalonMotor(6, MOTOR_REVERSE) : makeVictorMotor(6, MOTOR_REVERSE);
 
         createPotentiometerReadout(armPotentiometer);
@@ -254,7 +255,6 @@ public class Inferno extends SimpleCore {
 
 /*
  * Current bugs:
- * [MEDIUM] Tuning system needs an overhaul. There's no easy way to tune.
  * [LOW] Disconnection is not noticed promptly.
  * [LOW] Disconnection issue and publishing ConcurrentModificationException. (Should: Put it in an array)
  * [LOW] No reset of IO when phidget gets attached.
@@ -264,8 +264,7 @@ public class Inferno extends SimpleCore {
  *  Simple debugging methods.
  * 
  * Next in Inferno implementation:
- *  1. Tuning
- *  2. Climbing
- *  3. Shooting
- *  4. Autonomous
+ *  1. Climbing
+ *  2. Shooting
+ *  3. Autonomous
  */

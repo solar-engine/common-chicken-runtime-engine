@@ -1,14 +1,13 @@
 package org.team1540.infernodante;
 
 import ccre.chan.*;
+import ccre.cluck.CluckGlobals;
 import ccre.ctrl.*;
 import ccre.event.EventConsumer;
 import ccre.event.EventSource;
 import ccre.igneous.SimpleCore;
 import ccre.phidget.PhidgetReader;
 import ccre.util.ExpirationTimer;
-import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.DriverStationLCD;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -251,4 +250,22 @@ public class Inferno extends SimpleCore {
  *      Launch Sequencer
  *      Readout of launchability
  * [AVAILABLE IN LIBRARY] Utilities
+ */
+
+/*
+ * Current bugs:
+ * [MEDIUM] Tuning system needs an overhaul. There's no easy way to tune.
+ * [LOW] Disconnection is not noticed promptly.
+ * [LOW] Disconnection issue and publishing ConcurrentModificationException. (Should: Put it in an array)
+ * [LOW] No reset of IO when phidget gets attached.
+ * [VERY LOW] Input rate is not modified on phidget.
+ * 
+ * Needed features:
+ *  Simple debugging methods.
+ * 
+ * Next in Inferno implementation:
+ *  1. Tuning
+ *  2. Climbing
+ *  3. Shooting
+ *  4. Autonomous
  */

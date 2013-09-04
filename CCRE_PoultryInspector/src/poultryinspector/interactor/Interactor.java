@@ -60,6 +60,11 @@ public class Interactor {
                     StringForm.create(name, CluckGlobals.encoder.subscribeStringHolder(name, "Waiting for data..."));
                 }
                 break;
+            case 'T':
+                if ("TUNE".equals(type)) {
+                    TuneForm.create(name, CluckGlobals.encoder.subscribeTunableFloat(name));
+                }
+                break;
         }
     }
 }

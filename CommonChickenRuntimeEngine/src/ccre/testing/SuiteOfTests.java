@@ -18,6 +18,7 @@ public class SuiteOfTests { // TODO: This package needs more tests!
     public static void main(String[] args) {
         new TestTests().test();
         new TestCArrayList().test();
+        new TestConcurrentDispatchArray().test();
         new TestEvent().test();
         new TestCHashMapPartial().test();
     }

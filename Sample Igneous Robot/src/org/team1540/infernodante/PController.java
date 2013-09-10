@@ -17,6 +17,9 @@ public class PController implements EventConsumer {
     private static final float MEDIUM_SPEED = 0.35f;
     private static final float LOW_SPEED = 0.08f;
     public static final TuningContext context = new TuningContext(CluckGlobals.encoder, "armTuning");
+    static {
+        context.publishSavingEvent("armTuning");
+    }
     public static final FloatStatus STABLE_RANGE = context.getFloat("arm-stable", 0.17f);
     public static final FloatStatus DEADZONE_RANGE = context.getFloat("arm-deadzone", 0.1f);
     private static final float DEF_ARM_PICKUP_PRESET = Inferno.IS_COMPETITION_ROBOT ? 4.22f : 5.111649321f;
@@ -55,11 +58,11 @@ public class PController implements EventConsumer {
     }
 
     public void eventFired() {
-        System.out.println("arm pickup preset: " + ARM_PICKUP_PRESET.readValue());
         if (!enabled.readValue()) {
             output.writeValue(disabledSource.readValue());
         } else {
             if (!isBrakeDeactivated.readValue() || (isStable() && suspendOnceStable.readValue())) {
+                output.writeValue(0);
                 return;
             }
             // postive UP negative DOWN

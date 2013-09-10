@@ -93,7 +93,7 @@ public class IgneousStorageProvider extends StorageProvider {
                             String key = (String) itr.next();
                             byte[] bytes = (byte[]) data.get(key);
                             dout.writeUTF(key);
-                            if ((bytes.length & 0xFFFF) != 0xFFFF) {
+                            if ((bytes.length & 0xffff) != bytes.length) {
                                 throw new IOException("Value cannot fit in 65535 bytes!");
                             }
                             dout.writeShort(bytes.length);

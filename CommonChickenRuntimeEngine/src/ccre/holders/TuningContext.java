@@ -3,6 +3,7 @@ package ccre.holders;
 import ccre.chan.FloatStatus;
 import ccre.cluck.CluckEncoder;
 import ccre.cluck.CluckNode;
+import ccre.event.EventConsumer;
 import ccre.saver.StorageProvider;
 import ccre.saver.StorageSegment;
 
@@ -111,5 +112,23 @@ public class TuningContext {
      */
     public void flush() {
         seg.flush();
+    }
+
+    /**
+     * Get an event that flushes this object.
+     *
+     * @return the EventConsumer that will flush this object.
+     * @see #flush()
+     */
+    public EventConsumer getFlushEvent() {
+        return new EventConsumer() {
+            public void eventFired() {
+                flush();
+            }
+        };
+    }
+    
+    public void publishSavingEvent(String name) {
+        enc.publishEventConsumer("Save Tuning for " + name, getFlushEvent());
     }
 }

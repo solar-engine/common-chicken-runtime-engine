@@ -8,6 +8,7 @@ import ccre.net.Network;
 import ccre.util.CArrayList;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
+import java.io.EOFException;
 import java.io.IOException;
 
 /**
@@ -102,6 +103,7 @@ public class CluckNetworkedClient extends ReporterThread implements CluckChannel
 
     @Override
     protected void threadBody() throws Throwable {
+        Logger.finer("Client connected");
         try {
             node.subscribe(null, this);
             node.subscribeToSubscriptions(this);
@@ -120,7 +122,11 @@ public class CluckNetworkedClient extends ReporterThread implements CluckChannel
                     Logger.warning("Invalid messagetype byte: " + type);
                 }
             }
+        } catch (EOFException e) {
+            node.unsubscribe(null, this);
+            Logger.finer("Client disconnected.");
         } catch (IOException e) {
+            node.unsubscribe(null, this);
             Logger.log(LogLevel.FINER, "IOException in client", e);
         } finally {
             node.unsubscribe(null, this);

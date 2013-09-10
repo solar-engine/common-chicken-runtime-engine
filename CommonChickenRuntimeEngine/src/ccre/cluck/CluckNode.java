@@ -1,10 +1,10 @@
 package ccre.cluck;
 
+import ccre.concurrency.ConcurrentDispatchArray;
 import ccre.log.LogLevel;
 import ccre.log.Logger;
-import ccre.util.CArrayList;
+import ccre.util.CCollection;
 import ccre.util.CHashMap;
-import ccre.util.CLinkedList;
 
 /**
  * A message router for Cluck. Allows for listeners to subscribe to various
@@ -18,16 +18,16 @@ public class CluckNode {
      * The mapping between channels and the listeners that want to receive data
      * for the channel.
      */
-    protected CHashMap<String, CLinkedList<CluckChannelListener>> channels = new CHashMap<String, CLinkedList<CluckChannelListener>>();
+    protected CHashMap<String, CCollection<CluckChannelListener>> channels = new CHashMap<String, CCollection<CluckChannelListener>>();
     /**
      * The listeners that want to receive all data coming across this node.
      */
-    protected CArrayList<CluckChannelListener> wildcarded = new CArrayList<CluckChannelListener>();
+    protected CCollection<CluckChannelListener> wildcarded = new ConcurrentDispatchArray<CluckChannelListener>();
     /**
      * The listeners that want to know when a new channel is subscribed to, or
      * when a channel loses all subscribers.
      */
-    protected CArrayList<CluckSubscriptionListener> subscriptionListeners = new CArrayList<CluckSubscriptionListener>();
+    protected CCollection<CluckSubscriptionListener> subscriptionListeners = new ConcurrentDispatchArray<CluckSubscriptionListener>();
 
     /**
      * Register a subscripting listener. Whenever a channel receives its first
@@ -41,7 +41,7 @@ public class CluckNode {
     public synchronized void subscribeToSubscriptions(CluckSubscriptionListener listener) {
         subscriptionListeners.add(listener);
         for (String keyname : channels) {
-            CLinkedList<CluckChannelListener> cl = channels.get(keyname);
+            CCollection<CluckChannelListener> cl = channels.get(keyname);
             if (!cl.isEmpty()) {
                 listener.addSubscription(keyname);
             }
@@ -72,17 +72,17 @@ public class CluckNode {
         if (channel == null) {
             wildcarded.add(listener);
         } else {
-            CLinkedList<CluckChannelListener> lsns = channels.get(channel);
+            CCollection<CluckChannelListener> lsns = channels.get(channel);
             if (lsns == null || lsns.isEmpty()) {
                 for (CluckSubscriptionListener c : subscriptionListeners) {
                     c.addSubscription(channel);
                 }
             }
             if (lsns == null) {
-                lsns = new CLinkedList<CluckChannelListener>();
+                lsns = new ConcurrentDispatchArray<CluckChannelListener>();
                 channels.put(channel, lsns);
             }
-            lsns.addLast(listener);
+            lsns.add(listener);
         }
     }
 
@@ -98,7 +98,7 @@ public class CluckNode {
         if (channel == null) {
             wildcarded.remove(listener);
         } else {
-            CLinkedList<CluckChannelListener> lsns = channels.get(channel);
+            CCollection<CluckChannelListener> lsns = channels.get(channel);
             if (lsns != null) {
                 lsns.remove(listener);
                 if (lsns.isEmpty()) {
@@ -146,7 +146,7 @@ public class CluckNode {
                 Logger.log(LogLevel.WARNING, "Throwable during Cluck wildcard publish", thr);
             }
         }
-        CLinkedList<CluckChannelListener> chs = channels.get(channel);
+        CCollection<CluckChannelListener> chs = channels.get(channel);
         if (chs == null) {
             return;
         }

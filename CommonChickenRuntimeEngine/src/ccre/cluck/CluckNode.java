@@ -1,10 +1,14 @@
 package ccre.cluck;
 
 import ccre.concurrency.ConcurrentDispatchArray;
+import ccre.concurrency.ReporterThread;
 import ccre.log.LogLevel;
 import ccre.log.Logger;
+import ccre.net.Network;
 import ccre.util.CCollection;
 import ccre.util.CHashMap;
+import ccre.util.ExpirationTimer;
+import java.util.Random;
 
 /**
  * A message router for Cluck. Allows for listeners to subscribe to various
@@ -14,6 +18,38 @@ import ccre.util.CHashMap;
  */
 public class CluckNode {
 
+    /**
+     * Create a new CluckNode and generate its nodeID.
+     *
+     * Parts of a node ID:
+     * <ul>
+     * <li>The hashCode of the CluckNode</li>
+     * <li>The current time in milliseconds</li>
+     * <li>The
+     * <code>microedition.platform</code> system property.</li>
+     * <li>The type of Networking subsystem in use.</li>
+     * </ul>
+     *
+     * @see java.lang.Object#hashCode()
+     * @see java.lang.System#currentTimeMillis()
+     * @see java.lang.System#getProperty(java.lang.String)
+     * @see ccre.net.Network#getPlatformType()
+     */
+    public CluckNode() {
+        String nv = System.getProperty("microedition.platform");
+        if (nv == null) {
+            nv = System.getProperty("java.version");
+        }
+        nodeID = "N" + nv + ":" + Network.getPlatformType() + ":" + Integer.toHexString(hashCode()) + ":" + System.currentTimeMillis();
+    }
+    /**
+     * A hopefully-unique identifier for this node, and this node only.
+     */
+    public final String nodeID;
+    /**
+     * Has this CluckNode started its ping functionality?
+     */
+    protected boolean hasInit = false;
     /**
      * The mapping between channels and the listeners that want to receive data
      * for the channel.
@@ -133,6 +169,10 @@ public class CluckNode {
      * @see #publish(java.lang.String, byte[])
      */
     public synchronized void publish(String channel, byte[] data, CluckChannelListener ignore) {
+        if (!hasInit) {
+            Logger.warning("Cluck node not initted! Done automatically.");
+            doInit();
+        }
         if (data == null) {
             data = empty;
         }
@@ -160,5 +200,44 @@ public class CluckNode {
                 Logger.log(LogLevel.WARNING, "Throwable during Cluck publish: " + channel, thr);
             }
         }
+    }
+
+    @Override
+    public String toString() {
+        return nodeID;
+    }
+
+    protected void doInit() {
+        if (hasInit) {
+            Logger.warning("CluckNode initted multiple times!");
+            return;
+        }
+        hasInit = true;
+        publish("^node-added-element", nodeID.getBytes());
+        new ReporterThread("Node-" + nodeID + "-Pinger") {
+            private long lastReceived = 0;
+            private Random rand = new Random();
+            
+            @Override
+            protected void threadBody() throws Throwable {
+                if (lastReceived + rand.nextInt(2000) + 500 < System.currentTimeMillis()) {
+                    long l = lastReceived;
+                    publish("^node-ping", empty);
+                    if (l == lastReceived) {
+                        lastReceived = System.currentTimeMillis() + 30000;
+                        Logger.warning("Ping did not loopback! Internal error!");
+                    }
+                }
+            }
+
+            private void cnstart() {
+                subscribe("^node-ping", new CluckChannelListener() {
+                    public void receive(String channel, byte[] data) {
+                        publish("^node-ping-response", nodeID.getBytes());
+                        lastReceived = System.currentTimeMillis();
+                    }
+                });
+            }
+        }.cnstart();
     }
 }

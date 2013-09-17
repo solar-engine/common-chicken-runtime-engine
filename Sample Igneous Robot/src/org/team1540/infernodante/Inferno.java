@@ -198,6 +198,16 @@ public class Inferno extends SimpleCore {
             }
         }, 50, 100);
     }
+    
+    private void createClimber() {
+        MultipleSourceBooleanController valve = new MultipleSourceBooleanController(MultipleSourceBooleanController.OR);
+        valve.addTarget(makeSolenoid(8));
+        valve.addInput(PhidgetReader.digitalInputs[3]);
+        BooleanStatus climbControl = new BooleanStatus(makeSolenoid(6));
+        valve.addInput(climbControl);
+        climbControl.setTrueWhen(Mixing.filterEvent(PhidgetReader.digitalInputs[1], true, duringTeleop));
+        climbControl.setFalseWhen(Mixing.filterEvent(PhidgetReader.digitalInputs[3], true, duringTeleop));
+    }
 
     private void createPressureMonitoring() {
         final FloatInputPoll pressure = Mixing.normalizeFloat(makeAnalogInput_ValueBased(1, 14), 100, 587);
@@ -217,6 +227,7 @@ public class Inferno extends SimpleCore {
         createShooterPistons();
         createArm();
         createArmDropper();
+        createClimber();
         createPressureMonitoring();
     }
 }
@@ -264,6 +275,5 @@ public class Inferno extends SimpleCore {
  * 
  * Next in Inferno implementation:
  *  1. Climbing
- *  2. Shooting
- *  3. Autonomous
+ *  2. Autonomous
  */

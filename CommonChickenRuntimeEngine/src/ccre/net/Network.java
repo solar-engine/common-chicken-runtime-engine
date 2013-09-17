@@ -43,6 +43,14 @@ public class Network {
          * @return a collection of the IPv4 addresses of the current system.
          */
         CCollection<String> listIPv4Addresses();
+
+        /**
+         * Gets a string representing the platform type for this system. This is
+         * used by CluckNode to create a node ID.
+         *
+         * @return The platform type string.
+         */
+        public String getPlatformType();
     }
     /**
      * The current network provider.
@@ -106,5 +114,15 @@ public class Network {
      */
     public static CCollection<String> listIPv4Addresses() {
         return getProvider().listIPv4Addresses();
+    }
+
+    /**
+     * Gets a string representing the platform type for this system. This is
+     * used by CluckNode to create a node ID.
+     *
+     * @return The platform type string.
+     */
+    public static String getPlatformType() {
+        return getProvider().getPlatformType();
     }
 }

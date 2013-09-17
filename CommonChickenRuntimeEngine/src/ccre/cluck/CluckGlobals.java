@@ -36,6 +36,7 @@ public class CluckGlobals {
     public static void ensureInitializedCore() {
         if (node == null) {
             node = new CluckNode();
+            node.doInit();
         }
         if (encoder == null) {
             encoder = new CluckEncoder(node);

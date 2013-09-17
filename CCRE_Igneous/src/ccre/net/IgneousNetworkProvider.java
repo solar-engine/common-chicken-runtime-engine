@@ -93,4 +93,8 @@ public class IgneousNetworkProvider implements Network.Provider {
         int team = DriverStation.getInstance().getTeamNumber();
         return CArrayUtils.asList(new Object[]{"127.0.0.1", "10." + (team / 100) + "." + (team % 100) + "." + 2});
     }
+
+    public String getPlatformType() {
+        return "NetIgneous";
+    }
 }

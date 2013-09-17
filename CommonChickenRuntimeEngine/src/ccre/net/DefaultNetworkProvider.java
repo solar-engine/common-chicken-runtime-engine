@@ -31,6 +31,10 @@ public class DefaultNetworkProvider implements Network.Provider {
         return new ClientSocketImpl(new Socket(targetAddress, port));
     }
 
+    public String getPlatformType() {
+        return "NetFull";
+    }
+
     /**
      * Implementation detail.
      */

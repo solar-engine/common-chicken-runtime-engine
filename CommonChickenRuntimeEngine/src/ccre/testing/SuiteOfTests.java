@@ -1,5 +1,7 @@
 package ccre.testing;
 
+import ccre.cluck.CluckNode;
+
 /**
  * The suite of tests to run. This will run all of the current tests.
  *

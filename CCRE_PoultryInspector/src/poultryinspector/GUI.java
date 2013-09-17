@@ -62,7 +62,7 @@ public class GUI extends javax.swing.JFrame {
      * The PhidgetMonitor that allows for the phidget to be shared over the
      * network.
      */
-    public PhidgetMonitor phidget = new PhidgetMonitor();
+    public PhidgetMonitor phidget = null;//new PhidgetMonitor();
     /**
      * The worker thread that is used to reconnect to the robot (or other cluck server).
      */
@@ -104,7 +104,9 @@ public class GUI extends javax.swing.JFrame {
                 labPhidget.setForeground(bln ? colTrue : colFalse);
             }
         });
-        phidget.share(encoder);
+        if (phidget != null) {
+            phidget.share(encoder);
+        }
     }
 
     /**

@@ -37,7 +37,7 @@ public class LogLevel {
     public static final LogLevel FINE = new LogLevel((byte) -3, "FINE", "FINE");
     /**
      * A mid-level debugging message. This can be caused by anything, and can be
-     * called relatively often.
+     * logged relatively often.
      */
     public static final LogLevel FINER = new LogLevel((byte) -6, "FINER", "FINR");
     /**

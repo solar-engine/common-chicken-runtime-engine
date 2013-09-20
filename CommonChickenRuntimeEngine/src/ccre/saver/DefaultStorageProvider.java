@@ -80,7 +80,7 @@ public class DefaultStorageProvider extends StorageProvider {
                         for (String key : data) {
                             byte[] bytes = data.get(key);
                             dout.writeUTF(key);
-                            if ((bytes.length & 0xFFFF) != 0xFFFF) {
+                            if ((short) (bytes.length) != bytes.length) {
                                 throw new IOException("Value cannot fit in 65535 bytes!");
                             }
                             dout.writeShort(bytes.length);

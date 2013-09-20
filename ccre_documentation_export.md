@@ -327,15 +327,118 @@ For example, here are the methods provided by a BooleanInputProducer:
 
 This relation to Outputs is similar to the relation between EventSources and EventConsumers.
 
-WORKING HERE - Next are Inputs.
+Because of the relative difficulty in creating an implementation of InputProducers, a Status object (BooleanStatus or FloatStatus) is recommended instead of a custom implementation of InputProducer.
+
+#### Inputs
+
+An Input is an interface that combines an InputPoll and an InputProducer. Therefore, you can assign to an InputPoll or InputProducer from an Input.
 
 ### CCRE Logging
 
+The CCRE has a relatively comprehensive logging system, that supports sending messages with option exceptions attached to the console, other systems on the network, and anywhere else.
+
+#### Logging Levels
+
+A Logging Level, represented by the psuedo-enumeration ccre.log.LogLevel, represents the importance of a logged message. This is useful because in some cases, messages below a specified importance will not be shown.
+
+    LogLevel.SEVERE:  A severe error. This usually means that something major didn't work, or an impossible condition occurred.
+    LogLevel.WARNING: A warning. This usually means that something bad happened, but most things should probably still work.
+    LogLevel.INFO:    A piece of info. This usually means something happened that the user might want to know.
+    LogLevel.CONFIG:  A piece of configuration information. This usually means something that isn't really important, but is something triggered by configuration instead of normal operation.
+    LogLevel.FINE:    A top-level debugging message. This can be caused by anything, but probably shouldn't be logged particularly often.
+    LogLevel.FINER:   A mid-level debugging message. This can be caused by anything, and can be logged relatively often.
+    LogLevel.FINEST:  A low-level debugging message. This can be caused by anything, and might be called many times per second.
+
+#### Logging
+
+To log a message, the class Logger should generally be used. Logger contains quick methods to log simple messages under any logging level. For example
+
+    Logger.finest("Current value of x: " + x);
+    
+    Logger.info("I am aliiiiiiiive!");
+    
+    Logger.severe("Illegal command received! Now calling emergency services.");
+
+As well, these can be logged with a long-form logging method:
+
+    Logger.log(LogLevel.CONFIG, "Reset PID tuning to defaults.");
+
+A throwable (as in, Exception's superclass) can also be included. For example:
+
+    try {
+        monitorNuclearReactor();
+    } catch (CoreMeltdownException e) {
+        Logger.log(LogLevel.SEVERE, "Nuclear meltdown imminent!", e);
+    }
+    // Disclaimer: do not use this system to run a real nuclear reactor. it's not reliable enough.
+
 ### Cluck
+
+Cluck is the name for the subsystem that allows for easy out-of-FRC-band network communication. All objects needed for Cluck communication are created automatically in an Igneous application.
+
+The most useful object for Igneous applications is the CluckEncoder object found in CluckGlobals.encoder
+
+A CluckEncoder allows for channels and other objects to be published for the use of other networked applications and then subscribed to from those applications.
+
+Here is a partial list of what can be published:
+
+    ccre.chan.BooleanInputProducer
+    ccre.chan.BooleanOutput
+    ccre.chan.FloatInputProducer
+    ccre.chan.FloatOutput
+    ccre.event.EventSource
+    ccre.event.EventConsumer
+
+Here is a short partial usage example of Cluck:
+
+    // Node 1
+    FloatInputProducer curTime = ...;
+    CluckGlobals.encoder.publishFloatInputProducer("currentTime", curTime);
+    
+    // Node 2
+    FloatInputProducer curTimeOnNode1 = CluckGlobals.encoder.subscribeFloatInputProducer("currentTime");
+    ... do something with curTimeOnNode1 ...
 
 ### CCRE Networked Tuning
 
-### CCRE Networked Strings
+Cluck Networked Tuning is a system that allows for easy tuning of parts of a robot to new values, including saving tuning values.
+
+Here is a simple example of tuning:
+
+    public class TuningExample {
+        public static final TuningContext armTuningContext = new TuningContext(CluckGlobals.encoder, "arm_tuning").publishSavingEvent("Arm Tuning");
+        public static final FloatStatus armPickupPreset = armTuningContext.getFloat("arm pickup preset", 4.22f);
+        
+        public static float getTuning() {
+            return armPickupPreset.readValue();
+        }
+    }
+
+Let's break down this example:
+
+        public static final TuningContext armTuningContext
+
+The declaration for the variable that will contain the tuning context. A tuning context can be thought of as a collection of all the related things that could be kept track of. You could use one for the entire robot, or separate contexts for different subsystems.
+
+    armTuningContext = new TuningContext(CluckGlobals.encoder, "arm_tuning")
+
+Here the context is created. There are two main options - the encoder to use, which should be CluckGlobals.encoder unless you have a better idea, and the name of the context. The name is used as the storage key, and must only contain alphanumeric characters, underscore (_), and the currency symbol ($). If you change the name, then settings will be lost.
+
+    .publishSavingEvent("Arm Tuning");
+
+publishSavingEvent(String) will publish an event on the network to allow for saving the tuning settings. Without this, you will need to manually call .flush() on the context when you want to save the tuning settings. With this, there will be an option shared over the network to allow for saving with this name.
+
+    FloatStatus armPickupPreset = armTuningContext.getFloat("arm pickup preset", 4.22f);
+
+This creates a FloatStatus that contains the current value of the tuning. It will always contain the current value of the tuning, and can be read and modified like any other FloatStatus, but will also send new values across the network to any tuning panel, and allow for the value to be changed from across the network.
+
+"arm pickup preset" is the name of the property to tune. It should be different for different properties to prevent confusion within the system.
+
+4.22f is the default value - what is used if nothing is saved. If this value is modified in the source code, it will also modify the saved value on the robot once the code is ran, so you can also tune values from the source code as well as from a tuning panel.
+
+    armPickupPreset.readValue()
+
+This snippet of code will read the current value of the tuning parameter. Generally, this is what you will be doing with tuning parameters.
 
 ## Specific CCRE classes for implementation assistance.
 
@@ -343,17 +446,146 @@ This section contains more specific sections of the CCRE that are useful but not
 
 ### CArrayUtils
 
+CArrayUtils is a utility class for arrays and for CCollections.
+Quick overview of features (see javadoc for more details):
+
+    CList CArrayUtils.EMPTY_LIST - A CList that is always empty.
+    CList<T> CArrayUtils.getEmptyList() - Get an empty CList with elements of type T
+    Object[] CArrayUtils.copyOf(Object[], int) - Make a new copy of the given array, with the copy being of the specified length. Extra elements are filled with nulls, and missing elements are discarded.
+    CList<T> CArrayUtils.asList(T...) - Create a new fixed-length list from the given array.
+
 ### Concurrency
+
+The CCRE contains a handful of very useful classes to facilitate concurrency programming.
+
+#### ccre.concurrency.ReporterThread
+
+ReporterThread provides a very easy-to-use implementation of Thread that allows for simple threads to be created without a number of pitfalls.
+
+Example usage:
+
+    new ReporterThread("TestThread") {
+        protected void threadBody() throws Throwable {
+            // Do work.
+        }
+    }.start();
+
+This will create and start a new thread, automatically doing work of naming the thread (the name is autonumbered based on the name passed to the constructor), work of ensuring that threadBody() is not called multiple times or from outside of the thread, and catching any exceptions thrown from the thread body and reporting them via the CCRE's logging functionality.
+
+#### ccre.concurrency.CollapsingWorkerThread
+
+CollapsingWorkerThread is a special-purpose worker thread for the case when you want a once-at-a-time long-running action to not clog up other threads.
+
+This is used by the Poultry Inspector to reconnect to the robot. When the reconnect button is pushed, it starts reconnencting in a different thread, and if reconnect is pushed during that time, it will be ignored.
+
+See the javadoc for more information.
+
+#### ccre.concurrency.ConcurrentDispatchArray
+
+A concurrent collection that allows concurrent iteration and removal without concurrency errors. The values returned by an iterator are the values that were in the iterator when the iterator was started. This is implemented by copying the entire array when a modification operation is completed.
+
+This performs like an ArrayList except that there is no upper bound of time (although it will be finite) when modification operations are ran.
+
+#### ccre.util.ExpirationTimer
+
+An ExpirationTimer acts sort of like an alarm clock. You can schedule a series of alarms with certain delays, and then start the timer. When each delay passes, the timer will trigger the event associated with the delay. The timer can be fed, which restarts the timer (can be used to implement WatchDogs, hence the name). The timer can also be stopped, which resets the timer and prevents it from running until it is started again.
+
+See the javadoc for more information.
 
 ### Mixing, DriverImpls
 
+Mixing and DriverImpls provide a large number of prefabricated components for mixing together various rudimentary channels.
+
+DriverImpls currently contains various pieces of tank-drive code, but will in the future contain more kinds, such as single-joystick drive code (and possibly swerve drive code if someone would like to contribute that)
+
+The full listing of the provided methods can be found by looking in the javadoc, but here are some of the kinds of methods found in Mixing:
+
+* always(float):FloatInput - Get a FloatInput that always has the specified value.
+* andBooleans(BooleanInputPoll...):BooleanInputPoll - Get a BooleanInputPoll that is true iff all of the specified BooleanInputPolls are true.
+* orBooleans(BooleanInputPoll...):BooleanInputPoll - Get a BooleanInputPoll that is true iff any of the specified BooleanInputPolls are true.
+* booleanSelectFloat(...):? - A category of methods that select from two float values (Outputs or InputPolls) based on a boolean value.
+* combineBooleans(BooleanOutput, BooleanOutput[, BooleanOutput]):BooleanOutput - A BooleanOutput that sends its values to all of the specified outputs.
+* combineFloats(FloatOutput, FloatOutput[, FloatOutput]):FloatOutput - A FloatOutput that sends its values to all of the specified outputs.
+* combineEvents(EventConsumer...):EventConsumer - An EventConsumer that fires all of the specified EventConsumers when fired.
+* createDispatch(?InputPoll, EventSource):?Input - Converts an InputPoll into an Input by dispatching new values when the specified EventSource is produced.
+* deadzone(...):? - A category of methods that apply a deadzone to any kind of Float channel.
+* filterEvent(BooleanInputPoll, boolean, EventSource|EventConsumer):EventSource|EventConsumer - Two methods that allow an EventSource or EventConsumer to pass through only when the specified BooleanInputPoll is the same as the specified boolean.
+* floatIsAtLeast|floatIsAtMost(FloatInputPoll, float):BooleanInputPoll - Two methods that allow for simple comparison of a FloatInputPoll with a constant float.
+* floatIsInRange|floatIsOutsideRange(FloatInputPoll, float, float):BooleanInputPoll - Two methods that allow for checking if a FloatInputPoll is within (or outside) a constant range.
+* floatsEqual(FloatInputPoll, FloatInputPoll):BooleanInputPoll - Create a channel that represents when the specified FloatInputPolls are equal.
+* invert(...):? - A category of methods that logically invert any Boolean channel.
+* negate(...):? - A category of methods that negate any Float channel.
+* normalizeFloat(FloatInputPoll, float zero, float one):FloatInputPoll - Provides a scaled version of the specified input, such that when the value from the specified input is the value in the one parameter, the output is 1f, and when the value from the specified input is the value in the zero parameter, the output is 0f.
+* pumpWhen(EventSource, ?InputPoll, ?Output) - When the specified event is produced, read the value from the InputPoll and write it to the Output.
+* pumpEvent(?InputPoll, ?Output):EventConsumer - An EventConsumer that, when fired, reads the value from the InputPoll and writes it to the Output.
+* triggerWhenBooleanChanges(EventConsumer toFalse, EventConsumer toTrue):BooleanOutput - When the last value written to the returned BooleanOutput becomes true, fire the toTrue event. When it becomes false, fire the toFalse event.
+* whenBooleanBecomes(BooleanInputProducer, boolean):EventSource - Returns an EventSource that, when the specified BooleanInputProducer becomes the specified boolean, will be produced.
+* whenBooleanBecomes(BooleanInputPoll, boolean, EventSource):EventSource - Similar to the previous method, but checks when the specified EventSource is fired.
+
+Mixing also contains a handful of constants:
+* alwaysFalse - a BooleanInput that is always false.
+* alwaysTrue - a BooleanInput that is always true.
+* ignoredBooleanOutput - a BooleanOutput that ignores anything written to it.
+* ignoredFloatOutput - a FloatOutput that ignores anything written to it.
+
+### MultipleSourceBooleans
+
+MultipleSourceBooleans is a controller that combines a series of registered BooleanOutputs or BooleanInputPolls or BooleanInputProducers or BooleanInputs to create a single output or input line, based on the logical AND or OR of all the values.
+
+    MultipleSourceBooleanController shouldSelfDestruct = new MultipleSourceBooleanController(MultipleSourceBooleanController.AND);
+    valve.addTarget(destructionOutput);
+    valve.addInput(operatorKeyAlpha);
+    valve.addInput(operatorKeyBeta);
+    value.addInput(Mixing.invert(operatorKeyFailsafe));
+    // This only self destructs if both operatorKeyAlpha and operatorKeyBeta are true, and operatorKeyFailsafe is false.
+    // Disclaimer: You probably shouldn't use the CCRE to control a self-destruct.
+
 ### General Networking
+
+If you want to use standard TCP Sockets, you'll probably run into the problem that you can't write one piece of code that works on all CCRE platforms. Well, now you can! (This is used internally by Cluck)
+
+#### Opening a socket server
+
+    ServerSocket sock = Network.connect(22);
+    while (!cancelProcess()) {
+        ClientSocket conn = sock.accept();
+        InputStream istr = conn.openInputStream();
+        OutputStream ostr = conn.openOutputStream();
+        // Provide world-domination service.
+        conn.close();
+    }
+    sock.close();
+
+See the javadoc for more details. (Note: error handling not included in this example)
+
+#### Opening a socket connection
+
+    ClientSocket sock = Network.connect("10.15.40.2", 22);
+    InputStream istr = sock.openInputStream();
+    OutputStream ostr = sock.openOutputStream();
+    // Achieve world domination using the connection.
+    sock.close();
+
+See the javadoc for more details. (Note: error handling not included in this example)
+
+#### Listing local IPv4 addresses
+
+    CCollection<String> addrs = Network.listIPv4Addresses();
+    // Find servers using the local addresses.
+
+For example, this might contain ["127.0.0.1", "10.15.40.2"] on a robot.
+
+See the javadoc for more details.
 
 ### PhidgetReader
 
 ### Data storage
 
 ### Throwable printing
+
+### Channel Statuses
+
+### Util class
 
 ## Igneous classes
 

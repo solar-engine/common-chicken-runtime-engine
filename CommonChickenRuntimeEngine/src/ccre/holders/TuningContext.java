@@ -128,7 +128,8 @@ public class TuningContext {
         };
     }
     
-    public void publishSavingEvent(String name) {
+    public TuningContext publishSavingEvent(String name) {
         enc.publishEventConsumer("Save Tuning for " + name, getFlushEvent());
+        return this;
     }
 }

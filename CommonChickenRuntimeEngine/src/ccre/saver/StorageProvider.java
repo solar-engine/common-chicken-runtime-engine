@@ -48,7 +48,7 @@ public abstract class StorageProvider {
         initProvider();
         for (char c : name.toCharArray()) {
             if (!(Character.isUpperCase(c) || Character.isLowerCase(c) || Character.isDigit(c) || c == '$' || c == '_')) {
-                throw new IllegalArgumentException("Storage names must only contain 'a-zA-Z$_'");
+                throw new IllegalArgumentException("Storage names must only contain 'a-zA-Z0-9$_'");
             }
         }
         return provider.open(name);

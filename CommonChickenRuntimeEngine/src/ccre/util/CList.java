@@ -66,7 +66,7 @@ public interface CList<E> extends CCollection<E> {
      *
      * @param index where to insert the elements.
      * @param c the collection to add elements from.
-     * @return
+     * @return if the list has been modified by this operation.
      */
     boolean addAll(int index, CCollection<? extends E> c);
 

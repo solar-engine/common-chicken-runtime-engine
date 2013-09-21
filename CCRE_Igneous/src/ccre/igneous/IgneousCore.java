@@ -119,7 +119,7 @@ public abstract class IgneousCore {
      * MOTOR_REVERSE if the motor should be reversed.
      * @return the output that will output to the specified motor.
      * @see #MOTOR_FORWARD
-     * @see #MOTOR_FREVERSE
+     * @see #MOTOR_REVERSE
      */
     protected final FloatOutput makeJaguarMotor(int id, boolean negate) {
         return launcher.makeJaguar(id, negate);
@@ -134,7 +134,7 @@ public abstract class IgneousCore {
      * MOTOR_REVERSE if the motor should be reversed.
      * @return the output that will output to the specified motor.
      * @see #MOTOR_FORWARD
-     * @see #MOTOR_FREVERSE
+     * @see #MOTOR_REVERSE
      */
     protected final FloatOutput makeVictorMotor(int id, boolean negate) {
         return launcher.makeVictor(id, negate);
@@ -149,7 +149,7 @@ public abstract class IgneousCore {
      * MOTOR_REVERSE if the motor should be reversed.
      * @return the output that will output to the specified motor.
      * @see #MOTOR_FORWARD
-     * @see #MOTOR_FREVERSE
+     * @see #MOTOR_REVERSE
      */
     protected final FloatOutput makeTalonMotor(int id, boolean negate) {
         return launcher.makeTalon(id, negate);
@@ -208,7 +208,7 @@ public abstract class IgneousCore {
      * servo's minimum position.
      * @param maxInput the value on the output that should correspond to the
      * servo's maximum position.
-     * @return
+     * @return the FloatOutput that controls the servo.
      */
     protected final FloatOutput makeServo(int id, float minInput, float maxInput) {
         return launcher.makeServo(id, minInput, maxInput);

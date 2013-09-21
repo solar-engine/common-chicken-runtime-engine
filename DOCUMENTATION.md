@@ -26,7 +26,7 @@ There are eight major parts of the CCRE documentation:
 * CCRE License
 * Overview of Documentation (here)
 * Getting Started Guide
-* System overview for users (incomplete)
+* System overview for users
 * Example programs (incomplete)
 * Javadoc (complete, but not available)
 * System overview for maintainers (incomplete)
@@ -38,19 +38,44 @@ Follow the following guides in order to get started with the CCRE. Knowledge of 
 ## System Requirements
 
 1. A Java SE 6 or 7 installation including the JDK.
-2. An IDE with the FRC squawk plugins installed. (This will only be required for the Igneous project at some point, but is required for all CCRE users currently)
-3. A Git client, for example the client included in NetBeans
-4. A recent version of NetBeans, since all projects are currently only stored as NetBeans projects.
+2. A working [NetBeans](http://netbeans.org/) installation.
+3. Installation of [FRC Plugins](http://firstforge.wpi.edu/sf/frs/do/viewSummary/projects.wpilib/frs) - see that page for more information.
+4. A Git client, for example the client included in NetBeans.
 
 ## Download guide
 
-This is the official bitbucket project for the CCRE: <https://bitbucket.org/col6y/common-chicken-runtime-engine>
-
-Currently, the Git link is <https://bitbucket.org/col6y/common-chicken-runtime-engine.git> - this can be found on the project page.
+Find the Git checkout link from the [BitBucket project page](https://bitbucket.org/col6y/common-chicken-runtime-engine).
 
 Use your Git client to check out the full repository. This will include all five subprojects.
 
-In NetBeans, open all projects relevant to your interests. Most likely, this means all five of them.
+How to do this in NetBeans:
+
+1. Click on Team->Git->Clone... in the menu.
+2. Paste the checkout link into the Repository URL box.
+3. Leave the username and password blank for anonymous access.
+4. Hit next.
+5. It should display a list of branches. Select 'master'
+6. Hit next.
+7. Select a directory to place the master folder in. It is not recommended to place this in NetBeansProjects.
+8. The clone name does not matter.
+9. Ensure that the master branch is selected.
+10. Ensure that the remote name is 'origin'.
+11. Ensure that the checkbox for scanning for projects is checked.
+12. Hit Finish.
+13. Once it finishes, it will say that five projects have been cloned. Hit okay.
+14. Select all five projects.
+15. Hit Open.
+16. All projects should open. You may wish to create a new project group at this time.
+
+## Team number configuration guide
+
+NetBeans will need you to specify your team number before continuing.
+
+1. Click on Tools->Options
+2. Go to the Miscellaneous tab.
+3. Go to the FRC Configuration subtab.
+4. Enter your team number in the provided box.
+5. Hit 'OK'
 
 ## Building guide
 
@@ -132,6 +157,8 @@ MOTOR_FORWARD and MOTOR_REVERSE are also inherited from SimpleCore - they are co
 
 FloatOutput is a basic building block of the CCRE. Unlike makeTalonMotor and MOTOR_REVERSE, it is generic to all CCRE applications instead of just Igneous robots.
 
+You will want to replace these port numbers with the correct port numbers if you want to run this on a real program!
+
 A FloatOutput is an interface with one method:
 
     public void writeValue(float value);
@@ -203,17 +230,19 @@ Assuming that the code that you are testing is the code created in the previous 
 
 ## Deploying robot code to a real robot
 
-Once you want to test your code in the real world, and when you want to actually drive your robot using your code, ensure that your IDE is set up to download standard FRC robot code, and then hit 'Run' in your main robot project
+Once you want to test your code in the real world, and when you want to actually drive your robot using your code, follow these instructions. 
 
 If you used the drive code tutorial above, you will want to ensure that the motor ports are the appropriate motors ports on the real robot.
 
-This should download the new robot code and reboot the cRIO.
+Connect to the robot's wireless network.
+
+Hit 'Run' in your main robot project - this should download the new robot code and reboot the cRIO.
 
 At this point, everything is done exactly as if you had written normal FRC code. Plug in joysticks to your driver station, and enable the robot. You can now watch your code working on your real robot!
 
 # System overview for users
 
-The CCRE and Igneous contain very large amounts of code, and it would not be worth your time to understand all of the internals. Below are quick overviews of all the relevant parts of the CCRE. More detailed information, for those attempting to modify the CCRE, can be found at the end of the overall documentation.
+The CCRE and Igneous contain very large amounts of code, and it would not be worth your time to understand all of the internals. Below are overviews of all the relevant parts of the CCRE. More detailed information, for those attempting to modify the CCRE, can be found at the end of the overall documentation.
 
 ## General CCRE interfaces and systems
 
@@ -440,9 +469,31 @@ This creates a FloatStatus that contains the current value of the tuning. It wil
 
 This snippet of code will read the current value of the tuning parameter. Generally, this is what you will be doing with tuning parameters.
 
+### Joysticks
+
+Joysticks in general can be found on any Igneous platform.
+
+There are two interfaces for Joysticks - ISimpleJoystick and IDispatchJoystick.
+
+ISimpleJoystick contains pollable values for all axes, including special methods for the X and Y axes, and also pollable values for all buttons.
+
+See the API reference for the relevant method names.
+
+IDispatchJoystick extends ISimpleJoystick and adds features that are dispatched instead - so, FloatInputs instead of FloatInputPolls, and EventSources that are produced once for each time that a button is pressed.
+
+See the API reference for the relevant method names.
+
 ## Specific CCRE classes for implementation assistance.
 
 This section contains more specific sections of the CCRE that are useful but not as important for using the CCRE.
+
+### Channel Statuses
+
+Often, InputProducers need to be implemented, but they require handling of a list of listeners. To complete this functionality easily, Status objects exist: `FloatStatus` and `BooleanStatus`.
+
+These are both Inputs and Outputs, so you can write values to them and the values will be sent to all listeners.
+
+For more information, including a number of convenience methods, see the API reference.
 
 ### CArrayUtils
 
@@ -573,20 +624,246 @@ See the javadoc for more details. (Note: error handling not included in this exa
     CCollection<String> addrs = Network.listIPv4Addresses();
     // Find servers using the local addresses.
 
-For example, this might contain ["127.0.0.1", "10.15.40.2"] on a robot.
+For example, this might contain `["127.0.0.1", "10.15.40.2"]` on a robot.
 
 See the javadoc for more details.
 
 ### PhidgetReader
 
+The PhidgetReader is a small interface class that is used to access a Phidget control panel from a robot. Currently, the other end of the connection is provided by the Poultry Inspector. This uses Cluck.
+
+Currently, this is hardcoded to be useful for only a specific number of inputs and outputs.
+
+Available parts of the Phidget:
+
+    BooleanOutput[8] digitalOutputs
+    BooleanInput[8] digitalInputs
+    FloatInput[8] analogInputs
+    StringHolder[2] lcdLines
+
 ### Data storage
+
+The CCRE has a generic system for saving key/value data in a system-specific manner, which allows for the same code on both Java SE and Squawk platforms.
+
+Example usage:
+
+    StoragSegment seg = StorageProvider.openStorage("test_storage")
+    String name = seg.getStringForKey("robot name");
+    if (name == null) {
+        name = "Unknown";
+    }
+    Logger.config("Robot name: " + name);
+    seg.setStringForKey("robot name", getNewRobotName());
+    seg.close();
+
+Here is the breakdown of the code:
+
+    StorageProvider.openStorage("test_storage")
+
+This opens up the storage segment delimited by the specified name.
+Storage names must only contain alphanumeric characters, underscore (_), and the currency symbol ($).
+
+    seg.getStringForKey("robot name")
+
+This fetches the value associated with the specified key name. This is equivalent to `new String(seg.getBytesForKey("robot name"))` except that it also handles empty keys by returning null instead of throwing an error.
+
+    seg.setStringForKey("robot name", getNewRobotName())
+
+This is the opposite of the previous operation - it saves the specified string to the specified key. It is equivalent to `seg.setBytesForKey("robot name", getNewRobotName().getBytes())`.
+
+    seg.close();
+
+This closes the segment so that it can no longer be used, including flushing data to disk. Flushing data without closing the segment can be performed by `seg.flush();`.
+
+**WARNINGS**:
+
+If `seg.flush()` or `seg.close()` is not called, then the data will most likely not be saved!
+
+`seg.getBytesForKey` and `seg.setBytesForKey` assume that the specified byte array will NOT be modified! Behavior is undefined if it is. If you are unsure, make a new copy of the array first!
+
+If you use `seg.setDataOutputForKey`, make sure that you call `.close()` on it! Otherwise, the value will not be saved!
+
+See the API reference for more information.
 
 ### Throwable printing
 
-### Channel Statuses
+Java ME does not contain any way to log information about an error except to the standard output stream. If you want any more Throwable data than the message, you are SOL. The CCRE contains a general interface for printing that includes very special handling for Squawk (messing around with raw byte data), so that Throwable data can be sent anywhere, without caring about the platform.
 
-### Util class
+How to use:
+
+    try {
+        ...
+    } catch (Exception ex) {
+        ThrowablePrinter.printThrowable(ex, myPrintStream);
+    }
+
+This will print the data for Exception to the specified output stream.
+
+    try {
+        ...
+    } catch (Exception ex) {
+        String errorOut = ThrowablePrinter.toStringThrowable(ex);
+        ... // work with errorOut
+    }
+
+This allows for getting a string for a throwable, such that `myPrintStream.print(ThrowablePrinter.toStringThrowable(ex))` is equivalent to `ThrowablePrinter.printThrowable(ex, myPrintStream)`.
+
+### Utils class
+
+The CCRE contains a `Utils` class for miscellanious utilites that do not fit anywhere else.
+
+    Utils.deadzone(value, deadzone)
+
+This applies a deadzone to the specified value. If `-deadzone<=value<=deadzone`, then the result will be zero. Otherwise, it will be the value. This is used, for example, to handle joysticks where the value is never exactly zero.
+
+    FloatInputPoll: Utils.currentTimeSeconds
+
+This represents the difference, measured in seconds, between the current time and midnight, January 1, 1970 UTC. This may be accurate to the millisecond, depending on the system.
 
 ## Igneous classes
 
-WORKING HERE...
+As you know, Igneous is the subsystem that provides access to a FRC robot.
+
+See the Getting Started guide earlier in this document for how to create an Igneous project.
+
+The main class for an Igneous application always extends IgneousCore directly or indirectly. Usually, it extends SimpleCore, which itself extends IgneousCore, and adds the four joysticks as objects.
+
+Here is the list of functionality explicitly provided by Igneous:
+
+### Joysticks
+
+    IDispatchJoystick joystick1, joystick2, joystick3, joystick4
+
+See the above section on generic CCRE joysticks for how to use these joysticks. These joysticks update their values exactly when the duringTeleop event is fired - see below.
+
+If you are using IgneousCore directly, the following methods can be used to get the same joysticks:
+
+    IDispatchJoystick makeDispatchJoystick(int id)
+
+Get a dispatch joystick for the specified joystick ID (1-4).
+
+    IDispatchJoystick makeDispatchJoystick(int id, EventSource when)
+
+This is the same, but it updates when the specified event is fired instead of duringTeleop.
+
+    ISimpleJoystick makeSimpleJoystick(int id)
+
+Get a simple joystick for the specified joystick ID (1-4).
+
+### Initialization Events
+
+When any mode is entered - teleop, autonomous, disabled, testing - the corresponding init EventSource is produced:
+
+    startedAutonomous
+    startedTeleop
+    robotDisabled
+    startedTesting
+
+### Periodic Events
+
+While any mode is in progress, the corresponding periodic event will be produced every ~20 ms (more specifically, as fast as signals come from the driver station).
+
+    duringAutonomous
+    duringTeleop
+    duringDisabled
+    duringTesting
+
+An additional periodic event is fired regardless of the mode:
+
+    globalPeriodic
+
+### Motors
+
+The CCRE supports three kinds of Speed Controllers: Talons, Jaguars, and Victors.
+
+The following methods are provided to get access to motors:
+
+    FloatOutput makeTalonMotor(int id, MOTOR_FORWARD or MOTOR_REVERSE)
+    FloatOutput makeJaguarMotor(int id, MOTOR_FORWARD or MOTOR_REVERSE)
+    FloatOutput makeVictorMotor(int id, MOTOR_FORWARD or MOTOR_REVERSE)
+
+These methods take a PWM port ID and whether or not to reverse the direction of the motor. They return a FloatOutput that can be written to in order to change the speed of the motor (-1.0f to 1.0f)
+
+### Solenoids
+
+Solenoids can be accessed using one method:
+
+    BooleanOutput makeSolenoid(int id)
+
+This gets a reference to the solenoid on the specified port, and the solenoid can be turned on and off by writing a value to the returned BooleanOutput.
+
+### Analog Inputs
+
+Analog Inputs can be accessed using one of two methods:
+
+    FloatInputPoll makeAnalogInput(int id, int averageBits)
+    FloatInputPoll makeAnalogInput_ValueBased(int id, int averageBit)
+
+ID is the analog port to read. averageBits is the number of averaging bits for the FPGA to use. This should be higher if the value isn't accurate enough, and lower if the value updates too slowly. Team 1540 used a value of 9 for reading our arm's position via a potentiometer, and a value of 14 for reading the current tank pressure.
+
+`makeAnalogInput` gives the current value as a voltage.
+
+`makeAnalogInput_ValueBased` gives the current value as a 12-bit uncalibrated value (so this value will be 0.0 - 4095.0)
+
+### Digital Inputs
+
+Digital Inputs can be accessed using one method:
+
+    BooleanInputPoll makeDigitalInput(int id)
+
+This represents the current value of the specified GPIO line.
+
+### Servos
+
+Servos can be accessed using one method:
+
+    FloatOutput makeServo(int id, float minInput, float maxInput)
+
+ID represents the port number for the servo.
+
+`minInput` and `maxInput` are the range for the values sent to the FloatOutput.
+
+If the value is the same as minInput, the servo will be in its minimum position, and if the value is the same as maxInput, the servo will be in its maximum position.
+
+### Driver station LCD
+
+There are currently two methods for displaying information on the driver station LCD:
+
+    FloatOutput makeDSFloatReadout(String prefix, int line)
+    void makeDSFloatReadout(String prefix, int line, FloatInputPoll value, EventSource when)
+
+The first method, when the FloatOutput has a value written to it, will write the prefix followed by ": " followed by the written value to the specified line (1-6) on the driver station.
+
+The second method is similar, but updates the specified value when the specified EventSource is produced.
+
+### Robot status
+
+There are a handful of methods describing the current state:
+
+    BooleanInputPoll getIsDisabled()
+    BooleanInputPoll getIsAutonomous()
+
+These represent whether or not the robot is disabled, or autonomous, respectively.
+
+### Compressors
+
+The CCRE has some easy-to-use systems for running compressors:
+
+    useCompressor(int pressureSwitchChannel, int compressorRelayChannel)
+    useCustomCompressor(BooleanInputPoll shouldDisable, int compressorRelayChannel)
+
+The first method is for standard compressor setups. Call it with the channels for the pressure switch and compressor relay, and it will handle everything.
+
+The second method is for when a custom pressure switching syste is used - for example if an analog pressure sensor is used, and calculations from it decide whether or not to run the compressor.
+
+## Next steps
+
+This completes all of the important reference information.
+
+The javadoc contains the rest of the important information.
+
+The rest of this document will be (TODO: make it be) more detailed information on how the CCRE works internally for anyone who wants to maintain it.
+
+# System overview for maintainers
+
+INCOMPLETE

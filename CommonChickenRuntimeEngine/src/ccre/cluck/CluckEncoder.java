@@ -310,7 +310,7 @@ public class CluckEncoder {
                         }
                     }
                 });
-                server.publish(chan, new byte[] {0});
+                server.publish(chan, new byte[]{0});
                 return this;
             }
         }.register();
@@ -500,7 +500,7 @@ public class CluckEncoder {
      *
      * @param name the name to put this object under.
      * @param source the BooleanInputProducer to publish.
-     * @see #subscribeBooleanInputProducer(java.lang.String)
+     * @see #subscribeBooleanInputProducer(java.lang.String, boolean)
      */
     public void publishBooleanInputProducer(String name, final BooleanInputProducer source) {
         final String chan = "BI:" + name;
@@ -599,7 +599,7 @@ public class CluckEncoder {
      *
      * @param name the name to put this object under.
      * @param source the FloatInputProducer to publish.
-     * @see #subscribeFloatInputProducer(java.lang.String)
+     * @see #subscribeFloatInputProducer(java.lang.String, float)
      */
     public void publishFloatInputProducer(String name, final FloatInputProducer source) {
         final String chan = "FI:" + name;

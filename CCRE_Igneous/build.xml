@@ -7,6 +7,12 @@
         <include name="squawk*.jar"/>
     </patternset>
     
+    <taskdef name="xmltask" classname="com.oopsconsultancy.xmltask.ant.XmlTask">
+        <classpath>
+            <pathelement location="${sunspot.home}/ant/xmltask.jar"/>
+        </classpath>
+    </taskdef>
+    
     <pathconvert property="classpath" pathsep="${path.separator}">
         <path id="classpath.path">
             <fileset dir="${sunspot.home}/lib">

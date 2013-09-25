@@ -28,7 +28,7 @@ There are eight major parts of the CCRE documentation:
 * Getting Started Guide
 * System overview for users
 * Example programs (incomplete)
-* Javadoc (complete, but not available)
+* Javadoc  - this can be found 
 * System overview for maintainers (incomplete)
 
 # Getting Started Guide
@@ -71,7 +71,7 @@ How to do this in NetBeans:
 
 NetBeans will need you to specify your team number before continuing.
 
-1. Click on Tools->Options
+1. Click on Tools->Options (or NetBeans->Preferences... on Mac OS X)
 2. Go to the Miscellaneous tab.
 3. Go to the FRC Configuration subtab.
 4. Enter your team number in the provided box.
@@ -79,7 +79,7 @@ NetBeans will need you to specify your team number before continuing.
 
 ## Building guide
 
-Clean and Build each project. This can be performed by right-clicking the project name and selecting 'Clean and Build'.
+Clean and Build each project. This can be performed by right-clicking the project name and selecting 'Clean and Build'. You should build them in the following order: CommonChickenRuntimeEngine, CCRE_Igneous, CCRE_PoultryInspector, Igneous Emulator, Sample Igneous Robot.
 
 ## Notes
 
@@ -94,6 +94,8 @@ Enter a new project name instead of 'Sample_Igneous_Robot'.
 Currently, it is recommended to leave the project folder as the folder where you checked out the CCRE to. This should be the default value. This may be modified in the future, but if you do, you will need to update linking to the other projects.
 
 Hit 'Copy' to create your project.
+
+You may need to manually rename the project itself to your new name at this time.
 
 At this point, you will want to decide which codebase you want to start from. You have the following options:
 

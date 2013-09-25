@@ -39,7 +39,7 @@ Follow the following guides in order to get started with the CCRE. Knowledge of 
 
 1. A Java SE 6 or 7 installation including the JDK.
 2. A working [NetBeans](http://netbeans.org/) installation.
-3. Installation of [FRC Plugins](http://firstforge.wpi.edu/sf/frs/do/viewSummary/projects.wpilib/frs) - see that page for more information.
+3. Installation of [FRC Plugins](http://firstforge.wpi.edu/sf/frs/do/viewSummary/projects.wpilib/frs) - see [this page](http://wpilib.screenstepslive.com/s/3120/m/7885/l/79405-installing-the-java-development-tools) for more information.
 4. A Git client, for example the client included in NetBeans.
 
 ## Download guide

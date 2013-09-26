@@ -38,8 +38,9 @@
     <!-- Get the properties that specify where the sunspotfrcsdk exists. This is so that we can find the squawk jar. -->
     <property file="${user.home}/.sunspotfrc.properties"/>
     
-    <!-- Once the jar is created, backport it to Java 1.3 so that Squawk can use it. -->
-    <target name="downgrade-jar">
+    <!-- Once the jar is created, backport it to Java 1.3 so that Squawk can use it.
+        But don't do this if there is no installation of the FRC plugins. -->
+    <target name="downgrade-jar" if="sunspot.home">
         <!-- Strip out the backport.remove files so that the backporter doesn't try (and fail) to downgrade them. -->
         <jar destfile="dist\CCRE-1.5-STRIP.jar">
             <zipfileset src="dist\CCRE-1.5.jar" excludes="${backport.remove}"/>
@@ -54,12 +55,15 @@
         </retrotranslator>
     </target>
     
-    <target name="-post-jar" depends="downgrade-jar,ccre-javadoc"></target>
+    <target name="downgrade-jar-check" unless="sunspot.home">
+        <echo message="Missing FRC plugin installation! Igneous projects will not work, and Javadoc will not be generated." />
+    </target>
+    
+    <target name="-post-jar" depends="downgrade-jar,ccre-javadoc,downgrade-jar-check"></target>
     
     <!-- Custom target to generate ALL CCRE javadoc, including Igneous. -->
-    <target depends="init" description="Build CCRE Javadoc." name="ccre-javadoc">
+    <target depends="init" description="Build CCRE Javadoc." name="ccre-javadoc" if="sunspot.home">
         <mkdir dir="../Javadoc"/>
-        <property file="${user.home}/.sunspotfrc.properties"/>
         <javadoc author="Colby Skeggs" verbose="false" charset="UTF-8" destdir="../Javadoc" docencoding="UTF-8" encoding="${javadoc.encoding.used}" failonerror="true" noindex="${javadoc.noindex}" nonavbar="${javadoc.nonavbar}" notree="${javadoc.notree}" private="${javadoc.private}" source="${javac.source}" splitindex="${javadoc.splitindex}" use="${javadoc.use}" useexternalfile="true" version="${javadoc.version}" windowtitle="${javadoc.windowtitle}">
             <classpath>
                 <path path="${javac.classpath}"/>

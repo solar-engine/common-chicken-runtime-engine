@@ -5,3 +5,5 @@ This system was conceived and designed by Colby Skeggs.
 The CCRE Core contains classes shared by all instances of the CCRE regardless of platform.
 The CCRE Poultry Inspector is a standalone application that allows for inspection of Cluck networked objects.
 The CCRE Igneous system is the system that allows for programs using the CCRE to run on the FRC-provided platform.
+
+To contact Colby Skeggs, write email to skeggsc [at] catlin [dot] edu.

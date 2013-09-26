@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <!--
  * Copyright 2013 Colby Skeggs
  * 
@@ -16,7 +17,6 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with the CCRE.  If not, see <http://www.gnu.org/licenses/>.
  -->
-<?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <project basedir="." default="help" name="CCRE_Igneous">    
     <property file="build.properties"/>
     <property file="${user.home}/.sunspotfrc.properties"/>

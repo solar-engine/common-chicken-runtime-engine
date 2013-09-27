@@ -258,7 +258,7 @@ A window will pop up with readouts and controls for all inputs and outputs suppo
 
 Ensure that TELEOPERATED is selected and then hit ENABLE.
 
-Assuming that the code that you are testing is the code created in the previous section, drag the first sliders under Joystick 1 and Joystick 2 and watch as the motor outputs change for the first and second motors. If this works, congratulations! You've just written your first piece of CCRE drive code.
+Assuming that the code that you are testing is the code created in the previous section, drag the second sliders under Joystick 1 and Joystick 2 and watch as the motor outputs change for the first and second motors. If this works, congratulations! You've just written your first piece of CCRE drive code.
 
 ## Deploying robot code to a real robot
 

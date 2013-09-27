@@ -83,7 +83,7 @@
             <compilation-unit>
                 <package-root>src</package-root>
                 <classpath mode="boot">${sunspot.home}\lib\squawk.jar</classpath>
-                <classpath mode="compile">${sunspot.home}\lib\wpilibj.jar;${sunspot.home}\lib\networktables-crio.jar;../CommonChickenRuntimeEngine/dist/CCRE.jar</classpath>
+                <classpath mode="compile">${sunspot.home}\lib\networktables-crio.jar;${sunspot.home}\lib\wpilibj.jar;../CommonChickenRuntimeEngine/dist/CCRE.jar</classpath>
                 <built-to>build</built-to>
                 <source-level>1.4</source-level>
             </compilation-unit>

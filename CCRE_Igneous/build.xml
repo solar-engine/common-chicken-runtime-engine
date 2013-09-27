@@ -27,7 +27,7 @@
     
     <taskdef name="xmltask" classname="com.oopsconsultancy.xmltask.ant.XmlTask">
         <classpath>
-            <pathelement location="${sunspot.home}/ant/xmltask.jar"/>
+            <pathelement location="../xmltask.jar"/>
         </classpath>
     </taskdef>
     

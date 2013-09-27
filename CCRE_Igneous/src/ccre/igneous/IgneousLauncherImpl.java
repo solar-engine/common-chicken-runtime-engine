@@ -68,10 +68,10 @@ class IgneousLauncherImpl extends IterativeRobot implements IgneousLauncher {
     private CCustomCompressor compressor;
 
     IgneousLauncherImpl() {
-        CluckGlobals.ensureInitializedCore();
         IgneousNetworkProvider.register();
         IgneousThrowablePrinter.register();
         IgneousStorageProvider.register();
+        CluckGlobals.ensureInitializedCore();
         Logger.target = new MultiTargetLogger(new LoggingTarget[]{Logger.target, CluckGlobals.encoder.subscribeLoggingTarget(LogLevel.FINEST, "general-logger")});
         String name = VM.getManifestProperty("Igneous-Main");
         if (name == null) {

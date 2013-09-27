@@ -138,12 +138,12 @@ public final class EmuJoystick implements IDispatchJoystick, EventConsumer {
 
     @Override
     public FloatInputPoll getXChannel() {
-        return getAxisChannel(0);
+        return getAxisChannel(1);
     }
 
     @Override
     public FloatInputPoll getYChannel() {
-        return getAxisChannel(1);
+        return getAxisChannel(2);
     }
 
     @Override

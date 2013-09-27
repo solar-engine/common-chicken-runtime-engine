@@ -22,17 +22,36 @@ import ccre.chan.BooleanInputPoll;
 import ccre.chan.BooleanOutput;
 import ccre.chan.FloatInputPoll;
 import ccre.chan.FloatOutput;
+import ccre.log.LogLevel;
 import ccre.log.Logger;
 import java.awt.Color;
 import java.awt.EventQueue;
+import java.util.logging.Level;
 import javax.swing.ButtonModel;
 import javax.swing.JLabel;
 import javax.swing.JProgressBar;
 import javax.swing.JSlider;
 import javax.swing.JToggleButton;
+import javax.swing.UIManager;
+import javax.swing.UnsupportedLookAndFeelException;
 
 public class EmulatorForm extends javax.swing.JFrame {
 
+    static {
+        try {
+            UIManager.setLookAndFeel(UIManager.getCrossPlatformLookAndFeelClassName());
+            Logger.info("Set look-and-feel!");
+        } catch (ClassNotFoundException ex) {
+            Logger.log(LogLevel.WARNING, "Cannot use look-and-feel!", ex);
+        } catch (InstantiationException ex) {
+            Logger.log(LogLevel.WARNING, "Cannot use look-and-feel!", ex);
+        } catch (IllegalAccessException ex) {
+            Logger.log(LogLevel.WARNING, "Cannot use look-and-feel!", ex);
+        } catch (UnsupportedLookAndFeelException ex) {
+            Logger.log(LogLevel.WARNING, "Cannot use look-and-feel!", ex);
+        }
+    }
+    
     /**
      * Creates new form EmulatorForm
      */

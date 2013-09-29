@@ -32,7 +32,6 @@ import ccre.log.LogLevel;
 import ccre.log.Logger;
 import ccre.log.LoggingTarget;
 import ccre.log.MultiTargetLogger;
-import ccre.net.FalseNetworkProvider;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;

@@ -51,10 +51,7 @@ public class StandaloneCluckServer {
                 Logger.info(b.append("] - uptime ").append((System.currentTimeMillis() - time) / 1000).append(" seconds.").toString());
             }
         });
-        try {
-            CluckGlobals.initializeServer(80);
-        } catch (IOException ex) {
-            Logger.log(LogLevel.SEVERE, "Could not start Cluck server!", ex);
+        if (!CluckGlobals.initializeServer(80)) {
             return;
         }
         Logger.info("Server is running.");

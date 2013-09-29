@@ -18,10 +18,15 @@
  */
 package ccre.cluck;
 
+import ccre.log.LogLevel;
+import ccre.log.Logger;
 import java.io.IOException;
+import java.net.BindException;
+import java.util.logging.Level;
 
 /**
  * A class containing static fields for various Cluck objects.
+ *
  * @author skeggsc
  */
 public class CluckGlobals {
@@ -63,20 +68,39 @@ public class CluckGlobals {
 
     /**
      * Begin a server on the specified port.
+     *
      * @param port the port number. you should probably use 80.
+     * @return Whether or not the network server actually started.
      * @throws IOException if an IO error occurs.
      */
-    public static void initializeServer(int port) throws IOException {
+    public static boolean initializeServer(int port) {
         ensureInitializedCore();
         if (serv == null && cli == null) {
-            serv = new CluckNetworkedServer(port, node);
+            try {
+                serv = new CluckNetworkedServer(port, node);
+            } catch (IOException ex) {
+                Class<?> i;
+                try {
+                    i = Class.forName("java.net.BindException");
+                } catch (ClassNotFoundException ex1) {
+                    i = null;
+                }
+                if (i != null && i.isInstance(ex)) {
+                    Logger.severe("Could not bind Cluck to port 80! Please ensure that the Emulator can bind to this port.");
+                } else {
+                    Logger.log(LogLevel.SEVERE, "Could not start Cluck server!", ex);
+                }
+                return false;
+            }
         } else {
             throw new IllegalStateException("Cluck Globals already initialized!");
         }
+        return true;
     }
 
     /**
      * Begin a client connection on the specified port.
+     *
      * @param target the target IP address.
      * @param port the port number. you should probably use 80.
      * @throws IOException if an IO Error occurs.
@@ -92,6 +116,7 @@ public class CluckGlobals {
 
     /**
      * Reconnect the client on the specified port.
+     *
      * @param target the target IP address.
      * @param port the port number. you should probably use 80.
      * @throws IOException if an IO Error occurs.

@@ -32,6 +32,7 @@ import ccre.log.LogLevel;
 import ccre.log.Logger;
 import ccre.log.LoggingTarget;
 import ccre.log.MultiTargetLogger;
+import ccre.net.FalseNetworkProvider;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
@@ -99,11 +100,7 @@ public class EmulatorLauncher implements IgneousLauncher {
     protected final Event startedTesting = new Event();
 
     public void start() {
-        try {
-            CluckGlobals.initializeServer(80);
-        } catch (IOException ex) {
-            Logger.log(LogLevel.SEVERE, "Could not start Cluck server!", ex);
-        }
+        CluckGlobals.initializeServer(80);
         core.duringAutonomous = this.duringAutonomous;
         core.duringDisabled = this.duringDisabled;
         core.duringTeleop = this.duringTeleop;

@@ -97,11 +97,7 @@ class IgneousLauncherImpl extends IterativeRobot implements IgneousLauncher {
     protected Event globalPeriodic = new Event();
 
     public final void robotInit() {
-        try {
-            CluckGlobals.initializeServer(80);
-        } catch (IOException ex) {
-            Logger.log(LogLevel.SEVERE, "Could not start Cluck server!", ex);
-        }
+        CluckGlobals.initializeServer(80);
         core.duringAutonomous = this.duringAutonomous;
         core.duringDisabled = this.duringDisabled;
         core.duringTeleop = this.duringTeleop;

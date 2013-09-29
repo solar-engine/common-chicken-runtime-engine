@@ -18,6 +18,8 @@
  */
 package ccre.obsidian;
 
+import ccre.chan.BooleanInputPoll;
+import ccre.chan.BooleanOutput;
 import ccre.event.EventSource;
 
 /**
@@ -26,15 +28,40 @@ import ccre.event.EventSource;
  *
  * @author skeggsc
  */
-public class ObsidianCore {
+public class ObsidianCore implements GPIOChannels {
 
-    /**
-     * The launcher that provides all implementations for this.
-     */
-    ObsidianLauncher launcher;
     /**
      * Produced about every twenty milliseconds. This timing is subject to
      * change.
      */
     protected EventSource periodic;
+
+    /**
+     * Implement this method - it should set up everything that your robot needs
+     * to do.
+     */
+    protected abstract void createRobotControl();
+
+    /**
+     * Open the specified GPIO channel for output.
+     *
+     * @param chan The channel ID to open. See GPIOChannels.
+     * @param defaultValue the initial value for the output.
+     * @return the BooleanOutput representing the GPIO channel.
+     * @see ccre.obsidian.GPIOChannels
+     */
+    public BooleanOutput makeGPIOOutput(int chan, boolean defaultValue) {
+        return GPIOManager.setupChannel(chan, true, defaultValue);
+    }
+
+    /**
+     * Open the specified GPIO channel for input with the specified pull state.
+     *
+     * @param chan The channel ID to open. See GPIOChannels.
+     * @param pullSetting the setting for the pull resistors.
+     * @return the BooleanInputPoll representing the GPIO channel.
+     */
+    public BooleanInputPoll makeGPIOInput(int chan, boolean pullSetting) {
+        return GPIOManager.setupChannel(chan, false, pullSetting);
+    }
 }

@@ -20,6 +20,7 @@ package ccre.obsidian;
 
 import ccre.chan.BooleanInputPoll;
 import ccre.chan.BooleanOutput;
+import ccre.concurrency.ReporterThread;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -260,9 +261,9 @@ public class GPIOManager {
     }
 
     static {
-        Runtime.getRuntime().addShutdownHook(new Thread() {
+        Runtime.getRuntime().addShutdownHook(new ReporterThread("Cleanup-GPIOs") {
             @Override
-            public void run() {
+            public void threadBody() {
                 synchronized (lock) {
                     for (GPIO g : gpioes) {
                         if (g.isExported()) {

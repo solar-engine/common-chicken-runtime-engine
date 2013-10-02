@@ -19,6 +19,16 @@
 package ccre.obsidian;
 
 import ccre.cluck.CluckGlobals;
+import ccre.event.Event;
+import ccre.log.LogLevel;
+import ccre.log.Logger;
+import ccre.log.LoggingTarget;
+import ccre.log.MultiTargetLogger;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Properties;
+import java.util.Timer;
+import java.util.TimerTask;
 
 /**
  * The Obsidian launcher. This is the class that is ran by the Java virtual
@@ -28,7 +38,44 @@ import ccre.cluck.CluckGlobals;
  */
 public class Launcher {
 
-    public static void main(String[] args) {
+    /**
+     * The settings loaded during the launch process.
+     */
+    public static Properties settings;
+
+    public static void main(String[] args) throws IOException, ClassNotFoundException, InstantiationException, IllegalAccessException {
         CluckGlobals.ensureInitializedCore();
+        Logger.target = new MultiTargetLogger(new LoggingTarget[]{Logger.target, CluckGlobals.encoder.subscribeLoggingTarget(LogLevel.FINEST, "general-logger")});
+        Properties p = new Properties();
+        InputStream inst = Launcher.class.getResourceAsStream("obsidian-conf.properties");
+        if (inst == null) {
+            throw new IOException("Could not find configuration file!");
+        }
+        p.load(inst);
+        settings = p;
+        String name = p.getProperty("Obsidian-Main");
+        if (name == null) {
+            throw new IOException("Could not find configuration-specified launchee!");
+        }
+        ObsidianCore core = (ObsidianCore) Class.forName(name).newInstance();
+        core.properties = p;
+        CluckGlobals.initializeServer(80);
+        final Event prd = new Event();
+        core.periodic = prd;
+        new Timer().schedule(new TimerTask() {
+            @Override
+            public void run() {
+                try {
+                    prd.produce();
+                } catch (Throwable thr) {
+                    Logger.log(LogLevel.SEVERE, "Exception caught in execution loop - robots don't quit!", thr);
+                }
+            }
+        }, 10, 20);
+        try {
+            core.createRobotControl();
+        } catch (Throwable thr) {
+            Logger.log(LogLevel.SEVERE, "Exception caught at top level during initialization - robots don't quit!", thr);
+        }
     }
 }

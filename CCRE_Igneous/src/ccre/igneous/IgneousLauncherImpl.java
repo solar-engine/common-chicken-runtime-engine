@@ -47,7 +47,6 @@ import edu.wpi.first.wpilibj.Solenoid;
 import edu.wpi.first.wpilibj.SpeedController;
 import edu.wpi.first.wpilibj.Talon;
 import edu.wpi.first.wpilibj.Victor;
-import java.io.IOException;
 
 /**
  * The Squawk implementation of the IgneousLauncher interface. Do not use this!

@@ -20,7 +20,9 @@ package ccre.obsidian;
 
 import ccre.chan.BooleanInputPoll;
 import ccre.chan.BooleanOutput;
+import ccre.chan.FloatOutput;
 import ccre.event.EventSource;
+import java.util.Properties;
 
 /**
  * A Core class for Obsidian. Extend this in order to write an application to
@@ -28,13 +30,17 @@ import ccre.event.EventSource;
  *
  * @author skeggsc
  */
-public class ObsidianCore implements GPIOChannels {
+public abstract class ObsidianCore implements GPIOChannels {
 
     /**
      * Produced about every twenty milliseconds. This timing is subject to
      * change.
      */
     protected EventSource periodic;
+    /**
+     * The properties loaded automatically for Obsidian.
+     */
+    protected Properties properties;
 
     /**
      * Implement this method - it should set up everything that your robot needs
@@ -63,5 +69,47 @@ public class ObsidianCore implements GPIOChannels {
      */
     public BooleanInputPoll makeGPIOInput(int chan, boolean pullSetting) {
         return GPIOManager.setupChannel(chan, false, pullSetting);
+    }
+
+    /**
+     * Open the specified PWM channel for output with the specified default
+     * value, calibration, frequency, and polarity.
+     *
+     * @param chan The channel name for the PWM.
+     * @param defaultValue The default value (in the range calibrateLow ...
+     * calibrateHigh)
+     * @param calibrateLow The low end of the calibration. Becomes 0% duty.
+     * @param calibrateHigh The high end of the calibration. Becomes 100% duty.
+     * @param frequency The frequency to write.
+     * @param zeroPolarity Should the polarity be zero? Otherwise one.
+     * @return the output that writes to the PWM.
+     * @throws ObsidianHardwareException
+     */
+    public FloatOutput makePWMOutput(String chan, float defaultValue, final float calibrateLow, final float calibrateHigh, float frequency, boolean zeroPolarity) throws ObsidianHardwareException {
+        final FloatOutput raw = PWMManager.createPWMOutput(chan, ((defaultValue - calibrateLow) / (calibrateHigh - calibrateLow)), frequency, zeroPolarity);
+        return new FloatOutput() {
+            @Override
+            public void writeValue(float f) {
+                float a = ((f - calibrateLow) / (calibrateHigh - calibrateLow));
+                if (a < 0) {
+                    a = 0;
+                } else if (a > 1) {
+                    a = 1;
+                }
+                raw.writeValue(a);
+            }
+        };
+    }
+
+    /**
+     * Close the specified PWM channel. The channel will throw errors if
+     * accessed once this is called. You can then later reopen the channel as if
+     * it had never been opened.
+     *
+     * @param chan The channel to close.
+     * @throws ObsidianHardwareException
+     */
+    public void destroyPWMOutput(String chan) throws ObsidianHardwareException {
+        PWMManager.destroyChannel(chan);
     }
 }

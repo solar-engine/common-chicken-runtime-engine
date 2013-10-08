@@ -47,7 +47,6 @@ import edu.wpi.first.wpilibj.Solenoid;
 import edu.wpi.first.wpilibj.SpeedController;
 import edu.wpi.first.wpilibj.Talon;
 import edu.wpi.first.wpilibj.Victor;
-import java.io.IOException;
 
 /**
  * The Squawk implementation of the IgneousLauncher interface. Do not use this!
@@ -97,11 +96,7 @@ class IgneousLauncherImpl extends IterativeRobot implements IgneousLauncher {
     protected Event globalPeriodic = new Event();
 
     public final void robotInit() {
-        try {
-            CluckGlobals.initializeServer(80);
-        } catch (IOException ex) {
-            Logger.log(LogLevel.SEVERE, "Could not start Cluck server!", ex);
-        }
+        CluckGlobals.initializeServer(80);
         core.duringAutonomous = this.duringAutonomous;
         core.duringDisabled = this.duringDisabled;
         core.duringTeleop = this.duringTeleop;

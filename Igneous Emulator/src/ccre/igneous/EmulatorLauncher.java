@@ -99,11 +99,7 @@ public class EmulatorLauncher implements IgneousLauncher {
     protected final Event startedTesting = new Event();
 
     public void start() {
-        try {
-            CluckGlobals.initializeServer(80);
-        } catch (IOException ex) {
-            Logger.log(LogLevel.SEVERE, "Could not start Cluck server!", ex);
-        }
+        CluckGlobals.initializeServer(80);
         core.duringAutonomous = this.duringAutonomous;
         core.duringDisabled = this.duringDisabled;
         core.duringTeleop = this.duringTeleop;

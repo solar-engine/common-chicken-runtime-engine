@@ -59,7 +59,7 @@
         <echo message="Missing FRC plugin installation! Igneous projects will not work, and Javadoc will not be generated." />
     </target>
     
-    <target name="-post-jar" depends="downgrade-jar,ccre-javadoc,downgrade-jar-check"></target>
+    <target name="-post-jar" depends="downgrade-jar,downgrade-jar-check"></target>
     
     <!-- Custom target to generate ALL CCRE javadoc, including Igneous. -->
     <target depends="init" description="Build CCRE Javadoc." name="ccre-javadoc" if="sunspot.home">

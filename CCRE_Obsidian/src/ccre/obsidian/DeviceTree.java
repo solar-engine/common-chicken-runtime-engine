@@ -18,6 +18,7 @@
  */
 package ccre.obsidian;
 
+import ccre.log.Logger;
 import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
@@ -101,7 +102,12 @@ public class DeviceTree {
                     if (i == -1) {
                         throw new IOException("Cannot find colon to detect line for removal!");
                     }
-                    raf.writeBytes("-" + line.substring(line.lastIndexOf(' ') + 1, i));
+                    String s = line.substring(0, i);
+                    while (s.charAt(0) == ' ') {
+                        s = s.substring(1); // TODO: Optimize
+                    }
+                    Logger.info("Writing: " + ("-" + s));
+                    raf.writeBytes("-" + s);
                     return true;
                 }
             }

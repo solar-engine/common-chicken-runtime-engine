@@ -20,6 +20,7 @@ package ccre.obsidian;
 
 import ccre.chan.BooleanInputPoll;
 import ccre.chan.BooleanOutput;
+import ccre.chan.FloatInputPoll;
 import ccre.chan.FloatOutput;
 import ccre.event.EventSource;
 import java.util.Properties;
@@ -85,17 +86,22 @@ public abstract class ObsidianCore implements GPIOChannels {
      * @return the output that writes to the PWM.
      * @throws ObsidianHardwareException
      */
-    public FloatOutput makePWMOutput(String chan, float defaultValue, final float calibrateLow, final float calibrateHigh, float frequency, boolean zeroPolarity) throws ObsidianHardwareException {
-        final FloatOutput raw = PWMManager.createPWMOutput(chan, ((defaultValue - calibrateLow) / (calibrateHigh - calibrateLow)), frequency, zeroPolarity);
+    public FloatOutput makePWMOutput(String chan, float defaultValue, final float calibrateN1, final float calibrateN2, float frequency, boolean zeroPolarity) throws ObsidianHardwareException {
+        if (defaultValue < -1) {
+            defaultValue = -1;
+        } else if (defaultValue > 1) {
+            defaultValue = 1;
+        }
+        final FloatOutput raw = PWMManager.createPWMOutput(chan, ((defaultValue + 1) / 2) * (calibrateN2 - calibrateN1) + calibrateN1, frequency, zeroPolarity);
         return new FloatOutput() {
             @Override
             public void writeValue(float f) {
-                float a = ((f - calibrateLow) / (calibrateHigh - calibrateLow));
-                if (a < 0) {
-                    a = 0;
-                } else if (a > 1) {
-                    a = 1;
+                if (f < -1) {
+                    f = -1;
+                } else if (f > 1) {
+                    f = 1;
                 }
+                float a = ((f + 1) / 2) * (calibrateN2 - calibrateN1) + calibrateN1;
                 raw.writeValue(a);
             }
         };
@@ -111,5 +117,17 @@ public abstract class ObsidianCore implements GPIOChannels {
      */
     public void destroyPWMOutput(String chan) throws ObsidianHardwareException {
         PWMManager.destroyChannel(chan);
+    }
+
+    /**
+     * Open the specified analog channel for input.
+     *
+     * @param chan The channel number for the analog input.
+     * @return a FloatInputPoll that represents the current uncalibrated value
+     * of the analog input, from 0.0 to 1.0.
+     * @throws ObsidianHardwareException
+     */
+    public FloatInputPoll makeAnalogInput(int chan) throws ObsidianHardwareException {
+        return ADCManager.getChannel(chan);
     }
 }

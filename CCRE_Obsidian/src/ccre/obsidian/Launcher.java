@@ -24,6 +24,7 @@ import ccre.log.LogLevel;
 import ccre.log.Logger;
 import ccre.log.LoggingTarget;
 import ccre.log.MultiTargetLogger;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
@@ -44,10 +45,18 @@ public class Launcher {
     public static Properties settings;
 
     public static void main(String[] args) throws IOException, ClassNotFoundException, InstantiationException, IllegalAccessException {
+        boolean watch = false;
+        if (args.length != 0) {
+            if (!args[0].equals("use-watcher")) {
+                ccre.launcher.Launcher.main(args);
+                return;
+            }
+            watch = true;
+        }
         CluckGlobals.ensureInitializedCore();
         Logger.target = new MultiTargetLogger(new LoggingTarget[]{Logger.target, CluckGlobals.encoder.subscribeLoggingTarget(LogLevel.FINEST, "general-logger")});
         Properties p = new Properties();
-        InputStream inst = Launcher.class.getResourceAsStream("obsidian-conf.properties");
+        InputStream inst = Launcher.class.getResourceAsStream("/obsidian-conf.properties");
         if (inst == null) {
             throw new IOException("Could not find configuration file!");
         }
@@ -62,7 +71,8 @@ public class Launcher {
         CluckGlobals.initializeServer(80);
         final Event prd = new Event();
         core.periodic = prd;
-        new Timer().schedule(new TimerTask() {
+        final Timer t = new Timer();
+        t.schedule(new TimerTask() {
             @Override
             public void run() {
                 try {
@@ -72,6 +82,19 @@ public class Launcher {
                 }
             }
         }, 10, 20);
+        if (watch) {
+            final File watchee = new File("remote-watcher");
+            t.schedule(new TimerTask() {
+                @Override
+                public void run() {
+                    if (watchee.exists()) {
+                        watchee.delete();
+                        Logger.info("Shutting down due to watcher notification.");
+                        System.exit(0);
+                    }
+                }
+            }, 500, 1000);
+        }
         try {
             core.createRobotControl();
         } catch (Throwable thr) {

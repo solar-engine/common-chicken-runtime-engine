@@ -23,6 +23,7 @@ import ccre.concurrency.ReporterThread;
 import ccre.log.LogLevel;
 import ccre.log.Logger;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.util.HashMap;
@@ -60,15 +61,15 @@ public class PWMManager {
         /**
          * The open file for controlling the period.
          */
-        private final RandomAccessFile period;
+        private final FileOutputStream period;
         /**
          * The open file for controlling the duty.
          */
-        private final RandomAccessFile duty;
+        private final FileOutputStream duty;
         /**
          * The open file for controlling the polarity.
          */
-        private final RandomAccessFile polarity;
+        private final FileOutputStream polarity;
         /**
          * Has this channel been destoyed/closed?
          */
@@ -83,7 +84,7 @@ public class PWMManager {
          * @param duty The file for the duty of the channel.
          * @param polarity The file for the polarity of the channel.
          */
-        private PWM(String key, RandomAccessFile period, RandomAccessFile duty, RandomAccessFile polarity) {
+        private PWM(String key, FileOutputStream period, FileOutputStream duty, FileOutputStream polarity) {
             this.key = key;
             this.period = period;
             this.duty = duty;
@@ -105,7 +106,9 @@ public class PWMManager {
                 long nanos = (long) (1e9 / frequency);
                 if (nanos != period_ns) {
                     try {
-                        period.writeBytes(String.valueOf(nanos));
+                        String s = String.valueOf(nanos);
+                        Logger.fine("Setting period: " + s);
+                        period.write(s.getBytes());
                     } catch (IOException ex) {
                         throw new ObsidianHardwareException("Cannot set frequency of PWM!", ex);
                     }
@@ -127,7 +130,7 @@ public class PWMManager {
                     throw new ObsidianHardwareException("PWM channel destroyed!");
                 }
                 try {
-                    polarity.writeByte(zeroPolarity ? '0' : '1');
+                    polarity.write(zeroPolarity ? '0' : '1');
                 } catch (IOException ex) {
                     throw new ObsidianHardwareException("Cannot set polarity of PWM!", ex);
                 }
@@ -144,7 +147,7 @@ public class PWMManager {
                     throw new ObsidianHardwareException("Invalid Duty!");
                 }
                 try {
-                    duty.writeBytes(String.valueOf((long) (period_ns * f)));
+                    duty.write(String.valueOf((long) (period_ns * f)).getBytes());
                 } catch (IOException ex) {
                     throw new ObsidianHardwareException("Cannot set frequency of PWM!", ex);
                 }
@@ -158,6 +161,7 @@ public class PWMManager {
          */
         public void destroy() throws ObsidianHardwareException {
             synchronized (lock) {
+                Logger.info("Destroying: " + this.key);
                 if (destroyed) {
                     return;
                 }
@@ -225,27 +229,14 @@ public class PWMManager {
             try {
                 DeviceTree.loadCapeManager("bone_pwm_" + key);
                 File tpath = DeviceTree.autocompletePath(pwmDirectory, "pwm_test_" + key);
-                RandomAccessFile period = null, duty = null, polarity = null;
-                PWM p;
-                try {
-                    period = new RandomAccessFile(new File(tpath, "period"), "rw");
-                    duty = new RandomAccessFile(new File(tpath, "duty"), "rw");
-                    polarity = new RandomAccessFile(new File(tpath, "polarity"), "rw");
-                    p = new PWM(key, period, duty, polarity);
-                    pwms.put(key, p);
-                } finally {
-                    if (period != null) {
-                        period.close();
-                    }
-                    if (duty != null) {
-                        duty.close();
-                    }
-                    if (polarity != null) {
-                        polarity.close();
-                    }
-                }
-                p.setFrequency(frequency);
+                FileOutputStream period = null, duty = null, polarity = null;
+                period = new FileOutputStream(new File(tpath, "period"));
+                duty = new FileOutputStream(new File(tpath, "duty"));
+                polarity = new FileOutputStream(new File(tpath, "polarity"));
+                PWM p = new PWM(key, period, duty, polarity);
+                pwms.put(key, p);
                 p.setPolarity(zeroPolarity);
+                p.setFrequency(frequency);
                 p.writeValue(def);
                 return p;
             } catch (IOException ex) {

@@ -21,6 +21,8 @@ package ccre.igneous;
 import ccre.chan.*;
 import ccre.ctrl.*;
 import ccre.event.EventSource;
+import ccre.instinct.AutonomousModeOverException;
+import ccre.instinct.InstinctBase;
 
 /**
  * A Core class for Igneous. Extend this (or SimpleCore, which is easier) in
@@ -257,6 +259,16 @@ public abstract class IgneousCore {
      */
     protected final void makeDSFloatReadout(String prefix, int line, FloatInputPoll value, EventSource when) {
         Mixing.pumpWhen(when, value, launcher.makeDSFloatReadout(prefix, line));
+    }
+
+    /**
+     * Send the specified string to the specified line of the driver station.
+     *
+     * @param value The string to display.
+     * @param line The line number (1-6).
+     */
+    protected final void sendDSUpdate(String value, int line) {
+        launcher.sendDSUpdate(value, line);
     }
 
     /**

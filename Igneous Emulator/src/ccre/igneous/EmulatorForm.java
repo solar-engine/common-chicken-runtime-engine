@@ -26,7 +26,6 @@ import ccre.log.LogLevel;
 import ccre.log.Logger;
 import java.awt.Color;
 import java.awt.EventQueue;
-import java.util.logging.Level;
 import javax.swing.ButtonModel;
 import javax.swing.JLabel;
 import javax.swing.JProgressBar;
@@ -51,7 +50,7 @@ public class EmulatorForm extends javax.swing.JFrame {
             Logger.log(LogLevel.WARNING, "Cannot use look-and-feel!", ex);
         }
     }
-    
+
     /**
      * Creates new form EmulatorForm
      */
@@ -1709,6 +1708,38 @@ public class EmulatorForm extends javax.swing.JFrame {
                 return dig.isSelected();
             }
         };
+    }
+
+    public void sendDSUpdate(final String value, int line) {
+        final JLabel tgt;
+        switch (line) {
+            case 1:
+                tgt = lcd1;
+                break;
+            case 2:
+                tgt = lcd2;
+                break;
+            case 3:
+                tgt = lcd3;
+                break;
+            case 4:
+                tgt = lcd4;
+                break;
+            case 5:
+                tgt = lcd5;
+                break;
+            case 6:
+                tgt = lcd6;
+                break;
+            default:
+                throw new RuntimeException("Bad LCD line: " + line);
+        }
+        EventQueue.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                tgt.setText(value);
+            }
+        });
     }
 
     public FloatOutput getDSReadout(final String prefix, int line) {

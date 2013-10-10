@@ -20,10 +20,16 @@ package org.team1540.example;
 
 import ccre.chan.*;
 import ccre.ctrl.DriverImpls;
+import ccre.ctrl.Mixing;
+import ccre.ctrl.MultipleSourceBooleanController;
+import ccre.event.EventLogger;
 import ccre.event.EventSource;
 import ccre.igneous.SimpleCore;
+import ccre.instinct.AutonomousModeOverException;
+import ccre.instinct.InstinctBase;
 
 public class Test extends SimpleCore {
+
     protected void createSimpleControl() {
         // Driving
         FloatInputPoll leftAxis = joystick1.getAxisChannel(2);
@@ -32,8 +38,8 @@ public class Test extends SimpleCore {
         this.makeDSFloatReadout("Left", 1, leftAxis, duringTeleop);
         this.makeDSFloatReadout("Right", 2, rightAxis, duringTeleop);
         this.makeDSFloatReadout("Forward", 3, forwardAxis, duringTeleop);
-        FloatOutput leftOut = makeTalonMotor(2, MOTOR_FORWARD);
-        FloatOutput rightOut = makeTalonMotor(1, MOTOR_REVERSE);
+        final FloatOutput leftOut = makeTalonMotor(2, MOTOR_FORWARD);
+        final FloatOutput rightOut = makeTalonMotor(1, MOTOR_REVERSE);
         DriverImpls.createExtendedSynchTankDriver(duringTeleop, leftAxis, rightAxis, forwardAxis, leftOut, rightOut);
         // Shifting
         EventSource shiftHighBtn = joystick1.getButtonSource(1);
@@ -44,5 +50,26 @@ public class Test extends SimpleCore {
         shifter.setFalseWhen(shiftHighBtn);
         // Compressor
         useCompressor(1, 1);
+        MultipleSourceBooleanController b = new MultipleSourceBooleanController(MultipleSourceBooleanController.AND);
+        b.addInput(Mixing.invert(getIsDisabled()));
+        b.addInput(getIsAutonomous());
+        b.addTarget(new BooleanOutput() {
+            public void writeValue(boolean bln) {
+                sendDSUpdate("Current status: " + bln, 4);
+            }
+        });
+        globalPeriodic.addListener(b);
+        new InstinctBase(b) {
+            protected void autonomousMain() throws AutonomousModeOverException, InterruptedException {
+                leftOut.writeValue(1.0f);
+                rightOut.writeValue(1.0f);
+                waitForTime(500);
+                leftOut.writeValue(0.5f);
+                rightOut.writeValue(0.5f);
+                waitForTime(1000);
+                leftOut.writeValue(0);
+                rightOut.writeValue(0);
+            }
+        }.updateWhen(globalPeriodic);
     }
 }

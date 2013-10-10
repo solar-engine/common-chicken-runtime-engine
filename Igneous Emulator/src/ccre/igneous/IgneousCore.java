@@ -260,6 +260,16 @@ public abstract class IgneousCore {
     }
 
     /**
+     * Send the specified string to the specified line of the driver station.
+     *
+     * @param value The string to display.
+     * @param line The line number (1-6).
+     */
+    protected final void sendDSUpdate(String value, int line) {
+        launcher.sendDSUpdate(value, line);
+    }
+
+    /**
      * Get a boolean input that checks if the robot is currently disabled.
      *
      * @return the input.

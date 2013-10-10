@@ -301,6 +301,36 @@ class IgneousLauncherImpl extends IterativeRobot implements IgneousLauncher {
         };
     }
 
+    public void sendDSUpdate(String value, int lineid) {
+        final Line line;
+        switch (lineid) {
+            case 1:
+                line = DriverStationLCD.Line.kUser1;
+                break;
+            case 2:
+                line = DriverStationLCD.Line.kUser2;
+                break;
+            case 3:
+                line = DriverStationLCD.Line.kUser3;
+                break;
+            case 4:
+                line = DriverStationLCD.Line.kUser4;
+                break;
+            case 5:
+                line = DriverStationLCD.Line.kUser5;
+                break;
+            case 6:
+                line = DriverStationLCD.Line.kUser6;
+                break;
+            default:
+                throw new IllegalArgumentException("Bad line number (expected 1-6): " + lineid);
+        }
+        DriverStationLCD dslcd = DriverStationLCD.getInstance();
+        dslcd.println(line, 1, "                    ");
+        dslcd.println(line, 1, value);
+        dslcd.updateLCD();
+    }
+
     public BooleanInputPoll getIsDisabled() {
         return new BooleanInputPoll() {
             public boolean readValue() {

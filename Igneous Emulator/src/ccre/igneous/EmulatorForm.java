@@ -1532,7 +1532,7 @@ public class EmulatorForm extends javax.swing.JFrame {
     }
 
     public FloatOutput getTalon(int id) {
-        return getMotorColored(id, new Color(0x000056), -1, 1);
+        return getMotorColored(id, new Color(0xA1A100), -1, 1);
     }
 
     public FloatOutput getServo(int id, float minInput, float maxInput) {

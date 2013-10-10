@@ -20,7 +20,9 @@ package ccre.igneous;
 
 import ccre.chan.*;
 import ccre.ctrl.*;
+import ccre.event.EventConsumer;
 import ccre.event.EventSource;
+import ccre.instinct.InstinctRegistrar;
 
 /**
  * A Core class for Igneous. Extend this (or SimpleCore, which is easier) in
@@ -29,7 +31,7 @@ import ccre.event.EventSource;
  * @see SimpleCore
  * @author skeggsc
  */
-public abstract class IgneousCore {
+public abstract class IgneousCore implements InstinctRegistrar {
 
     /**
      * The launcher that provides all implementations for this.
@@ -137,7 +139,7 @@ public abstract class IgneousCore {
      * MOTOR_REVERSE if the motor should be reversed.
      * @return the output that will output to the specified motor.
      * @see #MOTOR_FORWARD
-     * @see #MOTOR_FREVERSE
+     * @see #MOTOR_REVERSE
      */
     protected final FloatOutput makeJaguarMotor(int id, boolean negate) {
         return launcher.makeJaguar(id, negate);
@@ -152,7 +154,7 @@ public abstract class IgneousCore {
      * MOTOR_REVERSE if the motor should be reversed.
      * @return the output that will output to the specified motor.
      * @see #MOTOR_FORWARD
-     * @see #MOTOR_FREVERSE
+     * @see #MOTOR_REVERSE
      */
     protected final FloatOutput makeVictorMotor(int id, boolean negate) {
         return launcher.makeVictor(id, negate);
@@ -167,7 +169,7 @@ public abstract class IgneousCore {
      * MOTOR_REVERSE if the motor should be reversed.
      * @return the output that will output to the specified motor.
      * @see #MOTOR_FORWARD
-     * @see #MOTOR_FREVERSE
+     * @see #MOTOR_REVERSE
      */
     protected final FloatOutput makeTalonMotor(int id, boolean negate) {
         return launcher.makeTalon(id, negate);
@@ -226,7 +228,7 @@ public abstract class IgneousCore {
      * servo's minimum position.
      * @param maxInput the value on the output that should correspond to the
      * servo's maximum position.
-     * @return
+     * @return the FloatOutput that controls the servo.
      */
     protected final FloatOutput makeServo(int id, float minInput, float maxInput) {
         return launcher.makeServo(id, minInput, maxInput);
@@ -309,5 +311,13 @@ public abstract class IgneousCore {
      */
     protected final void useCustomCompressor(BooleanInputPoll shouldDisable, int compressorRelayChannel) {
         launcher.useCustomCompressor(shouldDisable, compressorRelayChannel);
+    }
+
+    public BooleanInputPoll getWhenShouldAutonomousBeRunning() {
+        return Mixing.andBooleans(Mixing.invert(getIsDisabled()), getIsAutonomous());
+    }
+
+    public void updatePeriodicallyAlways(EventConsumer toUpdate) {
+        globalPeriodic.addListener(toUpdate);
     }
 }

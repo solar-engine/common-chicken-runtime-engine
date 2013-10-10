@@ -26,7 +26,7 @@ import ccre.event.EventLogger;
 import ccre.event.EventSource;
 import ccre.igneous.SimpleCore;
 import ccre.instinct.AutonomousModeOverException;
-import ccre.instinct.InstinctBase;
+import ccre.instinct.InstinctModule;
 
 public class Test extends SimpleCore {
 
@@ -50,16 +50,7 @@ public class Test extends SimpleCore {
         shifter.setFalseWhen(shiftHighBtn);
         // Compressor
         useCompressor(1, 1);
-        MultipleSourceBooleanController b = new MultipleSourceBooleanController(MultipleSourceBooleanController.AND);
-        b.addInput(Mixing.invert(getIsDisabled()));
-        b.addInput(getIsAutonomous());
-        b.addTarget(new BooleanOutput() {
-            public void writeValue(boolean bln) {
-                sendDSUpdate("Current status: " + bln, 4);
-            }
-        });
-        globalPeriodic.addListener(b);
-        new InstinctBase(b) {
+        new InstinctModule() {
             protected void autonomousMain() throws AutonomousModeOverException, InterruptedException {
                 leftOut.writeValue(1.0f);
                 rightOut.writeValue(1.0f);
@@ -70,6 +61,6 @@ public class Test extends SimpleCore {
                 leftOut.writeValue(0);
                 rightOut.writeValue(0);
             }
-        }.updateWhen(globalPeriodic);
+        }.register(this);
     }
 }

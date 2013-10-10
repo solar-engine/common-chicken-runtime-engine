@@ -28,17 +28,26 @@ import ccre.log.LogLevel;
 import ccre.log.Logger;
 
 /**
- * The base class for the Instinct, the simple autonomous subsystem.
+ * The base class for an Instinct (the simple autonomous subsystem) module.
  *
  * @author skeggsc
  */
-public abstract class InstinctBase implements EventConsumer {
+public abstract class InstinctModule implements EventConsumer {
 
-    public final BooleanInputPoll shouldBeRunning;
+    private BooleanInputPoll shouldBeRunning;
     private boolean isRunning = false, isEndWaiting = false;
 
-    public InstinctBase(BooleanInputPoll shouldBeRunning) {
+    public InstinctModule(BooleanInputPoll shouldBeRunning) {
         this.shouldBeRunning = shouldBeRunning;
+    }
+
+    public InstinctModule() {
+        this.shouldBeRunning = null;
+    }
+    
+    public void register(InstinctRegistrar reg) {
+        this.shouldBeRunning = reg.getWhenShouldAutonomousBeRunning();
+        reg.updatePeriodicallyAlways(this);
     }
 
     public void updateWhen(EventSource src) {
@@ -95,6 +104,9 @@ public abstract class InstinctBase implements EventConsumer {
     };
 
     public final void eventFired() {
+        if (shouldBeRunning == null) {
+            throw new RuntimeException("You need to have specified when the Insight module should be running!");
+        }
         if (shouldBeRunning.readValue() || isEndWaiting) {
             if (!main.isAlive()) {
                 main.start();

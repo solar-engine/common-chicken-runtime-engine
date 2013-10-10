@@ -20,9 +20,9 @@ package ccre.igneous;
 
 import ccre.chan.*;
 import ccre.ctrl.*;
+import ccre.event.EventConsumer;
 import ccre.event.EventSource;
-import ccre.instinct.AutonomousModeOverException;
-import ccre.instinct.InstinctBase;
+import ccre.instinct.InstinctRegistrar;
 
 /**
  * A Core class for Igneous. Extend this (or SimpleCore, which is easier) in
@@ -31,7 +31,7 @@ import ccre.instinct.InstinctBase;
  * @see SimpleCore
  * @author skeggsc
  */
-public abstract class IgneousCore {
+public abstract class IgneousCore implements InstinctRegistrar {
 
     /**
      * The launcher that provides all implementations for this.
@@ -311,5 +311,13 @@ public abstract class IgneousCore {
      */
     protected final void useCustomCompressor(BooleanInputPoll shouldDisable, int compressorRelayChannel) {
         launcher.useCustomCompressor(shouldDisable, compressorRelayChannel);
+    }
+
+    public BooleanInputPoll getWhenShouldAutonomousBeRunning() {
+        return Mixing.andBooleans(Mixing.invert(getIsDisabled()), getIsAutonomous());
+    }
+
+    public void updatePeriodicallyAlways(EventConsumer toUpdate) {
+        globalPeriodic.addListener(toUpdate);
     }
 }

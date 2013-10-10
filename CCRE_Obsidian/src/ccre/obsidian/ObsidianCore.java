@@ -42,6 +42,10 @@ public abstract class ObsidianCore implements GPIOChannels {
      * The properties loaded automatically for Obsidian.
      */
     protected Properties properties;
+    /**
+     * The launcher, which provides either real or emulated IO capabilities.
+     */
+    protected ObsidianLauncher launcher;
 
     /**
      * Implement this method - it should set up everything that your robot needs
@@ -58,7 +62,7 @@ public abstract class ObsidianCore implements GPIOChannels {
      * @see ccre.obsidian.GPIOChannels
      */
     public BooleanOutput makeGPIOOutput(int chan, boolean defaultValue) {
-        return GPIOManager.setupChannel(chan, true, defaultValue);
+        return launcher.makeGPIOOutput(chan, defaultValue);
     }
 
     /**
@@ -68,8 +72,8 @@ public abstract class ObsidianCore implements GPIOChannels {
      * @param pullSetting the setting for the pull resistors.
      * @return the BooleanInputPoll representing the GPIO channel.
      */
-    public BooleanInputPoll makeGPIOInput(int chan, boolean pullSetting) {
-        return GPIOManager.setupChannel(chan, false, pullSetting);
+    public BooleanInputPoll makeuGPIOInput(int chan, boolean pullSetting) {
+        return launcher.makeGPIOInput(chan, pullSetting);
     }
 
     /**
@@ -87,24 +91,7 @@ public abstract class ObsidianCore implements GPIOChannels {
      * @throws ObsidianHardwareException
      */
     public FloatOutput makePWMOutput(String chan, float defaultValue, final float calibrateN1, final float calibrateN2, float frequency, boolean zeroPolarity) throws ObsidianHardwareException {
-        if (defaultValue < -1) {
-            defaultValue = -1;
-        } else if (defaultValue > 1) {
-            defaultValue = 1;
-        }
-        final FloatOutput raw = PWMManager.createPWMOutput(chan, ((defaultValue + 1) / 2) * (calibrateN2 - calibrateN1) + calibrateN1, frequency, zeroPolarity);
-        return new FloatOutput() {
-            @Override
-            public void writeValue(float f) {
-                if (f < -1) {
-                    f = -1;
-                } else if (f > 1) {
-                    f = 1;
-                }
-                float a = ((f + 1) / 2) * (calibrateN2 - calibrateN1) + calibrateN1;
-                raw.writeValue(a);
-            }
-        };
+        return launcher.makePWMOutput(chan, defaultValue, calibrateN1, calibrateN2, frequency, zeroPolarity);
     }
 
     /**
@@ -116,7 +103,7 @@ public abstract class ObsidianCore implements GPIOChannels {
      * @throws ObsidianHardwareException
      */
     public void destroyPWMOutput(String chan) throws ObsidianHardwareException {
-        PWMManager.destroyChannel(chan);
+        launcher.destroyPWMOutput(chan);
     }
 
     /**
@@ -128,6 +115,6 @@ public abstract class ObsidianCore implements GPIOChannels {
      * @throws ObsidianHardwareException
      */
     public FloatInputPoll makeAnalogInput(int chan) throws ObsidianHardwareException {
-        return ADCManager.getChannel(chan);
+        return launcher.makeAnalogInput(chan);
     }
 }

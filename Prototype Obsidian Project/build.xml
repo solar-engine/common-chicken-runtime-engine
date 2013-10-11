@@ -69,7 +69,7 @@
         <java jar="${ccrejar}" failonerror="true">
             <arg value="rcli" />
             <arg value="${jar.dir}/ObsidianProgram.jar" />
-            <arg value="10.15.40.2" />
+            <arg value="192.168.7.2" />
         </java>
     </target>
 

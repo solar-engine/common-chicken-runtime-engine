@@ -242,6 +242,11 @@ public class EmulatorLauncher implements IgneousLauncher {
     }
 
     @Override
+    public void sendDSUpdate(String value, int line) {
+        emf.sendDSUpdate(value, line);
+    }
+
+    @Override
     public BooleanInputPoll getIsDisabled() {
         return new BooleanInputPoll() {
             @Override

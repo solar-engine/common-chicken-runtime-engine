@@ -18,35 +18,16 @@
  */
 package ccre.igneous;
 
-import ccre.chan.BooleanInputPoll;
-import ccre.chan.BooleanOutput;
-import ccre.chan.FloatInputPoll;
-import ccre.chan.FloatOutput;
+import ccre.chan.*;
 import ccre.cluck.CluckGlobals;
-import ccre.ctrl.IDispatchJoystick;
-import ccre.ctrl.ISimpleJoystick;
-import ccre.event.Event;
-import ccre.event.EventSource;
-import ccre.log.LogLevel;
-import ccre.log.Logger;
-import ccre.log.LoggingTarget;
-import ccre.log.MultiTargetLogger;
+import ccre.ctrl.*;
+import ccre.event.*;
+import ccre.log.*;
 import ccre.net.IgneousNetworkProvider;
 import ccre.saver.IgneousStorageProvider;
 import ccre.workarounds.IgneousThrowablePrinter;
 import com.sun.squawk.VM;
-import edu.wpi.first.wpilibj.AnalogChannel;
-import edu.wpi.first.wpilibj.DigitalInput;
-import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.DriverStationLCD;
-import edu.wpi.first.wpilibj.DriverStationLCD.Line;
-import edu.wpi.first.wpilibj.IterativeRobot;
-import edu.wpi.first.wpilibj.Jaguar;
-import edu.wpi.first.wpilibj.Servo;
-import edu.wpi.first.wpilibj.Solenoid;
-import edu.wpi.first.wpilibj.SpeedController;
-import edu.wpi.first.wpilibj.Talon;
-import edu.wpi.first.wpilibj.Victor;
+import edu.wpi.first.wpilibj.*;
 
 /**
  * The Squawk implementation of the IgneousLauncher interface. Do not use this!
@@ -268,7 +249,7 @@ class IgneousLauncherImpl extends IterativeRobot implements IgneousLauncher {
     }
 
     public FloatOutput makeDSFloatReadout(final String prefix, final int lineid) {
-        final Line line;
+        final DriverStationLCD.Line line;
         switch (lineid) {
             case 1:
                 line = DriverStationLCD.Line.kUser1;
@@ -302,7 +283,7 @@ class IgneousLauncherImpl extends IterativeRobot implements IgneousLauncher {
     }
 
     public void sendDSUpdate(String value, int lineid) {
-        final Line line;
+        final DriverStationLCD.Line line;
         switch (lineid) {
             case 1:
                 line = DriverStationLCD.Line.kUser1;
@@ -354,5 +335,21 @@ class IgneousLauncherImpl extends IterativeRobot implements IgneousLauncher {
         } else {
             throw new IllegalStateException("Compressor already started!");
         }
+    }
+
+    public FloatInputPoll makeEncoder(int aChannel, int bChannel, boolean reverse, EventSource resetWhen) {
+        final Encoder enc = new Encoder(aChannel, bChannel, reverse);
+        if (resetWhen != null) {
+            resetWhen.addListener(new EventConsumer() {
+                public void eventFired() {
+                    enc.reset();
+                }
+            });
+        }
+        return new FloatInputPoll() {
+            public float readValue() {
+                return enc.get();
+            }
+        };
     }
 }

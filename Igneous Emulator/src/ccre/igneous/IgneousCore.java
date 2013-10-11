@@ -320,4 +320,32 @@ public abstract class IgneousCore implements InstinctRegistrar {
     public void updatePeriodicallyAlways(EventConsumer toUpdate) {
         globalPeriodic.addListener(toUpdate);
     }
+
+    /**
+     * Create a reference to an Encoder on the specified ports with the
+     * specified number of average bits.
+     *
+     * @param aChannel The alpha-channel for the encoder.
+     * @param bChannel The beta-channel for the encoder.
+     * @param reverse Should the result of the encoder be negated?
+     * @param resetWhen If provided, the Encoder's value will be reset when this
+     * event is produced.
+     * @return the Encoder, reporting encoder ticks.
+     */
+    protected final FloatInputPoll makeEncoder(int aChannel, int bChannel, boolean reverse, EventSource resetWhen) {
+        return launcher.makeEncoder(aChannel, bChannel, reverse, resetWhen);
+    }
+
+    /**
+     * Create a reference to an Encoder on the specified ports with the
+     * specified number of average bits.
+     *
+     * @param aChannel The alpha-channel for the encoder.
+     * @param bChannel The beta-channel for the encoder.
+     * @param reverse Should the result of the encoder be negated?
+     * @return the Encoder, reporting encoder ticks.
+     */
+    protected final FloatInputPoll makeEncoder(int aChannel, int bChannel, boolean reverse) {
+        return launcher.makeEncoder(aChannel, bChannel, reverse, null);
+    }
 }

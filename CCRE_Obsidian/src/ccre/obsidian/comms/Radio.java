@@ -40,35 +40,35 @@ public interface Radio {
      * Send a data packet synchronously over the network to the specified
      * address, and waits indefinitely for a response.
      * 
-     * @param address The Address to send the packet to.
+     * @param address The address to send the packet to.
      * @param message The packet to send.
      * @return The Packet received.
      * @throws RadioException 
      */
-    public Packet sendPacketSync(Address address, int[] message) throws RadioException;
+    public Packet sendPacketSync(int[] address, int[] message) throws RadioException;
     
     /**
      * Send a data packet synchronously over the network to the specified
      * address, and waits for a response until the timeout is reached.
      * 
-     * @param address The Address to send the packet to.
+     * @param address The address to send the packet to.
      * @param message The packet to send.
      * @param timeout The timeout, in milliseconds.
      * @return The Packet received.
      * @throws RadioException
      * @throws RadioTimeoutException 
      */
-    public Packet sendPacketSync(Address address, int[] message, int timeout) throws RadioException, RadioTimeoutException;
+    public Packet sendPacketSync(int[] address, int[] message, int timeout) throws RadioException, RadioTimeoutException;
     
     /**
      * Send a data packet asynchronously over the network the the specified
      * address.
      * 
-     * @param address The Address to send the packet to.
-     * @param message The papcket to send.
+     * @param address The address to send the packet to.
+     * @param message The packet to send.
      * @throws RadioException 
      */
-    public void sendPacketAsync(Address address, int[] message) throws RadioException;
+    public void sendPacketAsync(int[] address, int[] message) throws RadioException;
     
     /**
      * Wait for an incoming packet until the specified timeout is reached.
@@ -100,18 +100,11 @@ public interface Radio {
      */
     public interface Packet {
         /**
-         * Get the raw bytes of the packet, including escape characters.
+         * Get the raw bytes of the packet.
          * 
          * @return An array of the bytes contained in the packet.
          */
-        public int[] getRawPacketBytes();
-        
-        /**
-         * Get the un-escaped bytes of the packet.
-         * 
-         * @return An array of the un-escaped bytes contained in the packet.
-         */
-        public int[] getProcessedPacketBytes();
+        public int[] getPacketData();
         
         /**
          * @return Whether there was an error in parsing the bytes.
@@ -119,20 +112,9 @@ public interface Radio {
         public boolean isError();
         
         /**
-         * @return The Address at which the packet originated.
+         * @return The address at which the packet originated as an int[].
          */
-        public Address getRemoteAddress64();
-    }
-    
-    /**
-     * An address of a single point on the network, used to target packets and
-     * identify their origin.
-     */
-    public interface Address {
-        /**
-         * @return An int[] representation of this address.
-         */
-        public int[] getAddress();
+        public int[] getRemoteAddress();
     }
     
     /**

@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 Colby Skeggs
+ * Copyright 2013 Colby Skeggs and Vincent Miller
  * 
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  * 
@@ -193,10 +193,5 @@ public class ObsidianLauncherImpl implements ObsidianLauncher {
     @Override
     public FloatInputPoll makeAnalogInput(int chan) throws ObsidianHardwareException {
         return ADCManager.getChannel(chan);
-    }
-    
-    @Override
-    public Radio makeRadio(int usb) {
-        return null;
     }
 }

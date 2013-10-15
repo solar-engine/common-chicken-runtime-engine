@@ -18,41 +18,15 @@
  */
 package ccre.obsidian;
 
-import ccre.chan.BooleanInputPoll;
-import ccre.chan.BooleanOutput;
-import ccre.chan.FloatInputPoll;
-import ccre.chan.FloatOutput;
-import ccre.event.EventSource;
-import java.util.Properties;
+import ccre.chan.*;
 
 /**
- * A Core class for Obsidian. Extend this in order to write an application to
- * run on the BeagleBone Black.
- *
- * @author skeggsc
+ * A simple interface for a launcher which gives access to all functions of the 
+ * BeagleBone Black.
+ * 
+ * @author MillerV
  */
-public abstract class ObsidianCore implements GPIOChannels {
-
-    /**
-     * Produced about every twenty milliseconds. This timing is subject to
-     * change.
-     */
-    protected EventSource periodic;
-    /**
-     * The properties loaded automatically for Obsidian.
-     */
-    protected Properties properties;
-    /**
-     * The launcher, which provides either real or emulated IO capabilities.
-     */
-    protected ObsidianLauncher launcher;
-
-    /**
-     * Implement this method - it should set up everything that your robot needs
-     * to do.
-     */
-    protected abstract void createRobotControl();
-
+public interface ObsidianLauncher {
     /**
      * Open the specified GPIO channel for output.
      *
@@ -61,10 +35,8 @@ public abstract class ObsidianCore implements GPIOChannels {
      * @return the BooleanOutput representing the GPIO channel.
      * @see ccre.obsidian.GPIOChannels
      */
-    public BooleanOutput makeGPIOOutput(int chan, boolean defaultValue) {
-        return launcher.makeGPIOOutput(chan, defaultValue);
-    }
-
+    public BooleanOutput makeGPIOOutput(int chan, boolean defaultValue);
+    
     /**
      * Open the specified GPIO channel for input with the specified pull state.
      *
@@ -72,10 +44,8 @@ public abstract class ObsidianCore implements GPIOChannels {
      * @param pullSetting the setting for the pull resistors.
      * @return the BooleanInputPoll representing the GPIO channel.
      */
-    public BooleanInputPoll makeuGPIOInput(int chan, boolean pullSetting) {
-        return launcher.makeGPIOInput(chan, pullSetting);
-    }
-
+    public BooleanInputPoll makeGPIOInput(int chan, boolean pullSetting);
+    
     /**
      * Open the specified PWM channel for output with the specified default
      * value, calibration, frequency, and polarity.
@@ -90,10 +60,8 @@ public abstract class ObsidianCore implements GPIOChannels {
      * @return the output that writes to the PWM.
      * @throws ObsidianHardwareException
      */
-    public FloatOutput makePWMOutput(String chan, float defaultValue, final float calibrateN1, final float calibrateN2, float frequency, boolean zeroPolarity) throws ObsidianHardwareException {
-        return launcher.makePWMOutput(chan, defaultValue, calibrateN1, calibrateN2, frequency, zeroPolarity);
-    }
-
+    public FloatOutput makePWMOutput(String chan, float defaultValue, final float calibrateN1, final float calibrateN2, float frequency, boolean zeroPolarity);
+    
     /**
      * Close the specified PWM channel. The channel will throw errors if
      * accessed once this is called. You can then later reopen the channel as if
@@ -102,10 +70,8 @@ public abstract class ObsidianCore implements GPIOChannels {
      * @param chan The channel to close.
      * @throws ObsidianHardwareException
      */
-    public void destroyPWMOutput(String chan) throws ObsidianHardwareException {
-        launcher.destroyPWMOutput(chan);
-    }
-
+    public void destroyPWMOutput(String chan);
+    
     /**
      * Open the specified analog channel for input.
      *
@@ -114,7 +80,5 @@ public abstract class ObsidianCore implements GPIOChannels {
      * of the analog input, from 0.0 to 1.0.
      * @throws ObsidianHardwareException
      */
-    public FloatInputPoll makeAnalogInput(int chan) throws ObsidianHardwareException {
-        return launcher.makeAnalogInput(chan);
-    }
+    public FloatInputPoll makeAnalogInput(int chan);;
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 Colby Skeggs
+ * Copyright 2013 Colby Skeggs and Vincent Miller
  * 
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  * 
@@ -18,8 +18,13 @@
  */
 package ccre.obsidian;
 
-import ccre.cluck.CluckGlobals;
+import ccre.obsidian.comms.Radio;
+import ccre.chan.BooleanInputPoll;
+import ccre.chan.BooleanOutput;
 import ccre.event.Event;
+import ccre.chan.FloatInputPoll;
+import ccre.chan.FloatOutput;
+import ccre.cluck.CluckGlobals;
 import ccre.log.LogLevel;
 import ccre.log.Logger;
 import ccre.log.LoggingTarget;
@@ -32,18 +37,16 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 /**
- * The Obsidian launcher. This is the class that is ran by the Java virtual
- * machine.
  *
- * @author skeggsc
+ * @author Vincent Miller
  */
-public class Launcher {
-
+public class EmulatorLauncher implements ObsidianLauncher {
+    
     /**
      * The settings loaded during the launch process.
      */
     public static Properties settings;
-
+    
     public static void main(String[] args) throws IOException, ClassNotFoundException, InstantiationException, IllegalAccessException {
         boolean watch = false;
         if (args.length != 0) {
@@ -56,7 +59,7 @@ public class Launcher {
         CluckGlobals.ensureInitializedCore();
         Logger.target = new MultiTargetLogger(new LoggingTarget[]{Logger.target, CluckGlobals.encoder.subscribeLoggingTarget(LogLevel.FINEST, "general-logger")});
         Properties p = new Properties();
-        InputStream inst = Launcher.class.getResourceAsStream("/obsidian-conf.properties");
+        InputStream inst = ObsidianLauncherImpl.class.getResourceAsStream("/obsidian-conf.properties");
         if (inst == null) {
             throw new IOException("Could not find configuration file!");
         }
@@ -68,6 +71,7 @@ public class Launcher {
         }
         ObsidianCore core = (ObsidianCore) Class.forName(name).newInstance();
         core.properties = p;
+        core.launcher = new EmulatorLauncher();
         CluckGlobals.initializeServer(80);
         final Event prd = new Event();
         core.periodic = prd;
@@ -100,5 +104,29 @@ public class Launcher {
         } catch (Throwable thr) {
             Logger.log(LogLevel.SEVERE, "Exception caught at top level during initialization - robots don't quit!", thr);
         }
+    }
+    
+    @Override
+    public BooleanOutput makeGPIOOutput(int chan, boolean defaultValue) {
+        return null;
+    }
+    
+    @Override
+    public BooleanInputPoll makeGPIOInput(int chan, boolean pullSetting) {
+        return null;
+    }
+    
+    @Override
+    public FloatOutput makePWMOutput(String chan, float defaultValue, final float calibrateN1, final float calibrateN2, float frequency, boolean zeroPolarity) {
+        return null;
+    }
+    
+    @Override
+    public void destroyPWMOutput(String chan) {
+    }
+    
+    @Override
+    public FloatInputPoll makeAnalogInput(int chan) {
+        return null;
     }
 }

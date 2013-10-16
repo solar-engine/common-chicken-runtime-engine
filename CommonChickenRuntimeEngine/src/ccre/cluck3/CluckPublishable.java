@@ -16,13 +16,9 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with the CCRE.  If not, see <http://www.gnu.org/licenses/>.
  */
-package ccre.cluck2;
+package ccre.cluck3;
 
-/**
- *
- * @author skeggsc
- */
-public interface CluckConnectionReceiver {
+public interface CluckPublishable {
 
-    public void recv(CluckConnection source, byte[] cur);
+    public void publish(String path, CluckNode node);
 }

@@ -21,7 +21,6 @@ package ccre.cluck;
 import ccre.log.LogLevel;
 import ccre.log.Logger;
 import java.io.IOException;
-import java.net.BindException;
 
 /**
  * A class containing static fields for various Cluck objects.

@@ -24,7 +24,6 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.Random;
-import java.util.logging.Level;
 
 /**
  * A static utility class for handling various encodings of Cluck packets.

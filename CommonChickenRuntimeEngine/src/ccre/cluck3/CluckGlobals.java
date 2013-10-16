@@ -16,15 +16,33 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with the CCRE.  If not, see <http://www.gnu.org/licenses/>.
  */
-package ccre.cluck2;
+package ccre.cluck3;
 
-/**
- * A listener for Cluck Connections. Should return a new connection when told to
- * do so.
- *
- * @author skeggsc
- */
-public interface CluckConnector {
+public class CluckGlobals {
 
-    public CluckConnection connect();
+    public static CluckNode node;
+    public static CluckTCPServer serv;
+    public static CluckTCPClient cli;
+
+    public static void ensureInitted() {
+        if (node == null) {
+            node = new CluckNode();
+        }
+    }
+
+    public static void setupServer() {
+        if (serv != null) {
+            throw new IllegalStateException("Server already set up!");
+        }
+        serv = new CluckTCPServer(node);
+        serv.start();
+    }
+
+    public static void setupClient(String remote, String linkName) {
+        if (cli != null) {
+            throw new IllegalStateException("Client already set up!");
+        }
+        cli = new CluckTCPClient(remote, node, linkName);
+        cli.start();
+    }
 }

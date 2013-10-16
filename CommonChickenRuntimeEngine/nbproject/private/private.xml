@@ -1,44 +1,4 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project-private xmlns="http://www.netbeans.org/ns/project-private/1">
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
-    <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/1">
-        <file>file:/C:/Users/skeggsc/Documents/CCRE/CommonChickenRuntimeEngine/src/ccre/cluck/CluckNetworkedServer.java</file>
-        <file>file:/C:/Users/skeggsc/Documents/CCRE/CommonChickenRuntimeEngine/src/ccre/rload/RLoadServer.java</file>
-        <file>file:/C:/Users/skeggsc/Documents/CCRE/CommonChickenRuntimeEngine/src/ccre/net/ServerSocket.java</file>
-        <file>file:/C:/Users/skeggsc/Documents/CCRE/CommonChickenRuntimeEngine/src/ccre/net/Network.java</file>
-        <file>file:/C:/Users/skeggsc/Documents/CCRE/CommonChickenRuntimeEngine/src/ccre/net/DefaultNetworkProvider.java</file>
-        <file>file:/C:/Users/skeggsc/Documents/CCRE/CommonChickenRuntimeEngine/src/ccre/rload/RLoadClient.java</file>
-        <file>file:/C:/Users/skeggsc/Documents/CCRE/CommonChickenRuntimeEngine/src/backport.properties</file>
-        <file>file:/C:/Users/skeggsc/Documents/CCRE/CommonChickenRuntimeEngine/src/ccre/launcher/Launcher.java</file>
-        <file>file:/C:/Users/skeggsc/Documents/CCRE/CommonChickenRuntimeEngine/nbproject/project.properties</file>
-        <file>file:/C:/Users/skeggsc/Documents/CCRE/CommonChickenRuntimeEngine/manifest.mf</file>
-        <file>file:/C:/Users/skeggsc/Documents/CCRE/CommonChickenRuntimeEngine/nbproject/genfiles.properties</file>
-        <file>file:/C:/Users/skeggsc/Documents/CCRE/CommonChickenRuntimeEngine/nbproject/project.xml</file>
-        <file>file:/C:/Users/skeggsc/Documents/CCRE/CommonChickenRuntimeEngine/build.xml</file>
-        <file>file:/C:/Users/skeggsc/Documents/CCRE/CommonChickenRuntimeEngine/src/ccre/chan/BooleanInput.java</file>
-        <file>file:/C:/Users/skeggsc/Documents/CCRE/CommonChickenRuntimeEngine/src/ccre/instinct/InstinctModule.java</file>
-        <file>file:/C:/Users/skeggsc/Documents/CCRE/CommonChickenRuntimeEngine/src/ccre/cluck/CluckGlobals.java</file>
-        <file>file:/C:/Users/skeggsc/Documents/CCRE/CommonChickenRuntimeEngine/src/ccre/instinct/AutonomousModeOverException.java</file>
-        <file>file:/C:/Users/skeggsc/Documents/CCRE/CommonChickenRuntimeEngine/nbproject/build-impl.xml</file>
-        <file>file:/C:/Users/skeggsc/Documents/CCRE/CommonChickenRuntimeEngine/src/ccre/instinct/InstinctRegistrar.java</file>
-        <file>file:/C:/Users/skeggsc/Documents/CCRE/CommonChickenRuntimeEngine/src/ccre/cluck2/CluckModule.java</file>
-        <file>file:/C:/Users/skeggsc/Documents/CCRE/CommonChickenRuntimeEngine/src/ccre/cluck/CluckSubscriptionListener.java</file>
-        <file>file:/C:/Users/skeggsc/Documents/CCRE/CommonChickenRuntimeEngine/src/ccre/cluck2/CluckConnection.java</file>
-        <file>file:/C:/Users/skeggsc/Documents/CCRE/CommonChickenRuntimeEngine/src/ccre/cluck2/CluckConnector.java</file>
-        <file>file:/C:/Users/skeggsc/Documents/CCRE/CommonChickenRuntimeEngine/src/ccre/cluck2/LocalCluckModule.java</file>
-        <file>file:/C:/Users/skeggsc/Documents/CCRE/CommonChickenRuntimeEngine/src/ccre/util/CHashMap.java</file>
-        <file>file:/C:/Users/skeggsc/Documents/CCRE/CommonChickenRuntimeEngine/src/ccre/log/LoggingTarget.java</file>
-        <file>file:/C:/Users/skeggsc/Documents/CCRE/CommonChickenRuntimeEngine/src/ccre/log/Logger.java</file>
-        <file>file:/C:/Users/skeggsc/Documents/CCRE/CommonChickenRuntimeEngine/src/ccre/cluck2/CluckTCPServer.java</file>
-        <file>file:/C:/Users/skeggsc/Documents/CCRE/CommonChickenRuntimeEngine/src/ccre/cluck2/CluckTCPClient.java</file>
-        <file>file:/C:/Users/skeggsc/Documents/CCRE/CommonChickenRuntimeEngine/src/ccre/cluck2/CluckTCPServerWorker.java</file>
-        <file>file:/C:/Users/skeggsc/Documents/CCRE/CommonChickenRuntimeEngine/src/ccre/cluck2/CluckConnectionReceiver.java</file>
-        <file>file:/C:/Users/skeggsc/Documents/CCRE/CommonChickenRuntimeEngine/src/ccre/cluck3/CluckNode.java</file>
-        <file>file:/C:/Users/skeggsc/Documents/CCRE/CommonChickenRuntimeEngine/src/ccre/cluck3/CluckLink.java</file>
-        <file>file:/C:/Users/skeggsc/Documents/CCRE/CommonChickenRuntimeEngine/src/ccre/cluck3/CluckNullLink.java</file>
-        <file>file:/C:/Users/skeggsc/Documents/CCRE/CommonChickenRuntimeEngine/src/ccre/cluck3/CluckTCPServer.java</file>
-        <file>file:/C:/Users/skeggsc/Documents/CCRE/CommonChickenRuntimeEngine/src/ccre/net/ConnectionReceiverThread.java</file>
-        <file>file:/C:/Users/skeggsc/Documents/CCRE/CommonChickenRuntimeEngine/src/ccre/cluck3/CluckProtocol.java</file>
-        <file>file:/C:/Users/skeggsc/Documents/CCRE/CommonChickenRuntimeEngine/src/ccre/cluck3/CluckTCPClient.java</file>
-    </open-files>
 </project-private>

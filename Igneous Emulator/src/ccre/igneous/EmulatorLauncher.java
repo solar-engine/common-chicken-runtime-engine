@@ -276,4 +276,9 @@ public class EmulatorLauncher implements IgneousLauncher {
             }
         });
     }
+
+    @Override
+    public FloatInputPoll makeEncoder(int aChannel, int bChannel, boolean reverse, EventSource resetWhen) {
+        return emf.makeEncoder(aChannel, bChannel, reverse, resetWhen);
+    }
 }

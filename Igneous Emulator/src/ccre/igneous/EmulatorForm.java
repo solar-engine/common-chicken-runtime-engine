@@ -22,11 +22,15 @@ import ccre.chan.BooleanInputPoll;
 import ccre.chan.BooleanOutput;
 import ccre.chan.FloatInputPoll;
 import ccre.chan.FloatOutput;
+import ccre.event.EventSource;
 import ccre.log.LogLevel;
 import ccre.log.Logger;
 import java.awt.Color;
 import java.awt.EventQueue;
+import java.util.HashMap;
 import javax.swing.ButtonModel;
+import javax.swing.ComboBoxModel;
+import javax.swing.DefaultComboBoxModel;
 import javax.swing.JLabel;
 import javax.swing.JProgressBar;
 import javax.swing.JSlider;
@@ -51,9 +55,6 @@ public class EmulatorForm extends javax.swing.JFrame {
         }
     }
 
-    /**
-     * Creates new form EmulatorForm
-     */
     public EmulatorForm() {
         initComponents();
         joy1 = new EmuJoystick(new javax.swing.JToggleButton[]{btnJoy1_1, btnJoy1_2, btnJoy1_3, btnJoy1_4, btnJoy1_5, btnJoy1_6, btnJoy1_7, btnJoy1_8, btnJoy1_9, btnJoy1_10, btnJoy1_11, btnJoy1_12}, new javax.swing.JSlider[]{sliJoy1_1, sliJoy1_2, sliJoy1_3, sliJoy1_4, sliJoy1_5, sliJoy1_6});
@@ -217,6 +218,8 @@ public class EmulatorForm extends javax.swing.JFrame {
         jPanel10 = new javax.swing.JPanel();
         jLabel10 = new javax.swing.JLabel();
         labCompressor = new javax.swing.JLabel();
+        btnAddEncoder = new javax.swing.JButton();
+        encoderSelect = new javax.swing.JComboBox();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -1263,6 +1266,15 @@ public class EmulatorForm extends javax.swing.JFrame {
                 .addComponent(labCompressor))
         );
 
+        btnAddEncoder.setText("Add Encoder");
+        btnAddEncoder.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnAddEncoderActionPerformed(evt);
+            }
+        });
+
+        encoderSelect.setModel(availableEncoderSelection);
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -1292,19 +1304,13 @@ public class EmulatorForm extends javax.swing.JFrame {
                     .addComponent(jPanel8, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(jPanel6, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jPanel7, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(jPanel7, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(btnAddEncoder, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(encoderSelect, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-            .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-            .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-            .addComponent(jPanel4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-            .addGroup(layout.createSequentialGroup()
-                .addComponent(jPanel5, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jPanel10, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-            .addComponent(jPanel7, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
             .addGroup(layout.createSequentialGroup()
                 .addComponent(radTele)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -1318,9 +1324,27 @@ public class EmulatorForm extends javax.swing.JFrame {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addComponent(jPanel9, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
             .addGroup(layout.createSequentialGroup()
-                .addComponent(jPanel6, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jPanel8, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jPanel4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(jPanel5, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jPanel10, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                        .addGroup(layout.createSequentialGroup()
+                            .addComponent(jPanel7, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(encoderSelect, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                            .addComponent(btnAddEncoder))
+                        .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
+                            .addComponent(jPanel6, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                            .addComponent(jPanel8, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                .addGap(0, 0, Short.MAX_VALUE))
         );
 
         pack();
@@ -1347,8 +1371,26 @@ public class EmulatorForm extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_btnEnableActionPerformed
 
-    public static void main(String[] args) {
+    public FloatInputPoll makeEncoder(int aChannel, int bChannel, boolean reverse, EventSource resetWhen) {
+        String name = aChannel + "::" + bChannel;
+        if (reverse) {
+            name += "::reverse";
+        }
+        availableEncoderSelection.addElement(encoders);
+        EncoderForm enc = new EncoderForm(name);
+        encoders.put(name, enc);
+        return enc;
+    }
 
+    private void btnAddEncoderActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAddEncoderActionPerformed
+        String s = (String) availableEncoderSelection.getSelectedItem();
+        if (s == null) {
+            return;
+        }
+        encoders.get(s).setVisible(true);
+    }//GEN-LAST:event_btnAddEncoderActionPerformed
+
+    public static void main(String[] args) {
         EventQueue.invokeLater(new Runnable() {
             @Override
             public void run() {
@@ -1357,6 +1399,8 @@ public class EmulatorForm extends javax.swing.JFrame {
         });
     }
     public EmuJoystick joy1, joy2, joy3, joy4;
+    private DefaultComboBoxModel availableEncoderSelection = new DefaultComboBoxModel();
+    private HashMap<String, EncoderForm> encoders = new HashMap<String, EncoderForm>();
     private JProgressBar[] motors;
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JSlider analog1;
@@ -1367,6 +1411,7 @@ public class EmulatorForm extends javax.swing.JFrame {
     private javax.swing.JSlider analog6;
     private javax.swing.JSlider analog7;
     private javax.swing.JSlider analog8;
+    private javax.swing.JButton btnAddEncoder;
     private javax.swing.JToggleButton btnEnable;
     private javax.swing.ButtonGroup btnGrpMode;
     private javax.swing.JToggleButton btnJoy1_1;
@@ -1431,6 +1476,7 @@ public class EmulatorForm extends javax.swing.JFrame {
     private javax.swing.JToggleButton digital7;
     private javax.swing.JToggleButton digital8;
     private javax.swing.JToggleButton digital9;
+    private javax.swing.JComboBox encoderSelect;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel10;
     private javax.swing.JLabel jLabel2;

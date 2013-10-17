@@ -38,12 +38,14 @@ public class CluckTCPClient extends ReporterThread {
     private final String remote;
     public BooleanInputPoll shouldAutoReconnect = Mixing.alwaysTrue;
     public int reconnectDelayMillis = 1000;
+    private final String remoteNameHint;
 
-    public CluckTCPClient(String remote, CluckNode node, String linkName) {
+    public CluckTCPClient(String remote, CluckNode node, String linkName, String remoteNameHint) {
         super("cluckcli-" + remote);
         this.remote = remote;
         this.node = node;
         this.linkName = linkName;
+        this.remoteNameHint = remoteNameHint;
     }
 
     public CluckTCPClient setPort(int port) {
@@ -61,7 +63,7 @@ public class CluckTCPClient extends ReporterThread {
                     sock = Network.connect(remote, port);
                     DataInputStream din = sock.openDataInputStream();
                     DataOutputStream dout = sock.openDataOutputStream();
-                    CluckProtocol.handleHeader(din, dout);
+                    CluckProtocol.handleHeader(din, dout, remoteNameHint);
                     CluckProtocol.handleSend(dout, linkName, node);
                     CluckProtocol.handleRecv(din, linkName, node);
                 } catch (IOException ex) {

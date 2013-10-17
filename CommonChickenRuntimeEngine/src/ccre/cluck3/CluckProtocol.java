@@ -32,7 +32,7 @@ import java.util.Random;
  */
 public class CluckProtocol {
 
-    public static void handleHeader(DataInputStream din, DataOutputStream dout) throws IOException {
+    public static String handleHeader(DataInputStream din, DataOutputStream dout, String remoteHint) throws IOException {
         dout.writeInt(0x154000CA);
         Random r = new Random();
         int ra = r.nextInt(), rb = r.nextInt();
@@ -45,6 +45,11 @@ public class CluckProtocol {
         if (din.readInt() != (ra ^ rb)) {
             throw new IOException("Did not bounce properly!");
         }
+        if (remoteHint == null) {
+            remoteHint = "";
+        }
+        dout.writeUTF(remoteHint);
+        return din.readUTF();
     }
 
     public static long checksum(byte[] data, long basis) {

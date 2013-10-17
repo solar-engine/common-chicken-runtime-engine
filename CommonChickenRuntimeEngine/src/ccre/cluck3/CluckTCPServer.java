@@ -40,8 +40,10 @@ public class CluckTCPServer extends ConnectionReceiverThread {
     protected void handleClient(ClientSocket conn) throws Throwable {
         DataInputStream din = conn.openDataInputStream();
         DataOutputStream dout = conn.openDataOutputStream();
-        CluckProtocol.handleHeader(din, dout);
-        String linkName = "tcpserv-" + Integer.toHexString(conn.hashCode()) + "-" + System.nanoTime();
+        String linkName = CluckProtocol.handleHeader(din, dout, null);
+        if (linkName == null) {
+            linkName = "tcpserv-" + Integer.toHexString(conn.hashCode()) + "-" + System.nanoTime();
+        }
         CluckProtocol.handleSend(dout, linkName, node);
         CluckProtocol.handleRecv(din, linkName, node);
     }

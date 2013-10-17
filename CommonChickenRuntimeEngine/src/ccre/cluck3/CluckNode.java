@@ -18,6 +18,10 @@
  */
 package ccre.cluck3;
 
+import ccre.chan.BooleanInput;
+import ccre.chan.BooleanInputProducer;
+import ccre.chan.BooleanOutput;
+import ccre.chan.BooleanStatus;
 import ccre.event.Event;
 import ccre.event.EventConsumer;
 import ccre.event.EventSource;
@@ -29,6 +33,14 @@ import ccre.workarounds.ThrowablePrinter;
 
 public class CluckNode {
 
+    public static final byte RMT_PING = 0;
+    public static final byte RMT_EVENTCONSUMER = 1;
+    public static final byte RMT_EVENTSOURCE = 2;
+    public static final byte RMT_EVENTSOURCERESP = 3;
+    public static final byte RMT_LOGTARGET = 4;
+    public static final byte RMT_BOOLPROD = 5;
+    public static final byte RMT_BOOLPRODRESP = 6;
+    public static final byte RMT_BOOLOUTP = 7;
     public final CHashMap<String, CluckLink> links = new CHashMap<String, CluckLink>();
 
     public void transmit(String target, String source, byte[] data) {
@@ -87,11 +99,6 @@ public class CluckNode {
     public void publish(String name, CluckPublishable pub) {
         pub.publish(name, this);
     }
-    public static final byte RMT_PING = 0;
-    public static final byte RMT_EVENTCONSUMER = 1;
-    public static final byte RMT_EVENTSOURCE = 2;
-    public static final byte RMT_EVENTSOURCERESP = 3;
-    public static final byte RMT_LOGTARGET = 3;
 
     public void publish(String name, final EventConsumer consum) {
         new CluckSubscriber() {
@@ -144,7 +151,7 @@ public class CluckNode {
     private static int localIDs = 0;
 
     public EventSource subscribeES(final String path) {
-        final String linkName = "src-" + Long.toHexString(System.nanoTime() & 0xFFFF) + "-" + localIDs++;
+        final String linkName = "srcES-" + Long.toHexString(System.nanoTime() & 0xFFFF) + "-" + localIDs++;
         final Event e = new Event() {
             private boolean sent = false; // TODO: What if the remote end gets rebooted? Would this re-send the request?
 
@@ -240,6 +247,91 @@ public class CluckNode {
                     System.arraycopy(ext, 0, out, 10 + msg.length, ext.length);
                     transmit(path, null, out);
                 }
+            }
+        };
+    }
+
+    public void publish(final String name, final BooleanInputProducer prod) {
+        final CHashMap<String, Object> remotes = new CHashMap<String, Object>();
+        prod.addTarget(new BooleanOutput() {
+            public void writeValue(boolean value) {
+                for (String remote : remotes) {
+                    transmit(remote, name, new byte[]{RMT_BOOLPRODRESP, value ? (byte) 1 : 0});
+                }
+            }
+        });
+        new CluckSubscriber() {
+            @Override
+            protected void receive(String src, byte[] data) {
+                if (requireRMT(src, data, RMT_BOOLPROD)) {
+                    remotes.put(src, empty);
+                }
+            }
+
+            @Override
+            protected void receiveBroadcast(String source, byte[] data) {
+                defaultBroadcastHandle(source, data, RMT_BOOLPROD);
+            }
+        }.attach(this, name);
+    }
+
+    public BooleanInput subscribeBIP(final String path, Float default_) {
+        final String linkName = "srcBIP-" + Long.toHexString(System.nanoTime() & 0xFFFF) + "-" + localIDs++;
+        final BooleanStatus bs = new BooleanStatus() {
+            private boolean sent = false; // TODO: What if the remote end gets rebooted? Would this re-send the request?
+
+            @Override
+            public void addTarget(BooleanOutput out) {
+                super.addTarget(out);
+                if (!sent) {
+                    sent = true;
+                    transmit(path, linkName, new byte[]{RMT_BOOLPROD});
+                }
+            }
+        };
+        new CluckSubscriber() {
+            @Override
+            protected void receive(String src, byte[] data) {
+                if (requireRMT(src, data, RMT_BOOLPRODRESP)) {
+                    if (data.length < 2) {
+                        Logger.warning("Not enough bytes for boolean producer response!");
+                        return;
+                    }
+                    bs.writeValue(data[1] != 0);
+                }
+            }
+
+            @Override
+            protected void receiveBroadcast(String source, byte[] data) {
+            }
+        }.attach(this, linkName);
+        return bs;
+    }
+
+    public void publish(String name, final BooleanOutput consum) {
+        new CluckSubscriber() {
+            @Override
+            protected void receive(String source, byte[] data) {
+                if (requireRMT(source, data, RMT_BOOLOUTP)) {
+                    if (data.length < 2) {
+                        Logger.warning("Not enough bytes for boolean output!");
+                        return;
+                    }
+                    consum.writeValue(data[1] != 0);
+                }
+            }
+
+            @Override
+            protected void receiveBroadcast(String source, byte[] data) {
+                defaultBroadcastHandle(source, data, RMT_BOOLOUTP);
+            }
+        }.attach(this, name);
+    }
+
+    public BooleanOutput subscribeBO(final String path) {
+        return new BooleanOutput() {
+            public void writeValue(boolean b) {
+                transmit(path, null, new byte[]{RMT_BOOLOUTP, b ? (byte) 1 : 0});
             }
         };
     }

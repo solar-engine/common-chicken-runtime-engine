@@ -38,11 +38,11 @@ public class CluckGlobals {
         serv.start();
     }
 
-    public static void setupClient(String remote, String linkName) {
+    public static void setupClient(String remote, String linkName, String hintedRemoteName) {
         if (cli != null) {
             throw new IllegalStateException("Client already set up!");
         }
-        cli = new CluckTCPClient(remote, node, linkName);
+        cli = new CluckTCPClient(remote, node, linkName, hintedRemoteName);
         cli.start();
     }
 }

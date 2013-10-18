@@ -54,7 +54,8 @@ public class Launcher {
             watch = true;
         }
         CluckGlobals.ensureInitializedCore();
-        Logger.target = new MultiTargetLogger(new LoggingTarget[]{Logger.target, CluckGlobals.encoder.subscribeLoggingTarget(LogLevel.FINEST, "general-logger")});
+        Logger.warning("Could not start logger!");
+        //Logger.target = new MultiTargetLogger(new LoggingTarget[]{Logger.target, CluckGlobals.encoder.subscribeLoggingTarget(LogLevel.FINEST, "general-logger")});
         Properties p = new Properties();
         InputStream inst = Launcher.class.getResourceAsStream("/obsidian-conf.properties");
         if (inst == null) {
@@ -68,7 +69,7 @@ public class Launcher {
         }
         ObsidianCore core = (ObsidianCore) Class.forName(name).newInstance();
         core.properties = p;
-        CluckGlobals.initializeServer(80);
+        CluckGlobals.setupServer();
         final Event prd = new Event();
         core.periodic = prd;
         final Timer t = new Timer();

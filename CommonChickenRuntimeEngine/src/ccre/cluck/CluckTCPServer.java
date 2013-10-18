@@ -42,7 +42,7 @@ public class CluckTCPServer extends ConnectionReceiverThread {
         DataOutputStream dout = conn.openDataOutputStream();
         String linkName = CluckProtocol.handleHeader(din, dout, null);
         if (linkName == null) {
-            linkName = "tcpserv-" + Integer.toHexString(conn.hashCode()) + "-" + System.nanoTime();
+            linkName = "tcpserv-" + Integer.toHexString(conn.hashCode()) + "-" + System.currentTimeMillis();
         }
         CluckProtocol.handleSend(dout, linkName, node);
         CluckProtocol.handleRecv(din, linkName, node);

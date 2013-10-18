@@ -74,7 +74,8 @@ public class EmulatorLauncher implements IgneousLauncher {
             throw new RuntimeException("Could not find MANIFEST-specified launchee!");
         }
         CluckGlobals.ensureInitializedCore();
-        Logger.target = new MultiTargetLogger(new LoggingTarget[]{Logger.target, CluckGlobals.encoder.subscribeLoggingTarget(LogLevel.FINEST, "general-logger")});
+        Logger.warning("Could not connect to logger!");
+        //Logger.target = new MultiTargetLogger(new LoggingTarget[]{Logger.target, CluckGlobals.encoder.subscribeLoggingTarget(LogLevel.FINEST, "general-logger")});
         URLClassLoader classLoader = new URLClassLoader(new URL[]{jarFile.toURI().toURL()}, EmulatorLauncher.class.getClassLoader());
         Class<? extends IgneousCore> asSubclass = classLoader.loadClass(mainClass).asSubclass(IgneousCore.class);
         EmulatorForm emf = new EmulatorForm();
@@ -99,7 +100,7 @@ public class EmulatorLauncher implements IgneousLauncher {
     protected final Event startedTesting = new Event();
 
     public void start() {
-        CluckGlobals.initializeServer(80);
+        CluckGlobals.setupServer();
         core.duringAutonomous = this.duringAutonomous;
         core.duringDisabled = this.duringDisabled;
         core.duringTeleop = this.duringTeleop;

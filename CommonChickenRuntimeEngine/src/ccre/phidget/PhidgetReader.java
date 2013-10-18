@@ -23,6 +23,7 @@ import ccre.chan.BooleanOutput;
 import ccre.chan.FloatInput;
 import ccre.cluck.CluckGlobals;
 import java.io.OutputStream;
+import java.io.PrintStream;
 
 /**
  * A system to read data over the network about the Phidget system, and provide
@@ -69,10 +70,10 @@ public class PhidgetReader {
      * LCD lines on the phidget.
      */
     //public static final StringHolder[] lcdLines = new StringHolder[2];
-    public static final OutputStream phidgetLCD;
+    public static final PrintStream phidgetLCD;
 
     static {
-        phidgetLCD = CluckGlobals.node.subscribeOS("phidget-lcd");
+        phidgetLCD = new PrintStream(CluckGlobals.node.subscribeOS("phidget-lcd"));
         /*for (int i = 0; i < 2; i++) {
             lcdLines[i] = CluckGlobals.node.subscribeStringHolder("phidget-lcd" + i, "?");
         }*/

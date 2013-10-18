@@ -52,7 +52,8 @@ class IgneousLauncherImpl extends IterativeRobot implements IgneousLauncher {
         IgneousThrowablePrinter.register();
         IgneousStorageProvider.register();
         CluckGlobals.ensureInitializedCore();
-        Logger.target = new MultiTargetLogger(new LoggingTarget[]{Logger.target, CluckGlobals.encoder.subscribeLoggingTarget(LogLevel.FINEST, "general-logger")});
+        Logger.warning("Remote logging target not started!");
+        //Logger.target = new MultiTargetLogger(new LoggingTarget[]{Logger.target, CluckGlobals.encoder.subscribeLoggingTarget(LogLevel.FINEST, "general-logger")});
         String name = VM.getManifestProperty("Igneous-Main");
         if (name == null) {
             throw new RuntimeException("Could not find MANIFEST-specified launchee!");
@@ -77,7 +78,7 @@ class IgneousLauncherImpl extends IterativeRobot implements IgneousLauncher {
     protected Event globalPeriodic = new Event();
 
     public final void robotInit() {
-        CluckGlobals.initializeServer(80);
+        CluckGlobals.setupServer();
         core.duringAutonomous = this.duringAutonomous;
         core.duringDisabled = this.duringDisabled;
         core.duringTeleop = this.duringTeleop;

@@ -183,7 +183,7 @@ public class CluckNode {
     private static int localIDs = 0;
 
     public EventSource subscribeES(final String path) {
-        final String linkName = "srcES-" + Long.toHexString(System.nanoTime() & 0xFFFF) + "-" + localIDs++;
+        final String linkName = "srcES-" + path.hashCode() + "-" + localIDs++;
         final Event e = new Event() {
             private boolean sent = false; // TODO: What if the remote end gets rebooted? Would this re-send the request?
 
@@ -308,7 +308,7 @@ public class CluckNode {
     }
 
     public BooleanInput subscribeBIP(final String path) {
-        final String linkName = "srcBIP-" + Long.toHexString(System.nanoTime() & 0xFFFF) + "-" + localIDs++;
+        final String linkName = "srcBIP-" + path.hashCode() + "-" + localIDs++;
         final BooleanStatus bs = new BooleanStatus() {
             private boolean sent = false; // TODO: What if the remote end gets rebooted? Would this re-send the request?
 
@@ -394,7 +394,7 @@ public class CluckNode {
     }
 
     public FloatInput subscribeFIP(final String path) {
-        final String linkName = "srcFIP-" + Long.toHexString(System.nanoTime() & 0xFFFF) + "-" + localIDs++;
+        final String linkName = "srcFIP-" + path.hashCode() + "-" + localIDs++;
         final FloatStatus fs = new FloatStatus() {
             private boolean sent = false; // TODO: What if the remote end gets rebooted? Would this re-send the request?
 

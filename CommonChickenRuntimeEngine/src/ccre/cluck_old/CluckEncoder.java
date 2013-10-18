@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with the CCRE.  If not, see <http://www.gnu.org/licenses/>.
  */
-package ccre.cluck;
+package ccre.cluck_old;
 
 import ccre.chan.BooleanInput;
 import ccre.chan.BooleanInputProducer;
@@ -211,7 +211,8 @@ public class CluckEncoder {
     public void publishTunableFloat(String name, final FloatTuner tune, String targetref) {
         final String chan = "TUNE:" + name;
         if (targetref == null) {
-            targetref = tune.getNetworkChannelForAutomatic();
+            Logger.warning("Lost code at CluckEncoder:214!");
+            //targetref = tune.getNetworkChannelForAutomatic();
         }
         final byte[] bts;
         if (targetref != null) {
@@ -301,10 +302,15 @@ public class CluckEncoder {
                 return curval;
             }
 
-            @Override
+            public FloatInputProducer getAutomaticChannel() {
+                Logger.warning("Lost code at CluckEncoder:306!");
+                return null;
+            }
+
+            /*@Override
             public String getNetworkChannelForAutomatic() {
                 return nettarget;
-            }
+            }*/
 
             private FloatTuner register() {
                 server.subscribe(chan, new CluckChannelListener() {

@@ -18,243 +18,504 @@
  */
 package ccre.cluck;
 
-import ccre.concurrency.ConcurrentDispatchArray;
-import ccre.concurrency.ReporterThread;
+import ccre.chan.BooleanInput;
+import ccre.chan.BooleanInputProducer;
+import ccre.chan.BooleanOutput;
+import ccre.chan.BooleanStatus;
+import ccre.chan.FloatInput;
+import ccre.chan.FloatInputProducer;
+import ccre.chan.FloatOutput;
+import ccre.chan.FloatStatus;
+import ccre.event.Event;
+import ccre.event.EventConsumer;
+import ccre.event.EventSource;
+import ccre.holders.CompoundFloatTuner;
+import ccre.holders.FloatTuner;
 import ccre.log.LogLevel;
 import ccre.log.Logger;
-import ccre.net.Network;
-import ccre.util.CCollection;
+import ccre.log.LoggingTarget;
 import ccre.util.CHashMap;
-import java.util.Random;
+import ccre.workarounds.ThrowablePrinter;
+import java.io.IOException;
+import java.io.OutputStream;
 
-/**
- * A message router for Cluck. Allows for listeners to subscribe to various
- * channels, and allows sending data to whichever listeners want the data.
- *
- * @author skeggsc
- */
 public class CluckNode {
 
-    /**
-     * Create a new CluckNode and generate its nodeID.
-     *
-     * Parts of a node ID:
-     * <ul>
-     * <li>The hashCode of the CluckNode</li>
-     * <li>The current time in milliseconds</li>
-     * <li>The
-     * <code>microedition.platform</code> system property.</li>
-     * <li>The type of Networking subsystem in use.</li>
-     * </ul>
-     *
-     * @see java.lang.Object#hashCode()
-     * @see java.lang.System#currentTimeMillis()
-     * @see java.lang.System#getProperty(java.lang.String)
-     * @see ccre.net.Network#getPlatformType()
-     */
-    public CluckNode() {
-        String nv = System.getProperty("microedition.platform");
-        if (nv == null) {
-            nv = System.getProperty("java.version");
-        }
-        nodeID = "N" + nv + ":" + Network.getPlatformType() + ":" + Integer.toHexString(hashCode()) + ":" + System.currentTimeMillis();
-    }
-    /**
-     * A hopefully-unique identifier for this node, and this node only.
-     */
-    public final String nodeID;
-    /**
-     * Has this CluckNode started its ping functionality?
-     */
-    protected boolean hasInit = false;
-    /**
-     * The mapping between channels and the listeners that want to receive data
-     * for the channel.
-     */
-    protected CHashMap<String, CCollection<CluckChannelListener>> channels = new CHashMap<String, CCollection<CluckChannelListener>>();
-    /**
-     * The listeners that want to receive all data coming across this node.
-     */
-    protected CCollection<CluckChannelListener> wildcarded = new ConcurrentDispatchArray<CluckChannelListener>();
-    /**
-     * The listeners that want to know when a new channel is subscribed to, or
-     * when a channel loses all subscribers.
-     */
-    protected CCollection<CluckSubscriptionListener> subscriptionListeners = new ConcurrentDispatchArray<CluckSubscriptionListener>();
+    public static final byte RMT_PING = 0;
+    public static final byte RMT_EVENTCONSUMER = 1;
+    public static final byte RMT_EVENTSOURCE = 2;
+    public static final byte RMT_EVENTSOURCERESP = 3;
+    public static final byte RMT_LOGTARGET = 4;
+    public static final byte RMT_BOOLPROD = 5;
+    public static final byte RMT_BOOLPRODRESP = 6;
+    public static final byte RMT_BOOLOUTP = 7;
+    public static final byte RMT_FLOATPROD = 8;
+    public static final byte RMT_FLOATPRODRESP = 9;
+    public static final byte RMT_FLOATOUTP = 10;
+    public static final byte RMT_OUTSTREAM = 11;
+    public final CHashMap<String, CluckLink> links = new CHashMap<String, CluckLink>();
+    public final CHashMap<String, String> aliases = new CHashMap<String, String>();
 
-    /**
-     * Register a subscripting listener. Whenever a channel receives its first
-     * subscription or a channel loses all subscriptions, the listener will be
-     * notified. The listener will also be notified right now of all current
-     * channels with subscriptions.
-     *
-     * @param listener the listener to register.
-     * @see #unsubscribeFromSubscriptions(ccre.cluck.CluckSubscriptionListener)
-     */
-    public synchronized void subscribeToSubscriptions(CluckSubscriptionListener listener) {
-        subscriptionListeners.add(listener);
-        for (String keyname : channels) {
-            CCollection<CluckChannelListener> cl = channels.get(keyname);
-            if (!cl.isEmpty()) {
-                listener.addSubscription(keyname);
+    public void transmit(String target, String source, byte[] data) {
+        if (target == null) {
+            Logger.log(LogLevel.WARNING, "Received message addressed to unreceving node (source: " + source + ")", new Exception("Embedded Traceback"));
+            return;
+        } else if (target.equals("*")) {
+            // Broadcast
+            for (String key : links) {
+                CluckLink cl = links.get(key);
+                cl.transmit("*", source, data);
             }
-        }
-    }
-
-    /**
-     * Removes a listener previously subscribed using subscribeToSubscriptions.
-     *
-     * @param listener the listener to remove.
-     * @see #subscribeToSubscriptions(ccre.cluck.CluckSubscriptionListener)
-     */
-    public synchronized void unsubscribeFromSubscriptions(CluckSubscriptionListener listener) {
-        subscriptionListeners.remove(listener);
-    }
-
-    /**
-     * Subscribes to the specified channel, or all channels if the specified
-     * channel is null. The specified listener will be notified whenever new
-     * data is received over the specified channel.
-     *
-     * @param channel the channel to listen on, or null to listen on all
-     * channels.
-     * @param listener the listener to notify when data is received.
-     * @see #unsubscribe(java.lang.String, ccre.cluck.CluckChannelListener)
-     */
-    public synchronized void subscribe(String channel, CluckChannelListener listener) {
-        if (channel == null) {
-            wildcarded.add(listener);
-        } else {
-            CCollection<CluckChannelListener> lsns = channels.get(channel);
-            if (lsns == null || lsns.isEmpty()) {
-                for (CluckSubscriptionListener c : subscriptionListeners) {
-                    c.addSubscription(channel);
-                }
-            }
-            if (lsns == null) {
-                lsns = new ConcurrentDispatchArray<CluckChannelListener>();
-                channels.put(channel, lsns);
-            }
-            lsns.add(listener);
-        }
-    }
-
-    /**
-     * Removes a listener previously added using subscribe.
-     *
-     * @param channel the channel to remove from, or null to remove from the
-     * channel that receives everything.
-     * @param listener the listener to remove.
-     * @see #subscribe(java.lang.String, ccre.cluck.CluckChannelListener)
-     */
-    public synchronized void unsubscribe(String channel, CluckChannelListener listener) {
-        if (channel == null) {
-            wildcarded.remove(listener);
-        } else {
-            CCollection<CluckChannelListener> lsns = channels.get(channel);
-            if (lsns != null) {
-                lsns.remove(listener);
-                if (lsns.isEmpty()) {
-                    for (CluckSubscriptionListener c : subscriptionListeners) {
-                        c.removeSubscription(channel);
-                    }
-                }
-            }
-        }
-    }
-
-    /**
-     * Send the given packet of data over the specified channel. All listeners
-     * registered on the specified channel or registered on the channel that
-     * receives everything will receive the given message.
-     *
-     * @param channel the channel to send over.
-     * @param data the data array to send.
-     */
-    public synchronized void publish(String channel, byte[] data) {
-        publish(channel, data, null);
-    }
-    private static final byte[] empty = new byte[0];
-
-    /**
-     * Sends data to all listeners except for the specified listener. Works like
-     * publish(String, byte[]) otherwise.
-     *
-     * @param channel the channel to send over.
-     * @param data the data array to send.
-     * @param ignore the listener to not notify.
-     * @see #publish(java.lang.String, byte[])
-     */
-    public synchronized void publish(String channel, byte[] data, CluckChannelListener ignore) {
-        if (!hasInit) {
-            Logger.warning("Cluck node not initted! Done automatically.");
-            doInit();
-        }
-        if (data == null) {
-            data = empty;
-        }
-        for (CluckChannelListener listener : wildcarded) {
-            if (listener == ignore) {
-                continue;
-            }
-            try {
-                listener.receive(channel, data);
-            } catch (Throwable thr) {
-                Logger.log(LogLevel.WARNING, "Throwable during Cluck wildcard publish", thr);
-            }
-        }
-        CCollection<CluckChannelListener> chs = channels.get(channel);
-        if (chs == null) {
             return;
         }
-        for (CluckChannelListener listener : chs) {
-            if (listener == ignore) {
-                continue;
-            }
-            try {
-                listener.receive(channel, data);
-            } catch (Throwable thr) {
-                Logger.log(LogLevel.WARNING, "Throwable during Cluck publish: " + channel, thr);
-            }
+        int t = target.indexOf('/');
+        String base, rest;
+        if (t == -1) {
+            base = target;
+            rest = null;
+        } else {
+            base = target.substring(0, t);
+            rest = target.substring(t + 1);
         }
-    }
-
-    @Override
-    public String toString() {
-        return nodeID;
-    }
-
-    protected void doInit() {
-        if (hasInit) {
-            Logger.warning("CluckNode initted multiple times!");
+        String alias = aliases.get(base);
+        if (alias != null) {
+            this.transmit(alias + "/" + rest, source, data); // recurse
             return;
         }
-        hasInit = true;
-        publish("^node-added-element", nodeID.getBytes());
-        new ReporterThread("Node-" + nodeID + "-Pinger") {
-            private long lastReceived = 0;
-            private Random rand = new Random();
-            
+        CluckLink link = links.get(base);
+        if (link != null) {
+            if (!link.transmit(rest, source, data)) {
+                links.put(base, null);
+            }
+        } else {
+            Logger.log(LogLevel.WARNING, "No link for " + target + " from " + source + "!", new Exception("Embedded traceback"));
+        }
+    }
+
+    public void addAlias(String from, String to) {
+        while (to.charAt(to.length() - 1) == '/') {
+            to = to.substring(0, to.length() - 1);
+        }
+        if (aliases.containsKey(from)) {
+            throw new IllegalStateException("Alias already used!");
+        }
+        aliases.put(from, to);
+    }
+
+    public String getLinkName(CluckNullLink link) {
+        if (link == null) {
+            throw new NullPointerException();
+        }
+        for (String key : links) {
+            if (links.get(key) == link) {
+                return key;
+            }
+        }
+        throw new RuntimeException("No such link!");
+    }
+
+    public void addLink(CluckLink link, String linkName) {
+        if (links.get(linkName) != null) {
+            throw new IllegalStateException("Link name already used!");
+        }
+        links.put(linkName, link);
+    }
+
+    public void addOrReplaceLink(CluckLink link, String linkName) {
+        if (links.get(linkName) != null) {
+            Logger.fine("Replaced current link on: " + linkName);
+        }
+        links.put(linkName, link);
+    }
+
+    public void publish(String name, CluckPublishable pub) {
+        pub.publish(name, this);
+    }
+
+    public void publish(String name, final EventConsumer consum) {
+        new CluckSubscriber() {
             @Override
-            protected void threadBody() throws Throwable {
-                if (lastReceived + rand.nextInt(2000) + 500 < System.currentTimeMillis()) {
-                    long l = lastReceived;
-                    publish("^node-ping", empty);
-                    if (l == lastReceived) {
-                        lastReceived = System.currentTimeMillis() + 30000;
-                        Logger.warning("Ping did not loopback! Internal error!");
+            protected void receive(String source, byte[] data) {
+                if (requireRMT(source, data, RMT_EVENTCONSUMER)) {
+                    consum.eventFired();
+                }
+            }
+
+            @Override
+            protected void receiveBroadcast(String source, byte[] data) {
+                defaultBroadcastHandle(source, data, RMT_EVENTCONSUMER);
+            }
+        }.attach(this, name);
+    }
+
+    public EventConsumer subscribeEC(final String path) {
+        return new EventConsumer() {
+            public void eventFired() {
+                transmit(path, null, new byte[]{RMT_EVENTCONSUMER});
+            }
+        };
+    }
+    private static Object empty = new Object();
+
+    public void publish(final String name, EventSource source) {
+        final CHashMap<String, Object> remotes = new CHashMap<String, Object>();
+        source.addListener(new EventConsumer() {
+            public void eventFired() {
+                for (String remote : remotes) {
+                    transmit(remote, name, new byte[]{RMT_EVENTSOURCERESP});
+                }
+            }
+        });
+        new CluckSubscriber() {
+            @Override
+            protected void receive(String src, byte[] data) {
+                if (requireRMT(src, data, RMT_EVENTSOURCE)) {
+                    remotes.put(src, empty);
+                }
+            }
+
+            @Override
+            protected void receiveBroadcast(String source, byte[] data) {
+                defaultBroadcastHandle(source, data, RMT_EVENTSOURCE);
+            }
+        }.attach(this, name);
+    }
+    private static int localIDs = 0;
+
+    public EventSource subscribeES(final String path) {
+        final String linkName = "srcES-" + Long.toHexString(System.nanoTime() & 0xFFFF) + "-" + localIDs++;
+        final Event e = new Event() {
+            private boolean sent = false; // TODO: What if the remote end gets rebooted? Would this re-send the request?
+
+            @Override
+            public boolean addListener(EventConsumer cns) {
+                boolean out = super.addListener(cns);
+                if (!sent) {
+                    sent = true;
+                    transmit(path, linkName, new byte[]{RMT_EVENTSOURCE});
+                }
+                return out;
+            }
+        };
+        new CluckSubscriber() {
+            @Override
+            protected void receive(String src, byte[] data) {
+                if (requireRMT(src, data, RMT_EVENTSOURCERESP)) {
+                    e.produce();
+                }
+            }
+
+            @Override
+            protected void receiveBroadcast(String source, byte[] data) {
+            }
+        }.attach(this, linkName);
+        return e;
+    }
+
+    public void publish(String name, final LoggingTarget lt) {
+        new CluckSubscriber() {
+            @Override
+            protected void receive(String source, byte[] data) {
+                if (requireRMT(source, data, RMT_LOGTARGET)) {
+                    int l1, l2;
+                    if (data.length < 10) {
+                        Logger.warning("Not enough data to Logging Target!");
+                        return;
+                    }
+                    l1 = ((data[2] & 0xff) << 24) | ((data[3] & 0xff) << 16) | ((data[4] & 0xff) << 8) | (data[5] & 0xff);
+                    l2 = ((data[6] & 0xff) << 24) | ((data[7] & 0xff) << 16) | ((data[8] & 0xff) << 8) | (data[9] & 0xff);
+                    if (l1 + l2 + 10 != data.length) {
+                        Logger.warning("Bad data length to Logging Target!");
+                        if (l1 + l2 + 10 > data.length) {
+                            if (l1 + 10 <= data.length) {
+                                l2 = 0; // Just keep the 'message', in case it's helpful, and is all there.
+                            } else {
+                                return;
+                            }
+                        }
+                    }
+                    String message = new String(data, 10, l1);
+                    String extended;
+                    if (l2 == 0) {
+                        extended = null;
+                    } else {
+                        extended = new String(data, 10 + l1, l2);
+                    }
+                    lt.log(LogLevel.fromByte(data[1]), message, extended);
+                }
+            }
+
+            @Override
+            protected void receiveBroadcast(String source, byte[] data) {
+                defaultBroadcastHandle(source, data, RMT_LOGTARGET);
+            }
+        }.attach(this, name);
+    }
+
+    public LoggingTarget subscribeLT(final String path, final LogLevel minimum) {
+        return new LoggingTarget() {
+            public void log(LogLevel level, String message, Throwable throwable) {
+                log(level, message, ThrowablePrinter.toStringThrowable(throwable));
+            }
+
+            public void log(LogLevel level, String message, String extended) {
+                if (level.atLeastAsImportant(minimum)) {
+                    byte[] msg = message.getBytes();
+                    byte[] ext = extended == null ? new byte[0] : extended.getBytes();
+                    byte[] out = new byte[10 + msg.length + ext.length];
+                    out[0] = RMT_LOGTARGET;
+                    out[1] = LogLevel.toByte(level);
+                    int lm = msg.length;
+                    out[2] = (byte) (lm >> 24);
+                    out[3] = (byte) (lm >> 16);
+                    out[4] = (byte) (lm >> 8);
+                    out[5] = (byte) (lm);
+                    int le = ext.length;
+                    out[6] = (byte) (le >> 24);
+                    out[7] = (byte) (le >> 16);
+                    out[8] = (byte) (le >> 8);
+                    out[9] = (byte) (le);
+                    System.arraycopy(msg, 0, out, 10, msg.length);
+                    System.arraycopy(ext, 0, out, 10 + msg.length, ext.length);
+                    transmit(path, null, out);
+                }
+            }
+        };
+    }
+
+    public void publish(final String name, final BooleanInputProducer prod) {
+        final CHashMap<String, Object> remotes = new CHashMap<String, Object>();
+        prod.addTarget(new BooleanOutput() {
+            public void writeValue(boolean value) {
+                for (String remote : remotes) {
+                    transmit(remote, name, new byte[]{RMT_BOOLPRODRESP, value ? (byte) 1 : 0});
+                }
+            }
+        });
+        new CluckSubscriber() {
+            @Override
+            protected void receive(String src, byte[] data) {
+                if (requireRMT(src, data, RMT_BOOLPROD)) {
+                    remotes.put(src, empty);
+                }
+            }
+
+            @Override
+            protected void receiveBroadcast(String source, byte[] data) {
+                defaultBroadcastHandle(source, data, RMT_BOOLPROD);
+            }
+        }.attach(this, name);
+    }
+
+    public BooleanInput subscribeBIP(final String path) {
+        final String linkName = "srcBIP-" + Long.toHexString(System.nanoTime() & 0xFFFF) + "-" + localIDs++;
+        final BooleanStatus bs = new BooleanStatus() {
+            private boolean sent = false; // TODO: What if the remote end gets rebooted? Would this re-send the request?
+
+            @Override
+            public void addTarget(BooleanOutput out) {
+                super.addTarget(out);
+                if (!sent) {
+                    sent = true;
+                    transmit(path, linkName, new byte[]{RMT_BOOLPROD});
+                }
+            }
+        };
+        new CluckSubscriber() {
+            @Override
+            protected void receive(String src, byte[] data) {
+                if (requireRMT(src, data, RMT_BOOLPRODRESP)) {
+                    if (data.length < 2) {
+                        Logger.warning("Not enough bytes for boolean producer response!");
+                        return;
+                    }
+                    bs.writeValue(data[1] != 0);
+                }
+            }
+
+            @Override
+            protected void receiveBroadcast(String source, byte[] data) {
+            }
+        }.attach(this, linkName);
+        return bs;
+    }
+
+    public void publish(String name, final BooleanOutput consum) {
+        new CluckSubscriber() {
+            @Override
+            protected void receive(String source, byte[] data) {
+                if (requireRMT(source, data, RMT_BOOLOUTP)) {
+                    if (data.length < 2) {
+                        Logger.warning("Not enough bytes for boolean output!");
+                        return;
+                    }
+                    consum.writeValue(data[1] != 0);
+                }
+            }
+
+            @Override
+            protected void receiveBroadcast(String source, byte[] data) {
+                defaultBroadcastHandle(source, data, RMT_BOOLOUTP);
+            }
+        }.attach(this, name);
+    }
+
+    public BooleanOutput subscribeBO(final String path) {
+        return new BooleanOutput() {
+            public void writeValue(boolean b) {
+                transmit(path, null, new byte[]{RMT_BOOLOUTP, b ? (byte) 1 : 0});
+            }
+        };
+    }
+
+    public void publish(final String name, final FloatInputProducer prod) {
+        final CHashMap<String, Object> remotes = new CHashMap<String, Object>();
+        prod.addTarget(new FloatOutput() {
+            public void writeValue(float value) {
+                for (String remote : remotes) {
+                    int iver = Float.floatToIntBits(value);
+                    transmit(remote, name, new byte[]{RMT_FLOATPRODRESP, (byte) (iver >> 24), (byte) (iver >> 16), (byte) (iver >> 8), (byte) iver});
+                }
+            }
+        });
+        new CluckSubscriber() {
+            @Override
+            protected void receive(String src, byte[] data) {
+                if (requireRMT(src, data, RMT_FLOATPROD)) {
+                    remotes.put(src, empty);
+                }
+            }
+
+            @Override
+            protected void receiveBroadcast(String source, byte[] data) {
+                defaultBroadcastHandle(source, data, RMT_FLOATPROD);
+            }
+        }.attach(this, name);
+    }
+
+    public FloatInput subscribeFIP(final String path) {
+        final String linkName = "srcFIP-" + Long.toHexString(System.nanoTime() & 0xFFFF) + "-" + localIDs++;
+        final FloatStatus fs = new FloatStatus() {
+            private boolean sent = false; // TODO: What if the remote end gets rebooted? Would this re-send the request?
+
+            @Override
+            public void addTarget(FloatOutput out) {
+                super.addTarget(out);
+                if (!sent) {
+                    sent = true;
+                    transmit(path, linkName, new byte[]{RMT_FLOATPROD});
+                }
+            }
+        };
+        new CluckSubscriber() {
+            @Override
+            protected void receive(String src, byte[] data) {
+                if (requireRMT(src, data, RMT_FLOATPRODRESP)) {
+                    if (data.length < 5) {
+                        Logger.warning("Not enough bytes for float producer response!");
+                        return;
+                    }
+                    int rawint = ((data[1] & 0xff) << 24) | ((data[2] & 0xff) << 16) | ((data[3] & 0xff) << 8) | (data[4] & 0xff);
+                    fs.writeValue(Float.intBitsToFloat(rawint));
+                }
+            }
+
+            @Override
+            protected void receiveBroadcast(String source, byte[] data) {
+            }
+        }.attach(this, linkName);
+        return fs;
+    }
+
+    public void publish(String name, final FloatOutput consum) {
+        new CluckSubscriber() {
+            @Override
+            protected void receive(String source, byte[] data) {
+                if (requireRMT(source, data, RMT_FLOATOUTP)) {
+                    if (data.length < 5) {
+                        Logger.warning("Not enough bytes for float output!");
+                        return;
+                    }
+                    int rawint = ((data[1] & 0xff) << 24) | ((data[2] & 0xff) << 16) | ((data[3] & 0xff) << 8) | (data[4] & 0xff);
+                    consum.writeValue(Float.intBitsToFloat(rawint));
+                }
+            }
+
+            @Override
+            protected void receiveBroadcast(String source, byte[] data) {
+                defaultBroadcastHandle(source, data, RMT_FLOATOUTP);
+            }
+        }.attach(this, name);
+    }
+
+    public FloatOutput subscribeFO(final String path) {
+        return new FloatOutput() {
+            public void writeValue(float f) {
+                int iver = Float.floatToIntBits(f);
+                transmit(path, null, new byte[]{RMT_FLOATOUTP, (byte) (iver >> 24), (byte) (iver >> 16), (byte) (iver >> 8), (byte) iver});
+            }
+        };
+    }
+
+    public void publish(final String name, final FloatTuner tune) {
+        publish(name + ".input", (FloatInputProducer) tune);
+        publish(name + ".output", (FloatOutput) tune);
+        FloatInputProducer chan = tune.getAutomaticChannel();
+        if (chan != null) {
+            publish(name + ".auto", chan);
+        }
+    }
+
+    public FloatTuner subscribeTF(String path) {
+        FloatInput tuneIn = subscribeFIP(path + ".input");
+        FloatOutput tuneOut = subscribeFO(path + ".output");
+        final FloatInput autoIn = subscribeFIP(path + ".auto");
+        final CompoundFloatTuner comp = new CompoundFloatTuner(tuneIn, tuneOut);
+        autoIn.addTarget(new FloatOutput() {
+            public void writeValue(float value) {
+                comp.auto = autoIn;
+                autoIn.removeTarget(this);
+            }
+        });
+        return comp;
+    }
+
+    public void publish(String name, final OutputStream out) {
+        new CluckSubscriber() {
+            @Override
+            protected void receive(String source, byte[] data) {
+                if (requireRMT(source, data, RMT_OUTSTREAM)) {
+                    if (data.length > 1) {
+                        try {
+                            out.write(data, 1, data.length - 1);
+                        } catch (IOException ex) {
+                            Logger.log(LogLevel.WARNING, "IO Exception during network transfer!", ex);
+                        }
                     }
                 }
             }
 
-            private void cnstart() {
-                subscribe("^node-ping", new CluckChannelListener() {
-                    public void receive(String channel, byte[] data) {
-                        publish("^node-ping-response", nodeID.getBytes());
-                        lastReceived = System.currentTimeMillis();
-                    }
-                });
+            @Override
+            protected void receiveBroadcast(String source, byte[] data) {
+                defaultBroadcastHandle(source, data, RMT_OUTSTREAM);
             }
-        }.cnstart();
+        }.attach(this, name);
+    }
+
+    public OutputStream subscribeOS(final String path) {
+        return new OutputStream() {
+            @Override
+            public void write(int b) throws IOException {
+                transmit(path, null, new byte[]{(byte) b});
+            }
+
+            @Override
+            public void write(byte b[], int off, int len) throws IOException {
+                byte[] newbyteout = new byte[len + 1];
+                newbyteout[0] = RMT_OUTSTREAM;
+                System.arraycopy(b, off, newbyteout, 0, len);
+                transmit(path, null, newbyteout);
+            }
+        };
     }
 }

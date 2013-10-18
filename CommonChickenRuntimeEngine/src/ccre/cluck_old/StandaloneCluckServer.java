@@ -16,13 +16,14 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with the CCRE.  If not, see <http://www.gnu.org/licenses/>.
  */
-package ccre.cluck;
+package ccre.cluck_old;
 
 import ccre.event.EventConsumer;
 import ccre.log.LogLevel;
 import ccre.log.Logger;
 import ccre.log.MultiTargetLogger;
 import ccre.net.Network;
+import java.io.IOException;
 
 /**
  * A simple standalone cluck server for testing.
@@ -39,9 +40,8 @@ public class StandaloneCluckServer {
     public static void main(String[] args) {
         final long time = System.currentTimeMillis();
         CluckGlobals.ensureInitializedCore();
-        Logger.warning("Needs general logger!");
-        //Logger.target = new MultiTargetLogger(CluckGlobals.node.subscribeLT("general-logger", LogLevel.FINEST), Logger.target);
-        CluckGlobals.node.publish("status-report", new EventConsumer() {
+        Logger.target = new MultiTargetLogger(CluckGlobals.encoder.subscribeLoggingTarget(LogLevel.FINEST, "general-logger"), Logger.target);
+        CluckGlobals.encoder.publishEventConsumer("status-report", new EventConsumer() {
             public void eventFired() {
                 StringBuilder b = new StringBuilder("Standalone server online on [");
                 for (String addr : Network.listIPv4Addresses()) {
@@ -51,8 +51,10 @@ public class StandaloneCluckServer {
                 Logger.info(b.append("] - uptime ").append((System.currentTimeMillis() - time) / 1000).append(" seconds.").toString());
             }
         });
-        CluckGlobals.setupServer();
+        if (!CluckGlobals.initializeServer(80)) {
+            return;
+        }
         Logger.info("Server is running.");
-        //CluckGlobals.node.subscribeLT(LogLevel.FINEST, "general-logger").log(LogLevel.INFO, "Remote logging appears to work!", (Throwable) null);
+        CluckGlobals.encoder.subscribeLoggingTarget(LogLevel.FINEST, "general-logger").log(LogLevel.INFO, "Remote logging appears to work!", (Throwable) null);
     }
 }

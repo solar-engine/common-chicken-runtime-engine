@@ -16,9 +16,10 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with the CCRE.  If not, see <http://www.gnu.org/licenses/>.
  */
-package ccre.cluck3;
+package ccre.cluck;
 
-public interface CluckPublishable {
+public interface CluckLink {
 
-    public void publish(String path, CluckNode node);
+    // Return true if more messages should be delivered, false if this should be detached.
+    public boolean transmit(String rest, String source, byte[] data);
 }

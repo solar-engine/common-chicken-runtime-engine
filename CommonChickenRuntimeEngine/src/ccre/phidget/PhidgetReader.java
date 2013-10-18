@@ -22,7 +22,7 @@ import ccre.chan.BooleanInput;
 import ccre.chan.BooleanOutput;
 import ccre.chan.FloatInput;
 import ccre.cluck.CluckGlobals;
-import ccre.holders.StringHolder;
+import java.io.OutputStream;
 
 /**
  * A system to read data over the network about the Phidget system, and provide
@@ -42,7 +42,7 @@ public class PhidgetReader {
 
     static {
         for (int i = 0; i < digitalOutputs.length; i++) {
-            digitalOutputs[i] = CluckGlobals.encoder.subscribeBooleanOutput("phidget-bo" + i);
+            digitalOutputs[i] = CluckGlobals.node.subscribeBO("phidget-bo" + i);
         }
     }
     /**
@@ -52,7 +52,7 @@ public class PhidgetReader {
 
     static {
         for (int i = 0; i < digitalInputs.length; i++) {
-            digitalInputs[i] = CluckGlobals.encoder.subscribeBooleanInputProducer("phidget-bi" + i, false);
+            digitalInputs[i] = CluckGlobals.node.subscribeBIP("phidget-bi" + i);
         }
     }
     /**
@@ -62,17 +62,19 @@ public class PhidgetReader {
 
     static {
         for (int i = 0; i < analogInputs.length; i++) {
-            analogInputs[i] = CluckGlobals.encoder.subscribeFloatInputProducer("phidget-ai" + i, 0);
+            analogInputs[i] = CluckGlobals.node.subscribeFIP("phidget-ai" + i);
         }
     }
     /**
      * LCD lines on the phidget.
      */
-    public static final StringHolder[] lcdLines = new StringHolder[2];
+    //public static final StringHolder[] lcdLines = new StringHolder[2];
+    public static final OutputStream phidgetLCD;
 
     static {
-        for (int i = 0; i < 2; i++) {
-            lcdLines[i] = CluckGlobals.encoder.subscribeStringHolder("phidget-lcd" + i, "?");
-        }
+        phidgetLCD = CluckGlobals.node.subscribeOS("phidget-lcd");
+        /*for (int i = 0; i < 2; i++) {
+            lcdLines[i] = CluckGlobals.node.subscribeStringHolder("phidget-lcd" + i, "?");
+        }*/
     }
 }

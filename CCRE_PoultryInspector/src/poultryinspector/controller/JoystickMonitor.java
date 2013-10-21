@@ -21,19 +21,20 @@ package poultryinspector.controller;
 import ccre.chan.BooleanInput;
 import ccre.chan.FloatInput;
 import ccre.cluck.CluckEncoder;
+import ccre.log.LogLevel;
+import ccre.log.Logger;
 
 /**
  * The interface to a joystick connected to the driver station. Stores the x, y,
  * z, and slider axes and buttons 1-12 on a joystick and publishes them over the
  * network.
- * 
+ *
  * @author MillerV
  */
 public class JoystickMonitor {
 
     private FloatInput[] axes;
     private BooleanInput[] buttons;
-    
     private boolean connected;
 
     /**
@@ -41,34 +42,43 @@ public class JoystickMonitor {
      * joystick it finds connected to the computer. The inputs are not
      * automatically shared over the network.
      */
-    public JoystickMonitor() {
+    public JoystickMonitor(int stick) {
         for (RobotController controller : RobotController.getControllers()) {
             if (controller.getType().equals("Stick")) {
-                initializeInputs(controller);
-                connected = true;
-                break;
+                if (stick == 0) {
+                    initializeInputs(controller);
+                    connected = true;
+                    break;
+                } else {
+                    stick--;
+                }
             }
         }
+        
+        if (! connected) {
+            Logger.log(LogLevel.WARNING, "Joystick not found.");
+        }
     }
-    
+
     /**
      * @return Whether a joystick was found when the constructor was called.
      */
     public boolean isConnected() {
         return connected;
     }
-    
+
     /**
      * Shares the FloatInputs from the joystick axes and BooleanInputs from the
      * buttons.
+     *
      * @param encoder The CluckEncoder to use for publishing the inputs.
      */
     public void share(CluckEncoder encoder) {
         for (int i = 0; i < 11; i++) {
             if (i < 4) {
-                encoder.publishFloatInputProducer("axis" + i, axes[i]);
+                encoder.publishFloatInputProducer("joystick-axis" + i, axes[i]);
             }
-            encoder.publishBooleanInputProducer("button" + i, buttons[i]);
+            encoder.publishBooleanInputProducer("joystick-button" + i, buttons[i]);
         }
     }
 

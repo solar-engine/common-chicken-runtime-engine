@@ -21,7 +21,6 @@
 
     <property name="user.properties.file" value="build.properties"/>
     <property name="ccrejar" value="../CCRE_Obsidian/dist/Obsidian.jar"/>
-    <property name="manifest.name" value="${resources.dir}/META-INF/MANIFEST.MF"/>
     <property name="configuration.file" value="${src.dir}/obsidian-conf.properties"/>
     <taskdef name="xmltask" classname="com.oopsconsultancy.xmltask.ant.XmlTask">
         <classpath>
@@ -38,6 +37,21 @@
     <property name="classes.dir" value="${build.dir}/classes" />
     <property name="src.dir" value="./src" />
     <property name="jar.dir" value="./dist" />
+    <property name="resources.dir" value="./resources" />
+    <property name="emulatee.name" value="${build.dir}/Emulatee.jar"/>
+    <property name="manifest.name" value="${classes.dir}/META-INF/MANIFEST.MF"/>
+    <property file="${src.dir}/obsidian-conf.properties"/>
+    <target name="insert-manifest">
+        <fail unless="Obsidian-Main" message="Obsidian-Main property required in ${src.dir}/obsidian-conf.properties" />
+        <unjar src="${ccrejar}" dest="${classes.dir}">
+            <patternset>
+                <include name="META-INF/MANIFEST.MF"/>
+            </patternset>
+        </unjar>
+        <manifest file="${manifest.name}" mode="update">
+            <attribute name="Obsidian-Main" value="${Obsidian-Main}"/>
+        </manifest>
+    </target>
     <target name="-actual-compile-compile" depends="clean">
         <mkdir dir="${build.dir}"/>
         <mkdir dir="${classes.dir}"/>
@@ -48,23 +62,30 @@
         </javac>
         <copy file="src/obsidian-conf.properties" todir="${classes.dir}" />
     </target>
-    <target name="paste-ccre">
+    <target name="paste-ccre" depends="insert-manifest">
+        <jar destfile="${emulatee.name}" manifest="${manifest.name}">
+            <fileset dir="${classes.dir}">
+                <exclude name="**/*.java"/>
+            </fileset>
+        </jar>
         <unjar src="${ccrejar}" dest="${classes.dir}" />
     </target>
     <target name="clean">
         <delete dir="${build.dir}"/>
     </target>
     <target name="compile" depends="-actual-compile-compile,paste-ccre">
-        <jar destfile="${jar.dir}/ObsidianProgram.jar" manifest="${classes.dir}/META-INF/MANIFEST.MF">
+        <jar destfile="${jar.dir}/ObsidianProgram.jar" manifest="${manifest.name}">
             <fileset dir="${classes.dir}">
                 <exclude name="**/*.java"/>
             </fileset>
         </jar>
     </target>
-    <target name="jar-app" depends="compile" />
-    <target name="test" depends="jar-app">
-        <java jar="${jar.dir}/ObsidianProgram.jar" fork="true" failonerror="true" />
+    <target name="run-emulator" depends="compile">
+        <java jar="../Obsidian Emulator/dist/Obsidian_Emulator.jar">
+            <arg value="${emulatee.name}" />
+        </java>
     </target>
+    <target name="jar-app" depends="compile" />
     <target name="deploy" depends="jar-app">
         <java jar="${ccrejar}" failonerror="true">
             <arg value="rcli" />

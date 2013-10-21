@@ -20,7 +20,6 @@ package ccre.obsidian;
 
 import ccre.chan.BooleanInputPoll;
 import ccre.chan.BooleanOutput;
-import ccre.event.Event;
 import ccre.chan.FloatInputPoll;
 import ccre.chan.FloatOutput;
 import ccre.cluck.CluckGlobals;
@@ -30,16 +29,17 @@ import ccre.log.LoggingTarget;
 import ccre.log.MultiTargetLogger;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
+import java.lang.reflect.InvocationTargetException;
+import java.net.URL;
+import java.net.URLClassLoader;
 import java.util.Properties;
-import java.util.Timer;
-import java.util.TimerTask;
+import java.util.jar.JarFile;
 
 /**
  *
  * @author Vincent Miller
  */
-public class EmulatorLauncher implements ObsidianLauncher {
+public class EmulatorLauncher extends ObsidianLauncher {
 
     /**
      * The settings loaded during the launch process.
@@ -50,58 +50,44 @@ public class EmulatorLauncher implements ObsidianLauncher {
     private FloatOutput leftMotor;
     private FloatOutput rightMotor;
 
-    public static void main(String[] args) throws IOException, ClassNotFoundException, InstantiationException, IllegalAccessException {
-        new EmulatorLauncher();
+    public static void main(String[] args) throws IOException, ClassNotFoundException, InstantiationException, IllegalAccessException, NoSuchMethodException, IllegalArgumentException, InvocationTargetException {
+        if (args.length != 1) {
+            System.err.println("Expected arguments: <Obsidian-Jar>");
+            System.exit(-1);
+            return;
+        }
+        File jarFile = new File(args[0]);
+        JarFile obsidianJar = new JarFile(jarFile);
+        String mainClass;
+        try {
+            mainClass = obsidianJar.getManifest().getMainAttributes().getValue("Obsidian-Main");
+        } finally {
+            obsidianJar.close();
+        }
+        if (mainClass == null) {
+            throw new RuntimeException("Could not find MANIFEST-specified launchee: " + args[0]);
+        }
+        CluckGlobals.ensureInitializedCore();
+        Logger.target = new MultiTargetLogger(new LoggingTarget[]{Logger.target, CluckGlobals.encoder.subscribeLoggingTarget(LogLevel.FINEST, "general-logger")});
+        URLClassLoader classLoader = new URLClassLoader(new URL[]{jarFile.toURI().toURL()}, EmulatorLauncher.class.getClassLoader());
+        Class<? extends ObsidianCore> asSubclass = classLoader.loadClass(mainClass).asSubclass(ObsidianCore.class);
+        EmulatorLauncher l = new EmulatorLauncher(asSubclass.getConstructor().newInstance());
     }
 
-    public EmulatorLauncher() throws IOException, ClassNotFoundException, InstantiationException, IllegalAccessException {
+    public EmulatorLauncher(ObsidianCore core) throws IOException, ClassNotFoundException, InstantiationException, IllegalAccessException {
+        super(core);
         leftMotor = new FloatOutput() {
             @Override
             public void writeValue(float value) {
-                System.out.println("Left motor: " + value);
+                Logger.log(LogLevel.INFO, "Left motor: " + value);
             }
         };
         rightMotor = new FloatOutput() {
             @Override
             public void writeValue(float value) {
-                System.out.println("Right motor: " + value);
+                Logger.log(LogLevel.INFO, "Right motor: " + value);
             }
         };
-        CluckGlobals.ensureInitializedCore();
-        Logger.target = new MultiTargetLogger(new LoggingTarget[]{Logger.target, CluckGlobals.encoder.subscribeLoggingTarget(LogLevel.FINEST, "general-logger")});
-        Properties p = new Properties();
-        InputStream inst = ObsidianLauncherImpl.class.getResourceAsStream("/obsidian-conf.properties");
-        if (inst == null) {
-            throw new IOException("Could not find configuration file!");
-        }
-        p.load(inst);
-        settings = p;
-        String name = p.getProperty("Obsidian-Main");
-        if (name == null) {
-            throw new IOException("Could not find configuration-specified launchee!");
-        }
-        ObsidianCore core = (ObsidianCore) Class.forName(name).newInstance();
-        core.properties = p;
-        core.launcher = new EmulatorLauncher();
-        CluckGlobals.initializeServer(80);
-        final Event prd = new Event();
-        core.periodic = prd;
-        final Timer t = new Timer();
-        t.schedule(new TimerTask() {
-            @Override
-            public void run() {
-                try {
-                    prd.produce();
-                } catch (Throwable thr) {
-                    Logger.log(LogLevel.SEVERE, "Exception caught in execution loop - robots don't quit!", thr);
-                }
-            }
-        }, 10, 20);
-        try {
-            core.createRobotControl();
-        } catch (Throwable thr) {
-            Logger.log(LogLevel.SEVERE, "Exception caught at top level during initialization - robots don't quit!", thr);
-        }
     }
 
     @Override

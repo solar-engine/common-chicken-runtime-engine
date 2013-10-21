@@ -18,14 +18,21 @@
  */
 package org.team1540.example;
 
+import ccre.chan.FloatInputProducer;
 import ccre.chan.FloatOutput;
+import ccre.event.EventConsumer;
 import ccre.obsidian.ObsidianCore;
 
 public class Example extends ObsidianCore {
 
     @Override
     protected void createRobotControl() {
-        FloatOutput o = makePWMOutput("P9_14", 0, 0.333f, 0.666f, 333f, true); // These parameters may need tuning.
-        o.writeValue(0f);
+        final FloatInputProducer xAxis = launcher.getJoystickAxis(1);
+        final FloatInputProducer yAxis = launcher.getJoystickAxis(2);
+        
+        final FloatOutput leftMotor = makePWMOutput("P9_14", 0, 0.333f, 0.666f, 333f, true);
+        final FloatOutput rightMotor = makePWMOutput("P9_16", 0, 0.333f, 0.666f, 333f, true);
+        
+        xAxis.addTarget(leftMotor);
     }
 }

@@ -8,5 +8,5 @@ MIDlet-1: IgneousApp, , ccre.igneous.IgneousLauncherImpl
 MicroEdition-Profile: IMP-1.0
 MicroEdition-Configuration: CLDC-1.1
 X-Comment: Igneous-Main will be added by the build script later.
-Igneous-Main: org.team1540.infernodante.Inferno
+Igneous-Main: org.team1540.example.Test
 

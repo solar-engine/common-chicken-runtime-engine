@@ -42,14 +42,18 @@ import java.util.TimerTask;
  *
  * @author skeggsc
  */
-public class ObsidianLauncherImpl implements ObsidianLauncher {
+public class ObsidianLauncherImpl extends ObsidianLauncher {
 
     /**
      * The settings loaded during the launch process.
      */
     public static Properties settings;
-
+    
     public static void main(String[] args) throws IOException, ClassNotFoundException, InstantiationException, IllegalAccessException {
+        ObsidianLauncher l = new ObsidianLauncherImpl(args);
+    }
+
+    public ObsidianLauncherImpl(String[] args) throws IOException, ClassNotFoundException, InstantiationException, IllegalAccessException {
         boolean watch = false;
         if (args.length != 0) {
             if (!args[0].equals("use-watcher")) {
@@ -58,36 +62,6 @@ public class ObsidianLauncherImpl implements ObsidianLauncher {
             }
             watch = true;
         }
-        CluckGlobals.ensureInitializedCore();
-        Logger.target = new MultiTargetLogger(new LoggingTarget[]{Logger.target, CluckGlobals.encoder.subscribeLoggingTarget(LogLevel.FINEST, "general-logger")});
-        Properties p = new Properties();
-        InputStream inst = ObsidianLauncherImpl.class.getResourceAsStream("/obsidian-conf.properties");
-        if (inst == null) {
-            throw new IOException("Could not find configuration file!");
-        }
-        p.load(inst);
-        settings = p;
-        String name = p.getProperty("Obsidian-Main");
-        if (name == null) {
-            throw new IOException("Could not find configuration-specified launchee!");
-        }
-        ObsidianCore core = (ObsidianCore) Class.forName(name).newInstance();
-        core.properties = p;
-        core.launcher = new ObsidianLauncherImpl();
-        CluckGlobals.initializeServer(80);
-        final Event prd = new Event();
-        core.periodic = prd;
-        final Timer t = new Timer();
-        t.schedule(new TimerTask() {
-            @Override
-            public void run() {
-                try {
-                    prd.produce();
-                } catch (Throwable thr) {
-                    Logger.log(LogLevel.SEVERE, "Exception caught in execution loop - robots don't quit!", thr);
-                }
-            }
-        }, 10, 20);
         if (watch) {
             final File watchee = new File("remote-watcher");
             t.schedule(new TimerTask() {
@@ -100,11 +74,6 @@ public class ObsidianLauncherImpl implements ObsidianLauncher {
                     }
                 }
             }, 500, 1000);
-        }
-        try {
-            core.createRobotControl();
-        } catch (Throwable thr) {
-            Logger.log(LogLevel.SEVERE, "Exception caught at top level during initialization - robots don't quit!", thr);
         }
     }
     

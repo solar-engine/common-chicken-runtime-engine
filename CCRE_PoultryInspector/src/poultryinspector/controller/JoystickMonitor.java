@@ -59,6 +59,9 @@ public final class JoystickMonitor {
         return connected;
     }
     
+    /**
+     * Refreshes the USB connection with the joystick.
+     */
     public void refresh() {
         int curStick = stick - 1;
         for (RobotController controller : RobotController.getControllers()) {

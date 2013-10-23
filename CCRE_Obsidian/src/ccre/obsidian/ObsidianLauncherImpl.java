@@ -54,6 +54,7 @@ public class ObsidianLauncherImpl extends ObsidianLauncher {
     }
 
     public ObsidianLauncherImpl(String[] args) throws IOException, ClassNotFoundException, InstantiationException, IllegalAccessException {
+        super(ObsidianLauncherImpl.class.getClassLoader());
         boolean watch = false;
         if (args.length != 0) {
             if (!args[0].equals("use-watcher")) {

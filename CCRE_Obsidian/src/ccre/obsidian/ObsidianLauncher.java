@@ -41,34 +41,29 @@ import java.util.TimerTask;
 public abstract class ObsidianLauncher {
 
     protected final Timer t;
+    protected final Event prd;
 
-    public ObsidianLauncher() throws IOException, ClassNotFoundException, InstantiationException, IllegalAccessException {
-        this(null);
-    }
-
-    public ObsidianLauncher(ObsidianCore core) throws IOException, ClassNotFoundException, InstantiationException, IllegalAccessException {
+    public ObsidianLauncher(ClassLoader coreClass) throws IOException, ClassNotFoundException, InstantiationException, IllegalAccessException {
         CluckGlobals.ensureInitializedCore();
         Logger.target = new MultiTargetLogger(new LoggingTarget[]{Logger.target, CluckGlobals.encoder.subscribeLoggingTarget(LogLevel.FINEST, "general-logger")});
-        if (core == null) {
-            Properties p = new Properties();
-            InputStream inst = ObsidianLauncherImpl.class.getResourceAsStream("/obsidian-conf.properties");
-            if (inst == null) {
-                throw new IOException("Could not find configuration file!");
-            }
-            p.load(inst);
-            settings = p;
-            String name = p.getProperty("Obsidian-Main");
-            if (name == null) {
-                throw new IOException("Could not find configuration-specified launchee!");
-            }
-
-            core = (ObsidianCore) Class.forName(name).newInstance();
-            
-            core.properties = p;
+        Properties p = new Properties();
+        InputStream inst = coreClass.getResourceAsStream("obsidian-conf.properties");
+        if (inst == null) {
+            throw new IOException("Could not find configuration file!");
         }
+        p.load(inst);
+        settings = p;
+        String name = p.getProperty("Obsidian-Main");
+        if (name == null) {
+            throw new IOException("Could not find configuration-specified launchee!");
+        }
+
+        ObsidianCore core = (ObsidianCore) coreClass.loadClass(name).newInstance();
+
+        core.properties = p;
         core.launcher = this;
         CluckGlobals.initializeServer(80);
-        final Event prd = new Event();
+        prd = new Event();
         core.periodic = prd;
         t = new Timer();
         t.schedule(new TimerTask() {
@@ -97,7 +92,7 @@ public abstract class ObsidianLauncher {
      * @return A FloatInputProducer that provides the value of that axis.
      */
     public FloatInputProducer getJoystickAxis(int axis) {
-        return CluckGlobals.encoder.subscribeFloatInputProducer("joystick-axis" + axis, 0.0F);
+        return CluckGlobals.encoder.subscribeFloatInputProducer("joystick" + 1 + "-axis" + axis, 0.0F);
     }
 
     /**
@@ -109,7 +104,7 @@ public abstract class ObsidianLauncher {
      * @return A BooleanInputProducer that provides the value of that button.
      */
     public BooleanInputProducer getJoystickButton(int button) {
-        return CluckGlobals.encoder.subscribeBooleanInputProducer("joystick-button" + button, false);
+        return CluckGlobals.encoder.subscribeBooleanInputProducer("joystick" + 1 + "-button" + button, false);
     }
 
     /**

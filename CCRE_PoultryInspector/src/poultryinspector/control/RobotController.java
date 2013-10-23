@@ -98,6 +98,9 @@ public class RobotController {
      */
     public FloatInput getAxis(int axis) throws InputTypeException {
         Component comp = ctrl.getComponent(AxisIDS[axis-1]);
+        if (comp == null) {
+            return null;
+        }
         if (!comp.isAnalog()) {
             throw new InputTypeException("Error: expected analog input.");
         }
@@ -114,6 +117,9 @@ public class RobotController {
      */
     public BooleanInput getButton(int button) throws InputTypeException {
         Component comp = ctrl.getComponent(ButtonIDS[button-1]);
+        if (comp == null) {
+            return null;
+        }
         if (comp.isAnalog()) {
             throw new InputTypeException("Error: expected digital input.");
         }

@@ -33,7 +33,6 @@ import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.Properties;
-import java.util.jar.JarFile;
 
 /**
  *
@@ -45,10 +44,13 @@ public class EmulatorLauncher extends ObsidianLauncher {
      * The settings loaded during the launch process.
      */
     public static Properties settings;
-    private String leftMotorPin = "P8_14";
-    private String rightMotorPin = "P8_16";
-    private FloatOutput leftMotor;
-    private FloatOutput rightMotor;
+    private EmulatorWorld world;
+    private double leftMotorSpeed = 0;
+    private double rightMotorSpeed = 0;
+    private static final String leftMotorPin = "P8_14";
+    private static final String rightMotorPin = "P8_16";
+    private final FloatOutput leftMotor;
+    private final FloatOutput rightMotor;
 
     public static void main(String[] args) throws IOException, ClassNotFoundException, InstantiationException, IllegalAccessException, NoSuchMethodException, IllegalArgumentException, InvocationTargetException {
         if (args.length != 1) {
@@ -57,37 +59,34 @@ public class EmulatorLauncher extends ObsidianLauncher {
             return;
         }
         File jarFile = new File(args[0]);
-        JarFile obsidianJar = new JarFile(jarFile);
-        String mainClass;
-        try {
-            mainClass = obsidianJar.getManifest().getMainAttributes().getValue("Obsidian-Main");
-        } finally {
-            obsidianJar.close();
-        }
-        if (mainClass == null) {
-            throw new RuntimeException("Could not find MANIFEST-specified launchee: " + args[0]);
-        }
         CluckGlobals.ensureInitializedCore();
         Logger.target = new MultiTargetLogger(new LoggingTarget[]{Logger.target, CluckGlobals.encoder.subscribeLoggingTarget(LogLevel.FINEST, "general-logger")});
-        URLClassLoader classLoader = new URLClassLoader(new URL[]{jarFile.toURI().toURL()}, EmulatorLauncher.class.getClassLoader());
-        Class<? extends ObsidianCore> asSubclass = classLoader.loadClass(mainClass).asSubclass(ObsidianCore.class);
-        EmulatorLauncher l = new EmulatorLauncher(asSubclass.getConstructor().newInstance());
+        URL u = jarFile.toURI().toURL();
+        URLClassLoader classLoader = new URLClassLoader(new URL[]{u}, EmulatorLauncher.class.getClassLoader());
+
+        EmulatorLauncher l = new EmulatorLauncher(classLoader);
     }
 
-    public EmulatorLauncher(ObsidianCore core) throws IOException, ClassNotFoundException, InstantiationException, IllegalAccessException {
-        super(core);
-        leftMotor = new FloatOutput() {
-            @Override
-            public void writeValue(float value) {
-                Logger.log(LogLevel.INFO, "Left motor: " + value);
-            }
-        };
+    public EmulatorLauncher(ClassLoader coreClass) throws IOException, ClassNotFoundException, InstantiationException, IllegalAccessException {
+        super(coreClass);
         rightMotor = new FloatOutput() {
             @Override
             public void writeValue(float value) {
                 Logger.log(LogLevel.INFO, "Right motor: " + value);
+                rightMotorSpeed = value;
+                world.updateVelocity(leftMotorSpeed, rightMotorSpeed);
             }
         };
+        leftMotor = new FloatOutput() {
+            @Override
+            public void writeValue(float value) {
+                Logger.log(LogLevel.INFO, "Left motor: " + value);
+                leftMotorSpeed = value;
+                world.updateVelocity(leftMotorSpeed, rightMotorSpeed);
+            }
+        };
+        world = new EmulatorWorld();
+        prd.addListener(world);
     }
 
     @Override
@@ -107,7 +106,7 @@ public class EmulatorLauncher extends ObsidianLauncher {
         } else if (chan.equals(rightMotorPin)) {
             return rightMotor;
         } else {
-            return null;
+            throw new IllegalArgumentException("The PWM output you selected is not connected to this emulator.");
         }
     }
 

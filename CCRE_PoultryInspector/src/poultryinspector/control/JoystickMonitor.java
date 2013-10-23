@@ -19,7 +19,11 @@
 package poultryinspector.controller;
 
 import ccre.chan.BooleanInput;
+import ccre.chan.BooleanInputProducer;
+import ccre.chan.BooleanOutput;
 import ccre.chan.FloatInput;
+import ccre.chan.FloatInputProducer;
+import ccre.chan.FloatOutput;
 import ccre.cluck.CluckEncoder;
 import ccre.log.LogLevel;
 import ccre.log.Logger;
@@ -31,10 +35,11 @@ import ccre.log.Logger;
  *
  * @author MillerV
  */
-public class JoystickMonitor {
+public final class JoystickMonitor {
 
     private FloatInput[] axes;
     private BooleanInput[] buttons;
+    private int stick;
     private boolean connected;
 
     /**
@@ -43,21 +48,8 @@ public class JoystickMonitor {
      * automatically shared over the network.
      */
     public JoystickMonitor(int stick) {
-        for (RobotController controller : RobotController.getControllers()) {
-            if (controller.getType().equals("Stick")) {
-                if (stick == 0) {
-                    initializeInputs(controller);
-                    connected = true;
-                    break;
-                } else {
-                    stick--;
-                }
-            }
-        }
-        
-        if (! connected) {
-            Logger.log(LogLevel.WARNING, "Joystick not found.");
-        }
+        this.stick = stick;
+        refresh();
     }
 
     /**
@@ -65,6 +57,25 @@ public class JoystickMonitor {
      */
     public boolean isConnected() {
         return connected;
+    }
+    
+    public void refresh() {
+        int curStick = stick - 1;
+        for (RobotController controller : RobotController.getControllers()) {
+            if (controller.getType().equals("Stick")) {
+                if (curStick == 0) {
+                    initializeInputs(controller);
+                    connected = true;
+                    break;
+                } else {
+                    curStick--;
+                }
+            }
+        }
+
+        if (!connected) {
+            Logger.log(LogLevel.WARNING, "Joystick not found.");
+        }
     }
 
     /**
@@ -75,10 +86,36 @@ public class JoystickMonitor {
      */
     public void share(CluckEncoder encoder) {
         for (int i = 0; i < 11; i++) {
-            if (i < 4) {
-                encoder.publishFloatInputProducer("joystick-axis" + i, axes[i]);
+            if (i < 7) {
+                if (isConnected() && axes[i] != null) {
+                    encoder.publishFloatInputProducer("joystick" + stick + "-axis" + i, axes[i]);
+                } else {
+                    encoder.publishFloatInputProducer("joystick" + stick + "-axis" + i, new FloatInputProducer() {
+                        @Override
+                        public void addTarget(FloatOutput o) {
+                        }
+
+                        @Override
+                        public boolean removeTarget(FloatOutput o) {
+                            return true;
+                        }
+                    });
+                }
+                if (isConnected() && buttons[i] != null) {
+                    encoder.publishBooleanInputProducer("joystick" + stick + "-button" + i, buttons[i]);
+                } else {
+                    encoder.publishBooleanInputProducer("joystick" + stick + "-button" + i, new BooleanInputProducer() {
+                        @Override
+                        public void addTarget(BooleanOutput o) {
+                        }
+
+                        @Override
+                        public boolean removeTarget(BooleanOutput o) {
+                            return true;
+                        }
+                    });
+                }
             }
-            encoder.publishBooleanInputProducer("joystick-button" + i, buttons[i]);
         }
     }
 
@@ -87,7 +124,7 @@ public class JoystickMonitor {
         buttons = new BooleanInput[12];
 
         for (int i = 1; i < 12; i++) {
-            if (i < 5) {
+            if (i < 8) {
                 try {
                     axes[i - 1] = joystick.getAxis(i);
                 } catch (InputTypeException e) {

@@ -132,7 +132,7 @@ public class GUI extends javax.swing.JFrame {
         if (phidget != null) {
             phidget.share(encoder);
         }
-        if (joystick != null && joystick.isConnected()) {
+        if (joystick != null) {
             joystick.share(encoder);
         }
     }

@@ -87,6 +87,7 @@ public class EmulatorLauncher extends ObsidianLauncher {
         };
         world = new EmulatorWorld();
         prd.addListener(world);
+        run();
     }
 
     @Override

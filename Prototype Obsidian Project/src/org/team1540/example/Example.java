@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 Colby Skeggs
+ * Copyright 2013 Colby Skeggs and Vincent Miller
  * 
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  * 
@@ -18,21 +18,27 @@
  */
 package org.team1540.example;
 
-import ccre.chan.FloatInputProducer;
+import ccre.chan.FloatInput;
 import ccre.chan.FloatOutput;
+import ccre.event.EventConsumer;
 import ccre.obsidian.ObsidianCore;
 
 public class Example extends ObsidianCore {
 
     @Override
     protected void createRobotControl() {
-        final FloatInputProducer xAxis = launcher.getJoystickAxis(1);
-        final FloatInputProducer yAxis = launcher.getJoystickAxis(2);
+        final FloatInput xAxis = launcher.getJoystickAxis(1);
+        final FloatInput yAxis = launcher.getJoystickAxis(2);
         
         final FloatOutput leftMotor = makePWMOutput("P8_14", 0, 0.333f, 0.666f, 333f, true);
         final FloatOutput rightMotor = makePWMOutput("P8_16", 0, 0.333f, 0.666f, 333f, true);
         
-        System.out.println(leftMotor);
-        xAxis.addTarget(leftMotor);
+        periodic.addListener(new EventConsumer() {
+            @Override
+            public void eventFired() {
+                leftMotor.writeValue(yAxis.readValue() + xAxis.readValue());
+                rightMotor.writeValue(yAxis.readValue() - xAxis.readValue());
+            }
+        });
     }
 }

@@ -76,6 +76,7 @@ public class ObsidianLauncherImpl extends ObsidianLauncher {
                 }
             }, 500, 1000);
         }
+        run();
     }
     
     /**

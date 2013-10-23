@@ -42,6 +42,7 @@ public abstract class ObsidianLauncher {
 
     protected final Timer t;
     protected final Event prd;
+    protected final ObsidianCore core;
 
     public ObsidianLauncher(ClassLoader coreClass) throws IOException, ClassNotFoundException, InstantiationException, IllegalAccessException {
         CluckGlobals.ensureInitializedCore();
@@ -58,7 +59,7 @@ public abstract class ObsidianLauncher {
             throw new IOException("Could not find configuration-specified launchee!");
         }
 
-        ObsidianCore core = (ObsidianCore) coreClass.loadClass(name).newInstance();
+        core = (ObsidianCore) coreClass.loadClass(name).newInstance();
 
         core.properties = p;
         core.launcher = this;
@@ -66,6 +67,9 @@ public abstract class ObsidianLauncher {
         prd = new Event();
         core.periodic = prd;
         t = new Timer();
+    }
+    
+    public void run() {
         t.schedule(new TimerTask() {
             @Override
             public void run() {
@@ -91,7 +95,7 @@ public abstract class ObsidianLauncher {
      * @param axis The index of the axis to retrieve, from 1 to 4.
      * @return A FloatInputProducer that provides the value of that axis.
      */
-    public FloatInputProducer getJoystickAxis(int axis) {
+    public FloatInput getJoystickAxis(int axis) {
         return CluckGlobals.encoder.subscribeFloatInputProducer("joystick" + 1 + "-axis" + axis, 0.0F);
     }
 
@@ -103,7 +107,7 @@ public abstract class ObsidianLauncher {
      * @param button The index of the button to retrieve, from 1 to 12.
      * @return A BooleanInputProducer that provides the value of that button.
      */
-    public BooleanInputProducer getJoystickButton(int button) {
+    public BooleanInput getJoystickButton(int button) {
         return CluckGlobals.encoder.subscribeBooleanInputProducer("joystick" + 1 + "-button" + button, false);
     }
 

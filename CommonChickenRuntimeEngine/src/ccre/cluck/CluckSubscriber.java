@@ -69,7 +69,9 @@ public abstract class CluckSubscriber implements CluckLink {
     }
 
     protected void defaultBroadcastHandle(String source, byte[] data, byte rmt) {
-        node.transmit(source, linkName, new byte[]{rmt});
+        if (data.length == 1 && data[0] == CluckNode.RMT_PING) {
+            node.transmit(source, linkName, new byte[]{CluckNode.RMT_PING, rmt});
+        }
     }
 
     protected abstract void receive(String source, byte[] data);

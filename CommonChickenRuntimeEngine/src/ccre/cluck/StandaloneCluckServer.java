@@ -19,9 +19,7 @@
 package ccre.cluck;
 
 import ccre.event.EventConsumer;
-import ccre.log.LogLevel;
 import ccre.log.Logger;
-import ccre.log.MultiTargetLogger;
 import ccre.net.Network;
 
 /**

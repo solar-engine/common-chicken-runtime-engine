@@ -64,6 +64,7 @@ public class CluckTCPClient extends ReporterThread {
                     DataInputStream din = sock.openDataInputStream();
                     DataOutputStream dout = sock.openDataOutputStream();
                     CluckProtocol.handleHeader(din, dout, remoteNameHint);
+                    node.notifyNetworkModified();
                     CluckProtocol.handleSend(dout, linkName, node);
                     CluckProtocol.handleRecv(din, linkName, node);
                 } catch (IOException ex) {

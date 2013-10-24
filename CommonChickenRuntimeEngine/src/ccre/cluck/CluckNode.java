@@ -34,10 +34,12 @@ import ccre.holders.FloatTuner;
 import ccre.log.LogLevel;
 import ccre.log.Logger;
 import ccre.log.LoggingTarget;
+import ccre.util.CArrayList;
 import ccre.util.CHashMap;
 import ccre.workarounds.ThrowablePrinter;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.Iterator;
 
 public class CluckNode {
 
@@ -53,8 +55,46 @@ public class CluckNode {
     public static final byte RMT_FLOATPRODRESP = 9;
     public static final byte RMT_FLOATOUTP = 10;
     public static final byte RMT_OUTSTREAM = 11;
+    public static final byte RMT_NOTIFY = 12;
+
+    public static String rmtToString(int type) {
+        switch (type) {
+            case RMT_PING:
+                return "Ping";
+            case RMT_EVENTCONSUMER:
+                return "EventConsumer";
+            case RMT_EVENTSOURCE:
+                return "EventSource";
+            case RMT_EVENTSOURCERESP:
+                return "EventSourceResponse";
+            case RMT_LOGTARGET:
+                return "LogTarget";
+            case RMT_BOOLPROD:
+                return "BooleanInputProducer";
+            case RMT_BOOLPRODRESP:
+                return "BooleanInputProducerResponse";
+            case RMT_BOOLOUTP:
+                return "BooleanOutput";
+            case RMT_FLOATPROD:
+                return "FloatInputProducer";
+            case RMT_FLOATPRODRESP:
+                return "FloatInputProducerResponse";
+            case RMT_FLOATOUTP:
+                return "FloatOutput";
+            case RMT_OUTSTREAM:
+                return "OutputStream";
+            case RMT_NOTIFY:
+                return "Notify";
+            default:
+                return "Unknown #" + type;
+        }
+    }
     public final CHashMap<String, CluckLink> links = new CHashMap<String, CluckLink>();
     public final CHashMap<String, String> aliases = new CHashMap<String, String>();
+
+    public void notifyNetworkModified() {
+        transmit("*", "#modsrc", new byte[]{RMT_NOTIFY});
+    }
 
     public void transmit(String target, String source, byte[] data) {
         if (target == null) {
@@ -96,10 +136,76 @@ public class CluckNode {
         while (to.charAt(to.length() - 1) == '/') {
             to = to.substring(0, to.length() - 1);
         }
-        if (aliases.containsKey(from)) {
+        if (aliases.get(from) != null) {
             throw new IllegalStateException("Alias already used!");
         }
         aliases.put(from, to);
+    }
+
+    public void startSearchRemotes(String localRecv, final CluckRemoteListener listener) {
+        CluckSubscriber sub = new CluckSubscriber() {
+            @Override
+            protected void receive(String source, byte[] data) {
+                if (data.length == 2 && data[0] == RMT_PING) {
+                    listener.handle(source, data[1]);
+                }
+            }
+
+            @Override
+            protected void receiveBroadcast(String source, byte[] data) {
+            }
+        };
+        sub.attach(this, localRecv);
+        transmit("*", localRecv, new byte[]{RMT_PING});
+    }
+
+    public void cycleSearchRemotes(String localRecv) {
+        transmit("*", localRecv, new byte[]{RMT_PING});
+    }
+
+    public String[] searchRemotes(final Integer remoteType, int timeout) throws InterruptedException {
+        final CArrayList<String> discovered = new CArrayList<String>();
+        String localRecv = "rsch-" + Integer.toHexString((int) System.currentTimeMillis()) + "-" + Integer.toHexString(discovered.hashCode());
+        CluckSubscriber sub = new CluckSubscriber() {
+            @Override
+            protected void receive(String source, byte[] data) {
+                if (data.length == 2 && data[0] == RMT_PING) {
+                    if (remoteType == null || remoteType == data[1]) {
+                        synchronized (discovered) {
+                            discovered.add(source);
+                        }
+                    }
+                }
+            }
+
+            @Override
+            protected void receiveBroadcast(String source, byte[] data) {
+            }
+        };
+        sub.attach(this, localRecv);
+        try {
+            transmit("*", localRecv, new byte[]{RMT_PING});
+            Thread.sleep(timeout);
+        } finally {
+            links.put(localRecv, null);
+        }
+        synchronized (discovered) {
+            Iterator<String> it = discovered.iterator();
+            String[] out = new String[discovered.size()];
+            int i = 0;
+            while (it.hasNext()) {
+                String str = it.next();
+                if (i >= out.length) {
+                    Logger.severe("Lost remote due to concurrent modification!");
+                    break;
+                }
+                out[i++] = str;
+            }
+            if (i < out.length) {
+                Logger.severe("Damaged remotes due to concurrent modification!");
+            }
+            return out;
+        }
     }
 
     public String getLinkName(CluckNullLink link) {
@@ -309,14 +415,13 @@ public class CluckNode {
 
     public BooleanInput subscribeBIP(final String path) {
         final String linkName = "srcBIP-" + path.hashCode() + "-" + localIDs++;
+        final BooleanStatus sent = new BooleanStatus();
         final BooleanStatus bs = new BooleanStatus() {
-            private boolean sent = false; // TODO: What if the remote end gets rebooted? Would this re-send the request?
-
             @Override
             public void addTarget(BooleanOutput out) {
                 super.addTarget(out);
-                if (!sent) {
-                    sent = true;
+                if (!sent.readValue()) {
+                    sent.writeValue(true);
                     transmit(path, linkName, new byte[]{RMT_BOOLPROD});
                 }
             }
@@ -335,6 +440,11 @@ public class CluckNode {
 
             @Override
             protected void receiveBroadcast(String source, byte[] data) {
+                if (data.length == 1 && data[0] == CluckNode.RMT_NOTIFY) {
+                    if (sent.readValue()) {
+                        transmit(path, linkName, new byte[]{RMT_BOOLPROD});
+                    }
+                }
             }
         }.attach(this, linkName);
         return bs;
@@ -395,14 +505,13 @@ public class CluckNode {
 
     public FloatInput subscribeFIP(final String path) {
         final String linkName = "srcFIP-" + path.hashCode() + "-" + localIDs++;
+        final BooleanStatus sent = new BooleanStatus();
         final FloatStatus fs = new FloatStatus() {
-            private boolean sent = false; // TODO: What if the remote end gets rebooted? Would this re-send the request?
-
             @Override
             public void addTarget(FloatOutput out) {
                 super.addTarget(out);
-                if (!sent) {
-                    sent = true;
+                if (!sent.readValue()) {
+                    sent.writeValue(true);
                     transmit(path, linkName, new byte[]{RMT_FLOATPROD});
                 }
             }
@@ -422,6 +531,11 @@ public class CluckNode {
 
             @Override
             protected void receiveBroadcast(String source, byte[] data) {
+                if (data.length == 1 && data[0] == CluckNode.RMT_NOTIFY) {
+                    if (sent.readValue()) {
+                        transmit(path, linkName, new byte[]{RMT_FLOATPROD});
+                    }
+                }
             }
         }.attach(this, linkName);
         return fs;

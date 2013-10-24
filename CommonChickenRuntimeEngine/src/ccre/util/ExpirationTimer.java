@@ -136,6 +136,7 @@ public class ExpirationTimer { // TODO: Needs to be tested!
                     long rel = startAt + t.delay - System.currentTimeMillis();
                     while (rel > 0) {
                         wait(rel);
+                        rel = startAt + t.delay - System.currentTimeMillis();
                     }
                     t.cnsm.eventFired();
                 }

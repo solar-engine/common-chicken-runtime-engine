@@ -53,7 +53,7 @@ public class NetworkAutologger implements LoggingTarget {
             protected void doWork() throws Throwable {
                 remotes = node.searchRemotes((int) CluckNode.RMT_LOGTARGET, 500);
                 for (String s : remotes) {
-                    if (s.contains("auto-") && targetCache.get(s) == null) {
+                    if (s.indexOf("auto-") != -1 && targetCache.get(s) == null) {
                         targetCache.put(s, node.subscribeLT(s, LogLevel.FINEST));
                     }
                 }

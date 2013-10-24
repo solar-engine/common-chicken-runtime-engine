@@ -76,8 +76,9 @@ public interface Radio {
      * @param timeout The timeout, in milliseconds.
      * @return The Packet received.
      * @throws RadioTimeoutException 
+     * @throws RadioException
      */
-    public Packet recievePacket(int timeout) throws RadioTimeoutException;
+    public Packet recievePacket(int timeout) throws RadioException, RadioTimeoutException;
     
     /**
      * Wait indefinitely for an incoming packet.

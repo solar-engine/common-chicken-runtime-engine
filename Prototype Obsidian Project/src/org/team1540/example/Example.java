@@ -20,7 +20,9 @@ package org.team1540.example;
 
 import ccre.chan.FloatInput;
 import ccre.chan.FloatOutput;
+import ccre.ctrl.Mixing;
 import ccre.event.EventConsumer;
+import ccre.log.Logger;
 import ccre.obsidian.ObsidianCore;
 
 public class Example extends ObsidianCore {
@@ -28,16 +30,18 @@ public class Example extends ObsidianCore {
     @Override
     protected void createRobotControl() {
         final FloatInput xAxis = launcher.getJoystickAxis(1);
-        final FloatInput yAxis = launcher.getJoystickAxis(2);
+        final FloatInput yAxis = Mixing.negate(launcher.getJoystickAxis(2));
         
-        final FloatOutput leftMotor = makePWMOutput("P8_14", 0, 0.333f, 0.666f, 333f, true);
-        final FloatOutput rightMotor = makePWMOutput("P8_16", 0, 0.333f, 0.666f, 333f, true);
+        final FloatOutput leftMotor = makePWMOutput("P8_13", 0, 0.333f, 0.666f, 333f, true);
+        final FloatOutput rightMotor = makePWMOutput("P9_14", 0, 0.333f, 0.666f, 333f, true);
         
         periodic.addListener(new EventConsumer() {
             @Override
             public void eventFired() {
+                //Logger.finest("Vals: " + xAxis.readValue() + ", " + yAxis.readValue());
                 leftMotor.writeValue(yAxis.readValue() + xAxis.readValue());
                 rightMotor.writeValue(yAxis.readValue() - xAxis.readValue());
+                //rightMotor.writeValue(1.0f);                //leftMotor.writeValue(1.0f);
             }
         });
     }

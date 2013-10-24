@@ -42,11 +42,9 @@ import net.java.games.input.ControllerEnvironment;
 public class RobotController {
 
     private Controller ctrl;
-    
     private static final Axis[] AxisIDS = new Axis[]{
         Axis.X, Axis.Y, Axis.Z, Axis.SLIDER, Axis.RX, Axis.RY, Axis.RZ
     };
-    
     private static final Button[] ButtonIDS = new Button[]{
         Button._0, Button._1, Button._2, Button._3, Button._4, Button._5, Button._6, Button._7, Button._8, Button._9,
         Button._10, Button._11
@@ -97,7 +95,7 @@ public class RobotController {
      * @see getComponents()
      */
     public FloatInput getAxis(int axis) throws InputTypeException {
-        Component comp = ctrl.getComponent(AxisIDS[axis-1]);
+        Component comp = ctrl.getComponent(AxisIDS[axis - 1]);
         if (comp == null) {
             return null;
         }
@@ -116,7 +114,7 @@ public class RobotController {
      * @see getComponents()
      */
     public BooleanInput getButton(int button) throws InputTypeException {
-        Component comp = ctrl.getComponent(ButtonIDS[button-1]);
+        Component comp = ctrl.getComponent(ButtonIDS[button - 1]);
         if (comp == null) {
             return null;
         }
@@ -130,22 +128,26 @@ public class RobotController {
 
         private Component component;
         private Controller controller;
-        
         private CList<FloatOutput> subscribers;
+        private float lastValue;
 
         private AxisInput(Component component, Controller controller) {
             this.component = component;
             this.controller = controller;
             this.subscribers = new CLinkedList<FloatOutput>();
-            
+            this.lastValue = 0.0f;
+
             Ticker t = new Ticker(10);
-            
+
             t.addListener(new EventConsumer() {
                 @Override
                 public void eventFired() {
                     float value = readValue();
-                    for (FloatOutput output : subscribers) {
-                        output.writeValue(value);
+                    if (value != lastValue) {
+                        for (FloatOutput output : subscribers) {
+                            output.writeValue(value);
+                        }
+                        lastValue = value;
                     }
                 }
             });
@@ -172,22 +174,26 @@ public class RobotController {
 
         private Component component;
         private Controller controller;
-        
         private CList<BooleanOutput> subscribers;
+        private boolean lastValue;
 
         private ButtonInput(Component component, Controller controller) {
             this.component = component;
             this.controller = controller;
             this.subscribers = new CLinkedList<BooleanOutput>();
-            
+            this.lastValue = false;
+
             Ticker t = new Ticker(10);
-            
+
             t.addListener(new EventConsumer() {
                 @Override
                 public void eventFired() {
                     boolean value = readValue();
-                    for (BooleanOutput output : subscribers) {
-                        output.writeValue(value);
+                    if (value != lastValue) {
+                        for (BooleanOutput output : subscribers) {
+                            output.writeValue(value);
+                        }
+                        lastValue = value;
                     }
                 }
             });

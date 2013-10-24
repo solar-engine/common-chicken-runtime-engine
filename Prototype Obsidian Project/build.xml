@@ -62,7 +62,7 @@
         <delete dir="${build.dir}"/>
     </target>
     <target name="compile" depends="-actual-compile-compile,paste-ccre">
-        <jar destfile="${jar.dir}/ObsidianProgram.jar">
+        <jar destfile="${jar.dir}/ObsidianProgram.jar" manifest="build/classes/META-INF/MANIFEST.MF">
             <fileset dir="${classes.dir}">
                 <exclude name="**/*.java"/>
             </fileset>
@@ -78,7 +78,7 @@
         <java jar="${ccrejar}" failonerror="true">
             <arg value="rcli" />
             <arg value="${jar.dir}/ObsidianProgram.jar" />
-            <arg value="192.168.7.2" />
+            <arg value="10.15.40.2" />
         </java>
     </target>
 

@@ -53,7 +53,8 @@ public final class JoystickMonitor {
     }
 
     /**
-     * @return Whether a joystick was found when the constructor was called.
+     * @return Whether a joystick was found the last time this JoystickMonitor
+     * was refreshed.
      */
     public boolean isConnected() {
         return connected;
@@ -91,9 +92,9 @@ public final class JoystickMonitor {
         for (int i = 0; i < 11; i++) {
             if (i < 7) {
                 if (isConnected() && axes[i] != null) {
-                    encoder.publishFloatInputProducer("joystick" + stick + "-axis" + i, axes[i]);
+                    encoder.publishFloatInputProducer("joystick" + stick + "-axis" + (i + 1), axes[i]);
                 } else {
-                    encoder.publishFloatInputProducer("joystick" + stick + "-axis" + i, new FloatInputProducer() {
+                    encoder.publishFloatInputProducer("joystick" + stick + "-axis" + (i + 1), new FloatInputProducer() {
                         @Override
                         public void addTarget(FloatOutput o) {
                         }
@@ -105,9 +106,9 @@ public final class JoystickMonitor {
                     });
                 }
                 if (isConnected() && buttons[i] != null) {
-                    encoder.publishBooleanInputProducer("joystick" + stick + "-button" + i, buttons[i]);
+                    encoder.publishBooleanInputProducer("joystick" + stick + "-button" + (i + 1), buttons[i]);
                 } else {
-                    encoder.publishBooleanInputProducer("joystick" + stick + "-button" + i, new BooleanInputProducer() {
+                    encoder.publishBooleanInputProducer("joystick" + stick + "-button" + (i + 1), new BooleanInputProducer() {
                         @Override
                         public void addTarget(BooleanOutput o) {
                         }
@@ -123,7 +124,7 @@ public final class JoystickMonitor {
     }
 
     private void initializeInputs(RobotController joystick) {
-        axes = new FloatInput[4];
+        axes = new FloatInput[7];
         buttons = new BooleanInput[12];
 
         for (int i = 1; i < 12; i++) {

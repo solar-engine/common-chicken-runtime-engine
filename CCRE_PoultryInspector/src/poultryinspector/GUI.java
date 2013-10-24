@@ -21,10 +21,7 @@ package poultryinspector;
 import poultryinspector.interactor.Interactor;
 import ccre.chan.BooleanInput;
 import ccre.chan.BooleanOutput;
-import ccre.cluck.CluckEncoder;
-import ccre.cluck.CluckEncoder.AvailableListener;
 import ccre.cluck.CluckGlobals;
-import ccre.cluck.CluckNetworkedClient;
 import ccre.concurrency.CollapsingWorkerThread;
 import ccre.log.LogLevel;
 import ccre.log.Logger;
@@ -285,7 +282,7 @@ public class GUI extends javax.swing.JFrame {
     private void btnRefreshActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnRefreshActionPerformed
         detectedObjects.removeAllElements();
         availListen.clearRecord();
-        CluckGlobals.encoder.searchPublished();
+        CluckGlobals.node.searchPublished();
     }//GEN-LAST:event_btnRefreshActionPerformed
 
     private void btnDebugToolsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnDebugToolsActionPerformed

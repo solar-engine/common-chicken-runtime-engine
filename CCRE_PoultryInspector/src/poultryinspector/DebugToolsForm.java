@@ -246,8 +246,8 @@ public class DebugToolsForm extends javax.swing.JFrame {
         if (out.isEmpty() || in.isEmpty()) {
             return;
         }
-        EventConsumer cnsm = CluckGlobals.encoder.subscribeEventConsumer(out);
-        EventSource src = CluckGlobals.encoder.subscribeEventSource(in);
+        EventConsumer cnsm = CluckGlobals.node.subscribeEC(out);
+        EventSource src = CluckGlobals.node.subscribeES(in);
         src.addListener(cnsm);
     }//GEN-LAST:event_btnEventConnectActionPerformed
 
@@ -256,8 +256,8 @@ public class DebugToolsForm extends javax.swing.JFrame {
         if (out.isEmpty() || in.isEmpty()) {
             return;
         }
-        BooleanOutput cnsm = CluckGlobals.encoder.subscribeBooleanOutput(out);
-        BooleanInputProducer src = CluckGlobals.encoder.subscribeBooleanInputProducer(in, false);
+        BooleanOutput cnsm = CluckGlobals.node.subscribeBO(out);
+        BooleanInputProducer src = CluckGlobals.node.subscribeBIP(in);
         src.addTarget(cnsm);
     }//GEN-LAST:event_btnBooleanConnectActionPerformed
 
@@ -266,8 +266,8 @@ public class DebugToolsForm extends javax.swing.JFrame {
         if (out.isEmpty() || in.isEmpty()) {
             return;
         }
-        FloatOutput cnsm = CluckGlobals.encoder.subscribeFloatOutput(out);
-        FloatInputProducer src = CluckGlobals.encoder.subscribeFloatInputProducer(in, 0);
+        FloatOutput cnsm = CluckGlobals.node.subscribeFO(out);
+        FloatInputProducer src = CluckGlobals.node.subscribeFIP(in);
         src.addTarget(cnsm);
     }//GEN-LAST:event_btnFloatConnectActionPerformed
 
@@ -277,8 +277,8 @@ public class DebugToolsForm extends javax.swing.JFrame {
             return;
         }
         Event e = new Event();
-        CluckGlobals.encoder.publishEventConsumer(out, e);
-        CluckGlobals.encoder.publishEventSource(in, e);
+        CluckGlobals.node.publish(out, (EventConsumer)e);
+        CluckGlobals.node.publish(in, (EventSource)e);
     }//GEN-LAST:event_btnEventCreateActionPerformed
 
     private void btnCreateBooleanActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCreateBooleanActionPerformed
@@ -287,8 +287,8 @@ public class DebugToolsForm extends javax.swing.JFrame {
             return;
         }
         BooleanStatus b = new BooleanStatus();
-        CluckGlobals.encoder.publishBooleanOutput(out, b);
-        CluckGlobals.encoder.publishBooleanInputProducer(in, b);
+        CluckGlobals.node.publish(out, (BooleanOutput)b);
+        CluckGlobals.node.publish(in, (BooleanInputProducer)b);
     }//GEN-LAST:event_btnCreateBooleanActionPerformed
 
     private void btnFloatCreateActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnFloatCreateActionPerformed
@@ -297,8 +297,8 @@ public class DebugToolsForm extends javax.swing.JFrame {
             return;
         }
         FloatStatus b = new FloatStatus();
-        CluckGlobals.encoder.publishFloatOutput(out, b);
-        CluckGlobals.encoder.publishFloatInputProducer(in, b);
+        CluckGlobals.node.publish(out, (FloatOutput)b);
+        CluckGlobals.node.publish(in, (FloatInputProducer)b);
     }//GEN-LAST:event_btnFloatCreateActionPerformed
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnBooleanConnect;

@@ -48,12 +48,14 @@ public class NetworkAutologger implements LoggingTarget {
     private final CHashMap<String, LoggingTarget> targetCache = new CHashMap<String, LoggingTarget>();
 
     public NetworkAutologger(final CluckNode node) {
+        final String here = Integer.toHexString(hashCode()) + "-" + Integer.toHexString((int) System.currentTimeMillis());
+        final String auto = "auto-" + here;
         final CollapsingWorkerThread autologger = new CollapsingWorkerThread("network-autologger") {
             @Override
             protected void doWork() throws Throwable {
                 remotes = node.searchRemotes((int) CluckNode.RMT_LOGTARGET, 500);
                 for (String s : remotes) {
-                    if (s.indexOf("auto-") != -1 && targetCache.get(s) == null) {
+                    if (s.indexOf("auto-") != -1 && !auto.equals(s) && targetCache.get(s) == null) {
                         targetCache.put(s, node.subscribeLT(s, LogLevel.FINEST));
                     }
                 }
@@ -66,7 +68,6 @@ public class NetworkAutologger implements LoggingTarget {
                 autologger.trigger();
             }
         }, 10, 10000);
-        String here = Integer.toHexString(hashCode()) + "-" + Integer.toHexString((int) System.currentTimeMillis());
         new CluckSubscriber() {
             @Override
             protected void receive(String source, byte[] data) {
@@ -79,7 +80,7 @@ public class NetworkAutologger implements LoggingTarget {
                 }
             }
         }.attach(node, "netwatch-" + here);
-        node.publish("auto-" + here, new LoggingTarget() {
+        node.publish(auto, new LoggingTarget() {
             public void log(LogLevel level, String message, Throwable throwable) {
                 Logger.log(level, "[NET] " + message, throwable);
             }
@@ -95,6 +96,9 @@ public class NetworkAutologger implements LoggingTarget {
             return;
         }
         String[] l = remotes;
+        if (l == null) {
+            return;
+        }
         for (String cur : l) {
             LoggingTarget lt = targetCache.get(cur);
             if (lt == null) {
@@ -109,6 +113,9 @@ public class NetworkAutologger implements LoggingTarget {
             return;
         }
         String[] l = remotes;
+        if (l == null) {
+            return;
+        }
         for (String cur : l) {
             LoggingTarget lt = targetCache.get(cur);
             if (lt == null) {

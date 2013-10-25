@@ -18,6 +18,11 @@
  */
 package intelligence;
 
+import ccre.chan.BooleanInput;
+import ccre.chan.BooleanInputProducer;
+import ccre.chan.BooleanOutput;
+import ccre.chan.FloatInput;
+import ccre.chan.FloatOutput;
 import ccre.cluck.CluckNode;
 import static ccre.cluck.CluckNode.RMT_BOOLOUTP;
 import static ccre.cluck.CluckNode.RMT_BOOLPROD;
@@ -41,6 +46,7 @@ public class Entity {
     public int centerX, centerY;
     protected boolean registered;
     protected long countStart = 0;
+    protected Object currentValue;
     protected int width = 20, height = 20;
 
     public Entity(Remote remote, int centerX, int centerY) {
@@ -94,13 +100,46 @@ public class Entity {
 
                 break;
             case RMT_BOOLPROD:
-
+                BooleanInput bi = (BooleanInput) co;
+                if (!registered) {
+                    registered = true;
+                    bi.addTarget(new BooleanOutput() {
+                        @Override
+                        public void writeValue(boolean value) {
+                            currentValue = value;
+                        }
+                    });
+                }
+                g.setColor((Boolean) currentValue ? Color.GREEN : Color.RED);
+                g.fillRect(centerX - w + 1, centerY + h - rh - 1, w * 2 - 2, rh - 2);
+                g.setColor(Color.YELLOW);
+                g.drawString((Boolean) currentValue ? "TRUE" : "FALSE", centerX - w + 1, centerY + h - fm.getDescent()); // TODO: TEST
                 break;
             case RMT_BOOLOUTP:
 
                 break;
             case RMT_FLOATPROD:
-
+                FloatInput fi = (FloatInput) co;
+                if (!registered) {
+                    registered = true;
+                    fi.addTarget(new FloatOutput() {
+                        @Override
+                        public void writeValue(float value) {
+                            currentValue = value;
+                        }
+                    });
+                }
+                float c = (Float) currentValue;
+                if (c < -1) {
+                    g.setColor(blend(Color.BLACK, col.darker(), c + 2));
+                } else if (c > 1) {
+                    g.setColor(blend(col.brighter(), Color.WHITE, c - 1));
+                } else {
+                    g.setColor(blend(col.darker(), col.brighter(), (c + 1) / 2));
+                }
+                g.fillRect(centerX - w + 1, centerY + h - rh - 1, w * 2 - 2, rh - 2);
+                g.setColor(c < 0 ? Color.WHITE : Color.BLACK);
+                g.drawString(String.valueOf(c), centerX - w + 1, centerY + h - fm.getDescent());
                 break;
             case RMT_FLOATOUTP:
 
@@ -126,5 +165,40 @@ public class Entity {
         }
         float ap = 1 - bp;
         return new Color(Math.round(a.getRed() * ap + b.getRed() * bp), Math.round(a.getGreen() * ap + b.getGreen() * bp), Math.round(a.getBlue() * ap + b.getBlue() * bp), Math.round(a.getAlpha() * ap + b.getAlpha() * bp));
+    }
+
+    public void interact(int x, int y) {
+        Object co = represented.checkout;
+        if (co == null) {
+            return;
+        }
+        switch (represented.type) {
+            case RMT_EVENTCONSUMER:
+                EventConsumer ec = (EventConsumer) co;
+                ec.eventFired();
+                countStart = System.currentTimeMillis();
+                break;
+            case RMT_EVENTSOURCE:
+                EventSource es = (EventSource) co;
+                break;
+            case RMT_LOGTARGET:
+
+                break;
+            case RMT_BOOLPROD:
+
+                break;
+            case RMT_BOOLOUTP:
+
+                break;
+            case RMT_FLOATPROD:
+
+                break;
+            case RMT_FLOATOUTP:
+
+                break;
+            case RMT_OUTSTREAM:
+
+                break;
+        }
     }
 }

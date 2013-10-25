@@ -19,6 +19,7 @@
 package intelligence;
 
 import ccre.chan.FloatInputProducer;
+import ccre.chan.FloatOutput;
 import ccre.chan.FloatStatus;
 import ccre.cluck.CluckGlobals;
 import ccre.cluck.CluckNode;
@@ -30,6 +31,9 @@ import ccre.event.EventLogger;
 import ccre.event.EventSource;
 import ccre.log.LogLevel;
 import ccre.log.Logger;
+import ccre.log.LoggingTarget;
+import ccre.log.MultiTargetLogger;
+import ccre.log.NetworkAutologger;
 import ccre.util.ExpirationTimer;
 import java.awt.Color;
 import java.awt.Font;
@@ -45,6 +49,8 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import javax.swing.DefaultComboBoxModel;
+import javax.swing.DefaultListModel;
 import javax.swing.JFrame;
 import javax.swing.JList;
 import javax.swing.JPanel;
@@ -52,7 +58,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 
 public class IntelligenceMain extends JPanel implements CluckRemoteListener, MouseMotionListener, MouseListener {
-
+    
     public static final Color canvasBackground = Color.WHITE;
     public static final Color paneBackground = Color.YELLOW;
     public static final Color highlight = Color.ORANGE;
@@ -70,7 +76,7 @@ public class IntelligenceMain extends JPanel implements CluckRemoteListener, Mou
     protected Entity activeEntity = null;
     protected int relActiveX, relActiveY;
     protected final ExpirationTimer painter = new ExpirationTimer();
-
+    
     private IntelligenceMain(String[] args, CluckNode node) {
         this.node = node;
         lrecv = "big-brother-" + Integer.toHexString(args.hashCode());
@@ -85,7 +91,7 @@ public class IntelligenceMain extends JPanel implements CluckRemoteListener, Mou
         });
         painter.start();
     }
-
+    
     @Override
     public void mouseDragged(MouseEvent e) {
         if (activeEntity != null) {
@@ -98,7 +104,7 @@ public class IntelligenceMain extends JPanel implements CluckRemoteListener, Mou
             repaint();
         }
     }
-
+    
     @Override
     public void mouseMoved(MouseEvent e) {
         int curX = e.getX();
@@ -112,13 +118,22 @@ public class IntelligenceMain extends JPanel implements CluckRemoteListener, Mou
             repaint();
         }
     }
-
+    
     @Override
     public void mouseClicked(MouseEvent e) {
     }
-
+    
     @Override
     public void mousePressed(MouseEvent e) {
+        if (e.getButton() == MouseEvent.BUTTON3) {
+            for (Entity ent : ents.values()) {
+                if (ent.centerX >= paneWidth && ent.isOver(e.getPoint())) {
+                    ent.interact(e.getX() - ent.centerX, e.getY() - ent.centerY);
+                    return;
+                }
+            }
+            return;
+        }
         for (Entity ent : ents.values()) {
             if (ent.centerX >= paneWidth && ent.isOver(e.getPoint())) {
                 activeEntity = ent;
@@ -149,20 +164,20 @@ public class IntelligenceMain extends JPanel implements CluckRemoteListener, Mou
         }
         activeEntity = null;
     }
-
+    
     @Override
     public void mouseReleased(MouseEvent e) {
         activeEntity = null;
     }
-
+    
     @Override
     public void mouseEntered(MouseEvent e) {
     }
-
+    
     @Override
     public void mouseExited(MouseEvent e) {
     }
-
+    
     @Override
     public void handle(String remote, int remoteType) {
         Remote old = remotes.get(remote);
@@ -176,12 +191,12 @@ public class IntelligenceMain extends JPanel implements CluckRemoteListener, Mou
         }
         repaint();
     }
-
+    
     public void research() {
         node.cycleSearchRemotes(lrecv);
         // TODO: Remove old entries
     }
-
+    
     @Override
     public void paint(Graphics g) {
         int w = getWidth();
@@ -229,24 +244,25 @@ public class IntelligenceMain extends JPanel implements CluckRemoteListener, Mou
         }
         painter.feed();
     }
-
+    
     public static void main(String[] args) {
         CluckGlobals.ensureInitializedCore();
         final FloatStatus time = new FloatStatus();
         final Event prod = new Event();
         new ReporterThread("clock") {
+            private final long beginning = System.currentTimeMillis();
             @Override
             protected void threadBody() throws Throwable {
                 long last = System.currentTimeMillis();
                 while (true) {
                     long now = System.currentTimeMillis();
-                    time.writeValue(now / 1000.0f);
+                    time.writeValue((now - beginning) / 4000.0f - 2);
                     Thread.sleep(50);
-                    if (now > last + 1000) {
+                    if (now > last + 700) {
                         if (now > last + 5000) {
                             last = now;
                         }
-                        last += 1000;
+                        last += 700;
                         prod.produce();
                     }
                 }
@@ -255,12 +271,17 @@ public class IntelligenceMain extends JPanel implements CluckRemoteListener, Mou
         CluckGlobals.node.publish("time", (FloatInputProducer) time);
         CluckGlobals.node.publish("test", new EventLogger(LogLevel.INFO, "Test."));
         CluckGlobals.node.publish("ticker", (EventSource) prod);
+        NetworkAutologger.register();
         JFrame frame = new JFrame("Intelligence Panel");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setSize(640, 480);
         JSplitPane jsp = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
         JScrollPane scroll = new JScrollPane();
         JList lstErrors = new JList();
+        DefaultListModel dlm = new DefaultListModel();
+        lstErrors.setModel(dlm);
+        LoggingTarget lt = new ListModelLogger(dlm, lstErrors);
+        Logger.target = new MultiTargetLogger(Logger.target, lt);
         scroll.setViewportView(lstErrors);
         jsp.setRightComponent(scroll);
         jsp.setLeftComponent(new IntelligenceMain(args, CluckGlobals.node));

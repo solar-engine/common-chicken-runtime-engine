@@ -18,6 +18,9 @@
  */
 package poultryinspector;
 
+import intelligence.PhidgetMonitor;
+import intelligence.IPProvider;
+import intelligence.ListModelLogger;
 import poultryinspector.interactor.Interactor;
 import ccre.chan.BooleanInput;
 import ccre.chan.BooleanOutput;

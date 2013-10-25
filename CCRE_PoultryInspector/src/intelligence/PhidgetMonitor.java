@@ -16,14 +16,13 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with the CCRE.  If not, see <http://www.gnu.org/licenses/>.
  */
-package poultryinspector;
+package intelligence;
 
 import ccre.chan.BooleanInput;
 import ccre.chan.BooleanOutput;
 import ccre.chan.BooleanStatus;
 import ccre.chan.FloatInput;
 import ccre.chan.FloatStatus;
-import ccre.cluck.CluckEncoder;
 import ccre.event.EventConsumer;
 import ccre.holders.StringHolder;
 import ccre.log.LogLevel;
@@ -185,20 +184,20 @@ public class PhidgetMonitor implements AttachListener, DetachListener, ErrorList
      *
      * @param encoder the encoder to share over.
      */
-    public void share(CluckEncoder encoder) {
+    public void share(CluckNode node) {
         for (int i = 0; i < OUTPUT_COUNT; i++) {
-            encoder.publishBooleanOutput("phidget-bo" + i, outputs[i]);
+            node.publish("phidget-bo" + i, outputs[i]);
         }
         for (int i = 0; i < LCD_LINES; i++) {
-            encoder.publishStringHolder("phidget-lcd" + i, lines[i]);
+            node.publish("phidget-lcd" + i, lines[i]);
         }
         // TODO: Make this be a shared input, not just an input producer
-        encoder.publishBooleanInputProducer("phidget-attached", isAttached);
+        node.publish("phidget-attached", isAttached);
         for (int i = 0; i < INPUT_COUNT; i++) {
-            encoder.publishBooleanInputProducer("phidget-bi" + i, inputs[i]);
+            node.publish("phidget-bi" + i, inputs[i]);
         }
         for (int i = 0; i < ANALOG_COUNT; i++) {
-            encoder.publishFloatInputProducer("phidget-ai" + i, analogs[i]);
+            node.publish("phidget-ai" + i, analogs[i]);
         }
     }
 

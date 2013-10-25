@@ -91,12 +91,14 @@ public class CluckNode {
     }
     public final CHashMap<String, CluckLink> links = new CHashMap<String, CluckLink>();
     public final CHashMap<String, String> aliases = new CHashMap<String, String>();
+    public int estimatedByteCount;
 
     public void notifyNetworkModified() {
         transmit("*", "#modsrc", new byte[]{RMT_NOTIFY});
     }
 
     public void transmit(String target, String source, byte[] data) {
+        estimatedByteCount += 24 + (target != null ? target.length() : 0) + (source != null ? source.length() : 0) + data.length; // 24 is the estimated packet overhead with a CluckTCPClient.
         if (target == null) {
             Logger.log(LogLevel.WARNING, "Received message addressed to unreceving node (source: " + source + ")", new Exception("Embedded Traceback"));
             return;
@@ -104,6 +106,9 @@ public class CluckNode {
             // Broadcast
             for (String key : links) {
                 CluckLink cl = links.get(key);
+                if (cl == null) {
+                    continue;
+                }
                 cl.transmit("*", source, data);
             }
             return;

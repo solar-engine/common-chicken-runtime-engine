@@ -18,22 +18,14 @@
  */
 package ccre.obsidian;
 
-import ccre.obsidian.comms.Radio;
 import ccre.chan.BooleanInputPoll;
 import ccre.chan.BooleanOutput;
 import ccre.chan.FloatInputPoll;
 import ccre.chan.FloatOutput;
-import ccre.cluck.CluckGlobals;
-import ccre.event.Event;
-import ccre.log.LogLevel;
 import ccre.log.Logger;
-import ccre.log.LoggingTarget;
-import ccre.log.MultiTargetLogger;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.Properties;
-import java.util.Timer;
 import java.util.TimerTask;
 
 /**
@@ -50,11 +42,6 @@ public class ObsidianLauncherImpl extends ObsidianLauncher {
     public static Properties settings;
     
     public static void main(String[] args) throws IOException, ClassNotFoundException, InstantiationException, IllegalAccessException {
-        ObsidianLauncher l = new ObsidianLauncherImpl(args);
-    }
-
-    public ObsidianLauncherImpl(String[] args) throws IOException, ClassNotFoundException, InstantiationException, IllegalAccessException {
-        super(ObsidianLauncherImpl.class.getClassLoader());
         boolean watch = false;
         if (args.length != 0) {
             if (!args[0].equals("use-watcher")) {
@@ -63,6 +50,11 @@ public class ObsidianLauncherImpl extends ObsidianLauncher {
             }
             watch = true;
         }
+        ObsidianLauncher l = new ObsidianLauncherImpl(watch);
+    }
+
+    public ObsidianLauncherImpl(boolean watch) throws IOException, ClassNotFoundException, InstantiationException, IllegalAccessException {
+        super(ObsidianLauncherImpl.class.getClassLoader());
         if (watch) {
             final File watchee = new File("remote-watcher");
             t.schedule(new TimerTask() {

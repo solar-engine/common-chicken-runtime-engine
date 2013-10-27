@@ -47,8 +47,8 @@ public class EmulatorLauncher extends ObsidianLauncher {
     private EmulatorWorld world;
     private double leftMotorSpeed = 0;
     private double rightMotorSpeed = 0;
-    private static final String leftMotorPin = "P8_14";
-    private static final String rightMotorPin = "P8_16";
+    private static final String leftMotorPin = "P8_13";
+    private static final String rightMotorPin = "P9_14";
     private final FloatOutput leftMotor;
     private final FloatOutput rightMotor;
 
@@ -102,17 +102,19 @@ public class EmulatorLauncher extends ObsidianLauncher {
 
     @Override
     public FloatOutput makePWMOutput(String chan, float defaultValue, final float calibrateN1, final float calibrateN2, float frequency, boolean zeroPolarity) {
-        if (chan.equals(leftMotorPin)) {
-            return leftMotor;
-        } else if (chan.equals(rightMotorPin)) {
-            return rightMotor;
-        } else {
-            throw new IllegalArgumentException("The PWM output you selected is not connected to this emulator.");
+        switch (chan) {
+            case leftMotorPin:
+                return leftMotor;
+            case rightMotorPin:
+                return rightMotor;
+            default:
+                throw new IllegalArgumentException("The PWM output you selected is not connected to this emulator.");
         }
     }
 
     @Override
     public void destroyPWMOutput(String chan) {
+        Logger.log(LogLevel.SEVERE, "nope.");
     }
 
     @Override

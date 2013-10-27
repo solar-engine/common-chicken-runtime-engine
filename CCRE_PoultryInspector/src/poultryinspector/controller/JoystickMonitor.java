@@ -58,7 +58,8 @@ public final class JoystickMonitor {
     }
 
     /**
-     * @return Whether a joystick was found when the constructor was called.
+     * @return Whether a joystick was found the last time this JoystickMonitor
+     * was refreshed.
      */
     public boolean isConnected() {
         return connected;

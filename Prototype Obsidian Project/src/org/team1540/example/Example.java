@@ -22,8 +22,8 @@ import ccre.chan.FloatInput;
 import ccre.chan.FloatOutput;
 import ccre.ctrl.Mixing;
 import ccre.event.EventConsumer;
-import ccre.log.Logger;
 import ccre.obsidian.ObsidianCore;
+import ccre.obsidian.PWMPin;
 
 public class Example extends ObsidianCore {
 
@@ -32,8 +32,8 @@ public class Example extends ObsidianCore {
         final FloatInput xAxis = launcher.getJoystickAxis(1);
         final FloatInput yAxis = Mixing.negate(launcher.getJoystickAxis(2));
         
-        final FloatOutput leftMotor = makePWMOutput("P8_13", 0, 0.333f, 0.666f, 333f, true);
-        final FloatOutput rightMotor = makePWMOutput("P9_14", 0, 0.333f, 0.666f, 333f, true);
+        final FloatOutput leftMotor = makePWMOutput(PWMPin.P8_13, 0, 0.333f, 0.666f, 333f, true);
+        final FloatOutput rightMotor = makePWMOutput(PWMPin.P9_14, 0, 0.333f, 0.666f, 333f, true);
         
         periodic.addListener(new EventConsumer() {
             @Override

@@ -144,7 +144,7 @@ public abstract class ObsidianLauncher {
      * @return the output that writes to the PWM.
      * @throws ObsidianHardwareException
      */
-    public abstract FloatOutput makePWMOutput(String chan, float defaultValue, final float calibrateN1, final float calibrateN2, float frequency, boolean zeroPolarity);
+    public abstract FloatOutput makePWMOutput(PWMPin chan, float defaultValue, final float calibrateN1, final float calibrateN2, float frequency, boolean zeroPolarity);
 
     /**
      * Close the specified PWM channel. The channel will throw errors if
@@ -154,7 +154,7 @@ public abstract class ObsidianLauncher {
      * @param chan The channel to close.
      * @throws ObsidianHardwareException
      */
-    public abstract void destroyPWMOutput(String chan);
+    public abstract void destroyPWMOutput(PWMPin chan);
 
     /**
      * Open the specified analog channel for input.

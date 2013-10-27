@@ -111,7 +111,7 @@ public class ObsidianLauncherImpl extends ObsidianLauncher {
      * @throws ObsidianHardwareException
      */
     @Override
-    public FloatOutput makePWMOutput(String chan, float defaultValue, final float calibrateN1, final float calibrateN2, float frequency, boolean zeroPolarity) throws ObsidianHardwareException {
+    public FloatOutput makePWMOutput(PWMPin chan, float defaultValue, final float calibrateN1, final float calibrateN2, float frequency, boolean zeroPolarity) throws ObsidianHardwareException {
         if (defaultValue < -1) {
             defaultValue = -1;
         } else if (defaultValue > 1) {
@@ -141,7 +141,7 @@ public class ObsidianLauncherImpl extends ObsidianLauncher {
      * @throws ObsidianHardwareException
      */
     @Override
-    public void destroyPWMOutput(String chan) throws ObsidianHardwareException {
+    public void destroyPWMOutput(PWMPin chan) throws ObsidianHardwareException {
         PWMManager.destroyChannel(chan);
     }
 

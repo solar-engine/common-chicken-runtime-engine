@@ -46,10 +46,15 @@ public final class JoystickMonitor {
      * Creates a new joystick monitor. It will automatically attach to the first
      * joystick it finds connected to the computer. The inputs are not
      * automatically shared over the network.
+     *
+     * @param stick The stick number to load.
      */
     public JoystickMonitor(int stick) {
-        this.stick = stick;
-        refresh();
+        if (refresh(stick)) {
+            Logger.log(LogLevel.INFO, "Connected to joystick.");
+        } else {
+            Logger.log(LogLevel.WARNING, "Could not connect to joystick.");
+        }
     }
 
     /**
@@ -58,12 +63,17 @@ public final class JoystickMonitor {
     public boolean isConnected() {
         return connected;
     }
-    
+
     /**
      * Refreshes the USB connection with the joystick.
+     *
+     * @param stick The stick number to load.
+     * @return Whether a stick was found.
      */
-    public void refresh() {
+    public boolean refresh(int stick) {
+        this.stick = stick;
         int curStick = stick - 1;
+        connected = false;
         for (RobotController controller : RobotController.getControllers()) {
             if (controller.getType().equals("Stick")) {
                 if (curStick == 0) {
@@ -75,10 +85,7 @@ public final class JoystickMonitor {
                 }
             }
         }
-
-        if (!connected) {
-            Logger.log(LogLevel.WARNING, "Joystick not found.");
-        }
+        return connected;
     }
 
     /**

@@ -98,9 +98,9 @@ public final class JoystickMonitor {
         for (int i = 0; i < 11; i++) {
             if (i < 7) {
                 if (isConnected() && axes[i] != null) {
-                    encoder.publishFloatInputProducer("joystick" + stick + "-axis" + (i - 1), axes[i]);
+                    encoder.publishFloatInputProducer("joystick" + stick + "-axis" + (i + 1), axes[i]);
                 } else {
-                    encoder.publishFloatInputProducer("joystick" + stick + "-axis" + (i - 1), new FloatInputProducer() {
+                    encoder.publishFloatInputProducer("joystick" + stick + "-axis" + (i + 1), new FloatInputProducer() {
                         @Override
                         public void addTarget(FloatOutput o) {
                         }
@@ -112,9 +112,9 @@ public final class JoystickMonitor {
                     });
                 }
                 if (isConnected() && buttons[i] != null) {
-                    encoder.publishBooleanInputProducer("joystick" + stick + "-button" + (i - 1), buttons[i]);
+                    encoder.publishBooleanInputProducer("joystick" + stick + "-button" + (i + 1), buttons[i]);
                 } else {
-                    encoder.publishBooleanInputProducer("joystick" + stick + "-button" + (i - 1), new BooleanInputProducer() {
+                    encoder.publishBooleanInputProducer("joystick" + stick + "-button" + (i + 1), new BooleanInputProducer() {
                         @Override
                         public void addTarget(BooleanOutput o) {
                         }

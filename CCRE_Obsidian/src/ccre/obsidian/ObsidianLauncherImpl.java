@@ -50,17 +50,10 @@ public class ObsidianLauncherImpl extends ObsidianLauncher {
             }
             watch = true;
         }
-<<<<<<< HEAD
         ObsidianLauncher l = new ObsidianLauncherImpl(watch);
     }
 
     public ObsidianLauncherImpl(boolean watch) throws IOException, ClassNotFoundException, InstantiationException, IllegalAccessException {
-=======
-        ObsidianLauncher l = new ObsidianLauncherImpl(args, watch);
-    }
-
-    public ObsidianLauncherImpl(String[] args, boolean watch) throws IOException, ClassNotFoundException, InstantiationException, IllegalAccessException {
->>>>>>> 77c685493c3f2ecd5747fa7263ec3fb8411a6605
         super(ObsidianLauncherImpl.class.getClassLoader());
         if (watch) {
             final File watchee = new File("remote-watcher");

@@ -19,7 +19,6 @@
 package intelligence;
 
 import ccre.chan.BooleanInput;
-import ccre.chan.BooleanInputProducer;
 import ccre.chan.BooleanOutput;
 import ccre.chan.FloatInput;
 import ccre.chan.FloatOutput;
@@ -34,11 +33,15 @@ import static ccre.cluck.CluckNode.RMT_LOGTARGET;
 import static ccre.cluck.CluckNode.RMT_OUTSTREAM;
 import ccre.event.EventConsumer;
 import ccre.event.EventSource;
+import ccre.log.LogLevel;
 import ccre.log.Logger;
 import java.awt.Color;
 import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.Point;
+import java.io.IOException;
+import java.io.OutputStream;
+import javax.swing.JOptionPane;
 
 public class Entity {
 
@@ -58,7 +61,7 @@ public class Entity {
     public void render(Graphics g) {
         g.setFont(IntelligenceMain.console);
         FontMetrics fm = g.getFontMetrics();
-        int w = 70, h = fm.getHeight() * 3 / 2;
+        int w = Math.max(70, fm.stringWidth(represented.remote) / 2), h = fm.getHeight() * 3 / 2;
         width = w;
         height = h;
         g.setColor(Color.BLACK);
@@ -110,13 +113,28 @@ public class Entity {
                         }
                     });
                 }
-                g.setColor((Boolean) currentValue ? Color.GREEN : Color.RED);
-                g.fillRect(centerX - w + 1, centerY + h - rh - 1, w * 2 - 2, rh - 2);
-                g.setColor(Color.YELLOW);
-                g.drawString((Boolean) currentValue ? "TRUE" : "FALSE", centerX - w + 1, centerY + h - fm.getDescent()); // TODO: TEST
+                if (currentValue != null) {
+                    g.setColor((Boolean) currentValue ? Color.GREEN : Color.RED);
+                    g.fillRect(centerX - w + 1, centerY + h - rh, w * 2 - 2, rh - 1);
+                    g.setColor(Color.YELLOW);
+                    g.drawString((Boolean) currentValue ? "TRUE" : "FALSE", centerX - w + 1, centerY + h - fm.getDescent());
+                }
                 break;
             case RMT_BOOLOUTP:
-
+                BooleanOutput bo = (BooleanOutput) co;
+                g.setColor(Color.GREEN);
+                g.fillRect(centerX - w + 1, centerY + h - rh, w - 1, rh - 1);
+                g.setColor(Color.RED);
+                g.fillRect(centerX, centerY + h - rh, w - 1, rh - 1);
+                if (currentValue != null) {
+                    if ((Boolean) currentValue) {
+                        g.setColor(blend(Color.BLACK, Color.GREEN, count / 500.0f));
+                        g.drawString("TRUE", centerX - fm.stringWidth("TRUE"), centerY + h - fm.getDescent());
+                    } else {
+                        g.setColor(blend(Color.BLACK, Color.RED, count / 500.0f));
+                        g.drawString("FALSE", centerX, centerY + h - fm.getDescent());
+                    }
+                }
                 break;
             case RMT_FLOATPROD:
                 FloatInput fi = (FloatInput) co;
@@ -128,6 +146,7 @@ public class Entity {
                             currentValue = value;
                         }
                     });
+                    currentValue = 0f;
                 }
                 float c = (Float) currentValue;
                 if (c < -1) {
@@ -142,7 +161,22 @@ public class Entity {
                 g.drawString(String.valueOf(c), centerX - w + 1, centerY + h - fm.getDescent());
                 break;
             case RMT_FLOATOUTP:
-
+                FloatOutput fo = (FloatOutput) co;
+                if (currentValue != null) {
+                    c = (Float) currentValue;
+                    Color tcr;
+                    if (c < -1) {
+                        tcr = blend(Color.BLACK, col.darker(), c + 2);
+                    } else if (c > 1) {
+                        tcr = blend(col.brighter(), Color.WHITE, c - 1);
+                    } else {
+                        tcr = blend(col.darker(), col.brighter(), (c + 1) / 2);
+                    }
+                    g.setColor(blend(tcr, col, count / 500.0f));
+                    g.fillRect(centerX - w + 1, centerY + h - rh - 1, w * 2 - 2, rh - 2);
+                    g.setColor(c < 0 ? Color.WHITE : Color.BLACK);
+                    g.drawString(String.valueOf(c), centerX - w + 1, centerY + h - fm.getDescent());
+                }
                 break;
             case RMT_OUTSTREAM:
 
@@ -188,16 +222,31 @@ public class Entity {
 
                 break;
             case RMT_BOOLOUTP:
-
+                BooleanOutput bo = (BooleanOutput) co;
+                boolean nw = x < 0;
+                if (currentValue == null || (Boolean) currentValue != nw || System.currentTimeMillis() - countStart >= 200) {
+                    bo.writeValue(nw);
+                    currentValue = nw;
+                    countStart = System.currentTimeMillis();
+                }
                 break;
             case RMT_FLOATPROD:
 
                 break;
             case RMT_FLOATOUTP:
-
+                FloatOutput fo = (FloatOutput) co;
+                float f = x / (float) width;
+                fo.writeValue(f);
+                currentValue = f;
+                countStart = System.currentTimeMillis();
                 break;
             case RMT_OUTSTREAM:
-
+                OutputStream outs = (OutputStream) co;
+                try {
+                    outs.write((JOptionPane.showInputDialog("Choose the connection target", "*") + "\n").getBytes());
+                } catch (IOException ex) {
+                    Logger.log(LogLevel.WARNING, "Cannot write new value!", ex);
+                }
                 break;
         }
     }

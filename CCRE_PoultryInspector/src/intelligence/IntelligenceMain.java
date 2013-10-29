@@ -18,12 +18,17 @@
  */
 package intelligence;
 
+import ccre.chan.BooleanInput;
+import ccre.chan.BooleanOutput;
+import ccre.chan.BooleanStatus;
+import ccre.chan.FloatInput;
 import ccre.chan.FloatInputProducer;
 import ccre.chan.FloatOutput;
 import ccre.chan.FloatStatus;
 import ccre.cluck.CluckGlobals;
 import ccre.cluck.CluckNode;
 import ccre.cluck.CluckRemoteListener;
+import ccre.concurrency.CollapsingWorkerThread;
 import ccre.concurrency.ReporterThread;
 import ccre.event.Event;
 import ccre.event.EventConsumer;
@@ -39,23 +44,28 @@ import java.awt.Color;
 import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Graphics;
+import java.awt.GridLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.AdjustmentEvent;
+import java.awt.event.AdjustmentListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import javax.swing.DefaultComboBoxModel;
+import javax.swing.BoxLayout;
 import javax.swing.DefaultListModel;
+import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
+import javax.swing.JToggleButton;
 
 public class IntelligenceMain extends JPanel implements CluckRemoteListener, MouseMotionListener, MouseListener {
     
@@ -74,15 +84,37 @@ public class IntelligenceMain extends JPanel implements CluckRemoteListener, Mou
     protected Remote[] sortRemotes = null;
     protected final LinkedHashMap<String, Entity> ents = new LinkedHashMap<String, Entity>();
     protected Entity activeEntity = null;
-    protected int relActiveX, relActiveY;
+    protected int relActiveX, relActiveY, mouseBtn;
     protected final ExpirationTimer painter = new ExpirationTimer();
+    protected int baseByteCount = 0, lastByteCount = 0;
     
-    private IntelligenceMain(String[] args, CluckNode node) {
+    private IntelligenceMain(String[] args, CluckNode node, EventSource seconds) {
         this.node = node;
         lrecv = "big-brother-" + Integer.toHexString(args.hashCode());
         this.addMouseMotionListener(this);
         this.addMouseListener(this);
-        this.node.startSearchRemotes(lrecv, this);
+        CollapsingWorkerThread discover = new CollapsingWorkerThread("Cluck-Discoverer") {
+            @Override
+            protected void doWork() {
+                IPProvider.connect();
+            }
+        };
+        CluckGlobals.node.publish("rediscover", discover);
+        CollapsingWorkerThread researcher = new CollapsingWorkerThread("Cluck-Researcher") {
+            @Override
+            protected void doWork() throws Throwable {
+                research(); // WORKING HERE ... about to finish and test
+            }
+        };
+        CluckGlobals.node.publish("search", researcher);
+        seconds.addListener(new EventConsumer() {
+            @Override
+            public void eventFired() {
+                int cur = IntelligenceMain.this.node.estimatedByteCount;
+                lastByteCount = cur - baseByteCount;
+                baseByteCount = cur;
+            }
+        });
         painter.schedule(50, new EventConsumer() {
             @Override
             public void eventFired() {
@@ -90,10 +122,20 @@ public class IntelligenceMain extends JPanel implements CluckRemoteListener, Mou
             }
         });
         painter.start();
+        this.node.startSearchRemotes(lrecv, this);
     }
     
     @Override
     public void mouseDragged(MouseEvent e) {
+        if (mouseBtn == MouseEvent.BUTTON3) {
+            for (Entity ent : ents.values()) {
+                if (ent.centerX >= paneWidth && ent.isOver(e.getPoint())) {
+                    ent.interact(e.getX() - ent.centerX, e.getY() - ent.centerY);
+                    return;
+                }
+            }
+            return;
+        }
         if (activeEntity != null) {
             boolean a = activeEntity.centerX < paneWidth;
             activeEntity.centerX = relActiveX + e.getX();
@@ -125,6 +167,7 @@ public class IntelligenceMain extends JPanel implements CluckRemoteListener, Mou
     
     @Override
     public void mousePressed(MouseEvent e) {
+        mouseBtn = e.getButton();
         if (e.getButton() == MouseEvent.BUTTON3) {
             for (Entity ent : ents.values()) {
                 if (ent.centerX >= paneWidth && ent.isOver(e.getPoint())) {
@@ -211,6 +254,10 @@ public class IntelligenceMain extends JPanel implements CluckRemoteListener, Mou
         g.setColor(active);
         g.drawString("Left-click to move", paneWidth, fontMetrics.getAscent());
         g.drawString("Right-click to interact", paneWidth, fontMetrics.getAscent() + lh);
+        String countReport = "Estimated Traffic: " + node.estimatedByteCount + "B (" + (node.estimatedByteCount / 128) + "kbits)";
+        g.drawString(countReport, w - fontMetrics.stringWidth(countReport), fontMetrics.getAscent());
+        countReport = "Usage: " + (lastByteCount / 128) + "kbits/sec";
+        g.drawString(countReport, w - fontMetrics.stringWidth(countReport), fontMetrics.getAscent() + lh);
         Remote[] sremotes = sortRemotes;
         if (sortRemotes == null) {
             ArrayList<Remote> loc = new ArrayList<Remote>(remotes.values());
@@ -251,18 +298,19 @@ public class IntelligenceMain extends JPanel implements CluckRemoteListener, Mou
         final Event prod = new Event();
         new ReporterThread("clock") {
             private final long beginning = System.currentTimeMillis();
+            
             @Override
             protected void threadBody() throws Throwable {
                 long last = System.currentTimeMillis();
                 while (true) {
                     long now = System.currentTimeMillis();
                     time.writeValue((now - beginning) / 4000.0f - 2);
-                    Thread.sleep(50);
-                    if (now > last + 700) {
+                    Thread.sleep(10);
+                    if (now > last + 1000) {
                         if (now > last + 5000) {
                             last = now;
                         }
-                        last += 700;
+                        last += 1000;
                         prod.produce();
                     }
                 }
@@ -271,23 +319,55 @@ public class IntelligenceMain extends JPanel implements CluckRemoteListener, Mou
         CluckGlobals.node.publish("time", (FloatInputProducer) time);
         CluckGlobals.node.publish("test", new EventLogger(LogLevel.INFO, "Test."));
         CluckGlobals.node.publish("ticker", (EventSource) prod);
+        BooleanStatus immd = new BooleanStatus();
+        CluckGlobals.node.publish("immd-in", (BooleanInput) immd);
+        CluckGlobals.node.publish("immd-out", (BooleanOutput) immd);
+        FloatStatus immf = new FloatStatus();
+        CluckGlobals.node.publish("immf-in", (FloatInput) immf);
+        CluckGlobals.node.publish("immf-out", (FloatOutput) immf);
         NetworkAutologger.register();
         JFrame frame = new JFrame("Intelligence Panel");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setSize(640, 480);
         JSplitPane jsp = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
+        JPanel subpanel = new JPanel();
         JScrollPane scroll = new JScrollPane();
         JList lstErrors = new JList();
-        DefaultListModel dlm = new DefaultListModel();
+        final JToggleButton ascroll = new JToggleButton("Autoscroll");
+        scroll.getVerticalScrollBar().addAdjustmentListener(new AdjustmentListener() {
+            @Override
+            public void adjustmentValueChanged(AdjustmentEvent e) {
+                if (ascroll.isSelected()) {
+                    e.getAdjustable().setValue(e.getAdjustable().getMaximum());
+                }
+            }
+        });
+        final DefaultListModel dlm = new DefaultListModel();
         lstErrors.setModel(dlm);
         LoggingTarget lt = new ListModelLogger(dlm, lstErrors);
         Logger.target = new MultiTargetLogger(Logger.target, lt);
         scroll.setViewportView(lstErrors);
-        jsp.setRightComponent(scroll);
-        jsp.setLeftComponent(new IntelligenceMain(args, CluckGlobals.node));
+        subpanel.setLayout(new BoxLayout(subpanel, BoxLayout.Y_AXIS));
+        JPanel btns = new JPanel();
+        btns.setLayout(new BoxLayout(btns, BoxLayout.X_AXIS));
+        subpanel.add(scroll);
+        btns.add(ascroll);
+        subpanel.add(btns);
+        JButton clear = new JButton("Clear");
+        clear.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                dlm.clear();
+            }
+        });
+        btns.add(clear);
+        jsp.setRightComponent(subpanel);
+        jsp.setLeftComponent(new IntelligenceMain(args, CluckGlobals.node, prod));
         jsp.setDividerLocation(2 * 480 / 3);
         jsp.setResizeWeight(0.7);
         frame.add(jsp);
         frame.setVisible(true);
+        Logger.info("Started Poultry Inspector at " + System.currentTimeMillis());
+        IPProvider.connect();
     }
 }

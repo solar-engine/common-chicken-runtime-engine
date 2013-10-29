@@ -59,15 +59,15 @@ public class Remote implements Comparable<Remote> {
             case RMT_EVENTSOURCE:
                 return Color.MAGENTA;
             case RMT_LOGTARGET:
-                return Color.YELLOW;
+                return Color.RED;
             case RMT_BOOLPROD:
             case RMT_BOOLOUTP:
-                return Color.RED;
+                return Color.YELLOW;
             case RMT_FLOATPROD:
             case RMT_FLOATOUTP:
                 return Color.ORANGE;
             case RMT_OUTSTREAM:
-                return Color.BLUE;
+                return Color.CYAN;
             default:
                 return Color.BLACK;
         }

@@ -37,13 +37,17 @@ public class IPProvider {
      * autoconfigure based on the network.
      */
     public static StringHolder forcedAddress = new StringHolder("*");
+    
+    static {
+        CluckGlobals.node.publish("forced-remote-address", forcedAddress.getOutput());
+    }
 
     /**
      * Compute an address and connect to it.
      *
      * @throws IOException if the target cannot be connected to.
      */
-    public static void connect() throws IOException {
+    public static void connect() {
         Logger.finest("Connecting...");
         String val = forcedAddress.get();
         if (val.isEmpty()) {
@@ -52,14 +56,14 @@ public class IPProvider {
         }
         String addr = val.equals("*") ? getAddress() : val;
         if (addr == null) {
-            if (CluckGlobals.cli != null) { // TODO: Move this to CluckGlobals.
-                CluckGlobals.cli.stopClient();
-                CluckGlobals.cli = null;
-            }
             return;
         }
         Logger.finer("Found connect address: " + addr);
-        CluckGlobals.reconnectClient(addr, 80);
+        if (CluckGlobals.cli == null) {
+            CluckGlobals.setupClient(addr, "robot", "poultry");
+        } else {
+            CluckGlobals.cli.setRemote(addr);
+        }
     }
 
     /**

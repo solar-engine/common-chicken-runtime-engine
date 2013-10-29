@@ -23,6 +23,7 @@ import ccre.chan.BooleanOutput;
 import ccre.chan.BooleanStatus;
 import ccre.chan.FloatInput;
 import ccre.chan.FloatStatus;
+import ccre.cluck.CluckNode;
 import ccre.event.EventConsumer;
 import ccre.holders.StringHolder;
 import ccre.log.LogLevel;

@@ -4,9 +4,6 @@
     <configuration>
         <general-data xmlns="http://www.netbeans.org/ns/freeform-project/1">
             <name>CCRE_Obsidian</name>
-            <properties>
-                <property name="project.license">ccre</property>
-            </properties>
         </general-data>
         <general-data xmlns="http://www.netbeans.org/ns/freeform-project/2">
             <!-- Do not use Project Properties customizer when editing this file manually. -->
@@ -43,6 +40,11 @@
                     <target>compile</target>
                 </action>
             </ide-actions>
+            <export>
+                <type>folder</type>
+                <location>build</location>
+                <build-target>compile</build-target>
+            </export>
             <view>
                 <items>
                     <source-folder style="packages">

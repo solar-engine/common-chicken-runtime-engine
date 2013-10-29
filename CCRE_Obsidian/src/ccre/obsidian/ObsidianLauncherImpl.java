@@ -22,37 +22,55 @@ import ccre.chan.BooleanInputPoll;
 import ccre.chan.BooleanOutput;
 import ccre.chan.FloatInputPoll;
 import ccre.chan.FloatOutput;
-import ccre.event.EventSource;
+import ccre.log.Logger;
+import java.io.File;
+import java.io.IOException;
 import java.util.Properties;
+import java.util.TimerTask;
 
 /**
- * A Core class for Obsidian. Extend this in order to write an application to
- * run on the BeagleBone Black.
+ * The Obsidian launcher. This is the class that is ran by the Java virtual
+ * machine.
  *
  * @author skeggsc
  */
-public abstract class ObsidianCore implements GPIOChannels {
+public class ObsidianLauncherImpl extends ObsidianLauncher {
 
     /**
-     * Produced about every twenty milliseconds. This timing is subject to
-     * change.
+     * The settings loaded during the launch process.
      */
-    protected EventSource periodic;
-    /**
-     * The properties loaded automatically for Obsidian.
-     */
-    protected Properties properties;
-    /**
-     * The launcher, which provides either real or emulated IO capabilities.
-     */
-    protected ObsidianLauncher launcher;
+    public static Properties settings;
+    
+    public static void main(String[] args) throws IOException, ClassNotFoundException, InstantiationException, IllegalAccessException {
+        boolean watch = false;
+        if (args.length != 0) {
+            if (!args[0].equals("use-watcher")) {
+                ccre.launcher.Launcher.main(args);
+                return;
+            }
+            watch = true;
+        }
+        ObsidianLauncher l = new ObsidianLauncherImpl(watch);
+    }
 
-    /**
-     * Implement this method - it should set up everything that your robot needs
-     * to do.
-     */
-    protected abstract void createRobotControl();
-
+    public ObsidianLauncherImpl(boolean watch) throws IOException, ClassNotFoundException, InstantiationException, IllegalAccessException {
+        super(ObsidianLauncherImpl.class.getClassLoader());
+        if (watch) {
+            final File watchee = new File("remote-watcher");
+            t.schedule(new TimerTask() {
+                @Override
+                public void run() {
+                    if (watchee.exists()) {
+                        watchee.delete();
+                        Logger.info("Shutting down due to watcher notification.");
+                        System.exit(0);
+                    }
+                }
+            }, 500, 1000);
+        }
+        run();
+    }
+    
     /**
      * Open the specified GPIO channel for output.
      *
@@ -61,8 +79,9 @@ public abstract class ObsidianCore implements GPIOChannels {
      * @return the BooleanOutput representing the GPIO channel.
      * @see ccre.obsidian.GPIOChannels
      */
+    @Override
     public BooleanOutput makeGPIOOutput(int chan, boolean defaultValue) {
-        return launcher.makeGPIOOutput(chan, defaultValue);
+        return GPIOManager.setupChannel(chan, true, defaultValue);
     }
 
     /**
@@ -72,8 +91,9 @@ public abstract class ObsidianCore implements GPIOChannels {
      * @param pullSetting the setting for the pull resistors.
      * @return the BooleanInputPoll representing the GPIO channel.
      */
-    public BooleanInputPoll makeuGPIOInput(int chan, boolean pullSetting) {
-        return launcher.makeGPIOInput(chan, pullSetting);
+    @Override
+    public BooleanInputPoll makeGPIOInput(int chan, boolean pullSetting) {
+        return GPIOManager.setupChannel(chan, false, pullSetting);
     }
 
     /**
@@ -90,8 +110,26 @@ public abstract class ObsidianCore implements GPIOChannels {
      * @return the output that writes to the PWM.
      * @throws ObsidianHardwareException
      */
+    @Override
     public FloatOutput makePWMOutput(PWMPin chan, float defaultValue, final float calibrateN1, final float calibrateN2, float frequency, boolean zeroPolarity) throws ObsidianHardwareException {
-        return launcher.makePWMOutput(chan, defaultValue, calibrateN1, calibrateN2, frequency, zeroPolarity);
+        if (defaultValue < -1) {
+            defaultValue = -1;
+        } else if (defaultValue > 1) {
+            defaultValue = 1;
+        }
+        final FloatOutput raw = PWMManager.createPWMOutput(chan, ((defaultValue + 1) / 2) * (calibrateN2 - calibrateN1) + calibrateN1, frequency, zeroPolarity);
+        return new FloatOutput() {
+            @Override
+            public void writeValue(float f) {
+                if (f < -1) {
+                    f = -1;
+                } else if (f > 1) {
+                    f = 1;
+                }
+                float a = ((f + 1) / 2) * (calibrateN2 - calibrateN1) + calibrateN1;
+                raw.writeValue(a);
+            }
+        };
     }
 
     /**
@@ -102,8 +140,9 @@ public abstract class ObsidianCore implements GPIOChannels {
      * @param chan The channel to close.
      * @throws ObsidianHardwareException
      */
+    @Override
     public void destroyPWMOutput(PWMPin chan) throws ObsidianHardwareException {
-        launcher.destroyPWMOutput(chan);
+        PWMManager.destroyChannel(chan);
     }
 
     /**
@@ -114,7 +153,8 @@ public abstract class ObsidianCore implements GPIOChannels {
      * of the analog input, from 0.0 to 1.0.
      * @throws ObsidianHardwareException
      */
+    @Override
     public FloatInputPoll makeAnalogInput(int chan) throws ObsidianHardwareException {
-        return launcher.makeAnalogInput(chan);
+        return ADCManager.getChannel(chan);
     }
 }

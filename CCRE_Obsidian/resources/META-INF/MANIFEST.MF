@@ -1,2 +1,2 @@
 Manifest-Version: 1.0
-Main-Class: ccre.obsidian.Launcher
+Main-Class: ccre.obsidian.ObsidianLauncherImpl

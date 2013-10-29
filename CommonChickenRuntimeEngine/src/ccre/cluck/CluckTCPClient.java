@@ -84,8 +84,8 @@ public class CluckTCPClient extends ReporterThread {
                     DataOutputStream dout = sock.openDataOutputStream();
                     CluckProtocol.handleHeader(din, dout, remoteNameHint);
                     node.notifyNetworkModified();
-                    CluckProtocol.handleSend(dout, linkName, node);
-                    CluckProtocol.handleRecv(din, linkName, node);
+                    CluckLink deny = CluckProtocol.handleSend(dout, linkName, node);
+                    CluckProtocol.handleRecv(din, linkName, node, deny);
                 } catch (IOException ex) {
                     Logger.log(LogLevel.WARNING, "IO Error while handling connection", ex);
                 } catch (Throwable ex) {

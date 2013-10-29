@@ -45,7 +45,7 @@ public class CluckTCPServer extends ConnectionReceiverThread {
             linkName = "tcpserv-" + Integer.toHexString(conn.hashCode()) + "-" + System.currentTimeMillis();
         }
         node.notifyNetworkModified();
-        CluckProtocol.handleSend(dout, linkName, node);
-        CluckProtocol.handleRecv(din, linkName, node);
+        CluckLink deny = CluckProtocol.handleSend(dout, linkName, node);
+        CluckProtocol.handleRecv(din, linkName, node, deny);
     }
 }

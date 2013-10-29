@@ -73,6 +73,6 @@ public class CluckNullLink implements CluckLink {
         } else {
             source = linkName + "." + source;
         }
-        node.transmit(rest, source, data);
+        node.transmit(rest, source, data, this);
     }
 }

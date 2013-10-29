@@ -19,7 +19,9 @@
 package ccre.cluck;
 
 import ccre.event.EventConsumer;
+import ccre.log.LogLevel;
 import ccre.log.Logger;
+import ccre.log.NetworkAutologger;
 import ccre.net.Network;
 
 /**
@@ -37,8 +39,7 @@ public class StandaloneCluckServer {
     public static void main(String[] args) {
         final long time = System.currentTimeMillis();
         CluckGlobals.ensureInitializedCore();
-        Logger.warning("Needs general logger!");
-        //Logger.target = new MultiTargetLogger(CluckGlobals.node.subscribeLT("general-logger", LogLevel.FINEST), Logger.target);
+        NetworkAutologger.register();
         CluckGlobals.node.publish("status-report", new EventConsumer() {
             public void eventFired() {
                 StringBuilder b = new StringBuilder("Standalone server online on [");
@@ -51,6 +52,6 @@ public class StandaloneCluckServer {
         });
         CluckGlobals.setupServer();
         Logger.info("Server is running.");
-        //CluckGlobals.node.subscribeLT(LogLevel.FINEST, "general-logger").log(LogLevel.INFO, "Remote logging appears to work!", (Throwable) null);
+        Logger.log(LogLevel.INFO, "Remote logging appears to work!", (Throwable) null);
     }
 }

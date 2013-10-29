@@ -60,7 +60,7 @@ public class CluckProtocol {
         return h;
     }
 
-    public static void handleRecv(DataInputStream din, String linkNamePrefix, CluckNode node) throws IOException {
+    public static void handleRecv(DataInputStream din, String linkNamePrefix, CluckNode node, CluckLink denyLink) throws IOException {
         while (true) {
             String dest = din.readUTF();
             if (dest.length() == 0) {
@@ -85,20 +85,28 @@ public class CluckProtocol {
             if (source == null) {
                 source = linkNamePrefix;
             } else {
-                source = linkNamePrefix + "." + source;
+                source = linkNamePrefix + "/" + source;
             }
-            node.transmit(dest, source, data);
+            node.transmit(dest, source, data, denyLink);
         }
     }
 
-    public static void handleSend(final DataOutputStream dout, String linkName, CluckNode node) {
-        node.addOrReplaceLink(new CluckLink() {
-            public synchronized boolean transmit(String rest, String source, byte[] data) {
+    public static CluckLink handleSend(final DataOutputStream dout, String linkName, CluckNode node) {
+        CluckLink clink = new CluckLink() {
+            public synchronized boolean transmit(String dest, String source, byte[] data) {
                 try {
-                    dout.writeUTF(rest);
-                    dout.writeUTF(source);
+                    if (dest == null) {
+                        dout.writeUTF("");
+                    } else {
+                        dout.writeUTF(dest);
+                    }
+                    if (source == null) {
+                        dout.writeUTF("");
+                    } else {
+                        dout.writeUTF(source);
+                    }
                     dout.writeInt(data.length);
-                    long begin = (((long)data.length) << 32) ^ (((long)rest.hashCode()) << 16) ^ source.hashCode() ^ (((long)source.hashCode()) << 48);
+                    long begin = (((long) data.length) << 32) ^ (dest == null ? 0 : ((long) dest.hashCode()) << 16) ^ (source == null ? 0 : source.hashCode()) ^ (((long) source.hashCode()) << 48);
                     dout.writeLong(begin);
                     dout.write(data);
                     dout.writeLong(checksum(data, begin));
@@ -108,6 +116,8 @@ public class CluckProtocol {
                     return false;
                 }
             }
-        }, linkName);
+        };
+        node.addOrReplaceLink(clink, linkName);
+        return clink;
     }
 }

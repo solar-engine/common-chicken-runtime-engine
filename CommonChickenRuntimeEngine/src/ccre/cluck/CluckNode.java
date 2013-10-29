@@ -98,6 +98,10 @@ public class CluckNode {
     }
 
     public void transmit(String target, String source, byte[] data) {
+        transmit(target, source, data, null);
+    }
+
+    public void transmit(String target, String source, byte[] data, CluckLink linkSource) {
         estimatedByteCount += 24 + (target != null ? target.length() : 0) + (source != null ? source.length() : 0) + data.length; // 24 is the estimated packet overhead with a CluckTCPClient.
         if (target == null) {
             Logger.log(LogLevel.WARNING, "Received message addressed to unreceving node (source: " + source + ")", new Exception("Embedded Traceback"));
@@ -106,7 +110,7 @@ public class CluckNode {
             // Broadcast
             for (String key : links) {
                 CluckLink cl = links.get(key);
-                if (cl == null) {
+                if (cl == null || cl == linkSource) {
                     continue;
                 }
                 cl.transmit("*", source, data);
@@ -133,7 +137,7 @@ public class CluckNode {
                 links.put(base, null);
             }
         } else {
-            Logger.log(LogLevel.WARNING, "No link for " + target + " from " + source + "!", new Exception("Embedded traceback"));
+            Logger.log(LogLevel.WARNING, "No link for " + target + "(" + base + ") from " + source + "!", new Exception("Embedded traceback"));
         }
     }
 

@@ -42,7 +42,7 @@ public class ListModelLogger implements LoggingTarget, ListSelectionListener {
     /**
      * The list model to update.
      */
-    public DefaultListModel<Object> model;
+    public DefaultListModel model;
     /**
      * The list that has the model.
      */
@@ -58,7 +58,7 @@ public class ListModelLogger implements LoggingTarget, ListSelectionListener {
      * @param errorListing the model to store data in.
      * @param lstErrors the JList to determine what the selection is.
      */
-    public ListModelLogger(DefaultListModel<Object> errorListing, JList lstErrors) {
+    public ListModelLogger(DefaultListModel errorListing, JList lstErrors) {
         model = errorListing;
         this.lstErrors = lstErrors;
         lstErrors.addListSelectionListener(this);

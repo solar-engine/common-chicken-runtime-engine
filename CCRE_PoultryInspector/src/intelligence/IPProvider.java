@@ -84,4 +84,11 @@ public class IPProvider {
         Logger.warning("Subnet Autodetect: Cannot find any valid network addresses!");
         return null;
     }
+
+    /**
+     * Used to ensure that IPProvider is initialized.
+     */
+    public static void init() {
+        // Do nothing
+    }
 }

@@ -362,6 +362,7 @@ public class IntelligenceMain extends JPanel implements CluckRemoteListener, Mou
         });
         btns.add(clear);
         jsp.setRightComponent(subpanel);
+        IPProvider.init();
         jsp.setLeftComponent(new IntelligenceMain(args, CluckGlobals.node, prod));
         jsp.setDividerLocation(2 * 480 / 3);
         jsp.setResizeWeight(0.7);

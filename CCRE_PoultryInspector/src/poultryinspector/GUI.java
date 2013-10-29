@@ -33,6 +33,7 @@ import java.awt.Color;
 import java.awt.EventQueue;
 import java.io.IOException;
 import javax.swing.DefaultListModel;
+import poultryinspector.controller.JoystickMonitor;
 
 /**
  * The main class of PoultyInspector. This contais the frame that everything
@@ -82,7 +83,13 @@ public class GUI extends javax.swing.JFrame {
      */
     public PhidgetMonitor phidget = null;//new PhidgetMonitor();
     /**
-     * The worker thread that is used to reconnect to the robot (or other cluck server).
+     * The JoystickMonitor that allows for a joystick to be shared over the
+     * network. It will reference the first joystick found that is plugged in.
+     */
+    public JoystickMonitor joystick = new JoystickMonitor(1);
+    /**
+     * The worker thread that is used to reconnect to the robot (or other cluck
+     * server).
      */
     public CollapsingWorkerThread reconnect = new CollapsingWorkerThread("Cluck-Reconnector") {
         @Override
@@ -124,6 +131,9 @@ public class GUI extends javax.swing.JFrame {
         });
         if (phidget != null) {
             phidget.share(encoder);
+        }
+        if (joystick != null) {
+            joystick.share(encoder);
         }
     }
 
@@ -294,6 +304,7 @@ public class GUI extends javax.swing.JFrame {
 
     /**
      * The entry point for the Poultry Inspector.
+     *
      * @param args the command line arguments
      */
     public static void main(String args[]) {

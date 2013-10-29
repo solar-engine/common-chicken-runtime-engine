@@ -18,10 +18,8 @@
  */
 package ccre.obsidian;
 
-import ccre.obsidian.comms.Radio;
 import ccre.chan.BooleanInputPoll;
 import ccre.chan.BooleanOutput;
-import ccre.event.Event;
 import ccre.chan.FloatInputPoll;
 import ccre.chan.FloatOutput;
 import ccre.cluck.CluckGlobals;
@@ -31,102 +29,94 @@ import ccre.log.LoggingTarget;
 import ccre.log.MultiTargetLogger;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
+import java.lang.reflect.InvocationTargetException;
+import java.net.URL;
+import java.net.URLClassLoader;
 import java.util.Properties;
-import java.util.Timer;
-import java.util.TimerTask;
 
 /**
  *
  * @author Vincent Miller
  */
-public class EmulatorLauncher implements ObsidianLauncher {
-    
+public class EmulatorLauncher extends ObsidianLauncher {
+
     /**
      * The settings loaded during the launch process.
      */
     public static Properties settings;
-    
-    public static void main(String[] args) throws IOException, ClassNotFoundException, InstantiationException, IllegalAccessException {
-        boolean watch = false;
-        if (args.length != 0) {
-            if (!args[0].equals("use-watcher")) {
-                ccre.launcher.Launcher.main(args);
-                return;
-            }
-            watch = true;
+    private EmulatorWorld world;
+    private double leftMotorSpeed = 0;
+    private double rightMotorSpeed = 0;
+    private final FloatOutput leftMotor;
+    private final FloatOutput rightMotor;
+
+    public static void main(String[] args) throws IOException, ClassNotFoundException, InstantiationException, IllegalAccessException, NoSuchMethodException, IllegalArgumentException, InvocationTargetException {
+        if (args.length < 1) {
+            System.err.println("Expected arguments: <Obsidian-Jar>, [RunGUI]");
+            System.exit(-1);
+            return;
         }
+        File jarFile = new File(args[0]);
         CluckGlobals.ensureInitializedCore();
         Logger.target = new MultiTargetLogger(new LoggingTarget[]{Logger.target, CluckGlobals.encoder.subscribeLoggingTarget(LogLevel.FINEST, "general-logger")});
-        Properties p = new Properties();
-        InputStream inst = ObsidianLauncherImpl.class.getResourceAsStream("/obsidian-conf.properties");
-        if (inst == null) {
-            throw new IOException("Could not find configuration file!");
-        }
-        p.load(inst);
-        settings = p;
-        String name = p.getProperty("Obsidian-Main");
-        if (name == null) {
-            throw new IOException("Could not find configuration-specified launchee!");
-        }
-        ObsidianCore core = (ObsidianCore) Class.forName(name).newInstance();
-        core.properties = p;
-        core.launcher = new EmulatorLauncher();
-        CluckGlobals.initializeServer(80);
-        final Event prd = new Event();
-        core.periodic = prd;
-        final Timer t = new Timer();
-        t.schedule(new TimerTask() {
-            @Override
-            public void run() {
-                try {
-                    prd.produce();
-                } catch (Throwable thr) {
-                    Logger.log(LogLevel.SEVERE, "Exception caught in execution loop - robots don't quit!", thr);
-                }
-            }
-        }, 10, 20);
-        if (watch) {
-            final File watchee = new File("remote-watcher");
-            t.schedule(new TimerTask() {
-                @Override
-                public void run() {
-                    if (watchee.exists()) {
-                        watchee.delete();
-                        Logger.info("Shutting down due to watcher notification.");
-                        System.exit(0);
-                    }
-                }
-            }, 500, 1000);
-        }
-        try {
-            core.createRobotControl();
-        } catch (Throwable thr) {
-            Logger.log(LogLevel.SEVERE, "Exception caught at top level during initialization - robots don't quit!", thr);
-        }
+        URL u = jarFile.toURI().toURL();
+        URLClassLoader classLoader = new URLClassLoader(new URL[]{u}, EmulatorLauncher.class.getClassLoader());
+
+        boolean gui = Boolean.parseBoolean(args[1]);
+        
+        EmulatorLauncher l = new EmulatorLauncher(classLoader, gui);
     }
-    
+
+    public EmulatorLauncher(ClassLoader coreClass, boolean gui) throws IOException, ClassNotFoundException, InstantiationException, IllegalAccessException {
+        super(coreClass);
+        rightMotor = new FloatOutput() {
+            @Override
+            public void writeValue(float value) {
+                rightMotorSpeed = value;
+                world.updateVelocity(leftMotorSpeed, rightMotorSpeed);
+            }
+        };
+        leftMotor = new FloatOutput() {
+            @Override
+            public void writeValue(float value) {
+                leftMotorSpeed = value;
+                world.updateVelocity(leftMotorSpeed, rightMotorSpeed);
+            }
+        };
+        world = new EmulatorWorld();
+        prd.addListener(world);
+        run();
+    }
+
     @Override
     public BooleanOutput makeGPIOOutput(int chan, boolean defaultValue) {
-        return null;
+        throw new UnsupportedOperationException("GPIO not supported in emulator.");
     }
-    
+
     @Override
     public BooleanInputPoll makeGPIOInput(int chan, boolean pullSetting) {
-        return null;
+        throw new UnsupportedOperationException("GPIO not supported in emulator.");
     }
-    
+
     @Override
-    public FloatOutput makePWMOutput(String chan, float defaultValue, final float calibrateN1, final float calibrateN2, float frequency, boolean zeroPolarity) {
-        return null;
+    public FloatOutput makePWMOutput(PWMPin chan, float defaultValue, final float calibrateN1, final float calibrateN2, float frequency, boolean zeroPolarity) {
+        switch (chan) {
+            case P8_13:
+                return leftMotor;
+            case P9_14:
+                return rightMotor;
+            default:
+                throw new IllegalArgumentException("The PWM output you selected is not connected to this emulator.");
+        }
     }
-    
+
     @Override
-    public void destroyPWMOutput(String chan) {
+    public void destroyPWMOutput(PWMPin chan) {
+        Logger.log(LogLevel.SEVERE, "nope.");
     }
-    
+
     @Override
     public FloatInputPoll makeAnalogInput(int chan) {
-        return null;
+        throw new UnsupportedOperationException("Analog not supported in emulator.");
     }
 }

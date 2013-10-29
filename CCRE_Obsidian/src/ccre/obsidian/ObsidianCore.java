@@ -90,7 +90,7 @@ public abstract class ObsidianCore implements GPIOChannels {
      * @return the output that writes to the PWM.
      * @throws ObsidianHardwareException
      */
-    public FloatOutput makePWMOutput(String chan, float defaultValue, final float calibrateN1, final float calibrateN2, float frequency, boolean zeroPolarity) throws ObsidianHardwareException {
+    public FloatOutput makePWMOutput(PWMPin chan, float defaultValue, final float calibrateN1, final float calibrateN2, float frequency, boolean zeroPolarity) throws ObsidianHardwareException {
         return launcher.makePWMOutput(chan, defaultValue, calibrateN1, calibrateN2, frequency, zeroPolarity);
     }
 
@@ -102,7 +102,7 @@ public abstract class ObsidianCore implements GPIOChannels {
      * @param chan The channel to close.
      * @throws ObsidianHardwareException
      */
-    public void destroyPWMOutput(String chan) throws ObsidianHardwareException {
+    public void destroyPWMOutput(PWMPin chan) throws ObsidianHardwareException {
         launcher.destroyPWMOutput(chan);
     }
 

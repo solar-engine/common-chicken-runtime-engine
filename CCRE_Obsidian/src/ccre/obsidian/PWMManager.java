@@ -214,14 +214,15 @@ public class PWMManager {
     /**
      * Open up a PWM output to the specified channel.
      *
-     * @param key The channel name.
+     * @param keyPin The channel.
      * @param def The default value in the range 0 to 1.
      * @param frequency The frequency to start the PWM at.
      * @param zeroPolarity The polarity setting for the PWM.
      * @return the output that writes to this PWM using the range 0 to 1.
      * @throws ObsidianHardwareException
      */
-    public static FloatOutput createPWMOutput(String key, float def, float frequency, boolean zeroPolarity) throws ObsidianHardwareException {
+    public static FloatOutput createPWMOutput(PWMPin keyPin, float def, float frequency, boolean zeroPolarity) throws ObsidianHardwareException {
+        String key = keyPin.name();
         synchronized (lock) {
             if (pwms.containsKey(key)) {
                 throw new ObsidianHardwareException("PWM channel already acquired!");
@@ -253,7 +254,8 @@ public class PWMManager {
      * @param key the key of the PWM channel to open
      * @throws ObsidianHardwareException
      */
-    public static void destroyChannel(String key) throws ObsidianHardwareException {
+    public static void destroyChannel(PWMPin keyPin) throws ObsidianHardwareException {
+        String key = keyPin.name();
         synchronized (lock) {
             PWM p = pwms.get(key);
             if (p == null) {

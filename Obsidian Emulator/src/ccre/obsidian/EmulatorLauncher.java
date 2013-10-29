@@ -51,8 +51,8 @@ public class EmulatorLauncher extends ObsidianLauncher {
     private final FloatOutput rightMotor;
 
     public static void main(String[] args) throws IOException, ClassNotFoundException, InstantiationException, IllegalAccessException, NoSuchMethodException, IllegalArgumentException, InvocationTargetException {
-        if (args.length != 2) {
-            System.err.println("Expected arguments: <Obsidian-Jar>, <RunGUI>");
+        if (args.length < 1) {
+            System.err.println("Expected arguments: <Obsidian-Jar>, [RunGUI]");
             System.exit(-1);
             return;
         }

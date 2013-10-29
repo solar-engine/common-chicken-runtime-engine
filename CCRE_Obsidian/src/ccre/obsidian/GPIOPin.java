@@ -1,14 +1,28 @@
 /*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+ * Copyright 2013 Colby Skeggs and Vincent Miller
+ * 
+ * This file is part of the CCRE, the Common Chicken Runtime Engine.
+ * 
+ * The CCRE is free software: you can redistribute it and/or modify it under the
+ * terms of the GNU Lesser General Public License as published by the Free
+ * Software Foundation, either version 3 of the License, or (at your option) any
+ * later version.
+ * 
+ * The CCRE is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
+ * A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
+ * details.
+ * 
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with the CCRE.  If not, see <http://www.gnu.org/licenses/>.
  */
 
 package ccre.obsidian;
 
 /**
- *
- * @author vincent
+ * All the valid GPIO pins on the Beaglebone Black.
+ * 
+ * @author millerv
  */
 public enum GPIOPin {
     P8_3, P8_4, P8_5, P8_6, P8_7, P8_8, P8_9, P8_10, P8_11, P8_12, P8_13, 

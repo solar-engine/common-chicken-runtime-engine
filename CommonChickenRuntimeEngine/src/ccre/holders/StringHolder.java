@@ -21,6 +21,9 @@ package ccre.holders;
 import ccre.event.Event;
 import ccre.event.EventConsumer;
 import ccre.event.EventSource;
+import ccre.log.Logger;
+import java.io.IOException;
+import java.io.OutputStream;
 
 /**
  * A holder for a String value. Has methods to modify the state, and subscribe
@@ -124,5 +127,28 @@ public class StringHolder {
      */
     public void notifyChanged() {
         evt.produce();
+    }
+
+    /**
+     * Get an output stream that writes to this StringHolder. Each line will be
+     * a new update to the value of the holder.
+     *
+     * @return the output stream that modifies the state of this.
+     */
+    public OutputStream getOutput() {
+        return new OutputStream() {
+            private StringBuilder sb = new StringBuilder();
+
+            @Override
+            public synchronized void write(int b) throws IOException {
+                if (b == '\n') {
+                    String ts = sb.toString();
+                    sb.setLength(0);
+                    set(ts);
+                    return;
+                }
+                sb.append((char)b);
+            }
+        };
     }
 }

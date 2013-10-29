@@ -35,9 +35,9 @@ public class CluckTCPClient extends ReporterThread {
     private final String linkName;
     private ClientSocket sock;
     private int port = 80;
-    private final String remote;
+    private String remote;
     public BooleanInputPoll shouldAutoReconnect = Mixing.alwaysTrue;
-    public int reconnectDelayMillis = 1000;
+    public int reconnectDelayMillis = 5000;
     private final String remoteNameHint;
 
     public CluckTCPClient(String remote, CluckNode node, String linkName, String remoteNameHint) {
@@ -53,12 +53,31 @@ public class CluckTCPClient extends ReporterThread {
         return this;
     }
 
+    public void setRemote(String remote) {
+        this.remote = remote;
+        if (sock != null) {
+            try {
+                sock.close();
+            } catch (IOException ex) {
+                Logger.log(LogLevel.WARNING, "IO Error while closing connection", ex);
+            }
+            sock = null;
+        }
+    }
+
     @Override
     protected void threadBody() throws IOException, InterruptedException {
         try {
             while (shouldAutoReconnect.readValue()) {
                 long start = System.currentTimeMillis();
                 Logger.fine("Connecting to " + remote + " at " + start);
+                if (sock != null) {
+                    try {
+                        sock.close();
+                    } catch (IOException ex) {
+                        Logger.log(LogLevel.WARNING, "IO Error while closing connection", ex);
+                    }
+                }
                 try {
                     sock = Network.connect(remote, port);
                     DataInputStream din = sock.openDataInputStream();

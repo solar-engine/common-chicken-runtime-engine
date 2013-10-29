@@ -62,7 +62,7 @@ public abstract class CluckSubscriber implements CluckLink {
             return false;
         }
         if (data[0] != rmt) {
-            Logger.warning("Received wrong RMT: " + data[0] + " from " + source + " (expected " + rmt + ")");
+            Logger.warning("Received wrong RMT: " + data[0] + " from " + source + " (expected " + rmt + ") addressed to " + linkName);
             return false;
         }
         return true;

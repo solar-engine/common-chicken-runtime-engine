@@ -632,7 +632,7 @@ public class CluckNode {
             public void write(byte b[], int off, int len) throws IOException {
                 byte[] newbyteout = new byte[len + 1];
                 newbyteout[0] = RMT_OUTSTREAM;
-                System.arraycopy(b, off, newbyteout, 0, len);
+                System.arraycopy(b, off, newbyteout, 1, len);
                 transmit(path, null, newbyteout);
             }
         };

@@ -190,7 +190,7 @@ public class PhidgetMonitor implements AttachListener, DetachListener, ErrorList
             node.publish("phidget-bo" + i, outputs[i]);
         }
         for (int i = 0; i < LCD_LINES; i++) {
-            node.publish("phidget-lcd" + i, lines[i]);
+            node.publish("phidget-lcd" + i, lines[i].getOutput());
         }
         // TODO: Make this be a shared input, not just an input producer
         node.publish("phidget-attached", isAttached);

@@ -93,27 +93,37 @@ public class CluckProtocol {
 
     public static CluckLink handleSend(final DataOutputStream dout, String linkName, CluckNode node) {
         CluckLink clink = new CluckLink() {
+            private boolean isRunning = false;
             public synchronized boolean transmit(String dest, String source, byte[] data) {
-                try {
-                    if (dest == null) {
-                        dout.writeUTF("");
-                    } else {
-                        dout.writeUTF(dest);
-                    }
-                    if (source == null) {
-                        dout.writeUTF("");
-                    } else {
-                        dout.writeUTF(source);
-                    }
-                    dout.writeInt(data.length);
-                    long begin = (((long) data.length) << 32) ^ (dest == null ? 0 : ((long) dest.hashCode()) << 16) ^ (source == null ? 0 : source.hashCode()) ^ (((long) source.hashCode()) << 48);
-                    dout.writeLong(begin);
-                    dout.write(data);
-                    dout.writeLong(checksum(data, begin));
+                if (isRunning) {
+                    System.err.println("Already running transmit!");
                     return true;
-                } catch (IOException ex) {
-                    Logger.log(LogLevel.SEVERE, "Could not transmit over cluck connection!", ex);
-                    return false;
+                }
+                isRunning = true;
+                try {
+                    try {
+                        if (dest == null) {
+                            dout.writeUTF("");
+                        } else {
+                            dout.writeUTF(dest);
+                        }
+                        if (source == null) {
+                            dout.writeUTF("");
+                        } else {
+                            dout.writeUTF(source);
+                        }
+                        dout.writeInt(data.length);
+                        long begin = (((long) data.length) << 32) ^ (dest == null ? 0 : ((long) dest.hashCode()) << 16) ^ (source == null ? 0 : source.hashCode() ^ (((long) source.hashCode()) << 48));
+                        dout.writeLong(begin);
+                        dout.write(data);
+                        dout.writeLong(checksum(data, begin));
+                        return true;
+                    } catch (IOException ex) {
+                        Logger.log(LogLevel.SEVERE, "Could not transmit over cluck connection!", ex);
+                        return false;
+                    }
+                } finally {
+                    isRunning = false;
                 }
             }
         };

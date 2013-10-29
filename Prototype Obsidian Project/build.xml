@@ -71,6 +71,7 @@
     <target name="run-emulator" depends="compile">
         <java jar="../Obsidian Emulator/dist/Obsidian_Emulator.jar">
             <arg value="${emulatee.name}" />
+            <arg value="True" />
         </java>
     </target>
     <target name="jar-app" depends="compile" />

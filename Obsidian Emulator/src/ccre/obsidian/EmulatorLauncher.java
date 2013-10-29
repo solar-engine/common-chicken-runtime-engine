@@ -47,14 +47,12 @@ public class EmulatorLauncher extends ObsidianLauncher {
     private EmulatorWorld world;
     private double leftMotorSpeed = 0;
     private double rightMotorSpeed = 0;
-    private static final String leftMotorPin = "P8_13";
-    private static final String rightMotorPin = "P9_14";
     private final FloatOutput leftMotor;
     private final FloatOutput rightMotor;
 
     public static void main(String[] args) throws IOException, ClassNotFoundException, InstantiationException, IllegalAccessException, NoSuchMethodException, IllegalArgumentException, InvocationTargetException {
-        if (args.length != 1) {
-            System.err.println("Expected arguments: <Obsidian-Jar>");
+        if (args.length != 2) {
+            System.err.println("Expected arguments: <Obsidian-Jar>, <RunGUI>");
             System.exit(-1);
             return;
         }
@@ -64,15 +62,16 @@ public class EmulatorLauncher extends ObsidianLauncher {
         URL u = jarFile.toURI().toURL();
         URLClassLoader classLoader = new URLClassLoader(new URL[]{u}, EmulatorLauncher.class.getClassLoader());
 
-        EmulatorLauncher l = new EmulatorLauncher(classLoader);
+        boolean gui = Boolean.parseBoolean(args[1]);
+        
+        EmulatorLauncher l = new EmulatorLauncher(classLoader, gui);
     }
 
-    public EmulatorLauncher(ClassLoader coreClass) throws IOException, ClassNotFoundException, InstantiationException, IllegalAccessException {
+    public EmulatorLauncher(ClassLoader coreClass, boolean gui) throws IOException, ClassNotFoundException, InstantiationException, IllegalAccessException {
         super(coreClass);
         rightMotor = new FloatOutput() {
             @Override
             public void writeValue(float value) {
-                Logger.log(LogLevel.INFO, "Right motor: " + value);
                 rightMotorSpeed = value;
                 world.updateVelocity(leftMotorSpeed, rightMotorSpeed);
             }
@@ -80,7 +79,6 @@ public class EmulatorLauncher extends ObsidianLauncher {
         leftMotor = new FloatOutput() {
             @Override
             public void writeValue(float value) {
-                Logger.log(LogLevel.INFO, "Left motor: " + value);
                 leftMotorSpeed = value;
                 world.updateVelocity(leftMotorSpeed, rightMotorSpeed);
             }
@@ -101,11 +99,11 @@ public class EmulatorLauncher extends ObsidianLauncher {
     }
 
     @Override
-    public FloatOutput makePWMOutput(String chan, float defaultValue, final float calibrateN1, final float calibrateN2, float frequency, boolean zeroPolarity) {
+    public FloatOutput makePWMOutput(PWMPin chan, float defaultValue, final float calibrateN1, final float calibrateN2, float frequency, boolean zeroPolarity) {
         switch (chan) {
-            case leftMotorPin:
+            case P8_13:
                 return leftMotor;
-            case rightMotorPin:
+            case P9_14:
                 return rightMotor;
             default:
                 throw new IllegalArgumentException("The PWM output you selected is not connected to this emulator.");
@@ -113,7 +111,7 @@ public class EmulatorLauncher extends ObsidianLauncher {
     }
 
     @Override
-    public void destroyPWMOutput(String chan) {
+    public void destroyPWMOutput(PWMPin chan) {
         Logger.log(LogLevel.SEVERE, "nope.");
     }
 

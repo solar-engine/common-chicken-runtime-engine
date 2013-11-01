@@ -19,12 +19,9 @@
 package poultryinspector.controller;
 
 import ccre.chan.BooleanInput;
-import ccre.chan.BooleanInputProducer;
-import ccre.chan.BooleanOutput;
 import ccre.chan.FloatInput;
-import ccre.chan.FloatInputProducer;
-import ccre.chan.FloatOutput;
 import ccre.cluck.CluckEncoder;
+import ccre.ctrl.Mixing;
 import ccre.log.LogLevel;
 import ccre.log.Logger;
 
@@ -101,30 +98,12 @@ public final class JoystickMonitor {
                 if (isConnected() && axes[i] != null) {
                     encoder.publishFloatInputProducer("joystick" + stick + "-axis" + (i + 1), axes[i]);
                 } else {
-                    encoder.publishFloatInputProducer("joystick" + stick + "-axis" + (i + 1), new FloatInputProducer() {
-                        @Override
-                        public void addTarget(FloatOutput o) {
-                        }
-
-                        @Override
-                        public boolean removeTarget(FloatOutput o) {
-                            return true;
-                        }
-                    });
+                    encoder.publishFloatInputProducer("joystick" + stick + "-axis" + (i + 1), Mixing.always(0.0f));
                 }
                 if (isConnected() && buttons[i] != null) {
                     encoder.publishBooleanInputProducer("joystick" + stick + "-button" + (i + 1), buttons[i]);
                 } else {
-                    encoder.publishBooleanInputProducer("joystick" + stick + "-button" + (i + 1), new BooleanInputProducer() {
-                        @Override
-                        public void addTarget(BooleanOutput o) {
-                        }
-
-                        @Override
-                        public boolean removeTarget(BooleanOutput o) {
-                            return true;
-                        }
-                    });
+                    encoder.publishBooleanInputProducer("joystick" + stick + "-button" + (i + 1), Mixing.alwaysFalse);
                 }
             }
         }

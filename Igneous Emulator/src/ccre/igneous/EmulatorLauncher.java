@@ -170,6 +170,9 @@ public class EmulatorLauncher implements IgneousLauncher {
                 return emf.joy3;
             case 4:
                 return emf.joy4;
+            case 5:
+            case 6:
+                throw new RuntimeException("Kinect joysticks are not currently supported in the emulator!");
             default:
                 throw new RuntimeException("Invalid joystick ID: " + id);
         }
@@ -190,6 +193,9 @@ public class EmulatorLauncher implements IgneousLauncher {
             case 4:
                 emf.joy4.addSource(source);
                 return emf.joy4;
+            case 5:
+            case 6:
+                throw new RuntimeException("Kinect joysticks are not currently supported in the emulator!");
             default:
                 throw new RuntimeException("Invalid joystick ID: " + id);
         }

@@ -21,7 +21,9 @@ package ccre.igneous;
 import ccre.chan.BooleanInputPoll;
 import ccre.chan.FloatInputPoll;
 import ccre.ctrl.ISimpleJoystick;
+import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.Joystick;
+import edu.wpi.first.wpilibj.KinectStick;
 
 /**
  * An ISimpleJoystick implementation that allows reading from a joystick on the
@@ -34,15 +36,22 @@ class CSimpleJoystick implements ISimpleJoystick {
     /**
      * The joystick object that is read from.
      */
-    protected Joystick joy;
+    protected GenericHID joy;
 
     /**
      * Create a CSimpleJoystick that reads from the specified joystick index.
+     * Joystick index 5 is the virtual index for the Kinect joystick.
      *
-     * @param joystick the joystick ID, from 1 to 4, inclusive.
+     * @param joystick the joystick ID, from 1 to 5, inclusive.
      */
     CSimpleJoystick(int joystick) {
-        joy = new Joystick(joystick);
+        if (joystick == 5) {
+            joy = new KinectStick(1);
+        } else if (joystick == 6) {
+            joy = new KinectStick(2);
+        } else {
+            joy = new Joystick(joystick);
+        }
     }
 
     public FloatInputPoll getAxisChannel(final int axis) {

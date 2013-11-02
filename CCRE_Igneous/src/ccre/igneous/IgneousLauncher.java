@@ -56,7 +56,7 @@ public interface IgneousLauncher {
     public FloatOutput makeServo(int id, float minInput, float maxInput);
 
     public FloatOutput makeDSFloatReadout(String prefix, int line);
-    
+
     public void sendDSUpdate(String value, int lineid);
 
     public BooleanInputPoll getIsDisabled();

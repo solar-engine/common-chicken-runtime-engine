@@ -38,7 +38,7 @@ import java.util.Arrays;
 import java.util.Enumeration;
 
 /**
- * The default network provider. This is choosen by default if no other provider
+ * The default network provider. This is chosen by default if no other provider
  * is registered on Network.
  *
  * @see Network

@@ -29,7 +29,6 @@ import java.awt.Color;
 import java.awt.EventQueue;
 import java.util.HashMap;
 import javax.swing.ButtonModel;
-import javax.swing.ComboBoxModel;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JLabel;
 import javax.swing.JProgressBar;
@@ -1376,7 +1375,7 @@ public class EmulatorForm extends javax.swing.JFrame {
         if (reverse) {
             name += "::reverse";
         }
-        availableEncoderSelection.addElement(encoders);
+        availableEncoderSelection.addElement(name);
         EncoderForm enc = new EncoderForm(name);
         encoders.put(name, enc);
         return enc;

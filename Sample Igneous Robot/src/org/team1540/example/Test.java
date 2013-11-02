@@ -20,9 +20,6 @@ package org.team1540.example;
 
 import ccre.chan.*;
 import ccre.ctrl.DriverImpls;
-import ccre.ctrl.Mixing;
-import ccre.ctrl.MultipleSourceBooleanController;
-import ccre.event.EventLogger;
 import ccre.event.EventSource;
 import ccre.igneous.SimpleCore;
 import ccre.instinct.AutonomousModeOverException;
@@ -62,5 +59,6 @@ public class Test extends SimpleCore {
                 rightOut.writeValue(0);
             }
         }.register(this);
+        makeDSFloatReadout("Encoder", 1, makeEncoder(1, 2, false), globalPeriodic);
     }
 }

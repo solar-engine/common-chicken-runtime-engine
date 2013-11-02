@@ -44,7 +44,6 @@ import java.awt.Color;
 import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Graphics;
-import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.AdjustmentEvent;
@@ -52,6 +51,8 @@ import java.awt.event.AdjustmentListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
+import java.awt.event.MouseWheelEvent;
+import java.awt.event.MouseWheelListener;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -67,8 +68,8 @@ import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JToggleButton;
 
-public class IntelligenceMain extends JPanel implements CluckRemoteListener, MouseMotionListener, MouseListener {
-    
+public class IntelligenceMain extends JPanel implements CluckRemoteListener, MouseMotionListener, MouseWheelListener, MouseListener {
+
     public static final Color canvasBackground = Color.WHITE;
     public static final Color paneBackground = Color.YELLOW;
     public static final Color highlight = Color.ORANGE;
@@ -77,8 +78,7 @@ public class IntelligenceMain extends JPanel implements CluckRemoteListener, Mou
     public static final Font console = new Font("Monospaced", Font.PLAIN, 11);
     public static final int paneWidth = 256;
     public final CluckNode node;
-    protected int activeRow = -1;
-    protected int rowHeight = -1;
+    protected int activeRow = -1, rowHeight = -1;
     protected final String lrecv;
     protected final HashMap<String, Remote> remotes = new HashMap<String, Remote>();
     protected Remote[] sortRemotes = null;
@@ -87,12 +87,14 @@ public class IntelligenceMain extends JPanel implements CluckRemoteListener, Mou
     protected int relActiveX, relActiveY, mouseBtn;
     protected final ExpirationTimer painter = new ExpirationTimer();
     protected int baseByteCount = 0, lastByteCount = 0;
-    
+    protected int currentPaneScroll = 0;
+
     private IntelligenceMain(String[] args, CluckNode node, EventSource seconds) {
         this.node = node;
         lrecv = "big-brother-" + Integer.toHexString(args.hashCode());
         this.addMouseMotionListener(this);
         this.addMouseListener(this);
+        this.addMouseWheelListener(this);
         CollapsingWorkerThread discover = new CollapsingWorkerThread("Cluck-Discoverer") {
             @Override
             protected void doWork() {
@@ -124,7 +126,7 @@ public class IntelligenceMain extends JPanel implements CluckRemoteListener, Mou
         painter.start();
         this.node.startSearchRemotes(lrecv, this);
     }
-    
+
     @Override
     public void mouseDragged(MouseEvent e) {
         if (mouseBtn == MouseEvent.BUTTON3) {
@@ -146,11 +148,11 @@ public class IntelligenceMain extends JPanel implements CluckRemoteListener, Mou
             repaint();
         }
     }
-    
+
     @Override
     public void mouseMoved(MouseEvent e) {
         int curX = e.getX();
-        int curY = e.getY();
+        int curY = e.getY() - currentPaneScroll;
         int row = -1;
         if (curX < paneWidth && rowHeight != -1) {
             row = curY / rowHeight;
@@ -160,11 +162,11 @@ public class IntelligenceMain extends JPanel implements CluckRemoteListener, Mou
             repaint();
         }
     }
-    
+
     @Override
     public void mouseClicked(MouseEvent e) {
     }
-    
+
     @Override
     public void mousePressed(MouseEvent e) {
         mouseBtn = e.getButton();
@@ -177,6 +179,16 @@ public class IntelligenceMain extends JPanel implements CluckRemoteListener, Mou
             }
             return;
         }
+        if (paneWidth <= e.getX() && e.getX() < paneWidth + 16) {
+            if (32 <= e.getY() && e.getY() < 48) {
+                currentPaneScroll += 10;
+            } else if (getHeight() - 48 <= e.getY() && e.getY() < getHeight() - 32) {
+                currentPaneScroll -= 10;
+            }
+            if (currentPaneScroll > 0) {
+                currentPaneScroll = 0;
+            }
+        }
         for (Entity ent : ents.values()) {
             if (ent.centerX >= paneWidth && ent.isOver(e.getPoint())) {
                 activeEntity = ent;
@@ -187,7 +199,7 @@ public class IntelligenceMain extends JPanel implements CluckRemoteListener, Mou
         }
         Remote[] rms = sortRemotes;
         if (e.getX() < paneWidth && rms != null) {
-            int row = e.getY() / rowHeight;
+            int row = (e.getY() - currentPaneScroll) / rowHeight;
             if (row >= 0 && row < rms.length) {
                 Remote rem = rms[row];
                 if (ents.containsKey(rem.remote)) {
@@ -207,20 +219,20 @@ public class IntelligenceMain extends JPanel implements CluckRemoteListener, Mou
         }
         activeEntity = null;
     }
-    
+
     @Override
     public void mouseReleased(MouseEvent e) {
         activeEntity = null;
     }
-    
+
     @Override
     public void mouseEntered(MouseEvent e) {
     }
-    
+
     @Override
     public void mouseExited(MouseEvent e) {
     }
-    
+
     @Override
     public void handle(String remote, int remoteType) {
         Remote old = remotes.get(remote);
@@ -234,21 +246,29 @@ public class IntelligenceMain extends JPanel implements CluckRemoteListener, Mou
         }
         repaint();
     }
-    
+
     public void research() {
         node.cycleSearchRemotes(lrecv);
         // TODO: Remove old entries
     }
-    
+
     @Override
     public void paint(Graphics g) {
         int w = getWidth();
         int h = getHeight();
+        g.setFont(console);
         g.setColor(active);
         g.fillRect(0, 0, paneWidth, h);
         g.setColor(canvasBackground);
         g.fillRect(paneWidth, 0, w - paneWidth, h);
-        g.setFont(console);
+        g.setColor(paneBackground);
+        g.fillRect(paneWidth, 32, 16, 16);
+        g.fillRect(paneWidth, h - 48, 16, 16);
+        g.setColor(active);
+        g.drawLine(paneWidth, 47, paneWidth + 7, 32); // ABOUT TO MAKE THESE SCROLL
+        g.drawLine(paneWidth + 15, 47, paneWidth + 8, 32);
+        g.drawLine(paneWidth, h - 48, paneWidth + 7, h - 33);
+        g.drawLine(paneWidth + 15, h - 48, paneWidth + 8, h - 33);
         FontMetrics fontMetrics = g.getFontMetrics();
         int lh = fontMetrics.getHeight();
         g.setColor(active);
@@ -275,11 +295,11 @@ public class IntelligenceMain extends JPanel implements CluckRemoteListener, Mou
         subscreen.fillRect(0, 0, paneWidth, h);
         if (activeRow != -1) {
             subscreen.setColor(highlight);
-            subscreen.fillRect(0, activeRow * rowHeight, paneWidth, rowHeight);
+            subscreen.fillRect(0, activeRow * rowHeight + currentPaneScroll, paneWidth, rowHeight);
         }
         subscreen.setColor(foreground);
         rowHeight = lh;
-        int suby = fontMetrics.getAscent();
+        int suby = fontMetrics.getAscent() + currentPaneScroll;
         for (Remote rem : sremotes) {
             subscreen.drawString(rem.toString(), 3, suby);
             suby += lh;
@@ -291,14 +311,14 @@ public class IntelligenceMain extends JPanel implements CluckRemoteListener, Mou
         }
         painter.feed();
     }
-    
+
     public static void main(String[] args) {
         CluckGlobals.ensureInitializedCore();
         final FloatStatus time = new FloatStatus();
         final Event prod = new Event();
         new ReporterThread("clock") {
             private final long beginning = System.currentTimeMillis();
-            
+
             @Override
             protected void threadBody() throws Throwable {
                 long last = System.currentTimeMillis();
@@ -363,6 +383,10 @@ public class IntelligenceMain extends JPanel implements CluckRemoteListener, Mou
         btns.add(clear);
         jsp.setRightComponent(subpanel);
         IPProvider.init();
+        //PhidgetMonitor pmon = new PhidgetMonitor();
+        //pmon.share(CluckGlobals.node);
+        //JoystickMonitor jmon = new JoystickMonitor(1);
+        //jmon.share(CluckGlobals.node);
         jsp.setLeftComponent(new IntelligenceMain(args, CluckGlobals.node, prod));
         jsp.setDividerLocation(2 * 480 / 3);
         jsp.setResizeWeight(0.7);
@@ -370,5 +394,13 @@ public class IntelligenceMain extends JPanel implements CluckRemoteListener, Mou
         frame.setVisible(true);
         Logger.info("Started Poultry Inspector at " + System.currentTimeMillis());
         IPProvider.connect();
+    }
+
+    @Override
+    public void mouseWheelMoved(MouseWheelEvent e) {
+        currentPaneScroll -= e.getWheelRotation() * 2;
+        if (currentPaneScroll > 0) {
+            currentPaneScroll = 0;
+        }
     }
 }

@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with the CCRE.  If not, see <http://www.gnu.org/licenses/>.
  */
-package poultryinspector.controller;
+package controller;
 
 import ccre.chan.BooleanInput;
 import ccre.chan.BooleanInputProducer;
@@ -24,7 +24,7 @@ import ccre.chan.BooleanOutput;
 import ccre.chan.FloatInput;
 import ccre.chan.FloatInputProducer;
 import ccre.chan.FloatOutput;
-import ccre.cluck.CluckEncoder;
+import ccre.cluck.CluckNode;
 import ccre.log.LogLevel;
 import ccre.log.Logger;
 
@@ -95,13 +95,13 @@ public final class JoystickMonitor {
      *
      * @param encoder The CluckEncoder to use for publishing the inputs.
      */
-    public void share(CluckEncoder encoder) {
+    public void share(CluckNode encoder) {
         for (int i = 0; i < 11; i++) {
             if (i < 7) {
                 if (isConnected() && axes[i] != null) {
-                    encoder.publishFloatInputProducer("joystick" + stick + "-axis" + (i + 1), axes[i]);
+                    encoder.publish("joystick" + stick + "-axis" + (i + 1), axes[i]);
                 } else {
-                    encoder.publishFloatInputProducer("joystick" + stick + "-axis" + (i + 1), new FloatInputProducer() {
+                    encoder.publish("joystick" + stick + "-axis" + (i + 1), new FloatInputProducer() {
                         @Override
                         public void addTarget(FloatOutput o) {
                         }
@@ -113,9 +113,9 @@ public final class JoystickMonitor {
                     });
                 }
                 if (isConnected() && buttons[i] != null) {
-                    encoder.publishBooleanInputProducer("joystick" + stick + "-button" + (i + 1), buttons[i]);
+                    encoder.publish("joystick" + stick + "-button" + (i + 1), buttons[i]);
                 } else {
-                    encoder.publishBooleanInputProducer("joystick" + stick + "-button" + (i + 1), new BooleanInputProducer() {
+                    encoder.publish("joystick" + stick + "-button" + (i + 1), new BooleanInputProducer() {
                         @Override
                         public void addTarget(BooleanOutput o) {
                         }

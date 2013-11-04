@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with the CCRE.  If not, see <http://www.gnu.org/licenses/>.
  */
-package ccre.util;
+package ccre.ctrl;
 
 import ccre.chan.BooleanOutput;
 import ccre.concurrency.ReporterThread;
@@ -24,6 +24,7 @@ import ccre.event.Event;
 import ccre.event.EventConsumer;
 import ccre.event.EventSource;
 import ccre.log.Logger;
+import ccre.util.CArrayList;
 
 /**
  * An ExpirationTimer acts sort of like an alarm clock. You can schedule a
@@ -77,6 +78,77 @@ public class ExpirationTimer { // TODO: Needs to be tested!
     };
 
     /**
+     * Schedule a BooleanOutput to be set to a specified value at a specific
+     * delay.
+     *
+     * @param delay the delay (in milliseconds) to trigger at.
+     * @param out the BooleanOutput to modify.
+     * @param value the value to modify it to.
+     * @throws IllegalStateException if the timer is already running.
+     */
+    public void scheduleSet(long delay, BooleanOutput out, boolean value) throws IllegalStateException {
+        schedule(delay, Mixing.getSetEvent(out, value));
+    }
+
+    /**
+     * Schedule a BooleanOutput to be set to true at a specific delay.
+     *
+     * @param delay the delay (in milliseconds) to trigger at.
+     * @param out the BooleanOutput to modify.
+     * @throws IllegalStateException if the timer is already running.
+     */
+    public void scheduleEnable(long delay, BooleanOutput out) throws IllegalStateException {
+        scheduleSet(delay, out, true);
+    }
+
+    /**
+     * Schedule a BooleanOutput to be set to false at a specific delay.
+     *
+     * @param delay the delay (in milliseconds) to trigger at.
+     * @param out the BooleanOutput to modify.
+     * @throws IllegalStateException if the timer is already running.
+     */
+    public void scheduleDisable(long delay, BooleanOutput out) throws IllegalStateException {
+        scheduleSet(delay, out, false);
+    }
+
+    /**
+     * Schedule a BooleanOutput to be set to a specific value during the
+     * specified range of times, and then set to the inversion of the value
+     * afterwards.
+     *
+     * @param start the beginning of the period.
+     * @param stop the end of the period.
+     * @param out the BooleanOutput to modify.
+     * @param setToDuring the value to set to during the period.
+     * @throws IllegalStateException if the timer is already running.
+     */
+    public void scheduleBooleanPeriod(long start, long stop, BooleanOutput out, boolean setToDuring) throws IllegalStateException {
+        scheduleSet(start, out, setToDuring);
+        scheduleSet(stop, out, !setToDuring);
+    }
+
+    /**
+     * Schedule a BooleanOutput to go through a series of changes over the
+     * course of the timer's execution. The output will be set to the specified
+     * boolean at the start, and then toggled at each specified time after that.
+     *
+     * @param control the BooleanOutput to modify.
+     * @param beginWith the boolean to begin with.
+     * @param beginAt when to begin.
+     * @param additionalToggles when each subsequent toggle should occur. (each
+     * element should be larger than the previous, but this is not checked.)
+     * @throws IllegalStateException if the timer is already running.
+     */
+    public void scheduleToggleSequence(BooleanOutput control, boolean beginWith, long beginAt, long... additionalToggles) throws IllegalStateException {
+        scheduleSet(beginAt, control, beginWith);
+        for (long cur : additionalToggles) {
+            beginWith = !beginWith;
+            scheduleSet(cur, control, beginWith);
+        }
+    }
+
+    /**
      * Schedule an EventConsumer to be triggered at a specific delay.
      *
      * @param delay the delay (in milliseconds) to trigger at.
@@ -103,7 +175,7 @@ public class ExpirationTimer { // TODO: Needs to be tested!
      * @return the event that will be fired.
      * @throws IllegalStateException if the timer is already running.
      */
-    public synchronized EventSource schedule(long delay) throws IllegalStateException {
+    public EventSource schedule(long delay) throws IllegalStateException {
         Event evt = new Event();
         schedule(delay, evt);
         return evt;

@@ -25,7 +25,7 @@ import ccre.event.EventConsumer;
 import ccre.event.EventSource;
 import ccre.igneous.SimpleCore;
 import ccre.phidget.PhidgetReader;
-import ccre.util.ExpirationTimer;
+import ccre.ctrl.ExpirationTimer;
 import java.util.Timer;
 import java.util.TimerTask;
 

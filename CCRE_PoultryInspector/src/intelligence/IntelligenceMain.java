@@ -39,7 +39,7 @@ import ccre.log.Logger;
 import ccre.log.LoggingTarget;
 import ccre.log.MultiTargetLogger;
 import ccre.log.NetworkAutologger;
-import ccre.util.ExpirationTimer;
+import ccre.ctrl.ExpirationTimer;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.FontMetrics;

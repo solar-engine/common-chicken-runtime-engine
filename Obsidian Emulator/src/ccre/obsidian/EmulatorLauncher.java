@@ -27,6 +27,7 @@ import ccre.log.LogLevel;
 import ccre.log.Logger;
 import ccre.log.LoggingTarget;
 import ccre.log.MultiTargetLogger;
+import ccre.log.NetworkAutologger;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
@@ -58,7 +59,7 @@ public class EmulatorLauncher extends ObsidianLauncher {
         }
         File jarFile = new File(args[0]);
         CluckGlobals.ensureInitializedCore();
-        Logger.target = new MultiTargetLogger(new LoggingTarget[]{Logger.target, CluckGlobals.encoder.subscribeLoggingTarget(LogLevel.FINEST, "general-logger")});
+        NetworkAutologger.register();
         URL u = jarFile.toURI().toURL();
         URLClassLoader classLoader = new URLClassLoader(new URL[]{u}, EmulatorLauncher.class.getClassLoader());
 

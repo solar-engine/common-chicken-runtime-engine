@@ -276,7 +276,7 @@ class IgneousLauncherImpl extends IterativeRobot implements IgneousLauncher {
         return new FloatOutput() {
             public void writeValue(float f) {
                 DriverStationLCD dslcd = DriverStationLCD.getInstance();
-                dslcd.println(line, 1, "                    ");
+                dslcd.println(line, 1, "                     ");
                 dslcd.println(line, 1, prefix + f);
                 dslcd.updateLCD();
             }

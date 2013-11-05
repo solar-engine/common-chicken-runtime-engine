@@ -1202,17 +1202,24 @@ public class EmulatorForm extends javax.swing.JFrame {
         jLabel9.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         jLabel9.setText("DSLCD");
 
-        lcd1.setText("-no data-");
+        lcd1.setFont(new java.awt.Font("Monospaced", 0, 11)); // NOI18N
+        lcd1.setText("-------NO DATA-------");
 
-        lcd2.setText("-no data-");
+        lcd2.setFont(new java.awt.Font("Monospaced", 0, 11)); // NOI18N
+        lcd2.setText("-------NO DATA-------");
 
-        lcd3.setText("-no data-");
+        lcd3.setFont(new java.awt.Font("Monospaced", 0, 11)); // NOI18N
+        lcd3.setText("-------NO DATA-------");
 
-        lcd4.setText("-no data-");
+        lcd4.setFont(new java.awt.Font("Monospaced", 0, 11)); // NOI18N
+        lcd4.setText("-------NO DATA-------");
 
-        lcd5.setText("-no data-");
+        lcd5.setFont(new java.awt.Font("Monospaced", 0, 11)); // NOI18N
+        lcd5.setText("-------NO DATA-------");
 
-        lcd6.setText("-no data-");
+        lcd6.setFont(new java.awt.Font("Monospaced", 0, 11)); // NOI18N
+        lcd6.setText("-------NO DATA-------");
+        lcd6.setToolTipText("");
 
         javax.swing.GroupLayout jPanel9Layout = new javax.swing.GroupLayout(jPanel9);
         jPanel9.setLayout(jPanel9Layout);
@@ -1233,7 +1240,7 @@ public class EmulatorForm extends javax.swing.JFrame {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(lcd1)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(lcd2)
+                .addComponent(lcd2, javax.swing.GroupLayout.PREFERRED_SIZE, 16, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(lcd3)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -1782,7 +1789,7 @@ public class EmulatorForm extends javax.swing.JFrame {
         EventQueue.invokeLater(new Runnable() {
             @Override
             public void run() {
-                tgt.setText(value);
+                tgt.setText(value.length() > 21 ? value.substring(0, 21) : value);
             }
         });
     }

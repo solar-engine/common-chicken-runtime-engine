@@ -22,7 +22,6 @@ import ccre.chan.BooleanInput;
 import ccre.chan.BooleanOutput;
 import ccre.chan.FloatInput;
 import ccre.cluck.CluckGlobals;
-import java.io.OutputStream;
 import java.io.PrintStream;
 
 /**
@@ -70,12 +69,11 @@ public class PhidgetReader {
      * LCD lines on the phidget.
      */
     //public static final StringHolder[] lcdLines = new StringHolder[2];
-    public static final PrintStream phidgetLCD;
+    public static final PrintStream[] phidgetLCD = new PrintStream[2];
 
     static {
-        phidgetLCD = new PrintStream(CluckGlobals.node.subscribeOS("phidget-lcd"));
-        /*for (int i = 0; i < 2; i++) {
-            lcdLines[i] = CluckGlobals.node.subscribeStringHolder("phidget-lcd" + i, "?");
-        }*/
+        for (int i = 0; i < phidgetLCD.length; i++) {
+            phidgetLCD[i] = new PrintStream(CluckGlobals.node.subscribeOS("phidget-lcd" + i));
+        }
     }
 }

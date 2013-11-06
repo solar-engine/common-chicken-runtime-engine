@@ -357,4 +357,26 @@ public abstract class IgneousCore implements InstinctRegistrar {
     protected final FloatInputPoll makeEncoder(int aChannel, int bChannel, boolean reverse) {
         return launcher.makeEncoder(aChannel, bChannel, reverse, null);
     }
+
+    /**
+     * Create a reference to the Forward side of the relay on the specified
+     * channel - this side can be turned on and off.
+     *
+     * @param channel The relay channel.
+     * @return the output that will modify the forward side of the channel.
+     */
+    protected final BooleanOutput makeForwardRelay(int channel) {
+        return launcher.makeRelayForwardOutput(channel);
+    }
+
+    /**
+     * Create a reference to the Reverse side of the relay on the specified
+     * channel - this side can be turned on and off.
+     *
+     * @param channel The relay channel.
+     * @return the output that will modify the reverse side of the channel.
+     */
+    protected final BooleanOutput makeReverseRelay(int channel) {
+        return launcher.makeRelayReverseOutput(channel);
+    }
 }

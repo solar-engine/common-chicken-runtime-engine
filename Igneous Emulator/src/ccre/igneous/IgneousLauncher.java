@@ -56,7 +56,7 @@ public interface IgneousLauncher {
     public FloatOutput makeServo(int id, float minInput, float maxInput);
 
     public FloatOutput makeDSFloatReadout(String prefix, int line);
-    
+
     public void sendDSUpdate(String value, int lineid);
 
     public BooleanInputPoll getIsDisabled();
@@ -66,4 +66,8 @@ public interface IgneousLauncher {
     public void useCustomCompressor(BooleanInputPoll shouldDisable, int compressorRelayChannel);
 
     public FloatInputPoll makeEncoder(int aChannel, int bChannel, boolean reverse, EventSource resetWhen);
+
+    public BooleanOutput makeRelayForwardOutput(int channel);
+
+    public BooleanOutput makeRelayReverseOutput(int channel);
 }

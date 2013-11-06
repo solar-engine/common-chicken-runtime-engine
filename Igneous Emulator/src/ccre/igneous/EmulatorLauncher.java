@@ -18,20 +18,11 @@
  */
 package ccre.igneous;
 
-import ccre.chan.BooleanInputPoll;
-import ccre.chan.BooleanOutput;
-import ccre.chan.FloatInputPoll;
-import ccre.chan.FloatOutput;
+import ccre.chan.*;
 import ccre.cluck.CluckGlobals;
-import ccre.ctrl.IDispatchJoystick;
-import ccre.ctrl.ISimpleJoystick;
-import ccre.event.Event;
-import ccre.event.EventConsumer;
-import ccre.event.EventSource;
-import ccre.log.LogLevel;
+import ccre.ctrl.*;
+import ccre.event.*;
 import ccre.log.Logger;
-import ccre.log.LoggingTarget;
-import ccre.log.MultiTargetLogger;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
@@ -161,44 +152,14 @@ public class EmulatorLauncher implements IgneousLauncher {
 
     @Override
     public ISimpleJoystick makeSimpleJoystick(int id) {
-        switch (id) {
-            case 1:
-                return emf.joy1;
-            case 2:
-                return emf.joy2;
-            case 3:
-                return emf.joy3;
-            case 4:
-                return emf.joy4;
-            case 5:
-            case 6:
-                throw new RuntimeException("Kinect joysticks are not currently supported in the emulator!");
-            default:
-                throw new RuntimeException("Invalid joystick ID: " + id);
-        }
+        return emf.joysticks[id];
     }
 
     @Override
     public IDispatchJoystick makeDispatchJoystick(int id, EventSource source) {
-        switch (id) {
-            case 1:
-                emf.joy1.addSource(source);
-                return emf.joy1;
-            case 2:
-                emf.joy2.addSource(source);
-                return emf.joy2;
-            case 3:
-                emf.joy3.addSource(source);
-                return emf.joy3;
-            case 4:
-                emf.joy4.addSource(source);
-                return emf.joy4;
-            case 5:
-            case 6:
-                throw new RuntimeException("Kinect joysticks are not currently supported in the emulator!");
-            default:
-                throw new RuntimeException("Invalid joystick ID: " + id);
-        }
+        EmuJoystick emu = emf.joysticks[id];
+        emu.addSource(source);
+        return emu;
     }
 
     @Override
@@ -287,5 +248,15 @@ public class EmulatorLauncher implements IgneousLauncher {
     @Override
     public FloatInputPoll makeEncoder(int aChannel, int bChannel, boolean reverse, EventSource resetWhen) {
         return emf.makeEncoder(aChannel, bChannel, reverse, resetWhen);
+    }
+
+    @Override
+    public BooleanOutput makeRelayForwardOutput(int channel) {
+        return emf.makeRelayForward(channel);
+    }
+
+    @Override
+    public BooleanOutput makeRelayReverseOutput(int channel) {
+        return emf.makeRelayReverse(channel);
     }
 }

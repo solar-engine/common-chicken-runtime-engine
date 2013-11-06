@@ -152,12 +152,12 @@ public class EmulatorLauncher implements IgneousLauncher {
 
     @Override
     public ISimpleJoystick makeSimpleJoystick(int id) {
-        return emf.joysticks[id];
+        return emf.joysticks[id-1];
     }
 
     @Override
     public IDispatchJoystick makeDispatchJoystick(int id, EventSource source) {
-        EmuJoystick emu = emf.joysticks[id];
+        EmuJoystick emu = emf.joysticks[id-1];
         emu.addSource(source);
         return emu;
     }

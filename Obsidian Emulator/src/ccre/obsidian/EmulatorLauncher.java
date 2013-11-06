@@ -139,6 +139,9 @@ public class EmulatorLauncher extends ObsidianLauncher {
 
     @Override
     public FloatInputPoll makeAnalogInput(int chan) {
-        throw new UnsupportedOperationException("Analog not supported in emulator.");
+        EmulatorPin pin = guiWindow.getPin(chan);
+        pin.setMode(EmulatorPin.Mode.ANALOG_IN);
+        pin.set(0.0f);
+        return new EmulatorAnalogInput(pin);
     }
 }

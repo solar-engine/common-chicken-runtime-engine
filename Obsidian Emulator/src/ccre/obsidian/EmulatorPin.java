@@ -6,6 +6,7 @@
 package ccre.obsidian;
 
 import java.awt.Color;
+import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.event.MouseEvent;
@@ -21,9 +22,11 @@ public class EmulatorPin extends JPanel implements MouseListener {
     private Mode mode;
     private float val;
     private final int id;
+    private final Container sliderPanelTarget;
 
-    public EmulatorPin(int id, float val) {
+    public EmulatorPin(int id, float val, Container c) {
         this.id = id;
+        this.sliderPanelTarget = c;
         setMode(Mode.GPIO_IN);
         set(val);
         setPreferredSize(new Dimension(16, 16));
@@ -48,6 +51,8 @@ public class EmulatorPin extends JPanel implements MouseListener {
             g.setColor(new Color(0.0f, 0.0f, colorValue));
         } else if (mode == Mode.PWM) {
             g.setColor(new Color(colorValue, colorValue, 0.0f));
+        } else if (mode == Mode.ANALOG_IN) {
+            g.setColor(new Color(0.0f, colorValue, colorValue));
         } else {
             g.setColor(new Color(1.0f, 0.0f, 0.0f));
         }
@@ -58,9 +63,15 @@ public class EmulatorPin extends JPanel implements MouseListener {
         g.drawString(new Integer(id).toString(), 0, getHeight());
 
     }
-    
+
     public void updateToolTipText() {
-        setToolTipText("Pin " + id + ": mode=" + mode.name() + ", value=" + val);
+        String text = "Pin " + id + ": mode=" + mode.name();
+        if (mode == Mode.GPIO_OUT || mode == Mode.GPIO_IN) {
+            text += ", value=" + getBoolean();
+        } else if (mode == Mode.PWM || mode == Mode.ANALOG_IN) {
+            text += ", value=" + getFloat();
+        }
+        setToolTipText(text);
     }
 
     public void set(boolean val) {
@@ -105,6 +116,9 @@ public class EmulatorPin extends JPanel implements MouseListener {
     public void mousePressed(MouseEvent me) {
         if (mode == Mode.GPIO_IN) {
             set(!getBoolean());
+        } else if (mode == Mode.ANALOG_IN) {
+            DragSliderPanel dsp = new DragSliderPanel(this);
+            sliderPanelTarget.add(dsp);
         }
     }
 
@@ -125,6 +139,6 @@ public class EmulatorPin extends JPanel implements MouseListener {
 
     public enum Mode {
 
-        GPIO_OUT, GPIO_IN, PWM, UNUSED
+        GPIO_OUT, GPIO_IN, PWM, ANALOG_IN, UNUSED
     }
 }

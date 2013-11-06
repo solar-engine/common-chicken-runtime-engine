@@ -23,6 +23,7 @@ package ccre.obsidian.comms;
  * a response.
  * 
  * @author MillerV
+ * @deprecated 
  */
 public class RadioTimeoutException extends Exception {
     public RadioTimeoutException(String msg) {

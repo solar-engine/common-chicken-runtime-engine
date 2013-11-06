@@ -23,6 +23,7 @@ package ccre.obsidian.comms;
  * when the port is closed.
  * 
  * @author MillerV
+ * @deprecated 
  */
 public class RadioException extends Exception {
     public RadioException(String msg) {

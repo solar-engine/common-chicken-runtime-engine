@@ -22,6 +22,7 @@ package ccre.obsidian.comms;
  * An interface for mesh-based networked communication between instances.
  * 
  * @author MillerV
+ * @deprecated 
  */
 public interface Radio {
     /**

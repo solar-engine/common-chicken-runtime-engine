@@ -353,4 +353,22 @@ class IgneousLauncherImpl extends IterativeRobot implements IgneousLauncher {
             }
         };
     }
+
+    public BooleanOutput makeRelayForwardOutput(int channel) {
+        final Relay r = new Relay(channel, Relay.Direction.kForward);
+        return new BooleanOutput() {
+            public void writeValue(boolean bln) {
+                r.set(bln ? Relay.Value.kOn : Relay.Value.kOff);
+            }
+        };
+    }
+
+    public BooleanOutput makeRelayReverseOutput(int channel) {
+        final Relay r = new Relay(channel, Relay.Direction.kReverse);
+        return new BooleanOutput() {
+            public void writeValue(boolean bln) {
+                r.set(bln ? Relay.Value.kOn : Relay.Value.kOff);
+            }
+        };
+    }
 }

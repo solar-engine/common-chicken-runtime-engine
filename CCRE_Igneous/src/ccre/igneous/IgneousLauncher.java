@@ -66,4 +66,8 @@ public interface IgneousLauncher {
     public void useCustomCompressor(BooleanInputPoll shouldDisable, int compressorRelayChannel);
 
     public FloatInputPoll makeEncoder(int aChannel, int bChannel, boolean reverse, EventSource resetWhen);
+
+    public BooleanOutput makeRelayForwardOutput(int channel);
+
+    public BooleanOutput makeRelayReverseOutput(int channel);
 }

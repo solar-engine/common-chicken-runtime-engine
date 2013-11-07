@@ -72,7 +72,7 @@ public abstract class ObsidianCore implements GPIOChannels {
      * @param pullSetting the setting for the pull resistors.
      * @return the BooleanInputPoll representing the GPIO channel.
      */
-    public BooleanInputPoll makeuGPIOInput(int chan, boolean pullSetting) {
+    public BooleanInputPoll makeGPIOInput(int chan, boolean pullSetting) {
         return launcher.makeGPIOInput(chan, pullSetting);
     }
 

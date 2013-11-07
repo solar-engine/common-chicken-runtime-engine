@@ -16,14 +16,14 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with the CCRE.  If not, see <http://www.gnu.org/licenses/>.
  */
-
 package ccre.obsidian;
 
 /**
  * All the valid PWM pins on the Beaglebone Black
- * 
+ *
  * @author millerv
  */
 public enum PWMPin {
+
     P8_13, P8_19, P9_14, P9_16
 }

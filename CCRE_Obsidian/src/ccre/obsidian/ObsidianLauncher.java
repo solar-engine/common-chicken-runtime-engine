@@ -24,7 +24,6 @@ import ccre.event.Event;
 import ccre.log.LogLevel;
 import ccre.log.Logger;
 import ccre.log.NetworkAutologger;
-import static ccre.obsidian.ObsidianLauncherImpl.settings;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
@@ -39,15 +38,37 @@ import java.util.TimerTask;
  */
 public abstract class ObsidianLauncher {
 
-    protected final Timer t;
-    protected final Event prd;
+    /**
+     * The settings loaded during the launch process.
+     */
+    public static Properties settings;
+    /**
+     * Periodically is fired by the main loop to update the user program.
+     */
+    protected final Event periodic;
+    /**
+     * The core obsidian program.
+     */
     protected final ObsidianCore core;
 
-    public ObsidianLauncher(ClassLoader coreClass) throws IOException, ClassNotFoundException, InstantiationException, IllegalAccessException {
+    /**
+     * Create a new obsidian launcher,
+     *
+     * @param loader The loader used to find the properties file.
+     * @throws IOException If an issue occurs when trying to access the
+     * properties file.
+     * @throws ClassNotFoundException If an issue occurs while loading the main
+     * program class.
+     * @throws InstantiationException If an issue occurs while loading the main
+     * program class.
+     * @throws IllegalAccessException If an issue occurs while loading the main
+     * program class.
+     */
+    public ObsidianLauncher(ClassLoader loader) throws IOException, ClassNotFoundException, InstantiationException, IllegalAccessException {
         CluckGlobals.ensureInitializedCore();
         NetworkAutologger.register();
         Properties p = new Properties();
-        InputStream inst = coreClass.getResourceAsStream("obsidian-conf.properties");
+        InputStream inst = loader.getResourceAsStream("obsidian-conf.properties");
         if (inst == null) {
             throw new IOException("Could not find configuration file!");
         }
@@ -57,23 +78,23 @@ public abstract class ObsidianLauncher {
         if (name == null) {
             throw new IOException("Could not find configuration-specified launchee!");
         }
-
-        core = (ObsidianCore) coreClass.loadClass(name).newInstance();
-
+        CluckGlobals.setupServer();
+        core = (ObsidianCore) loader.loadClass(name).newInstance();
         core.properties = p;
         core.launcher = this;
-        CluckGlobals.setupServer();
-        prd = new Event();
-        core.periodic = prd;
-        t = new Timer();
+        periodic = new Event();
+        core.periodic = periodic;
     }
 
-    public void run() {
-        t.schedule(new TimerTask() {
+    /**
+     * Set up the robot
+     */
+    protected void main() {
+        new Timer().schedule(new TimerTask() {
             @Override
             public void run() {
                 try {
-                    prd.produce();
+                    periodic.produce();
                 } catch (Throwable thr) {
                     Logger.log(LogLevel.SEVERE, "Exception caught in execution loop - robots don't quit!", thr);
                 }
@@ -88,7 +109,7 @@ public abstract class ObsidianLauncher {
 
     /**
      * Retrieves the specified joystick axis from the network, returning a
-     * FloatInputProducer that will update ever ~20 milliseconds with the value
+     * FloatInputProducer that will update every ~20 milliseconds with the value
      * of the axis.
      *
      * @param axis The index of the axis to retrieve, from 1 to 4.
@@ -100,7 +121,7 @@ public abstract class ObsidianLauncher {
 
     /**
      * Retrieves the specified joystick button from the network, returning a
-     * BooleanInputProducer that will update ever ~20 milliseconds with the
+     * BooleanInputProducer that will update every ~20 milliseconds with the
      * value of the button.
      *
      * @param button The index of the button to retrieve, from 1 to 12.

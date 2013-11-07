@@ -53,19 +53,17 @@ public class EmulatorLauncher extends ObsidianLauncher {
 
     public static void main(String[] args) throws IOException, ClassNotFoundException, InstantiationException, IllegalAccessException, NoSuchMethodException, IllegalArgumentException, InvocationTargetException {
         if (args.length < 1) {
-            System.err.println("Expected arguments: <Obsidian-Jar>, [RunGUI]");
+            System.err.println("Expected arguments: <Obsidian-Jar> [Run-GUI]");
             System.exit(-1);
             return;
         }
-        File jarFile = new File(args[0]);
         CluckGlobals.ensureInitializedCore();
         NetworkAutologger.register();
-        URL u = jarFile.toURI().toURL();
-        URLClassLoader classLoader = new URLClassLoader(new URL[]{u}, EmulatorLauncher.class.getClassLoader());
+        URLClassLoader classLoader = new URLClassLoader(new URL[]{new File(args[0]).toURI().toURL()}, EmulatorLauncher.class.getClassLoader());
 
-        boolean gui = Boolean.parseBoolean(args[1]);
+        boolean gui = args.length < 2 ? true : Boolean.parseBoolean(args[1]);
         
-        EmulatorLauncher l = new EmulatorLauncher(classLoader, gui);
+        new EmulatorLauncher(classLoader, gui).main();
     }
 
     public EmulatorLauncher(ClassLoader coreClass, boolean gui) throws IOException, ClassNotFoundException, InstantiationException, IllegalAccessException {
@@ -86,7 +84,6 @@ public class EmulatorLauncher extends ObsidianLauncher {
         };
         world = new EmulatorWorld();
         prd.addListener(world);
-        run();
     }
 
     @Override

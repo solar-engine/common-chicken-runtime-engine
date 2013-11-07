@@ -19,21 +19,25 @@
 package ccre.obsidian;
 
 import ccre.chan.FloatInputPoll;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
+import java.io.*;
 
-public class ADCManager {
+/**
+ * A system that manages analog-to-digital converters, so that they can be used
+ * by other systems.
+ *
+ * @author skeggsc
+ */
+class ADCManager {
 
     /**
      * The base directory for analog inputs.
      */
-    public static final File adcdir;
+    private static final File adcdir;
 
     /**
      * An object representing an analog channel.
      */
-    public static class ADC implements FloatInputPoll {
+    private static class ADC implements FloatInputPoll {
 
         /**
          * The input ID of this analog input.

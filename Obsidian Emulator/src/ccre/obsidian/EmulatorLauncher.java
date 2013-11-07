@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 Colby Skeggs and Vincent Miller
+ * Copyright 2013 Colby Skeggs
  * 
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  * 
@@ -16,6 +16,7 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with the CCRE.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 package ccre.obsidian;
 
 import ccre.chan.BooleanInputPoll;
@@ -45,11 +46,15 @@ public class EmulatorLauncher extends ObsidianLauncher {
      * The settings loaded during the launch process.
      */
     public static Properties settings;
-    private EmulatorWorld world;
-    private double leftMotorSpeed = 0;
-    private double rightMotorSpeed = 0;
-    private final FloatOutput leftMotor;
-    private final FloatOutput rightMotor;
+
+    /*
+     private EmulatorWorld world;
+     private double leftMotorSpeed = 0;
+     private double rightMotorSpeed = 0;
+     private final FloatOutput leftMotor;
+     private final FloatOutput rightMotor;
+     */
+    EmulatorGUI guiWindow;
 
     public static void main(String[] args) throws IOException, ClassNotFoundException, InstantiationException, IllegalAccessException, NoSuchMethodException, IllegalArgumentException, InvocationTargetException {
         if (args.length < 1) {
@@ -63,52 +68,70 @@ public class EmulatorLauncher extends ObsidianLauncher {
         URL u = jarFile.toURI().toURL();
         URLClassLoader classLoader = new URLClassLoader(new URL[]{u}, EmulatorLauncher.class.getClassLoader());
 
-        boolean gui = Boolean.parseBoolean(args[1]);
-        
+        boolean gui;
+        if (args.length > 1) {
+            gui = Boolean.parseBoolean(args[1]);
+        } else {
+            gui = false;
+        }
+
         EmulatorLauncher l = new EmulatorLauncher(classLoader, gui);
     }
 
     public EmulatorLauncher(ClassLoader coreClass, boolean gui) throws IOException, ClassNotFoundException, InstantiationException, IllegalAccessException {
         super(coreClass);
-        rightMotor = new FloatOutput() {
-            @Override
-            public void writeValue(float value) {
-                rightMotorSpeed = value;
-                world.updateVelocity(leftMotorSpeed, rightMotorSpeed);
-            }
-        };
-        leftMotor = new FloatOutput() {
-            @Override
-            public void writeValue(float value) {
-                leftMotorSpeed = value;
-                world.updateVelocity(leftMotorSpeed, rightMotorSpeed);
-            }
-        };
-        world = new EmulatorWorld();
-        prd.addListener(world);
+        /*
+         rightMotor = new FloatOutput() {
+         @Override
+         public void writeValue(float value) {
+         rightMotorSpeed = value;
+         world.updateVelocity(leftMotorSpeed, rightMotorSpeed);
+         }
+         };
+         leftMotor = new FloatOutput() {
+         @Override
+         public void writeValue(float value) {
+         leftMotorSpeed = value;
+         world.updateVelocity(leftMotorSpeed, rightMotorSpeed);
+         }
+         };
+         world = new EmulatorWorld();
+         prd.addListener(world);
+         */
+        Logger.log(LogLevel.INFO, "Launching GUI.");
+        guiWindow = new EmulatorGUI();
+        if (gui) {
+            guiWindow.setVisible(true);
+        }
         run();
     }
 
     @Override
     public BooleanOutput makeGPIOOutput(int chan, boolean defaultValue) {
-        throw new UnsupportedOperationException("GPIO not supported in emulator.");
+        EmulatorPin pin = guiWindow.getPin(chan);
+        pin.setMode(EmulatorPin.Mode.GPIO_OUT);
+        pin.set(defaultValue);
+        return new EmulatorGPIOOutput(pin);
     }
 
     @Override
     public BooleanInputPoll makeGPIOInput(int chan, boolean pullSetting) {
-        throw new UnsupportedOperationException("GPIO not supported in emulator.");
+        EmulatorPin pin = guiWindow.getPin(chan);
+        pin.setMode(EmulatorPin.Mode.GPIO_IN);
+        pin.set(pullSetting);
+        return new EmulatorGPIOInput(pin);
     }
 
     @Override
     public FloatOutput makePWMOutput(PWMPin chan, float defaultValue, final float calibrateN1, final float calibrateN2, float frequency, boolean zeroPolarity) {
-        switch (chan) {
-            case P8_13:
-                return leftMotor;
-            case P9_14:
-                return rightMotor;
-            default:
-                throw new IllegalArgumentException("The PWM output you selected is not connected to this emulator.");
+        int pinChan = Integer.parseInt(chan.name().substring(3));
+        if (chan.name().substring(0, 2).equals("P9")) {
+            pinChan += 46;
         }
+        EmulatorPin pin = guiWindow.getPin(pinChan);
+        pin.setMode(EmulatorPin.Mode.PWM);
+        pin.set(defaultValue);
+        return new EmulatorPWMOutput(pin);
     }
 
     @Override
@@ -118,6 +141,9 @@ public class EmulatorLauncher extends ObsidianLauncher {
 
     @Override
     public FloatInputPoll makeAnalogInput(int chan) {
-        throw new UnsupportedOperationException("Analog not supported in emulator.");
+        EmulatorPin pin = guiWindow.getPin(chan);
+        pin.setMode(EmulatorPin.Mode.ANALOG_IN);
+        pin.set(0.0f);
+        return new EmulatorAnalogInput(pin);
     }
 }

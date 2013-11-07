@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 Colby Skeggs and Vincent Miller
+ * Copyright 2013 Colby Skeggs
  * 
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  * 
@@ -16,20 +16,28 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with the CCRE.  If not, see <http://www.gnu.org/licenses/>.
  */
-package ccre.obsidian.comms;
+
+package ccre.obsidian;
+
+import ccre.chan.FloatInputPoll;
 
 /**
- * An exception created by a failed radio operation, such as sending a message
- * when the port is closed.
- * 
- * @author MillerV
+ *
+ * @author millerv
  */
-public class RadioException extends Exception {
-    public RadioException(String msg) {
-        super(msg);
-    }
+public class EmulatorAnalogInput implements FloatInputPoll {
+    private final EmulatorPin pin;
     
-    public RadioException() {
-        super();
+    public EmulatorAnalogInput(EmulatorPin pin) {
+        this.pin = pin;
+    }
+
+    @Override
+    public float readValue() {
+        if (pin.getMode() == EmulatorPin.Mode.ANALOG_IN) {
+            return pin.getFloat();
+        } else {
+            throw new UnsupportedOperationException("Cannot read float in mode: " + pin.getMode().name());
+        }
     }
 }

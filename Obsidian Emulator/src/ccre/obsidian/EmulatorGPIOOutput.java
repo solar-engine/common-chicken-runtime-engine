@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 Colby Skeggs and Vincent Miller
+ * Copyright 2013 Colby Skeggs
  * 
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  * 
@@ -16,20 +16,28 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with the CCRE.  If not, see <http://www.gnu.org/licenses/>.
  */
-package ccre.obsidian.comms;
+
+package ccre.obsidian;
+
+import ccre.chan.BooleanOutput;
 
 /**
- * An exception created by a timeout in a radio operation, such as listening for
- * a response.
- * 
- * @author MillerV
+ *
+ * @author millerv
  */
-public class RadioTimeoutException extends Exception {
-    public RadioTimeoutException(String msg) {
-        super(msg);
-    }
+public class EmulatorGPIOOutput implements BooleanOutput {
+    private final EmulatorPin pin;
     
-    public RadioTimeoutException() {
-        super();
+    public EmulatorGPIOOutput(EmulatorPin pin) {
+        this.pin = pin;
+    }
+
+    @Override
+    public void writeValue(boolean val) {
+        if (pin.getMode() == EmulatorPin.Mode.GPIO_OUT) {
+            pin.set(val);
+        } else {
+            throw new UnsupportedOperationException("Cannot write boolean in mode: " + pin.getMode().name());
+        }
     }
 }

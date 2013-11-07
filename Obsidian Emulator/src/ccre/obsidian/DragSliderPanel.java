@@ -1,3 +1,22 @@
+/*
+ * Copyright 2013 Colby Skeggs
+ * 
+ * This file is part of the CCRE, the Common Chicken Runtime Engine.
+ * 
+ * The CCRE is free software: you can redistribute it and/or modify it under the
+ * terms of the GNU Lesser General Public License as published by the Free
+ * Software Foundation, either version 3 of the License, or (at your option) any
+ * later version.
+ * 
+ * The CCRE is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
+ * A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
+ * details.
+ * 
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with the CCRE.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 package ccre.obsidian;
 
 import java.awt.Color;
@@ -12,10 +31,6 @@ import java.awt.Point;
 public class DragSliderPanel extends javax.swing.JPanel {
 
     EmulatorPin pin;
-
-    private boolean draggable = true;
-    protected Cursor draggingCursor = Cursor.getPredefinedCursor(Cursor.HAND_CURSOR);
-    protected boolean overbearing = false;
     //private Point location;
     
     /**
@@ -47,14 +62,6 @@ public class DragSliderPanel extends javax.swing.JPanel {
         
         return new Point(col * getWidth(), row * getHeight());
     }
-    
-    /*
-    public void reposition() {
-        if (location != null) {
-            setLocation(location);
-        }
-    }
-    */
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -71,16 +78,6 @@ public class DragSliderPanel extends javax.swing.JPanel {
 
         setToolTipText("");
         setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
-        addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseReleased(java.awt.event.MouseEvent evt) {
-                formMouseReleased(evt);
-            }
-        });
-        addMouseMotionListener(new java.awt.event.MouseMotionAdapter() {
-            public void mouseDragged(java.awt.event.MouseEvent evt) {
-                formMouseDragged(evt);
-            }
-        });
 
         valueSlider.setMaximum(10);
         valueSlider.setMinimum(-10);
@@ -136,23 +133,12 @@ public class DragSliderPanel extends javax.swing.JPanel {
         }
     }//GEN-LAST:event_valueSliderStateChanged
 
-    private void formMouseDragged(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_formMouseDragged
-        Point parentOnScreen = getParent().getLocationOnScreen();
-        Point mouseOnScreen = evt.getLocationOnScreen();
-        Point position = (new Point(mouseOnScreen.x, mouseOnScreen.y));
-        setLocation(position);
-    }//GEN-LAST:event_formMouseDragged
-
     private void removeButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_removeButtonActionPerformed
         Container parent = getParent();
         parent.remove(this);
         parent.revalidate();
         parent.repaint();
     }//GEN-LAST:event_removeButtonActionPerformed
-
-    private void formMouseReleased(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_formMouseReleased
-        setLocation(snapToGrid(getLocation()));
-    }//GEN-LAST:event_formMouseReleased
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton removeButton;

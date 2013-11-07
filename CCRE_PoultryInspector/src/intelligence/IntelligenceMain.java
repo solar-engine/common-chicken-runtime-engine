@@ -40,6 +40,7 @@ import ccre.log.LoggingTarget;
 import ccre.log.MultiTargetLogger;
 import ccre.log.NetworkAutologger;
 import ccre.ctrl.ExpirationTimer;
+import ccre.ctrl.Ticker;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.FontMetrics;
@@ -314,37 +315,6 @@ public class IntelligenceMain extends JPanel implements CluckRemoteListener, Mou
 
     public static void main(String[] args) {
         CluckGlobals.ensureInitializedCore();
-        final FloatStatus time = new FloatStatus();
-        final Event prod = new Event();
-        new ReporterThread("clock") {
-            private final long beginning = System.currentTimeMillis();
-
-            @Override
-            protected void threadBody() throws Throwable {
-                long last = System.currentTimeMillis();
-                while (true) {
-                    long now = System.currentTimeMillis();
-                    time.writeValue((now - beginning) / 4000.0f - 2);
-                    Thread.sleep(10);
-                    if (now > last + 1000) {
-                        if (now > last + 5000) {
-                            last = now;
-                        }
-                        last += 1000;
-                        prod.produce();
-                    }
-                }
-            }
-        }.start();
-        CluckGlobals.node.publish("time", (FloatInputProducer) time);
-        CluckGlobals.node.publish("test", new EventLogger(LogLevel.INFO, "Test."));
-        CluckGlobals.node.publish("ticker", (EventSource) prod);
-        BooleanStatus immd = new BooleanStatus();
-        CluckGlobals.node.publish("immd-in", (BooleanInput) immd);
-        CluckGlobals.node.publish("immd-out", (BooleanOutput) immd);
-        FloatStatus immf = new FloatStatus();
-        CluckGlobals.node.publish("immf-in", (FloatInput) immf);
-        CluckGlobals.node.publish("immf-out", (FloatOutput) immf);
         NetworkAutologger.register();
         JFrame frame = new JFrame("Intelligence Panel");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -383,11 +353,7 @@ public class IntelligenceMain extends JPanel implements CluckRemoteListener, Mou
         btns.add(clear);
         jsp.setRightComponent(subpanel);
         IPProvider.init();
-        //PhidgetMonitor pmon = new PhidgetMonitor();
-        //pmon.share(CluckGlobals.node);
-        //JoystickMonitor jmon = new JoystickMonitor(1);
-        //jmon.share(CluckGlobals.node);
-        jsp.setLeftComponent(new IntelligenceMain(args, CluckGlobals.node, prod));
+        jsp.setLeftComponent(new IntelligenceMain(args, CluckGlobals.node, new Ticker(1000)));
         jsp.setDividerLocation(2 * 480 / 3);
         jsp.setResizeWeight(0.7);
         frame.add(jsp);

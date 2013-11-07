@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 Colby Skeggs
+ * Copyright 2013 Colby Skeggs and Vincent Miller
  * 
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  * 
@@ -26,8 +26,6 @@ import ccre.chan.FloatOutput;
 import ccre.cluck.CluckGlobals;
 import ccre.log.LogLevel;
 import ccre.log.Logger;
-import ccre.log.LoggingTarget;
-import ccre.log.MultiTargetLogger;
 import ccre.log.NetworkAutologger;
 import java.io.File;
 import java.io.IOException;
@@ -58,15 +56,13 @@ public class EmulatorLauncher extends ObsidianLauncher {
 
     public static void main(String[] args) throws IOException, ClassNotFoundException, InstantiationException, IllegalAccessException, NoSuchMethodException, IllegalArgumentException, InvocationTargetException {
         if (args.length < 1) {
-            System.err.println("Expected arguments: <Obsidian-Jar>, [RunGUI]");
+            System.err.println("Expected arguments: <Obsidian-Jar> [Run-GUI]");
             System.exit(-1);
             return;
         }
-        File jarFile = new File(args[0]);
         CluckGlobals.ensureInitializedCore();
         NetworkAutologger.register();
-        URL u = jarFile.toURI().toURL();
-        URLClassLoader classLoader = new URLClassLoader(new URL[]{u}, EmulatorLauncher.class.getClassLoader());
+        URLClassLoader classLoader = new URLClassLoader(new URL[]{new File(args[0]).toURI().toURL()}, EmulatorLauncher.class.getClassLoader());
 
         boolean gui;
         if (args.length > 1) {
@@ -76,6 +72,7 @@ public class EmulatorLauncher extends ObsidianLauncher {
         }
 
         EmulatorLauncher l = new EmulatorLauncher(classLoader, gui);
+        new EmulatorLauncher(classLoader, gui).main();
     }
 
     public EmulatorLauncher(ClassLoader coreClass, boolean gui) throws IOException, ClassNotFoundException, InstantiationException, IllegalAccessException {
@@ -103,7 +100,6 @@ public class EmulatorLauncher extends ObsidianLauncher {
         if (gui) {
             guiWindow.setVisible(true);
         }
-        run();
     }
 
     @Override

@@ -19,16 +19,14 @@
 package ccre.obsidian;
 
 import ccre.log.Logger;
-import java.io.File;
-import java.io.IOException;
-import java.io.RandomAccessFile;
+import java.io.*;
 
 /**
- * A utility class for Device Trees and other filesystem-related utilities.
+ * A utility class for Device Trees and other beaglebone utilities.
  *
  * @author skeggsc
  */
-public class DeviceTree {
+class DeviceTree {
 
     /**
      * Autocomplete the specified path. Search the given directory for a

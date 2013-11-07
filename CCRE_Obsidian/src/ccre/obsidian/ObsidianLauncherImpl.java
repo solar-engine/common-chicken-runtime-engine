@@ -25,7 +25,7 @@ import ccre.chan.FloatOutput;
 import ccre.log.Logger;
 import java.io.File;
 import java.io.IOException;
-import java.util.Properties;
+import java.util.Timer;
 import java.util.TimerTask;
 
 /**
@@ -36,41 +36,32 @@ import java.util.TimerTask;
  */
 public class ObsidianLauncherImpl extends ObsidianLauncher {
 
-    /**
-     * The settings loaded during the launch process.
-     */
-    public static Properties settings;
-    
     public static void main(String[] args) throws IOException, ClassNotFoundException, InstantiationException, IllegalAccessException {
-        boolean watch = false;
         if (args.length != 0) {
-            if (!args[0].equals("use-watcher")) {
+            if ("use-watcher".equals(args[0])) {
+                final File watchee = new File("remote-watcher");
+                new Timer().schedule(new TimerTask() {
+                    @Override
+                    public void run() {
+                        if (watchee.exists()) {
+                            watchee.delete();
+                            Logger.info("Shutting down due to watcher notification.");
+                            System.exit(0);
+                        }
+                    }
+                }, 500, 1000);
+            } else {
                 ccre.launcher.Launcher.main(args);
                 return;
             }
-            watch = true;
         }
-        ObsidianLauncher l = new ObsidianLauncherImpl(watch);
+        new ObsidianLauncherImpl().main();
     }
 
-    public ObsidianLauncherImpl(boolean watch) throws IOException, ClassNotFoundException, InstantiationException, IllegalAccessException {
+    public ObsidianLauncherImpl() throws IOException, ClassNotFoundException, InstantiationException, IllegalAccessException {
         super(ObsidianLauncherImpl.class.getClassLoader());
-        if (watch) {
-            final File watchee = new File("remote-watcher");
-            t.schedule(new TimerTask() {
-                @Override
-                public void run() {
-                    if (watchee.exists()) {
-                        watchee.delete();
-                        Logger.info("Shutting down due to watcher notification.");
-                        System.exit(0);
-                    }
-                }
-            }, 500, 1000);
-        }
-        run();
     }
-    
+
     /**
      * Open the specified GPIO channel for output.
      *

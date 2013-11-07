@@ -18,12 +18,9 @@
  */
 package ccre.igneous;
 
-import ccre.chan.FloatInput;
-import ccre.chan.FloatStatus;
+import ccre.chan.*;
 import ccre.ctrl.IDispatchJoystick;
-import ccre.event.Event;
-import ccre.event.EventConsumer;
-import ccre.event.EventSource;
+import ccre.event.*;
 
 /**
  * An IDispatchJoystick implementation that allows reading from a joystick on

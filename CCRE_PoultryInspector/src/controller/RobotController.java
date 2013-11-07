@@ -41,7 +41,7 @@ import net.java.games.input.ControllerEnvironment;
  */
 public class RobotController {
 
-    private Controller ctrl;
+    private final Controller ctrl;
     private static final Axis[] AxisIDS = new Axis[]{
         Axis.X, Axis.Y, Axis.Z, Axis.SLIDER, Axis.RX, Axis.RY, Axis.RZ
     };

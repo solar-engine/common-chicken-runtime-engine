@@ -21,15 +21,24 @@ package controller;
 /**
  * An exception created when a RobotController attempts to create a boolean
  * input using an analog component, or a float input using a digital component.
- * 
+ *
  * @author MillerV
  */
 public class InputTypeException extends Exception {
+
+    public InputTypeException() {
+        super();
+    }
+
     public InputTypeException(String message) {
         super(message);
     }
-    
-    public InputTypeException() {
-        super();
+
+    public InputTypeException(Throwable thr) {
+        super(thr);
+    }
+
+    public InputTypeException(String message, Throwable thr) {
+        super(message, thr);
     }
 }

@@ -19,24 +19,43 @@
 package intelligence;
 
 import ccre.cluck.CluckNode;
-import static ccre.cluck.CluckNode.RMT_BOOLOUTP;
-import static ccre.cluck.CluckNode.RMT_BOOLPROD;
-import static ccre.cluck.CluckNode.RMT_EVENTCONSUMER;
-import static ccre.cluck.CluckNode.RMT_EVENTSOURCE;
-import static ccre.cluck.CluckNode.RMT_FLOATOUTP;
-import static ccre.cluck.CluckNode.RMT_FLOATPROD;
-import static ccre.cluck.CluckNode.RMT_LOGTARGET;
-import static ccre.cluck.CluckNode.RMT_OUTSTREAM;
+import static ccre.cluck.CluckNode.*;
 import ccre.log.LogLevel;
 import ccre.log.Logger;
 import java.awt.Color;
 
+/**
+ * A representation for a Remote object.
+ *
+ * @author skeggsc
+ */
 public class Remote implements Comparable<Remote> {
+
+    /**
+     * The RMT type of the Remote.
+     */
     protected final int type;
+    /**
+     * The remote path.
+     */
     protected final String remote;
+    /**
+     * The CluckNode that this is from.
+     */
     protected final CluckNode node;
+    /**
+     * The subscribed version of the object.
+     */
     protected Object checkout;
 
+    /**
+     * Create a new remote with a specified remote address, Cluck node, and
+     * remote type.
+     *
+     * @param remote The remote.
+     * @param remoteType The RMT type.
+     * @param node The CluckNode.
+     */
     protected Remote(String remote, int remoteType, CluckNode node) {
         this.remote = remote;
         this.type = remoteType;
@@ -53,6 +72,11 @@ public class Remote implements Comparable<Remote> {
         return remote + " : " + CluckNode.rmtToString(type);
     }
 
+    /**
+     * Get the color of the remote type.
+     *
+     * @return The color.
+     */
     public Color getColor() {
         switch (type) {
             case RMT_EVENTCONSUMER:
@@ -72,7 +96,10 @@ public class Remote implements Comparable<Remote> {
                 return Color.BLACK;
         }
     }
-    
+
+    /**
+     * Subscribe this remote and stick it in the checkout.
+     */
     protected void checkout() {
         switch (type) {
             case RMT_EVENTCONSUMER:
@@ -103,5 +130,4 @@ public class Remote implements Comparable<Remote> {
                 Logger.severe("No checkout for type: " + CluckNode.rmtToString(type));
         }
     }
-
 }

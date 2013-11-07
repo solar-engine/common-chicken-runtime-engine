@@ -19,15 +19,13 @@
 package controller;
 
 import ccre.chan.BooleanInput;
+import ccre.chan.BooleanInputProducer;
+import ccre.chan.BooleanOutput;
 import ccre.chan.FloatInput;
-<<<<<<< HEAD:CCRE_PoultryInspector/src/poultryinspector/controller/JoystickMonitor.java
-import ccre.cluck.CluckEncoder;
 import ccre.ctrl.Mixing;
-=======
 import ccre.chan.FloatInputProducer;
 import ccre.chan.FloatOutput;
 import ccre.cluck.CluckNode;
->>>>>>> remotes/col6y/common-chicken-runtime-engine/master:CCRE_PoultryInspector/src/controller/JoystickMonitor.java
 import ccre.log.LogLevel;
 import ccre.log.Logger;
 
@@ -96,18 +94,16 @@ public final class JoystickMonitor {
      * Shares the FloatInputs from the joystick axes and BooleanInputs from the
      * buttons.
      *
-     * @param encoder The CluckEncoder to use for publishing the inputs.
+     * @param node The CluckNode to use for publishing the inputs.
      */
-    public void share(CluckNode encoder) {
+    public void share(CluckNode node) {
         for (int i = 0; i < 11; i++) {
             if (i < 7) {
                 if (isConnected() && axes[i] != null) {
-                    encoder.publish("joystick" + stick + "-axis" + (i + 1), axes[i]);
+                    node.publish("joystick" + stick + "-axis" + (i + 1), axes[i]);
                 } else {
-<<<<<<< HEAD:CCRE_PoultryInspector/src/poultryinspector/controller/JoystickMonitor.java
-                    encoder.publishFloatInputProducer("joystick" + stick + "-axis" + (i + 1), Mixing.always(0.0f));
-=======
-                    encoder.publish("joystick" + stick + "-axis" + (i + 1), new FloatInputProducer() {
+                    node.publish("joystick" + stick + "-axis" + (i + 1), Mixing.always(0.0f));
+                    node.publish("joystick" + stick + "-axis" + (i + 1), new FloatInputProducer() {
                         @Override
                         public void addTarget(FloatOutput o) {
                         }
@@ -117,15 +113,12 @@ public final class JoystickMonitor {
                             return true;
                         }
                     });
->>>>>>> remotes/col6y/common-chicken-runtime-engine/master:CCRE_PoultryInspector/src/controller/JoystickMonitor.java
                 }
                 if (isConnected() && buttons[i] != null) {
-                    encoder.publish("joystick" + stick + "-button" + (i + 1), buttons[i]);
+                    node.publish("joystick" + stick + "-button" + (i + 1), buttons[i]);
                 } else {
-<<<<<<< HEAD:CCRE_PoultryInspector/src/poultryinspector/controller/JoystickMonitor.java
-                    encoder.publishBooleanInputProducer("joystick" + stick + "-button" + (i + 1), Mixing.alwaysFalse);
-=======
-                    encoder.publish("joystick" + stick + "-button" + (i + 1), new BooleanInputProducer() {
+                    node.publish("joystick" + stick + "-button" + (i + 1), Mixing.alwaysFalse);
+                    node.publish("joystick" + stick + "-button" + (i + 1), new BooleanInputProducer() {
                         @Override
                         public void addTarget(BooleanOutput o) {
                         }
@@ -135,7 +128,6 @@ public final class JoystickMonitor {
                             return true;
                         }
                     });
->>>>>>> remotes/col6y/common-chicken-runtime-engine/master:CCRE_PoultryInspector/src/controller/JoystickMonitor.java
                 }
             }
         }

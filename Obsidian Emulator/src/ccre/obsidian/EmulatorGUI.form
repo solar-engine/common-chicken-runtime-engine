@@ -92,7 +92,12 @@
         <EventHandler event="componentResized" listener="java.awt.event.ComponentListener" parameters="java.awt.event.ComponentEvent" handler="dragTargetComponentResized"/>
       </Events>
 
-      <Layout class="org.netbeans.modules.form.compat2.layouts.DesignFlowLayout"/>
+      <Layout class="org.netbeans.modules.form.compat2.layouts.DesignGridLayout">
+        <Property name="columns" type="int" value="2"/>
+        <Property name="horizontalGap" type="int" value="10"/>
+        <Property name="rows" type="int" value="0"/>
+        <Property name="verticalGap" type="int" value="10"/>
+      </Layout>
     </Container>
   </SubComponents>
 </Form>

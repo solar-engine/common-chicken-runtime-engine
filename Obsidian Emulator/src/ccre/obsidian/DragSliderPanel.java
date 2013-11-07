@@ -40,17 +40,11 @@ public class DragSliderPanel extends javax.swing.JPanel {
     public DragSliderPanel(EmulatorPin pin) {
         this.pin = pin;
         initComponents();
-        setBackground(new Color(0.5f, 0.5f, 0.0f));
+        setBackground(new Color(0.0f, 0.5f, 0.5f));
         setFocusable(true);
     }
     
-    @Override
-    public void addNotify() {
-        requestFocusInWindow();
-        getParent().revalidate();
-        getParent().repaint();
-    }
-    
+    /*
     public Point snapToGrid(Point p) {
         Point position = new Point((int)(p.getX() + getWidth()), (int)(p.getY() + getHeight()));
         
@@ -62,6 +56,7 @@ public class DragSliderPanel extends javax.swing.JPanel {
         
         return new Point(col * getWidth(), row * getHeight());
     }
+    */
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -77,7 +72,7 @@ public class DragSliderPanel extends javax.swing.JPanel {
         removeButton = new javax.swing.JButton();
 
         setToolTipText("");
-        setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
 
         valueSlider.setMaximum(10);
         valueSlider.setMinimum(-10);

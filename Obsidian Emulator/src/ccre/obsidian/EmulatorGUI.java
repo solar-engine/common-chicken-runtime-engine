@@ -83,6 +83,7 @@ public class EmulatorGUI extends javax.swing.JFrame {
                 dragTargetComponentResized(evt);
             }
         });
+        dragTarget.setLayout(new java.awt.GridLayout(0, 2, 10, 10));
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);

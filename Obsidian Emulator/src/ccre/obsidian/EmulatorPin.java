@@ -132,6 +132,7 @@ public class EmulatorPin extends JPanel implements MouseListener {
         } else if (mode == Mode.ANALOG_IN) {
             DragSliderPanel dsp = new DragSliderPanel(this);
             sliderPanelTarget.add(dsp);
+            sliderPanelTarget.revalidate();
         }
     }
 

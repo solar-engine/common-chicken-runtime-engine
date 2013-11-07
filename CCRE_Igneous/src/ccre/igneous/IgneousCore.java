@@ -20,8 +20,7 @@ package ccre.igneous;
 
 import ccre.chan.*;
 import ccre.ctrl.*;
-import ccre.event.EventConsumer;
-import ccre.event.EventSource;
+import ccre.event.*;
 import ccre.instinct.InstinctRegistrar;
 
 /**

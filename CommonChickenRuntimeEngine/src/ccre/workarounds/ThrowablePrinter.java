@@ -67,6 +67,9 @@ public abstract class ThrowablePrinter {
      * @param pstr the PrintStream to write to.
      */
     public static void printThrowable(Throwable thr, PrintStream pstr) {
+        if (thr == null) {
+            throw new NullPointerException();
+        }
         initProvider();
         provider.send(thr, pstr);
     }
@@ -82,6 +85,9 @@ public abstract class ThrowablePrinter {
      * @return the String version of the throwable, including the trackback.
      */
     public static String toStringThrowable(Throwable thr) {
+        if (thr == null) {
+            return null;
+        }
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         printThrowable(thr, new PrintStream(out));
         return out.toString();

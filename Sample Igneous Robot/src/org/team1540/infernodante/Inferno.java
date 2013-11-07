@@ -25,7 +25,7 @@ import ccre.event.EventConsumer;
 import ccre.event.EventSource;
 import ccre.igneous.SimpleCore;
 import ccre.phidget.PhidgetReader;
-import ccre.util.ExpirationTimer;
+import ccre.ctrl.ExpirationTimer;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -72,7 +72,7 @@ public class Inferno extends SimpleCore {
     private void createArm() {
         FloatInputPoll manualArm = PhidgetReader.analogInputs[5];
         FloatInputPoll armPotentiometer = makeAnalogInput(2, 9);
-        CluckGlobals.encoder.publishFloatInputProducer("arm-potentiometer", Mixing.createDispatch(armPotentiometer, globalPeriodic));
+        CluckGlobals.node.publish("arm-potentiometer", Mixing.createDispatch(armPotentiometer, globalPeriodic));
         FloatOutput armMotor = IS_COMPETITION_ROBOT ? makeTalonMotor(6, MOTOR_FORWARD) : makeVictorMotor(6, MOTOR_REVERSE);
 
         createPotentiometerReadout(armPotentiometer);
@@ -231,7 +231,7 @@ public class Inferno extends SimpleCore {
         final FloatInputPoll pressure = Mixing.normalizeFloat(makeAnalogInput_ValueBased(1, 14), 100, 587);
         globalPeriodic.addListener(new EventConsumer() {
             public void eventFired() {
-                PhidgetReader.lcdLines[0].set("Pressure: " + ((int) (pressure.readValue() * 100)) + "%");
+                PhidgetReader.phidgetLCD.println("Pressure: " + ((int) (pressure.readValue() * 100)) + "%\n");
             }
         });
         useCustomCompressor(Mixing.floatIsAtLeast(pressure, 1.0f), 1);

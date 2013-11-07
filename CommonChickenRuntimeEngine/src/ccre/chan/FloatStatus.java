@@ -18,7 +18,6 @@
  */
 package ccre.chan;
 
-import ccre.cluck.CluckEncoder;
 import ccre.event.EventConsumer;
 import ccre.event.EventSource;
 import ccre.holders.FloatTuner;
@@ -104,10 +103,12 @@ public class FloatStatus implements FloatOutput, FloatInput, FloatTuner {
      */
     public boolean optimizeEqualValues = true;
 
+    @Override
     public synchronized float readValue() {
         return value;
     }
 
+    @Override
     public synchronized void writeValue(float newValue) {
         if (value == newValue && optimizeEqualValues) {
             return; // Do nothing
@@ -162,6 +163,7 @@ public class FloatStatus implements FloatOutput, FloatInput, FloatTuner {
         event.addListener(getSetEvent(value));
     }
 
+    @Override
     public synchronized void addTarget(FloatOutput csm) {
         if (consumers == null) {
             consumers = new CArrayList<FloatOutput>();
@@ -170,6 +172,7 @@ public class FloatStatus implements FloatOutput, FloatInput, FloatTuner {
         csm.writeValue(value);
     }
 
+    @Override
     public synchronized boolean removeTarget(FloatOutput consum) {
         if (consumers != null) {
             boolean out = consumers.remove(consum);
@@ -182,22 +185,17 @@ public class FloatStatus implements FloatOutput, FloatInput, FloatTuner {
         }
     }
 
+    @Override
     public FloatInputProducer getAutomaticChannel() {
         return null;
     }
 
-    public FloatInputProducer getAutomaticChannel(CluckEncoder encoder) {
-        return null;
-    }
-
+    @Override
     public Float getCurrentValue() {
         return readValue();
     }
 
-    public String getNetworkChannelForAutomatic() {
-        return null;
-    }
-
+    @Override
     public void tuneTo(float newValue) {
         writeValue(newValue);
     }

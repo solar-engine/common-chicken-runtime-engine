@@ -28,6 +28,7 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.ConnectException;
 import java.net.Inet4Address;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
@@ -37,7 +38,7 @@ import java.util.Arrays;
 import java.util.Enumeration;
 
 /**
- * The default network provider. This is choosen by default if no other provider
+ * The default network provider. This is chosen by default if no other provider
  * is registered on Network.
  *
  * @see Network
@@ -46,7 +47,14 @@ import java.util.Enumeration;
 public class DefaultNetworkProvider implements Network.Provider {
 
     public ClientSocket openClient(String targetAddress, int port) throws IOException {
-        return new ClientSocketImpl(new Socket(targetAddress, port));
+        try {
+            return new ClientSocketImpl(new Socket(targetAddress, port));
+        } catch (ConnectException ctc) {
+            if (ctc.getMessage().equals("Connection timed out: connect")) {
+                throw new ConnectException("Timed out while connecting."); // Smaller traceback.
+            }
+            throw ctc;
+        }
     }
 
     public String getPlatformType() {

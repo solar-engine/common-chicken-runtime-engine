@@ -82,9 +82,12 @@ public abstract class IgneousCore implements InstinctRegistrar {
 
     // Factory methods
     /**
-     * Get an ISimpleJoystick for the specified joystick ID.
+     * Get an ISimpleJoystick for the specified joystick ID. Joysticks 1-4 are
+     * joysticks attached to the driver station. Joystick 5 is the virtual
+     * Kinect left-arm joystick, and joystick 6 is the virtual Kinect right-arm
+     * joystick.
      *
-     * @param id the joystick ID, from 1 to 4, inclusive.
+     * @param id the joystick ID, from 1 to 6, inclusive.
      * @return the ISimpleJoystick.
      * @see #makeDispatchJoystick(int)
      */
@@ -93,13 +96,16 @@ public abstract class IgneousCore implements InstinctRegistrar {
     }
 
     /**
-     * Get an IDispatchJoystick for the specified joystick ID. The joystick will
-     * update the inputs and events during teleop mode only.
+     * Get an IDispatchJoystick for the specified joystick ID. Joysticks 1-4 are
+     * joysticks attached to the driver station. Joystick 5 is the virtual
+     * Kinect left-arm joystick, and joystick 6 is the virtual Kinect right-arm
+     * joystick. The joystick will update the inputs and events during teleop
+     * mode only.
      *
      * This is equivalent to
      * <code>makeDispatchJoystick(id, duringTeleop)</code>.
      *
-     * @param id the joystick ID, from 1 to 4, inclusive.
+     * @param id the joystick ID, from 1 to 6, inclusive.
      * @return the IDispatchJoystick.
      * @see #makeSimpleJoystick(int)
      * @see #makeDispatchJoystick(int, ccre.event.EventSource)
@@ -109,10 +115,13 @@ public abstract class IgneousCore implements InstinctRegistrar {
     }
 
     /**
-     * Get an IDispatchJoystick for the specified joystick ID. The joystick will
-     * update the inputs and events when the specified event is fired.
+     * Get an IDispatchJoystick for the specified joystick ID. Joysticks 1-4 are
+     * joysticks attached to the driver station. Joystick 5 is the virtual
+     * Kinect left-arm joystick, and joystick 6 is the virtual Kinect right-arm
+     * joystick. The joystick will update the inputs and events when the
+     * specified event is fired.
      *
-     * @param id the joystick ID, from 1 to 4, inclusive.
+     * @param id the joystick ID, from 1 to 6, inclusive.
      * @param source when to update the joystick.
      * @return the IDispatchJoystick.
      * @see #makeSimpleJoystick(int)
@@ -347,5 +356,27 @@ public abstract class IgneousCore implements InstinctRegistrar {
      */
     protected final FloatInputPoll makeEncoder(int aChannel, int bChannel, boolean reverse) {
         return launcher.makeEncoder(aChannel, bChannel, reverse, null);
+    }
+
+    /**
+     * Create a reference to the Forward side of the relay on the specified
+     * channel - this side can be turned on and off.
+     *
+     * @param channel The relay channel.
+     * @return the output that will modify the forward side of the channel.
+     */
+    protected final BooleanOutput makeForwardRelay(int channel) {
+        return launcher.makeRelayForwardOutput(channel);
+    }
+
+    /**
+     * Create a reference to the Reverse side of the relay on the specified
+     * channel - this side can be turned on and off.
+     *
+     * @param channel The relay channel.
+     * @return the output that will modify the reverse side of the channel.
+     */
+    protected final BooleanOutput makeReverseRelay(int channel) {
+        return launcher.makeRelayReverseOutput(channel);
     }
 }

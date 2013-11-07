@@ -50,6 +50,19 @@ public class Logger {
     }
 
     /**
+     * Log a given message and extended message at the given log level.
+     *
+     * @param level the level to log at.
+     * @param message the message to log.
+     * @param extended the extended message to log
+     */
+    public static void logExt(LogLevel level, String message, String extended) {
+        if (level.atLeastAsImportant(minimumLevel)) {
+            target.log(level, message, extended);
+        }
+    }
+
+    /**
      * Log a given message at the given log level.
      *
      * @param level the level to log at.

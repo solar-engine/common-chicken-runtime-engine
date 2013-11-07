@@ -18,20 +18,11 @@
  */
 package ccre.igneous;
 
-import ccre.chan.BooleanInputPoll;
-import ccre.chan.BooleanOutput;
-import ccre.chan.FloatInputPoll;
-import ccre.chan.FloatOutput;
+import ccre.chan.*;
 import ccre.cluck.CluckGlobals;
-import ccre.ctrl.IDispatchJoystick;
-import ccre.ctrl.ISimpleJoystick;
-import ccre.event.Event;
-import ccre.event.EventConsumer;
-import ccre.event.EventSource;
-import ccre.log.LogLevel;
+import ccre.ctrl.*;
+import ccre.event.*;
 import ccre.log.Logger;
-import ccre.log.LoggingTarget;
-import ccre.log.MultiTargetLogger;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
@@ -74,7 +65,8 @@ public class EmulatorLauncher implements IgneousLauncher {
             throw new RuntimeException("Could not find MANIFEST-specified launchee!");
         }
         CluckGlobals.ensureInitializedCore();
-        Logger.target = new MultiTargetLogger(new LoggingTarget[]{Logger.target, CluckGlobals.encoder.subscribeLoggingTarget(LogLevel.FINEST, "general-logger")});
+        Logger.warning("Could not connect to logger!");
+        //Logger.target = new MultiTargetLogger(new LoggingTarget[]{Logger.target, CluckGlobals.encoder.subscribeLoggingTarget(LogLevel.FINEST, "general-logger")});
         URLClassLoader classLoader = new URLClassLoader(new URL[]{jarFile.toURI().toURL()}, EmulatorLauncher.class.getClassLoader());
         Class<? extends IgneousCore> asSubclass = classLoader.loadClass(mainClass).asSubclass(IgneousCore.class);
         EmulatorForm emf = new EmulatorForm();
@@ -99,7 +91,7 @@ public class EmulatorLauncher implements IgneousLauncher {
     protected final Event startedTesting = new Event();
 
     public void start() {
-        CluckGlobals.initializeServer(80);
+        CluckGlobals.setupServer();
         core.duringAutonomous = this.duringAutonomous;
         core.duringDisabled = this.duringDisabled;
         core.duringTeleop = this.duringTeleop;
@@ -160,38 +152,14 @@ public class EmulatorLauncher implements IgneousLauncher {
 
     @Override
     public ISimpleJoystick makeSimpleJoystick(int id) {
-        switch (id) {
-            case 1:
-                return emf.joy1;
-            case 2:
-                return emf.joy2;
-            case 3:
-                return emf.joy3;
-            case 4:
-                return emf.joy4;
-            default:
-                throw new RuntimeException("Invalid joystick ID: " + id);
-        }
+        return emf.joysticks[id-1];
     }
 
     @Override
     public IDispatchJoystick makeDispatchJoystick(int id, EventSource source) {
-        switch (id) {
-            case 1:
-                emf.joy1.addSource(source);
-                return emf.joy1;
-            case 2:
-                emf.joy2.addSource(source);
-                return emf.joy2;
-            case 3:
-                emf.joy3.addSource(source);
-                return emf.joy3;
-            case 4:
-                emf.joy4.addSource(source);
-                return emf.joy4;
-            default:
-                throw new RuntimeException("Invalid joystick ID: " + id);
-        }
+        EmuJoystick emu = emf.joysticks[id-1];
+        emu.addSource(source);
+        return emu;
     }
 
     @Override
@@ -280,5 +248,15 @@ public class EmulatorLauncher implements IgneousLauncher {
     @Override
     public FloatInputPoll makeEncoder(int aChannel, int bChannel, boolean reverse, EventSource resetWhen) {
         return emf.makeEncoder(aChannel, bChannel, reverse, resetWhen);
+    }
+
+    @Override
+    public BooleanOutput makeRelayForwardOutput(int channel) {
+        return emf.makeRelayForward(channel);
+    }
+
+    @Override
+    public BooleanOutput makeRelayReverseOutput(int channel) {
+        return emf.makeRelayReverse(channel);
     }
 }

@@ -23,8 +23,7 @@ import ccre.cluck.CluckGlobals;
 import ccre.event.Event;
 import ccre.log.LogLevel;
 import ccre.log.Logger;
-import ccre.log.LoggingTarget;
-import ccre.log.MultiTargetLogger;
+import ccre.log.NetworkAutologger;
 import static ccre.obsidian.ObsidianLauncherImpl.settings;
 import java.io.IOException;
 import java.io.InputStream;
@@ -46,7 +45,7 @@ public abstract class ObsidianLauncher {
 
     public ObsidianLauncher(ClassLoader coreClass) throws IOException, ClassNotFoundException, InstantiationException, IllegalAccessException {
         CluckGlobals.ensureInitializedCore();
-        Logger.target = new MultiTargetLogger(new LoggingTarget[]{Logger.target, CluckGlobals.encoder.subscribeLoggingTarget(LogLevel.FINEST, "general-logger")});
+        NetworkAutologger.register();
         Properties p = new Properties();
         InputStream inst = coreClass.getResourceAsStream("obsidian-conf.properties");
         if (inst == null) {
@@ -63,12 +62,12 @@ public abstract class ObsidianLauncher {
 
         core.properties = p;
         core.launcher = this;
-        CluckGlobals.initializeServer(80);
+        CluckGlobals.setupServer();
         prd = new Event();
         core.periodic = prd;
         t = new Timer();
     }
-    
+
     public void run() {
         t.schedule(new TimerTask() {
             @Override
@@ -96,7 +95,7 @@ public abstract class ObsidianLauncher {
      * @return A FloatInputProducer that provides the value of that axis.
      */
     public FloatInput getJoystickAxis(int axis) {
-        return CluckGlobals.encoder.subscribeFloatInputProducer("joystick" + 1 + "-axis" + axis, 0.0F);
+        return CluckGlobals.node.subscribeFIP("joystick" + 1 + "-axis" + axis);
     }
 
     /**
@@ -108,7 +107,7 @@ public abstract class ObsidianLauncher {
      * @return A BooleanInputProducer that provides the value of that button.
      */
     public BooleanInput getJoystickButton(int button) {
-        return CluckGlobals.encoder.subscribeBooleanInputProducer("joystick" + 1 + "-button" + button, false);
+        return CluckGlobals.node.subscribeBIP("joystick" + 1 + "-button" + button);
     }
 
     /**

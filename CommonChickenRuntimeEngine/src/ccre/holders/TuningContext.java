@@ -19,7 +19,6 @@
 package ccre.holders;
 
 import ccre.chan.FloatStatus;
-import ccre.cluck.CluckEncoder;
 import ccre.cluck.CluckNode;
 import ccre.event.EventConsumer;
 import ccre.saver.StorageProvider;
@@ -34,56 +33,33 @@ import ccre.saver.StorageSegment;
 public class TuningContext {
 
     /**
-     * The encoder to publish the value to.
+     * The node to publish the value to.
      */
-    protected CluckEncoder enc;
+    protected CluckNode enc;
     /**
      * The segment to store the value in.
      */
     protected StorageSegment seg;
 
     /**
-     * Create a new TuningContext from a specified CluckNode (creates a
-     * CluckEncoder on the node) and name of storage (used to find the
-     * StorageSegment)
+     * Create a new TuningContext from a specified CluckNode and name of storage
+     * (used to find the StorageSegment)
      *
      * @param node the CluckNode to share values over.
      * @param storageName the storage name to save values to.
      */
     public TuningContext(CluckNode node, String storageName) {
-        this(new CluckEncoder(node), StorageProvider.openStorage(storageName));
+        this(node, StorageProvider.openStorage(storageName));
     }
 
     /**
-     * Create a new TuningContext from a specified CluckNode (creates a
-     * CluckEncoder on the node) and a specified StorageSegment.
-     *
-     * @param node the CluckNode to share values over.
-     * @param seg the segment to save values to.
-     */
-    public TuningContext(CluckNode node, StorageSegment seg) {
-        this(new CluckEncoder(node), seg);
-    }
-
-    /**
-     * Create a new TuningContext from a specified CluckEncoder and name of
-     * storage (used to find the StorageSegment)
-     *
-     * @param enc the CluckEncoder to share values over.
-     * @param storageName the storage name to save values to.
-     */
-    public TuningContext(CluckEncoder enc, String storageName) {
-        this(enc, StorageProvider.openStorage(storageName));
-    }
-
-    /**
-     * Create a new TuningContext from a specified CluckEncoder and a specified
+     * Create a new TuningContext from a specified CluckNode and a specified
      * StorageSegment.
      *
-     * @param enc the CluckEncoder to share values over.
+     * @param enc the CluckNode to share values over.
      * @param seg the segment to save values to.
      */
-    public TuningContext(CluckEncoder enc, StorageSegment seg) {
+    public TuningContext(CluckNode enc, StorageSegment seg) {
         this.enc = enc;
         this.seg = seg;
     }
@@ -101,7 +77,7 @@ public class TuningContext {
         out.writeValue(default_);
         out.hasBeenModified = false;
         seg.attachFloatHolder(name, out);
-        enc.publishTunableFloat(name, out, null);
+        enc.publish(name, out);
         return out;
     }
 
@@ -121,7 +97,7 @@ public class TuningContext {
         out.writeValue(default_);
         out.hasBeenModified = false;
         seg.attachFloatHolder(name, out);
-        enc.publishTunableFloat(name, out, targetref);
+        enc.publish(name, out);
         return out;
     }
 
@@ -145,9 +121,9 @@ public class TuningContext {
             }
         };
     }
-    
+
     public TuningContext publishSavingEvent(String name) {
-        enc.publishEventConsumer("Save Tuning for " + name, getFlushEvent());
+        enc.publish("Save Tuning for " + name, getFlushEvent());
         return this;
     }
 }

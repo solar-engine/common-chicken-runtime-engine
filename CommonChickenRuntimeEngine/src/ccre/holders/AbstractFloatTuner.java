@@ -20,7 +20,6 @@ package ccre.holders;
 
 import ccre.chan.FloatInputProducer;
 import ccre.chan.FloatOutput;
-import ccre.cluck.CluckEncoder;
 import ccre.cluck.CluckGlobals;
 import ccre.util.CArrayList;
 
@@ -38,34 +37,6 @@ public abstract class AbstractFloatTuner implements FloatTuner {
         for (FloatOutput o : consumers) {
             o.writeValue(getCurrentValue());
         }
-    }
-
-    /**
-     * Fetch the automatic tuning channel (see getNetworkChannelForAutomatic).
-     * This is the same as getAutomaticChannel(CluckGlobals.encoder)
-     *
-     * @return the automatic tuning channel or null if none exists.
-     */
-    @Override
-    public FloatInputProducer getAutomaticChannel() {
-        return getAutomaticChannel(CluckGlobals.encoder);
-    }
-
-    /**
-     * Fetch the automatic tuning channel (see getNetworkChannelForAutomatic)
-     * from the given CluckEncoder. As in, subscribe to the FloatInputProducer
-     * with the given name.
-     *
-     * @param encoder the encoder to fetch from.
-     * @return the automatic tuning channel or null if none exists.
-     */
-    @Override
-    public FloatInputProducer getAutomaticChannel(CluckEncoder encoder) {
-        String cur = getNetworkChannelForAutomatic();
-        if (cur == null) {
-            return null;
-        }
-        return encoder.subscribeFloatInputProducer(cur, 0);
     }
 
     @Override

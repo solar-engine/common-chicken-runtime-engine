@@ -20,9 +20,9 @@
 /Prototype Obsidian Project/build/
 /Prototype Obsidian Project/dist/
 /Prototype Obsidian Project/nbproject/private/
-/CLL Compiler/nbproject/private/
 /Obsidian Emulator/nbproject/private/
 /Prototype Obsidian Project/nbproject/project.bak.xml
 /Obsidian Emulator/build/
 /Obsidian Emulator/dist/
 /CommonChickenRuntimeEngine/nbproject/private/
+!/CCRE_Igneous/nbproject/private/private.xml

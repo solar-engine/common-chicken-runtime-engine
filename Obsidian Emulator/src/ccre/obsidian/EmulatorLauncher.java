@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 Colby Skeggs
+ * Copyright 2013 Colby Skeggs and Vincent Miller
  * 
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  * 
@@ -26,8 +26,6 @@ import ccre.chan.FloatOutput;
 import ccre.cluck.CluckGlobals;
 import ccre.log.LogLevel;
 import ccre.log.Logger;
-import ccre.log.LoggingTarget;
-import ccre.log.MultiTargetLogger;
 import ccre.log.NetworkAutologger;
 import java.io.File;
 import java.io.IOException;

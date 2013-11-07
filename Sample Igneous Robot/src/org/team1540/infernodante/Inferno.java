@@ -231,7 +231,7 @@ public class Inferno extends SimpleCore {
         final FloatInputPoll pressure = Mixing.normalizeFloat(makeAnalogInput_ValueBased(1, 14), 100, 587);
         globalPeriodic.addListener(new EventConsumer() {
             public void eventFired() {
-                PhidgetReader.phidgetLCD.println("Pressure: " + ((int) (pressure.readValue() * 100)) + "%\n");
+                PhidgetReader.phidgetLCD[0].println("Pressure: " + ((int) (pressure.readValue() * 100)) + "%\n");
             }
         });
         useCustomCompressor(Mixing.floatIsAtLeast(pressure, 1.0f), 1);

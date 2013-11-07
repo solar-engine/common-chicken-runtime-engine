@@ -24,6 +24,9 @@
         </classpath>
     </taskdef>
     <property name="ccrejar" value="../CommonChickenRuntimeEngine/dist/CCRE-1.5.jar"/>
+    <property name="rxtxjar" value="lib/RXTXcomm.jar"/>
+    <property name="log4jjar" value="lib/log4j.jar"/>
+    <property name="xbeejar" value="lib/xbee-api-0.9.jar"/>
     <target name="update-netbeans-project">
         <copy file="nbproject/project.xml" tofile="nbproject/project.bak.xml"/>
         <xmltask source="nbproject/project.bak.xml" dest="nbproject/project.xml" failWithoutMatch="true">
@@ -39,7 +42,7 @@
         <mkdir dir="${classes.dir}"/>
         <javac sourcepath="" srcdir="${src.dir}" destdir="${classes.dir}"
                includeAntRuntime="no" includeJavaRuntime="no" debug="true"
-               classpath="${ccrejar}" target="1.6" source="1.6">
+               classpath="${ccrejar}; ${rxtxjar}; ${log4jjar}; ${xbeejar};" target="1.6" source="1.6">
             <compilerarg value="-Xlint:deprecation"/>
         </javac>
     </target>

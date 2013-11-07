@@ -29,6 +29,8 @@ import java.io.PrintStream;
 /**
  * A throwable printer that works on Squawk and the FRC robot. This is because
  * Java ME doesn't use the same interface as Java SE.
+ * 
+ * This is very hacky, but it works.
  *
  * @author skeggsc
  */

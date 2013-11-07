@@ -18,20 +18,16 @@
  */
 package ccre.obsidian;
 
-import ccre.chan.BooleanInputPoll;
-import ccre.chan.BooleanOutput;
+import ccre.chan.*;
 import ccre.concurrency.ReporterThread;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
+import java.io.*;
 
 /**
  * The main class that handles interfacing with the BB GPIO pins.
  *
  * @author skeggsc
  */
-public class GPIOManager {
+class GPIOManager {
 
     /**
      * The shared lock object for modifying GPIO states. This is acquired by all
@@ -42,7 +38,7 @@ public class GPIOManager {
     /**
      * A class representing a single GPIO line.
      */
-    public static class GPIO implements BooleanOutput, BooleanInputPoll {
+    private static class GPIO implements BooleanOutput, BooleanInputPoll {
 
         /**
          * The ID of the GPIO.

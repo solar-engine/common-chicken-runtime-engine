@@ -18,8 +18,7 @@
  */
 package ccre.igneous;
 
-import ccre.chan.BooleanInputPoll;
-import ccre.chan.FloatInputPoll;
+import ccre.chan.*;
 import ccre.ctrl.ISimpleJoystick;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.Joystick;

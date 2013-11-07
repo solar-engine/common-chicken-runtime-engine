@@ -19,13 +19,9 @@
 package ccre.saver;
 
 import ccre.downgrade.Iterator;
-import ccre.log.LogLevel;
-import ccre.log.Logger;
+import ccre.log.*;
 import com.sun.squawk.microedition.io.FileConnection;
-import java.io.BufferedOutputStream;
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.IOException;
+import java.io.*;
 import javax.microedition.io.Connector;
 
 /**

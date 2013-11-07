@@ -103,31 +103,11 @@ public final class JoystickMonitor {
                     node.publish("joystick" + stick + "-axis" + (i + 1), axes[i]);
                 } else {
                     node.publish("joystick" + stick + "-axis" + (i + 1), Mixing.always(0.0f));
-                    node.publish("joystick" + stick + "-axis" + (i + 1), new FloatInputProducer() {
-                        @Override
-                        public void addTarget(FloatOutput o) {
-                        }
-
-                        @Override
-                        public boolean removeTarget(FloatOutput o) {
-                            return true;
-                        }
-                    });
                 }
                 if (isConnected() && buttons[i] != null) {
                     node.publish("joystick" + stick + "-button" + (i + 1), buttons[i]);
                 } else {
                     node.publish("joystick" + stick + "-button" + (i + 1), Mixing.alwaysFalse);
-                    node.publish("joystick" + stick + "-button" + (i + 1), new BooleanInputProducer() {
-                        @Override
-                        public void addTarget(BooleanOutput o) {
-                        }
-
-                        @Override
-                        public boolean removeTarget(BooleanOutput o) {
-                            return true;
-                        }
-                    });
                 }
             }
         }

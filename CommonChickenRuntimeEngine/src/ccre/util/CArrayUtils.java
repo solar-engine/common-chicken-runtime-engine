@@ -38,6 +38,14 @@ public class CArrayUtils {
         public Object get(int index) {
             throw new IndexOutOfBoundsException("Out of bounds: " + index);
         }
+
+        public Object[] toArray() {
+            return new Object[0];
+        }
+
+        public int fillArray(Object[] target) {
+            return -target.length;
+        }
     };
 
     /**

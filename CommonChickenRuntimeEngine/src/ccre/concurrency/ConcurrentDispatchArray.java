@@ -194,4 +194,16 @@ public class ConcurrentDispatchArray<E> implements CCollection<E> {
         }
         return mod;
     }
+
+    public Object[] toArray() {
+        Object[] d = data;
+        return CArrayUtils.copyOf(d, d.length);
+    }
+
+    public int fillArray(Object[] target) {
+        Object[] d = data;
+        int out = d.length - target.length;
+        System.arraycopy(d, 0, target, 0, out >= 0 ? target.length : d.length);
+        return out;
+    }
 }

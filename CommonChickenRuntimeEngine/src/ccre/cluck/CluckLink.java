@@ -18,8 +18,31 @@
  */
 package ccre.cluck;
 
+/**
+ * A link over which Cluck messages can be sent. This might be a link to a
+ * remote CluckNode, or an attached object that can have messages sent to it.
+ *
+ * @author skeggsc
+ */
 public interface CluckLink {
 
-    // Return true if more messages should be delivered, false if this should be detached.
-    public boolean transmit(String rest, String source, byte[] data);
+    /**
+     * Send a Cluck message over this link.
+     *
+     * Dest and source are forward-slash-separated paths.
+     *
+     * The destination is relative to the node at the other end of the link -
+     * the name of this link has already been stripped off.
+     *
+     * The source is relative to the previous node - it should get the name of
+     * this link on the other end added to it so that messages can be sent in
+     * response.
+     *
+     * @param dest The destination path.
+     * @param source The source path.
+     * @param data The data packet.
+     * @return true if more messages should be delivered, false if this should
+     * be detached from the CluckNode.
+     */
+    public boolean transmit(String dest, String source, byte[] data);
 }

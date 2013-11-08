@@ -831,7 +831,7 @@ public class CluckNode {
      * Publish a FloatTuner on the network.
      *
      * @param name The name for the FloatTuner.
-     * @param prod The FloatTuner.
+     * @param tune The FloatTuner.
      */
     public void publish(final String name, final FloatTuner tune) {
         publish(name + ".input", (FloatInputProducer) tune);
@@ -866,7 +866,7 @@ public class CluckNode {
      * Publish an OutputStream on the network.
      *
      * @param name The name for the OutputStream.
-     * @param prod The OutputStream.
+     * @param out The OutputStream.
      */
     public void publish(String name, final OutputStream out) {
         new CluckSubscriber() {

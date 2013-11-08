@@ -37,6 +37,11 @@ import javax.swing.JToggleButton;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 
+/**
+ * The main form displayed in the emulator.
+ *
+ * @author skeggsc
+ */
 public class EmulatorForm extends javax.swing.JFrame {
 
     static {

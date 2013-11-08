@@ -60,7 +60,7 @@ public class CluckProtocol {
         }
         dout.writeUTF(remoteHint);
         String rh = din.readUTF();
-        return rh.isEmpty() ? null : rh;
+        return rh.length() == 0 ? null : rh;
     }
 
     /**

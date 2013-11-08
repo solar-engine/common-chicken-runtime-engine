@@ -205,4 +205,28 @@ public abstract class CAbstractList<T> implements CList<T> {
         sb.append("]");
         return sb.toString();
     }
+
+    @Override
+    public Object[] toArray() {
+        Object[] out = new Object[size()];
+        if (fillArray(out) != 0) {
+            throw new ConcurrentModificationException("Modification during toArray!");
+        }
+        return out;
+    }
+
+    @Override
+    public int fillArray(Object[] target) {
+        Iterator<T> it = this.iterator();
+        int i = 0;
+        while (it.hasNext()) {
+            if (i < target.length) {
+                target[i] = it.next();
+            } else {
+                it.next();
+            }
+            i++;
+        }
+        return i - target.length;
+    }
 }

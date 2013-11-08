@@ -156,4 +156,31 @@ public interface CCollection<E> extends Iterable<E> {
      * meaning that FRC robot code can use it.
      */
     void clear();
+
+    /**
+     * Returns an array containing all elements of this collection.
+     *
+     * Unless otherwise specified, this implements the same interface as
+     * java.util.Collection, except that this works across all CCRE platforms,
+     * meaning that FRC robot code can use it.
+     *
+     * @return The array of all elements.
+     */
+    Object[] toArray();
+
+    /**
+     * Fills the specified array with elements from this collection, and then
+     * returns how many elements didn't fit in the array. This is different than
+     * toArray because it will not reallocate the specified array if it is too
+     * short, just return a positive number.
+     *
+     * This exists instead of the more useful toArray because Squawk doesn't
+     * provide an easy way to create a new array of a given type.
+     *
+     * @param target The array to fill.
+     * @return The size of the collection minus the length of the given array.
+     * This will be zero if the array was the perfect size, negative if the
+     * array was too long, and positive if the array was too short.
+     */
+    int fillArray(Object[] target);
 }

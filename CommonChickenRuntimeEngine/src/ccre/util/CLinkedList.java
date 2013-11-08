@@ -58,6 +58,28 @@ public class CLinkedList<T> extends CAbstractList<T> {
         sentinel.prev = sentinel;
     }
 
+    /**
+     * Create a new CLinkedList from an existing array.
+     *
+     * @param coll the array to copy elements from.
+     */
+    public CLinkedList(T[] coll) {
+        this();
+        for (T t : coll) {
+            addLast(t);
+        }
+    }
+
+    /**
+     * Create a new CLinkedList from an existing collection.
+     *
+     * @param coll the collection to copy elements from.
+     */
+    public CLinkedList(CCollection<? extends T> coll) {
+        this();
+        addAll(coll);
+    }
+
     @Override
     public Iterator<T> iterator() {
         return new Iterator<T>() {

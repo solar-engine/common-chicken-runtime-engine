@@ -18,13 +18,8 @@
  */
 package controller;
 
-import ccre.chan.BooleanInput;
-import ccre.chan.BooleanInputProducer;
-import ccre.chan.BooleanOutput;
-import ccre.chan.FloatInput;
+import ccre.chan.*;
 import ccre.ctrl.Mixing;
-import ccre.chan.FloatInputProducer;
-import ccre.chan.FloatOutput;
 import ccre.cluck.CluckNode;
 import ccre.log.LogLevel;
 import ccre.log.Logger;
@@ -40,7 +35,7 @@ public final class JoystickMonitor {
 
     private FloatInput[] axes;
     private BooleanInput[] buttons;
-    private int stick;
+    private int stickID;
     private boolean connected;
 
     /**
@@ -73,7 +68,7 @@ public final class JoystickMonitor {
      * @return Whether a stick was found.
      */
     public boolean refresh(int stick) {
-        this.stick = stick;
+        this.stickID = stick;
         int curStick = stick - 1;
         connected = false;
         for (RobotController controller : RobotController.getControllers()) {
@@ -100,14 +95,14 @@ public final class JoystickMonitor {
         for (int i = 0; i < 11; i++) {
             if (i < 7) {
                 if (isConnected() && axes[i] != null) {
-                    node.publish("joystick" + stick + "-axis" + (i + 1), axes[i]);
+                    node.publish("joystick" + stickID + "-axis" + (i + 1), axes[i]);
                 } else {
-                    node.publish("joystick" + stick + "-axis" + (i + 1), Mixing.always(0.0f));
+                    node.publish("joystick" + stickID + "-axis" + (i + 1), Mixing.always(0.0f));
                 }
                 if (isConnected() && buttons[i] != null) {
-                    node.publish("joystick" + stick + "-button" + (i + 1), buttons[i]);
+                    node.publish("joystick" + stickID + "-button" + (i + 1), buttons[i]);
                 } else {
-                    node.publish("joystick" + stick + "-button" + (i + 1), Mixing.alwaysFalse);
+                    node.publish("joystick" + stickID + "-button" + (i + 1), Mixing.alwaysFalse);
                 }
             }
         }

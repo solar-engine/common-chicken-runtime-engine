@@ -18,18 +18,39 @@
  */
 package ccre.cluck;
 
+/**
+ * A storage location for the current CluckNode, CluckTCPServer, and
+ * CluckTCPClient.
+ *
+ * @author skeggsc
+ */
 public class CluckGlobals {
 
+    /**
+     * The current CluckNode.
+     */
     public static CluckNode node;
+    /**
+     * The current CluckTCPServer.
+     */
     public static CluckTCPServer serv;
+    /**
+     * The current CluckTCPClient.
+     */
     public static CluckTCPClient cli;
 
+    /**
+     * Create a Cluck node if it's not already initialized.
+     */
     public static void ensureInitializedCore() {
         if (node == null) {
             node = new CluckNode();
         }
     }
 
+    /**
+     * Set up a server on the default port.
+     */
     public static void setupServer() {
         if (serv != null) {
             throw new IllegalStateException("Server already set up!");
@@ -38,6 +59,16 @@ public class CluckGlobals {
         serv.start();
     }
 
+    /**
+     * Set up a client pointing at the specified remote address, with the
+     * specified name for this link and hint for what the remote end should call
+     * this link.
+     *
+     * @param remote The remote address.
+     * @param linkName The local link name.
+     * @param hintedRemoteName The hint for what the remote server should call
+     * this.
+     */
     public static void setupClient(String remote, String linkName, String hintedRemoteName) {
         if (cli != null) {
             throw new IllegalStateException("Client already set up!");

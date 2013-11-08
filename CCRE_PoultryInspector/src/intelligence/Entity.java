@@ -18,19 +18,9 @@
  */
 package intelligence;
 
-import ccre.chan.BooleanInput;
-import ccre.chan.BooleanOutput;
-import ccre.chan.FloatInput;
-import ccre.chan.FloatOutput;
+import ccre.chan.*;
 import ccre.cluck.CluckNode;
-import static ccre.cluck.CluckNode.RMT_BOOLOUTP;
-import static ccre.cluck.CluckNode.RMT_BOOLPROD;
-import static ccre.cluck.CluckNode.RMT_EVENTCONSUMER;
-import static ccre.cluck.CluckNode.RMT_EVENTSOURCE;
-import static ccre.cluck.CluckNode.RMT_FLOATOUTP;
-import static ccre.cluck.CluckNode.RMT_FLOATPROD;
-import static ccre.cluck.CluckNode.RMT_LOGTARGET;
-import static ccre.cluck.CluckNode.RMT_OUTSTREAM;
+import static ccre.cluck.CluckNode.*;
 import ccre.event.EventConsumer;
 import ccre.event.EventSource;
 import ccre.log.LogLevel;
@@ -43,21 +33,66 @@ import java.io.IOException;
 import java.io.OutputStream;
 import javax.swing.JOptionPane;
 
-public class Entity {
+/**
+ * A block on the screen representing a remote target.
+ *
+ * @author skeggsc
+ */
+public final class Entity {
 
+    /**
+     * The Remote that this Entity displays.
+     */
     public final Remote represented;
-    public int centerX, centerY;
+    /**
+     * The X coordinate of the Entity on the screen.
+     */
+    public int centerX;
+    /**
+     * The Y coordinate of the Entity on the screen.
+     */
+    public int centerY;
+    /**
+     * Has this been registered so that it will be updated by the remote?
+     */
     protected boolean registered;
+    /**
+     * When did the current animation cycle start, if an animation cycle is
+     * being used?
+     */
     protected long countStart = 0;
+    /**
+     * The current value - this depends on the kind of Remote.
+     */
     protected Object currentValue;
-    protected int width = 20, height = 20;
+    /**
+     * The cached width of the Entity.
+     */
+    protected int width = 20;
+    /**
+     * The cached height of the Entity.
+     */
+    protected int height = 20;
 
+    /**
+     * Create an Entity at the specified location and using the specified
+     * Remote.
+     *
+     * @param remote The Remote to display in this entity.
+     * @param centerX The initial X position.
+     * @param centerY The initial Y position.
+     */
     public Entity(Remote remote, int centerX, int centerY) {
         this.represented = remote;
         this.centerX = centerX;
         this.centerY = centerY;
     }
 
+    /**
+     * Render this Entity on the specified graphics pane.
+     *
+     * @param g The graphics pane.
+     */
     public void render(Graphics g) {
         g.setFont(IntelligenceMain.console);
         FontMetrics fm = g.getFontMetrics();
@@ -184,10 +219,25 @@ public class Entity {
         }
     }
 
+    /**
+     * Is the specified point on top of this block?
+     *
+     * @param point The point to check at.
+     * @return If the point is within the bounds of the bounding shape.
+     */
     public boolean isOver(Point point) {
         return Math.abs(point.getX() - centerX) <= width && Math.abs(point.getY() - centerY) <= height;
     }
 
+    /**
+     * Blend the specified colors using the specified fraction. 0 means all
+     * color A, 1 means all color B, 0.5 is half-and-half, etc.
+     *
+     * @param a The first color.
+     * @param b The second color.
+     * @param f The blending factor.
+     * @return The blended color.
+     */
     public static Color blend(Color a, Color b, float f) {
         float bp;
         if (f < 0) {
@@ -201,6 +251,12 @@ public class Entity {
         return new Color(Math.round(a.getRed() * ap + b.getRed() * bp), Math.round(a.getGreen() * ap + b.getGreen() * bp), Math.round(a.getBlue() * ap + b.getBlue() * bp), Math.round(a.getAlpha() * ap + b.getAlpha() * bp));
     }
 
+    /**
+     * Interact with this Entity - this is called when it is right-clicked.
+     *
+     * @param x The relative mouse X.
+     * @param y The relative mouse Y.
+     */
     public void interact(int x, int y) {
         Object co = represented.checkout;
         if (co == null) {

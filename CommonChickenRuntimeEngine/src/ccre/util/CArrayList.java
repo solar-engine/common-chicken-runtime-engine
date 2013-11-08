@@ -44,7 +44,7 @@ public class CArrayList<T> extends CAbstractList<T> {
     }
 
     /**
-     * Create a new CArrayList with a specified default length.
+     * Create a new CArrayList with a specified default capacity.
      *
      * @param cap the default capacity.
      */
@@ -53,7 +53,18 @@ public class CArrayList<T> extends CAbstractList<T> {
     }
 
     /**
-     * Create a new CArrayList from an existing collection. The default length
+     * Create a new CArrayList from an existing array. The default capacity will
+     * be the array's length + 10.
+     *
+     * @param coll the array to copy elements from.
+     */
+    public CArrayList(T[] coll) {
+        values = CArrayUtils.castToGeneric(CArrayUtils.copyOf(coll, coll.length + 10));
+        size = coll.length;
+    }
+
+    /**
+     * Create a new CArrayList from an existing collection. The default capacity
      * will be the collection's size + 10.
      *
      * @param coll the collection to copy elements from.

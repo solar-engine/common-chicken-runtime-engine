@@ -18,81 +18,120 @@
  */
 package intelligence;
 
-import ccre.chan.BooleanInput;
-import ccre.chan.BooleanOutput;
-import ccre.chan.BooleanStatus;
-import ccre.chan.FloatInput;
-import ccre.chan.FloatInputProducer;
-import ccre.chan.FloatOutput;
-import ccre.chan.FloatStatus;
-import ccre.cluck.CluckGlobals;
-import ccre.cluck.CluckNode;
-import ccre.cluck.CluckRemoteListener;
+import ccre.cluck.*;
 import ccre.concurrency.CollapsingWorkerThread;
-import ccre.concurrency.ReporterThread;
-import ccre.event.Event;
 import ccre.event.EventConsumer;
-import ccre.event.EventLogger;
 import ccre.event.EventSource;
-import ccre.log.LogLevel;
-import ccre.log.Logger;
-import ccre.log.LoggingTarget;
-import ccre.log.MultiTargetLogger;
-import ccre.log.NetworkAutologger;
+import ccre.log.*;
 import ccre.ctrl.ExpirationTimer;
 import ccre.ctrl.Ticker;
-import java.awt.Color;
-import java.awt.Font;
-import java.awt.FontMetrics;
-import java.awt.Graphics;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.AdjustmentEvent;
-import java.awt.event.AdjustmentListener;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
-import java.awt.event.MouseMotionListener;
-import java.awt.event.MouseWheelEvent;
-import java.awt.event.MouseWheelListener;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.Map;
-import javax.swing.BoxLayout;
-import javax.swing.DefaultListModel;
-import javax.swing.JButton;
-import javax.swing.JFrame;
-import javax.swing.JList;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JSplitPane;
-import javax.swing.JToggleButton;
+import java.awt.*;
+import java.awt.event.*;
+import java.util.*;
+import javax.swing.*;
 
+/**
+ * The upgraded display panel for browsing CCRE networks.
+ *
+ * @author skeggsc
+ */
 public class IntelligenceMain extends JPanel implements CluckRemoteListener, MouseMotionListener, MouseWheelListener, MouseListener {
 
+    /**
+     * The background color for the main canvas.
+     */
     public static final Color canvasBackground = Color.WHITE;
+    /**
+     * The background color for the object pane.
+     */
     public static final Color paneBackground = Color.YELLOW;
+    /**
+     * The highlight color.
+     */
     public static final Color highlight = Color.ORANGE;
+    /**
+     * The active selection color.
+     */
     public static final Color active = Color.RED;
+    /**
+     * The foreground color.
+     */
     public static final Color foreground = Color.BLACK;
+    /**
+     * The font used for everything.
+     */
     public static final Font console = new Font("Monospaced", Font.PLAIN, 11);
+    /**
+     * The width of the object pane.
+     */
     public static final int paneWidth = 256;
-    public final CluckNode node;
-    protected int activeRow = -1, rowHeight = -1;
-    protected final String lrecv;
+    /**
+     * The CluckNode that this displays from.
+     */
+    protected final CluckNode node;
+    /**
+     * The currently highlighted row in the object pane.
+     */
+    protected int activeRow = -1;
+    /**
+     * The cached height of each row.
+     */
+    protected int rowHeight = -1;
+    /**
+     * The name of the searching link.
+     */
+    protected final String searchLinkName;
+    /**
+     * The mapping of the Remote addresses to the Remotes.
+     */
     protected final HashMap<String, Remote> remotes = new HashMap<String, Remote>();
+    /**
+     * A cached sorted version of the remotes.
+     */
     protected Remote[] sortRemotes = null;
+    /**
+     * The current mapping of remote names to entities.
+     */
     protected final LinkedHashMap<String, Entity> ents = new LinkedHashMap<String, Entity>();
+    /**
+     * The currently held entity.
+     */
     protected Entity activeEntity = null;
-    protected int relActiveX, relActiveY, mouseBtn;
+    /**
+     * The relative position between the cursor and the entity.
+     */
+    protected int relActiveX, relActiveY;
+    /**
+     * The mouse button pressed while dragging an entity.
+     */
+    protected int mouseBtn;
+    /**
+     * An expiration timer to repaint the pane when appropriate.
+     */
     protected final ExpirationTimer painter = new ExpirationTimer();
-    protected int baseByteCount = 0, lastByteCount = 0;
+    /**
+     * The number of bytes transmitted as of the last byte counting operation.
+     */
+    protected int baseByteCount = 0;
+    /**
+     * The number of bytes transmitted during the last measurement period.
+     */
+    protected int lastByteCount = 0;
+    /**
+     * The current scrolling position of the object pane.
+     */
     protected int currentPaneScroll = 0;
 
+    /**
+     * Create a new Intelligence Panel.
+     *
+     * @param args The main arguments to the program.
+     * @param node The cluck node that this panel will display.
+     * @param seconds An event that will be produced every second.
+     */
     private IntelligenceMain(String[] args, CluckNode node, EventSource seconds) {
         this.node = node;
-        lrecv = "big-brother-" + Integer.toHexString(args.hashCode());
+        searchLinkName = "big-brother-" + Integer.toHexString(args.hashCode());
         this.addMouseMotionListener(this);
         this.addMouseListener(this);
         this.addMouseWheelListener(this);
@@ -106,7 +145,7 @@ public class IntelligenceMain extends JPanel implements CluckRemoteListener, Mou
         CollapsingWorkerThread researcher = new CollapsingWorkerThread("Cluck-Researcher") {
             @Override
             protected void doWork() throws Throwable {
-                research(); // WORKING HERE ... about to finish and test
+                research();
             }
         };
         CluckGlobals.node.publish("search", researcher);
@@ -125,7 +164,7 @@ public class IntelligenceMain extends JPanel implements CluckRemoteListener, Mou
             }
         });
         painter.start();
-        this.node.startSearchRemotes(lrecv, this);
+        this.node.startSearchRemotes(searchLinkName, this);
     }
 
     @Override
@@ -161,6 +200,14 @@ public class IntelligenceMain extends JPanel implements CluckRemoteListener, Mou
         if (activeRow != row) {
             activeRow = row;
             repaint();
+        }
+    }
+
+    @Override
+    public void mouseWheelMoved(MouseWheelEvent e) {
+        currentPaneScroll -= e.getWheelRotation() * 2;
+        if (currentPaneScroll > 0) {
+            currentPaneScroll = 0;
         }
     }
 
@@ -248,8 +295,11 @@ public class IntelligenceMain extends JPanel implements CluckRemoteListener, Mou
         repaint();
     }
 
+    /**
+     * Repeat searching for remote objects.
+     */
     public void research() {
-        node.cycleSearchRemotes(lrecv);
+        node.cycleSearchRemotes(searchLinkName);
         // TODO: Remove old entries
     }
 
@@ -324,6 +374,7 @@ public class IntelligenceMain extends JPanel implements CluckRemoteListener, Mou
         JScrollPane scroll = new JScrollPane();
         JList lstErrors = new JList();
         final JToggleButton ascroll = new JToggleButton("Autoscroll");
+        ascroll.setSelected(true);
         scroll.getVerticalScrollBar().addAdjustmentListener(new AdjustmentListener() {
             @Override
             public void adjustmentValueChanged(AdjustmentEvent e) {
@@ -360,13 +411,5 @@ public class IntelligenceMain extends JPanel implements CluckRemoteListener, Mou
         frame.setVisible(true);
         Logger.info("Started Poultry Inspector at " + System.currentTimeMillis());
         IPProvider.connect();
-    }
-
-    @Override
-    public void mouseWheelMoved(MouseWheelEvent e) {
-        currentPaneScroll -= e.getWheelRotation() * 2;
-        if (currentPaneScroll > 0) {
-            currentPaneScroll = 0;
-        }
     }
 }

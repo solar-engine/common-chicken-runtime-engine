@@ -52,6 +52,8 @@ public class DefaultNetworkProvider implements Network.Provider {
         } catch (ConnectException ctc) {
             if (ctc.getMessage().equals("Connection timed out: connect")) {
                 throw new ConnectException("Timed out while connecting."); // Smaller traceback.
+            } else if (ctc.getMessage().equals("Connection refused: connect")) {
+                throw new ConnectException("Remote server not available."); // Smaller traceback.
             }
             throw ctc;
         }

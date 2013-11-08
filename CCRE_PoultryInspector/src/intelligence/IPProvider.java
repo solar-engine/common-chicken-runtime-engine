@@ -77,12 +77,14 @@ public class IPProvider {
     public static String getAddress() {
         CCollection<String> addresses = Network.listIPv4Addresses();
         for (String addr : addresses) {
-            if (addr.startsWith("10.")) {
+            if (addr.startsWith("10.") && addr.substring(0, addr.lastIndexOf('.')).length() <= 8) {
                 return addr.substring(0, addr.lastIndexOf('.') + 1).concat("2");
+            } else if (addr.equals("192.168.7.1")) {
+                return "192.168.7.2"; // BeagleBone direct connection
             }
         }
-        Logger.warning("Subnet Autodetect: Cannot find any valid network addresses!");
-        return null;
+        Logger.warning("Subnet Autodetect: Cannot find any valid network addresses! Defaulting to localhost.");
+        return "127.0.0.1";
     }
 
     /**

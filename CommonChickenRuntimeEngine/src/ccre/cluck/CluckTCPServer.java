@@ -18,6 +18,7 @@
  */
 package ccre.cluck;
 
+import ccre.log.Logger;
 import ccre.net.ClientSocket;
 import ccre.net.ConnectionReceiverThread;
 import java.io.DataInputStream;
@@ -44,6 +45,7 @@ public class CluckTCPServer extends ConnectionReceiverThread {
         if (linkName == null) {
             linkName = "tcpserv-" + Integer.toHexString(conn.hashCode()) + "-" + System.currentTimeMillis();
         }
+        Logger.fine("Client connected at " + System.currentTimeMillis() + " named " + linkName);
         node.notifyNetworkModified();
         CluckLink deny = CluckProtocol.handleSend(dout, linkName, node);
         CluckProtocol.handleRecv(din, linkName, node, deny);

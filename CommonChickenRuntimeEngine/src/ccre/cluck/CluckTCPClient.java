@@ -37,7 +37,7 @@ public class CluckTCPClient extends ReporterThread {
     private int port = 80;
     private String remote;
     public BooleanInputPoll shouldAutoReconnect = Mixing.alwaysTrue;
-    public int reconnectDelayMillis = 5000;
+    public int reconnectDelayMillis = 15000;
     private final String remoteNameHint;
 
     public CluckTCPClient(String remote, CluckNode node, String linkName, String remoteNameHint) {
@@ -83,6 +83,7 @@ public class CluckTCPClient extends ReporterThread {
                     DataInputStream din = sock.openDataInputStream();
                     DataOutputStream dout = sock.openDataOutputStream();
                     CluckProtocol.handleHeader(din, dout, remoteNameHint);
+                    Logger.fine("Connected to " + remote + " at " + System.currentTimeMillis());
                     node.notifyNetworkModified();
                     CluckLink deny = CluckProtocol.handleSend(dout, linkName, node);
                     CluckProtocol.handleRecv(din, linkName, node, deny);

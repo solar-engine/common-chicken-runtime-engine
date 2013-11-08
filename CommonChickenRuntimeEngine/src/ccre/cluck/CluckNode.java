@@ -92,6 +92,8 @@ public class CluckNode {
     public final CHashMap<String, CluckLink> links = new CHashMap<String, CluckLink>();
     public final CHashMap<String, String> aliases = new CHashMap<String, String>();
     public int estimatedByteCount;
+    private long lastMissingLinkError = 0;
+    private String lastMissingLink = null;
 
     public void notifyNetworkModified() {
         transmit("*", "#modsrc", new byte[]{RMT_NOTIFY});
@@ -137,7 +139,11 @@ public class CluckNode {
                 links.put(base, null);
             }
         } else {
-            Logger.log(LogLevel.WARNING, "No link for " + target + "(" + base + ") from " + source + "!", new Exception("Embedded traceback"));
+            if (!base.equals(lastMissingLink) || System.currentTimeMillis() >= lastMissingLinkError + 1000) {
+                lastMissingLink = base;
+                lastMissingLinkError = System.currentTimeMillis();
+                Logger.log(LogLevel.WARNING, "No link for " + target + "(" + base + ") from " + source + "!", new Exception("Embedded traceback"));
+            }
         }
     }
 

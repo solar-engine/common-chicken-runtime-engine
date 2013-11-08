@@ -23,6 +23,7 @@ import ccre.log.Logger;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.net.SocketException;
 import java.util.Random;
 
 /**
@@ -61,39 +62,48 @@ public class CluckProtocol {
     }
 
     public static void handleRecv(DataInputStream din, String linkNamePrefix, CluckNode node, CluckLink denyLink) throws IOException {
-        while (true) {
-            String dest = din.readUTF();
-            if (dest.length() == 0) {
-                dest = null;
+        try {
+            while (true) {
+                String dest = din.readUTF();
+                if (dest.length() == 0) {
+                    dest = null;
+                }
+                String source = din.readUTF();
+                if (source.length() == 0) {
+                    source = null;
+                }
+                int len = din.readInt();
+                if (len > 64 * 1024) {
+                    Logger.warning("Received packet of over 64 KB (" + source + " -> " + dest + ")");
+                }
+                byte[] data = new byte[len];
+                long begin = din.readLong();
+                din.readFully(data);
+                long check = checksum(data, begin);
+                long end = din.readLong();
+                if (end != check) {
+                    throw new IOException("Checksums did not match!");
+                }
+                if (source == null) {
+                    source = linkNamePrefix;
+                } else {
+                    source = linkNamePrefix + "/" + source;
+                }
+                node.transmit(dest, source, data, denyLink);
             }
-            String source = din.readUTF();
-            if (source.length() == 0) {
-                source = null;
-            }
-            int len = din.readInt();
-            if (len > 64 * 1024) {
-                Logger.warning("Received packet of over 64 KB (" + source + " -> " + dest + ")");
-            }
-            byte[] data = new byte[len];
-            long begin = din.readLong();
-            din.readFully(data);
-            long check = checksum(data, begin);
-            long end = din.readLong();
-            if (end != check) {
-                throw new IOException("Checksums did not match!");
-            }
-            if (source == null) {
-                source = linkNamePrefix;
+        } catch (IOException ex) {
+            if (ex.getClass().getName().equals("java.net.SocketException") && ex.getMessage().equals("Connection reset")) {
+                Logger.fine("Link receiving disconnected: " + linkNamePrefix);
             } else {
-                source = linkNamePrefix + "/" + source;
+                throw ex;
             }
-            node.transmit(dest, source, data, denyLink);
         }
     }
 
-    public static CluckLink handleSend(final DataOutputStream dout, String linkName, CluckNode node) {
+    public static CluckLink handleSend(final DataOutputStream dout, final String linkName, CluckNode node) {
         CluckLink clink = new CluckLink() {
             private boolean isRunning = false;
+
             public synchronized boolean transmit(String dest, String source, byte[] data) {
                 if (isRunning) {
                     System.err.println("Already running transmit!");
@@ -119,7 +129,11 @@ public class CluckProtocol {
                         dout.writeLong(checksum(data, begin));
                         return true;
                     } catch (IOException ex) {
-                        Logger.log(LogLevel.SEVERE, "Could not transmit over cluck connection!", ex);
+                        if (ex.getClass().getName().equals("java.net.SocketException") && ex.getMessage().equals("Socket closed")) {
+                            Logger.fine("Link sending disconnected: " + linkName);
+                        } else {
+                            Logger.log(LogLevel.SEVERE, "Could not transmit over cluck connection", ex);
+                        }
                         return false;
                     }
                 } finally {

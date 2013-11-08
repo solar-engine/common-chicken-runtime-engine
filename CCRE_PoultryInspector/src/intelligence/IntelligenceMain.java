@@ -374,6 +374,7 @@ public class IntelligenceMain extends JPanel implements CluckRemoteListener, Mou
         JScrollPane scroll = new JScrollPane();
         JList lstErrors = new JList();
         final JToggleButton ascroll = new JToggleButton("Autoscroll");
+        ascroll.setSelected(true);
         scroll.getVerticalScrollBar().addAdjustmentListener(new AdjustmentListener() {
             @Override
             public void adjustmentValueChanged(AdjustmentEvent e) {

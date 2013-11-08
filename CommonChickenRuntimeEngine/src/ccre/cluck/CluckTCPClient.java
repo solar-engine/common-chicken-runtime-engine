@@ -18,9 +18,7 @@
  */
 package ccre.cluck;
 
-import ccre.chan.BooleanInputPoll;
 import ccre.concurrency.ReporterThread;
-import ccre.ctrl.Mixing;
 import ccre.log.LogLevel;
 import ccre.log.Logger;
 import ccre.net.ClientSocket;
@@ -29,17 +27,53 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 
+/**
+ * A self-maintaining handler for connecting to a specified remote address.
+ *
+ * @author skeggsc
+ */
 public class CluckTCPClient extends ReporterThread {
 
+    /**
+     * The CluckNode that this connection shares.
+     */
     private final CluckNode node;
+    /**
+     * The link name for this connection.
+     */
     private final String linkName;
+    /**
+     * The active remote socket.
+     */
     private ClientSocket sock;
+    /**
+     * The connection port number.
+     */
     private int port = 80;
+    /**
+     * The connection remote address.
+     */
     private String remote;
-    public BooleanInputPoll shouldAutoReconnect = Mixing.alwaysTrue;
-    public int reconnectDelayMillis = 15000;
+    /**
+     * The requested delay between each connection to the server.
+     */
+    public int reconnectDelayMillis = 5000;
+    /**
+     * The hint for what the other end of the connection should call this link.
+     */
     private final String remoteNameHint;
 
+    /**
+     * Create a new CluckTCPClient connecting to the specified remote on the
+     * default port, sharing the specified CluckNode, with the specified link
+     * name and hint for what the other end should call this link.
+     *
+     * @param remote The remote address.
+     * @param node The shared node.
+     * @param linkName The link name.
+     * @param remoteNameHint The hint for what the other end should call this
+     * link.
+     */
     public CluckTCPClient(String remote, CluckNode node, String linkName, String remoteNameHint) {
         super("cluckcli-" + remote);
         this.remote = remote;
@@ -48,11 +82,22 @@ public class CluckTCPClient extends ReporterThread {
         this.remoteNameHint = remoteNameHint;
     }
 
+    /**
+     * Modify the port that this connects to. This defaults to port 80.
+     *
+     * @param port The new port number.
+     * @return This object.
+     */
     public CluckTCPClient setPort(int port) {
         this.port = port;
         return this;
     }
 
+    /**
+     * Set the remote address to this specified address.
+     *
+     * @param remote The remote address.
+     */
     public void setRemote(String remote) {
         this.remote = remote;
         if (sock != null) {
@@ -68,7 +113,7 @@ public class CluckTCPClient extends ReporterThread {
     @Override
     protected void threadBody() throws IOException, InterruptedException {
         try {
-            while (shouldAutoReconnect.readValue()) {
+            while (true) {
                 long start = System.currentTimeMillis();
                 Logger.fine("Connecting to " + remote + " at " + start);
                 if (sock != null) {

@@ -18,17 +18,60 @@
  */
 package ccre.cluck;
 
+/**
+ * A CluckNullLink is a link between two CluckNodes on the same computer, and an
+ * example of how to write a link that connects two CluckNodes.
+ *
+ * Usage example:<br>
+ * <code>
+ * CluckNode alpha = new CluckNode();<br>
+ * CluckNode beta = new CluckNode();<br>
+ * CluckNullLink alphaLink = new CluckNullLink(alpha, "alpha-to-beta");<br>
+ * CluckNullLink betaLink = new CluckNullLink(beta, "beta-to-alpha",
+ * alphaLink);<br>
+ * <br>
+ * EventConsumer test = new EventLogger(LogLevel.INFO, "Pseudo-networked
+ * test!");<br>
+ * alpha.publish("test", test);<br>
+ * EventConsumer test2 = beta.subscribeEC("beta-to-alpha/test");<br>
+ * test2.eventFired();<br>
+ * </code><br>
+ * This will log "Pseudo-networked test!" at LogLevel INFO.
+ *
+ * @author skeggsc
+ */
 public class CluckNullLink implements CluckLink {
 
+    /**
+     * The other end of this CluckNullLink.
+     */
     protected CluckNullLink paired;
+    /**
+     * The CluckNode attached to this end of the link.
+     */
     protected final CluckNode node;
+    /**
+     * The link name of this link.
+     */
     public String linkName;
 
+    /**
+     * Create a new link attached to the specified CluckNode.
+     *
+     * @param node The node to attach to.
+     */
     public CluckNullLink(CluckNode node) {
         this.node = node;
         // Will expect other null link to be created.
     }
 
+    /**
+     * Create a new link attached to the specified CluckNode and paired with the
+     * specified other link.
+     *
+     * @param node The node to attach to.
+     * @param other The link to pair with.
+     */
     public CluckNullLink(CluckNode node, CluckNullLink other) {
         paired = other;
         if (other.paired != null) {
@@ -37,6 +80,14 @@ public class CluckNullLink implements CluckLink {
         this.node = node;
         other.paired = this;
     }
+
+    /**
+     * Create a new link attached to the specified CluckNode, and add the link
+     * to the CluckNode under the specified name.
+     *
+     * @param node The node to attach to.
+     * @param linkName The link name to use.
+     */
     public CluckNullLink(CluckNode node, String linkName) {
         this.node = node;
         this.linkName = linkName;
@@ -44,6 +95,15 @@ public class CluckNullLink implements CluckLink {
         // Will expect other null link to be created.
     }
 
+    /**
+     * Create a new link attached to the specified CluckNode and paired with the
+     * specified other link, and add the link to the CluckNode under the
+     * specified name.
+     *
+     * @param node The node to attach to.
+     * @param linkName The link name to use.
+     * @param other The link to pair with.
+     */
     public CluckNullLink(CluckNode node, String linkName, CluckNullLink other) {
         paired = other;
         if (other.paired != null) {
@@ -57,7 +117,7 @@ public class CluckNullLink implements CluckLink {
 
     public boolean transmit(String rest, String source, byte[] data) {
         if (paired == null) {
-            throw new IllegalStateException("Must have paired Null Link!");
+            return true;
         }
         paired.pairTransmit(rest, source, data);
         return true;

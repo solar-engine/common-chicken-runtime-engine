@@ -16,31 +16,12 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with the CCRE.  If not, see <http://www.gnu.org/licenses/>.
  */
-package ccre.cluck_old;
+package ccre.testing;
 
 /**
- * A listener for which channels on a CluckNode have explicit subscriptions.
- *
- * @see CluckNode#subscribeToSubscriptions(ccre.cluck.CluckSubscriptionListener)
+ * Test BooleanStatus.
  * @author skeggsc
  */
-public interface CluckSubscriptionListener {
+public class TestBooleanStatus {
 
-    /**
-     * Called when a channel receives its first subscription.
-     *
-     * @param key the new channel
-     * @see CluckNode#subscribe(java.lang.String,
-     * ccre.cluck.CluckChannelListener)
-     */
-    public void addSubscription(String key);
-
-    /**
-     * Called when a channel loses its last subscription.
-     *
-     * @param key the old channel
-     * @see CluckNode#unsubscribe(java.lang.String,
-     * ccre.cluck.CluckChannelListener)
-     */
-    public void removeSubscription(String key);
 }

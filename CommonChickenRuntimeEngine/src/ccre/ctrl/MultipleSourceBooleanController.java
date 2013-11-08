@@ -168,6 +168,7 @@ public class MultipleSourceBooleanController implements BooleanInput, EventConsu
 
     public void addTarget(BooleanOutput output) {
         consumers.add(output);
+        output.writeValue(readValue());
     }
 
     public boolean removeTarget(BooleanOutput output) {

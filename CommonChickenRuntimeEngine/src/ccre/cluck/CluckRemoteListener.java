@@ -18,7 +18,20 @@
  */
 package ccre.cluck;
 
+/**
+ * A listener that is told about objects on the network as they are discovered.
+ *
+ * @see CluckNode#startSearchRemotes(java.lang.String,
+ * ccre.cluck.CluckRemoteListener)
+ * @author skeggsc
+ */
 public interface CluckRemoteListener {
 
+    /**
+     * Handle information about the specified remote of the specified RMT type.
+     *
+     * @param remote The remote path.
+     * @param remoteType The remote type.
+     */
     public void handle(String remote, int remoteType);
 }

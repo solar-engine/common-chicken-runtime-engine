@@ -18,9 +18,7 @@
  */
 package ccre.holders;
 
-import ccre.chan.FloatInputProducer;
 import ccre.chan.FloatOutput;
-import ccre.cluck.CluckGlobals;
 import ccre.util.CArrayList;
 
 /**
@@ -47,6 +45,7 @@ public abstract class AbstractFloatTuner implements FloatTuner {
     @Override
     public void addTarget(FloatOutput output) {
         consumers.add(output);
+        output.writeValue(readValue());
     }
 
     @Override

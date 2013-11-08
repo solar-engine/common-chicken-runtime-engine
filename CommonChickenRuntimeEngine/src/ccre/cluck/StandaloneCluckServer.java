@@ -52,6 +52,5 @@ public class StandaloneCluckServer {
         });
         CluckGlobals.setupServer();
         Logger.info("Server is running.");
-        Logger.log(LogLevel.INFO, "Remote logging appears to work!", (Throwable) null);
     }
 }

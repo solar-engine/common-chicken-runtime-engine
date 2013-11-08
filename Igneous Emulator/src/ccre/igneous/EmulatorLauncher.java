@@ -90,6 +90,9 @@ public class EmulatorLauncher implements IgneousLauncher {
     protected final Event startedTeleop = new Event();
     protected final Event startedTesting = new Event();
 
+    /**
+     * Called to start the robot running.
+     */
     public void start() {
         CluckGlobals.setupServer();
         core.duringAutonomous = this.duringAutonomous;

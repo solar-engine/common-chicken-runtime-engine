@@ -401,16 +401,6 @@ public class CluckNode {
     }
 
     /**
-     * Publish a CluckPublishable on the network.
-     *
-     * @param name The name for the publishable.
-     * @param pub The publishable.
-     */
-    public void publish(String name, CluckPublishable pub) {
-        pub.publish(name, this);
-    }
-
-    /**
      * Publish an EventConsumer on the network.
      *
      * @param name The name for the EventConsumer.
@@ -841,7 +831,7 @@ public class CluckNode {
      * Publish a FloatTuner on the network.
      *
      * @param name The name for the FloatTuner.
-     * @param prod The FloatTuner.
+     * @param tune The FloatTuner.
      */
     public void publish(final String name, final FloatTuner tune) {
         publish(name + ".input", (FloatInputProducer) tune);
@@ -876,7 +866,7 @@ public class CluckNode {
      * Publish an OutputStream on the network.
      *
      * @param name The name for the OutputStream.
-     * @param prod The OutputStream.
+     * @param out The OutputStream.
      */
     public void publish(String name, final OutputStream out) {
         new CluckSubscriber() {

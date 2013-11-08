@@ -31,8 +31,11 @@ public interface BooleanInputProducer {
      * Subscribe to changes in this boolean input's value. The boolean output
      * will be modified whenever the value of this input changes.
      *
+     * If available, the current value of the input will be written at this
+     * time.
+     *
      * @param output The boolean output to notify when the value changes.
-     * @see BooleanOutput#writeValue(boolean) 
+     * @see BooleanOutput#writeValue(boolean)
      * @see #removeTarget(ccre.chan.BooleanOutput)
      */
     public void addTarget(BooleanOutput output);

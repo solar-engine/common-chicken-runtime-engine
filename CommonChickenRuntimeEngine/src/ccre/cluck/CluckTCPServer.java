@@ -24,15 +24,34 @@ import ccre.net.ConnectionReceiverThread;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 
+/**
+ * A server-side handler for Cluck TCP connections.
+ *
+ * @author skeggsc
+ */
 public class CluckTCPServer extends ConnectionReceiverThread {
 
+    /**
+     * The shared CluckNode.
+     */
     public final CluckNode node;
 
+    /**
+     * Create a new CluckTCPServer sharing a specified node on a specified port.
+     *
+     * @param node The node to share.
+     * @param port The port to share it on.
+     */
     public CluckTCPServer(CluckNode node, int port) {
         super("CluckTCPServer", port);
         this.node = node;
     }
 
+    /**
+     * Create a new CluckTCPServer sharing a specified node on port 80.
+     *
+     * @param node The node to share.
+     */
     public CluckTCPServer(CluckNode node) {
         this(node, 80);
     }

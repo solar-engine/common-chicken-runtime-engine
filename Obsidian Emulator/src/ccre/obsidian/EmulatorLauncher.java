@@ -16,7 +16,6 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with the CCRE.  If not, see <http://www.gnu.org/licenses/>.
  */
-
 package ccre.obsidian;
 
 import ccre.chan.BooleanInputPoll;
@@ -24,6 +23,7 @@ import ccre.chan.BooleanOutput;
 import ccre.chan.FloatInputPoll;
 import ccre.chan.FloatOutput;
 import ccre.cluck.CluckGlobals;
+import ccre.event.EventConsumer;
 import ccre.log.LogLevel;
 import ccre.log.Logger;
 import ccre.log.NetworkAutologger;
@@ -32,7 +32,8 @@ import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.util.Properties;
+import java.util.Collection;
+import java.util.LinkedList;
 
 /**
  *
@@ -43,20 +44,13 @@ public class EmulatorLauncher extends ObsidianLauncher {
     /**
      * The settings loaded during the launch process.
      */
-    public static Properties settings;
-
-    /*
-     private EmulatorWorld world;
-     private double leftMotorSpeed = 0;
-     private double rightMotorSpeed = 0;
-     private final FloatOutput leftMotor;
-     private final FloatOutput rightMotor;
-     */
-    EmulatorGUI guiWindow;
+    
+    private final EmulatorGUI guiWindow;
+    private final Collection<WorldModule> worldModules;
 
     public static void main(String[] args) throws IOException, ClassNotFoundException, InstantiationException, IllegalAccessException, NoSuchMethodException, IllegalArgumentException, InvocationTargetException {
         if (args.length < 1) {
-            System.err.println("Expected arguments: <Obsidian-Jar> [Run-GUI]");
+            System.err.println("Expected arguments: <Obsidian-Jar> [Show-GUI]");
             System.exit(-1);
             return;
         }
@@ -72,33 +66,51 @@ public class EmulatorLauncher extends ObsidianLauncher {
         }
 
         EmulatorLauncher l = new EmulatorLauncher(classLoader, gui);
-        new EmulatorLauncher(classLoader, gui).main();
+        l.main();
     }
 
     public EmulatorLauncher(ClassLoader coreClass, boolean gui) throws IOException, ClassNotFoundException, InstantiationException, IllegalAccessException {
         super(coreClass);
-        /*
-         rightMotor = new FloatOutput() {
-         @Override
-         public void writeValue(float value) {
-         rightMotorSpeed = value;
-         world.updateVelocity(leftMotorSpeed, rightMotorSpeed);
-         }
-         };
-         leftMotor = new FloatOutput() {
-         @Override
-         public void writeValue(float value) {
-         leftMotorSpeed = value;
-         world.updateVelocity(leftMotorSpeed, rightMotorSpeed);
-         }
-         };
-         world = new EmulatorWorld();
-         prd.addListener(world);
-         */
+        worldModules = new LinkedList<>();
         Logger.log(LogLevel.INFO, "Launching GUI.");
-        guiWindow = new EmulatorGUI();
+        guiWindow = new EmulatorGUI(this);
         if (gui) {
             guiWindow.setVisible(true);
+        }
+        periodic.addListener(new EventConsumer() {
+            @Override
+            public void eventFired() {
+                updateModules();
+            }
+
+        });
+    }
+    
+    @Override
+    public void main() {
+        periodic.addListener(new EventConsumer() {
+            @Override
+            public void eventFired() {
+                updateModules();
+            }
+
+        });
+        super.main();
+    }
+    
+    public void addWorldModule(WorldModule module) {
+        worldModules.add(module);
+    }
+
+    private void updateModules() {
+        for (WorldModule module : worldModules) {
+            module.periodic(guiWindow);
+        }
+    }
+    
+    void pinChanged(EmulatorPin pin) {
+        for (WorldModule module : worldModules) {
+            module.outputChanged(guiWindow, pin);
         }
     }
 

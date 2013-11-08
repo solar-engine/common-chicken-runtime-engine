@@ -20,9 +20,21 @@ package ccre.cluck;
 
 import ccre.log.Logger;
 
+/**
+ * A helper class for objects shared on a CluckNode, by providing lots of basic
+ * implementation for links.
+ *
+ * @author skeggsc
+ */
 public abstract class CluckSubscriber implements CluckLink {
 
+    /**
+     * The CluckNode that this is attached to.
+     */
     private CluckNode node;
+    /**
+     * The link name of this subscriber.
+     */
     private String linkName;
 
     public final boolean transmit(String dest, String source, byte[] data) {
@@ -36,7 +48,13 @@ public abstract class CluckSubscriber implements CluckLink {
         return true;
     }
 
-    public void attach(CluckNode node, String name) {
+    /**
+     * Attach this subscriber to the specified name on the specified node.
+     *
+     * @param node The node to attach to.
+     * @param name The name to attach with.
+     */
+    public final void attach(CluckNode node, String name) {
         if (node == null || name == null) {
             throw new NullPointerException();
         }
@@ -48,10 +66,28 @@ public abstract class CluckSubscriber implements CluckLink {
         node.addLink(this, name);
     }
 
+    /**
+     * Should be overridden to handle a message sent to something other than
+     * this node or the broadcast address.
+     *
+     * @param dest The destination path.
+     * @param source The source path.
+     * @param data The message data.
+     */
     protected void handleOther(String dest, String source, byte[] data) {
         // Do nothing by default
     }
 
+    /**
+     * A handler for a common operation - ensure the message is not null, reply
+     * to the message if it's a PING message, ensure that the remote type of the
+     * message is correct, and then return true if all checks succeed.
+     *
+     * @param source The source address.
+     * @param data The message contents.
+     * @param rmt The remote type of this subscriber.
+     * @return If this message should be handled as the given remote type.
+     */
     protected boolean requireRMT(String source, byte[] data, byte rmt) {
         if (data.length == 0) {
             Logger.warning("Received null message from " + source);
@@ -68,13 +104,35 @@ public abstract class CluckSubscriber implements CluckLink {
         return true;
     }
 
+    /**
+     * Default handler for a broadcasted message - reply to it if it's a PING
+     * message, otherwise ignore it
+     *
+     * @param source The source path.
+     * @param data The message data.
+     * @param rmt The remote type of this subscriber.
+     */
     protected void defaultBroadcastHandle(String source, byte[] data, byte rmt) {
         if (data.length == 1 && data[0] == CluckNode.RMT_PING) {
             node.transmit(source, linkName, new byte[]{CluckNode.RMT_PING, rmt});
         }
     }
 
+    /**
+     * Implement to handle messages sent to this subscriber. Usually this is
+     * wrapped in a conditional of requireRMT.
+     *
+     * @param source The source path.
+     * @param data The message data.
+     */
     protected abstract void receive(String source, byte[] data);
 
+    /**
+     * Implement to handle messages broadcasted to this subscriber. Usually this
+     * is implemented using defaultBroadcastHandle.
+     *
+     * @param source The source path.
+     * @param data The message data.
+     */
     protected abstract void receiveBroadcast(String source, byte[] data);
 }

@@ -37,6 +37,9 @@ public interface FloatInputProducer {
      * By convention, most float inputs and outputs have states that range from
      * -1.0f to 1.0f.
      *
+     * If available, the current value of the input will be written at this
+     * time.
+     *
      * @param output The float output to notify when the value changes.
      * @see FloatOutput#writeValue(float)
      * @see #removeTarget(ccre.chan.FloatOutput)

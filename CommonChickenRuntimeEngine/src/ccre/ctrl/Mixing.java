@@ -69,6 +69,7 @@ public class Mixing {
         }
 
         public void addTarget(BooleanOutput consum) {
+            consum.writeValue(false);
         }
 
         public boolean removeTarget(BooleanOutput consum) {
@@ -85,6 +86,7 @@ public class Mixing {
         }
 
         public void addTarget(BooleanOutput consum) {
+            consum.writeValue(true);
         }
 
         public boolean removeTarget(BooleanOutput consum) {
@@ -120,6 +122,7 @@ public class Mixing {
         }
 
         public void addTarget(FloatOutput consum) {
+            consum.writeValue(value);
         }
 
         public boolean removeTarget(FloatOutput consum) {
@@ -295,6 +298,7 @@ public class Mixing {
                 consumers = new CArrayList<FloatOutput>();
             }
             consumers.add(consum);
+            consum.writeValue(cur);
         }
 
         public boolean removeTarget(FloatOutput consum) {
@@ -435,6 +439,7 @@ public class Mixing {
                 consumers = new CArrayList<FloatOutput>();
             }
             consumers.add(consum);
+            consum.writeValue(cur);
         }
 
         public boolean removeTarget(FloatOutput consum) {

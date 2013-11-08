@@ -33,16 +33,16 @@ import ccre.util.CArrayUtils;
 public class BooleanStatus implements BooleanOutput, BooleanInput {
 
     /**
-     * Create a new BooleanStatus.
+     * Create a new BooleanStatus with the value of false.
      */
     public BooleanStatus() {
     }
 
     /**
-     * Create a new BooleanStatus that automatically updates the specified
-     * BooleanOutput with the current state of this BooleanStatus. This is the
-     * same as creating a new BooleanStatus and then adding the BooleanOutput as
-     * a target.
+     * Create a new BooleanStatus with the value of false that automatically
+     * updates the specified BooleanOutput with the current state of this
+     * BooleanStatus. This is the same as creating a new BooleanStatus and then
+     * adding the BooleanOutput as a target.
      *
      * @see BooleanStatus#addTarget(ccre.chan.BooleanOutput)
      * @param target The BooleanOutput to automatically update.
@@ -54,10 +54,10 @@ public class BooleanStatus implements BooleanOutput, BooleanInput {
     }
 
     /**
-     * Create a new BooleanStatus that automatically updates all of the
-     * specified BooleanOutputs with the current state of this BooleanStatus.
-     * This is the same as creating a new BooleanStatus and then adding all of
-     * the BooleanOutputs as targets.
+     * Create a new BooleanStatus with the value of false that automatically
+     * updates all of the specified BooleanOutputs with the current state of
+     * this BooleanStatus. This is the same as creating a new BooleanStatus and
+     * then adding all of the BooleanOutputs as targets.
      *
      * @see BooleanStatus#addTarget(ccre.chan.BooleanOutput)
      * @param targets The BooleanOutputs to automatically update.

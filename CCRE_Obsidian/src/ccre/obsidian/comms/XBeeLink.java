@@ -37,6 +37,7 @@ import java.util.Arrays;
  */
 public class XBeeLink implements CluckLink, PacketListener {
 
+    // TODO: Add sequence markers to XBee link!
     private final XBeeRadio radio;
     private final int[] remote;
     private final String linkName;

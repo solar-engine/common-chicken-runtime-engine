@@ -401,16 +401,6 @@ public class CluckNode {
     }
 
     /**
-     * Publish a CluckPublishable on the network.
-     *
-     * @param name The name for the publishable.
-     * @param pub The publishable.
-     */
-    public void publish(String name, CluckPublishable pub) {
-        pub.publish(name, this);
-    }
-
-    /**
      * Publish an EventConsumer on the network.
      *
      * @param name The name for the EventConsumer.

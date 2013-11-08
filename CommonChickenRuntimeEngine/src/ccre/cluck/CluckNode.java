@@ -18,17 +18,8 @@
  */
 package ccre.cluck;
 
-import ccre.chan.BooleanInput;
-import ccre.chan.BooleanInputProducer;
-import ccre.chan.BooleanOutput;
-import ccre.chan.BooleanStatus;
-import ccre.chan.FloatInput;
-import ccre.chan.FloatInputProducer;
-import ccre.chan.FloatOutput;
-import ccre.chan.FloatStatus;
-import ccre.event.Event;
-import ccre.event.EventConsumer;
-import ccre.event.EventSource;
+import ccre.chan.*;
+import ccre.event.*;
 import ccre.holders.CompoundFloatTuner;
 import ccre.holders.FloatTuner;
 import ccre.log.LogLevel;
@@ -41,22 +32,75 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Iterator;
 
+/**
+ * A CluckNode is the core hub of the Cluck networking system on a device. It
+ * handles message routing, publishing, and subscribing.
+ *
+ * Usually the main instance of this is kept in CluckGlobals.
+ *
+ * @author skeggsc
+ */
 public class CluckNode {
 
+    /**
+     * The ID representing a PING message.
+     */
     public static final byte RMT_PING = 0;
+    /**
+     * The ID representing an EventConsumer firing message.
+     */
     public static final byte RMT_EVENTCONSUMER = 1;
+    /**
+     * The ID representing an EventSource subscription message.
+     */
     public static final byte RMT_EVENTSOURCE = 2;
+    /**
+     * The ID representing an EventSource response message.
+     */
     public static final byte RMT_EVENTSOURCERESP = 3;
+    /**
+     * The ID representing a logging message.
+     */
     public static final byte RMT_LOGTARGET = 4;
+    /**
+     * The ID representing a BooleanInputProducer subscription message.
+     */
     public static final byte RMT_BOOLPROD = 5;
+    /**
+     * The ID representing a BooleanInputProducer response message.
+     */
     public static final byte RMT_BOOLPRODRESP = 6;
+    /**
+     * The ID representing a BooleanOutput write message.
+     */
     public static final byte RMT_BOOLOUTP = 7;
+    /**
+     * The ID representing a FloatInputProducer subscription message.
+     */
     public static final byte RMT_FLOATPROD = 8;
+    /**
+     * The ID representing a FloatInputProducer response message.
+     */
     public static final byte RMT_FLOATPRODRESP = 9;
+    /**
+     * The ID representing a FloatOutput write message.
+     */
     public static final byte RMT_FLOATOUTP = 10;
+    /**
+     * The ID representing an OutputStream write message.
+     */
     public static final byte RMT_OUTSTREAM = 11;
+    /**
+     * The ID representing a network infrastructure modification notification.
+     */
     public static final byte RMT_NOTIFY = 12;
 
+    /**
+     * Convert an RMT ID to a string.
+     *
+     * @param type The RMT_* message ID.
+     * @return The version representing the name of the message type.
+     */
     public static String rmtToString(int type) {
         switch (type) {
             case RMT_PING:
@@ -89,21 +133,65 @@ public class CluckNode {
                 return "Unknown #" + type;
         }
     }
+    /**
+     * A map of the current link names to the CluckLinks.
+     */
     public final CHashMap<String, CluckLink> links = new CHashMap<String, CluckLink>();
+    /**
+     * A map of alias names to what they alias for.
+     */
     public final CHashMap<String, String> aliases = new CHashMap<String, String>();
+    /**
+     * An estimated total of how many bytes have gone through this node, if the
+     * messages were serialized through CluckProtocol.
+     */
     public int estimatedByteCount;
+    /**
+     * The time when the last error message was printed about a link not
+     * existing.
+     */
     private long lastMissingLinkError = 0;
+    /**
+     * The link name of the last error message about a link not existing.
+     */
     private String lastMissingLink = null;
 
+    /**
+     * Notify everyone on the network that the network structure has been
+     * modified - for example, when a connection is opened or closed.
+     */
     public void notifyNetworkModified() {
         transmit("*", "#modsrc", new byte[]{RMT_NOTIFY});
     }
 
+    /**
+     * Transmit a message to the specified other link (relative to this node),
+     * with the specified return address (relative to this node).
+     *
+     * Paths are /-separated, with each element being a link to follow.
+     *
+     * @param target The target path.
+     * @param source The source path.
+     * @param data The message data to transmit.
+     */
     public void transmit(String target, String source, byte[] data) {
         transmit(target, source, data, null);
     }
 
-    public void transmit(String target, String source, byte[] data, CluckLink linkSource) {
+    /**
+     * Transmit a message to the specified other link (relative to this node),
+     * with the specified return address (relative to this node). If this is a
+     * broadcast, then don't include the specified link (to prevent infinite
+     * loops).
+     *
+     * Paths are /-separated, with each element being a link to follow.
+     *
+     * @param target The target path.
+     * @param source The source path.
+     * @param data The message data to transmit.
+     * @param denyLink The link for broadcasts to not follow.
+     */
+    public void transmit(String target, String source, byte[] data, CluckLink denyLink) {
         estimatedByteCount += 24 + (target != null ? target.length() : 0) + (source != null ? source.length() : 0) + data.length; // 24 is the estimated packet overhead with a CluckTCPClient.
         if (target == null) {
             Logger.log(LogLevel.WARNING, "Received message addressed to unreceving node (source: " + source + ")", new Exception("Embedded Traceback"));
@@ -112,7 +200,7 @@ public class CluckNode {
             // Broadcast
             for (String key : links) {
                 CluckLink cl = links.get(key);
-                if (cl == null || cl == linkSource) {
+                if (cl == null || cl == denyLink) {
                     continue;
                 }
                 cl.transmit("*", source, data);
@@ -147,6 +235,21 @@ public class CluckNode {
         }
     }
 
+    /**
+     * Add a network alias from the specified link name to the specified path.
+     *
+     * For example:
+     * <code>node.addAlias("crio", "central/robot/crio");</code>
+     *
+     * In this example, a message sent to
+     * <code>crio/enabled</code> would be equivalent to it being sent to
+     * <code>central/robot/crio/enabled</code>
+     *
+     * Source paths will not be modified.
+     *
+     * @param from The target to alias.
+     * @param to The path to alias it to.
+     */
     public void addAlias(String from, String to) {
         while (to.charAt(to.length() - 1) == '/') {
             to = to.substring(0, to.length() - 1);
@@ -157,6 +260,17 @@ public class CluckNode {
         aliases.put(from, to);
     }
 
+    /**
+     * Set up the specified CluckRemoteListener to start receiving updates about
+     * what remote nodes are broadcasting their availability.
+     *
+     * After this is set up, use cycleSearchRemotes to recheck for more remote
+     * nodes.
+     *
+     * @param localRecv The local link name for the listener. Should be unique.
+     * @param listener The listener to notify with all found remotes.
+     * @see #cycleSearchRemotes(java.lang.String)
+     */
     public void startSearchRemotes(String localRecv, final CluckRemoteListener listener) {
         CluckSubscriber sub = new CluckSubscriber() {
             @Override
@@ -174,10 +288,27 @@ public class CluckNode {
         transmit("*", localRecv, new byte[]{RMT_PING});
     }
 
+    /**
+     * Recheck for remote nodes, as in startSearchRemotes.
+     *
+     * @param localRecv The local receiving address, which must be the same as
+     * the one passed to startSearchRemotes originally.
+     * @see #startSearchRemotes(java.lang.String,
+     * ccre.cluck.CluckRemoteListener)
+     */
     public void cycleSearchRemotes(String localRecv) {
         transmit("*", localRecv, new byte[]{RMT_PING});
     }
 
+    /**
+     * Get a snapshot of the list of remote nodes of the specified remote type
+     * (or null for all types).
+     *
+     * @param remoteType The remote type to search for, or null for all types.
+     * @param timeout How long to wait for responses.
+     * @return The snapshot of remotes.
+     * @throws InterruptedException
+     */
     public String[] searchRemotes(final Integer remoteType, int timeout) throws InterruptedException {
         final CArrayList<String> discovered = new CArrayList<String>();
         String localRecv = "rsch-" + Integer.toHexString((int) System.currentTimeMillis()) + "-" + Integer.toHexString(discovered.hashCode());
@@ -223,7 +354,13 @@ public class CluckNode {
         }
     }
 
-    public String getLinkName(CluckNullLink link) {
+    /**
+     * Get the name of the specified link.
+     *
+     * @param link The link to get the name for.
+     * @return The link name.
+     */
+    public String getLinkName(CluckLink link) {
         if (link == null) {
             throw new NullPointerException();
         }
@@ -235,13 +372,27 @@ public class CluckNode {
         throw new RuntimeException("No such link!");
     }
 
-    public void addLink(CluckLink link, String linkName) {
+    /**
+     * Add the specified link at the specified link name.
+     *
+     * @param link The link.
+     * @param linkName The link name.
+     * @throws IllegalStateException if the specified link name is already used.
+     */
+    public void addLink(CluckLink link, String linkName) throws IllegalStateException {
         if (links.get(linkName) != null) {
             throw new IllegalStateException("Link name already used!");
         }
         links.put(linkName, link);
     }
 
+    /**
+     * Adds the specified link at the specified link name, replacing the current
+     * link if necessary.
+     *
+     * @param link The link.
+     * @param linkName The link name.
+     */
     public void addOrReplaceLink(CluckLink link, String linkName) {
         if (links.get(linkName) != null) {
             Logger.fine("Replaced current link on: " + linkName);
@@ -249,10 +400,22 @@ public class CluckNode {
         links.put(linkName, link);
     }
 
+    /**
+     * Publish a CluckPublishable on the network.
+     *
+     * @param name The name for the publishable.
+     * @param pub The publishable.
+     */
     public void publish(String name, CluckPublishable pub) {
         pub.publish(name, this);
     }
 
+    /**
+     * Publish an EventConsumer on the network.
+     *
+     * @param name The name for the EventConsumer.
+     * @param consum The EventConsumer.
+     */
     public void publish(String name, final EventConsumer consum) {
         new CluckSubscriber() {
             @Override
@@ -269,6 +432,12 @@ public class CluckNode {
         }.attach(this, name);
     }
 
+    /**
+     * Subscribe to an EventConsumer from the network at the specified path.
+     *
+     * @param path The path to subscribe to.
+     * @return the EventConsumer.
+     */
     public EventConsumer subscribeEC(final String path) {
         return new EventConsumer() {
             public void eventFired() {
@@ -276,8 +445,17 @@ public class CluckNode {
             }
         };
     }
+    /**
+     * A sentinel object.
+     */
     private static Object empty = new Object();
 
+    /**
+     * Publish an EventSource on the network.
+     *
+     * @param name The name for the EventSource.
+     * @param source The EventSource.
+     */
     public void publish(final String name, EventSource source) {
         final CHashMap<String, Object> remotes = new CHashMap<String, Object>();
         source.addListener(new EventConsumer() {
@@ -301,8 +479,18 @@ public class CluckNode {
             }
         }.attach(this, name);
     }
+    /**
+     * A counter for (nearly) unique local IDs. This is combined with other
+     * factors, so race conditions shouldn't be an issue.
+     */
     private static int localIDs = 0;
 
+    /**
+     * Subscribe to an EventSource from the network at the specified path.
+     *
+     * @param path The path to subscribe to.
+     * @return the EventSource.
+     */
     public EventSource subscribeES(final String path) {
         final String linkName = "srcES-" + path.hashCode() + "-" + localIDs++;
         final Event e = new Event() {
@@ -333,6 +521,12 @@ public class CluckNode {
         return e;
     }
 
+    /**
+     * Publish a LoggingTarget on the network.
+     *
+     * @param name The name for the LoggingTarget.
+     * @param lt The LoggingTarget.
+     */
     public void publish(String name, final LoggingTarget lt) {
         new CluckSubscriber() {
             @Override
@@ -373,6 +567,14 @@ public class CluckNode {
         }.attach(this, name);
     }
 
+    /**
+     * Subscribe to a LoggingTarget from the network at the specified path, with
+     * only sending data for at least a minimum logging level.
+     *
+     * @param path The path to subscribe to.
+     * @param minimum The minimum logging level to send over the network.
+     * @return the LoggingTarget.
+     */
     public LoggingTarget subscribeLT(final String path, final LogLevel minimum) {
         return new LoggingTarget() {
             public void log(LogLevel level, String message, Throwable throwable) {
@@ -404,6 +606,12 @@ public class CluckNode {
         };
     }
 
+    /**
+     * Publish a BooleanInputProducer on the network.
+     *
+     * @param name The name for the BooleanInputProducer.
+     * @param prod The BooleanInputProducer.
+     */
     public void publish(final String name, final BooleanInputProducer prod) {
         final CHashMap<String, Object> remotes = new CHashMap<String, Object>();
         prod.addTarget(new BooleanOutput() {
@@ -428,6 +636,13 @@ public class CluckNode {
         }.attach(this, name);
     }
 
+    /**
+     * Subscribe to a BooleanInputProducer from the network at the specified
+     * path.
+     *
+     * @param path The path to subscribe to.
+     * @return the BooleanInputProducer.
+     */
     public BooleanInput subscribeBIP(final String path) {
         final String linkName = "srcBIP-" + path.hashCode() + "-" + localIDs++;
         final BooleanStatus sent = new BooleanStatus();
@@ -465,7 +680,13 @@ public class CluckNode {
         return bs;
     }
 
-    public void publish(String name, final BooleanOutput consum) {
+    /**
+     * Publish a BooleanOutput on the network.
+     *
+     * @param name The name for the BooleanOutput.
+     * @param out The BooleanOutput.
+     */
+    public void publish(String name, final BooleanOutput out) {
         new CluckSubscriber() {
             @Override
             protected void receive(String source, byte[] data) {
@@ -474,7 +695,7 @@ public class CluckNode {
                         Logger.warning("Not enough bytes for boolean output!");
                         return;
                     }
-                    consum.writeValue(data[1] != 0);
+                    out.writeValue(data[1] != 0);
                 }
             }
 
@@ -485,6 +706,12 @@ public class CluckNode {
         }.attach(this, name);
     }
 
+    /**
+     * Subscribe to a BooleanOutput from the network at the specified path.
+     *
+     * @param path The path to subscribe to.
+     * @return the BooleanOutput.
+     */
     public BooleanOutput subscribeBO(final String path) {
         return new BooleanOutput() {
             public void writeValue(boolean b) {
@@ -493,6 +720,12 @@ public class CluckNode {
         };
     }
 
+    /**
+     * Publish a FloatInputProducer on the network.
+     *
+     * @param name The name for the FloatInputProducer.
+     * @param prod The FloatInputProducer.
+     */
     public void publish(final String name, final FloatInputProducer prod) {
         final CHashMap<String, Object> remotes = new CHashMap<String, Object>();
         prod.addTarget(new FloatOutput() {
@@ -518,6 +751,12 @@ public class CluckNode {
         }.attach(this, name);
     }
 
+    /**
+     * Subscribe to a FloatInputProducer from the network at the specified path.
+     *
+     * @param path The path to subscribe to.
+     * @return the FloatInputProducer.
+     */
     public FloatInput subscribeFIP(final String path) {
         final String linkName = "srcFIP-" + path.hashCode() + "-" + localIDs++;
         final BooleanStatus sent = new BooleanStatus();
@@ -556,7 +795,13 @@ public class CluckNode {
         return fs;
     }
 
-    public void publish(String name, final FloatOutput consum) {
+    /**
+     * Publish a FloatOutput on the network.
+     *
+     * @param name The name for the FloatOutput.
+     * @param out The FloatOutput.
+     */
+    public void publish(String name, final FloatOutput out) {
         new CluckSubscriber() {
             @Override
             protected void receive(String source, byte[] data) {
@@ -566,7 +811,7 @@ public class CluckNode {
                         return;
                     }
                     int rawint = ((data[1] & 0xff) << 24) | ((data[2] & 0xff) << 16) | ((data[3] & 0xff) << 8) | (data[4] & 0xff);
-                    consum.writeValue(Float.intBitsToFloat(rawint));
+                    out.writeValue(Float.intBitsToFloat(rawint));
                 }
             }
 
@@ -577,6 +822,12 @@ public class CluckNode {
         }.attach(this, name);
     }
 
+    /**
+     * Subscribe to a FloatOutput from the network at the specified path.
+     *
+     * @param path The path to subscribe to.
+     * @return the FloatOutput.
+     */
     public FloatOutput subscribeFO(final String path) {
         return new FloatOutput() {
             public void writeValue(float f) {
@@ -586,6 +837,12 @@ public class CluckNode {
         };
     }
 
+    /**
+     * Publish a FloatTuner on the network.
+     *
+     * @param name The name for the FloatTuner.
+     * @param prod The FloatTuner.
+     */
     public void publish(final String name, final FloatTuner tune) {
         publish(name + ".input", (FloatInputProducer) tune);
         publish(name + ".output", (FloatOutput) tune);
@@ -595,6 +852,12 @@ public class CluckNode {
         }
     }
 
+    /**
+     * Subscribe to a FloatTuner from the network at the specified path.
+     *
+     * @param path The path to subscribe to.
+     * @return the FloatTuner.
+     */
     public FloatTuner subscribeTF(String path) {
         FloatInput tuneIn = subscribeFIP(path + ".input");
         FloatOutput tuneOut = subscribeFO(path + ".output");
@@ -609,6 +872,12 @@ public class CluckNode {
         return comp;
     }
 
+    /**
+     * Publish an OutputStream on the network.
+     *
+     * @param name The name for the OutputStream.
+     * @param prod The OutputStream.
+     */
     public void publish(String name, final OutputStream out) {
         new CluckSubscriber() {
             @Override
@@ -631,6 +900,12 @@ public class CluckNode {
         }.attach(this, name);
     }
 
+    /**
+     * Subscribe to an OutputStream from the network at the specified path.
+     *
+     * @param path The path to subscribe to.
+     * @return the OutputStream.
+     */
     public OutputStream subscribeOS(final String path) {
         return new OutputStream() {
             @Override

@@ -26,6 +26,9 @@ import com.rapplogic.xbee.api.PacketListener;
 import com.rapplogic.xbee.api.XBeeException;
 import com.rapplogic.xbee.api.XBeeResponse;
 import com.rapplogic.xbee.api.zigbee.ZNetRxResponse;
+import java.io.ByteArrayInputStream;
+import java.nio.ByteBuffer;
+import java.util.Arrays;
 
 /**
  * A Cluck Link running over an XBee radio.
@@ -50,7 +53,7 @@ public class XBeeLink implements CluckLink, PacketListener {
         this.subTimeout = subTimeout;
         this.timeout = timeout;
     }
-    
+
     public void addToNode() {
         node.addLink(this, linkName);
     }
@@ -63,51 +66,44 @@ public class XBeeLink implements CluckLink, PacketListener {
         if (source == null) {
             source = "";
         }
-        if ((short) source.length() != source.length() || (short) dest.length() != dest.length() || (data.length & 0xffff) != data.length) {
+        byte[] dchars = dest.getBytes();
+        byte[] schars = source.getBytes();
+        if ((short) schars.length != schars.length || (short) dchars.length != dchars.length || (data.length & 0xffff) != data.length) {
             Logger.warning("Dropping packet from " + source + " to " + dest + " because of invalid segment length!");
             return true;
         }
-        int[] message = new int[2 + (dest.length() + 3) / 4 + (source.length() + 3) / 4 + (data.length + 3) / 4];
-        message[0] = (source.length() << 16) | (dest.length() & 0xffff);
-        // message[1] set later
+        ByteBuffer bout = ByteBuffer.allocate(8 + dchars.length + schars.length + data.length);
+        bout.putShort((short) dchars.length);
+        bout.putShort((short) schars.length);
+        bout.putShort((short) data.length);
+        bout.putShort((short) 0xDEAD); // Placeholder checksum
         int cursum = ((data.length << 16) ^ (data.length >> 16));
-        int co = 2;
         if (dest.isEmpty()) {
             cursum ^= 17;
         } else {
-            for (int i = 0; i < dest.length(); i++) {
-                message[co + (i / 4)] |= (dest.charAt(i) & 0xff) << (8 * (i & 3));
-            }
-            co += (dest.length() + 3) / 4;
+            bout.put(dchars);
             cursum += dest.hashCode();
             cursum ^= dest.length();
         }
         if (source.isEmpty()) {
             cursum ^= 10;
         } else {
-            for (int i = 0; i < source.length(); i++) {
-                message[co + (i / 4)] |= (source.charAt(i) & 0xff) << (8 * (i & 3));
-            }
-            co += (source.length() + 3) / 4;
+            bout.put(schars);
             cursum += source.hashCode();
             cursum ^= source.length();
         }
-        cursum += source.hashCode();
-        cursum ^= source.length();
-        for (int i = 0; i < data.length; i++) {
-            message[co + (i / 4)] |= (data[i] & 0xff) << (8 * (i & 3));
-        }
-        for (int i=co; i<message.length; i++) {
-            cursum -= message[i];
-            cursum ^= data.length - i;
-        }
-        co += (data.length + 3) / 4;
-        if (co != message.length) {
+        bout.put(data);
+        cursum ^= Arrays.hashCode(data) - data.length;
+        bout.putShort(2, ((short) ((cursum >> 16) ^ cursum)));
+        if (bout.remaining() > 0) {
             throw new RuntimeException("Wait, what?");
         }
-        message[1] = (((short) ((cursum >> 16) ^ cursum)) << 16) | data.length;
+        int[] outarray = new int[bout.position()];
+        for (int i=0; i<outarray.length; i++) {
+            outarray[i] = bout.get(i);
+        }
         try {
-            radio.sendPacketVerified(remote, message, subTimeout, timeout);
+            radio.sendPacketVerified(remote, outarray, subTimeout, timeout);
         } catch (XBeeException ex) {
             Logger.log(LogLevel.WARNING, "Could not transmit packet to remote XBee!", ex);
         }
@@ -118,12 +114,17 @@ public class XBeeLink implements CluckLink, PacketListener {
     public void processResponse(XBeeResponse pkt) {
         if (pkt instanceof ZNetRxResponse) { // TODO: Compress common destinations and sources
             ZNetRxResponse zp = (ZNetRxResponse) pkt;
-            int[] indata = zp.getData();
+            int[] input = zp.getData();
+            byte[] realindata = new byte[input.length];
+            for (int i = 0; i < input.length; i++) {
+                realindata[i] = (byte) input[i];
+            }
+            ByteBuffer bin = ByteBuffer.wrap(realindata);
             try {
-                short dlen = (short) indata[0];
-                short slen = (short) (indata[0] >> 16);
-                int len = indata[1] & 0xffff;
-                short checksum = (short) (indata[1] >> 16);
+                short dlen = bin.getShort();
+                short slen = bin.getShort();
+                int len = bin.getShort();
+                short checksum = bin.getShort();
                 int cursum = ((len << 16) ^ (len >> 16));
                 int co = 2;
                 String dest;
@@ -131,16 +132,9 @@ public class XBeeLink implements CluckLink, PacketListener {
                     dest = null;
                     cursum ^= 17;
                 } else {
-                    char[] ddata = new char[(dlen + 3) & ~3];
-                    int i;
-                    for (i = 0; i < dlen; i += 4) {
-                        int cv = indata[co++];
-                        ddata[i] = (char) (cv & 0xff);
-                        ddata[i + 1] = (char) ((cv >> 8) & 0xff);
-                        ddata[i + 2] = (char) ((cv >> 16) & 0xff);
-                        ddata[i + 3] = (char) ((cv >> 24) & 0xff);
-                    }
-                    dest = new String(ddata, 0, dlen);
+                    byte[] strbytes = new byte[dlen];
+                    bin.get(strbytes, 0, dlen);
+                    dest = new String(strbytes);
                     cursum += dest.hashCode();
                     cursum ^= dlen;
                 }
@@ -149,45 +143,15 @@ public class XBeeLink implements CluckLink, PacketListener {
                     source = null;
                     cursum ^= 10;
                 } else {
-                    char[] sdata = new char[(slen + 3) & ~3];
-                    int i;
-                    for (i = 0; i < slen; i += 4) {
-                        int cv = indata[co++];
-                        sdata[i] = (char) (cv & 0xff);
-                        sdata[i + 1] = (char) ((cv >> 8) & 0xff);
-                        sdata[i + 2] = (char) ((cv >> 16) & 0xff);
-                        sdata[i + 3] = (char) ((cv >> 24) & 0xff);
-                    }
-                    source = new String(sdata, 0, slen);
+                    byte[] strbytes = new byte[dlen];
+                    bin.get(strbytes);
+                    source = new String(strbytes);
                     cursum += source.hashCode();
-                    cursum ^= slen;
+                    cursum ^= dlen;
                 }
                 byte[] data = new byte[len];
-                int i;
-                for (i = 0; i < (len & ~3); i += 4) {
-                    int cv = indata[co++];
-                    data[i] = (byte) cv;
-                    data[i + 1] = (byte) (cv >> 8);
-                    data[i + 2] = (byte) (cv >> 16);
-                    data[i + 3] = (byte) (cv >> 24);
-                    cursum -= cv;
-                    cursum ^= len - i;
-                }
-                if ((len & 3) != 0) {
-                    int cv = indata[co++];
-                    switch (len & 3) {
-                        case 3:
-                            data[i + 2] = (byte) (cv >> 16);
-                        // fall through
-                        case 2:
-                            data[i + 1] = (byte) (cv >> 8);
-                        // fall through
-                        case 1:
-                            data[i] = (byte) cv;
-                    }
-                    cursum -= cv;
-                    cursum ^= len - i;
-                }
+                bin.get(data);
+                cursum ^= Arrays.hashCode(data) - len;
                 if (source == null) {
                     source = linkName;
                 } else {
@@ -197,7 +161,7 @@ public class XBeeLink implements CluckLink, PacketListener {
                     Logger.warning("Dropped packet from " + source + " to " + dest + " because of checksum mismatch!");
                     return;
                 }
-                if (co != indata.length) {
+                if (bin.remaining() > 0) {
                     Logger.warning("Packet from " + source + " to " + dest + " had incorrect (but non-erroneous) length.");
                 }
                 node.transmit(dest, source, data, this);

@@ -19,7 +19,6 @@
 package ccre.cluck;
 
 import ccre.event.EventConsumer;
-import ccre.log.LogLevel;
 import ccre.log.Logger;
 import ccre.log.NetworkAutologger;
 import ccre.net.Network;
@@ -30,6 +29,9 @@ import ccre.net.Network;
  * @author skeggsc
  */
 public class StandaloneCluckServer {
+
+    private StandaloneCluckServer() {
+    }
 
     /**
      * Start the simple server.

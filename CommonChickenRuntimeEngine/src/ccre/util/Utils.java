@@ -31,6 +31,9 @@ import ccre.ctrl.Mixing;
  */
 public class Utils {
 
+    private Utils() {
+    }
+
     /**
      * Calculate a value with a deadzone. If the value is within the specified
      * deadzone, the result will be zero instead.

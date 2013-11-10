@@ -30,6 +30,9 @@ import java.io.IOException;
  */
 public class Network {
 
+    private Network() {
+    }
+
     /**
      * A Network provider.
      */

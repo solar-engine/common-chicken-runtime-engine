@@ -24,7 +24,7 @@ package ccre.saver;
  *
  * @author skeggsc
  */
-public class FakeStorageProvider extends StorageProvider {
+class FakeStorageProvider extends StorageProvider {
 
     @Override
     protected StorageSegment open(String name) {

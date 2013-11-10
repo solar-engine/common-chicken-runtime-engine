@@ -54,7 +54,7 @@ public class RLoadServer extends ReporterThread {
     }
     private final File output;
 
-    public static int checksum(byte[] data) {
+    static int checksum(byte[] data) {
         int h = data.length;
         for (int i = 0; i < data.length; i++) {
             h = 43 * h + data[i];

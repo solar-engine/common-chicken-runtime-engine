@@ -26,6 +26,8 @@ package ccre.cluck;
  */
 public class CluckGlobals {
 
+    private CluckGlobals() {
+    }
     /**
      * The current CluckNode.
      */

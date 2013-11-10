@@ -44,7 +44,7 @@ import java.util.Enumeration;
  * @see Network
  * @author skeggsc
  */
-public class DefaultNetworkProvider implements Network.Provider {
+class DefaultNetworkProvider implements Network.Provider {
 
     public ClientSocket openClient(String targetAddress, int port) throws IOException {
         try {

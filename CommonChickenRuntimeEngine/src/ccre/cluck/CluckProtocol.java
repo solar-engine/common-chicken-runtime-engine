@@ -32,6 +32,9 @@ import java.util.Random;
  */
 public class CluckProtocol {
 
+    private CluckProtocol() {
+    }
+
     /**
      * Start a Cluck connection. Must be ran from both ends of the connection.
      *
@@ -42,7 +45,7 @@ public class CluckProtocol {
      * @return What the remote node hints that this link should be called.
      * @throws IOException If an IO error occurs.
      */
-    public static String handleHeader(DataInputStream din, DataOutputStream dout, String remoteHint) throws IOException {
+    protected static String handleHeader(DataInputStream din, DataOutputStream dout, String remoteHint) throws IOException {
         dout.writeInt(0x154000CA);
         Random r = new Random();
         int ra = r.nextInt(), rb = r.nextInt();
@@ -70,7 +73,7 @@ public class CluckProtocol {
      * @param basis The basis initializer.
      * @return The checksum.
      */
-    public static long checksum(byte[] data, long basis) {
+    protected static long checksum(byte[] data, long basis) {
         long h = basis;
         for (int i = 0; i < data.length; i++) {
             h = 43 * h + data[i];
@@ -89,7 +92,7 @@ public class CluckProtocol {
      * sends back to the other end of the connection. (To stop infinite loops)
      * @throws IOException If an IO error occurs
      */
-    public static void handleRecv(DataInputStream din, String linkName, CluckNode node, CluckLink denyLink) throws IOException {
+    protected static void handleRecv(DataInputStream din, String linkName, CluckNode node, CluckLink denyLink) throws IOException {
         try {
             while (true) {
                 String dest = din.readUTF();
@@ -140,7 +143,7 @@ public class CluckProtocol {
      * @param node The node to provide access to.
      * @return The newly created link.
      */
-    public static CluckLink handleSend(final DataOutputStream dout, final String linkName, CluckNode node) {
+    protected static CluckLink handleSend(final DataOutputStream dout, final String linkName, CluckNode node) {
         CluckLink clink = new CluckLink() {
             private boolean isRunning = false;
 

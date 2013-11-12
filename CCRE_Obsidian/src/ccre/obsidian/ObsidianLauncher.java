@@ -37,6 +37,8 @@ import java.util.TimerTask;
  * @author MillerV
  */
 public abstract class ObsidianLauncher {
+    
+    protected String hubPath;
 
     /**
      * The settings loaded during the launch process.
@@ -55,6 +57,7 @@ public abstract class ObsidianLauncher {
      * Create a new obsidian launcher,
      *
      * @param loader The loader used to find the properties file.
+     * @param hubPath The name of the link to the control hub (empty when using TCP).
      * @throws IOException If an issue occurs when trying to access the
      * properties file.
      * @throws ClassNotFoundException If an issue occurs while loading the main
@@ -64,7 +67,8 @@ public abstract class ObsidianLauncher {
      * @throws IllegalAccessException If an issue occurs while loading the main
      * program class.
      */
-    public ObsidianLauncher(ClassLoader loader) throws IOException, ClassNotFoundException, InstantiationException, IllegalAccessException {
+    public ObsidianLauncher(ClassLoader loader, String hubPath) throws IOException, ClassNotFoundException, InstantiationException, IllegalAccessException {
+        this.hubPath = hubPath;
         CluckGlobals.ensureInitializedCore();
         NetworkAutologger.register();
         Properties p = new Properties();
@@ -116,7 +120,7 @@ public abstract class ObsidianLauncher {
      * @return A FloatInputProducer that provides the value of that axis.
      */
     public FloatInput getJoystickAxis(int axis) {
-        return CluckGlobals.node.subscribeFIP("joystick" + 1 + "-axis" + axis);
+        return CluckGlobals.node.subscribeFIP(hubPath + "joystick" + 1 + "-axis" + axis);
     }
 
     /**

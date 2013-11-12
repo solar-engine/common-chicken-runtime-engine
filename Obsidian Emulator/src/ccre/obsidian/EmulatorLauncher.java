@@ -70,7 +70,7 @@ public class EmulatorLauncher extends ObsidianLauncher {
     }
 
     public EmulatorLauncher(ClassLoader coreClass, boolean gui) throws IOException, ClassNotFoundException, InstantiationException, IllegalAccessException {
-        super(coreClass);
+        super(coreClass, "");
         worldModules = new LinkedList<>();
         Logger.log(LogLevel.INFO, "Launching GUI.");
         guiWindow = new EmulatorGUI(this);

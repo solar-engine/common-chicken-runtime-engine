@@ -42,6 +42,13 @@ public class XBeeRadio {
         this.baudRate = baudRate;
         this.xbee = new XBee();
     }
+    
+    public void modify(String port, int baudRate) throws XBeeException {
+        close();
+        this.port = port;
+        this.baudRate = baudRate;
+        open();
+    }
 
     public void open() throws XBeeException {
         xbee.open(port, baudRate);

@@ -96,6 +96,7 @@ public final class JoystickMonitor {
             if (i < 7) {
                 if (isConnected() && axes[i] != null) {
                     node.publish("joystick" + stickID + "-axis" + (i + 1), axes[i]);
+                    System.out.println("joystick" + stickID + "-axis" + (i + 1));
                 } else {
                     node.publish("joystick" + stickID + "-axis" + (i + 1), Mixing.always(0.0f));
                 }

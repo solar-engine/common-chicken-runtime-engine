@@ -22,15 +22,15 @@ import ccre.chan.FloatOutput;
 import ccre.util.CArrayList;
 
 /**
- * A RemoteFloatTuner is an interface that allows for easy tuning of a float
- * value, most frequently a FloatStatus.
+ * An AbstractFloatTuner is an abstract class that allows for easy
+ * implementation of a FloatTuner.
  *
  * @author skeggsc
  */
 public abstract class AbstractFloatTuner implements FloatTuner {
-    
+
     protected CArrayList<FloatOutput> consumers = new CArrayList<FloatOutput>();
-    
+
     protected void notifyConsumers() {
         for (FloatOutput o : consumers) {
             o.writeValue(getCurrentValue());

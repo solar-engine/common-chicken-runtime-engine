@@ -48,6 +48,9 @@
     </target>
     <target name="paste-ccre">
         <unjar src="${ccrejar}" dest="${classes.dir}" />
+        <unjar src="${xbeejar}" dest="${classes.dir}" />
+        <unjar src="${rxtxjar}" dest="${classes.dir}" />
+        <unjar src="${log4jjar}" dest="${classes.dir}" />
     </target>
     <target name="clean">
         <delete dir="${build.dir}"/>

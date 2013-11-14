@@ -148,7 +148,7 @@ public class XBeeLink implements CluckLink, PacketListener {
                     bin.get(strbytes);
                     source = new String(strbytes);
                     cursum += source.hashCode();
-                    cursum ^= dlen;
+                    cursum ^= slen;
                 }
                 byte[] data = new byte[len];
                 bin.get(data);

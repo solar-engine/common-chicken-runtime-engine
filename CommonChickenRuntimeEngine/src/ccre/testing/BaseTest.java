@@ -145,7 +145,21 @@ public abstract class BaseTest {
      * @param message the explanation of what went wrong.
      * @throws TestingException if the objects are unequal.
      */
+    protected void assertIEqual(Object a, Object b, String message) throws TestingException {
+        assertTrue(a == b, message + "( " + a + " != " + b + " )");
+    }
+
+    /**
+     * The object arguments should be value-equal, as in
+     * <code>a == null ? b == null : a.equals(b)</code>! If not, the test has failed! Report this and stop
+     * the test.
+     *
+     * @param a the first object.
+     * @param b the second object.
+     * @param message the explanation of what went wrong.
+     * @throws TestingException if the objects are unequal.
+     */
     protected void assertEqual(Object a, Object b, String message) throws TestingException {
-        assertTrue(a == b, message);
+        assertTrue(a == null ? b == null : a.equals(b), message + "( " + a + " != " + b + " )");
     }
 }

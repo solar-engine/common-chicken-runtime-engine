@@ -45,5 +45,6 @@ public class SuiteOfTests { // TODO: This package needs more tests!
 
         // ccre.chan
         new TestBooleanStatus().test();
+        new TestFloatStatus().test();
     }
 }

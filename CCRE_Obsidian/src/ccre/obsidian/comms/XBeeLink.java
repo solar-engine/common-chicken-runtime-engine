@@ -23,6 +23,7 @@ import ccre.cluck.CluckNode;
 import ccre.log.LogLevel;
 import ccre.log.Logger;
 import com.rapplogic.xbee.api.PacketListener;
+import com.rapplogic.xbee.api.XBeeAddress64;
 import com.rapplogic.xbee.api.XBeeException;
 import com.rapplogic.xbee.api.XBeeResponse;
 import com.rapplogic.xbee.api.zigbee.ZNetRxResponse;
@@ -115,6 +116,11 @@ public class XBeeLink implements CluckLink, PacketListener {
     public void processResponse(XBeeResponse pkt) {
         if (pkt instanceof ZNetRxResponse) { // TODO: Compress common destinations and sources
             ZNetRxResponse zp = (ZNetRxResponse) pkt;
+            int[] raddr = zp.getRemoteAddress64().getAddress();
+            if (!Arrays.equals(raddr, remote)) {
+                Logger.log(LogLevel.WARNING, "Dropped packet from bad remote: " + Arrays.toString(raddr));
+                return;
+            }
             int[] input = zp.getData();
             byte[] realindata = new byte[input.length];
             for (int i = 0; i < input.length; i++) {

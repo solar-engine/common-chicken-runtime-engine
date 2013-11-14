@@ -27,7 +27,7 @@ import java.io.PrintStream;
  *
  * @author skeggsc
  */
-public class DefaultThrowablePrinter extends ThrowablePrinter {
+class DefaultThrowablePrinter extends ThrowablePrinter {
 
     @Override
     public void send(Throwable thr, PrintStream pstr) {

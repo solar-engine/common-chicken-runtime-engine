@@ -37,7 +37,7 @@ import java.io.IOException;
  *
  * @author skeggsc
  */
-public class DefaultStorageProvider extends StorageProvider {
+class DefaultStorageProvider extends StorageProvider {
 
     @Override
     protected StorageSegment open(String name) {

@@ -58,7 +58,15 @@
     <target name="downgrade-jar-check" unless="sunspot.home">
         <echo message="Missing FRC plugin installation! Igneous projects will not work, and Javadoc will not be generated." />
     </target>
-    
+
+    <target name="-pre-jar">
+        <!-- <mkdir dir="${build.dir}/rgen" />
+        <mkdir dir="${build.dir}/rgen/ccre" />
+        <mkdir dir="${build.dir}/rgen/ccre/reflect" />
+        <java classname="ccre.reflect.ReflectionGenerator" args="${build.dir}/rgen/ccre/reflect/ReflectionEngineImpl.java" /> -->
+        
+    </target>
+            
     <target name="-post-jar" depends="downgrade-jar,downgrade-jar-check"></target>
     
     <!-- Custom target to generate ALL CCRE javadoc, including Igneous. -->

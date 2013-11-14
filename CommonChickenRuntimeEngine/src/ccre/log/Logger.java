@@ -26,6 +26,8 @@ package ccre.log;
  */
 public class Logger {
 
+    private Logger() {
+    }
     /**
      * The logging target to write logs to by default.
      */
@@ -74,6 +76,7 @@ public class Logger {
 
     /**
      * Log the given message at SEVERE level.
+     *
      * @param message the message to log.
      */
     public static void severe(String message) {
@@ -82,6 +85,7 @@ public class Logger {
 
     /**
      * Log the given message at WARNING level.
+     *
      * @param message the message to log.
      */
     public static void warning(String message) {
@@ -90,6 +94,7 @@ public class Logger {
 
     /**
      * Log the given message at INFO level.
+     *
      * @param message the message to log.
      */
     public static void info(String message) {
@@ -98,6 +103,7 @@ public class Logger {
 
     /**
      * Log the given message at CONFIG level.
+     *
      * @param message the message to log.
      */
     public static void config(String message) {
@@ -106,6 +112,7 @@ public class Logger {
 
     /**
      * Log the given message at FINE level.
+     *
      * @param message the message to log.
      */
     public static void fine(String message) {
@@ -114,6 +121,7 @@ public class Logger {
 
     /**
      * Log the given message at FINER level.
+     *
      * @param message the message to log.
      */
     public static void finer(String message) {
@@ -122,6 +130,7 @@ public class Logger {
 
     /**
      * Log the given message at FINEST level.
+     *
      * @param message the message to log.
      */
     public static void finest(String message) {

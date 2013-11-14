@@ -49,11 +49,14 @@ import ccre.event.EventSource;
  * motors will update.
  *
  * Mixing contains many more generic methods to work with channels.
- * 
+ *
  * @see Mixing
  * @author skeggsc
  */
 public class DriverImpls {
+
+    private DriverImpls() {
+    }
 
     /**
      * Run tank drive on the given two FloatInputProducers and FloatOutputs.

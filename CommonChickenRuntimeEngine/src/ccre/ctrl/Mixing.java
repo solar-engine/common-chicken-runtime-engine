@@ -46,6 +46,8 @@ import ccre.util.Utils;
  */
 public class Mixing {
 
+    private Mixing() {
+    }
     /**
      * A FloatOutput that goes nowhere. All data sent here is ignored.
      */

@@ -33,6 +33,9 @@ import java.io.IOException;
  */
 public class RLoadClient {
 
+    private RLoadClient() {
+    }
+
     /**
      * The main launching function for an RLoad server.
      *
@@ -60,7 +63,7 @@ public class RLoadClient {
             if (din.readLong() != ~RLoadServer.MAGIC_HEADER) {
                 throw new IOException("Invalid magic number!");
             }
-            byte[] data = new byte[(int)len];
+            byte[] data = new byte[(int) len];
             DataInputStream fin = new DataInputStream(new FileInputStream(target));
             try {
                 fin.readFully(data);
@@ -70,7 +73,7 @@ public class RLoadClient {
             } finally {
                 fin.close();
             }
-            dout.writeInt((int)len);
+            dout.writeInt((int) len);
             dout.write(data);
             dout.writeInt(RLoadServer.checksum(data));
             if (din.readInt() != (int) ((RLoadServer.MAGIC_HEADER >> 32) ^ RLoadServer.MAGIC_HEADER)) {

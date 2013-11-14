@@ -28,6 +28,9 @@ package ccre.testing;
  */
 public class SuiteOfTests { // TODO: This package needs more tests!
 
+    private SuiteOfTests() {
+    }
+
     /**
      * Run all the tests.
      *
@@ -39,7 +42,7 @@ public class SuiteOfTests { // TODO: This package needs more tests!
         new TestConcurrentDispatchArray().test();
         new TestEvent().test();
         new TestCHashMapPartial().test();
-        
+
         // ccre.chan
         new TestBooleanStatus().test();
     }

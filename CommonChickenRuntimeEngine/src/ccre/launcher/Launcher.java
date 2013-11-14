@@ -31,6 +31,9 @@ import java.io.IOException;
  */
 public class Launcher {
 
+    private Launcher() {
+    }
+
     public static void main(String[] args) throws IOException {
         if (args.length == 0) {
             System.err.println("Usage: java -jar CCRE.jar <TYPE> <ARGS...>");

@@ -25,6 +25,8 @@ package ccre.util;
  */
 public class CArrayUtils {
 
+    private CArrayUtils() {
+    }
     /**
      * An empty list. Immutable.
      */

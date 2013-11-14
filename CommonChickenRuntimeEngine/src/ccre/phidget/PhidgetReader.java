@@ -32,6 +32,9 @@ import java.io.PrintStream;
  */
 public class PhidgetReader {
 
+    private PhidgetReader() {
+    }
+
     static {
         CluckGlobals.ensureInitializedCore();
     }

@@ -30,7 +30,7 @@
     <target name="update-netbeans-project">
         <copy file="nbproject/project.xml" tofile="nbproject/project.bak.xml"/>
         <xmltask source="nbproject/project.bak.xml" dest="nbproject/project.xml" failWithoutMatch="true">
-            <replace path="/*[local-name()='project']/*[local-name()='configuration']/*[local-name()='java-data']/*[local-name()='compilation-unit']/*[local-name()='classpath'][@mode='compile']/text()" withText="${ccrejar}"/>
+            <replace path="/*[local-name()='project']/*[local-name()='configuration']/*[local-name()='java-data']/*[local-name()='compilation-unit']/*[local-name()='classpath'][@mode='compile']/text()" withText="${ccrejar};${xbeejar}"/>
         </xmltask>
     </target>
     <property name="build.dir" value="./build" />

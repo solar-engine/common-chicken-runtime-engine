@@ -37,14 +37,60 @@ public class SuiteOfTests { // TODO: This package needs more tests!
      * @param args the application arguments. these are ignored.
      */
     public static void main(String[] args) {
-        new TestTests().test();
-        new TestCArrayList().test();
-        new TestConcurrentDispatchArray().test();
-        new TestEvent().test();
-        new TestCHashMapPartial().test();
-
         // ccre.chan
         new TestBooleanStatus().test();
         new TestFloatStatus().test();
+
+        // ccre.cluck - Tests needed!
+
+        // ccre.concurrency
+        // CollapsingWorkerThread - Needed!
+        // ConcurrentDispatchArray - Needed to improve!
+        new TestConcurrentDispatchArray().test();
+        // ReporterThread - Needed!
+
+        // ccre.ctrl
+        // DriverImpls - Needed!
+        // ExpirationTimer - Needed!
+        // Mixing - Needed!
+        // ModeDispatcher - Needed!
+        // MultipleSourceBooleanController - Needed!
+        // Ticker - Needed!
+
+        // ccre.event
+        new TestEvent().test();
+        // EventLogger - Needed!
+
+        // ccre.holders - Needed!
+
+        // ccre.instinct - Needed!
+
+        // ccre.launcher - Not needed.
+
+        // ccre.log - Needed!
+
+        // ccre.net - Needed!
+
+        // ccre.phidget
+        // PhidgetReader - Needed!
+
+        // ccre.rload - Do I need this?
+
+        // ccre.saver - Needed!
+
+        // ccre.testing
+        new TestTests().test(); // Needs more fleshing out
+
+        // ccre.utils
+        // AllocationPool - Needed!
+        // CAbstractList - Needed? Maybe included in CArrayList and CLinkedList?
+        new TestCArrayList().test(); // Needs more fleshing out
+        // CArrayUtils - Needed!
+        new TestCHashMapPartial().test(); // Needs more fleshing out
+        // CLinkedList - Needed!
+        // Heap - Needed!
+        // Utils - Needed!
+
+        // ccre.workarounds - Needed!
     }
 }

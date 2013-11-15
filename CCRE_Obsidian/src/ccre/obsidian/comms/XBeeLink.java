@@ -20,6 +20,7 @@ package ccre.obsidian.comms;
 
 import ccre.cluck.CluckLink;
 import ccre.cluck.CluckNode;
+import ccre.concurrency.ReporterThread;
 import ccre.log.LogLevel;
 import ccre.log.Logger;
 import com.rapplogic.xbee.api.PacketListener;
@@ -27,9 +28,12 @@ import com.rapplogic.xbee.api.XBeeAddress64;
 import com.rapplogic.xbee.api.XBeeException;
 import com.rapplogic.xbee.api.XBeeResponse;
 import com.rapplogic.xbee.api.zigbee.ZNetRxResponse;
+import com.rapplogic.xbee.api.zigbee.ZNetTxStatusResponse;
 import java.io.ByteArrayInputStream;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
 
 /**
  * A Cluck Link running over an XBee radio.
@@ -39,21 +43,29 @@ import java.util.Arrays;
 public class XBeeLink implements CluckLink, PacketListener {
 
     // TODO: Add sequence markers to XBee link!
-    private final XBeeRadio radio;
     private final int[] remote;
     private final String linkName;
     private final CluckNode node;
-    private final int subTimeout;
-    private final int timeout;
+    private final BlockingQueue<int[]> dataQueue = new LinkedBlockingQueue<int[]>();
 
-    public XBeeLink(XBeeRadio radio, int[] remote, String linkName, CluckNode node, int subTimeout, int timeout) {
-        this.radio = radio;
+    public XBeeLink(final XBeeRadio radio, final int[] remote, String linkName, CluckNode node, final int subTimeout, final int timeout) {
         this.remote = remote;
         radio.addPacketListener(this);
         this.linkName = linkName;
         this.node = node;
-        this.subTimeout = subTimeout;
-        this.timeout = timeout;
+        new ReporterThread("XBeeLink-Transmitter") {
+            @Override
+            protected void threadBody() throws Throwable {
+                while (true) {
+                    int[] take = dataQueue.take();
+                    try {
+                        radio.sendPacketVerified(remote, take, subTimeout, timeout);
+                    } catch (XBeeException ex) {
+                        Logger.log(LogLevel.WARNING, "Could not transmit packet to remote XBee!", ex);
+                    }
+                }
+            }
+        }.start();
     }
 
     public void addToNode() {
@@ -101,14 +113,10 @@ public class XBeeLink implements CluckLink, PacketListener {
             throw new RuntimeException("Wait, what?");
         }
         int[] outarray = new int[bout.position()];
-        for (int i=0; i<outarray.length; i++) {
+        for (int i = 0; i < outarray.length; i++) {
             outarray[i] = bout.get(i);
         }
-        try {
-            radio.sendPacketVerified(remote, outarray, subTimeout, timeout);
-        } catch (XBeeException ex) {
-            Logger.log(LogLevel.WARNING, "Could not transmit packet to remote XBee!", ex);
-        }
+        dataQueue.add(outarray);
         return true;
     }
 
@@ -175,7 +183,7 @@ public class XBeeLink implements CluckLink, PacketListener {
             } catch (ArrayIndexOutOfBoundsException ex) {
                 Logger.log(LogLevel.WARNING, "Error while parsing XBee Cluck message", ex);
             }
-        } else {
+        } else if (!(pkt instanceof ZNetTxStatusResponse)) {
             Logger.warning("Unknown XBee Response packet: " + pkt + " : " + pkt.getClass());
         }
     }

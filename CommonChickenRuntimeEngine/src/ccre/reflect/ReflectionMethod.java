@@ -70,7 +70,7 @@ public class ReflectionMethod {
         return out.toString();
     }
 
-    public Object invoke(Object aThis, Object... params) {
+    public Object invoke(Object aThis, Object... params) throws Throwable {
         // TODO: Won't work propertly if multiple signatures match!
         int id = -1;
         for (Class[] signature : paramTypes) {

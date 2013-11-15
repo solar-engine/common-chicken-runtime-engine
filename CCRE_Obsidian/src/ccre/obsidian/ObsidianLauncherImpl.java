@@ -22,12 +22,7 @@ import ccre.chan.BooleanInputPoll;
 import ccre.chan.BooleanOutput;
 import ccre.chan.FloatInputPoll;
 import ccre.chan.FloatOutput;
-import ccre.cluck.CluckGlobals;
-import ccre.log.LogLevel;
 import ccre.log.Logger;
-import ccre.obsidian.comms.XBeeLink;
-import ccre.obsidian.comms.XBeeRadio;
-import com.rapplogic.xbee.api.XBeeException;
 import java.io.File;
 import java.io.IOException;
 import java.util.Timer;
@@ -40,12 +35,6 @@ import java.util.TimerTask;
  * @author skeggsc
  */
 public class ObsidianLauncherImpl extends ObsidianLauncher {
-    // This is the one with the big antenna.
-    public static final int[] addr1 = new int[]{0x00, 0x13, 0xA2, 0x00, 0x40, 0xA1, 0x8F, 0x1B};
-    
-    // The pathetic one with the wire antenna.
-    public static final int[] addr2 = new int[]{0x00, 0x13, 0xA2, 0x00, 0x40, 0xA8, 0xC4, 0x10};
-
     public static void main(String[] args) throws IOException, ClassNotFoundException, InstantiationException, IllegalAccessException {
         System.setProperty("gnu.io.rxtx.SerialPorts", "/dev/ttyUSB0");
         if (args.length != 0) {
@@ -71,16 +60,7 @@ public class ObsidianLauncherImpl extends ObsidianLauncher {
 
     public ObsidianLauncherImpl() throws IOException, ClassNotFoundException, InstantiationException, IllegalAccessException {
         super(ObsidianLauncherImpl.class.getClassLoader(), "hub/");
-        CluckGlobals.ensureInitializedCore();
-        XBeeRadio radio = new XBeeRadio("/dev/ttyUSB0", 9600);
-        try {
-            radio.open();
-            Logger.log(LogLevel.INFO, "Found radio");
-        } catch (XBeeException e) {
-            Logger.log(LogLevel.WARNING, "Could not connect", e);
-        }
-        XBeeLink link = new XBeeLink(radio, addr1, "hub", CluckGlobals.node,1000, 1000*10);
-        link.addToNode();
+        //ConnectionInitializer.startConnection();
     }
 
     /**

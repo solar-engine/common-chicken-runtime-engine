@@ -97,7 +97,6 @@ public abstract class ObsidianLauncher {
         new Timer().schedule(new TimerTask() {
             @Override
             public void run() {
-                System.out.println("Cycle");
                 try {
                     periodic.produce();
                 } catch (Throwable thr) {

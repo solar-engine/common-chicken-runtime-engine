@@ -129,7 +129,7 @@ public abstract class CAbstractList<T> implements CList<T> {
     }
 
     public boolean retainAll(CCollection<?> c) {
-        Iterator<T> itr = iterator();
+        Iterator<T> itr = this.iterator();
         boolean mod = false;
         while (itr.hasNext()) {
             T o = itr.next();

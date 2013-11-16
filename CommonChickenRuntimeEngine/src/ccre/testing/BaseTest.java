@@ -132,7 +132,7 @@ public abstract class BaseTest {
      * @throws TestingException if the integers are unequal.
      */
     protected void assertEqual(int a, int b, String message) throws TestingException {
-        assertTrue(a == b, message);
+        assertTrue(a == b, message + "( " + a + " != " + b + " )");
     }
 
     /**

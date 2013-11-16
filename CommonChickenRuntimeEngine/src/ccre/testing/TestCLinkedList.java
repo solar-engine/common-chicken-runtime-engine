@@ -18,29 +18,29 @@
  */
 package ccre.testing;
 
-import ccre.util.CArrayList;
 import ccre.util.CArrayUtils;
-import ccre.util.CList;
+import ccre.util.CLinkedList;
+import java.util.Iterator;
 
 /**
- * A test that tests the CArrayList class.
+ * A test that the CLinkedList class.
  *
  * @author skeggsc
  */
-public class TestCArrayList extends BaseTestList {
+public class TestCLinkedList extends BaseTestList {
+
 
     @Override
     public String getName() {
-        return "CArrayList basic test";
+        return "CLinkedList basic test";
     }
 
     @Override
     protected void runTest() throws TestingException {
-        super.runTest(new CArrayList<String>());
-        super.runTest(new CArrayList<String>(72));
-        CArrayList<String> test = new CArrayList<String>(CArrayUtils.asList("Alpha", "Beta", "Gamma", "Delta", "Epsilon"));
+        super.runTest(new CLinkedList<String>());
+        CLinkedList<String> test = new CLinkedList<String>(CArrayUtils.asList("Alpha", "Beta", "Gamma", "Delta", "Epsilon"));
         assertEqual(test.toString(), "[Alpha, Beta, Gamma, Delta, Epsilon]", "Invalid constructor-loaded array!");
-        test = new CArrayList<String>(new String[] {"Alpha", "Beta", "Gamma", "Delta", "Epsilon"});
+        test = new CLinkedList<String>(new String[] {"Alpha", "Beta", "Gamma", "Delta", "Epsilon"});
         assertEqual(test.toString(), "[Alpha, Beta, Gamma, Delta, Epsilon]", "Invalid constructor-loaded array!");
     }
 }

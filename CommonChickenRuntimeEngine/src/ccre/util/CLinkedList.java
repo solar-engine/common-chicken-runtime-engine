@@ -105,8 +105,13 @@ public class CLinkedList<T> extends CAbstractList<T> {
             public void remove() {
                 notifyModified();
                 size--;
+                current = current.prev;
+                if (current == sentinel) {
+                    throw new IllegalStateException();
+                }
                 current.prev.next = current.next;
                 current.next.prev = current.prev;
+                current = current.next;
                 locmod++;
             }
         };
@@ -230,7 +235,7 @@ public class CLinkedList<T> extends CAbstractList<T> {
         int i = size - 1;
         Node n = sentinel;
         while (true) {
-            n = n.next;
+            n = n.prev;
             if (n == sentinel) {
                 return -1;
             }

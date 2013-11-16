@@ -84,12 +84,13 @@ public class SuiteOfTests { // TODO: This package needs more tests!
         // ccre.utils
         // AllocationPool - Needed!
         // CAbstractList - Needed? Maybe included in CArrayList and CLinkedList?
-        new TestCArrayList().test(); // Needs constructor tests
+        new TestCArrayList().test();
         // CArrayUtils - Needed!
         new TestCHashMapPartial().test(); // Needs more fleshing out
         new TestCLinkedList().test(); // Needs more fleshing out
         // Heap - Needed!
         // Utils - Needed!
+        new TestUtils().test(); // Tests both Utils and CArrayUtils
 
         // ccre.workarounds - Needed!
     }

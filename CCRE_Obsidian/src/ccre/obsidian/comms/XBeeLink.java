@@ -59,7 +59,7 @@ public class XBeeLink implements CluckLink, PacketListener {
                 while (true) {
                     int[] take = dataQueue.take();
                     try {
-                        radio.sendPacketVerified(remote, take, subTimeout, timeout);
+                        radio.sendPacket(remote, take, subTimeout, timeout);
                     } catch (XBeeException ex) {
                         Logger.log(LogLevel.WARNING, "Could not transmit packet to remote XBee!", ex);
                     }
@@ -123,6 +123,7 @@ public class XBeeLink implements CluckLink, PacketListener {
     @Override
     public void processResponse(XBeeResponse pkt) {
         if (pkt instanceof ZNetRxResponse) { // TODO: Compress common destinations and sources
+            Logger.log(LogLevel.INFO, "Recieved Message");
             ZNetRxResponse zp = (ZNetRxResponse) pkt;
             int[] raddr = zp.getRemoteAddress64().getAddress();
             if (!Arrays.equals(raddr, remote)) {

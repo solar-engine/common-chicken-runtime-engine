@@ -22,6 +22,7 @@ import com.rapplogic.xbee.api.PacketListener;
 import com.rapplogic.xbee.api.XBee;
 import com.rapplogic.xbee.api.XBeeAddress64;
 import com.rapplogic.xbee.api.XBeeException;
+import com.rapplogic.xbee.api.XBeeRequest;
 import com.rapplogic.xbee.api.XBeeResponse;
 import com.rapplogic.xbee.api.XBeeTimeoutException;
 import com.rapplogic.xbee.api.zigbee.ZNetTxRequest;
@@ -36,13 +37,17 @@ public class XBeeRadio {
     private XBee xbee;
     private String port;
     private int baudRate;
+    private long[] timeouts;
+    private XBeeRequest[] messages;
+    private final boolean verified;
 
-    public XBeeRadio(String port, int baudRate) {
+    public XBeeRadio(String port, int baudRate, boolean verified) {
         this.port = port;
         this.baudRate = baudRate;
         this.xbee = new XBee();
+        this.verified = verified;
     }
-    
+
     public void modify(String port, int baudRate) throws XBeeException {
         close();
         this.port = port;
@@ -57,24 +62,42 @@ public class XBeeRadio {
     public void close() {
         xbee.close();
     }
+    
+    public void sendPacket(int[] addr, int[] msg, int subTimeout, int timeout) throws XBeeException {
+        if (verified) {
+            sendPacketVerified(addr, msg, subTimeout, timeout);
+        } else {
+            sendPacketUnverified(addr, msg);
+        }
+    }
+
+    public void sendPacketUnverified(int[] addr, int[] msg) throws XBeeException {
+        XBeeAddress64 address = new XBeeAddress64(addr);
+        ZNetTxRequest message = new ZNetTxRequest(address, msg);
+        
+        xbee.sendAsynchronous(message);
+    }
 
     public void sendPacketVerified(int[] addr, int[] msg, int subTimeout, int timeout) throws XBeeException {
         ZNetTxStatusResponse response = null;
-        
+
         long startTime = System.currentTimeMillis();
 
         while (true) {
             if (System.currentTimeMillis() - startTime > timeout) {
                 throw new XBeeTimeoutException();
             }
-            
+
             XBeeAddress64 address = new XBeeAddress64(addr);
             ZNetTxRequest message = new ZNetTxRequest(address, msg);
 
             try {
                 response = (ZNetTxStatusResponse) xbee.sendSynchronous(message, subTimeout);
+
                 if (response.isSuccess()) {
                     return;
+                } else {
+                    System.out.println("Had to resend message");
                 }
             } catch (XBeeTimeoutException e) {
             }

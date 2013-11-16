@@ -24,9 +24,9 @@ public class ConnectionInitializer {
     // The pathetic one with the wire antenna.
     public static final int[] addr2 = new int[]{0x00, 0x13, 0xA2, 0x00, 0x40, 0xA8, 0xC4, 0x10};
     
-    public static void startConnection() {
+    public static void startConnection(String port, int baud, boolean verified) {
         CluckGlobals.ensureInitializedCore();
-        XBeeRadio radio = new XBeeRadio("/dev/ttyUSB0", 9600);
+        XBeeRadio radio = new XBeeRadio(port, baud, verified);
         try {
             radio.open();
             Logger.log(LogLevel.INFO, "Found radio");

@@ -60,8 +60,8 @@ public class TestUtils extends BaseTest {
         sb.setLength(sb.length() - 1);
         assertEqual(sb.toString(), ss, "Bad split data!");
         // CArrayUtils.EMPTY_LIST, CArrayUtils.getEmptyList()
-        CList c = CArrayUtils.EMPTY_LIST;
-        assertEqual(CArrayUtils.getEmptyList(), c, "Expected getEmptyList() to be the same as EMPTY_LIST!");
+        CList<Object> c = CArrayUtils.getEmptyList();
+        assertEqual(CArrayUtils.EMPTY_LIST, c, "Expected getEmptyList() to be the same as EMPTY_LIST!");
         try {
             c.add(10);
             assertFail("Should have errored!");
@@ -75,20 +75,20 @@ public class TestUtils extends BaseTest {
             // Correct!
         }
         try {
-            c.addAll(new CArrayList(new String[]{"Test", "Exactly!"}));
+            c.addAll(new CArrayList<String>(new String[]{"Test", "Exactly!"}));
             assertFail("Should have errored!");
         } catch (UnsupportedOperationException u) {
             // Correct!
         }
         try {
-            c.addAll(0, new CArrayList(new String[]{"Test", "Exactly!"}));
+            c.addAll(0, new CArrayList<String>(new String[]{"Test", "Exactly!"}));
             assertFail("Should have errored!");
         } catch (UnsupportedOperationException u) {
             // Correct!
         }
         assertFalse(c.contains(3), "Should not contain anything!");
         assertTrue(c.containsAll(new CArrayList()), "Should contain nothing!");
-        assertFalse(c.containsAll(new CArrayList(new Object[]{null})), "Should not contain anything!");
+        assertFalse(c.containsAll(new CArrayList<Object>(new Object[]{null})), "Should not contain anything!");
         assertEqual(c.fillArray(new Object[0]), 0, "Should be empty!");
         try {
             c.get(0);

@@ -20,6 +20,7 @@ package org.team1540.example;
 
 import ccre.chan.*;
 import ccre.ctrl.DriverImpls;
+import ccre.ctrl.Mixing;
 import ccre.event.EventSource;
 import ccre.igneous.SimpleCore;
 import ccre.instinct.AutonomousModeOverException;
@@ -37,7 +38,9 @@ public class Test extends SimpleCore {
         this.makeDSFloatReadout("Forward", 3, forwardAxis, duringTeleop);
         final FloatOutput leftOut = makeTalonMotor(2, MOTOR_FORWARD);
         final FloatOutput rightOut = makeTalonMotor(1, MOTOR_REVERSE);
-        DriverImpls.createExtendedSynchTankDriver(duringTeleop, leftAxis, rightAxis, forwardAxis, leftOut, rightOut);
+        DriverImpls.createExtendedSynchTankDriver(duringTeleop, leftAxis, rightAxis, forwardAxis,
+                Mixing.addRamping(0.1f, globalPeriodic, leftOut),
+                Mixing.addRamping(0.1f, globalPeriodic, rightOut));
         // Shifting
         EventSource shiftHighBtn = joystick1.getButtonSource(1);
         EventSource shiftLowBtn = joystick1.getButtonSource(3);

@@ -60,7 +60,7 @@ public class IPProvider {
         }
         Logger.finer("Found connect address: " + addr);
         if (CluckGlobals.cli == null) {
-            CluckGlobals.setupClient(addr, "robot", "poultry");
+            CluckGlobals.setupClient(addr, "robot", "phidget");
         } else {
             CluckGlobals.cli.setRemote(addr);
         }

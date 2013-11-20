@@ -67,7 +67,7 @@ public class Utils {
      */
     public static String[] split(String s, char c) {
         int count = 1;
-        for (int i=0; i<s.length(); i++) {
+        for (int i = 0; i < s.length(); i++) {
             if (s.charAt(i) == c) {
                 count++;
             }
@@ -75,7 +75,7 @@ public class Utils {
         String[] parts = new String[count];
         int last = 0;
         int part = 0;
-        for (int i=0; i<s.length(); i++) {
+        for (int i = 0; i < s.length(); i++) {
             if (s.charAt(i) == c) {
                 parts[part++] = s.substring(last, i);
                 last = i + 1;
@@ -86,5 +86,32 @@ public class Utils {
             throw new RuntimeException("Internal error - wait, what?");
         }
         return parts;
+    }
+
+    /**
+     * Run a cycle of ramping code on the previous ramping value, target value,
+     * and acceleration limit.
+     * 
+     * This will return the target value unless it's outside of the limit away from 
+     *
+     * @param previous
+     * @param target
+     * @param limit
+     * @return
+     */
+    public static float updateRamping(float previous, float target, float limit) {
+        if (limit <= 0) {
+            if (limit == 0) {
+                return 0;
+            }
+            limit = -limit;
+        }
+        if (target > previous + limit) {
+            return previous + limit;
+        } else if (target < previous - limit) {
+            return previous - limit;
+        } else {
+            return target;
+        }
     }
 }

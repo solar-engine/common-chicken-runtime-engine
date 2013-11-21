@@ -167,17 +167,17 @@ public abstract class BaseTestList extends BaseTest {
         // fillArray
         String[] target = new String[6];
         assertEqual(a.fillArray(target), 0, "Bad fillArray result!");
-        for (int i=0; i<target.length; i++) {
+        for (int i = 0; i < target.length; i++) {
             assertEqual(target[i], a.get(i), "Bad filled array contents!");
         }
         target = new String[5];
         assertEqual(a.fillArray(target), 1, "Bad fillArray result!");
-        for (int i=0; i<target.length; i++) {
+        for (int i = 0; i < target.length; i++) {
             assertEqual(target[i], a.get(i), "Bad filled array contents!");
         }
         target = new String[7];
         assertEqual(a.fillArray(target), -1, "Bad fillArray result!");
-        for (int i=0; i<target.length-1; i++) {
+        for (int i = 0; i < target.length - 1; i++) {
             assertEqual(target[i], a.get(i), "Bad filled array contents!");
         }
         assertEqual(target[6], null, "Bad filled array contents!");
@@ -198,7 +198,7 @@ public abstract class BaseTestList extends BaseTest {
         // toArray
         Object[] o = a.toArray();
         assertEqual(o.length, a.size(), "Bad toArray length!");
-        for (int i=0; i<o.length; i++) {
+        for (int i = 0; i < o.length; i++) {
             assertEqual(o[i], a.get(i), "Bad toArray!");
         }
         // clear

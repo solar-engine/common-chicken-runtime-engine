@@ -30,7 +30,7 @@ public class TestCHashMapPartial extends BaseTest {
 
     @Override
     public String getName() {
-        return "CHashMap minimal test";
+        return "CHashMap test";
     }
 
     @Override

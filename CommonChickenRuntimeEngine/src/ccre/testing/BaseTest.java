@@ -151,8 +151,8 @@ public abstract class BaseTest {
 
     /**
      * The object arguments should be value-equal, as in
-     * <code>a == null ? b == null : a.equals(b)</code>! If not, the test has failed! Report this and stop
-     * the test.
+     * <code>a == null ? b == null : a.equals(b)</code>! If not, the test has
+     * failed! Report this and stop the test.
      *
      * @param a the first object.
      * @param b the second object.

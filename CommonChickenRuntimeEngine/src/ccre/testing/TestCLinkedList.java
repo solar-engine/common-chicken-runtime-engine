@@ -28,10 +28,9 @@ import ccre.util.CLinkedList;
  */
 public class TestCLinkedList extends BaseTestList {
 
-
     @Override
     public String getName() {
-        return "CLinkedList basic test";
+        return "CLinkedList test";
     }
 
     @Override
@@ -39,7 +38,7 @@ public class TestCLinkedList extends BaseTestList {
         super.runTest(new CLinkedList<String>());
         CLinkedList<String> test = new CLinkedList<String>(CArrayUtils.asList("Alpha", "Beta", "Gamma", "Delta", "Epsilon"));
         assertEqual(test.toString(), "[Alpha, Beta, Gamma, Delta, Epsilon]", "Invalid constructor-loaded array!");
-        test = new CLinkedList<String>(new String[] {"Alpha", "Beta", "Gamma", "Delta", "Epsilon"});
+        test = new CLinkedList<String>(new String[]{"Alpha", "Beta", "Gamma", "Delta", "Epsilon"});
         assertEqual(test.toString(), "[Alpha, Beta, Gamma, Delta, Epsilon]", "Invalid constructor-loaded array!");
         assertEqual(test.getFirst(), "Alpha", "Bad getFirst!");
         assertEqual(test.getLast(), "Epsilon", "Bad getLast!");

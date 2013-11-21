@@ -20,7 +20,6 @@ package ccre.testing;
 
 import ccre.util.CArrayList;
 import ccre.util.CArrayUtils;
-import ccre.util.CList;
 
 /**
  * A test that tests the CArrayList class.
@@ -31,7 +30,7 @@ public class TestCArrayList extends BaseTestList {
 
     @Override
     public String getName() {
-        return "CArrayList basic test";
+        return "CArrayList test";
     }
 
     @Override
@@ -40,7 +39,7 @@ public class TestCArrayList extends BaseTestList {
         super.runTest(new CArrayList<String>(72));
         CArrayList<String> test = new CArrayList<String>(CArrayUtils.asList("Alpha", "Beta", "Gamma", "Delta", "Epsilon"));
         assertEqual(test.toString(), "[Alpha, Beta, Gamma, Delta, Epsilon]", "Invalid constructor-loaded array!");
-        test = new CArrayList<String>(new String[] {"Alpha", "Beta", "Gamma", "Delta", "Epsilon"});
+        test = new CArrayList<String>(new String[]{"Alpha", "Beta", "Gamma", "Delta", "Epsilon"});
         assertEqual(test.toString(), "[Alpha, Beta, Gamma, Delta, Epsilon]", "Invalid constructor-loaded array!");
     }
 }

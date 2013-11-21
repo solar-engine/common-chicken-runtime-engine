@@ -147,7 +147,7 @@ public class TestUtils extends BaseTest {
         assertEqual(test[2].intValue(), 30, "Bad fillArray!");
         assertEqual(test[3].intValue(), 40, "Bad fillArray!");
         Object[] arr = asList.toArray();
-        for (int i=0; i<arr.length; i++) {
+        for (int i = 0; i < arr.length; i++) {
             assertEqual(test[i], arr[i], "Bad toArray result!");
         }
         assertEqual(arr.length, test.length, "Bad toArray length!");
@@ -170,14 +170,14 @@ public class TestUtils extends BaseTest {
         assertEqual(asList.indexOf(30), 2, "Bad index!");
         assertEqual(asList.lastIndexOf(40), 3, "Bad index!");
         try {
-            asList.remove((Object)10);
+            asList.remove((Object) 10);
             assertFail("Should have errored!");
         } catch (UnsupportedOperationException o) {
             // Correct!
         }
         assertFalse(asList.isEmpty(), "Should not be empty!");
         Iterator<Integer> itr = asList.iterator();
-        int i=0;
+        int i = 0;
         while (itr.hasNext()) {
             assertEqual(itr.next(), asList.get(i++), "Bad iterator result!");
         }
@@ -193,12 +193,12 @@ public class TestUtils extends BaseTest {
         assertEqual(asList.toString(), "[10, 100, 30, 40]", "Bad toString!");
         // CArrayUtils.castToGeneric not tested here, because it's really hard to test and only exists to counter compiler warnings.
         // CArrayUtils.copyOf
-        Object[] old = new Object[] {"A", "B", "C", "D"};
+        Object[] old = new Object[]{"A", "B", "C", "D"};
         Object[] arr2 = CArrayUtils.copyOf(old, 3);
         Object[] arr3 = CArrayUtils.copyOf(arr2, 5);
         assertEqual(arr2.length, 3, "Bad copyOf!");
         assertEqual(arr3.length, 5, "Bad copyOf!");
-        for (int j=0; j<arr2.length; j++) {
+        for (int j = 0; j < arr2.length; j++) {
             assertEqual(old[j], arr2[j], "Bad copyOf!");
             assertEqual(old[j], arr3[j], "Bad copyOf!");
         }

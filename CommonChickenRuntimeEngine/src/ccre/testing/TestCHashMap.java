@@ -22,11 +22,11 @@ import ccre.util.CHashMap;
 import java.util.Random;
 
 /**
- * A test that tests some parts of the CHashMap class.
+ * A test that tests the CHashMap class.
  *
  * @author skeggsc
  */
-public class TestCHashMapPartial extends BaseTest {
+public class TestCHashMap extends BaseTest {
 
     @Override
     public String getName() {

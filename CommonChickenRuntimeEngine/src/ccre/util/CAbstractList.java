@@ -202,7 +202,11 @@ public abstract class CAbstractList<T> implements CList<T> {
         }
         StringBuilder sb = new StringBuilder("[");
         for (Object o : this) {
-            sb.append(o.toString()).append(", ");
+            if (o == null) {
+                sb.append("null, ");
+            } else {
+                sb.append(o.toString()).append(", ");
+            }
         }
         if (sb.length() <= 1) {
             return "[]";

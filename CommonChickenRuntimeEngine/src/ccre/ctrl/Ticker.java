@@ -18,6 +18,7 @@
  */
 package ccre.ctrl;
 
+import ccre.event.Event;
 import ccre.event.EventConsumer;
 import ccre.event.EventSource;
 import ccre.util.CLinkedList;
@@ -33,7 +34,7 @@ import java.util.TimerTask;
  */
 public final class Ticker extends TimerTask implements EventSource {
 
-    private CList<EventConsumer> consumers;
+    private Event producer;
 
     /**
      * Create a new Ticker with the specified interval. The timer will start
@@ -66,7 +67,6 @@ public final class Ticker extends TimerTask implements EventSource {
      * @param fixedRate Should the rate be corrected?
      */
     public Ticker(int interval, boolean fixedRate) {
-        consumers = new CLinkedList<EventConsumer>();
         Timer t = new Timer();
         if (fixedRate) {
             t.scheduleAtFixedRate(this, interval, interval);
@@ -83,7 +83,7 @@ public final class Ticker extends TimerTask implements EventSource {
      * @return Whether the operation was successful, which it always is.
      */
     public boolean addListener(EventConsumer ec) {
-        return consumers.add(ec);
+        return producer.addListener(ec);
     }
 
     /**
@@ -93,15 +93,13 @@ public final class Ticker extends TimerTask implements EventSource {
      * @param ec The EventConsumer to remove.
      */
     public void removeListener(EventConsumer ec) {
-        consumers.remove(ec);
+        producer.removeListener(ec);
     }
 
     /**
      * This is called by the timer. Do not call this method yourself.
      */
     public void run() {
-        for (EventConsumer ec : consumers) {
-            ec.eventFired();
-        }
+        producer.produce();
     }
 }

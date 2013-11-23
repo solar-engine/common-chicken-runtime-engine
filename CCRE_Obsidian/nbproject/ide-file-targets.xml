@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project basedir=".." name="CCRE_Obsidian-IDE">
+    <property name="project.dir" value="."/>
+    <!-- TODO: edit the following target according to your needs -->
+    <!-- (more info: http://www.netbeans.org/kb/articles/freeform-config.html#runsingle) -->
+    <target name="run-selected-file-in-src">
+        <fail unless="run.class">Must set property 'run.class'</fail>
+        <java classname="${run.class}" failonerror="true" fork="true">
+            <classpath>
+                <pathelement path="../CommonChickenRuntimeEngine/dist/CCRE-1.5.jar;lib/RXTXcomm.jar;lib/log4j.jar;lib/xbee-api-0.9.jar"/>
+                <pathelement path="build/classes"/>
+            </classpath>
+        </java>
+    </target>
+</project>

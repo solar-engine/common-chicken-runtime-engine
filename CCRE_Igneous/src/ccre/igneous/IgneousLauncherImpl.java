@@ -84,6 +84,7 @@ class IgneousLauncherImpl extends IterativeRobot implements IgneousLauncher {
         core.duringTeleop = this.duringTeleop;
         core.duringTesting = this.duringTesting;
         core.globalPeriodic = this.globalPeriodic;
+        core.constantPeriodic = new Ticker(10, true);
         core.robotDisabled = this.robotDisabled;
         core.startedAutonomous = this.startedAutonomous;
         core.startedTeleop = this.startedTeleop;

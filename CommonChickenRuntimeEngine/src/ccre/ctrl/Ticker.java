@@ -32,7 +32,7 @@ import java.util.TimerTask;
  */
 public final class Ticker extends TimerTask implements EventSource {
 
-    private Event producer;
+    private Event producer = new Event();
 
     /**
      * Create a new Ticker with the specified interval. The timer will start

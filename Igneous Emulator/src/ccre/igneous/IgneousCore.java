@@ -76,7 +76,7 @@ public abstract class IgneousCore implements InstinctRegistrar {
      * Constant time periodic. Should pulse every 10 ms, as accurately as
      * possible.
      */
-    protected EventSource constantPeriodic = new Ticker(10, true);
+    protected EventSource constantPeriodic;
 
     /**
      * Implement this method - it should set up everything that your robot needs

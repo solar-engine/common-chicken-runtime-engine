@@ -49,13 +49,13 @@ public class Inferno extends SimpleCore {
         FloatInputPoll leftAxis = joystick1.getAxisChannel(2);
         FloatInputPoll forwardAxis = joystick1.getAxisChannel(3);
         FloatInputPoll rightAxis = joystick1.getAxisChannel(5);
-        FloatOutput leftOut = makeTalonMotor(2, MOTOR_FORWARD);
-        FloatOutput rightOut = makeTalonMotor(1, IS_COMPETITION_ROBOT ? MOTOR_REVERSE : MOTOR_FORWARD);
+        FloatOutput leftOut = makeTalonMotor(2, MOTOR_FORWARD, 0);
+        FloatOutput rightOut = makeTalonMotor(1, IS_COMPETITION_ROBOT ? MOTOR_REVERSE : MOTOR_FORWARD, 0);
         DriverImpls.createExtendedSynchTankDriver(duringTeleop, leftAxis, rightAxis, forwardAxis, leftOut, rightOut);
     }
 
     private void createShooterWheel() {
-        FloatOutput wheel = Mixing.combineFloats(makeTalonMotor(3, MOTOR_FORWARD), makeTalonMotor(4, MOTOR_FORWARD), makeTalonMotor(5, MOTOR_FORWARD));
+        FloatOutput wheel = Mixing.combineFloats(makeTalonMotor(3, MOTOR_FORWARD, 0), makeTalonMotor(4, MOTOR_FORWARD, 0), makeTalonMotor(5, MOTOR_FORWARD, 0));
         FloatInput moddedSpeed = Mixing.booleanSelectFloat(isKiddieMode, 1f, 0.5f);
         BooleanOutput wheelControl = Mixing.booleanSelectFloat(wheel, Mixing.always(0f), moddedSpeed);
         BooleanInputPoll runWheelBtn = Mixing.orBooleans(PhidgetReader.digitalInputs[5], joystick1.getButtonChannel(4));
@@ -73,7 +73,7 @@ public class Inferno extends SimpleCore {
         FloatInputPoll manualArm = PhidgetReader.analogInputs[5];
         FloatInputPoll armPotentiometer = makeAnalogInput(2, 9);
         CluckGlobals.node.publish("arm-potentiometer", Mixing.createDispatch(armPotentiometer, globalPeriodic));
-        FloatOutput armMotor = IS_COMPETITION_ROBOT ? makeTalonMotor(6, MOTOR_FORWARD) : makeVictorMotor(6, MOTOR_REVERSE);
+        FloatOutput armMotor = IS_COMPETITION_ROBOT ? makeTalonMotor(6, MOTOR_FORWARD, 0) : makeVictorMotor(6, MOTOR_REVERSE, 0);
 
         createPotentiometerReadout(armPotentiometer);
 

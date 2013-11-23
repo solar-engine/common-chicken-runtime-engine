@@ -21,8 +21,6 @@ package ccre.ctrl;
 import ccre.event.Event;
 import ccre.event.EventConsumer;
 import ccre.event.EventSource;
-import ccre.util.CLinkedList;
-import ccre.util.CList;
 import java.util.Timer;
 import java.util.TimerTask;
 

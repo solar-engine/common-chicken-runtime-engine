@@ -102,11 +102,24 @@ class DeviceTree {
                     }
                     String s = line.substring(0, i);
                     while (s.charAt(0) == ' ') {
-                        s = s.substring(1); // TODO: Optimize
+                        s = s.substring(1);
                     }
                     Logger.info("Writing: " + ("-" + s));
                     raf.writeBytes("-" + s);
                     return true;
+                    // TODO: Test and use this optimized code.
+                    /*
+                    int end = line.indexOf(':');
+                    if (end == -1) {
+                        throw new IOException("Cannot find colon to detect line for removal!");
+                    }
+                    int i = 0;
+                    while (i<end && line.charAt(i) != ' ') {
+                        i++;
+                    }
+                    String s = line.substring(i, end);
+                    raf.writeBytes("-" + s);
+                    return true;*/
                 }
             }
         } finally {

@@ -134,7 +134,7 @@ public class CluckNullLink implements CluckLink {
         if (source == null) {
             source = linkName;
         } else {
-            source = linkName + "." + source;
+            source = linkName + "/" + source;
         }
         node.transmit(rest, source, data, this);
     }

@@ -18,7 +18,7 @@
  */
 package ccre.launcher;
 
-import ccre.cluck.StandaloneCluckServer;
+import ccre.cluck.tcp.StandaloneCluckServer;
 import ccre.rload.RLoadClient;
 import ccre.rload.RLoadServer;
 import ccre.testing.SuiteOfTests;

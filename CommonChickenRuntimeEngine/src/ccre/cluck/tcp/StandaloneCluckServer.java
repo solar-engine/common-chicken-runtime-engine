@@ -16,8 +16,9 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with the CCRE.  If not, see <http://www.gnu.org/licenses/>.
  */
-package ccre.cluck;
+package ccre.cluck.tcp;
 
+import ccre.cluck.CluckGlobals;
 import ccre.event.EventConsumer;
 import ccre.log.Logger;
 import ccre.log.NetworkAutologger;

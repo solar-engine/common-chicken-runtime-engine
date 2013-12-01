@@ -18,6 +18,9 @@
  */
 package ccre.cluck;
 
+import ccre.cluck.tcp.CluckTCPClient;
+import ccre.cluck.tcp.CluckTCPServer;
+
 /**
  * A storage location for the current CluckNode, CluckTCPServer, and
  * CluckTCPClient.

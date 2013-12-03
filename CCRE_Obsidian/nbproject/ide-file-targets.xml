@@ -12,4 +12,20 @@
             </classpath>
         </java>
     </target>
+    <!-- TODO: edit the following target according to your needs -->
+    <!-- (more info: http://www.netbeans.org/kb/articles/freeform-config.html#runsingle) -->
+    <target name="-profile-check">
+        <startprofiler freeform="true"/>
+    </target>
+    <target depends="-profile-check" if="profiler.configured" name="profile-selected-file-in-src">
+        <fail unless="profile.class">Must set property 'profile.class'</fail>
+        <path id="cp">
+            <pathelement path="../CommonChickenRuntimeEngine/dist/CCRE-1.5.jar;lib/RXTXcomm.jar;lib/log4j.jar;lib/xbee-api-0.9.jar"/>
+            <pathelement location="build/classes"/>
+        </path>
+        <java classname="${profile.class}" fork="true">
+            <classpath refid="cp"/>
+            <jvmarg line="${agent.jvmargs}"/>
+        </java>
+    </target>
 </project>

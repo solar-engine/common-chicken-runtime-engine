@@ -50,6 +50,12 @@ public class XBeeRadio {
     public void close() {
         xbee.close();
     }
+    
+    public void sendPacketUnverified(int[] addr, int[] msg) throws XBeeException {
+        XBeeAddress64 address = new XBeeAddress64(addr);
+        ZNetTxRequest message = new ZNetTxRequest(address, msg);
+        xbee.sendAsynchronous(message);
+    }
 
     public void sendPacketVerified(int[] addr, int[] msg, int subTimeout, int timeout) throws XBeeException {
         ZNetTxStatusResponse response = null;

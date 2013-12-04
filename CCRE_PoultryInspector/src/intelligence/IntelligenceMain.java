@@ -410,6 +410,7 @@ public class IntelligenceMain extends JPanel implements CluckRemoteListener, Mou
         frame.add(jsp);
         frame.setVisible(true);
         Logger.info("Started Poultry Inspector at " + System.currentTimeMillis());
+        new PhidgetMonitor().share(CluckGlobals.node);
         IPProvider.connect();
     }
 }

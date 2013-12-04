@@ -26,6 +26,7 @@ import ccre.log.LogLevel;
 import ccre.log.Logger;
 import ccre.log.LoggingTarget;
 import ccre.util.CArrayList;
+import ccre.util.CArrayUtils;
 import ccre.util.CHashMap;
 import ccre.workarounds.ThrowablePrinter;
 import java.io.IOException;
@@ -155,6 +156,11 @@ public class CluckNode {
      * The link name of the last error message about a link not existing.
      */
     private String lastMissingLink = null;
+    /**
+     * Should this CluckNode log all messages as they pass through? (For
+     * debugging)
+     */
+    public boolean debugLogAll = false;
 
     /**
      * Notify everyone on the network that the network structure has been
@@ -192,6 +198,9 @@ public class CluckNode {
      * @param denyLink The link for broadcasts to not follow.
      */
     public void transmit(String target, String source, byte[] data, CluckLink denyLink) {
+        if (debugLogAll) {
+            Logger.config("[" + this + "]DL " + target + " <- " + source + ": " + (data.length > 0 ? rmtToString(data[0]) : null) + ": " + CArrayUtils.asList(data));
+        }
         estimatedByteCount += 24 + (target != null ? target.length() : 0) + (source != null ? source.length() : 0) + data.length; // 24 is the estimated packet overhead with a CluckTCPClient.
         if (target == null) {
             Logger.log(LogLevel.WARNING, "Received message addressed to unreceving node (source: " + source + ")", new Exception("Embedded Traceback"));

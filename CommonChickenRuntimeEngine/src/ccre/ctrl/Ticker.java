@@ -18,61 +18,86 @@
  */
 package ccre.ctrl;
 
+import ccre.event.Event;
 import ccre.event.EventConsumer;
 import ccre.event.EventSource;
-import ccre.util.CLinkedList;
-import ccre.util.CList;
 import java.util.Timer;
 import java.util.TimerTask;
 
 /**
  * An EventSource that will fire the event in all its consumers at a specified
  * interval.
- * 
+ *
  * @author MillerV
  */
 public final class Ticker extends TimerTask implements EventSource {
-    private CList<EventConsumer> consumers;
-    
+
+    private Event producer = new Event();
+
     /**
      * Create a new Ticker with the specified interval. The timer will start
      * immediately, executing for the first time after the specified interval.
-     * 
+     *
+     * This will not run at a fixed rate, as extra time taken for one cycle will
+     * not be corrected for in the time between the cycles.
+     *
      * @param interval The desired interval, in milliseconds.
      */
     public Ticker(int interval) {
-        consumers = new CLinkedList<EventConsumer>();
-        Timer t = new Timer();
-        t.schedule(this, interval, interval);
+        this(interval, false);
     }
-    
+
+    /**
+     * Create a new Ticker with the specified interval and fixed rate option.
+     * The timer will start immediately, executing for the first time after the
+     * specified interval.
+     *
+     * If fixedRate is false, this will not run at a fixed rate, as extra time
+     * taken for one cycle will not be corrected for in the time between the
+     * cycles.
+     *
+     * If fixedRate is true, this will run at a fixed rate, as extra time taken
+     * for one cycle will be removed from the time before the subsequent cycle.
+     * This does mean that if a cycle takes too long, that produces of the event
+     * can bunch up and execute a number of times back-to-back.
+     *
+     * @param interval The desired interval, in milliseconds.
+     * @param fixedRate Should the rate be corrected?
+     */
+    public Ticker(int interval, boolean fixedRate) {
+        Timer t = new Timer();
+        if (fixedRate) {
+            t.scheduleAtFixedRate(this, interval, interval);
+        } else {
+            t.schedule(this, interval, interval);
+        }
+    }
+
     /**
      * Adds an EventConsumer to listen for the periodically fired events
      * produced by this EventSource.
-     * 
+     *
      * @param ec The EventConsumer to add.
      * @return Whether the operation was successful, which it always is.
      */
     public boolean addListener(EventConsumer ec) {
-        return consumers.add(ec);
+        return producer.addListener(ec);
     }
-    
+
     /**
      * Removes the specified EventConsumer, so that its eventFired method will
      * no longer be called by this EventSource.
-     * 
+     *
      * @param ec The EventConsumer to remove.
      */
     public void removeListener(EventConsumer ec) {
-        consumers.remove(ec);
+        producer.removeListener(ec);
     }
-    
+
     /**
      * This is called by the timer. Do not call this method yourself.
      */
     public void run() {
-        for (EventConsumer ec : consumers) {
-            ec.eventFired();
-        }
+        producer.produce();
     }
 }

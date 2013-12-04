@@ -18,7 +18,8 @@
  */
 package ccre.launcher;
 
-import ccre.cluck.StandaloneCluckServer;
+import ccre.cluck.tcp.StandaloneCluckServer;
+import ccre.reflect.InterfaceReflectionGenerator;
 import ccre.rload.RLoadClient;
 import ccre.rload.RLoadServer;
 import ccre.testing.SuiteOfTests;
@@ -34,14 +35,15 @@ public class Launcher {
     private Launcher() {
     }
 
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) throws IOException, ClassNotFoundException, InstantiationException, IllegalAccessException {
         if (args.length == 0) {
             System.err.println("Usage: java -jar CCRE.jar <TYPE> <ARGS...>");
             System.err.println("Types:");
             System.err.println("    cluck - StandaloneCluckServer");
-            System.err.println("    rcli - RLoadClient");
+            System.err.println("    rcli  - RLoadClient");
             System.err.println("    rserv - RLoadServer");
             System.err.println("    tests - SuiteOfTests");
+            System.err.println("    reflg - ReflectionGenerator");
             return;
         }
         String a = args[0];
@@ -69,6 +71,9 @@ public class Launcher {
             case 'e':
                 if (a.equals("tests")) {
                     SuiteOfTests.main(cargs);
+                    return;
+                } else if (a.equals("reflg")) {
+                    ((InterfaceReflectionGenerator) Class.forName("ccre.reflect.ReflectionGenerator").newInstance()).mainV(cargs);
                     return;
                 }
                 break;

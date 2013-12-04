@@ -18,6 +18,7 @@
  */
 package ccre.event;
 
+import ccre.concurrency.ConcurrentDispatchArray;
 import ccre.util.CArrayList;
 import ccre.util.CArrayUtils;
 
@@ -48,7 +49,7 @@ public class Event implements EventSource, EventConsumer, Runnable {
      * Create a new Event.
      */
     public Event() {
-        consumers = new CArrayList<EventConsumer>();
+        consumers = new ConcurrentDispatchArray<EventConsumer>();
     }
 
     /**
@@ -59,7 +60,7 @@ public class Event implements EventSource, EventConsumer, Runnable {
      * @see #addListener(ccre.event.EventConsumer)
      */
     public Event(EventConsumer event) {
-        consumers = new CArrayList<EventConsumer>();
+        consumers = new ConcurrentDispatchArray<EventConsumer>();
         consumers.add(event);
     }
 
@@ -71,12 +72,13 @@ public class Event implements EventSource, EventConsumer, Runnable {
      * @see #addListener(ccre.event.EventConsumer)
      */
     public Event(EventConsumer... events) {
-        consumers = new CArrayList<EventConsumer>(CArrayUtils.asList(events));
+        consumers = new ConcurrentDispatchArray<EventConsumer>();
+        consumers.addAll(CArrayUtils.asList(events));
     }
     /**
      * The events to fire when this event is fired.
      */
-    protected CArrayList<EventConsumer> consumers;
+    protected ConcurrentDispatchArray<EventConsumer> consumers;
 
     /**
      * Returns whether or not this has any consumers that will get fired. If

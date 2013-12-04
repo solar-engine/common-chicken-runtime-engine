@@ -45,7 +45,7 @@ public class PhidgetReader {
 
     static {
         for (int i = 0; i < digitalOutputs.length; i++) {
-            digitalOutputs[i] = CluckGlobals.node.subscribeBO("phidget-bo" + i);
+            digitalOutputs[i] = CluckGlobals.node.subscribeBO("phidget/phidget-bo" + i);
         }
     }
     /**
@@ -55,7 +55,7 @@ public class PhidgetReader {
 
     static {
         for (int i = 0; i < digitalInputs.length; i++) {
-            digitalInputs[i] = CluckGlobals.node.subscribeBIP("phidget-bi" + i);
+            digitalInputs[i] = CluckGlobals.node.subscribeBIP("phidget/phidget-bi" + i);
         }
     }
     /**
@@ -65,7 +65,7 @@ public class PhidgetReader {
 
     static {
         for (int i = 0; i < analogInputs.length; i++) {
-            analogInputs[i] = CluckGlobals.node.subscribeFIP("phidget-ai" + i);
+            analogInputs[i] = CluckGlobals.node.subscribeFIP("phidget/phidget-ai" + i);
         }
     }
     /**
@@ -76,7 +76,7 @@ public class PhidgetReader {
 
     static {
         for (int i = 0; i < phidgetLCD.length; i++) {
-            phidgetLCD[i] = new PrintStream(CluckGlobals.node.subscribeOS("phidget-lcd" + i));
+            phidgetLCD[i] = new PrintStream(CluckGlobals.node.subscribeOS("phidget/phidget-lcd" + i));
         }
     }
 }

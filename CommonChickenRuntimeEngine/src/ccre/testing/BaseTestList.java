@@ -30,11 +30,7 @@ import java.util.NoSuchElementException;
  */
 public abstract class BaseTestList extends BaseTest {
 
-    protected abstract <E> CList<E> getNewList();
-
-    @Override
-    protected void runTest() throws TestingException {
-        CList<String> a = getNewList();
+    protected void runTest(CList<String> a) throws TestingException {
         // isEmpty
         assertTrue(a.isEmpty(), "Bad isEmpty!");
         // size
@@ -64,7 +60,7 @@ public abstract class BaseTestList extends BaseTest {
         assertFalse(a.isEmpty(), "Bad isEmpty!");
         assertEqual(a.size(), 5, "Bad size!");
         // addAll, indexed
-        a.addAll(3, CArrayUtils.asList("40", "40"));
+        a.addAll(3, CArrayUtils.asList("40", "40", "40"));
         try {
             a.addAll(-1, CArrayUtils.asList("40", "40"));
             assertFail("Should have thrown IndexOutOfBoundsException!");
@@ -155,19 +151,59 @@ public abstract class BaseTestList extends BaseTest {
         assertEqual(a.get(4), "40", "Bad element!");
         assertEqual(a.get(5), "30", "Bad element!");
         assertEqual(a.size(), 6, "Bad size!");
+        // toString
+        assertEqual(a.toString(), "[Beta, 10, 40, 40, 40, 30]", "Bad toString!");
         // set
         a.set(1, "Testing");
         assertEqual(a.get(0), "Beta", "Bad element!");
         assertEqual(a.get(1), "Testing", "Bad set!");
         assertEqual(a.get(2), "40", "Bad element!");
-        
-        // clear
         // contains
+        assertTrue(a.contains("40"), "Bad contains!");
+        assertFalse(a.contains("42"), "Bad contains!");
         // containsAll
+        assertTrue(a.containsAll(CArrayUtils.asList("30", "Testing", "40")), "Bad contains!");
+        assertFalse(a.containsAll(CArrayUtils.asList("30", "Tester", "40")), "Bad contains!");
         // fillArray
+        String[] target = new String[6];
+        assertEqual(a.fillArray(target), 0, "Bad fillArray result!");
+        for (int i = 0; i < target.length; i++) {
+            assertEqual(target[i], a.get(i), "Bad filled array contents!");
+        }
+        target = new String[5];
+        assertEqual(a.fillArray(target), 1, "Bad fillArray result!");
+        for (int i = 0; i < target.length; i++) {
+            assertEqual(target[i], a.get(i), "Bad filled array contents!");
+        }
+        target = new String[7];
+        assertEqual(a.fillArray(target), -1, "Bad fillArray result!");
+        for (int i = 0; i < target.length - 1; i++) {
+            assertEqual(target[i], a.get(i), "Bad filled array contents!");
+        }
+        assertEqual(target[6], null, "Bad filled array contents!");
         // removeAll
+        assertTrue(a.removeAll(CArrayUtils.asList("Testing", "40", "Wait...")), "Remove didn't cause modifications!");
+        assertFalse(a.removeAll(CArrayUtils.asList("Nope", "Noep", "Ulp")), "Remove caused modifications!");
+        assertEqual(a.get(0), "Beta", "Bad element!");
+        assertEqual(a.get(1), "40", "Bad element!");
+        assertEqual(a.get(2), "40", "Bad element!");
+        assertEqual(a.get(3), "30", "Bad element!");
+        assertEqual(a.size(), 4, "Bad size!");
         // retainAll
+        assertFalse(a.retainAll(CArrayUtils.asList("Beta", "40", "30", "Extra!")), "Retain caused modifications!");
+        assertTrue(a.retainAll(CArrayUtils.asList("Beta", "Noep", "30")), "Retain didn't cause modifications!");
+        assertEqual(a.get(0), "Beta", "Bad element!");
+        assertEqual(a.get(1), "30", "Bad element!");
+        assertEqual(a.size(), 2, "Bad size!");
         // toArray
-        //NOT DONE YET
+        Object[] o = a.toArray();
+        assertEqual(o.length, a.size(), "Bad toArray length!");
+        for (int i = 0; i < o.length; i++) {
+            assertEqual(o[i], a.get(i), "Bad toArray!");
+        }
+        // clear
+        a.clear();
+        assertTrue(a.isEmpty(), "Supposed to be empty!");
+        assertEqual(a.size(), 0, "Supposed to be 0-lengthed!");
     }
 }

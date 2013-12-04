@@ -18,28 +18,40 @@
  */
 package ccre.testing;
 
-import ccre.util.CArrayList;
 import ccre.util.CArrayUtils;
+import ccre.util.CLinkedList;
 
 /**
- * A test that tests the CArrayList class.
+ * A test that the CLinkedList class.
  *
  * @author skeggsc
  */
-public class TestCArrayList extends BaseTestList {
+public class TestCLinkedList extends BaseTestList {
 
     @Override
     public String getName() {
-        return "CArrayList test";
+        return "CLinkedList test";
     }
 
     @Override
     protected void runTest() throws TestingException {
-        super.runTest(new CArrayList<String>());
-        super.runTest(new CArrayList<String>(72));
-        CArrayList<String> test = new CArrayList<String>(CArrayUtils.asList("Alpha", "Beta", "Gamma", "Delta", "Epsilon"));
+        super.runTest(new CLinkedList<String>());
+        CLinkedList<String> test = new CLinkedList<String>(CArrayUtils.asList("Alpha", "Beta", "Gamma", "Delta", "Epsilon"));
         assertEqual(test.toString(), "[Alpha, Beta, Gamma, Delta, Epsilon]", "Invalid constructor-loaded array!");
-        test = new CArrayList<String>(new String[]{"Alpha", "Beta", "Gamma", "Delta", "Epsilon"});
+        test = new CLinkedList<String>(new String[]{"Alpha", "Beta", "Gamma", "Delta", "Epsilon"});
         assertEqual(test.toString(), "[Alpha, Beta, Gamma, Delta, Epsilon]", "Invalid constructor-loaded array!");
+        assertEqual(test.getFirst(), "Alpha", "Bad getFirst!");
+        assertEqual(test.getLast(), "Epsilon", "Bad getLast!");
+        test.addFirst("Null");
+        assertEqual(test.getFirst(), "Null", "Bad addFirst!");
+        assertEqual(test.removeFirst(), "Null", "Bad removeFirst!");
+        test.addLast("Suffix");
+        assertEqual(test.getLast(), "Suffix", "Bad addLast!");
+        assertEqual(test.removeLast(), "Suffix", "Bad removeLast!");
+        assertEqual(test.removeLast(), "Epsilon", "Bad removeLast!");
+        assertEqual(test.removeFirst(), "Alpha", "Bad removeFirst!");
+        test.addLast("Epsilon");
+        test.addFirst("Alpha");
+        assertEqual(test.toString(), "[Alpha, Beta, Gamma, Delta, Epsilon]", "List contents corrupted!");
     }
 }

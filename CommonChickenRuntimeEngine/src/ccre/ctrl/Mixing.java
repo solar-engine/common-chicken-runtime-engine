@@ -1322,4 +1322,57 @@ public class Mixing {
         Mixing.pumpWhen(trigger, input, fstat);
         return fstat;
     }
+
+    /**
+     * Add a ramping system between the specified input and output, with the
+     * specified acceleration limit, and returns the EventConsumer to update the
+     * ramping system.
+     *
+     * @param limit The maximum delta per update.
+     * @param from The FloatInputPoll to control the expected value.
+     * @param target The output to write the current value to.
+     * @return The EventConsumer that updates the ramping system.
+     */
+    public static EventConsumer createRamper(final float limit, final FloatInputPoll from, final FloatOutput target) {
+        return new EventConsumer() {
+            public float last = from.readValue();
+
+            public void eventFired() {
+                last = Utils.updateRamping(last, from.readValue(), limit);
+                target.writeValue(last);
+            }
+        };
+    }
+
+    /**
+     * Add a ramping system that will wrap the specified FloatOutput in a
+     * ramping controller that will update when the specified event is produced,
+     * with the specified limit.
+     *
+     * @param limit The maximum delta per update.
+     * @param updateWhen When to update the ramping system.
+     * @param target The target to wrap.
+     * @return The wrapped output.
+     */
+    public static FloatOutput addRamping(final float limit, EventSource updateWhen, final FloatOutput target) {
+        FloatStatus temp = new FloatStatus();
+        updateWhen.addListener(createRamper(limit, temp, target));
+        return temp;
+    }
+
+    /**
+     * Add a ramping system that will wrap the specified FloatInputPoll in a
+     * ramping controller that will update when the specified event is produced,
+     * with the specified limit.
+     *
+     * @param limit The maximum delta per update.
+     * @param updateWhen When to update the ramping system.
+     * @param source The source to wrap
+     * @return The wrapped input.
+     */
+    public static FloatInputPoll addRamping(final float limit, EventSource updateWhen, final FloatInputPoll source) {
+        FloatStatus temp = new FloatStatus();
+        updateWhen.addListener(createRamper(limit, source, temp));
+        return temp;
+    }
 }

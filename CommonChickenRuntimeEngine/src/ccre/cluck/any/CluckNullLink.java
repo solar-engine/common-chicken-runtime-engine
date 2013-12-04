@@ -16,7 +16,10 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with the CCRE.  If not, see <http://www.gnu.org/licenses/>.
  */
-package ccre.cluck;
+package ccre.cluck.any;
+
+import ccre.cluck.CluckLink;
+import ccre.cluck.CluckNode;
 
 /**
  * A CluckNullLink is a link between two CluckNodes on the same computer, and an
@@ -131,7 +134,7 @@ public class CluckNullLink implements CluckLink {
         if (source == null) {
             source = linkName;
         } else {
-            source = linkName + "." + source;
+            source = linkName + "/" + source;
         }
         node.transmit(rest, source, data, this);
     }

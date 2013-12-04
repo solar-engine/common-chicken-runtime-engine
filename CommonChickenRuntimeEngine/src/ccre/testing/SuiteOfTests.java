@@ -79,17 +79,17 @@ public class SuiteOfTests { // TODO: This package needs more tests!
         // ccre.saver - Needed!
 
         // ccre.testing
-        new TestTests().test(); // Needs more fleshing out
+        new TestTests().test();
 
         // ccre.utils
+        new TestAllocationPool().test();
         // AllocationPool - Needed!
-        // CAbstractList - Needed? Maybe included in CArrayList and CLinkedList?
-        new TestCArrayList().test(); // Needs more fleshing out
-        // CArrayUtils - Needed!
-        new TestCHashMapPartial().test(); // Needs more fleshing out
-        // CLinkedList - Needed!
-        // Heap - Needed!
-        // Utils - Needed!
+        // CAbstractList - Included in CArrayList and CLinkedList tests
+        new TestCArrayList().test();
+        new TestCHashMap().test();
+        new TestCLinkedList().test();
+        // Heap - Not needed because it's a commented-out unfinished class.
+        new TestUtils().test(); // Tests both Utils and CArrayUtils
 
         // ccre.workarounds - Needed!
     }

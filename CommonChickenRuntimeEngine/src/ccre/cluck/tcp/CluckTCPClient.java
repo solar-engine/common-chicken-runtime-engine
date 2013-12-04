@@ -16,8 +16,10 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with the CCRE.  If not, see <http://www.gnu.org/licenses/>.
  */
-package ccre.cluck;
+package ccre.cluck.tcp;
 
+import ccre.cluck.CluckLink;
+import ccre.cluck.CluckNode;
 import ccre.concurrency.ReporterThread;
 import ccre.log.LogLevel;
 import ccre.log.Logger;

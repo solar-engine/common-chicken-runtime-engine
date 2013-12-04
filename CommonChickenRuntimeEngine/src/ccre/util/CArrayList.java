@@ -86,11 +86,17 @@ public class CArrayList<T> extends CAbstractList<T> {
 
     @Override
     public T get(int index) {
+        if (index < 0 || index >= size) {
+            throw new IndexOutOfBoundsException();
+        }
         return values[index];
     }
 
     @Override
     public T set(int index, T element) {
+        if (index < 0 || index >= size) {
+            throw new IndexOutOfBoundsException();
+        }
         notifyModified();
         T prev = values[index];
         values[index] = element;
@@ -99,6 +105,9 @@ public class CArrayList<T> extends CAbstractList<T> {
 
     @Override
     public void add(int index, T element) {
+        if (index < 0 || index > size) {
+            throw new IndexOutOfBoundsException();
+        }
         notifyModified();
         if (size >= values.length) {
             values = CArrayUtils.castToGeneric(CArrayUtils.copyOf(values, values.length + (values.length >> 1) + 1));
@@ -112,6 +121,9 @@ public class CArrayList<T> extends CAbstractList<T> {
 
     @Override
     public T remove(int index) {
+        if (index < 0 || index >= size) {
+            throw new IndexOutOfBoundsException();
+        }
         notifyModified();
         T old = values[index];
         size--;

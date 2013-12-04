@@ -180,12 +180,14 @@ The rest of the code contained here should be placed within the createSimpleCont
 
 Next, you will want to find the outputs for your motors:
 
-    FloatOutput leftMotorOutput = makeTalonMotor(1, MOTOR_FORWARD);
-    FloatOutput rightMotorOutput = makeTalonMotor(2, MOTOR_REVERSE);
+    FloatOutput leftMotorOutput = makeTalonMotor(1, MOTOR_FORWARD, 0.02f);
+    FloatOutput rightMotorOutput = makeTalonMotor(2, MOTOR_REVERSE, 0.02f);
 
-makeTalonMotor is a method inherited from SimpleCore - it takes a PWM port number and a motor direction. makeVictorMotor and makeJaguarMotor also exist depending on which kind of Speed Controller you are using.
+makeTalonMotor is a method inherited from SimpleCore - it takes a PWM port number, a motor direction, and a ramping rate. makeVictorMotor and makeJaguarMotor also exist depending on which kind of Speed Controller you are using.
 
 MOTOR_FORWARD and MOTOR_REVERSE are also inherited from SimpleCore - they are constants than can be passed to motor creation methods to control reversal of the motors. In this case, one motor runs forward and one in reverse because one motor points the opposite direction of the other. This is standard fare when controlling a two-motor drive system.
+
+The ramping rate decides how to configure the ramping built into the CCRE. 0.02f means about one second to go from full reverse to full forward. Higher values mean faster ramping, and less time to go from full reverse to full forward. (And vice-versa with lower values.)
 
 FloatOutput is a basic building block of the CCRE. Unlike makeTalonMotor and MOTOR_REVERSE, it is generic to all CCRE applications instead of just Igneous robots.
 
@@ -238,8 +240,8 @@ All of the code together:
 
     public class Main extends SimpleCore {
         protected void createSimpleControl() {
-            FloatOutput leftMotorOutput = makeTalonMotor(1, MOTOR_FORWARD);
-            FloatOutput rightMotorOutput = makeTalonMotor(2, MOTOR_REVERSE);
+            FloatOutput leftMotorOutput = makeTalonMotor(1, MOTOR_FORWARD, 0.02f);
+            FloatOutput rightMotorOutput = makeTalonMotor(2, MOTOR_REVERSE, 0.02f);
             FloatInputPoll leftJoystickAxis = joystick1.getYChannel();
             FloatInputPoll rightJoystickAxis = joystick2.getYChannel();
             DriverImpls.createSynchTankDriver(duringTeleop, leftJoystickAxis, rightJoystickAxis, leftMotorOutput, rightMotorOutput);
@@ -810,11 +812,17 @@ The CCRE supports three kinds of Speed Controllers: Talons, Jaguars, and Victors
 
 The following methods are provided to get access to motors:
 
-    FloatOutput makeTalonMotor(int id, MOTOR_FORWARD or MOTOR_REVERSE)
-    FloatOutput makeJaguarMotor(int id, MOTOR_FORWARD or MOTOR_REVERSE)
-    FloatOutput makeVictorMotor(int id, MOTOR_FORWARD or MOTOR_REVERSE)
+    FloatOutput makeTalonMotor(int id, MOTOR_FORWARD or MOTOR_REVERSE, float ramping)
+    FloatOutput makeJaguarMotor(int id, MOTOR_FORWARD or MOTOR_REVERSE, float ramping)
+    FloatOutput makeVictorMotor(int id, MOTOR_FORWARD or MOTOR_REVERSE, float ramping)
 
-These methods take a PWM port ID and whether or not to reverse the direction of the motor. They return a FloatOutput that can be written to in order to change the speed of the motor (-1.0f to 1.0f)
+These methods take a PWM port ID, whether or not to reverse the direction of the motor, and a ramping rate. They return a FloatOutput that can be written to in order to change the speed of the motor (-1.0f to 1.0f)
+
+#### Ramping
+
+If the ramping rate is zero, then no ramping is applied. Don't use this if you don't know what you're doing!
+Otherwise, the ramping rate is the maximum difference allowed per 10 milliseconds (counted using constantPeriodic).
+So, for example, a rate of 0.1f means that you need 200 milliseconds to go from -1.0 to 1.0.
 
 ### Solenoids
 

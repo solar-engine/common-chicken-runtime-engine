@@ -20,8 +20,7 @@ package ccre.igneous;
 
 import ccre.chan.*;
 import ccre.ctrl.*;
-import ccre.event.EventConsumer;
-import ccre.event.EventSource;
+import ccre.event.*;
 import ccre.instinct.InstinctRegistrar;
 
 /**
@@ -73,6 +72,11 @@ public abstract class IgneousCore implements InstinctRegistrar {
      * Produced during testing mode.
      */
     protected EventSource duringTesting;
+    /**
+     * Constant time periodic. Should pulse every 10 ms, as accurately as
+     * possible.
+     */
+    protected EventSource constantPeriodic;
 
     /**
      * Implement this method - it should set up everything that your robot needs
@@ -141,47 +145,68 @@ public abstract class IgneousCore implements InstinctRegistrar {
 
     /**
      * Create a reference to a Jaguar speed controller on the specified ID and
-     * motor reversal.
+     * motor reversal, with a specified ramping rate.
+     *
+     * If the ramping rate is zero, then no ramping is applied. Don't use this
+     * if you don't know what you're doing! Otherwise, the ramping rate is the
+     * maximum difference allowed per 10 milliseconds (constantPeriodic). (So a
+     * rate of 0.1f means that you need 200 milliseconds to go from -1.0 to
+     * 1.0.)
      *
      * @param id the motor port ID, from 1 to 10, inclusive.
      * @param negate MOTOR_FORWARD if the motor should be unmodified,
      * MOTOR_REVERSE if the motor should be reversed.
+     * @param ramping the ramping rate.
      * @return the output that will output to the specified motor.
      * @see #MOTOR_FORWARD
      * @see #MOTOR_REVERSE
      */
-    protected final FloatOutput makeJaguarMotor(int id, boolean negate) {
-        return launcher.makeJaguar(id, negate);
+    protected final FloatOutput makeJaguarMotor(int id, boolean negate, float ramping) {
+        return Mixing.addRamping(ramping, constantPeriodic, launcher.makeJaguar(id, negate));
     }
 
     /**
      * Create a reference to a Victor speed controller on the specified ID and
-     * motor reversal.
+     * motor reversal, with a specified ramping rate.
+     *
+     * If the ramping rate is zero, then no ramping is applied. Don't use this
+     * if you don't know what you're doing! Otherwise, the ramping rate is the
+     * maximum difference allowed per 10 milliseconds (constantPeriodic). (So a
+     * rate of 0.1f means that you need 200 milliseconds to go from -1.0 to
+     * 1.0.)
      *
      * @param id the motor port ID, from 1 to 10, inclusive.
      * @param negate MOTOR_FORWARD if the motor should be unmodified,
      * MOTOR_REVERSE if the motor should be reversed.
+     * @param ramping the ramping rate.
      * @return the output that will output to the specified motor.
      * @see #MOTOR_FORWARD
      * @see #MOTOR_REVERSE
      */
-    protected final FloatOutput makeVictorMotor(int id, boolean negate) {
-        return launcher.makeVictor(id, negate);
+    protected final FloatOutput makeVictorMotor(int id, boolean negate, float ramping) {
+        return Mixing.addRamping(ramping, constantPeriodic, launcher.makeVictor(id, negate));
     }
 
     /**
      * Create a reference to a Talon speed controller on the specified ID and
-     * motor reversal.
+     * motor reversal, with a specified ramping rate.
+     *
+     * If the ramping rate is zero, then no ramping is applied. Don't use this
+     * if you don't know what you're doing! Otherwise, the ramping rate is the
+     * maximum difference allowed per 10 milliseconds (constantPeriodic). (So a
+     * rate of 0.1f means that you need 200 milliseconds to go from -1.0 to
+     * 1.0.)
      *
      * @param id the motor port ID, from 1 to 10, inclusive.
      * @param negate MOTOR_FORWARD if the motor should be unmodified,
      * MOTOR_REVERSE if the motor should be reversed.
+     * @param ramping the ramping rate.
      * @return the output that will output to the specified motor.
      * @see #MOTOR_FORWARD
      * @see #MOTOR_REVERSE
      */
-    protected final FloatOutput makeTalonMotor(int id, boolean negate) {
-        return launcher.makeTalon(id, negate);
+    protected final FloatOutput makeTalonMotor(int id, boolean negate, float ramping) {
+        return Mixing.addRamping(ramping, constantPeriodic, launcher.makeTalon(id, negate));
     }
 
     /**

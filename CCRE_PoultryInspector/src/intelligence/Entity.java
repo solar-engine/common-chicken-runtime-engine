@@ -299,7 +299,7 @@ public final class Entity {
             case RMT_OUTSTREAM:
                 OutputStream outs = (OutputStream) co;
                 try {
-                    outs.write((JOptionPane.showInputDialog("Choose the connection target", "*") + "\n").getBytes());
+                    outs.write((JOptionPane.showInputDialog("Modify value", "*") + "\n").getBytes());
                 } catch (IOException ex) {
                     Logger.log(LogLevel.WARNING, "Cannot write new value!", ex);
                 }

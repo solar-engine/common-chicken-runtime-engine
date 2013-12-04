@@ -63,12 +63,19 @@ public class XBeeRadio {
         xbee.close();
     }
     
+<<<<<<< HEAD
     public void sendPacket(int[] addr, int[] msg, int subTimeout, int timeout) throws XBeeException {
         if (verified) {
             sendPacketVerified(addr, msg, subTimeout, timeout);
         } else {
             sendPacketUnverified(addr, msg);
         }
+=======
+    public void sendPacketUnverified(int[] addr, int[] msg) throws XBeeException {
+        XBeeAddress64 address = new XBeeAddress64(addr);
+        ZNetTxRequest message = new ZNetTxRequest(address, msg);
+        xbee.sendAsynchronous(message);
+>>>>>>> remotes/col6y/common-chicken-runtime-engine/master
     }
 
     public void sendPacketUnverified(int[] addr, int[] msg) throws XBeeException {

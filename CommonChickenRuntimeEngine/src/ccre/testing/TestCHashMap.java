@@ -22,19 +22,62 @@ import ccre.util.CHashMap;
 import java.util.Random;
 
 /**
- * A test that tests some parts of the CHashMap class.
+ * A test that tests the CHashMap class.
  *
  * @author skeggsc
  */
-public class TestCHashMapPartial extends BaseTest {
+public class TestCHashMap extends BaseTest {
 
     @Override
     public String getName() {
-        return "CHashMap minimal test";
+        return "CHashMap test";
     }
 
     @Override
     protected void runTest() throws TestingException {
+        CHashMap<String, String> alpha = new CHashMap<String, String>();
+        assertEqual(alpha.get("never"), null, "Bad nonexistent element!");
+        assertFalse(alpha.containsKey("never"), "Bad contains!");
+        assertTrue(alpha.isEmpty(), "Empty map should be empty!");
+        assertEqual(alpha.size(), 0, "Bad size of map!");
+        assertEqual(alpha.put("test", "of course"), null, "Bad put!");
+        assertEqual(alpha.get("test"), "of course", "Bad element!");
+        assertTrue(alpha.containsKey("test"), "Bad contains!");
+        assertFalse(alpha.isEmpty(), "Non-empty map should not be empty!");
+        assertEqual(alpha.size(), 1, "Bad size of map!");
+        alpha.put("test2", "secondary"); // Working on checking put results.
+        assertEqual(alpha.get("test"), "of course", "Bad element!");
+        assertTrue(alpha.containsKey("test"), "Bad contains!");
+        assertEqual(alpha.get("test2"), "secondary", "Bad element!");
+        assertTrue(alpha.containsKey("test2"), "Bad contains!");
+        assertEqual(alpha.get("test3"), null, "Bad element!");
+        assertFalse(alpha.containsKey("test3"), "Bad contains!");
+        assertFalse(alpha.isEmpty(), "Non-empty map should not be empty!");
+        assertEqual(alpha.size(), 2, "Bad size of map!");
+        alpha.put("test", "replacement");
+        assertEqual(alpha.get("test"), "replacement", "Bad element!");
+        assertTrue(alpha.containsKey("test"), "Bad contains!");
+        assertEqual(alpha.get("test2"), "secondary", "Bad element!");
+        assertTrue(alpha.containsKey("test2"), "Bad contains!");
+        assertEqual(alpha.get("test3"), null, "Bad element!");
+        assertFalse(alpha.containsKey("test3"), "Bad contains!");
+        assertFalse(alpha.isEmpty(), "Non-empty map should not be empty!");
+        assertEqual(alpha.size(), 2, "Bad size of map!");
+        alpha.clear();
+        assertEqual(alpha.get("test"), null, "Bad element!");
+        assertEqual(alpha.get("test2"), null, "Bad element!");
+        assertEqual(alpha.get("test3"), null, "Bad element!");
+        assertFalse(alpha.containsKey("test"), "Bad contains!");
+        assertFalse(alpha.containsKey("test2"), "Bad contains!");
+        assertFalse(alpha.containsKey("test3"), "Bad contains!");
+        assertTrue(alpha.isEmpty(), "Empty map should not be empty!");
+        assertEqual(alpha.size(), 0, "Bad size of map!");
+        alpha.put("other", "ten");
+        alpha.put("other", null);
+        assertFalse(alpha.isEmpty(), "Not actually empty!");
+        assertEqual(alpha.get("other"), null, "Not actually empty!");
+        assertTrue(alpha.containsKey("other"), "Not actually empty!");
+
         String[] randoms = {"abcd", "aoeu", "pickles", "overstatement", "understudy", "arrays", "backwards", "sdrawkcab", "additional", "foo", "bar", "1540", "413", "612", "1025", "1111", "yes that is", "many-sided-pickle-adventurer", "chickens", "ignited", "pi", "are you even reading these by now?", "long string!!!!!!......//////_______ hahahahah", "I hope that this works.", "I could do brainstorming in here.", "Finishing up...", "green", "violet", "magenta", "purple", "indigo", "cerulean", "cobalt", "cheese", "potatos", "nitrates", "sodium", "carbohydrates", "snakes", "office", "pocketbook"};
         String[] keys = new String[10];
         String[] values = new String[keys.length];

@@ -95,8 +95,8 @@ public class ObsidianLauncherImpl extends ObsidianLauncher {
      * @param chan The channel name for the PWM.
      * @param defaultValue The default value (in the range calibrateLow ...
      * calibrateHigh)
-     * @param calibrateLow The low end of the calibration. Becomes 0% duty.
-     * @param calibrateHigh The high end of the calibration. Becomes 100% duty.
+     * @param calibrateN1 The low end of the calibration. Becomes 0% duty.
+     * @param calibrateN2 The high end of the calibration. Becomes 100% duty.
      * @param frequency The frequency to write.
      * @param zeroPolarity Should the polarity be zero? Otherwise one.
      * @return the output that writes to the PWM.

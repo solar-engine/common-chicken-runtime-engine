@@ -24,12 +24,10 @@ import ccre.concurrency.ReporterThread;
 import ccre.log.LogLevel;
 import ccre.log.Logger;
 import com.rapplogic.xbee.api.PacketListener;
-import com.rapplogic.xbee.api.XBeeAddress64;
 import com.rapplogic.xbee.api.XBeeException;
 import com.rapplogic.xbee.api.XBeeResponse;
 import com.rapplogic.xbee.api.zigbee.ZNetRxResponse;
 import com.rapplogic.xbee.api.zigbee.ZNetTxStatusResponse;
-import java.io.ByteArrayInputStream;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
 import java.util.concurrent.BlockingQueue;
@@ -123,7 +121,6 @@ public class XBeeLink implements CluckLink, PacketListener {
     @Override
     public void processResponse(XBeeResponse pkt) {
         if (pkt instanceof ZNetRxResponse) { // TODO: Compress common destinations and sources
-            Logger.log(LogLevel.INFO, "Recieved Message");
             ZNetRxResponse zp = (ZNetRxResponse) pkt;
             int[] raddr = zp.getRemoteAddress64().getAddress();
             if (!Arrays.equals(raddr, remote)) {

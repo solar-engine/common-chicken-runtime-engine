@@ -51,7 +51,7 @@ public abstract class ObsidianLauncher {
     /**
      * The core obsidian program.
      */
-    protected final ObsidianCore core;
+    public final ObsidianCore core;
 
     /**
      * Create a new obsidian launcher,
@@ -88,6 +88,8 @@ public abstract class ObsidianLauncher {
         core.launcher = this;
         periodic = new Event();
         core.periodic = periodic;
+        core.enabled = new Event();
+        core.disabled = new Event();
     }
 
     /**
@@ -119,8 +121,11 @@ public abstract class ObsidianLauncher {
      * @param axis The index of the axis to retrieve, from 1 to 4.
      * @return A FloatInputProducer that provides the value of that axis.
      */
-    public FloatInput getJoystickAxis(int axis) {
-        return CluckGlobals.node.subscribeFIP(hubPath + "joystick" + 1 + "-axis" + axis);
+    public FloatStatus getJoystickAxis(int axis) {
+        //return CluckGlobals.node.subscribeFIP("hub/joystick" + 1 + "-axis" + axis);
+        FloatStatus stick = new FloatStatus();
+        CluckGlobals.node.publish("joystick1-axis" + axis, (FloatOutput)stick);
+        return stick;
     }
 
     /**
@@ -128,11 +133,14 @@ public abstract class ObsidianLauncher {
      * BooleanInputProducer that will update every ~20 milliseconds with the
      * value of the button.
      *
-     * @param button The index of the button to retrieve, from 1 to 12.
+     * @param index The index of the button to retrieve, from 1 to 12.
      * @return A BooleanInputProducer that provides the value of that button.
      */
-    public BooleanInput getJoystickButton(int button) {
-        return CluckGlobals.node.subscribeBIP("joystick" + 1 + "-button" + button);
+    public BooleanStatus getJoystickButton(int index) {
+        //return CluckGlobals.node.subscribeBIP("hub/joystick" + 1 + "-button" + button);
+        BooleanStatus button = new BooleanStatus();
+        CluckGlobals.node.publish("joystick1-button" + button, (BooleanOutput)button);
+        return button;
     }
 
     /**
@@ -161,8 +169,8 @@ public abstract class ObsidianLauncher {
      * @param chan The channel name for the PWM.
      * @param defaultValue The default value (in the range calibrateLow ...
      * calibrateHigh)
-     * @param calibrateLow The low end of the calibration. Becomes 0% duty.
-     * @param calibrateHigh The high end of the calibration. Becomes 100% duty.
+     * @param calibrateN1 The low end of the calibration. Becomes 0% duty.
+     * @param calibrateN2 The high end of the calibration. Becomes 100% duty.
      * @param frequency The frequency to write.
      * @param zeroPolarity Should the polarity be zero? Otherwise one.
      * @return the output that writes to the PWM.

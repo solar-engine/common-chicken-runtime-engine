@@ -18,10 +18,15 @@
  */
 package ccre.obsidian;
 
+import ccre.chan.BooleanInput;
 import ccre.chan.BooleanInputPoll;
 import ccre.chan.BooleanOutput;
+import ccre.chan.BooleanStatus;
+import ccre.chan.FloatInput;
 import ccre.chan.FloatInputPoll;
 import ccre.chan.FloatOutput;
+import ccre.chan.FloatStatus;
+import ccre.event.Event;
 import ccre.event.EventSource;
 import java.util.Properties;
 
@@ -38,6 +43,10 @@ public abstract class ObsidianCore implements GPIOChannels {
      * change.
      */
     protected EventSource periodic;
+    
+    public Event enabled;
+    
+    public Event disabled;
     /**
      * The properties loaded automatically for Obsidian.
      */
@@ -116,5 +125,13 @@ public abstract class ObsidianCore implements GPIOChannels {
      */
     public FloatInputPoll makeAnalogInput(int chan) throws ObsidianHardwareException {
         return launcher.makeAnalogInput(chan);
+    }
+    
+    public FloatStatus getJoystickAxis(int axis) {
+        return launcher.getJoystickAxis(axis);
+    }
+    
+    public BooleanStatus getJoystickButton(int button) {
+        return launcher.getJoystickButton(button);
     }
 }

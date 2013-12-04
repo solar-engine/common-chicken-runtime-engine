@@ -60,11 +60,17 @@
     </target>
 
     <target name="-pre-jar">
-        <!-- <mkdir dir="${build.dir}/rgen" />
+        <mkdir dir="${build.dir}/rgen" />
         <mkdir dir="${build.dir}/rgen/ccre" />
         <mkdir dir="${build.dir}/rgen/ccre/reflect" />
-        <java classname="ccre.reflect.ReflectionGenerator" args="${build.dir}/rgen/ccre/reflect/ReflectionEngineImpl.java" /> -->
-        
+        <java classname="ccre.launcher.Launcher">
+            <arg value="reflg" />
+            <arg value="${build.dir}/rgen/ccre/reflect/ReflectionEngineImpl.java" />
+            <classpath>
+                <pathelement location="${build.dir}/classes" />
+            </classpath>
+        </java>
+        <javac srcdir="${build.dir}/rgen" destdir="${build.dir}/classes" source="1.5" target="1.5" />
     </target>
             
     <target name="-post-jar" depends="downgrade-jar,downgrade-jar-check"></target>

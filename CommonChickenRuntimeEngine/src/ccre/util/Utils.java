@@ -91,13 +91,15 @@ public class Utils {
     /**
      * Run a cycle of ramping code on the previous ramping value, target value,
      * and acceleration limit.
-     * 
-     * This will return the target value unless it's outside of the limit away from 
      *
-     * @param previous
-     * @param target
-     * @param limit
-     * @return
+     * This will return the target value unless it's outside of the limit away
+     * from the previous ramping value, in which case it will be as close as
+     * possible.
+     *
+     * @param previous The previous ramping value.
+     * @param target The target value.
+     * @param limit The acceleration limit.
+     * @return The new value from the ramping cycle
      */
     public static float updateRamping(float previous, float target, float limit) {
         if (limit <= 0) {

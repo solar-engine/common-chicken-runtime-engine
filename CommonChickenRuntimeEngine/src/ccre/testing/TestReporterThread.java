@@ -62,7 +62,7 @@ public class TestReporterThread extends BaseTest {
         assertFalse(wr[0], "Expected no execution of the subthread!");
         assertTrue(tr.getName().startsWith("TestRT-"), "Expected the name to start with the specified prefix!");
         tr.start();
-        tr.join(2000);
+        tr.join();
         assertFalse(tr.isAlive(), "Thread should be done executing!");
         assertTrue(wr[0], "Expected execution of the subthread!");
     }

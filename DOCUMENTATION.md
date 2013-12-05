@@ -11,6 +11,16 @@ The CCRE distribution has multiple subprojects:
 * The CCRE Poultry Inspector is the application that allows for inspecting and controlling systems over the network.
 * The CCRE Igneous Emulator project is the drop-in replacement that allows for projects using the CCRE Igneous framework to be ran and tested on a normal desktop computer, without actually controlling a robot.
 * The Sample Igneous Robot project contains all the buildscripts needed to easily compile and deploy Igneous projects and run them in the emulator.
+* The CCRE Examples project contains a series of examples of how the CCRE's core classes can be used.
+
+In addition to the FRC-related projects, the CCRE contains a few others:
+
+* The CCRE Obsidian project is the framework for BeagleBone Black programming, including hardware control and the program framework.
+* The Prototype Obsidian Project contains all the buildscripts needed to easily compile and deploy Obsidian projects.
+* The CCRE Obsidian Emulation project is the emulator used to run Obsidian projects on a desktop computer.
+
+Disclaimer: Some sections of this manual might be difficult to understand!
+If you can't understand a section, please tell me so that I can make it more clear. The same applies to the Javadoc.
 
 The current maintainer of the CCRE can be contacted at skeggsc (at) catlin (dot) edu.
 

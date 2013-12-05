@@ -18,6 +18,8 @@
  */
 package ccre.testing;
 
+import ccre.log.Logger;
+
 /**
  * The suite of tests to run. This will run all of the current tests.
  *
@@ -37,60 +39,75 @@ public class SuiteOfTests { // TODO: This package needs more tests!
      * @param args the application arguments. these are ignored.
      */
     public static void main(String[] args) {
-        // ccre.chan
-        new TestBooleanStatus().test();
-        new TestFloatStatus().test();
+        BaseTest[] tests = new BaseTest[]{
+            // ccre.chan
+            new TestBooleanStatus(),
+            new TestFloatStatus(),
+            
+            // ccre.cluck - Tests needed!
 
-        // ccre.cluck - Tests needed!
+            // ccre.concurrency
+            // CollapsingWorkerThread - Needed!
+            // ConcurrentDispatchArray - Needed to improve!
+            new TestConcurrentDispatchArray(),
+            new TestReporterThread(),
+            // ReporterThread - Needed!
 
-        // ccre.concurrency
-        // CollapsingWorkerThread - Needed!
-        // ConcurrentDispatchArray - Needed to improve!
-        new TestConcurrentDispatchArray().test();
-        // ReporterThread - Needed!
+            // ccre.ctrl
+            // DriverImpls - Needed!
+            // ExpirationTimer - Needed!
+            // Mixing - Needed!
+            // ModeDispatcher - Needed!
+            // MultipleSourceBooleanController - Needed!
+            // Ticker - Needed!
 
-        // ccre.ctrl
-        // DriverImpls - Needed!
-        // ExpirationTimer - Needed!
-        // Mixing - Needed!
-        // ModeDispatcher - Needed!
-        // MultipleSourceBooleanController - Needed!
-        // Ticker - Needed!
+            // ccre.event
+            new TestEvent(),
+            // EventLogger - Needed!
 
-        // ccre.event
-        new TestEvent().test();
-        // EventLogger - Needed!
+            // ccre.holders - Needed!
 
-        // ccre.holders - Needed!
+            // ccre.instinct - Needed!
 
-        // ccre.instinct - Needed!
+            // ccre.launcher - Not needed.
 
-        // ccre.launcher - Not needed.
+            // ccre.log - Needed!
 
-        // ccre.log - Needed!
+            // ccre.net - Needed!
 
-        // ccre.net - Needed!
+            // ccre.phidget
+            // PhidgetReader - Needed!
 
-        // ccre.phidget
-        // PhidgetReader - Needed!
+            // ccre.rload - Do I need this?
 
-        // ccre.rload - Do I need this?
+            // ccre.saver - Needed!
 
-        // ccre.saver - Needed!
-
-        // ccre.testing
-        new TestTests().test();
-
-        // ccre.utils
-        new TestAllocationPool().test();
-        // AllocationPool - Needed!
-        // CAbstractList - Included in CArrayList and CLinkedList tests
-        new TestCArrayList().test();
-        new TestCHashMap().test();
-        new TestCLinkedList().test();
-        // Heap - Not needed because it's a commented-out unfinished class.
-        new TestUtils().test(); // Tests both Utils and CArrayUtils
-
-        // ccre.workarounds - Needed!
+            // ccre.testing
+            new TestTests(),
+            
+            // ccre.utils
+            new TestAllocationPool(),
+            // AllocationPool - Needed!
+            // CAbstractList - Included in CArrayList and CLinkedList tests
+            new TestCArrayList(),
+            new TestCHashMap(),
+            new TestCLinkedList(),
+            // Heap - Not needed because it's a commented-out unfinished class.
+            new TestUtils(), // Tests both Utils and CArrayUtils
+            
+            // ccre.workarounds - Needed!
+        };
+        int count = 0;
+        for (BaseTest bt : tests) {
+            if (bt.test()) {
+                count++;
+            }
+        }
+        if (count < tests.length) {
+            Logger.warning(count + "/" + tests.length + " tests succeeded.");
+            Logger.warning("Read above to see which tests failed.");
+        } else {
+            Logger.info(count + "/" + tests.length + " tests succeeded.");
+        }
     }
 }

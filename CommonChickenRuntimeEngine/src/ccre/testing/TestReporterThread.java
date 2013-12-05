@@ -19,8 +19,6 @@
 package ccre.testing;
 
 import ccre.concurrency.ReporterThread;
-import ccre.log.LogLevel;
-import ccre.log.LoggingTarget;
 
 /**
  * Test the ReporterThread class.

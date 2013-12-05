@@ -1,5 +1,7 @@
 ccre.chan
 ccre.cluck
+ccre.cluck.any
+ccre.cluck.tcp
 ccre.concurrency
 ccre.ctrl
 ccre.downgrade
@@ -11,6 +13,7 @@ ccre.launcher
 ccre.log
 ccre.net
 ccre.phidget
+ccre.reflect
 ccre.rload
 ccre.saver
 ccre.testing

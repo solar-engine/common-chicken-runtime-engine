@@ -1,9 +1,6 @@
 This is the Common Chicken Runtime Engine core, Poultry Inspector, and Igneous system.
 It will hopefully form the basis for all of Team 1540's robotics-related java programming.
 
-This system was conceived and designed by Colby Skeggs.
-The CCRE Core contains classes shared by all instances of the CCRE regardless of platform.
-The CCRE Poultry Inspector is a standalone application that allows for inspection of Cluck networked objects.
-The CCRE Igneous system is the system that allows for programs using the CCRE to run on the FRC-provided platform.
+Please see the documentation in [DOCUMENTATION.MD](src/master/DOCUMENTATION.md) for more info. (If you are on BitBucket. Just look at DOCUMENTATION.MD in this directory if not.)
 
-To contact Colby Skeggs, write email to skeggsc [at] catlin [dot] edu.
+To contact the primary author, Colby Skeggs, write email to skeggsc [at] catlin [dot] edu.

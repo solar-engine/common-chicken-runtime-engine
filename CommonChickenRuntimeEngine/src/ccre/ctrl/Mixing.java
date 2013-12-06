@@ -473,11 +473,7 @@ public class Mixing {
      * of the two arguments.
      */
     public static FloatInputPoll booleanSelectFloat(final BooleanInputPoll selector, final FloatInputPoll off, final FloatInputPoll on) {
-        return new FloatInputPoll() {
-            public float readValue() {
-                return selector.readValue() ? on.readValue() : off.readValue();
-            }
-        };
+        return new BooleanSelectFloatImpl(selector, on, off);
     }
 
     /**
@@ -587,11 +583,7 @@ public class Mixing {
      * @return the negated input.
      */
     public static FloatInputPoll negate(final FloatInputPoll value) {
-        return new FloatInputPoll() {
-            public float readValue() {
-                return -value.readValue();
-            }
-        };
+        return new NegateImplIn(value);
     }
 
     /**
@@ -629,11 +621,7 @@ public class Mixing {
      * @return the output to write pre-negated values to.
      */
     public static FloatOutput negate(final FloatOutput output) {
-        return new FloatOutput() {
-            public void writeValue(float newValue) {
-                output.writeValue(-newValue);
-            }
-        };
+        return new NegateImplOut(output);
     }
 
     /**
@@ -949,11 +937,7 @@ public class Mixing {
      * @return the input representing if both given inputs are true.
      */
     public static BooleanInputPoll andBooleans(final BooleanInputPoll a, final BooleanInputPoll b) {
-        return new BooleanInputPoll() {
-            public boolean readValue() {
-                return a.readValue() && b.readValue();
-            }
-        };
+        return new AndBooleansImpl2(a, b);
     }
 
     /**
@@ -965,11 +949,7 @@ public class Mixing {
      * @return the input representing if either of the given inputs is true.
      */
     public static BooleanInputPoll orBooleans(final BooleanInputPoll a, final BooleanInputPoll b) {
-        return new BooleanInputPoll() {
-            public boolean readValue() {
-                return a.readValue() || b.readValue();
-            }
-        };
+        return new OrBooleansImpl2(a, b);
     }
 
     /**
@@ -980,16 +960,7 @@ public class Mixing {
      * @return the input representing if all given inputs are true.
      */
     public static BooleanInputPoll andBooleans(final BooleanInputPoll... vals) {
-        return new BooleanInputPoll() {
-            public boolean readValue() {
-                for (BooleanInputPoll val : vals) {
-                    if (!val.readValue()) {
-                        return false;
-                    }
-                }
-                return true;
-            }
-        };
+        return new AndBooleansImpl(vals);
     }
 
     /**
@@ -999,16 +970,7 @@ public class Mixing {
      * @return the input representing if any given input is true.
      */
     public static BooleanInputPoll orBooleans(final BooleanInputPoll... vals) {
-        return new BooleanInputPoll() {
-            public boolean readValue() {
-                for (BooleanInputPoll val : vals) {
-                    if (val.readValue()) {
-                        return true;
-                    }
-                }
-                return false;
-            }
-        };
+        return new OrBooleansImpl(vals);
     }
 
     /**
@@ -1020,11 +982,7 @@ public class Mixing {
      * @return an input that represents the two floats being equal.
      */
     public static BooleanInputPoll floatsEqual(final FloatInputPoll a, final FloatInputPoll b) {
-        return new BooleanInputPoll() {
-            public boolean readValue() {
-                return a.readValue() == b.readValue();
-            }
-        };
+        return new FloatsEqualImpl(a, b);
     }
 
     /**
@@ -1036,11 +994,7 @@ public class Mixing {
      * @return the EventConsumer that pumps the value
      */
     public static EventConsumer pumpEvent(final BooleanInputPoll in, final BooleanOutput out) {
-        return new EventConsumer() {
-            public void eventFired() {
-                out.writeValue(in.readValue());
-            }
-        };
+        return new PumpEventImplB(out, in);
     }
 
     /**
@@ -1052,11 +1006,7 @@ public class Mixing {
      * @return the EventConsumer that pumps the value
      */
     public static EventConsumer pumpEvent(final FloatInputPoll in, final FloatOutput out) {
-        return new EventConsumer() {
-            public void eventFired() {
-                out.writeValue(in.readValue());
-            }
-        };
+        return new PumpEventImplF(out, in);
     }
 
     /**
@@ -1334,14 +1284,7 @@ public class Mixing {
      * @return The EventConsumer that updates the ramping system.
      */
     public static EventConsumer createRamper(final float limit, final FloatInputPoll from, final FloatOutput target) {
-        return new EventConsumer() {
-            public float last = from.readValue();
-
-            public void eventFired() {
-                last = Utils.updateRamping(last, from.readValue(), limit);
-                target.writeValue(last);
-            }
-        };
+        return new RampingImpl(from, limit, target);
     }
 
     /**
@@ -1374,5 +1317,179 @@ public class Mixing {
         FloatStatus temp = new FloatStatus();
         updateWhen.addListener(createRamper(limit, source, temp));
         return temp;
+    }
+
+    private static class PumpEventImplF implements EventConsumer {
+
+        private final FloatOutput out;
+        private final FloatInputPoll in;
+
+        public PumpEventImplF(FloatOutput out, FloatInputPoll in) {
+            this.out = out;
+            this.in = in;
+        }
+
+        public void eventFired() {
+            out.writeValue(in.readValue());
+        }
+    }
+
+    private static class PumpEventImplB implements EventConsumer {
+
+        private final BooleanOutput out;
+        private final BooleanInputPoll in;
+
+        public PumpEventImplB(BooleanOutput out, BooleanInputPoll in) {
+            this.out = out;
+            this.in = in;
+        }
+
+        public void eventFired() {
+            out.writeValue(in.readValue());
+        }
+    }
+
+    private static class FloatsEqualImpl implements BooleanInputPoll {
+
+        private final FloatInputPoll a;
+        private final FloatInputPoll b;
+
+        public FloatsEqualImpl(FloatInputPoll a, FloatInputPoll b) {
+            this.a = a;
+            this.b = b;
+        }
+
+        public boolean readValue() {
+            return a.readValue() == b.readValue();
+        }
+    }
+
+    private static class OrBooleansImpl implements BooleanInputPoll {
+
+        private final BooleanInputPoll[] vals;
+
+        public OrBooleansImpl(BooleanInputPoll[] vals) {
+            this.vals = vals;
+        }
+
+        public boolean readValue() {
+            for (BooleanInputPoll val : vals) {
+                if (val.readValue()) {
+                    return true;
+                }
+            }
+            return false;
+        }
+    }
+
+    private static class AndBooleansImpl implements BooleanInputPoll {
+
+        private final BooleanInputPoll[] vals;
+
+        public AndBooleansImpl(BooleanInputPoll[] vals) {
+            this.vals = vals;
+        }
+
+        public boolean readValue() {
+            for (BooleanInputPoll val : vals) {
+                if (!val.readValue()) {
+                    return false;
+                }
+            }
+            return true;
+        }
+    }
+
+    private static class OrBooleansImpl2 implements BooleanInputPoll {
+
+        private final BooleanInputPoll a;
+        private final BooleanInputPoll b;
+
+        public OrBooleansImpl2(BooleanInputPoll a, BooleanInputPoll b) {
+            this.a = a;
+            this.b = b;
+        }
+
+        public boolean readValue() {
+            return a.readValue() || b.readValue();
+        }
+    }
+
+    private static class AndBooleansImpl2 implements BooleanInputPoll {
+
+        private final BooleanInputPoll a;
+        private final BooleanInputPoll b;
+
+        public AndBooleansImpl2(BooleanInputPoll a, BooleanInputPoll b) {
+            this.a = a;
+            this.b = b;
+        }
+
+        public boolean readValue() {
+            return a.readValue() && b.readValue();
+        }
+    }
+
+    private static class NegateImplOut implements FloatOutput {
+
+        private final FloatOutput output;
+
+        public NegateImplOut(FloatOutput output) {
+            this.output = output;
+        }
+
+        public void writeValue(float newValue) {
+            output.writeValue(-newValue);
+        }
+    }
+
+    private static class NegateImplIn implements FloatInputPoll {
+
+        private final FloatInputPoll value;
+
+        public NegateImplIn(FloatInputPoll value) {
+            this.value = value;
+        }
+
+        public float readValue() {
+            return -value.readValue();
+        }
+    }
+
+    private static class BooleanSelectFloatImpl implements FloatInputPoll {
+
+        private final BooleanInputPoll selector;
+        private final FloatInputPoll on;
+        private final FloatInputPoll off;
+
+        public BooleanSelectFloatImpl(BooleanInputPoll selector, FloatInputPoll on, FloatInputPoll off) {
+            this.selector = selector;
+            this.on = on;
+            this.off = off;
+        }
+
+        public float readValue() {
+            return selector.readValue() ? on.readValue() : off.readValue();
+        }
+    }
+
+    private static class RampingImpl implements EventConsumer {
+
+        private final FloatInputPoll from;
+        private final float limit;
+        private final FloatOutput target;
+
+        public RampingImpl(FloatInputPoll from, float limit, FloatOutput target) {
+            this.from = from;
+            this.limit = limit;
+            this.target = target;
+            last = from.readValue();
+        }
+        public float last;
+
+        public void eventFired() {
+            last = Utils.updateRamping(last, from.readValue(), limit);
+            target.writeValue(last);
+        }
     }
 }

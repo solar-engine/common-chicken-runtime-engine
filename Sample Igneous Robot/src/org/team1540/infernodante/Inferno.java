@@ -45,7 +45,7 @@ public class Inferno extends SimpleCore {
     }
 
     private void createDriving() {
-        isKiddieMode = IS_COMPETITION_ROBOT ? Mixing.alwaysFalse : PhidgetReader.digitalInputs[4];
+        isKiddieMode = IS_COMPETITION_ROBOT ? Mixing.alwaysFalse : PhidgetReader.getDigitalInput(4);
         FloatInputPoll leftAxis = joystick1.getAxisChannel(2);
         FloatInputPoll forwardAxis = joystick1.getAxisChannel(3);
         FloatInputPoll rightAxis = joystick1.getAxisChannel(5);
@@ -58,19 +58,19 @@ public class Inferno extends SimpleCore {
         FloatOutput wheel = Mixing.combineFloats(makeTalonMotor(3, MOTOR_FORWARD, 0), makeTalonMotor(4, MOTOR_FORWARD, 0), makeTalonMotor(5, MOTOR_FORWARD, 0));
         FloatInput moddedSpeed = Mixing.booleanSelectFloat(isKiddieMode, 1f, 0.5f);
         BooleanOutput wheelControl = Mixing.booleanSelectFloat(wheel, Mixing.always(0f), moddedSpeed);
-        BooleanInputPoll runWheelBtn = Mixing.orBooleans(PhidgetReader.digitalInputs[5], joystick1.getButtonChannel(4));
+        BooleanInputPoll runWheelBtn = Mixing.orBooleans(PhidgetReader.getDigitalInput(5), joystick1.getButtonChannel(4));
         Mixing.pumpWhen(duringTeleop, runWheelBtn, wheelControl);
     }
 
     private void createShooterPistons() {
         BooleanOutput fire = Mixing.combineBooleans(makeSolenoid(1), makeSolenoid(4));
-        BooleanInputPoll shootWheelBtn = Mixing.orBooleans(PhidgetReader.digitalInputs[7], joystick1.getButtonChannel(2));
+        BooleanInputPoll shootWheelBtn = Mixing.orBooleans(PhidgetReader.getDigitalInput(7), joystick1.getButtonChannel(2));
         Mixing.pumpWhen(duringTeleop, shootWheelBtn, fire);
     }
     private PController armController;
 
     private void createArm() {
-        FloatInputPoll manualArm = PhidgetReader.analogInputs[5];
+        FloatInputPoll manualArm = PhidgetReader.getAnalogInput(5);
         FloatInputPoll armPotentiometer = makeAnalogInput(2, 9);
         CluckGlobals.node.publish("arm-potentiometer", Mixing.createDispatch(armPotentiometer, globalPeriodic));
         FloatOutput armMotor = IS_COMPETITION_ROBOT ? makeTalonMotor(6, MOTOR_FORWARD, 0) : makeVictorMotor(6, MOTOR_REVERSE, 0);
@@ -92,10 +92,10 @@ public class Inferno extends SimpleCore {
 
     private void createArmButtonActions(BooleanStatus deactivateBrake) {
         // Check when the arm override mover is moved.
-        BooleanInputPoll isArmOverride = Mixing.floatIsOutsideRange(PhidgetReader.analogInputs[5], -0.2f, 0.2f);
+        BooleanInputPoll isArmOverride = Mixing.floatIsOutsideRange(PhidgetReader.getAnalogInput(5), -0.2f, 0.2f);
         EventSource duringArmOverride = Mixing.filterEvent(isArmOverride, true, (EventSource) duringTeleop);
         // Check when one of the analog-dispatch buttons is activated.
-        FloatInputPoll armSelectorValue = PhidgetReader.analogInputs[4];
+        FloatInputPoll armSelectorValue = PhidgetReader.getAnalogInput(4);
         BooleanInputPoll isArmFront = Mixing.floatIsInRange(armSelectorValue, -0.26f, -0.24f); // Measured constants.
         BooleanInputPoll isArmTop = Mixing.floatIsInRange(armSelectorValue, -1f, -0.99f);
         BooleanInputPoll isArmBack = Mixing.floatIsInRange(armSelectorValue, 0.362f, 0.382f);
@@ -220,11 +220,11 @@ public class Inferno extends SimpleCore {
     private void createClimber() {
         MultipleSourceBooleanController valve = new MultipleSourceBooleanController(MultipleSourceBooleanController.OR);
         valve.addTarget(makeSolenoid(8));
-        valve.addInput(PhidgetReader.digitalInputs[3]);
+        valve.addInput(PhidgetReader.getDigitalInput(3));
         BooleanStatus climbControl = new BooleanStatus(makeSolenoid(6));
         valve.addInput(climbControl);
-        climbControl.setTrueWhen(Mixing.filterEvent(PhidgetReader.digitalInputs[1], true, duringTeleop));
-        climbControl.setFalseWhen(Mixing.filterEvent(PhidgetReader.digitalInputs[3], true, duringTeleop));
+        climbControl.setTrueWhen(Mixing.filterEvent(PhidgetReader.getDigitalInput(1), true, duringTeleop));
+        climbControl.setFalseWhen(Mixing.filterEvent(PhidgetReader.getDigitalInput(3), true, duringTeleop));
     }
 
     private void createPressureMonitoring() {

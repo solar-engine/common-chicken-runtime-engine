@@ -640,11 +640,14 @@ public class CluckNode {
      * path.
      *
      * @param path The path to subscribe to.
+     * @param subscribeByDefault Should this request the value from the remote
+     * by default, as opposed to waiting until this is needed. If this is false,
+     * then readValue() won't work until you run addTarget().
      * @return the BooleanInputProducer.
      */
-    public BooleanInput subscribeBIP(final String path) {
+    public BooleanInput subscribeBIP(final String path, boolean subscribeByDefault) {
         final String linkName = "srcBIP-" + path.hashCode() + "-" + localIDs++;
-        final BooleanStatus sent = new BooleanStatus();
+        final BooleanStatus sent = new BooleanStatus(subscribeByDefault);
         final BooleanStatus bs = new BooleanStatus() {
             @Override
             public void addTarget(BooleanOutput out) {
@@ -655,6 +658,9 @@ public class CluckNode {
                 }
             }
         };
+        if (subscribeByDefault) {
+            transmit(path, linkName, new byte[]{RMT_BOOLPROD});
+        }
         new CluckSubscriber() {
             @Override
             protected void receive(String src, byte[] data) {
@@ -754,11 +760,14 @@ public class CluckNode {
      * Subscribe to a FloatInputProducer from the network at the specified path.
      *
      * @param path The path to subscribe to.
+     * @param subscribeByDefault Should this request the value from the remote
+     * by default, as opposed to waiting until this is needed. If this is false,
+     * then readValue() won't work until you run addTarget().
      * @return the FloatInputProducer.
      */
-    public FloatInput subscribeFIP(final String path) {
+    public FloatInput subscribeFIP(final String path, boolean subscribeByDefault) {
         final String linkName = "srcFIP-" + path.hashCode() + "-" + localIDs++;
-        final BooleanStatus sent = new BooleanStatus();
+        final BooleanStatus sent = new BooleanStatus(subscribeByDefault);
         final FloatStatus fs = new FloatStatus() {
             @Override
             public void addTarget(FloatOutput out) {
@@ -769,6 +778,9 @@ public class CluckNode {
                 }
             }
         };
+        if (subscribeByDefault) {
+            transmit(path, linkName, new byte[]{RMT_FLOATPROD});
+        }
         new CluckSubscriber() {
             @Override
             protected void receive(String src, byte[] data) {
@@ -855,12 +867,15 @@ public class CluckNode {
      * Subscribe to a FloatTuner from the network at the specified path.
      *
      * @param path The path to subscribe to.
+     * @param subscribeByDefault This is sent to the subscriptions to
+     * FloatInputs, so see subscribeFIP.
      * @return the FloatTuner.
+     * @see #subscribeFIP(java.lang.String, boolean)
      */
-    public FloatTuner subscribeTF(String path) {
-        FloatInput tuneIn = subscribeFIP(path + ".input");
+    public FloatTuner subscribeTF(String path, boolean subscribeByDefault) {
+        FloatInput tuneIn = subscribeFIP(path + ".input", subscribeByDefault);
         FloatOutput tuneOut = subscribeFO(path + ".output");
-        final FloatInput autoIn = subscribeFIP(path + ".auto");
+        final FloatInput autoIn = subscribeFIP(path + ".auto", subscribeByDefault);
         final CompoundFloatTuner comp = new CompoundFloatTuner(tuneIn, tuneOut);
         autoIn.addTarget(new FloatOutput() {
             public void writeValue(float value) {
@@ -909,7 +924,7 @@ public class CluckNode {
         return new OutputStream() {
             @Override
             public void write(int b) throws IOException {
-                transmit(path, null, new byte[]{(byte) b});
+                transmit(path, null, new byte[]{RMT_OUTSTREAM, (byte) b});
             }
 
             @Override

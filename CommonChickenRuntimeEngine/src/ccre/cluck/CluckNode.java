@@ -909,7 +909,7 @@ public class CluckNode {
         return new OutputStream() {
             @Override
             public void write(int b) throws IOException {
-                transmit(path, null, new byte[]{(byte) b});
+                transmit(path, null, new byte[]{RMT_OUTSTREAM, (byte) b});
             }
 
             @Override

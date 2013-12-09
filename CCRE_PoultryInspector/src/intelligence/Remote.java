@@ -112,13 +112,13 @@ public class Remote implements Comparable<Remote> {
                 checkout = node.subscribeLT(remote, LogLevel.FINEST);
                 break;
             case RMT_BOOLPROD:
-                checkout = node.subscribeBIP(remote);
+                checkout = node.subscribeBIP(remote, false);
                 break;
             case RMT_BOOLOUTP:
                 checkout = node.subscribeBO(remote);
                 break;
             case RMT_FLOATPROD:
-                checkout = node.subscribeFIP(remote);
+                checkout = node.subscribeFIP(remote, false);
                 break;
             case RMT_FLOATOUTP:
                 checkout = node.subscribeFO(remote);

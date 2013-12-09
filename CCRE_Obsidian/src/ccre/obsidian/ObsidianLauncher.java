@@ -116,7 +116,7 @@ public abstract class ObsidianLauncher {
      * @return A FloatInputProducer that provides the value of that axis.
      */
     public FloatInput getJoystickAxis(int axis) {
-        return CluckGlobals.node.subscribeFIP("joystick" + 1 + "-axis" + axis);
+        return CluckGlobals.node.subscribeFIP("joystick" + 1 + "-axis" + axis, true);
     }
 
     /**
@@ -128,7 +128,7 @@ public abstract class ObsidianLauncher {
      * @return A BooleanInputProducer that provides the value of that button.
      */
     public BooleanInput getJoystickButton(int button) {
-        return CluckGlobals.node.subscribeBIP("joystick" + 1 + "-button" + button);
+        return CluckGlobals.node.subscribeBIP("joystick" + 1 + "-button" + button, true);
     }
 
     /**

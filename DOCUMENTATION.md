@@ -912,11 +912,12 @@ This completes all of the important reference information.
 
 The javadoc contains the rest of the important information.
 
-The rest of this document will be (TODO: make it be) more detailed information on how the CCRE works internally for anyone who wants to maintain it.
+The rest of this document will be more detailed information on how the CCRE works internally for anyone who wants to maintain it, once it is written.
+If you want this to be written more expediently, contact the author as explained above.
 
 # System overview for maintainers
 
-INCOMPLETE
+INCOMPLETE. See previous comment.
 
 # GNU Free Documentation License
 

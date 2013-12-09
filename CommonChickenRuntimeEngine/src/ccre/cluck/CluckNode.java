@@ -887,6 +887,21 @@ public class CluckNode {
     }
 
     /**
+     * Publish a BooleanStatus on the network. This is provided to match the
+     * publishability of FloatStatuses, since it was confusing that you could
+     * publish one but not the other.
+     *
+     * No corresponding subscribe is provided yet.
+     *
+     * @param name The name for the BooleanStatus.
+     * @param stat The BooleanStatus to publish.
+     */
+    public void publish(final String name, BooleanStatus stat) {
+        publish(name + ".input", (BooleanInputProducer) stat);
+        publish(name + ".output", (BooleanOutput) stat);
+    }
+
+    /**
      * Publish an OutputStream on the network.
      *
      * @param name The name for the OutputStream.

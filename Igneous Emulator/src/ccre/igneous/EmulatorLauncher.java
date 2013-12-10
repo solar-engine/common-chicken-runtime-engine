@@ -200,7 +200,12 @@ public class EmulatorLauncher implements IgneousLauncher {
 
     @Override
     public BooleanInputPoll makeDigitalInput(int id) {
-        return emf.getDigital(id);
+        return emf.getDigitalInput(id);
+    }
+
+    @Override
+    public BooleanOutput makeDigitalOutput(int id) {
+        return emf.getDigitalOutput(id);
     }
 
     @Override

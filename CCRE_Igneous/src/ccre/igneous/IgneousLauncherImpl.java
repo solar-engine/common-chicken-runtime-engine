@@ -211,6 +211,15 @@ class IgneousLauncherImpl extends IterativeRobot implements IgneousLauncher {
         };
     }
 
+    public BooleanOutput makeDigitalOutput(int id) {
+        final DigitalOutput dout = new DigitalOutput(id);
+        return new BooleanOutput() {
+            public void writeValue(boolean bln) {
+                dout.set(bln);
+            }
+        };
+    }
+
     public FloatInputPoll makeAnalogInput(int id, int averageBits) {
         final AnalogChannel chan = new AnalogChannel(id);
         chan.setAverageBits(averageBits);

@@ -218,6 +218,16 @@ public abstract class IgneousCore implements InstinctRegistrar {
     protected final BooleanOutput makeSolenoid(int id) {
         return launcher.makeSolenoid(id);
     }
+    
+    /**
+     * Create a reference to a digital output on the specified port.
+     *
+     * @param id the port of the digital output.
+     * @return the output that will control the digital output.
+     */
+    protected final BooleanOutput makeDigitalOutput(int id) {
+        return launcher.makeDigitalOutput(id);
+    }
 
     /**
      * Create a reference to an analog input on the specified port with the
@@ -244,7 +254,7 @@ public abstract class IgneousCore implements InstinctRegistrar {
     }
 
     /**
-     * Create a reference to a digital input on the spcefiied port.
+     * Create a reference to a digital input on the specified port.
      *
      * @param id the port number.
      * @return the digital input.

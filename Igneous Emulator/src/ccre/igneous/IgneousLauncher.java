@@ -18,12 +18,8 @@
  */
 package ccre.igneous;
 
-import ccre.chan.BooleanInputPoll;
-import ccre.chan.BooleanOutput;
-import ccre.chan.FloatInputPoll;
-import ccre.chan.FloatOutput;
-import ccre.ctrl.IDispatchJoystick;
-import ccre.ctrl.ISimpleJoystick;
+import ccre.chan.*;
+import ccre.ctrl.*;
 import ccre.event.EventSource;
 
 /**
@@ -46,6 +42,8 @@ public interface IgneousLauncher {
     public FloatOutput makeTalon(int id, boolean negate);
 
     public BooleanOutput makeSolenoid(int id);
+
+    public BooleanOutput makeDigitalOutput(int id);
 
     public FloatInputPoll makeAnalogInput(int id, int averageBits);
 

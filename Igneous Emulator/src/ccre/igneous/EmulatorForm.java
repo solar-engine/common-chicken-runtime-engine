@@ -754,30 +754,36 @@ public class EmulatorForm extends javax.swing.JFrame {
         jPanel8.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
 
         jLabel8.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        jLabel8.setText("Digital Inputs");
+        jLabel8.setText("Digital I/O");
 
         digital1.setFont(new java.awt.Font("Monospaced", 0, 11)); // NOI18N
         digital1.setText("1");
+        digital1.setEnabled(false);
         digital1.setMargin(new java.awt.Insets(2, 7, 2, 7));
 
         digital6.setFont(new java.awt.Font("Monospaced", 0, 11)); // NOI18N
         digital6.setText("6");
+        digital6.setEnabled(false);
         digital6.setMargin(new java.awt.Insets(2, 7, 2, 7));
 
         digital11.setFont(new java.awt.Font("Monospaced", 0, 11)); // NOI18N
         digital11.setText("11");
+        digital11.setEnabled(false);
         digital11.setMargin(new java.awt.Insets(2, 4, 2, 4));
 
         digital2.setFont(new java.awt.Font("Monospaced", 0, 11)); // NOI18N
         digital2.setText("2");
+        digital2.setEnabled(false);
         digital2.setMargin(new java.awt.Insets(2, 7, 2, 7));
 
         digital7.setFont(new java.awt.Font("Monospaced", 0, 11)); // NOI18N
         digital7.setText("7");
+        digital7.setEnabled(false);
         digital7.setMargin(new java.awt.Insets(2, 7, 2, 7));
 
         digital12.setFont(new java.awt.Font("Monospaced", 0, 11)); // NOI18N
         digital12.setText("12");
+        digital12.setEnabled(false);
         digital12.setMargin(new java.awt.Insets(2, 4, 2, 4));
 
         javax.swing.GroupLayout jPanel12Layout = new javax.swing.GroupLayout(jPanel12);
@@ -813,26 +819,32 @@ public class EmulatorForm extends javax.swing.JFrame {
 
         digital3.setFont(new java.awt.Font("Monospaced", 0, 11)); // NOI18N
         digital3.setText("3");
+        digital3.setEnabled(false);
         digital3.setMargin(new java.awt.Insets(2, 7, 2, 7));
 
         digital8.setFont(new java.awt.Font("Monospaced", 0, 11)); // NOI18N
         digital8.setText("8");
+        digital8.setEnabled(false);
         digital8.setMargin(new java.awt.Insets(2, 7, 2, 7));
 
         digital13.setFont(new java.awt.Font("Monospaced", 0, 11)); // NOI18N
         digital13.setText("13");
+        digital13.setEnabled(false);
         digital13.setMargin(new java.awt.Insets(2, 4, 2, 4));
 
         digital4.setFont(new java.awt.Font("Monospaced", 0, 11)); // NOI18N
         digital4.setText("4");
+        digital4.setEnabled(false);
         digital4.setMargin(new java.awt.Insets(2, 7, 2, 7));
 
         digital9.setFont(new java.awt.Font("Monospaced", 0, 11)); // NOI18N
         digital9.setText("9");
+        digital9.setEnabled(false);
         digital9.setMargin(new java.awt.Insets(2, 7, 2, 7));
 
         digital14.setFont(new java.awt.Font("Monospaced", 0, 11)); // NOI18N
         digital14.setText("14");
+        digital14.setEnabled(false);
         digital14.setMargin(new java.awt.Insets(2, 4, 2, 4));
 
         javax.swing.GroupLayout jPanel13Layout = new javax.swing.GroupLayout(jPanel13);
@@ -868,10 +880,12 @@ public class EmulatorForm extends javax.swing.JFrame {
 
         digital10.setFont(new java.awt.Font("Monospaced", 0, 11)); // NOI18N
         digital10.setText("10");
+        digital10.setEnabled(false);
         digital10.setMargin(new java.awt.Insets(2, 4, 2, 4));
 
         digital5.setFont(new java.awt.Font("Monospaced", 0, 11)); // NOI18N
         digital5.setText("5");
+        digital5.setEnabled(false);
         digital5.setMargin(new java.awt.Insets(2, 7, 2, 7));
 
         javax.swing.GroupLayout jPanel14Layout = new javax.swing.GroupLayout(jPanel14);
@@ -1287,58 +1301,58 @@ public class EmulatorForm extends javax.swing.JFrame {
         };
     }
 
-    public BooleanInputPoll getDigital(int id) {
-        final JToggleButton dig;
+    public JToggleButton getDigital(int id) {
         switch (id) {
             case 1:
-                dig = digital1;
-                break;
+                return digital1;
             case 2:
-                dig = digital2;
-                break;
+                return digital2;
             case 3:
-                dig = digital3;
-                break;
+                return digital3;
             case 4:
-                dig = digital4;
-                break;
+                return digital4;
             case 5:
-                dig = digital5;
-                break;
+                return digital5;
             case 6:
-                dig = digital6;
-                break;
+                return digital6;
             case 7:
-                dig = digital7;
-                break;
+                return digital7;
             case 8:
-                dig = digital8;
-                break;
+                return digital8;
             case 9:
-                dig = digital9;
-                break;
+                return digital9;
             case 10:
-                dig = digital10;
-                break;
+                return digital10;
             case 11:
-                dig = digital11;
-                break;
+                return digital11;
             case 12:
-                dig = digital12;
-                break;
+                return digital12;
             case 13:
-                dig = digital13;
-                break;
+                return digital13;
             case 14:
-                dig = digital14;
-                break;
+                return digital14;
             default:
                 throw new RuntimeException("Invalid digital input index: " + id);
         }
+    }
+
+    public BooleanInputPoll getDigitalInput(int id) {
+        final JToggleButton dig = getDigital(id);
+        dig.setEnabled(true);
         return new BooleanInputPoll() {
             @Override
             public boolean readValue() {
                 return dig.isSelected();
+            }
+        };
+    }
+
+    public BooleanOutput getDigitalOutput(int id) {
+        final JToggleButton dig = getDigital(id);
+        return new BooleanOutput() {
+            @Override
+            public void writeValue(boolean out) {
+                dig.setSelected(out);
             }
         };
     }

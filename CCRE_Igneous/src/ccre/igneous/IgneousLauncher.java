@@ -43,6 +43,8 @@ public interface IgneousLauncher {
 
     public BooleanOutput makeSolenoid(int id);
 
+    public BooleanOutput makeDigitalOutput(int id);
+
     public FloatInputPoll makeAnalogInput(int id, int averageBits);
 
     public FloatInputPoll makeAnalogInput_ValuedBased(int id, int averageBits);

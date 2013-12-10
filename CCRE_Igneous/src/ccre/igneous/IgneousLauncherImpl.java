@@ -22,6 +22,7 @@ import ccre.chan.*;
 import ccre.cluck.CluckGlobals;
 import ccre.ctrl.*;
 import ccre.event.*;
+import ccre.instinct.AutonomousModeOverException;
 import ccre.log.*;
 import ccre.net.IgneousNetworkProvider;
 import ccre.saver.IgneousStorageProvider;
@@ -52,8 +53,7 @@ class IgneousLauncherImpl extends IterativeRobot implements IgneousLauncher {
         IgneousThrowablePrinter.register();
         IgneousStorageProvider.register();
         CluckGlobals.ensureInitializedCore();
-        Logger.warning("Remote logging target not started!");
-        //Logger.target = new MultiTargetLogger(new LoggingTarget[]{Logger.target, CluckGlobals.encoder.subscribeLoggingTarget(LogLevel.FINEST, "general-logger")});
+        NetworkAutologger.register();
         String name = VM.getManifestProperty("Igneous-Main");
         if (name == null) {
             throw new RuntimeException("Could not find MANIFEST-specified launchee!");

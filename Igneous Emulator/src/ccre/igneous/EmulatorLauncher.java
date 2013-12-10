@@ -23,6 +23,7 @@ import ccre.cluck.CluckGlobals;
 import ccre.ctrl.*;
 import ccre.event.*;
 import ccre.log.Logger;
+import ccre.log.NetworkAutologger;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
@@ -65,8 +66,7 @@ public class EmulatorLauncher implements IgneousLauncher {
             throw new RuntimeException("Could not find MANIFEST-specified launchee!");
         }
         CluckGlobals.ensureInitializedCore();
-        Logger.warning("Could not connect to logger!");
-        //Logger.target = new MultiTargetLogger(new LoggingTarget[]{Logger.target, CluckGlobals.encoder.subscribeLoggingTarget(LogLevel.FINEST, "general-logger")});
+        NetworkAutologger.register();
         URLClassLoader classLoader = new URLClassLoader(new URL[]{jarFile.toURI().toURL()}, EmulatorLauncher.class.getClassLoader());
         Class<? extends IgneousCore> asSubclass = classLoader.loadClass(mainClass).asSubclass(IgneousCore.class);
         EmulatorForm emf = new EmulatorForm();

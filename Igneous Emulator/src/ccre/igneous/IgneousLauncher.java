@@ -68,4 +68,8 @@ public interface IgneousLauncher {
     public BooleanOutput makeRelayForwardOutput(int channel);
 
     public BooleanOutput makeRelayReverseOutput(int channel);
+
+    public FloatInputPoll makeGyro(int port, double sensitivity, EventSource object);
+
+    public FloatInputPoll makeAccelerometerAxis(int port, double sensitivity, double zeropoint);
 }

@@ -19,38 +19,26 @@
 package ccre.igneous;
 
 import ccre.chan.FloatInputPoll;
-import ccre.event.EventConsumer;
-import ccre.event.EventSource;
 import java.awt.EventQueue;
 
 /**
- * The form allowing control of an encoder input in the emulator.
+ * The form allowing control of an accelerometer axis in the emulator.
  *
  * @author skeggsc
  */
-public class EncoderForm extends javax.swing.JFrame implements FloatInputPoll {
+public class AccelerometerForm extends javax.swing.JFrame implements FloatInputPoll {
 
-    public EncoderForm(final String name, EventSource resetWhen) {
+    /**
+     * Creates new form ExtendedForm
+     */
+    public AccelerometerForm(final String title) {
         initComponents();
         EventQueue.invokeLater(new Runnable() {
             @Override
             public void run() {
-                labName.setText(name);
+                labTitle.setText(title);
             }
         });
-        if (resetWhen != null) {
-            resetWhen.addListener(new EventConsumer() {
-                @Override
-                public void eventFired() {
-                    EventQueue.invokeLater(new Runnable() {
-                        @Override
-                        public void run() {
-                            spnValue.setValue(0);
-                        }
-                    });
-                }
-            });
-        }
     }
 
     /**
@@ -62,53 +50,59 @@ public class EncoderForm extends javax.swing.JFrame implements FloatInputPoll {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
+        labTitle = new javax.swing.JLabel();
+        sliValue = new javax.swing.JSlider();
         jLabel1 = new javax.swing.JLabel();
-        labName = new javax.swing.JLabel();
-        spnValue = new javax.swing.JSpinner();
-        jLabel3 = new javax.swing.JLabel();
+        jLabel2 = new javax.swing.JLabel();
 
-        jLabel1.setText("Encoder:");
+        setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
-        labName.setText("<VALUE SHOULD BE INSERTED HERE>");
+        labTitle.setText("<LABEL SHOULD BE INSERTED HERE>");
 
-        jLabel3.setText("Box will be zeroed if the code tells the encoder to reset.");
+        sliValue.setMinimum(-100);
+        sliValue.setValue(0);
+
+        jLabel1.setText("Accelerometer Axis:");
+
+        jLabel2.setText("-1 to +1 Gs");
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                 .addComponent(jLabel1)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(labName, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-            .addGroup(layout.createSequentialGroup()
-                .addComponent(spnValue, javax.swing.GroupLayout.DEFAULT_SIZE, 126, Short.MAX_VALUE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jLabel3))
+                .addComponent(labTitle, javax.swing.GroupLayout.DEFAULT_SIZE, 186, Short.MAX_VALUE))
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                .addComponent(jLabel2)
+                .addGap(116, 116, 116))
+            .addComponent(sliValue, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel1)
-                    .addComponent(labName))
+                    .addComponent(labTitle)
+                    .addComponent(jLabel1))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(spnValue, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jLabel3)))
+                .addComponent(sliValue, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(jLabel2)
+                .addGap(0, 0, 0))
         );
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel jLabel1;
-    private javax.swing.JLabel jLabel3;
-    private javax.swing.JLabel labName;
-    private javax.swing.JSpinner spnValue;
+    private javax.swing.JLabel jLabel2;
+    private javax.swing.JLabel labTitle;
+    private javax.swing.JSlider sliValue;
     // End of variables declaration//GEN-END:variables
 
     @Override
     public float readValue() {
-        return (Integer) spnValue.getValue();
+        return sliValue.getValue() / 100.0f;
     }
 }

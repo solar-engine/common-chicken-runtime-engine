@@ -218,7 +218,7 @@ public abstract class IgneousCore implements InstinctRegistrar {
     protected final BooleanOutput makeSolenoid(int id) {
         return launcher.makeSolenoid(id);
     }
-    
+
     /**
      * Create a reference to a digital output on the specified port.
      *
@@ -413,5 +413,53 @@ public abstract class IgneousCore implements InstinctRegistrar {
      */
     protected final BooleanOutput makeReverseRelay(int channel) {
         return launcher.makeRelayReverseOutput(channel);
+    }
+
+    /**
+     * Create a reference to a Gyro on the specified port with the specified
+     * sensitivity. This will allow reading the current rotation of the Gyro.
+     * This also takes an EventSource, and when this is fired, the Gyro will be
+     * reset.
+     *
+     * @param port The Gyro port number.
+     * @param sensitivity The sensitivity of the Gyro. This is the number of
+     * volts/degree/second sensitivity of the gyro and is used in calculations
+     * to allow the code to work with multiple gyros. 0.007 is a good default
+     * value.
+     * @param evt When to reset the Gyro.
+     * @return The reference to the Gyro's current value.
+     */
+    protected final FloatInputPoll makeGyro(int port, double sensitivity, EventSource evt) {
+        return launcher.makeGyro(port, sensitivity, evt);
+    }
+
+    /**
+     * Create a reference to a Gyro on the specified port with the specified
+     * sensitivity. This will allow reading the current rotation of the Gyro.
+     *
+     * @param port The Gyro port number.
+     * @param sensitivity The sensitivity of the Gyro. This is the number of
+     * volts/degree/second sensitivity of the gyro and is used in calculations
+     * to allow the code to work with multiple gyros. 0.007 is a good default
+     * value.
+     * @return The reference to the Gyro's current value.
+     */
+    protected final FloatInputPoll makeGyro(int port, double sensitivity) {
+        return launcher.makeGyro(port, sensitivity, null);
+    }
+
+    /**
+     * Create a reference to a Accelerometer Axis on the specified port, with
+     * the specified sensitivity and voltage zero point.
+     *
+     * @param port The port number to attach to.
+     * @param sensitivity The sensitivity of the accelerometer. This varies per
+     * model.
+     * @param zeropoint The voltage that corresponds to 0 G. This also varies by
+     * model.
+     * @return The reference to the axis on the Accelerometer.
+     */
+    protected final FloatInputPoll makeAccelerometerAxis(int port, double sensitivity, double zeropoint) {
+        return launcher.makeAccelerometerAxis(port, sensitivity, zeropoint);
     }
 }

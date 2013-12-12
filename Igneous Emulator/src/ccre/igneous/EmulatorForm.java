@@ -26,6 +26,7 @@ import ccre.event.EventSource;
 import ccre.log.LogLevel;
 import ccre.log.Logger;
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.EventQueue;
 import java.util.HashMap;
 import javax.swing.ButtonModel;
@@ -116,8 +117,8 @@ public class EmulatorForm extends javax.swing.JFrame {
         emulatorJoystick5 = new ccre.igneous.EmulatorJoystick();
         emulatorJoystick6 = new ccre.igneous.EmulatorJoystick();
         jPanel4 = new javax.swing.JPanel();
-        encoderSelect = new javax.swing.JComboBox();
-        btnAddEncoder = new javax.swing.JButton();
+        extendedSelect = new javax.swing.JComboBox();
+        btnAddExtended = new javax.swing.JButton();
         jLabel10 = new javax.swing.JLabel();
         labCompressor = new javax.swing.JLabel();
         jPanel10 = new javax.swing.JPanel();
@@ -456,12 +457,12 @@ public class EmulatorForm extends javax.swing.JFrame {
 
         jPanel4.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
 
-        encoderSelect.setModel(availableEncoderSelection);
+        extendedSelect.setModel(availableExtendedSelection);
 
-        btnAddEncoder.setText("Add Encoder");
-        btnAddEncoder.addActionListener(new java.awt.event.ActionListener() {
+        btnAddExtended.setText("Add Extended");
+        btnAddExtended.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btnAddEncoderActionPerformed(evt);
+                btnAddExtendedActionPerformed(evt);
             }
         });
 
@@ -476,9 +477,9 @@ public class EmulatorForm extends javax.swing.JFrame {
         jPanel4Layout.setHorizontalGroup(
             jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel4Layout.createSequentialGroup()
-                .addComponent(encoderSelect, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(extendedSelect, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(btnAddEncoder, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(btnAddExtended, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(labCompressor, javax.swing.GroupLayout.PREFERRED_SIZE, 106, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -488,10 +489,10 @@ public class EmulatorForm extends javax.swing.JFrame {
         jPanel4Layout.setVerticalGroup(
             jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                .addComponent(encoderSelect, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(extendedSelect, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addComponent(jLabel10)
                 .addComponent(labCompressor)
-                .addComponent(btnAddEncoder))
+                .addComponent(btnAddExtended))
         );
 
         jPanel3.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
@@ -1030,25 +1031,41 @@ public class EmulatorForm extends javax.swing.JFrame {
     }//GEN-LAST:event_btnEnableActionPerformed
 
     public FloatInputPoll makeEncoder(int aChannel, int bChannel, boolean reverse, EventSource resetWhen) {
-        String name = aChannel + "::" + bChannel;
+        String name = "encoder::" + aChannel + "::" + bChannel;
         if (reverse) {
             name += "::reverse";
         }
-        availableEncoderSelection.addElement(name);
-        EncoderForm enc = new EncoderForm(name);
-        encoders.put(name, enc);
+        availableExtendedSelection.addElement(name);
+        EncoderForm enc = new EncoderForm(name, resetWhen);
+        extended.put(name, enc);
         return enc;
     }
+    
+    public FloatInputPoll makeGyro(int channel, double sensitivity, EventSource resetWhen) {
+        String name = "gyro::" + channel + "::" + sensitivity;
+        availableExtendedSelection.addElement(name);
+        GyroForm gyr = new GyroForm(name, resetWhen);
+        extended.put(name, gyr);
+        return gyr;
+    }
+    
+    public FloatInputPoll makeAccelerometerAxis(int channel, double sensitivity, double zeropoint) {
+        String name = "accelerometer::" + channel + "::" + sensitivity + "::" + zeropoint;
+        availableExtendedSelection.addElement(name);
+        AccelerometerForm gyr = new AccelerometerForm(name);
+        extended.put(name, gyr);
+        return gyr;
+    }
 
-    private void btnAddEncoderActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAddEncoderActionPerformed
-        String s = (String) availableEncoderSelection.getSelectedItem();
+    private void btnAddExtendedActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAddExtendedActionPerformed
+        String s = (String) availableExtendedSelection.getSelectedItem();
         if (s == null) {
             return;
         }
-        encoders.get(s).setVisible(true);
-    }//GEN-LAST:event_btnAddEncoderActionPerformed
-    private DefaultComboBoxModel availableEncoderSelection = new DefaultComboBoxModel();
-    private HashMap<String, EncoderForm> encoders = new HashMap<String, EncoderForm>();
+        extended.get(s).setVisible(true);
+    }//GEN-LAST:event_btnAddExtendedActionPerformed
+    private DefaultComboBoxModel availableExtendedSelection = new DefaultComboBoxModel();
+    private HashMap<String, Component> extended = new HashMap<String, Component>();
     private JProgressBar[] motors;
     private JLabel[] relayFwd, relayRev;
     public EmuJoystick[] joysticks;
@@ -1061,7 +1078,7 @@ public class EmulatorForm extends javax.swing.JFrame {
     private javax.swing.JSlider analog6;
     private javax.swing.JSlider analog7;
     private javax.swing.JSlider analog8;
-    private javax.swing.JButton btnAddEncoder;
+    private javax.swing.JButton btnAddExtended;
     private javax.swing.JToggleButton btnEnable;
     private javax.swing.ButtonGroup btnGrpMode;
     private javax.swing.JToggleButton digital1;
@@ -1084,7 +1101,7 @@ public class EmulatorForm extends javax.swing.JFrame {
     private ccre.igneous.EmulatorJoystick emulatorJoystick4;
     private ccre.igneous.EmulatorJoystick emulatorJoystick5;
     private ccre.igneous.EmulatorJoystick emulatorJoystick6;
-    private javax.swing.JComboBox encoderSelect;
+    private javax.swing.JComboBox extendedSelect;
     private javax.swing.JLabel jLabel10;
     private javax.swing.JLabel jLabel11;
     private javax.swing.JLabel jLabel5;

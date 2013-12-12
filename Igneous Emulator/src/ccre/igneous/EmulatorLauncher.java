@@ -22,7 +22,6 @@ import ccre.chan.*;
 import ccre.cluck.CluckGlobals;
 import ccre.ctrl.*;
 import ccre.event.*;
-import ccre.log.Logger;
 import ccre.log.NetworkAutologger;
 import java.io.File;
 import java.io.IOException;
@@ -267,5 +266,15 @@ public class EmulatorLauncher implements IgneousLauncher {
     @Override
     public BooleanOutput makeRelayReverseOutput(int channel) {
         return emf.makeRelayReverse(channel);
+    }
+
+    @Override
+    public FloatInputPoll makeGyro(int port, double sensitivity, EventSource source) {
+        return emf.makeGyro(port, sensitivity, source);
+    }
+
+    @Override
+    public FloatInputPoll makeAccelerometerAxis(int port, double sensitivity, double zeropoint) {
+        return emf.makeAccelerometerAxis(port, sensitivity, zeropoint);
     }
 }

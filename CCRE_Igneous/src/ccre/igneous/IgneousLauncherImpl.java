@@ -22,7 +22,6 @@ import ccre.chan.*;
 import ccre.cluck.CluckGlobals;
 import ccre.ctrl.*;
 import ccre.event.*;
-import ccre.instinct.AutonomousModeOverException;
 import ccre.log.*;
 import ccre.net.IgneousNetworkProvider;
 import ccre.saver.IgneousStorageProvider;
@@ -378,6 +377,32 @@ class IgneousLauncherImpl extends IterativeRobot implements IgneousLauncher {
         return new BooleanOutput() {
             public void writeValue(boolean bln) {
                 r.set(bln ? Relay.Value.kOn : Relay.Value.kOff);
+            }
+        };
+    }
+
+    public FloatInputPoll makeGyro(int port, double sensitivity, EventSource evt) {
+        final Gyro g = new Gyro(port);
+        g.setSensitivity(sensitivity);
+        evt.addListener(new EventConsumer() {
+            public void eventFired() {
+                g.reset();
+            }
+        });
+        return new FloatInputPoll() {
+            public float readValue() {
+                return (float) g.getAngle();
+            }
+        };
+    }
+
+    public FloatInputPoll makeAccelerometerAxis(int port, double sensitivity, double zeropoint) {
+        final Accelerometer a = new Accelerometer(port);
+        a.setSensitivity(sensitivity);
+        a.setZero(zeropoint);
+        return new FloatInputPoll() {
+            public float readValue() {
+                return (float) a.getAcceleration();
             }
         };
     }

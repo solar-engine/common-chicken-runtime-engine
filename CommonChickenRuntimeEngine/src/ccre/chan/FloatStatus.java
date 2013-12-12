@@ -37,9 +37,18 @@ import ccre.util.CArrayUtils;
 public class FloatStatus implements FloatOutput, FloatInput, FloatTuner {
 
     /**
-     * Create a new FloatStatus.
+     * Create a new FloatStatus with a value of zero.
      */
     public FloatStatus() {
+    }
+
+    /**
+     * Create a new FloatStatus with the specified default value.
+     *
+     * @param value The default value.
+     */
+    public FloatStatus(float value) {
+        this.writeValue(value);
     }
 
     /**

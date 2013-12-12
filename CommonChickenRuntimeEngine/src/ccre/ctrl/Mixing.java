@@ -21,7 +21,6 @@ package ccre.ctrl;
 import ccre.chan.*;
 import ccre.event.*;
 import ccre.log.Logger;
-import ccre.util.CArrayList;
 import ccre.util.Utils;
 import ccre.ctrl.MixingImpls.*;
 
@@ -84,6 +83,24 @@ public class Mixing {
         public boolean removeTarget(BooleanOutput consum) {
             Logger.warning("Faked removeTarget for Mixing.alwaysTrue");
             return true; // Faked!
+        }
+    };
+    /**
+     * A FloatFilter that negates a value.
+     */
+    public static final FloatFilter negate = new FloatFilter() {
+        @Override
+        public float filter(float input) {
+            return -input;
+        }
+    };
+    /**
+     * A BooleanFilter that inverts a value. (True->False, False->True).
+     */
+    public static final BooleanFilter invert = new BooleanFilter() {
+        @Override
+        public boolean filter(boolean input) {
+            return !input;
         }
     };
 
@@ -301,64 +318,80 @@ public class Mixing {
     }
 
     /**
+     * Return a Filter that applies the specified-size deadzone as defined in
+     * Utils.deadzone.
+     *
+     * @param deadzone The deadzone size to apply.
+     * @return The filter representing this deadzone size.
+     * @see ccre.util.Utils#deadzone(float, float)
+     */
+    public static FloatFilter deadzone(final float deadzone) {
+        return new FloatFilter() {
+            @Override
+            public float filter(float input) {
+                return Utils.deadzone(input, deadzone);
+            }
+        };
+    }
+
+    /**
      * Returns a FloatInputPoll with a deadzone applied as defined in
      * Utils.deadzone
      *
-     * @param value the input representing the current value.
-     * @param deadzone the deadzone to apply.
+     * @param inp the input representing the current value.
+     * @param range the deadzone to apply.
      * @return the input representing the deadzone applied to the specified
      * value.
      * @see ccre.util.Utils#deadzone(float, float)
+     * @deprecated Use deadzone(range).wrap(inp) instead.
      */
-    public static FloatInputPoll deadzone(FloatInputPoll value, float deadzone) {
-        return new DZI(value, deadzone);
+    public static FloatInputPoll deadzone(FloatInputPoll inp, float range) {
+        return deadzone(range).wrap(inp);
     }
 
     /**
      * Returns a FloatInput with a deadzone applied as specified in
      * Utils.deadzone.
      *
-     * @param value the input representing the current value.
-     * @param deadzone the deadzone to apply.
+     * @param inp the input representing the current value.
+     * @param range the deadzone to apply.
      * @return the input representing the deadzone applied to the specified
      * value.
      * @see ccre.util.Utils#deadzone(float, float)
+     * @deprecated Use deadzone(range).wrap(inp) instead.
      */
-    public static FloatInput deadzone(FloatInput value, float deadzone) {
-        FloatStatus out = new FloatStatus();
-        value.addTarget(deadzone((FloatOutput) out, deadzone));
-        out.writeValue(value.readValue());
-        return out;
+    public static FloatInput deadzone(FloatInput inp, float range) {
+        return deadzone(range).wrap(inp);
     }
 
     /**
      * Returns a FloatInputProducer with a deadzone applied as specified in
      * Utils.deadzone
      *
-     * @param value the input representing the current value.
-     * @param deadzone the deadzone to apply.
+     * @param inp the input representing the current value.
+     * @param range the deadzone to apply.
      * @return the input representing the deadzone applied to the specified
      * value.
      * @see ccre.util.Utils#deadzone(float, float)
+     * @deprecated Use deadzone(range).wrap(inp) instead.
      */
-    public static FloatInputProducer deadzone(FloatInputProducer value, float deadzone) {
-        FloatStatus out = new FloatStatus();
-        value.addTarget(deadzone((FloatOutput) out, deadzone));
-        return out;
+    public static FloatInputProducer deadzone(FloatInputProducer inp, float range) {
+        return deadzone(range).wrap(inp);
     }
 
     /**
      * Returns a FloatOutput that writes through a deadzoned version of any
      * values written to it. Deadzones values as specified in Utils.deadzone.
      *
-     * @param output the output to write deadzoned values to.
-     * @param deadzone the deadzone to apply.
+     * @param out the output to write deadzoned values to.
+     * @param range the deadzone to apply.
      * @return the output that writes deadzoned values through to the specified
      * output.
      * @see ccre.util.Utils#deadzone(float, float)
+     * @deprecated Use deadzone(range).wrap(inp) instead.
      */
-    public static FloatOutput deadzone(final FloatOutput output, final float deadzone) {
-        return new DZO(output, deadzone);
+    public static FloatOutput deadzone(final FloatOutput out, final float range) {
+        return deadzone(range).wrap(out);
     }
 
     /**
@@ -367,9 +400,10 @@ public class Mixing {
      *
      * @param value the input to negate.
      * @return the negated input.
+     * @deprecated Use Mixing.negate.wrap instead.
      */
     public static FloatInputPoll negate(final FloatInputPoll value) {
-        return new NegateImplIn(value);
+        return negate.wrap(value);
     }
 
     /**
@@ -378,12 +412,10 @@ public class Mixing {
      *
      * @param value the input to negate.
      * @return the negated input.
+     * @deprecated Use Mixing.negate.wrap instead.
      */
     public static FloatInput negate(FloatInput value) {
-        FloatStatus out = new FloatStatus();
-        value.addTarget(negate((FloatOutput) out));
-        out.writeValue(value.readValue());
-        return out;
+        return negate.wrap(value);
     }
 
     /**
@@ -392,11 +424,10 @@ public class Mixing {
      *
      * @param value the input to negate.
      * @return the negated input.
+     * @deprecated Use Mixing.negate.wrap instead.
      */
     public static FloatInputProducer negate(FloatInputProducer value) {
-        FloatStatus out = new FloatStatus();
-        value.addTarget(negate((FloatOutput) out));
-        return out;
+        return negate.wrap(value);
     }
 
     /**
@@ -405,9 +436,10 @@ public class Mixing {
      *
      * @param output the output to write negated values to.
      * @return the output to write pre-negated values to.
+     * @deprecated Use Mixing.negate.wrap instead.
      */
     public static FloatOutput negate(final FloatOutput output) {
-        return new NegateImplOut(output);
+        return negate.wrap(output);
     }
 
     /**
@@ -416,13 +448,10 @@ public class Mixing {
      *
      * @param value the value to invert.
      * @return the inverted value.
+     * @deprecated Use Mixing.invert.wrap instead.
      */
     public static BooleanInputPoll invert(final BooleanInputPoll value) {
-        return new BooleanInputPoll() {
-            public boolean readValue() {
-                return !value.readValue();
-            }
-        };
+        return invert.wrap(value);
     }
 
     /**
@@ -431,12 +460,10 @@ public class Mixing {
      *
      * @param value the value to invert.
      * @return the inverted value.
+     * @deprecated Use Mixing.invert.wrap instead.
      */
     public static BooleanInput invert(BooleanInput value) {
-        BooleanStatus out = new BooleanStatus();
-        value.addTarget(invert((BooleanOutput) out));
-        out.writeValue(value.readValue());
-        return out;
+        return invert.wrap(value);
     }
 
     /**
@@ -445,11 +472,10 @@ public class Mixing {
      *
      * @param value the value to invert.
      * @return the inverted value.
+     * @deprecated Use Mixing.invert.wrap instead.
      */
     public static BooleanInputProducer invert(BooleanInputProducer value) {
-        BooleanStatus out = new BooleanStatus();
-        value.addTarget(invert((BooleanOutput) out));
-        return out;
+        return invert.wrap(value);
     }
 
     /**
@@ -458,13 +484,10 @@ public class Mixing {
      *
      * @param output the output to write inverted values to.
      * @return the output to write pre-inverted values to.
+     * @deprecated Use Mixing.invert.wrap instead.
      */
     public static BooleanOutput invert(final BooleanOutput output) {
-        return new BooleanOutput() {
-            public void writeValue(boolean newValue) {
-                output.writeValue(!newValue);
-            }
-        };
+        return invert.wrap(output);
     }
 
     /**

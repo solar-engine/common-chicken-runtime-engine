@@ -30,12 +30,14 @@ import ccre.log.Logger;
 import ccre.util.CArrayList;
 import ccre.util.Utils;
 
+/**
+ * Contains implementation details of much of Mixing - the internal one-use
+ * classes go here.
+ *
+ * @author skeggsc
+ */
 class MixingImpls {
 
-    /**
-     * Implementation detail. This is not an anonymous class in order to play
-     * nicer with Squawk.
-     */
     static class Always implements FloatInput {
 
         private final float value;
@@ -91,10 +93,6 @@ class MixingImpls {
         }
     }
 
-    /**
-     * Implementation detail. This is not an anonymous class in order to play
-     * nicer with Squawk.
-     */
     static final class BCF implements FloatInput, BooleanOutput {
 
         private final BooleanInputProducer binp;
@@ -140,10 +138,6 @@ class MixingImpls {
         }
     }
 
-    /**
-     * Implementation detail. This is not an anonymous class in order to play
-     * nicer with Squawk.
-     */
     static final class BCF2 implements FloatInput, BooleanOutput {
 
         private final BooleanInputProducer binp;
@@ -189,10 +183,6 @@ class MixingImpls {
         }
     }
 
-    /**
-     * Implementation detail. This is not an anonymous class in order to play
-     * nicer with Squawk.
-     */
     static final class BSF implements BooleanOutput {
 
         private final float off;
@@ -210,10 +200,6 @@ class MixingImpls {
         }
     }
 
-    /**
-     * Implementation detail. This is not an anonymous class in order to play
-     * nicer with Squawk.
-     */
     static class BSF2 implements FloatInputPoll {
 
         private final BooleanInputPoll binp;
@@ -248,10 +234,6 @@ class MixingImpls {
         }
     }
 
-    /**
-     * Implementation detail. This is not an anonymous class in order to play
-     * nicer with Squawk.
-     */
     static class DZI implements FloatInputPoll {
 
         private final FloatInputPoll value;
@@ -267,10 +249,6 @@ class MixingImpls {
         }
     }
 
-    /**
-     * Implementation detail. This is not an anonymous class in order to play
-     * nicer with Squawk.
-     */
     static class DZO implements FloatOutput {
 
         private final FloatOutput value;
@@ -286,10 +264,6 @@ class MixingImpls {
         }
     }
 
-    /**
-     * Implementation detail. This is not an anonymous class in order to play
-     * nicer with Squawk.
-     */
     static class FEC implements EventConsumer {
 
         private final BooleanInputPoll shouldAllow;
@@ -309,10 +283,6 @@ class MixingImpls {
         }
     }
 
-    /**
-     * Implementation detail. This is not an anonymous class in order to play
-     * nicer with Squawk.
-     */
     static class FES implements EventConsumer {
 
         private final BooleanInputPoll shouldAllow;
@@ -332,10 +302,6 @@ class MixingImpls {
         }
     }
 
-    /**
-     * Implementation detail. This is not an anonymous class in order to play
-     * nicer with Squawk.
-     */
     static class FIAL implements BooleanInputPoll {
 
         private final FloatInputPoll base;
@@ -351,10 +317,6 @@ class MixingImpls {
         }
     }
 
-    /**
-     * Implementation detail. This is not an anonymous class in order to play
-     * nicer with Squawk.
-     */
     static class FIAM implements BooleanInputPoll {
 
         private final FloatInputPoll base;
@@ -370,10 +332,6 @@ class MixingImpls {
         }
     }
 
-    /**
-     * Implementation detail. This is not an anonymous class in order to play
-     * nicer with Squawk.
-     */
     static class FIIR implements BooleanInputPoll {
 
         private final FloatInputPoll base;
@@ -392,10 +350,6 @@ class MixingImpls {
         }
     }
 
-    /**
-     * Implementation detail. This is not an anonymous class in order to play
-     * nicer with Squawk.
-     */
     static class FIOR implements BooleanInputPoll {
 
         private final FloatInputPoll base;
@@ -429,10 +383,6 @@ class MixingImpls {
         }
     }
 
-    /**
-     * Implementation detail. This is not an anonymous class in order to play
-     * nicer with Squawk.
-     */
     static class GSEB implements EventConsumer {
 
         private final BooleanOutput out;
@@ -448,10 +398,6 @@ class MixingImpls {
         }
     }
 
-    /**
-     * Implementation detail. This is not an anonymous class in order to play
-     * nicer with Squawk.
-     */
     static class GSEF implements EventConsumer {
 
         private final FloatOutput out;
@@ -467,10 +413,6 @@ class MixingImpls {
         }
     }
 
-    /**
-     * Implementation detail. This is not an anonymous class in order to play
-     * nicer with Squawk.
-     */
     static class NFI implements FloatInputPoll {
 
         private final FloatInputPoll base;
@@ -485,32 +427,6 @@ class MixingImpls {
 
         public float readValue() {
             return (base.readValue() - zero) / range;
-        }
-    }
-
-    static class NegateImplIn implements FloatInputPoll {
-
-        private final FloatInputPoll value;
-
-        public NegateImplIn(FloatInputPoll value) {
-            this.value = value;
-        }
-
-        public float readValue() {
-            return -value.readValue();
-        }
-    }
-
-    static class NegateImplOut implements FloatOutput {
-
-        private final FloatOutput output;
-
-        public NegateImplOut(FloatOutput output) {
-            this.output = output;
-        }
-
-        public void writeValue(float newValue) {
-            output.writeValue(-newValue);
         }
     }
 
@@ -597,10 +513,6 @@ class MixingImpls {
         }
     }
 
-    /**
-     * Implementation detail. This is not an anonymous class in order to play
-     * nicer with Squawk.
-     */
     static class WBBI implements BooleanOutput {
 
         private final boolean target;

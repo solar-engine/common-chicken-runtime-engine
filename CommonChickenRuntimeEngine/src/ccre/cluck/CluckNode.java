@@ -606,7 +606,42 @@ public class CluckNode {
     }
 
     /**
-     * Publish a BooleanInputProducer on the network.
+     * Publish a BooleanInput on the network. This is similar to publishing a
+     * BooleanInputProducer, but will send values to clients when they
+     * connect.
+     *
+     * @param name The name for the BooleanInput.
+     * @param prod The BooleanInput.
+     */
+    public void publish(final String name, final BooleanInput prod) {
+        final CHashMap<String, Object> remotes = new CHashMap<String, Object>();
+        prod.addTarget(new BooleanOutput() {
+            public void writeValue(boolean value) {
+                for (String remote : remotes) {
+                    transmit(remote, name, new byte[]{RMT_BOOLPRODRESP, value ? (byte) 1 : 0});
+                }
+            }
+        });
+        new CluckSubscriber() {
+            @Override
+            protected void receive(String src, byte[] data) {
+                if (requireRMT(src, data, RMT_BOOLPROD)) {
+                    remotes.put(src, empty);
+                    transmit(src, name, new byte[]{RMT_BOOLPRODRESP, prod.readValue() ? (byte) 1 : 0});
+                }
+            }
+
+            @Override
+            protected void receiveBroadcast(String source, byte[] data) {
+                defaultBroadcastHandle(source, data, RMT_BOOLPROD);
+            }
+        }.attach(this, name);
+    }
+
+    /**
+     * Publish a BooleanInputProducer on the network. This is similar to
+     * publishing a BooleanInput, but will NOT send values to clients when they
+     * connect.
      *
      * @param name The name for the BooleanInputProducer.
      * @param prod The BooleanInputProducer.
@@ -726,10 +761,48 @@ public class CluckNode {
     }
 
     /**
-     * Publish a FloatInputProducer on the network.
+     * Publish a FloatInput on the network. This is similar to publishing a
+     * FloatInputProducer, but will send values to clients when they connect.
+     *
+     * @param name The name for the FloatInput.
+     * @param prod The FloatInput.
+     * @see #publish(java.lang.String, ccre.chan.FloatInputProducer)
+     */
+    public void publish(final String name, final FloatInput prod) {
+        final CHashMap<String, Object> remotes = new CHashMap<String, Object>();
+        prod.addTarget(new FloatOutput() {
+            public void writeValue(float value) {
+                for (String remote : remotes) {
+                    int iver = Float.floatToIntBits(value);
+                    transmit(remote, name, new byte[]{RMT_FLOATPRODRESP, (byte) (iver >> 24), (byte) (iver >> 16), (byte) (iver >> 8), (byte) iver});
+                }
+            }
+        });
+        new CluckSubscriber() {
+            @Override
+            protected void receive(String src, byte[] data) {
+                if (requireRMT(src, data, RMT_FLOATPROD)) {
+                    remotes.put(src, empty);
+                    int iver = Float.floatToIntBits(prod.readValue());
+                    transmit(src, name, new byte[]{RMT_FLOATPRODRESP, (byte) (iver >> 24), (byte) (iver >> 16), (byte) (iver >> 8), (byte) iver});
+                }
+            }
+
+            @Override
+            protected void receiveBroadcast(String source, byte[] data) {
+                defaultBroadcastHandle(source, data, RMT_FLOATPROD);
+            }
+        }.attach(this, name);
+    }
+
+    /**
+     * Publish a FloatInputProducer on the network. This is similar to
+     * publishing a FloatInput, but will NOT send values to clients when they
+     * connect.
      *
      * @param name The name for the FloatInputProducer.
      * @param prod The FloatInputProducer.
+     * @see #publish(java.lang.String, ccre.chan.FloatInput)
      */
     public void publish(final String name, final FloatInputProducer prod) {
         final CHashMap<String, Object> remotes = new CHashMap<String, Object>();
@@ -757,13 +830,14 @@ public class CluckNode {
     }
 
     /**
-     * Subscribe to a FloatInputProducer from the network at the specified path.
+     * Subscribe to a FloatInputProducer (or FloatInput) from the network at the
+     * specified path.
      *
      * @param path The path to subscribe to.
      * @param subscribeByDefault Should this request the value from the remote
      * by default, as opposed to waiting until this is needed. If this is false,
      * then readValue() won't work until you run addTarget().
-     * @return the FloatInputProducer.
+     * @return the FloatInputProducer. (or FloatInput).
      */
     public FloatInput subscribeFIP(final String path, boolean subscribeByDefault) {
         final String linkName = "srcFIP-" + path.hashCode() + "-" + localIDs++;

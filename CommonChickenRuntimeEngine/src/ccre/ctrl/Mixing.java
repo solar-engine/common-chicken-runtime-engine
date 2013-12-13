@@ -914,4 +914,60 @@ public class Mixing {
         updateWhen.addListener(createRamper(limit, source, temp));
         return temp;
     }
+
+    /**
+     * Returns a FloatInputPoll representing the delta between the current value
+     * of input and the previous value. This _only_ works when you use the
+     * result in one place! If you use it in multiple, then it may try to find
+     * the deltas between each invocation!
+     *
+     * To get around this, use findRate with two arguments.
+     *
+     * @param input The input value to find the rate of.
+     * @return The FloatInputPoll representing the rate.
+     */
+    public static FloatInputPoll findRate(final FloatInputPoll input) {
+        return new FloatInputPoll() {
+            float lastValue = input.readValue();
+
+            public synchronized float readValue() {
+                float next = input.readValue();
+                float out = next - lastValue;
+                lastValue = next;
+                return out;
+            }
+        };
+    }
+
+    /**
+     * Returns a FloatInputPoll representing the delta between the current value
+     * of input and the value in the last cycle, denoted by the specified
+     * EventSource.
+     *
+     * If you only need to use this in one place, then using findRate with one
+     * argument might be a better choice.
+     *
+     * @param input The input value to find the rate of.
+     * @param updateWhen When to update the current state, so that the delta is
+     * from the last update of this.
+     * @return The FloatInputPoll representing the rate.
+     */
+    public static FloatInputPoll findRate(final FloatInputPoll input, EventSource updateWhen) {
+        return new FloatInputPoll() {
+            float lastValue = input.readValue();
+
+            public FloatInputPoll start(EventSource updateWhen) {
+                updateWhen.addListener(new EventConsumer() {
+                    public void eventFired() {
+                        lastValue = input.readValue();
+                    }
+                });
+                return this;
+            }
+
+            public synchronized float readValue() {
+                return input.readValue() - lastValue;
+            }
+        }.start(updateWhen);
+    }
 }

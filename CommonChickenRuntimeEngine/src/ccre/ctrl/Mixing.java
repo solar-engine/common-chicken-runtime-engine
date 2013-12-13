@@ -927,16 +927,7 @@ public class Mixing {
      * @return The FloatInputPoll representing the rate.
      */
     public static FloatInputPoll findRate(final FloatInputPoll input) {
-        return new FloatInputPoll() {
-            float lastValue = input.readValue();
-
-            public synchronized float readValue() {
-                float next = input.readValue();
-                float out = next - lastValue;
-                lastValue = next;
-                return out;
-            }
-        };
+        return new FindRateImpl(input);
     }
 
     /**
@@ -953,21 +944,6 @@ public class Mixing {
      * @return The FloatInputPoll representing the rate.
      */
     public static FloatInputPoll findRate(final FloatInputPoll input, EventSource updateWhen) {
-        return new FloatInputPoll() {
-            float lastValue = input.readValue();
-
-            public FloatInputPoll start(EventSource updateWhen) {
-                updateWhen.addListener(new EventConsumer() {
-                    public void eventFired() {
-                        lastValue = input.readValue();
-                    }
-                });
-                return this;
-            }
-
-            public synchronized float readValue() {
-                return input.readValue() - lastValue;
-            }
-        }.start(updateWhen);
+        return new FindRateCycledImpl(input).start(updateWhen);
     }
 }

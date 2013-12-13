@@ -26,6 +26,7 @@ import ccre.chan.FloatInputPoll;
 import ccre.chan.FloatOutput;
 import ccre.event.Event;
 import ccre.event.EventConsumer;
+import ccre.event.EventSource;
 import ccre.log.Logger;
 import ccre.util.CArrayList;
 import ccre.util.Utils;
@@ -365,6 +366,48 @@ class MixingImpls {
         public boolean readValue() {
             float val = base.readValue();
             return val < minimum || val > maximum;
+        }
+    }
+
+    static class FindRateImpl implements FloatInputPoll {
+
+        private final FloatInputPoll input;
+        private float lastValue;
+
+        FindRateImpl(FloatInputPoll input) {
+            this.input = input;
+            this.lastValue = input.readValue();
+        }
+
+        public synchronized float readValue() {
+            float next = input.readValue();
+            float out = next - lastValue;
+            lastValue = next;
+            return out;
+        }
+    }
+
+    static class FindRateCycledImpl implements FloatInputPoll {
+
+        private final FloatInputPoll input;
+        private float lastValue;
+
+        FindRateCycledImpl(FloatInputPoll input) {
+            this.input = input;
+            this.lastValue = input.readValue();
+        }
+
+        public FloatInputPoll start(EventSource updateWhen) {
+            updateWhen.addListener(new EventConsumer() {
+                public void eventFired() {
+                    lastValue = input.readValue();
+                }
+            });
+            return this;
+        }
+
+        public synchronized float readValue() {
+            return input.readValue() - lastValue;
         }
     }
 

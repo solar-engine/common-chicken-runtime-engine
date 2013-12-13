@@ -21,6 +21,7 @@ package ccre.ctrl;
 import ccre.chan.BooleanInputPoll;
 import ccre.chan.BooleanInputProducer;
 import ccre.chan.BooleanOutput;
+import ccre.chan.FloatFilter;
 import ccre.chan.FloatInput;
 import ccre.chan.FloatInputPoll;
 import ccre.chan.FloatOutput;
@@ -232,6 +233,20 @@ class MixingImpls {
 
         public float readValue() {
             return selector.readValue() ? on.readValue() : off.readValue();
+        }
+    }
+
+    static class DeadzoneImpl extends FloatFilter {
+
+        private final float deadzone;
+
+        DeadzoneImpl(float deadzone) {
+            this.deadzone = deadzone;
+        }
+
+        @Override
+        public float filter(float input) {
+            return Utils.deadzone(input, deadzone);
         }
     }
 

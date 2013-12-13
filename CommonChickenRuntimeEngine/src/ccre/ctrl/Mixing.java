@@ -326,12 +326,7 @@ public class Mixing {
      * @see ccre.util.Utils#deadzone(float, float)
      */
     public static FloatFilter deadzone(final float deadzone) {
-        return new FloatFilter() {
-            @Override
-            public float filter(float input) {
-                return Utils.deadzone(input, deadzone);
-            }
-        };
+        return new DeadzoneImpl(deadzone);
     }
 
     /**

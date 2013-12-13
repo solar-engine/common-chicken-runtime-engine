@@ -39,7 +39,7 @@ public abstract class FloatFilter {
      * Returns a FloatInput representing the filtered version of the specified
      * input.
      *
-     * @param value the input to filter.
+     * @param inp The input to filter.
      * @return the filtered input.
      */
     public FloatInput wrap(final FloatInput inp) {
@@ -52,7 +52,7 @@ public abstract class FloatFilter {
      * Returns a FloatInputProducer representing the filtered version of the
      * specified input.
      *
-     * @param value the input to filter.
+     * @param prd The input to filter.
      * @return the filtered input.
      */
     public FloatInputProducer wrap(final FloatInputProducer prd) {
@@ -65,7 +65,7 @@ public abstract class FloatFilter {
      * Returns a FloatInputPoll representing the filtered version of the
      * specified input.
      *
-     * @param value the input to filter.
+     * @param inp The input to filter.
      * @return the filtered input.
      */
     public FloatInputPoll wrap(final FloatInputPoll inp) {
@@ -80,7 +80,7 @@ public abstract class FloatFilter {
      * Returns a FloatOutput that, when written to, writes the filtered version
      * of the value through to the specified output.
      *
-     * @param output the output to write filtered values to.
+     * @param out the output to write filtered values to.
      * @return the output to write values to in order to filter them.
      */
     public FloatOutput wrap(final FloatOutput out) {

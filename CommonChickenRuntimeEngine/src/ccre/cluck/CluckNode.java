@@ -203,7 +203,7 @@ public class CluckNode {
         }
         estimatedByteCount += 24 + (target != null ? target.length() : 0) + (source != null ? source.length() : 0) + data.length; // 24 is the estimated packet overhead with a CluckTCPClient.
         if (target == null) {
-            Logger.log(LogLevel.WARNING, "Received message addressed to unreceving node (source: " + source + ")", new Exception("Embedded Traceback"));
+            Logger.log(LogLevel.WARNING, "Received message addressed to unreceving node (source: " + source + ")");
             return;
         } else if (target.equals("*")) {
             // Broadcast

@@ -239,7 +239,7 @@ public class CluckNode {
             if (!base.equals(lastMissingLink) || System.currentTimeMillis() >= lastMissingLinkError + 1000) {
                 lastMissingLink = base;
                 lastMissingLinkError = System.currentTimeMillis();
-                Logger.log(LogLevel.WARNING, "No link for " + target + "(" + base + ") from " + source + "!", new Exception("Embedded traceback"));
+                Logger.log(LogLevel.WARNING, "No link for " + target + "(" + base + ") from " + source + "!");
             }
         }
     }
@@ -627,7 +627,7 @@ public class CluckNode {
             protected void receive(String src, byte[] data) {
                 if (requireRMT(src, data, RMT_BOOLPROD)) {
                     remotes.put(src, empty);
-                    transmit(src, name, new byte[]{RMT_BOOLPRODRESP, prod.readValue() ? (byte) 1 : 0});
+                    CluckNode.this.transmit(src, name, new byte[]{RMT_BOOLPRODRESP, prod.readValue() ? (byte) 1 : 0});
                 }
             }
 
@@ -712,7 +712,7 @@ public class CluckNode {
             protected void receiveBroadcast(String source, byte[] data) {
                 if (data.length == 1 && data[0] == CluckNode.RMT_NOTIFY) {
                     if (sent.readValue()) {
-                        transmit(path, linkName, new byte[]{RMT_BOOLPROD});
+                        CluckNode.this.transmit(path, linkName, new byte[]{RMT_BOOLPROD});
                     }
                 }
             }
@@ -784,7 +784,7 @@ public class CluckNode {
                 if (requireRMT(src, data, RMT_FLOATPROD)) {
                     remotes.put(src, empty);
                     int iver = Float.floatToIntBits(prod.readValue());
-                    transmit(src, name, new byte[]{RMT_FLOATPRODRESP, (byte) (iver >> 24), (byte) (iver >> 16), (byte) (iver >> 8), (byte) iver});
+                    CluckNode.this.transmit(src, name, new byte[]{RMT_FLOATPRODRESP, (byte) (iver >> 24), (byte) (iver >> 16), (byte) (iver >> 8), (byte) iver});
                 }
             }
 
@@ -872,7 +872,7 @@ public class CluckNode {
             protected void receiveBroadcast(String source, byte[] data) {
                 if (data.length == 1 && data[0] == CluckNode.RMT_NOTIFY) {
                     if (sent.readValue()) {
-                        transmit(path, linkName, new byte[]{RMT_FLOATPROD});
+                        CluckNode.this.transmit(path, linkName, new byte[]{RMT_FLOATPROD});
                     }
                 }
             }

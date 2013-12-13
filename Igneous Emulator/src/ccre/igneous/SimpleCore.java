@@ -53,6 +53,7 @@ public abstract class SimpleCore extends IgneousCore {
     /**
      * Sets up the joysticks and then calls createSimpleControl.
      */
+    @Override
     protected final void createRobotControl() {
         joystick1 = makeDispatchJoystick(1);
         joystick2 = makeDispatchJoystick(2);

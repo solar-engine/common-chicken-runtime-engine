@@ -286,7 +286,9 @@ At this point, everything is done exactly as if you had written normal FRC code.
 
 # System overview for users
 
-The CCRE and Igneous contain very large amounts of code, and it would not be worth your time to understand all of the internals. Below are overviews of all the relevant parts of the CCRE. More detailed information, for those attempting to modify the CCRE, can be found at the end of the overall documentation.
+The CCRE and Igneous contain very large amounts of code, and it would not be worth your time to understand all of the internals. Below are overviews of many of the relevant parts of the CCRE. More detailed information, for those attempting to modify the CCRE, can be found at the end of the overall documentation.
+
+This section is not as up-to-date as it used to be - if anything appears to be missing, please tell me and I'll add the relevant section!
 
 ## General CCRE interfaces and systems
 
@@ -373,6 +375,8 @@ There are two overall categories of channels: Boolean and Float. These are the k
 
 There are four subtypes for each value type: Outputs, Inputs, InputPolls, and InputProducers.
 
+Filters, in addition, are a general converter that can wrap any kind of input or output and run stateless transformations on the value.
+
 #### Outputs
 
 An Output represents something that a value can be written to - for example a motor or readout gauge. It is only updated when a value is *sent* to it using writeValue(value).
@@ -401,6 +405,20 @@ For example, here are the methods provided by a BooleanInputProducer:
 This relation to Outputs is similar to the relation between EventSources and EventConsumers.
 
 Because of the relative difficulty in creating an implementation of InputProducers, a Status object (BooleanStatus or FloatStatus) is recommended instead of a custom implementation of InputProducer.
+
+#### Filters
+
+A Filter is a wrapper that can be wrapped around any kind of Output, Input, InputPoll, or InputProducer, and will provide the modified value in the same form.
+
+One example of a Filter would be a BooleanFilter that inverts a boolean - true becomes false, and vice versa.
+
+For example, here are the methods provided by a FloatFilter:
+
+	float filter(float input);
+	FloatInput wrap(final FloatInput inp);
+	FloatInputProducer wrap(final FloatInputProducer prd);
+	FloatInputPoll wrap(final FloatInputPoll inp);
+	FloatOutput wrap(final FloatOutput out);
 
 #### Inputs
 
@@ -609,7 +627,6 @@ The full listing of the provided methods can be found by looking in the javadoc,
 * floatIsInRange|floatIsOutsideRange(FloatInputPoll, float, float):BooleanInputPoll - Two methods that allow for checking if a FloatInputPoll is within (or outside) a constant range.
 * floatsEqual(FloatInputPoll, FloatInputPoll):BooleanInputPoll - Create a channel that represents when the specified FloatInputPolls are equal.
 * invert(...):? - A category of methods that logically invert any Boolean channel.
-* negate(...):? - A category of methods that negate any Float channel.
 * normalizeFloat(FloatInputPoll, float zero, float one):FloatInputPoll - Provides a scaled version of the specified input, such that when the value from the specified input is the value in the one parameter, the output is 1f, and when the value from the specified input is the value in the zero parameter, the output is 0f.
 * pumpWhen(EventSource, ?InputPoll, ?Output) - When the specified event is produced, read the value from the InputPoll and write it to the Output.
 * pumpEvent(?InputPoll, ?Output):EventConsumer - An EventConsumer that, when fired, reads the value from the InputPoll and writes it to the Output.
@@ -622,6 +639,9 @@ Mixing also contains a handful of constants:
 * alwaysTrue - a BooleanInput that is always true.
 * ignoredBooleanOutput - a BooleanOutput that ignores anything written to it.
 * ignoredFloatOutput - a FloatOutput that ignores anything written to it.
+
+As well, it has a small number of Filters:
+* negate - a FloatFilter that negates any float value.
 
 ### MultipleSourceBooleans
 

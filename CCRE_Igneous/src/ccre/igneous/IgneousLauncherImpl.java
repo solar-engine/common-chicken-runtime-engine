@@ -52,8 +52,7 @@ class IgneousLauncherImpl extends IterativeRobot implements IgneousLauncher {
         IgneousThrowablePrinter.register();
         IgneousStorageProvider.register();
         CluckGlobals.ensureInitializedCore();
-        Logger.warning("Remote logging target not started!");
-        //Logger.target = new MultiTargetLogger(new LoggingTarget[]{Logger.target, CluckGlobals.encoder.subscribeLoggingTarget(LogLevel.FINEST, "general-logger")});
+        NetworkAutologger.register();
         String name = VM.getManifestProperty("Igneous-Main");
         if (name == null) {
             throw new RuntimeException("Could not find MANIFEST-specified launchee!");
@@ -207,6 +206,15 @@ class IgneousLauncherImpl extends IterativeRobot implements IgneousLauncher {
         return new BooleanOutput() {
             public void writeValue(boolean bln) {
                 sol.set(bln);
+            }
+        };
+    }
+
+    public BooleanOutput makeDigitalOutput(int id) {
+        final DigitalOutput dout = new DigitalOutput(id);
+        return new BooleanOutput() {
+            public void writeValue(boolean bln) {
+                dout.set(bln);
             }
         };
     }
@@ -369,6 +377,32 @@ class IgneousLauncherImpl extends IterativeRobot implements IgneousLauncher {
         return new BooleanOutput() {
             public void writeValue(boolean bln) {
                 r.set(bln ? Relay.Value.kOn : Relay.Value.kOff);
+            }
+        };
+    }
+
+    public FloatInputPoll makeGyro(int port, double sensitivity, EventSource evt) {
+        final Gyro g = new Gyro(port);
+        g.setSensitivity(sensitivity);
+        evt.addListener(new EventConsumer() {
+            public void eventFired() {
+                g.reset();
+            }
+        });
+        return new FloatInputPoll() {
+            public float readValue() {
+                return (float) g.getAngle();
+            }
+        };
+    }
+
+    public FloatInputPoll makeAccelerometerAxis(int port, double sensitivity, double zeropoint) {
+        final Accelerometer a = new Accelerometer(port);
+        a.setSensitivity(sensitivity);
+        a.setZero(zeropoint);
+        return new FloatInputPoll() {
+            public float readValue() {
+                return (float) a.getAcceleration();
             }
         };
     }

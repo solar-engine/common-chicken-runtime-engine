@@ -132,8 +132,8 @@ public class CluckTCPClient extends ReporterThread {
                     DataOutputStream dout = sock.openDataOutputStream();
                     CluckProtocol.handleHeader(din, dout, remoteNameHint);
                     Logger.fine("Connected to " + remote + " at " + System.currentTimeMillis());
-                    node.notifyNetworkModified();
                     CluckLink deny = CluckProtocol.handleSend(dout, linkName, node);
+                    node.notifyNetworkModified(); // Only send here, not on server.
                     CluckProtocol.handleRecv(din, linkName, node, deny);
                 } catch (IOException ex) {
                     if ("Remote server not available.".equals(ex.getMessage()) || "Timed out while connecting.".equals(ex.getMessage())) {

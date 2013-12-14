@@ -384,11 +384,13 @@ class IgneousLauncherImpl extends IterativeRobot implements IgneousLauncher {
     public FloatInputPoll makeGyro(int port, double sensitivity, EventSource evt) {
         final Gyro g = new Gyro(port);
         g.setSensitivity(sensitivity);
-        evt.addListener(new EventConsumer() {
-            public void eventFired() {
-                g.reset();
-            }
-        });
+        if (evt != null) {
+            evt.addListener(new EventConsumer() {
+                public void eventFired() {
+                    g.reset();
+                }
+            });
+        }
         return new FloatInputPoll() {
             public float readValue() {
                 return (float) g.getAngle();

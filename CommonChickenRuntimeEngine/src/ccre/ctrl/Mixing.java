@@ -122,7 +122,7 @@ public class Mixing {
      * @param b the second output
      * @return the output that will write to both specified outputs.
      */
-    public static FloatOutput combineFloats(final FloatOutput a, final FloatOutput b) {
+    public static FloatOutput combine(final FloatOutput a, final FloatOutput b) {
         return new FloatOutput() {
             public void writeValue(float value) {
                 a.writeValue(value);
@@ -140,7 +140,7 @@ public class Mixing {
      * @param c the third output
      * @return the output that will write to all specified outputs.
      */
-    public static FloatOutput combineFloats(final FloatOutput a, final FloatOutput b, final FloatOutput c) {
+    public static FloatOutput combine(final FloatOutput a, final FloatOutput b, final FloatOutput c) {
         return new FloatOutput() {
             public void writeValue(float value) {
                 a.writeValue(value);
@@ -158,7 +158,7 @@ public class Mixing {
      * @param b the second output
      * @return the output that will write to both specified outputs.
      */
-    public static BooleanOutput combineBooleans(final BooleanOutput a, final BooleanOutput b) {
+    public static BooleanOutput combine(final BooleanOutput a, final BooleanOutput b) {
         return new BooleanOutput() {
             public void writeValue(boolean value) {
                 a.writeValue(value);
@@ -176,7 +176,7 @@ public class Mixing {
      * @param c the third output
      * @return the output that will write to all specified outputs.
      */
-    public static BooleanOutput combineBooleans(final BooleanOutput a, final BooleanOutput b, final BooleanOutput c) {
+    public static BooleanOutput combine(final BooleanOutput a, final BooleanOutput b, final BooleanOutput c) {
         return new BooleanOutput() {
             public void writeValue(boolean value) {
                 a.writeValue(value);
@@ -198,7 +198,7 @@ public class Mixing {
      * @param on the value to send if the boolean is true.
      * @return the BooleanOutput that will now control the provided FloatOutput.
      */
-    public static BooleanOutput booleanSelectFloat(final FloatOutput controlled, final float off, final float on) {
+    public static BooleanOutput select(final FloatOutput controlled, final float off, final float on) {
         return new BSF(controlled, off, on);
     }
 
@@ -212,7 +212,7 @@ public class Mixing {
      * @return the FloatInput calculated from the selector's value and the two
      * floats.
      */
-    public static FloatInput booleanSelectFloat(BooleanInput selector, float off, float on) {
+    public static FloatInput select(BooleanInput selector, float off, float on) {
         return new BCF(selector, selector.readValue(), off, on);
     }
 
@@ -228,7 +228,7 @@ public class Mixing {
      * @return the FloatInput calculated from the selector's value and the two
      * floats.
      */
-    public static FloatInput booleanSelectFloat(BooleanInputProducer selector, boolean default_, float off, float on) {
+    public static FloatInput select(BooleanInputProducer selector, boolean default_, float off, float on) {
         return new BCF(selector, default_, off, on);
     }
 
@@ -242,7 +242,7 @@ public class Mixing {
      * @return the FloatInputPoll calculated from the selector's value and the
      * two floats.
      */
-    public static FloatInputPoll booleanSelectFloat(BooleanInputPoll selector, float off, float on) {
+    public static FloatInputPoll select(BooleanInputPoll selector, float off, float on) {
         return new BSF2(selector, off, on);
     }
 
@@ -260,7 +260,7 @@ public class Mixing {
      * @param on the value to write if the written boolean is true.
      * @return the BooleanOutput that will modify the specified target.
      */
-    public static BooleanOutput booleanSelectFloat(final FloatOutput target, final FloatInputPoll off, final FloatInputPoll on) {
+    public static BooleanOutput select(final FloatOutput target, final FloatInputPoll off, final FloatInputPoll on) {
         return new BooleanOutput() {
             public void writeValue(boolean value) {
                 target.writeValue(value ? on.readValue() : off.readValue());
@@ -281,7 +281,7 @@ public class Mixing {
      * @return the value selected based on the selector's value and the statuses
      * of the two arguments.
      */
-    public static FloatInput booleanSelectFloat(BooleanInput selector, FloatInputPoll off, FloatInputPoll on) {
+    public static FloatInput select(BooleanInput selector, FloatInputPoll off, FloatInputPoll on) {
         return new BCF2(selector, selector.readValue(), off, on);
     }
 
@@ -299,7 +299,7 @@ public class Mixing {
      * @return the value selected based on the selector's value and the statuses
      * of the two arguments.
      */
-    public static FloatInput booleanSelectFloat(BooleanInputProducer selector, boolean default_, FloatInputPoll off, FloatInputPoll on) {
+    public static FloatInput select(BooleanInputProducer selector, boolean default_, FloatInputPoll off, FloatInputPoll on) {
         return new BCF2(selector, default_, off, on);
     }
 
@@ -313,7 +313,7 @@ public class Mixing {
      * @return the value selected based on the selector's value and the statuses
      * of the two arguments.
      */
-    public static FloatInputPoll booleanSelectFloat(final BooleanInputPoll selector, final FloatInputPoll off, final FloatInputPoll on) {
+    public static FloatInputPoll select(final BooleanInputPoll selector, final FloatInputPoll off, final FloatInputPoll on) {
         return new BooleanSelectFloatImpl(selector, on, off);
     }
 
@@ -338,7 +338,6 @@ public class Mixing {
      * @return the input representing the deadzone applied to the specified
      * value.
      * @see ccre.util.Utils#deadzone(float, float)
-     * @deprecated Use deadzone(range).wrap(inp) instead.
      */
     public static FloatInputPoll deadzone(FloatInputPoll inp, float range) {
         return deadzone(range).wrap(inp);
@@ -353,7 +352,6 @@ public class Mixing {
      * @return the input representing the deadzone applied to the specified
      * value.
      * @see ccre.util.Utils#deadzone(float, float)
-     * @deprecated Use deadzone(range).wrap(inp) instead.
      */
     public static FloatInput deadzone(FloatInput inp, float range) {
         return deadzone(range).wrap(inp);
@@ -368,7 +366,6 @@ public class Mixing {
      * @return the input representing the deadzone applied to the specified
      * value.
      * @see ccre.util.Utils#deadzone(float, float)
-     * @deprecated Use deadzone(range).wrap(inp) instead.
      */
     public static FloatInputProducer deadzone(FloatInputProducer inp, float range) {
         return deadzone(range).wrap(inp);
@@ -383,7 +380,6 @@ public class Mixing {
      * @return the output that writes deadzoned values through to the specified
      * output.
      * @see ccre.util.Utils#deadzone(float, float)
-     * @deprecated Use deadzone(range).wrap(inp) instead.
      */
     public static FloatOutput deadzone(final FloatOutput out, final float range) {
         return deadzone(range).wrap(out);
@@ -395,7 +391,6 @@ public class Mixing {
      *
      * @param value the input to negate.
      * @return the negated input.
-     * @deprecated Use Mixing.negate.wrap instead.
      */
     public static FloatInputPoll negate(final FloatInputPoll value) {
         return negate.wrap(value);
@@ -407,7 +402,6 @@ public class Mixing {
      *
      * @param value the input to negate.
      * @return the negated input.
-     * @deprecated Use Mixing.negate.wrap instead.
      */
     public static FloatInput negate(FloatInput value) {
         return negate.wrap(value);
@@ -419,7 +413,6 @@ public class Mixing {
      *
      * @param value the input to negate.
      * @return the negated input.
-     * @deprecated Use Mixing.negate.wrap instead.
      */
     public static FloatInputProducer negate(FloatInputProducer value) {
         return negate.wrap(value);
@@ -431,7 +424,6 @@ public class Mixing {
      *
      * @param output the output to write negated values to.
      * @return the output to write pre-negated values to.
-     * @deprecated Use Mixing.negate.wrap instead.
      */
     public static FloatOutput negate(final FloatOutput output) {
         return negate.wrap(output);
@@ -443,7 +435,6 @@ public class Mixing {
      *
      * @param value the value to invert.
      * @return the inverted value.
-     * @deprecated Use Mixing.invert.wrap instead.
      */
     public static BooleanInputPoll invert(final BooleanInputPoll value) {
         return invert.wrap(value);
@@ -455,7 +446,6 @@ public class Mixing {
      *
      * @param value the value to invert.
      * @return the inverted value.
-     * @deprecated Use Mixing.invert.wrap instead.
      */
     public static BooleanInput invert(BooleanInput value) {
         return invert.wrap(value);
@@ -467,7 +457,6 @@ public class Mixing {
      *
      * @param value the value to invert.
      * @return the inverted value.
-     * @deprecated Use Mixing.invert.wrap instead.
      */
     public static BooleanInputProducer invert(BooleanInputProducer value) {
         return invert.wrap(value);
@@ -479,7 +468,6 @@ public class Mixing {
      *
      * @param output the output to write inverted values to.
      * @return the output to write pre-inverted values to.
-     * @deprecated Use Mixing.invert.wrap instead.
      */
     public static BooleanOutput invert(final BooleanOutput output) {
         return invert.wrap(output);
@@ -734,7 +722,7 @@ public class Mixing {
      * @param events the events to fire
      * @return the trigger for firing the arguments.
      */
-    public static EventConsumer combineEvents(final EventConsumer... events) {
+    public static EventConsumer combine(final EventConsumer... events) {
         return new EventConsumer() {
             public void eventFired() {
                 for (EventConsumer cnsm : events) {
@@ -752,7 +740,7 @@ public class Mixing {
      * @param b the second event
      * @return the trigger for firing the arguments.
      */
-    public static EventConsumer combineEvents(final EventConsumer a, final EventConsumer b) {
+    public static EventConsumer combine(final EventConsumer a, final EventConsumer b) {
         return new EventConsumer() {
             public void eventFired() {
                 a.eventFired();

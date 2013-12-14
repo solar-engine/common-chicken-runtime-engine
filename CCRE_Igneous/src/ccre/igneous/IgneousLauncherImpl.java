@@ -349,6 +349,7 @@ class IgneousLauncherImpl extends IterativeRobot implements IgneousLauncher {
 
     public FloatInputPoll makeEncoder(int aChannel, int bChannel, boolean reverse, EventSource resetWhen) {
         final Encoder enc = new Encoder(aChannel, bChannel, reverse);
+        enc.start();
         if (resetWhen != null) {
             resetWhen.addListener(new EventConsumer() {
                 public void eventFired() {

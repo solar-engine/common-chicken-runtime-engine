@@ -358,7 +358,7 @@ public abstract class IgneousCore implements InstinctRegistrar {
     }
 
     public BooleanInputPoll getWhenShouldAutonomousBeRunning() {
-        return Mixing.andBooleans(Mixing.invert(getIsDisabled()), getIsAutonomous());
+        return Mixing.andBooleans(Mixing.invert.wrap(getIsDisabled()), getIsAutonomous());
     }
 
     public void updatePeriodicallyAlways(EventConsumer toUpdate) {
@@ -420,6 +420,8 @@ public abstract class IgneousCore implements InstinctRegistrar {
      * sensitivity. This will allow reading the current rotation of the Gyro.
      * This also takes an EventSource, and when this is fired, the Gyro will be
      * reset.
+     * 
+     * Increased sensitivity means a smaller output for the same turn.
      *
      * @param port The Gyro port number.
      * @param sensitivity The sensitivity of the Gyro. This is the number of
@@ -436,6 +438,8 @@ public abstract class IgneousCore implements InstinctRegistrar {
     /**
      * Create a reference to a Gyro on the specified port with the specified
      * sensitivity. This will allow reading the current rotation of the Gyro.
+     * 
+     * Increased sensitivity means a smaller output for the same turn.
      *
      * @param port The Gyro port number.
      * @param sensitivity The sensitivity of the Gyro. This is the number of

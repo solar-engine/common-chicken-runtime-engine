@@ -55,15 +55,15 @@ public class Inferno extends SimpleCore {
     }
 
     private void createShooterWheel() {
-        FloatOutput wheel = Mixing.combineFloats(makeTalonMotor(3, MOTOR_FORWARD, 0), makeTalonMotor(4, MOTOR_FORWARD, 0), makeTalonMotor(5, MOTOR_FORWARD, 0));
-        FloatInput moddedSpeed = Mixing.booleanSelectFloat(isKiddieMode, 1f, 0.5f);
-        BooleanOutput wheelControl = Mixing.booleanSelectFloat(wheel, Mixing.always(0f), moddedSpeed);
+        FloatOutput wheel = Mixing.combine(makeTalonMotor(3, MOTOR_FORWARD, 0), makeTalonMotor(4, MOTOR_FORWARD, 0), makeTalonMotor(5, MOTOR_FORWARD, 0));
+        FloatInput moddedSpeed = Mixing.select(isKiddieMode, 1f, 0.5f);
+        BooleanOutput wheelControl = Mixing.select(wheel, Mixing.always(0f), moddedSpeed);
         BooleanInputPoll runWheelBtn = Mixing.orBooleans(PhidgetReader.getDigitalInput(5), joystick1.getButtonChannel(4));
         Mixing.pumpWhen(duringTeleop, runWheelBtn, wheelControl);
     }
 
     private void createShooterPistons() {
-        BooleanOutput fire = Mixing.combineBooleans(makeSolenoid(1), makeSolenoid(4));
+        BooleanOutput fire = Mixing.combine(makeSolenoid(1), makeSolenoid(4));
         BooleanInputPoll shootWheelBtn = Mixing.orBooleans(PhidgetReader.getDigitalInput(7), joystick1.getButtonChannel(2));
         Mixing.pumpWhen(duringTeleop, shootWheelBtn, fire);
     }
@@ -77,7 +77,7 @@ public class Inferno extends SimpleCore {
 
         createPotentiometerReadout(armPotentiometer);
 
-        armController = new PController(armPotentiometer, armMotor, Mixing.deadzone(manualArm, 0.05f));
+        armController = new PController(armPotentiometer, armMotor, Mixing.deadzone(0.05f).wrap(manualArm));
         armController.updateWhen(duringTeleop);
 
         BooleanStatus deactivateBrake = IS_COMPETITION_ROBOT ? new BooleanStatus(makeSolenoid(5)) : new BooleanStatus();
@@ -143,8 +143,8 @@ public class Inferno extends SimpleCore {
         final BooleanOutput backArmLED = outs[4], topArmLED = outs[6], frontArmLED = outs[5];
         final BooleanOutput dropSuctionLED = outs[2], leftSuctionLED = outs[1], rightSuctionLED = outs[3];
 
-        final BooleanOutput leftLEDs = Mixing.combineBooleans(backArmLED, topArmLED, frontArmLED);
-        final BooleanOutput rightLEDs = Mixing.combineBooleans(dropSuctionLED, leftSuctionLED, rightSuctionLED);
+        final BooleanOutput leftLEDs = Mixing.combine(backArmLED, topArmLED, frontArmLED);
+        final BooleanOutput rightLEDs = Mixing.combine(dropSuctionLED, leftSuctionLED, rightSuctionLED);
         final BooleanInputPoll isDisabled = this.getIsDisabled(), isAuto = this.getIsAutonomous();
         new Timer().schedule(new TimerTask() {
             private int frame = 0;

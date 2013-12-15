@@ -196,6 +196,17 @@ public class ExpirationTimer { // TODO: Needs to be tested!
         }
         feed();
     }
+    
+    /**
+     * Start or restart the timer running.
+     */
+    public synchronized void startOrFeed() {
+        if (isStarted) {
+            feed();
+        } else {
+            start();
+        }
+    }
 
     private synchronized void body() {
         while (true) {

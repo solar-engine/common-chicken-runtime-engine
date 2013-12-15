@@ -30,7 +30,7 @@ public class Example extends ObsidianCore {
     @Override
     protected void createRobotControl() {
         final FloatInput xAxis = launcher.getJoystickAxis(1);
-        final FloatInput yAxis = Mixing.negate(launcher.getJoystickAxis(2));
+        final FloatInput yAxis = Mixing.negate.wrap(launcher.getJoystickAxis(2));
         
         final FloatOutput leftMotor = makePWMOutput(PWMPin.P8_13, 0, 0.333f, 0.666f, 333f, true);
         final FloatOutput rightMotor = makePWMOutput(PWMPin.P9_14, 0, 0.333f, 0.666f, 333f, true);

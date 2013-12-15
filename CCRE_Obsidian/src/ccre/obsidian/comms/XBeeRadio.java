@@ -18,6 +18,8 @@
  */
 package ccre.obsidian.comms;
 
+import ccre.log.LogLevel;
+import ccre.log.Logger;
 import com.rapplogic.xbee.api.PacketListener;
 import com.rapplogic.xbee.api.XBee;
 import com.rapplogic.xbee.api.XBeeAddress64;
@@ -27,6 +29,7 @@ import com.rapplogic.xbee.api.XBeeResponse;
 import com.rapplogic.xbee.api.XBeeTimeoutException;
 import com.rapplogic.xbee.api.zigbee.ZNetTxRequest;
 import com.rapplogic.xbee.api.zigbee.ZNetTxStatusResponse;
+import java.util.Arrays;
 
 /**
  *
@@ -34,7 +37,7 @@ import com.rapplogic.xbee.api.zigbee.ZNetTxStatusResponse;
  */
 public class XBeeRadio {
 
-    private XBee xbee;
+    private final XBee xbee;
     private String port;
     private int baudRate;
     private long[] timeouts;
@@ -62,7 +65,7 @@ public class XBeeRadio {
     public void close() {
         xbee.close();
     }
-    
+
     public void sendPacket(int[] addr, int[] msg, int subTimeout, int timeout) throws XBeeException {
         if (verified) {
             sendPacketVerified(addr, msg, subTimeout, timeout);
@@ -70,13 +73,14 @@ public class XBeeRadio {
             sendPacketUnverified(addr, msg);
         }
     }
-    
+
     public void sendPacketUnverified(int[] addr, int[] msg) throws XBeeException {
         XBeeAddress64 address = new XBeeAddress64(addr);
         ZNetTxRequest message = new ZNetTxRequest(address, msg);
         xbee.sendAsynchronous(message);
+        Logger.info("Sent: " + Arrays.toString(msg));
     }
-    
+
     public void sendPacketVerified(int[] addr, int[] msg, int subTimeout, int timeout) throws XBeeException {
         ZNetTxStatusResponse response = null;
 

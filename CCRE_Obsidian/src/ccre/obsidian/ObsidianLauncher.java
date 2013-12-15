@@ -24,6 +24,7 @@ import ccre.event.Event;
 import ccre.log.LogLevel;
 import ccre.log.Logger;
 import ccre.log.NetworkAutologger;
+import ccre.obsidian.comms.ObsidianCommsNode;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
@@ -118,13 +119,14 @@ public abstract class ObsidianLauncher {
      * FloatInputProducer that will update every ~20 milliseconds with the value
      * of the axis.
      *
-     * @param axis The index of the axis to retrieve, from 1 to 4.
+     * @param id The ID of the shared axis.
      * @return A FloatInputProducer that provides the value of that axis.
      */
-    public FloatStatus getJoystickAxis(int axis) {
+    public FloatStatus getJoystickAxis(byte id) {
         //return CluckGlobals.node.subscribeFIP("hub/joystick" + 1 + "-axis" + axis);
         FloatStatus stick = new FloatStatus();
-        CluckGlobals.node.publish("joystick1-axis" + axis, (FloatOutput)stick);
+        ObsidianCommsNode.globalNode.addListener(id, stick);
+        //CluckGlobals.node.publish("joystick1-axis" + axis, (FloatOutput)stick);
         return stick;
     }
 
@@ -133,13 +135,14 @@ public abstract class ObsidianLauncher {
      * BooleanInputProducer that will update every ~20 milliseconds with the
      * value of the button.
      *
-     * @param index The index of the button to retrieve, from 1 to 12.
+     * @param id The ID of the shared button.
      * @return A BooleanInputProducer that provides the value of that button.
      */
-    public BooleanStatus getJoystickButton(int index) {
+    public BooleanStatus getJoystickButton(byte id) {
         //return CluckGlobals.node.subscribeBIP("hub/joystick" + 1 + "-button" + button);
         BooleanStatus button = new BooleanStatus();
-        CluckGlobals.node.publish("joystick1-button" + button, (BooleanOutput)button);
+        ObsidianCommsNode.globalNode.addListener(id, button);
+        //CluckGlobals.node.publish("joystick1-button" + button, (BooleanOutput)button);
         return button;
     }
 

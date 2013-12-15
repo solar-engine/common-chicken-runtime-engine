@@ -127,11 +127,11 @@ public abstract class ObsidianCore implements GPIOChannels {
         return launcher.makeAnalogInput(chan);
     }
     
-    public FloatStatus getJoystickAxis(int axis) {
+    public FloatStatus getJoystickAxis(byte axis) {
         return launcher.getJoystickAxis(axis);
     }
     
-    public BooleanStatus getJoystickButton(int button) {
+    public BooleanStatus getJoystickButton(byte button) {
         return launcher.getJoystickButton(button);
     }
 }

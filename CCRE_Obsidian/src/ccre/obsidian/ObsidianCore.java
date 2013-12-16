@@ -21,11 +21,9 @@ package ccre.obsidian;
 import ccre.chan.BooleanInput;
 import ccre.chan.BooleanInputPoll;
 import ccre.chan.BooleanOutput;
-import ccre.chan.BooleanStatus;
 import ccre.chan.FloatInput;
 import ccre.chan.FloatInputPoll;
 import ccre.chan.FloatOutput;
-import ccre.chan.FloatStatus;
 import ccre.event.Event;
 import ccre.event.EventSource;
 import java.util.Properties;
@@ -92,8 +90,8 @@ public abstract class ObsidianCore implements GPIOChannels {
      * @param chan The channel name for the PWM.
      * @param defaultValue The default value (in the range calibrateLow ...
      * calibrateHigh)
-     * @param calibrateLow The low end of the calibration. Becomes 0% duty.
-     * @param calibrateHigh The high end of the calibration. Becomes 100% duty.
+     * @param calibrateN1 The low end of the calibration. Becomes 0% duty.
+     * @param calibrateN2 The high end of the calibration. Becomes 100% duty.
      * @param frequency The frequency to write.
      * @param zeroPolarity Should the polarity be zero? Otherwise one.
      * @return the output that writes to the PWM.
@@ -127,11 +125,11 @@ public abstract class ObsidianCore implements GPIOChannels {
         return launcher.makeAnalogInput(chan);
     }
     
-    public FloatStatus getJoystickAxis(byte axis) {
+    public FloatInput getJoystickAxis(byte axis) {
         return launcher.getJoystickAxis(axis);
     }
     
-    public BooleanStatus getJoystickButton(byte button) {
+    public BooleanInput getJoystickButton(byte button) {
         return launcher.getJoystickButton(button);
     }
 }

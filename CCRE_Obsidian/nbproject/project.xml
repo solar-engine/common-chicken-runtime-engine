@@ -102,5 +102,8 @@
                 <source-level>1.6</source-level>
             </compilation-unit>
         </java-data>
+        <spellchecker-wordlist xmlns="http://www.netbeans.org/ns/spellchecker-wordlist/1">
+            <word>uncalibrated</word>
+        </spellchecker-wordlist>
     </configuration>
 </project>

@@ -18,9 +18,15 @@
  */
 package ccre.obsidian.comms;
 
+import ccre.chan.BooleanInput;
 import ccre.chan.BooleanOutput;
+import ccre.chan.BooleanStatus;
+import ccre.chan.FloatInput;
 import ccre.chan.FloatOutput;
+import ccre.chan.FloatStatus;
+import ccre.event.Event;
 import ccre.event.EventConsumer;
+import ccre.event.EventSource;
 import ccre.log.LogLevel;
 import ccre.log.Logger;
 import com.rapplogic.xbee.api.PacketListener;
@@ -28,7 +34,10 @@ import com.rapplogic.xbee.api.XBeeException;
 import com.rapplogic.xbee.api.XBeeResponse;
 import com.rapplogic.xbee.api.zigbee.ZNetRxResponse;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.PipedInputStream;
+import java.io.PipedOutputStream;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -97,8 +106,8 @@ public class ObsidianCommsNode {
     }
 
     /**
-     * Give access to the given remote addresses. Irrelevant if secure is set
-     * to false.
+     * Give access to the given remote addresses. Irrelevant if secure is set to
+     * false.
      *
      * @param addresses the addresses to give access to.
      */
@@ -160,6 +169,65 @@ public class ObsidianCommsNode {
     }
 
     /**
+     * Create an InputStream that will read raw data on the specified id.
+     *
+     * @param id the id to listen on
+     * @return an InputStream that will read raw data on the specified id.
+     */
+    public InputStream createInputStream(byte id) {
+        try {
+            PipedInputStream is = new PipedInputStream();
+            PipedOutputStream os = new PipedOutputStream(is);
+
+            addListener(id, os);
+
+            return is;
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    /**
+     * Create a FloatInput that will read float data on the specified id. The
+     * FloatInput will return the last received value when readValue() is
+     * called.
+     *
+     * @param id the id to listen on
+     * @return a FloatInput that will read float data on the specified id.
+     */
+    public FloatInput createFloatInput(byte id) {
+        FloatStatus fs = new FloatStatus();
+        addListener(id, fs);
+        return fs;
+    }
+
+    /**
+     * Create a BooleanInput that will read boolean data on the specified id.
+     * The BooleanInput will return the last received value when readValue() is
+     * called.
+     *
+     * @param id the id to listen on
+     * @return a BooleanInput that will read boolean data on the specified id.
+     */
+    public BooleanInput createBooleanInput(byte id) {
+        BooleanStatus bs = new BooleanStatus();
+        addListener(id, bs);
+        return bs;
+    }
+
+    /**
+     * Create an EventSource that will listen on the specified id.
+     *
+     * @param id the id to listen on
+     * @return an EventSource that will listen on the specified id.
+     */
+    public EventSource createEventSource(byte id) {
+        Event e = new Event();
+        addListener(id, e);
+        return e;
+    }
+
+    /**
      * Send a single byte over the XBee network, to be received by an
      * OutputStream at the specified address and id.
      *
@@ -182,17 +250,31 @@ public class ObsidianCommsNode {
      * @param id the id to send to
      * @param addr the address to send to
      * @param data the data to send
+     * @param off the start offset in the data
+     * @param len the number of bytes to write
      */
-    public void sendBytes(byte id, int[] addr, byte[] data) {
-        int[] pkt = new int[data.length + 2];
-        System.arraycopy(data, 0, pkt, 2, data.length);
+    public void sendBytes(byte id, int[] addr, byte[] data, int off, int len) {
+        int[] pkt = new int[len + 2];
         pkt[0] = HEADER_RAW;
         pkt[1] = id;
+        System.arraycopy(data, off, pkt, 2, len);
         try {
             radio.sendPacketUnverified(addr, pkt);
         } catch (XBeeException e) {
             Logger.log(LogLevel.WARNING, "Could not send packet: ", e);
         }
+    }
+
+    /**
+     * Send a series of bytes over the XBee network, to be received by an
+     * OutputStream at the specified address and id.
+     *
+     * @param id the id to send to
+     * @param addr the address to send to
+     * @param data the data to send
+     */
+    public void sendBytes(byte id, int[] addr, byte[] data) {
+        sendBytes(id, addr, data, 0, data.length);
     }
 
     /**
@@ -267,8 +349,13 @@ public class ObsidianCommsNode {
             }
 
             @Override
+            public void write(byte[] data, int off, int len) throws IOException {
+                sendBytes(id, addr, data, off, len);
+            }
+
+            @Override
             public void write(byte[] data) throws IOException {
-                sendBytes(id, addr, data);
+                write(data, 0, data.length);
             }
         };
     }
@@ -333,7 +420,7 @@ public class ObsidianCommsNode {
 
         ZNetRxResponse msg = (ZNetRxResponse) r;
 
-        Logger.info("Recieved: " + Arrays.toString(msg.getData()));
+        //Logger.info("Recieved: " + Arrays.toString(msg.getData()));
 
         if (secure) {
             boolean ok = false;
@@ -384,17 +471,17 @@ public class ObsidianCommsNode {
                 if (floatOutputs.containsKey(id)) {
                     if (data.length < 4) {
                         Logger.log(LogLevel.INFO, "Dropped packet due to incomplete float data.");
+                    } else {
+                        
+                        int d = (data[0] & 0xff) << 24;
+                        d = d | (data[1] & 0xff) << 16;
+                        d = d | (data[2] & 0xff) << 8;
+                        d = d | (data[3] & 0xff);
+
+                        float f = Float.intBitsToFloat(d);
+
+                        floatOutputs.get(id).writeValue(f);
                     }
-
-                    int d = (data[2] & 0xff) << 24;
-
-                    d = d | (data[3] & 0xff) << 16;
-                    d = d | (data[4] & 0xff) << 8;
-                    d = d | (data[5] & 0xff);
-
-                    float f = Float.intBitsToFloat(d);
-
-                    floatOutputs.get(id).writeValue(f);
                 } else {
                     Logger.log(LogLevel.INFO, "Dropped packet (no listener registered).");
                 }
@@ -403,6 +490,7 @@ public class ObsidianCommsNode {
                 if (booleanOutputs.containsKey(id)) {
                     if (data.length < 1) {
                         Logger.log(LogLevel.INFO, "Dropped packet due to incomplete boolean data.");
+                    } else {
                         boolean b = (data[0] == (byte) 1);
                         booleanOutputs.get(id).writeValue(b);
                     }
@@ -423,6 +511,7 @@ public class ObsidianCommsNode {
     }
 
     private class NodePacketListener implements PacketListener {
+
         @Override
         public void processResponse(XBeeResponse xbr) {
             processResponseMain(xbr);

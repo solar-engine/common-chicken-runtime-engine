@@ -122,12 +122,8 @@ public abstract class ObsidianLauncher {
      * @param id The ID of the shared axis.
      * @return A FloatInputProducer that provides the value of that axis.
      */
-    public FloatStatus getJoystickAxis(byte id) {
-        //return CluckGlobals.node.subscribeFIP("hub/joystick" + 1 + "-axis" + axis);
-        FloatStatus stick = new FloatStatus();
-        ObsidianCommsNode.globalNode.addListener(id, stick);
-        //CluckGlobals.node.publish("joystick1-axis" + axis, (FloatOutput)stick);
-        return stick;
+    public FloatInput getJoystickAxis(byte id) {
+        return ObsidianCommsNode.globalNode.createFloatInput(id);
     }
 
     /**
@@ -138,12 +134,8 @@ public abstract class ObsidianLauncher {
      * @param id The ID of the shared button.
      * @return A BooleanInputProducer that provides the value of that button.
      */
-    public BooleanStatus getJoystickButton(byte id) {
-        //return CluckGlobals.node.subscribeBIP("hub/joystick" + 1 + "-button" + button);
-        BooleanStatus button = new BooleanStatus();
-        ObsidianCommsNode.globalNode.addListener(id, button);
-        //CluckGlobals.node.publish("joystick1-button" + button, (BooleanOutput)button);
-        return button;
+    public BooleanInput getJoystickButton(byte id) {
+        return ObsidianCommsNode.globalNode.createBooleanInput(id);
     }
 
     /**

@@ -136,7 +136,7 @@ public class ReliabilityTest {
             @Override
             protected void threadBody() throws Throwable {
                 //new Ticker(100).addListener(rt.betaNode.subscribeEC("alpha/checker"));
-                rt.betaNode.subscribeFIP("alpha/unF/intest").addTarget(new FloatOutput() {
+                rt.betaNode.subscribeFIP("alpha/unF/intest", false).addTarget(new FloatOutput() {
                     @Override
                     public void writeValue(float value) {
                         Logger.info("Got new value: " + value);

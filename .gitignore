@@ -30,5 +30,11 @@
 /CommonChickenRuntimeEngine/nbproject/build-impl.xml
 /Igneous Emulator/nbproject/build-impl.xml
 /Obsidian Emulator/nbproject/build-impl.xml
+<<<<<<< HEAD
 /Gregor You Suck/build/
 /Gregor You Suck/nbproject/private/
+=======
+/CCRE Examples/nbproject/private/
+/CCRE Examples/build/
+/CCRE Examples/dist/
+>>>>>>> remotes/col6y/common-chicken-runtime-engine/master

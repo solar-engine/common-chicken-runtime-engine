@@ -52,8 +52,7 @@ class IgneousLauncherImpl extends IterativeRobot implements IgneousLauncher {
         IgneousThrowablePrinter.register();
         IgneousStorageProvider.register();
         CluckGlobals.ensureInitializedCore();
-        Logger.warning("Remote logging target not started!");
-        //Logger.target = new MultiTargetLogger(new LoggingTarget[]{Logger.target, CluckGlobals.encoder.subscribeLoggingTarget(LogLevel.FINEST, "general-logger")});
+        NetworkAutologger.register();
         String name = VM.getManifestProperty("Igneous-Main");
         if (name == null) {
             throw new RuntimeException("Could not find MANIFEST-specified launchee!");
@@ -211,6 +210,15 @@ class IgneousLauncherImpl extends IterativeRobot implements IgneousLauncher {
         };
     }
 
+    public BooleanOutput makeDigitalOutput(int id) {
+        final DigitalOutput dout = new DigitalOutput(id);
+        return new BooleanOutput() {
+            public void writeValue(boolean bln) {
+                dout.set(bln);
+            }
+        };
+    }
+
     public FloatInputPoll makeAnalogInput(int id, int averageBits) {
         final AnalogChannel chan = new AnalogChannel(id);
         chan.setAverageBits(averageBits);
@@ -341,6 +349,7 @@ class IgneousLauncherImpl extends IterativeRobot implements IgneousLauncher {
 
     public FloatInputPoll makeEncoder(int aChannel, int bChannel, boolean reverse, EventSource resetWhen) {
         final Encoder enc = new Encoder(aChannel, bChannel, reverse);
+        enc.start();
         if (resetWhen != null) {
             resetWhen.addListener(new EventConsumer() {
                 public void eventFired() {
@@ -369,6 +378,34 @@ class IgneousLauncherImpl extends IterativeRobot implements IgneousLauncher {
         return new BooleanOutput() {
             public void writeValue(boolean bln) {
                 r.set(bln ? Relay.Value.kOn : Relay.Value.kOff);
+            }
+        };
+    }
+
+    public FloatInputPoll makeGyro(int port, double sensitivity, EventSource evt) {
+        final Gyro g = new Gyro(port);
+        g.setSensitivity(sensitivity);
+        if (evt != null) {
+            evt.addListener(new EventConsumer() {
+                public void eventFired() {
+                    g.reset();
+                }
+            });
+        }
+        return new FloatInputPoll() {
+            public float readValue() {
+                return (float) g.getAngle();
+            }
+        };
+    }
+
+    public FloatInputPoll makeAccelerometerAxis(int port, double sensitivity, double zeropoint) {
+        final Accelerometer a = new Accelerometer(port);
+        a.setSensitivity(sensitivity);
+        a.setZero(zeropoint);
+        return new FloatInputPoll() {
+            public float readValue() {
+                return (float) a.getAcceleration();
             }
         };
     }

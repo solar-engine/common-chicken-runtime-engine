@@ -122,8 +122,13 @@ public abstract class ObsidianLauncher {
      * @param id The ID of the shared axis.
      * @return A FloatInputProducer that provides the value of that axis.
      */
+<<<<<<< HEAD
     public FloatInput getJoystickAxis(byte id) {
         return ObsidianCommsNode.globalNode.createFloatInput(id);
+=======
+    public FloatInput getJoystickAxis(int axis) {
+        return CluckGlobals.node.subscribeFIP("joystick" + 1 + "-axis" + axis, true);
+>>>>>>> remotes/col6y/common-chicken-runtime-engine/master
     }
 
     /**
@@ -134,8 +139,13 @@ public abstract class ObsidianLauncher {
      * @param id The ID of the shared button.
      * @return A BooleanInputProducer that provides the value of that button.
      */
+<<<<<<< HEAD
     public BooleanInput getJoystickButton(byte id) {
         return ObsidianCommsNode.globalNode.createBooleanInput(id);
+=======
+    public BooleanInput getJoystickButton(int button) {
+        return CluckGlobals.node.subscribeBIP("joystick" + 1 + "-button" + button, true);
+>>>>>>> remotes/col6y/common-chicken-runtime-engine/master
     }
 
     /**

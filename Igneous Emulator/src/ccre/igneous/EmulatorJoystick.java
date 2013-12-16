@@ -42,19 +42,24 @@ public class EmulatorJoystick extends javax.swing.JPanel {
         axis3 = new javax.swing.JSlider();
         axis4 = new javax.swing.JSlider();
         axis5 = new javax.swing.JSlider();
-        btn2 = new javax.swing.JToggleButton();
         axis6 = new javax.swing.JSlider();
+        jPanel1 = new javax.swing.JPanel();
         btn1 = new javax.swing.JToggleButton();
         btn4 = new javax.swing.JToggleButton();
         btn7 = new javax.swing.JToggleButton();
         btn10 = new javax.swing.JToggleButton();
-        btn11 = new javax.swing.JToggleButton();
-        btn12 = new javax.swing.JToggleButton();
-        btn9 = new javax.swing.JToggleButton();
-        btn8 = new javax.swing.JToggleButton();
+        jPanel2 = new javax.swing.JPanel();
+        btn2 = new javax.swing.JToggleButton();
         btn5 = new javax.swing.JToggleButton();
-        btn6 = new javax.swing.JToggleButton();
+        btn8 = new javax.swing.JToggleButton();
+        btn11 = new javax.swing.JToggleButton();
+        jPanel3 = new javax.swing.JPanel();
         btn3 = new javax.swing.JToggleButton();
+        btn6 = new javax.swing.JToggleButton();
+        btn9 = new javax.swing.JToggleButton();
+        btn12 = new javax.swing.JToggleButton();
+
+        setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
 
         labTitle.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         labTitle.setText("Joystick ");
@@ -89,87 +94,152 @@ public class EmulatorJoystick extends javax.swing.JPanel {
         axis5.setSnapToTicks(true);
         axis5.setValue(0);
 
-        btn2.setText("2");
-        btn2.setMargin(new java.awt.Insets(2, 7, 2, 7));
-
         axis6.setMaximum(10);
         axis6.setMinimum(-10);
         axis6.setMinorTickSpacing(1);
         axis6.setSnapToTicks(true);
         axis6.setValue(0);
 
+        btn1.setFont(new java.awt.Font("Monospaced", 0, 11)); // NOI18N
         btn1.setText("1");
-        btn1.setMargin(new java.awt.Insets(2, 7, 2, 7));
+        btn1.setToolTipText("");
+        btn1.setMargin(new java.awt.Insets(2, 4, 2, 4));
 
+        btn4.setFont(new java.awt.Font("Monospaced", 0, 11)); // NOI18N
         btn4.setText("4");
-        btn4.setMargin(new java.awt.Insets(2, 7, 2, 7));
+        btn4.setMargin(new java.awt.Insets(2, 4, 2, 4));
 
+        btn7.setFont(new java.awt.Font("Monospaced", 0, 11)); // NOI18N
         btn7.setText("7");
-        btn7.setMargin(new java.awt.Insets(2, 7, 2, 7));
+        btn7.setToolTipText("");
+        btn7.setMargin(new java.awt.Insets(2, 4, 2, 4));
+        btn7.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btn7ActionPerformed(evt);
+            }
+        });
 
+        btn10.setFont(new java.awt.Font("Monospaced", 0, 11)); // NOI18N
         btn10.setText("10");
         btn10.setMargin(new java.awt.Insets(2, 4, 2, 4));
 
+        javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
+        jPanel1.setLayout(jPanel1Layout);
+        jPanel1Layout.setHorizontalGroup(
+            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(btn1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addComponent(btn4, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addComponent(btn7, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addComponent(btn10, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+        );
+        jPanel1Layout.setVerticalGroup(
+            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel1Layout.createSequentialGroup()
+                .addComponent(btn1)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(btn4)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(btn7)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(btn10))
+        );
+
+        btn2.setFont(new java.awt.Font("Monospaced", 0, 11)); // NOI18N
+        btn2.setText("2");
+        btn2.setMargin(new java.awt.Insets(2, 4, 2, 4));
+
+        btn5.setFont(new java.awt.Font("Monospaced", 0, 11)); // NOI18N
+        btn5.setText("5");
+        btn5.setToolTipText("");
+        btn5.setMargin(new java.awt.Insets(2, 4, 2, 4));
+
+        btn8.setFont(new java.awt.Font("Monospaced", 0, 11)); // NOI18N
+        btn8.setText("8");
+        btn8.setMargin(new java.awt.Insets(2, 4, 2, 4));
+
+        btn11.setFont(new java.awt.Font("Monospaced", 0, 11)); // NOI18N
         btn11.setText("11");
         btn11.setMargin(new java.awt.Insets(2, 4, 2, 4));
 
+        javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
+        jPanel2.setLayout(jPanel2Layout);
+        jPanel2Layout.setHorizontalGroup(
+            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(btn2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addComponent(btn5, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addComponent(btn8, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addComponent(btn11, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+        );
+        jPanel2Layout.setVerticalGroup(
+            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel2Layout.createSequentialGroup()
+                .addComponent(btn2)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(btn5)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(btn8)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(btn11))
+        );
+
+        btn3.setFont(new java.awt.Font("Monospaced", 0, 11)); // NOI18N
+        btn3.setText("3");
+        btn3.setMargin(new java.awt.Insets(2, 4, 2, 4));
+
+        btn6.setFont(new java.awt.Font("Monospaced", 0, 11)); // NOI18N
+        btn6.setText("6");
+        btn6.setMargin(new java.awt.Insets(2, 4, 2, 4));
+
+        btn9.setFont(new java.awt.Font("Monospaced", 0, 11)); // NOI18N
+        btn9.setText("9");
+        btn9.setMargin(new java.awt.Insets(2, 4, 2, 4));
+
+        btn12.setFont(new java.awt.Font("Monospaced", 0, 11)); // NOI18N
         btn12.setText("12");
         btn12.setMargin(new java.awt.Insets(2, 4, 2, 4));
 
-        btn9.setText("9");
-        btn9.setMargin(new java.awt.Insets(2, 7, 2, 7));
-
-        btn8.setText("8");
-        btn8.setMargin(new java.awt.Insets(2, 7, 2, 7));
-
-        btn5.setText("5");
-        btn5.setMargin(new java.awt.Insets(2, 7, 2, 7));
-
-        btn6.setText("6");
-        btn6.setMargin(new java.awt.Insets(2, 7, 2, 7));
-
-        btn3.setText("3");
-        btn3.setMargin(new java.awt.Insets(2, 7, 2, 7));
+        javax.swing.GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
+        jPanel3.setLayout(jPanel3Layout);
+        jPanel3Layout.setHorizontalGroup(
+            jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(btn9, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addComponent(btn6, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addComponent(btn3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addComponent(btn12, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+        );
+        jPanel3Layout.setVerticalGroup(
+            jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel3Layout.createSequentialGroup()
+                .addComponent(btn3)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(btn6)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(btn9)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(btn12))
+        );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(axis1, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)
-            .addComponent(labTitle, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)
-            .addComponent(axis2, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)
+            .addComponent(axis1, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
+            .addComponent(axis2, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
+            .addComponent(axis3, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
+            .addComponent(axis4, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
+            .addComponent(axis5, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
+            .addComponent(axis6, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
+            .addComponent(labTitle, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
             .addGroup(layout.createSequentialGroup()
-                .addComponent(btn1)
+                .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(btn2)
+                .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(btn3))
-            .addGroup(layout.createSequentialGroup()
-                .addComponent(btn4)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(btn5)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(btn6))
-            .addGroup(layout.createSequentialGroup()
-                .addComponent(btn7)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(btn8)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(btn9))
-            .addGroup(layout.createSequentialGroup()
-                .addComponent(btn10)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(btn11)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(btn12))
-            .addComponent(axis3, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)
-            .addComponent(axis4, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)
-            .addComponent(axis5, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)
-            .addComponent(axis6, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                 .addComponent(labTitle)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(axis1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -183,28 +253,18 @@ public class EmulatorJoystick extends javax.swing.JPanel {
                 .addComponent(axis5, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(axis6, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(btn1)
-                    .addComponent(btn2)
-                    .addComponent(btn3))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(btn4)
-                    .addComponent(btn5)
-                    .addComponent(btn6))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(btn8)
-                    .addComponent(btn9)
-                    .addComponent(btn7))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(btn10)
-                    .addComponent(btn11)
-                    .addComponent(btn12)))
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jPanel1, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jPanel2, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jPanel3, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
         );
     }// </editor-fold>//GEN-END:initComponents
+
+    private void btn7ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn7ActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_btn7ActionPerformed
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JSlider axis1;
     private javax.swing.JSlider axis2;
@@ -224,6 +284,9 @@ public class EmulatorJoystick extends javax.swing.JPanel {
     private javax.swing.JToggleButton btn7;
     private javax.swing.JToggleButton btn8;
     private javax.swing.JToggleButton btn9;
+    private javax.swing.JPanel jPanel1;
+    private javax.swing.JPanel jPanel2;
+    private javax.swing.JPanel jPanel3;
     private javax.swing.JLabel labTitle;
     // End of variables declaration//GEN-END:variables
 }

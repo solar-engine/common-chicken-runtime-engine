@@ -36,10 +36,18 @@ public abstract class ReporterThread extends Thread {
      * The next ID to use for a ReporterThread.
      */
     private static int id = 0;
+
+    private static synchronized int nextId() {
+        return id++;
+    }
     /**
      * Has the run method already been called?
      */
     private boolean started = false;
+    /**
+     * A lock for the started boolean.
+     */
+    private final Object startedLock = new Object();
 
     /**
      * Create a new ReporterThread. The passed name will have a unique ID
@@ -48,25 +56,26 @@ public abstract class ReporterThread extends Thread {
      * @param name the name of this type of thread.
      */
     public ReporterThread(String name) {
-        super(name + "-" + id++);
+        super(name + "-" + nextId());
     }
 
     @Override
-    public final void run() {
+    public final void run() throws IllegalStateException {
         if (this != Thread.currentThread()) {
-            Logger.severe("Run function of Thread " + getName() + " called directly!");
-            return;
+            throw new IllegalStateException("Run function of Thread " + getName() + " called directly!");
         }
-        if (started) {
-            Logger.severe("Run function of Thread " + getName() + " recalled!");
-            return;
+        synchronized (startedLock) {
+            if (started) {
+                throw new IllegalStateException("Run function of Thread " + getName() + " recalled!");
+            }
+            started = true;
         }
-        started = true;
         try {
             threadBody();
         } catch (OutOfMemoryError oom) {
-            Logger.severe("OOM");
-            throw oom; // The out-of-memory error will crash the system.
+            System.err.println("OutOfMemory");
+            Logger.severe("OutOfMemory");
+            throw oom; // The out-of-memory error will crash the system, at least in the Squawk VM.
         } catch (InterruptedIOException ex) {
             Logger.log(LogLevel.WARNING, "Interruption (during IO) of Thread " + this.getName(), ex);
         } catch (InterruptedException ex) {
@@ -78,7 +87,7 @@ public abstract class ReporterThread extends Thread {
 
     /**
      * The body of the thread. This will be called when the thread starts. This
-     * is guarenteed to be called precisely once by the ReporterThread.
+     * is guaranteed to be called precisely once by the ReporterThread.
      *
      * @throws Throwable if something goes wrong. this will be caught by the
      * ReporterThread automatically.

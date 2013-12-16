@@ -39,6 +39,15 @@ public class BooleanStatus implements BooleanOutput, BooleanInput {
     }
 
     /**
+     * Create a new BooleanStatus with a specified value.
+     *
+     * @param default_ The default value.
+     */
+    public BooleanStatus(boolean default_) {
+        this.writeValue(default_);
+    }
+
+    /**
      * Create a new BooleanStatus with the value of false that automatically
      * updates the specified BooleanOutput with the current state of this
      * BooleanStatus. This is the same as creating a new BooleanStatus and then

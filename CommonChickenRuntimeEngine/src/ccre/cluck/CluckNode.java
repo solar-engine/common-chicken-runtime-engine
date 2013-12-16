@@ -203,7 +203,7 @@ public class CluckNode {
         }
         estimatedByteCount += 24 + (target != null ? target.length() : 0) + (source != null ? source.length() : 0) + data.length; // 24 is the estimated packet overhead with a CluckTCPClient.
         if (target == null) {
-            Logger.log(LogLevel.WARNING, "Received message addressed to unreceving node (source: " + source + ")", new Exception("Embedded Traceback"));
+            Logger.log(LogLevel.WARNING, "Received message addressed to unreceving node (source: " + source + ")");
             return;
         } else if (target.equals("*")) {
             // Broadcast
@@ -239,7 +239,7 @@ public class CluckNode {
             if (!base.equals(lastMissingLink) || System.currentTimeMillis() >= lastMissingLinkError + 1000) {
                 lastMissingLink = base;
                 lastMissingLinkError = System.currentTimeMillis();
-                Logger.log(LogLevel.WARNING, "No link for " + target + "(" + base + ") from " + source + "!", new Exception("Embedded traceback"));
+                Logger.log(LogLevel.WARNING, "No link for " + target + "(" + base + ") from " + source + "!");
             }
         }
     }
@@ -606,7 +606,42 @@ public class CluckNode {
     }
 
     /**
-     * Publish a BooleanInputProducer on the network.
+     * Publish a BooleanInput on the network. This is similar to publishing a
+     * BooleanInputProducer, but will send values to clients when they
+     * connect.
+     *
+     * @param name The name for the BooleanInput.
+     * @param prod The BooleanInput.
+     */
+    public void publish(final String name, final BooleanInput prod) {
+        final CHashMap<String, Object> remotes = new CHashMap<String, Object>();
+        prod.addTarget(new BooleanOutput() {
+            public void writeValue(boolean value) {
+                for (String remote : remotes) {
+                    transmit(remote, name, new byte[]{RMT_BOOLPRODRESP, value ? (byte) 1 : 0});
+                }
+            }
+        });
+        new CluckSubscriber() {
+            @Override
+            protected void receive(String src, byte[] data) {
+                if (requireRMT(src, data, RMT_BOOLPROD)) {
+                    remotes.put(src, empty);
+                    CluckNode.this.transmit(src, name, new byte[]{RMT_BOOLPRODRESP, prod.readValue() ? (byte) 1 : 0});
+                }
+            }
+
+            @Override
+            protected void receiveBroadcast(String source, byte[] data) {
+                defaultBroadcastHandle(source, data, RMT_BOOLPROD);
+            }
+        }.attach(this, name);
+    }
+
+    /**
+     * Publish a BooleanInputProducer on the network. This is similar to
+     * publishing a BooleanInput, but will NOT send values to clients when they
+     * connect.
      *
      * @param name The name for the BooleanInputProducer.
      * @param prod The BooleanInputProducer.
@@ -640,11 +675,14 @@ public class CluckNode {
      * path.
      *
      * @param path The path to subscribe to.
+     * @param subscribeByDefault Should this request the value from the remote
+     * by default, as opposed to waiting until this is needed. If this is false,
+     * then readValue() won't work until you run addTarget().
      * @return the BooleanInputProducer.
      */
-    public BooleanInput subscribeBIP(final String path) {
+    public BooleanInput subscribeBIP(final String path, boolean subscribeByDefault) {
         final String linkName = "srcBIP-" + path.hashCode() + "-" + localIDs++;
-        final BooleanStatus sent = new BooleanStatus();
+        final BooleanStatus sent = new BooleanStatus(subscribeByDefault);
         final BooleanStatus bs = new BooleanStatus() {
             @Override
             public void addTarget(BooleanOutput out) {
@@ -655,6 +693,9 @@ public class CluckNode {
                 }
             }
         };
+        if (subscribeByDefault) {
+            transmit(path, linkName, new byte[]{RMT_BOOLPROD});
+        }
         new CluckSubscriber() {
             @Override
             protected void receive(String src, byte[] data) {
@@ -671,7 +712,7 @@ public class CluckNode {
             protected void receiveBroadcast(String source, byte[] data) {
                 if (data.length == 1 && data[0] == CluckNode.RMT_NOTIFY) {
                     if (sent.readValue()) {
-                        transmit(path, linkName, new byte[]{RMT_BOOLPROD});
+                        CluckNode.this.transmit(path, linkName, new byte[]{RMT_BOOLPROD});
                     }
                 }
             }
@@ -720,10 +761,48 @@ public class CluckNode {
     }
 
     /**
-     * Publish a FloatInputProducer on the network.
+     * Publish a FloatInput on the network. This is similar to publishing a
+     * FloatInputProducer, but will send values to clients when they connect.
+     *
+     * @param name The name for the FloatInput.
+     * @param prod The FloatInput.
+     * @see #publish(java.lang.String, ccre.chan.FloatInputProducer)
+     */
+    public void publish(final String name, final FloatInput prod) {
+        final CHashMap<String, Object> remotes = new CHashMap<String, Object>();
+        prod.addTarget(new FloatOutput() {
+            public void writeValue(float value) {
+                for (String remote : remotes) {
+                    int iver = Float.floatToIntBits(value);
+                    transmit(remote, name, new byte[]{RMT_FLOATPRODRESP, (byte) (iver >> 24), (byte) (iver >> 16), (byte) (iver >> 8), (byte) iver});
+                }
+            }
+        });
+        new CluckSubscriber() {
+            @Override
+            protected void receive(String src, byte[] data) {
+                if (requireRMT(src, data, RMT_FLOATPROD)) {
+                    remotes.put(src, empty);
+                    int iver = Float.floatToIntBits(prod.readValue());
+                    CluckNode.this.transmit(src, name, new byte[]{RMT_FLOATPRODRESP, (byte) (iver >> 24), (byte) (iver >> 16), (byte) (iver >> 8), (byte) iver});
+                }
+            }
+
+            @Override
+            protected void receiveBroadcast(String source, byte[] data) {
+                defaultBroadcastHandle(source, data, RMT_FLOATPROD);
+            }
+        }.attach(this, name);
+    }
+
+    /**
+     * Publish a FloatInputProducer on the network. This is similar to
+     * publishing a FloatInput, but will NOT send values to clients when they
+     * connect.
      *
      * @param name The name for the FloatInputProducer.
      * @param prod The FloatInputProducer.
+     * @see #publish(java.lang.String, ccre.chan.FloatInput)
      */
     public void publish(final String name, final FloatInputProducer prod) {
         final CHashMap<String, Object> remotes = new CHashMap<String, Object>();
@@ -751,14 +830,18 @@ public class CluckNode {
     }
 
     /**
-     * Subscribe to a FloatInputProducer from the network at the specified path.
+     * Subscribe to a FloatInputProducer (or FloatInput) from the network at the
+     * specified path.
      *
      * @param path The path to subscribe to.
-     * @return the FloatInputProducer.
+     * @param subscribeByDefault Should this request the value from the remote
+     * by default, as opposed to waiting until this is needed. If this is false,
+     * then readValue() won't work until you run addTarget().
+     * @return the FloatInputProducer. (or FloatInput).
      */
-    public FloatInput subscribeFIP(final String path) {
+    public FloatInput subscribeFIP(final String path, boolean subscribeByDefault) {
         final String linkName = "srcFIP-" + path.hashCode() + "-" + localIDs++;
-        final BooleanStatus sent = new BooleanStatus();
+        final BooleanStatus sent = new BooleanStatus(subscribeByDefault);
         final FloatStatus fs = new FloatStatus() {
             @Override
             public void addTarget(FloatOutput out) {
@@ -769,6 +852,9 @@ public class CluckNode {
                 }
             }
         };
+        if (subscribeByDefault) {
+            transmit(path, linkName, new byte[]{RMT_FLOATPROD});
+        }
         new CluckSubscriber() {
             @Override
             protected void receive(String src, byte[] data) {
@@ -786,7 +872,7 @@ public class CluckNode {
             protected void receiveBroadcast(String source, byte[] data) {
                 if (data.length == 1 && data[0] == CluckNode.RMT_NOTIFY) {
                     if (sent.readValue()) {
-                        transmit(path, linkName, new byte[]{RMT_FLOATPROD});
+                        CluckNode.this.transmit(path, linkName, new byte[]{RMT_FLOATPROD});
                     }
                 }
             }
@@ -855,12 +941,15 @@ public class CluckNode {
      * Subscribe to a FloatTuner from the network at the specified path.
      *
      * @param path The path to subscribe to.
+     * @param subscribeByDefault This is sent to the subscriptions to
+     * FloatInputs, so see subscribeFIP.
      * @return the FloatTuner.
+     * @see #subscribeFIP(java.lang.String, boolean)
      */
-    public FloatTuner subscribeTF(String path) {
-        FloatInput tuneIn = subscribeFIP(path + ".input");
+    public FloatTuner subscribeTF(String path, boolean subscribeByDefault) {
+        FloatInput tuneIn = subscribeFIP(path + ".input", subscribeByDefault);
         FloatOutput tuneOut = subscribeFO(path + ".output");
-        final FloatInput autoIn = subscribeFIP(path + ".auto");
+        final FloatInput autoIn = subscribeFIP(path + ".auto", subscribeByDefault);
         final CompoundFloatTuner comp = new CompoundFloatTuner(tuneIn, tuneOut);
         autoIn.addTarget(new FloatOutput() {
             public void writeValue(float value) {
@@ -869,6 +958,21 @@ public class CluckNode {
             }
         });
         return comp;
+    }
+
+    /**
+     * Publish a BooleanStatus on the network. This is provided to match the
+     * publishability of FloatStatuses, since it was confusing that you could
+     * publish one but not the other.
+     *
+     * No corresponding subscribe is provided yet.
+     *
+     * @param name The name for the BooleanStatus.
+     * @param stat The BooleanStatus to publish.
+     */
+    public void publish(final String name, BooleanStatus stat) {
+        publish(name + ".input", (BooleanInputProducer) stat);
+        publish(name + ".output", (BooleanOutput) stat);
     }
 
     /**
@@ -909,7 +1013,7 @@ public class CluckNode {
         return new OutputStream() {
             @Override
             public void write(int b) throws IOException {
-                transmit(path, null, new byte[]{(byte) b});
+                transmit(path, null, new byte[]{RMT_OUTSTREAM, (byte) b});
             }
 
             @Override

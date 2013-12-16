@@ -19,6 +19,8 @@
 package ccre.igneous;
 
 import ccre.chan.FloatInputPoll;
+import ccre.event.EventConsumer;
+import ccre.event.EventSource;
 import java.awt.EventQueue;
 
 /**
@@ -28,7 +30,7 @@ import java.awt.EventQueue;
  */
 public class EncoderForm extends javax.swing.JFrame implements FloatInputPoll {
 
-    public EncoderForm(final String name) {
+    public EncoderForm(final String name, EventSource resetWhen) {
         initComponents();
         EventQueue.invokeLater(new Runnable() {
             @Override
@@ -36,6 +38,19 @@ public class EncoderForm extends javax.swing.JFrame implements FloatInputPoll {
                 labName.setText(name);
             }
         });
+        if (resetWhen != null) {
+            resetWhen.addListener(new EventConsumer() {
+                @Override
+                public void eventFired() {
+                    EventQueue.invokeLater(new Runnable() {
+                        @Override
+                        public void run() {
+                            spnValue.setValue(0);
+                        }
+                    });
+                }
+            });
+        }
     }
 
     /**

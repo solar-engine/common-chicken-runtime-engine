@@ -37,6 +37,7 @@ import javax.swing.event.ListSelectionListener;
  *
  * @author skeggsc
  */
+@SuppressWarnings("unchecked")
 public class ListModelLogger implements LoggingTarget, ListSelectionListener {
 
     /**

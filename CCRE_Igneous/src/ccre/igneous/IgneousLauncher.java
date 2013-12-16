@@ -43,6 +43,8 @@ public interface IgneousLauncher {
 
     public BooleanOutput makeSolenoid(int id);
 
+    public BooleanOutput makeDigitalOutput(int id);
+
     public FloatInputPoll makeAnalogInput(int id, int averageBits);
 
     public FloatInputPoll makeAnalogInput_ValuedBased(int id, int averageBits);
@@ -66,4 +68,8 @@ public interface IgneousLauncher {
     public BooleanOutput makeRelayForwardOutput(int channel);
 
     public BooleanOutput makeRelayReverseOutput(int channel);
+
+    public FloatInputPoll makeGyro(int port, double sensitivity, EventSource object);
+
+    public FloatInputPoll makeAccelerometerAxis(int port, double sensitivity, double zeropoint);
 }

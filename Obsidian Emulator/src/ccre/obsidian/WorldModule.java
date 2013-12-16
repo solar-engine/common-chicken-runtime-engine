@@ -16,29 +16,33 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with the CCRE.  If not, see <http://www.gnu.org/licenses/>.
  */
-package controller;
+package ccre.obsidian;
 
 /**
- * An exception created when a RobotController attempts to create a boolean
- * input using an analog component, or a float input using a digital component.
+ * A simulated world that can interact with i/o in the Obsidian Emulator. This
+ * should be used to modify the values of inputs, and is a compliment to the
+ * core class.
  *
  * @author MillerV
  */
-public class InputTypeException extends Exception {
+public class WorldModule {
 
-    public InputTypeException() {
-        super();
+    /**
+     * Called by the Emulator ever ~20 milliseconds.
+     *
+     * @param gui the EmulatorGUI from which pins can be accessed.
+     */
+    public void periodic(EmulatorGUI gui) {
+
     }
 
-    public InputTypeException(String message) {
-        super(message);
-    }
+    /**
+     * Called by the Emulator when an output pin's value was changed.
+     *
+     * @param gui the EmulatorGUI from which pins can be accessed.
+     * @param changed the pin whose value has changed.
+     */
+    public void outputChanged(EmulatorGUI gui, EmulatorPin changed) {
 
-    public InputTypeException(Throwable thr) {
-        super(thr);
-    }
-
-    public InputTypeException(String message, Throwable thr) {
-        super(message, thr);
     }
 }

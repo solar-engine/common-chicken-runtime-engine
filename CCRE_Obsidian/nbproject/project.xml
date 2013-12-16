@@ -97,10 +97,13 @@
         <java-data xmlns="http://www.netbeans.org/ns/freeform-project-java/3">
             <compilation-unit>
                 <package-root>src</package-root>
-                <classpath mode="compile">../CommonChickenRuntimeEngine/dist/CCRE-1.5.jar;lib/RXTXcomm.jar;lib/log4j.jar;lib/xbee-api-0.9.jar</classpath>
+                <classpath mode="compile">../CommonChickenRuntimeEngine/dist/CCRE-1.5.jar;lib/xbee-api-0.9.jar;lib/BBB_I2C.jar</classpath>
                 <built-to>build</built-to>
                 <source-level>1.6</source-level>
             </compilation-unit>
         </java-data>
+        <spellchecker-wordlist xmlns="http://www.netbeans.org/ns/spellchecker-wordlist/1">
+            <word>uncalibrated</word>
+        </spellchecker-wordlist>
     </configuration>
 </project>

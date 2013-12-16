@@ -36,12 +36,16 @@ public class EmulatorPin extends JPanel implements MouseListener {
     private float val;
     private final int id;
     private final Container sliderPanelTarget;
+    private DragSliderPanel dsp = null;
+    private final EmulatorLauncher launcher;
 
-    public EmulatorPin(int id, float val, Container c) {
+    public EmulatorPin(EmulatorLauncher launcher, int id, Container c, String header) {
         this.id = id;
         this.sliderPanelTarget = c;
-        setMode(Mode.GPIO_IN);
-        set(val);
+        this.launcher = launcher;
+        setName(header + "_" + id);
+        this.val = 0.0f;
+        setMode(Mode.UNUSED);
         setPreferredSize(new Dimension(16, 16));
         setFocusable(true);
         addMouseListener(this);
@@ -78,7 +82,7 @@ public class EmulatorPin extends JPanel implements MouseListener {
     }
 
     public void updateToolTipText() {
-        String text = "Pin " + id + ": mode=" + mode.name();
+        String text = getName() + ": mode=" + mode.name();
         if (mode == Mode.GPIO_OUT || mode == Mode.GPIO_IN) {
             text += ", value=" + getBoolean();
         } else if (mode == Mode.PWM || mode == Mode.ANALOG_IN) {
@@ -88,6 +92,9 @@ public class EmulatorPin extends JPanel implements MouseListener {
     }
 
     public void set(boolean val) {
+        if (val == (this.val == 1.0f)) {
+            return;
+        }
         if (val) {
             this.val = 1.0f;
         } else {
@@ -95,12 +102,27 @@ public class EmulatorPin extends JPanel implements MouseListener {
         }
         repaint();
         updateToolTipText();
+        if (mode == Mode.GPIO_OUT || mode == Mode.PWM) {
+            launcher.pinChanged(this);
+        }
+        if (dsp != null) {
+            dsp.updateValue();
+        }
     }
 
     public void set(float val) {
+        if (val == this.val) {
+            return;
+        }
         this.val = val;
         repaint();
         updateToolTipText();
+        if (mode == Mode.GPIO_OUT || mode == Mode.PWM) {
+            launcher.pinChanged(this);
+        }
+        if (dsp != null) {
+            dsp.updateValue();
+        }
     }
 
     public Mode getMode() {
@@ -129,10 +151,18 @@ public class EmulatorPin extends JPanel implements MouseListener {
     public void mousePressed(MouseEvent me) {
         if (mode == Mode.GPIO_IN) {
             set(!getBoolean());
-        } else if (mode == Mode.ANALOG_IN) {
-            DragSliderPanel dsp = new DragSliderPanel(this);
+        } else if (mode == Mode.ANALOG_IN && dsp == null) {
+            dsp = new DragSliderPanel(this);
             sliderPanelTarget.add(dsp);
+            sliderPanelTarget.revalidate();
         }
+    }
+    
+    public void removeSliderPanel() {
+        sliderPanelTarget.remove(dsp);
+        dsp = null;
+        sliderPanelTarget.revalidate();
+        sliderPanelTarget.repaint();
     }
 
     @Override

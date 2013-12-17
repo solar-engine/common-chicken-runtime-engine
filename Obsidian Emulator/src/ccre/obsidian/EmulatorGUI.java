@@ -31,19 +31,20 @@ public class EmulatorGUI extends javax.swing.JFrame {
 
     /**
      * Creates new form EmulatorGUI
+     * @param launcher the launcher to send pin update events.
      */
-    public EmulatorGUI() {
+    public EmulatorGUI(EmulatorLauncher launcher) {
         initComponents();
 
         p9.setBorder(new TitledBorder("P9"));
         p8.setBorder(new TitledBorder("P8"));
 
         for (int i = 0; i < pins.length; i++) {
-            pins[i] = new EmulatorPin(i % (pins.length / 2) + 1, 0.0f, dragTarget);
-            pins[i].setMode(EmulatorPin.Mode.UNUSED);
             if (i < pins.length / 2) {
+                pins[i] = new EmulatorPin(launcher, i % (pins.length / 2) + 1, dragTarget, "P8");
                 p8.add(pins[i]);
             } else {
+                pins[i] = new EmulatorPin(launcher, i % (pins.length / 2) + 1, dragTarget, "P9");
                 p9.add(pins[i]);
             }
         }
@@ -68,7 +69,6 @@ public class EmulatorGUI extends javax.swing.JFrame {
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("Beaglebone Black Emulator");
-        setPreferredSize(new java.awt.Dimension(300, 500));
 
         p8.setBackground(new java.awt.Color(204, 204, 204));
         p8.setLayout(new java.awt.GridLayout(23, 2));
@@ -77,6 +77,7 @@ public class EmulatorGUI extends javax.swing.JFrame {
         p9.setLayout(new java.awt.GridLayout(23, 2));
 
         dragTarget.setBackground(new java.awt.Color(204, 204, 204));
+        dragTarget.setPreferredSize(new java.awt.Dimension(300, 500));
         dragTarget.addComponentListener(new java.awt.event.ComponentAdapter() {
             public void componentResized(java.awt.event.ComponentEvent evt) {
                 dragTargetComponentResized(evt);
@@ -91,7 +92,7 @@ public class EmulatorGUI extends javax.swing.JFrame {
                 .addContainerGap()
                 .addComponent(p9, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(18, 18, 18)
-                .addComponent(dragTarget, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(dragTarget, javax.swing.GroupLayout.DEFAULT_SIZE, 344, Short.MAX_VALUE)
                 .addGap(18, 18, 18)
                 .addComponent(p8, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap())
@@ -101,7 +102,7 @@ public class EmulatorGUI extends javax.swing.JFrame {
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(dragTarget, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(dragTarget, javax.swing.GroupLayout.DEFAULT_SIZE, 478, Short.MAX_VALUE)
                     .addGroup(layout.createSequentialGroup()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(p9, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -121,41 +122,6 @@ public class EmulatorGUI extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_dragTargetComponentResized
 
-    /**
-     * @param args the command line arguments
-     */
-    public static void main(String args[]) {
-        /* Set the Nimbus look and feel */
-        //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
-        /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
-         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
-         */
-        try {
-            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
-                if ("Nimbus".equals(info.getName())) {
-                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
-                    break;
-                }
-            }
-        } catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(EmulatorGUI.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(EmulatorGUI.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(EmulatorGUI.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (javax.swing.UnsupportedLookAndFeelException ex) {
-            java.util.logging.Logger.getLogger(EmulatorGUI.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        }
-        //</editor-fold>
-
-        /* Create and display the form */
-        java.awt.EventQueue.invokeLater(new Runnable() {
-            @Override
-            public void run() {
-                new EmulatorGUI().setVisible(true);
-            }
-        });
-    }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JPanel dragTarget;

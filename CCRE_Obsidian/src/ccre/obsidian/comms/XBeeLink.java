@@ -24,12 +24,10 @@ import ccre.concurrency.ReporterThread;
 import ccre.log.LogLevel;
 import ccre.log.Logger;
 import com.rapplogic.xbee.api.PacketListener;
-import com.rapplogic.xbee.api.XBeeAddress64;
 import com.rapplogic.xbee.api.XBeeException;
 import com.rapplogic.xbee.api.XBeeResponse;
 import com.rapplogic.xbee.api.zigbee.ZNetRxResponse;
 import com.rapplogic.xbee.api.zigbee.ZNetTxStatusResponse;
-import java.io.ByteArrayInputStream;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
 import java.util.concurrent.BlockingQueue;
@@ -59,7 +57,7 @@ public class XBeeLink implements CluckLink, PacketListener {
                 while (true) {
                     int[] take = dataQueue.take();
                     try {
-                        radio.sendPacketVerified(remote, take, subTimeout, timeout);
+                        radio.sendPacket(remote, take, subTimeout, timeout);
                     } catch (XBeeException ex) {
                         Logger.log(LogLevel.WARNING, "Could not transmit packet to remote XBee!", ex);
                     }

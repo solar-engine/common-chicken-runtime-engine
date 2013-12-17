@@ -18,6 +18,7 @@
  */
 package ccre.device;
 
+import ccre.event.EventSource;
 import ccre.util.CHashMap;
 import ccre.util.Utils;
 import java.util.Iterator;
@@ -29,22 +30,22 @@ import java.util.Iterator;
  */
 public class DeviceTree implements Iterable<String> {
 
-    protected final CHashMap<String, DeviceHandle> devices = new CHashMap<String, DeviceHandle>();
-    protected final CHashMap<String, DeviceFilter> filters = new CHashMap<String, DeviceFilter>();
+    protected final CHashMap<String, DeviceHandle<Object>> devices = new CHashMap<String, DeviceHandle<Object>>();
+    protected final CHashMap<String, DeviceFilter<Object, Object>> filters = new CHashMap<String, DeviceFilter<Object, Object>>();
 
-    public void putFilter(String suffix, DeviceFilter filter) throws DeviceException {
+    public void putFilter(String suffix, DeviceFilter<Object, Object> filter) throws DeviceException {
         if (filters.get(suffix) != null) {
             throw new DeviceException("Filter already registered!");
         }
         filters.put(suffix, filter);
     }
-    
+
     /*public void putDefaultFilters(final EventSource defaultCycleEvent) throws DeviceException {
-        putFilter("pressed", new DeviceFilter<Object, EventSource>() { // Object: Either BooleanInputPoll or BooleanInputProducer
+        putFilter("pressed", new DeviceFilter<Object, Object>() { // Object: Either BooleanInputPoll or BooleanInputProducer
             public DeviceHandle<EventSource> filter(final DeviceHandle<Object> h) {
                 return new DeviceHandle<EventSource>() {
                     protected Event e = new Event();
-                    
+
                     @Override
                     public Class<EventSource> getPrimaryDeviceType() {
                         return EventSource.class;
@@ -73,15 +74,16 @@ public class DeviceTree implements Iterable<String> {
         });
     }*/
 
-    public void putHandle(String path, DeviceHandle handle) throws DeviceException {
+    public void putHandle(String path, DeviceHandle<Object> hndl) throws DeviceException {
         if (devices.get(path) != null) {
             throw new DeviceException("Device already registered!");
         }
-        devices.put(path, handle);
+        devices.put(path, hndl);
     }
 
+    @SuppressWarnings("unchecked")
     public <Type> void putSimple(String path, final Type device) throws DeviceException {
-        putHandle(path, new SimpleDeviceHandle<Type>() {
+        DeviceHandle h = new SimpleDeviceHandle<Type>() {
             @Override
             protected Type allocate() {
                 return device;
@@ -93,20 +95,21 @@ public class DeviceTree implements Iterable<String> {
 
             @Override
             public Class<Type> getPrimaryDeviceType() {
-                return (Class<Type>) device.getClass();
+                return Utils.getGenericClass(device);
             }
-        });
+        };
+        putHandle(path, h);
     }
 
     public DeviceHandle getHandle(String path) throws DeviceException {
-        DeviceHandle handle = devices.get(path);
+        DeviceHandle<Object> handle = devices.get(path);
         if (handle == null) {
             String[] parts = Utils.split(path, ':');
             if (parts.length > 1) {
                 handle = devices.get(parts[0]);
                 if (handle != null) {
                     for (int i = 1; i < parts.length; i++) {
-                        DeviceFilter f = filters.get(parts[i]);
+                        DeviceFilter<Object, Object> f = filters.get(parts[i]);
                         if (f == null) {
                             handle = null;
                             break;

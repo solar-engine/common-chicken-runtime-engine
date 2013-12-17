@@ -565,6 +565,8 @@ public class CluckNode {
             }
         }.attach(this, name);
     }
+    
+    private static long lastReportedRemoteLoggingError = 0;
 
     /**
      * Subscribe to a LoggingTarget from the network at the specified path, with
@@ -579,27 +581,35 @@ public class CluckNode {
             public void log(LogLevel level, String message, Throwable throwable) {
                 log(level, message, ThrowablePrinter.toStringThrowable(throwable));
             }
+            
 
             public void log(LogLevel level, String message, String extended) {
-                if (level.atLeastAsImportant(minimum)) {
-                    byte[] msg = message.getBytes();
-                    byte[] ext = extended == null ? new byte[0] : extended.getBytes();
-                    byte[] out = new byte[10 + msg.length + ext.length];
-                    out[0] = RMT_LOGTARGET;
-                    out[1] = LogLevel.toByte(level);
-                    int lm = msg.length;
-                    out[2] = (byte) (lm >> 24);
-                    out[3] = (byte) (lm >> 16);
-                    out[4] = (byte) (lm >> 8);
-                    out[5] = (byte) (lm);
-                    int le = ext.length;
-                    out[6] = (byte) (le >> 24);
-                    out[7] = (byte) (le >> 16);
-                    out[8] = (byte) (le >> 8);
-                    out[9] = (byte) (le);
-                    System.arraycopy(msg, 0, out, 10, msg.length);
-                    System.arraycopy(ext, 0, out, 10 + msg.length, ext.length);
-                    transmit(path, null, out);
+                try {
+                    if (level.atLeastAsImportant(minimum)) {
+                        byte[] msg = message.getBytes();
+                        byte[] ext = extended == null ? new byte[0] : extended.getBytes();
+                        byte[] out = new byte[10 + msg.length + ext.length];
+                        out[0] = RMT_LOGTARGET;
+                        out[1] = LogLevel.toByte(level);
+                        int lm = msg.length;
+                        out[2] = (byte) (lm >> 24);
+                        out[3] = (byte) (lm >> 16);
+                        out[4] = (byte) (lm >> 8);
+                        out[5] = (byte) (lm);
+                        int le = ext.length;
+                        out[6] = (byte) (le >> 24);
+                        out[7] = (byte) (le >> 16);
+                        out[8] = (byte) (le >> 8);
+                        out[9] = (byte) (le);
+                        System.arraycopy(msg, 0, out, 10, msg.length);
+                        System.arraycopy(ext, 0, out, 10 + msg.length, ext.length);
+                        transmit(path, null, out);
+                    }
+                } catch (Throwable thr) {
+                    if (System.currentTimeMillis() - lastReportedRemoteLoggingError > 500) {
+                        Logger.log(LogLevel.SEVERE, "Error during remote log", thr);
+                        lastReportedRemoteLoggingError = System.currentTimeMillis();
+                    }
                 }
             }
         };
@@ -607,8 +617,7 @@ public class CluckNode {
 
     /**
      * Publish a BooleanInput on the network. This is similar to publishing a
-     * BooleanInputProducer, but will send values to clients when they
-     * connect.
+     * BooleanInputProducer, but will send values to clients when they connect.
      *
      * @param name The name for the BooleanInput.
      * @param prod The BooleanInput.

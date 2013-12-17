@@ -22,6 +22,7 @@ import ccre.chan.*;
 import ccre.event.EventConsumer;
 import ccre.event.EventSource;
 import ccre.util.CArrayUtils;
+import ccre.util.Utils;
 
 /**
  * A handle representing a specific peripheral device.
@@ -39,7 +40,7 @@ public abstract class DeviceHandle<Type> {
     public abstract Type open() throws DeviceException;
     
     public Iterable<String> getConfigs() {
-        return CArrayUtils.EMPTY_LIST;
+        return CArrayUtils.getEmptyList();
     }
     
     public void configure(String key, String value) throws DeviceException {
@@ -51,9 +52,9 @@ public abstract class DeviceHandle<Type> {
     public <Target> Target open(Class<Target> target) throws DeviceException {
         if (!hasSecondaryUses()) {
             if (target.isAssignableFrom(getPrimaryDeviceType())) {
-                Target out = (Target) open();
+                Object out = open();
                 if (target.isInstance(out)) {
-                    return out;
+                    return Utils.dynamicCast(out, target);
                 } else {
                     throw new DeviceException("Device is dynamically not: " + target.getName());
                 }
@@ -63,7 +64,7 @@ public abstract class DeviceHandle<Type> {
         } else {
             Type out = open();
             if (target.isInstance(out)) {
-                return (Target) out;
+                return Utils.dynamicCast(out, target);
             } else {
                 close(out);
                 throw new DeviceException("Device is not: " + target.getName());

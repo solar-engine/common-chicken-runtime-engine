@@ -60,7 +60,7 @@ public class ReliableCompressionXBeeLink extends ReliableCompressionCluckLink {
         }
         if (!xbeeSendQueue.offer(tosend)) {
             xbeeSendQueue.poll(); // Remove an old entry, so that messages rotate through faster.
-            Logger.warning("Send queue overflow!");
+            //Logger.warning("Send queue overflow!");
         }
     }
 
@@ -73,7 +73,7 @@ public class ReliableCompressionXBeeLink extends ReliableCompressionCluckLink {
                     try {
                         radio.sendPacketUnverified(remote, xbeeSendQueue.take());
                     } catch (Throwable ex) {
-                        Logger.log(LogLevel.WARNING, "Error in XBee send", ex);
+                        //Logger.log(LogLevel.WARNING, "Error in XBee send", ex);
                     }
                 }
             }
@@ -87,7 +87,7 @@ public class ReliableCompressionXBeeLink extends ReliableCompressionCluckLink {
                 ZNetRxResponse zp = (ZNetRxResponse) xbr;
                 int[] raddr = zp.getRemoteAddress64().getAddress();
                 if (!Arrays.equals(raddr, remote)) {
-                    Logger.log(LogLevel.WARNING, "Dropped packet from bad remote: " + Arrays.toString(raddr));
+                    //Logger.log(LogLevel.WARNING, "Dropped packet from bad remote: " + Arrays.toString(raddr));
                     return;
                 }
                 int[] input = zp.getData();

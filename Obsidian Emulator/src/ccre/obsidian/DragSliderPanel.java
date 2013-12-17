@@ -16,51 +16,35 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with the CCRE.  If not, see <http://www.gnu.org/licenses/>.
  */
-
 package ccre.obsidian;
 
 import java.awt.Color;
-import java.awt.Container;
-import java.awt.Cursor;
-import java.awt.Point;
 
 /**
- * 
+ *
  * @author millerv
  */
-public class DragSliderPanel extends javax.swing.JPanel {
+public class DragSliderPanel extends DragPanel {
 
     EmulatorPin pin;
     //private Point location;
-    
+
     /**
      * Creates new form DragSliderPanel
+     *
      * @param pin
      */
     public DragSliderPanel(EmulatorPin pin) {
         this.pin = pin;
         initComponents();
-        setBackground(new Color(0.5f, 0.5f, 0.0f));
+        setBackground(new Color(0.0f, 0.5f, 0.5f));
+        valueSlider.setBackground(new Color(0.0f, 0.5f, 0.5f));
         setFocusable(true);
+        setToolTipText(pin.getName() + ": " + pin.getMode().name());
     }
     
-    @Override
-    public void addNotify() {
-        requestFocusInWindow();
-        getParent().revalidate();
-        getParent().repaint();
-    }
-    
-    public Point snapToGrid(Point p) {
-        Point position = new Point((int)(p.getX() + getWidth()), (int)(p.getY() + getHeight()));
-        
-        int rows = getParent().getHeight() / this.getHeight();
-        int cols = getParent().getWidth() / this.getWidth();
-        
-        int row = (int)(((double)(position.getY()) / getParent().getHeight()) * rows);
-        int col = (int)(((double)(position.getX()) / getParent().getWidth()) * cols);
-        
-        return new Point(col * getWidth(), row * getHeight());
+    public void updateValue() {
+        valueSlider.setValue((int)(pin.getFloat() * 10));
     }
 
     /**
@@ -77,7 +61,7 @@ public class DragSliderPanel extends javax.swing.JPanel {
         removeButton = new javax.swing.JButton();
 
         setToolTipText("");
-        setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
 
         valueSlider.setMaximum(10);
         valueSlider.setMinimum(-10);
@@ -88,8 +72,12 @@ public class DragSliderPanel extends javax.swing.JPanel {
             }
         });
 
-        valueDisplay.setEditable(false);
         valueDisplay.setText("0.0");
+        valueDisplay.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                valueDisplayActionPerformed(evt);
+            }
+        });
 
         removeButton.setText("Remove");
         removeButton.addActionListener(new java.awt.event.ActionListener() {
@@ -130,15 +118,22 @@ public class DragSliderPanel extends javax.swing.JPanel {
         pin.set(value);
         if (pin.getMode() == EmulatorPin.Mode.ANALOG_IN) {
             setBackground(new Color(0.0f, 0.5f + value / 2, 0.5f + value / 2));
+            valueSlider.setBackground(new Color(0.0f, 0.5f + value / 2, 0.5f + value / 2));
         }
     }//GEN-LAST:event_valueSliderStateChanged
 
     private void removeButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_removeButtonActionPerformed
-        Container parent = getParent();
-        parent.remove(this);
-        parent.revalidate();
-        parent.repaint();
+        pin.removeSliderPanel();
     }//GEN-LAST:event_removeButtonActionPerformed
+
+    private void valueDisplayActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_valueDisplayActionPerformed
+        try {
+            float val = Float.parseFloat(valueDisplay.getText());
+            valueSlider.setValue((int)(val * 10));
+        } catch (NumberFormatException e) {
+            valueSlider.setValue(0);
+        }
+    }//GEN-LAST:event_valueDisplayActionPerformed
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton removeButton;

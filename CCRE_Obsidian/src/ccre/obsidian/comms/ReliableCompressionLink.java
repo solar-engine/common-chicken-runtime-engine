@@ -82,7 +82,7 @@ public abstract class ReliableCompressionLink extends ReliableLink {
         }
         recvRecentSources[recvRecentSources.length - 1] = source;
         out.get(data);
-        Logger.config("C-RECV " + dest + " " + source + " " + data + "[" + data.length + "]");
+        //Logger.config("C-RECV " + dest + " " + source + " " + data + "[" + data.length + "]");
         compressionReceive(dest, source, data);
     }
 
@@ -97,7 +97,7 @@ public abstract class ReliableCompressionLink extends ReliableLink {
         for (int i = 0; i < recvRecentDests.length; i++) {
             if (recvRecentDests[i] != null && dh == (short) recvRecentDests[i].hashCode()) {
                 if (dest != null && !dest.equals(recvRecentDests[i])) {
-                    Logger.warning("Lost packet due to hashCode collision: " + dest + " and " + recvRecentDests[i]);
+                    //Logger.warning("Lost packet due to hashCode collision: " + dest + " and " + recvRecentDests[i]);
                     return;
                 }
                 dest = recvRecentDests[i];
@@ -110,31 +110,31 @@ public abstract class ReliableCompressionLink extends ReliableLink {
                     r.append("(" + c + "=" + (short) c.hashCode() + ")");
                 }
             }
-            Logger.warning("Lost packet due to dest hashCode lookup failure: " + dh + " in " + r);
+            //Logger.warning("Lost packet due to dest hashCode lookup failure: " + dh + " in " + r);
             return;
         }
         String source = null;
         for (int i = 0; i < recvRecentSources.length; i++) {
             if (recvRecentSources[i] != null && sh == (short) recvRecentSources[i].hashCode()) {
                 if (source != null && !source.equals(recvRecentSources[i])) {
-                    Logger.warning("Lost packet due to hashCode collision: " + source + " and " + recvRecentSources[i]);
+                    //Logger.warning("Lost packet due to hashCode collision: " + source + " and " + recvRecentSources[i]);
                     return;
                 }
                 source = recvRecentSources[i];
             }
         }
         if (source == null) {
-            Logger.warning("Lost packet due to source hashCode lookup failure: " + sh);
+            //Logger.warning("Lost packet due to source hashCode lookup failure: " + sh);
             return;
         }
-        Logger.config("R-RECV " + dest + " " + source + " " + data + "[" + data.length + "]");
+        //Logger.config("R-RECV " + dest + " " + source + " " + data + "[" + data.length + "]");
         compressionReceive(dest, source, data);
     }
 
     public synchronized final void compressionUnreliableTransmit(String dest, String source, byte[] data) throws InterruptedException {
-        Logger.config("R-SEND " + dest + " " + source + " " + data + "[" + data.length + "]");
+        //Logger.config("R-SEND " + dest + " " + source + " " + data + "[" + data.length + "]");
         if (data.length != (short) data.length) {
-            Logger.warning("Lost packet due to data too long: " + data.length);
+            //Logger.warning("Lost packet due to data too long: " + data.length);
             return;
         }
         if (unreliableElevationRandom.nextInt(10) > 1) { // Randomly use reliable instead to make sure that names get across
@@ -183,10 +183,10 @@ public abstract class ReliableCompressionLink extends ReliableLink {
     }
 
     public synchronized final void compressionTransmit(String dest, String source, byte[] data) throws InterruptedException {
-        Logger.config("C-SEND " + dest + " " + source + " " + data + "[" + data.length + "]");
+        //Logger.config("C-SEND " + dest + " " + source + " " + data + "[" + data.length + "]");
         int rlen = 4 + data.length; // destid + sourceid + 2 bytes of data length + data
         if (data.length != (short) data.length) {
-            Logger.warning("Lost packet due to data too long: " + data.length);
+            //Logger.warning("Lost packet due to data too long: " + data.length);
             return;
         }
         if (dest == null) {
@@ -202,7 +202,7 @@ public abstract class ReliableCompressionLink extends ReliableLink {
         if (udest == -1) {
             dbytes = dest.getBytes();
             if (dbytes.length != (byte) dbytes.length) {
-                Logger.warning("Lost packet due to destination address too long: " + dest);
+                //Logger.warning("Lost packet due to destination address too long: " + dest);
             }
             rlen += 1 + dbytes.length;
         }
@@ -223,7 +223,7 @@ public abstract class ReliableCompressionLink extends ReliableLink {
         if (usource == -1) {
             sbytes = source.getBytes();
             if (sbytes.length != (byte) sbytes.length) {
-                Logger.warning("Lost packet due to source address too long: " + source);
+                //Logger.warning("Lost packet due to source address too long: " + source);
             }
             rlen += 1 + sbytes.length;
         }

@@ -116,4 +116,36 @@ public class Utils {
             return target;
         }
     }
+
+    /**
+     * Dynamically cast the specified object to the specified class.
+     *
+     * @param <T> The type to cast to.
+     * @param o The object to cast.
+     * @param clazz The class to cast to.
+     * @return The newly casted object.
+     * @throws ClassCastException If the specified object cannot be cast to the
+     * specified class.
+     */
+    @SuppressWarnings("unchecked")
+    public static <T> T dynamicCast(Object o, Class<T> clazz) throws ClassCastException {
+        if (clazz.isInstance(o)) {
+            return (T) o;
+        } else {
+            throw new ClassCastException("Cannot cast to " + clazz + "!");
+        }
+    }
+
+    /**
+     * Get the class of the specified object, specified as descended from a
+     * specified type. Used to get around unchecked warnings.
+     *
+     * @param <T> The base type for the object.
+     * @param obj The object to get the class of.
+     * @return The class of the object.
+     */
+    @SuppressWarnings("unchecked")
+    public static <T> Class<T> getGenericClass(T obj) {
+        return (Class<T>) obj.getClass();
+    }
 }

@@ -471,6 +471,31 @@ class MixingImpls {
         }
     }
 
+    static class LimitImpl extends FloatFilter {
+
+        private final float minimum;
+        private final float maximum;
+
+        LimitImpl(float minimum, float maximum) {
+            if (maximum < minimum) {
+                throw new IllegalArgumentException("Maximum is smaller than minimum!");
+            }
+            this.minimum = minimum;
+            this.maximum = maximum;
+        }
+
+        @Override
+        public float filter(float input) {
+            if (input < minimum) {
+                return minimum;
+            } else if (input > maximum) {
+                return maximum;
+            } else {
+                return input;
+            }
+        }
+    }
+
     static class NFI implements FloatInputPoll {
 
         private final FloatInputPoll base;

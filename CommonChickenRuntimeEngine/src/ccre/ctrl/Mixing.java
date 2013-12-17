@@ -328,6 +328,13 @@ public class Mixing {
     public static FloatFilter deadzone(final float deadzone) {
         return new DeadzoneImpl(deadzone);
     }
+    
+    /**
+     * Return a Filter that applies the specified limitation to the value.
+     */
+    public static FloatFilter limit(float minimum, float maximum) {
+        return new LimitImpl(minimum, maximum);
+    }
 
     /**
      * Returns a FloatInputPoll with a deadzone applied as defined in

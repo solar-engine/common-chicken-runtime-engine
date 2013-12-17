@@ -213,11 +213,6 @@ public class EmulatorLauncher implements IgneousLauncher {
     }
 
     @Override
-    public FloatOutput makeDSFloatReadout(String prefix, int line) {
-        return emf.getDSReadout(prefix, line);
-    }
-
-    @Override
     public void sendDSUpdate(String value, int line) {
         emf.sendDSUpdate(value, line);
     }

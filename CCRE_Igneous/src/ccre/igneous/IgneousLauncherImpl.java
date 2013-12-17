@@ -258,40 +258,6 @@ class IgneousLauncherImpl extends IterativeRobot implements IgneousLauncher {
         };
     }
 
-    public FloatOutput makeDSFloatReadout(final String prefix, final int lineid) {
-        final DriverStationLCD.Line line;
-        switch (lineid) {
-            case 1:
-                line = DriverStationLCD.Line.kUser1;
-                break;
-            case 2:
-                line = DriverStationLCD.Line.kUser2;
-                break;
-            case 3:
-                line = DriverStationLCD.Line.kUser3;
-                break;
-            case 4:
-                line = DriverStationLCD.Line.kUser4;
-                break;
-            case 5:
-                line = DriverStationLCD.Line.kUser5;
-                break;
-            case 6:
-                line = DriverStationLCD.Line.kUser6;
-                break;
-            default:
-                throw new IllegalArgumentException("Bad line number (expected 1-6): " + lineid);
-        }
-        return new FloatOutput() {
-            public void writeValue(float f) {
-                DriverStationLCD dslcd = DriverStationLCD.getInstance();
-                dslcd.println(line, 1, "                     ");
-                dslcd.println(line, 1, prefix + f);
-                dslcd.updateLCD();
-            }
-        };
-    }
-
     public void sendDSUpdate(String value, int lineid) {
         final DriverStationLCD.Line line;
         switch (lineid) {

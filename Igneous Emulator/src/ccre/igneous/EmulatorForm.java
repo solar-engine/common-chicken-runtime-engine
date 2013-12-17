@@ -1406,43 +1406,6 @@ public class EmulatorForm extends javax.swing.JFrame {
         });
     }
 
-    public FloatOutput getDSReadout(final String prefix, int line) {
-        final JLabel tgt;
-        switch (line) {
-            case 1:
-                tgt = lcd1;
-                break;
-            case 2:
-                tgt = lcd2;
-                break;
-            case 3:
-                tgt = lcd3;
-                break;
-            case 4:
-                tgt = lcd4;
-                break;
-            case 5:
-                tgt = lcd5;
-                break;
-            case 6:
-                tgt = lcd6;
-                break;
-            default:
-                throw new RuntimeException("Bad LCD line: " + line);
-        }
-        return new FloatOutput() {
-            @Override
-            public void writeValue(final float f) {
-                EventQueue.invokeLater(new Runnable() {
-                    @Override
-                    public void run() {
-                        tgt.setText(prefix + ": " + f);
-                    }
-                });
-            }
-        };
-    }
-
     public void setCompressor(boolean b) {
         labCompressor.setText(b ? "ENABLED" : "DISABLED");
     }

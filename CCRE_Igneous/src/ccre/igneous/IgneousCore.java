@@ -287,8 +287,29 @@ public abstract class IgneousCore implements InstinctRegistrar {
      * @param line the line to display the value on, from 1 to 6.
      * @return the output that will write to the LCD.
      */
-    protected final FloatOutput makeDSFloatReadout(String prefix, int line) {
-        return launcher.makeDSFloatReadout(prefix, line);
+    protected final FloatOutput makeDSFloatReadout(final String prefix, final int line) {
+        return new FloatOutput() {
+            public void writeValue(float f) {
+                sendDSUpdate(prefix + f, line);
+            }
+        };
+    }
+
+    /**
+     * Create an output that will display the current value on the driver
+     * station's LCD.
+     *
+     * @param prefix the prefix, or label, of the output. this is prepended to
+     * the value.
+     * @param line the line to display the value on, from 1 to 6.
+     * @return the output that will write to the LCD.
+     */
+    protected final BooleanOutput makeDSBooleanReadout(final String prefix, final int line) {
+        return new BooleanOutput() {
+            public void writeValue(boolean f) {
+                sendDSUpdate(prefix + f, line);
+            }
+        };
     }
 
     /**
@@ -302,7 +323,21 @@ public abstract class IgneousCore implements InstinctRegistrar {
      * @param when when to update the output.
      */
     protected final void makeDSFloatReadout(String prefix, int line, FloatInputPoll value, EventSource when) {
-        Mixing.pumpWhen(when, value, launcher.makeDSFloatReadout(prefix, line));
+        Mixing.pumpWhen(when, value, makeDSFloatReadout(prefix, line));
+    }
+
+    /**
+     * Display the current value of the specified BooleanInputPoll on the driver
+     * station's LCD, whenever the specified event is triggered.
+     *
+     * @param prefix the prefix, or label, of the output. this is prepended to
+     * the value.
+     * @param line the line to display the value on, from 1 to 6.
+     * @param value the value to display.
+     * @param when when to update the output.
+     */
+    protected final void makeDSBooleanReadout(String prefix, int line, BooleanInputPoll value, EventSource when) {
+        Mixing.pumpWhen(when, value, makeDSBooleanReadout(prefix, line));
     }
 
     /**

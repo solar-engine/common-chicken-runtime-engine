@@ -331,6 +331,10 @@ public class Mixing {
     
     /**
      * Return a Filter that applies the specified limitation to the value.
+     * 
+     * @param minimum The minimum value to limit to. Use Float.NEGATIVE_INFINITY if you want no lower bound.
+     * @param maximum The maximum value to limit to. Use Float.POSITIVE_INFINITY if you want no upper bound.
+     * @return The filter representing the specified limit.
      */
     public static FloatFilter limit(float minimum, float maximum) {
         return new LimitImpl(minimum, maximum);

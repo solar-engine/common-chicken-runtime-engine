@@ -56,7 +56,8 @@ public class SuiteOfTests { // TODO: This package needs more tests!
             // ccre.ctrl
             // DriverImpls - Needed!
             // ExpirationTimer - Needed!
-            // Mixing - Needed!
+            // Mixing - Needed to be fleshed out a lot!
+            new TestMixing(),
             // ModeDispatcher - Needed!
             // MultipleSourceBooleanController - Needed!
             // Ticker - Needed!

@@ -385,8 +385,7 @@ public class IntelligenceMain extends JPanel implements CluckRemoteListener, Mou
         });
         final DefaultListModel dlm = new DefaultListModel();
         lstErrors.setModel(dlm);
-        LoggingTarget lt = new ListModelLogger(dlm, lstErrors);
-        Logger.target = new MultiTargetLogger(Logger.target, lt);
+        Logger.addTarget(new ListModelLogger(dlm, lstErrors));
         scroll.setViewportView(lstErrors);
         subpanel.setLayout(new BoxLayout(subpanel, BoxLayout.Y_AXIS));
         JPanel btns = new JPanel();

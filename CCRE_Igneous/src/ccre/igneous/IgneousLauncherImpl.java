@@ -53,6 +53,7 @@ class IgneousLauncherImpl extends IterativeRobot implements IgneousLauncher {
         IgneousStorageProvider.register();
         CluckGlobals.ensureInitializedCore();
         NetworkAutologger.register();
+        BootLogger.register();
         String name = VM.getManifestProperty("Igneous-Main");
         if (name == null) {
             throw new RuntimeException("Could not find MANIFEST-specified launchee!");

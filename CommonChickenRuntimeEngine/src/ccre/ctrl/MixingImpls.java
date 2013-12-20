@@ -576,6 +576,29 @@ class MixingImpls {
         }
     }
 
+    static class QuadSelectImpl implements FloatInputPoll {
+
+        private final BooleanInputPoll alpha;
+        private final BooleanInputPoll beta;
+        private final float tt;
+        private final float tf;
+        private final float ft;
+        private final float ff;
+
+        QuadSelectImpl(BooleanInputPoll alpha, BooleanInputPoll beta, float tt, float tf, float ft, float ff) {
+            this.alpha = alpha;
+            this.beta = beta;
+            this.tt = tt;
+            this.tf = tf;
+            this.ft = ft;
+            this.ff = ff;
+        }
+
+        public float readValue() {
+            return alpha.readValue() ? (beta.readValue() ? tt : tf) : (beta.readValue() ? ft : ff);
+        }
+    }
+
     static class RampingImpl implements EventConsumer {
 
         private final FloatInputPoll from;

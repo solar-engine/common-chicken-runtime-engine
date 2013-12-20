@@ -160,7 +160,7 @@ public class ListModelLogger implements LoggingTarget, ListSelectionListener {
         for (StackTraceElement traceElement : trace) {
             out.add("    at " + traceElement);
         }
-        
+
         Throwable[] thrs = new Throwable[0];
         if (getSuppressed != null) {
             try {
@@ -212,8 +212,22 @@ public class ListModelLogger implements LoggingTarget, ListSelectionListener {
                 s.add(prefix + "    ... " + framesInCommon + " more");
             }
 
+
+            Throwable[] thrs = new Throwable[0];
+            if (getSuppressed != null) {
+                try {
+                    thrs = (Throwable[]) getSuppressed.invoke(thr);
+                } catch (IllegalAccessException ex) {
+                    getSuppressed = null;
+                    Logger.log(LogLevel.WARNING, "Cannot log message!", ex);
+                } catch (InvocationTargetException ex) {
+                    getSuppressed = null;
+                    Logger.log(LogLevel.WARNING, "Cannot log message!", ex);
+                }
+            }
+            
             // Print suppressed exceptions, if any
-            for (Throwable se : thr.getSuppressed()) {
+            for (Throwable se : thrs) {
                 printEnclosedStackTrace(se, s, trace, "Suppressed: ", prefix + "    ", dejaVu);
             }
 

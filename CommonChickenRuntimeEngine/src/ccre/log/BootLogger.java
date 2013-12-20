@@ -67,11 +67,14 @@ public class BootLogger implements LoggingTarget {
         if (outId >= outs.length) {
             return;
         }
+        if (message.startsWith("[BOOT-")) {
+            return;
+        }
         synchronized (this) {
             if (extended == null) {
-                outs[outId] = level.toString() + ": " + message;
+                outs[outId++] = level.toString() + ": " + message;
             } else {
-                outs[outId] = level.toString() + ": " + message + ": " + extended;
+                outs[outId++] = level.toString() + ": " + message + ": " + extended;
             }
         }
     }

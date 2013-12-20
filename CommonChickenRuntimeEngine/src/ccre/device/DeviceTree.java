@@ -100,6 +100,25 @@ public class DeviceTree implements Iterable<String> {
         };
         putHandle(path, h);
     }
+    
+    public <Type> void putSimple(String path, final Type device, final Class<Type> type) throws DeviceException {
+        DeviceHandle h = new SimpleDeviceHandle<Type>() {
+            @Override
+            protected Type allocate() {
+                return device;
+            }
+
+            @Override
+            protected void deallocate(Type target) {
+            }
+
+            @Override
+            public Class<Type> getPrimaryDeviceType() {
+                return type;
+            }
+        };
+        putHandle(path, h);
+    }
 
     public DeviceHandle getHandle(String path) throws DeviceException {
         DeviceHandle<Object> handle = devices.get(path);

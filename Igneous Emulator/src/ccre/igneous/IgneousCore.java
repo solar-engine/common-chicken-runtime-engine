@@ -20,6 +20,8 @@ package ccre.igneous;
 
 import ccre.chan.*;
 import ccre.ctrl.*;
+import ccre.device.DeviceException;
+import ccre.device.DeviceTree;
 import ccre.event.*;
 import ccre.instinct.InstinctRegistrar;
 
@@ -455,7 +457,7 @@ public abstract class IgneousCore implements InstinctRegistrar {
      * sensitivity. This will allow reading the current rotation of the Gyro.
      * This also takes an EventSource, and when this is fired, the Gyro will be
      * reset.
-     * 
+     *
      * Increased sensitivity means a smaller output for the same turn.
      *
      * @param port The Gyro port number.
@@ -473,7 +475,7 @@ public abstract class IgneousCore implements InstinctRegistrar {
     /**
      * Create a reference to a Gyro on the specified port with the specified
      * sensitivity. This will allow reading the current rotation of the Gyro.
-     * 
+     *
      * Increased sensitivity means a smaller output for the same turn.
      *
      * @param port The Gyro port number.
@@ -500,5 +502,15 @@ public abstract class IgneousCore implements InstinctRegistrar {
      */
     protected final FloatInputPoll makeAccelerometerAxis(int port, double sensitivity, double zeropoint) {
         return launcher.makeAccelerometerAxis(port, sensitivity, zeropoint);
+    }
+
+    /**
+     * Get a reference to a DeviceTree representing everything directly attached
+     * to this robot.
+     *
+     * @return The device tree.
+     */
+    protected final DeviceTree getDeviceTree() throws DeviceException {
+        return launcher.getDeviceTree();
     }
 }

@@ -431,19 +431,28 @@ class IgneousLauncherImpl extends IterativeRobot implements IgneousLauncher {
             for (int sol = 1; sol <= 8; sol++) {
                 devTree.putHandle("pneumatics/solen" + sol, new CDeviceTreeSolenoid(sol));
             }
-            /*devTree.putSimple("pneumatics/compressorConf", new LineCollectorOutputStream() {
+            final BooleanStatus enableCompressor = new BooleanStatus();
+            devTree.putSimple("pneumatics/compressorConf", new LineCollectorOutputStream() {
                 protected void collect(String string) {
                     int ii = string.indexOf(' ');
                     if (ii == -1) {
                         int portno = Integer.parseInt(string);
-                        useC
+                        useCustomCompressor(enableCompressor, portno);
+                    } else {
+                        int portno = Integer.parseInt(string.substring(0, ii));
+                        int extno = Integer.parseInt(string.substring(ii+1));
+                        enableCompressor.writeValue(true);
+                        useCustomCompressor(Mixing.andBooleans(enableCompressor, makeDigitalInput(extno)), portno);
                     }
                 }
-            });*/
+            });
+            devTree.putSimple("pneumatics/compressorEnable", enableCompressor);
             for (int dgt = 1; dgt <= 14; dgt++) {
                 devTree.putHandle("gpios/out" + dgt, new CDeviceTreeGPO(dgt));
                 devTree.putHandle("gpios/in" + dgt, new CDeviceTreeGPI(dgt));
             }
+            // TODO: Implement encoders, Gyros, accelerometers.
+            //devTree.putHandle("gpios/encoder", null);
             for (int alg = 1; alg <= 8; alg++) {
                 devTree.putHandle("analogs/in" + alg, new CDeviceTreeAnalogInput(alg));
             }
@@ -478,9 +487,11 @@ class IgneousLauncherImpl extends IterativeRobot implements IgneousLauncher {
                         lcd.updateLCD();
                     }
                 }, OutputStream.class);
+                for (int rel=1; rel<=8; rel++) {
+                    devTree.putHandle("relays/fwd" + rel, new CDeviceTreeRelay(rel, Relay.Direction.kForward));
+                    devTree.putHandle("relays/rev" + rel, new CDeviceTreeRelay(rel, Relay.Direction.kReverse));
+                }
             }
-            // WORKING HERE...
-            devTree.putHandle("", null);
         }
         return devTree;
     }

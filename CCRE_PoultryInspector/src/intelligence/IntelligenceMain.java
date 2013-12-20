@@ -18,6 +18,7 @@
  */
 package intelligence;
 
+import ccre.chan.FloatStatus;
 import ccre.cluck.*;
 import ccre.concurrency.CollapsingWorkerThread;
 import ccre.event.EventConsumer;
@@ -410,6 +411,7 @@ public class IntelligenceMain extends JPanel implements CluckRemoteListener, Mou
         frame.setVisible(true);
         Logger.info("Started Poultry Inspector at " + System.currentTimeMillis());
         new PhidgetMonitor().share(CluckGlobals.node);
+        CluckGlobals.node.publish("test", new FloatStatus());
         IPProvider.connect();
     }
 }

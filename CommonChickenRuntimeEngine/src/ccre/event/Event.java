@@ -19,7 +19,6 @@
 package ccre.event;
 
 import ccre.concurrency.ConcurrentDispatchArray;
-import ccre.util.CArrayList;
 import ccre.util.CArrayUtils;
 
 /**

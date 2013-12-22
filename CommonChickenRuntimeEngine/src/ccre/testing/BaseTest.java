@@ -19,7 +19,6 @@
 package ccre.testing;
 
 import ccre.log.Logger;
-import ccre.log.LoggingTarget;
 
 /**
  * A superclass for the various tests in this package. This provides a framework
@@ -28,37 +27,6 @@ import ccre.log.LoggingTarget;
  * @author skeggsc
  */
 public abstract class BaseTest {
-
-    /**
-     * The old Logging stream if this test needed to redirect Logging, or null
-     * if it didn't.
-     */
-    private LoggingTarget oldLoggingTarget;
-
-    /**
-     * Redirect the destination of all CCRE logging temporarily, or disable
-     * redirection if null.
-     *
-     * Will automatically be removed at the end of a test.
-     *
-     * @param newTarget The new target to send logging to, or null to disable
-     * redirection.
-     */
-    protected void redirectLogging(LoggingTarget newTarget) {
-        if (oldLoggingTarget == null) {
-            if (newTarget != null) {
-                oldLoggingTarget = Logger.target;
-                Logger.target = newTarget;
-            }
-        } else {
-            if (newTarget == null) {
-                Logger.target = oldLoggingTarget;
-                oldLoggingTarget = null;
-            } else {
-                Logger.target = newTarget;
-            }
-        }
-    }
 
     /**
      * Get the name of this test.
@@ -96,25 +64,19 @@ public abstract class BaseTest {
             Logger.fine("Attempting test: " + getName());
         }
         try {
-            try {
-                runTest();
-            } catch (TestingException ex) {
-                redirectLogging(null);
-                if (verbose) {
-                    Logger.warning("Failed test: " + getName());
-                    ex.printStackTrace();
-                }
-                return false;
-            } catch (Throwable t) {
-                redirectLogging(null);
-                if (verbose) {
-                    Logger.warning("Exception during test: " + getName());
-                    t.printStackTrace();
-                }
-                return false;
+            runTest();
+        } catch (TestingException ex) {
+            if (verbose) {
+                Logger.warning("Failed test: " + getName());
+                ex.printStackTrace();
             }
-        } finally {
-            redirectLogging(null);
+            return false;
+        } catch (Throwable t) {
+            if (verbose) {
+                Logger.warning("Exception during test: " + getName());
+                t.printStackTrace();
+            }
+            return false;
         }
         if (verbose) {
             Logger.info("Test succeeded: " + getName());

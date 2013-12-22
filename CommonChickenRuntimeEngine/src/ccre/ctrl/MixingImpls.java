@@ -471,6 +471,31 @@ class MixingImpls {
         }
     }
 
+    static class LimitImpl extends FloatFilter {
+
+        private final float minimum;
+        private final float maximum;
+
+        LimitImpl(float minimum, float maximum) {
+            if (maximum < minimum) {
+                throw new IllegalArgumentException("Maximum is smaller than minimum!");
+            }
+            this.minimum = minimum;
+            this.maximum = maximum;
+        }
+
+        @Override
+        public float filter(float input) {
+            if (input < minimum) {
+                return minimum;
+            } else if (input > maximum) {
+                return maximum;
+            } else {
+                return input;
+            }
+        }
+    }
+
     static class NFI implements FloatInputPoll {
 
         private final FloatInputPoll base;
@@ -548,6 +573,29 @@ class MixingImpls {
 
         public void eventFired() {
             out.writeValue(in.readValue());
+        }
+    }
+
+    static class QuadSelectImpl implements FloatInputPoll {
+
+        private final BooleanInputPoll alpha;
+        private final BooleanInputPoll beta;
+        private final float tt;
+        private final float tf;
+        private final float ft;
+        private final float ff;
+
+        QuadSelectImpl(BooleanInputPoll alpha, BooleanInputPoll beta, float tt, float tf, float ft, float ff) {
+            this.alpha = alpha;
+            this.beta = beta;
+            this.tt = tt;
+            this.tf = tf;
+            this.ft = ft;
+            this.ff = ff;
+        }
+
+        public float readValue() {
+            return alpha.readValue() ? (beta.readValue() ? tt : tf) : (beta.readValue() ? ft : ff);
         }
     }
 

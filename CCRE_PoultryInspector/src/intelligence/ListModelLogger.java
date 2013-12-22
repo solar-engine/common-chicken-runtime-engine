@@ -19,12 +19,16 @@
 package intelligence;
 
 import ccre.log.LogLevel;
+import ccre.log.Logger;
 import ccre.log.LoggingTarget;
 import ccre.util.CArrayList;
 import ccre.util.CList;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.Collections;
 import java.util.IdentityHashMap;
 import java.util.Set;
+import java.util.logging.Level;
 import javax.swing.DefaultListModel;
 import javax.swing.JList;
 import javax.swing.event.ListSelectionEvent;
@@ -40,6 +44,20 @@ import javax.swing.event.ListSelectionListener;
 @SuppressWarnings("unchecked")
 public class ListModelLogger implements LoggingTarget, ListSelectionListener {
 
+    private static Method getSuppressed;
+
+    static {
+        try {
+            // Print suppressed exceptions, if any
+            getSuppressed = Class.forName("java.lang.Throwable").getMethod("getSuppressed");
+        } catch (ClassNotFoundException ex) {
+            Logger.log(LogLevel.WARNING, "Could not find Throwable!", ex);
+        } catch (NoSuchMethodException ex) {
+            // Do nothing.
+        } catch (SecurityException ex) {
+            Logger.log(LogLevel.WARNING, "Could not init getSuppressed", ex);
+        }
+    }
     /**
      * The list model to update.
      */
@@ -143,8 +161,20 @@ public class ListModelLogger implements LoggingTarget, ListSelectionListener {
             out.add("    at " + traceElement);
         }
 
-        // Print suppressed exceptions, if any
-        for (Throwable se : thr.getSuppressed()) {
+        Throwable[] thrs = new Throwable[0];
+        if (getSuppressed != null) {
+            try {
+                thrs = (Throwable[]) getSuppressed.invoke(thr);
+            } catch (IllegalAccessException ex) {
+                getSuppressed = null;
+                Logger.log(LogLevel.WARNING, "Cannot log message!", ex);
+            } catch (InvocationTargetException ex) {
+                getSuppressed = null;
+                Logger.log(LogLevel.WARNING, "Cannot log message!", ex);
+            }
+        }
+
+        for (Throwable se : thrs) {
             printEnclosedStackTrace(se, out, trace, "Suppressed: ", "\t", dejaVu);
         }
 
@@ -182,8 +212,22 @@ public class ListModelLogger implements LoggingTarget, ListSelectionListener {
                 s.add(prefix + "    ... " + framesInCommon + " more");
             }
 
+
+            Throwable[] thrs = new Throwable[0];
+            if (getSuppressed != null) {
+                try {
+                    thrs = (Throwable[]) getSuppressed.invoke(thr);
+                } catch (IllegalAccessException ex) {
+                    getSuppressed = null;
+                    Logger.log(LogLevel.WARNING, "Cannot log message!", ex);
+                } catch (InvocationTargetException ex) {
+                    getSuppressed = null;
+                    Logger.log(LogLevel.WARNING, "Cannot log message!", ex);
+                }
+            }
+            
             // Print suppressed exceptions, if any
-            for (Throwable se : thr.getSuppressed()) {
+            for (Throwable se : thrs) {
                 printEnclosedStackTrace(se, s, trace, "Suppressed: ", prefix + "    ", dejaVu);
             }
 

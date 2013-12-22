@@ -31,15 +31,7 @@ import java.util.Iterator;
 public class DeviceTree implements Iterable<String> {
 
     protected final CHashMap<String, DeviceHandle<Object>> devices = new CHashMap<String, DeviceHandle<Object>>();
-    protected final CHashMap<String, DeviceFilter<Object, Object>> filters = new CHashMap<String, DeviceFilter<Object, Object>>();
-
-    public void putFilter(String suffix, DeviceFilter<Object, Object> filter) throws DeviceException {
-        if (filters.get(suffix) != null) {
-            throw new DeviceException("Filter already registered!");
-        }
-        filters.put(suffix, filter);
-    }
-
+    
     /*public void putDefaultFilters(final EventSource defaultCycleEvent) throws DeviceException {
         putFilter("pressed", new DeviceFilter<Object, Object>() { // Object: Either BooleanInputPoll or BooleanInputProducer
             public DeviceHandle<EventSource> filter(final DeviceHandle<Object> h) {
@@ -100,27 +92,29 @@ public class DeviceTree implements Iterable<String> {
         };
         putHandle(path, h);
     }
+    
+    public <Type> void putSimple(String path, final Type device, final Class<Type> type) throws DeviceException {
+        DeviceHandle h = new SimpleDeviceHandle<Type>() {
+            @Override
+            protected Type allocate() {
+                return device;
+            }
+
+            @Override
+            protected void deallocate(Type target) {
+            }
+
+            @Override
+            public Class<Type> getPrimaryDeviceType() {
+                return type;
+            }
+        };
+        putHandle(path, h);
+    }
 
     public DeviceHandle getHandle(String path) throws DeviceException {
         DeviceHandle<Object> handle = devices.get(path);
         if (handle == null) {
-            String[] parts = Utils.split(path, ':');
-            if (parts.length > 1) {
-                handle = devices.get(parts[0]);
-                if (handle != null) {
-                    for (int i = 1; i < parts.length; i++) {
-                        DeviceFilter<Object, Object> f = filters.get(parts[i]);
-                        if (f == null) {
-                            handle = null;
-                            break;
-                        }
-                        handle = f.filter(handle);
-                    }
-                    if (handle != null) {
-                        return handle;
-                    }
-                }
-            }
             throw new DeviceException("No such device: " + path);
         }
         return handle;

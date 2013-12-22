@@ -21,7 +21,10 @@ package ccre.igneous;
 import ccre.chan.*;
 import ccre.cluck.CluckGlobals;
 import ccre.ctrl.*;
+import ccre.device.DeviceException;
+import ccre.device.DeviceTree;
 import ccre.event.*;
+import ccre.log.BootLogger;
 import ccre.log.NetworkAutologger;
 import java.io.File;
 import java.io.IOException;
@@ -66,6 +69,7 @@ public class EmulatorLauncher implements IgneousLauncher {
         }
         CluckGlobals.ensureInitializedCore();
         NetworkAutologger.register();
+        BootLogger.register();
         URLClassLoader classLoader = new URLClassLoader(new URL[]{jarFile.toURI().toURL()}, EmulatorLauncher.class.getClassLoader());
         Class<? extends IgneousCore> asSubclass = classLoader.loadClass(mainClass).asSubclass(IgneousCore.class);
         EmulatorForm emf = new EmulatorForm();
@@ -271,5 +275,10 @@ public class EmulatorLauncher implements IgneousLauncher {
     @Override
     public FloatInputPoll makeAccelerometerAxis(int port, double sensitivity, double zeropoint) {
         return emf.makeAccelerometerAxis(port, sensitivity, zeropoint);
+    }
+
+    @Override
+    public DeviceTree getDeviceTree() throws DeviceException {
+        throw new RuntimeException("Device Tree not yet implemented on Emulator!");
     }
 }

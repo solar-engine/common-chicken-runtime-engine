@@ -21,13 +21,21 @@ package ccre.igneous;
 import ccre.chan.*;
 import ccre.cluck.CluckGlobals;
 import ccre.ctrl.*;
+import ccre.device.DeviceException;
+import ccre.device.DeviceHandle;
+import ccre.device.DeviceTree;
+import ccre.device.SimpleDeviceHandle;
 import ccre.event.*;
 import ccre.log.*;
 import ccre.net.IgneousNetworkProvider;
 import ccre.saver.IgneousStorageProvider;
+import ccre.util.LineCollectorOutputStream;
+import ccre.util.Utils;
 import ccre.workarounds.IgneousThrowablePrinter;
 import com.sun.squawk.VM;
 import edu.wpi.first.wpilibj.*;
+import java.io.IOException;
+import java.io.OutputStream;
 
 /**
  * The Squawk implementation of the IgneousLauncher interface. Do not use this!
@@ -46,6 +54,10 @@ class IgneousLauncherImpl extends IterativeRobot implements IgneousLauncher {
      * The robot's compressor.
      */
     private CCustomCompressor compressor;
+    /**
+     * The robot's device tree.
+     */
+    private DeviceTree devTree;
 
     IgneousLauncherImpl() {
         IgneousNetworkProvider.register();
@@ -53,6 +65,7 @@ class IgneousLauncherImpl extends IterativeRobot implements IgneousLauncher {
         IgneousStorageProvider.register();
         CluckGlobals.ensureInitializedCore();
         NetworkAutologger.register();
+        BootLogger.register();
         String name = VM.getManifestProperty("Igneous-Main");
         if (name == null) {
             throw new RuntimeException("Could not find MANIFEST-specified launchee!");
@@ -374,5 +387,112 @@ class IgneousLauncherImpl extends IterativeRobot implements IgneousLauncher {
                 return (float) a.getAcceleration();
             }
         };
+    }
+
+    public DeviceTree getDeviceTree() throws DeviceException {
+        if (devTree == null) {
+            devTree = new DeviceTree();
+            devTree.putSimple("modes/auto/init", startedAutonomous, EventSource.class);
+            devTree.putSimple("modes/teleop/init", startedTeleop, EventSource.class);
+            devTree.putSimple("modes/test/init", startedTesting, EventSource.class);
+            devTree.putSimple("modes/disabled/init", robotDisabled, EventSource.class);
+            devTree.putSimple("modes/auto/during", duringAutonomous, EventSource.class);
+            devTree.putSimple("modes/teleop/during", duringTeleop, EventSource.class);
+            devTree.putSimple("modes/test/during", duringTesting, EventSource.class);
+            devTree.putSimple("modes/disabled/during", duringDisabled, EventSource.class);
+            devTree.putSimple("modes/always", globalPeriodic, EventSource.class);
+            devTree.putSimple("modes/constant", core.constantPeriodic, EventSource.class);
+            final DriverStation ds = DriverStation.getInstance();
+            for (int joy = 1; joy <= 4; joy++) {
+                final int cJoy = joy;
+                for (int axis = 1; axis <= 6; axis++) {
+                    final int cAxis = axis;
+                    devTree.putSimple("joysticks/" + joy + "/axis" + axis, new FloatInputPoll() {
+                        public float readValue() {
+                            return (float) ds.getStickAxis(cJoy, cAxis);
+                        }
+                    });
+                }
+                for (int button = 1; button <= 12; button++) {
+                    final int cBtn = button;
+                    devTree.putSimple("joysticks/" + joy + "/button" + button, new BooleanInputPoll() {
+                        public boolean readValue() {
+                            return ((1 << (cBtn - 1)) & m_ds.getStickButtons(cJoy)) != 0;
+                        }
+                    });
+                }
+            }
+            for (int pwm = 1; pwm <= 10; pwm++) {
+                devTree.putHandle("pwms/victor" + pwm, new CDeviceTreePWM(pwm, CDeviceTreePWM.VICTOR));
+                devTree.putHandle("pwms/talon" + pwm, new CDeviceTreePWM(pwm, CDeviceTreePWM.TALON));
+                devTree.putHandle("pwms/jaguar" + pwm, new CDeviceTreePWM(pwm, CDeviceTreePWM.JAGUAR));
+                devTree.putHandle("pwms/servo" + pwm, new CDeviceTreePWM(pwm, CDeviceTreePWM.SERVO));
+            }
+            for (int sol = 1; sol <= 8; sol++) {
+                devTree.putHandle("pneumatics/solen" + sol, new CDeviceTreeSolenoid(sol));
+            }
+            final BooleanStatus enableCompressor = new BooleanStatus();
+            devTree.putSimple("pneumatics/compressorConf", new LineCollectorOutputStream() {
+                protected void collect(String string) {
+                    int ii = string.indexOf(' ');
+                    if (ii == -1) {
+                        int portno = Integer.parseInt(string);
+                        useCustomCompressor(enableCompressor, portno);
+                    } else {
+                        int portno = Integer.parseInt(string.substring(0, ii));
+                        int extno = Integer.parseInt(string.substring(ii+1));
+                        enableCompressor.writeValue(true);
+                        useCustomCompressor(Mixing.andBooleans(enableCompressor, makeDigitalInput(extno)), portno);
+                    }
+                }
+            });
+            devTree.putSimple("pneumatics/compressorEnable", enableCompressor);
+            for (int dgt = 1; dgt <= 14; dgt++) {
+                devTree.putHandle("gpios/out" + dgt, new CDeviceTreeGPO(dgt));
+                devTree.putHandle("gpios/in" + dgt, new CDeviceTreeGPI(dgt));
+            }
+            // TODO: Implement encoders, Gyros, accelerometers.
+            //devTree.putHandle("gpios/encoder", null);
+            for (int alg = 1; alg <= 8; alg++) {
+                devTree.putHandle("analogs/in" + alg, new CDeviceTreeAnalogInput(alg));
+            }
+            for (int lcd = 1; lcd <= 6; lcd++) {
+                final DriverStationLCD.Line l;
+                switch (lcd) {
+                    case 1:
+                        l = DriverStationLCD.Line.kUser1;
+                        break;
+                    case 2:
+                        l = DriverStationLCD.Line.kUser2;
+                        break;
+                    case 3:
+                        l = DriverStationLCD.Line.kUser3;
+                        break;
+                    case 4:
+                        l = DriverStationLCD.Line.kUser4;
+                        break;
+                    case 5:
+                        l = DriverStationLCD.Line.kUser5;
+                        break;
+                    case 6:
+                        l = DriverStationLCD.Line.kUser6;
+                        break;
+                    default:
+                        throw new RuntimeException("Wait, what?");
+                }
+                devTree.putSimple("dslcd/line" + lcd, new LineCollectorOutputStream() {
+                    protected void collect(String string) {
+                        DriverStationLCD lcd = DriverStationLCD.getInstance();
+                        lcd.println(l, 1, string);
+                        lcd.updateLCD();
+                    }
+                }, OutputStream.class);
+                for (int rel=1; rel<=8; rel++) {
+                    devTree.putHandle("relays/fwd" + rel, new CDeviceTreeRelay(rel, Relay.Direction.kForward));
+                    devTree.putHandle("relays/rev" + rel, new CDeviceTreeRelay(rel, Relay.Direction.kReverse));
+                }
+            }
+        }
+        return devTree;
     }
 }

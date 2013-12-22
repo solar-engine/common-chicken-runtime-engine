@@ -18,6 +18,7 @@
  */
 package intelligence;
 
+import ccre.chan.FloatStatus;
 import ccre.cluck.*;
 import ccre.concurrency.CollapsingWorkerThread;
 import ccre.event.EventConsumer;
@@ -385,8 +386,7 @@ public class IntelligenceMain extends JPanel implements CluckRemoteListener, Mou
         });
         final DefaultListModel dlm = new DefaultListModel();
         lstErrors.setModel(dlm);
-        LoggingTarget lt = new ListModelLogger(dlm, lstErrors);
-        Logger.target = new MultiTargetLogger(Logger.target, lt);
+        Logger.addTarget(new ListModelLogger(dlm, lstErrors));
         scroll.setViewportView(lstErrors);
         subpanel.setLayout(new BoxLayout(subpanel, BoxLayout.Y_AXIS));
         JPanel btns = new JPanel();
@@ -411,6 +411,7 @@ public class IntelligenceMain extends JPanel implements CluckRemoteListener, Mou
         frame.setVisible(true);
         Logger.info("Started Poultry Inspector at " + System.currentTimeMillis());
         new PhidgetMonitor().share(CluckGlobals.node);
+        CluckGlobals.node.publish("test", new FloatStatus());
         IPProvider.connect();
     }
 }

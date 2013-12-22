@@ -330,6 +330,19 @@ public class Mixing {
     }
 
     /**
+     * Return a Filter that applies the specified limitation to the value.
+     *
+     * @param minimum The minimum value to limit to. Use Float.NEGATIVE_INFINITY
+     * if you want no lower bound.
+     * @param maximum The maximum value to limit to. Use Float.POSITIVE_INFINITY
+     * if you want no upper bound.
+     * @return The filter representing the specified limit.
+     */
+    public static FloatFilter limit(float minimum, float maximum) {
+        return new LimitImpl(minimum, maximum);
+    }
+
+    /**
      * Returns a FloatInputPoll with a deadzone applied as defined in
      * Utils.deadzone
      *
@@ -928,5 +941,23 @@ public class Mixing {
      */
     public static FloatInputPoll findRate(final FloatInputPoll input, EventSource updateWhen) {
         return new FindRateCycledImpl(input).start(updateWhen);
+    }
+
+    /**
+     * Returns a four-way select based on two BooleanInputPolls from four
+     * floats.
+     *
+     * @param alpha The first boolean.
+     * @param beta The second boolean.
+     * @param ff The value to use when both inputs are false.
+     * @param ft The value to use when the first is false and the second is
+     * true.
+     * @param tf The value to use when the first is true and the second is
+     * false.
+     * @param tt The value to use when both inputs are true.
+     * @return The FloatInputPoll representing the current value.
+     */
+    public static FloatInputPoll quadSelect(final BooleanInputPoll alpha, final BooleanInputPoll beta, final float ff, final float ft, final float tf, final float tt) {
+        return new QuadSelectImpl(alpha, beta, tt, tf, ft, ff);
     }
 }

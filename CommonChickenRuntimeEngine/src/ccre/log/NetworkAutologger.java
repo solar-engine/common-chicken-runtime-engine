@@ -42,7 +42,7 @@ public class NetworkAutologger implements LoggingTarget {
             return;
         }
         registered = true;
-        Logger.target = new MultiTargetLogger(Logger.target, new NetworkAutologger(CluckGlobals.node));
+        Logger.addTarget(new NetworkAutologger(CluckGlobals.node));
     }
     private String[] remotes;
     private final CHashMap<String, LoggingTarget> targetCache = new CHashMap<String, LoggingTarget>();

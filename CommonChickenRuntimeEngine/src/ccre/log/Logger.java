@@ -18,6 +18,8 @@
  */
 package ccre.log;
 
+import ccre.util.CArrayList;
+
 /**
  * A class containing easy global methods for logging, as well as holding the
  * default logger field.
@@ -29,9 +31,22 @@ public class Logger {
     private Logger() {
     }
     /**
-     * The logging target to write logs to by default.
+     * The logging targets to write logs to by default.
      */
-    public static LoggingTarget target = new StandardStreamLogger();
+    public static final CArrayList<LoggingTarget> targets = new CArrayList<LoggingTarget>();
+
+    static {
+        targets.add(new StandardStreamLogger());
+    }
+
+    /**
+     * Add the specified target to the list of targets.
+     *
+     * @param lt The target to add.
+     */
+    public static synchronized void addTarget(LoggingTarget lt) {
+        targets.add(lt);
+    }
     /**
      * The minimum level of logging to keep when writing data using these
      * globals. Anything below this level will be ignored.
@@ -47,7 +62,12 @@ public class Logger {
      */
     public static void log(LogLevel level, String message, Throwable thr) {
         if (level.atLeastAsImportant(minimumLevel)) {
-            target.log(level, message, thr);
+            if (level == null || message == null) {
+                throw new NullPointerException();
+            }
+            for (LoggingTarget lt : targets) {
+                lt.log(level, message, thr);
+            }
         }
     }
 
@@ -60,7 +80,12 @@ public class Logger {
      */
     public static void logExt(LogLevel level, String message, String extended) {
         if (level.atLeastAsImportant(minimumLevel)) {
-            target.log(level, message, extended);
+            if (level == null || message == null) {
+                throw new NullPointerException();
+            }
+            for (LoggingTarget lt : targets) {
+                lt.log(level, message, extended);
+            }
         }
     }
 

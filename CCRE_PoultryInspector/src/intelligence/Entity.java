@@ -292,6 +292,15 @@ public final class Entity {
             case RMT_FLOATOUTP:
                 FloatOutput fo = (FloatOutput) co;
                 float f = x / (float) width;
+                if (y < 0) {
+                    try {
+                        String jop = JOptionPane.showInputDialog("Enter a number", "");
+                        f = Float.parseFloat(jop);
+                    } catch (NumberFormatException ex) {
+                        Logger.log(LogLevel.WARNING, "Cannot write new value!", ex);
+                        break;
+                    }
+                }
                 fo.writeValue(f);
                 currentValue = f;
                 countStart = System.currentTimeMillis();

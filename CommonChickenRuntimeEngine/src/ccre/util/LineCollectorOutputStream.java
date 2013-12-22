@@ -16,15 +16,32 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with the CCRE.  If not, see <http://www.gnu.org/licenses/>.
  */
-package ccre.device;
+package ccre.util;
+
+import java.io.IOException;
+import java.io.OutputStream;
 
 /**
- * A filter (such as a conversion from a button status input to a button press
- * event) that can be applied to a Device.
+ * Collects each line sent on this OutputStream and sends them to a single
+ * collector. Does not properly decode strings! Only works with ASCII.
+ *
+ * (I figured that it was better to be simple, fast, and reliable than correct.)
  *
  * @author skeggsc
  */
-public interface DeviceFilter<In, Out> {
+public abstract class LineCollectorOutputStream extends OutputStream {
+
+    private final StringBuffer running = new StringBuffer();
     
-    public DeviceHandle<Out> filter(DeviceHandle<In> h);
+    @Override
+    public final void write(int b) throws IOException {
+        if (b == '\n') {
+            collect(running.toString());
+            running.setLength(0);
+        } else {
+            running.append((char) b);
+        }
+    }
+
+    protected abstract void collect(String toString);
 }

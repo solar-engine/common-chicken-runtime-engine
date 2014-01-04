@@ -21,7 +21,6 @@ package org.team1540.example;
 import ccre.chan.*;
 import ccre.ctrl.DriverImpls;
 import ccre.ctrl.Mixing;
-import ccre.event.EventSource;
 import ccre.igneous.SimpleCore;
 import ccre.instinct.AutonomousModeOverException;
 import ccre.instinct.InstinctModule;
@@ -31,35 +30,27 @@ public class Test extends SimpleCore {
     protected void createSimpleControl() {
         // Driving
         FloatInputPoll leftAxis = joystick1.getAxisChannel(2);
-        FloatInputPoll forwardAxis = joystick1.getAxisChannel(3);
         FloatInputPoll rightAxis = joystick1.getAxisChannel(5);
-        this.makeDSFloatReadout("Left", 1, leftAxis, duringTeleop);
-        this.makeDSFloatReadout("Right", 2, rightAxis, duringTeleop);
-        this.makeDSFloatReadout("Forward", 3, forwardAxis, duringTeleop);
         final FloatOutput leftOut = makeTalonMotor(2, MOTOR_FORWARD, 0.1f);
         final FloatOutput rightOut = makeTalonMotor(1, MOTOR_REVERSE, 0.1f);
-        DriverImpls.createExtendedSynchTankDriver(duringTeleop, leftAxis, rightAxis, forwardAxis, leftOut, rightOut);
+        DriverImpls.createSynchTankDriver(duringTeleop, leftAxis, rightAxis, leftOut, rightOut);
         // Shifting
-        EventSource shiftHighBtn = joystick1.getButtonSource(1);
-        EventSource shiftLowBtn = joystick1.getButtonSource(3);
+        //BooleanOutput o = Mixing.select(makeServo(1, 0, 180), 45, 135);
         BooleanStatus shifter = new BooleanStatus(makeSolenoid(2));
         shifter.setFalseWhen(startedTeleop);
-        shifter.setTrueWhen(shiftLowBtn);
-        shifter.setFalseWhen(shiftHighBtn);
+        shifter.setTrueWhen(joystick1.getButtonSource(3));
+        shifter.setFalseWhen(joystick1.getButtonSource(1));
         // Compressor
         useCompressor(1, 1);
+        // Autonomous
         new InstinctModule() {
             protected void autonomousMain() throws AutonomousModeOverException, InterruptedException {
-                leftOut.writeValue(1.0f);
-                rightOut.writeValue(1.0f);
-                waitForTime(500);
-                leftOut.writeValue(0.5f);
-                rightOut.writeValue(0.5f);
-                waitForTime(1000);
+                leftOut.writeValue(-1);
+                rightOut.writeValue(-1);
+                waitForTime(5000);
                 leftOut.writeValue(0);
                 rightOut.writeValue(0);
             }
         }.register(this);
-        makeDSFloatReadout("Encoder", 1, makeEncoder(1, 2, false), globalPeriodic);
     }
 }

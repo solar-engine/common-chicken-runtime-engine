@@ -1,22 +1,22 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <!--
- * Copyright 2013 Colby Skeggs
- * 
- * This file is part of the CCRE, the Common Chicken Runtime Engine.
- * 
- * The CCRE is free software: you can redistribute it and/or modify it under the
- * terms of the GNU Lesser General Public License as published by the Free
- * Software Foundation, either version 3 of the License, or (at your option) any
- * later version.
- * 
- * The CCRE is distributed in the hope that it will be useful, but WITHOUT ANY
- * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
- * A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
- * details.
- * 
- * You should have received a copy of the GNU Lesser General Public License
- * along with the CCRE.  If not, see <http://www.gnu.org/licenses/>.
- -->
+* Copyright 2013 Colby Skeggs
+* 
+* This file is part of the CCRE, the Common Chicken Runtime Engine.
+* 
+* The CCRE is free software: you can redistribute it and/or modify it under the
+* terms of the GNU Lesser General Public License as published by the Free
+* Software Foundation, either version 3 of the License, or (at your option) any
+* later version.
+* 
+* The CCRE is distributed in the hope that it will be useful, but WITHOUT ANY
+* WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
+* A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
+* details.
+* 
+* You should have received a copy of the GNU Lesser General Public License
+* along with the CCRE.  If not, see <http://www.gnu.org/licenses/>.
+-->
 <project basedir="." default="help" name="Igneous Robot">
 
     <property name="user.properties.file" value="build.properties"/>
@@ -26,7 +26,11 @@
     <property name="manifest.name" value="${resources.dir}/META-INF/MANIFEST.MF"/>
     <property name="emulatee.name" value="${build.dir}/Emulatee.jar"/>
     <property file="${src.dir}/main.properties"/>
-    <target name="insert-manifest">
+    <target name="calc-cel" if="igneous.cel">
+        <fail if="igneous.main" message="igneous.main OR igneous.cel should be provided, not both!" />
+        <property name="igneous.main" value="cel" />
+    </target>
+    <target name="insert-manifest" depends="calc-cel">
         <fail unless="igneous.main" message="igneous.main property required in ${src.dir}/main.properties" />
         <unjar src="${ccrejar}" dest="${resources.dir}">
             <patternset>
@@ -62,6 +66,19 @@
         <java jar="../Igneous Emulator/dist/Igneous_Emulator.jar">
             <arg value="${emulatee.name}" />
         </java>
+    </target>
+    <target name="put-cel">
+        <fail unless="igneous.cel" message="igneous.cel must be set to use put-cel!" />
+        <echo>[cel-deploy] ${igneous.cel} -> ${remoteaddress}</echo>
+        <tstamp/>
+        <echo file="build/notify.txt" message="${TSTAMP}" />
+        <ftp server="${remoteaddress}" remotedir="/"
+             userid="root" password="" retriesAllowed="2">
+            <fileset file="src/${igneous.cel}">
+                <filename name="src/${igneous.cel}" />
+                <filename name="build/notify.txt" />
+            </fileset>
+        </ftp>
     </target>
 
 </project>

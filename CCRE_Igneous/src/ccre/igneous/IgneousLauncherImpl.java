@@ -22,19 +22,15 @@ import ccre.chan.*;
 import ccre.cluck.CluckGlobals;
 import ccre.ctrl.*;
 import ccre.device.DeviceException;
-import ccre.device.DeviceHandle;
 import ccre.device.DeviceTree;
-import ccre.device.SimpleDeviceHandle;
 import ccre.event.*;
 import ccre.log.*;
 import ccre.net.IgneousNetworkProvider;
 import ccre.saver.IgneousStorageProvider;
 import ccre.util.LineCollectorOutputStream;
-import ccre.util.Utils;
 import ccre.workarounds.IgneousThrowablePrinter;
 import com.sun.squawk.VM;
 import edu.wpi.first.wpilibj.*;
-import java.io.IOException;
 import java.io.OutputStream;
 
 /**
@@ -69,6 +65,10 @@ class IgneousLauncherImpl extends IterativeRobot implements IgneousLauncher {
         String name = VM.getManifestProperty("Igneous-Main");
         if (name == null) {
             throw new RuntimeException("Could not find MANIFEST-specified launchee!");
+        }
+        if (name.equals("cel")) {
+            core = new CelCore();
+            return;
         }
         try {
             core = (IgneousCore) Class.forName(name).newInstance();

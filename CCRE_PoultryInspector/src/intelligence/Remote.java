@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 Colby Skeggs
+ * Copyright 2013 Colby Skeggs+Gregor Peach(Folder compatability)
  * 
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  * 
@@ -35,6 +35,7 @@ public class Remote implements Comparable<Remote> {
      * The RMT type of the Remote.
      */
     protected final int type;
+    boolean inFolder=false;
     /**
      * The remote path.
      */
@@ -69,7 +70,7 @@ public class Remote implements Comparable<Remote> {
 
     @Override
     public String toString() {
-        return remote + " : " + CluckNode.rmtToString(type);
+        return inFolder ?'\t'+remote + " : " + CluckNode.rmtToString(type):remote + " : " + CluckNode.rmtToString(type);
     }
 
     /**
@@ -93,7 +94,7 @@ public class Remote implements Comparable<Remote> {
             case RMT_OUTSTREAM:
                 return Color.CYAN;
             default:
-                return Color.BLACK;
+                return Color.WHITE;
         }
     }
 

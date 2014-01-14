@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 Colby Skeggs
+ * Copyright 2013-2014 Colby Skeggs
  * 
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  * 
@@ -21,55 +21,51 @@ package ccre.igneous;
 import ccre.chan.BooleanOutput;
 import ccre.device.DeviceException;
 import ccre.device.DeviceHandle;
-import edu.wpi.first.wpilibj.Relay;
 
 /**
- * Used in IgneousLauncherImpl as the implementation of a Relay shared to a
- * DeviceTree.
+ * Used in IgneousLauncherImpl as the implementation of a GPIO channel shared to
+ * a DeviceRegistry.
  *
  * @author skeggsc
  */
-class CDeviceTreeRelay extends DeviceHandle implements BooleanOutput {
+class GPOHandle extends DeviceHandle<BooleanOutput> {
 
-    private final int id;
-    private Relay rel;
-    private final Relay.Direction dir;
+    private final EmulatorForm form;
+    private final int dgt;
+    private BooleanOutput dout;
 
-    public CDeviceTreeRelay(int rid, Relay.Direction dir) {
-        this.id = rid;
-        this.dir = dir;
+    public GPOHandle(EmulatorForm form, int dgt) {
+        this.form = form;
+        this.dgt = dgt;
     }
 
-    public Class getPrimaryDeviceType() {
+    @Override
+    public Class<BooleanOutput> getPrimaryDeviceType() {
         return BooleanOutput.class;
     }
 
-    public Object open() throws DeviceException {
+    @Override
+    public BooleanOutput open() throws DeviceException {
         synchronized (this) {
-            if (rel != null) {
+            if (dout != null) {
                 throw new DeviceException("Already allocated!");
             }
-            rel = new Relay(id, dir);
+            dout = form.getDigitalOutput(dgt);
+            return dout;
         }
-        return this;
     }
 
-    public void close(Object type) throws DeviceException {
-        if (type != this) {
+    @Override
+    public void close(BooleanOutput type) throws DeviceException {
+        if (type != null || type != dout) {
             throw new DeviceException("Bad target for close!");
         }
         synchronized (this) {
-            if (rel == null) {
+            if (dout == null) {
                 return;
             }
-            rel.free();
-            rel = null;
-        }
-    }
-
-    public void writeValue(boolean bln) {
-        if (rel != null) {
-            rel.set(bln ? Relay.Value.kOn : Relay.Value.kOff);
+            form.freeDigitalOutput(dgt);
+            dout = null;
         }
     }
 }

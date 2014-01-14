@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 Colby Skeggs
+ * Copyright 2013-2014 Colby Skeggs
  * 
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  * 
@@ -21,55 +21,51 @@ package ccre.igneous;
 import ccre.chan.BooleanInputPoll;
 import ccre.device.DeviceException;
 import ccre.device.DeviceHandle;
-import edu.wpi.first.wpilibj.DigitalInput;
 
 /**
  * Used in IgneousLauncherImpl as the implementation of a GPIO channel shared to
- * a DeviceTree.
+ * a DeviceRegistry.
  *
  * @author skeggsc
  */
-class CDeviceTreeGPI extends DeviceHandle implements BooleanInputPoll {
+class GPIHandle extends DeviceHandle<BooleanInputPoll> {
 
     private final int dgt;
-    private DigitalInput din;
+    private BooleanInputPoll din;
+    private final EmulatorForm form;
 
-    public CDeviceTreeGPI(int dgt) {
+    public GPIHandle(EmulatorForm form, int dgt) {
+        this.form = form;
         this.dgt = dgt;
     }
 
-    public Class getPrimaryDeviceType() {
+    @Override
+    public Class<BooleanInputPoll> getPrimaryDeviceType() {
         return BooleanInputPoll.class;
     }
 
-    public Object open() throws DeviceException {
+    @Override
+    public BooleanInputPoll open() throws DeviceException {
         synchronized (this) {
             if (din != null) {
                 throw new DeviceException("Already allocated!");
             }
-            din = new DigitalInput(dgt);
+            din = form.getDigitalInput(dgt);
+            return din;
         }
-        return this;
     }
 
-    public void close(Object type) throws DeviceException {
-        if (type != this) {
+    @Override
+    public void close(BooleanInputPoll type) throws DeviceException {
+        if (type != null || type != din) {
             throw new DeviceException("Bad target for close!");
         }
         synchronized (this) {
             if (din == null) {
                 return;
             }
-            din.free();
+            form.freeDigitalInput(dgt);
             din = null;
-        }
-    }
-
-    public boolean readValue() {
-        if (din != null) {
-            return din.get();
-        } else {
-            return false;
         }
     }
 }

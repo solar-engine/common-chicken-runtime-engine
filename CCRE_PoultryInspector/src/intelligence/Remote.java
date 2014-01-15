@@ -37,7 +37,7 @@ public class Remote implements Comparable<Remote> {
     protected final int type;
     boolean inFolder = false;
     /**
-     * The path path.
+     * The remote path.
      */
     protected final String path;
     /**
@@ -50,7 +50,7 @@ public class Remote implements Comparable<Remote> {
     protected Object checkout;
 
     /**
-     * Create a new path with a specified path address, Cluck node, and path
+     * Create a new remote with a specified remote address, Cluck node, and remote
      * type.
      *
      * @param remote The path.
@@ -74,7 +74,7 @@ public class Remote implements Comparable<Remote> {
     }
 
     /**
-     * Get the color of the path type.
+     * Get the color of the remote type.
      *
      * @return The color.
      */
@@ -99,7 +99,7 @@ public class Remote implements Comparable<Remote> {
     }
 
     /**
-     * Subscribe this path and stick it in the checkout.
+     * Subscribe this remote and stick it in the checkout.
      */
     protected void checkout() {
         switch (type) {

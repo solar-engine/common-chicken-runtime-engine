@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 Colby Skeggs
+ * Copyright 2013-2014 Colby Skeggs
  * 
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  * 
@@ -22,7 +22,7 @@ import ccre.chan.*;
 import ccre.cluck.CluckGlobals;
 import ccre.ctrl.*;
 import ccre.device.DeviceException;
-import ccre.device.DeviceTree;
+import ccre.device.DeviceRegistry;
 import ccre.event.*;
 import ccre.log.*;
 import ccre.net.IgneousNetworkProvider;
@@ -51,9 +51,9 @@ class IgneousLauncherImpl extends IterativeRobot implements IgneousLauncher {
      */
     private CCustomCompressor compressor;
     /**
-     * The robot's device tree.
+     * The robot's device registry.
      */
-    private DeviceTree devTree;
+    private DeviceRegistry devTree;
 
     IgneousLauncherImpl() {
         IgneousNetworkProvider.register();
@@ -389,9 +389,9 @@ class IgneousLauncherImpl extends IterativeRobot implements IgneousLauncher {
         };
     }
 
-    public DeviceTree getDeviceTree() throws DeviceException {
+    public DeviceRegistry getDeviceRegistry() throws DeviceException {
         if (devTree == null) {
-            devTree = new DeviceTree();
+            devTree = new DeviceRegistry();
             devTree.putSimple("modes/auto/init", startedAutonomous, EventSource.class);
             devTree.putSimple("modes/teleop/init", startedTeleop, EventSource.class);
             devTree.putSimple("modes/test/init", startedTesting, EventSource.class);
@@ -411,7 +411,7 @@ class IgneousLauncherImpl extends IterativeRobot implements IgneousLauncher {
                         public float readValue() {
                             return (float) ds.getStickAxis(cJoy, cAxis);
                         }
-                    });
+                    }, FloatInputPoll.class);
                 }
                 for (int button = 1; button <= 12; button++) {
                     final int cBtn = button;
@@ -419,17 +419,17 @@ class IgneousLauncherImpl extends IterativeRobot implements IgneousLauncher {
                         public boolean readValue() {
                             return ((1 << (cBtn - 1)) & m_ds.getStickButtons(cJoy)) != 0;
                         }
-                    });
+                    }, FloatInputPoll.class);
                 }
             }
             for (int pwm = 1; pwm <= 10; pwm++) {
-                devTree.putHandle("pwms/victor" + pwm, new CDeviceTreePWM(pwm, CDeviceTreePWM.VICTOR));
-                devTree.putHandle("pwms/talon" + pwm, new CDeviceTreePWM(pwm, CDeviceTreePWM.TALON));
-                devTree.putHandle("pwms/jaguar" + pwm, new CDeviceTreePWM(pwm, CDeviceTreePWM.JAGUAR));
-                devTree.putHandle("pwms/servo" + pwm, new CDeviceTreePWM(pwm, CDeviceTreePWM.SERVO));
+                devTree.putHandle("pwms/victor" + pwm, new PWMHandle(pwm, PWMHandle.VICTOR));
+                devTree.putHandle("pwms/talon" + pwm, new PWMHandle(pwm, PWMHandle.TALON));
+                devTree.putHandle("pwms/jaguar" + pwm, new PWMHandle(pwm, PWMHandle.JAGUAR));
+                devTree.putHandle("pwms/servo" + pwm, new PWMHandle(pwm, PWMHandle.SERVO));
             }
             for (int sol = 1; sol <= 8; sol++) {
-                devTree.putHandle("pneumatics/solen" + sol, new CDeviceTreeSolenoid(sol));
+                devTree.putHandle("pneumatics/solen" + sol, new SolenoidHandle(sol));
             }
             final BooleanStatus enableCompressor = new BooleanStatus();
             devTree.putSimple("pneumatics/compressorConf", new LineCollectorOutputStream() {
@@ -440,21 +440,22 @@ class IgneousLauncherImpl extends IterativeRobot implements IgneousLauncher {
                         useCustomCompressor(enableCompressor, portno);
                     } else {
                         int portno = Integer.parseInt(string.substring(0, ii));
-                        int extno = Integer.parseInt(string.substring(ii+1));
+                        int extno = Integer.parseInt(string.substring(ii + 1));
                         enableCompressor.writeValue(true);
                         useCustomCompressor(Mixing.andBooleans(enableCompressor, makeDigitalInput(extno)), portno);
                     }
                 }
-            });
-            devTree.putSimple("pneumatics/compressorEnable", enableCompressor);
+            }, OutputStream.class);
+            devTree.putSimple("pneumatics/compressorEnable", enableCompressor, BooleanOutput.class);
+            devTree.putSimple("pneumatics/compressorEnabled", enableCompressor, BooleanInput.class);
             for (int dgt = 1; dgt <= 14; dgt++) {
-                devTree.putHandle("gpios/out" + dgt, new CDeviceTreeGPO(dgt));
-                devTree.putHandle("gpios/in" + dgt, new CDeviceTreeGPI(dgt));
+                devTree.putHandle("gpios/out" + dgt, new GPOHandle(dgt));
+                devTree.putHandle("gpios/in" + dgt, new GPIHandle(dgt));
             }
             // TODO: Implement encoders, Gyros, accelerometers.
             //devTree.putHandle("gpios/encoder", null);
             for (int alg = 1; alg <= 8; alg++) {
-                devTree.putHandle("analogs/in" + alg, new CDeviceTreeAnalogInput(alg));
+                devTree.putHandle("analogs/in" + alg, new AnalogInputHandle(alg));
             }
             for (int lcd = 1; lcd <= 6; lcd++) {
                 final DriverStationLCD.Line l;
@@ -487,10 +488,10 @@ class IgneousLauncherImpl extends IterativeRobot implements IgneousLauncher {
                         lcd.updateLCD();
                     }
                 }, OutputStream.class);
-                for (int rel=1; rel<=8; rel++) {
-                    devTree.putHandle("relays/fwd" + rel, new CDeviceTreeRelay(rel, Relay.Direction.kForward));
-                    devTree.putHandle("relays/rev" + rel, new CDeviceTreeRelay(rel, Relay.Direction.kReverse));
-                }
+            }
+            for (int rel = 1; rel <= 8; rel++) {
+                devTree.putHandle("relays/fwd" + rel, new RelayHandle(rel, Relay.Direction.kForward));
+                devTree.putHandle("relays/rev" + rel, new RelayHandle(rel, Relay.Direction.kReverse));
             }
         }
         return devTree;

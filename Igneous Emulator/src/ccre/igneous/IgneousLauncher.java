@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 Colby Skeggs
+ * Copyright 2013-2014 Colby Skeggs
  * 
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  * 
@@ -21,7 +21,7 @@ package ccre.igneous;
 import ccre.chan.*;
 import ccre.ctrl.*;
 import ccre.device.DeviceException;
-import ccre.device.DeviceTree;
+import ccre.device.DeviceRegistry;
 import ccre.event.EventSource;
 
 /**
@@ -72,6 +72,6 @@ public interface IgneousLauncher {
     public FloatInputPoll makeGyro(int port, double sensitivity, EventSource object);
 
     public FloatInputPoll makeAccelerometerAxis(int port, double sensitivity, double zeropoint);
-    
-    public DeviceTree getDeviceTree() throws DeviceException;
+
+    public DeviceRegistry getDeviceRegistry() throws DeviceException;
 }

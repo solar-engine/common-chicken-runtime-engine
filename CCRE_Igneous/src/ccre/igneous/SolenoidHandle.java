@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 Colby Skeggs
+ * Copyright 2013-2014 Colby Skeggs
  * 
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  * 
@@ -18,36 +18,36 @@
  */
 package ccre.igneous;
 
-import ccre.chan.FloatInputPoll;
+import ccre.chan.BooleanOutput;
 import ccre.device.DeviceException;
 import ccre.device.DeviceHandle;
-import edu.wpi.first.wpilibj.AnalogChannel;
+import edu.wpi.first.wpilibj.Solenoid;
 
 /**
- * Used in IgneousLauncherImpl as the implementation of an analog input channel
- * shared to a DeviceTree.
+ * Used in IgneousLauncherImpl as the implementation of a Solenoid shared to a
+ * DeviceRegistry.
  *
  * @author skeggsc
  */
-class CDeviceTreeAnalogInput extends DeviceHandle implements FloatInputPoll {
+class SolenoidHandle extends DeviceHandle implements BooleanOutput {
 
-    private final int alg;
-    private AnalogChannel ain;
+    private final int id;
+    private Solenoid sol;
 
-    public CDeviceTreeAnalogInput(int alg) {
-        this.alg = alg;
+    public SolenoidHandle(int sol) {
+        this.id = sol;
     }
 
     public Class getPrimaryDeviceType() {
-        return FloatInputPoll.class;
+        return BooleanOutput.class;
     }
 
     public Object open() throws DeviceException {
         synchronized (this) {
-            if (ain != null) {
+            if (sol != null) {
                 throw new DeviceException("Already allocated!");
             }
-            ain = new AnalogChannel(alg);
+            sol = new Solenoid(id);
         }
         return this;
     }
@@ -57,19 +57,17 @@ class CDeviceTreeAnalogInput extends DeviceHandle implements FloatInputPoll {
             throw new DeviceException("Bad target for close!");
         }
         synchronized (this) {
-            if (ain == null) {
+            if (sol == null) {
                 return;
             }
-            ain.free();
-            ain = null;
+            sol.free();
+            sol = null;
         }
     }
 
-    public float readValue() {
-        if (ain != null) {
-            return (float) ain.getAverageVoltage();
-        } else {
-            return 0;
+    public void writeValue(boolean bln) {
+        if (sol != null) {
+            sol.set(bln);
         }
     }
 }

@@ -46,7 +46,7 @@ public class CelInterpreter {
     
     protected CHashMap<String, Object> vars = new CHashMap<String, Object>();
     private String[] line;
-    private DeviceTree tree;
+    private DeviceRegistry tree;
     protected CHashMap<String, Object> opened = new CHashMap<String, Object>();
     protected boolean running = false;
     protected EventSource defaultPeriodic = null, alwaysPeriodic = null;
@@ -223,7 +223,7 @@ public class CelInterpreter {
         throw new InterpreterException("No such command: " + cmd);
     }
     
-    public synchronized void execute(DeviceTree tree, String program) throws InterpreterException, DeviceException {
+    public synchronized void execute(DeviceRegistry tree, String program) throws InterpreterException, DeviceException {
         if (running) {
             throw new IllegalStateException("Already running!");
         }

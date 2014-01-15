@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 Colby Skeggs
+ * Copyright 2013-2014 Colby Skeggs
  * 
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  * 
@@ -18,36 +18,36 @@
  */
 package ccre.igneous;
 
-import ccre.chan.BooleanOutput;
+import ccre.chan.BooleanInputPoll;
 import ccre.device.DeviceException;
 import ccre.device.DeviceHandle;
-import edu.wpi.first.wpilibj.DigitalOutput;
+import edu.wpi.first.wpilibj.DigitalInput;
 
 /**
  * Used in IgneousLauncherImpl as the implementation of a GPIO channel shared to
- * a DeviceTree.
+ * a DeviceRegistry.
  *
  * @author skeggsc
  */
-class CDeviceTreeGPO extends DeviceHandle implements BooleanOutput {
+class GPIHandle extends DeviceHandle implements BooleanInputPoll {
 
     private final int dgt;
-    private DigitalOutput dout;
+    private DigitalInput din;
 
-    public CDeviceTreeGPO(int dgt) {
+    public GPIHandle(int dgt) {
         this.dgt = dgt;
     }
 
     public Class getPrimaryDeviceType() {
-        return BooleanOutput.class;
+        return BooleanInputPoll.class;
     }
 
     public Object open() throws DeviceException {
         synchronized (this) {
-            if (dout != null) {
+            if (din != null) {
                 throw new DeviceException("Already allocated!");
             }
-            dout = new DigitalOutput(dgt);
+            din = new DigitalInput(dgt);
         }
         return this;
     }
@@ -57,17 +57,19 @@ class CDeviceTreeGPO extends DeviceHandle implements BooleanOutput {
             throw new DeviceException("Bad target for close!");
         }
         synchronized (this) {
-            if (dout == null) {
+            if (din == null) {
                 return;
             }
-            dout.free();
-            dout = null;
+            din.free();
+            din = null;
         }
     }
 
-    public void writeValue(boolean bln) {
-        if (dout != null) {
-            dout.set(bln);
+    public boolean readValue() {
+        if (din != null) {
+            return din.get();
+        } else {
+            return false;
         }
     }
 }

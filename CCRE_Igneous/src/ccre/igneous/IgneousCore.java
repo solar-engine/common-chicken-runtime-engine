@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 Colby Skeggs
+ * Copyright 2013-2014 Colby Skeggs
  * 
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  * 
@@ -21,7 +21,7 @@ package ccre.igneous;
 import ccre.chan.*;
 import ccre.ctrl.*;
 import ccre.device.DeviceException;
-import ccre.device.DeviceTree;
+import ccre.device.DeviceRegistry;
 import ccre.event.*;
 import ccre.instinct.InstinctRegistrar;
 
@@ -505,12 +505,13 @@ public abstract class IgneousCore implements InstinctRegistrar {
     }
 
     /**
-     * Get a reference to a DeviceTree representing everything directly attached
-     * to this robot.
+     * Get a reference to a DeviceRegistry representing everything directly
+     * attached to this robot.
      *
-     * @return The device tree.
+     * @return The device registry for this robot.
+     * @throws ccre.device.DeviceException
      */
-    protected final DeviceTree getDeviceTree() throws DeviceException {
-        return launcher.getDeviceTree();
+    protected final DeviceRegistry getDeviceRegistry() throws DeviceException {
+        return launcher.getDeviceRegistry();
     }
 }

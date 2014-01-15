@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 Colby Skeggs
+ * Copyright 2013-2014 Colby Skeggs
  * 
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  * 
@@ -1040,7 +1040,7 @@ public class EmulatorForm extends javax.swing.JFrame {
         extended.put(name, enc);
         return enc;
     }
-    
+
     public FloatInputPoll makeGyro(int channel, double sensitivity, EventSource resetWhen) {
         String name = "gyro::" + channel + "::" + sensitivity;
         availableExtendedSelection.addElement(name);
@@ -1048,7 +1048,7 @@ public class EmulatorForm extends javax.swing.JFrame {
         extended.put(name, gyr);
         return gyr;
     }
-    
+
     public FloatInputPoll makeAccelerometerAxis(int channel, double sensitivity, double zeropoint) {
         String name = "accelerometer::" + channel + "::" + sensitivity + "::" + zeropoint;
         availableExtendedSelection.addElement(name);
@@ -1203,6 +1203,17 @@ public class EmulatorForm extends javax.swing.JFrame {
         return getMotorColored(id, new Color(0xFF0000), minInput, maxInput);
     }
 
+    public void freeMotor(int port) {
+        final JProgressBar bar = motors[port - 1];
+        EventQueue.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                bar.setForeground(Color.BLACK);
+                bar.setValue(0);
+            }
+        });
+    }
+
     private FloatOutput getMotorColored(int id, final Color color, final float minInput, final float maxInput) {
         final JProgressBar jpb = motors[id - 1];
         EventQueue.invokeLater(new Runnable() {
@@ -1254,7 +1265,7 @@ public class EmulatorForm extends javax.swing.JFrame {
             default:
                 throw new RuntimeException("Invalid solenoid ID: " + id);
         }
-        BooleanOutput o = new BooleanOutput() {
+        return new BooleanOutput() {
             @Override
             public void writeValue(final boolean bln) {
                 EventQueue.invokeLater(new Runnable() {
@@ -1265,8 +1276,6 @@ public class EmulatorForm extends javax.swing.JFrame {
                 });
             }
         };
-        o.writeValue(false);
-        return o;
     }
     public static final Color ONCOLOR = new Color(0, 192, 0);
 
@@ -1364,6 +1373,11 @@ public class EmulatorForm extends javax.swing.JFrame {
         };
     }
 
+    public void freeDigitalInput(int id) {
+        getDigital(id).setEnabled(false);
+        getDigital(id).setSelected(false);
+    }
+
     public BooleanOutput getDigitalOutput(int id) {
         final JToggleButton dig = getDigital(id);
         return new BooleanOutput() {
@@ -1372,6 +1386,10 @@ public class EmulatorForm extends javax.swing.JFrame {
                 dig.setSelected(out);
             }
         };
+    }
+
+    public void freeDigitalOutput(int id) {
+        getDigital(id).setSelected(false);
     }
 
     public void sendDSUpdate(final String value, int line) {
@@ -1420,10 +1438,14 @@ public class EmulatorForm extends javax.swing.JFrame {
     }
 
     public BooleanOutput makeRelayForward(int channel) {
-        return wrapRelayLabel(relayFwd[channel]);
+        return wrapRelayLabel(relayFwd[channel - 1]);
     }
 
     public BooleanOutput makeRelayReverse(int channel) {
-        return wrapRelayLabel(relayRev[channel]);
+        return wrapRelayLabel(relayRev[channel - 1]);
+    }
+
+    public void closeRelay(int id, boolean fwd) {
+        (fwd ? relayFwd : relayRev)[id - 1].setForeground(Color.BLACK);
     }
 }

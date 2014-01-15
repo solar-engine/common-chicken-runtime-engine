@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 Colby Skeggs
+ * Copyright 2013-2014 Colby Skeggs
  * 
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  * 
@@ -21,53 +21,53 @@ package ccre.igneous;
 import ccre.chan.BooleanOutput;
 import ccre.device.DeviceException;
 import ccre.device.DeviceHandle;
-import edu.wpi.first.wpilibj.Solenoid;
 
 /**
- * Used in IgneousLauncherImpl as the implementation of a Solenoid shared to a
- * DeviceTree.
+ * Used in IgneousLauncherImpl as the implementation of a Relay shared to a
+ * DeviceRegistry.
  *
  * @author skeggsc
  */
-class CDeviceTreeSolenoid extends DeviceHandle implements BooleanOutput {
+class RelayHandle extends DeviceHandle<BooleanOutput> {
 
     private final int id;
-    private Solenoid sol;
+    private BooleanOutput rel;
+    private final boolean fwd;
+    private final EmulatorForm form;
 
-    public CDeviceTreeSolenoid(int sol) {
-        this.id = sol;
+    public RelayHandle(EmulatorForm form, int rid, boolean forward) {
+        this.id = rid;
+        this.fwd = forward;
+        this.form = form;
     }
 
-    public Class getPrimaryDeviceType() {
+    @Override
+    public Class<BooleanOutput> getPrimaryDeviceType() {
         return BooleanOutput.class;
     }
 
-    public Object open() throws DeviceException {
+    @Override
+    public BooleanOutput open() throws DeviceException {
         synchronized (this) {
-            if (sol != null) {
+            if (rel != null) {
                 throw new DeviceException("Already allocated!");
             }
-            sol = new Solenoid(id);
+            rel = fwd ? form.makeRelayForward(id) : form.makeRelayReverse(id);
+            return rel;
         }
-        return this;
     }
 
-    public void close(Object type) throws DeviceException {
-        if (type != this) {
+    @Override
+    public void close(BooleanOutput type) throws DeviceException {
+        if (type != null || type != rel) {
             throw new DeviceException("Bad target for close!");
         }
         synchronized (this) {
-            if (sol == null) {
+            if (rel == null) {
                 return;
             }
-            sol.free();
-            sol = null;
-        }
-    }
-
-    public void writeValue(boolean bln) {
-        if (sol != null) {
-            sol.set(bln);
+            form.closeRelay(id, fwd);
+            rel = null;
         }
     }
 }

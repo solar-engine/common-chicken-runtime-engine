@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 Colby Skeggs
+ * Copyright 2013-2014 Colby Skeggs
  * 
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  * 
@@ -30,15 +30,15 @@ import edu.wpi.first.wpilibj.Victor;
 
 /**
  * Used in IgneousLauncherImpl as the implementation of a Speed Controller
- * shared to a DeviceTree.
+ * shared to a DeviceRegistry.
  *
  * @author skeggsc
  */
-class CDeviceTreePWM extends DeviceHandle implements FloatOutput {
+class PWMHandle extends DeviceHandle implements FloatOutput {
 
     public static final byte VICTOR = 'V', TALON = 'T', JAGUAR = 'J', SERVO = 'S';
 
-    CDeviceTreePWM(int port, byte type) {
+    PWMHandle(int port, byte type) {
         this.type = type;
         this.port = port;
     }

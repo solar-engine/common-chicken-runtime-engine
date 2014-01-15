@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 Colby Skeggs+Gregor Peach(Folder compatability)
+ * Copyright 2013-2014 Colby Skeggs, Gregor Peach (Folder compatability)
  * 
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  * 
@@ -35,11 +35,11 @@ public class Remote implements Comparable<Remote> {
      * The RMT type of the Remote.
      */
     protected final int type;
-    boolean inFolder=false;
+    boolean inFolder = false;
     /**
-     * The remote path.
+     * The path path.
      */
-    protected final String remote;
+    protected final String path;
     /**
      * The CluckNode that this is from.
      */
@@ -50,31 +50,31 @@ public class Remote implements Comparable<Remote> {
     protected Object checkout;
 
     /**
-     * Create a new remote with a specified remote address, Cluck node, and
-     * remote type.
+     * Create a new path with a specified path address, Cluck node, and path
+     * type.
      *
-     * @param remote The remote.
+     * @param remote The path.
      * @param remoteType The RMT type.
      * @param node The CluckNode.
      */
     protected Remote(String remote, int remoteType, CluckNode node) {
-        this.remote = remote;
+        this.path = remote;
         this.type = remoteType;
         this.node = node;
     }
 
     @Override
     public int compareTo(Remote o) {
-        return remote.compareTo(o.remote);
+        return path.compareTo(o.path);
     }
 
     @Override
     public String toString() {
-        return inFolder ?'\t'+remote + " : " + CluckNode.rmtToString(type):remote + " : " + CluckNode.rmtToString(type);
+        return inFolder ? '\t' + path + " : " + CluckNode.rmtToString(type) : path + " : " + CluckNode.rmtToString(type);
     }
 
     /**
-     * Get the color of the remote type.
+     * Get the color of the path type.
      *
      * @return The color.
      */
@@ -99,33 +99,33 @@ public class Remote implements Comparable<Remote> {
     }
 
     /**
-     * Subscribe this remote and stick it in the checkout.
+     * Subscribe this path and stick it in the checkout.
      */
     protected void checkout() {
         switch (type) {
             case RMT_EVENTCONSUMER:
-                checkout = node.subscribeEC(remote);
+                checkout = node.subscribeEC(path);
                 break;
             case RMT_EVENTSOURCE:
-                checkout = node.subscribeES(remote);
+                checkout = node.subscribeES(path);
                 break;
             case RMT_LOGTARGET:
-                checkout = node.subscribeLT(remote, LogLevel.FINEST);
+                checkout = node.subscribeLT(path, LogLevel.FINEST);
                 break;
             case RMT_BOOLPROD:
-                checkout = node.subscribeBIP(remote, false);
+                checkout = node.subscribeBIP(path, false);
                 break;
             case RMT_BOOLOUTP:
-                checkout = node.subscribeBO(remote);
+                checkout = node.subscribeBO(path);
                 break;
             case RMT_FLOATPROD:
-                checkout = node.subscribeFIP(remote, false);
+                checkout = node.subscribeFIP(path, false);
                 break;
             case RMT_FLOATOUTP:
-                checkout = node.subscribeFO(remote);
+                checkout = node.subscribeFO(path);
                 break;
             case RMT_OUTSTREAM:
-                checkout = node.subscribeOS(remote);
+                checkout = node.subscribeOS(path);
                 break;
             default:
                 Logger.severe("No checkout for type: " + CluckNode.rmtToString(type));

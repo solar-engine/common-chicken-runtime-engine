@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 Gregor Peach
+ * Copyright 2014 Gregor Peach
  * 
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  * 
@@ -22,29 +22,35 @@ import ccre.log.Logger;
 import ccre.util.CArrayList;
 
 /**
+ * A folder displayed on the intelligence panel.
  *
  * @author peachg
  */
-public class Folder extends Remote{
-    protected boolean open=true;
-    protected CArrayList<Remote> contents=new CArrayList<Remote>();
+public class Folder extends Remote {
+
+    protected boolean open = true;
+    protected CArrayList<Remote> contents = new CArrayList<Remote>();
     protected int place;
     protected String ID;
     protected String REGEX;
-    public Folder(String ID,String regex){
-        super("",0,null);
-        this.REGEX=regex;
-        this.ID=ID;
+
+    public Folder(String ID, String regex) {
+        super("", 0, null);
+        this.REGEX = regex;
+        this.ID = ID;
     }
+
     @Override
-    protected void checkout(){
+    protected void checkout() {
         Logger.warning("Can't checkout a folder");
     }
-    public boolean isValid(Remote s){
-        return s.toString().contains(REGEX);
+
+    public boolean isInside(Remote s) {
+        return s.path.contains(REGEX);
     }
+
     @Override
-    public String toString(){
-        return ID+" : "+"Folder";
+    public String toString() {
+        return ID + " :Folder";
     }
 }

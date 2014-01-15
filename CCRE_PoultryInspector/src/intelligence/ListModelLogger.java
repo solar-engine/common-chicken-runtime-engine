@@ -212,7 +212,6 @@ public class ListModelLogger implements LoggingTarget, ListSelectionListener {
                 s.add(prefix + "    ... " + framesInCommon + " more");
             }
 
-
             Throwable[] thrs = new Throwable[0];
             if (getSuppressed != null) {
                 try {
@@ -225,7 +224,7 @@ public class ListModelLogger implements LoggingTarget, ListSelectionListener {
                     Logger.log(LogLevel.WARNING, "Cannot log message!", ex);
                 }
             }
-            
+
             // Print suppressed exceptions, if any
             for (Throwable se : thrs) {
                 printEnclosedStackTrace(se, s, trace, "Suppressed: ", prefix + "    ", dejaVu);

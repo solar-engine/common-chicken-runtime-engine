@@ -61,6 +61,8 @@ public interface IgneousLauncher {
 
     public BooleanInputPoll getIsAutonomous();
 
+    public BooleanInputPoll getIsTest();
+
     public void useCustomCompressor(BooleanInputPoll shouldDisable, int compressorRelayChannel);
 
     public FloatInputPoll makeEncoder(int aChannel, int bChannel, boolean reverse, EventSource resetWhen);
@@ -72,6 +74,6 @@ public interface IgneousLauncher {
     public FloatInputPoll makeGyro(int port, double sensitivity, EventSource object);
 
     public FloatInputPoll makeAccelerometerAxis(int port, double sensitivity, double zeropoint);
-    
+
     public DeviceRegistry getDeviceRegistry() throws DeviceException;
 }

@@ -22,9 +22,7 @@ import ccre.chan.*;
 import ccre.cluck.CluckGlobals;
 import ccre.ctrl.*;
 import ccre.device.DeviceException;
-import ccre.device.DeviceHandle;
 import ccre.device.DeviceRegistry;
-import ccre.device.SimpleDeviceHandle;
 import ccre.event.*;
 import ccre.log.BootLogger;
 import ccre.log.NetworkAutologger;
@@ -247,6 +245,16 @@ public class EmulatorLauncher implements IgneousLauncher {
             @Override
             public boolean readValue() {
                 return emf.getOperatingState() == CurrentState.AUTONOMOUS;
+            }
+        };
+    }
+
+    @Override
+    public BooleanInputPoll getIsTest() {
+        return new BooleanInputPoll() {
+            @Override
+            public boolean readValue() {
+                return emf.getOperatingState() == CurrentState.TESTING;
             }
         };
     }

@@ -19,6 +19,7 @@
 package ccre.instinct;
 
 import ccre.chan.BooleanInputPoll;
+import ccre.chan.BooleanStatus;
 import ccre.chan.FloatInputPoll;
 import ccre.concurrency.ReporterThread;
 import ccre.ctrl.Mixing;
@@ -44,7 +45,7 @@ public abstract class InstinctModule implements EventConsumer {
     public InstinctModule() {
         this.shouldBeRunning = null;
     }
-    
+
     public void register(InstinctRegistrar reg) {
         this.shouldBeRunning = reg.getWhenShouldAutonomousBeRunning();
         reg.updatePeriodicallyAlways(this);
@@ -129,6 +130,47 @@ public abstract class InstinctModule implements EventConsumer {
             }
             if (waitFor.readValue()) {
                 return;
+            }
+            synchronized (autosynch) {
+                autosynch.wait();
+            }
+        }
+    }
+
+    protected void waitForEvent(EventSource source) throws AutonomousModeOverException, InterruptedException {
+        final boolean[] b = new boolean[1];
+        EventConsumer c = new EventConsumer() {
+            public void eventFired() {
+                b[0] = true;
+                synchronized (autosynch) {
+                    autosynch.notifyAll();
+                }
+            }
+        };
+        source.addListener(c);
+        try {
+            while (!b[0]) {
+                if (!shouldBeRunning.readValue()) {
+                    throw new AutonomousModeOverException();
+                }
+                synchronized (autosynch) {
+                    autosynch.wait();
+                }
+            }
+        } finally {
+            source.removeListener(c);
+        }
+    }
+
+    protected int waitUntilOneOf(BooleanInputPoll... waitFor) throws AutonomousModeOverException, InterruptedException {
+        while (true) {
+            if (!shouldBeRunning.readValue()) {
+                throw new AutonomousModeOverException();
+            }
+            for (int i = 0; i < waitFor.length; i++) {
+                if (waitFor[i].readValue()) {
+                    return i;
+                }
             }
             synchronized (autosynch) {
                 autosynch.wait();

@@ -87,11 +87,11 @@ public class IntelligenceMain extends JPanel implements CluckRemoteListener, Mou
      */
     protected final HashMap<String, Remote> remotes = new HashMap<String, Remote>();
     /**
-     * A cached sorted version of the paths.
+     * A cached sorted version of the remotes.
      */
     protected Remote[] sortRemotes = null;
     /**
-     * The current mapping of path names to entities.
+     * The current mapping of remote names to entities.
      */
     protected final LinkedHashMap<String, Entity> ents = new LinkedHashMap<String, Entity>();
     /**
@@ -307,7 +307,7 @@ public class IntelligenceMain extends JPanel implements CluckRemoteListener, Mou
     }
 
     /**
-     * Repeat searching for path objects.
+     * Repeat searching for remote objects.
      */
     public void research() {
         node.cycleSearchRemotes(searchLinkName);

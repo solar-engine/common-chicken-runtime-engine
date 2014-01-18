@@ -63,14 +63,12 @@ public class Remote implements Comparable<Remote> {
         this.node = node;
     }
 
-    @Override
     public int compareTo(Remote o) {
         return path.compareTo(o.path);
     }
 
-    @Override
     public String toString() {
-        return inFolder ? '\t' + path + " : " + CluckNode.rmtToString(type) : path + " : " + CluckNode.rmtToString(type);
+        return (inFolder ? "\t" :"")+ path + " : " + CluckNode.rmtToString(type);
     }
 
     /**

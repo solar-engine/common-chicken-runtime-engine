@@ -34,7 +34,7 @@ import java.io.OutputStream;
 import javax.swing.JOptionPane;
 
 /**
- * A block on the screen representing a path target.
+ * A block on the screen representing a remote target.
  *
  * @author skeggsc
  */
@@ -53,7 +53,7 @@ public final class Entity {
      */
     public int centerY;
     /**
-     * Has this been registered so that it will be updated by the path?
+     * Has this been registered so that it will be updated by the remote?
      */
     protected boolean registered;
     /**

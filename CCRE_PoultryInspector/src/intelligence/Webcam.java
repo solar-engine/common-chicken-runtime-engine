@@ -58,7 +58,7 @@ public class Webcam extends Thread {
     }
 
     private Socket curclose = null;
-    
+
     public void reconnect() {
         System.out.println("DoInterrupt");
         if (curclose != null) {
@@ -73,11 +73,12 @@ public class Webcam extends Thread {
     }
 
     private static class WrappedIOException extends RuntimeException {
+
         WrappedIOException(IOException io) {
             super(io);
         }
     }
-    
+
     public void run() {
         while (keepRunning) {
             System.out.println("Try connect at " + System.currentTimeMillis());
@@ -209,6 +210,7 @@ public class Webcam extends Thread {
             public Iterator<String> iterator() {
                 return new Iterator<String>() {
                     public String next = null;
+
                     @Override
                     public boolean hasNext() {
                         if (next == null) {
@@ -220,6 +222,7 @@ public class Webcam extends Thread {
                         }
                         return !next.isEmpty();
                     }
+
                     @Override
                     public String next() throws NoSuchElementException {
                         if (!hasNext()) {
@@ -229,6 +232,7 @@ public class Webcam extends Thread {
                         next = null;
                         return out;
                     }
+
                     @Override
                     public void remove() {
                         throw new UnsupportedOperationException("Not supported yet.");
@@ -237,7 +241,7 @@ public class Webcam extends Thread {
             }
         };
     }
-    
+
     static String readLine(InputStream stream) throws IOException, EOFException {
         final int BUFSIZE = 1024;
         byte[] buffer = new byte[BUFSIZE];
@@ -280,7 +284,7 @@ public class Webcam extends Thread {
     public synchronized BufferedImage getImage() {
         return image;
     }
-    
+
     public boolean isUpToDate() {
         return (System.nanoTime() - lastReceived) < 1000 * 1000000L; // 1 second
     }

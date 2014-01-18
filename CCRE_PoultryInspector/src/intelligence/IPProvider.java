@@ -37,7 +37,7 @@ public class IPProvider {
      * autoconfigure based on the network.
      */
     public static StringHolder forcedAddress = new StringHolder("*");
-    
+
     static {
         CluckGlobals.node.publish("forced-remote-address", forcedAddress.getOutput());
     }

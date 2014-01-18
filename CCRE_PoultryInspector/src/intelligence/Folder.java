@@ -31,8 +31,8 @@ public class Folder extends Remote {
     protected boolean open = true;
     protected CArrayList<Remote> contents = new CArrayList<Remote>();
     protected int place;
-    protected String ID;
-    protected String REGEX;
+    protected final String ID;
+    protected final String REGEX;
 
     public Folder(String ID, String regex) {
         super("", 0, null);

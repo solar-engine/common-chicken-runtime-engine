@@ -50,8 +50,8 @@ public class Remote implements Comparable<Remote> {
     protected Object checkout;
 
     /**
-     * Create a new remote with a specified remote address, Cluck node, and remote
-     * type.
+     * Create a new remote with a specified remote address, Cluck node, and
+     * remote type.
      *
      * @param remote The path.
      * @param remoteType The RMT type.
@@ -68,7 +68,7 @@ public class Remote implements Comparable<Remote> {
     }
 
     public String toString() {
-        return (inFolder ? "\t" :"")+ path + " : " + CluckNode.rmtToString(type);
+        return (inFolder ? "\t" : "") + path + " : " + CluckNode.rmtToString(type);
     }
 
     /**

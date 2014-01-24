@@ -96,7 +96,7 @@ public final class Entity {
     public void render(Graphics g) {
         g.setFont(IntelligenceMain.console);
         FontMetrics fm = g.getFontMetrics();
-        int w = Math.max(70, fm.stringWidth(represented.remote) / 2), h = fm.getHeight() * 3 / 2;
+        int w = Math.max(70, fm.stringWidth(represented.path) / 2), h = fm.getHeight() * 3 / 2;
         width = w;
         height = h;
         g.setColor(Color.BLACK);
@@ -105,7 +105,7 @@ public final class Entity {
         g.setColor(col);
         g.fillRect(centerX - w + 1, centerY - h + 1, w * 2 - 2, h * 2 - 2);
         g.setColor(IntelligenceMain.foreground);
-        g.drawString(represented.remote, centerX - w + 1, centerY - h - 1 + g.getFontMetrics().getAscent());
+        g.drawString(represented.path, centerX - w + 1, centerY - h - 1 + g.getFontMetrics().getAscent());
         g.drawString(CluckNode.rmtToString(represented.type), centerX - w + 1, centerY - h - 1 + g.getFontMetrics().getAscent() + g.getFontMetrics().getHeight());
         represented.checkout();
         Object co = represented.checkout;

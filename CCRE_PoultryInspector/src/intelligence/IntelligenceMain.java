@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 Colby Skeggs
+ * Copyright 2013-2014 Colby Skeggs, Gregor Peach (Added Folders)
  * 
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  * 
@@ -122,6 +122,10 @@ public class IntelligenceMain extends JPanel implements CluckRemoteListener, Mou
      * The current scrolling position of the object pane.
      */
     protected int currentPaneScroll = 0;
+    /**
+     * Array of folders.
+     */
+    protected final Folder[] folders = new Folder[]{new Folder("Phidget", "^phidget")};
 
     /**
      * Create a new Intelligence Panel.
@@ -129,6 +133,7 @@ public class IntelligenceMain extends JPanel implements CluckRemoteListener, Mou
      * @param args The main arguments to the program.
      * @param node The cluck node that this panel will display.
      * @param seconds An event that will be produced every second.
+     *
      */
     private IntelligenceMain(String[] args, CluckNode node, EventSource seconds) {
         this.node = node;
@@ -251,14 +256,19 @@ public class IntelligenceMain extends JPanel implements CluckRemoteListener, Mou
             int row = (e.getY() - currentPaneScroll) / rowHeight;
             if (row >= 0 && row < rms.length) {
                 Remote rem = rms[row];
-                if (ents.containsKey(rem.remote)) {
-                    activeEntity = ents.get(rem.remote);
+                if (rem instanceof Folder) {
+                    ((Folder) rem).open = !((Folder) rem).open;
+                    sortRemotes = null;
+                    return;
+                }
+                if (ents.containsKey(rem.path)) {
+                    activeEntity = ents.get(rem.path);
                     relActiveX = relActiveY = 0;
                     sortRemotes = null;
                     return;
                 } else {
                     Entity ent = new Entity(rem, e.getX(), e.getY());
-                    ents.put(rem.remote, ent);
+                    ents.put(rem.path, ent);
                     activeEntity = ent;
                     relActiveX = relActiveY = 0;
                     sortRemotes = null;
@@ -345,6 +355,29 @@ public class IntelligenceMain extends JPanel implements CluckRemoteListener, Mou
                 }
             }
             Collections.sort(loc);
+            loc.addAll(Arrays.asList(folders));
+            for (Folder f : folders) {
+                f.contents.clear();
+            }
+            for (Iterator<Remote> it = loc.iterator(); it.hasNext();) {
+                Remote r = it.next();
+                r.inFolder = false;
+                for (Folder f : folders) {
+                    if (f.isInside(r)) {
+                        it.remove();
+                        if (f.open) {
+                            f.place = loc.indexOf(f);
+                            f.contents.add(r);
+                        }
+                    }
+                }
+            }
+            for (Folder f : folders) {
+                for (Remote r : f.contents) {
+                    r.inFolder = true;
+                    loc.add(f.place + 1, r);
+                }
+            }
             sremotes = loc.toArray(new Remote[loc.size()]);
             sortRemotes = sremotes;
         }

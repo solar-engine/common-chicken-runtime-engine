@@ -246,16 +246,16 @@ public class PhidgetMonitor implements AttachListener, DetachListener, ErrorList
                 }
                 // TODO: Fix input rate correction
                 /*for (int i = 0; i < ifa.getInputCount(); i++) {
-                    int rate = ifa.getDataRate(i);
-                    if (rate != INPUT_RATE) {
-                        Logger.fine("Fixing input rate to " + INPUT_RATE + " from " + rate);
-                        ifa.setDataRate(i, INPUT_RATE);
-                        rate = ifa.getDataRate(i);
-                        if (rate != INPUT_RATE) {
-                            Logger.warning("Rate is still not correct: " + rate);
-                        }
-                    }
-                }*/
+                 int rate = ifa.getDataRate(i);
+                 if (rate != INPUT_RATE) {
+                 Logger.fine("Fixing input rate to " + INPUT_RATE + " from " + rate);
+                 ifa.setDataRate(i, INPUT_RATE);
+                 rate = ifa.getDataRate(i);
+                 if (rate != INPUT_RATE) {
+                 Logger.warning("Rate is still not correct: " + rate);
+                 }
+                 }
+                 }*/
                 // TODO: Resubmit all values
             } catch (PhidgetException ex) {
                 Logger.log(LogLevel.SEVERE, "Error on Interface attach", ex);

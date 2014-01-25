@@ -125,7 +125,7 @@ public class IntelligenceMain extends JPanel implements CluckRemoteListener, Mou
     /**
      * Array of folders.
      */
-    protected final Folder[] folders = new Folder[]{new Folder("Phidget", "^phidget")};
+    protected final Folder[] folders = new Folder[]{new Folder("Phidget", "phidget.*")};
 
     /**
      * Create a new Intelligence Panel.
@@ -135,26 +135,36 @@ public class IntelligenceMain extends JPanel implements CluckRemoteListener, Mou
      * @param seconds An event that will be produced every second.
      *
      */
-    private IntelligenceMain(String[] args, CluckNode node, EventSource seconds) {
+    private IntelligenceMain(String[] args, CluckNode node, EventSource seconds, JButton searcher, JButton reconnector) {
         this.node = node;
         searchLinkName = "big-brother-" + Integer.toHexString(args.hashCode());
         this.addMouseMotionListener(this);
         this.addMouseListener(this);
         this.addMouseWheelListener(this);
-        CollapsingWorkerThread discover = new CollapsingWorkerThread("Cluck-Discoverer") {
+        final CollapsingWorkerThread discover = new CollapsingWorkerThread("Cluck-Discoverer") {
             @Override
             protected void doWork() {
                 IPProvider.connect();
             }
         };
-        CluckGlobals.node.publish("rediscover", discover);
-        CollapsingWorkerThread researcher = new CollapsingWorkerThread("Cluck-Researcher") {
+        reconnector.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                discover.trigger();
+            }
+        });
+        final CollapsingWorkerThread researcher = new CollapsingWorkerThread("Cluck-Researcher") {
             @Override
             protected void doWork() throws Throwable {
                 research();
             }
         };
-        CluckGlobals.node.publish("search", researcher);
+        searcher.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                researcher.trigger();
+            }
+        });
         seconds.addListener(new EventConsumer() {
             @Override
             public void eventFired() {
@@ -441,16 +451,20 @@ public class IntelligenceMain extends JPanel implements CluckRemoteListener, Mou
             }
         });
         btns.add(clear);
+        JButton refresh = new JButton("Refresh");
+        btns.add(refresh);
+        JButton reconnect = new JButton("Reconnect");
+        btns.add(reconnect);
         jsp.setRightComponent(subpanel);
         IPProvider.init();
-        jsp.setLeftComponent(new IntelligenceMain(args, CluckGlobals.node, new Ticker(1000)));
+        jsp.setLeftComponent(new IntelligenceMain(args, CluckGlobals.node, new Ticker(1000), refresh, reconnect));
         jsp.setDividerLocation(2 * 480 / 3);
         jsp.setResizeWeight(0.7);
         frame.add(jsp);
         frame.setVisible(true);
         Logger.info("Started Poultry Inspector at " + System.currentTimeMillis());
         new PhidgetMonitor().share(CluckGlobals.node);
-        CluckGlobals.node.publish("test", new FloatStatus());
+        refresh.doClick();
         IPProvider.connect();
     }
 }

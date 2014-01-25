@@ -68,7 +68,7 @@ public class Remote implements Comparable<Remote> {
     }
 
     public String toString() {
-        return (inFolder ? "\t" : "") + path + " : " + CluckNode.rmtToString(type);
+        return (inFolder ? "  " : "") + path + " : " + CluckNode.rmtToString(type);
     }
 
     /**

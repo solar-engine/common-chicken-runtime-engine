@@ -46,11 +46,11 @@ public class Folder extends Remote {
     }
 
     public boolean isInside(Remote s) {
-        return s.path.contains(REGEX);
+        return s.path.matches(REGEX);
     }
 
     @Override
     public String toString() {
-        return ID + " :Folder";
+        return (open ? "- " : "+ ") + ID;
     }
 }

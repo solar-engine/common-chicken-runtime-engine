@@ -345,7 +345,13 @@ public class IntelligenceMain extends JPanel implements CluckRemoteListener, Mou
         g.drawString(countReport, w - fontMetrics.stringWidth(countReport), fontMetrics.getAscent() + lh);
         Remote[] sremotes = sortRemotes;
         if (sortRemotes == null) {
-            ArrayList<Remote> loc = new ArrayList<Remote>(remotes.values());
+            ArrayList<Remote> loc;
+            try {
+                loc = new ArrayList<Remote>(remotes.values());
+            } catch (ConcurrentModificationException c) {
+                // Wait until next cycle.
+                return;
+            }
             for (Map.Entry<String, Entity> key : ents.entrySet()) {
                 if (key.getValue().centerX >= paneWidth) {
                     loc.remove(remotes.get(key.getKey()));

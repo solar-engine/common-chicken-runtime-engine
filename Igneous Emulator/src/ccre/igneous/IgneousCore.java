@@ -363,12 +363,32 @@ public abstract class IgneousCore implements InstinctRegistrar {
 
     /**
      * Get a boolean input that checks if the robot is currently in autonomous,
-     * as opposed to teleop.
+     * as opposed to teleop and testing.
      *
      * @return the input.
      */
     protected final BooleanInputPoll getIsAutonomous() {
         return launcher.getIsAutonomous();
+    }
+
+    /**
+     * Get a boolean input that checks if the robot is currently in testing
+     * mode, as opposed to teleop and autonomous.
+     *
+     * @return the input.
+     */
+    protected final BooleanInputPoll getIsTest() {
+        return launcher.getIsTest();
+    }
+
+    /**
+     * Get a boolean input that checks if the robot is currently in teleop mode,
+     * as opposed to testing and autonomous.
+     *
+     * @return the input.
+     */
+    protected final BooleanInputPoll getIsTeleop() {
+        return Mixing.invert(Mixing.orBooleans(launcher.getIsTest(), launcher.getIsAutonomous()));
     }
 
     /**
@@ -508,7 +528,7 @@ public abstract class IgneousCore implements InstinctRegistrar {
      * Get a reference to a DeviceRegistry representing everything directly
      * attached to this robot.
      *
-     * @return The device registry.
+     * @return The device registry for this robot.
      * @throws ccre.device.DeviceException
      */
     protected final DeviceRegistry getDeviceRegistry() throws DeviceException {

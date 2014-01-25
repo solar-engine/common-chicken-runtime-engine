@@ -938,7 +938,7 @@ public class CluckNode {
      * @param tune The FloatTuner.
      */
     public void publish(final String name, final FloatTuner tune) {
-        publish(name + ".input", (FloatInputProducer) tune);
+        publish(name + ".input", (FloatInput) tune);
         publish(name + ".output", (FloatOutput) tune);
         FloatInputProducer chan = tune.getAutomaticChannel();
         if (chan != null) {
@@ -980,7 +980,7 @@ public class CluckNode {
      * @param stat The BooleanStatus to publish.
      */
     public void publish(final String name, BooleanStatus stat) {
-        publish(name + ".input", (BooleanInputProducer) stat);
+        publish(name + ".input", (BooleanInput) stat);
         publish(name + ".output", (BooleanOutput) stat);
     }
 

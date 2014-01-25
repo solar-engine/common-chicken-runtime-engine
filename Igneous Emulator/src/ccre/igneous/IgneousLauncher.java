@@ -61,6 +61,8 @@ public interface IgneousLauncher {
 
     public BooleanInputPoll getIsAutonomous();
 
+    public BooleanInputPoll getIsTest();
+
     public void useCustomCompressor(BooleanInputPoll shouldDisable, int compressorRelayChannel);
 
     public FloatInputPoll makeEncoder(int aChannel, int bChannel, boolean reverse, EventSource resetWhen);

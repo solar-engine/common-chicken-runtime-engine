@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2014 Colby Skeggs, Gregor Peach (Added Folders)
+ * Copyright 2013-2014 Colby Skeggs, Gregor Peach (Added Folders, And Dialogs)
  * 
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  * 
@@ -126,7 +126,10 @@ public class IntelligenceMain extends JPanel implements CluckRemoteListener, Mou
      * Array of folders.
      */
     protected final Folder[] folders = new Folder[]{new Folder("Phidget", "^phidget")};
-
+    /**
+     * Dialog boxes present on screen.
+     */
+    protected final ArrayList<Dialog> messages=new ArrayList<Dialog>(Arrays.asList(new Dialog("THERE IS A MAJOR ERROR 505 I NEED COOKIES TO EAT! THE WORLD IS NOT ROUND BECUAUSEN WE ARE NOOBS\1")));
     /**
      * Create a new Intelligence Panel.
      *
@@ -186,8 +189,8 @@ public class IntelligenceMain extends JPanel implements CluckRemoteListener, Mou
         }
         if (activeEntity != null) {
             boolean a = activeEntity.centerX < paneWidth;
-            activeEntity.centerX = relActiveX + e.getX();
-            activeEntity.centerY = relActiveY + e.getY();
+            activeEntity.centerX = Math.min(Math.max(relActiveX + e.getX(),0),this.getWidth());
+            activeEntity.centerY = Math.min(Math.max(relActiveY + e.getY(),0),this.getHeight());
             if (a != (activeEntity.centerX < paneWidth)) {
                 sortRemotes = null;
             }
@@ -393,6 +396,9 @@ public class IntelligenceMain extends JPanel implements CluckRemoteListener, Mou
             if (ent.centerX >= paneWidth) {
                 ent.render(g);
             }
+        }
+        for(Dialog d:messages){
+            d.draw(g);
         }
         painter.feed();
     }

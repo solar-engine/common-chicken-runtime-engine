@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 Colby Skeggs
+ * Copyright 2013-2014 Colby Skeggs
  * 
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  * 
@@ -492,14 +492,13 @@ public class CluckNode {
      */
     public EventSource subscribeES(final String path) {
         final String linkName = "srcES-" + path.hashCode() + "-" + localIDs++;
+        final BooleanStatus sent = new BooleanStatus();
         final Event e = new Event() {
-            private boolean sent = false; // TODO: What if the remote end gets rebooted? Would this re-send the request?
-
             @Override
             public boolean addListener(EventConsumer cns) {
                 boolean out = super.addListener(cns);
-                if (!sent) {
-                    sent = true;
+                if (!sent.readValue()) {
+                    sent.writeValue(true);
                     transmit(path, linkName, new byte[]{RMT_EVENTSOURCE});
                 }
                 return out;
@@ -515,6 +514,11 @@ public class CluckNode {
 
             @Override
             protected void receiveBroadcast(String source, byte[] data) {
+                if (data.length == 1 && data[0] == CluckNode.RMT_NOTIFY) {
+                    if (sent.readValue()) {
+                        CluckNode.this.transmit(path, linkName, new byte[]{RMT_EVENTSOURCE});
+                    }
+                }
             }
         }.attach(this, linkName);
         return e;

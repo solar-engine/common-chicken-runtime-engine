@@ -46,15 +46,17 @@ public class Utils {
         return Math.abs(value) > deadzone ? value : 0.0f;
     }
     /**
-     * An input representing the current time in seconds. The value is
-     * equivalent to
-     * <code>System.currentTimeMillis() / 1000.0f</code>
+     * An input representing the current time in seconds since a constant but
+     * arbitrary point in the past. The value is equivalent to
+     * <code>System.currentTimeMillis() / 1000.0f - N</code> where N is some
+     * point since when the program was started.
      *
      * @see java.lang.System#currentTimeMillis()
      */
     public static final FloatInputPoll currentTimeSeconds = new FloatInputPoll() {
+        private final long base = System.currentTimeMillis();
         public float readValue() {
-            return System.currentTimeMillis() / 1000.0f;
+            return (System.currentTimeMillis() - base) / 1000.0f;
         }
     };
 

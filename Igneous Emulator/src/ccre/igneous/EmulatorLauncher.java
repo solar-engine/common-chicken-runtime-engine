@@ -20,6 +20,7 @@ package ccre.igneous;
 
 import ccre.chan.*;
 import ccre.cluck.CluckGlobals;
+import ccre.cluck.tcp.CluckTCPServer;
 import ccre.ctrl.*;
 import ccre.device.DeviceException;
 import ccre.device.DeviceRegistry;
@@ -104,6 +105,7 @@ public class EmulatorLauncher implements IgneousLauncher {
      */
     public void start() {
         CluckGlobals.setupServer();
+        new CluckTCPServer(CluckGlobals.node, 1540).start();
         core.duringAutonomous = this.duringAutonomous;
         core.duringDisabled = this.duringDisabled;
         core.duringTeleop = this.duringTeleop;

@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 Colby Skeggs
+ * Copyright 2013-2014 Colby Skeggs
  * 
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  * 
@@ -37,6 +37,10 @@ import java.io.IOException;
 public class CluckTCPClient extends ReporterThread {
 
     /**
+     * The default port to run on.
+     */
+    public static final int DEFAULT_PORT = 80;
+    /**
      * The CluckNode that this connection shares.
      */
     private final CluckNode node;
@@ -48,10 +52,6 @@ public class CluckTCPClient extends ReporterThread {
      * The active remote socket.
      */
     private ClientSocket sock;
-    /**
-     * The connection port number.
-     */
-    private int port = 80;
     /**
      * The connection remote address.
      */
@@ -82,17 +82,6 @@ public class CluckTCPClient extends ReporterThread {
         this.node = node;
         this.linkName = linkName;
         this.remoteNameHint = remoteNameHint;
-    }
-
-    /**
-     * Modify the port that this connects to. This defaults to port 80.
-     *
-     * @param port The new port number.
-     * @return This object.
-     */
-    public CluckTCPClient setPort(int port) {
-        this.port = port;
-        return this;
     }
 
     /**
@@ -127,7 +116,7 @@ public class CluckTCPClient extends ReporterThread {
                 }
                 String postfix = "";
                 try {
-                    sock = Network.connect(remote, port);
+                    sock = Network.connectDynPort(remote, DEFAULT_PORT);
                     DataInputStream din = sock.openDataInputStream();
                     DataOutputStream dout = sock.openDataOutputStream();
                     CluckProtocol.handleHeader(din, dout, remoteNameHint);

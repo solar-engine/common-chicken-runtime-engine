@@ -960,4 +960,34 @@ public class Mixing {
     public static FloatInputPoll quadSelect(final BooleanInputPoll alpha, final BooleanInputPoll beta, final float ff, final float ft, final float tf, final float tt) {
         return new QuadSelectImpl(alpha, beta, tt, tf, ft, ff);
     }
+
+    /**
+     * Returns a debounced version of the specified EventConsumer, such that
+     * there is a minimum delay of minMillis milliseconds between events.
+     *
+     * Any event sent before the timeout will be ignored.
+     *
+     * @param orig The EventConsumer to debounce.
+     * @param minMillis The minimum event delay.
+     * @return The debounced version of the event consumer.
+     */
+    public static EventConsumer debounce(EventConsumer orig, int minMillis) {
+        return new DebounceImpl(orig, minMillis);
+    }
+
+    /**
+     * Returns a debounced version of the specified EventSource, such that there
+     * is a minimum delay of minMillis milliseconds between events.
+     *
+     * Any event sent before the timeout will be ignored.
+     *
+     * @param orig The EventSource to debounce.
+     * @param minMillis The minimum event delay.
+     * @return The debounced version of the event source.
+     */
+    public static EventSource debounce(EventSource orig, int minMillis) {
+        Event e = new Event();
+        orig.addListener(debounce((EventConsumer) e, minMillis));
+        return e;
+    }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 Colby Skeggs
+ * Copyright 2013-2014 Colby Skeggs
  * 
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  * 
@@ -109,4 +109,8 @@ public class PhidgetReader {
             phidgetLCD[i] = new PrintStream(CluckGlobals.node.subscribeOS("phidget/phidget-lcd" + i));
         }
     }
+    /**
+     * If the Phidget is attached to the driver station.
+     */
+    public static final BooleanInputProducer attached = CluckGlobals.node.subscribeBIP("phidget/phidget-attached", false);
 }

@@ -205,7 +205,7 @@ public class PhidgetMonitor implements AttachListener, DetachListener, ErrorList
     private void updateStringOutput(int line) {
         try {
             if (lcd != null) {
-                lcd.setDisplayString(line, lines[line].get().concat(fillLine).substring(0, LCD_WIDTH));
+                lcd.setDisplayString(line, lines[line].get().replace('\r', ' ').concat(fillLine).substring(0, LCD_WIDTH));
             }
         } catch (PhidgetException ex) {
             Logger.log(LogLevel.SEVERE, "Cannot update string output to Phidget", ex);

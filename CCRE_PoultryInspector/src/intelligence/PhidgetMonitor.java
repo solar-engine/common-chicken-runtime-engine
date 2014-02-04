@@ -233,6 +233,9 @@ public class PhidgetMonitor implements AttachListener, DetachListener, ErrorList
                 }
                 lcd.setBacklight(true);
                 lcd.setContrast(100);
+                for (int i = 0; i < LCD_LINES; i++) {
+                    updateStringOutput(i);
+                }
             } catch (PhidgetException ex) {
                 Logger.log(LogLevel.SEVERE, "Error on LCD attach", ex);
             }
@@ -256,7 +259,19 @@ public class PhidgetMonitor implements AttachListener, DetachListener, ErrorList
                  }
                  }
                  }*/
-                // TODO: Resubmit all values
+                for (int i = 0; i < OUTPUT_COUNT; i++) {
+                    updateBooleanOutput(i);
+                }
+                for (int i = 0; i < INPUT_COUNT; i++) {
+                    inputStats[i].writeValue(ifa.getInputState(i));
+                }
+                for (int i = 0; i < ANALOG_COUNT; i++) {
+                    float moved = (ifa.getSensorValue(i) - 500) / 500.0f;
+                    if (moved < -1 || moved > 1) {
+                        Logger.warning("Sensor out of range: " + moved);
+                    }
+                    analogStats[i].writeValue(moved);
+                }
             } catch (PhidgetException ex) {
                 Logger.log(LogLevel.SEVERE, "Error on Interface attach", ex);
             }

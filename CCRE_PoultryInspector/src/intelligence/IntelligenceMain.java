@@ -28,7 +28,13 @@ import ccre.ctrl.ExpirationTimer;
 import ccre.ctrl.Ticker;
 import java.awt.*;
 import java.awt.event.*;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.*;
+import java.util.logging.Level;
 import javax.swing.*;
 
 /**
@@ -125,7 +131,7 @@ public class IntelligenceMain extends JPanel implements CluckRemoteListener, Mou
     /**
      * Array of folders.
      */
-    protected final Folder[] folders = new Folder[]{new Folder("Phidget", "phidget.*")};
+    protected final Folder[] folders;
 
     /**
      * Create a new Intelligence Panel.
@@ -137,6 +143,44 @@ public class IntelligenceMain extends JPanel implements CluckRemoteListener, Mou
      */
     private IntelligenceMain(String[] args, CluckNode node, EventSource seconds, JButton searcher, JButton reconnector) {
         this.node = node;
+        ArrayList<Folder> folderList = new ArrayList<Folder>();
+        try {
+            File folder = new File(".");
+            File target = null;
+            while (folder != null && folder.exists()) {
+                target = new File(folder, "poultry-settings.txt");
+                if (target.exists() && target.canRead()) {
+                    break;
+                }
+                target = null;
+                folder = folder.getParentFile();
+            }
+            if (target == null) {
+                throw new FileNotFoundException("Could not find folders.");
+            }
+            BufferedReader fin = new BufferedReader(new FileReader(target));
+            try {
+                while (true) {
+                    String line = fin.readLine();
+                    if (line == null) {
+                        break;
+                    }
+                    if (line.trim().isEmpty()) {
+                        continue;
+                    }
+                    String[] pts = line.split("=", 2);
+                    if (pts.length == 1) {
+                        throw new IOException("Bad line: no =.");
+                    }
+                    folderList.add(new Folder(pts[0].trim(), pts[1].trim()));
+                }
+            } finally {
+                fin.close();
+            }
+        } catch (IOException ex) {
+            Logger.log(LogLevel.WARNING, "Could not set up folder list!", ex);
+        }
+        folders = folderList.toArray(new Folder[folderList.size()]);
         searchLinkName = "big-brother-" + Integer.toHexString(args.hashCode());
         this.addMouseMotionListener(this);
         this.addMouseListener(this);

@@ -43,6 +43,7 @@ import javax.swing.UnsupportedLookAndFeelException;
  *
  * @author skeggsc
  */
+@SuppressWarnings("serial")
 public class EmulatorForm extends javax.swing.JFrame {
 
     static {

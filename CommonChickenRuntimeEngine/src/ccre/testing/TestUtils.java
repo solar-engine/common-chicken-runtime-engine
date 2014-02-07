@@ -87,7 +87,7 @@ public class TestUtils extends BaseTest {
             // Correct!
         }
         assertFalse(c.contains(3), "Should not contain anything!");
-        assertTrue(c.containsAll(new CArrayList()), "Should contain nothing!");
+        assertTrue(c.containsAll(new CArrayList<Object>()), "Should contain nothing!");
         assertFalse(c.containsAll(new CArrayList<Object>(new Object[]{null})), "Should not contain anything!");
         assertEqual(c.fillArray(new Object[0]), 0, "Should be empty!");
         try {

@@ -43,15 +43,15 @@ public class ReflectionMethod {
         String[] spt = Utils.split(serialized, '|');
         fullName = spt[0];
         int invokeCount = spt.length - 1;
-        paramTypes = new Class[invokeCount][];
-        results = new Class[invokeCount];
+        paramTypes = new Class<?>[invokeCount][];
+        results = new Class<?>[invokeCount];
         invokeIds = new int[invokeCount];
         this.engine = engine;
         for (int i=0; i<invokeCount; i++) {
             String[] parts = Utils.split(spt[i+1], '~');
             invokeIds[i] = Integer.parseInt(parts[0]);
             results[i] = Class.forName(parts[1]);
-            paramTypes[i] = new Class[parts.length - 2];
+            paramTypes[i] = new Class<?>[parts.length - 2];
             for (int j=2; j<parts.length; j++) {
                 paramTypes[i][j-2] = Class.forName(parts[j]);
             }

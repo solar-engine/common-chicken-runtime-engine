@@ -42,6 +42,7 @@ import javax.swing.*;
  *
  * @author skeggsc
  */
+@SuppressWarnings("serial")
 public class IntelligenceMain extends JPanel implements CluckRemoteListener, MouseMotionListener, MouseWheelListener, MouseListener {
 
     /**

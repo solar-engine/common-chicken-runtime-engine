@@ -26,6 +26,7 @@ package ccre.downgrade;
  * @see java.lang.UnsupportedOperationException
  * @author skeggsc
  */
+@SuppressWarnings("serial")
 public class UnsupportedOperationException extends RuntimeException {
 
     public UnsupportedOperationException() {

@@ -56,7 +56,7 @@ class GPOHandle extends DeviceHandle<BooleanOutput> {
     }
 
     @Override
-    public void close(BooleanOutput type) throws DeviceException {
+    public void close(Object type) throws DeviceException {
         if (type != null || type != dout) {
             throw new DeviceException("Bad target for close!");
         }

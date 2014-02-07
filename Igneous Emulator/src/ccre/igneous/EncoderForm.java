@@ -28,6 +28,7 @@ import java.awt.EventQueue;
  *
  * @author skeggsc
  */
+@SuppressWarnings("serial")
 public class EncoderForm extends javax.swing.JFrame implements FloatInputPoll {
 
     public EncoderForm(final String name, EventSource resetWhen) {

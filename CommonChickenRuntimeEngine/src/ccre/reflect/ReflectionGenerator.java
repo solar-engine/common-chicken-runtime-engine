@@ -52,7 +52,7 @@ public class ReflectionGenerator implements InterfaceReflectionGenerator {
 
     static String makeObjectTypeString(Class<?> c) {
         if (c.isArray()) {
-            Class comp = c.getComponentType();
+            Class<?> comp = c.getComponentType();
             if (comp.isPrimitive()) {
                 return comp.getName() + "[]";
             } else {
@@ -84,12 +84,12 @@ public class ReflectionGenerator implements InterfaceReflectionGenerator {
     }
     private HashMap<String, ArrayList<Object>> methods = new HashMap<String, ArrayList<Object>>();
     private HashMap<Object, Integer> idLookup = new HashMap<Object, Integer>();
-    private HashMap<Class, Method[]> lookup = new HashMap<Class, Method[]>();
+    private HashMap<Class<?>, Method[]> lookup = new HashMap<Class<?>, Method[]>();
     private int nextId = 0;
     private ArrayList<String> mainLines = new ArrayList<String>();
     public ArrayList<String> output;
-    private LinkedList<Class> toProcess = new LinkedList<Class>();
-    private HashSet<Class> processed = new HashSet<Class>();
+    private LinkedList<Class<?>> toProcess = new LinkedList<Class<?>>();
+    private HashSet<Class<?>> processed = new HashSet<Class<?>>();
     private ArrayList<String> toIgnore = new ArrayList<String>();
 
     public ReflectionGenerator() {
@@ -105,7 +105,7 @@ public class ReflectionGenerator implements InterfaceReflectionGenerator {
         mainLines.add("\t\t}");
         mainLines.add("\t}");
         mainLines.add("\tprotected void fillLookup() {");
-        Map.Entry<String, ArrayList<Object>>[] tarray = CArrayUtils.castToGeneric(methods.entrySet().toArray(new Map.Entry[methods.size()]));
+        Map.Entry<String, ArrayList<Object>>[] tarray = CArrayUtils.castToGeneric(methods.entrySet().toArray(new Map.Entry<?,?>[methods.size()]));
         Arrays.sort(tarray, new Comparator<Map.Entry<String, ArrayList<Object>>>() {
             public int compare(Map.Entry<String, ArrayList<Object>> o1, Map.Entry<String, ArrayList<Object>> o2) {
                 return o1.getKey().compareTo(o2.getKey());
@@ -113,8 +113,8 @@ public class ReflectionGenerator implements InterfaceReflectionGenerator {
         });
         for (Map.Entry<String, ArrayList<Object>> mdata : tarray) {
             Collections.sort(mdata.getValue(), toStringComparator);
-            Class[][] paramTypes = new Class[mdata.getValue().size()][];
-            Class[] results = new Class[paramTypes.length];
+            Class<?>[][] paramTypes = new Class<?>[mdata.getValue().size()][];
+            Class<?>[] results = new Class<?>[paramTypes.length];
             int[] invokeIds = new int[paramTypes.length];
             for (int i = 0; i < paramTypes.length; i++) {
                 Object o = mdata.getValue().get(i);
@@ -127,16 +127,16 @@ public class ReflectionGenerator implements InterfaceReflectionGenerator {
                     Field f = (Field) o;
                     invokeIds[i] = idLookup.get(mdata.getKey());
                     if (mdata.getKey().endsWith("?")) {
-                        paramTypes[i] = new Class[0];
+                        paramTypes[i] = new Class<?>[0];
                         results[i] = f.getType();
                     } else if (mdata.getKey().endsWith("!")) {
-                        paramTypes[i] = new Class[]{f.getType()};
+                        paramTypes[i] = new Class<?>[]{f.getType()};
                         results[i] = Void.TYPE;
                     } else {
                         throw new RuntimeException("Should never happen.");
                     }
                 } else {
-                    Constructor c = (Constructor) o;
+                    Constructor<?> c = (Constructor<?>) o;
                     paramTypes[i] = c.getParameterTypes();
                     results[i] = c.getDeclaringClass();
                     invokeIds[i] = idLookup.get(c);
@@ -164,7 +164,7 @@ public class ReflectionGenerator implements InterfaceReflectionGenerator {
         }
     }
 
-    private Method[] getForClass(Class cls) {
+    private Method[] getForClass(Class<?> cls) {
         Method[] mthds = lookup.get(cls);
         if (mthds == null) {
             mthds = cls.getMethods();
@@ -174,7 +174,7 @@ public class ReflectionGenerator implements InterfaceReflectionGenerator {
         return mthds;
     }
 
-    private boolean classHasMethod(Class cls, Method m, boolean ignoreTop) {
+    private boolean classHasMethod(Class<?> cls, Method m, boolean ignoreTop) {
         if (!ignoreTop) {
             String n = m.getName();
             Class<?> rt = m.getReturnType();
@@ -185,11 +185,11 @@ public class ReflectionGenerator implements InterfaceReflectionGenerator {
                 }
             }
         }
-        Class sup = cls.getSuperclass();
+        Class<?> sup = cls.getSuperclass();
         if (sup != null && classHasMethod(sup, m, false)) {
             return true;
         }
-        for (Class itf : cls.getInterfaces()) {
+        for (Class<?> itf : cls.getInterfaces()) {
             if (classHasMethod(itf, m, false)) {
                 return true;
             }
@@ -197,8 +197,8 @@ public class ReflectionGenerator implements InterfaceReflectionGenerator {
         return false;
     }
 
-    public void generateForClass(Class cls) throws SecurityException {
-        Class sc = cls.getSuperclass();
+    public void generateForClass(Class<?> cls) throws SecurityException {
+        Class<?> sc = cls.getSuperclass();
         if (sc != null) {
             toProcess.add(sc);
         }
@@ -251,7 +251,7 @@ public class ReflectionGenerator implements InterfaceReflectionGenerator {
         if (!Modifier.isAbstract(cls.getModifiers())) {
             Constructor[] ctrs = cls.getConstructors();
             Arrays.sort(ctrs, toStringComparator);
-            for (Constructor c : ctrs) {
+            for (Constructor<?> c : ctrs) {
                 toProcess.addAll(Arrays.asList(c.getParameterTypes()));
                 String mkey = path + ".__new__";
                 ArrayList<Object> arr = methods.get(mkey);
@@ -285,7 +285,7 @@ public class ReflectionGenerator implements InterfaceReflectionGenerator {
     private void runAll() {
         outer:
         while (!toProcess.isEmpty()) {
-            Class c = toProcess.removeFirst();
+            Class<?> c = toProcess.removeFirst();
             if (processed.contains(c)) {
                 continue;
             }

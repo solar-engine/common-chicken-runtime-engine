@@ -58,7 +58,7 @@ class RelayHandle extends DeviceHandle<BooleanOutput> {
     }
 
     @Override
-    public void close(BooleanOutput type) throws DeviceException {
+    public void close(Object type) throws DeviceException {
         if (type != null || type != rel) {
             throw new DeviceException("Bad target for close!");
         }

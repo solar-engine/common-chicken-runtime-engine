@@ -72,6 +72,7 @@ public class Webcam extends Thread {
         this.interrupt();
     }
 
+    @SuppressWarnings("serial")
     private static class WrappedIOException extends RuntimeException {
 
         WrappedIOException(IOException io) {

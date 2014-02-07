@@ -28,6 +28,7 @@ import java.awt.EventQueue;
  *
  * @author skeggsc
  */
+@SuppressWarnings("serial")
 public class GyroForm extends javax.swing.JFrame implements FloatInputPoll {
 
     /**

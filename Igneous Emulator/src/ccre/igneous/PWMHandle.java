@@ -74,7 +74,7 @@ class PWMHandle extends DeviceHandle<FloatOutput> {
     }
 
     @Override
-    public void close(FloatOutput type) throws DeviceException {
+    public void close(Object type) throws DeviceException {
         if (type != out || type == null) {
             throw new DeviceException("Bad target for close!");
         }

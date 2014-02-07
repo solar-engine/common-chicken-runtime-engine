@@ -24,6 +24,7 @@ package ccre.instinct;
  *
  * @author skeggsc
  */
+@SuppressWarnings("serial")
 public class AutonomousModeOverException extends Exception {
 
     public AutonomousModeOverException() {

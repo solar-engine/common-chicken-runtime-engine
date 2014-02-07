@@ -26,6 +26,7 @@ import java.awt.EventQueue;
  *
  * @author skeggsc
  */
+@SuppressWarnings("serial")
 public class AccelerometerForm extends javax.swing.JFrame implements FloatInputPoll {
 
     /**

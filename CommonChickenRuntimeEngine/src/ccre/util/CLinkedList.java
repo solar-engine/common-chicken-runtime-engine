@@ -217,7 +217,7 @@ public class CLinkedList<T> extends CAbstractList<T> {
     @Override
     public int indexOf(final Object thing) {
         int i = 0;
-        Node n = sentinel;
+        Node<?> n = sentinel;
         while (true) {
             n = n.next;
             if (n == sentinel) {
@@ -233,7 +233,7 @@ public class CLinkedList<T> extends CAbstractList<T> {
     @Override
     public int lastIndexOf(final Object thing) {
         int i = size - 1;
-        Node n = sentinel;
+        Node<?> n = sentinel;
         while (true) {
             n = n.prev;
             if (n == sentinel) {

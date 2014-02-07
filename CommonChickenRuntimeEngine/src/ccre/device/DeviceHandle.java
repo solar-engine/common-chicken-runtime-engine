@@ -47,7 +47,7 @@ public abstract class DeviceHandle<Type> {
         throw new DeviceException("No such configuration key: " + key);
     }
 
-    public abstract void close(Type target) throws DeviceException;
+    public abstract void close(Object target) throws DeviceException;
 
     public <Target> Target open(Class<Target> target) throws DeviceException {
         if (!hasSecondaryUses()) {

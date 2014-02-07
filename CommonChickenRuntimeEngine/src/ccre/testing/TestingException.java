@@ -24,6 +24,7 @@ package ccre.testing;
  *
  * @author skeggsc
  */
+@SuppressWarnings("serial")
 public class TestingException extends Exception {
 
     public TestingException() {

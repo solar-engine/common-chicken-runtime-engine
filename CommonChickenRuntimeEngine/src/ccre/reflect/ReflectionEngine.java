@@ -50,7 +50,7 @@ public abstract class ReflectionEngine {
         return instance;
     }
 
-    public ReflectionMethod lookup(Class c, String methodName) {
+    public ReflectionMethod lookup(Class<?> c, String methodName) {
         CHashMap<String, ReflectionMethod> lmap = mapping;
         if (lmap == null) {
             synchronized (this) {

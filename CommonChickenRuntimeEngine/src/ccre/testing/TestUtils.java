@@ -18,11 +18,13 @@
  */
 package ccre.testing;
 
+import ccre.log.Logger;
 import ccre.util.CArrayList;
 import ccre.util.CArrayUtils;
 import ccre.util.CList;
 import ccre.util.Utils;
 import java.util.Iterator;
+import java.util.Random;
 
 /**
  * Tests the Utils class and the CArrayUtils class.
@@ -39,7 +41,23 @@ public class TestUtils extends BaseTest {
     @Override
     protected void runTest() throws TestingException {
         // Utils.currentTimeSeconds
-        assertTrue(Math.abs((System.currentTimeMillis() / 1000.0f) - Utils.currentTimeSeconds.readValue()) < 0.01, "Invalid current time!");
+        boolean success = false;
+        Random r = new Random();
+        for (int i=0; i<5; i++) {
+            float here = Utils.currentTimeSeconds.readValue();
+            try {
+                Thread.sleep(100);
+            } catch (InterruptedException ex) {
+                assertFail("Interrupted during timing test.");
+            }
+            float there = Utils.currentTimeSeconds.readValue();
+            float dt = Math.abs(there - here - (100 / 1000f));
+            if (dt < 0.002) {
+                success = true;
+                break;
+            }
+        }
+        assertTrue(success, "Five timing check attempts failed!");
         // Utils.deadzone
         for (float i = -17.6f; i <= 17.6f; i += 0.1f) {
             float dz = Utils.deadzone(i, 7.2f);

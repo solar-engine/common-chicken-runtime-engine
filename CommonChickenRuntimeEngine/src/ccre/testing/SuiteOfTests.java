@@ -83,12 +83,11 @@ public class SuiteOfTests { // TODO: This package needs more tests!
 
             // ccre.saver - Needed!
 
-            // ccre.testing
+            // ccre.testing - DONE
             new TestTests(),
             
-            // ccre.utils
+            // ccre.utils - DONE
             new TestAllocationPool(),
-            // AllocationPool - Needed!
             // CAbstractList - Included in CArrayList and CLinkedList tests
             new TestCArrayList(),
             new TestCHashMap(),

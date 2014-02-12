@@ -37,15 +37,17 @@ public class IPProvider {
      * autoconfigure based on the network.
      */
     public static StringHolder forcedAddress = new StringHolder("*");
+    
+    private static final boolean useHigherPort;
 
     static {
         CluckGlobals.node.publish("forced-remote-address", forcedAddress.getOutput());
+        String os = System.getProperty("os.name");
+        useHigherPort = os != null && os.startsWith("Mac ");
     }
 
     /**
      * Compute an address and connect to it.
-     *
-     * @throws IOException if the target cannot be connected to.
      */
     public static void connect() {
         Logger.finest("Connecting...");
@@ -82,7 +84,7 @@ public class IPProvider {
             }
         }
         Logger.warning("Subnet Autodetect: Cannot find any valid network addresses! Defaulting to localhost.");
-        return "127.0.0.1";
+        return useHigherPort ? "127.0.0.1:1540" : "127.0.0.1";
     }
 
     /**

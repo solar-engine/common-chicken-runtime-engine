@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 Colby Skeggs
+ * Copyright 2013-2014 Colby Skeggs
  * 
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  * 
@@ -68,8 +68,6 @@ public class IPProvider {
 
     /**
      * Calculate the address to connect to based on the network configuration.
-     * This means looking for a network of 10.X.Y.Z and then the target is
-     * 10.X.Y.2. Otherwise, it logs a warning and returns null.
      *
      * @return the probable address of the robot, or null if it cannot be
      * determined.
@@ -78,7 +76,7 @@ public class IPProvider {
         CCollection<String> addresses = Network.listIPv4Addresses();
         for (String addr : addresses) {
             if (addr.startsWith("10.") && addr.substring(0, addr.lastIndexOf('.')).length() <= 8) {
-                return addr.substring(0, addr.lastIndexOf('.') + 1).concat("2");
+                return addr.substring(0, addr.lastIndexOf('.') + 1).concat("2:443");
             } else if (addr.equals("192.168.7.1")) {
                 return "192.168.7.2"; // BeagleBone direct connection
             }

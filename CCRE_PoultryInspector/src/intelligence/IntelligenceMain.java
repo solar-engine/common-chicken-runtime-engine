@@ -146,7 +146,7 @@ public class IntelligenceMain extends JPanel implements CluckRemoteListener, Mou
         this.node = node;
         ArrayList<Folder> folderList = new ArrayList<Folder>();
         try {
-            File folder = new File(".");
+            File folder = new File(".").getAbsoluteFile();
             File target = null;
             while (folder != null && folder.exists()) {
                 target = new File(folder, "poultry-settings.txt");

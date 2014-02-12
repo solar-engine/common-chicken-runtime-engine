@@ -421,13 +421,13 @@ public class IntelligenceMain extends JPanel implements CluckRemoteListener, Mou
                     if (f.isInside(r)) {
                         it.remove();
                         if (f.open) {
-                            f.place = loc.indexOf(f);
                             f.contents.add(r);
                         }
                     }
                 }
             }
             for (Folder f : folders) {
+                f.place = loc.indexOf(f);
                 for (Remote r : f.contents) {
                     r.inFolder = true;
                     loc.add(f.place + 1, r);

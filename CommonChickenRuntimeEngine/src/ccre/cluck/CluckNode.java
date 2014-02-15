@@ -144,6 +144,10 @@ public class CluckNode {
                 return "OutputStream";
             case RMT_NOTIFY:
                 return "Notify";
+            case RMT_INVOKE:
+                return "RemoteProcedure";
+            case RMT_INVOKE_REPLY:
+                return "RemoteProcedure Reply";
             default:
                 return "Unknown #" + type;
         }
@@ -1092,7 +1096,7 @@ public class CluckNode {
         if (localRPCBinding != null) {
             return;
         }
-        String binding = "rpc-endpoint-" + Long.toHexString(System.currentTimeMillis()) + "-" + Integer.toHexString(this.hashCode());
+        String binding = "rpc-endpoint-" + Integer.toHexString((int) System.currentTimeMillis()) + "-" + Integer.toHexString(this.hashCode());
         new CluckSubscriber() {
             @Override
             protected void receive(String source, byte[] data) {

@@ -135,8 +135,6 @@ public final class Entity {
                 g.setColor(blend(col.darker(), col, count / 500.0f));
                 g.fillRect(centerX - w + 1, centerY + h - rh - 1, w * 2 - 2, rh - 2);
                 break;
-            case RMT_LOGTARGET:
-                break;
             case RMT_BOOLPROD:
                 BooleanInput bi = (BooleanInput) co;
                 if (!registered) {
@@ -210,8 +208,6 @@ public final class Entity {
                     g.setColor(c < 0 ? Color.WHITE : Color.BLACK);
                     g.drawString(String.valueOf(c), centerX - w + 1, centerY + h - fm.getDescent());
                 }
-                break;
-            case RMT_OUTSTREAM:
                 break;
         }
     }
@@ -306,6 +302,9 @@ public final class Entity {
                 } catch (IOException ex) {
                     Logger.log(LogLevel.WARNING, "Cannot write new value!", ex);
                 }
+                break;
+            case RMT_INVOKE:
+                Logger.info("Cannot interact with RemoteProcedures!");
                 break;
         }
     }

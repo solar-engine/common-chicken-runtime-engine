@@ -92,6 +92,7 @@ public class Remote implements Comparable<Remote> {
             case RMT_FLOATOUTP:
                 return Color.ORANGE;
             case RMT_OUTSTREAM:
+            case RMT_INVOKE:
                 return Color.CYAN;
             default:
                 return Color.WHITE;
@@ -131,6 +132,9 @@ public class Remote implements Comparable<Remote> {
                 break;
             case RMT_OUTSTREAM:
                 checkout = node.subscribeOS(path);
+                break;
+            case RMT_INVOKE:
+                checkout = node.subscribeRP(path);
                 break;
             default:
                 Logger.severe("No checkout for type: " + CluckNode.rmtToString(type));

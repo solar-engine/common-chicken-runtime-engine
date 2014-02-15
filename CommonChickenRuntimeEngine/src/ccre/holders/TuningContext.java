@@ -73,9 +73,7 @@ public class TuningContext {
      * @return the FloatStatus representing the current value.
      */
     public FloatStatus getFloat(String name, float default_) {
-        FloatStatus out = new FloatStatus();
-        out.writeValue(default_);
-        out.hasBeenModified = false;
+        FloatStatus out = new FloatStatus(default_);
         seg.attachFloatHolder(name, out);
         enc.publish(name, out);
         return out;
@@ -93,9 +91,7 @@ public class TuningContext {
      * @return the FloatStatus representing the current value.
      */
     public FloatStatus getFloat(String name, float default_, String targetref) {
-        FloatStatus out = new FloatStatus();
-        out.writeValue(default_);
-        out.hasBeenModified = false;
+        FloatStatus out = new FloatStatus(default_);
         seg.attachFloatHolder(name, out);
         enc.publish(name, out);
         return out;

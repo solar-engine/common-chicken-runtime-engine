@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 Gregor Peach
+ * Copyright 2014 Gregor Peach, Colby Skeggs (bugfixes)
  * 
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  * 
@@ -26,10 +26,10 @@ import ccre.util.CArrayList;
  *
  * @author peachg
  */
-public class Folder extends Remote {
+public final class Folder extends Remote {
 
     protected boolean open = true;
-    protected CArrayList<Remote> contents = new CArrayList<Remote>();
+    protected final CArrayList<Remote> contents = new CArrayList<Remote>();
     protected int place;
     protected final String ID;
     protected final String REGEX;
@@ -41,8 +41,9 @@ public class Folder extends Remote {
     }
 
     @Override
-    protected void checkout() {
-        Logger.warning("Can't checkout a folder");
+    protected Object checkout() {
+        Logger.warning("Can't checkout a folder!");
+        return null;
     }
 
     public boolean isInside(Remote s) {

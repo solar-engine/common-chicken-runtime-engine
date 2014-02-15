@@ -18,7 +18,6 @@
  */
 package intelligence;
 
-import ccre.chan.FloatStatus;
 import ccre.cluck.*;
 import ccre.concurrency.CollapsingWorkerThread;
 import ccre.event.EventConsumer;
@@ -34,7 +33,6 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.*;
-import java.util.logging.Level;
 import javax.swing.*;
 
 /**

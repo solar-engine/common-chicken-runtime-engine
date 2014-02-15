@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 Colby Skeggs
+ * Copyright 2013-2014 Colby Skeggs
  * 
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  * 
@@ -18,9 +18,7 @@
  */
 package intelligence;
 
-import ccre.log.LogLevel;
-import ccre.log.Logger;
-import ccre.log.LoggingTarget;
+import ccre.log.*;
 import ccre.util.CArrayList;
 import ccre.util.CList;
 import java.lang.reflect.InvocationTargetException;
@@ -28,7 +26,6 @@ import java.lang.reflect.Method;
 import java.util.Collections;
 import java.util.IdentityHashMap;
 import java.util.Set;
-import java.util.logging.Level;
 import javax.swing.DefaultListModel;
 import javax.swing.JList;
 import javax.swing.event.ListSelectionEvent;
@@ -61,11 +58,11 @@ public class ListModelLogger implements LoggingTarget, ListSelectionListener {
     /**
      * The list model to update.
      */
-    public DefaultListModel model;
+    public final DefaultListModel model;
     /**
      * The list that has the model.
      */
-    public JList lstErrors;
+    public final JList lstErrors;
     /**
      * The last known index of the selection.
      */
@@ -148,7 +145,7 @@ public class ListModelLogger implements LoggingTarget, ListSelectionListener {
      * @param thr the throwable to describe.
      * @return the list of description lines.
      */
-    private CList<String> computeDisplay(Throwable thr) {
+    private CList<String> computeDisplay(Throwable thr) { // Taken from builtin implementation in OpenJDK.
         CArrayList<String> out = new CArrayList<String>();
         // Guard against malicious overrides of Throwable.equals by
         // using a Set with identity equality semantics.
@@ -244,20 +241,22 @@ public class ListModelLogger implements LoggingTarget, ListSelectionListener {
      */
     public static class Element {
 
-        public LogLevel level;
-        public String msg;
-        public Throwable thr;
-        public String body;
+        public final LogLevel level;
+        public final String msg;
+        public final Throwable thr;
+        public final String body;
 
         Element(LogLevel level, String msg, Throwable thr) {
             this.level = level;
             this.msg = msg;
             this.thr = thr;
+            this.body = null;
         }
 
         Element(LogLevel level, String msg, String body) {
             this.level = level;
             this.msg = msg;
+            this.thr = null;
             this.body = body;
         }
 

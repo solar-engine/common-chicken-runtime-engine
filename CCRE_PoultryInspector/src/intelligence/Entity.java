@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 Colby Skeggs
+ * Copyright 2013-2014 Colby Skeggs
  * 
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  * 
@@ -96,19 +96,21 @@ public final class Entity {
     public void render(Graphics g) {
         g.setFont(IntelligenceMain.console);
         FontMetrics fm = g.getFontMetrics();
-        int w = Math.max(70, fm.stringWidth(represented.path) / 2), h = fm.getHeight() * 3 / 2;
-        width = w;
-        height = h;
+        int w = width = Math.max(70, fm.stringWidth(represented.path) / 2);
+        int h = height = fm.getHeight() * 3 / 2;
+        // Draw the border
         g.setColor(Color.BLACK);
         g.fillRect(centerX - w, centerY - h, w * 2, h * 2);
+        // Draw the background
         Color col = represented.getColor();
         g.setColor(col);
         g.fillRect(centerX - w + 1, centerY - h + 1, w * 2 - 2, h * 2 - 2);
+        // Draw the title and path
         g.setColor(IntelligenceMain.foreground);
         g.drawString(represented.path, centerX - w + 1, centerY - h - 1 + g.getFontMetrics().getAscent());
         g.drawString(CluckNode.rmtToString(represented.type), centerX - w + 1, centerY - h - 1 + g.getFontMetrics().getAscent() + g.getFontMetrics().getHeight());
-        represented.checkout();
-        Object co = represented.checkout;
+        // Draw object-specific data.
+        Object co = represented.checkout();
         if (co == null) {
             return;
         }
@@ -116,7 +118,6 @@ public final class Entity {
         int rh = fm.getHeight();
         switch (represented.type) {
             case RMT_EVENTCONSUMER:
-                EventConsumer ec = (EventConsumer) co;
                 g.setColor(blend(col.darker(), col, count / 500.0f));
                 g.fillRect(centerX - w + 1, centerY + h - rh - 1, w * 2 - 2, rh - 2);
                 break;
@@ -135,7 +136,6 @@ public final class Entity {
                 g.fillRect(centerX - w + 1, centerY + h - rh - 1, w * 2 - 2, rh - 2);
                 break;
             case RMT_LOGTARGET:
-
                 break;
             case RMT_BOOLPROD:
                 BooleanInput bi = (BooleanInput) co;
@@ -156,7 +156,6 @@ public final class Entity {
                 }
                 break;
             case RMT_BOOLOUTP:
-                BooleanOutput bo = (BooleanOutput) co;
                 g.setColor(Color.GREEN);
                 g.fillRect(centerX - w + 1, centerY + h - rh, w - 1, rh - 1);
                 g.setColor(Color.RED);
@@ -196,7 +195,6 @@ public final class Entity {
                 g.drawString(String.valueOf(c), centerX - w + 1, centerY + h - fm.getDescent());
                 break;
             case RMT_FLOATOUTP:
-                FloatOutput fo = (FloatOutput) co;
                 if (currentValue != null) {
                     c = (Float) currentValue;
                     Color tcr;
@@ -214,7 +212,6 @@ public final class Entity {
                 }
                 break;
             case RMT_OUTSTREAM:
-
                 break;
         }
     }
@@ -239,16 +236,16 @@ public final class Entity {
      * @return The blended color.
      */
     public static Color blend(Color a, Color b, float f) {
-        float bp;
+        float bpart;
         if (f < 0) {
-            bp = 0;
+            bpart = 0;
         } else if (f > 1) {
-            bp = 1;
+            bpart = 1;
         } else {
-            bp = f;
+            bpart = f;
         }
-        float ap = 1 - bp;
-        return new Color(Math.round(a.getRed() * ap + b.getRed() * bp), Math.round(a.getGreen() * ap + b.getGreen() * bp), Math.round(a.getBlue() * ap + b.getBlue() * bp), Math.round(a.getAlpha() * ap + b.getAlpha() * bp));
+        float apart = 1 - bpart;
+        return new Color(Math.round(a.getRed() * apart + b.getRed() * bpart), Math.round(a.getGreen() * apart + b.getGreen() * bpart), Math.round(a.getBlue() * apart + b.getBlue() * bpart), Math.round(a.getAlpha() * apart + b.getAlpha() * bpart));
     }
 
     /**
@@ -269,13 +266,12 @@ public final class Entity {
                 countStart = System.currentTimeMillis();
                 break;
             case RMT_EVENTSOURCE:
-                EventSource es = (EventSource) co;
+            case RMT_BOOLPROD:
+            case RMT_FLOATPROD:
+                // Interacting with these wouldn't mean anything.
                 break;
             case RMT_LOGTARGET:
-
-                break;
-            case RMT_BOOLPROD:
-
+                // TODO: Do something with LogTarget?
                 break;
             case RMT_BOOLOUTP:
                 BooleanOutput bo = (BooleanOutput) co;
@@ -285,9 +281,6 @@ public final class Entity {
                     currentValue = nw;
                     countStart = System.currentTimeMillis();
                 }
-                break;
-            case RMT_FLOATPROD:
-
                 break;
             case RMT_FLOATOUTP:
                 FloatOutput fo = (FloatOutput) co;
@@ -309,6 +302,7 @@ public final class Entity {
                 OutputStream outs = (OutputStream) co;
                 try {
                     outs.write((JOptionPane.showInputDialog("Modify value", "*") + "\n").getBytes());
+                    outs.flush();
                 } catch (IOException ex) {
                     Logger.log(LogLevel.WARNING, "Cannot write new value!", ex);
                 }

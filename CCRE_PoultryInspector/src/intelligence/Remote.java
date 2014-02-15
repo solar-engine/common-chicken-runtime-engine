@@ -32,7 +32,7 @@ import java.awt.Color;
 public class Remote implements Comparable<Remote> {
 
     /**
-     * The RMT type of the Remote.
+     * The RMT of the Remote.
      */
     protected final int type;
     boolean inFolder = false;
@@ -63,10 +63,12 @@ public class Remote implements Comparable<Remote> {
         this.node = node;
     }
 
+    @Override
     public int compareTo(Remote o) {
         return path.compareTo(o.path);
     }
 
+    @Override
     public String toString() {
         return (inFolder ? "  " : "") + path + " : " + CluckNode.rmtToString(type);
     }
@@ -97,9 +99,14 @@ public class Remote implements Comparable<Remote> {
     }
 
     /**
-     * Subscribe this remote and stick it in the checkout.
+     * Subscribe this remote and stick it in the checkout field.
+     *
+     * @return The current checked-out object.
      */
-    protected void checkout() {
+    protected Object checkout() {
+        if (checkout != null) {
+            return checkout;
+        }
         switch (type) {
             case RMT_EVENTCONSUMER:
                 checkout = node.subscribeEC(path);
@@ -128,5 +135,6 @@ public class Remote implements Comparable<Remote> {
             default:
                 Logger.severe("No checkout for type: " + CluckNode.rmtToString(type));
         }
+        return checkout;
     }
 }

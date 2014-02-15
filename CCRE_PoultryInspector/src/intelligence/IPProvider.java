@@ -23,7 +23,6 @@ import ccre.holders.StringHolder;
 import ccre.log.Logger;
 import ccre.net.Network;
 import ccre.util.CCollection;
-import java.io.IOException;
 
 /**
  * The system to calculate what address to connect to.
@@ -36,7 +35,7 @@ public class IPProvider {
      * The address that should be connected to. "*" means that it should
      * autoconfigure based on the network.
      */
-    public static StringHolder forcedAddress = new StringHolder("*");
+    public static final StringHolder forcedAddress = new StringHolder("*");
     
     private static final boolean useHigherPort;
 

@@ -151,6 +151,36 @@ public class Mixing {
     }
 
     /**
+     * Combine two EventSources so that either event firing will fire the result
+     * event.
+     *
+     * @param a the first event source
+     * @param b the second event source
+     * @return the source that is fired by either of the original sources.
+     */
+    public static EventSource combine(EventSource a, EventSource b) {
+        Event e = new Event();
+        a.addListener(e);
+        b.addListener(e);
+        return e;
+    }
+
+    /**
+     * Combine multiple EventSources so that any event firing will fire the
+     * result event.
+     *
+     * @param sources the event sources
+     * @return the source that is fired by any of the original sources.
+     */
+    public static EventSource combine(EventSource... sources) {
+        Event e = new Event();
+        for (EventSource es : sources) {
+            es.addListener(e);
+        }
+        return e;
+    }
+
+    /**
      * Combine two BooleanOutputs so that any write to the returned output will
      * go to both of the specified outputs.
      *

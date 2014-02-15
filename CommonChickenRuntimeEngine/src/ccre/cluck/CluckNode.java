@@ -19,18 +19,20 @@
 package ccre.cluck;
 
 import ccre.chan.*;
+import ccre.cluck.rpc.RemoteProcedure;
 import ccre.event.*;
 import ccre.holders.CompoundFloatTuner;
 import ccre.holders.FloatTuner;
-import ccre.log.LogLevel;
-import ccre.log.Logger;
-import ccre.log.LoggingTarget;
+import ccre.log.*;
 import ccre.util.CArrayList;
 import ccre.util.CArrayUtils;
 import ccre.util.CHashMap;
 import ccre.workarounds.ThrowablePrinter;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.Enumeration;
+import java.util.Hashtable;
 import java.util.Iterator;
 
 /**
@@ -95,6 +97,18 @@ public class CluckNode {
      * The ID representing a network infrastructure modification notification.
      */
     public static final byte RMT_NOTIFY = 12;
+    /**
+     * The ID representing a remote procedure invocation.
+     */
+    public static final byte RMT_INVOKE = 13;
+    /**
+     * The ID representing a response to a remote procedure invocation.
+     */
+    public static final byte RMT_INVOKE_REPLY = 14;
+    /**
+     * The amount of time to wait for an RPC response, in milliseconds.
+     */
+    public static final int RPC_TIMEOUT = 250;
 
     /**
      * Convert an RMT ID to a string.
@@ -161,6 +175,13 @@ public class CluckNode {
      * debugging)
      */
     public boolean debugLogAll = false;
+    /**
+     * The local end of the RPC binding. See the methods for publishing and
+     * subscribing to RemoteProcedures.
+     */
+    private String localRPCBinding = null;
+    private final Hashtable<String, OutputStream> localRPC = new Hashtable<String, OutputStream>();
+    private final Hashtable<String, Long> timeoutsRPC = new Hashtable<String, Long>();
 
     /**
      * Notify everyone on the network that the network structure has been
@@ -247,12 +268,10 @@ public class CluckNode {
     /**
      * Add a network alias from the specified link name to the specified path.
      *
-     * For example:
-     * <code>node.addAlias("crio", "central/robot/crio");</code>
+     * For example: <code>node.addAlias("crio", "central/robot/crio");</code>
      *
-     * In this example, a message sent to
-     * <code>crio/enabled</code> would be equivalent to it being sent to
-     * <code>central/robot/crio/enabled</code>
+     * In this example, a message sent to <code>crio/enabled</code> would be
+     * equivalent to it being sent to <code>central/robot/crio/enabled</code>
      *
      * Source paths will not be modified.
      *
@@ -569,7 +588,7 @@ public class CluckNode {
             }
         }.attach(this, name);
     }
-    
+
     private static long lastReportedRemoteLoggingError = 0;
 
     /**
@@ -585,7 +604,6 @@ public class CluckNode {
             public void log(LogLevel level, String message, Throwable throwable) {
                 log(level, message, ThrowablePrinter.toStringThrowable(throwable));
             }
-            
 
             public void log(LogLevel level, String message, String extended) {
                 try {
@@ -1035,6 +1053,116 @@ public class CluckNode {
                 newbyteout[0] = RMT_OUTSTREAM;
                 System.arraycopy(b, off, newbyteout, 1, len);
                 transmit(path, null, newbyteout);
+            }
+        };
+    }
+
+    public void publish(final String name, final RemoteProcedure proc) {
+        new CluckSubscriber() {
+            @Override
+            protected void receive(final String source, byte[] data) {
+                if (requireRMT(source, data, RMT_INVOKE)) {
+                    byte[] sdata = new byte[data.length - 1];
+                    System.arraycopy(data, 1, sdata, 0, sdata.length);
+                    ByteArrayOutputStream baos = new ByteArrayOutputStream() {
+                        private boolean sent;
+
+                        @Override
+                        public void close() {
+                            if (sent) {
+                                throw new IllegalStateException("Already sent!");
+                            }
+                            sent = true;
+                            CluckNode.this.transmit(source, name, toByteArray());
+                        }
+                    };
+                    baos.write(RMT_INVOKE_REPLY);
+                    proc.invoke(sdata, baos);
+                }
+            }
+
+            @Override
+            protected void receiveBroadcast(String source, byte[] data) {
+                defaultBroadcastHandle(source, data, RMT_INVOKE);
+            }
+        }.attach(this, name);
+    }
+
+    private synchronized void setupRPCSystem() {
+        if (localRPCBinding != null) {
+            return;
+        }
+        String binding = "rpc-endpoint-" + Long.toHexString(System.currentTimeMillis()) + "-" + Integer.toHexString(this.hashCode());
+        new CluckSubscriber() {
+            @Override
+            protected void receive(String source, byte[] data) {
+                Logger.warning("Message to RPC endpoint!");
+            }
+
+            @Override
+            protected void handleOther(String dest, String source, byte[] data) {
+                if (requireRMT(source, data, RMT_INVOKE_REPLY)) {
+                    OutputStream stream;
+                    synchronized (CluckNode.this) {
+                        stream = localRPC.get(dest);
+                    }
+                    if (stream == null) {
+                        Logger.warning("No RPC binding for: " + dest);
+                    } else {
+                        try {
+                            stream.write(data, 1, data.length - 1);
+                            stream.close();
+                        } catch (IOException ex) {
+                            Logger.log(LogLevel.WARNING, "Exception in RPC response write!", ex);
+                        }
+                        synchronized (CluckNode.this) {
+                            localRPC.remove(dest);
+                            timeoutsRPC.remove(dest);
+                        }
+                    }
+                    long now = System.currentTimeMillis();
+                    CArrayList<String> toRemove = new CArrayList<String>();
+                    synchronized (CluckNode.this) {
+                        // Remove anything that timed out.
+                        Enumeration<String> keys = timeoutsRPC.keys();
+                        while (keys.hasMoreElements()) {
+                            String key = keys.nextElement();
+                            long value = timeoutsRPC.get(key);
+                            if (value < now) {
+                                toRemove.add(key);
+                            }
+                        }
+                        for (String rmt : toRemove) {
+                            Logger.warning("Timeout on RPC response for " + rmt);
+                            timeoutsRPC.remove(rmt);
+                            localRPC.remove(rmt);
+                        }
+                    }
+                }
+            }
+
+            @Override
+            protected void receiveBroadcast(String source, byte[] data) {
+            }
+        }.attach(this, binding);
+        localRPCBinding = binding;
+    }
+
+    public RemoteProcedure subscribeRP(final String name) {
+        if (localRPCBinding == null) {
+            setupRPCSystem();
+        }
+        return new RemoteProcedure() {
+            public void invoke(byte[] in, OutputStream out) {
+                String localname = name + "-" + Integer.toHexString(in.hashCode()) + "-" + Integer.toHexString((int) (System.currentTimeMillis() & 0xffff));
+                synchronized (CluckNode.this) {
+                    timeoutsRPC.put(localname, System.currentTimeMillis() + RPC_TIMEOUT);
+                    localRPC.put(localname, out);
+                }
+                byte[] toSend = new byte[in.length + 1];
+                toSend[0] = RMT_INVOKE;
+                System.arraycopy(in, 0, toSend, 1, in.length);
+                transmit(name, localRPCBinding + "/" + localname, toSend);
             }
         };
     }

@@ -1183,19 +1183,30 @@ public class CluckNode {
         if (localRPCBinding == null) {
             setupRPCSystem();
         }
-        return new RemoteProcedure() {
-            public void invoke(byte[] in, OutputStream out) {
-                checkTimeout();
-                String localname = path + "-" + Integer.toHexString(in.hashCode()) + "-" + Integer.toHexString((int) (System.currentTimeMillis() & 0xffff));
-                synchronized (CluckNode.this) {
-                    timeoutsRPC.put(localname, System.currentTimeMillis() + timeoutAfter);
-                    localRPC.put(localname, out);
-                }
-                byte[] toSend = new byte[in.length + 1];
-                toSend[0] = RMT_INVOKE;
-                System.arraycopy(in, 0, toSend, 1, in.length);
-                transmit(path, localRPCBinding + "/" + localname, toSend);
+        return new RemoteProcedureImpl(path, timeoutAfter);
+    }
+
+    private class RemoteProcedureImpl implements RemoteProcedure {
+
+        private final String path;
+        private final int timeoutAfter;
+
+        public RemoteProcedureImpl(String path, int timeoutAfter) {
+            this.path = path;
+            this.timeoutAfter = timeoutAfter;
+        }
+
+        public void invoke(byte[] in, OutputStream out) {
+            checkTimeout();
+            String localname = path + "-" + Integer.toHexString(in.hashCode()) + "-" + Integer.toHexString((int) (System.currentTimeMillis() & 0xffff));
+            synchronized (CluckNode.this) {
+                timeoutsRPC.put(localname, System.currentTimeMillis() + timeoutAfter);
+                localRPC.put(localname, out);
             }
-        };
+            byte[] toSend = new byte[in.length + 1];
+            toSend[0] = RMT_INVOKE;
+            System.arraycopy(in, 0, toSend, 1, in.length);
+            transmit(path, localRPCBinding + "/" + localname, toSend);
+        }
     }
 }

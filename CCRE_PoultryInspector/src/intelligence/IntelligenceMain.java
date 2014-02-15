@@ -482,7 +482,9 @@ public class IntelligenceMain extends JPanel implements CluckRemoteListener, Mou
             }
         }
         if (dialog != null) {
-            dialog.render(g, paneWidth, w, h);
+            if (dialog.render(g, paneWidth, w, h)) {
+                dialog = null;
+            }
         }
         painter.feed();
     }
@@ -542,7 +544,7 @@ public class IntelligenceMain extends JPanel implements CluckRemoteListener, Mou
         CluckGlobals.node.publish("test-rpc", new EventConsumer() {
             @Override
             public void eventFired() {
-                RemoteProcedure rp = CluckGlobals.node.subscribeRP("display-dialog");
+                RemoteProcedure rp = CluckGlobals.node.subscribeRP("display-dialog", 10500);
                 rp.invoke("TITLE Dialog Test\nTEXT This is a line\nTEXT Another line\nBUTTON Button 1\nBUTTON Button 2\nBUTTON Button 3\nBUTTON Button 4\n".getBytes(), new ByteArrayOutputStream() {
                     @Override
                     public void close() {

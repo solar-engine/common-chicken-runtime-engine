@@ -43,6 +43,10 @@ public final class PoultryDialog {
      */
     private final int buttonCount;
     /**
+     * When to automatically close the dialog.
+     */
+    private final long timeoutAt;
+    /**
      * The positions of the buttons.
      */
     private final int[][] buttonPositions;
@@ -67,11 +71,19 @@ public final class PoultryDialog {
     public PoultryDialog(String description, OutputStream resultTo) {
         this.description = description.split("\r?\n");
         int buttons = 0;
+        int timeout = 10000;
         for (String line : this.description) {
             if (line.startsWith("BUTTON ")) {
                 buttons++;
+            } else if (line.startsWith("TIMEOUT ")) {
+                try {
+                    timeout = Integer.parseInt(line.substring("TIMEOUT ".length()));
+                } catch (NumberFormatException ex) {
+                    Logger.log(LogLevel.WARNING, "Invalid timeout", ex);
+                }
             }
         }
+        this.timeoutAt = System.currentTimeMillis() + timeout;
         buttonCount = buttons;
         this.buttonPositions = new int[buttons][];
         this.resultTo = resultTo;
@@ -79,14 +91,15 @@ public final class PoultryDialog {
 
     /**
      * Render the dialog, with the specified pane width, screen size, and
-     * graphics pen.
+     * graphics pen. Return true if the dialog should be closed now.
      *
      * @param g The graphics pen.
      * @param basex The pane width. (Start the dialog to the right of this.)
      * @param swidth The screen width.
      * @param sheight The screen height.
+     * @return If the dialog should be closed.
      */
-    public void render(Graphics g, int basex, int swidth, int sheight) {
+    public boolean render(Graphics g, int basex, int swidth, int sheight) {
         int centerX = (basex + swidth) / 2, centerY = sheight / 2;
         g.setColor(new Color(240, 240, 240));
         g.fillRect(centerX - DEFAULT_WIDTH / 2, centerY - DEFAULT_HEIGHT / 2, DEFAULT_WIDTH, DEFAULT_HEIGHT);
@@ -142,6 +155,12 @@ public final class PoultryDialog {
             }
         }
         g.setFont(f);
+        if (System.currentTimeMillis() >= timeoutAt) {
+            Logger.info("Closed dialog due to timeout.");
+            return true;
+        } else {
+            return false;
+        }
     }
 
     /**

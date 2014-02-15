@@ -34,6 +34,7 @@ import java.io.OutputStream;
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Iterator;
+import java.util.logging.Level;
 
 /**
  * A CluckNode is the core hub of the Cluck networking system on a device. It
@@ -105,10 +106,6 @@ public class CluckNode {
      * The ID representing a response to a remote procedure invocation.
      */
     public static final byte RMT_INVOKE_REPLY = 14;
-    /**
-     * The amount of time to wait for an RPC response, in milliseconds.
-     */
-    public static final int RPC_TIMEOUT = 250;
 
     /**
      * Convert an RMT ID to a string.
@@ -1061,11 +1058,18 @@ public class CluckNode {
         };
     }
 
+    /**
+     * Publish a RemoteProcedure on the network.
+     *
+     * @param name The name for the RemoteProcedure.
+     * @param proc The RemoteProcedure.
+     */
     public void publish(final String name, final RemoteProcedure proc) {
         new CluckSubscriber() {
             @Override
             protected void receive(final String source, byte[] data) {
                 if (requireRMT(source, data, RMT_INVOKE)) {
+                    checkTimeout();
                     byte[] sdata = new byte[data.length - 1];
                     System.arraycopy(data, 1, sdata, 0, sdata.length);
                     ByteArrayOutputStream baos = new ByteArrayOutputStream() {
@@ -1092,6 +1096,38 @@ public class CluckNode {
         }.attach(this, name);
     }
 
+    /**
+     * Check to see if any RPC calls have timed out and cancel them if they
+     * have. This is only called when another RPC event occurs, so it may take a
+     * while for the timeout to happen.
+     */
+    private void checkTimeout() {
+        long now = System.currentTimeMillis();
+        CArrayList<String> toRemove = new CArrayList<String>();
+        synchronized (CluckNode.this) {
+            Enumeration<String> keys = timeoutsRPC.keys();
+            while (keys.hasMoreElements()) {
+                String key = keys.nextElement();
+                long value = timeoutsRPC.get(key);
+                if (value < now) {
+                    toRemove.add(key);
+                }
+            }
+            for (String rmt : toRemove) {
+                Logger.warning("Timeout on RPC response for " + rmt);
+                timeoutsRPC.remove(rmt);
+                try {
+                    localRPC.remove(rmt).close();
+                } catch (IOException ex) {
+                    Logger.log(LogLevel.WARNING, "Exception during timeout close!", ex);
+                }
+            }
+        }
+    }
+
+    /**
+     * Make sure that the RPC system is all set up (including a local binding).
+     */
     private synchronized void setupRPCSystem() {
         if (localRPCBinding != null) {
             return;
@@ -1106,6 +1142,7 @@ public class CluckNode {
             @Override
             protected void handleOther(String dest, String source, byte[] data) {
                 if (requireRMT(source, data, RMT_INVOKE_REPLY)) {
+                    checkTimeout();
                     OutputStream stream;
                     synchronized (CluckNode.this) {
                         stream = localRPC.get(dest);
@@ -1124,24 +1161,6 @@ public class CluckNode {
                             timeoutsRPC.remove(dest);
                         }
                     }
-                    long now = System.currentTimeMillis();
-                    CArrayList<String> toRemove = new CArrayList<String>();
-                    synchronized (CluckNode.this) {
-                        // Remove anything that timed out.
-                        Enumeration<String> keys = timeoutsRPC.keys();
-                        while (keys.hasMoreElements()) {
-                            String key = keys.nextElement();
-                            long value = timeoutsRPC.get(key);
-                            if (value < now) {
-                                toRemove.add(key);
-                            }
-                        }
-                        for (String rmt : toRemove) {
-                            Logger.warning("Timeout on RPC response for " + rmt);
-                            timeoutsRPC.remove(rmt);
-                            localRPC.remove(rmt);
-                        }
-                    }
                 }
             }
 
@@ -1152,21 +1171,30 @@ public class CluckNode {
         localRPCBinding = binding;
     }
 
-    public RemoteProcedure subscribeRP(final String name) {
+    /**
+     * Subscribe to a RemoteProcedure from the network at the specified path.
+     *
+     * @param path The path to subscribe to.
+     * @param timeoutAfter How long should calls wait before they are canceled
+     * due to timeout.
+     * @return the RemoteProcedure.
+     */
+    public RemoteProcedure subscribeRP(final String path, final int timeoutAfter) {
         if (localRPCBinding == null) {
             setupRPCSystem();
         }
         return new RemoteProcedure() {
             public void invoke(byte[] in, OutputStream out) {
-                String localname = name + "-" + Integer.toHexString(in.hashCode()) + "-" + Integer.toHexString((int) (System.currentTimeMillis() & 0xffff));
+                checkTimeout();
+                String localname = path + "-" + Integer.toHexString(in.hashCode()) + "-" + Integer.toHexString((int) (System.currentTimeMillis() & 0xffff));
                 synchronized (CluckNode.this) {
-                    timeoutsRPC.put(localname, System.currentTimeMillis() + RPC_TIMEOUT);
+                    timeoutsRPC.put(localname, System.currentTimeMillis() + timeoutAfter);
                     localRPC.put(localname, out);
                 }
                 byte[] toSend = new byte[in.length + 1];
                 toSend[0] = RMT_INVOKE;
                 System.arraycopy(in, 0, toSend, 1, in.length);
-                transmit(name, localRPCBinding + "/" + localname, toSend);
+                transmit(path, localRPCBinding + "/" + localname, toSend);
             }
         };
     }

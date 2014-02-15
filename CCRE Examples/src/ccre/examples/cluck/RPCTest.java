@@ -39,7 +39,7 @@ public class RPCTest {
             }
         });
         // Client
-        RemoteProcedure proc = clientNode.subscribeRP("server/test-procedure");
+        RemoteProcedure proc = clientNode.subscribeRP("server/test-procedure", 40);
         byte[] result = SimpleProcedure.invoke(proc, "REQUEST".getBytes(), 50);
         Logger.info("Client received response: " + (result == null ? "TIMEOUT" : new String(result)));
     }

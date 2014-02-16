@@ -208,7 +208,11 @@ public class PhidgetMonitor implements AttachListener, DetachListener, ErrorList
                 lcd.setDisplayString(line, lines[line].get().replace('\r', ' ').concat(fillLine).substring(0, LCD_WIDTH));
             }
         } catch (PhidgetException ex) {
-            Logger.log(LogLevel.SEVERE, "Cannot update string output to Phidget", ex);
+            if (ex.getErrorNumber() == PhidgetException.EPHIDGET_NOTATTACHED) {
+                Logger.log(LogLevel.WARNING, "Phidget not attached!");
+            } else {
+                Logger.log(LogLevel.SEVERE, "Cannot update string output to Phidget", ex);
+            }
         }
     }
 

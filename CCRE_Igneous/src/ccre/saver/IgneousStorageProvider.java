@@ -70,7 +70,7 @@ public class IgneousStorageProvider extends StorageProvider {
                 write(new byte[]{(byte) b});
             }
 
-            public void write(byte[] b, int off, int len) throws IOException {
+            public synchronized void write(byte[] b, int off, int len) throws IOException {
                 if (b == null) {
                     throw new NullPointerException();
                 }
@@ -98,7 +98,7 @@ public class IgneousStorageProvider extends StorageProvider {
                 }
             }
 
-            public void close() throws IOException {
+            public synchronized void close() throws IOException {
                 if (closed) {
                     return;
                 }
@@ -109,7 +109,7 @@ public class IgneousStorageProvider extends StorageProvider {
                 }
             }
 
-            public void flush() throws IOException {
+            public synchronized void flush() throws IOException {
                 if (closed) {
                     throw new IOException("Already closed!");
                 }

@@ -61,7 +61,7 @@ public class FileLogger implements LoggingTarget {
         pstream.println("Logging began at " + new Date(start) + " [" + start + "]");
         new Ticker(10000).addListener(new EventConsumer() {
             public void eventFired() {
-                log(LogLevel.FINE, "Logging continues at " + new Date(), (String) null);
+                FileLogger.this.pstream.println("Logging continues at " + new Date());
             }
         });
     }

@@ -23,10 +23,10 @@ import ccre.event.EventConsumer;
 import ccre.saver.StorageProvider;
 import ccre.workarounds.ThrowablePrinter;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintStream;
 import java.util.Date;
-import java.util.logging.Level;
 
 /**
  * A logging tool that stores logging message in a file on the current computer
@@ -38,7 +38,16 @@ public class FileLogger implements LoggingTarget {
 
     public static void register() {
         try {
-            Logger.addTarget(new FileLogger("log-" + System.currentTimeMillis()));
+            int i=0;
+            while (true) {
+                InputStream oi = StorageProvider.openInput("log-" + i);
+                if (oi == null) {
+                    break;
+                }
+                oi.close();
+                i++;
+            }
+            Logger.addTarget(new FileLogger("log-" + i));
         } catch (IOException ex) {
             Logger.log(LogLevel.WARNING, "Could not set up File logging!", ex);
         }

@@ -21,6 +21,8 @@ package ccre.saver;
 import ccre.downgrade.Iterator;
 import ccre.log.*;
 import com.sun.squawk.microedition.io.FileConnection;
+import com.sun.squawk.platform.posix.LibCUtil;
+import com.sun.squawk.platform.posix.natives.LibC;
 import java.io.*;
 import javax.microedition.io.Connector;
 
@@ -55,9 +57,71 @@ public class IgneousStorageProvider extends StorageProvider {
     }
 
     protected OutputStream openOutputFile(String string) throws IOException {
-        FileConnection fconn = (FileConnection) Connector.open("file:///" + string, Connector.WRITE);
-        fconn.create();
-        return fconn.openOutputStream();
+        // Warning! This is very experimental! This is needed because the usual implementations don't allow for multiple open files, and I needed to have a log file always open.
+        final LibC c = LibC.INSTANCE;
+        final int fd = c.open("/" + string, LibC.O_CREAT | LibC.O_WRONLY | LibC.O_EXCL, 0666);
+        if (fd == -1) {
+            throw new IOException("Could not open file to write: errno " + LibCUtil.errno());
+        }
+        return new OutputStream() {
+            boolean closed = false;
+
+            public void write(int b) throws IOException {
+                write(new byte[]{(byte) b});
+            }
+
+            public void write(byte[] b, int off, int len) throws IOException {
+                if (b == null) {
+                    throw new NullPointerException();
+                }
+                if (off < 0 || len < 0 || off + len > b.length) {
+                    throw new IllegalArgumentException();
+                }
+                if (closed) {
+                    throw new IOException("Already closed!");
+                }
+                if (len == 0) {
+                    return;
+                }
+                if (off != 0) {
+                    byte[] na = new byte[len];
+                    System.arraycopy(b, off, na, 0, len);
+                    b = na;
+                }
+                int count = c.write(fd, b, len);
+                if (count < 0) {
+                    throw new IOException("Could not write: errno " + LibCUtil.errno() + " for " + count);
+                } else if (count > len || count == 0) {
+                    throw new IOException("Could not write: " + count + " bad for " + len);
+                } else if (count < len) {
+                    write(b, off + count, len - count); // Try again!
+                }
+            }
+
+            public void close() throws IOException {
+                if (closed) {
+                    return;
+                }
+                closed = true;
+                int out = c.close(fd);
+                if (out != 0) {
+                    throw new IOException("Could not close: " + out + " errno " + LibCUtil.errno());
+                }
+            }
+
+            public void flush() throws IOException {
+                if (closed) {
+                    throw new IOException("Already closed!");
+                }
+                int out = c.fsync(fd);
+                if (out != 0) {
+                    throw new IOException("Could not close: " + out + " errno " + LibCUtil.errno());
+                }
+            }
+        };
+        /*FileConnection fconn = (FileConnection) Connector.open("file:///" + string, Connector.WRITE);
+         fconn.create();
+         return fconn.openOutputStream();*/
     }
 
     protected InputStream openInputFile(String string) throws IOException {

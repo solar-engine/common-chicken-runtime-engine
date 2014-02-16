@@ -30,7 +30,6 @@ import ccre.ctrl.Ticker;
 import java.awt.*;
 import java.awt.event.*;
 import java.io.BufferedReader;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
@@ -247,7 +246,7 @@ public class IntelligenceMain extends JPanel implements CluckRemoteListener, Mou
         painter.start();
         this.node.startSearchRemotes(searchLinkName, this);
     }
-    
+
     @Override
     public void mouseDragged(MouseEvent e) {
         if (mouseBtn == MouseEvent.BUTTON3) {
@@ -269,7 +268,7 @@ public class IntelligenceMain extends JPanel implements CluckRemoteListener, Mou
             repaint();
         }
     }
-    
+
     @Override
     public void mouseMoved(MouseEvent e) {
         int curX = e.getX();
@@ -283,7 +282,7 @@ public class IntelligenceMain extends JPanel implements CluckRemoteListener, Mou
             repaint();
         }
     }
-    
+
     @Override
     public void mouseWheelMoved(MouseWheelEvent e) {
         currentPaneScroll -= e.getWheelRotation() * 2;
@@ -291,11 +290,11 @@ public class IntelligenceMain extends JPanel implements CluckRemoteListener, Mou
             currentPaneScroll = 0;
         }
     }
-    
+
     @Override
     public void mouseClicked(MouseEvent e) {
     }
-    
+
     @Override
     public void mousePressed(MouseEvent e) {
         if (dialog != null && dialog.isOver(paneWidth, getWidth(), getHeight(), e.getX(), e.getY())) {
@@ -359,20 +358,20 @@ public class IntelligenceMain extends JPanel implements CluckRemoteListener, Mou
         }
         activeEntity = null;
     }
-    
+
     @Override
     public void mouseReleased(MouseEvent e) {
         activeEntity = null;
     }
-    
+
     @Override
     public void mouseEntered(MouseEvent e) {
     }
-    
+
     @Override
     public void mouseExited(MouseEvent e) {
     }
-    
+
     @Override
     public void handle(String remote, int remoteType) {
         Remote old = remotes.get(remote);
@@ -394,7 +393,7 @@ public class IntelligenceMain extends JPanel implements CluckRemoteListener, Mou
         node.cycleSearchRemotes(searchLinkName);
         // TODO: Remove old entries
     }
-    
+
     @Override
     public void paint(Graphics g) {
         int w = getWidth();
@@ -488,7 +487,7 @@ public class IntelligenceMain extends JPanel implements CluckRemoteListener, Mou
         }
         painter.feed();
     }
-    
+
     public static void main(String[] args) {
         CluckGlobals.ensureInitializedCore();
         NetworkAutologger.register();
@@ -539,21 +538,19 @@ public class IntelligenceMain extends JPanel implements CluckRemoteListener, Mou
         frame.add(jsp);
         frame.setVisible(true);
         Logger.info("Started Poultry Inspector at " + System.currentTimeMillis());
-        new PhidgetMonitor().share(CluckGlobals.node);
-        /*/ Test code!
-        CluckGlobals.node.publish("test-rpc", new EventConsumer() {
+        new CluckSubscriber() {
             @Override
-            public void eventFired() {
-                RemoteProcedure rp = CluckGlobals.node.subscribeRP("display-dialog", 10500);
-                rp.invoke("TITLE Dialog Test\nTEXT This is a line\nTEXT Another line\nBUTTON Button 1\nBUTTON Button 2\nBUTTON Button 3\nBUTTON Button 4\n".getBytes(), new ByteArrayOutputStream() {
-                    @Override
-                    public void close() {
-                        Logger.info("Received dialog result: " + new String(toByteArray()));
-                    }
-                });
+            protected void receive(String source, byte[] data) {
             }
-        });
-        // End test code!*/
+
+            @Override
+            protected void receiveBroadcast(String source, byte[] data) {
+                if (data.length == 1 && data[0] == CluckNode.RMT_NOTIFY) {
+                    Logger.info("Network modified at " + new Date());
+                }
+            }
+        }.attach(CluckGlobals.node, "notify-fetcher-virt");
+        new PhidgetMonitor().share(CluckGlobals.node);
         refresh.doClick();
         IPProvider.connect();
     }

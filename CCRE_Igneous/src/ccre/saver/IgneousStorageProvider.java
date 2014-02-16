@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 Colby Skeggs
+ * Copyright 2013-2014 Colby Skeggs
  * 
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  * 
@@ -52,6 +52,17 @@ public class IgneousStorageProvider extends StorageProvider {
 
     protected StorageSegment open(String name) {
         return new IgneousStorageSegment(name);
+    }
+
+    protected OutputStream openOutputFile(String string) throws IOException {
+        FileConnection fconn = (FileConnection) Connector.open("file:///" + string, Connector.WRITE);
+        fconn.create();
+        return fconn.openOutputStream();
+    }
+
+    protected InputStream openInputFile(String string) throws IOException {
+        FileConnection fc = (FileConnection) Connector.open("file:///" + string, Connector.READ);
+        return fc.exists() ? fc.openInputStream() : null;
     }
 
     private static class IgneousStorageSegment extends HashMappedStorageSegment {

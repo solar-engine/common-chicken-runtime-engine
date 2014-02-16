@@ -26,6 +26,7 @@ import ccre.device.DeviceException;
 import ccre.device.DeviceRegistry;
 import ccre.event.*;
 import ccre.log.BootLogger;
+import ccre.log.FileLogger;
 import ccre.log.NetworkAutologger;
 import ccre.util.LineCollectorOutputStream;
 import java.io.File;
@@ -77,6 +78,7 @@ public class EmulatorLauncher implements IgneousLauncher {
         CluckGlobals.ensureInitializedCore();
         NetworkAutologger.register();
         BootLogger.register();
+        FileLogger.register();
         URLClassLoader classLoader = new URLClassLoader(new URL[]{jarFile.toURI().toURL()}, EmulatorLauncher.class.getClassLoader());
         Class<? extends IgneousCore> asSubclass = classLoader.loadClass(mainClass).asSubclass(IgneousCore.class);
         EmulatorForm emf = new EmulatorForm();

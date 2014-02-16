@@ -494,6 +494,20 @@ public class IntelligenceMain extends JPanel implements CluckRemoteListener, Mou
         JFrame frame = new JFrame("Intelligence Panel");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setSize(640, 480);
+        if (args.length >= 2) {
+            try {
+                frame.setSize(Integer.parseInt(args[0]), Integer.parseInt(args[1]));
+            } catch (NumberFormatException ex) {
+                Logger.log(LogLevel.WARNING, "Bad window position!", ex);
+            }
+        }
+        if (args.length >= 4) {
+            try {
+                frame.setLocation(Integer.parseInt(args[2]), Integer.parseInt(args[3]));
+            } catch (NumberFormatException ex) {
+                Logger.log(LogLevel.WARNING, "Bad window position!", ex);
+            }
+        }
         JSplitPane jsp = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
         JPanel subpanel = new JPanel();
         JScrollPane scroll = new JScrollPane();
@@ -533,7 +547,7 @@ public class IntelligenceMain extends JPanel implements CluckRemoteListener, Mou
         jsp.setRightComponent(subpanel);
         IPProvider.init();
         jsp.setLeftComponent(new IntelligenceMain(args, CluckGlobals.node, new Ticker(1000), refresh, reconnect));
-        jsp.setDividerLocation(2 * 480 / 3);
+        jsp.setDividerLocation(2 * frame.getHeight() / 3);
         jsp.setResizeWeight(0.7);
         frame.add(jsp);
         frame.setVisible(true);

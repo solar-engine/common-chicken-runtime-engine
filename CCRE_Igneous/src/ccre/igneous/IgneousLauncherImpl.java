@@ -122,6 +122,7 @@ class IgneousLauncherImpl extends IterativeRobot implements IgneousLauncher {
 
     public final void autonomousInit() {
         try {
+            Logger.fine("Began autonomous mode");
             startedAutonomous.produce();
         } catch (Throwable thr) {
             Logger.log(LogLevel.SEVERE, "Critical Code Failure in Autonomous Init", thr);
@@ -147,6 +148,7 @@ class IgneousLauncherImpl extends IterativeRobot implements IgneousLauncher {
 
     public final void disabledInit() {
         try {
+            Logger.fine("Began disabled mode");
             robotDisabled.produce();
         } catch (Throwable thr) {
             Logger.log(LogLevel.SEVERE, "Critical Code Failure in Disabled Init", thr);
@@ -172,6 +174,7 @@ class IgneousLauncherImpl extends IterativeRobot implements IgneousLauncher {
 
     public final void teleopInit() {
         try {
+            Logger.fine("Began teleop mode");
             startedTeleop.produce();
         } catch (Throwable thr) {
             Logger.log(LogLevel.SEVERE, "Critical Code Failure in Teleop Init", thr);
@@ -197,6 +200,7 @@ class IgneousLauncherImpl extends IterativeRobot implements IgneousLauncher {
 
     public final void testInit() {
         try {
+            Logger.fine("Began testing mode");
             startedTesting.produce();
         } catch (Throwable thr) {
             Logger.log(LogLevel.SEVERE, "Critical Code Failure in Testing Init", thr);

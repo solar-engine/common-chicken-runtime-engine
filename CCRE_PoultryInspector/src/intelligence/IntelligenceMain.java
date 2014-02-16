@@ -20,7 +20,6 @@ package intelligence;
 
 import ccre.cluck.*;
 import ccre.cluck.rpc.RemoteProcedure;
-import ccre.cluck.rpc.SimpleProcedure;
 import ccre.concurrency.CollapsingWorkerThread;
 import ccre.event.EventConsumer;
 import ccre.event.EventSource;
@@ -390,8 +389,9 @@ public class IntelligenceMain extends JPanel implements CluckRemoteListener, Mou
      * Repeat searching for remote objects.
      */
     public void research() {
+        remotes.clear();
+        sortRemotes = null;
         node.cycleSearchRemotes(searchLinkName);
-        // TODO: Remove old entries
     }
 
     @Override
@@ -538,6 +538,14 @@ public class IntelligenceMain extends JPanel implements CluckRemoteListener, Mou
         frame.add(jsp);
         frame.setVisible(true);
         Logger.info("Started Poultry Inspector at " + System.currentTimeMillis());
+        final ExpirationTimer ext = new ExpirationTimer();
+        ext.schedule(5000, new EventConsumer() {
+            @Override
+            public void eventFired() {
+                Logger.info("Current time: " + new Date());
+            }
+        });
+        ext.schedule(5010, ext.getStopEvent());
         new CluckSubscriber() {
             @Override
             protected void receive(String source, byte[] data) {
@@ -546,7 +554,7 @@ public class IntelligenceMain extends JPanel implements CluckRemoteListener, Mou
             @Override
             protected void receiveBroadcast(String source, byte[] data) {
                 if (data.length == 1 && data[0] == CluckNode.RMT_NOTIFY) {
-                    Logger.info("Network modified at " + new Date());
+                    ext.startOrFeed();
                 }
             }
         }.attach(CluckGlobals.node, "notify-fetcher-virt");

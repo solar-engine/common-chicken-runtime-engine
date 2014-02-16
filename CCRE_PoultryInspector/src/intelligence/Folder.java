@@ -28,7 +28,7 @@ import ccre.util.CArrayList;
  */
 public final class Folder extends Remote {
 
-    protected boolean open = true;
+    protected boolean open = false;
     protected final CArrayList<Remote> contents = new CArrayList<Remote>();
     protected int place;
     protected final String ID;

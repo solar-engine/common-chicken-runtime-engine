@@ -38,7 +38,7 @@ public class FileLogger implements LoggingTarget {
 
     public static void register() {
         try {
-            int i=0;
+            int i = 0;
             while (true) {
                 InputStream oi = StorageProvider.openInput("log-" + i);
                 if (oi == null) {
@@ -70,33 +70,33 @@ public class FileLogger implements LoggingTarget {
         pstream.println("Logging began at " + new Date(start) + " [" + start + "]");
         new Ticker(10000).addListener(new EventConsumer() {
             public void eventFired() {
-                FileLogger.this.pstream.println("Logging continues at " + new Date());
+                synchronized (FileLogger.this) {
+                    FileLogger.this.pstream.println("Logging continues at " + new Date());
+                    FileLogger.this.pstream.flush();
+                }
             }
         });
     }
 
-    public void log(LogLevel level, String message, Throwable throwable) {
+    public synchronized void log(LogLevel level, String message, Throwable throwable) {
         pstream.println("[" + (System.currentTimeMillis() - start) + " " + level + "] " + message);
-        if (throwable == null) {
-            return;
+        if (throwable != null) {
+            ThrowablePrinter.printThrowable(throwable, pstream);
         }
-        ThrowablePrinter.printThrowable(throwable, pstream);
         pstream.flush();
     }
 
-    public void log(LogLevel level, String message, String extended) {
+    public synchronized void log(LogLevel level, String message, String extended) {
         pstream.println("[" + (System.currentTimeMillis() - start) + " " + level + "] " + message);
-        if (extended == null) {
-            return;
+        if (extended != null) {
+            int i = extended.length();
+            while (i != 0 && extended.charAt(i - 1) <= 32) {
+                i -= 1;
+            }
+            if (i != 0) {
+                pstream.println(extended);
+            }
         }
-        int i = extended.length();
-        while (i != 0 && extended.charAt(i - 1) <= 32) {
-            i -= 1;
-        }
-        if (i == 0) {
-            return;
-        }
-        pstream.println(extended);
         pstream.flush();
     }
 }

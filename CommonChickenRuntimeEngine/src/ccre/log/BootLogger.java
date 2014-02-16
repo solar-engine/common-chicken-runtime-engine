@@ -71,6 +71,9 @@ public class BootLogger implements LoggingTarget {
             return;
         }
         synchronized (this) {
+            if (outId >= outs.length) {
+                return;
+            }
             if (extended == null) {
                 outs[outId++] = level.toString() + ": " + message;
             } else {

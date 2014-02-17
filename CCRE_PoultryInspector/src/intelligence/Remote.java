@@ -35,7 +35,10 @@ public class Remote implements Comparable<Remote> {
      * The RMT of the Remote.
      */
     protected final int type;
-    boolean inFolder = false;
+    /**
+     * Is this remote in a folder?
+     */
+    protected boolean inFolder = false;
     /**
      * The remote path.
      */
@@ -48,6 +51,10 @@ public class Remote implements Comparable<Remote> {
      * The subscribed version of the object.
      */
     protected Object checkout;
+    /**
+     * The paired remote, if this is one half of a FloatStatus or BooleanStatus.
+     */
+    protected Remote paired;
 
     /**
      * Create a new remote with a specified remote address, Cluck node, and

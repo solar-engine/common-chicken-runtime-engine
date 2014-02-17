@@ -429,6 +429,16 @@ public class IntelligenceMain extends JPanel implements CluckRemoteListener, Mou
                 // Wait until next cycle.
                 return;
             }
+            for (Remote r : loc) {
+                String p = r.path;
+                if (p.endsWith(".output")) {
+                    r.paired = remotes.get(p.substring(0, p.length() - ".output".length()) + ".input");
+                } else if (p.endsWith(".input")) {
+                    r.paired = remotes.get(p.substring(0, p.length() - ".input".length()) + ".output");
+                } else {
+                    r.paired = null;
+                }
+            }
             for (Map.Entry<String, Entity> key : ents.entrySet()) {
                 if (key.getValue().centerX >= paneWidth) {
                     loc.remove(remotes.get(key.getKey()));
@@ -438,6 +448,7 @@ public class IntelligenceMain extends JPanel implements CluckRemoteListener, Mou
             loc.addAll(Arrays.asList(folders));
             for (Folder f : folders) {
                 f.contents.clear();
+                f.hascontents = false;
             }
             for (Iterator<Remote> it = loc.iterator(); it.hasNext();) {
                 Remote r = it.next();
@@ -445,6 +456,7 @@ public class IntelligenceMain extends JPanel implements CluckRemoteListener, Mou
                 for (Folder f : folders) {
                     if (f.isInside(r)) {
                         it.remove();
+                        f.hascontents = true;
                         if (f.open) {
                             f.contents.add(r);
                         }

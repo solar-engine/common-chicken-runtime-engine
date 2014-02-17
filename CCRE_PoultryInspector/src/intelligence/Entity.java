@@ -262,12 +262,16 @@ public final class Entity {
                 countStart = System.currentTimeMillis();
                 break;
             case RMT_EVENTSOURCE:
-            case RMT_BOOLPROD:
-            case RMT_FLOATPROD:
-                // Interacting with these wouldn't mean anything.
+                // Interacting with this wouldn't mean anything.
                 break;
             case RMT_LOGTARGET:
                 // TODO: Do something with LogTarget?
+                break;
+            case RMT_BOOLPROD:
+                if (this.represented.paired.checkout() instanceof BooleanOutput) {
+                    BooleanOutput bo = (BooleanOutput) this.represented.paired.checkout;
+                    bo.writeValue(x < 0);
+                }
                 break;
             case RMT_BOOLOUTP:
                 BooleanOutput bo = (BooleanOutput) co;
@@ -276,6 +280,22 @@ public final class Entity {
                     bo.writeValue(nw);
                     currentValue = nw;
                     countStart = System.currentTimeMillis();
+                }
+                break;
+            case RMT_FLOATPROD:
+                if (this.represented.paired.checkout() instanceof FloatOutput) {
+                    FloatOutput fo = (FloatOutput) this.represented.paired.checkout;
+                    float f = x / (float) width;
+                    if (y < 0) {
+                        try {
+                            String jop = JOptionPane.showInputDialog("Enter a number", "");
+                            f = Float.parseFloat(jop);
+                        } catch (NumberFormatException ex) {
+                            Logger.log(LogLevel.WARNING, "Cannot write new value!", ex);
+                            break;
+                        }
+                    }
+                    fo.writeValue(f);
                 }
                 break;
             case RMT_FLOATOUTP:

@@ -56,7 +56,7 @@ class GPIHandle extends DeviceHandle<BooleanInputPoll> {
     }
 
     @Override
-    public void close(BooleanInputPoll type) throws DeviceException {
+    public void close(Object type) throws DeviceException {
         if (type != null || type != din) {
             throw new DeviceException("Bad target for close!");
         }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 Colby Skeggs
+ * Copyright 2013-2014 Colby Skeggs
  * 
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  * 
@@ -17,6 +17,10 @@
  * along with the CCRE.  If not, see <http://www.gnu.org/licenses/>.
  */
 package ccre.saver;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 
 /**
  * A fake storage provider that works, except that it doesn't save or load
@@ -37,5 +41,15 @@ class FakeStorageProvider extends StorageProvider {
             public void close() {
             }
         };
+    }
+
+    @Override
+    protected OutputStream openOutputFile(String name) throws IOException {
+        throw new IOException("Cannot write to any files in a FakeStorageProvider!");
+    }
+
+    @Override
+    protected InputStream openInputFile(String name) throws IOException {
+        return null;
     }
 }

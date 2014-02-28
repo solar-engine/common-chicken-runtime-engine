@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 Colby Skeggs
+ * Copyright 2013-2014 Colby Skeggs
  * 
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  * 
@@ -114,6 +114,31 @@ public class Network {
      */
     public static ClientSocket connect(String targetAddress, int port) throws IOException {
         return getProvider().openClient(targetAddress, port);
+    }
+
+    /**
+     * This is like connect(targetAddress, port), but if the target address ends
+     * in a colon followed by a number, that port will be used instead of the
+     * specified port.
+     *
+     * @param targetAddress the IP address to connect to, with an option port
+     * specifier.
+     * @param port the default port to connect to if there is no port specifier.
+     * @return the ClientSocket that represents the connection.
+     * @throws java.io.IOException if an IO error occurs or the port specifier
+     * is invalid.
+     */
+    public static ClientSocket connectDynPort(String targetAddress, int port) throws IOException {
+        int cln = targetAddress.lastIndexOf(':');
+        if (cln != -1) {
+            try {
+                port = Integer.parseInt(targetAddress.substring(cln + 1));
+                targetAddress = targetAddress.substring(0, cln);
+            } catch (NumberFormatException ex) {
+                throw new IOException("Cannot connect to address - bad port specifier: " + targetAddress.substring(cln + 1));
+            }
+        }
+        return connect(targetAddress, port);
     }
 
     /**

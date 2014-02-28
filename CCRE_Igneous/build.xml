@@ -68,7 +68,7 @@
                includeAntRuntime="no" includeJavaRuntime="no"
                bootclasspath="${bootclasspath}" debug="true" fork="yes"
                classpath="${classpath};${ccrejar}" target="1.2" source="1.3">
-            <compilerarg value="-Xlint:deprecation"/>
+            <compilerarg value="-Xlint"/>
         </javac>
     </target>
     <target name="paste-ccre">

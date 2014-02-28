@@ -30,7 +30,7 @@ public class CArrayUtils {
     /**
      * An empty list. Immutable.
      */
-    public static CList EMPTY_LIST = new CAbstractList() {
+    public static CList<?> EMPTY_LIST = new CAbstractList<Object>() {
         @Override
         public int size() {
             return 0;
@@ -41,10 +41,12 @@ public class CArrayUtils {
             throw new IndexOutOfBoundsException("Out of bounds: " + index);
         }
 
+        @Override
         public Object[] toArray() {
             return new Object[0];
         }
 
+        @Override
         public int fillArray(Object[] target) {
             return -target.length;
         }
@@ -58,7 +60,7 @@ public class CArrayUtils {
      */
     @SuppressWarnings("unchecked")
     public static <T> CList<T> getEmptyList() {
-        return EMPTY_LIST;
+        return (CList<T>) EMPTY_LIST;
     }
 
     /**

@@ -8,6 +8,7 @@ import javax.swing.JToggleButton;
  *
  * @author skeggsc
  */
+@SuppressWarnings("serial")
 public class EmulatorJoystick extends javax.swing.JPanel {
 
     /**

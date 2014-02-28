@@ -62,6 +62,7 @@ class IgneousLauncherImpl extends IterativeRobot implements IgneousLauncher {
         CluckGlobals.ensureInitializedCore();
         NetworkAutologger.register();
         BootLogger.register();
+        FileLogger.register();
         String name = VM.getManifestProperty("Igneous-Main");
         if (name == null) {
             throw new RuntimeException("Could not find MANIFEST-specified launchee!");
@@ -102,7 +103,17 @@ class IgneousLauncherImpl extends IterativeRobot implements IgneousLauncher {
         core.startedTeleop = this.startedTeleop;
         core.startedTesting = this.startedTesting;
         core.launcher = this;
-        core.createRobotControl();
+        try {
+            core.createRobotControl();
+        } catch (Throwable thr) {
+            Logger.log(LogLevel.SEVERE, "Critical Code Failure in Disabled Init", thr);
+            if (thr instanceof RuntimeException) {
+                throw (RuntimeException) thr;
+            } else if (thr instanceof Error) {
+                throw (Error) thr;
+            }
+            throw new RuntimeException("Critical Code Failure: " + thr.getMessage());
+        }
     }
     /**
      * Produced when the robot enters autonomous mode.
@@ -110,7 +121,12 @@ class IgneousLauncherImpl extends IterativeRobot implements IgneousLauncher {
     protected Event startedAutonomous = new Event();
 
     public final void autonomousInit() {
-        startedAutonomous.produce();
+        try {
+            Logger.fine("Began autonomous mode");
+            startedAutonomous.produce();
+        } catch (Throwable thr) {
+            Logger.log(LogLevel.SEVERE, "Critical Code Failure in Autonomous Init", thr);
+        }
     }
     /**
      * Produced during autonomous mode.
@@ -118,8 +134,12 @@ class IgneousLauncherImpl extends IterativeRobot implements IgneousLauncher {
     protected Event duringAutonomous = new Event();
 
     public final void autonomousPeriodic() {
-        duringAutonomous.produce();
-        globalPeriodic.produce();
+        try {
+            duringAutonomous.produce();
+            globalPeriodic.produce();
+        } catch (Throwable thr) {
+            Logger.log(LogLevel.SEVERE, "Critical Code Failure in Autonomous Periodic", thr);
+        }
     }
     /**
      * Produced when the robot enters disabled mode.
@@ -127,7 +147,12 @@ class IgneousLauncherImpl extends IterativeRobot implements IgneousLauncher {
     protected Event robotDisabled = new Event();
 
     public final void disabledInit() {
-        robotDisabled.produce();
+        try {
+            Logger.fine("Began disabled mode");
+            robotDisabled.produce();
+        } catch (Throwable thr) {
+            Logger.log(LogLevel.SEVERE, "Critical Code Failure in Disabled Init", thr);
+        }
     }
     /**
      * Produced while the robot is disabled.
@@ -135,8 +160,12 @@ class IgneousLauncherImpl extends IterativeRobot implements IgneousLauncher {
     protected Event duringDisabled = new Event();
 
     public final void disabledPeriodic() {
-        duringDisabled.produce();
-        globalPeriodic.produce();
+        try {
+            duringDisabled.produce();
+            globalPeriodic.produce();
+        } catch (Throwable thr) {
+            Logger.log(LogLevel.SEVERE, "Critical Code Failure in Disabled Periodic", thr);
+        }
     }
     /**
      * Produced when the robot enters teleop mode.
@@ -144,8 +173,12 @@ class IgneousLauncherImpl extends IterativeRobot implements IgneousLauncher {
     protected Event startedTeleop = new Event();
 
     public final void teleopInit() {
-        Logger.finer("Start teleop dispatch");
-        startedTeleop.produce();
+        try {
+            Logger.fine("Began teleop mode");
+            startedTeleop.produce();
+        } catch (Throwable thr) {
+            Logger.log(LogLevel.SEVERE, "Critical Code Failure in Teleop Init", thr);
+        }
     }
     /**
      * Produced during teleop mode.
@@ -153,8 +186,12 @@ class IgneousLauncherImpl extends IterativeRobot implements IgneousLauncher {
     protected Event duringTeleop = new Event();
 
     public final void teleopPeriodic() {
-        duringTeleop.produce();
-        globalPeriodic.produce();
+        try {
+            duringTeleop.produce();
+            globalPeriodic.produce();
+        } catch (Throwable thr) {
+            Logger.log(LogLevel.SEVERE, "Critical Code Failure in Teleop Periodic", thr);
+        }
     }
     /**
      * Produced when the robot enters testing mode.
@@ -162,7 +199,12 @@ class IgneousLauncherImpl extends IterativeRobot implements IgneousLauncher {
     protected Event startedTesting = new Event();
 
     public final void testInit() {
-        startedTesting.produce();
+        try {
+            Logger.fine("Began testing mode");
+            startedTesting.produce();
+        } catch (Throwable thr) {
+            Logger.log(LogLevel.SEVERE, "Critical Code Failure in Testing Init", thr);
+        }
     }
     /**
      * Produced during testing mode.
@@ -170,8 +212,12 @@ class IgneousLauncherImpl extends IterativeRobot implements IgneousLauncher {
     protected Event duringTesting = new Event();
 
     public final void testPeriodic() {
-        duringTesting.produce();
-        globalPeriodic.produce();
+        try {
+            duringTesting.produce();
+            globalPeriodic.produce();
+        } catch (Throwable thr) {
+            Logger.log(LogLevel.SEVERE, "Critical Code Failure in Testing Periodic", thr);
+        }
     }
 
     /**

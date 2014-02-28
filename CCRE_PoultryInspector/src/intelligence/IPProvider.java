@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 Colby Skeggs
+ * Copyright 2013-2014 Colby Skeggs
  * 
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  * 
@@ -23,7 +23,6 @@ import ccre.holders.StringHolder;
 import ccre.log.Logger;
 import ccre.net.Network;
 import ccre.util.CCollection;
-import java.io.IOException;
 
 /**
  * The system to calculate what address to connect to.
@@ -36,16 +35,18 @@ public class IPProvider {
      * The address that should be connected to. "*" means that it should
      * autoconfigure based on the network.
      */
-    public static StringHolder forcedAddress = new StringHolder("*");
+    public static final StringHolder forcedAddress = new StringHolder("*");
+    
+    private static final boolean useHigherPort;
 
     static {
         CluckGlobals.node.publish("forced-remote-address", forcedAddress.getOutput());
+        String os = System.getProperty("os.name");
+        useHigherPort = os != null && os.startsWith("Mac ");
     }
 
     /**
      * Compute an address and connect to it.
-     *
-     * @throws IOException if the target cannot be connected to.
      */
     public static void connect() {
         Logger.finest("Connecting...");
@@ -68,8 +69,6 @@ public class IPProvider {
 
     /**
      * Calculate the address to connect to based on the network configuration.
-     * This means looking for a network of 10.X.Y.Z and then the target is
-     * 10.X.Y.2. Otherwise, it logs a warning and returns null.
      *
      * @return the probable address of the robot, or null if it cannot be
      * determined.
@@ -78,13 +77,13 @@ public class IPProvider {
         CCollection<String> addresses = Network.listIPv4Addresses();
         for (String addr : addresses) {
             if (addr.startsWith("10.") && addr.substring(0, addr.lastIndexOf('.')).length() <= 8) {
-                return addr.substring(0, addr.lastIndexOf('.') + 1).concat("2");
+                return addr.substring(0, addr.lastIndexOf('.') + 1).concat("2:443");
             } else if (addr.equals("192.168.7.1")) {
                 return "192.168.7.2"; // BeagleBone direct connection
             }
         }
         Logger.warning("Subnet Autodetect: Cannot find any valid network addresses! Defaulting to localhost.");
-        return "127.0.0.1";
+        return useHigherPort ? "127.0.0.1:1540" : "127.0.0.1";
     }
 
     /**

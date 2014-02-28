@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 Colby Skeggs
+ * Copyright 2013-2014 Colby Skeggs
  * 
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  * 
@@ -148,6 +148,36 @@ public class Mixing {
                 c.writeValue(value);
             }
         };
+    }
+
+    /**
+     * Combine two EventSources so that either event firing will fire the result
+     * event.
+     *
+     * @param a the first event source
+     * @param b the second event source
+     * @return the source that is fired by either of the original sources.
+     */
+    public static EventSource combine(EventSource a, EventSource b) {
+        Event e = new Event();
+        a.addListener(e);
+        b.addListener(e);
+        return e;
+    }
+
+    /**
+     * Combine multiple EventSources so that any event firing will fire the
+     * result event.
+     *
+     * @param sources the event sources
+     * @return the source that is fired by any of the original sources.
+     */
+    public static EventSource combine(EventSource... sources) {
+        Event e = new Event();
+        for (EventSource es : sources) {
+            es.addListener(e);
+        }
+        return e;
     }
 
     /**
@@ -959,5 +989,35 @@ public class Mixing {
      */
     public static FloatInputPoll quadSelect(final BooleanInputPoll alpha, final BooleanInputPoll beta, final float ff, final float ft, final float tf, final float tt) {
         return new QuadSelectImpl(alpha, beta, tt, tf, ft, ff);
+    }
+
+    /**
+     * Returns a debounced version of the specified EventConsumer, such that
+     * there is a minimum delay of minMillis milliseconds between events.
+     *
+     * Any event sent before the timeout will be ignored.
+     *
+     * @param orig The EventConsumer to debounce.
+     * @param minMillis The minimum event delay.
+     * @return The debounced version of the event consumer.
+     */
+    public static EventConsumer debounce(EventConsumer orig, int minMillis) {
+        return new DebounceImpl(orig, minMillis);
+    }
+
+    /**
+     * Returns a debounced version of the specified EventSource, such that there
+     * is a minimum delay of minMillis milliseconds between events.
+     *
+     * Any event sent before the timeout will be ignored.
+     *
+     * @param orig The EventSource to debounce.
+     * @param minMillis The minimum event delay.
+     * @return The debounced version of the event source.
+     */
+    public static EventSource debounce(EventSource orig, int minMillis) {
+        Event e = new Event();
+        orig.addListener(debounce((EventConsumer) e, minMillis));
+        return e;
     }
 }

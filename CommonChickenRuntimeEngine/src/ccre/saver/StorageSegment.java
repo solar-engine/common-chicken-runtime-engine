@@ -190,6 +190,7 @@ public abstract class StorageSegment {
         final String key = "~h:" + holder;
         DataInputStream din = getDataInputForKey(key);
         Float default_ = null;
+        final Float findefault_ = holder.readValue();
         if (din == null) {
             if (holder.hasBeenModified) {
                 float value = holder.readValue();
@@ -202,7 +203,6 @@ public abstract class StorageSegment {
                 } catch (IOException ex) {
                     Logger.log(LogLevel.WARNING, "Exception in self-contained float saving!", ex);
                 }
-                default_ = value;
             }
         } else {
             float value;
@@ -213,6 +213,7 @@ public abstract class StorageSegment {
                 }
                 // If the default is the same as the holder's default, or the holder doesn't have a value, then load the value
                 if ((default_ != null && default_ == holder.readValue()) || !holder.hasBeenModified) {
+                    Logger.config("Loaded float config from data: " + default_ + "/" + holder.readValue() + "/" + holder.hasBeenModified + "/" + value);
                     holder.writeValue(value);
                 }
                 // Otherwise, the holder has been modified and the default has changed from the holder, and therefore we want the updated value from the holder
@@ -220,7 +221,6 @@ public abstract class StorageSegment {
                 Logger.log(LogLevel.WARNING, "Exception in self-contained float saving!", ex);
             }
         }
-        final Float findefault_ = default_;
         holder.addTarget(new FloatOutput() {
             public void writeValue(float value) {
                 DataOutputStream dout = setDataOutputForKey(key);

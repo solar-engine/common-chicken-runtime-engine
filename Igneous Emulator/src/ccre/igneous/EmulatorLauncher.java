@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-214 Colby Skeggs
+ * Copyright 2013-2014 Colby Skeggs
  * 
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  * 
@@ -20,11 +20,13 @@ package ccre.igneous;
 
 import ccre.chan.*;
 import ccre.cluck.CluckGlobals;
+import ccre.cluck.tcp.CluckTCPServer;
 import ccre.ctrl.*;
 import ccre.device.DeviceException;
 import ccre.device.DeviceRegistry;
 import ccre.event.*;
 import ccre.log.BootLogger;
+import ccre.log.FileLogger;
 import ccre.log.NetworkAutologger;
 import ccre.util.LineCollectorOutputStream;
 import java.io.File;
@@ -76,6 +78,7 @@ public class EmulatorLauncher implements IgneousLauncher {
         CluckGlobals.ensureInitializedCore();
         NetworkAutologger.register();
         BootLogger.register();
+        FileLogger.register();
         URLClassLoader classLoader = new URLClassLoader(new URL[]{jarFile.toURI().toURL()}, EmulatorLauncher.class.getClassLoader());
         Class<? extends IgneousCore> asSubclass = classLoader.loadClass(mainClass).asSubclass(IgneousCore.class);
         EmulatorForm emf = new EmulatorForm();
@@ -104,6 +107,7 @@ public class EmulatorLauncher implements IgneousLauncher {
      */
     public void start() {
         CluckGlobals.setupServer();
+        new CluckTCPServer(CluckGlobals.node, 1540).start();
         core.duringAutonomous = this.duringAutonomous;
         core.duringDisabled = this.duringDisabled;
         core.duringTeleop = this.duringTeleop;

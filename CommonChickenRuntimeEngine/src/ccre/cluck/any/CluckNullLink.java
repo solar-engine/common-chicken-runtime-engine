@@ -41,9 +41,28 @@ import ccre.cluck.CluckNode;
  * </code><br>
  * This will log "Pseudo-networked test!" at LogLevel INFO.
  *
+ * Alternatively, the third and fourth lines of that example can be replaced
+ * with:
+ * <code>
+ * CluckNullLink.connect(alpha, "alpha-to-beta", beta, "beta-to-alpha");
+ * </code>
+ * And it will work the same.
+ *
  * @author skeggsc
  */
 public class CluckNullLink implements CluckLink {
+
+    /**
+     * Connect the two specified CluckNodes with a Null Link.
+     *
+     * @param alpha The Alpha node.
+     * @param alphaToBeta The link name for connecting from alpha to beta.
+     * @param beta The Beta node.
+     * @param betaToAlpha The link name for connecting from beta to alpha.
+     */
+    public static void connect(CluckNode alpha, String alphaToBeta, CluckNode beta, String betaToAlpha) {
+        new CluckNullLink(beta, betaToAlpha, new CluckNullLink(alpha, alphaToBeta));
+    }
 
     /**
      * The other end of this CluckNullLink.

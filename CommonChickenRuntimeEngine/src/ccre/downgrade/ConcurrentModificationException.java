@@ -26,6 +26,7 @@ package ccre.downgrade;
  * @see java.util.ConcurrentModificationException
  * @author skeggsc
  */
+@SuppressWarnings("serial")
 public class ConcurrentModificationException extends RuntimeException {
 
     public ConcurrentModificationException() {

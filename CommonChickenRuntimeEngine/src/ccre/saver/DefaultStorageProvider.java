@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 Colby Skeggs
+ * Copyright 2013-2014 Colby Skeggs
  * 
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  * 
@@ -29,6 +29,8 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 
 /**
  * The default storage provider. This will store data in the subdirectory
@@ -42,6 +44,20 @@ class DefaultStorageProvider extends StorageProvider {
     @Override
     protected StorageSegment open(String name) {
         return new DefaultStorageSegment(name);
+    }
+
+    @Override
+    protected OutputStream openOutputFile(String name) throws IOException {
+        return new FileOutputStream(name);
+    }
+
+    @Override
+    protected InputStream openInputFile(String name) throws IOException {
+        try {
+            return new FileInputStream(name);
+        } catch (FileNotFoundException ex) {
+            return null;
+        }
     }
 
     /**

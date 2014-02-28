@@ -29,7 +29,7 @@ import java.util.Iterator;
  */
 public class DeviceRegistry implements Iterable<String> {
 
-    protected final CHashMap<String, DeviceHandle> devices = new CHashMap<String, DeviceHandle>();
+    protected final CHashMap<String, DeviceHandle<? extends Object>> devices = new CHashMap<String, DeviceHandle<? extends Object>>();
 
     public <Type> void putHandle(String path, DeviceHandle<Type> hndl) throws DeviceException {
         if (devices.get(path) != null) {
@@ -57,8 +57,8 @@ public class DeviceRegistry implements Iterable<String> {
         putHandle(path, h);
     }
 
-    public DeviceHandle getHandle(String path) throws DeviceException {
-        DeviceHandle handle = devices.get(path);
+    public DeviceHandle<? extends Object> getHandle(String path) throws DeviceException {
+        DeviceHandle<? extends Object> handle = devices.get(path);
         if (handle == null) {
             throw new DeviceException("No such device: " + path);
         }

@@ -52,7 +52,7 @@ public class CelInterpreter {
     protected EventSource defaultPeriodic = null, alwaysPeriodic = null;
     
     protected Object getTree(String name) throws InterpreterException, DeviceException {
-        DeviceHandle h = tree.getHandle(name);
+        DeviceHandle<? extends Object> h = tree.getHandle(name);
         Object o = h.open();
         opened.put(name, o);
         return o;

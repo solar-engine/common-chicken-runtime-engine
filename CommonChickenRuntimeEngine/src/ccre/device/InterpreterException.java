@@ -23,6 +23,7 @@ package ccre.device;
  *
  * @author skeggsc
  */
+@SuppressWarnings("serial")
 public class InterpreterException extends Exception {
 
     public InterpreterException() {

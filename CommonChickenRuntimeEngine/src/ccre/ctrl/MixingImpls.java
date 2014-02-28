@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 Colby Skeggs
+ * Copyright 2013-2014 Colby Skeggs
  * 
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  * 
@@ -247,6 +247,27 @@ class MixingImpls {
         @Override
         public float filter(float input) {
             return Utils.deadzone(input, deadzone);
+        }
+    }
+
+    static class DebounceImpl implements EventConsumer {
+
+        private final EventConsumer orig;
+        private long nextFire = 0;
+        private final int delay;
+
+        DebounceImpl(EventConsumer orig, int delay) {
+            this.orig = orig;
+            this.delay = delay;
+        }
+
+        public void eventFired() {
+            long now = System.currentTimeMillis();
+            if (now < nextFire) {
+                return; // Ignore event.
+            }
+            nextFire = now + delay;
+            orig.eventFired();
         }
     }
 

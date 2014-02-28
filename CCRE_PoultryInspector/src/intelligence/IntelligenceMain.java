@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2014 Colby Skeggs, Gregor Peach (Added Folders, And Dialogs)
+ * Copyright 2013-2014 Colby Skeggs, Gregor Peach (Added Folders)
  * 
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  * 
@@ -18,8 +18,8 @@
  */
 package intelligence;
 
-import ccre.chan.FloatStatus;
 import ccre.cluck.*;
+import ccre.cluck.rpc.RemoteProcedure;
 import ccre.concurrency.CollapsingWorkerThread;
 import ccre.event.EventConsumer;
 import ccre.event.EventSource;
@@ -28,6 +28,12 @@ import ccre.ctrl.ExpirationTimer;
 import ccre.ctrl.Ticker;
 import java.awt.*;
 import java.awt.event.*;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.util.*;
 import javax.swing.*;
 
@@ -36,6 +42,7 @@ import javax.swing.*;
  *
  * @author skeggsc
  */
+@SuppressWarnings("serial")
 public class IntelligenceMain extends JPanel implements CluckRemoteListener, MouseMotionListener, MouseWheelListener, MouseListener {
 
     /**
@@ -125,16 +132,12 @@ public class IntelligenceMain extends JPanel implements CluckRemoteListener, Mou
     /**
      * Array of folders.
      */
-<<<<<<< HEAD
-    protected final Folder[] folders = new Folder[]{new Folder("Phidget", "^phidget")};
+    protected final Folder[] folders;
     /**
-     * Dialog boxes present on screen.
+     * The active dialog, if any.
      */
-    protected final ArrayList<Dialog> messages=new ArrayList<Dialog>(Arrays.asList(new Dialog("THERE IS A MAJOR ERROR 505 I NEED COOKIES TO EAT! THE WORLD IS NOT ROUND BECUAUSEN WE ARE NOOBS\1")));
-=======
-    protected final Folder[] folders = new Folder[]{new Folder("Phidget", "phidget.*")};
+    protected PoultryDialog dialog;
 
->>>>>>> a289bd493bc99d0a86b7277a312c08d5737b6a95
     /**
      * Create a new Intelligence Panel.
      *
@@ -145,6 +148,44 @@ public class IntelligenceMain extends JPanel implements CluckRemoteListener, Mou
      */
     private IntelligenceMain(String[] args, CluckNode node, EventSource seconds, JButton searcher, JButton reconnector) {
         this.node = node;
+        ArrayList<Folder> folderList = new ArrayList<Folder>();
+        try {
+            File folder = new File(".").getAbsoluteFile();
+            File target = null;
+            while (folder != null && folder.exists()) {
+                target = new File(folder, "poultry-settings.txt");
+                if (target.exists() && target.canRead()) {
+                    break;
+                }
+                target = null;
+                folder = folder.getParentFile();
+            }
+            if (target == null) {
+                throw new FileNotFoundException("Could not find folders.");
+            }
+            BufferedReader fin = new BufferedReader(new FileReader(target));
+            try {
+                while (true) {
+                    String line = fin.readLine();
+                    if (line == null) {
+                        break;
+                    }
+                    if (line.trim().isEmpty()) {
+                        continue;
+                    }
+                    String[] pts = line.split("=", 2);
+                    if (pts.length == 1) {
+                        throw new IOException("Bad line: no =.");
+                    }
+                    folderList.add(new Folder(pts[0].trim(), pts[1].trim()));
+                }
+            } finally {
+                fin.close();
+            }
+        } catch (IOException ex) {
+            Logger.log(LogLevel.WARNING, "Could not set up folder list!", ex);
+        }
+        folders = folderList.toArray(new Folder[folderList.size()]);
         searchLinkName = "big-brother-" + Integer.toHexString(args.hashCode());
         this.addMouseMotionListener(this);
         this.addMouseListener(this);
@@ -181,6 +222,20 @@ public class IntelligenceMain extends JPanel implements CluckRemoteListener, Mou
                 baseByteCount = cur;
             }
         });
+        CluckGlobals.node.publish("display-dialog", new RemoteProcedure() {
+            @Override
+            public void invoke(byte[] in, OutputStream out) {
+                if (dialog != null) {
+                    try {
+                        out.close();
+                    } catch (IOException ex) {
+                        Logger.log(LogLevel.WARNING, "IOException from return from procedure!", ex);
+                    }
+                    return;
+                }
+                dialog = new PoultryDialog(new String(in), out);
+            }
+        });
         painter.schedule(50, new EventConsumer() {
             @Override
             public void eventFired() {
@@ -204,8 +259,8 @@ public class IntelligenceMain extends JPanel implements CluckRemoteListener, Mou
         }
         if (activeEntity != null) {
             boolean a = activeEntity.centerX < paneWidth;
-            activeEntity.centerX = Math.min(Math.max(relActiveX + e.getX(),0),this.getWidth());
-            activeEntity.centerY = Math.min(Math.max(relActiveY + e.getY(),0),this.getHeight());
+            activeEntity.centerX = relActiveX + e.getX();
+            activeEntity.centerY = relActiveY + e.getY();
             if (a != (activeEntity.centerX < paneWidth)) {
                 sortRemotes = null;
             }
@@ -241,6 +296,12 @@ public class IntelligenceMain extends JPanel implements CluckRemoteListener, Mou
 
     @Override
     public void mousePressed(MouseEvent e) {
+        if (dialog != null && dialog.isOver(paneWidth, getWidth(), getHeight(), e.getX(), e.getY())) {
+            if (dialog.press(paneWidth, getWidth(), getHeight(), e.getX(), e.getY())) {
+                dialog = null;
+            }
+            return;
+        }
         mouseBtn = e.getButton();
         if (e.getButton() == MouseEvent.BUTTON3) {
             for (Entity ent : ents.values()) {
@@ -328,8 +389,9 @@ public class IntelligenceMain extends JPanel implements CluckRemoteListener, Mou
      * Repeat searching for remote objects.
      */
     public void research() {
+        remotes.clear();
+        sortRemotes = null;
         node.cycleSearchRemotes(searchLinkName);
-        // TODO: Remove old entries
     }
 
     @Override
@@ -367,6 +429,16 @@ public class IntelligenceMain extends JPanel implements CluckRemoteListener, Mou
                 // Wait until next cycle.
                 return;
             }
+            for (Remote r : loc) {
+                String p = r.path;
+                if (p.endsWith(".output")) {
+                    r.paired = remotes.get(p.substring(0, p.length() - ".output".length()) + ".input");
+                } else if (p.endsWith(".input")) {
+                    r.paired = remotes.get(p.substring(0, p.length() - ".input".length()) + ".output");
+                } else {
+                    r.paired = null;
+                }
+            }
             for (Map.Entry<String, Entity> key : ents.entrySet()) {
                 if (key.getValue().centerX >= paneWidth) {
                     loc.remove(remotes.get(key.getKey()));
@@ -376,6 +448,7 @@ public class IntelligenceMain extends JPanel implements CluckRemoteListener, Mou
             loc.addAll(Arrays.asList(folders));
             for (Folder f : folders) {
                 f.contents.clear();
+                f.hascontents = false;
             }
             for (Iterator<Remote> it = loc.iterator(); it.hasNext();) {
                 Remote r = it.next();
@@ -383,14 +456,15 @@ public class IntelligenceMain extends JPanel implements CluckRemoteListener, Mou
                 for (Folder f : folders) {
                     if (f.isInside(r)) {
                         it.remove();
+                        f.hascontents = true;
                         if (f.open) {
-                            f.place = loc.indexOf(f);
                             f.contents.add(r);
                         }
                     }
                 }
             }
             for (Folder f : folders) {
+                f.place = loc.indexOf(f);
                 for (Remote r : f.contents) {
                     r.inFolder = true;
                     loc.add(f.place + 1, r);
@@ -418,8 +492,10 @@ public class IntelligenceMain extends JPanel implements CluckRemoteListener, Mou
                 ent.render(g);
             }
         }
-        for(Dialog d:messages){
-            d.draw(g);
+        if (dialog != null) {
+            if (dialog.render(g, paneWidth, w, h)) {
+                dialog = null;
+            }
         }
         painter.feed();
     }
@@ -430,6 +506,20 @@ public class IntelligenceMain extends JPanel implements CluckRemoteListener, Mou
         JFrame frame = new JFrame("Intelligence Panel");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setSize(640, 480);
+        if (args.length >= 2) {
+            try {
+                frame.setSize(Integer.parseInt(args[0]), Integer.parseInt(args[1]));
+            } catch (NumberFormatException ex) {
+                Logger.log(LogLevel.WARNING, "Bad window position!", ex);
+            }
+        }
+        if (args.length >= 4) {
+            try {
+                frame.setLocation(Integer.parseInt(args[2]), Integer.parseInt(args[3]));
+            } catch (NumberFormatException ex) {
+                Logger.log(LogLevel.WARNING, "Bad window position!", ex);
+            }
+        }
         JSplitPane jsp = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
         JPanel subpanel = new JPanel();
         JScrollPane scroll = new JScrollPane();
@@ -469,11 +559,31 @@ public class IntelligenceMain extends JPanel implements CluckRemoteListener, Mou
         jsp.setRightComponent(subpanel);
         IPProvider.init();
         jsp.setLeftComponent(new IntelligenceMain(args, CluckGlobals.node, new Ticker(1000), refresh, reconnect));
-        jsp.setDividerLocation(2 * 480 / 3);
+        jsp.setDividerLocation(2 * frame.getHeight() / 3);
         jsp.setResizeWeight(0.7);
         frame.add(jsp);
         frame.setVisible(true);
         Logger.info("Started Poultry Inspector at " + System.currentTimeMillis());
+        final ExpirationTimer ext = new ExpirationTimer();
+        ext.schedule(5000, new EventConsumer() {
+            @Override
+            public void eventFired() {
+                Logger.info("Current time: " + new Date());
+            }
+        });
+        ext.schedule(5010, ext.getStopEvent());
+        new CluckSubscriber() {
+            @Override
+            protected void receive(String source, byte[] data) {
+            }
+
+            @Override
+            protected void receiveBroadcast(String source, byte[] data) {
+                if (data.length == 1 && data[0] == CluckNode.RMT_NOTIFY) {
+                    ext.startOrFeed();
+                }
+            }
+        }.attach(CluckGlobals.node, "notify-fetcher-virt");
         new PhidgetMonitor().share(CluckGlobals.node);
         refresh.doClick();
         IPProvider.connect();

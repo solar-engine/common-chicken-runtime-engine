@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 Colby Skeggs
+ * Copyright 2013-2014 Colby Skeggs
  * 
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  * 
@@ -183,7 +183,7 @@ public class PhidgetMonitor implements AttachListener, DetachListener, ErrorList
      * Share all the inputs and outputs and the current attachment state over
      * the network.
      *
-     * @param encoder the encoder to share over.
+     * @param node the node to share on.
      */
     public void share(CluckNode node) {
         for (int i = 0; i < OUTPUT_COUNT; i++) {
@@ -205,10 +205,14 @@ public class PhidgetMonitor implements AttachListener, DetachListener, ErrorList
     private void updateStringOutput(int line) {
         try {
             if (lcd != null) {
-                lcd.setDisplayString(line, lines[line].get().concat(fillLine).substring(0, LCD_WIDTH));
+                lcd.setDisplayString(line, lines[line].get().replace('\r', ' ').concat(fillLine).substring(0, LCD_WIDTH));
             }
         } catch (PhidgetException ex) {
-            Logger.log(LogLevel.SEVERE, "Cannot update string output to Phidget", ex);
+            if (ex.getErrorNumber() == PhidgetException.EPHIDGET_NOTATTACHED) {
+                Logger.log(LogLevel.WARNING, "Phidget not attached!");
+            } else {
+                Logger.log(LogLevel.SEVERE, "Cannot update string output to Phidget", ex);
+            }
         }
     }
 
@@ -233,6 +237,9 @@ public class PhidgetMonitor implements AttachListener, DetachListener, ErrorList
                 }
                 lcd.setBacklight(true);
                 lcd.setContrast(100);
+                for (int i = 0; i < LCD_LINES; i++) {
+                    updateStringOutput(i);
+                }
             } catch (PhidgetException ex) {
                 Logger.log(LogLevel.SEVERE, "Error on LCD attach", ex);
             }
@@ -244,19 +251,19 @@ public class PhidgetMonitor implements AttachListener, DetachListener, ErrorList
                 if (ifa.getSensorCount() != ANALOG_COUNT) {
                     Logger.severe("Interface analog count mismatch: " + ifa.getSensorCount() + " instead of " + ANALOG_COUNT);
                 }
-                // TODO: Fix input rate correction
-                /*for (int i = 0; i < ifa.getInputCount(); i++) {
-                 int rate = ifa.getDataRate(i);
-                 if (rate != INPUT_RATE) {
-                 Logger.fine("Fixing input rate to " + INPUT_RATE + " from " + rate);
-                 ifa.setDataRate(i, INPUT_RATE);
-                 rate = ifa.getDataRate(i);
-                 if (rate != INPUT_RATE) {
-                 Logger.warning("Rate is still not correct: " + rate);
-                 }
-                 }
-                 }*/
-                // TODO: Resubmit all values
+                for (int i = 0; i < OUTPUT_COUNT; i++) {
+                    updateBooleanOutput(i);
+                }
+                for (int i = 0; i < INPUT_COUNT; i++) {
+                    inputStats[i].writeValue(ifa.getInputState(i));
+                }
+                for (int i = 0; i < ANALOG_COUNT; i++) {
+                    float moved = (ifa.getSensorValue(i) - 500) / 500.0f;
+                    if (moved < -1 || moved > 1) {
+                        Logger.warning("Sensor out of range: " + moved);
+                    }
+                    analogStats[i].writeValue(moved);
+                }
             } catch (PhidgetException ex) {
                 Logger.log(LogLevel.SEVERE, "Error on Interface attach", ex);
             }

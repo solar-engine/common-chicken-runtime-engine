@@ -45,7 +45,7 @@ public class PrintStreamLogger implements LoggingTarget {
         this.str = out;
     }
 
-    public void log(LogLevel level, String message, Throwable thr) {
+    public synchronized void log(LogLevel level, String message, Throwable thr) {
         if (thr != null) {
             str.println("LOG{" + level.abbreviation + "} " + message);
             ThrowablePrinter.printThrowable(thr, str);
@@ -54,7 +54,7 @@ public class PrintStreamLogger implements LoggingTarget {
         }
     }
 
-    public void log(LogLevel level, String message, String extended) {
+    public synchronized void log(LogLevel level, String message, String extended) {
         str.println("LOG[" + level.abbreviation + "] " + message);
         if (extended != null && extended.length() != 0) {
             str.println(extended);

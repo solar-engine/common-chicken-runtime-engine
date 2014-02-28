@@ -32,10 +32,13 @@ import java.awt.Color;
 public class Remote implements Comparable<Remote> {
 
     /**
-     * The RMT type of the Remote.
+     * The RMT of the Remote.
      */
     protected final int type;
-    boolean inFolder = false;
+    /**
+     * Is this remote in a folder?
+     */
+    protected boolean inFolder = false;
     /**
      * The remote path.
      */
@@ -48,6 +51,10 @@ public class Remote implements Comparable<Remote> {
      * The subscribed version of the object.
      */
     protected Object checkout;
+    /**
+     * The paired remote, if this is one half of a FloatStatus or BooleanStatus.
+     */
+    protected Remote paired;
 
     /**
      * Create a new remote with a specified remote address, Cluck node, and
@@ -63,10 +70,12 @@ public class Remote implements Comparable<Remote> {
         this.node = node;
     }
 
+    @Override
     public int compareTo(Remote o) {
         return path.compareTo(o.path);
     }
 
+    @Override
     public String toString() {
         return (inFolder ? "  " : "") + path + " : " + CluckNode.rmtToString(type);
     }
@@ -90,6 +99,7 @@ public class Remote implements Comparable<Remote> {
             case RMT_FLOATOUTP:
                 return Color.ORANGE;
             case RMT_OUTSTREAM:
+            case RMT_INVOKE:
                 return Color.CYAN;
             default:
                 return Color.WHITE;
@@ -97,9 +107,14 @@ public class Remote implements Comparable<Remote> {
     }
 
     /**
-     * Subscribe this remote and stick it in the checkout.
+     * Subscribe this remote and stick it in the checkout field.
+     *
+     * @return The current checked-out object.
      */
-    protected void checkout() {
+    protected Object checkout() {
+        if (checkout != null) {
+            return checkout;
+        }
         switch (type) {
             case RMT_EVENTCONSUMER:
                 checkout = node.subscribeEC(path);
@@ -125,8 +140,12 @@ public class Remote implements Comparable<Remote> {
             case RMT_OUTSTREAM:
                 checkout = node.subscribeOS(path);
                 break;
+            case RMT_INVOKE:
+                checkout = node.subscribeRP(path, 1000);
+                break;
             default:
                 Logger.severe("No checkout for type: " + CluckNode.rmtToString(type));
         }
+        return checkout;
     }
 }

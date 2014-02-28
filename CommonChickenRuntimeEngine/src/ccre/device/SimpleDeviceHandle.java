@@ -41,13 +41,13 @@ public abstract class SimpleDeviceHandle<Type> extends DeviceHandle<Type> {
     }
 
     @Override
-    public void close(Type target) {
+    public void close(Object target) {
         if (activeInstance == null) {
             throw new IllegalStateException("Device already closed!");
         }
         if (activeInstance != target) {
             throw new IllegalArgumentException("Cannot close invalid value!");
         }
-        deallocate(target);
+        deallocate(activeInstance);
     }
 }

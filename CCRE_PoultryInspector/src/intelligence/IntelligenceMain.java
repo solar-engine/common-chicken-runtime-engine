@@ -29,11 +29,14 @@ import ccre.ctrl.Ticker;
 import java.awt.*;
 import java.awt.event.*;
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.io.PrintWriter;
 import java.util.*;
 import javax.swing.*;
 
@@ -100,7 +103,7 @@ public class IntelligenceMain extends JPanel implements CluckRemoteListener, Mou
     /**
      * The current mapping of remote names to entities.
      */
-    protected final LinkedHashMap<String, Entity> ents = new LinkedHashMap<String, Entity>();
+    protected static final LinkedHashMap<String, Entity> ents = new LinkedHashMap<String, Entity>();
     /**
      * The currently held entity.
      */
@@ -137,6 +140,12 @@ public class IntelligenceMain extends JPanel implements CluckRemoteListener, Mou
      * The active dialog, if any.
      */
     protected PoultryDialog dialog;
+    /**
+     * The list of tabs.
+     */
+    protected ArrayList<Tab> tabs = new ArrayList<Tab>();
+    protected boolean needReLook = true;
+    protected Remote[] previous = null;
 
     /**
      * Create a new Intelligence Panel.
@@ -184,6 +193,38 @@ public class IntelligenceMain extends JPanel implements CluckRemoteListener, Mou
             }
         } catch (IOException ex) {
             Logger.log(LogLevel.WARNING, "Could not set up folder list!", ex);
+        }
+        try {
+            File folder = new File(".").getAbsoluteFile();
+            File target = null;
+            while (folder != null && folder.exists()) {
+                target = new File(folder, "tab-settings.txt");
+                if (target.exists() && target.canRead()) {
+                    break;
+                }
+                target = null;
+                folder = folder.getParentFile();
+            }
+            if (target == null) {
+                throw new FileNotFoundException("Could not find tab settings.");
+            }
+            BufferedReader fin = new BufferedReader(new FileReader(target));
+            try {
+                while (true) {
+                    String line = fin.readLine();
+                    if (line == null) {
+                        break;
+                    }
+                    if (line.trim().isEmpty()) {
+                        continue;
+                    }
+                    tabs.add(Tab.line2Tab(line));
+                }
+            } finally {
+                fin.close();
+            }
+        } catch (IOException ex) {
+            Logger.log(LogLevel.WARNING, "Could not set up tab list!", ex);
         }
         folders = folderList.toArray(new Folder[folderList.size()]);
         searchLinkName = "big-brother-" + Integer.toHexString(args.hashCode());
@@ -242,8 +283,14 @@ public class IntelligenceMain extends JPanel implements CluckRemoteListener, Mou
                 repaint();
             }
         });
-        painter.start();
         this.node.startSearchRemotes(searchLinkName, this);
+        searcher.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                needReLook = true;
+            }
+        });
+        painter.start();
     }
 
     @Override
@@ -296,6 +343,110 @@ public class IntelligenceMain extends JPanel implements CluckRemoteListener, Mou
 
     @Override
     public void mousePressed(MouseEvent e) {
+        int index = 0;
+        for (Iterator<Tab> it = tabs.iterator(); it.hasNext();) {
+            Tab t = it.next();
+            if (this.getWidth() - 80 < e.getX() && 50 + index * 35 < e.getY() && this.getWidth() > e.getX() && (50 + index * 35) + 30 > e.getY()) {
+                if (e.getButton() == MouseEvent.BUTTON3) {
+                    if (JOptionPane.showConfirmDialog(this, "Really delete?") == JOptionPane.OK_OPTION) {
+                        System.out.println("removing");
+                        it.remove();
+                        File folder = new File(".").getAbsoluteFile();
+                        File target = null;
+                        while (folder != null && folder.exists()) {
+                            target = new File(folder, "tab-settings.txt");
+                            if (target.exists() && target.canRead()) {
+                                break;
+                            }
+                            target = null;
+                            folder = folder.getParentFile();
+                        }
+
+                        try {
+
+                            File inFile = new File(target.toURI());
+
+                            if (!inFile.isFile()) {
+                                System.out.println("Parameter is not an existing file");
+                                return;
+                            }
+
+                            //Construct the new file that will later be renamed to the original filename.
+                            File tempFile = new File(inFile.getAbsolutePath() + ".tmp");
+
+                            BufferedReader br = new BufferedReader(new FileReader(target));
+                            PrintWriter pw = new PrintWriter(new FileWriter(tempFile));
+
+                            String line = null;
+
+                            while ((line = br.readLine()) != null) {
+
+                                if (!line.trim().equals(t.toString())) {
+
+                                    pw.println(line);
+                                    pw.flush();
+                                }
+                            }
+                            pw.close();
+                            br.close();
+
+                            //Delete the original file
+                            if (!inFile.delete()) {
+                                System.out.println("Could not delete file");
+                                return;
+                            }
+
+                            //Rename the new file to the filename the original file had.
+                            if (!tempFile.renameTo(inFile)) {
+                                System.out.println("Could not rename file");
+                            }
+
+                        } catch (FileNotFoundException ex) {
+                            ex.printStackTrace();
+                        } catch (IOException ex) {
+                            ex.printStackTrace();
+                        }
+                    }
+                } else {
+                    t.enforceTab(ents);
+                }
+                return;
+            }
+            index++;
+        }
+        if (this.getWidth() - 30 < e.getX() && 50 + index * 35 < e.getY() && this.getWidth() > e.getX() && (50 + index * 35) + 30 > e.getY()) {
+            try {
+                String result = JOptionPane.showInputDialog("What Name?");
+                File folder = new File(".").getAbsoluteFile();
+                File target = null;
+                while (folder != null && folder.exists()) {
+                    target = new File(folder, "tab-settings.txt");
+                    if (target.exists() && target.canRead()) {
+                        break;
+                    }
+                    target = null;
+                    folder = folder.getParentFile();
+                }
+                if (target == null) {
+                    throw new FileNotFoundException("Could not find tab settings.");
+                }
+                Entity[] ent = new Entity[ents.values().size()];
+                ents.values().toArray(ent);
+                Tab t = new Tab(result, ent);
+                tabs.add(t);
+                PrintWriter out = null;
+                try {
+                    out = new PrintWriter(new BufferedWriter(new FileWriter(target, true)));
+                    out.println(t.toString());
+                } finally {
+                    if (out != null) {
+                        out.close();
+                    }
+                }
+            } catch (IOException ex) {
+                Logger.log(LogLevel.WARNING, "Could not set up tab list!", ex);
+            }
+        }
         if (dialog != null && dialog.isOver(paneWidth, getWidth(), getHeight(), e.getX(), e.getY())) {
             if (dialog.press(paneWidth, getWidth(), getHeight(), e.getX(), e.getY())) {
                 dialog = null;
@@ -473,6 +624,26 @@ public class IntelligenceMain extends JPanel implements CluckRemoteListener, Mou
             sremotes = loc.toArray(new Remote[loc.size()]);
             sortRemotes = sremotes;
         }
+        if (needReLook) {
+            previous = sortRemotes;
+            needReLook = false;
+            for (Remote rem : sortRemotes) {
+                if (rem instanceof Folder) {
+                    Folder real = (Folder) rem;
+                    if (real.open) {
+                        continue;
+                    } else {
+                        for (Remote rems : real.contents) {
+                            Entity ent = new Entity(rems, 0, 0);
+                            ents.put(rems.path, ent);
+                        }
+                    }
+                } else {
+                    Entity ent = new Entity(rem, 0, 0);
+                    ents.put(rem.path, ent);
+                }
+            }
+        }
         g.setColor(paneBackground);
         Graphics subscreen = g.create(1, 1, paneWidth - 2, h - 2);
         subscreen.fillRect(0, 0, paneWidth, h);
@@ -497,6 +668,22 @@ public class IntelligenceMain extends JPanel implements CluckRemoteListener, Mou
                 dialog = null;
             }
         }
+        int index = -1;
+        for (Tab t : tabs) {
+            index++;
+            g.setColor(Color.CYAN);
+            g.fillRect(this.getWidth() - 80, 50 + index * 35, 80, 30);
+            g.setColor(Color.BLACK);
+            g.drawRect(this.getWidth() - 81, 49 + index * 35, 82, 31);
+            g.drawString(t.name, this.getWidth() - 80 + 7, 50 + index * 35 + 19);
+        }
+        index++;
+        g.setColor(Color.CYAN);
+        g.fillRect(this.getWidth() - 30, 50 + index * 35, 30, 30);
+        g.setColor(Color.BLACK);
+        g.drawRect(this.getWidth() - 31, 49 + index * 35, 82, 31);
+        g.setColor(Color.BLUE);
+        g.drawString("+", this.getWidth() - 30 + 10, 60 + index * 35);
         painter.feed();
     }
 

@@ -114,11 +114,6 @@ public class EmulatorJoystick extends javax.swing.JPanel {
         btn7.setText("7");
         btn7.setToolTipText("");
         btn7.setMargin(new java.awt.Insets(2, 4, 2, 4));
-        btn7.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btn7ActionPerformed(evt);
-            }
-        });
 
         btn10.setFont(new java.awt.Font("Monospaced", 0, 11)); // NOI18N
         btn10.setText("10");
@@ -261,10 +256,6 @@ public class EmulatorJoystick extends javax.swing.JPanel {
                     .addComponent(jPanel3, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
         );
     }// </editor-fold>//GEN-END:initComponents
-
-    private void btn7ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn7ActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_btn7ActionPerformed
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JSlider axis1;

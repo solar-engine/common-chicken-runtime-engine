@@ -128,7 +128,7 @@ public final class PoultryDialog {
                 g.setColor(Color.YELLOW);
                 int cornerULx = centerX - DEFAULT_WIDTH / 2 + BUTTON_PADDING + width * (btnid % 3);
                 int cornerULy = centerY + DEFAULT_HEIGHT / 2 - BUTTON_HEIGHT - BUTTON_PADDING;
-                cornerULy -= ((int) (btnid / 3)) * (BUTTON_HEIGHT + BUTTON_PADDING);
+                cornerULy -= (btnid / 3) * (BUTTON_HEIGHT + BUTTON_PADDING);
                 g.fillRect(cornerULx, cornerULy, width - BUTTON_PADDING, BUTTON_HEIGHT);
                 g.setColor(Color.BLACK);
                 g.drawString(arg, cornerULx + (width - BUTTON_PADDING) / 2 - fm.stringWidth(arg) / 2, cornerULy + BUTTON_HEIGHT / 2 - fm.getHeight() / 2 + fm.getAscent());

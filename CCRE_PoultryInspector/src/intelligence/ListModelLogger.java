@@ -38,7 +38,7 @@ import javax.swing.event.ListSelectionListener;
  *
  * @author skeggsc
  */
-@SuppressWarnings("unchecked")
+@SuppressWarnings({"unchecked", "rawtypes"})
 public class ListModelLogger implements LoggingTarget, ListSelectionListener {
 
     private static Method getSuppressed;

@@ -43,7 +43,7 @@ import javax.swing.UnsupportedLookAndFeelException;
  *
  * @author skeggsc
  */
-@SuppressWarnings("serial")
+@SuppressWarnings({"serial", "rawtypes"})
 public class EmulatorForm extends javax.swing.JFrame {
 
     static {
@@ -1031,6 +1031,7 @@ public class EmulatorForm extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_btnEnableActionPerformed
 
+    @SuppressWarnings("unchecked")
     public FloatInputPoll makeEncoder(int aChannel, int bChannel, boolean reverse, EventSource resetWhen) {
         String name = "encoder::" + aChannel + "::" + bChannel;
         if (reverse) {
@@ -1042,6 +1043,7 @@ public class EmulatorForm extends javax.swing.JFrame {
         return enc;
     }
 
+    @SuppressWarnings("unchecked")
     public FloatInputPoll makeGyro(int channel, double sensitivity, EventSource resetWhen) {
         String name = "gyro::" + channel + "::" + sensitivity;
         availableExtendedSelection.addElement(name);
@@ -1050,6 +1052,7 @@ public class EmulatorForm extends javax.swing.JFrame {
         return gyr;
     }
 
+    @SuppressWarnings("unchecked")
     public FloatInputPoll makeAccelerometerAxis(int channel, double sensitivity, double zeropoint) {
         String name = "accelerometer::" + channel + "::" + sensitivity + "::" + zeropoint;
         availableExtendedSelection.addElement(name);

@@ -25,6 +25,7 @@ import ccre.event.EventConsumer;
 import ccre.event.EventSource;
 import ccre.log.LogLevel;
 import ccre.log.Logger;
+import ccre.log.LoggingTarget;
 import java.awt.Color;
 import java.awt.FontMetrics;
 import java.awt.Graphics;
@@ -265,7 +266,10 @@ public final class Entity {
                 // Interacting with this wouldn't mean anything.
                 break;
             case RMT_LOGTARGET:
-                // TODO: Do something with LogTarget?
+                String msg = JOptionPane.showInputDialog("Enter message to log", "");
+                if (msg != null && !msg.isEmpty()) {
+                    ((LoggingTarget) this.represented.checkout()).log(LogLevel.INFO, msg, (String) null);
+                }
                 break;
             case RMT_BOOLPROD:
                 if (this.represented.paired.checkout() instanceof BooleanOutput) {

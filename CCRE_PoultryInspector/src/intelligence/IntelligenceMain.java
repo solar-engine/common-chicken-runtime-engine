@@ -45,7 +45,7 @@ import javax.swing.*;
  *
  * @author skeggsc
  */
-@SuppressWarnings("serial")
+@SuppressWarnings({"serial", "rawtypes"})
 public class IntelligenceMain extends JPanel implements CluckRemoteListener, MouseMotionListener, MouseWheelListener, MouseListener {
 
     /**
@@ -687,6 +687,7 @@ public class IntelligenceMain extends JPanel implements CluckRemoteListener, Mou
         painter.feed();
     }
 
+    @SuppressWarnings("unchecked")
     public static void main(String[] args) {
         CluckGlobals.ensureInitializedCore();
         NetworkAutologger.register();

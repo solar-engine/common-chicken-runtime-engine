@@ -36,7 +36,7 @@ import ccre.util.CArrayList;
  *
  * @author skeggsc
  */
-public class ExpirationTimer { // TODO: Needs to be tested!
+public class ExpirationTimer {
 
     /**
      * A task that is scheduled for a specific delay after the timer starts.

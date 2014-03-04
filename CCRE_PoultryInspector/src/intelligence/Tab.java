@@ -18,7 +18,15 @@
  */
 package intelligence;
 
+import ccre.log.LogLevel;
 import ccre.log.Logger;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -33,12 +41,48 @@ public class Tab {
     /**
      * The locations of the monitored entities.
      */
-    int[] monitoredX;
-    int[] monitoredY;
+    final int[] monitoredX;
+    final int[] monitoredY;
     /**
      * The name of this tab.
      */
-    String name;
+    final String name;
+    public static List<Tab> getTabs(){
+        List<Tab> tabs=new ArrayList<Tab>();
+        try {
+            File folder = new File(".").getAbsoluteFile();
+            File target = null;
+            while (folder != null && folder.exists()) {
+                target = new File(folder, "tab-settings.txt");
+                if (target.exists() && target.canRead()) {
+                    break;
+                }
+                target = null;
+                folder = folder.getParentFile();
+            }
+            if (target == null) {
+                throw new FileNotFoundException("Could not find tab settings.");
+            }
+            BufferedReader fin = new BufferedReader(new FileReader(target));
+            try {
+                while (true) {
+                    String line = fin.readLine();
+                    if (line == null) {
+                        break;
+                    }
+                    if (line.trim().isEmpty()) {
+                        continue;
+                    }
+                    tabs.add(Tab.line2Tab(line));
+                }
+            } finally {
+                fin.close();
+            }
+        } catch (IOException ex) {
+            Logger.log(LogLevel.WARNING, "Could not set up tab list!", ex);
+        }
+        return tabs;
+    }
     /**
      * 
      * @param line The string that represents a tab.

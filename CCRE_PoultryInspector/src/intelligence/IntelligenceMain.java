@@ -143,7 +143,7 @@ public class IntelligenceMain extends JPanel implements CluckRemoteListener, Mou
     /**
      * The list of tabs.
      */
-    protected ArrayList<Tab> tabs = new ArrayList<Tab>();
+    protected final java.util.List<Tab> tabs;
 
     /**
      * Create a new Intelligence Panel.
@@ -192,38 +192,7 @@ public class IntelligenceMain extends JPanel implements CluckRemoteListener, Mou
         } catch (IOException ex) {
             Logger.log(LogLevel.WARNING, "Could not set up folder list!", ex);
         }
-        try {
-            File folder = new File(".").getAbsoluteFile();
-            File target = null;
-            while (folder != null && folder.exists()) {
-                target = new File(folder, "tab-settings.txt");
-                if (target.exists() && target.canRead()) {
-                    break;
-                }
-                target = null;
-                folder = folder.getParentFile();
-            }
-            if (target == null) {
-                throw new FileNotFoundException("Could not find tab settings.");
-            }
-            BufferedReader fin = new BufferedReader(new FileReader(target));
-            try {
-                while (true) {
-                    String line = fin.readLine();
-                    if (line == null) {
-                        break;
-                    }
-                    if (line.trim().isEmpty()) {
-                        continue;
-                    }
-                    tabs.add(Tab.line2Tab(line));
-                }
-            } finally {
-                fin.close();
-            }
-        } catch (IOException ex) {
-            Logger.log(LogLevel.WARNING, "Could not set up tab list!", ex);
-        }
+        tabs=Tab.getTabs();
         folders = folderList.toArray(new Folder[folderList.size()]);
         searchLinkName = "big-brother-" + Integer.toHexString(args.hashCode());
         this.addMouseMotionListener(this);
@@ -426,7 +395,7 @@ public class IntelligenceMain extends JPanel implements CluckRemoteListener, Mou
                     folder = folder.getParentFile();
                 }
                 if (target == null) {
-                    throw new FileNotFoundException("Could not find tab settings.");
+                    target=new File("."+File.pathSeparatorChar+"tab-settings.txt");
                 }
                 Entity[] ent = new Entity[ents.values().size()];
                 ents.values().toArray(ent);

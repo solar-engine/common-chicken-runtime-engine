@@ -384,32 +384,11 @@ public class IntelligenceMain extends JPanel implements CluckRemoteListener, Mou
                 if(result.isEmpty()){
                     return;
                 }
-                File folder = new File(".").getAbsoluteFile();
-                File target = null;
-                while (folder != null && folder.exists()) {
-                    target = new File(folder, "tab-settings.txt");
-                    if (target.exists() && target.canRead()) {
-                        break;
-                    }
-                    target = null;
-                    folder = folder.getParentFile();
-                }
-                if (target == null) {
-                    target=new File("."+File.pathSeparatorChar+"tab-settings.txt");
-                }
                 Entity[] ent = new Entity[ents.values().size()];
                 ents.values().toArray(ent);
                 Tab t = new Tab(result, ent);
                 tabs.add(t);
-                PrintWriter out = null;
-                try {
-                    out = new PrintWriter(new BufferedWriter(new FileWriter(target, true)));
-                    out.println(t.toString());
-                } finally {
-                    if (out != null) {
-                        out.close();
-                    }
-                }
+                Tab.appendTab(t);
             } catch (IOException ex) {
                 Logger.log(LogLevel.WARNING, "Could not set up tab list!", ex);
             }

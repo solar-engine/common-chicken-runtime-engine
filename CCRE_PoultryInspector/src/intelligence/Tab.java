@@ -21,10 +21,13 @@ package intelligence;
 import ccre.log.LogLevel;
 import ccre.log.Logger;
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -47,6 +50,37 @@ public class Tab {
      * The name of this tab.
      */
     final String name;
+    /**
+     * 
+     */
+    public static void appendTab(Tab t) throws IOException{
+        File folder = new File(".").getAbsoluteFile();
+                File target = null;
+                while (folder != null && folder.exists()) {
+                    target = new File(folder, "tab-settings.txt");
+                    if (target.exists() && target.canRead()) {
+                        break;
+                    }
+                    target = null;
+                    folder = folder.getParentFile();
+                }
+                if (target == null) {
+                    target=new File("."+File.pathSeparatorChar+"tab-settings.txt");
+                }
+                PrintWriter out = null;
+                try {
+                    out = new PrintWriter(new BufferedWriter(new FileWriter(target, true)));
+                    out.println(t.toString());
+                } finally {
+                    if (out != null) {
+                        out.close();
+                    }
+                }
+    }
+    /**
+     * 
+     * @return 
+     */
     public static List<Tab> getTabs(){
         List<Tab> tabs=new ArrayList<Tab>();
         try {

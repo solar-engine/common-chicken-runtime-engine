@@ -42,11 +42,9 @@ import ccre.cluck.CluckNode;
  * This will log "Pseudo-networked test!" at LogLevel INFO.
  *
  * Alternatively, the third and fourth lines of that example can be replaced
- * with:
- * <code>
+ * with:  <code>
  * CluckNullLink.connect(alpha, "alpha-to-beta", beta, "beta-to-alpha");
- * </code>
- * And it will work the same.
+ * </code> And it will work the same.
  *
  * @author skeggsc
  */

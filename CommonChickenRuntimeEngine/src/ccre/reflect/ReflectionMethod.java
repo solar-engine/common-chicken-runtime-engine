@@ -27,7 +27,7 @@ public class ReflectionMethod {
     public final Class[] results;
     public final int[] invokeIds;
     public final ReflectionEngine engine;
-    
+
     public ReflectionMethod(String fullName, Class[][] paramTypes, Class[] results, int[] invokeIds, ReflectionEngine engine) {
         if (results.length != invokeIds.length || invokeIds.length != paramTypes.length) {
             throw new RuntimeException();
@@ -47,23 +47,23 @@ public class ReflectionMethod {
         results = new Class<?>[invokeCount];
         invokeIds = new int[invokeCount];
         this.engine = engine;
-        for (int i=0; i<invokeCount; i++) {
-            String[] parts = Utils.split(spt[i+1], '~');
+        for (int i = 0; i < invokeCount; i++) {
+            String[] parts = Utils.split(spt[i + 1], '~');
             invokeIds[i] = Integer.parseInt(parts[0]);
             results[i] = Class.forName(parts[1]);
             paramTypes[i] = new Class<?>[parts.length - 2];
-            for (int j=2; j<parts.length; j++) {
-                paramTypes[i][j-2] = Class.forName(parts[j]);
+            for (int j = 2; j < parts.length; j++) {
+                paramTypes[i][j - 2] = Class.forName(parts[j]);
             }
         }
     }
-    
+
     public String serialize() {
         StringBuffer out = new StringBuffer();
         out.append(fullName);
-        for (int i=0; i<results.length; i++) {
+        for (int i = 0; i < results.length; i++) {
             out.append('|').append(invokeIds[i]).append('~').append(results[i].getName());
-            for (int j=0; j<paramTypes[i].length; j++) {
+            for (int j = 0; j < paramTypes[i].length; j++) {
                 out.append('~').append(paramTypes[i][j].getName());
             }
         }

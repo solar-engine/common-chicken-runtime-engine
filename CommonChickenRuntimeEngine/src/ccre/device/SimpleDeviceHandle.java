@@ -26,9 +26,9 @@ package ccre.device;
 public abstract class SimpleDeviceHandle<Type> extends DeviceHandle<Type> {
 
     private Type activeInstance;
-    
+
     protected abstract Type allocate();
-    
+
     protected abstract void deallocate(Type target);
 
     @Override

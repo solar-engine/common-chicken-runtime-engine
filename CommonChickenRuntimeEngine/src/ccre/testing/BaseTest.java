@@ -136,9 +136,8 @@ public abstract class BaseTest {
     }
 
     /**
-     * The object arguments should be identity-equal, as in
-     * <code>a == b</code>! If not, the test has failed! Report this and stop
-     * the test.
+     * The object arguments should be identity-equal, as in <code>a == b</code>!
+     * If not, the test has failed! Report this and stop the test.
      *
      * @param a the first object.
      * @param b the second object.

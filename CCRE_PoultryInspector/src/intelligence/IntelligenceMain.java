@@ -103,7 +103,7 @@ public class IntelligenceMain extends JPanel implements CluckRemoteListener, Mou
     /**
      * The current mapping of remote names to entities.
      */
-    protected static final LinkedHashMap<String, Entity> ents = new LinkedHashMap<String, Entity>();
+    protected final LinkedHashMap<String, Entity> ents = new LinkedHashMap<String, Entity>();
     /**
      * The currently held entity.
      */
@@ -144,8 +144,6 @@ public class IntelligenceMain extends JPanel implements CluckRemoteListener, Mou
      * The list of tabs.
      */
     protected ArrayList<Tab> tabs = new ArrayList<Tab>();
-    protected boolean needReLook = true;
-    protected Remote[] previous = null;
 
     /**
      * Create a new Intelligence Panel.
@@ -284,12 +282,6 @@ public class IntelligenceMain extends JPanel implements CluckRemoteListener, Mou
             }
         });
         this.node.startSearchRemotes(searchLinkName, this);
-        searcher.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                needReLook = true;
-            }
-        });
         painter.start();
     }
 
@@ -408,7 +400,7 @@ public class IntelligenceMain extends JPanel implements CluckRemoteListener, Mou
                         }
                     }
                 } else {
-                    t.enforceTab(ents);
+                    t.enforceTab(ents,remotes);
                 }
                 return;
             }
@@ -417,6 +409,12 @@ public class IntelligenceMain extends JPanel implements CluckRemoteListener, Mou
         if (this.getWidth() - 30 < e.getX() && 50 + index * 35 < e.getY() && this.getWidth() > e.getX() && (50 + index * 35) + 30 > e.getY()) {
             try {
                 String result = JOptionPane.showInputDialog("What Name?");
+                if(result==null){
+                    return;
+                }
+                if(result.isEmpty()){
+                    return;
+                }
                 File folder = new File(".").getAbsoluteFile();
                 File target = null;
                 while (folder != null && folder.exists()) {
@@ -623,26 +621,6 @@ public class IntelligenceMain extends JPanel implements CluckRemoteListener, Mou
             }
             sremotes = loc.toArray(new Remote[loc.size()]);
             sortRemotes = sremotes;
-        }
-        if (needReLook) {
-            previous = sortRemotes;
-            needReLook = false;
-            for (Remote rem : sortRemotes) {
-                if (rem instanceof Folder) {
-                    Folder real = (Folder) rem;
-                    if (real.open) {
-                        continue;
-                    } else {
-                        for (Remote rems : real.contents) {
-                            Entity ent = new Entity(rems, 0, 0);
-                            ents.put(rems.path, ent);
-                        }
-                    }
-                } else {
-                    Entity ent = new Entity(rem, 0, 0);
-                    ents.put(rem.path, ent);
-                }
-            }
         }
         g.setColor(paneBackground);
         Graphics subscreen = g.create(1, 1, paneWidth - 2, h - 2);

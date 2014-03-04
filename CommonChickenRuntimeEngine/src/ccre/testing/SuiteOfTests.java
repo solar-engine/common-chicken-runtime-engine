@@ -43,7 +43,6 @@ public class SuiteOfTests { // TODO: This package needs more tests!
             // ccre.chan
             new TestBooleanStatus(),
             new TestFloatStatus(),
-            
             // ccre.cluck - Tests needed!
 
             // ccre.concurrency
@@ -85,7 +84,6 @@ public class SuiteOfTests { // TODO: This package needs more tests!
 
             // ccre.testing - DONE
             new TestTests(),
-            
             // ccre.utils - DONE
             new TestAllocationPool(),
             // CAbstractList - Included in CArrayList and CLinkedList tests
@@ -94,8 +92,7 @@ public class SuiteOfTests { // TODO: This package needs more tests!
             new TestCLinkedList(),
             // Heap - Not needed because it's a commented-out unfinished class.
             new TestUtils(), // Tests both Utils and CArrayUtils
-            
-            // ccre.workarounds - Needed!
+        // ccre.workarounds - Needed!
         };
         int count = 0;
         for (BaseTest bt : tests) {

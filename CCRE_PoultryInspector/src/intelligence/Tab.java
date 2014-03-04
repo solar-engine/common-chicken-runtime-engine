@@ -1,26 +1,49 @@
 /*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+ * Copyright 2013-2014 Gregor Peach
+ * 
+ * This file is part of the CCRE, the Common Chicken Runtime Engine.
+ * 
+ * The CCRE is free software: you can redistribute it and/or modify it under the
+ * terms of the GNU Lesser General Public License as published by the Free
+ * Software Foundation, either version 3 of the License, or (at your option) any
+ * later version.
+ * 
+ * The CCRE is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
+ * A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
+ * details.
+ * 
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with the CCRE.  If not, see <http://www.gnu.org/licenses/>.
  */
 package intelligence;
 
 import ccre.log.Logger;
-import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 /**
- *
+ * A rectangle on screen that can be clicked to show a set of remotes.
  * @author peachg
  */
 public class Tab {
-
+    /**
+     * The paths to find the monitored entities.
+     */
     String[] monitoredEntitys;
+    /**
+     * The locations of the monitored entities.
+     */
     int[] monitoredX;
     int[] monitoredY;
+    /**
+     * The name of this tab.
+     */
     String name;
-
+    /**
+     * 
+     * @param line The string that represents a tab.
+     * @return A tab represented by the string.
+     */
     public static Tab line2Tab(String line) {
         String[] splitLine = line.split("\1");
         String[] names = splitLine[0].split("\2");
@@ -37,7 +60,10 @@ public class Tab {
         }
         return new Tab(name, names, xs, ys);
     }
-
+    /**
+     * 
+     * @return A string that represents this tab.
+     */
     @Override
     public String toString() {
         StringBuilder build = new StringBuilder();
@@ -61,7 +87,7 @@ public class Tab {
         build.append("\1" + name);
         return build.toString();
     }
-
+    
     public Tab(String n, Entity[] rem) {
         name = n;
         String[] names = new String[rem.length];
@@ -83,24 +109,29 @@ public class Tab {
         monitoredX = xs;
         monitoredY = ys;
     }
-
-    public void enforceTab(List<Entity> entities) {
-        Map<String, Entity> touse = new HashMap<String, Entity>();
-        for (Entity e : entities) {
-            touse.put(e.toString(), e);
+    /**
+     * Enforce the tab.
+     * @param ents the entities needed.
+     * @param rems the remotes needed.
+     */
+    public void enforceTab(Map<String,Entity> ents,Map<String,Remote> rems) {
+        for(Entity e:ents.values()){
+            e.centerX = 0;
+            e.centerY = 0;
         }
-        enforceTab(touse);
-    }
-
-    public void enforceTab(Map<String, Entity> entities) {
-        for (int x = 0; x < monitoredEntitys.length; x++) {
-            Entity mine = entities.get(monitoredEntitys[x]);
-            if (mine != null) {
-                mine.centerX = monitoredX[x];
-                mine.centerY = monitoredY[x];
-            } else {
-                Logger.warning("Could not find entity:" + monitoredEntitys[x]);
+        for(int index=0;index<monitoredEntitys.length;index++){
+            if(!ents.containsKey(monitoredEntitys[index])){
+                if(rems.containsKey(monitoredEntitys[index])){
+                    Remote rem=rems.get(monitoredEntitys[index]);
+                    Entity ent = new Entity(rem, 0, 0);
+                    ents.put(rem.path, ent);
+                }
+                else{
+                    Logger.info("Couldn't find path:"+monitoredEntitys[index]);
+                }
             }
+            ents.get(monitoredEntitys[index]).centerX=monitoredX[index];
+            ents.get(monitoredEntitys[index]).centerY=monitoredY[index];
         }
     }
 }

@@ -32,7 +32,7 @@ import java.io.OutputStream;
 public abstract class LineCollectorOutputStream extends OutputStream {
 
     private final StringBuffer running = new StringBuffer();
-    
+
     @Override
     public final void write(int b) throws IOException {
         if (b == '\n') {

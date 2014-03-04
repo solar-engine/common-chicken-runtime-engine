@@ -37,27 +37,27 @@ import java.io.OutputStream;
 import java.io.PrintStream;
 
 /**
- * The main Cel interpreter. (Chicken Express Language).
- * This is a tiny domain-specific-language for quickly writing Software.
+ * The main Cel interpreter. (Chicken Express Language). This is a tiny
+ * domain-specific-language for quickly writing Software.
  *
  * @author skeggsc
  */
 public class CelInterpreter {
-    
+
     protected CHashMap<String, Object> vars = new CHashMap<String, Object>();
     private String[] line;
     private DeviceRegistry tree;
     protected CHashMap<String, Object> opened = new CHashMap<String, Object>();
     protected boolean running = false;
     protected EventSource defaultPeriodic = null, alwaysPeriodic = null;
-    
+
     protected Object getTree(String name) throws InterpreterException, DeviceException {
         DeviceHandle<? extends Object> h = tree.getHandle(name);
         Object o = h.open();
         opened.put(name, o);
         return o;
     }
-    
+
     protected void putVar(String name, Object value) throws InterpreterException {
         if (name.equals("_")) { // Null variable
             return;
@@ -67,7 +67,7 @@ public class CelInterpreter {
         }
         vars.put(name, value);
     }
-    
+
     protected Object getVar(String name) throws InterpreterException {
         if (name.equals("_")) {
             throw new InterpreterException("Cannot read from the null variable.");
@@ -78,7 +78,7 @@ public class CelInterpreter {
         }
         return out;
     }
-    
+
     protected String gStr(int i) throws InterpreterException {
         if (i >= line.length) {
             if (i == 0) {
@@ -89,7 +89,7 @@ public class CelInterpreter {
         }
         return line[i];
     }
-    
+
     protected int gInt(int i) throws InterpreterException {
         if (i >= line.length) {
             throw new InterpreterException("Incomplete command: " + line[0]);
@@ -100,7 +100,7 @@ public class CelInterpreter {
             throw new InterpreterException(ex.getMessage());
         }
     }
-    
+
     protected float gFloat(int i) throws InterpreterException {
         if (i >= line.length) {
             throw new InterpreterException("Incomplete command: " + line[0]);
@@ -111,7 +111,7 @@ public class CelInterpreter {
             throw new InterpreterException(ex.getMessage());
         }
     }
-    
+
     protected void execute() throws InterpreterException, DeviceException {
         String cmd = gStr(0);
         if (cmd.length() == 0) {
@@ -222,7 +222,7 @@ public class CelInterpreter {
         }
         throw new InterpreterException("No such command: " + cmd);
     }
-    
+
     public synchronized void execute(DeviceRegistry tree, String program) throws InterpreterException, DeviceException {
         if (running) {
             throw new IllegalStateException("Already running!");
@@ -253,7 +253,7 @@ public class CelInterpreter {
             }
         }
     }
-    
+
     public synchronized void cancel() throws DeviceException {
         if (!running) {
             return;
@@ -276,14 +276,14 @@ public class CelInterpreter {
             throw first;
         }
     }
-    
+
     private EventSource getDefaultPeriodic() throws InterpreterException, DeviceException {
         if (defaultPeriodic == null) {
             defaultPeriodic = (EventSource) getTree("modes/teleop/during");
         }
         return defaultPeriodic;
     }
-    
+
     private EventSource getAlwaysPeriodic() throws InterpreterException, DeviceException {
         if (alwaysPeriodic == null) {
             alwaysPeriodic = (EventSource) getTree("modes/always");

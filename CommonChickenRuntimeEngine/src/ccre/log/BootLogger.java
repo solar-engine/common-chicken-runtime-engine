@@ -34,7 +34,7 @@ public class BootLogger implements LoggingTarget {
     public static void register() {
         Logger.addTarget(new BootLogger());
     }
-    
+
     public String[] outs = new String[20];
     public int outId = 0;
 
@@ -46,7 +46,7 @@ public class BootLogger implements LoggingTarget {
         node.publish("post-bootlogs", new EventConsumer() {
             public void eventFired() {
                 Logger.log(LogLevel.INFO, "[BOOT-START]");
-                for (int i=0;i<outs.length; i++) {
+                for (int i = 0; i < outs.length; i++) {
                     if (outs[i] != null) {
                         Logger.log(LogLevel.INFO, "[BOOT-" + i + "] " + outs[i]);
                     }

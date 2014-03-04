@@ -147,7 +147,7 @@ public class StringHolder {
                     set(ts);
                     return;
                 }
-                sb.append((char)b);
+                sb.append((char) b);
             }
         };
     }

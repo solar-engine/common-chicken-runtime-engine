@@ -196,7 +196,7 @@ public class ExpirationTimer { // TODO: Needs to be tested!
         }
         feed();
     }
-    
+
     /**
      * Start or restart the timer running.
      */

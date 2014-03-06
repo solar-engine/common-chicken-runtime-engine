@@ -106,6 +106,10 @@ public class CluckNode {
      * The ID representing a response to a remote procedure invocation.
      */
     public static final byte RMT_INVOKE_REPLY = 14;
+    /**
+     * The ID representing a notification that a link doesn't exist.
+     */
+    public static final byte RMT_NEGATIVE_ACK = 15;
 
     /**
      * Convert an RMT ID to a string.
@@ -145,6 +149,8 @@ public class CluckNode {
                 return "RemoteProcedure";
             case RMT_INVOKE_REPLY:
                 return "RemoteProcedure Reply";
+            case RMT_NEGATIVE_ACK:
+                return "Nonexistence Notification";
             default:
                 return "Unknown #" + type;
         }
@@ -221,7 +227,7 @@ public class CluckNode {
      */
     public void transmit(String target, String source, byte[] data, CluckLink denyLink) {
         if (debugLogAll) {
-            Logger.config("[" + this + "]DL " + target + " <- " + source + ": " + (data.length > 0 ? rmtToString(data[0]) : null) + ": " + CArrayUtils.asList(data));
+            Logger.fine("[" + this + "]DL " + target + " <- " + source + ": " + (data.length > 0 ? rmtToString(data[0]) : null) + ": " + CArrayUtils.asList(data));
         }
         estimatedByteCount += 24 + (target != null ? target.length() : 0) + (source != null ? source.length() : 0) + data.length; // 24 is the estimated packet overhead with a CluckTCPClient.
         if (target == null) {
@@ -262,6 +268,9 @@ public class CluckNode {
                 lastMissingLink = base;
                 lastMissingLinkError = System.currentTimeMillis();
                 Logger.log(LogLevel.WARNING, "No link for " + target + "(" + base + ") from " + source + "!");
+                if (data.length != 0 && data[0] != RMT_NEGATIVE_ACK) {
+                    transmit(source, target, new byte[] {RMT_NEGATIVE_ACK});
+                }
             }
         }
     }
@@ -480,14 +489,23 @@ public class CluckNode {
         source.addListener(new EventConsumer() {
             public void eventFired() {
                 for (String remote : remotes) {
-                    transmit(remote, name, new byte[]{RMT_EVENTSOURCERESP});
+                    if (remotes.get(remote) != null) { // TODO: Make the removal actually be done.
+                        transmit(remote, name, new byte[]{RMT_EVENTSOURCERESP});
+                    }
                 }
             }
         });
         new CluckSubscriber() {
             @Override
             protected void receive(String src, byte[] data) {
-                if (requireRMT(src, data, RMT_EVENTSOURCE)) {
+                if (data.length != 0 && data[0] == RMT_NEGATIVE_ACK) {
+                    if (remotes.containsKey(src)) {
+                        remotes.put(src, null); // TODO: Fix this to actually remove the entry.
+                        Logger.warning("Connection cancelled to " + src + " on " + name);
+                    } else {
+                        Logger.warning("Received cancellation to nonexistent " + src + " on " + name);
+                    }
+                } else if (requireRMT(src, data, RMT_EVENTSOURCE)) {
                     remotes.put(src, empty);
                 }
             }
@@ -650,14 +668,23 @@ public class CluckNode {
         prod.addTarget(new BooleanOutput() {
             public void writeValue(boolean value) {
                 for (String remote : remotes) {
-                    transmit(remote, name, new byte[]{RMT_BOOLPRODRESP, value ? (byte) 1 : 0});
+                    if (remotes.get(remote) != null) {
+                        transmit(remote, name, new byte[]{RMT_BOOLPRODRESP, value ? (byte) 1 : 0});
+                    }
                 }
             }
         });
         new CluckSubscriber() {
             @Override
             protected void receive(String src, byte[] data) {
-                if (requireRMT(src, data, RMT_BOOLPROD)) {
+                if (data.length != 0 && data[0] == RMT_NEGATIVE_ACK) {
+                    if (remotes.containsKey(src)) {
+                        remotes.put(src, null); // TODO: Fix this to actually remove the entry.
+                        Logger.warning("Connection cancelled to " + src + " on " + name);
+                    } else {
+                        Logger.warning("Received cancellation to nonexistent " + src + " on " + name);
+                    }
+                } else if (requireRMT(src, data, RMT_BOOLPROD)) {
                     remotes.put(src, empty);
                     CluckNode.this.transmit(src, name, new byte[]{RMT_BOOLPRODRESP, prod.readValue() ? (byte) 1 : 0});
                 }
@@ -683,14 +710,23 @@ public class CluckNode {
         prod.addTarget(new BooleanOutput() {
             public void writeValue(boolean value) {
                 for (String remote : remotes) {
-                    transmit(remote, name, new byte[]{RMT_BOOLPRODRESP, value ? (byte) 1 : 0});
+                    if (remotes.get(remote) != null) {
+                        transmit(remote, name, new byte[]{RMT_BOOLPRODRESP, value ? (byte) 1 : 0});
+                    }
                 }
             }
         });
         new CluckSubscriber() {
             @Override
             protected void receive(String src, byte[] data) {
-                if (requireRMT(src, data, RMT_BOOLPROD)) {
+                if (data.length != 0 && data[0] == RMT_NEGATIVE_ACK) {
+                    if (remotes.containsKey(src)) {
+                        remotes.put(src, null); // TODO: Fix this to actually remove the entry.
+                        Logger.warning("Connection cancelled to " + src + " on " + name);
+                    } else {
+                        Logger.warning("Received cancellation to nonexistent " + src + " on " + name);
+                    }
+                } else if (requireRMT(src, data, RMT_BOOLPROD)) {
                     remotes.put(src, empty);
                 }
             }
@@ -805,15 +841,24 @@ public class CluckNode {
         prod.addTarget(new FloatOutput() {
             public void writeValue(float value) {
                 for (String remote : remotes) {
-                    int iver = Float.floatToIntBits(value);
-                    transmit(remote, name, new byte[]{RMT_FLOATPRODRESP, (byte) (iver >> 24), (byte) (iver >> 16), (byte) (iver >> 8), (byte) iver});
+                    if (remotes.get(remote) != null) {
+                        int iver = Float.floatToIntBits(value);
+                        transmit(remote, name, new byte[]{RMT_FLOATPRODRESP, (byte) (iver >> 24), (byte) (iver >> 16), (byte) (iver >> 8), (byte) iver});
+                    }
                 }
             }
         });
         new CluckSubscriber() {
             @Override
             protected void receive(String src, byte[] data) {
-                if (requireRMT(src, data, RMT_FLOATPROD)) {
+                if (data.length != 0 && data[0] == RMT_NEGATIVE_ACK) {
+                    if (remotes.containsKey(src)) {
+                        remotes.put(src, null); // TODO: Fix this to actually remove the entry.
+                        Logger.warning("Connection cancelled to " + src + " on " + name);
+                    } else {
+                        Logger.warning("Received cancellation to nonexistent " + src + " on " + name);
+                    }
+                } else if (requireRMT(src, data, RMT_FLOATPROD)) {
                     remotes.put(src, empty);
                     int iver = Float.floatToIntBits(prod.readValue());
                     CluckNode.this.transmit(src, name, new byte[]{RMT_FLOATPRODRESP, (byte) (iver >> 24), (byte) (iver >> 16), (byte) (iver >> 8), (byte) iver});
@@ -841,15 +886,24 @@ public class CluckNode {
         prod.addTarget(new FloatOutput() {
             public void writeValue(float value) {
                 for (String remote : remotes) {
-                    int iver = Float.floatToIntBits(value);
-                    transmit(remote, name, new byte[]{RMT_FLOATPRODRESP, (byte) (iver >> 24), (byte) (iver >> 16), (byte) (iver >> 8), (byte) iver});
+                    if (remotes.get(remote) != null) {
+                        int iver = Float.floatToIntBits(value);
+                        transmit(remote, name, new byte[]{RMT_FLOATPRODRESP, (byte) (iver >> 24), (byte) (iver >> 16), (byte) (iver >> 8), (byte) iver});
+                    }
                 }
             }
         });
         new CluckSubscriber() {
             @Override
-            protected void receive(String src, byte[] data) {
-                if (requireRMT(src, data, RMT_FLOATPROD)) {
+            protected void receive(String src, byte[] data) {                
+                if (data.length != 0 && data[0] == RMT_NEGATIVE_ACK) {
+                    if (remotes.containsKey(src)) {
+                        remotes.put(src, null); // TODO: Fix this to actually remove the entry.
+                        Logger.warning("Connection cancelled to " + src + " on " + name);
+                    } else {
+                        Logger.warning("Received cancellation to nonexistent " + src + " on " + name);
+                    }
+                } else if (requireRMT(src, data, RMT_FLOATPROD)) {
                     remotes.put(src, empty);
                 }
             }

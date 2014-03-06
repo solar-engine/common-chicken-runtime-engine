@@ -28,6 +28,7 @@ import ccre.event.*;
 import ccre.log.BootLogger;
 import ccre.log.FileLogger;
 import ccre.log.NetworkAutologger;
+import ccre.reflect.ReflectionConsole;
 import ccre.util.LineCollectorOutputStream;
 import java.io.File;
 import java.io.IOException;
@@ -79,6 +80,7 @@ public class EmulatorLauncher implements IgneousLauncher {
         NetworkAutologger.register();
         BootLogger.register();
         FileLogger.register();
+        ReflectionConsole.attach();
         URLClassLoader classLoader = new URLClassLoader(new URL[]{jarFile.toURI().toURL()}, EmulatorLauncher.class.getClassLoader());
         Class<? extends IgneousCore> asSubclass = classLoader.loadClass(mainClass).asSubclass(IgneousCore.class);
         EmulatorForm emf = new EmulatorForm();

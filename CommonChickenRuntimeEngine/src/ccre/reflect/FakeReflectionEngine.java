@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 Colby Skeggs
+ * Copyright 2014 Colby Skeggs
  * 
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  * 
@@ -18,14 +18,28 @@
  */
 package ccre.reflect;
 
-import java.io.IOException;
+import ccre.util.CHashMap;
 
 /**
- * An interface to allow for ReflectionGenerator to be removed during downgrade.
+ * A fake implementation of ReflectionEngine. Doesn't actually work, but is
+ * provided when there's no real implementation.
  *
  * @author skeggsc
  */
-public interface InterfaceReflectionGenerator {
+public class FakeReflectionEngine extends ReflectionEngine {
 
-    public void mainV(String[] args) throws ClassNotFoundException, IOException;
+    @Override
+    protected void complete(CHashMap<String, Integer> map) {
+        // Nothing!
+    }
+
+    @Override
+    public Object dispatch(int uid, Object self, Object[] args) throws Throwable {
+        throw new RuntimeException("No dispatches in a FakeReflectionEngine!");
+    }
+
+    @Override
+    public String getSuperclass(String name) {
+        return null;
+    }
 }

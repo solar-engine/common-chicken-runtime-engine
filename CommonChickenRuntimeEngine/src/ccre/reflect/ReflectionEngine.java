@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 Colby Skeggs
+ * Copyright 2013-2014 Colby Skeggs
  * 
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  * 
@@ -29,7 +29,7 @@ import ccre.util.CHashMap;
  */
 public abstract class ReflectionEngine {
 
-    private CHashMap<String, ReflectionMethod> mapping;
+    private CHashMap<String, Integer> mapping;
     private static ReflectionEngine instance;
 
     public static ReflectionEngine getInstance() {
@@ -44,42 +44,44 @@ public abstract class ReflectionEngine {
                 Logger.log(LogLevel.WARNING, "Could not start Reflection Engine!", ex);
             }
             if (instance == null) {
-                throw new RuntimeException("No reflection engine!");
+                instance = new FakeReflectionEngine();
             }
         }
         return instance;
     }
 
-    public ReflectionMethod lookup(Class<?> c, String methodName) {
-        CHashMap<String, ReflectionMethod> lmap = mapping;
-        if (lmap == null) {
-            synchronized (this) {
-                lmap = mapping;
-                if (lmap == null) {
-                    lmap = mapping = new CHashMap<String, ReflectionMethod>();
-                    fillLookup();
-                }
+    public synchronized Integer lookup(String symbolname) {
+        if (mapping == null) {
+            mapping = new CHashMap<String, Integer>();
+            complete(mapping);
+        }
+        return mapping.get(symbolname);
+    }
+    
+    public synchronized String reverseLookup(int number) {
+        if (mapping == null) {
+            mapping = new CHashMap<String, Integer>();
+            complete(mapping);
+        }
+        for (String ent : mapping) {
+            if (mapping.get(ent).intValue() == number) {
+                return ent;
             }
         }
-        ReflectionMethod out = lmap.get(c.getName() + "." + methodName);
-        if (out == null) {
-            throw new IllegalArgumentException("No such method!");
+        return null;
+    }
+    
+    public synchronized Iterable<String> getSymbolIterable() {
+        if (mapping == null) {
+            mapping = new CHashMap<String, Integer>();
+            complete(mapping);
         }
-        return out;
+        return mapping;
     }
 
-    protected abstract void fillLookup();
+    protected abstract void complete(CHashMap<String, Integer> map);
+    
+    public abstract String getSuperclass(String name);
 
-    protected void fillLookup(String serialized) {
-        try {
-            ReflectionMethod m = new ReflectionMethod(serialized, this);
-            mapping.put(m.fullName, m);
-        } catch (ClassNotFoundException e) {
-            Logger.log(LogLevel.WARNING, "Missing class in reflection engine!", e);
-        } catch (NumberFormatException e) {
-            Logger.log(LogLevel.WARNING, "Invalid number in reflection engine!", e);
-        }
-    }
-
-    public abstract Object invoke(int id, Object aThis, Object[] args) throws Throwable;
+    public abstract Object dispatch(int uid, Object self, Object[] args) throws Throwable;
 }

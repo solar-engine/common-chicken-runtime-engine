@@ -20,8 +20,10 @@ package ccre.cluck.tcp;
 
 import ccre.cluck.CluckLink;
 import ccre.cluck.CluckNode;
+import ccre.concurrency.ReporterThread;
 import ccre.log.LogLevel;
 import ccre.log.Logger;
+import ccre.util.CLinkedList;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -146,6 +148,39 @@ public class CluckProtocol {
      * @return The newly created link.
      */
     protected static CluckLink handleSend(final DataOutputStream dout, final String linkName, CluckNode node) {
+        final CLinkedList<SendableEntry> queue = new CLinkedList<SendableEntry>();
+        final ReporterThread main = new ReporterThread("Cluck-Send-" + linkName) {
+            @Override
+            protected void threadBody() throws Throwable {
+                while (true) {
+                    SendableEntry ent;
+                    synchronized (queue) {
+                        while (queue.isEmpty()) {
+                            queue.wait();
+                        }
+                        ent = queue.removeFirst();
+                    }
+                    String source = ent.src, dest = ent.dst;
+                    byte[] data = ent.data;
+                    if (dest == null) {
+                        dout.writeUTF("");
+                    } else {
+                        dout.writeUTF(dest);
+                    }
+                    if (source == null) {
+                        dout.writeUTF("");
+                    } else {
+                        dout.writeUTF(source);
+                    }
+                    dout.writeInt(data.length);
+                    long begin = (((long) data.length) << 32) ^ (dest == null ? 0 : ((long) dest.hashCode()) << 16) ^ (source == null ? 0 : source.hashCode() ^ (((long) source.hashCode()) << 48));
+                    dout.writeLong(begin);
+                    dout.write(data);
+                    dout.writeLong(checksum(data, begin));
+                }
+            }
+        };
+        main.start();
         CluckLink clink = new CluckLink() {
             private boolean isRunning = false;
 
@@ -156,34 +191,19 @@ public class CluckProtocol {
                 }
                 isRunning = true;
                 try {
-                    try {
-                        if (dest == null) {
-                            dout.writeUTF("");
-                        } else {
-                            dout.writeUTF(dest);
-                        }
-                        if (source == null) {
-                            dout.writeUTF("");
-                        } else {
-                            dout.writeUTF(source);
-                        }
-                        dout.writeInt(data.length);
-                        long begin = (((long) data.length) << 32) ^ (dest == null ? 0 : ((long) dest.hashCode()) << 16) ^ (source == null ? 0 : source.hashCode() ^ (((long) source.hashCode()) << 48));
-                        dout.writeLong(begin);
-                        dout.write(data);
-                        dout.writeLong(checksum(data, begin));
-                        return true;
-                    } catch (IOException ex) {
-                        if (ex.getClass().getName().equals("java.net.SocketException") && ex.getMessage().equals("Socket closed")) {
-                            Logger.fine("Link sending disconnected: " + linkName);
-                        } else {
-                            Logger.log(LogLevel.SEVERE, "Could not transmit over cluck connection", ex);
-                        }
-                        return false;
+                    int size;
+                    synchronized (queue) {
+                        queue.addLast(new SendableEntry(source, dest, data));
+                        queue.notifyAll();
+                        size = queue.size();
+                    }
+                    if (size > 75) {
+                        Logger.warning("[NET] [NOT ACTUALLY] Queue too long: " + size);
                     }
                 } finally {
                     isRunning = false;
                 }
+                return main.isAlive();
             }
         };
         node.addOrReplaceLink(clink, linkName);

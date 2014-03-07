@@ -264,13 +264,14 @@ public class CluckNode {
                 links.put(base, null);
             }
         } else {
+            if (data.length != 0 && data[0] == RMT_NEGATIVE_ACK) {
+                return; // Don't reply to these.
+            }
             if (!base.equals(lastMissingLink) || System.currentTimeMillis() >= lastMissingLinkError + 1000) {
                 lastMissingLink = base;
                 lastMissingLinkError = System.currentTimeMillis();
                 Logger.log(LogLevel.WARNING, "No link for " + target + "(" + base + ") from " + source + "!");
-                if (data.length != 0 && data[0] != RMT_NEGATIVE_ACK) {
-                    transmit(source, target, new byte[] {RMT_NEGATIVE_ACK});
-                }
+                transmit(source, target, new byte[] {RMT_NEGATIVE_ACK});
             }
         }
     }

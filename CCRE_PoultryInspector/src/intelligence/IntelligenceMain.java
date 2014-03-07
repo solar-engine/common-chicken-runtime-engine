@@ -29,7 +29,6 @@ import ccre.ctrl.Ticker;
 import java.awt.*;
 import java.awt.event.*;
 import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
@@ -192,7 +191,7 @@ public class IntelligenceMain extends JPanel implements CluckRemoteListener, Mou
         } catch (IOException ex) {
             Logger.log(LogLevel.WARNING, "Could not set up folder list!", ex);
         }
-        tabs=Tab.getTabs();
+        tabs = Tab.getTabs();
         folders = folderList.toArray(new Folder[folderList.size()]);
         searchLinkName = "big-brother-" + Integer.toHexString(args.hashCode());
         this.addMouseMotionListener(this);
@@ -312,64 +311,10 @@ public class IntelligenceMain extends JPanel implements CluckRemoteListener, Mou
                     if (JOptionPane.showConfirmDialog(this, "Really delete?") == JOptionPane.OK_OPTION) {
                         System.out.println("removing");
                         it.remove();
-                        File folder = new File(".").getAbsoluteFile();
-                        File target = null;
-                        while (folder != null && folder.exists()) {
-                            target = new File(folder, "tab-settings.txt");
-                            if (target.exists() && target.canRead()) {
-                                break;
-                            }
-                            target = null;
-                            folder = folder.getParentFile();
-                        }
-
-                        try {
-
-                            File inFile = new File(target.toURI());
-
-                            if (!inFile.isFile()) {
-                                System.out.println("Parameter is not an existing file");
-                                return;
-                            }
-
-                            //Construct the new file that will later be renamed to the original filename.
-                            File tempFile = new File(inFile.getAbsolutePath() + ".tmp");
-
-                            BufferedReader br = new BufferedReader(new FileReader(target));
-                            PrintWriter pw = new PrintWriter(new FileWriter(tempFile));
-
-                            String line = null;
-
-                            while ((line = br.readLine()) != null) {
-
-                                if (!line.trim().equals(t.toString())) {
-
-                                    pw.println(line);
-                                    pw.flush();
-                                }
-                            }
-                            pw.close();
-                            br.close();
-
-                            //Delete the original file
-                            if (!inFile.delete()) {
-                                System.out.println("Could not delete file");
-                                return;
-                            }
-
-                            //Rename the new file to the filename the original file had.
-                            if (!tempFile.renameTo(inFile)) {
-                                System.out.println("Could not rename file");
-                            }
-
-                        } catch (FileNotFoundException ex) {
-                            ex.printStackTrace();
-                        } catch (IOException ex) {
-                            ex.printStackTrace();
-                        }
+                        Tab.removeTab(t);
                     }
                 } else {
-                    t.enforceTab(ents,remotes);
+                    t.enforceTab(ents, remotes);
                 }
                 return;
             }
@@ -378,17 +323,17 @@ public class IntelligenceMain extends JPanel implements CluckRemoteListener, Mou
         if (this.getWidth() - 30 < e.getX() && 50 + index * 35 < e.getY() && this.getWidth() > e.getX() && (50 + index * 35) + 30 > e.getY()) {
             try {
                 String result = JOptionPane.showInputDialog("What Name?");
-                if(result==null){
+                if (result == null) {
                     return;
                 }
-                if(result.isEmpty()){
+                if (result.isEmpty()) {
                     return;
                 }
                 Entity[] ent = new Entity[ents.values().size()];
                 ents.values().toArray(ent);
                 Tab t = new Tab(result, ent);
                 tabs.add(t);
-                Tab.appendTab(t);
+                Tab.addTab(t);
             } catch (IOException ex) {
                 Logger.log(LogLevel.WARNING, "Could not set up tab list!", ex);
             }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2014 Gregor Peach
+ * Copyright 2014 Gregor Peach
  * 
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  * 
@@ -34,55 +34,118 @@ import java.util.Map;
 
 /**
  * A rectangle on screen that can be clicked to show a set of remotes.
+ *
  * @author peachg
  */
 public class Tab {
+
     /**
      * The paths to find the monitored entities.
      */
     String[] monitoredEntitys;
     /**
-     * The locations of the monitored entities.
+     * The X locations of the monitored entities.
      */
     final int[] monitoredX;
+    /**
+     * The Y locations of the monitored entities.
+     */
     final int[] monitoredY;
     /**
      * The name of this tab.
      */
     final String name;
+
     /**
-     * 
+     * Remove the designated tab.
+     * @param t the tab to remove.
      */
-    public static void appendTab(Tab t) throws IOException{
+    public static void removeTab(Tab t) {
         File folder = new File(".").getAbsoluteFile();
-                File target = null;
-                while (folder != null && folder.exists()) {
-                    target = new File(folder, "tab-settings.txt");
-                    if (target.exists() && target.canRead()) {
-                        break;
-                    }
-                    target = null;
-                    folder = folder.getParentFile();
+        File target = null;
+        while (folder != null && folder.exists()) {
+            target = new File(folder, "tab-settings.txt");
+            if (target.exists() && target.canRead()) {
+                break;
+            }
+            target = null;
+            folder = folder.getParentFile();
+        }
+        PrintWriter pw=null;
+        BufferedReader br=null;
+        try {
+            File inFile = new File(target.toURI());
+            File tempFile = new File(inFile.getAbsolutePath() + ".tmp");
+            if (!inFile.isFile()) {
+                throw new IOException("Parameter is not an existing file");
+            }
+            br = new BufferedReader(new FileReader(target));
+            pw = new PrintWriter(new FileWriter(tempFile));
+            String line = null;
+            while ((line = br.readLine()) != null) {
+                if (!line.trim().equals(t.encode())) {
+                    pw.println(line);
+                    pw.flush();
                 }
-                if (target == null) {
-                    target=new File("."+File.pathSeparatorChar+"tab-settings.txt");
+            }
+            if (!inFile.delete()) {
+                throw new IOException("Could not delete file");
+            }
+            if (!tempFile.renameTo(inFile)) {
+                throw new IOException("Could not rename file");
+            } 
+        } catch (IOException ex) {
+             Logger.log(LogLevel.WARNING,"Couldn't open file",ex);
+        }
+        finally{
+            try{
+                if(pw!=null){
+                    pw.close();
                 }
-                PrintWriter out = null;
-                try {
-                    out = new PrintWriter(new BufferedWriter(new FileWriter(target, true)));
-                    out.println(t.toString());
-                } finally {
-                    if (out != null) {
-                        out.close();
-                    }
+                if(br!=null){
+                    br.close();
                 }
+            }catch(IOException e){
+                Logger.log(LogLevel.WARNING, "Couldn't close the files",e);
+            }
+        }
     }
     /**
-     * 
-     * @return 
+     * Adds a tab to the tab list file.
+     * @param t the tab to add.
+     * @throws IOException 
      */
-    public static List<Tab> getTabs(){
-        List<Tab> tabs=new ArrayList<Tab>();
+    public static void addTab(Tab t) throws IOException {
+        File folder = new File(".").getAbsoluteFile();
+        File target = null;
+        while (folder != null && folder.exists()) {
+            target = new File(folder, "tab-settings.txt");
+            if (target.exists() && target.canRead()) {
+                break;
+            }
+            target = null;
+            folder = folder.getParentFile();
+        }
+        if (target == null) {
+            target = new File("." + File.pathSeparatorChar + "tab-settings.txt");
+        }
+        PrintWriter out = null;
+        try {
+            out = new PrintWriter(new BufferedWriter(new FileWriter(target, true)));
+            out.println(t.encode());
+        } finally {
+            if (out != null) {
+                out.close();
+            }
+        }
+    }
+
+    /**
+     * Get all the tabs.
+     * @return a list of the tabs.
+     */
+    public static List<Tab> getTabs() {
+        List<Tab> tabs = new ArrayList<Tab>();
         try {
             File folder = new File(".").getAbsoluteFile();
             File target = null;
@@ -117,8 +180,9 @@ public class Tab {
         }
         return tabs;
     }
+
     /**
-     * 
+     * Turn a tab.ecode() to a tab.
      * @param line The string that represents a tab.
      * @return A tab represented by the string.
      */
@@ -138,12 +202,12 @@ public class Tab {
         }
         return new Tab(name, names, xs, ys);
     }
+
     /**
-     * 
+     * A function to encode tabs.
      * @return A string that represents this tab.
      */
-    @Override
-    public String toString() {
+    public String encode() {
         StringBuilder build = new StringBuilder();
         for (String s : monitoredEntitys) {
             build.append(s);
@@ -165,7 +229,7 @@ public class Tab {
         build.append("\1" + name);
         return build.toString();
     }
-    
+
     public Tab(String n, Entity[] rem) {
         name = n;
         String[] names = new String[rem.length];
@@ -187,29 +251,30 @@ public class Tab {
         monitoredX = xs;
         monitoredY = ys;
     }
+
     /**
      * Enforce the tab.
+     *
      * @param ents the entities needed.
      * @param rems the remotes needed.
      */
-    public void enforceTab(Map<String,Entity> ents,Map<String,Remote> rems) {
-        for(Entity e:ents.values()){
+    public void enforceTab(Map<String, Entity> ents, Map<String, Remote> rems) {
+        for (Entity e : ents.values()) {
             e.centerX = 0;
             e.centerY = 0;
         }
-        for(int index=0;index<monitoredEntitys.length;index++){
-            if(!ents.containsKey(monitoredEntitys[index])){
-                if(rems.containsKey(monitoredEntitys[index])){
-                    Remote rem=rems.get(monitoredEntitys[index]);
+        for (int index = 0; index < monitoredEntitys.length; index++) {
+            if (!ents.containsKey(monitoredEntitys[index])) {
+                if (rems.containsKey(monitoredEntitys[index])) {
+                    Remote rem = rems.get(monitoredEntitys[index]);
                     Entity ent = new Entity(rem, 0, 0);
                     ents.put(rem.path, ent);
-                }
-                else{
-                    Logger.info("Couldn't find path:"+monitoredEntitys[index]);
+                } else {
+                    Logger.info("Couldn't find path:" + monitoredEntitys[index]);
                 }
             }
-            ents.get(monitoredEntitys[index]).centerX=monitoredX[index];
-            ents.get(monitoredEntitys[index]).centerY=monitoredY[index];
+            ents.get(monitoredEntitys[index]).centerX = monitoredX[index];
+            ents.get(monitoredEntitys[index]).centerY = monitoredY[index];
         }
     }
 }

@@ -23,6 +23,7 @@ import ccre.event.EventConsumer;
 import ccre.log.Logger;
 import ccre.log.NetworkAutologger;
 import ccre.net.Network;
+import ccre.reflect.ReflectionConsole;
 
 /**
  * A simple standalone cluck server for testing.
@@ -43,6 +44,7 @@ public class StandaloneCluckServer {
         final long time = System.currentTimeMillis();
         CluckGlobals.ensureInitializedCore();
         NetworkAutologger.register();
+        ReflectionConsole.attach();
         CluckGlobals.node.publish("status-report", new EventConsumer() {
             public void eventFired() {
                 StringBuilder b = new StringBuilder("Standalone server online on [");

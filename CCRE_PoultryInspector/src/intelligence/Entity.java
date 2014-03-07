@@ -321,8 +321,13 @@ public final class Entity {
             case RMT_OUTSTREAM:
                 OutputStream outs = (OutputStream) co;
                 try {
-                    outs.write((JOptionPane.showInputDialog("Modify value", "*") + "\n").getBytes());
-                    outs.flush();
+                    String raw = JOptionPane.showInputDialog("Modify value", "*");
+                    if (raw == null) {
+                        Logger.warning("No value sent.");
+                    } else {
+                        outs.write((raw + "\n").getBytes());
+                        outs.flush();
+                    }
                 } catch (IOException ex) {
                     Logger.log(LogLevel.WARNING, "Cannot write new value!", ex);
                 }

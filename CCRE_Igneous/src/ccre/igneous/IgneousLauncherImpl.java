@@ -26,6 +26,7 @@ import ccre.device.DeviceRegistry;
 import ccre.event.*;
 import ccre.log.*;
 import ccre.net.IgneousNetworkProvider;
+import ccre.reflect.ReflectionConsole;
 import ccre.saver.IgneousStorageProvider;
 import ccre.util.LineCollectorOutputStream;
 import ccre.workarounds.IgneousThrowablePrinter;
@@ -63,6 +64,7 @@ class IgneousLauncherImpl extends IterativeRobot implements IgneousLauncher {
         NetworkAutologger.register();
         BootLogger.register();
         FileLogger.register();
+        ReflectionConsole.attach();
         String name = VM.getManifestProperty("Igneous-Main");
         if (name == null) {
             throw new RuntimeException("Could not find MANIFEST-specified launchee!");

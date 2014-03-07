@@ -19,7 +19,6 @@
 package ccre.launcher;
 
 import ccre.cluck.tcp.StandaloneCluckServer;
-import ccre.reflect.InterfaceReflectionGenerator;
 import ccre.rload.RLoadClient;
 import ccre.rload.RLoadServer;
 import ccre.testing.SuiteOfTests;
@@ -43,7 +42,6 @@ public class Launcher {
             System.err.println("    rcli  - RLoadClient");
             System.err.println("    rserv - RLoadServer");
             System.err.println("    tests - SuiteOfTests");
-            System.err.println("    reflg - ReflectionGenerator");
             return;
         }
         String a = args[0];
@@ -71,9 +69,6 @@ public class Launcher {
             case 'e':
                 if (a.equals("tests")) {
                     SuiteOfTests.main(cargs);
-                    return;
-                } else if (a.equals("reflg")) {
-                    ((InterfaceReflectionGenerator) Class.forName("ccre.reflect.ReflectionGenerator").newInstance()).mainV(cargs);
                     return;
                 }
                 break;

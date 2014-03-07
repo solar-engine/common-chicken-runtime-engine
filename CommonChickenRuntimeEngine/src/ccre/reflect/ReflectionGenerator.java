@@ -105,7 +105,7 @@ public class ReflectionGenerator implements InterfaceReflectionGenerator {
         mainLines.add("\t\t}");
         mainLines.add("\t}");
         mainLines.add("\tprotected void fillLookup() {");
-        Map.Entry<String, ArrayList<Object>>[] tarray = CArrayUtils.castToGeneric(methods.entrySet().toArray(new Map.Entry<?, ?>[methods.size()]));
+        Map.Entry<String, ArrayList<Object>>[] tarray = CArrayUtils.castToGeneric(methods.entrySet().toArray(new Map.Entry<?,?>[methods.size()]));
         Arrays.sort(tarray, new Comparator<Map.Entry<String, ArrayList<Object>>>() {
             public int compare(Map.Entry<String, ArrayList<Object>> o1, Map.Entry<String, ArrayList<Object>> o2) {
                 return o1.getKey().compareTo(o2.getKey());

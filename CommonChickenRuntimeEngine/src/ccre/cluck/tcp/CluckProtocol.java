@@ -197,6 +197,7 @@ public class CluckProtocol {
                         queue.notifyAll();
                         size = queue.size();
                     }
+                    Thread.yield();
                     if (size > 75) {
                         Logger.warning("[NET] [NOT ACTUALLY] Queue too long: " + size);
                     }

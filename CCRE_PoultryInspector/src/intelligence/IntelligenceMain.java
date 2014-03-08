@@ -504,6 +504,7 @@ public class IntelligenceMain extends JPanel implements CluckRemoteListener, Mou
     public static void main(String[] args) {
         CluckGlobals.ensureInitializedCore();
         NetworkAutologger.register();
+        FileLogger.register();
         JFrame frame = new JFrame("Intelligence Panel");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setSize(640, 480);

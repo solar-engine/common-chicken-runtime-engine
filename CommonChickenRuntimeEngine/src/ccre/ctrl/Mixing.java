@@ -678,6 +678,18 @@ public class Mixing {
     }
 
     /**
+     * Return a BooleanInputPoll that is true when either specified input is
+     * true, but not both.
+     *
+     * @param a the first input.
+     * @param b the second input.
+     * @return the input representing if either of the given inputs is true, but not both.
+     */
+    public static BooleanInputPoll xorBooleans(final BooleanInputPoll a, final BooleanInputPoll b) {
+        return new XorBooleansImpl(a, b);
+    }
+
+    /**
      * Return a BooleanInputPoll that is true when all specified inputs are
      * true.
      *

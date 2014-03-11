@@ -566,6 +566,21 @@ class MixingImpls {
             return a.readValue() || b.readValue();
         }
     }
+    
+    static class XorBooleansImpl implements BooleanInputPoll {
+
+        private final BooleanInputPoll a;
+        private final BooleanInputPoll b;
+
+        public XorBooleansImpl(BooleanInputPoll a, BooleanInputPoll b) {
+            this.a = a;
+            this.b = b;
+        }
+
+        public boolean readValue() {
+            return a.readValue() ^ b.readValue();
+        }
+    }
 
     static class PumpEventImplF implements EventConsumer {
 

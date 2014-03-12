@@ -38,7 +38,7 @@ public class MultipleSourceBooleanController implements BooleanInput, EventConsu
 
     public static final boolean AND = true;
     public static final boolean OR = false;
-    
+
     /**
      * Create a new MultipleSourceBooleanController, either as an AND operation
      * over its boolean set or an OR operation

@@ -36,7 +36,7 @@ public class IPProvider {
      * autoconfigure based on the network.
      */
     public static final StringHolder forcedAddress = new StringHolder("*");
-    
+
     private static final boolean useHigherPort;
 
     static {

@@ -116,5 +116,13 @@ public class TestCHashMap extends BaseTest {
         for (boolean b : found) {
             assertTrue(b, "Did not complete all keys!");
         }
+        alpha.clear();
+        alpha.put("Test", "ok");
+        alpha.put("Test2", "not ok");
+        assertEqual(alpha.remove("Test"), "ok", "Did not remove correct element!");
+        assertFalse(alpha.containsKey("Test"), "Alpha still has the removed key!");
+        assertEqual(alpha.get("Test"), null, "Got element even after it was removed!");
+        assertEqual(alpha.get("Test2"), "not ok", "Removed wrong element!");
+        assertEqual(alpha.remove("Test"), null, "Trying to remove an non existent key has unexpected results!");
     }
 }

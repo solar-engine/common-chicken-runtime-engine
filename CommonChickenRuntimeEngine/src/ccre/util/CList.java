@@ -162,18 +162,17 @@ public interface CList<E> extends CCollection<E> {
      * @return the last index.
      */
     int lastIndexOf(Object o);
-    
-    
+
     /**
      * Convert this list to a string.
      *
      * The result will be square brackets surrounding a comma-delimited list of
      * the toStrings of the elements of the list.
-     * 
+     *
      * Examples:
-     * 
+     *
      * A list containing 1, 2, and 3 will render as: [1, 2, 3]
-     * 
+     *
      * An empty list will render as: []
      *
      * @return The string expression of the list.

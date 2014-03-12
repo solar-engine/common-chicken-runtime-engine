@@ -38,11 +38,11 @@ public abstract class DeviceHandle<Type> {
     }
 
     public abstract Type open() throws DeviceException;
-    
+
     public Iterable<String> getConfigs() {
         return CArrayUtils.getEmptyList();
     }
-    
+
     public void configure(String key, String value) throws DeviceException {
         throw new DeviceException("No such configuration key: " + key);
     }

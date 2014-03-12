@@ -187,6 +187,12 @@ public abstract class InstinctModule implements EventConsumer {
     }
 
     protected void waitForTime(long milliseconds) throws InterruptedException, AutonomousModeOverException {
+        if (milliseconds < 0) {
+            Logger.warning("Negative wait in Instinct: " + milliseconds);
+            return;
+        } else if (milliseconds == 0) {
+            return; // Do nothing.
+        }
         try {
             Thread.sleep(milliseconds);
         } catch (InterruptedException ex) {

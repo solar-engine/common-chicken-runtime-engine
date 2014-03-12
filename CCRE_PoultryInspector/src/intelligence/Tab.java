@@ -15,6 +15,7 @@
  * 
  * You should have received a copy of the GNU Lesser General Public License
  * along with the CCRE.  If not, see <http://www.gnu.org/licenses/>.
+ *
  */
 package intelligence;
 
@@ -42,19 +43,19 @@ public class Tab {
     /**
      * The paths to find the monitored entities.
      */
-    String[] monitoredEntitys;
+    private String[] monitoredEntitys;
     /**
      * The X locations of the monitored entities.
      */
-    final int[] monitoredX;
+    private final int[] monitoredX;
     /**
      * The Y locations of the monitored entities.
      */
-    final int[] monitoredY;
+    private final int[] monitoredY;
     /**
      * The name of this tab.
      */
-    final String name;
+    public final String name;
 
     /**
      * Remove the designated tab.

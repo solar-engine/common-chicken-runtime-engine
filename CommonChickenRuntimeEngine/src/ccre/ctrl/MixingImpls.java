@@ -567,6 +567,21 @@ class MixingImpls {
         }
     }
 
+    static class XorBooleansImpl implements BooleanInputPoll {
+
+        private final BooleanInputPoll a;
+        private final BooleanInputPoll b;
+
+        public XorBooleansImpl(BooleanInputPoll a, BooleanInputPoll b) {
+            this.a = a;
+            this.b = b;
+        }
+
+        public boolean readValue() {
+            return a.readValue() ^ b.readValue();
+        }
+    }
+
     static class PumpEventImplF implements EventConsumer {
 
         private final FloatOutput out;
@@ -617,6 +632,29 @@ class MixingImpls {
 
         public float readValue() {
             return alpha.readValue() ? (beta.readValue() ? tt : tf) : (beta.readValue() ? ft : ff);
+        }
+    }
+
+    static class QuadSelectImpl2 implements FloatInputPoll {
+
+        private final BooleanInputPoll alpha;
+        private final BooleanInputPoll beta;
+        private final FloatInputPoll tt;
+        private final FloatInputPoll tf;
+        private final FloatInputPoll ft;
+        private final FloatInputPoll ff;
+
+        QuadSelectImpl2(BooleanInputPoll alpha, BooleanInputPoll beta, FloatInputPoll tt, FloatInputPoll tf, FloatInputPoll ft, FloatInputPoll ff) {
+            this.alpha = alpha;
+            this.beta = beta;
+            this.tt = tt;
+            this.tf = tf;
+            this.ft = ft;
+            this.ff = ff;
+        }
+
+        public float readValue() {
+            return (alpha.readValue() ? (beta.readValue() ? tt : tf) : (beta.readValue() ? ft : ff)).readValue();
         }
     }
 

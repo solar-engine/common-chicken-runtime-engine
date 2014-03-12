@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 Colby Skeggs
+ * Copyright 2013-2014 Colby Skeggs
  * 
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  * 
@@ -95,6 +95,9 @@ public abstract class CluckSubscriber implements CluckLink {
         }
         if (data[0] == CluckNode.RMT_PING && data.length == 1) {
             node.transmit(source, linkName, new byte[]{CluckNode.RMT_PING, rmt});
+            return false;
+        }
+        if (data[0] == CluckNode.RMT_NEGATIVE_ACK) { // Discard messages saying that the link is closed.
             return false;
         }
         if (data[0] != rmt) {

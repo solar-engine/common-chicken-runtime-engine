@@ -678,6 +678,19 @@ public class Mixing {
     }
 
     /**
+     * Return a BooleanInputPoll that is true when either specified input is
+     * true, but not both.
+     *
+     * @param a the first input.
+     * @param b the second input.
+     * @return the input representing if either of the given inputs is true, but
+     * not both.
+     */
+    public static BooleanInputPoll xorBooleans(final BooleanInputPoll a, final BooleanInputPoll b) {
+        return new XorBooleansImpl(a, b);
+    }
+
+    /**
      * Return a BooleanInputPoll that is true when all specified inputs are
      * true.
      *
@@ -989,6 +1002,24 @@ public class Mixing {
      */
     public static FloatInputPoll quadSelect(final BooleanInputPoll alpha, final BooleanInputPoll beta, final float ff, final float ft, final float tf, final float tt) {
         return new QuadSelectImpl(alpha, beta, tt, tf, ft, ff);
+    }
+
+    /**
+     * Returns a four-way select based on two BooleanInputPolls from four
+     * FloatInputPolls.
+     *
+     * @param alpha The first boolean.
+     * @param beta The second boolean.
+     * @param ff The value to use when both inputs are false.
+     * @param ft The value to use when the first is false and the second is
+     * true.
+     * @param tf The value to use when the first is true and the second is
+     * false.
+     * @param tt The value to use when both inputs are true.
+     * @return The FloatInputPoll representing the current value.
+     */
+    public static FloatInputPoll quadSelect(final BooleanInputPoll alpha, final BooleanInputPoll beta, final FloatInputPoll ff, final FloatInputPoll ft, final FloatInputPoll tf, final FloatInputPoll tt) {
+        return new QuadSelectImpl2(alpha, beta, tt, tf, ft, ff);
     }
 
     /**

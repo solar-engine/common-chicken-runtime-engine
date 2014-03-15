@@ -503,6 +503,7 @@ public class IntelligenceMain extends JPanel implements CluckRemoteListener, Mou
     @SuppressWarnings("unchecked")
     public static void main(String[] args) {
         CluckGlobals.ensureInitializedCore();
+        //CluckGlobals.node.debugLogAll = true;
         NetworkAutologger.register();
         FileLogger.register();
         JFrame frame = new JFrame("Intelligence Panel");
@@ -554,7 +555,7 @@ public class IntelligenceMain extends JPanel implements CluckRemoteListener, Mou
             }
         });
         btns.add(clear);
-        JButton refresh = new JButton("Refresh");
+        final JButton refresh = new JButton("Refresh");
         btns.add(refresh);
         JButton reconnect = new JButton("Reconnect");
         btns.add(reconnect);
@@ -587,7 +588,13 @@ public class IntelligenceMain extends JPanel implements CluckRemoteListener, Mou
             }
         }.attach(CluckGlobals.node, "notify-fetcher-virt");
         new PhidgetMonitor().share(CluckGlobals.node);
-        refresh.doClick();
+        //new VirtualPhidgetDevice().share(CluckGlobals.node);
+        EventQueue.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                refresh.doClick();
+            }
+        });
         IPProvider.connect();
     }
 }

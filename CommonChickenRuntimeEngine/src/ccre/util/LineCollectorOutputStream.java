@@ -40,7 +40,7 @@ public abstract class LineCollectorOutputStream extends OutputStream {
             collect(new String(running, 0, run_i));
             run_i = 0;
         } else {
-            if (run_i < running.length) {
+            if (run_i >= running.length) {
                 byte[] nrun = new byte[running.length * 2];
                 System.arraycopy(running, 0, nrun, 0, run_i);
                 running = nrun;

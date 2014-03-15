@@ -32,10 +32,8 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.io.PrintWriter;
 import java.util.*;
 import javax.swing.*;
 
@@ -564,7 +562,16 @@ public class IntelligenceMain extends JPanel implements CluckRemoteListener, Mou
         NetworkAutologger.register();
         FileLogger.register();
         JFrame frame = new JFrame("Intelligence Panel");
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+        final PhidgetMonitor monitor = new PhidgetMonitor();
+        frame.addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent we) {
+                super.windowClosing(we);
+                monitor.displayClosing();
+                System.exit(0);
+            }
+        });
         frame.setSize(640, 480);
         if (args.length >= 2) {
             try {
@@ -644,8 +651,29 @@ public class IntelligenceMain extends JPanel implements CluckRemoteListener, Mou
                 }
             }
         }.attach(CluckGlobals.node, "notify-fetcher-virt");
-        new PhidgetMonitor().share(CluckGlobals.node);
+        monitor.share(CluckGlobals.node);
         refresh.doClick();
         IPProvider.connect();
+        setupWatchdog(monitor);
+    }
+
+    private static void setupWatchdog(final PhidgetMonitor monitor) {
+        final ExpirationTimer watchdog = new ExpirationTimer();
+        watchdog.schedule(500, CluckGlobals.node.subscribeEC("robot/phidget/WatchDog"));
+        CluckGlobals.node.publish("WatchDog", new EventConsumer() {
+            @Override
+            public void eventFired() {
+                monitor.connectionUp();
+                watchdog.feed();
+            }
+        });
+        watchdog.schedule(2000, new EventConsumer() {
+            @Override
+            public void eventFired() {
+                monitor.connectionDown();
+            }
+        });
+        watchdog.schedule(3000, watchdog.getFeedEvent());
+        watchdog.start();
     }
 }

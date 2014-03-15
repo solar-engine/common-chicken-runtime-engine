@@ -30,6 +30,7 @@ import ccre.log.LogLevel;
 import ccre.log.Logger;
 import com.phidgets.*;
 import com.phidgets.event.*;
+import java.util.logging.Level;
 
 /**
  * The interface to the Phidget system. Currently, this has hardcoded constants
@@ -198,6 +199,29 @@ public class PhidgetMonitor implements AttachListener, DetachListener, ErrorList
         }
         for (int i = 0; i < ANALOG_COUNT; i++) {
             node.publish("phidget-ai" + i, analogs[i]);
+        }
+    }
+
+    public void displayClosing() {
+        try {
+            lcd.setDisplayString(0, "Poultry Inspector is");
+            lcd.setDisplayString(1, "     now closed.    ");
+        } catch (PhidgetException ex) {
+            Logger.log(LogLevel.SEVERE, "Cannot update string output to Phidget", ex);
+        }
+    }
+
+    public void connectionDown() {
+        lines[0].set("  Connection lost.  ");
+        lines[1].set("       Sorry.       ");
+    }
+
+    public void connectionUp() {
+        if ("  Connection lost.  ".equals(lines[0].get())) {
+            lines[0].set("  .  .  .  .  .  .  ");
+        }
+        if ("       Sorry.       ".equals(lines[1].get())) {
+            lines[1].set("  .  .  .  .  .  .  ");
         }
     }
 

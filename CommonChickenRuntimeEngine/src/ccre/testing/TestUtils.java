@@ -43,7 +43,7 @@ public class TestUtils extends BaseTest {
         // Utils.currentTimeSeconds
         boolean success = false;
         Random r = new Random();
-        for (int i=0; i<5; i++) {
+        for (int i = 0; i < 5; i++) {
             float here = Utils.currentTimeSeconds.readValue();
             try {
                 Thread.sleep(100);

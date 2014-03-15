@@ -193,7 +193,7 @@ public final class PoultryDialog {
      */
     public boolean press(int basex, int swidth, int sheight, int tx, int ty) {
         String result = null;
-        int i=0;
+        int i = 0;
         for (String line : description) {
             if (line.startsWith("BUTTON ")) {
                 String arg = line.substring("BUTTON ".length());

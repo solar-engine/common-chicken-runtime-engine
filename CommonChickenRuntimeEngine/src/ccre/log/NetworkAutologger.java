@@ -18,13 +18,9 @@
  */
 package ccre.log;
 
-import ccre.cluck.CluckGlobals;
-import ccre.cluck.CluckNode;
-import ccre.cluck.CluckSubscriber;
+import ccre.cluck.*;
 import ccre.concurrency.CollapsingWorkerThread;
 import ccre.util.CHashMap;
-import java.util.Timer;
-import java.util.TimerTask;
 
 /**
  * A logging tool that shares all logging between networked cluck systems
@@ -62,12 +58,6 @@ public class NetworkAutologger implements LoggingTarget {
             }
         };
         autologger.start();
-        new Timer().schedule(new TimerTask() {
-            @Override
-            public void run() {
-                autologger.trigger();
-            }
-        }, 10, 10000);
         new CluckSubscriber() {
             @Override
             protected void receive(String source, byte[] data) {

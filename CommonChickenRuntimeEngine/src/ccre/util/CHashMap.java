@@ -91,7 +91,7 @@ public class CHashMap<K, V> implements Iterable<K> {
      * @param initial initial size.
      */
     public CHashMap(int initial) {
-        map = CArrayUtils.castToGeneric(new Node<?,?>[initial]);
+        map = CArrayUtils.castToGeneric(new Node<?, ?>[initial]);
         size = 0;
     }
 
@@ -99,7 +99,7 @@ public class CHashMap<K, V> implements Iterable<K> {
      * Create a new CHashMap with a default size of 16.
      */
     public CHashMap() {
-        map = CArrayUtils.castToGeneric(new Node<?,?>[16]);
+        map = CArrayUtils.castToGeneric(new Node<?, ?>[16]);
         size = 0;
     }
 
@@ -137,7 +137,7 @@ public class CHashMap<K, V> implements Iterable<K> {
             cur = cur.next;
         }
         if (size >= map.length * 0.75) {
-            Node<K, V>[] nmap = CArrayUtils.castToGeneric(new Node<?,?>[map.length * 2 + 1]);
+            Node<K, V>[] nmap = CArrayUtils.castToGeneric(new Node<?, ?>[map.length * 2 + 1]);
             for (int i = 0; i < map.length; i++) {
                 cur = map[i];
                 while (cur != null) {
@@ -218,5 +218,29 @@ public class CHashMap<K, V> implements Iterable<K> {
      */
     public int size() {
         return size;
+    }
+
+    /**
+     * Removes a key from this CHashMap.
+     *
+     * @param key the key to remove from this map
+     * @return the removed key's value
+     */
+    public V remove(K key) {
+        Node<K, V> n = map[hash(key)];
+        Node<K, V> previous = null;
+        while (n != null) {
+            if (n.key.equals(key)) {
+                if (previous != null) {
+                    previous.next = n.next;
+                } else {
+                    map[hash(key)] = n.next;
+                }
+                return n.value;
+            }
+            previous = n;
+            n = n.next;
+        }
+        return null;
     }
 }

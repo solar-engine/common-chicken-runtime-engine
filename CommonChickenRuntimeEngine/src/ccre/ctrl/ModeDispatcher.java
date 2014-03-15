@@ -115,6 +115,7 @@ public class ModeDispatcher {
 
     /**
      * Change the mode to the specified index.
+     *
      * @param mode the new mode.
      */
     public void setMode(int mode) {

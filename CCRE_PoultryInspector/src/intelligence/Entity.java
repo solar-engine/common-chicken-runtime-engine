@@ -337,4 +337,8 @@ public final class Entity {
                 break;
         }
     }
+
+    public String toString() {
+        return this.represented.path;
+    }
 }

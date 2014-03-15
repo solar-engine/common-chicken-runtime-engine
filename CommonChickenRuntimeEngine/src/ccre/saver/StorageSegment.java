@@ -147,8 +147,8 @@ public abstract class StorageSegment {
      * @param holder the holder to save.
      */
     public void attachStringHolder(String name, final StringHolder holder) {
-        final String key = "$h:" + holder;
-        String dflt = "$h@" + holder;
+        final String key = "$h:" + name;
+        String dflt = "$h@" + name;
         String value = getStringForKey(key);
         if (value == null) {
             if (holder.hasModified()) {
@@ -187,7 +187,7 @@ public abstract class StorageSegment {
      * @param holder the holder to save.
      */
     public void attachFloatHolder(String name, final FloatStatus holder) {
-        final String key = "~h:" + holder;
+        final String key = "~h:" + name;
         DataInputStream din = getDataInputForKey(key);
         Float default_ = null;
         final Float findefault_ = holder.readValue();

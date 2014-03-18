@@ -564,7 +564,7 @@ public class IntelligenceMain extends JPanel implements CluckRemoteListener, Mou
         FileLogger.register();
         JFrame frame = new JFrame("Intelligence Panel");
         frame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
-        final PhidgetMonitor monitor = new PhidgetMonitor();
+        final IPhidgetMonitor monitor = new VirtualPhidgetMonitor();//new PhidgetMonitor();
         frame.addWindowListener(new WindowAdapter() {
             @Override
             public void windowClosing(WindowEvent we) {
@@ -653,7 +653,6 @@ public class IntelligenceMain extends JPanel implements CluckRemoteListener, Mou
             }
         }.attach(CluckGlobals.node, "notify-fetcher-virt");
         monitor.share(CluckGlobals.node);
-        //new VirtualPhidgetDevice().share(CluckGlobals.node);
         EventQueue.invokeLater(new Runnable() {
             @Override
             public void run() {
@@ -664,7 +663,7 @@ public class IntelligenceMain extends JPanel implements CluckRemoteListener, Mou
         setupWatchdog(monitor);
     }
 
-    private static void setupWatchdog(final PhidgetMonitor monitor) {
+    private static void setupWatchdog(final IPhidgetMonitor monitor) {
         final ExpirationTimer watchdog = new ExpirationTimer();
         watchdog.schedule(500, CluckGlobals.node.subscribeEC("robot/phidget/WatchDog"));
         CluckGlobals.node.publish("WatchDog", new EventConsumer() {

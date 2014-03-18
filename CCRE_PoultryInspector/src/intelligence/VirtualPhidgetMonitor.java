@@ -1,7 +1,20 @@
 /*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+ * Copyright 2014 Colby Skeggs, Gregor Peach (Added Folders)
+ * 
+ * This file is part of the CCRE, the Common Chicken Runtime Engine.
+ * 
+ * The CCRE is free software: you can redistribute it and/or modify it under the
+ * terms of the GNU Lesser General Public License as published by the Free
+ * Software Foundation, either version 3 of the License, or (at your option) any
+ * later version.
+ * 
+ * The CCRE is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
+ * A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
+ * details.
+ * 
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with the CCRE.  If not, see <http://www.gnu.org/licenses/>.
  */
 package intelligence;
 
@@ -29,12 +42,12 @@ import javax.swing.event.ChangeListener;
  *
  * @author skeggsc
  */
-public class VirtualPhidgetDevice extends javax.swing.JFrame {
+public class VirtualPhidgetMonitor extends javax.swing.JFrame implements IPhidgetMonitor {
 
     /**
      * Creates new form VirtualPhidgetDevice
      */
-    public VirtualPhidgetDevice() {
+    public VirtualPhidgetMonitor() {
         initComponents();
         setVisible(true);
     }
@@ -305,4 +318,26 @@ public class VirtualPhidgetDevice extends javax.swing.JFrame {
     private intelligence.IndicatorLight out6;
     private intelligence.IndicatorLight out7;
     // End of variables declaration//GEN-END:variables
+
+    @Override
+    public void connectionUp() {
+        if ("  Connection lost.  ".equals(lcdLine0.getText())) {
+            lcdLine0.setText("  .  .  .  .  .  .  ");
+        }
+        if ("       Sorry.       ".equals(lcdLine1.getText())) {
+            lcdLine1.setText("  .  .  .  .  .  .  ");
+        }
+    }
+
+    @Override
+    public void connectionDown() {
+        lcdLine0.setText("  Connection lost.  ");
+        lcdLine1.setText("       Sorry.       ");
+    }
+
+    @Override
+    public void displayClosing() {
+        lcdLine0.setText("Poultry Inspector is");
+        lcdLine1.setText("     now closed.    ");
+    }
 }

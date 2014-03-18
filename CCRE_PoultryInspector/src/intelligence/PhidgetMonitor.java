@@ -30,7 +30,6 @@ import ccre.log.LogLevel;
 import ccre.log.Logger;
 import com.phidgets.*;
 import com.phidgets.event.*;
-import java.util.logging.Level;
 
 /**
  * The interface to the Phidget system. Currently, this has hardcoded constants
@@ -39,7 +38,7 @@ import java.util.logging.Level;
  *
  * @author skeggsc
  */
-public class PhidgetMonitor implements AttachListener, DetachListener, ErrorListener, InputChangeListener, SensorChangeListener {
+public class PhidgetMonitor implements IPhidgetMonitor, AttachListener, DetachListener, ErrorListener, InputChangeListener, SensorChangeListener {
 
     /**
      * The number of binary outputs to expect on the phidget interface.

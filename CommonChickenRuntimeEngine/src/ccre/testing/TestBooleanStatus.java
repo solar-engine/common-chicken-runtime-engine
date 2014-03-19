@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 Colby Skeggs
+ * Copyright 2013-2014 Colby Skeggs
  * 
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  * 
@@ -35,6 +35,11 @@ public class TestBooleanStatus extends BaseTest {
         return "BooleanStatus tests";
     }
 
+    /**
+     * Test if basic reads and writes in various sequences work properly.
+     *
+     * @throws ccre.testing.TestingException If the test fails.
+     */
     protected void testBasicReadWrite() throws TestingException {
         BooleanStatus status = new BooleanStatus();
         assertFalse(status.readValue(), "Bad default value!");
@@ -52,6 +57,11 @@ public class TestBooleanStatus extends BaseTest {
         assertFalse(status.readValue(), "Bad value!");
     }
 
+    /**
+     * Check if the BooleanStatus updates its targets properly.
+     *
+     * @throws TestingException If the test fails.
+     */
     protected void testUpdateTargets() throws TestingException {
         BooleanStatus status = new BooleanStatus();
         final boolean[] cur = new boolean[2];
@@ -84,6 +94,11 @@ public class TestBooleanStatus extends BaseTest {
         assertFalse(cur[1], "Expected no write after removal!");
     }
 
+    /**
+     * Check if targets added during creation work properly.
+     *
+     * @throws TestingException If the test fails.
+     */
     protected void testCreationTargets() throws TestingException {
         final boolean[] cur = new boolean[2];
         BooleanOutput b = new BooleanOutput() {
@@ -127,6 +142,11 @@ public class TestBooleanStatus extends BaseTest {
         assertFalse(cur[1], "Expected no write once removed!");
     }
 
+    /**
+     * Test if setting events work properly.
+     *
+     * @throws TestingException If the test fails.
+     */
     protected void testSetEvents() throws TestingException {
         final boolean[] cur = new boolean[1];
         BooleanOutput b = new BooleanOutput() {

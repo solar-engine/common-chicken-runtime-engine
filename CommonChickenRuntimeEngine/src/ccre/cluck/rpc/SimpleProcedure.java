@@ -47,6 +47,8 @@ public abstract class SimpleProcedure implements RemoteProcedure {
      * @param timeout The maximum number of milliseconds to wait. (Note: zero
      * means don't wait for a result, not wait indefinitely.)
      * @return The output from the procedure.
+     * @throws java.lang.InterruptedException If the current thread is
+     * interrupted while waiting for a response.
      */
     public static byte[] invoke(RemoteProcedure rp, byte[] in, int timeout) throws InterruptedException {
         final boolean[] b = new boolean[1];

@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 Colby Skeggs
+ * Copyright 2013-2014 Colby Skeggs
  * 
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  * 
@@ -136,8 +136,8 @@ public class StringHolder {
      * @return the output stream that modifies the state of this.
      */
     public OutputStream getOutput() {
-        return new OutputStream() {
-            private StringBuilder sb = new StringBuilder();
+        return new OutputStream() { // TODO: See if I should use LineCollectorOutputStream.
+            private final StringBuilder sb = new StringBuilder();
 
             @Override
             public synchronized void write(int b) throws IOException {

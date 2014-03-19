@@ -31,10 +31,8 @@ import ccre.workarounds.ThrowablePrinter;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.util.Enumeration;
-import java.util.Hashtable;
+import java.io.UnsupportedEncodingException;
 import java.util.Iterator;
-import java.util.logging.Level;
 
 /**
  * A CluckNode is the core hub of the Cluck networking system on a device. It
@@ -187,8 +185,8 @@ public class CluckNode {
      * subscribing to RemoteProcedures.
      */
     private String localRPCBinding = null;
-    private final Hashtable<String, OutputStream> localRPC = new Hashtable<String, OutputStream>();
-    private final Hashtable<String, Long> timeoutsRPC = new Hashtable<String, Long>();
+    private final CHashMap<String, OutputStream> localRPC = new CHashMap<String, OutputStream>();
+    private final CHashMap<String, Long> timeoutsRPC = new CHashMap<String, Long>();
 
     /**
      * Notify everyone on the network that the network structure has been
@@ -227,7 +225,7 @@ public class CluckNode {
      */
     public void transmit(String target, String source, byte[] data, CluckLink denyLink) {
         if (debugLogAll) {
-            Logger.fine("[" + this + "]DL " + target + " <- " + source + ": " + (data.length > 0 ? rmtToString(data[0]) : null) + ": " + CArrayUtils.asList(data));
+            System.out.println("[" + this + "]DL " + target + " <- " + source + ": " + (data.length > 0 ? rmtToString(data[0]) : null) + ": " + CArrayUtils.asList(data));
         }
         estimatedByteCount += 24 + (target != null ? target.length() : 0) + (source != null ? source.length() : 0) + data.length; // 24 is the estimated packet overhead with a CluckTCPClient.
         if (target == null) {
@@ -277,7 +275,7 @@ public class CluckNode {
                 lastMissingLink = base;
                 lastMissingLinkError = System.currentTimeMillis();
                 Logger.log(LogLevel.WARNING, "No link for " + target + "(" + base + ") from " + source + "!");
-                transmit(source, target, new byte[] {RMT_NEGATIVE_ACK});
+                transmit(source, target, new byte[]{RMT_NEGATIVE_ACK});
             }
         }
     }
@@ -483,7 +481,7 @@ public class CluckNode {
     /**
      * A sentinel object.
      */
-    private static Object empty = new Object();
+    private static final Object empty = new Object();
 
     /**
      * Publish an EventSource on the network.
@@ -496,9 +494,7 @@ public class CluckNode {
         source.addListener(new EventConsumer() {
             public void eventFired() {
                 for (String remote : remotes) {
-                    if (remotes.get(remote) != null) { // TODO: Make the removal actually be done.
-                        transmit(remote, name, new byte[]{RMT_EVENTSOURCERESP});
-                    }
+                    transmit(remote, name, new byte[]{RMT_EVENTSOURCERESP});
                 }
             }
         });
@@ -507,7 +503,7 @@ public class CluckNode {
             protected void receive(String src, byte[] data) {
                 if (data.length != 0 && data[0] == RMT_NEGATIVE_ACK) {
                     if (remotes.containsKey(src)) {
-                        remotes.put(src, null); // TODO: Fix this to actually remove the entry.
+                        remotes.remove(src);
                         Logger.warning("Connection cancelled to " + src + " on " + name);
                     } else {
                         Logger.warning("Received cancellation to nonexistent " + src + " on " + name);
@@ -526,8 +522,19 @@ public class CluckNode {
     /**
      * A counter for (nearly) unique local IDs. This is combined with other
      * factors, so race conditions shouldn't be an issue.
+     *
+     * @see #nextLocalID()
      */
     private static int localIDs = 0;
+
+    /**
+     * Gets the next value from the unique local ID counter.
+     *
+     * @return A unique ID.
+     */
+    private static synchronized int nextLocalID() {
+        return localIDs++;
+    }
 
     /**
      * Subscribe to an EventSource from the network at the specified path.
@@ -536,7 +543,7 @@ public class CluckNode {
      * @return the EventSource.
      */
     public EventSource subscribeES(final String path) {
-        final String linkName = "srcES-" + path.hashCode() + "-" + localIDs++;
+        final String linkName = "srcES-" + path.hashCode() + "-" + nextLocalID();
         final BooleanStatus sent = new BooleanStatus();
         final Event e = new Event() {
             @Override
@@ -597,14 +604,19 @@ public class CluckNode {
                             }
                         }
                     }
-                    String message = new String(data, 10, l1);
-                    String extended;
-                    if (l2 == 0) {
-                        extended = null;
-                    } else {
-                        extended = new String(data, 10 + l1, l2);
+                    String message;
+                    try {
+                        message = new String(data, 10, l1, "US-ASCII"); // TODO: Figure out how to use UTF-8 on the robot.
+                        String extended;
+                        if (l2 == 0) {
+                            extended = null;
+                        } else {
+                            extended = new String(data, 10 + l1, l2, "US-ASCII");
+                        }
+                        lt.log(LogLevel.fromByte(data[1]), message, extended);
+                    } catch (UnsupportedEncodingException ex) {
+                        Logger.log(LogLevel.WARNING, "Cannot use US-ASCII!", ex);
                     }
-                    lt.log(LogLevel.fromByte(data[1]), message, extended);
                 }
             }
 
@@ -634,8 +646,8 @@ public class CluckNode {
             public void log(LogLevel level, String message, String extended) {
                 try {
                     if (level.atLeastAsImportant(minimum)) {
-                        byte[] msg = message.getBytes();
-                        byte[] ext = extended == null ? new byte[0] : extended.getBytes();
+                        byte[] msg = message.getBytes("US-ASCII");
+                        byte[] ext = extended == null ? new byte[0] : extended.getBytes("US-ASCII");
                         byte[] out = new byte[10 + msg.length + ext.length];
                         out[0] = RMT_LOGTARGET;
                         out[1] = LogLevel.toByte(level);
@@ -756,7 +768,7 @@ public class CluckNode {
      * @return the BooleanInputProducer.
      */
     public BooleanInput subscribeBIP(final String path, boolean subscribeByDefault) {
-        final String linkName = "srcBIP-" + path.hashCode() + "-" + localIDs++;
+        final String linkName = "srcBIP-" + path.hashCode() + "-" + nextLocalID();
         final BooleanStatus sent = new BooleanStatus(subscribeByDefault);
         final BooleanStatus bs = new BooleanStatus() {
             @Override
@@ -902,7 +914,7 @@ public class CluckNode {
         });
         new CluckSubscriber() {
             @Override
-            protected void receive(String src, byte[] data) {                
+            protected void receive(String src, byte[] data) {
                 if (data.length != 0 && data[0] == RMT_NEGATIVE_ACK) {
                     if (remotes.containsKey(src)) {
                         remotes.put(src, null); // TODO: Fix this to actually remove the entry.
@@ -933,7 +945,7 @@ public class CluckNode {
      * @return the FloatInputProducer. (or FloatInput).
      */
     public FloatInput subscribeFIP(final String path, boolean subscribeByDefault) {
-        final String linkName = "srcFIP-" + path.hashCode() + "-" + localIDs++;
+        final String linkName = "srcFIP-" + path.hashCode() + "-" + nextLocalID();
         final BooleanStatus sent = new BooleanStatus(subscribeByDefault);
         final FloatStatus fs = new FloatStatus() {
             @Override
@@ -1166,9 +1178,7 @@ public class CluckNode {
         long now = System.currentTimeMillis();
         CArrayList<String> toRemove = new CArrayList<String>();
         synchronized (CluckNode.this) {
-            Enumeration<String> keys = timeoutsRPC.keys();
-            while (keys.hasMoreElements()) {
-                String key = keys.nextElement();
+            for (String key : timeoutsRPC) {
                 long value = timeoutsRPC.get(key);
                 if (value < now) {
                     toRemove.add(key);
@@ -1259,7 +1269,7 @@ public class CluckNode {
 
         public void invoke(byte[] in, OutputStream out) {
             checkTimeout();
-            String localname = path + "-" + Integer.toHexString(in.hashCode()) + "-" + Integer.toHexString((int) (System.currentTimeMillis() & 0xffff));
+            String localname = path + "-" + Integer.toHexString(System.identityHashCode(in)) + "-" + Integer.toHexString((int) (System.currentTimeMillis() & 0xffff));
             synchronized (CluckNode.this) {
                 timeoutsRPC.put(localname, System.currentTimeMillis() + timeoutAfter);
                 localRPC.put(localname, out);

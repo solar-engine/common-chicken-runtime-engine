@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 Colby Skeggs
+ * Copyright 2013-2014 Colby Skeggs
  * 
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  * 
@@ -36,7 +36,15 @@ import ccre.util.CArrayList;
  */
 public class MultipleSourceBooleanController implements BooleanInput, EventConsumer {
 
+    /**
+     * Passed to the constructor to make the inputs be combined in an AND
+     * fashion.
+     */
     public static final boolean AND = true;
+    /**
+     * Passed to the constructor to make the inputs be combined in an OR
+     * fashion.
+     */
     public static final boolean OR = false;
 
     /**
@@ -102,6 +110,8 @@ public class MultipleSourceBooleanController implements BooleanInput, EventConsu
      * set.
      *
      * @param inp the boolean to include.
+     * @param default_ The default value for this input before the producer
+     * produces any values.
      */
     public synchronized void addInput(BooleanInputProducer inp, boolean default_) {
         inp.addTarget(getOutput(default_));

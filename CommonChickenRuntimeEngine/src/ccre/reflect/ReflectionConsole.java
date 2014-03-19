@@ -22,14 +22,11 @@ import ccre.cluck.CluckGlobals;
 import ccre.cluck.CluckNode;
 import ccre.log.LogLevel;
 import ccre.log.Logger;
-import ccre.net.ClientSocket;
-import ccre.net.ConnectionReceiverThread;
 import ccre.util.CArrayList;
 import ccre.util.LineCollectorOutputStream;
 import ccre.util.Tokenizer;
 import java.io.EOFException;
 import java.io.OutputStream;
-import java.util.Arrays;
 
 /**
  * An interface designed to allow for working with the reflection system. It
@@ -40,6 +37,10 @@ import java.util.Arrays;
  */
 public class ReflectionConsole {
 
+    /**
+     * The control output stream that can be written to in order to control the
+     * reflection console.
+     */
     public final OutputStream control = new LineCollectorOutputStream() {
         @Override
         protected void collect(String tostr) {
@@ -47,10 +48,18 @@ public class ReflectionConsole {
         }
     };
 
+    /**
+     * Share the console over the network on the specified node.
+     *
+     * @param node The network node to publish the console on.
+     */
     public void share(CluckNode node) {
         node.publish("reflection-console", control);
     }
 
+    /**
+     * Create a new ReflectionConsole and attach it to the global cluck node.
+     */
     public static void attach() {
         new ReflectionConsole().share(CluckGlobals.node);
     }
@@ -86,7 +95,7 @@ public class ReflectionConsole {
     private final ReflectionTokenizer tkn = new ReflectionTokenizer();
 
     private synchronized void execute(String tostr) {
-        logInfo("Reflect$ " + tostr);
+        Logger.info("Reflect$ " + tostr);
         tkn.setInput(tostr);
         try {
             while (tkn.hasNext()) {
@@ -96,7 +105,7 @@ public class ReflectionConsole {
                 Object result;
                 if (tkn.acceptString("reset")) {
                     results.clear();
-                    logInfo("Reflect> Cleared.");
+                    Logger.info("Reflect> Cleared.");
                     continue;
                 } else if (tkn.acceptChar('#')) {
                     String name = tkn.acceptWord(' ');
@@ -110,7 +119,7 @@ public class ReflectionConsole {
                             for (String guess : engine.getSymbolIterable()) {
                                 if (guess.indexOf(name) != -1) {
                                     if (toretry != null) {
-                                        logWarning("Reflect! Multiple matching entries for: " + name + " (" + toretry + ", " + guess + ")", null);
+                                        Logger.warning("Reflect! Multiple matching entries for: " + name + " (" + toretry + ", " + guess + ")");
                                         return;
                                     }
                                     toretry = guess;
@@ -119,12 +128,12 @@ public class ReflectionConsole {
                             if (toretry != null) {
                                 lk = engine.lookup(toretry);
                                 if (lk == null) {
-                                    logWarning("Reflect! Guess failed...???????? what????", null);
+                                    Logger.warning("Reflect! Guess failed...???????? what????");
                                     return;
                                 }
                                 name = toretry;
                             } else {
-                                logWarning("Reflect! No such entry: " + name, null);
+                                Logger.warning("Reflect! No such entry: " + name);
                                 return;
                             }
                         }
@@ -147,22 +156,14 @@ public class ReflectionConsole {
                     result = tkn.acceptAtom();
                 }
                 if (result == null) {
-                    logInfo("Reflect> null");
+                    Logger.info("Reflect> null");
                 } else {
-                    logInfo("Reflect> $" + results.size() + " = " + result);
+                    Logger.info("Reflect> $" + results.size() + " = " + result);
                     results.add(result);
                 }
             }
         } catch (Throwable thr) {
-            logWarning("Reflect!", thr);
+            Logger.log(LogLevel.WARNING, "Reflect!", thr);
         }
-    }
-
-    protected void logWarning(String str, Throwable thr) {
-        Logger.log(LogLevel.WARNING, str, thr);
-    }
-
-    protected void logInfo(String str) {
-        Logger.info(str);
     }
 }

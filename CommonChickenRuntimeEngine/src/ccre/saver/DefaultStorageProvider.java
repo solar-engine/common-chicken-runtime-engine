@@ -107,7 +107,9 @@ class DefaultStorageProvider extends StorageProvider {
                 try {
                     File f = new File("ccre_storage");
                     if (!f.exists()) {
-                        f.mkdir();
+                        if (f.mkdir()) {
+                            Logger.warning("Could not create ccre_storage directory!");
+                        }
                     }
                     DataOutputStream dout = new DataOutputStream(new BufferedOutputStream(new FileOutputStream("ccre_storage/" + name)));
                     try {

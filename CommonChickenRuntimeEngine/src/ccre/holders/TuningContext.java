@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 Colby Skeggs
+ * Copyright 2013-2014 Colby Skeggs
  * 
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  * 
@@ -30,7 +30,7 @@ import ccre.saver.StorageSegment;
  *
  * @author skeggsc
  */
-public class TuningContext {
+public class TuningContext { // TODO: Support booleans for tuning.
 
     /**
      * The node to publish the value to.
@@ -118,8 +118,16 @@ public class TuningContext {
         };
     }
 
+    /**
+     * Publish an EventConsumer that can be used to save the tuning variables on
+     * this context.
+     *
+     * @param name The name for the EventConsumer to be published under.
+     * (Prefixed by "Save Tuning for ".)
+     * @return This TuningContext. Returned for method chaining purposes.
+     */
     public TuningContext publishSavingEvent(String name) {
-        enc.publish("Save Tuning for " + name, getFlushEvent());
+        enc.publish("Save Tuning for " + name, getFlushEvent()); // TODO: Say something when tuned.
         return this;
     }
 }

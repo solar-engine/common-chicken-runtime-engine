@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 Colby Skeggs
+ * Copyright 2013-2014 Colby Skeggs
  * 
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  * 
@@ -37,7 +37,10 @@ import java.io.IOException;
  */
 public class RLoadServer extends ReporterThread {
 
-    public static final long MAGIC_HEADER = 0x1540A0413CA6120AL;
+    /**
+     * The magic header used in RLoad.
+     */
+    static final long MAGIC_HEADER = 0x1540A0413CA6120AL;
 
     /**
      * The main launching function for an RLoad server.
@@ -63,6 +66,13 @@ public class RLoadServer extends ReporterThread {
     }
     private final boolean watcher;
 
+    /**
+     * Create a new instance of an RLoad server that puts received data into a
+     * file and optionally notifies watchers.
+     *
+     * @param targetFile The file to write to.
+     * @param watcher If a watcher file should be generated.
+     */
     public RLoadServer(String targetFile, boolean watcher) {
         super("RLoadServer");
         this.output = new File(targetFile);
@@ -105,7 +115,7 @@ public class RLoadServer extends ReporterThread {
                     if (watcher) {
                         FileOutputStream watchout = new FileOutputStream("remote-watcher");
                         try {
-                            watchout.write(String.valueOf(System.currentTimeMillis()).getBytes());
+                            watchout.write(String.valueOf(System.currentTimeMillis()).getBytes("UTF-8"));
                             watchout.write('\n');
                         } finally {
                             watchout.close();

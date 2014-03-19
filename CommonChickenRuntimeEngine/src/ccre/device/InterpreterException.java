@@ -26,11 +26,19 @@ package ccre.device;
 @SuppressWarnings("serial")
 public class InterpreterException extends Exception {
 
+    /**
+     * Creates a InterpreterException with no message.
+     */
     public InterpreterException() {
         super();
     }
 
-    public InterpreterException(String msg) {
-        super(msg);
+    /**
+     * Creates an InterpreterException with a specified message.
+     *
+     * @param message The specified message.
+     */
+    public InterpreterException(String message) {
+        super(message);
     }
 }

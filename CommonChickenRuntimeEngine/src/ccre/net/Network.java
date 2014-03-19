@@ -18,6 +18,8 @@
  */
 package ccre.net;
 
+import ccre.log.LogLevel;
+import ccre.log.Logger;
 import ccre.util.CCollection;
 import java.io.IOException;
 
@@ -85,18 +87,18 @@ public class Network {
      *
      * @return the active network Provider.
      */
-    static Provider getProvider() {
+    static synchronized Provider getProvider() {
         if (prov == null) {
             try {
                 prov = (Provider) Class.forName("ccre.net.DefaultNetworkProvider").newInstance();
             } catch (InstantiationException ex) {
-                ex.printStackTrace();
+                Logger.log(LogLevel.WARNING, "Cannot start network provider!", ex);
                 throw new RuntimeException("Cannot load the default network provider. It was probably (purposefully) ignored during the build process.");
             } catch (IllegalAccessException ex) {
-                ex.printStackTrace();
+                Logger.log(LogLevel.WARNING, "Cannot start network provider!", ex);
                 throw new RuntimeException("Cannot load the default network provider. It was probably (purposefully) ignored during the build process.");
             } catch (ClassNotFoundException ex) {
-                ex.printStackTrace();
+                Logger.log(LogLevel.WARNING, "Cannot start network provider!", ex);
                 throw new RuntimeException("Cannot load the default network provider. It was probably (purposefully) ignored during the build process.");
             }
         }

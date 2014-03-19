@@ -22,6 +22,8 @@ import ccre.log.LogLevel;
 import ccre.log.Logger;
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
+import java.io.UnsupportedEncodingException;
+import java.util.logging.Level;
 
 /**
  * A provider that can print out a Throwable to a given PrintStream.
@@ -43,7 +45,7 @@ public abstract class ThrowablePrinter {
      * Ensure that there is an available provider. At least, there will be a
      * fake throwable printer that can't actually print the exception traceback.
      */
-    public static void initProvider() {
+    public static synchronized void initProvider() {
         if (provider == null) {
             try {
                 provider = (ThrowablePrinter) Class.forName("ccre.workarounds.DefaultThrowablePrinter").newInstance();

@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 Colby Skeggs
+ * Copyright 2013-2014 Colby Skeggs
  * 
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  * 
@@ -27,7 +27,7 @@ import ccre.cluck.tcp.CluckTCPServer;
  *
  * @author skeggsc
  */
-public class CluckGlobals {
+public final class CluckGlobals {
 
     private CluckGlobals() {
     }
@@ -38,25 +38,43 @@ public class CluckGlobals {
     /**
      * The current CluckTCPServer.
      */
-    public static CluckTCPServer serv;
+    private static CluckTCPServer serv;
     /**
      * The current CluckTCPClient.
      */
-    public static CluckTCPClient cli;
+    private static CluckTCPClient cli;
 
     /**
      * Create a Cluck node if it's not already initialized.
      */
-    public static void ensureInitializedCore() {
+    public static synchronized void ensureInitializedCore() {
         if (node == null) {
             node = new CluckNode();
         }
     }
 
     /**
+     * Get the current global CluckTCPServer.
+     *
+     * @return The global CluckTCPServer.
+     */
+    public static synchronized CluckTCPServer getServer() {
+        return serv;
+    }
+
+    /**
+     * Get the current global CluckTCPClient.
+     *
+     * @return The global CluckTCPClient.
+     */
+    public static synchronized CluckTCPClient getClient() {
+        return cli;
+    }
+
+    /**
      * Set up a server on the default port.
      */
-    public static void setupServer() {
+    public static synchronized void setupServer() {
         if (serv != null) {
             throw new IllegalStateException("Server already set up!");
         }
@@ -74,7 +92,7 @@ public class CluckGlobals {
      * @param hintedRemoteName The hint for what the remote server should call
      * this.
      */
-    public static void setupClient(String remote, String linkName, String hintedRemoteName) {
+    public static synchronized void setupClient(String remote, String linkName, String hintedRemoteName) {
         if (cli != null) {
             throw new IllegalStateException("Client already set up!");
         }

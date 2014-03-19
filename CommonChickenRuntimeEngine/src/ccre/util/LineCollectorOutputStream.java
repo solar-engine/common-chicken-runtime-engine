@@ -33,11 +33,11 @@ public abstract class LineCollectorOutputStream extends OutputStream {
 
     private byte[] running = new byte[10];
     private int run_i = 0;
-    
+
     @Override
     public final synchronized void write(int b) throws IOException {
         if (b == '\n') {
-            collect(new String(running, 0, run_i));
+            collect(new String(running, 0, run_i, "US-ASCII"));
             run_i = 0;
         } else {
             if (run_i >= running.length) {
@@ -49,5 +49,10 @@ public abstract class LineCollectorOutputStream extends OutputStream {
         }
     }
 
-    protected abstract void collect(String toString);
+    /**
+     * Override this to be called each time a new line is received.
+     *
+     * @param param The received line.
+     */
+    protected abstract void collect(String param);
 }

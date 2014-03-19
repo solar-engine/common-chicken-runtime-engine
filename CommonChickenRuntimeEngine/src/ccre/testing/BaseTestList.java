@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 Colby Skeggs
+ * Copyright 2013-2014 Colby Skeggs
  * 
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  * 
@@ -30,6 +30,12 @@ import java.util.NoSuchElementException;
  */
 public abstract class BaseTestList extends BaseTest {
 
+    /**
+     * Test if the specified CList works properly.
+     *
+     * @param a The CList&lt;String&gt; to test.
+     * @throws TestingException If the test fails.
+     */
     protected void runTest(CList<String> a) throws TestingException {
         // isEmpty
         assertTrue(a.isEmpty(), "Bad isEmpty!");

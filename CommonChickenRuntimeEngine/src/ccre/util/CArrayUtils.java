@@ -30,7 +30,7 @@ public class CArrayUtils {
     /**
      * An empty list. Immutable.
      */
-    public static CList<?> EMPTY_LIST = new CAbstractList<Object>() {
+    public static final CList<?> EMPTY_LIST = new CAbstractList<Object>() {
         @Override
         public int size() {
             return 0;

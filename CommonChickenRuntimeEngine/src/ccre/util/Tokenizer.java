@@ -30,22 +30,35 @@ public class Tokenizer {
     private String input = "";
     private int index;
 
+    /**
+     * Create a new Tokenizer with no current input.
+     */
     public Tokenizer() {
     }
 
-    public Tokenizer(String input) {
-        setInput(input);
-    }
-
+    /**
+     * Set the specified block of text
+     *
+     * @param input
+     */
     public void setInput(String input) {
         this.input = input;
         index = 0;
     }
 
+    /**
+     * @return whether or not more tokens are available.
+     */
     public boolean hasNext() {
         return index < input.length();
     }
 
+    /**
+     * Return and consume the next character.
+     *
+     * @return The next character.
+     * @throws EOFException If there are no more characters.
+     */
     public char nextChar() throws EOFException {
         if (!hasNext()) {
             throw new EOFException();
@@ -53,6 +66,12 @@ public class Tokenizer {
         return input.charAt(index++);
     }
 
+    /**
+     * Return, but don't consume, the next character.
+     *
+     * @return The next character.
+     * @throws EOFException If there are no more characters.
+     */
     public char peekChar() throws EOFException {
         if (!hasNext()) {
             throw new EOFException();
@@ -60,6 +79,12 @@ public class Tokenizer {
         return input.charAt(index);
     }
 
+    /**
+     * If the specified character is next in the input, consume it.
+     *
+     * @param c The character to accept.
+     * @return If the character was consumed.
+     */
     public boolean acceptChar(char c) {
         if (hasNext() && input.charAt(index) == c) {
             index++;
@@ -68,6 +93,12 @@ public class Tokenizer {
         return false;
     }
 
+    /**
+     * If any of the specified characters are next in the input, consume it.
+     *
+     * @param s The characters to accept.
+     * @return If any character was consumed.
+     */
     public boolean acceptAnyChar(String s) {
         if (hasNext() && s.indexOf(input.charAt(index)) != -1) {
             index++;
@@ -76,6 +107,14 @@ public class Tokenizer {
         return false;
     }
 
+    /**
+     * If any specified character is next in the input, consume it and return
+     * the index in the parameter string.
+     *
+     * @param s The characters to accept.
+     * @return The index is the parameter of the accepted character, or -1 if
+     * none.
+     */
     public int acceptCharIndexed(String s) {
         if (!hasNext()) {
             return -1;
@@ -87,6 +126,11 @@ public class Tokenizer {
         return out;
     }
 
+    /**
+     * Read in the next integer from the stream. If no integer, return zero.
+     *
+     * @return The next integer.
+     */
     public int nextInteger() {
         int out = 0;
         while (true) {
@@ -99,10 +143,19 @@ public class Tokenizer {
         return out;
     }
 
+    /**
+     * @return the rest of the input.
+     */
     public String remaining() {
         return input.substring(index);
     }
 
+    /**
+     * If the specified string is next in the stream, consume it.
+     *
+     * @param str The string to accept.
+     * @return If the string was consumed.
+     */
     public boolean acceptString(String str) {
         if (index + str.length() <= input.length() && input.substring(index, index + str.length()).equals(str)) {
             index += str.length();
@@ -111,7 +164,14 @@ public class Tokenizer {
         return false;
     }
 
-    public String acceptWord(char delimit) throws EOFException {
+    /**
+     * Accept a word up to the specified delimiter (or the end of the string if
+     * not found.)
+     *
+     * @param delimit The delimiter to search for.
+     * @return The word up to the delimiter.
+     */
+    public String acceptWord(char delimit) {
         int oid = index;
         index = input.indexOf(delimit, index) + 1;
         if (index == 0) {

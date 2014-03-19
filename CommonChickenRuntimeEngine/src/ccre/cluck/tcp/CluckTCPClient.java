@@ -116,19 +116,21 @@ public class CluckTCPClient extends ReporterThread {
                 }
                 String postfix = "";
                 try {
-                    sock = Network.connectDynPort(remote, DEFAULT_PORT);
-                    DataInputStream din = sock.openDataInputStream();
-                    DataOutputStream dout = sock.openDataOutputStream();
-                    CluckProtocol.handleHeader(din, dout, remoteNameHint);
-                    Logger.fine("Connected to " + remote + " at " + System.currentTimeMillis());
-                    CluckLink deny = CluckProtocol.handleSend(dout, linkName, node);
-                    node.notifyNetworkModified(); // Only send here, not on server.
-                    CluckProtocol.handleRecv(din, linkName, node, deny);
-                } catch (IOException ex) {
-                    if ("Remote server not available.".equals(ex.getMessage()) || "Timed out while connecting.".equals(ex.getMessage())) {
-                        postfix = " (" + ex.getMessage() + ")";
-                    } else {
-                        Logger.log(LogLevel.WARNING, "IO Error while handling connection", ex);
+                    try {
+                        sock = Network.connectDynPort(remote, DEFAULT_PORT);
+                        DataInputStream din = sock.openDataInputStream();
+                        DataOutputStream dout = sock.openDataOutputStream();
+                        CluckProtocol.handleHeader(din, dout, remoteNameHint);
+                        Logger.fine("Connected to " + remote + " at " + System.currentTimeMillis());
+                        CluckLink deny = CluckProtocol.handleSend(dout, linkName, node);
+                        node.notifyNetworkModified(); // Only send here, not on server.
+                        CluckProtocol.handleRecv(din, linkName, node, deny);
+                    } catch (IOException ex) {
+                        if ("Remote server not available.".equals(ex.getMessage()) || "Timed out while connecting.".equals(ex.getMessage())) {
+                            postfix = " (" + ex.getMessage() + ")";
+                        } else {
+                            Logger.log(LogLevel.WARNING, "IO Error while handling connection", ex);
+                        }
                     }
                 } catch (Throwable ex) {
                     Logger.log(LogLevel.SEVERE, "Uncaught exception in network handler!", ex);

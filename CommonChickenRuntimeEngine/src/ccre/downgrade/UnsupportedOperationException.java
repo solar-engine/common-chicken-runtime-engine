@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 Colby Skeggs
+ * Copyright 2013-2014 Colby Skeggs
  * 
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  * 
@@ -19,8 +19,8 @@
 package ccre.downgrade;
 
 /**
- * This is the same as java.lang.UnsupportedOperationException. Don't use
- * this. It is used when Retrotranslator downgrades the code to 1.3, because 1.3
+ * This is the same as java.lang.UnsupportedOperationException. Don't use this.
+ * It is used when Retrotranslator downgrades the code to 1.3, because 1.3
  * doesn't have UnsupportedOperationException.
  *
  * @see java.lang.UnsupportedOperationException
@@ -29,9 +29,17 @@ package ccre.downgrade;
 @SuppressWarnings("serial")
 public class UnsupportedOperationException extends RuntimeException {
 
+    /**
+     * Creates a UnsupportedOperationException with no message.
+     */
     public UnsupportedOperationException() {
     }
 
+    /**
+     * Creates an UnsupportedOperationException with a specified message.
+     *
+     * @param message The specified message.
+     */
     public UnsupportedOperationException(String message) {
         super(message);
     }

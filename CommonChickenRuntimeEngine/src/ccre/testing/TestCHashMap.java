@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 Colby Skeggs
+ * Copyright 2013-2014 Colby Skeggs
  * 
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  * 
@@ -107,7 +107,7 @@ public class TestCHashMap extends BaseTest {
         boolean[] found = new boolean[keys.length];
         for (String s : testee) {
             for (int i = 0; i < keys.length; i++) {
-                if (keys[i] == s) {
+                if (keys[i].equals(s)) {
                     assertFalse(found[i], "Already found that key!");
                     found[i] = true;
                 }

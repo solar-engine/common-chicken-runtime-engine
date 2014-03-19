@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 Colby Skeggs
+ * Copyright 2013-2014 Colby Skeggs
  * 
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  * 
@@ -22,6 +22,12 @@ import ccre.chan.FloatInput;
 import ccre.chan.FloatInputProducer;
 import ccre.chan.FloatOutput;
 
+/**
+ * A tunable float value. This is a FloatInput and FloatOutput. Also allows for
+ * specification of a channel to be used for automatic tuning.
+ *
+ * @author skeggsc
+ */
 public interface FloatTuner extends FloatInput, FloatOutput {
 
     /**

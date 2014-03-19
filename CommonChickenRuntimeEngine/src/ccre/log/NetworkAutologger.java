@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 Colby Skeggs
+ * Copyright 2013-2014 Colby Skeggs
  * 
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  * 
@@ -28,10 +28,17 @@ import ccre.util.CHashMap;
  *
  * @author skeggsc
  */
-public class NetworkAutologger implements LoggingTarget {
+public final class NetworkAutologger implements LoggingTarget {
 
+    /**
+     * Whether or not a NetworkAutologger has been registered globally.
+     */
     private static boolean registered = false;
 
+    /**
+     * Register a new global NetworkAutologger with the logging manager. This
+     * only occurs once - after that an warning will be logged again.
+     */
     public static void register() {
         if (registered) {
             Logger.warning("Network autologger registered twice!");
@@ -40,9 +47,21 @@ public class NetworkAutologger implements LoggingTarget {
         registered = true;
         Logger.addTarget(new NetworkAutologger(CluckGlobals.node));
     }
+    /**
+     * The current list of remotes to send logging messages to.
+     */
     private String[] remotes;
+    /**
+     * The current cache of subscribed LoggingTargets to send logging messages
+     * to.
+     */
     private final CHashMap<String, LoggingTarget> targetCache = new CHashMap<String, LoggingTarget>();
 
+    /**
+     * Create a new NetworkAutologger hooked up to the specified node.
+     *
+     * @param node The node to attach to.
+     */
     public NetworkAutologger(final CluckNode node) {
         final String here = Integer.toHexString(hashCode()) + "-" + Integer.toHexString((int) System.currentTimeMillis());
         final String auto = "auto-" + here;

@@ -22,6 +22,7 @@ package ccre.device;
  * An easy-to-use implementation of a DeviceHandle.
  *
  * @author skeggsc
+ * @param <Type> The instance type.
  */
 public abstract class SimpleDeviceHandle<Type> extends DeviceHandle<Type> {
 

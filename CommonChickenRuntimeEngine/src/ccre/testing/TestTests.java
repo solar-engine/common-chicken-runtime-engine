@@ -59,7 +59,7 @@ public final class TestTests extends BaseTest {
     }
 
     @Override
-    protected void runTest() throws TestingException {
+    protected void runTest() throws TestingException, InterruptedException {
         boolean out = new SucceedTest().test(false);
         assertTrue(out, "Meta-testing failed!");
         if (out != true) {

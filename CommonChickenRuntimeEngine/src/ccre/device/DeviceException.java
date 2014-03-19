@@ -26,9 +26,17 @@ package ccre.device;
 @SuppressWarnings("serial")
 public class DeviceException extends Exception {
 
+    /**
+     * Creates a DeviceException with no message.
+     */
     public DeviceException() {
     }
 
+    /**
+     * Creates an DeviceException with a specified message.
+     *
+     * @param message The specified message.
+     */
     public DeviceException(String message) {
         super(message);
     }

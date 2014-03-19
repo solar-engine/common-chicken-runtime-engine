@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 Colby Skeggs
+ * Copyright 2013-2014 Colby Skeggs
  * 
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  * 
@@ -21,7 +21,6 @@ package ccre.cluck.tcp;
 import ccre.cluck.CluckLink;
 import ccre.cluck.CluckNode;
 import ccre.concurrency.ReporterThread;
-import ccre.log.LogLevel;
 import ccre.log.Logger;
 import ccre.util.CLinkedList;
 import java.io.DataInputStream;
@@ -199,7 +198,7 @@ public class CluckProtocol {
                     }
                     Thread.yield();
                     if (size > 75) {
-                        Logger.warning("[NET] [NOT ACTUALLY] Queue too long: " + size);
+                        Logger.warning("[NET] [NOT ACTUALLY] Queue too long: " + size + " for " + dest + " at " + System.currentTimeMillis());
                     }
                 } finally {
                     isRunning = false;
@@ -209,5 +208,45 @@ public class CluckProtocol {
         };
         node.addOrReplaceLink(clink, linkName);
         return clink;
+    }
+
+    /**
+     * Stored in a queue of the messages that need to be sent over a connection.
+     *
+     * @author skeggsc
+     */
+    private static class SendableEntry {
+
+        /**
+         * The sender of this message.
+         */
+        public final String src;
+        /**
+         * The receiver of this message.
+         */
+        public final String dst;
+        /**
+         * The contents of this message.
+         */
+        public final byte[] data;
+
+        /**
+         * Create a new SendableEntry with the specified attributes.
+         *
+         * @param src The source of the message.
+         * @param dst The destination of the message.
+         * @param data The contents of the message.
+         */
+        public SendableEntry(String src, String dst, byte[] data) {
+            super();
+            this.src = src;
+            this.dst = dst;
+            this.data = data;
+        }
+
+        @Override
+        public String toString() {
+            return "[" + src + "->" + dst + "#" + data.length + "]";
+        }
     }
 }

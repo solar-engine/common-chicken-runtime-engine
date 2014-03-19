@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 Colby Skeggs
+ * Copyright 2013-2014 Colby Skeggs
  * 
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  * 
@@ -18,13 +18,11 @@
  */
 package ccre.testing;
 
-import ccre.log.Logger;
 import ccre.util.CArrayList;
 import ccre.util.CArrayUtils;
 import ccre.util.CList;
 import ccre.util.Utils;
 import java.util.Iterator;
-import java.util.Random;
 
 /**
  * Tests the Utils class and the CArrayUtils class.
@@ -39,16 +37,16 @@ public class TestUtils extends BaseTest {
     }
 
     @Override
-    protected void runTest() throws TestingException {
+    protected void runTest() throws TestingException, InterruptedException {
         // Utils.currentTimeSeconds
         boolean success = false;
-        Random r = new Random();
         for (int i = 0; i < 5; i++) {
             float here = Utils.currentTimeSeconds.readValue();
             try {
                 Thread.sleep(100);
             } catch (InterruptedException ex) {
                 assertFail("Interrupted during timing test.");
+                throw ex;
             }
             float there = Utils.currentTimeSeconds.readValue();
             float dt = Math.abs(there - here - (100 / 1000f));

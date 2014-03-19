@@ -29,10 +29,21 @@ import ccre.util.CHashMap;
  */
 public abstract class ReflectionEngine {
 
+    /**
+     * The mapping between symbol names and indexes to invoke them.
+     */
     private CHashMap<String, Integer> mapping;
+    /**
+     * The global Reflection Engine instance.
+     */
     private static ReflectionEngine instance;
 
-    public static ReflectionEngine getInstance() {
+    /**
+     * Get an instance of the global reflection engine.
+     *
+     * @return The global reflection engine.
+     */
+    public static synchronized ReflectionEngine getInstance() {
         if (instance == null) {
             try {
                 instance = (ReflectionEngine) Class.forName("ccre.reflect.ReflectionEngineImpl").newInstance();
@@ -50,6 +61,12 @@ public abstract class ReflectionEngine {
         return instance;
     }
 
+    /**
+     * Look up the invocation index for the specified symbol name.
+     *
+     * @param symbolname The name to look up.
+     * @return The index, or null if it cannot be found.
+     */
     public synchronized Integer lookup(String symbolname) {
         if (mapping == null) {
             mapping = new CHashMap<String, Integer>();
@@ -57,7 +74,13 @@ public abstract class ReflectionEngine {
         }
         return mapping.get(symbolname);
     }
-    
+
+    /**
+     * Look up the symbol name for the specified invocation index.
+     *
+     * @param number The index to look up.
+     * @return The symbol name, or null if it cannot be found.
+     */
     public synchronized String reverseLookup(int number) {
         if (mapping == null) {
             mapping = new CHashMap<String, Integer>();
@@ -70,7 +93,12 @@ public abstract class ReflectionEngine {
         }
         return null;
     }
-    
+
+    /**
+     * Get an Iterable over the list of symbol names.
+     *
+     * @return The list of symbol names.
+     */
     public synchronized Iterable<String> getSymbolIterable() {
         if (mapping == null) {
             mapping = new CHashMap<String, Integer>();
@@ -79,9 +107,31 @@ public abstract class ReflectionEngine {
         return mapping;
     }
 
+    /**
+     * Overridden by the engine implementation to fill out a map of symbol names
+     * and invocation indexes.
+     *
+     * @param map The map to complete.
+     */
     protected abstract void complete(CHashMap<String, Integer> map);
-    
+
+    /**
+     * Get the superclass for the specified named class.
+     *
+     * @param name The class to check.
+     * @return The superclass.
+     */
     public abstract String getSuperclass(String name);
 
+    /**
+     * Invoke an indexed symbol using this engine, with the specified invocation
+     * index, THIS object, and arguments.
+     *
+     * @param uid The invocation index.
+     * @param self The this object.
+     * @param args The arguments.
+     * @return The result from the invocation.
+     * @throws Throwable If any errors occur.
+     */
     public abstract Object dispatch(int uid, Object self, Object[] args) throws Throwable;
 }

@@ -44,7 +44,7 @@ public class PhidgetReader {
     /**
      * Digital outputs on the phidget.
      */
-    public final static BooleanOutput[] digitalOutputs = new BooleanOutput[8];
+    public static final BooleanOutput[] digitalOutputs = new BooleanOutput[8];
 
     static {
         for (int i = 0; i < digitalOutputs.length; i++) {

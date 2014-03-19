@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 Colby Skeggs
+ * Copyright 2013-2014 Colby Skeggs
  * 
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  * 
@@ -35,21 +35,7 @@ public class TestReporterThread extends BaseTest {
     @Override
     protected void runTest() throws TestingException, InterruptedException {
         final boolean[] wr = new boolean[1];
-        ReporterThread tr = new ReporterThread("TestRT") {
-            @Override
-            protected void threadBody() throws Throwable {
-                if (wr[0]) {
-                    throw new IllegalStateException("Should not be ran multiple times!");
-                }
-                wr[0] = true;
-                try {
-                    this.run();
-                    throw new RuntimeException("Self-run should have thrown an Exception!");
-                } catch (IllegalStateException e) {
-                    // Correct!
-                }
-            }
-        };
+        ReporterThread tr = new TestThread("TestRT", wr);
         assertFalse(wr[0], "Expected no execution of the subthread!");
         try {
             tr.run();
@@ -63,5 +49,29 @@ public class TestReporterThread extends BaseTest {
         tr.join();
         assertFalse(tr.isAlive(), "Thread should be done executing!");
         assertTrue(wr[0], "Expected execution of the subthread!");
+    }
+
+    private class TestThread extends ReporterThread {
+
+        private final boolean[] wr;
+
+        public TestThread(String name, boolean[] wr) {
+            super(name);
+            this.wr = wr;
+        }
+
+        @Override
+        protected void threadBody() throws Throwable {
+            if (wr[0]) {
+                throw new IllegalStateException("Should not be ran multiple times!");
+            }
+            wr[0] = true;
+            try {
+                this.run();
+                throw new RuntimeException("Self-run should have thrown an Exception!");
+            } catch (IllegalStateException e) {
+                // Correct!
+            }
+        }
     }
 }

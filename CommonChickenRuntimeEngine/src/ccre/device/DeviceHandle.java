@@ -28,6 +28,7 @@ import ccre.util.Utils;
  * A handle representing a specific peripheral device.
  *
  * @author skeggsc
+ * @param <Type> The type of the handled device.
  */
 public abstract class DeviceHandle<Type> {
 

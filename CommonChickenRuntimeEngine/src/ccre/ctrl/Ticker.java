@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 Colby Skeggs and Vincent Miller
+ * Copyright 2013-2014 Colby Skeggs and Vincent Miller
  * 
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  * 
@@ -30,9 +30,9 @@ import java.util.TimerTask;
  *
  * @author MillerV
  */
-public final class Ticker extends TimerTask implements EventSource {
+public final class Ticker implements EventSource {
 
-    private Event producer = new Event();
+    private final Event producer = new Event(); // TODO: Make this inherit from something?
 
     /**
      * Create a new Ticker with the specified interval. The timer will start
@@ -66,10 +66,16 @@ public final class Ticker extends TimerTask implements EventSource {
      */
     public Ticker(int interval, boolean fixedRate) {
         Timer t = new Timer();
+        TimerTask ttask = new TimerTask() {
+            @Override
+            public void run() {
+                producer.produce();
+            }
+        };
         if (fixedRate) {
-            t.scheduleAtFixedRate(this, interval, interval);
+            t.scheduleAtFixedRate(ttask, interval, interval);
         } else {
-            t.schedule(this, interval, interval);
+            t.schedule(ttask, interval, interval);
         }
     }
 
@@ -92,12 +98,5 @@ public final class Ticker extends TimerTask implements EventSource {
      */
     public void removeListener(EventConsumer ec) {
         producer.removeListener(ec);
-    }
-
-    /**
-     * This is called by the timer. Do not call this method yourself.
-     */
-    public void run() {
-        producer.produce();
     }
 }

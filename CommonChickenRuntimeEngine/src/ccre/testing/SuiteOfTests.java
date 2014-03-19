@@ -37,8 +37,9 @@ public class SuiteOfTests { // TODO: This package needs more tests!
      * Run all the tests.
      *
      * @param args the application arguments. these are ignored.
+     * @throws java.lang.InterruptedException If the main thread is interrupted.
      */
-    public static void main(String[] args) {
+    public static void main(String[] args) throws InterruptedException {
         BaseTest[] tests = new BaseTest[]{
             // ccre.chan
             new TestBooleanStatus(),

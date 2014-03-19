@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 Colby Skeggs
+ * Copyright 2013-2014 Colby Skeggs
  * 
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  * 
@@ -36,14 +36,7 @@ public class TestAllocationPool extends BaseTest {
     @Override
     protected void runTest() throws TestingException {
         final CArrayList<Object> alloced = new CArrayList<Object>();
-        AllocationPool<Object> aop = new AllocationPool<Object>() {
-            @Override
-            protected Object allocateNew() {
-                Object out = new Object();
-                alloced.add(out);
-                return out;
-            }
-        };
+        AllocationPool<Object> aop = new ReportingPool(alloced);
         assertEqual(0, alloced.size(), "Should have different number of allocations!");
         Object o1 = aop.alloc();
         assertEqual(1, alloced.size(), "Should have different number of allocations!");
@@ -72,5 +65,21 @@ public class TestAllocationPool extends BaseTest {
         Object o4 = aop.alloc();
         assertEqual(4, alloced.size(), "Should have different number of allocations!");
         assertEqual(o4, alloced.get(3), "Bad allocated object!");
+    }
+
+    private static class ReportingPool extends AllocationPool<Object> {
+
+        private final CArrayList<Object> alloced;
+
+        public ReportingPool(CArrayList<Object> alloced) {
+            this.alloced = alloced;
+        }
+
+        @Override
+        protected Object allocateNew() {
+            Object out = new Object();
+            alloced.add(out);
+            return out;
+        }
     }
 }

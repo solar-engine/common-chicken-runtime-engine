@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 Colby Skeggs
+ * Copyright 2013-2014 Colby Skeggs
  * 
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  * 
@@ -83,7 +83,7 @@ public class BooleanStatus implements BooleanOutput, BooleanInput {
      *
      * @see #writeValue(boolean)
      */
-    protected boolean value;
+    private boolean value;
     /**
      * The list of all the BooleanOutputs to modify when this BooleanStatus
      * changes value.
@@ -91,28 +91,28 @@ public class BooleanStatus implements BooleanOutput, BooleanInput {
      * @see #addTarget(ccre.chan.BooleanOutput)
      * @see #removeTarget(ccre.chan.BooleanOutput)
      */
-    protected CArrayList<BooleanOutput> consumers = null;
+    private CArrayList<BooleanOutput> consumers = null;
     /**
      * The cached EventConsumer that sets the current value to true. Use
      * getSetTrueEvent() instead, because this might be null.
      *
      * @see #getSetTrueEvent()
      */
-    protected EventConsumer setTrue;
+    private EventConsumer setTrue;
     /**
      * The cached EventConsumer that sets the current value to false. Use
      * getSetFalseEvent() instead, because this might be null.
      *
      * @see #getSetFalseEvent()
      */
-    protected EventConsumer setFalse;
+    private EventConsumer setFalse;
     /**
      * The cached EventConsumer that toggles the current value. Use
      * getToggleEvent() instead, because this might be null.
      *
      * @see #getToggleEvent()
      */
-    protected EventConsumer toggle;
+    private EventConsumer toggle;
 
     /**
      * When the specified event occurs, set the status to true.
@@ -120,7 +120,7 @@ public class BooleanStatus implements BooleanOutput, BooleanInput {
      * @param event When to set the status to true.
      * @see #getSetTrueEvent()
      */
-    public void setTrueWhen(EventSource event) {
+    public final void setTrueWhen(EventSource event) {
         event.addListener(getSetTrueEvent());
     }
 
@@ -130,7 +130,7 @@ public class BooleanStatus implements BooleanOutput, BooleanInput {
      * @param event When to set the status to false.
      * @see #getSetFalseEvent()
      */
-    public void setFalseWhen(EventSource event) {
+    public final void setFalseWhen(EventSource event) {
         event.addListener(getSetFalseEvent());
     }
 
@@ -140,7 +140,7 @@ public class BooleanStatus implements BooleanOutput, BooleanInput {
      * @param event When to toggle the status.
      * @see #getToggleEvent()
      */
-    public void toggleWhen(EventSource event) {
+    public final void toggleWhen(EventSource event) {
         event.addListener(getToggleEvent());
     }
 
@@ -150,7 +150,7 @@ public class BooleanStatus implements BooleanOutput, BooleanInput {
      * @return the firable EventConsumer.
      * @see #setTrueWhen(ccre.event.EventSource)
      */
-    public EventConsumer getSetTrueEvent() {
+    public final EventConsumer getSetTrueEvent() {
         if (setTrue == null) {
             setTrue = new EventConsumer() {
                 public void eventFired() {
@@ -167,7 +167,7 @@ public class BooleanStatus implements BooleanOutput, BooleanInput {
      * @return the firable EventConsumer.
      * @see #setFalseWhen(ccre.event.EventSource)
      */
-    public EventConsumer getSetFalseEvent() {
+    public final EventConsumer getSetFalseEvent() {
         if (setFalse == null) {
             setFalse = new EventConsumer() {
                 public void eventFired() {
@@ -184,7 +184,7 @@ public class BooleanStatus implements BooleanOutput, BooleanInput {
      * @return the firable EventConsumer.
      * @see #toggleWhen(ccre.event.EventSource)
      */
-    public EventConsumer getToggleEvent() {
+    public final EventConsumer getToggleEvent() {
         if (toggle == null) {
             toggle = new EventConsumer() {
                 public void eventFired() {
@@ -195,7 +195,7 @@ public class BooleanStatus implements BooleanOutput, BooleanInput {
         return toggle;
     }
 
-    public synchronized void writeValue(boolean value) {
+    public final synchronized void writeValue(boolean value) {
         if (this.value == value) {
             return;
         }
@@ -207,7 +207,7 @@ public class BooleanStatus implements BooleanOutput, BooleanInput {
         }
     }
 
-    public synchronized boolean readValue() {
+    public final synchronized boolean readValue() {
         return value;
     }
 

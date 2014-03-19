@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 Colby Skeggs
+ * Copyright 2013-2014 Colby Skeggs
  * 
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  * 
@@ -41,7 +41,7 @@ public class ExpirationTimer {
     /**
      * A task that is scheduled for a specific delay after the timer starts.
      */
-    protected class Task {
+    protected static class Task {
 
         /**
          * The delay before the event is fired.
@@ -52,6 +52,12 @@ public class ExpirationTimer {
          */
         public final EventConsumer cnsm;
 
+        /**
+         * Create a new task.
+         *
+         * @param delay The delay after which the task is fired.
+         * @param cnsm The EventConsumer fired by this Task.
+         */
         Task(long delay, EventConsumer cnsm) {
             this.delay = delay;
             this.cnsm = cnsm;
@@ -70,7 +76,10 @@ public class ExpirationTimer {
      * When did this timer get started? Delays get computer from this point.
      */
     protected long startedAt;
-    protected final ReporterThread rthr = new ReporterThread("ExpirationTimer") {
+    /**
+     * The main thread of the Expiration Timer.
+     */
+    protected final ReporterThread main = new ReporterThread("ExpirationTimer") {
         @Override
         protected void threadBody() throws Throwable {
             body();
@@ -191,8 +200,8 @@ public class ExpirationTimer {
             throw new IllegalStateException("Timer is running!");
         }
         isStarted = true;
-        if (!rthr.isAlive()) {
-            rthr.start();
+        if (!main.isAlive()) {
+            main.start();
         }
         feed();
     }
@@ -242,7 +251,7 @@ public class ExpirationTimer {
             throw new IllegalStateException("Timer is not running!");
         }
         startedAt = System.currentTimeMillis();
-        rthr.interrupt();
+        main.interrupt();
     }
 
     /**
@@ -256,7 +265,7 @@ public class ExpirationTimer {
             throw new IllegalStateException("Timer is not running!");
         }
         isStarted = false;
-        rthr.interrupt();
+        main.interrupt();
     }
     /**
      * The cached value for getStartEvent()

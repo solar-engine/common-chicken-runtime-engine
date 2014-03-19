@@ -18,6 +18,8 @@
  */
 package ccre.log;
 
+import ccre.workarounds.ThrowablePrinter;
+
 /**
  * A logging target that will write all messages to the standard error. This is
  * the default logger.
@@ -29,7 +31,8 @@ class StandardStreamLogger implements LoggingTarget {
     public synchronized void log(LogLevel level, String message, Throwable thr) {
         if (thr != null) {
             System.err.println("LOG{" + level.abbreviation + "} " + message);
-            thr.printStackTrace();
+            ThrowablePrinter.printThrowable(thr, System.err);
+            //thr.printStackTrace();
         } else {
             System.err.println("LOG[" + level.abbreviation + "] " + message);
         }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 Colby Skeggs
+ * Copyright 2013-2014 Colby Skeggs
  * 
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  * 
@@ -28,7 +28,16 @@ import ccre.event.EventConsumer;
  */
 public interface InstinctRegistrar {
 
+    /**
+     * @return the input representing when subscribed modules should be running.
+     */
     public BooleanInputPoll getWhenShouldAutonomousBeRunning();
 
+    /**
+     * Register the specified EventConsumer to be fired each period, however
+     * that is defined.
+     *
+     * @param toUpdate The EventConsumer to update.
+     */
     public void updatePeriodicallyAlways(EventConsumer toUpdate);
 }

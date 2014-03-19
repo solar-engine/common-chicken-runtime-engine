@@ -32,15 +32,7 @@ class FakeStorageProvider extends StorageProvider {
 
     @Override
     protected StorageSegment open(String name) {
-        return new HashMappedStorageSegment() {
-            @Override
-            public void flush() {
-            }
-
-            @Override
-            public void close() {
-            }
-        };
+        return new FakeStorageSegment();
     }
 
     @Override
@@ -51,5 +43,16 @@ class FakeStorageProvider extends StorageProvider {
     @Override
     protected InputStream openInputFile(String name) throws IOException {
         return null;
+    }
+
+    private static class FakeStorageSegment extends HashMappedStorageSegment {
+
+        @Override
+        public void flush() {
+        }
+
+        @Override
+        public void close() {
+        }
     }
 }

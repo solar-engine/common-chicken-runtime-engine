@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 Colby Skeggs
+ * Copyright 2013-2014 Colby Skeggs
  * 
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  * 
@@ -35,6 +35,11 @@ public class TestFloatStatus extends BaseTest {
         return "FloatStatus tests";
     }
 
+    /**
+     * Test if basic reads and writes work properly.
+     *
+     * @throws TestingException If the test fails.
+     */
     protected void testBasicReadWrite() throws TestingException {
         FloatStatus status = new FloatStatus();
         assertEqual(status.readValue(), 0.0f, "Bad default value!");
@@ -52,6 +57,11 @@ public class TestFloatStatus extends BaseTest {
         assertEqual(status.readValue(), -89.2f, "Bad value!");
     }
 
+    /**
+     * Test if target updates work properly.
+     *
+     * @throws TestingException If the test fails.
+     */
     protected void testUpdateTargets() throws TestingException {
         FloatStatus status = new FloatStatus();
         final float[] cur = new float[1];
@@ -85,6 +95,11 @@ public class TestFloatStatus extends BaseTest {
         assertFalse(c2[0], "Expected no write after removal!");
     }
 
+    /**
+     * Test if creation targets register and work properly.
+     *
+     * @throws TestingException If the test fails.
+     */
     protected void testCreationTargets() throws TestingException {
         final boolean[] c1 = new boolean[2];
         FloatOutput b = new FloatOutput() {
@@ -128,6 +143,11 @@ public class TestFloatStatus extends BaseTest {
         assertFalse(c1[1], "Expected no write once removed!");
     }
 
+    /**
+     * Test if setting events work properly.
+     *
+     * @throws TestingException If the test fails.
+     */
     protected void testSetEvents() throws TestingException {
         final float[] cur = new float[1];
         FloatOutput b = new FloatOutput() {

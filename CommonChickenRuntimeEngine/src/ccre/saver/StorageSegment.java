@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 Colby Skeggs
+ * Copyright 2013-2014 Colby Skeggs
  * 
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  * 
@@ -29,6 +29,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 
 /**
  * A storage segment - a place to store various pieces of data. One of these can
@@ -59,7 +60,12 @@ public abstract class StorageSegment {
         if (byts == null) {
             return null;
         } else {
-            return new String(byts);
+            try {
+                return new String(byts, "US-ASCII");
+            } catch (UnsupportedEncodingException ex) {
+                Logger.log(LogLevel.WARNING, "Could not use US-ASCII!", ex);
+                return null;
+            }
         }
     }
 
@@ -97,7 +103,11 @@ public abstract class StorageSegment {
      * @param value the String to store under this key.
      */
     public void setStringForKey(String key, String value) {
-        setBytesForKey(key, value.getBytes());
+        try {
+            setBytesForKey(key, value.getBytes("US-ASCII"));
+        } catch (UnsupportedEncodingException ex) {
+            Logger.log(LogLevel.WARNING, "Could not use US-ASCII!", ex);
+        }
     }
 
     /**
@@ -192,7 +202,7 @@ public abstract class StorageSegment {
         Float default_ = null;
         final Float findefault_ = holder.readValue();
         if (din == null) {
-            if (holder.hasBeenModified) {
+            if (holder.getHasBeenModified()) {
                 float value = holder.readValue();
                 DataOutputStream dout = setDataOutputForKey(key);
                 try {
@@ -212,8 +222,8 @@ public abstract class StorageSegment {
                     default_ = din.readFloat();
                 }
                 // If the default is the same as the holder's default, or the holder doesn't have a value, then load the value
-                if ((default_ != null && default_ == holder.readValue()) || !holder.hasBeenModified) {
-                    Logger.config("Loaded float config from data: " + default_ + "/" + holder.readValue() + "/" + holder.hasBeenModified + "/" + value);
+                if ((default_ != null && default_ == holder.readValue()) || !holder.getHasBeenModified()) {
+                    Logger.config("Loaded float config from data: " + default_ + "/" + holder.readValue() + "/" + holder.getHasBeenModified() + "/" + value);
                     holder.writeValue(value);
                 }
                 // Otherwise, the holder has been modified and the default has changed from the holder, and therefore we want the updated value from the holder

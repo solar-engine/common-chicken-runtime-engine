@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 Colby Skeggs
+ * Copyright 2013-2014 Colby Skeggs
  * 
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  * 
@@ -51,7 +51,27 @@ public class Logger {
      * The minimum level of logging to keep when writing data using these
      * globals. Anything below this level will be ignored.
      */
-    public static LogLevel minimumLevel = LogLevel.FINEST;
+    private static LogLevel minimumLevel = LogLevel.FINEST;
+
+    /**
+     * Set the minimum logging level for the global methods in logger. Anything
+     * below this will be ignored.
+     *
+     * @param minimum The new minimum level.
+     */
+    public static void setMinimumLevel(LogLevel minimum) {
+        minimumLevel = minimum;
+    }
+
+    /**
+     * Get the minimum logging level for the global methods in logger. Anything
+     * below this will be ignored.
+     *
+     * @return The current minimum level.
+     */
+    public static LogLevel getMinimumLevel() {
+        return minimumLevel;
+    }
 
     /**
      * Log a given message and throwable at the given log level.
@@ -61,10 +81,10 @@ public class Logger {
      * @param thr the Throwable to log
      */
     public static void log(LogLevel level, String message, Throwable thr) {
+        if (level == null || message == null) {
+            throw new NullPointerException();
+        }
         if (level.atLeastAsImportant(minimumLevel)) {
-            if (level == null || message == null) {
-                throw new NullPointerException();
-            }
             for (LoggingTarget lt : targets) {
                 lt.log(level, message, thr);
             }
@@ -79,10 +99,10 @@ public class Logger {
      * @param extended the extended message to log
      */
     public static void logExt(LogLevel level, String message, String extended) {
+        if (level == null || message == null) {
+            throw new NullPointerException();
+        }
         if (level.atLeastAsImportant(minimumLevel)) {
-            if (level == null || message == null) {
-                throw new NullPointerException();
-            }
             for (LoggingTarget lt : targets) {
                 lt.log(level, message, extended);
             }

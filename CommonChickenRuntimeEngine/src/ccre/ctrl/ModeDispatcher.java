@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 Colby Skeggs
+ * Copyright 2013-2014 Colby Skeggs
  * 
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  * 
@@ -21,7 +21,7 @@ package ccre.ctrl;
 import ccre.event.Event;
 import ccre.event.EventConsumer;
 import ccre.event.EventSource;
-import java.util.Hashtable;
+import ccre.util.CHashMap;
 
 /**
  * A provider for a system that routes fired events along to one of a set of
@@ -81,7 +81,7 @@ public class ModeDispatcher {
      * All the currently routed EventSources and their nodes. Used to cache so
      * that only one Node is allocated for each EventSource.
      */
-    protected Hashtable<EventSource, Node> dispatches = new Hashtable<EventSource, Node>();
+    protected CHashMap<EventSource, Node> dispatches = new CHashMap<EventSource, Node>();
 
     /**
      * Create a new ModeDispatcher with the specified mode to start at, and the

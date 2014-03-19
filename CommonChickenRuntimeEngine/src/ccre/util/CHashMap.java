@@ -138,16 +138,15 @@ public class CHashMap<K, V> implements Iterable<K> {
         }
         if (size >= map.length * 0.75) {
             Node<K, V>[] nmap = CArrayUtils.castToGeneric(new Node<?, ?>[map.length * 2 + 1]);
-            for (int i = 0; i < map.length; i++) {
-                cur = map[i];
-                while (cur != null) {
-                    int h = cur.key.hashCode();
+            for (Node<K, V> old : map) {
+                while (old != null) {
+                    int h = old.key.hashCode();
                     if (h < 0) {
                         h = -h;
                     }
                     h %= nmap.length;
-                    nmap[h] = new Node<K, V>(cur.key, cur.value, nmap[h]);
-                    cur = cur.next;
+                    nmap[h] = new Node<K, V>(old.key, old.value, nmap[h]);
+                    old = old.next;
                 }
             }
             map = nmap;

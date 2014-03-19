@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 Colby Skeggs
+ * Copyright 2013-2014 Colby Skeggs
  * 
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  * 
@@ -90,11 +90,19 @@ public class FloatStatus implements FloatOutput, FloatInput, FloatTuner {
      *
      * @see #writeValue(float)
      */
-    protected float value = 0;
+    private float value = 0;
     /**
      * Has this FloatStatus been modified since this flag was last cleared?
      */
-    public boolean hasBeenModified;
+    private boolean hasBeenModified;
+
+    /**
+     * @return if the float status has been modified since the modification flag
+     * was last cleared.
+     */
+    public final boolean getHasBeenModified() {
+        return hasBeenModified;
+    }
     /**
      * The list of all the FloatOutputs to modify when this FloatStatus changes
      * value.
@@ -102,25 +110,17 @@ public class FloatStatus implements FloatOutput, FloatInput, FloatTuner {
      * @see #addTarget(ccre.chan.FloatOutput)
      * @see #removeTarget(ccre.chan.FloatOutput)
      */
-    protected CArrayList<FloatOutput> consumers = null;
-    /**
-     * By default, setting a FloatStatus to the same value that it already has
-     * will have no effect. However, in the case of certain Watchdog setups,
-     * this may be unwanted because it would prevent the Watchdog from being fed
-     * by the value changing. Set this field to false to pass through all values
-     * instead of just changes.
-     */
-    public boolean optimizeEqualValues = true;
+    private CArrayList<FloatOutput> consumers = null;
 
     @Override
-    public synchronized float readValue() {
+    public final synchronized float readValue() {
         return value;
     }
 
     @Override
-    public synchronized void writeValue(float newValue) {
-        if (value == newValue && optimizeEqualValues) {
-            return; // Do nothing
+    public final synchronized void writeValue(float newValue) {
+        if (value == newValue) {
+            return; // Do nothing. We want to ignore the value if it's the same.
         }
         hasBeenModified = true;
         value = newValue;
@@ -139,14 +139,14 @@ public class FloatStatus implements FloatOutput, FloatInput, FloatTuner {
      * @return the firable EventConsumer.
      * @see #setWhen(float, ccre.event.EventSource)
      */
-    public EventConsumer getSetEvent(float value) {
+    public final EventConsumer getSetEvent(float value) {
         return new SetEvent(this, value);
     }
 
     /**
      * Implementation detail - used in getSetEvent.
      */
-    private static class SetEvent implements EventConsumer {
+    private static final class SetEvent implements EventConsumer {
 
         private final FloatStatus status;
         private final float value;
@@ -168,7 +168,7 @@ public class FloatStatus implements FloatOutput, FloatInput, FloatTuner {
      * @param event when to set the status.
      * @see #getSetEvent(float)
      */
-    public void setWhen(float value, EventSource event) {
+    public final void setWhen(float value, EventSource event) {
         event.addListener(getSetEvent(value));
     }
 

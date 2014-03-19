@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 Colby Skeggs
+ * Copyright 2013-2014 Colby Skeggs
  * 
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  * 
@@ -31,47 +31,71 @@ import ccre.workarounds.ThrowablePrinter;
  */
 public class BootLogger implements LoggingTarget {
 
+    /**
+     * The number of log messages to save.
+     */
+    private static final int LOG_MESSAGE_COUNT = 20;
+    
+    /**
+     * Register a new BootLogger with the logging manager.
+     */
     public static void register() {
         Logger.addTarget(new BootLogger());
     }
 
-    public String[] outs = new String[20];
-    public int outId = 0;
+    /**
+     * The list of twenty lines logged near startup.
+     */
+    private final String[] outs = new String[LOG_MESSAGE_COUNT];
+    /**
+     * The next index in the output array to write.
+     */
+    private volatile int outId = 0;
 
+    /**
+     * Create a new BootLogger that publishes it over the CluckGlobal node.
+     */
     public BootLogger() {
         this(CluckGlobals.node);
     }
 
+    /**
+     * Create a new BootLogger that publishes it over the specified node.
+     *
+     * @param node The CluckNode to publish over.
+     */
     public BootLogger(CluckNode node) {
         node.publish("post-bootlogs", new EventConsumer() {
             public void eventFired() {
-                Logger.log(LogLevel.INFO, "[BOOT-START]");
-                for (int i = 0; i < outs.length; i++) {
-                    if (outs[i] != null) {
-                        Logger.log(LogLevel.INFO, "[BOOT-" + i + "] " + outs[i]);
+                synchronized (BootLogger.this) {
+                    Logger.log(LogLevel.INFO, "[BOOT-START]");
+                    for (int i = 0; i < LOG_MESSAGE_COUNT; i++) {
+                        if (outs[i] != null) {
+                            Logger.log(LogLevel.INFO, "[BOOT-" + i + "] " + outs[i]);
+                        }
                     }
+                    Logger.log(LogLevel.INFO, "[BOOT-END]");
                 }
-                Logger.log(LogLevel.INFO, "[BOOT-END]");
             }
         });
     }
 
     public void log(LogLevel level, String message, Throwable throwable) {
-        if (outId >= outs.length) {
+        if (outId >= LOG_MESSAGE_COUNT) {
             return;
         }
         log(level, message, ThrowablePrinter.toStringThrowable(throwable));
     }
 
     public void log(LogLevel level, String message, String extended) {
-        if (outId >= outs.length) {
+        if (outId >= LOG_MESSAGE_COUNT) {
             return;
         }
         if (message.startsWith("[BOOT-")) {
             return;
         }
         synchronized (this) {
-            if (outId >= outs.length) {
+            if (outId >= LOG_MESSAGE_COUNT) {
                 return;
             }
             if (extended == null) {

@@ -243,7 +243,9 @@ public class Mixing {
      * floats.
      */
     public static FloatInput select(BooleanInput selector, float off, float on) {
-        return new BCF(selector, selector.readValue(), off, on);
+        BCF out = new BCF(selector.readValue(), off, on);
+        selector.addTarget(out);
+        return out;
     }
 
     /**
@@ -259,7 +261,9 @@ public class Mixing {
      * floats.
      */
     public static FloatInput select(BooleanInputProducer selector, boolean default_, float off, float on) {
-        return new BCF(selector, default_, off, on);
+        BCF out = new BCF(default_, off, on);
+        selector.addTarget(out);
+        return out;
     }
 
     /**
@@ -312,7 +316,9 @@ public class Mixing {
      * of the two arguments.
      */
     public static FloatInput select(BooleanInput selector, FloatInputPoll off, FloatInputPoll on) {
-        return new BCF2(selector, selector.readValue(), off, on);
+        BCF2 out = new BCF2(selector.readValue(), off, on);
+        selector.addTarget(out);
+        return out;
     }
 
     /**
@@ -330,7 +336,9 @@ public class Mixing {
      * of the two arguments.
      */
     public static FloatInput select(BooleanInputProducer selector, boolean default_, FloatInputPoll off, FloatInputPoll on) {
-        return new BCF2(selector, default_, off, on);
+        BCF2 out = new BCF2(default_, off, on);
+        selector.addTarget(out);
+        return out;
     }
 
     /**
@@ -709,18 +717,6 @@ public class Mixing {
      */
     public static BooleanInputPoll orBooleans(final BooleanInputPoll... vals) {
         return new OrBooleansImpl(vals);
-    }
-
-    /**
-     * Return a BooleanInputPoll that is true when the specified float inputs
-     * are equal.
-     *
-     * @param a the first input.
-     * @param b the second input.
-     * @return an input that represents the two floats being equal.
-     */
-    public static BooleanInputPoll floatsEqual(final FloatInputPoll a, final FloatInputPoll b) {
-        return new FloatsEqualImpl(a, b);
     }
 
     /**

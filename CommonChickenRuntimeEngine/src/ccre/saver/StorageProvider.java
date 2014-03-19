@@ -35,12 +35,12 @@ public abstract class StorageProvider {
     /**
      * The active storage provider.
      */
-    protected static StorageProvider provider;
+    static StorageProvider provider;
 
     /**
      * If a provider is not yet registered, register the default provider.
      */
-    public static void initProvider() {
+    public static synchronized void initProvider() {
         if (provider == null) {
             try {
                 provider = (StorageProvider) Class.forName("ccre.saver.DefaultStorageProvider").newInstance();

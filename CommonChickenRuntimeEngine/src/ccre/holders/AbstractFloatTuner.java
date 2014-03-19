@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 Colby Skeggs
+ * Copyright 2013-2014 Colby Skeggs
  * 
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  * 
@@ -29,8 +29,16 @@ import ccre.util.CArrayList;
  */
 public abstract class AbstractFloatTuner implements FloatTuner {
 
-    protected CArrayList<FloatOutput> consumers = new CArrayList<FloatOutput>();
+    /**
+     * The list of consumers that will receive updates about this
+     * FloatInputProducer's value.
+     */
+    protected final CArrayList<FloatOutput> consumers = new CArrayList<FloatOutput>();
 
+    /**
+     * Send the current value (via getCurrentValue()) to all subscribed
+     * consumers.
+     */
     protected void notifyConsumers() {
         for (FloatOutput o : consumers) {
             o.writeValue(getCurrentValue());

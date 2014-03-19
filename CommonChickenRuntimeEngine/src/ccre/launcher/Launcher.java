@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 Colby Skeggs
+ * Copyright 2013-2014 Colby Skeggs
  * 
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  * 
@@ -34,7 +34,18 @@ public class Launcher {
     private Launcher() {
     }
 
-    public static void main(String[] args) throws IOException, ClassNotFoundException, InstantiationException, IllegalAccessException {
+    /**
+     * Run a dispatching script for common CCRE utilities.
+     *
+     * @param args The utility to be executed followed by the list of arguments
+     * to give it.
+     * @throws IOException
+     * @throws ClassNotFoundException
+     * @throws InstantiationException
+     * @throws IllegalAccessException
+     * @throws java.lang.InterruptedException
+     */
+    public static void main(String[] args) throws IOException, ClassNotFoundException, InstantiationException, IllegalAccessException, InterruptedException {
         if (args.length == 0) {
             System.err.println("Usage: java -jar CCRE.jar <TYPE> <ARGS...>");
             System.err.println("Types:");

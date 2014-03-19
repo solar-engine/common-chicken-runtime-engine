@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 Colby Skeggs
+ * Copyright 2013-2014 Colby Skeggs
  * 
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  * 
@@ -30,8 +30,8 @@ import ccre.cluck.CluckNode;
  * CluckNode alpha = new CluckNode();<br>
  * CluckNode beta = new CluckNode();<br>
  * CluckNullLink alphaLink = new CluckNullLink(alpha, "alpha-to-beta");<br>
- * CluckNullLink betaLink = new CluckNullLink(beta, "beta-to-alpha",
- * alphaLink);<br>
+ * CluckNullLink betaLink = new CluckNullLink(beta, "beta-to-alpha");<br>
+ * betaLink.attach(alphaLink);
  * <br>
  * EventConsumer test = new EventLogger(LogLevel.INFO, "Pseudo-networked
  * test!");<br>
@@ -42,11 +42,9 @@ import ccre.cluck.CluckNode;
  * This will log "Pseudo-networked test!" at LogLevel INFO.
  *
  * Alternatively, the third and fourth lines of that example can be replaced
- * with:
- * <code>
+ * with:  <code>
  * CluckNullLink.connect(alpha, "alpha-to-beta", beta, "beta-to-alpha");
- * </code>
- * And it will work the same.
+ * </code> And it will work the same.
  *
  * @author skeggsc
  */
@@ -61,7 +59,7 @@ public class CluckNullLink implements CluckLink {
      * @param betaToAlpha The link name for connecting from beta to alpha.
      */
     public static void connect(CluckNode alpha, String alphaToBeta, CluckNode beta, String betaToAlpha) {
-        new CluckNullLink(beta, betaToAlpha, new CluckNullLink(alpha, alphaToBeta));
+        new CluckNullLink(beta, betaToAlpha).attach(new CluckNullLink(alpha, alphaToBeta));
     }
 
     /**
@@ -84,23 +82,6 @@ public class CluckNullLink implements CluckLink {
      */
     public CluckNullLink(CluckNode node) {
         this.node = node;
-        // Will expect other null link to be created.
-    }
-
-    /**
-     * Create a new link attached to the specified CluckNode and paired with the
-     * specified other link.
-     *
-     * @param node The node to attach to.
-     * @param other The link to pair with.
-     */
-    public CluckNullLink(CluckNode node, CluckNullLink other) {
-        paired = other;
-        if (other.paired != null) {
-            throw new IllegalStateException("Other link is already attached!");
-        }
-        this.node = node;
-        other.paired = this;
     }
 
     /**
@@ -114,27 +95,25 @@ public class CluckNullLink implements CluckLink {
         this.node = node;
         this.linkName = linkName;
         node.addLink(this, linkName);
-        // Will expect other null link to be created.
     }
 
     /**
-     * Create a new link attached to the specified CluckNode and paired with the
-     * specified other link, and add the link to the CluckNode under the
-     * specified name.
+     * Attach this null link with the other null link. Only do this once per
+     * pair!
      *
-     * @param node The node to attach to.
-     * @param linkName The link name to use.
-     * @param other The link to pair with.
+     * @param pairWith The other null link.
+     * @return This link, for method chaining.
      */
-    public CluckNullLink(CluckNode node, String linkName, CluckNullLink other) {
-        paired = other;
-        if (other.paired != null) {
+    public CluckNullLink attach(CluckNullLink pairWith) {
+        if (paired != null) {
+            throw new IllegalStateException("Link is already attached!");
+        }
+        paired = pairWith;
+        if (pairWith.paired != null) {
             throw new IllegalStateException("Other link is already attached!");
         }
-        this.node = node;
-        this.linkName = linkName;
-        other.paired = this;
-        node.addLink(this, linkName);
+        pairWith.paired = this;
+        return this;
     }
 
     public boolean transmit(String rest, String source, byte[] data) {

@@ -65,7 +65,11 @@ public class CLinkedList<T> extends CAbstractList<T> {
      */
     public CLinkedList(T[] coll) {
         this();
-        for (T t : coll) {
+        addAllFromArray(coll);
+    }
+    
+    private void addAllFromArray(T[] array) {
+        for (T t : array) {
             addLast(t);
         }
     }

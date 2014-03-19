@@ -97,16 +97,13 @@ class MixingImpls {
 
     static final class BCF implements FloatInput, BooleanOutput {
 
-        private final BooleanInputProducer binp;
         private final float off, on;
         private float cur;
         private CArrayList<FloatOutput> consumers = null;
 
-        BCF(BooleanInputProducer binp, boolean default_, float off, float on) {
-            this.binp = binp;
+        BCF(boolean default_, float off, float on) {
             this.off = off;
             this.on = on;
-            binp.addTarget(this);
             cur = default_ ? on : off;
         }
 
@@ -142,16 +139,13 @@ class MixingImpls {
 
     static final class BCF2 implements FloatInput, BooleanOutput {
 
-        private final BooleanInputProducer binp;
         private final FloatInputPoll off, on;
         private float cur;
         private CArrayList<FloatOutput> consumers = null;
 
-        BCF2(BooleanInputProducer binp, boolean default_, FloatInputPoll off, FloatInputPoll on) {
-            this.binp = binp;
+        BCF2(boolean default_, FloatInputPoll off, FloatInputPoll on) {
             this.off = off;
             this.on = on;
-            binp.addTarget(this);
             cur = default_ ? on.readValue() : off.readValue();
         }
 
@@ -444,21 +438,6 @@ class MixingImpls {
 
         public synchronized float readValue() {
             return input.readValue() - lastValue;
-        }
-    }
-
-    static class FloatsEqualImpl implements BooleanInputPoll {
-
-        private final FloatInputPoll a;
-        private final FloatInputPoll b;
-
-        public FloatsEqualImpl(FloatInputPoll a, FloatInputPoll b) {
-            this.a = a;
-            this.b = b;
-        }
-
-        public boolean readValue() {
-            return a.readValue() == b.readValue();
         }
     }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 Colby Skeggs
+ * Copyright 2013-2014 Colby Skeggs
  * 
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  * 
@@ -19,7 +19,6 @@
 package ccre.instinct;
 
 import ccre.chan.BooleanInputPoll;
-import ccre.chan.BooleanStatus;
 import ccre.chan.FloatInputPoll;
 import ccre.concurrency.ReporterThread;
 import ccre.ctrl.Mixing;
@@ -27,6 +26,7 @@ import ccre.event.EventConsumer;
 import ccre.event.EventSource;
 import ccre.log.LogLevel;
 import ccre.log.Logger;
+import java.util.logging.Level;
 
 /**
  * The base class for an Instinct (the simple autonomous subsystem) module.
@@ -35,56 +35,106 @@ import ccre.log.Logger;
  */
 public abstract class InstinctModule implements EventConsumer {
 
+    /**
+     * If the instinct module should currently be running.
+     */
     private BooleanInputPoll shouldBeRunning;
-    private boolean isRunning = false, isEndWaiting = false;
+    /**
+     * If this module is currently running.
+     */
+    private volatile boolean isRunning = false;
+    /**
+     * If this module has finished execution and is waiting for the signal to
+     * stop running before continuing.
+     */
+    private volatile boolean isEndWaiting = false;
 
+    /**
+     * Create a new InstinctModule with a BooleanInputPoll controlling when this
+     * module should run.
+     *
+     * @param shouldBeRunning The input to control the running of this module.
+     */
     public InstinctModule(BooleanInputPoll shouldBeRunning) {
+        if (shouldBeRunning == null) {
+            throw new NullPointerException();
+        }
         this.shouldBeRunning = shouldBeRunning;
     }
 
+    /**
+     * Create a new InstinctModule that needs to be registered with an
+     * InstinctRegistrar before it can run.
+     */
     public InstinctModule() {
         this.shouldBeRunning = null;
     }
 
+    /**
+     * Register this module with an InstinctRegistrar so that it runs when that
+     * InstinctRegistrar wants it to.
+     *
+     * @param reg The registrar.
+     */
     public void register(InstinctRegistrar reg) {
         this.shouldBeRunning = reg.getWhenShouldAutonomousBeRunning();
         reg.updatePeriodicallyAlways(this);
     }
 
+    /**
+     * Sets this module to be updated (continue execution) when the specified
+     * event is produced.
+     *
+     * @param src The event to wait for to continue execution.
+     */
     public void updateWhen(EventSource src) {
         src.addListener(this);
     }
+    /**
+     * The object used to coordinate when the instinct module should resume
+     * execution.
+     */
     private final Object autosynch = new Object();
+
+    /**
+     * Wait until the next time that this module is updated.
+     */
+    private void waitCycle() throws InterruptedException {
+        synchronized (autosynch) {
+            autosynch.wait();
+        }
+    }
+    /**
+     * The main thread for code running in this Instinct Module.
+     */
     private final ReporterThread main = new ReporterThread("Instinct") {
         @Override
         protected void threadBody() {
             while (true) {
                 isRunning = false;
-                while (!shouldBeRunning.readValue()) {
-                    synchronized (autosynch) {
-                        try {
-                            autosynch.wait();
-                        } catch (InterruptedException ex) {
-                        }
-                    }
-                }
-                // Get rid of any lingering interruptions.
-                synchronized (autosynch) {
+                while (!shouldBeRunning.readValue()) { // TODO: Is it an issue to have this in here instead of further out?
                     try {
-                        autosynch.wait();
+                        waitCycle();
                     } catch (InterruptedException ex) {
                     }
                 }
                 try {
-                    isRunning = true;
-                    Logger.info("Started autonomous mode.");
-                    autonomousMain();
-                    Logger.info("Autonomous mode completed.");
+                    // Get rid of any lingering interruptions.
+                    waitCycle();
                 } catch (InterruptedException ex) {
-                    Logger.info("Autonomous mode interrupted.");
-                } catch (AutonomousModeOverException ex) {
-                    Logger.info("Autonomous mode exited by stop.");
-                    continue;
+                }
+                try {
+                    try {
+                        isRunning = true;
+                        Logger.info("Started autonomous mode.");
+                        autonomousMain();
+                        Logger.info("Autonomous mode completed.");
+                    } catch (InterruptedException ex) {
+                        Logger.info("Autonomous mode interrupted.");
+                    } catch (AutonomousModeOverException ex) {
+                        Logger.info("Autonomous mode exited by stop.");
+                        continue;
+                    }
                 } catch (Throwable t) {
                     Logger.log(LogLevel.SEVERE, "Exception thrown during Autonomous mode!", t);
                 }
@@ -93,9 +143,7 @@ public abstract class InstinctModule implements EventConsumer {
                 while (shouldBeRunning.readValue()) {
                     try {
                         // Wait until no longer supposed to be running.
-                        synchronized (autosynch) {
-                            autosynch.wait();
-                        }
+                        waitCycle();
                     } catch (InterruptedException ex) {
                     }
                 }
@@ -123,6 +171,13 @@ public abstract class InstinctModule implements EventConsumer {
         }
     }
 
+    /**
+     * Wait until the specified BooleanInputPoll becomes true before returning.
+     *
+     * @param waitFor The condition to wait until.
+     * @throws AutonomousModeOverException If the autonomous mode has ended.
+     * @throws InterruptedException Possibly also if autonomous mode has ended.
+     */
     protected void waitUntil(BooleanInputPoll waitFor) throws AutonomousModeOverException, InterruptedException {
         while (true) {
             if (!shouldBeRunning.readValue()) {
@@ -131,12 +186,17 @@ public abstract class InstinctModule implements EventConsumer {
             if (waitFor.readValue()) {
                 return;
             }
-            synchronized (autosynch) {
-                autosynch.wait();
-            }
+            waitCycle();
         }
     }
 
+    /**
+     * Wait until the specified EventSource is produced before returning.
+     *
+     * @param source The event to wait for.
+     * @throws AutonomousModeOverException If the autonomous mode has ended.
+     * @throws InterruptedException Possibly also if autonomous mode has ended.
+     */
     protected void waitForEvent(EventSource source) throws AutonomousModeOverException, InterruptedException {
         final boolean[] b = new boolean[1];
         EventConsumer c = new EventConsumer() {
@@ -153,15 +213,21 @@ public abstract class InstinctModule implements EventConsumer {
                 if (!shouldBeRunning.readValue()) {
                     throw new AutonomousModeOverException();
                 }
-                synchronized (autosynch) {
-                    autosynch.wait();
-                }
+                waitCycle();
             }
         } finally {
             source.removeListener(c);
         }
     }
 
+    /**
+     * Wait for one of the specified conditions to become true before returning.
+     *
+     * @param waitFor The conditions to check.
+     * @return The index of the first condition that became true.
+     * @throws AutonomousModeOverException If the autonomous mode has ended.
+     * @throws InterruptedException Possibly also if autonomous mode has ended.
+     */
     protected int waitUntilOneOf(BooleanInputPoll... waitFor) throws AutonomousModeOverException, InterruptedException {
         while (true) {
             if (!shouldBeRunning.readValue()) {
@@ -172,20 +238,43 @@ public abstract class InstinctModule implements EventConsumer {
                     return i;
                 }
             }
-            synchronized (autosynch) {
-                autosynch.wait();
-            }
+            waitCycle();
         }
     }
 
+    /**
+     * Wait until the specified FloatInputPoll reaches or rises above the
+     * specified minimum.
+     *
+     * @param waitFor The value to monitor.
+     * @param minimum The threshold to wait for the value to reach.
+     * @throws AutonomousModeOverException If the autonomous mode has ended.
+     * @throws InterruptedException Possibly also if autonomous mode has ended.
+     */
     protected void waitUntilAtLeast(FloatInputPoll waitFor, float minimum) throws AutonomousModeOverException, InterruptedException {
         waitUntil(Mixing.floatIsAtLeast(waitFor, minimum));
     }
 
+    /**
+     * Wait until the specified FloatInputPoll reaches or falls below the
+     * specified maximum.
+     *
+     * @param waitFor The value to monitor.
+     * @param maximum The threshold to wait for the value to reach.
+     * @throws AutonomousModeOverException If the autonomous mode has ended.
+     * @throws InterruptedException Possibly also if autonomous mode has ended.
+     */
     protected void waitUntilAtMost(FloatInputPoll waitFor, float maximum) throws AutonomousModeOverException, InterruptedException {
         waitUntil(Mixing.floatIsAtMost(waitFor, maximum));
     }
 
+    /**
+     * Wait for the specified amount of time.
+     *
+     * @param milliseconds The amount of time to wait for.
+     * @throws AutonomousModeOverException If the autonomous mode has ended.
+     * @throws InterruptedException Possibly also if autonomous mode has ended.
+     */
     protected void waitForTime(long milliseconds) throws InterruptedException, AutonomousModeOverException {
         if (milliseconds < 0) {
             Logger.warning("Negative wait in Instinct: " + milliseconds);
@@ -203,5 +292,13 @@ public abstract class InstinctModule implements EventConsumer {
         }
     }
 
+    /**
+     * The location for the main code of this InstinctModule.
+     *
+     * @throws AutonomousModeOverException Propagate this up here when thrown by
+     * any waiting method.
+     * @throws InterruptedException Propagate this up here when thrown by any
+     * waiting method.
+     */
     protected abstract void autonomousMain() throws AutonomousModeOverException, InterruptedException;
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 Colby Skeggs
+ * Copyright 2013-2014 Colby Skeggs
  * 
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  * 
@@ -39,7 +39,9 @@ public class RLoadClient {
     /**
      * The main launching function for an RLoad server.
      *
-     * @param args
+     * @param args The filename to upload to and the remote address to upload
+     * to.
+     * @throws java.io.IOException If an issue occurs.
      */
     public static void main(String[] args) throws IOException {
         if (args.length != 2) {
@@ -50,6 +52,13 @@ public class RLoadClient {
         upload(new File(args[0]), args[1]);
     }
 
+    /**
+     * Upload the specified file to the specified remote address.
+     *
+     * @param target The file to upload.
+     * @param remote The remote address.
+     * @throws IOException
+     */
     public static void upload(File target, String remote) throws IOException {
         long len = target.length();
         if (len < 0 || len >= 1024 * 1024) {

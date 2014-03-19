@@ -22,10 +22,7 @@ import ccre.ctrl.Ticker;
 import ccre.event.EventConsumer;
 import ccre.saver.StorageProvider;
 import ccre.workarounds.ThrowablePrinter;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.PrintStream;
+import java.io.*;
 import java.util.Date;
 
 /**
@@ -36,6 +33,9 @@ import java.util.Date;
  */
 public class FileLogger implements LoggingTarget {
 
+    /**
+     * Register a new FileLogger writing to a unique file with the logging manager.
+     */
     public static void register() {
         try {
             int i = 0;
@@ -53,17 +53,39 @@ public class FileLogger implements LoggingTarget {
         }
     }
 
+    /**
+     * The PrintStream to log outputs to.
+     */
     private final PrintStream pstream;
+    /**
+     * The time at which this logger was started.
+     */
     private final long start;
 
+    /**
+     * Create a new FileLogger writing to the specified output file.
+     *
+     * @param fname The filename to write to
+     * @throws IOException If an IO Exception occurs.
+     */
     public FileLogger(String fname) throws IOException {
         this(StorageProvider.openOutput(fname));
     }
 
+    /**
+     * Create a new FileLogger writing to the specified output stream.
+     *
+     * @param out The output stream to write to.
+     */
     public FileLogger(OutputStream out) {
         this(out instanceof PrintStream ? (PrintStream) out : new PrintStream(out));
     }
 
+    /**
+     * Create a new FileLogger writing to the specified PrintStream.
+     *
+     * @param pstream The stream to write to.
+     */
     public FileLogger(PrintStream pstream) {
         this.pstream = pstream;
         start = System.currentTimeMillis();

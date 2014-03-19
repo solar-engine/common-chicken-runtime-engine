@@ -222,7 +222,7 @@ public class IntelligenceMain extends JPanel implements CluckRemoteListener, Mou
         seconds.addListener(new EventConsumer() {
             @Override
             public void eventFired() {
-                int cur = IntelligenceMain.this.node.estimatedByteCount;
+                int cur = IntelligenceMain.this.node.getEstimatedByteCount();
                 lastByteCount = cur - baseByteCount;
                 baseByteCount = cur;
             }
@@ -456,7 +456,7 @@ public class IntelligenceMain extends JPanel implements CluckRemoteListener, Mou
         g.setColor(active);
         g.drawString("Left-click to move", paneWidth, fontMetrics.getAscent());
         g.drawString("Right-click to interact", paneWidth, fontMetrics.getAscent() + lh);
-        String countReport = "Estimated Traffic: " + node.estimatedByteCount + "B (" + (node.estimatedByteCount / 128) + "kbits)";
+        String countReport = "Estimated Traffic: " + node.getEstimatedByteCount() + "B (" + (node.getEstimatedByteCount() / 128) + "kbits)";
         g.drawString(countReport, w - fontMetrics.stringWidth(countReport), fontMetrics.getAscent());
         countReport = "Usage: " + (lastByteCount / 128) + "kbits/sec";
         g.drawString(countReport, w - fontMetrics.stringWidth(countReport), fontMetrics.getAscent() + lh);
@@ -564,7 +564,7 @@ public class IntelligenceMain extends JPanel implements CluckRemoteListener, Mou
         FileLogger.register();
         JFrame frame = new JFrame("Intelligence Panel");
         frame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
-        final IPhidgetMonitor monitor = new VirtualPhidgetMonitor();//new PhidgetMonitor();
+        final IPhidgetMonitor monitor = args.length > 0 && "-virtual".equals(args[0]) ? new VirtualPhidgetMonitor() : new PhidgetMonitor();
         frame.addWindowListener(new WindowAdapter() {
             @Override
             public void windowClosing(WindowEvent we) {

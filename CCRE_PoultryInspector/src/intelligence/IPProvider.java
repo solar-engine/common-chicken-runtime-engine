@@ -60,10 +60,10 @@ public class IPProvider {
             return;
         }
         Logger.finer("Found connect address: " + addr);
-        if (CluckGlobals.cli == null) {
+        if (CluckGlobals.getClient() == null) {
             CluckGlobals.setupClient(addr, "robot", "phidget");
         } else {
-            CluckGlobals.cli.setRemote(addr);
+            CluckGlobals.getClient().setRemote(addr);
         }
     }
 

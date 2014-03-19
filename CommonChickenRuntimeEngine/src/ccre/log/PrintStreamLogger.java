@@ -26,12 +26,12 @@ import java.io.PrintStream;
  *
  * @author skeggsc
  */
-public class PrintStreamLogger implements LoggingTarget {
+public final class PrintStreamLogger implements LoggingTarget {
 
     /**
      * The PrintStream to write the logs to.
      */
-    protected PrintStream str;
+    private final PrintStream str;
 
     /**
      * Create a new PrintStreamLogger to log to the specific output.

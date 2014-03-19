@@ -33,15 +33,15 @@ public class CompoundFloatTuner implements FloatTuner {
     /**
      * The input used by this implementation.
      */
-    public FloatInput in;
+    private final FloatInput in;
     /**
      * The output used by this implementation.
      */
-    public FloatOutput out;
+    private final FloatOutput out;
     /**
      * The automatic tuning channel used by this implementation.
      */
-    public FloatInput auto;
+    private FloatInput auto;
 
     /**
      * Create a new CompoundFloatTuner from the specified input and output and
@@ -67,6 +67,18 @@ public class CompoundFloatTuner implements FloatTuner {
         this.in = in;
         this.out = out;
         this.auto = auto;
+    }
+
+    /**
+     * Set the FloatInput that represents the autotuning channel for this tuner.
+     *
+     * @param autoIn The autotuning channel.
+     */
+    public void setAuto(FloatInput autoIn) {
+        if (auto != null) {
+            throw new IllegalStateException("Auto already set!");
+        }
+        auto = autoIn;
     }
 
     public FloatInputProducer getAutomaticChannel() {

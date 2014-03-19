@@ -104,6 +104,9 @@ public final class NetworkAutologger implements LoggingTarget {
         if (message.startsWith("[NET] ")) { // From the network, so don't broadcast.
             return;
         }
+        if (message.startsWith("[LOCAL] ")) { // Should not be sent over the network.
+            return;
+        }
         String[] l = remotes;
         if (l == null) {
             return;

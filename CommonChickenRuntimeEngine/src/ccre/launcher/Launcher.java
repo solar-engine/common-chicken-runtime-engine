@@ -45,7 +45,7 @@ public class Launcher {
      * @throws IllegalAccessException
      * @throws java.lang.InterruptedException
      */
-    public static void main(String[] args) throws IOException, ClassNotFoundException, InstantiationException, IllegalAccessException, InterruptedException {
+    public static void main(String[] args) throws Exception {
         if (args.length == 0) {
             System.err.println("Usage: java -jar CCRE.jar <TYPE> <ARGS...>");
             System.err.println("Types:");
@@ -62,29 +62,31 @@ public class Launcher {
             case 'l':
                 if (a.equals("cluck")) {
                     StandaloneCluckServer.main(cargs);
-                    return;
+                    break;
                 }
                 break;
             case 'c':
                 if (a.equals("rcli")) {
                     RLoadClient.main(cargs);
-                    return;
+                    break;
                 }
                 break;
             case 's':
                 if (a.equals("rserv")) {
                     RLoadServer.main(cargs);
-                    return;
+                    break;
                 }
                 break;
             case 'e':
                 if (a.equals("tests")) {
                     SuiteOfTests.main(cargs);
-                    return;
+                    break;
                 }
                 break;
+            default:
+                System.err.println("No such launchee: " + a);
+                System.exit(1);
+                break;
         }
-        System.err.println("No such launchee: " + a);
-        System.exit(1);
     }
 }

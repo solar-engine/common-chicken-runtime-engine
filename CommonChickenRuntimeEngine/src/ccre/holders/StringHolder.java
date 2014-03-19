@@ -18,10 +18,7 @@
  */
 package ccre.holders;
 
-import ccre.event.Event;
-import ccre.event.EventConsumer;
-import ccre.event.EventSource;
-import ccre.log.Logger;
+import ccre.event.*;
 import java.io.IOException;
 import java.io.OutputStream;
 
@@ -36,15 +33,15 @@ public class StringHolder {
     /**
      * The current value.
      */
-    protected String value;
+    private String value;
     /**
      * If the string has been modified yet from any default/nonexistence value.
      */
-    protected boolean hasModified;
+    private boolean hasModified;
     /**
      * The event fired when the value is changed.
      */
-    protected Event evt = new Event();
+    private final Event evt = new Event();
 
     /**
      * Create a new StringHolder as if the value is not a default/nonexistence
@@ -137,7 +134,7 @@ public class StringHolder {
      */
     public OutputStream getOutput() {
         return new OutputStream() { // TODO: See if I should use LineCollectorOutputStream.
-            private final StringBuilder sb = new StringBuilder();
+            private final StringBuilder sb = new StringBuilder(30);
 
             @Override
             public synchronized void write(int b) throws IOException {

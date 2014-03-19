@@ -86,15 +86,15 @@ public class FileLogger implements LoggingTarget {
      *
      * @param pstream The stream to write to.
      */
-    public FileLogger(PrintStream pstream) {
+    public FileLogger(final PrintStream pstream) {
         this.pstream = pstream;
         start = System.currentTimeMillis();
         pstream.println("Logging began at " + new Date(start) + " [" + start + "]");
         new Ticker(10000).addListener(new EventConsumer() {
             public void eventFired() {
                 synchronized (FileLogger.this) {
-                    FileLogger.this.pstream.println("Logging continues at " + new Date());
-                    FileLogger.this.pstream.flush();
+                    pstream.println("Logging continues at " + new Date());
+                    pstream.flush();
                 }
             }
         });

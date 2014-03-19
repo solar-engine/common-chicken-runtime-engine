@@ -42,14 +42,14 @@ public abstract class CollapsingWorkerThread extends ReporterThread implements E
     /**
      * Does this thread need to run its work?
      */
-    protected volatile boolean needsRun = false;
+    private volatile boolean needsToRun = false;
     /**
      * Should this thread ignore any triggers while it is working? This is set
      * by the constructor.
      *
      * @see #CollapsingWorkerThread(java.lang.String, boolean)
      */
-    protected boolean shouldIgnoreWhileRunning;
+    private final boolean shouldIgnoreWhileRunning;
 
     /**
      * Create a new CollapsingWorkerThread with the given name. Will ignore any
@@ -103,7 +103,7 @@ public abstract class CollapsingWorkerThread extends ReporterThread implements E
      * Trigger the work. When possible, the thread will run its doWork method.
      */
     public synchronized void trigger() {
-        needsRun = true;
+        needsToRun = true;
         if (!isAlive()) {
             start();
         } else {
@@ -113,7 +113,7 @@ public abstract class CollapsingWorkerThread extends ReporterThread implements E
     /**
      * A BooleanStatus that represents if work is currently running.
      */
-    protected BooleanStatus runningStatus;
+    private BooleanStatus runningStatus;
 
     /**
      * Get a BooleanInput that represents whether or not this thread's work is
@@ -132,10 +132,10 @@ public abstract class CollapsingWorkerThread extends ReporterThread implements E
     protected final void threadBody() throws InterruptedException {
         while (true) {
             synchronized (this) {
-                while (!needsRun) {
+                while (!needsToRun) {
                     wait();
                 }
-                needsRun = false;
+                needsToRun = false;
             }
             try {
                 if (runningStatus != null) {
@@ -152,7 +152,7 @@ public abstract class CollapsingWorkerThread extends ReporterThread implements E
                 Logger.log(LogLevel.SEVERE, "Uncaught exception in worker thread: " + this.getName(), t);
             }
             if (shouldIgnoreWhileRunning) {
-                needsRun = false;
+                needsToRun = false;
             }
         }
     }

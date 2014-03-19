@@ -31,7 +31,7 @@ public abstract class AllocationPool<T> { // TODO: Test and improve this impleme
     /**
      * The list of available instances.
      */
-    protected CArrayList<T> available = new CArrayList<T>(50);
+    private final CArrayList<T> available = new CArrayList<T>(50);
 
     /**
      * Create a new instance, because there are no instances remaining.

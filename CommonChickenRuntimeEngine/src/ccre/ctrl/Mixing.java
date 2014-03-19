@@ -21,7 +21,6 @@ package ccre.ctrl;
 import ccre.chan.*;
 import ccre.event.*;
 import ccre.log.Logger;
-import ccre.util.Utils;
 import ccre.ctrl.MixingImpls.*;
 
 /**
@@ -583,7 +582,7 @@ public class Mixing {
      */
     public static BooleanOutput triggerWhenBooleanChanges(final EventConsumer toFalse, final EventConsumer toTrue) {
         return new BooleanOutput() {
-            protected boolean last;
+            private boolean last;
 
             public void writeValue(boolean value) {
                 if (value == last) {

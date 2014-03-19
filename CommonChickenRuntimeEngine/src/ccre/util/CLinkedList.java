@@ -87,11 +87,11 @@ public class CLinkedList<T> extends CAbstractList<T> {
     @Override
     public Iterator<T> iterator() {
         return new Iterator<T>() {
-            Node<T> current = sentinel.next;
-            int locmod = modCount;
+            private Node<T> current = sentinel.next;
+            private int locmod = getModCount();
 
             public boolean hasNext() {
-                if (locmod != modCount) {
+                if (locmod != getModCount()) {
                     throw new ConcurrentModificationException();
                 }
                 return current != sentinel;

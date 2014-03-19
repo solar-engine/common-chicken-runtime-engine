@@ -55,7 +55,7 @@ public class TestReporterThread extends BaseTest {
 
         private final boolean[] wr;
 
-        public TestThread(String name, boolean[] wr) {
+        TestThread(String name, boolean[] wr) {
             super(name);
             this.wr = wr;
         }

@@ -77,7 +77,7 @@ public class Event implements EventSource, EventConsumer, Runnable {
     /**
      * The events to fire when this event is fired.
      */
-    protected ConcurrentDispatchArray<EventConsumer> consumers;
+    private final ConcurrentDispatchArray<EventConsumer> consumers;
 
     /**
      * Returns whether or not this has any consumers that will get fired. If

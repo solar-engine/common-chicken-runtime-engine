@@ -26,7 +26,7 @@ import ccre.log.Logger;
  *
  * @author skeggsc
  */
-public class EventLogger implements EventConsumer {
+public final class EventLogger implements EventConsumer {
 
     /**
      * When the specified event is fired, log the specified message at the
@@ -42,11 +42,11 @@ public class EventLogger implements EventConsumer {
     /**
      * The logging level at which to log the message.
      */
-    public LogLevel level;
+    private final LogLevel level;
     /**
      * The message to log.
      */
-    public String message;
+    private final String message;
 
     /**
      * When this event is fired, log the specified message at the specified

@@ -42,18 +42,42 @@ public abstract class StorageProvider {
      */
     public static synchronized void initProvider() {
         if (provider == null) {
+            Throwable t;
             try {
                 provider = (StorageProvider) Class.forName("ccre.saver.DefaultStorageProvider").newInstance();
+                return;
             } catch (InstantiationException ex) {
-                provider = new FakeStorageProvider();
-                Logger.log(LogLevel.WARNING, "No throwable printing provider!", ex);
+                t = ex;
             } catch (IllegalAccessException ex) {
-                provider = new FakeStorageProvider();
-                Logger.log(LogLevel.WARNING, "No throwable printing provider!", ex);
+                t = ex;
             } catch (ClassNotFoundException ex) {
-                provider = new FakeStorageProvider();
-                Logger.log(LogLevel.WARNING, "No throwable printing provider!", ex);
+                t = ex;
             }
+            provider = new StorageProvider() {
+                @Override
+                protected StorageSegment open(String name) {
+                    return new HashMappedStorageSegment() {
+                        @Override
+                        public void flush() {
+                        }
+
+                        @Override
+                        public void close() {
+                        }
+                    };
+                }
+
+                @Override
+                protected OutputStream openOutputFile(String name) throws IOException {
+                    throw new IOException("Cannot write to any files in a FakeStorageProvider!");
+                }
+
+                @Override
+                protected InputStream openInputFile(String name) throws IOException {
+                    return null;
+                }
+            };
+            Logger.log(LogLevel.WARNING, "No throwable printing provider!", t);
         }
     }
 

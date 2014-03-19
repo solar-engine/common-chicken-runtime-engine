@@ -91,20 +91,14 @@ public abstract class CluckSubscriber implements CluckLink {
     protected boolean requireRMT(String source, byte[] data, byte rmt) {
         if (data.length == 0) {
             Logger.warning("Received null message from " + source);
-            return false;
-        }
-        if (data[0] == CluckNode.RMT_PING && data.length == 1) {
+        } else if (data[0] == CluckNode.RMT_PING && data.length == 1) {
             node.transmit(source, linkName, new byte[]{CluckNode.RMT_PING, rmt});
-            return false;
-        }
-        if (data[0] == CluckNode.RMT_NEGATIVE_ACK) { // Discard messages saying that the link is closed.
-            return false;
-        }
-        if (data[0] != rmt) {
+        } else if (data[0] != rmt && data[0] != CluckNode.RMT_NEGATIVE_ACK) { // Discard messages saying that the link is closed.
             Logger.warning("Received wrong RMT: " + data[0] + " from " + source + " (expected " + rmt + ") addressed to " + linkName);
-            return false;
+        } else {
+            return true;
         }
-        return true;
+        return false;
     }
 
     /**

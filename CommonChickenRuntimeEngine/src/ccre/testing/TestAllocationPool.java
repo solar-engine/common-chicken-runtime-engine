@@ -71,7 +71,7 @@ public class TestAllocationPool extends BaseTest {
 
         private final CArrayList<Object> alloced;
 
-        public ReportingPool(CArrayList<Object> alloced) {
+        ReportingPool(CArrayList<Object> alloced) {
             this.alloced = alloced;
         }
 

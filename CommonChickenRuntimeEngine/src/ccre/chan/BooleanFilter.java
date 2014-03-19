@@ -43,7 +43,8 @@ public abstract class BooleanFilter {
      * @return the filtered input.
      */
     public BooleanInput wrap(final BooleanInput inp) {
-        final BooleanInputProducer prod = wrap((BooleanInputProducer) inp);
+        BooleanInputProducer producer = inp;
+        final BooleanInputProducer prod = wrap(producer);
         return new BooleanInput() {
             public boolean readValue() {
                 return filter(inp.readValue());

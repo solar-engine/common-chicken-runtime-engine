@@ -61,10 +61,7 @@ public class CluckProtocol {
         if (din.readInt() != (ra ^ rb)) {
             throw new IOException("Did not bounce properly!");
         }
-        if (remoteHint == null) {
-            remoteHint = "";
-        }
-        dout.writeUTF(remoteHint);
+        dout.writeUTF(remoteHint == null ? "" : remoteHint);
         String rh = din.readUTF();
         return rh.length() == 0 ? null : rh;
     }
@@ -161,16 +158,8 @@ public class CluckProtocol {
                     }
                     String source = ent.src, dest = ent.dst;
                     byte[] data = ent.data;
-                    if (dest == null) {
-                        dout.writeUTF("");
-                    } else {
-                        dout.writeUTF(dest);
-                    }
-                    if (source == null) {
-                        dout.writeUTF("");
-                    } else {
-                        dout.writeUTF(source);
-                    }
+                    dout.writeUTF(dest == null ? "" : dest);
+                    dout.writeUTF(source == null ? "" : source);
                     dout.writeInt(data.length);
                     long begin = (((long) data.length) << 32) ^ (dest == null ? 0 : ((long) dest.hashCode()) << 16) ^ (source == null ? 0 : source.hashCode() ^ (((long) source.hashCode()) << 48));
                     dout.writeLong(begin);
@@ -185,7 +174,7 @@ public class CluckProtocol {
 
             public synchronized boolean transmit(String dest, String source, byte[] data) {
                 if (isRunning) {
-                    System.err.println("Already running transmit!");
+                    Logger.severe("[LOCAL] Already running transmit!");
                     return true;
                 }
                 isRunning = true;
@@ -198,7 +187,7 @@ public class CluckProtocol {
                     }
                     Thread.yield();
                     if (size > 75) {
-                        Logger.warning("[NET] [NOT ACTUALLY] Queue too long: " + size + " for " + dest + " at " + System.currentTimeMillis());
+                        Logger.warning("[LOCAL] Queue too long: " + size + " for " + dest + " at " + System.currentTimeMillis());
                     }
                 } finally {
                     isRunning = false;
@@ -237,7 +226,7 @@ public class CluckProtocol {
          * @param dst The destination of the message.
          * @param data The contents of the message.
          */
-        public SendableEntry(String src, String dst, byte[] data) {
+        SendableEntry(String src, String dst, byte[] data) {
             super();
             this.src = src;
             this.dst = dst;

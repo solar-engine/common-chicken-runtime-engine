@@ -32,7 +32,7 @@ public abstract class HashMappedStorageSegment extends StorageSegment {
     /**
      * The current data stored in this segment.
      */
-    protected CHashMap<String, byte[]> data = new CHashMap<String, byte[]>();
+    protected final CHashMap<String, byte[]> data = new CHashMap<String, byte[]>();
 
     @Override
     public synchronized byte[] getBytesForKey(String key) throws NoSuchElementException {

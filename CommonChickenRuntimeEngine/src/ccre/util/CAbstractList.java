@@ -35,18 +35,27 @@ public abstract class CAbstractList<T> implements CList<T> {
      * The number of times that the list has been modified. This is used to
      * ensure that changes are not made during iteration.
      */
-    protected int modCount = 0;
+    private int modCount = 0;
 
     /**
      * Increment the modification count.
+     *
+     * @see #modCount
      */
     protected void notifyModified() {
         modCount++;
     }
 
-    public abstract int size();
-
-    public abstract T get(int index);
+    /**
+     * Get the current modification count - the number of times that the list
+     * has been modified.
+     *
+     * @return the modcount.
+     * @see #modCount
+     */
+    public int getModCount() {
+        return modCount;
+    }
 
     public boolean isEmpty() {
         return size() == 0;
@@ -58,12 +67,12 @@ public abstract class CAbstractList<T> implements CList<T> {
 
     public Iterator<T> iterator() {
         return new Iterator<T>() {
-            int i = 0;
-            int locmod = modCount;
+            private int i = 0;
+            private int locmod = getModCount();
 
             public boolean hasNext() {
-                if (locmod != modCount) {
-                    throw new ConcurrentModificationException("Modcount is " + modCount + " instead of " + locmod);
+                if (locmod != getModCount()) {
+                    throw new ConcurrentModificationException("Modcount is " + getModCount() + " instead of " + locmod);
                 }
                 return i < size();
             }

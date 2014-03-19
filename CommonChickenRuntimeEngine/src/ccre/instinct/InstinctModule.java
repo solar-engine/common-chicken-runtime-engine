@@ -18,15 +18,12 @@
  */
 package ccre.instinct;
 
-import ccre.chan.BooleanInputPoll;
-import ccre.chan.FloatInputPoll;
+import ccre.chan.*;
 import ccre.concurrency.ReporterThread;
 import ccre.ctrl.Mixing;
-import ccre.event.EventConsumer;
-import ccre.event.EventSource;
+import ccre.event.*;
 import ccre.log.LogLevel;
 import ccre.log.Logger;
-import java.util.logging.Level;
 
 /**
  * The base class for an Instinct (the simple autonomous subsystem) module.
@@ -42,12 +39,12 @@ public abstract class InstinctModule implements EventConsumer {
     /**
      * If this module is currently running.
      */
-    private volatile boolean isRunning = false;
+    volatile boolean isRunning = false;
     /**
      * If this module has finished execution and is waiting for the signal to
      * stop running before continuing.
      */
-    private volatile boolean isEndWaiting = false;
+    volatile boolean isEndWaiting = false;
 
     /**
      * Create a new InstinctModule with a BooleanInputPoll controlling when this
@@ -199,11 +196,12 @@ public abstract class InstinctModule implements EventConsumer {
      */
     protected void waitForEvent(EventSource source) throws AutonomousModeOverException, InterruptedException {
         final boolean[] b = new boolean[1];
+        final Object localAutosynch = autosynch;
         EventConsumer c = new EventConsumer() {
             public void eventFired() {
                 b[0] = true;
-                synchronized (autosynch) {
-                    autosynch.notifyAll();
+                synchronized (localAutosynch) {
+                    localAutosynch.notifyAll();
                 }
             }
         };

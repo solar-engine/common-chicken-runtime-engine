@@ -26,7 +26,7 @@ import ccre.workarounds.ThrowablePrinter;
  *
  * @author skeggsc
  */
-class StandardStreamLogger implements LoggingTarget {
+final class StandardStreamLogger implements LoggingTarget {
 
     public synchronized void log(LogLevel level, String message, Throwable thr) {
         if (thr != null) {

@@ -34,17 +34,18 @@ public class CHashMap<K, V> implements Iterable<K> {
     /**
      * Iterate over all the keys of this CHashMap.
      */
-    public Iterator<K> iterator() {
+    public Iterator<K> iterator() { // TODO: Add tracking for modcounts here!
+        final Node<K, V>[] localMap = this.map;
         return new Iterator<K>() {
-            int index = 0;
-            Node<K, V> next = null;
+            private int index = 0;
+            private Node<K, V> next = null;
 
             public boolean hasNext() {
                 while (next == null) {
-                    if (index >= map.length) {
+                    if (index >= localMap.length) {
                         return false;
                     }
-                    next = map[index++];
+                    next = localMap[index++];
                 }
                 return true;
             }

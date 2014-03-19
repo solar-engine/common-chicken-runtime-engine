@@ -29,40 +29,40 @@ import ccre.util.CHashMap;
  *
  * @author skeggsc
  */
-public class ModeDispatcher {
+public final class ModeDispatcher {
     // TODO: This class needs some love! It's unused and should either be improved or scrapped.
 
     /**
      * The names of the states of the ModeDispatcher. The names are not
      * currently used, although the length is.
      */
-    protected final String[] modenames;
+    private final String[] modenames;
     /**
      * The current mode. In the range 0&lt;=currentMode&lt;modenames.length
      */
-    protected int currentMode;
+    private int currentMode;
 
     /**
      * A node representing a specific EventSource's routed EventSources.
      */
-    protected class Node {
+    private class Node {
 
         /**
          * The EventSources that are routed to.
          */
-        protected EventSource[] sources;
+        private EventSource[] sources;
         /**
          * The Event objects behind the sources. They are the same, but here
          * they are stored as an Event so that they can be produced.
          */
-        protected Event[] events;
+        private Event[] events;
 
         /**
          * Create a new node for the given EventSource.
          *
          * @param base the EventSource to create routes for.
          */
-        protected Node(EventSource base) {
+        private Node(EventSource base) {
             events = new Event[modenames.length];
             sources = new EventSource[modenames.length];
             for (int i = 0; i < modenames.length; i++) {

@@ -34,7 +34,7 @@ import java.util.NoSuchElementException;
  * @author skeggsc
  * @param <E> The type of the collection's elements
  */
-public class ConcurrentDispatchArray<E> implements CCollection<E> {
+public final class ConcurrentDispatchArray<E> implements CCollection<E> {
 
     /**
      * The array that contains the current data. Do not modify this field
@@ -42,12 +42,12 @@ public class ConcurrentDispatchArray<E> implements CCollection<E> {
      *
      * @see #compareAndSetArray(java.lang.Object[], java.lang.Object[])
      */
-    protected volatile Object[] data = new Object[0];
+    private volatile Object[] data = new Object[0];
 
     public Iterator<E> iterator() {
         return new Iterator<E>() {
-            Object[] dat = data;
-            int i = 0;
+            private Object[] dat = data;
+            private int i = 0;
 
             public boolean hasNext() {
                 return i < dat.length;
@@ -58,8 +58,7 @@ public class ConcurrentDispatchArray<E> implements CCollection<E> {
                 if (!hasNext()) {
                     throw new NoSuchElementException();
                 }
-                E e = (E) dat[i++];
-                return e;
+                return (E) dat[i++];
             }
 
             public void remove() {
@@ -99,7 +98,7 @@ public class ConcurrentDispatchArray<E> implements CCollection<E> {
      * @param update the array that should replace the current array.
      * @return if the replacement completed successfully.
      */
-    protected synchronized boolean compareAndSetArray(Object[] expect, Object[] update) {
+    private synchronized boolean compareAndSetArray(Object[] expect, Object[] update) {
         if (expect == data) {
             data = update;
             return true;

@@ -42,7 +42,7 @@ import java.util.Iterator;
  *
  * @author skeggsc
  */
-public class CluckNode {
+public final class CluckNode {
 
     /**
      * The ID representing a PING message.
@@ -158,14 +158,20 @@ public class CluckNode {
      */
     public final CHashMap<String, CluckLink> links = new CHashMap<String, CluckLink>();
     /**
-     * A map of alias names to what they alias for.
+     * An estimated total of how many bytes have gone through this node, as if
+     * the messages were serialized through CluckProtocol.
      */
-    public final CHashMap<String, String> aliases = new CHashMap<String, String>();
+    private int estimatedByteCount;
+
     /**
-     * An estimated total of how many bytes have gone through this node, if the
-     * messages were serialized through CluckProtocol.
+     * Returns an estimated total of how many bytes have gone through this node,
+     * as if the messages were serialized through CluckProtocol.
+     *
+     * @return The number of binary octets.
      */
-    public int estimatedByteCount;
+    public int getEstimatedByteCount() {
+        return estimatedByteCount;
+    }
     /**
      * The time when the last error message was printed about a link not
      * existing.
@@ -225,7 +231,7 @@ public class CluckNode {
      */
     public void transmit(String target, String source, byte[] data, CluckLink denyLink) {
         if (debugLogAll) {
-            System.out.println("[" + this + "]DL " + target + " <- " + source + ": " + (data.length > 0 ? rmtToString(data[0]) : null) + ": " + CArrayUtils.asList(data));
+            Logger.finest("[LOCAL] [" + this + "]DL " + target + " <- " + source + ": " + (data.length > 0 ? rmtToString(data[0]) : null) + ": " + CArrayUtils.asList(data));
         }
         estimatedByteCount += 24 + (target != null ? target.length() : 0) + (source != null ? source.length() : 0) + data.length; // 24 is the estimated packet overhead with a CluckTCPClient.
         if (target == null) {
@@ -254,11 +260,6 @@ public class CluckNode {
             base = target.substring(0, t);
             rest = target.substring(t + 1);
         }
-        String alias = aliases.get(base);
-        if (alias != null) {
-            this.transmit(alias + "/" + rest, source, data); // recurse
-            return;
-        }
         CluckLink link = links.get(base);
         if (link != null) {
             if (!link.transmit(rest, source, data)) {
@@ -278,29 +279,6 @@ public class CluckNode {
                 transmit(source, target, new byte[]{RMT_NEGATIVE_ACK});
             }
         }
-    }
-
-    /**
-     * Add a network alias from the specified link name to the specified path.
-     *
-     * For example: <code>node.addAlias("crio", "central/robot/crio");</code>
-     *
-     * In this example, a message sent to <code>crio/enabled</code> would be
-     * equivalent to it being sent to <code>central/robot/crio/enabled</code>
-     *
-     * Source paths will not be modified.
-     *
-     * @param from The target to alias.
-     * @param to The path to alias it to.
-     */
-    public void addAlias(String from, String to) {
-        while (to.charAt(to.length() - 1) == '/') {
-            to = to.substring(0, to.length() - 1);
-        }
-        if (aliases.get(from) != null) {
-            throw new IllegalStateException("Alias already used!");
-        }
-        aliases.put(from, to);
     }
 
     /**
@@ -645,25 +623,29 @@ public class CluckNode {
 
             public void log(LogLevel level, String message, String extended) {
                 try {
-                    if (level.atLeastAsImportant(minimum)) {
-                        byte[] msg = message.getBytes("US-ASCII");
-                        byte[] ext = extended == null ? new byte[0] : extended.getBytes("US-ASCII");
-                        byte[] out = new byte[10 + msg.length + ext.length];
-                        out[0] = RMT_LOGTARGET;
-                        out[1] = LogLevel.toByte(level);
-                        int lm = msg.length;
-                        out[2] = (byte) (lm >> 24);
-                        out[3] = (byte) (lm >> 16);
-                        out[4] = (byte) (lm >> 8);
-                        out[5] = (byte) (lm);
-                        int le = ext.length;
-                        out[6] = (byte) (le >> 24);
-                        out[7] = (byte) (le >> 16);
-                        out[8] = (byte) (le >> 8);
-                        out[9] = (byte) (le);
-                        System.arraycopy(msg, 0, out, 10, msg.length);
-                        System.arraycopy(ext, 0, out, 10 + msg.length, ext.length);
-                        transmit(path, null, out);
+                    try {
+                        if (level.atLeastAsImportant(minimum)) {
+                            byte[] msg = message.getBytes("US-ASCII");
+                            byte[] ext = extended == null ? new byte[0] : extended.getBytes("US-ASCII");
+                            byte[] out = new byte[10 + msg.length + ext.length];
+                            out[0] = RMT_LOGTARGET;
+                            out[1] = LogLevel.toByte(level);
+                            int lm = msg.length;
+                            out[2] = (byte) (lm >> 24);
+                            out[3] = (byte) (lm >> 16);
+                            out[4] = (byte) (lm >> 8);
+                            out[5] = (byte) (lm);
+                            int le = ext.length;
+                            out[6] = (byte) (le >> 24);
+                            out[7] = (byte) (le >> 16);
+                            out[8] = (byte) (le >> 8);
+                            out[9] = (byte) (le);
+                            System.arraycopy(msg, 0, out, 10, msg.length);
+                            System.arraycopy(ext, 0, out, 10 + msg.length, ext.length);
+                            transmit(path, null, out);
+                        }
+                    } catch (UnsupportedEncodingException ex) {
+                        Logger.log(LogLevel.SEVERE, "Cannot use US-ASCII!", ex);
                     }
                 } catch (Throwable thr) {
                     if (System.currentTimeMillis() - lastReportedRemoteLoggingError > 500) {
@@ -1058,7 +1040,7 @@ public class CluckNode {
         final CompoundFloatTuner comp = new CompoundFloatTuner(tuneIn, tuneOut);
         autoIn.addTarget(new FloatOutput() {
             public void writeValue(float value) {
-                comp.auto = autoIn;
+                comp.setAuto(autoIn);
                 autoIn.removeTarget(this);
             }
         });
@@ -1142,7 +1124,7 @@ public class CluckNode {
             @Override
             protected void receive(final String source, byte[] data) {
                 if (requireRMT(source, data, RMT_INVOKE)) {
-                    checkTimeout();
+                    checkRPCTimeouts();
                     byte[] sdata = new byte[data.length - 1];
                     System.arraycopy(data, 1, sdata, 0, sdata.length);
                     ByteArrayOutputStream baos = new ByteArrayOutputStream() {
@@ -1174,7 +1156,7 @@ public class CluckNode {
      * have. This is only called when another RPC event occurs, so it may take a
      * while for the timeout to happen.
      */
-    private void checkTimeout() {
+    void checkRPCTimeouts() {
         long now = System.currentTimeMillis();
         CArrayList<String> toRemove = new CArrayList<String>();
         synchronized (CluckNode.this) {
@@ -1213,7 +1195,7 @@ public class CluckNode {
             @Override
             protected void handleOther(String dest, String source, byte[] data) {
                 if (requireRMT(source, data, RMT_INVOKE_REPLY)) {
-                    checkTimeout();
+                    checkRPCTimeouts();
                     OutputStream stream;
                     synchronized (CluckNode.this) {
                         stream = localRPC.get(dest);
@@ -1262,13 +1244,13 @@ public class CluckNode {
         private final String path;
         private final int timeoutAfter;
 
-        public RemoteProcedureImpl(String path, int timeoutAfter) {
+        RemoteProcedureImpl(String path, int timeoutAfter) {
             this.path = path;
             this.timeoutAfter = timeoutAfter;
         }
 
         public void invoke(byte[] in, OutputStream out) {
-            checkTimeout();
+            checkRPCTimeouts();
             String localname = path + "-" + Integer.toHexString(System.identityHashCode(in)) + "-" + Integer.toHexString((int) (System.currentTimeMillis() & 0xffff));
             synchronized (CluckNode.this) {
                 timeoutsRPC.put(localname, System.currentTimeMillis() + timeoutAfter);

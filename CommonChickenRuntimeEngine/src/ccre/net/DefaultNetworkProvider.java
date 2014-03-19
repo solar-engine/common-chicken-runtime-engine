@@ -138,7 +138,7 @@ class DefaultNetworkProvider implements Network.Provider {
                 InetAddress addr = ins.nextElement();
                 byte[] raw = addr.getAddress();
                 if (raw.length == 4) {
-                    allAddresses.add(((Inet4Address) addr).getHostAddress());
+                    allAddresses.add(addr.getHostAddress());
                 } else if (raw.length != 16) {
                     Logger.warning("Found an address that's not 4 or 16 long: " + Arrays.toString(raw));
                 }

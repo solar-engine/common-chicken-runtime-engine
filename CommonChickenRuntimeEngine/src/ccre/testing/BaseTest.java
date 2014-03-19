@@ -50,6 +50,7 @@ public abstract class BaseTest {
      * test.
      *
      * @return true if the test succeeded and false if it failed.
+     * @throws java.lang.InterruptedException
      */
     public final boolean test() throws InterruptedException {
         return test(true);
@@ -61,12 +62,14 @@ public abstract class BaseTest {
      *
      * @param verbose should status messages be logged?
      * @return true if the test succeeded and false if it failed.
+     * @throws java.lang.InterruptedException
      */
     public final synchronized boolean test(boolean verbose) throws InterruptedException { // Synchronized so that only one instance of the test will be running.
         if (verbose) {
             Logger.fine("Attempting test: " + getName());
         }
         InterruptedException intr = null;
+        boolean failed = false;
         try {
             try {
                 runTest();
@@ -76,21 +79,21 @@ public abstract class BaseTest {
                 if (verbose) {
                     Logger.log(LogLevel.WARNING, "Failed test: " + getName(), ex);
                 }
-                return false;
+                failed = true;
             }
         } catch (Throwable t) {
             if (verbose) {
                 Logger.log(LogLevel.WARNING, "Exception during test: " + getName(), t);
             }
-            return false;
+            failed = true;
         }
         if (intr != null) {
             throw intr;
         }
-        if (verbose) {
+        if (!failed && verbose) {
             Logger.info("Test succeeded: " + getName());
         }
-        return true;
+        return !failed;
     }
 
     /**

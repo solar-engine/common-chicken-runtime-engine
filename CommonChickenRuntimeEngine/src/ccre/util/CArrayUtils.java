@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 Colby Skeggs
+ * Copyright 2013-2014 Colby Skeggs
  * 
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  * 
@@ -30,27 +30,7 @@ public class CArrayUtils {
     /**
      * An empty list. Immutable.
      */
-    public static final CList<?> EMPTY_LIST = new CAbstractList<Object>() {
-        @Override
-        public int size() {
-            return 0;
-        }
-
-        @Override
-        public Object get(int index) {
-            throw new IndexOutOfBoundsException("Out of bounds: " + index);
-        }
-
-        @Override
-        public Object[] toArray() {
-            return new Object[0];
-        }
-
-        @Override
-        public int fillArray(Object[] target) {
-            return -target.length;
-        }
-    };
+    public static final CList<?> EMPTY_LIST = new FixedArrayList<Object>(new Object[0]);
 
     /**
      * Return an empty list of the given element type.
@@ -104,72 +84,76 @@ public class CArrayUtils {
      * @return the list version of the specified array.
      */
     public static <T> CList<T> asList(final T... arr) {
-        if (arr == null) {
-            throw new NullPointerException();
-        }
         if (arr.length == 0) {
             return getEmptyList();
+        } else {
+            return new FixedArrayList<T>(arr);
         }
-        return new CAbstractList<T>() {
-            private final T[] t = arr;
-            private final int len = arr.length;
+    }
 
-            @Override
-            public int size() {
-                return len;
-            }
+    private static class FixedArrayList<T> extends CAbstractList<T> {
 
-            @Override
-            public T get(int index) {
-                return t[index];
-            }
+        private final T[] arr;
 
-            @Override
-            public T set(int index, T val) {
-                T old = t[index];
-                t[index] = val;
-                return old;
-            }
+        FixedArrayList(T[] arr) {
+            this.arr = arr;
+        }
 
-            @Override
-            public int indexOf(Object o) {
-                T[] locT = this.t;
-                if (o == null) {
-                    for (int i = 0; i < locT.length; i++) {
-                        if (locT[i] == null) {
-                            return i;
-                        }
+        @Override
+        public int size() {
+            return arr.length;
+        }
+
+        @Override
+        public T get(int index) {
+            return arr[index];
+        }
+
+        @Override
+        public T set(int index, T val) {
+            T old = arr[index];
+            arr[index] = val;
+            return old;
+        }
+
+        @Override
+        public int indexOf(Object o) {
+            T[] locT = this.arr;
+            if (o == null) {
+                for (int i = 0; i < locT.length; i++) {
+                    if (locT[i] == null) {
+                        return i;
                     }
-                    return -1;
-                } else {
-                    for (int i = 0; i < locT.length; i++) {
-                        if (o.equals(locT[i])) {
-                            return i;
-                        }
-                    }
-                    return -1;
                 }
-            }
-
-            @Override
-            public int lastIndexOf(Object o) {
-                T[] locT = this.t;
-                if (o == null) {
-                    for (int i = locT.length - 1; i >= 0; i--) {
-                        if (locT[i] == null) {
-                            return i;
-                        }
+                return -1;
+            } else {
+                for (int i = 0; i < locT.length; i++) {
+                    if (o.equals(locT[i])) {
+                        return i;
                     }
-                    return -1;
-                } else {
-                    for (int i = locT.length - 1; i >= 0; i--) {
-                        if (o.equals(locT[i])) {
-                            return i;
-                        }
-                    }
-                    return -1;
                 }
+                return -1;
             }
-        };
+        }
+
+        @Override
+        public int lastIndexOf(Object o) {
+            T[] locT = this.arr;
+            if (o == null) {
+                for (int i = locT.length - 1; i >= 0; i--) {
+                    if (locT[i] == null) {
+                        return i;
+                    }
+                }
+                return -1;
+            } else {
+                for (int i = locT.length - 1; i >= 0; i--) {
+                    if (o.equals(locT[i])) {
+                        return i;
+                    }
+                }
+                return -1;
+            }
+        }
     }
 }

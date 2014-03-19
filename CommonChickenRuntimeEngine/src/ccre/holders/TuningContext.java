@@ -30,16 +30,16 @@ import ccre.saver.StorageSegment;
  *
  * @author skeggsc
  */
-public class TuningContext { // TODO: Support booleans for tuning.
+public final class TuningContext { // TODO: Support booleans for tuning.
 
     /**
      * The node to publish the value to.
      */
-    protected CluckNode enc;
+    private final CluckNode enc;
     /**
      * The segment to store the value in.
      */
-    protected StorageSegment seg;
+    private final StorageSegment seg;
 
     /**
      * Create a new TuningContext from a specified CluckNode and name of storage

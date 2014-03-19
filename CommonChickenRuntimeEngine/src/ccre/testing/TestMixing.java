@@ -20,11 +20,6 @@ package ccre.testing;
 
 import ccre.chan.FloatFilter;
 import ccre.ctrl.Mixing;
-import ccre.util.CArrayList;
-import ccre.util.CArrayUtils;
-import ccre.util.CList;
-import ccre.util.Utils;
-import java.util.Iterator;
 
 /**
  * Tests the Mixing class, a tiny amount.

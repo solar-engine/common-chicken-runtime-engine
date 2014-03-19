@@ -39,7 +39,7 @@ public class MultiTargetLogger implements LoggingTarget {
     /**
      * The list of targets that should receive logging.
      */
-    protected LoggingTarget[] targets;
+    private LoggingTarget[] targets;
 
     public void log(LogLevel level, String message, Throwable thr) {
         for (LoggingTarget t : targets) {

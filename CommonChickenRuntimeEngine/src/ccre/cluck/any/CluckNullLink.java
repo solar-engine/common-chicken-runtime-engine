@@ -48,7 +48,7 @@ import ccre.cluck.CluckNode;
  *
  * @author skeggsc
  */
-public class CluckNullLink implements CluckLink {
+public final class CluckNullLink implements CluckLink {
 
     /**
      * Connect the two specified CluckNodes with a Null Link.
@@ -65,15 +65,15 @@ public class CluckNullLink implements CluckLink {
     /**
      * The other end of this CluckNullLink.
      */
-    protected CluckNullLink paired;
+    private CluckNullLink paired;
     /**
      * The CluckNode attached to this end of the link.
      */
-    protected final CluckNode node;
+    private final CluckNode node;
     /**
      * The link name of this link.
      */
-    public String linkName;
+    private String linkName;
 
     /**
      * Create a new link attached to the specified CluckNode.
@@ -129,11 +129,12 @@ public class CluckNullLink implements CluckLink {
         if (linkName == null) {
             linkName = node.getLinkName(this);
         }
+        String sourceToSend;
         if (source == null) {
-            source = linkName;
+            sourceToSend = linkName;
         } else {
-            source = linkName + "/" + source;
+            sourceToSend = linkName + "/" + source;
         }
-        node.transmit(rest, source, data, this);
+        node.transmit(rest, sourceToSend, data, this);
     }
 }

@@ -186,7 +186,7 @@ public class TestUtils extends BaseTest {
         assertEqual(asList.indexOf(30), 2, "Bad index!");
         assertEqual(asList.lastIndexOf(40), 3, "Bad index!");
         try {
-            asList.remove((Object) 10);
+            asList.remove(Integer.valueOf(10));
             assertFail("Should have errored!");
         } catch (UnsupportedOperationException o) {
             // Correct!

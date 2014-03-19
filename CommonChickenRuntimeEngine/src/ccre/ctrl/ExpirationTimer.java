@@ -36,12 +36,12 @@ import ccre.util.CArrayList;
  *
  * @author skeggsc
  */
-public class ExpirationTimer {
+public final class ExpirationTimer {
 
     /**
      * A task that is scheduled for a specific delay after the timer starts.
      */
-    protected static class Task {
+    private static class Task {
 
         /**
          * The delay before the event is fired.
@@ -67,19 +67,19 @@ public class ExpirationTimer {
      * The list of tasks, sorted in order with the first task (shortest delay)
      * first.
      */
-    protected final CArrayList<Task> tasks = new CArrayList<Task>();
+    private final CArrayList<Task> tasks = new CArrayList<Task>();
     /**
      * Is this timer running?
      */
-    protected boolean isStarted = false;
+    private boolean isStarted = false;
     /**
      * When did this timer get started? Delays get computer from this point.
      */
-    protected long startedAt;
+    private long startedAt;
     /**
      * The main thread of the Expiration Timer.
      */
-    protected final ReporterThread main = new ReporterThread("ExpirationTimer") {
+    private final ReporterThread main = new ReporterThread("ExpirationTimer") {
         @Override
         protected void threadBody() throws Throwable {
             body();
@@ -151,9 +151,10 @@ public class ExpirationTimer {
      */
     public void scheduleToggleSequence(BooleanOutput control, boolean beginWith, long beginAt, long... additionalToggles) throws IllegalStateException {
         scheduleSet(beginAt, control, beginWith);
+        boolean stateToSet = beginWith;
         for (long cur : additionalToggles) {
-            beginWith = !beginWith;
-            scheduleSet(cur, control, beginWith);
+            stateToSet = !stateToSet;
+            scheduleSet(cur, control, stateToSet);
         }
     }
 
@@ -270,15 +271,15 @@ public class ExpirationTimer {
     /**
      * The cached value for getStartEvent()
      */
-    protected EventConsumer startEvt;
+    private EventConsumer startEvt;
     /**
      * The cached value for getFeedEvent()
      */
-    protected EventConsumer feedEvt;
+    private EventConsumer feedEvt;
     /**
      * The cached value for getStopEvent()
      */
-    protected EventConsumer stopEvt;
+    private EventConsumer stopEvt;
 
     /**
      * Get an event that, when fired, will start the timer. This will not throw

@@ -34,7 +34,7 @@ import ccre.util.CArrayList;
  *
  * @author skeggsc
  */
-public class MultipleSourceBooleanController implements BooleanInput, EventConsumer {
+public final class MultipleSourceBooleanController implements BooleanInput, EventConsumer {
 
     /**
      * Passed to the constructor to make the inputs be combined in an AND
@@ -61,25 +61,25 @@ public class MultipleSourceBooleanController implements BooleanInput, EventConsu
     /**
      * The list of polled inputs that are read during the update method.
      */
-    protected final CArrayList<BooleanInputPoll> ipl = new CArrayList<BooleanInputPoll>();
+    private final CArrayList<BooleanInputPoll> ipl = new CArrayList<BooleanInputPoll>();
     /**
      * The list of current values for the asynchronously-updated inputs. Any
      * elements in this list MUST be either Boolean.TRUE or Boolean.FALSE! Even
      * the result of new Boolean(true) is not allowed!
      */
-    protected final CArrayList<Boolean> bcur = new CArrayList<Boolean>();
+    private final CArrayList<Boolean> bcur = new CArrayList<Boolean>();
     /**
      * The list of consumers to be notified when the value changes.
      */
-    protected final CArrayList<BooleanOutput> consumers = new CArrayList<BooleanOutput>();
+    private final CArrayList<BooleanOutput> consumers = new CArrayList<BooleanOutput>();
     /**
      * The current value of the result.
      */
-    protected boolean lastValue = false;
+    private boolean lastValue = false;
     /**
      * If the operation is an AND operation as opposed to an OR operation.
      */
-    protected final boolean isAnd;
+    private final boolean isAnd;
 
     /**
      * Get one BooleanOutput that can be written to in order to update its
@@ -133,7 +133,7 @@ public class MultipleSourceBooleanController implements BooleanInput, EventConsu
     /**
      * Update the output from the current state.
      */
-    protected void update() {
+    private void update() {
         boolean valOut;
         if (isAnd) {
             if (bcur.contains(Boolean.FALSE)) {
@@ -193,7 +193,7 @@ public class MultipleSourceBooleanController implements BooleanInput, EventConsu
 
         private final int cur;
 
-        public BooleanOutputElement(int cur) {
+        BooleanOutputElement(int cur) {
             this.cur = cur;
         }
 

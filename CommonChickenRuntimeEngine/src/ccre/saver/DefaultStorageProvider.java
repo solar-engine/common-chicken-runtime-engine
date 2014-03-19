@@ -117,7 +117,7 @@ class DefaultStorageProvider extends StorageProvider {
                             byte[] bytes = data.get(key);
                             dout.writeUTF(key);
                             if ((short) (bytes.length) != bytes.length) {
-                                throw new IOException("Value cannot fit in 65535 bytes!");
+                                throw new IOException("Value cannot fit in 32767 bytes!");
                             }
                             dout.writeShort(bytes.length);
                             dout.write(bytes);

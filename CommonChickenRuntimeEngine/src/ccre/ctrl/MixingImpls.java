@@ -18,16 +18,8 @@
  */
 package ccre.ctrl;
 
-import ccre.chan.BooleanInputPoll;
-import ccre.chan.BooleanInputProducer;
-import ccre.chan.BooleanOutput;
-import ccre.chan.FloatFilter;
-import ccre.chan.FloatInput;
-import ccre.chan.FloatInputPoll;
-import ccre.chan.FloatOutput;
-import ccre.event.Event;
-import ccre.event.EventConsumer;
-import ccre.event.EventSource;
+import ccre.chan.*;
+import ccre.event.*;
 import ccre.log.Logger;
 import ccre.util.CArrayList;
 import ccre.util.Utils;
@@ -66,7 +58,7 @@ class MixingImpls {
 
         private final BooleanInputPoll[] vals;
 
-        public AndBooleansImpl(BooleanInputPoll[] vals) {
+        AndBooleansImpl(BooleanInputPoll[] vals) {
             this.vals = vals;
         }
 
@@ -85,7 +77,7 @@ class MixingImpls {
         private final BooleanInputPoll a;
         private final BooleanInputPoll b;
 
-        public AndBooleansImpl2(BooleanInputPoll a, BooleanInputPoll b) {
+        AndBooleansImpl2(BooleanInputPoll a, BooleanInputPoll b) {
             this.a = a;
             this.b = b;
         }
@@ -420,7 +412,7 @@ class MixingImpls {
     static class FindRateCycledImpl implements FloatInputPoll {
 
         private final FloatInputPoll input;
-        private float lastValue;
+        float lastValue;
 
         FindRateCycledImpl(FloatInputPoll input) {
             this.input = input;
@@ -517,7 +509,7 @@ class MixingImpls {
 
         private final BooleanInputPoll[] vals;
 
-        public OrBooleansImpl(BooleanInputPoll[] vals) {
+        OrBooleansImpl(BooleanInputPoll[] vals) {
             this.vals = vals;
         }
 
@@ -536,7 +528,7 @@ class MixingImpls {
         private final BooleanInputPoll a;
         private final BooleanInputPoll b;
 
-        public OrBooleansImpl2(BooleanInputPoll a, BooleanInputPoll b) {
+        OrBooleansImpl2(BooleanInputPoll a, BooleanInputPoll b) {
             this.a = a;
             this.b = b;
         }
@@ -551,7 +543,7 @@ class MixingImpls {
         private final BooleanInputPoll a;
         private final BooleanInputPoll b;
 
-        public XorBooleansImpl(BooleanInputPoll a, BooleanInputPoll b) {
+        XorBooleansImpl(BooleanInputPoll a, BooleanInputPoll b) {
             this.a = a;
             this.b = b;
         }
@@ -566,7 +558,7 @@ class MixingImpls {
         private final FloatOutput out;
         private final FloatInputPoll in;
 
-        public PumpEventImplF(FloatOutput out, FloatInputPoll in) {
+        PumpEventImplF(FloatOutput out, FloatInputPoll in) {
             this.out = out;
             this.in = in;
         }
@@ -581,7 +573,7 @@ class MixingImpls {
         private final BooleanOutput out;
         private final BooleanInputPoll in;
 
-        public PumpEventImplB(BooleanOutput out, BooleanInputPoll in) {
+        PumpEventImplB(BooleanOutput out, BooleanInputPoll in) {
             this.out = out;
             this.in = in;
         }
@@ -643,13 +635,13 @@ class MixingImpls {
         private final float limit;
         private final FloatOutput target;
 
-        public RampingImpl(FloatInputPoll from, float limit, FloatOutput target) {
+        RampingImpl(FloatInputPoll from, float limit, FloatOutput target) {
             this.from = from;
             this.limit = limit;
             this.target = target;
             last = from.readValue();
         }
-        public float last;
+        private float last;
 
         public void eventFired() {
             last = Utils.updateRamping(last, from.readValue(), limit);
@@ -666,7 +658,7 @@ class MixingImpls {
             this.target = target;
             this.out = out;
         }
-        protected boolean last;
+        private boolean last;
 
         public void writeValue(boolean value) {
             if (value == last) {

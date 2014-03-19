@@ -65,13 +65,14 @@ public class BootLogger implements LoggingTarget {
      * @param node The CluckNode to publish over.
      */
     public BootLogger(CluckNode node) {
+        final Object[] localOuts = outs;
         node.publish("post-bootlogs", new EventConsumer() {
             public void eventFired() {
                 synchronized (BootLogger.this) {
                     Logger.log(LogLevel.INFO, "[BOOT-START]");
                     for (int i = 0; i < LOG_MESSAGE_COUNT; i++) {
-                        if (outs[i] != null) {
-                            Logger.log(LogLevel.INFO, "[BOOT-" + i + "] " + outs[i]);
+                        if (localOuts[i] != null) {
+                            Logger.log(LogLevel.INFO, "[BOOT-" + i + "] " + localOuts[i]);
                         }
                     }
                     Logger.log(LogLevel.INFO, "[BOOT-END]");

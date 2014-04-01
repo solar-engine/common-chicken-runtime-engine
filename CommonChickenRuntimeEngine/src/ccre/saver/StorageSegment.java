@@ -203,18 +203,29 @@ public abstract class StorageSegment {
                 Logger.log(LogLevel.WARNING, "Exception in self-contained float saving!", ex);
             }
         }
-        holder.addTarget(new FloatOutput() {
-            public void writeValue(float value) {
-                DataOutputStream dout = setDataOutputForKey(key);
-                try {
-                    dout.writeFloat(value); // value
-                    dout.writeBoolean(true); // has default
-                    dout.writeFloat(originalValue); // default
-                    dout.close();
-                } catch (IOException ex) {
-                    Logger.log(LogLevel.SEVERE, "Exception in self-contained float saving!", ex);
-                }
+        holder.addTarget(new SegmentFloatSaver(key, originalValue));
+    }
+
+    private class SegmentFloatSaver implements FloatOutput {
+
+        private final String key;
+        private final float originalValue;
+
+        public SegmentFloatSaver(String key, float originalValue) {
+            this.key = key;
+            this.originalValue = originalValue;
+        }
+
+        public void writeValue(float value) {
+            DataOutputStream dout = setDataOutputForKey(key);
+            try {
+                dout.writeFloat(value); // value
+                dout.writeBoolean(true); // has default
+                dout.writeFloat(originalValue); // default
+                dout.close();
+            } catch (IOException ex) {
+                Logger.log(LogLevel.SEVERE, "Exception in self-contained float saving!", ex);
             }
-        });
+        }
     }
 }

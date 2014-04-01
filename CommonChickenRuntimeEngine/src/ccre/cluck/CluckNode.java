@@ -202,8 +202,14 @@ public final class CluckNode {
             broadcast(source, data, denyLink);
         } else {
             int slash = target.indexOf('/');
-            slash = (slash == -1) ? target.length() : slash;
-            String base = target.substring(0, slash), rest = target.substring(slash + 1);
+            String base, rest;
+            if (slash == -1) {
+                base = target;
+                rest = null;
+            } else {
+                base = target.substring(0, slash);
+                rest = target.substring(slash + 1);
+            }
             CluckLink link = links.get(base);
             if (link != null) {
                 if (link.transmit(rest, source, data) == false) {

@@ -23,7 +23,6 @@ import ccre.ctrl.*;
 import ccre.device.DeviceException;
 import ccre.device.DeviceRegistry;
 import ccre.event.*;
-import ccre.igneous.IgneousLauncher;
 import ccre.instinct.InstinctRegistrar;
 
 /**
@@ -301,11 +300,7 @@ public abstract class IgneousCore implements InstinctRegistrar {
      * @return the output that will write to the LCD.
      */
     protected final FloatOutput makeDSFloatReadout(final String prefix, final int line) {
-        return new FloatOutput() {
-            public void writeValue(float f) {
-                sendDSUpdate(prefix + f, line);
-            }
-        };
+        return new DSFloatReadout(prefix, line);
     }
 
     /**
@@ -318,11 +313,7 @@ public abstract class IgneousCore implements InstinctRegistrar {
      * @return the output that will write to the LCD.
      */
     protected final BooleanOutput makeDSBooleanReadout(final String prefix, final int line) {
-        return new BooleanOutput() {
-            public void writeValue(boolean f) {
-                sendDSUpdate(prefix + f, line);
-            }
-        };
+        return new DSBooleanReadout(prefix, line);
     }
 
     /**
@@ -544,5 +535,35 @@ public abstract class IgneousCore implements InstinctRegistrar {
      */
     protected final DeviceRegistry getDeviceRegistry() throws DeviceException {
         return launcher.getDeviceRegistry();
+    }
+
+    private class DSFloatReadout implements FloatOutput {
+
+        private final String prefix;
+        private final int line;
+
+        public DSFloatReadout(String prefix, int line) {
+            this.prefix = prefix;
+            this.line = line;
+        }
+
+        public void writeValue(float f) {
+            sendDSUpdate(prefix + f, line);
+        }
+    }
+
+    private class DSBooleanReadout implements BooleanOutput {
+
+        private final String prefix;
+        private final int line;
+
+        public DSBooleanReadout(String prefix, int line) {
+            this.prefix = prefix;
+            this.line = line;
+        }
+
+        public void writeValue(boolean f) {
+            sendDSUpdate(prefix + f, line);
+        }
     }
 }

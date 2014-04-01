@@ -166,16 +166,7 @@ public final class RPCManager {
      * @return the RemoteProcedure.
      */
     public RemoteProcedure subscribe(final String path, final int timeoutAfter) {
-        return new RemoteProcedure() {
-            public void invoke(byte[] in, OutputStream out) {
-                checkRPCTimeouts();
-                String localname = UniqueIds.global.nextHexId(path);
-                byte[] toSend = new byte[in.length + 1];
-                toSend[0] = CluckNode.RMT_INVOKE;
-                System.arraycopy(in, 0, toSend, 1, in.length);
-                putNewInvokeBinding(path, localname, timeoutAfter, out, toSend);
-            }
-        };
+        return new SubscribedProcedure(path, timeoutAfter);
     }
 
     private void putNewInvokeBinding(String path, String localname, long timeoutAfter, OutputStream out, byte[] toSend) {
@@ -184,5 +175,25 @@ public final class RPCManager {
             bindings.put(localname, out);
         }
         node.transmit(path, localRPCBinding + "/" + localname, toSend);
+    }
+
+    private class SubscribedProcedure implements RemoteProcedure {
+
+        private final String path;
+        private final int timeoutAfter;
+
+        public SubscribedProcedure(String path, int timeoutAfter) {
+            this.path = path;
+            this.timeoutAfter = timeoutAfter;
+        }
+
+        public void invoke(byte[] in, OutputStream out) {
+            checkRPCTimeouts();
+            String localname = UniqueIds.global.nextHexId(path);
+            byte[] toSend = new byte[in.length + 1];
+            toSend[0] = CluckNode.RMT_INVOKE;
+            System.arraycopy(in, 0, toSend, 1, in.length);
+            putNewInvokeBinding(path, localname, timeoutAfter, out, toSend);
+        }
     }
 }

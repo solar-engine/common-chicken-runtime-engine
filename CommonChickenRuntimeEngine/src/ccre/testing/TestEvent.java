@@ -26,7 +26,7 @@ import ccre.event.EventConsumer;
  *
  * @author skeggsc
  */
-public final class TestEvent extends BaseTest {
+public final class TestEvent extends BaseTest implements EventConsumer {
 
     @Override
     public String getName() {
@@ -38,17 +38,16 @@ public final class TestEvent extends BaseTest {
     protected void runTest() throws TestingException {
         Event event = new Event();
         eventCalled = 0;
-        EventConsumer evt = new EventConsumer() {
-            public void eventFired() {
-                eventCalled++;
-            }
-        };
-        assertTrue(event.addListener(evt), "Event did not add properly!");
+        assertTrue(event.addListener(this), "Event did not add properly!");
         assertEqual(eventCalled, 0, "Event fired too soon!");
         event.produce();
         assertEqual(eventCalled, 1, "Event did not fire properly!");
-        event.removeListener(evt);
+        event.removeListener(this);
         event.produce();
         assertEqual(eventCalled, 1, "Event did not remove properly!");
+    }
+
+    public void eventFired() {
+        eventCalled++;
     }
 }

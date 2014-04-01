@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 Colby Skeggs
+ * Copyright 2013-2014 Colby Skeggs
  * 
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  * 
@@ -22,8 +22,6 @@ import ccre.log.LogLevel;
 import ccre.log.Logger;
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
-import java.io.UnsupportedEncodingException;
-import java.util.logging.Level;
 
 /**
  * A provider that can print out a Throwable to a given PrintStream.
@@ -39,7 +37,20 @@ public abstract class ThrowablePrinter {
     /**
      * The current ThrowablePrinter.
      */
-    static ThrowablePrinter provider;
+    private static ThrowablePrinter provider;
+
+    /**
+     * Set the active ThrowablePrinter for the system.
+     *
+     * @param provider The ThrowablePrinter to use.
+     * @throws IllegalStateException if a provider is already registered.
+     */
+    static synchronized void setProvider(ThrowablePrinter provider) throws IllegalStateException {
+        if (ThrowablePrinter.provider != null) {
+            throw new IllegalStateException("Provider already registered!");
+        }
+        ThrowablePrinter.provider = provider;
+    }
 
     /**
      * Ensure that there is an available provider. At least, there will be a
@@ -47,17 +58,24 @@ public abstract class ThrowablePrinter {
      */
     public static synchronized void initProvider() {
         if (provider == null) {
+            Exception ex2 = null;
             try {
                 provider = (ThrowablePrinter) Class.forName("ccre.workarounds.DefaultThrowablePrinter").newInstance();
             } catch (InstantiationException ex) {
-                provider = new FakeThrowablePrinter();
-                Logger.log(LogLevel.WARNING, "No throwable printing provider!", ex);
+                ex2 = ex;
             } catch (IllegalAccessException ex) {
-                provider = new FakeThrowablePrinter();
-                Logger.log(LogLevel.WARNING, "No throwable printing provider!", ex);
+                ex2 = ex;
             } catch (ClassNotFoundException ex) {
-                provider = new FakeThrowablePrinter();
-                Logger.log(LogLevel.WARNING, "No throwable printing provider!", ex);
+                ex2 = ex;
+            }
+            if (ex2 != null) {
+                provider = new ThrowablePrinter() {
+                    @Override
+                    public void send(Throwable thr, PrintStream pstr) {
+                        pstr.println(thr);
+                    }
+                };
+                Logger.log(LogLevel.WARNING, "No throwable printing provider!", ex2);
             }
         }
     }

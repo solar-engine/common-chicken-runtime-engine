@@ -141,7 +141,7 @@ public class Remote implements Comparable<Remote> {
                 checkout = node.subscribeOS(path);
                 break;
             case RMT_INVOKE:
-                checkout = node.subscribeRP(path, 1000);
+                checkout = node.getRPCManager().subscribe(path, 1000);
                 break;
             default:
                 Logger.severe("No checkout for type: " + CluckNode.rmtToString(type));

@@ -38,7 +38,7 @@ public class Network {
     /**
      * A Network provider.
      */
-    static interface Provider {
+    public static interface Provider {
 
         /**
          * Open a client socket to the specified target address and port.
@@ -78,7 +78,14 @@ public class Network {
     /**
      * The current network provider.
      */
-    static Provider prov = null;
+    private static Provider prov = null;
+    
+    static synchronized void setProvider(Provider pvdr) {
+        if (prov != null) {
+            throw new IllegalStateException("Provider already registered!");
+        }
+        prov = pvdr;
+    }
 
     /**
      * Return the current network provider, finding it if it doesn't exist. This
@@ -87,7 +94,7 @@ public class Network {
      *
      * @return the active network Provider.
      */
-    static synchronized Provider getProvider() {
+    public static synchronized Provider getProvider() {
         if (prov == null) {
             try {
                 prov = (Provider) Class.forName("ccre.net.DefaultNetworkProvider").newInstance();

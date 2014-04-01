@@ -40,7 +40,7 @@ public class IPProvider {
     private static final boolean useHigherPort;
 
     static {
-        CluckGlobals.node.publish("forced-remote-address", forcedAddress.getOutput());
+        CluckGlobals.getNode().publish("forced-remote-address", forcedAddress.getOutput());
         String os = System.getProperty("os.name");
         useHigherPort = os != null && os.startsWith("Mac ");
     }

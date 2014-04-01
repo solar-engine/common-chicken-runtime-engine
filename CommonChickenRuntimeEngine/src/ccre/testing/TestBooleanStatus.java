@@ -124,11 +124,13 @@ public class TestBooleanStatus extends BaseTest {
         status = new BooleanStatus(b, b2);
         assertTrue(cur[0], "Expected write when added!");
         assertTrue(cur[1], "Expected write when added!");
-        cur[0] = cur[1] = false;
+        cur[0] = false;
+        cur[1] = false;
         status.writeValue(true);
         assertTrue(cur[0], "Expected write!");
         assertTrue(cur[1], "Expected write!");
-        cur[0] = cur[1] = false;
+        cur[0] = false;
+        cur[1] = false;
         assertTrue(status.removeTarget(b), "Expected subscription!");
         assertFalse(status.removeTarget(b), "Expected no subscription!");
         status.writeValue(false);

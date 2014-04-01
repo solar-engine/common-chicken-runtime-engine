@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 Colby Skeggs
+ * Copyright 2013-2014 Colby Skeggs
  * 
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  * 
@@ -86,39 +86,12 @@ public class CLinkedList<T> extends CAbstractList<T> {
 
     @Override
     public Iterator<T> iterator() {
-        return new Iterator<T>() {
-            private Node<T> current = sentinel.next;
-            private int locmod = getModCount();
-
-            public boolean hasNext() {
-                if (locmod != getModCount()) {
-                    throw new ConcurrentModificationException();
-                }
-                return current != sentinel;
-            }
-
-            public T next() {
-                if (!hasNext()) {
-                    throw new NoSuchElementException();
-                }
-                T out = current.o;
-                current = current.next;
-                return out;
-            }
-
-            public void remove() {
-                notifyModified();
-                size--;
-                current = current.prev;
-                if (current == sentinel) {
-                    throw new IllegalStateException();
-                }
-                current.prev.next = current.next;
-                current.next.prev = current.prev;
-                current = current.next;
-                locmod++;
-            }
-        };
+        final int modCount = getModCount();
+        return new LinkedListIterator<T>(this.sentinel, modCount);
+    }
+    
+    void decrementSize() {
+        size--;
     }
 
     @Override
@@ -332,5 +305,47 @@ public class CLinkedList<T> extends CAbstractList<T> {
         toremove.prev.next = sentinel;
         sentinel.prev = toremove.prev;
         return toremove.o;
+    }
+
+    private class LinkedListIterator<T> implements Iterator<T> {
+
+        private final Node<T> sentinel;
+        private Node<T> current;
+        private int locmod;
+
+        LinkedListIterator(Node<T> sentinel, int lastmod) {
+            this.sentinel = sentinel;
+            current = sentinel.next;
+            this.locmod = lastmod;
+        }
+
+        public boolean hasNext() {
+            if (locmod != getModCount()) {
+                throw new ConcurrentModificationException();
+            }
+            return current != sentinel;
+        }
+
+        public T next() {
+            if (!hasNext()) {
+                throw new NoSuchElementException();
+            }
+            T out = current.o;
+            current = current.next;
+            return out;
+        }
+
+        public void remove() { // TODO: Make this fail for multiple removes?
+            notifyModified();
+            decrementSize();
+            current = current.prev;
+            if (current == sentinel) {
+                throw new IllegalStateException();
+            }
+            current.prev.next = current.next;
+            current.next.prev = current.prev;
+            current = current.next;
+            locmod++;
+        }
     }
 }

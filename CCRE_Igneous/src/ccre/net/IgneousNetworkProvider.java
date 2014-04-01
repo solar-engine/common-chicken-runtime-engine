@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 Colby Skeggs
+ * Copyright 2013-2014 Colby Skeggs
  * 
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  * 
@@ -47,7 +47,7 @@ public class IgneousNetworkProvider implements Network.Provider {
             return;
         }
         registered = true;
-        Network.prov = new IgneousNetworkProvider();
+        Network.setProvider(new IgneousNetworkProvider());
     }
 
     /**

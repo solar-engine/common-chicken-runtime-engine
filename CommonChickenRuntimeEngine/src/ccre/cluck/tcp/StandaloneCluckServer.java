@@ -45,7 +45,7 @@ public class StandaloneCluckServer {
         CluckGlobals.ensureInitializedCore();
         NetworkAutologger.register();
         ReflectionConsole.attach();
-        CluckGlobals.node.publish("status-report", new EventConsumer() {
+        CluckGlobals.getNode().publish("status-report", new EventConsumer() {
             public void eventFired() {
                 StringBuilder b = new StringBuilder("Standalone server online on [");
                 for (String addr : Network.listIPv4Addresses()) {

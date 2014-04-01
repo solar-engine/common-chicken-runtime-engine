@@ -125,11 +125,13 @@ public class TestFloatStatus extends BaseTest {
         status = new FloatStatus(b, b2);
         assertTrue(c1[0], "Expected write when added!");
         assertTrue(c1[1], "Expected write when added!");
-        c1[0] = c1[1] = false;
+        c1[0] = false;
+        c1[1] = false;
         status.writeValue(123.4f);
         assertTrue(c1[0], "Expected write!");
         assertTrue(c1[1], "Expected write!");
-        c1[0] = c1[1] = false;
+        c1[0] = false;
+        c1[1] = false;
         assertTrue(status.removeTarget(b), "Expected subscription!");
         assertFalse(status.removeTarget(b), "Expected no subscription!");
         status.writeValue(-0.002f);

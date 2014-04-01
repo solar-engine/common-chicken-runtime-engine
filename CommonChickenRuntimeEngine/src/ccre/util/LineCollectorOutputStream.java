@@ -37,7 +37,7 @@ public abstract class LineCollectorOutputStream extends OutputStream {
     @Override
     public final synchronized void write(int b) throws IOException {
         if (b == '\n') {
-            collect(new String(running, 0, run_i, "US-ASCII"));
+            collect(new String(running, 0, run_i));
             run_i = 0;
         } else {
             if (run_i >= running.length) {

@@ -39,16 +39,22 @@ import java.io.OutputStream;
 public abstract class SimpleProcedure implements RemoteProcedure {
 
     /**
+     * The result returned when a SimpleProcedure call times out.
+     */
+    public static final Object TIMED_OUT = null;
+    
+    /**
      * Invoke the specified RemoteProcedure with the specified byte array and
-     * return the result, or null if the request times out.
+     * return the result, or null (TIMED_OUT) if the request times out.
      *
      * @param rp The procedure to invoke.
      * @param in The input to pass it.
      * @param timeout The maximum number of milliseconds to wait. (Note: zero
      * means don't wait for a result, not wait indefinitely.)
-     * @return The output from the procedure.
+     * @return The output from the procedure, or null if the request times out.
      * @throws java.lang.InterruptedException If the current thread is
      * interrupted while waiting for a response.
+     * @see #TIMED_OUT
      */
     public static byte[] invoke(RemoteProcedure rp, byte[] in, int timeout) throws InterruptedException {
         final boolean[] b = new boolean[1];
@@ -75,7 +81,7 @@ public abstract class SimpleProcedure implements RemoteProcedure {
                 }
             }
             if (!b[0]) {
-                return null;
+                return (byte[]) TIMED_OUT;
             }
         }
         return out.toByteArray();

@@ -61,7 +61,7 @@ public class ReflectionConsole {
      * Create a new ReflectionConsole and attach it to the global cluck node.
      */
     public static void attach() {
-        new ReflectionConsole().share(CluckGlobals.node);
+        new ReflectionConsole().share(CluckGlobals.getNode());
     }
 
     private final CArrayList<Object> results = new CArrayList<Object>();

@@ -23,6 +23,7 @@ import ccre.ctrl.*;
 import ccre.device.DeviceException;
 import ccre.device.DeviceRegistry;
 import ccre.event.*;
+import ccre.igneous.IgneousLauncher;
 import ccre.instinct.InstinctRegistrar;
 
 /**
@@ -229,6 +230,16 @@ public abstract class IgneousCore implements InstinctRegistrar {
      */
     protected final BooleanOutput makeDigitalOutput(int id) {
         return launcher.makeDigitalOutput(id);
+    }
+
+    /**
+     * Get a reference to the analog input that reads the current battery
+     * voltage, scaled to represent the real battery voltage.
+     *
+     * @return The current battery voltage.
+     */
+    protected final FloatInputPoll getBatteryVoltage() {
+        return launcher.getBatteryVoltage();
     }
 
     /**

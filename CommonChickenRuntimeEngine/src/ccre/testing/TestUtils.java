@@ -18,11 +18,14 @@
  */
 package ccre.testing;
 
+import ccre.log.LogLevel;
+import ccre.log.Logger;
 import ccre.util.CArrayList;
 import ccre.util.CArrayUtils;
 import ccre.util.CList;
 import ccre.util.Utils;
 import java.util.Iterator;
+import java.util.Map;
 
 /**
  * Tests the Utils class and the CArrayUtils class.
@@ -43,16 +46,24 @@ public class TestUtils extends BaseTest {
         for (int i = 0; i < 5; i++) {
             float here = Utils.currentTimeSeconds.readValue();
             try {
-                Thread.sleep(100);
+                Thread.sleep(99); // 99 because it causes Java SE to make the request more accurate...
             } catch (InterruptedException ex) {
                 assertFail("Interrupted during timing test.");
                 throw ex;
             }
             float there = Utils.currentTimeSeconds.readValue();
-            float dt = Math.abs(there - here - (100 / 1000f));
+            float dt = Math.abs(there - here - (99 / 1000f));
             if (dt < 0.002) {
                 success = true;
                 break;
+            } else {
+                Logger.warning("Failed timing test: " + here + " to " + there + " is " + (there - here) + " and expected " + (100 / 1000f));
+                /*Map<Thread, StackTraceElement[]> allStackTraces = Thread.getAllStackTraces();
+                for (Map.Entry<Thread, StackTraceElement[]> elem : allStackTraces.entrySet()) {
+                    Throwable tmp = new Throwable("Trace for " + elem.getKey());
+                    tmp.setStackTrace(elem.getValue());
+                    Logger.log(LogLevel.INFO, "Traces", tmp);
+                }*/
             }
         }
         assertTrue(success, "Five timing check attempts failed!");
@@ -69,7 +80,7 @@ public class TestUtils extends BaseTest {
         String ss = " This is a    very  long test sentence ... sort of! ";
         String[] split = Utils.split(ss, ' ');
         assertEqual(split.length, 16, "Bad split length!");
-        StringBuffer sb = new StringBuffer();
+        StringBuffer sb = new StringBuffer(50);
         for (String p : split) {
             sb.append(p).append(' ');
         }

@@ -91,18 +91,7 @@ public class FloatStatus implements FloatOutput, FloatInput, FloatTuner {
      * @see #writeValue(float)
      */
     private float value = 0;
-    /**
-     * Has this FloatStatus been modified since this flag was last cleared?
-     */
-    private boolean hasBeenModified;
 
-    /**
-     * @return if the float status has been modified since the modification flag
-     * was last cleared.
-     */
-    public final boolean getHasBeenModified() {
-        return hasBeenModified;
-    }
     /**
      * The list of all the FloatOutputs to modify when this FloatStatus changes
      * value.
@@ -119,10 +108,9 @@ public class FloatStatus implements FloatOutput, FloatInput, FloatTuner {
 
     @Override
     public final synchronized void writeValue(float newValue) {
-        if (value == newValue) {
+        if (Float.floatToIntBits(value) == Float.floatToIntBits(newValue)) {
             return; // Do nothing. We want to ignore the value if it's the same.
         }
-        hasBeenModified = true;
         value = newValue;
         if (consumers != null) {
             for (FloatOutput fws : consumers) {

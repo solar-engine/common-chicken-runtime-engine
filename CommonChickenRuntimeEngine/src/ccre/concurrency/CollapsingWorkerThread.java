@@ -50,6 +50,10 @@ public abstract class CollapsingWorkerThread extends ReporterThread implements E
      * @see #CollapsingWorkerThread(java.lang.String, boolean)
      */
     private final boolean shouldIgnoreWhileRunning;
+    /**
+     * The internal object to use for notification and synchronization.
+     */
+    private final Object lockObject = new Object();
 
     /**
      * Create a new CollapsingWorkerThread with the given name. Will ignore any
@@ -102,12 +106,14 @@ public abstract class CollapsingWorkerThread extends ReporterThread implements E
     /**
      * Trigger the work. When possible, the thread will run its doWork method.
      */
-    public synchronized void trigger() {
-        needsToRun = true;
-        if (!isAlive()) {
-            start();
-        } else {
-            notifyAll();
+    public void trigger() {
+        synchronized (lockObject) {
+            needsToRun = true;
+            if (!isAlive()) {
+                start();
+            } else {
+                lockObject.notifyAll();
+            }
         }
     }
     /**
@@ -131,9 +137,9 @@ public abstract class CollapsingWorkerThread extends ReporterThread implements E
     @Override
     protected final void threadBody() throws InterruptedException {
         while (true) {
-            synchronized (this) {
+            synchronized (lockObject) {
                 while (!needsToRun) {
-                    wait();
+                    lockObject.wait();
                 }
                 needsToRun = false;
             }

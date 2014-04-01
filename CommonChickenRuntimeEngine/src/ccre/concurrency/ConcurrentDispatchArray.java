@@ -45,8 +45,8 @@ public final class ConcurrentDispatchArray<E> implements CCollection<E> {
     private volatile Object[] data = new Object[0];
 
     public Iterator<E> iterator() {
+        final Object[] dat = data;
         return new Iterator<E>() {
-            private Object[] dat = data;
             private int i = 0;
 
             public boolean hasNext() {
@@ -62,29 +62,33 @@ public final class ConcurrentDispatchArray<E> implements CCollection<E> {
             }
 
             public void remove() {
-                Object tgt = dat[i - 1];
-                Object[] old, dout;
-                do {
-                    old = data;
-                    dout = new Object[old.length - 1];
-                    int j;
-                    for (j = 0; j < old.length; j++) {
-                        Object cur = old[j];
-                        if (cur == tgt) {
-                            break;
-                        }
-                        dout[j] = cur;
-                    }
-                    if (j == old.length) {
-                        // already removed. do nothing!
-                        return;
-                    }
-                    for (j++; j < old.length; j++) {
-                        dout[j - 1] = old[j];
-                    }
-                } while (!compareAndSetArray(old, dout));
+                removeSpecificElement(dat[i - 1]);
             }
         };
+    }
+
+    private boolean removeSpecificElement(Object tgt) {
+        Object[] previous, active;
+        do {
+            previous = data;
+            active = new Object[previous.length - 1];
+            int j;
+            for (j = 0; j < previous.length; j++) {
+                Object cur = previous[j];
+                if (cur == tgt) {
+                    break;
+                }
+                active[j] = cur;
+            }
+            if (j == previous.length) {
+                // already removed. do nothing!
+                return false;
+            }
+            for (j++; j < previous.length; j++) {
+                active[j - 1] = previous[j];
+            }
+        } while (!compareAndSetArray(previous, active));
+        return true;
     }
 
     /**
@@ -137,7 +141,7 @@ public final class ConcurrentDispatchArray<E> implements CCollection<E> {
     }
 
     public void clear() {
-        data = new Object[data.length];
+        data = new Object[0];
     }
 
     public boolean addAll(CCollection<? extends E> c) {

@@ -35,7 +35,14 @@ public abstract class StorageProvider {
     /**
      * The active storage provider.
      */
-    static StorageProvider provider;
+    private static StorageProvider provider;
+    
+    static synchronized void setProvider(StorageProvider provider) {
+        if (StorageProvider.provider != null) {
+            throw new IllegalStateException("StorageProvider already registered!");
+        }
+        StorageProvider.provider = provider;
+    }
 
     /**
      * If a provider is not yet registered, register the default provider.

@@ -34,7 +34,7 @@ public final class CluckGlobals {
     /**
      * The current CluckNode.
      */
-    public static CluckNode node;
+    private static CluckNode node;
     /**
      * The current CluckTCPServer.
      */
@@ -51,6 +51,15 @@ public final class CluckGlobals {
         if (node == null) {
             node = new CluckNode();
         }
+    }
+
+    /**
+     * Get the current global CluckNode.
+     *
+     * @return The global CluckNode.
+     */
+    public static synchronized CluckNode getNode() {
+        return node;
     }
 
     /**

@@ -49,7 +49,7 @@ public class IgneousStorageProvider extends StorageProvider {
             return;
         }
         registered = true;
-        StorageProvider.provider = new IgneousStorageProvider();
+        StorageProvider.setProvider(new IgneousStorageProvider());
     }
 
     protected StorageSegment open(String name) {

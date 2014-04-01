@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 Colby Skeggs
+ * Copyright 2013-2014 Colby Skeggs
  * 
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  * 
@@ -139,15 +139,16 @@ public class CHashMap<K, V> implements Iterable<K> {
         }
         if (size >= map.length * 0.75) {
             Node<K, V>[] nmap = CArrayUtils.castToGeneric(new Node<?, ?>[map.length * 2 + 1]);
-            for (Node<K, V> old : map) {
-                while (old != null) {
-                    int h = old.key.hashCode();
+            for (Node<K, V> oldnode : map) {
+                Node<K, V> active = oldnode;
+                while (active != null) {
+                    int h = active.key.hashCode();
                     if (h < 0) {
                         h = -h;
                     }
                     h %= nmap.length;
-                    nmap[h] = new Node<K, V>(old.key, old.value, nmap[h]);
-                    old = old.next;
+                    nmap[h] = new Node<K, V>(active.key, active.value, nmap[h]);
+                    active = active.next;
                 }
             }
             map = nmap;

@@ -56,7 +56,7 @@ public class BootLogger implements LoggingTarget {
      * Create a new BootLogger that publishes it over the CluckGlobal node.
      */
     public BootLogger() {
-        this(CluckGlobals.node);
+        this(CluckGlobals.getNode());
     }
 
     /**

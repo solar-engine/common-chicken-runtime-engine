@@ -151,4 +151,28 @@ public class Utils {
     public static <T> Class<T> getGenericClass(T obj) {
         return (Class<T>) obj.getClass();
     }
+    
+    /**
+     * Extracts the big-endian integer starting at offset from array. This is equivalent to:
+     * <code>((array[offset] & 0xff) << 24) | ((array[offset+1] & 0xff) << 16) | ((array[offset+2] & 0xff) << 8) | (array[offset+3] & 0xff)</code>
+     * @param array The array to extract data from.
+     * @param offset The offset in the array of the most significant byte.
+     * @return The integer extracted from the array.
+     */
+    public static int bytesToInt(byte[] array, int offset) {
+        int highWord = ((array[offset] & 0xff) << 24) | ((array[offset+1] & 0xff) << 16);
+        int lowWord = ((array[offset+2] & 0xff) << 8) | (array[offset+3] & 0xff);
+        return highWord | lowWord;
+    }
+    
+    /**
+     * Extracts the floating-point number starting at offset from array. This is equivalent to:
+     * <code>Float.intBitsToFloat(Utils.bytesToInt(array, offset))</code>
+     * @param array The array to extract data from.
+     * @param offset The offset in the array of the most significant byte of the intermediate integer.
+     * @return The float extracted from the array.
+     */
+    public static float bytesToFloat(byte[] array, int offset) {
+        return Float.intBitsToFloat(Utils.bytesToInt(array, offset));
+    }
 }

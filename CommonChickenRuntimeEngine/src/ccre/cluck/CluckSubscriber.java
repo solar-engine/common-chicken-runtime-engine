@@ -29,9 +29,21 @@ import ccre.log.Logger;
 public abstract class CluckSubscriber implements CluckLink {
 
     /**
+     * Create a new CluckSubscriber ready to be attached to the specified node.
+     *
+     * @param node The CluckNode that this should be shared over.
+     */
+    public CluckSubscriber(CluckNode node) {
+        if (node == null) {
+            throw new NullPointerException();
+        }
+        this.node = node;
+    }
+
+    /**
      * The CluckNode that this is attached to.
      */
-    private CluckNode node;
+    public final CluckNode node;
     /**
      * The link name of this subscriber.
      */
@@ -49,19 +61,18 @@ public abstract class CluckSubscriber implements CluckLink {
     }
 
     /**
-     * Attach this subscriber to the specified name on the specified node.
+     * Attach this subscriber to the specified name on the already-attached
+     * node.
      *
-     * @param node The node to attach to.
      * @param name The name to attach with.
      */
-    public final void attach(CluckNode node, String name) {
-        if (node == null || name == null) {
+    public final void attach(String name) {
+        if (name == null) {
             throw new NullPointerException();
         }
-        if (this.node != null) {
-            throw new IllegalStateException("Node already attached!");
+        if (linkName != null) {
+            throw new IllegalStateException("Link name already set!");
         }
-        this.node = node;
         this.linkName = name;
         node.addLink(this, name);
     }

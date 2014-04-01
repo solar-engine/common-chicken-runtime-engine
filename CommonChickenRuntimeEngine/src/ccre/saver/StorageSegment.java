@@ -29,7 +29,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 
 /**
  * A storage segment - a place to store various pieces of data. One of these can
@@ -57,16 +56,7 @@ public abstract class StorageSegment {
      */
     public String getStringForKey(String key) {
         byte[] byts = getBytesForKey(key);
-        if (byts == null) {
-            return null;
-        } else {
-            try {
-                return new String(byts, "US-ASCII");
-            } catch (UnsupportedEncodingException ex) {
-                Logger.log(LogLevel.WARNING, "Could not use US-ASCII!", ex);
-                return null;
-            }
-        }
+        return byts == null ? null : new String(byts);
     }
 
     /**
@@ -103,11 +93,7 @@ public abstract class StorageSegment {
      * @param value the String to store under this key.
      */
     public void setStringForKey(String key, String value) {
-        try {
-            setBytesForKey(key, value.getBytes("US-ASCII"));
-        } catch (UnsupportedEncodingException ex) {
-            Logger.log(LogLevel.WARNING, "Could not use US-ASCII!", ex);
-        }
+        setBytesForKey(key, value.getBytes());
     }
 
     /**
@@ -197,36 +183,22 @@ public abstract class StorageSegment {
      * @param holder the holder to save.
      */
     public void attachFloatHolder(String name, final FloatStatus holder) {
+        // TODO: Fix this up to remove the default field, when it won't break the robot code.
         final String key = "~h:" + name;
         DataInputStream din = getDataInputForKey(key);
-        Float default_ = null;
-        final Float findefault_ = holder.readValue();
-        if (din == null) {
-            if (holder.getHasBeenModified()) {
-                float value = holder.readValue();
-                DataOutputStream dout = setDataOutputForKey(key);
-                try {
-                    dout.writeFloat(value); // value
-                    dout.writeBoolean(true); // has default
-                    dout.writeFloat(value); // default
-                    dout.close();
-                } catch (IOException ex) {
-                    Logger.log(LogLevel.WARNING, "Exception in self-contained float saving!", ex);
-                }
-            }
-        } else {
-            float value;
+        final float originalValue = holder.readValue();
+        if (din != null) {
             try {
-                value = din.readFloat();
+                float value = din.readFloat();
                 if (din.readBoolean()) {
-                    default_ = din.readFloat();
+                    float default_ = din.readFloat();
+                    // If the default is the same as the holder's default, then load the value
+                    if (Float.floatToIntBits(default_) == Float.floatToIntBits(originalValue)) {
+                        Logger.config("Loaded config for " + name + ": def:" + default_ + " old:" + originalValue + " new:" + value);
+                        holder.writeValue(value);
+                    }
+                    // Otherwise, the default has changed from the holder, and therefore we want the updated value from the holder
                 }
-                // If the default is the same as the holder's default, or the holder doesn't have a value, then load the value
-                if ((default_ != null && default_ == holder.readValue()) || !holder.getHasBeenModified()) {
-                    Logger.config("Loaded float config from data: " + default_ + "/" + holder.readValue() + "/" + holder.getHasBeenModified() + "/" + value);
-                    holder.writeValue(value);
-                }
-                // Otherwise, the holder has been modified and the default has changed from the holder, and therefore we want the updated value from the holder
             } catch (IOException ex) {
                 Logger.log(LogLevel.WARNING, "Exception in self-contained float saving!", ex);
             }
@@ -236,12 +208,8 @@ public abstract class StorageSegment {
                 DataOutputStream dout = setDataOutputForKey(key);
                 try {
                     dout.writeFloat(value); // value
-                    if (findefault_ != null) {
-                        dout.writeBoolean(true); // has default
-                        dout.writeFloat(findefault_); // default
-                    } else {
-                        dout.writeBoolean(false); // has default
-                    }
+                    dout.writeBoolean(true); // has default
+                    dout.writeFloat(originalValue); // default
                     dout.close();
                 } catch (IOException ex) {
                     Logger.log(LogLevel.SEVERE, "Exception in self-contained float saving!", ex);

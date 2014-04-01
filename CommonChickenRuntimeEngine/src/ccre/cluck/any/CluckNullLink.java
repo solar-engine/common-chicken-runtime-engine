@@ -29,8 +29,8 @@ import ccre.cluck.CluckNode;
  * <code>
  * CluckNode alpha = new CluckNode();<br>
  * CluckNode beta = new CluckNode();<br>
- * CluckNullLink alphaLink = new CluckNullLink(alpha, "alpha-to-beta");<br>
- * CluckNullLink betaLink = new CluckNullLink(beta, "beta-to-alpha");<br>
+ * CluckNullLink alphaLink = new CluckNullLink(alpha).name("alpha-to-beta");<br>
+ * CluckNullLink betaLink = new CluckNullLink(beta).name("beta-to-alpha");<br>
  * betaLink.attach(alphaLink);
  * <br>
  * EventConsumer test = new EventLogger(LogLevel.INFO, "Pseudo-networked
@@ -41,7 +41,7 @@ import ccre.cluck.CluckNode;
  * </code><br>
  * This will log "Pseudo-networked test!" at LogLevel INFO.
  *
- * Alternatively, the third and fourth lines of that example can be replaced
+ * Alternatively, the third through fifth lines of that example can be replaced
  * with:  <code>
  * CluckNullLink.connect(alpha, "alpha-to-beta", beta, "beta-to-alpha");
  * </code> And it will work the same.
@@ -59,7 +59,7 @@ public final class CluckNullLink implements CluckLink {
      * @param betaToAlpha The link name for connecting from beta to alpha.
      */
     public static void connect(CluckNode alpha, String alphaToBeta, CluckNode beta, String betaToAlpha) {
-        new CluckNullLink(beta, betaToAlpha).attach(new CluckNullLink(alpha, alphaToBeta));
+        new CluckNullLink(beta).name(betaToAlpha).attach(new CluckNullLink(alpha).name(alphaToBeta));
     }
 
     /**
@@ -85,16 +85,15 @@ public final class CluckNullLink implements CluckLink {
     }
 
     /**
-     * Create a new link attached to the specified CluckNode, and add the link
-     * to the CluckNode under the specified name.
+     * Add this link to the attached CluckNode under the specified name.
      *
-     * @param node The node to attach to.
      * @param linkName The link name to use.
+     * @return This link, for method chaining.
      */
-    public CluckNullLink(CluckNode node, String linkName) {
-        this.node = node;
+    public CluckNullLink name(String linkName) {
         this.linkName = linkName;
         node.addLink(this, linkName);
+        return this;
     }
 
     /**
@@ -108,11 +107,15 @@ public final class CluckNullLink implements CluckLink {
         if (paired != null) {
             throw new IllegalStateException("Link is already attached!");
         }
-        paired = pairWith;
-        if (pairWith.paired != null) {
+        paired = pairWith.internalPair(this);
+        return this;
+    }
+
+    private CluckNullLink internalPair(CluckNullLink other) {
+        if (paired != null) {
             throw new IllegalStateException("Other link is already attached!");
         }
-        pairWith.paired = this;
+        paired = other;
         return this;
     }
 

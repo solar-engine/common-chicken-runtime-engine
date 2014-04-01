@@ -21,6 +21,7 @@ package ccre.holders;
 import ccre.chan.FloatStatus;
 import ccre.cluck.CluckNode;
 import ccre.event.EventConsumer;
+import ccre.log.Logger;
 import ccre.saver.StorageProvider;
 import ccre.saver.StorageSegment;
 
@@ -80,28 +81,11 @@ public final class TuningContext { // TODO: Support booleans for tuning.
     }
 
     /**
-     * Get a FloatStatus with the specified name, default value, and the name of
-     * a encoded channel for a FloatInputProducer that should be an option to
-     * tune the variable to. This will be tunable over the network and saved on
-     * the cRIO once flush() is called.
-     *
-     * @param name the name of the tunable value.
-     * @param default_ the default value.
-     * @param targetref the name of the shared value for the tuning's default.
-     * @return the FloatStatus representing the current value.
-     */
-    public FloatStatus getFloat(String name, float default_, String targetref) {
-        FloatStatus out = new FloatStatus(default_);
-        seg.attachFloatHolder(name, out);
-        enc.publish(name, out);
-        return out;
-    }
-
-    /**
      * Flush the StorageSegment - save the current value.
      */
     public void flush() {
         seg.flush();
+        Logger.info("Flushed storage segment.");
     }
 
     /**
@@ -127,7 +111,7 @@ public final class TuningContext { // TODO: Support booleans for tuning.
      * @return This TuningContext. Returned for method chaining purposes.
      */
     public TuningContext publishSavingEvent(String name) {
-        enc.publish("Save Tuning for " + name, getFlushEvent()); // TODO: Say something when tuned.
+        enc.publish("Save Tuning for " + name, getFlushEvent());
         return this;
     }
 }

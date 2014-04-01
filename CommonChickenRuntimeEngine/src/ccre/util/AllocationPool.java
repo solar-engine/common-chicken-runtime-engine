@@ -26,7 +26,7 @@ package ccre.util;
  * @author skeggsc
  * @param <T> the type that gets allocated.
  */
-public abstract class AllocationPool<T> { // TODO: Test and improve this implementation.
+public abstract class AllocationPool<T> {
 
     /**
      * The list of available instances.

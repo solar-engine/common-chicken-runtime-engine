@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 Colby Skeggs
+ * Copyright 2013-2014 Colby Skeggs
  * 
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  * 
@@ -39,7 +39,7 @@ public class MultiTargetLogger implements LoggingTarget {
     /**
      * The list of targets that should receive logging.
      */
-    private LoggingTarget[] targets;
+    private final LoggingTarget[] targets;
 
     public void log(LogLevel level, String message, Throwable thr) {
         for (LoggingTarget t : targets) {

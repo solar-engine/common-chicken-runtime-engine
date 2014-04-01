@@ -109,7 +109,7 @@ public class EmulatorLauncher implements IgneousLauncher {
      */
     public void start() {
         CluckGlobals.setupServer();
-        new CluckTCPServer(CluckGlobals.node, 1540).start();
+        new CluckTCPServer(CluckGlobals.getNode(), 1540).start();
         core.duringAutonomous = this.duringAutonomous;
         core.duringDisabled = this.duringDisabled;
         core.duringTeleop = this.duringTeleop;
@@ -379,5 +379,10 @@ public class EmulatorLauncher implements IgneousLauncher {
             }
         }
         return devReg;
+    }
+
+    @Override
+    public FloatInputPoll getBatteryVoltage() {
+        return makeAnalogInput(8, 8);
     }
 }

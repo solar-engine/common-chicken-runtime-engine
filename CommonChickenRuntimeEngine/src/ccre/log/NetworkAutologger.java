@@ -21,6 +21,7 @@ package ccre.log;
 import ccre.cluck.*;
 import ccre.concurrency.CollapsingWorkerThread;
 import ccre.util.CHashMap;
+import ccre.util.UniqueIds;
 
 /**
  * A logging tool that shares all logging between networked cluck systems
@@ -45,7 +46,7 @@ public final class NetworkAutologger implements LoggingTarget {
             return;
         }
         registered = true;
-        Logger.addTarget(new NetworkAutologger(CluckGlobals.node));
+        Logger.addTarget(new NetworkAutologger(CluckGlobals.getNode()));
     }
     /**
      * The current list of remotes to send logging messages to.
@@ -56,6 +57,33 @@ public final class NetworkAutologger implements LoggingTarget {
      * to.
      */
     private final CHashMap<String, LoggingTarget> targetCache = new CHashMap<String, LoggingTarget>();
+    private static final LoggingTarget localLoggingTarget = new LoggingTarget() {
+        public void log(LogLevel level, String message, Throwable throwable) {
+            Logger.log(level, "[NET] " + message, throwable);
+        }
+
+        public void log(LogLevel level, String message, String extended) {
+            Logger.logExt(level, "[NET] " + message, extended);
+        }
+    };
+
+    /**
+     * Internal use only. This rechecks the network for the current set of other
+     * NetworkAutologgers.
+     *
+     * @param node The CluckNode to search on.
+     * @param localpath The local path, to ignore in the remote list.
+     * @throws InterruptedException If the thread is interrupted while searching
+     * for remotes.
+     */
+    void autologgingRecheck(CluckNode node, String localpath) throws InterruptedException {
+        remotes = node.searchRemotes((int) CluckNode.RMT_LOGTARGET, 500);
+        for (String s : remotes) {
+            if (s.indexOf("auto-") != -1 && !localpath.equals(s) && targetCache.get(s) == null) {
+                targetCache.put(s, node.subscribeLT(s, LogLevel.FINEST));
+            }
+        }
+    }
 
     /**
      * Create a new NetworkAutologger hooked up to the specified node.
@@ -63,21 +91,16 @@ public final class NetworkAutologger implements LoggingTarget {
      * @param node The node to attach to.
      */
     public NetworkAutologger(final CluckNode node) {
-        final String here = Integer.toHexString(hashCode()) + "-" + Integer.toHexString((int) System.currentTimeMillis());
-        final String auto = "auto-" + here;
+        final String here = UniqueIds.global.nextHexId();
+        final String localpath = "auto-" + here;
         final CollapsingWorkerThread autologger = new CollapsingWorkerThread("network-autologger") {
             @Override
             protected void doWork() throws Throwable {
-                remotes = node.searchRemotes((int) CluckNode.RMT_LOGTARGET, 500);
-                for (String s : remotes) {
-                    if (s.indexOf("auto-") != -1 && !auto.equals(s) && targetCache.get(s) == null) {
-                        targetCache.put(s, node.subscribeLT(s, LogLevel.FINEST));
-                    }
-                }
+                autologgingRecheck(node, localpath);
             }
         };
         autologger.start();
-        new CluckSubscriber() {
+        new CluckSubscriber(node) {
             @Override
             protected void receive(String source, byte[] data) {
             }
@@ -88,16 +111,8 @@ public final class NetworkAutologger implements LoggingTarget {
                     autologger.trigger();
                 }
             }
-        }.attach(node, "netwatch-" + here);
-        node.publish(auto, new LoggingTarget() {
-            public void log(LogLevel level, String message, Throwable throwable) {
-                Logger.log(level, "[NET] " + message, throwable);
-            }
-
-            public void log(LogLevel level, String message, String extended) {
-                Logger.logExt(level, "[NET] " + message, extended);
-            }
-        });
+        }.attach("netwatch-" + here);
+        node.publish(localpath, localLoggingTarget);
     }
 
     public void log(LogLevel level, String message, Throwable throwable) {
@@ -122,6 +137,9 @@ public final class NetworkAutologger implements LoggingTarget {
 
     public void log(LogLevel level, String message, String extended) {
         if (message.startsWith("[NET] ")) { // From the network, so don't broadcast.
+            return;
+        }
+        if (message.startsWith("[LOCAL] ")) { // Should not be sent over the network.
             return;
         }
         String[] l = remotes;

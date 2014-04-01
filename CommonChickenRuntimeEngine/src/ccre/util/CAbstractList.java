@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 Colby Skeggs
+ * Copyright 2013-2014 Colby Skeggs
  * 
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  * 
@@ -24,7 +24,7 @@ import java.util.NoSuchElementException;
 
 /**
  * An abstract list. This is the superclass of the list implementations in this
- * class.
+ * package.
  *
  * @author skeggsc
  * @param <T> the element type.
@@ -36,6 +36,7 @@ public abstract class CAbstractList<T> implements CList<T> {
      * ensure that changes are not made during iteration.
      */
     private int modCount = 0;
+    private final Object modCountLock = new Object();
 
     /**
      * Increment the modification count.
@@ -43,7 +44,9 @@ public abstract class CAbstractList<T> implements CList<T> {
      * @see #modCount
      */
     protected void notifyModified() {
-        modCount++;
+        synchronized (modCountLock) {
+            modCount++;
+        }
     }
 
     /**

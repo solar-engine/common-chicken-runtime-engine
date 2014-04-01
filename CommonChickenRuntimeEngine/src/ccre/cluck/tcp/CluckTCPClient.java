@@ -57,9 +57,9 @@ public class CluckTCPClient extends ReporterThread {
      */
     private String remote;
     /**
-     * The requested delay between each connection to the server.
+     * The delay between each connection to the server.
      */
-    public int reconnectDelayMillis = 5000;
+    private int reconnectDelayMillis = 5000;
     /**
      * The hint for what the other end of the connection should call this link.
      */
@@ -99,6 +99,19 @@ public class CluckTCPClient extends ReporterThread {
             }
             sock = null;
         }
+    }
+
+    /**
+     * Set the delay between times when this client reconnects to the server.
+     *
+     * @param millis The positive integer of milliseconds to wait.
+     * @throws IllegalArgumentException If millis <= 0.
+     */
+    public void setReconnectDelay(int millis) throws IllegalArgumentException {
+        if (millis <= 0) {
+            throw new IllegalArgumentException("Reconnection delay must be >= 0.");
+        }
+        reconnectDelayMillis = millis;
     }
 
     @Override

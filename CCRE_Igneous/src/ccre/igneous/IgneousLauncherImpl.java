@@ -280,6 +280,15 @@ class IgneousLauncherImpl extends IterativeRobot implements IgneousLauncher {
         };
     }
 
+    public FloatInputPoll getBatteryVoltage() {
+        return new FloatInputPoll() {
+            DriverStation d = DriverStation.getInstance();
+            public float readValue() {
+                return (float) d.getBatteryVoltage();
+            }
+        };
+    }
+
     public FloatInputPoll makeAnalogInput(int id, int averageBits) {
         final AnalogChannel chan = new AnalogChannel(id);
         chan.setAverageBits(averageBits);

@@ -60,7 +60,7 @@ public class SuiteOfTests { // TODO: This package needs more tests!
             new TestMixing(),
             // ModeDispatcher - Needed!
             // MultipleSourceBooleanController - Needed!
-            // Ticker - Needed!
+            new TestTicker(),
 
             // ccre.event
             new TestEvent(),

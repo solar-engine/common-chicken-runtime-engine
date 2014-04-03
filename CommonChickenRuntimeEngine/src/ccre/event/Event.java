@@ -19,7 +19,10 @@
 package ccre.event;
 
 import ccre.concurrency.ConcurrentDispatchArray;
+import ccre.log.LogLevel;
+import ccre.log.Logger;
 import ccre.util.CArrayUtils;
+import java.util.Iterator;
 
 /**
  * An implementation of an EventSource. This can be fired using the .produce()
@@ -121,5 +124,31 @@ public class Event implements EventSource, EventConsumer, Runnable {
     @Override
     public void eventFired() {
         produce();
+    }
+
+    /**
+     * Same as produce, but if an exception is thrown, the event will be
+     * DETACHED and reported as such!
+     *
+     * @return If anything was detached.
+     * @see #produce()
+     */
+    public boolean produceWithFailureRecovery() {
+        boolean found = false;
+        for (Iterator<EventConsumer> it = consumers.iterator(); it.hasNext();) {
+            EventConsumer ec = it.next();
+            try {
+                ec.eventFired();
+            } catch (Throwable thr) {
+                Logger.log(LogLevel.SEVERE, "Event Subscribed Detached: " + ec, thr);
+                it.remove();
+                found = true;
+            }
+        }
+        return found;
+    }
+
+    public void clearListeners() {
+        consumers.clear();
     }
 }

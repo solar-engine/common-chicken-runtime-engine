@@ -20,6 +20,7 @@ package ccre.cluck;
 
 import ccre.chan.*;
 import ccre.cluck.rpc.RPCManager;
+import ccre.concurrency.ConcurrentDispatchArray;
 import ccre.event.*;
 import ccre.holders.CompoundFloatTuner;
 import ccre.holders.FloatTuner;
@@ -443,7 +444,7 @@ public final class CluckNode {
      * @param source The EventSource.
      */
     public void publish(final String name, EventSource source) {
-        final CArrayList<String> remotes = new CArrayList<String>();
+        final ConcurrentDispatchArray<String> remotes = new ConcurrentDispatchArray<String>();
         source.addListener(new EventConsumer() {
             public void eventFired() {
                 for (String remote : remotes) {
@@ -619,7 +620,7 @@ public final class CluckNode {
      * @param prod The BooleanInput.
      */
     public void publish(final String name, final BooleanInput prod) {
-        final CArrayList<String> remotes = new CArrayList<String>();
+        final ConcurrentDispatchArray<String> remotes = new ConcurrentDispatchArray<String>();
         prod.addTarget(new BooleanOutput() {
             public void writeValue(boolean value) {
                 for (String remote : remotes) {
@@ -658,7 +659,7 @@ public final class CluckNode {
      * @param prod The BooleanInputProducer.
      */
     public void publish(final String name, final BooleanInputProducer prod) {
-        final CArrayList<String> remotes = new CArrayList<String>();
+        final ConcurrentDispatchArray<String> remotes = new ConcurrentDispatchArray<String>();
         prod.addTarget(new BooleanOutput() {
             public void writeValue(boolean value) {
                 for (String remote : remotes) {
@@ -786,7 +787,7 @@ public final class CluckNode {
      * @see #publish(java.lang.String, ccre.chan.FloatInputProducer)
      */
     public void publish(final String name, final FloatInput prod) {
-        final CArrayList<String> remotes = new CArrayList<String>();
+        final ConcurrentDispatchArray<String> remotes = new ConcurrentDispatchArray<String>();
         prod.addTarget(new FloatOutput() {
             public void writeValue(float value) {
                 for (String remote : remotes) {
@@ -828,7 +829,7 @@ public final class CluckNode {
      * @see #publish(java.lang.String, ccre.chan.FloatInput)
      */
     public void publish(final String name, final FloatInputProducer prod) {
-        final CArrayList<String> remotes = new CArrayList<String>();
+        final ConcurrentDispatchArray<String> remotes = new ConcurrentDispatchArray<String>();
         prod.addTarget(new FloatOutput() {
             public void writeValue(float value) {
                 for (String remote : remotes) {

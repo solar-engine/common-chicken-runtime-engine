@@ -65,47 +65,7 @@ public final class Ticker implements EventSource {
      * @param fixedRate Should the rate be corrected?
      */
     public Ticker(final int interval, final boolean fixedRate) {
-        this.main = new ReporterThread((fixedRate ? "FixedTicker-" : "Ticker-") + interval) {
-            @Override
-            protected void threadBody() throws InterruptedException {
-                if (fixedRate) {
-                    long next = System.currentTimeMillis() + interval;
-                    while (!isKilled) {
-                        long rem = next - System.currentTimeMillis();
-                        if (rem > 0) {
-                            Thread.sleep(rem);
-                            continue;
-                        }
-                        cycle();
-                        next += interval;
-                    }
-                } else {
-                    while (!isKilled) {
-                        Thread.sleep(interval);
-                        cycle();
-                    }
-                }
-            }
-            private int countFails = 0;
-
-            private void cycle() {
-                try {
-                    if (countFails >= 50) {
-                        if (producer.produceWithFailureRecovery()) {
-                            countFails = 0;
-                        }
-                    } else {
-                        producer.produce();
-                        if (countFails > 0) {
-                            countFails--;
-                        }
-                    }
-                } catch (Throwable thr) {
-                    Logger.log(LogLevel.SEVERE, "Exception in Ticker main loop!", thr);
-                    countFails += 10;
-                }
-            }
-        };
+        this.main = new MainTickerThread((fixedRate ? "FixedTicker-" : "Ticker-") + interval, fixedRate, interval);
         main.start();
     }
 
@@ -140,5 +100,58 @@ public final class Ticker implements EventSource {
         isKilled = true;
         producer.clearListeners();
         main.interrupt();
+    }
+
+    private class MainTickerThread extends ReporterThread {
+
+        private final boolean fixedRate;
+        private final int interval;
+
+        public MainTickerThread(String name, boolean fixedRate, int interval) {
+            super(name);
+            this.fixedRate = fixedRate;
+            this.interval = interval;
+        }
+
+        @Override
+        protected void threadBody() throws InterruptedException {
+            if (fixedRate) {
+                long next = System.currentTimeMillis() + interval;
+                while (!isKilled) {
+                    long rem = next - System.currentTimeMillis();
+                    if (rem > 0) {
+                        Thread.sleep(rem);
+                        continue;
+                    }
+                    cycle();
+                    next += interval;
+                }
+            } else {
+                while (!isKilled) {
+                    Thread.sleep(interval);
+                    cycle();
+                }
+            }
+        }
+        private int countFails = 0;
+
+        private void cycle() {
+            try {
+                if (countFails >= 50) {
+                    countFails--;
+                    if (producer.produceWithFailureRecovery()) {
+                        countFails = 0;
+                    }
+                } else {
+                    producer.produce();
+                    if (countFails > 0) {
+                        countFails--;
+                    }
+                }
+            } catch (Throwable thr) {
+                Logger.log(LogLevel.SEVERE, "Exception in Ticker main loop!", thr);
+                countFails += 10;
+            }
+        }
     }
 }

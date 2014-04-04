@@ -104,7 +104,9 @@ public abstract class CluckSubscriber implements CluckLink {
             Logger.warning("Received null message from " + source);
         } else if (data[0] == CluckNode.RMT_PING && data.length == 1) {
             node.transmit(source, linkName, new byte[]{CluckNode.RMT_PING, rmt});
-        } else if (data[0] != rmt && data[0] != CluckNode.RMT_NEGATIVE_ACK) { // Discard messages saying that the link is closed.
+        } else if (data[0] == CluckNode.RMT_NEGATIVE_ACK) { // Discard messages saying that the link is closed.
+            // Discard.
+        } else if (data[0] != rmt) {
             Logger.warning("Received wrong RMT: " + data[0] + " from " + source + " (expected " + rmt + ") addressed to " + linkName);
         } else {
             return true;

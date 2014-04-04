@@ -20,6 +20,7 @@ package ccre.log;
 
 import ccre.cluck.*;
 import ccre.concurrency.CollapsingWorkerThread;
+import ccre.util.CArrayUtils;
 import ccre.util.CHashMap;
 import ccre.util.UniqueIds;
 
@@ -51,7 +52,7 @@ public final class NetworkAutologger implements LoggingTarget {
     /**
      * The current list of remotes to send logging messages to.
      */
-    private String[] remotes;
+    private String[] remotes = new String[0];
     /**
      * The current cache of subscribed LoggingTargets to send logging messages
      * to.
@@ -77,10 +78,13 @@ public final class NetworkAutologger implements LoggingTarget {
      * for remotes.
      */
     void autologgingRecheck(CluckNode node, String localpath) throws InterruptedException {
-        remotes = node.searchRemotes((int) CluckNode.RMT_LOGTARGET, 500);
+        Logger.fine("[LOCAL] Rechecking logging...");
+        remotes = node.searchRemotes((int) CluckNode.RMT_LOGTARGET, 1000);
+        Logger.config("[LOCAL] Requested loggers: " + CArrayUtils.asList(remotes));
         for (String s : remotes) {
             if (s.indexOf("auto-") != -1 && !localpath.equals(s) && targetCache.get(s) == null) {
                 targetCache.put(s, node.subscribeLT(s, LogLevel.FINEST));
+                Logger.config("[LOCAL] Loaded logger: " + s);
             }
         }
     }
@@ -123,15 +127,11 @@ public final class NetworkAutologger implements LoggingTarget {
             return;
         }
         String[] l = remotes;
-        if (l == null) {
-            return;
-        }
         for (String cur : l) {
             LoggingTarget lt = targetCache.get(cur);
-            if (lt == null) {
-                continue;
+            if (lt != null) {
+                lt.log(level, message, throwable);
             }
-            lt.log(level, message, throwable);
         }
     }
 
@@ -143,15 +143,11 @@ public final class NetworkAutologger implements LoggingTarget {
             return;
         }
         String[] l = remotes;
-        if (l == null) {
-            return;
-        }
         for (String cur : l) {
             LoggingTarget lt = targetCache.get(cur);
-            if (lt == null) {
-                continue;
+            if (lt != null) {
+                lt.log(level, message, extended);
             }
-            lt.log(level, message, extended);
         }
     }
 }

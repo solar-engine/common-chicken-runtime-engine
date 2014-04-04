@@ -147,24 +147,28 @@ public class CluckProtocol {
         final CLinkedList<SendableEntry> queue = new CLinkedList<SendableEntry>();
         final ReporterThread main = new ReporterThread("Cluck-Send-" + linkName) {
             @Override
-            protected void threadBody() throws Throwable {
-                while (true) {
-                    SendableEntry ent;
-                    synchronized (queue) {
-                        while (queue.isEmpty()) {
-                            queue.wait();
+            protected void threadBody() throws InterruptedException {
+                try {
+                    while (true) {
+                        SendableEntry ent;
+                        synchronized (queue) {
+                            while (queue.isEmpty()) {
+                                queue.wait();
+                            }
+                            ent = queue.removeFirst();
                         }
-                        ent = queue.removeFirst();
+                        String source = ent.src, dest = ent.dst;
+                        byte[] data = ent.data;
+                        dout.writeUTF(dest == null ? "" : dest);
+                        dout.writeUTF(source == null ? "" : source);
+                        dout.writeInt(data.length);
+                        long begin = (((long) data.length) << 32) ^ (dest == null ? 0 : ((long) dest.hashCode()) << 16) ^ (source == null ? 0 : source.hashCode() ^ (((long) source.hashCode()) << 48));
+                        dout.writeLong(begin);
+                        dout.write(data);
+                        dout.writeLong(checksum(data, begin));
                     }
-                    String source = ent.src, dest = ent.dst;
-                    byte[] data = ent.data;
-                    dout.writeUTF(dest == null ? "" : dest);
-                    dout.writeUTF(source == null ? "" : source);
-                    dout.writeInt(data.length);
-                    long begin = (((long) data.length) << 32) ^ (dest == null ? 0 : ((long) dest.hashCode()) << 16) ^ (source == null ? 0 : source.hashCode() ^ (((long) source.hashCode()) << 48));
-                    dout.writeLong(begin);
-                    dout.write(data);
-                    dout.writeLong(checksum(data, begin));
+                } catch (IOException ex) {
+                    Logger.warning("Bad IO in " + this + ": " + ex);
                 }
             }
         };

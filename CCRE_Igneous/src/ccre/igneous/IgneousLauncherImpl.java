@@ -20,6 +20,7 @@ package ccre.igneous;
 
 import ccre.chan.*;
 import ccre.cluck.CluckGlobals;
+import ccre.cluck.tcp.CluckTCPServer;
 import ccre.ctrl.*;
 import ccre.device.DeviceException;
 import ccre.device.DeviceRegistry;
@@ -93,7 +94,8 @@ class IgneousLauncherImpl extends IterativeRobot implements IgneousLauncher {
     protected Event globalPeriodic = new Event();
 
     public final void robotInit() {
-        CluckGlobals.setupServer();
+        //CluckGlobals.setupServer() - No longer helpful on the robot because this port is now used by default.
+        new CluckTCPServer(CluckGlobals.getNode(), 443).start();
         core.duringAutonomous = this.duringAutonomous;
         core.duringDisabled = this.duringDisabled;
         core.duringTeleop = this.duringTeleop;
@@ -134,13 +136,28 @@ class IgneousLauncherImpl extends IterativeRobot implements IgneousLauncher {
      * Produced during autonomous mode.
      */
     protected Event duringAutonomous = new Event();
+    private int countFails = 0;
 
     public final void autonomousPeriodic() {
         try {
-            duringAutonomous.produce();
-            globalPeriodic.produce();
+            if (countFails >= 50) {
+                countFails--;
+                if (duringAutonomous.produceWithFailureRecovery()) {
+                    countFails = 0;
+                }
+                if (globalPeriodic.produceWithFailureRecovery()) {
+                    countFails = 0;
+                }
+            } else {
+                duringAutonomous.produce();
+                globalPeriodic.produce();
+                if (countFails > 0) {
+                    countFails--;
+                }
+            }
         } catch (Throwable thr) {
             Logger.log(LogLevel.SEVERE, "Critical Code Failure in Autonomous Periodic", thr);
+            countFails += 10;
         }
     }
     /**
@@ -163,10 +180,24 @@ class IgneousLauncherImpl extends IterativeRobot implements IgneousLauncher {
 
     public final void disabledPeriodic() {
         try {
-            duringDisabled.produce();
-            globalPeriodic.produce();
+            if (countFails >= 50) {
+                countFails--;
+                if (duringDisabled.produceWithFailureRecovery()) {
+                    countFails = 0;
+                }
+                if (globalPeriodic.produceWithFailureRecovery()) {
+                    countFails = 0;
+                }
+            } else {
+                duringDisabled.produce();
+                globalPeriodic.produce();
+                if (countFails > 0) {
+                    countFails--;
+                }
+            }
         } catch (Throwable thr) {
             Logger.log(LogLevel.SEVERE, "Critical Code Failure in Disabled Periodic", thr);
+            countFails += 10;
         }
     }
     /**
@@ -189,10 +220,24 @@ class IgneousLauncherImpl extends IterativeRobot implements IgneousLauncher {
 
     public final void teleopPeriodic() {
         try {
-            duringTeleop.produce();
-            globalPeriodic.produce();
+            if (countFails >= 50) {
+                countFails--;
+                if (duringTeleop.produceWithFailureRecovery()) {
+                    countFails = 0;
+                }
+                if (globalPeriodic.produceWithFailureRecovery()) {
+                    countFails = 0;
+                }
+            } else {
+                duringTeleop.produce();
+                globalPeriodic.produce();
+                if (countFails > 0) {
+                    countFails--;
+                }
+            }
         } catch (Throwable thr) {
             Logger.log(LogLevel.SEVERE, "Critical Code Failure in Teleop Periodic", thr);
+            countFails += 10;
         }
     }
     /**
@@ -215,10 +260,24 @@ class IgneousLauncherImpl extends IterativeRobot implements IgneousLauncher {
 
     public final void testPeriodic() {
         try {
-            duringTesting.produce();
-            globalPeriodic.produce();
+            if (countFails >= 50) {
+                countFails--;
+                if (duringTesting.produceWithFailureRecovery()) {
+                    countFails = 0;
+                }
+                if (globalPeriodic.produceWithFailureRecovery()) {
+                    countFails = 0;
+                }
+            } else {
+                duringTesting.produce();
+                globalPeriodic.produce();
+                if (countFails > 0) {
+                    countFails--;
+                }
+            }
         } catch (Throwable thr) {
             Logger.log(LogLevel.SEVERE, "Critical Code Failure in Testing Periodic", thr);
+            countFails += 10;
         }
     }
 
@@ -283,6 +342,7 @@ class IgneousLauncherImpl extends IterativeRobot implements IgneousLauncher {
     public FloatInputPoll getBatteryVoltage() {
         return new FloatInputPoll() {
             DriverStation d = DriverStation.getInstance();
+
             public float readValue() {
                 return (float) d.getBatteryVoltage();
             }

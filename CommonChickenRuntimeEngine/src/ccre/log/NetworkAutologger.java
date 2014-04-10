@@ -20,7 +20,7 @@ package ccre.log;
 
 import ccre.cluck.*;
 import ccre.concurrency.CollapsingWorkerThread;
-import ccre.util.CArrayUtils;
+import ccre.concurrency.ConcurrentDispatchArray;
 import ccre.util.CHashMap;
 import ccre.util.UniqueIds;
 
@@ -30,7 +30,7 @@ import ccre.util.UniqueIds;
  *
  * @author skeggsc
  */
-public final class NetworkAutologger implements LoggingTarget {
+public final class NetworkAutologger implements LoggingTarget, CluckRemoteListener {
 
     /**
      * Whether or not a NetworkAutologger has been registered globally.
@@ -52,12 +52,13 @@ public final class NetworkAutologger implements LoggingTarget {
     /**
      * The current list of remotes to send logging messages to.
      */
-    private String[] remotes = new String[0];
+    private final ConcurrentDispatchArray<String> remotes = new ConcurrentDispatchArray<String>();
     /**
      * The current cache of subscribed LoggingTargets to send logging messages
      * to.
      */
     private final CHashMap<String, LoggingTarget> targetCache = new CHashMap<String, LoggingTarget>();
+    private final CluckNode node;
     private static final LoggingTarget localLoggingTarget = new LoggingTarget() {
         public void log(LogLevel level, String message, Throwable throwable) {
             Logger.log(level, "[NET] " + message, throwable);
@@ -67,27 +68,7 @@ public final class NetworkAutologger implements LoggingTarget {
             Logger.logExt(level, "[NET] " + message, extended);
         }
     };
-
-    /**
-     * Internal use only. This rechecks the network for the current set of other
-     * NetworkAutologgers.
-     *
-     * @param node The CluckNode to search on.
-     * @param localpath The local path, to ignore in the remote list.
-     * @throws InterruptedException If the thread is interrupted while searching
-     * for remotes.
-     */
-    void autologgingRecheck(CluckNode node, String localpath) throws InterruptedException {
-        Logger.fine("[LOCAL] Rechecking logging...");
-        remotes = node.searchRemotes((int) CluckNode.RMT_LOGTARGET, 1000);
-        Logger.config("[LOCAL] Requested loggers: " + CArrayUtils.asList(remotes));
-        for (String s : remotes) {
-            if (s.indexOf("auto-") != -1 && !localpath.equals(s) && targetCache.get(s) == null) {
-                targetCache.put(s, node.subscribeLT(s, LogLevel.FINEST));
-                Logger.config("[LOCAL] Loaded logger: " + s);
-            }
-        }
-    }
+    private final String localpath;
 
     /**
      * Create a new NetworkAutologger hooked up to the specified node.
@@ -96,13 +77,15 @@ public final class NetworkAutologger implements LoggingTarget {
      */
     public NetworkAutologger(final CluckNode node) {
         final String here = UniqueIds.global.nextHexId();
-        final String localpath = "auto-" + here;
+        localpath = "auto-" + here;
         final CollapsingWorkerThread autologger = new CollapsingWorkerThread("network-autologger") {
             @Override
             protected void doWork() throws Throwable {
-                autologgingRecheck(node, localpath);
+                Logger.fine("[LOCAL] Rechecking logging...");
+                node.cycleSearchRemotes("auto-checker-" + here);
             }
         };
+        node.startSearchRemotes("auto-checker-" + here, this);
         autologger.start();
         new CluckSubscriber(node) {
             @Override
@@ -117,6 +100,7 @@ public final class NetworkAutologger implements LoggingTarget {
             }
         }.attach("netwatch-" + here);
         node.publish(localpath, localLoggingTarget);
+        this.node = node;
     }
 
     public void log(LogLevel level, String message, Throwable throwable) {
@@ -126,8 +110,7 @@ public final class NetworkAutologger implements LoggingTarget {
         if (message.startsWith("[LOCAL] ")) { // Should not be sent over the network.
             return;
         }
-        String[] l = remotes;
-        for (String cur : l) {
+        for (String cur : remotes) {
             LoggingTarget lt = targetCache.get(cur);
             if (lt != null) {
                 lt.log(level, message, throwable);
@@ -142,12 +125,22 @@ public final class NetworkAutologger implements LoggingTarget {
         if (message.startsWith("[LOCAL] ")) { // Should not be sent over the network.
             return;
         }
-        String[] l = remotes;
-        for (String cur : l) {
+        for (String cur : remotes) {
             LoggingTarget lt = targetCache.get(cur);
             if (lt != null) {
                 lt.log(level, message, extended);
             }
         }
+    }
+
+    public void handle(String remote, int remoteType) {
+        if (remoteType != CluckNode.RMT_LOGTARGET) {
+            return;
+        }
+        if (remote.indexOf("auto-") != -1 && !localpath.equals(remote) && targetCache.get(remote) == null) {
+            targetCache.put(remote, node.subscribeLT(remote, LogLevel.FINEST));
+            Logger.config("[LOCAL] Loaded logger: " + remote);
+        }
+        remotes.addIfNotFound(remote);
     }
 }

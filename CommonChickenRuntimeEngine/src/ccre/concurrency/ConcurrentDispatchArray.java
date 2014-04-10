@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 Colby Skeggs
+ * Copyright 2013-2014 Colby Skeggs
  * 
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  * 
@@ -117,6 +117,30 @@ public final class ConcurrentDispatchArray<E> implements CCollection<E> {
         }
         while (true) {
             Object[] old = data;
+            Object[] dout = CArrayUtils.copyOf(old, old.length + 1);
+            dout[dout.length - 1] = e;
+            if (compareAndSetArray(old, dout)) {
+                return true;
+            }
+        }
+    }
+
+    /**
+     * Like add, but also returns false (without adding) if the element is already found.
+     * @param e The element to add.
+     * @return if e is added to the array, not already in it.
+     */
+    public boolean addIfNotFound(E e) {
+        if (e == null) {
+            throw new NullPointerException();
+        }
+        while (true) {
+            Object[] old = data;
+            for (Object o : old) {
+                if (e.equals(o)) {
+                    return false;
+                }
+            }
             Object[] dout = CArrayUtils.copyOf(old, old.length + 1);
             dout[dout.length - 1] = e;
             if (compareAndSetArray(old, dout)) {

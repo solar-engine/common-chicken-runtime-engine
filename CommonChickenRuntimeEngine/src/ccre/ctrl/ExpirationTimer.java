@@ -23,6 +23,7 @@ import ccre.concurrency.ReporterThread;
 import ccre.event.Event;
 import ccre.event.EventConsumer;
 import ccre.event.EventSource;
+import ccre.log.LogLevel;
 import ccre.log.Logger;
 import ccre.util.CArrayList;
 
@@ -231,7 +232,12 @@ public final class ExpirationTimer {
                         wait(rel);
                         rel = startAt + t.delay - System.currentTimeMillis();
                     }
-                    t.cnsm.eventFired();
+                    try {
+                        t.cnsm.eventFired();
+                    } catch (Throwable thr) {
+                        Logger.log(LogLevel.SEVERE, "Exception in ExpirationTimer dispatch!", thr);
+                        // TODO: Detachment error handling.
+                    }
                 }
                 while (isStarted) { // Once finished, wait to stop before restarting.
                     wait();

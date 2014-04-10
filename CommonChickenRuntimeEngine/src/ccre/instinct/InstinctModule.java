@@ -68,6 +68,15 @@ public abstract class InstinctModule implements EventConsumer {
     }
 
     /**
+     * The name of this control loop. Defaults to "autonomous mode".
+     *
+     * @return The name to use in printouts.
+     */
+    protected String getTypeName() {
+        return "autonomous mode";
+    }
+
+    /**
      * Register this module with an InstinctRegistrar so that it runs when that
      * InstinctRegistrar wants it to.
      *
@@ -123,13 +132,13 @@ public abstract class InstinctModule implements EventConsumer {
                 try {
                     try {
                         isRunning = true;
-                        Logger.info("Started autonomous mode.");
+                        Logger.info("Started " + getTypeName() + ".");
                         autonomousMain();
-                        Logger.info("Autonomous mode completed.");
+                        Logger.info("Completed " + getTypeName() + ".");
                     } catch (InterruptedException ex) {
-                        Logger.info("Autonomous mode interrupted.");
+                        Logger.info("Interrupted " + getTypeName() + ".");
                     } catch (AutonomousModeOverException ex) {
-                        Logger.info("Autonomous mode exited by stop.");
+                        Logger.info("Exited " + getTypeName() + " by stop.");
                         continue;
                     }
                 } catch (Throwable t) {

@@ -245,7 +245,7 @@ public class VirtualPhidgetMonitor extends javax.swing.JFrame implements IPhidge
     public void share(CluckNode node) {
         IndicatorLight[] lights = new IndicatorLight[]{out0, out1, out2, out3, out4, out5, out6, out7};
         for (int i = 0; i < OUTPUT_COUNT; i++) {
-            node.publish("phidget-bo" + i, lights[i]);
+            node.publish("phidget-bo" + i, Mixing.invert(lights[i])); // Invert because that's what happens with the real Phidget.
         }
         JTextField[] lcd = new JTextField[]{lcdLine0, lcdLine1};
         for (int i = 0; i < LCD_LINES; i++) {

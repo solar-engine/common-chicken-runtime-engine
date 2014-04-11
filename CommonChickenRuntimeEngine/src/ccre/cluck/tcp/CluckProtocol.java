@@ -120,7 +120,12 @@ public class CluckProtocol {
                 } else {
                     source = linkName + "/" + source;
                 }
+                long start = System.currentTimeMillis();
                 node.transmit(dest, source, data, denyLink);
+                long endAt = System.currentTimeMillis();
+                if (endAt - start > 1000) {
+                    Logger.warning("[LOCAL] Took a long time to process: " + dest + " <- " + source + " of " + (endAt - start) + " ms");
+                }
             }
         } catch (IOException ex) {
             if (ex.getClass().getName().equals("java.net.SocketException") && ex.getMessage().equals("Connection reset")) {

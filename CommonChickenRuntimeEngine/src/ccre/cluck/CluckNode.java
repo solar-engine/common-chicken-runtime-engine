@@ -551,7 +551,7 @@ public final class CluckNode {
                         Logger.warning("Bad data length to Logging Target!");
                         return;
                     }
-                    String message = new String(data, 10, l1); // TODO: Figure out how to use UTF-8 on the robot.
+                    String message = new String(data, 10, l1);
                     String extended = l2 == 0 ? null : new String(data, 10 + l1, l2);
                     lt.log(LogLevel.fromByte(data[1]), message, extended);
                 }

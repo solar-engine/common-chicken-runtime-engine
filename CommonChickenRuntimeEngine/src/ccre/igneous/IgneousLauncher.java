@@ -20,7 +20,6 @@ package ccre.igneous;
 
 import ccre.chan.*;
 import ccre.ctrl.*;
-import ccre.device.*;
 import ccre.event.EventSource;
 
 /**
@@ -73,8 +72,6 @@ public interface IgneousLauncher {
     public FloatInputPoll makeGyro(int port, double sensitivity, EventSource object);
 
     public FloatInputPoll makeAccelerometerAxis(int port, double sensitivity, double zeropoint);
-
-    public DeviceRegistry getDeviceRegistry() throws DeviceException;
 
     public FloatInputPoll getBatteryVoltage();
 }

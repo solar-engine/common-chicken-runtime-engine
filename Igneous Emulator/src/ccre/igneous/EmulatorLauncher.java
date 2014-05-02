@@ -22,17 +22,13 @@ import ccre.chan.*;
 import ccre.cluck.CluckGlobals;
 import ccre.cluck.tcp.CluckTCPServer;
 import ccre.ctrl.*;
-import ccre.device.DeviceException;
-import ccre.device.DeviceRegistry;
 import ccre.event.*;
 import ccre.log.BootLogger;
 import ccre.log.FileLogger;
 import ccre.log.NetworkAutologger;
 import ccre.reflect.ReflectionConsole;
-import ccre.util.LineCollectorOutputStream;
 import java.io.File;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
 import java.net.URLClassLoader;
@@ -46,10 +42,6 @@ public class EmulatorLauncher implements IgneousLauncher {
      * The robot's core program.
      */
     public final IgneousCore core;
-    /**
-     * The cached Device Registry instance for this launcher.
-     */
-    private DeviceRegistry devReg;
     /**
      * A timer used to know when to call each periodic/during method.
      */
@@ -306,83 +298,15 @@ public class EmulatorLauncher implements IgneousLauncher {
     }
 
     @Override
-    public DeviceRegistry getDeviceRegistry() throws DeviceException {
-        if (devReg == null) {
-            devReg = new DeviceRegistry();
-            devReg.putSimple("modes/auto/init", startedAutonomous, EventSource.class);
-            devReg.putSimple("modes/teleop/init", startedTeleop, EventSource.class);
-            devReg.putSimple("modes/test/init", startedTesting, EventSource.class);
-            devReg.putSimple("modes/disabled/init", robotDisabled, EventSource.class);
-            devReg.putSimple("modes/auto/during", duringAutonomous, EventSource.class);
-            devReg.putSimple("modes/teleop/during", duringTeleop, EventSource.class);
-            devReg.putSimple("modes/test/during", duringTesting, EventSource.class);
-            devReg.putSimple("modes/disabled/during", duringDisabled, EventSource.class);
-            devReg.putSimple("modes/always", globalPeriodic, EventSource.class);
-            devReg.putSimple("modes/constant", core.constantPeriodic, EventSource.class);
-            for (int joy = 1; joy <= 4; joy++) {
-                final int cJoy = joy;
-                final EmuJoystick oJoy = emf.joysticks[joy - 1];
-                for (int axis = 1; axis <= 6; axis++) {
-                    devReg.putSimple("joysticks/" + joy + "/axis" + axis, oJoy.getAxisChannel(axis), FloatInputPoll.class);
-                }
-                for (int button = 1; button <= 12; button++) {
-                    devReg.putSimple("joysticks/" + joy + "/button" + button, oJoy.getButtonChannel(button), BooleanInputPoll.class);
-                }
-            }
-            for (int pwm = 1; pwm <= 10; pwm++) {
-                devReg.putHandle("pwms/victor" + pwm, new PWMHandle(emf, pwm, PWMHandle.VICTOR));
-                devReg.putHandle("pwms/talon" + pwm, new PWMHandle(emf, pwm, PWMHandle.TALON));
-                devReg.putHandle("pwms/jaguar" + pwm, new PWMHandle(emf, pwm, PWMHandle.JAGUAR));
-                devReg.putHandle("pwms/servo" + pwm, new PWMHandle(emf, pwm, PWMHandle.SERVO));
-            }
-            for (int sol = 1; sol <= 8; sol++) {
-                devReg.putSimple("pneumatics/solen" + sol, emf.getSolenoid(sol), BooleanOutput.class);
-            }
-            final BooleanStatus enableCompressor = new BooleanStatus();
-            devReg.putSimple("pneumatics/compressorConf", new LineCollectorOutputStream() {
-                @Override
-                protected void collect(String string) {
-                    int ii = string.indexOf(' ');
-                    if (ii == -1) {
-                        int portno = Integer.parseInt(string);
-                        useCustomCompressor(enableCompressor, portno);
-                    } else {
-                        int portno = Integer.parseInt(string.substring(0, ii));
-                        int extno = Integer.parseInt(string.substring(ii + 1));
-                        enableCompressor.writeValue(true);
-                        useCustomCompressor(Mixing.andBooleans(enableCompressor, makeDigitalInput(extno)), portno);
-                    }
-                }
-            }, OutputStream.class);
-            devReg.putSimple("pneumatics/compressorEnable", enableCompressor, BooleanOutput.class);
-            devReg.putSimple("pneumatics/compressorEnabled", enableCompressor, BooleanInput.class);
-            for (int dgt = 1; dgt <= 14; dgt++) {
-                devReg.putHandle("gpios/out" + dgt, new GPOHandle(emf, dgt));
-                devReg.putHandle("gpios/in" + dgt, new GPIHandle(emf, dgt));
-            }
-            // TODO: Implement encoders, Gyros, accelerometers.
-            for (int alg = 1; alg <= 8; alg++) {
-                devReg.putSimple("analogs/in" + alg, emf.getAnalog(alg), FloatInputPoll.class);
-            }
-            for (int lcd = 1; lcd <= 6; lcd++) {
-                final int lcdI = lcd;
-                devReg.putSimple("dslcd/line" + lcd, new LineCollectorOutputStream() {
-                    @Override
-                    protected void collect(String string) {
-                        EmulatorLauncher.this.sendDSUpdate(string, lcdI);
-                    }
-                }, OutputStream.class);
-            }
-            for (int rel = 1; rel <= 8; rel++) {
-                devReg.putHandle("relays/fwd" + rel, new RelayHandle(emf, rel, true));
-                devReg.putHandle("relays/rev" + rel, new RelayHandle(emf, rel, false));
-            }
-        }
-        return devReg;
+    public FloatInputPoll getBatteryVoltage() {
+        return batteryScalingFilter.wrap(makeAnalogInput(8, 8));
     }
 
-    @Override
-    public FloatInputPoll getBatteryVoltage() {
-        return makeAnalogInput(8, 8);
-    }
+    private static final FloatFilter batteryScalingFilter = new FloatFilter() {
+        @Override
+        public float filter(float input) {
+            return 10 + input;
+        }
+    };
+
 }

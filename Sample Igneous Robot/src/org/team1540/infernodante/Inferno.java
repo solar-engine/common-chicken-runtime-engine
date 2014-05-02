@@ -72,7 +72,7 @@ public class Inferno extends SimpleCore {
     private void createArm() {
         FloatInputPoll manualArm = PhidgetReader.getAnalogInput(5);
         FloatInputPoll armPotentiometer = makeAnalogInput(2, 9);
-        CluckGlobals.node.publish("arm-potentiometer", Mixing.createDispatch(armPotentiometer, globalPeriodic));
+        CluckGlobals.getNode().publish("arm-potentiometer", Mixing.createDispatch(armPotentiometer, globalPeriodic));
         FloatOutput armMotor = IS_COMPETITION_ROBOT ? makeTalonMotor(6, MOTOR_FORWARD, 0) : makeVictorMotor(6, MOTOR_REVERSE, 0);
 
         createPotentiometerReadout(armPotentiometer);
@@ -124,7 +124,7 @@ public class Inferno extends SimpleCore {
         armController.setSetpointWhen(PController.ARM_LOAD_PRESET, onPressArmBack);
         armController.setSetpointWhen(PController.ARM_DROP_PRESET, onPressDropSuction);
         // Once stable and set to the pickup position, suspend the arm.
-        armController.suspendOnceStable = Mixing.floatsEqual(armController.setpoint, PController.ARM_PICKUP_PRESET);
+        //armController.suspendOnceStable = Mixing.floatsEqual(armController.setpoint, PController.ARM_PICKUP_PRESET);
     }
 
     private void createArmDropper() {

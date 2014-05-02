@@ -34,7 +34,7 @@ public class PController implements EventConsumer {
     private static final float HIGH_SPEED = 1.0f;
     private static final float MEDIUM_SPEED = 0.35f;
     private static final float LOW_SPEED = 0.08f;
-    public static final TuningContext context = new TuningContext(CluckGlobals.node, "armTuning").publishSavingEvent("armTuning");
+    public static final TuningContext context = new TuningContext(CluckGlobals.getNode(), "armTuning").publishSavingEvent("armTuning");
     public static final FloatStatus STABLE_RANGE = context.getFloat("arm-stable", 0.17f);
     public static final FloatStatus DEADZONE_RANGE = context.getFloat("arm-deadzone", 0.1f);
     private static final float DEF_ARM_PICKUP_PRESET = Inferno.IS_COMPETITION_ROBOT ? 4.22f : 5.111649321f;
@@ -42,10 +42,10 @@ public class PController implements EventConsumer {
     private static final float DEF_ARM_DRIVE_PRESET = Inferno.IS_COMPETITION_ROBOT ? 0.571f : 4.777641946f;
     private static final float DEF_ARM_LOAD_PRESET = Inferno.IS_COMPETITION_ROBOT ? 0.571f : 3.693807046f;
     // These are not used in this file, but are in Inferno.java
-    public static final FloatStatus ARM_PICKUP_PRESET = context.getFloat("arm-pickup", DEF_ARM_PICKUP_PRESET, "arm-potentiometer");
-    public static final FloatStatus ARM_DROP_PRESET = context.getFloat("arm-drop", DEF_ARM_DROP_PRESET, "arm-potentiometer");
-    public static final FloatStatus ARM_DRIVE_PRESET = context.getFloat("arm-drive", DEF_ARM_DRIVE_PRESET, "arm-potentiometer");
-    public static final FloatStatus ARM_LOAD_PRESET = context.getFloat("arm-load", DEF_ARM_LOAD_PRESET, "arm-potentiometer");
+    public static final FloatStatus ARM_PICKUP_PRESET = context.getFloat("arm-pickup", DEF_ARM_PICKUP_PRESET);
+    public static final FloatStatus ARM_DROP_PRESET = context.getFloat("arm-drop", DEF_ARM_DROP_PRESET);
+    public static final FloatStatus ARM_DRIVE_PRESET = context.getFloat("arm-drive", DEF_ARM_DRIVE_PRESET);
+    public static final FloatStatus ARM_LOAD_PRESET = context.getFloat("arm-load", DEF_ARM_LOAD_PRESET);
     public BooleanStatus enabled = new BooleanStatus();
     public BooleanInputPoll suspendOnceStable = Mixing.alwaysFalse;
     public BooleanInputPoll isBrakeDeactivated = Mixing.alwaysFalse;

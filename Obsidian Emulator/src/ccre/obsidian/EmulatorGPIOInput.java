@@ -19,7 +19,7 @@
 
 package ccre.obsidian;
 
-import ccre.chan.BooleanInputPoll;
+import ccre.channel.BooleanInputPoll;
 
 /**
  *
@@ -33,7 +33,7 @@ public class EmulatorGPIOInput implements BooleanInputPoll {
     }
     
     @Override
-    public boolean readValue() {
+    public boolean get() {
         if (pin.getMode() == EmulatorPin.Mode.GPIO_IN) {
             return pin.getBoolean();
         } else {

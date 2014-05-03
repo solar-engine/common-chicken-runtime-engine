@@ -19,7 +19,7 @@
 
 package ccre.obsidian;
 
-import ccre.chan.BooleanOutput;
+import ccre.channel.BooleanOutput;
 
 /**
  *
@@ -33,7 +33,7 @@ public class EmulatorGPIOOutput implements BooleanOutput {
     }
 
     @Override
-    public void writeValue(boolean val) {
+    public void set(boolean val) {
         if (pin.getMode() == EmulatorPin.Mode.GPIO_OUT) {
             pin.set(val);
         } else {

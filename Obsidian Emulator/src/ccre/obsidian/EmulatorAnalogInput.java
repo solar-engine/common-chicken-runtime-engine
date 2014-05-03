@@ -19,7 +19,7 @@
 
 package ccre.obsidian;
 
-import ccre.chan.FloatInputPoll;
+import ccre.channel.FloatInputPoll;
 
 /**
  *
@@ -33,7 +33,7 @@ public class EmulatorAnalogInput implements FloatInputPoll {
     }
 
     @Override
-    public float readValue() {
+    public float get() {
         if (pin.getMode() == EmulatorPin.Mode.ANALOG_IN) {
             return pin.getFloat();
         } else {

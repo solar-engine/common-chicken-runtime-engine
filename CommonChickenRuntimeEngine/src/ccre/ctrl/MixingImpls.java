@@ -18,8 +18,15 @@
  */
 package ccre.ctrl;
 
-import ccre.chan.*;
-import ccre.event.*;
+import ccre.channel.FloatInputPoll;
+import ccre.channel.BooleanOutput;
+import ccre.channel.FloatFilter;
+import ccre.channel.FloatOutput;
+import ccre.channel.BooleanInputPoll;
+import ccre.channel.FloatInput;
+import ccre.channel.EventStatus;
+import ccre.channel.EventInput;
+import ccre.channel.EventOutput;
 import ccre.log.Logger;
 import ccre.util.CArrayList;
 import ccre.util.Utils;
@@ -230,24 +237,24 @@ class MixingImpls {
         }
     }
 
-    static class DebounceImpl implements EventConsumer {
+    static class DebounceImpl implements EventOutput {
 
-        private final EventConsumer orig;
+        private final EventOutput orig;
         private long nextFire = 0;
         private final int delay;
 
-        DebounceImpl(EventConsumer orig, int delay) {
+        DebounceImpl(EventOutput orig, int delay) {
             this.orig = orig;
             this.delay = delay;
         }
 
-        public void eventFired() {
+        public void event() {
             long now = System.currentTimeMillis();
             if (now < nextFire) {
                 return; // Ignore event.
             }
             nextFire = now + delay;
-            orig.eventFired();
+            orig.event();
         }
     }
 
@@ -281,38 +288,38 @@ class MixingImpls {
         }
     }
 
-    static class FEC implements EventConsumer {
+    static class FEC implements EventOutput {
 
         private final BooleanInputPoll shouldAllow;
         private final boolean requirement;
-        private final EventConsumer cnsm;
+        private final EventOutput cnsm;
 
-        FEC(BooleanInputPoll shouldAllow, boolean requirement, EventConsumer cnsm) {
+        FEC(BooleanInputPoll shouldAllow, boolean requirement, EventOutput cnsm) {
             this.shouldAllow = shouldAllow;
             this.requirement = requirement;
             this.cnsm = cnsm;
         }
 
-        public void eventFired() {
+        public void event() {
             if (shouldAllow.get() == requirement) {
-                cnsm.eventFired();
+                cnsm.event();
             }
         }
     }
 
-    static class FES implements EventConsumer {
+    static class FES implements EventOutput {
 
         private final BooleanInputPoll shouldAllow;
         private final boolean requirement;
-        private final Event out;
+        private final EventStatus out;
 
-        FES(BooleanInputPoll shouldAllow, boolean requirement, Event out) {
+        FES(BooleanInputPoll shouldAllow, boolean requirement, EventStatus out) {
             this.shouldAllow = shouldAllow;
             this.requirement = requirement;
             this.out = out;
         }
 
-        public void eventFired() {
+        public void event() {
             if (shouldAllow.get() == requirement) {
                 out.produce();
             }
@@ -413,9 +420,9 @@ class MixingImpls {
             this.lastValue = input.get();
         }
 
-        public FloatInputPoll start(EventSource updateWhen) {
-            updateWhen.addListener(new EventConsumer() {
-                public void eventFired() {
+        public FloatInputPoll start(EventInput updateWhen) {
+            updateWhen.send(new EventOutput() {
+                public void event() {
                     lastValue = input.get();
                 }
             });
@@ -427,7 +434,7 @@ class MixingImpls {
         }
     }
 
-    static class GSEB implements EventConsumer {
+    static class GSEB implements EventOutput {
 
         private final BooleanOutput out;
         private final boolean value;
@@ -437,12 +444,12 @@ class MixingImpls {
             this.value = value;
         }
 
-        public void eventFired() {
+        public void event() {
             out.set(value);
         }
     }
 
-    static class GSEF implements EventConsumer {
+    static class GSEF implements EventOutput {
 
         private final FloatOutput out;
         private final float value;
@@ -452,7 +459,7 @@ class MixingImpls {
             this.value = value;
         }
 
-        public void eventFired() {
+        public void event() {
             out.set(value);
         }
     }
@@ -547,7 +554,7 @@ class MixingImpls {
         }
     }
 
-    static class PumpEventImplF implements EventConsumer {
+    static class PumpEventImplF implements EventOutput {
 
         private final FloatOutput out;
         private final FloatInputPoll in;
@@ -557,12 +564,12 @@ class MixingImpls {
             this.in = in;
         }
 
-        public void eventFired() {
+        public void event() {
             out.set(in.get());
         }
     }
 
-    static class PumpEventImplB implements EventConsumer {
+    static class PumpEventImplB implements EventOutput {
 
         private final BooleanOutput out;
         private final BooleanInputPoll in;
@@ -572,7 +579,7 @@ class MixingImpls {
             this.in = in;
         }
 
-        public void eventFired() {
+        public void event() {
             out.set(in.get());
         }
     }
@@ -623,7 +630,7 @@ class MixingImpls {
         }
     }
 
-    static class RampingImpl implements EventConsumer {
+    static class RampingImpl implements EventOutput {
 
         private final FloatInputPoll from;
         private final float limit;
@@ -637,7 +644,7 @@ class MixingImpls {
         }
         private float last;
 
-        public void eventFired() {
+        public void event() {
             last = Utils.updateRamping(last, from.get(), limit);
             target.set(last);
         }
@@ -646,9 +653,9 @@ class MixingImpls {
     static class WBBI implements BooleanOutput {
 
         private final boolean target;
-        private final Event out;
+        private final EventStatus out;
 
-        WBBI(boolean target, Event out) {
+        WBBI(boolean target, EventStatus out) {
             this.target = target;
             this.out = out;
         }

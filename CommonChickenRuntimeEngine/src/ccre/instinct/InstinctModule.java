@@ -18,10 +18,12 @@
  */
 package ccre.instinct;
 
-import ccre.chan.*;
+import ccre.channel.FloatInputPoll;
+import ccre.channel.BooleanInputPoll;
+import ccre.channel.EventInput;
+import ccre.channel.EventOutput;
 import ccre.concurrency.ReporterThread;
 import ccre.ctrl.Mixing;
-import ccre.event.*;
 import ccre.log.LogLevel;
 import ccre.log.Logger;
 
@@ -30,7 +32,7 @@ import ccre.log.Logger;
  *
  * @author skeggsc
  */
-public abstract class InstinctModule implements EventConsumer {
+public abstract class InstinctModule implements EventOutput {
 
     /**
      * If the instinct module should currently be running.
@@ -93,8 +95,8 @@ public abstract class InstinctModule implements EventConsumer {
      *
      * @param src The event to wait for to continue execution.
      */
-    public void updateWhen(EventSource src) {
-        src.addListener(this);
+    public void updateWhen(EventInput src) {
+        src.send(this);
     }
     /**
      * The object used to coordinate when the instinct module should resume
@@ -158,7 +160,7 @@ public abstract class InstinctModule implements EventConsumer {
         }
     };
 
-    public final void eventFired() {
+    public final void event() {
         if (shouldBeRunning == null) {
             throw new RuntimeException("You need to have specified when the Insight module should be running!");
         }
@@ -203,18 +205,18 @@ public abstract class InstinctModule implements EventConsumer {
      * @throws AutonomousModeOverException If the autonomous mode has ended.
      * @throws InterruptedException Possibly also if autonomous mode has ended.
      */
-    protected void waitForEvent(EventSource source) throws AutonomousModeOverException, InterruptedException {
+    protected void waitForEvent(EventInput source) throws AutonomousModeOverException, InterruptedException {
         final boolean[] b = new boolean[1];
         final Object localAutosynch = autosynch;
-        EventConsumer c = new EventConsumer() {
-            public void eventFired() {
+        EventOutput c = new EventOutput() {
+            public void event() {
                 b[0] = true;
                 synchronized (localAutosynch) {
                     localAutosynch.notifyAll();
                 }
             }
         };
-        source.addListener(c);
+        source.send(c);
         try {
             while (!b[0]) {
                 if (!shouldBeRunning.get()) {
@@ -223,7 +225,7 @@ public abstract class InstinctModule implements EventConsumer {
                 waitCycle();
             }
         } finally {
-            source.removeListener(c);
+            source.unsend(c);
         }
     }
 

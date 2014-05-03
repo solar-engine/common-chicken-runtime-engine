@@ -19,7 +19,7 @@
 package ccre.log;
 
 import ccre.ctrl.Ticker;
-import ccre.event.EventConsumer;
+import ccre.channel.EventOutput;
 import ccre.saver.StorageProvider;
 import ccre.workarounds.ThrowablePrinter;
 import java.io.*;
@@ -90,8 +90,8 @@ public class FileLogger implements LoggingTarget {
         this.pstream = pstream;
         start = System.currentTimeMillis();
         pstream.println("Logging began at " + new Date(start) + " [" + start + "]");
-        new Ticker(10000).addListener(new EventConsumer() {
-            public void eventFired() {
+        new Ticker(10000).send(new EventOutput() {
+            public void event() {
                 synchronized (FileLogger.this) {
                     pstream.println("Logging continues at " + new Date());
                     pstream.flush();

@@ -71,7 +71,7 @@ public class XBeeLink implements CluckLink, PacketListener {
     }
 
     @Override
-    public synchronized boolean transmit(String dest, String source, byte[] data) {
+    public synchronized boolean send(String dest, String source, byte[] data) {
         if (dest == null) {
             dest = "";
         }

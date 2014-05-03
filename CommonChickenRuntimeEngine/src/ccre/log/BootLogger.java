@@ -20,7 +20,7 @@ package ccre.log;
 
 import ccre.cluck.CluckGlobals;
 import ccre.cluck.CluckNode;
-import ccre.event.EventConsumer;
+import ccre.channel.EventOutput;
 import ccre.workarounds.ThrowablePrinter;
 
 /**
@@ -66,8 +66,8 @@ public class BootLogger implements LoggingTarget {
      */
     public BootLogger(CluckNode node) {
         final Object[] localOuts = outs;
-        node.publish("post-bootlogs", new EventConsumer() {
-            public void eventFired() {
+        node.publish("post-bootlogs", new EventOutput() {
+            public void event() {
                 synchronized (BootLogger.this) {
                     Logger.log(LogLevel.INFO, "[BOOT-START]");
                     for (int i = 0; i < LOG_MESSAGE_COUNT; i++) {

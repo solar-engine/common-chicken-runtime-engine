@@ -18,15 +18,15 @@
  */
 package ccre.obsidian.comms;
 
-import ccre.chan.BooleanInput;
-import ccre.chan.BooleanOutput;
-import ccre.chan.BooleanStatus;
-import ccre.chan.FloatInput;
-import ccre.chan.FloatOutput;
-import ccre.chan.FloatStatus;
-import ccre.event.Event;
-import ccre.event.EventConsumer;
-import ccre.event.EventSource;
+import ccre.channel.BooleanInput;
+import ccre.channel.BooleanOutput;
+import ccre.channel.BooleanStatus;
+import ccre.channel.FloatInput;
+import ccre.channel.FloatOutput;
+import ccre.channel.FloatStatus;
+import ccre.channel.EventStatus;
+import ccre.channel.EventOutput;
+import ccre.channel.EventInput;
 import ccre.log.LogLevel;
 import ccre.log.Logger;
 import com.rapplogic.xbee.api.PacketListener;
@@ -75,7 +75,7 @@ public class ObsidianCommsNode {
     private final HashMap<Byte, OutputStream> outputStreams;
     private final HashMap<Byte, FloatOutput> floatOutputs;
     private final HashMap<Byte, BooleanOutput> booleanOutputs;
-    private final HashMap<Byte, EventConsumer> eventConsumers;
+    private final HashMap<Byte, EventOutput> eventConsumers;
 
     private final boolean secure;
     private final LinkedList<int[]> allowedAddresses;
@@ -96,7 +96,7 @@ public class ObsidianCommsNode {
         outputStreams = new HashMap<Byte, OutputStream>();
         floatOutputs = new HashMap<Byte, FloatOutput>();
         booleanOutputs = new HashMap<Byte, BooleanOutput>();
-        eventConsumers = new HashMap<Byte, EventConsumer>();
+        eventConsumers = new HashMap<Byte, EventOutput>();
 
         this.secure = secure;
         allowedAddresses = new LinkedList<int[]>();
@@ -164,7 +164,7 @@ public class ObsidianCommsNode {
      * @param id the id to listen on
      * @param ec the EventConsumer to add as a listener
      */
-    public void addListener(byte id, EventConsumer ec) {
+    public void addListener(byte id, EventOutput ec) {
         eventConsumers.put(id, ec);
     }
 
@@ -221,8 +221,8 @@ public class ObsidianCommsNode {
      * @param id the id to listen on
      * @return an EventSource that will listen on the specified id.
      */
-    public EventSource createEventSource(byte id) {
-        Event e = new Event();
+    public EventInput createEventSource(byte id) {
+        EventStatus e = new EventStatus();
         addListener(id, e);
         return e;
     }
@@ -371,7 +371,7 @@ public class ObsidianCommsNode {
     public FloatOutput createFloatOutput(final byte id, final int[] addr) {
         return new FloatOutput() {
             @Override
-            public void writeValue(float data) {
+            public void set(float data) {
                 sendFloat(id, addr, data);
             }
         };
@@ -389,7 +389,7 @@ public class ObsidianCommsNode {
     public BooleanOutput createBooleanOutput(final byte id, final int[] addr) {
         return new BooleanOutput() {
             @Override
-            public void writeValue(boolean data) {
+            public void set(boolean data) {
                 sendBoolean(id, addr, data);
             }
         };
@@ -404,10 +404,10 @@ public class ObsidianCommsNode {
      * @return an EventConsumer that will send events to the specified id and
      * address.
      */
-    public EventConsumer createEventConsumer(final byte id, final int[] addr) {
-        return new EventConsumer() {
+    public EventOutput createEventConsumer(final byte id, final int[] addr) {
+        return new EventOutput() {
             @Override
-            public void eventFired() {
+            public void event() {
                 sendEvent(id, addr);
             }
         };
@@ -480,7 +480,7 @@ public class ObsidianCommsNode {
 
                         float f = Float.intBitsToFloat(d);
 
-                        floatOutputs.get(id).writeValue(f);
+                        floatOutputs.get(id).set(f);
                     }
                 } else {
                     Logger.log(LogLevel.INFO, "Dropped packet (no listener registered).");
@@ -492,7 +492,7 @@ public class ObsidianCommsNode {
                         Logger.log(LogLevel.INFO, "Dropped packet due to incomplete boolean data.");
                     } else {
                         boolean b = (data[0] == (byte) 1);
-                        booleanOutputs.get(id).writeValue(b);
+                        booleanOutputs.get(id).set(b);
                     }
                 } else {
                     Logger.log(LogLevel.INFO, "Dropped packet (no listener registered).");
@@ -500,7 +500,7 @@ public class ObsidianCommsNode {
                 break;
             case HEADER_EVENT:
                 if (eventConsumers.containsKey(id)) {
-                    eventConsumers.get(id).eventFired();
+                    eventConsumers.get(id).event();
                 } else {
                     Logger.log(LogLevel.INFO, "Dropped packet (no listener registered).");
                 }

@@ -18,11 +18,11 @@
  */
 package ccre.ctrl;
 
-import ccre.chan.BooleanOutput;
+import ccre.channel.BooleanOutput;
 import ccre.concurrency.ReporterThread;
-import ccre.event.Event;
-import ccre.event.EventConsumer;
-import ccre.event.EventSource;
+import ccre.channel.EventStatus;
+import ccre.channel.EventOutput;
+import ccre.channel.EventInput;
 import ccre.log.LogLevel;
 import ccre.log.Logger;
 import ccre.util.CArrayList;
@@ -51,7 +51,7 @@ public final class ExpirationTimer {
         /**
          * The event to fire.
          */
-        public final EventConsumer cnsm;
+        public final EventOutput cnsm;
 
         /**
          * Create a new task.
@@ -59,7 +59,7 @@ public final class ExpirationTimer {
          * @param delay The delay after which the task is fired.
          * @param cnsm The EventConsumer fired by this Task.
          */
-        Task(long delay, EventConsumer cnsm) {
+        Task(long delay, EventOutput cnsm) {
             this.delay = delay;
             this.cnsm = cnsm;
         }
@@ -166,7 +166,7 @@ public final class ExpirationTimer {
      * @param cnsm the event to fire.
      * @throws IllegalStateException if the timer is already running.
      */
-    public synchronized void schedule(long delay, EventConsumer cnsm) throws IllegalStateException {
+    public synchronized void schedule(long delay, EventOutput cnsm) throws IllegalStateException {
         if (isStarted) {
             throw new IllegalStateException("Timer is running!");
         }
@@ -186,8 +186,8 @@ public final class ExpirationTimer {
      * @return the event that will be fired.
      * @throws IllegalStateException if the timer is already running.
      */
-    public EventSource schedule(long delay) throws IllegalStateException {
-        Event evt = new Event();
+    public EventInput schedule(long delay) throws IllegalStateException {
+        EventStatus evt = new EventStatus();
         schedule(delay, evt);
         return evt;
     }
@@ -233,7 +233,7 @@ public final class ExpirationTimer {
                         rel = startAt + t.delay - System.currentTimeMillis();
                     }
                     try {
-                        t.cnsm.eventFired();
+                        t.cnsm.event();
                     } catch (Throwable thr) {
                         Logger.log(LogLevel.SEVERE, "Exception in ExpirationTimer dispatch!", thr);
                         // TODO: Detachment error handling.
@@ -277,15 +277,15 @@ public final class ExpirationTimer {
     /**
      * The cached value for getStartEvent()
      */
-    private EventConsumer startEvt;
+    private EventOutput startEvt;
     /**
      * The cached value for getFeedEvent()
      */
-    private EventConsumer feedEvt;
+    private EventOutput feedEvt;
     /**
      * The cached value for getStopEvent()
      */
-    private EventConsumer stopEvt;
+    private EventOutput stopEvt;
 
     /**
      * Get an event that, when fired, will start the timer. This will not throw
@@ -294,10 +294,10 @@ public final class ExpirationTimer {
      *
      * @return the event to start the timer.
      */
-    public EventConsumer getStartEvent() {
+    public EventOutput getStartEvent() {
         if (startEvt == null) {
-            startEvt = new EventConsumer() {
-                public void eventFired() {
+            startEvt = new EventOutput() {
+                public void event() {
                     if (isStarted) {
                         Logger.warning("ExpirationTimer already started!");
                     } else {
@@ -316,10 +316,10 @@ public final class ExpirationTimer {
      *
      * @return the event to feed the timer.
      */
-    public EventConsumer getFeedEvent() {
+    public EventOutput getFeedEvent() {
         if (feedEvt == null) {
-            feedEvt = new EventConsumer() {
-                public void eventFired() {
+            feedEvt = new EventOutput() {
+                public void event() {
                     if (!isStarted) {
                         Logger.warning("ExpirationTimer not started!");
                     } else {
@@ -338,10 +338,10 @@ public final class ExpirationTimer {
      *
      * @return the event to stop the timer.
      */
-    public EventConsumer getStopEvent() {
+    public EventOutput getStopEvent() {
         if (stopEvt == null) {
-            stopEvt = new EventConsumer() {
-                public void eventFired() {
+            stopEvt = new EventOutput() {
+                public void event() {
                     if (!isStarted) {
                         Logger.warning("ExpirationTimer not started!");
                     } else {
@@ -360,8 +360,8 @@ public final class ExpirationTimer {
      * @param src
      * @see #getStartEvent()
      */
-    public void startWhen(EventSource src) {
-        src.addListener(getStartEvent());
+    public void startWhen(EventInput src) {
+        src.send(getStartEvent());
     }
 
     /**
@@ -371,8 +371,8 @@ public final class ExpirationTimer {
      * @param src
      * @see #getFeedEvent()
      */
-    public void feedWhen(EventSource src) {
-        src.addListener(getFeedEvent());
+    public void feedWhen(EventInput src) {
+        src.send(getFeedEvent());
     }
 
     /**
@@ -382,8 +382,8 @@ public final class ExpirationTimer {
      * @param src
      * @see #getStopEvent()
      */
-    public void stopWhen(EventSource src) {
-        src.addListener(getStopEvent());
+    public void stopWhen(EventInput src) {
+        src.send(getStopEvent());
     }
 
     /**

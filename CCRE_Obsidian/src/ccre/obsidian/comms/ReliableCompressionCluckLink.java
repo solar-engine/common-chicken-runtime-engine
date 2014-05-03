@@ -73,7 +73,7 @@ public abstract class ReliableCompressionCluckLink extends ReliableCompressionLi
     }
 
     @Override
-    public final boolean transmit(String dest, String source, byte[] data) {
+    public final boolean send(String dest, String source, byte[] data) {
         try {
             if (dest.startsWith("unT/")) { // Marked as unreliable TO destination
                 compressionUnreliableTransmit(dest.substring(4), "unF/" + source, data);

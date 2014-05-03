@@ -18,8 +18,10 @@
  */
 package ccre.ctrl;
 
+import ccre.channel.EventStatus;
+import ccre.channel.EventOutput;
+import ccre.channel.EventInput;
 import ccre.concurrency.ReporterThread;
-import ccre.event.*;
 import ccre.log.*;
 
 /**
@@ -28,9 +30,9 @@ import ccre.log.*;
  *
  * @author MillerV, SkeggsC
  */
-public final class Ticker implements EventSource {
+public final class Ticker implements EventInput {
 
-    private final Event producer = new Event(); // TODO: Make this class inherit from something?
+    private final EventStatus producer = new EventStatus();
     private final ReporterThread main;
     private boolean isKilled = false;
 
@@ -76,11 +78,11 @@ public final class Ticker implements EventSource {
      * @param ec The EventConsumer to add.
      * @return Whether the operation was successful, which it always is.
      */
-    public boolean addListener(EventConsumer ec) {
+    public void send(EventOutput ec) {
         if (isKilled) {
             throw new IllegalStateException("The Ticker is dead!");
         }
-        return producer.addListener(ec);
+        producer.send(ec);
     }
 
     /**
@@ -89,8 +91,8 @@ public final class Ticker implements EventSource {
      *
      * @param ec The EventConsumer to remove.
      */
-    public void removeListener(EventConsumer ec) {
-        producer.removeListener(ec);
+    public void unsend(EventOutput ec) {
+        producer.unsend(ec);
     }
 
     /**

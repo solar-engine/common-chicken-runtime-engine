@@ -18,10 +18,10 @@
  */
 package intelligence;
 
-import ccre.chan.BooleanInput;
-import ccre.chan.BooleanStatus;
-import ccre.chan.FloatInput;
-import ccre.chan.FloatStatus;
+import ccre.channel.BooleanInput;
+import ccre.channel.BooleanStatus;
+import ccre.channel.FloatInput;
+import ccre.channel.FloatStatus;
 import ccre.cluck.CluckNode;
 import ccre.ctrl.Mixing;
 import ccre.util.LineCollectorOutputStream;
@@ -270,7 +270,7 @@ public class VirtualPhidgetMonitor extends javax.swing.JFrame implements IPhidge
             btn.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
-                    stat.writeValue(btn.isSelected());
+                    stat.set(btn.isSelected());
                 }
             });
             node.publish("phidget-bi" + i, (BooleanInput) stat);
@@ -282,7 +282,7 @@ public class VirtualPhidgetMonitor extends javax.swing.JFrame implements IPhidge
             ana.addChangeListener(new ChangeListener() {
                 @Override
                 public void stateChanged(ChangeEvent e) {
-                    stat.writeValue((ana.getValue() - 50) / 50f);
+                    stat.set((ana.getValue() - 50) / 50f);
                 }
             });
             node.publish("phidget-ai" + i, (FloatInput) stat);

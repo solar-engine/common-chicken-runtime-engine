@@ -18,11 +18,14 @@
  */
 package intelligence;
 
-import ccre.chan.*;
+import ccre.channel.BooleanInput;
+import ccre.channel.FloatOutput;
+import ccre.channel.BooleanOutput;
+import ccre.channel.FloatInput;
 import ccre.cluck.CluckNode;
 import static ccre.cluck.CluckNode.*;
-import ccre.event.EventConsumer;
-import ccre.event.EventSource;
+import ccre.channel.EventOutput;
+import ccre.channel.EventInput;
 import ccre.log.LogLevel;
 import ccre.log.Logger;
 import ccre.log.LoggingTarget;
@@ -123,12 +126,12 @@ public final class Entity {
                 g.fillRect(centerX - w + 1, centerY + h - rh - 1, w * 2 - 2, rh - 2);
                 break;
             case RMT_EVENTSOURCE:
-                EventSource es = (EventSource) co;
+                EventInput es = (EventInput) co;
                 if (!registered) {
                     registered = true;
-                    es.addListener(new EventConsumer() {
+                    es.send(new EventOutput() {
                         @Override
-                        public void eventFired() {
+                        public void event() {
                             countStart = System.currentTimeMillis();
                         }
                     });
@@ -140,9 +143,9 @@ public final class Entity {
                 BooleanInput bi = (BooleanInput) co;
                 if (!registered) {
                     registered = true;
-                    bi.addTarget(new BooleanOutput() {
+                    bi.send(new BooleanOutput() {
                         @Override
-                        public void writeValue(boolean value) {
+                        public void set(boolean value) {
                             currentValue = value;
                         }
                     });
@@ -173,9 +176,9 @@ public final class Entity {
                 FloatInput fi = (FloatInput) co;
                 if (!registered) {
                     registered = true;
-                    fi.addTarget(new FloatOutput() {
+                    fi.send(new FloatOutput() {
                         @Override
-                        public void writeValue(float value) {
+                        public void set(float value) {
                             currentValue = value;
                         }
                     });
@@ -258,8 +261,8 @@ public final class Entity {
         }
         switch (represented.type) {
             case RMT_EVENTCONSUMER:
-                EventConsumer ec = (EventConsumer) co;
-                ec.eventFired();
+                EventOutput ec = (EventOutput) co;
+                ec.event();
                 countStart = System.currentTimeMillis();
                 break;
             case RMT_EVENTSOURCE:
@@ -274,14 +277,14 @@ public final class Entity {
             case RMT_BOOLPROD:
                 if (this.represented.paired.checkout() instanceof BooleanOutput) {
                     BooleanOutput bo = (BooleanOutput) this.represented.paired.checkout;
-                    bo.writeValue(x < 0);
+                    bo.set(x < 0);
                 }
                 break;
             case RMT_BOOLOUTP:
                 BooleanOutput bo = (BooleanOutput) co;
                 boolean nw = x < 0;
                 if (currentValue == null || (Boolean) currentValue != nw || System.currentTimeMillis() - countStart >= 200) {
-                    bo.writeValue(nw);
+                    bo.set(nw);
                     currentValue = nw;
                     countStart = System.currentTimeMillis();
                 }
@@ -299,7 +302,7 @@ public final class Entity {
                             break;
                         }
                     }
-                    fo.writeValue(f);
+                    fo.set(f);
                 }
                 break;
             case RMT_FLOATOUTP:
@@ -314,7 +317,7 @@ public final class Entity {
                         break;
                     }
                 }
-                fo.writeValue(f);
+                fo.set(f);
                 currentValue = f;
                 countStart = System.currentTimeMillis();
                 break;

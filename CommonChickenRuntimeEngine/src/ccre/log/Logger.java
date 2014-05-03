@@ -47,31 +47,6 @@ public class Logger {
     public static synchronized void addTarget(LoggingTarget lt) {
         targets.add(lt);
     }
-    /**
-     * The minimum level of logging to keep when writing data using these
-     * globals. Anything below this level will be ignored.
-     */
-    private static LogLevel minimumLevel = LogLevel.FINEST;
-
-    /**
-     * Set the minimum logging level for the global methods in logger. Anything
-     * below this will be ignored.
-     *
-     * @param minimum The new minimum level.
-     */
-    public static void setMinimumLevel(LogLevel minimum) {
-        minimumLevel = minimum;
-    }
-
-    /**
-     * Get the minimum logging level for the global methods in logger. Anything
-     * below this will be ignored.
-     *
-     * @return The current minimum level.
-     */
-    public static LogLevel getMinimumLevel() {
-        return minimumLevel;
-    }
 
     /**
      * Log a given message and throwable at the given log level.
@@ -80,14 +55,12 @@ public class Logger {
      * @param message the message to log.
      * @param thr the Throwable to log
      */
-    public static void log(LogLevel level, String message, Throwable thr) {
+    public static void log(LogLevel level, String message, Throwable thr) { // TODO: Use the new methods now.
         if (level == null || message == null) {
             throw new NullPointerException();
         }
-        if (level.atLeastAsImportant(minimumLevel)) {
-            for (LoggingTarget lt : targets) {
-                lt.log(level, message, thr);
-            }
+        for (LoggingTarget lt : targets) {
+            lt.log(level, message, thr);
         }
     }
 
@@ -102,10 +75,8 @@ public class Logger {
         if (level == null || message == null) {
             throw new NullPointerException();
         }
-        if (level.atLeastAsImportant(minimumLevel)) {
-            for (LoggingTarget lt : targets) {
-                lt.log(level, message, extended);
-            }
+        for (LoggingTarget lt : targets) {
+            lt.log(level, message, extended);
         }
     }
 
@@ -180,5 +151,75 @@ public class Logger {
      */
     public static void finest(String message) {
         log(LogLevel.FINEST, message);
+    }
+
+    /**
+     * Log the given message and exception at SEVERE level.
+     *
+     * @param message the message to log.
+     * @param thr The exception to include in the log.
+     */
+    public static void severe(String message, Throwable thr) {
+        log(LogLevel.SEVERE, message, thr);
+    }
+
+    /**
+     * Log the given message and exception at WARNING level.
+     *
+     * @param message the message to log.
+     * @param thr The exception to include in the log.
+     */
+    public static void warning(String message, Throwable thr) {
+        log(LogLevel.WARNING, message, thr);
+    }
+
+    /**
+     * Log the given message and exception at INFO level.
+     *
+     * @param message the message to log.
+     * @param thr The exception to include in the log.
+     */
+    public static void info(String message, Throwable thr) {
+        log(LogLevel.INFO, message, thr);
+    }
+
+    /**
+     * Log the given message and exception at CONFIG level.
+     *
+     * @param message the message to log.
+     * @param thr The exception to include in the log.
+     */
+    public static void config(String message, Throwable thr) {
+        log(LogLevel.CONFIG, message, thr);
+    }
+
+    /**
+     * Log the given message and exception at FINE level.
+     *
+     * @param message the message to log.
+     * @param thr The exception to include in the log.
+     */
+    public static void fine(String message, Throwable thr) {
+        log(LogLevel.FINE, message, thr);
+    }
+
+    /**
+     * Log the given message and exception at FINER level.
+     *
+     * @param message the message to log.
+     * @param thr The exception to include in the log.
+     */
+    public static void finer(String message, Throwable thr) {
+        log(LogLevel.FINER, message, thr);
+    }
+
+    /**
+     * Log the given message and exception at FINEST level.
+     *
+     * @param message the message to log.
+     * @param thr The exception to include in the log.
+     */
+    public static void finest(String message, Throwable thr) {
+        log(LogLevel.FINEST, message, thr);
     }
 }

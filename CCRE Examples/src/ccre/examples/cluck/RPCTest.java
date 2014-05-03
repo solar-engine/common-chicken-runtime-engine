@@ -31,7 +31,7 @@ public class RPCTest {
         CluckNode serverNode = new CluckNode();
         CluckNullLink.connect(clientNode, "server", serverNode, "client");
         // Server
-        serverNode.publish("test-procedure", new SimpleProcedure() {
+        serverNode.getRPCManager().publish("test-procedure", new SimpleProcedure() {
             @Override
             public byte[] invoke(byte[] in) {
                 Logger.info("Server received input: " + new String(in));
@@ -39,7 +39,7 @@ public class RPCTest {
             }
         });
         // Client
-        RemoteProcedure proc = clientNode.subscribeRP("server/test-procedure", 40);
+        RemoteProcedure proc = clientNode.getRPCManager().subscribe("server/test-procedure", 40);
         byte[] result = SimpleProcedure.invoke(proc, "REQUEST".getBytes(), 50);
         Logger.info("Client received response: " + (result == null ? "TIMEOUT" : new String(result)));
     }

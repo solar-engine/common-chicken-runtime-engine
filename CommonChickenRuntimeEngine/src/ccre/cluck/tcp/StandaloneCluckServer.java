@@ -19,11 +19,10 @@
 package ccre.cluck.tcp;
 
 import ccre.cluck.CluckGlobals;
-import ccre.event.EventConsumer;
+import ccre.channel.EventOutput;
 import ccre.log.Logger;
 import ccre.log.NetworkAutologger;
 import ccre.net.Network;
-import ccre.reflect.ReflectionConsole;
 
 /**
  * A simple standalone cluck server for testing.
@@ -43,9 +42,8 @@ public class StandaloneCluckServer {
     public static void main(String[] args) {
         final long time = System.currentTimeMillis();
         NetworkAutologger.register();
-        ReflectionConsole.attach();
-        CluckGlobals.getNode().publish("status-report", new EventConsumer() {
-            public void eventFired() {
+        CluckGlobals.getNode().publish("status-report", new EventOutput() {
+            public void event() {
                 StringBuilder b = new StringBuilder("Standalone server online on [");
                 for (String addr : Network.listIPv4Addresses()) {
                     b.append(addr).append(", ");

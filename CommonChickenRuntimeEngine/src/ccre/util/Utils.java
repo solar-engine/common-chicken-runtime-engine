@@ -18,7 +18,7 @@
  */
 package ccre.util;
 
-import ccre.chan.FloatInputPoll;
+import ccre.channel.FloatInputPoll;
 import ccre.ctrl.Mixing;
 
 /**
@@ -174,5 +174,13 @@ public class Utils {
      */
     public static float bytesToFloat(byte[] array, int offset) {
         return Float.intBitsToFloat(Utils.bytesToInt(array, offset));
+    }
+    
+    public static boolean isStringEmpty(String str) {
+        return str.length() == 0; // TODO: Write docs for this method and then put it places where it could be used.
+    }
+    
+    public static boolean doesStringContain(String outer, String inner) {
+        return outer.indexOf(inner) != -1;
     }
 }

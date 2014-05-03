@@ -18,10 +18,10 @@
  */
 package ccre.ctrl;
 
-import ccre.chan.BooleanInput;
-import ccre.chan.BooleanInputPoll;
-import ccre.chan.BooleanOutput;
-import ccre.event.EventConsumer;
+import ccre.channel.BooleanInput;
+import ccre.channel.BooleanInputPoll;
+import ccre.channel.BooleanOutput;
+import ccre.channel.EventOutput;
 import ccre.util.CArrayList;
 
 /**
@@ -33,7 +33,7 @@ import ccre.util.CArrayList;
  *
  * @author skeggsc
  */
-public final class MultipleSourceBooleanController implements BooleanInput, EventConsumer {
+public final class MultipleSourceBooleanController implements BooleanInput, EventOutput {
 
     /**
      * Passed to the constructor to make the inputs be combined in an AND
@@ -171,7 +171,7 @@ public final class MultipleSourceBooleanController implements BooleanInput, Even
         consumers.remove(output);
     }
 
-    public void eventFired() {
+    public void event() {
         update();
     }
 

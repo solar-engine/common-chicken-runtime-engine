@@ -18,9 +18,9 @@
  */
 package ccre.igneous;
 
-import ccre.chan.FloatInputPoll;
-import ccre.event.EventConsumer;
-import ccre.event.EventSource;
+import ccre.channel.FloatInputPoll;
+import ccre.channel.EventOutput;
+import ccre.channel.EventInput;
 import java.awt.EventQueue;
 
 /**
@@ -34,7 +34,7 @@ public class GyroForm extends javax.swing.JFrame implements FloatInputPoll {
     /**
      * Creates new form ExtendedForm
      */
-    public GyroForm(final String title, EventSource resetWhen) {
+    public GyroForm(final String title, EventInput resetWhen) {
         initComponents();
         EventQueue.invokeLater(new Runnable() {
             @Override
@@ -43,9 +43,9 @@ public class GyroForm extends javax.swing.JFrame implements FloatInputPoll {
             }
         });
         if (resetWhen != null) {
-            resetWhen.addListener(new EventConsumer() {
+            resetWhen.send(new EventOutput() {
                 @Override
-                public void eventFired() {
+                public void event() {
                     EventQueue.invokeLater(new Runnable() {
                         @Override
                         public void run() {
@@ -119,7 +119,7 @@ public class GyroForm extends javax.swing.JFrame implements FloatInputPoll {
     // End of variables declaration//GEN-END:variables
 
     @Override
-    public float readValue() {
+    public float get() {
         return sliValue.getValue();
     }
 }

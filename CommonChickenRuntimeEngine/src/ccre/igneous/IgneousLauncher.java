@@ -18,10 +18,12 @@
  */
 package ccre.igneous;
 
-import ccre.chan.*;
+import ccre.channel.FloatInputPoll;
+import ccre.channel.BooleanOutput;
+import ccre.channel.FloatOutput;
+import ccre.channel.BooleanInputPoll;
 import ccre.ctrl.*;
-import ccre.device.*;
-import ccre.event.EventSource;
+import ccre.channel.EventInput;
 
 /**
  * This is a launcher for an Igneous application. The reason for this is so that
@@ -32,9 +34,7 @@ import ccre.event.EventSource;
  */
 public interface IgneousLauncher {
 
-    public IJoystick makeSimpleJoystick(int id);
-
-    public IDispatchJoystick makeDispatchJoystick(int id, EventSource source);
+    public IJoystick getKinectJoystick(boolean isRightArm);
 
     public FloatOutput makeJaguar(int id, boolean negate);
 
@@ -64,17 +64,15 @@ public interface IgneousLauncher {
 
     public void useCustomCompressor(BooleanInputPoll shouldDisable, int compressorRelayChannel);
 
-    public FloatInputPoll makeEncoder(int aChannel, int bChannel, boolean reverse, EventSource resetWhen);
+    public FloatInputPoll makeEncoder(int aChannel, int bChannel, boolean reverse, EventInput resetWhen);
 
     public BooleanOutput makeRelayForwardOutput(int channel);
 
     public BooleanOutput makeRelayReverseOutput(int channel);
 
-    public FloatInputPoll makeGyro(int port, double sensitivity, EventSource object);
+    public FloatInputPoll makeGyro(int port, double sensitivity, EventInput object);
 
     public FloatInputPoll makeAccelerometerAxis(int port, double sensitivity, double zeropoint);
-
-    public DeviceRegistry getDeviceRegistry() throws DeviceException;
 
     public FloatInputPoll getBatteryVoltage();
 }

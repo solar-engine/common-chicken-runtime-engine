@@ -18,8 +18,19 @@
  */
 package ccre.ctrl;
 
-import ccre.chan.*;
-import ccre.event.*;
+import ccre.channel.FloatInputPoll;
+import ccre.channel.BooleanOutput;
+import ccre.channel.FloatOutput;
+import ccre.channel.BooleanInputPoll;
+import ccre.channel.FloatFilter;
+import ccre.channel.BooleanInput;
+import ccre.channel.BooleanFilter;
+import ccre.channel.FloatInput;
+import ccre.channel.BooleanStatus;
+import ccre.channel.FloatStatus;
+import ccre.channel.EventStatus;
+import ccre.channel.EventOutput;
+import ccre.channel.EventInput;
 import ccre.log.Logger;
 import ccre.ctrl.MixingImpls.*;
 
@@ -153,10 +164,10 @@ public class Mixing {
      * @param b the second event source
      * @return the source that is fired by either of the original sources.
      */
-    public static EventSource combine(EventSource a, EventSource b) {
-        Event e = new Event();
-        a.addListener(e);
-        b.addListener(e);
+    public static EventInput combine(EventInput a, EventInput b) {
+        EventStatus e = new EventStatus();
+        a.send(e);
+        b.send(e);
         return e;
     }
 
@@ -167,10 +178,10 @@ public class Mixing {
      * @param sources the event sources
      * @return the source that is fired by any of the original sources.
      */
-    public static EventSource combine(EventSource... sources) {
-        Event e = new Event();
-        for (EventSource es : sources) {
-            es.addListener(e);
+    public static EventInput combine(EventInput... sources) {
+        EventStatus e = new EventStatus();
+        for (EventInput es : sources) {
+            es.send(e);
         }
         return e;
     }
@@ -491,7 +502,7 @@ public class Mixing {
      * @param value the value to write.
      * @return the event to write the value.
      */
-    public static EventConsumer getSetEvent(FloatOutput output, float value) {
+    public static EventOutput getSetEvent(FloatOutput output, float value) {
         return new GSEF(output, value);
     }
 
@@ -503,7 +514,7 @@ public class Mixing {
      * @param value the value to write.
      * @return the event to write the value.
      */
-    public static EventConsumer getSetEvent(BooleanOutput output, boolean value) {
+    public static EventOutput getSetEvent(BooleanOutput output, boolean value) {
         return new GSEB(output, value);
     }
 
@@ -515,8 +526,8 @@ public class Mixing {
      * @param out the output to write to.
      * @param value the value to write.
      */
-    public static void setWhen(EventSource when, FloatOutput out, float value) {
-        when.addListener(getSetEvent(out, value));
+    public static void setWhen(EventInput when, FloatOutput out, float value) {
+        when.send(getSetEvent(out, value));
     }
 
     /**
@@ -527,8 +538,8 @@ public class Mixing {
      * @param out the output to write to.
      * @param value the value to write.
      */
-    public static void setWhen(EventSource when, BooleanOutput out, boolean value) {
-        when.addListener(getSetEvent(out, value));
+    public static void setWhen(EventInput when, BooleanOutput out, boolean value) {
+        when.send(getSetEvent(out, value));
     }
 
     /**
@@ -540,7 +551,7 @@ public class Mixing {
      * @param toTrue if the output becomes true.
      * @return the output that can trigger the events.
      */
-    public static BooleanOutput triggerWhenBooleanChanges(final EventConsumer toFalse, final EventConsumer toTrue) {
+    public static BooleanOutput triggerWhenBooleanChanges(final EventOutput toFalse, final EventOutput toTrue) {
         return new BooleanOutput() {
             private boolean last;
 
@@ -551,12 +562,12 @@ public class Mixing {
                 if (value) {
                     last = true;
                     if (toTrue != null) {
-                        toTrue.eventFired();
+                        toTrue.event();
                     }
                 } else {
                     last = false;
                     if (toFalse != null) {
-                        toFalse.eventFired();
+                        toFalse.event();
                     }
                 }
             }
@@ -573,7 +584,7 @@ public class Mixing {
      * @param checkTrigger when to check for changes.
      * @return the EventSource that is fired when the input becomes the target.
      */
-    public static EventSource whenBooleanBecomes(BooleanInputPoll input, boolean target, EventSource checkTrigger) {
+    public static EventInput whenBooleanBecomes(BooleanInputPoll input, boolean target, EventInput checkTrigger) {
         return whenBooleanBecomes(createDispatch(input, checkTrigger), target);
     }
 
@@ -585,8 +596,8 @@ public class Mixing {
      * @param target the target value to trigger the event.
      * @return the EventSource that is fired when the input becomes the target.
      */
-    public static EventSource whenBooleanBecomes(BooleanInput input, boolean target) {
-        final Event out = new Event();
+    public static EventInput whenBooleanBecomes(BooleanInput input, boolean target) {
+        final EventStatus out = new EventStatus();
         input.send(new WBBI(target, out));
         return out;
     }
@@ -601,7 +612,7 @@ public class Mixing {
      * @param target the target to fire.
      * @return when to check if the target should be fired.
      */
-    public static EventConsumer filterEvent(BooleanInputPoll input, boolean requirement, EventConsumer target) {
+    public static EventOutput filterEvent(BooleanInputPoll input, boolean requirement, EventOutput target) {
         return new FEC(input, requirement, target);
     }
 
@@ -614,9 +625,9 @@ public class Mixing {
      * @param when when to check if the target should be fired.
      * @return the target to fire.
      */
-    public static EventSource filterEvent(BooleanInputPoll input, boolean requirement, EventSource when) {
-        final Event out = new Event();
-        when.addListener(new FES(input, requirement, out));
+    public static EventInput filterEvent(BooleanInputPoll input, boolean requirement, EventInput when) {
+        final EventStatus out = new EventStatus();
+        when.send(new FES(input, requirement, out));
         return out;
     }
 
@@ -686,7 +697,7 @@ public class Mixing {
      * @param out the output
      * @return the EventConsumer that pumps the value
      */
-    public static EventConsumer pumpEvent(final BooleanInputPoll in, final BooleanOutput out) {
+    public static EventOutput pumpEvent(final BooleanInputPoll in, final BooleanOutput out) {
         return new PumpEventImplB(out, in);
     }
 
@@ -698,7 +709,7 @@ public class Mixing {
      * @param out the output
      * @return the EventConsumer that pumps the value
      */
-    public static EventConsumer pumpEvent(final FloatInputPoll in, final FloatOutput out) {
+    public static EventOutput pumpEvent(final FloatInputPoll in, final FloatOutput out) {
         return new PumpEventImplF(out, in);
     }
 
@@ -710,8 +721,8 @@ public class Mixing {
      * @param in the input
      * @param out the output
      */
-    public static void pumpWhen(EventSource trigger, final BooleanInputPoll in, final BooleanOutput out) {
-        trigger.addListener(pumpEvent(in, out));
+    public static void pumpWhen(EventInput trigger, final BooleanInputPoll in, final BooleanOutput out) {
+        trigger.send(pumpEvent(in, out));
     }
 
     /**
@@ -722,8 +733,8 @@ public class Mixing {
      * @param in the input
      * @param out the output
      */
-    public static void pumpWhen(EventSource trigger, final FloatInputPoll in, final FloatOutput out) {
-        trigger.addListener(pumpEvent(in, out));
+    public static void pumpWhen(EventInput trigger, final FloatInputPoll in, final FloatOutput out) {
+        trigger.send(pumpEvent(in, out));
     }
 
     /**
@@ -733,11 +744,11 @@ public class Mixing {
      * @param events the events to fire
      * @return the trigger for firing the arguments.
      */
-    public static EventConsumer combine(final EventConsumer... events) {
-        return new EventConsumer() {
-            public void eventFired() {
-                for (EventConsumer cnsm : events) {
-                    cnsm.eventFired();
+    public static EventOutput combine(final EventOutput... events) {
+        return new EventOutput() {
+            public void event() {
+                for (EventOutput cnsm : events) {
+                    cnsm.event();
                 }
             }
         };
@@ -751,11 +762,11 @@ public class Mixing {
      * @param b the second event
      * @return the trigger for firing the arguments.
      */
-    public static EventConsumer combine(final EventConsumer a, final EventConsumer b) {
-        return new EventConsumer() {
-            public void eventFired() {
-                a.eventFired();
-                b.eventFired();
+    public static EventOutput combine(final EventOutput a, final EventOutput b) {
+        return new EventOutput() {
+            public void event() {
+                a.event();
+                b.event();
             }
         };
     }
@@ -842,7 +853,7 @@ public class Mixing {
      * @param trigger the event to dispatch at.
      * @return the dispatchable input.
      */
-    public static BooleanInput createDispatch(BooleanInputPoll input, EventSource trigger) {
+    public static BooleanInput createDispatch(BooleanInputPoll input, EventInput trigger) {
         BooleanStatus bstat = new BooleanStatus();
         Mixing.pumpWhen(trigger, input, bstat);
         return bstat;
@@ -857,7 +868,7 @@ public class Mixing {
      * @param trigger the event to dispatch at.
      * @return the dispatchable input.
      */
-    public static FloatInput createDispatch(FloatInputPoll input, EventSource trigger) {
+    public static FloatInput createDispatch(FloatInputPoll input, EventInput trigger) {
         FloatStatus fstat = new FloatStatus();
         Mixing.pumpWhen(trigger, input, fstat);
         return fstat;
@@ -873,7 +884,7 @@ public class Mixing {
      * @param target The output to write the current value to.
      * @return The EventConsumer that updates the ramping system.
      */
-    public static EventConsumer createRamper(final float limit, final FloatInputPoll from, final FloatOutput target) {
+    public static EventOutput createRamper(final float limit, final FloatInputPoll from, final FloatOutput target) {
         return new RampingImpl(from, limit, target);
     }
 
@@ -887,9 +898,9 @@ public class Mixing {
      * @param target The target to wrap.
      * @return The wrapped output.
      */
-    public static FloatOutput addRamping(final float limit, EventSource updateWhen, final FloatOutput target) {
+    public static FloatOutput addRamping(final float limit, EventInput updateWhen, final FloatOutput target) {
         FloatStatus temp = new FloatStatus();
-        updateWhen.addListener(createRamper(limit, temp, target));
+        updateWhen.send(createRamper(limit, temp, target));
         return temp;
     }
 
@@ -903,9 +914,9 @@ public class Mixing {
      * @param source The source to wrap
      * @return The wrapped input.
      */
-    public static FloatInputPoll addRamping(final float limit, EventSource updateWhen, final FloatInputPoll source) {
+    public static FloatInputPoll addRamping(final float limit, EventInput updateWhen, final FloatInputPoll source) {
         FloatStatus temp = new FloatStatus();
-        updateWhen.addListener(createRamper(limit, source, temp));
+        updateWhen.send(createRamper(limit, source, temp));
         return temp;
     }
 
@@ -937,7 +948,7 @@ public class Mixing {
      * from the last update of this.
      * @return The FloatInputPoll representing the rate.
      */
-    public static FloatInputPoll findRate(final FloatInputPoll input, EventSource updateWhen) {
+    public static FloatInputPoll findRate(final FloatInputPoll input, EventInput updateWhen) {
         return new FindRateCycledImpl(input).start(updateWhen);
     }
 
@@ -987,7 +998,7 @@ public class Mixing {
      * @param minMillis The minimum event delay.
      * @return The debounced version of the event consumer.
      */
-    public static EventConsumer debounce(EventConsumer orig, int minMillis) {
+    public static EventOutput debounce(EventOutput orig, int minMillis) {
         return new DebounceImpl(orig, minMillis);
     }
 
@@ -1001,9 +1012,9 @@ public class Mixing {
      * @param minMillis The minimum event delay.
      * @return The debounced version of the event source.
      */
-    public static EventSource debounce(EventSource orig, int minMillis) {
-        Event e = new Event();
-        orig.addListener(debounce((EventConsumer) e, minMillis));
+    public static EventInput debounce(EventInput orig, int minMillis) {
+        EventStatus e = new EventStatus();
+        orig.send(debounce((EventOutput) e, minMillis));
         return e;
     }
 }

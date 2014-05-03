@@ -18,10 +18,10 @@
  */
 package ccre.concurrency;
 
-import ccre.chan.BooleanInput;
-import ccre.chan.BooleanStatus;
-import ccre.event.EventConsumer;
-import ccre.event.EventSource;
+import ccre.channel.BooleanInput;
+import ccre.channel.BooleanStatus;
+import ccre.channel.EventOutput;
+import ccre.channel.EventInput;
 import ccre.log.LogLevel;
 import ccre.log.Logger;
 
@@ -37,7 +37,7 @@ import ccre.log.Logger;
  *
  * @author skeggsc
  */
-public abstract class CollapsingWorkerThread extends ReporterThread implements EventConsumer {
+public abstract class CollapsingWorkerThread extends ReporterThread implements EventOutput {
 
     /**
      * Does this thread need to run its work?
@@ -87,7 +87,7 @@ public abstract class CollapsingWorkerThread extends ReporterThread implements E
      *
      * @see #trigger()
      */
-    public void eventFired() {
+    public void event() {
         trigger();
     }
 
@@ -97,10 +97,10 @@ public abstract class CollapsingWorkerThread extends ReporterThread implements E
      * listener to the given EventSource.
      *
      * @param event when to trigger the work.
-     * @see #eventFired()
+     * @see #event()
      */
-    public void triggerWhen(EventSource event) {
-        event.addListener(this);
+    public void triggerWhen(EventInput event) {
+        event.send(this);
     }
 
     /**

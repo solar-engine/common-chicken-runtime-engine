@@ -18,15 +18,15 @@
  */
 package ccre.testing;
 
-import ccre.event.Event;
-import ccre.event.EventConsumer;
+import ccre.channel.EventStatus;
+import ccre.channel.EventOutput;
 
 /**
  * A test that tests some parts of the Event class.
  *
  * @author skeggsc
  */
-public final class TestEvent extends BaseTest implements EventConsumer {
+public final class TestEvent extends BaseTest implements EventOutput {
 
     @Override
     public String getName() {
@@ -36,18 +36,18 @@ public final class TestEvent extends BaseTest implements EventConsumer {
 
     @Override
     protected void runTest() throws TestingException {
-        Event event = new Event();
+        EventStatus event = new EventStatus();
         eventCalled = 0;
-        assertTrue(event.addListener(this), "Event did not add properly!");
+        event.send(this);
         assertEqual(eventCalled, 0, "Event fired too soon!");
         event.produce();
         assertEqual(eventCalled, 1, "Event did not fire properly!");
-        event.removeListener(this);
+        event.unsend(this);
         event.produce();
         assertEqual(eventCalled, 1, "Event did not remove properly!");
     }
 
-    public void eventFired() {
+    public void event() {
         eventCalled++;
     }
 }

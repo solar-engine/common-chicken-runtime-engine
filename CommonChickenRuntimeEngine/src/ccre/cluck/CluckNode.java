@@ -18,10 +18,17 @@
  */
 package ccre.cluck;
 
-import ccre.chan.*;
+import ccre.channel.BooleanOutput;
+import ccre.channel.BooleanInput;
+import ccre.channel.FloatOutput;
+import ccre.channel.FloatInput;
+import ccre.channel.BooleanStatus;
+import ccre.channel.FloatStatus;
+import ccre.channel.EventStatus;
+import ccre.channel.EventInput;
+import ccre.channel.EventOutput;
 import ccre.cluck.rpc.RPCManager;
 import ccre.concurrency.ConcurrentDispatchArray;
-import ccre.event.*;
 import ccre.log.*;
 import ccre.util.*;
 import ccre.workarounds.ThrowablePrinter;
@@ -386,12 +393,12 @@ public class CluckNode {
      * @param name The name for the EventConsumer.
      * @param consumer The EventConsumer.
      */
-    public void publish(String name, final EventConsumer consumer) {
+    public void publish(String name, final EventOutput consumer) {
         new CluckSubscriber(this) {
             @Override
             protected void receive(String source, byte[] data) {
                 if (requireRMT(source, data, RMT_EVENTCONSUMER)) {
-                    consumer.eventFired();
+                    consumer.event();
                 }
             }
 
@@ -408,9 +415,9 @@ public class CluckNode {
      * @param path The path to subscribe to.
      * @return the EventConsumer.
      */
-    public EventConsumer subscribeEC(final String path) {
-        return new EventConsumer() {
-            public void eventFired() {
+    public EventOutput subscribeEC(final String path) {
+        return new EventOutput() {
+            public void event() {
                 transmit(path, null, new byte[]{RMT_EVENTCONSUMER});
             }
         };
@@ -422,10 +429,10 @@ public class CluckNode {
      * @param name The name for the EventSource.
      * @param source The EventSource.
      */
-    public void publish(final String name, EventSource source) {
+    public void publish(final String name, EventInput source) {
         final ConcurrentDispatchArray<String> remotes = new ConcurrentDispatchArray<String>();
-        source.addListener(new EventConsumer() {
-            public void eventFired() {
+        source.send(new EventOutput() {
+            public void event() {
                 for (String remote : remotes) {
                     transmit(remote, name, new byte[]{RMT_EVENTSOURCERESP});
                 }
@@ -458,18 +465,17 @@ public class CluckNode {
      * @param path The path to subscribe to.
      * @return the EventSource.
      */
-    public EventSource subscribeES(final String path) {
+    public EventInput subscribeES(final String path) {
         final String linkName = "srcES-" + path.hashCode() + "-" + UniqueIds.global.nextHexId();
         final BooleanStatus sent = new BooleanStatus();
-        final Event e = new Event() {
+        final EventStatus e = new EventStatus() {
             @Override
-            public boolean addListener(EventConsumer cns) {
-                boolean out = super.addListener(cns);
+            public void send(EventOutput cns) {
+                super.send(cns);
                 if (!sent.get()) {
                     sent.set(true);
                     transmit(path, linkName, new byte[]{RMT_EVENTSOURCE});
                 }
-                return out;
             }
         };
         new CluckSubscriber(this) {
@@ -514,7 +520,7 @@ public class CluckNode {
                         Logger.warning("Bad data length to Logging Target!");
                         return;
                     }
-                    String message = new String(data, 10, l1); // TODO: Figure out how to use UTF-8 on the robot.
+                    String message = new String(data, 10, l1);
                     String extended = l2 == 0 ? null : new String(data, 10 + l1, l2);
                     lt.log(LogLevel.fromByte(data[1]), message, extended);
                 }

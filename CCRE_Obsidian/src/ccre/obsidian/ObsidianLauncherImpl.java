@@ -18,10 +18,10 @@
  */
 package ccre.obsidian;
 
-import ccre.chan.BooleanInputPoll;
-import ccre.chan.BooleanOutput;
-import ccre.chan.FloatInputPoll;
-import ccre.chan.FloatOutput;
+import ccre.channel.BooleanInputPoll;
+import ccre.channel.BooleanOutput;
+import ccre.channel.FloatInputPoll;
+import ccre.channel.FloatOutput;
 import ccre.log.Logger;
 import java.io.File;
 import java.io.IOException;
@@ -35,7 +35,7 @@ import java.util.TimerTask;
  * @author skeggsc
  */
 public class ObsidianLauncherImpl extends ObsidianLauncher {
-    public static void main(String[] args) throws IOException, ClassNotFoundException, InstantiationException, IllegalAccessException {
+    public static void main(String[] args) throws IOException, ClassNotFoundException, InstantiationException, IllegalAccessException, Exception {
         System.setProperty("gnu.io.rxtx.SerialPorts", "/dev/ttyUSB0");
         if (args.length != 0) {
             if ("use-watcher".equals(args[0])) {
@@ -112,14 +112,14 @@ public class ObsidianLauncherImpl extends ObsidianLauncher {
         final FloatOutput raw = PWMManager.createPWMOutput(chan, ((defaultValue + 1) / 2) * (calibrateN2 - calibrateN1) + calibrateN1, frequency, zeroPolarity);
         return new FloatOutput() {
             @Override
-            public void writeValue(float f) {
+            public void set(float f) {
                 if (f < -1) {
                     f = -1;
                 } else if (f > 1) {
                     f = 1;
                 }
                 float a = ((f + 1) / 2) * (calibrateN2 - calibrateN1) + calibrateN1;
-                raw.writeValue(a);
+                raw.set(a);
             }
         };
     }

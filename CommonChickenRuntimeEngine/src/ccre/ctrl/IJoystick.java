@@ -18,10 +18,10 @@
  */
 package ccre.ctrl;
 
-import ccre.chan.BooleanInputPoll;
-import ccre.chan.FloatInput;
-import ccre.chan.FloatInputPoll;
-import ccre.event.EventSource;
+import ccre.channel.BooleanInputPoll;
+import ccre.channel.FloatInput;
+import ccre.channel.FloatInputPoll;
+import ccre.channel.EventInput;
 
 /**
  * A joystick that provides channels for all of its inputs.
@@ -36,7 +36,7 @@ public interface IJoystick {
      * @param id the button ID.
      * @return the EventSource representing the button being pressed.
      */
-    public EventSource getButtonSource(int id);
+    public EventInput getButtonSource(int id);
 
     /**
      * Get a FloatInput that represents the given axis.

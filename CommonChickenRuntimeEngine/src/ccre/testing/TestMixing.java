@@ -18,7 +18,7 @@
  */
 package ccre.testing;
 
-import ccre.chan.FloatFilter;
+import ccre.channel.FloatFilter;
 import ccre.ctrl.Mixing;
 
 /**

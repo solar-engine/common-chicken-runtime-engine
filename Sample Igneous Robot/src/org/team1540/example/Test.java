@@ -18,15 +18,15 @@
  */
 package org.team1540.example;
 
-import ccre.chan.*;
+import ccre.channel.*;
 import ccre.ctrl.DriverImpls;
-import ccre.igneous.SimpleCore;
+import ccre.igneous.IgneousCore;
 import ccre.instinct.AutonomousModeOverException;
 import ccre.instinct.InstinctModule;
 
-public class Test extends SimpleCore {
+public class Test extends IgneousCore {
 
-    protected void createSimpleControl() {
+    protected void createRobotControl() {
         // Driving
         FloatInputPoll leftAxis = joystick1.getAxisChannel(2);
         FloatInputPoll rightAxis = joystick1.getAxisChannel(5);
@@ -44,11 +44,11 @@ public class Test extends SimpleCore {
         // Autonomous
         new InstinctModule() {
             protected void autonomousMain() throws AutonomousModeOverException, InterruptedException {
-                leftOut.writeValue(-1);
-                rightOut.writeValue(-1);
+                leftOut.set(-1);
+                rightOut.set(-1);
                 waitForTime(5000);
-                leftOut.writeValue(0);
-                rightOut.writeValue(0);
+                leftOut.set(0);
+                rightOut.set(0);
             }
         }.register(this);
     }

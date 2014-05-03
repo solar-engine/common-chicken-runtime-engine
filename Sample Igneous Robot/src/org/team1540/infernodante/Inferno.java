@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 Colby Skeggs, Casey Currey-Wilson
+ * Copyright 2013-2014 Colby Skeggs, Casey Currey-Wilson
  * 
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  * 
@@ -18,26 +18,24 @@
  */
 package org.team1540.infernodante;
 
-import ccre.chan.*;
+import ccre.channel.*;
 import ccre.cluck.CluckGlobals;
 import ccre.ctrl.*;
-import ccre.event.EventConsumer;
-import ccre.event.EventSource;
-import ccre.igneous.SimpleCore;
+import ccre.igneous.IgneousCore;
 import ccre.phidget.PhidgetReader;
 import ccre.ctrl.ExpirationTimer;
 import java.util.Timer;
 import java.util.TimerTask;
 
-public class Inferno extends SimpleCore {
+public class Inferno extends IgneousCore {
 
     public static final boolean IS_COMPETITION_ROBOT = true;
     public static final long FRISBEE_SERVO_DELAY_MILLIS = 500;
     private BooleanInput isKiddieMode;
 
     private void createShifting() {
-        EventSource shiftHighBtn = joystick1.getButtonSource(1);
-        EventSource shiftLowBtn = joystick1.getButtonSource(3);
+        EventInput shiftHighBtn = joystick1.getButtonSource(1);
+        EventInput shiftLowBtn = joystick1.getButtonSource(3);
         BooleanStatus shifter = new BooleanStatus(makeSolenoid(2));
         shifter.setFalseWhen(startedTeleop);
         shifter.setTrueWhen(shiftLowBtn);
@@ -72,7 +70,7 @@ public class Inferno extends SimpleCore {
     private void createArm() {
         FloatInputPoll manualArm = PhidgetReader.getAnalogInput(5);
         FloatInputPoll armPotentiometer = makeAnalogInput(2, 9);
-        CluckGlobals.node.publish("arm-potentiometer", Mixing.createDispatch(armPotentiometer, globalPeriodic));
+        CluckGlobals.getNode().publish("arm-potentiometer", Mixing.createDispatch(armPotentiometer, globalPeriodic));
         FloatOutput armMotor = IS_COMPETITION_ROBOT ? makeTalonMotor(6, MOTOR_FORWARD, 0) : makeVictorMotor(6, MOTOR_REVERSE, 0);
 
         createPotentiometerReadout(armPotentiometer);
@@ -93,18 +91,18 @@ public class Inferno extends SimpleCore {
     private void createArmButtonActions(BooleanStatus deactivateBrake) {
         // Check when the arm override mover is moved.
         BooleanInputPoll isArmOverride = Mixing.floatIsOutsideRange(PhidgetReader.getAnalogInput(5), -0.2f, 0.2f);
-        EventSource duringArmOverride = Mixing.filterEvent(isArmOverride, true, (EventSource) duringTeleop);
+        EventInput duringArmOverride = Mixing.filterEvent(isArmOverride, true, (EventInput) duringTeleop);
         // Check when one of the analog-dispatch buttons is activated.
         FloatInputPoll armSelectorValue = PhidgetReader.getAnalogInput(4);
         BooleanInputPoll isArmFront = Mixing.floatIsInRange(armSelectorValue, -0.26f, -0.24f); // Measured constants.
         BooleanInputPoll isArmTop = Mixing.floatIsInRange(armSelectorValue, -1f, -0.99f);
         BooleanInputPoll isArmBack = Mixing.floatIsInRange(armSelectorValue, 0.362f, 0.382f);
-        EventSource onPressArmFront = Mixing.whenBooleanBecomes(isArmFront, true, duringTeleop);
-        EventSource onPressArmTop = Mixing.whenBooleanBecomes(isArmTop, true, duringTeleop);
-        EventSource onPressArmBack = Mixing.whenBooleanBecomes(isArmBack, true, duringTeleop);
+        EventInput onPressArmFront = Mixing.whenBooleanBecomes(isArmFront, true, duringTeleop);
+        EventInput onPressArmTop = Mixing.whenBooleanBecomes(isArmTop, true, duringTeleop);
+        EventInput onPressArmBack = Mixing.whenBooleanBecomes(isArmBack, true, duringTeleop);
         // Chuck when one of the normal buttons is pressed
-        EventSource onPressDropSuction = Mixing.whenBooleanBecomes(PhidgetReader.digitalInputs[2], true);
-        EventSource onPressPyramidActuated = Mixing.whenBooleanBecomes(PhidgetReader.digitalInputs[6], true);
+        EventInput onPressDropSuction = Mixing.whenBooleanBecomes(PhidgetReader.getDigitalInput(2), true);
+        EventInput onPressPyramidActuated = Mixing.whenBooleanBecomes(PhidgetReader.getDigitalInput(6), true);
         // Activate the break when the pyramid actuation button is pressed, deactivate on anything else
         deactivateBrake.setFalseWhen(onPressPyramidActuated);
         deactivateBrake.setTrueWhen(duringArmOverride);
@@ -124,24 +122,24 @@ public class Inferno extends SimpleCore {
         armController.setSetpointWhen(PController.ARM_LOAD_PRESET, onPressArmBack);
         armController.setSetpointWhen(PController.ARM_DROP_PRESET, onPressDropSuction);
         // Once stable and set to the pickup position, suspend the arm.
-        armController.suspendOnceStable = Mixing.floatsEqual(armController.setpoint, PController.ARM_PICKUP_PRESET);
+        //armController.suspendOnceStable = Mixing.floatsEqual(armController.setpoint, PController.ARM_PICKUP_PRESET);
     }
 
     private void createArmDropper() {
-        BooleanInputProducer isCorralSwitchUp = PhidgetReader.digitalInputs[0]; // TODO: Make this default to true!
+        BooleanInput isCorralSwitchUp = PhidgetReader.getDigitalInput(0); // TODO: Make this default to true!
         FloatOutput armServo = makeServo(7, 0, 170);
         BooleanOutput armDrop = makeSolenoid(3);
         ExpirationTimer delayServoClose = new ExpirationTimer();
         delayServoClose.schedule(FRISBEE_SERVO_DELAY_MILLIS, Mixing.getSetEvent(armServo, 120));
-        isCorralSwitchUp.addTarget(delayServoClose.getRunningControl());
-        isCorralSwitchUp.addTarget(Mixing.triggerWhenBooleanChanges(Mixing.getSetEvent(armServo, 0), null));
-        isCorralSwitchUp.addTarget(armDrop);
+        isCorralSwitchUp.send(delayServoClose.getRunningControl());
+        isCorralSwitchUp.send(Mixing.triggerWhenBooleanChanges(Mixing.getSetEvent(armServo, 0), null));
+        isCorralSwitchUp.send(armDrop);
     }
 
     private void createLightPatternGenerator() {
-        final BooleanOutput[] outs = PhidgetReader.digitalOutputs;
-        final BooleanOutput backArmLED = outs[4], topArmLED = outs[6], frontArmLED = outs[5];
-        final BooleanOutput dropSuctionLED = outs[2], leftSuctionLED = outs[1], rightSuctionLED = outs[3];
+        final BooleanOutput backArmLED = PhidgetReader.getDigitalOutput(4), topArmLED = PhidgetReader.getDigitalOutput(6);
+        final BooleanOutput frontArmLED = PhidgetReader.getDigitalOutput(5), dropSuctionLED = PhidgetReader.getDigitalOutput(2);
+        final BooleanOutput leftSuctionLED = PhidgetReader.getDigitalOutput(1), rightSuctionLED = PhidgetReader.getDigitalOutput(3);
 
         final BooleanOutput leftLEDs = Mixing.combine(backArmLED, topArmLED, frontArmLED);
         final BooleanOutput rightLEDs = Mixing.combine(dropSuctionLED, leftSuctionLED, rightSuctionLED);
@@ -151,64 +149,64 @@ public class Inferno extends SimpleCore {
 
             public void run() {
                 frame++;
-                if (isDisabled.readValue()) {
+                if (isDisabled.get()) {
                     frame %= 12;
-                    backArmLED.writeValue(frame < 2);
-                    topArmLED.writeValue(frame >= 2 && frame < 4);
-                    frontArmLED.writeValue(frame >= 4 && frame < 6);
-                    rightSuctionLED.writeValue(frame >= 6 && frame < 8);
-                    dropSuctionLED.writeValue(frame >= 8 && frame < 10);
-                    leftSuctionLED.writeValue(frame >= 10);
-                } else if (isAuto.readValue()) {
+                    backArmLED.set(frame < 2);
+                    topArmLED.set(frame >= 2 && frame < 4);
+                    frontArmLED.set(frame >= 4 && frame < 6);
+                    rightSuctionLED.set(frame >= 6 && frame < 8);
+                    dropSuctionLED.set(frame >= 8 && frame < 10);
+                    leftSuctionLED.set(frame >= 10);
+                } else if (isAuto.get()) {
                     frame %= 8;
                     boolean on = frame < 4;
-                    leftLEDs.writeValue(on);
-                    rightLEDs.writeValue(!on);
+                    leftLEDs.set(on);
+                    rightLEDs.set(!on);
                 } else { // Teleop!
-                    rightSuctionLED.writeValue(false);
-                    leftSuctionLED.writeValue(false);
+                    rightSuctionLED.set(false);
+                    leftSuctionLED.set(false);
                     frame %= 4;
                     if (armController == null) {
                         boolean on = frame < 2;
-                        frontArmLED.writeValue(on);
-                        topArmLED.writeValue(on);
-                        backArmLED.writeValue(on);
-                        dropSuctionLED.writeValue(on);
+                        frontArmLED.set(on);
+                        topArmLED.set(on);
+                        backArmLED.set(on);
+                        dropSuctionLED.set(on);
                     } else {
-                        if (!armController.enabled.readValue()) {
-                            frontArmLED.writeValue(false);
-                            topArmLED.writeValue(false);
-                            backArmLED.writeValue(false);
-                            dropSuctionLED.writeValue(false);
+                        if (!armController.enabled.get()) {
+                            frontArmLED.set(false);
+                            topArmLED.set(false);
+                            backArmLED.set(false);
+                            dropSuctionLED.set(false);
                         } else {
-                            float val = armController.setpoint.readValue();
+                            float val = armController.setpoint.get();
                             // Pickup, drive, load, drop
-                            if (val == PController.ARM_PICKUP_PRESET.readValue()) {
-                                frontArmLED.writeValue(true);
-                                topArmLED.writeValue(false);
-                                backArmLED.writeValue(false);
-                                dropSuctionLED.writeValue(false);
-                            } else if (val == PController.ARM_DRIVE_PRESET.readValue()) {
-                                frontArmLED.writeValue(false);
-                                topArmLED.writeValue(true);
-                                backArmLED.writeValue(false);
-                                dropSuctionLED.writeValue(false);
-                            } else if (val == PController.ARM_LOAD_PRESET.readValue()) {
-                                frontArmLED.writeValue(false);
-                                topArmLED.writeValue(false);
-                                backArmLED.writeValue(true);
-                                dropSuctionLED.writeValue(false);
-                            } else if (val == PController.ARM_DROP_PRESET.readValue()) {
-                                frontArmLED.writeValue(false);
-                                topArmLED.writeValue(false);
-                                backArmLED.writeValue(false);
-                                dropSuctionLED.writeValue(true);
+                            if (val == PController.ARM_PICKUP_PRESET.get()) {
+                                frontArmLED.set(true);
+                                topArmLED.set(false);
+                                backArmLED.set(false);
+                                dropSuctionLED.set(false);
+                            } else if (val == PController.ARM_DRIVE_PRESET.get()) {
+                                frontArmLED.set(false);
+                                topArmLED.set(true);
+                                backArmLED.set(false);
+                                dropSuctionLED.set(false);
+                            } else if (val == PController.ARM_LOAD_PRESET.get()) {
+                                frontArmLED.set(false);
+                                topArmLED.set(false);
+                                backArmLED.set(true);
+                                dropSuctionLED.set(false);
+                            } else if (val == PController.ARM_DROP_PRESET.get()) {
+                                frontArmLED.set(false);
+                                topArmLED.set(false);
+                                backArmLED.set(false);
+                                dropSuctionLED.set(true);
                             } else {
                                 boolean on = frame < 2;
-                                frontArmLED.writeValue(on);
-                                topArmLED.writeValue(!on);
-                                backArmLED.writeValue(on);
-                                dropSuctionLED.writeValue(!on);
+                                frontArmLED.set(on);
+                                topArmLED.set(!on);
+                                backArmLED.set(on);
+                                dropSuctionLED.set(!on);
                             }
                         }
                     }
@@ -219,7 +217,7 @@ public class Inferno extends SimpleCore {
     
     private void createClimber() {
         MultipleSourceBooleanController valve = new MultipleSourceBooleanController(MultipleSourceBooleanController.OR);
-        valve.addTarget(makeSolenoid(8));
+        valve.send(makeSolenoid(8));
         valve.addInput(PhidgetReader.getDigitalInput(3));
         BooleanStatus climbControl = new BooleanStatus(makeSolenoid(6));
         valve.addInput(climbControl);
@@ -229,15 +227,15 @@ public class Inferno extends SimpleCore {
 
     private void createPressureMonitoring() {
         final FloatInputPoll pressure = Mixing.normalizeFloat(makeAnalogInput_ValueBased(1, 14), 100, 587);
-        globalPeriodic.addListener(new EventConsumer() {
-            public void eventFired() {
-                PhidgetReader.phidgetLCD[0].println("Pressure: " + ((int) (pressure.readValue() * 100)) + "%\n");
+        globalPeriodic.send(new EventOutput() {
+            public void event() {
+                PhidgetReader.getLCDLine(0).println("Pressure: " + ((int) (pressure.get() * 100)) + "%\n");
             }
         });
         useCustomCompressor(Mixing.floatIsAtLeast(pressure, 1.0f), 1);
     }
 
-    protected void createSimpleControl() {
+    protected void createRobotControl() {
         createLightPatternGenerator();
         createShifting();
         createDriving();

@@ -18,10 +18,10 @@
  */
 package ccre.testing;
 
-import ccre.chan.FloatOutput;
-import ccre.chan.FloatStatus;
-import ccre.event.Event;
-import ccre.event.EventConsumer;
+import ccre.channel.FloatOutput;
+import ccre.channel.FloatStatus;
+import ccre.channel.EventStatus;
+import ccre.channel.EventOutput;
 
 /**
  * Test FloatStatus.
@@ -88,8 +88,7 @@ public class TestFloatStatus extends BaseTest {
         assertTrue(c2[0], "Expected write when value modified!");
         assertEqual(cur[0], -4.6f, "Expected write of -4.6f!");
         c2[0] = false;
-        assertTrue(status.unsend(b), "Expected existing subscription!");
-        assertFalse(status.unsend(b), "Expected no subscription!");
+        status.unsend(b);
         status.set(1.8f);
         status.set(0.0f);
         assertFalse(c2[0], "Expected no write after removal!");
@@ -113,7 +112,7 @@ public class TestFloatStatus extends BaseTest {
         status.set(1.8f);
         assertTrue(c1[0], "Expected write!");
         c1[0] = false;
-        assertTrue(status.unsend(b), "Expected subscription!");
+        status.unsend(b);
         status.set(-3.2f);
         assertFalse(c1[0], "Expected no write once removed!");
 
@@ -132,14 +131,12 @@ public class TestFloatStatus extends BaseTest {
         assertTrue(c1[1], "Expected write!");
         c1[0] = false;
         c1[1] = false;
-        assertTrue(status.unsend(b), "Expected subscription!");
-        assertFalse(status.unsend(b), "Expected no subscription!");
+        status.unsend(b);
         status.set(-0.002f);
         assertFalse(c1[0], "Expected no write once removed!");
         assertTrue(c1[1], "Expected write!");
         c1[1] = false;
-        assertTrue(status.unsend(b2), "Expected subscription!");
-        assertFalse(status.unsend(b2), "Expected no subscription!");
+        status.unsend(b2);
         status.set(3.6f);
         assertFalse(c1[0], "Expected no write once removed!");
         assertFalse(c1[1], "Expected no write once removed!");
@@ -159,16 +156,16 @@ public class TestFloatStatus extends BaseTest {
         };
         final FloatStatus status = new FloatStatus(b);
         assertEqual(cur[0], 0.0f, "Expected false default!");
-        EventConsumer st1_7f = status.getSetEvent(1.7f);
+        EventOutput st1_7f = status.getSetEvent(1.7f);
         assertEqual(cur[0], 0.0f, "Expected no write when getting events!");
-        st1_7f.eventFired();
+        st1_7f.event();
         assertEqual(cur[0], 1.7f, "Expected write!");
-        st1_7f.eventFired();
+        st1_7f.event();
         assertEqual(cur[0], 1.7f, "Expected write!");
-        Event sp1_7f = new Event();
+        EventStatus sp1_7f = new EventStatus();
         status.setWhen(-8.2f, sp1_7f);
         assertEqual(cur[0], 1.7f, "Expected no write!");
-        sp1_7f.eventFired();
+        sp1_7f.event();
         assertEqual(cur[0], -8.2f, "Expected write!");
     }
 

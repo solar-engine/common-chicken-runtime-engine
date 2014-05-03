@@ -18,22 +18,16 @@
  */
 package ccre.igneous;
 
-import ccre.chan.*;
+import ccre.channel.*;
 import ccre.cluck.CluckGlobals;
 import ccre.cluck.tcp.CluckTCPServer;
 import ccre.ctrl.*;
-import ccre.device.DeviceException;
-import ccre.device.DeviceRegistry;
-import ccre.event.*;
 import ccre.log.*;
 import ccre.net.IgneousNetworkProvider;
-import ccre.reflect.ReflectionConsole;
 import ccre.saver.IgneousStorageProvider;
-import ccre.util.LineCollectorOutputStream;
 import ccre.workarounds.IgneousThrowablePrinter;
 import com.sun.squawk.VM;
 import edu.wpi.first.wpilibj.*;
-import java.io.OutputStream;
 
 /**
  * The Squawk implementation of the IgneousLauncher interface. Do not use this!
@@ -48,31 +42,17 @@ class IgneousLauncherImpl extends IterativeRobot implements IgneousLauncher {
      * The robot's core program.
      */
     public final IgneousCore core;
-    /**
-     * The robot's compressor.
-     */
-    private CCustomCompressor compressor;
-    /**
-     * The robot's device registry.
-     */
-    private DeviceRegistry devTree;
 
     IgneousLauncherImpl() {
         IgneousNetworkProvider.register();
         IgneousThrowablePrinter.register();
         IgneousStorageProvider.register();
-        CluckGlobals.ensureInitializedCore();
         NetworkAutologger.register();
         BootLogger.register();
         FileLogger.register();
-        ReflectionConsole.attach();
         String name = VM.getManifestProperty("Igneous-Main");
         if (name == null) {
             throw new RuntimeException("Could not find MANIFEST-specified launchee!");
-        }
-        if (name.equals("cel")) {
-            core = new CelCore();
-            return;
         }
         try {
             core = (IgneousCore) Class.forName(name).newInstance();
@@ -91,7 +71,7 @@ class IgneousLauncherImpl extends IterativeRobot implements IgneousLauncher {
     /**
      * Produced during every state where the driver station is attached.
      */
-    protected Event globalPeriodic = new Event();
+    protected EventStatus globalPeriodic = new EventStatus();
 
     public final void robotInit() {
         //CluckGlobals.setupServer() - No longer helpful on the robot because this port is now used by default.
@@ -106,6 +86,10 @@ class IgneousLauncherImpl extends IterativeRobot implements IgneousLauncher {
         core.startedAutonomous = this.startedAutonomous;
         core.startedTeleop = this.startedTeleop;
         core.startedTesting = this.startedTesting;
+        core.joystick1 = new CJoystick(1, globalPeriodic);
+        core.joystick2 = new CJoystick(2, globalPeriodic);
+        core.joystick3 = new CJoystick(3, globalPeriodic);
+        core.joystick4 = new CJoystick(4, globalPeriodic);
         core.launcher = this;
         try {
             core.createRobotControl();
@@ -122,7 +106,7 @@ class IgneousLauncherImpl extends IterativeRobot implements IgneousLauncher {
     /**
      * Produced when the robot enters autonomous mode.
      */
-    protected Event startedAutonomous = new Event();
+    protected EventStatus startedAutonomous = new EventStatus();
 
     public final void autonomousInit() {
         try {
@@ -135,7 +119,7 @@ class IgneousLauncherImpl extends IterativeRobot implements IgneousLauncher {
     /**
      * Produced during autonomous mode.
      */
-    protected Event duringAutonomous = new Event();
+    protected EventStatus duringAutonomous = new EventStatus();
     private int countFails = 0;
 
     public final void autonomousPeriodic() {
@@ -163,7 +147,7 @@ class IgneousLauncherImpl extends IterativeRobot implements IgneousLauncher {
     /**
      * Produced when the robot enters disabled mode.
      */
-    protected Event robotDisabled = new Event();
+    protected EventStatus robotDisabled = new EventStatus();
 
     public final void disabledInit() {
         try {
@@ -176,7 +160,7 @@ class IgneousLauncherImpl extends IterativeRobot implements IgneousLauncher {
     /**
      * Produced while the robot is disabled.
      */
-    protected Event duringDisabled = new Event();
+    protected EventStatus duringDisabled = new EventStatus();
 
     public final void disabledPeriodic() {
         try {
@@ -203,7 +187,7 @@ class IgneousLauncherImpl extends IterativeRobot implements IgneousLauncher {
     /**
      * Produced when the robot enters teleop mode.
      */
-    protected Event startedTeleop = new Event();
+    protected EventStatus startedTeleop = new EventStatus();
 
     public final void teleopInit() {
         try {
@@ -216,7 +200,7 @@ class IgneousLauncherImpl extends IterativeRobot implements IgneousLauncher {
     /**
      * Produced during teleop mode.
      */
-    protected Event duringTeleop = new Event();
+    protected EventStatus duringTeleop = new EventStatus();
 
     public final void teleopPeriodic() {
         try {
@@ -243,7 +227,7 @@ class IgneousLauncherImpl extends IterativeRobot implements IgneousLauncher {
     /**
      * Produced when the robot enters testing mode.
      */
-    protected Event startedTesting = new Event();
+    protected EventStatus startedTesting = new EventStatus();
 
     public final void testInit() {
         try {
@@ -256,7 +240,7 @@ class IgneousLauncherImpl extends IterativeRobot implements IgneousLauncher {
     /**
      * Produced during testing mode.
      */
-    protected Event duringTesting = new Event();
+    protected EventStatus duringTesting = new EventStatus();
 
     public final void testPeriodic() {
         try {
@@ -291,7 +275,7 @@ class IgneousLauncherImpl extends IterativeRobot implements IgneousLauncher {
      */
     static FloatOutput wrapSpeedController(final SpeedController spc, final boolean negate) {
         return new FloatOutput() {
-            public void writeValue(float f) {
+            public void set(float f) {
                 if (negate) {
                     spc.set(-f);
                 } else {
@@ -301,12 +285,8 @@ class IgneousLauncherImpl extends IterativeRobot implements IgneousLauncher {
         };
     }
 
-    public ISimpleJoystick makeSimpleJoystick(int id) {
-        return new CSimpleJoystick(id);
-    }
-
-    public IDispatchJoystick makeDispatchJoystick(int id, EventSource source) {
-        return new CDispatchJoystick(id, source);
+    public IJoystick getKinectJoystick(boolean isRightStick) {
+        return new CJoystick(isRightStick ? 6 : 5, globalPeriodic);
     }
 
     public FloatOutput makeJaguar(int id, boolean negate) {
@@ -324,7 +304,7 @@ class IgneousLauncherImpl extends IterativeRobot implements IgneousLauncher {
     public BooleanOutput makeSolenoid(int id) {
         final Solenoid sol = new Solenoid(id);
         return new BooleanOutput() {
-            public void writeValue(boolean bln) {
+            public void set(boolean bln) {
                 sol.set(bln);
             }
         };
@@ -333,7 +313,7 @@ class IgneousLauncherImpl extends IterativeRobot implements IgneousLauncher {
     public BooleanOutput makeDigitalOutput(int id) {
         final DigitalOutput dout = new DigitalOutput(id);
         return new BooleanOutput() {
-            public void writeValue(boolean bln) {
+            public void set(boolean bln) {
                 dout.set(bln);
             }
         };
@@ -343,7 +323,7 @@ class IgneousLauncherImpl extends IterativeRobot implements IgneousLauncher {
         return new FloatInputPoll() {
             DriverStation d = DriverStation.getInstance();
 
-            public float readValue() {
+            public float get() {
                 return (float) d.getBatteryVoltage();
             }
         };
@@ -353,7 +333,7 @@ class IgneousLauncherImpl extends IterativeRobot implements IgneousLauncher {
         final AnalogChannel chan = new AnalogChannel(id);
         chan.setAverageBits(averageBits);
         return new FloatInputPoll() {
-            public float readValue() {
+            public float get() {
                 return (float) chan.getAverageVoltage();
             }
         };
@@ -363,7 +343,7 @@ class IgneousLauncherImpl extends IterativeRobot implements IgneousLauncher {
         final AnalogChannel chan = new AnalogChannel(id);
         chan.setAverageBits(averageBits);
         return new FloatInputPoll() {
-            public float readValue() {
+            public float get() {
                 return (float) chan.getAverageValue();
             }
         };
@@ -372,7 +352,7 @@ class IgneousLauncherImpl extends IterativeRobot implements IgneousLauncher {
     public BooleanInputPoll makeDigitalInput(int id) {
         final DigitalInput dinput = new DigitalInput(id);
         return new BooleanInputPoll() {
-            public boolean readValue() {
+            public boolean get() {
                 return dinput.get();
             }
         };
@@ -382,7 +362,7 @@ class IgneousLauncherImpl extends IterativeRobot implements IgneousLauncher {
         final Servo servo = new Servo(id);
         final float deltaInput = maxInput - minInput;
         return new FloatOutput() {
-            public void writeValue(float f) {
+            public void set(float f) {
                 servo.set((f - minInput) / deltaInput);
             }
         };
@@ -420,7 +400,7 @@ class IgneousLauncherImpl extends IterativeRobot implements IgneousLauncher {
 
     public BooleanInputPoll getIsDisabled() {
         return new BooleanInputPoll() {
-            public boolean readValue() {
+            public boolean get() {
                 return DriverStation.getInstance().isDisabled();
             }
         };
@@ -428,7 +408,7 @@ class IgneousLauncherImpl extends IterativeRobot implements IgneousLauncher {
 
     public BooleanInputPoll getIsAutonomous() {
         return new BooleanInputPoll() {
-            public boolean readValue() {
+            public boolean get() {
                 DriverStation is = DriverStation.getInstance();
                 return is.isAutonomous() && !is.isTest();
             }
@@ -437,33 +417,29 @@ class IgneousLauncherImpl extends IterativeRobot implements IgneousLauncher {
 
     public BooleanInputPoll getIsTest() {
         return new BooleanInputPoll() {
-            public boolean readValue() {
+            public boolean get() {
                 return DriverStation.getInstance().isTest();
             }
         };
     }
 
     public void useCustomCompressor(BooleanInputPoll shouldDisable, int compressorRelayChannel) {
-        if (compressor == null) {
-            compressor = new CCustomCompressor(shouldDisable, compressorRelayChannel);
-            compressor.start();
-        } else {
-            throw new IllegalStateException("Compressor already started!");
-        }
+        BooleanOutput relay = makeRelayForwardOutput(compressorRelayChannel);
+        Mixing.pumpWhen(new Ticker(500), Mixing.invert(shouldDisable), relay); // TODO: Test this code.
     }
 
-    public FloatInputPoll makeEncoder(int aChannel, int bChannel, boolean reverse, EventSource resetWhen) {
+    public FloatInputPoll makeEncoder(int aChannel, int bChannel, boolean reverse, EventInput resetWhen) {
         final Encoder enc = new Encoder(aChannel, bChannel, reverse);
         enc.start();
         if (resetWhen != null) {
-            resetWhen.addListener(new EventConsumer() {
-                public void eventFired() {
+            resetWhen.send(new EventOutput() {
+                public void event() {
                     enc.reset();
                 }
             });
         }
         return new FloatInputPoll() {
-            public float readValue() {
+            public float get() {
                 return enc.get();
             }
         };
@@ -472,7 +448,7 @@ class IgneousLauncherImpl extends IterativeRobot implements IgneousLauncher {
     public BooleanOutput makeRelayForwardOutput(int channel) {
         final Relay r = new Relay(channel, Relay.Direction.kForward);
         return new BooleanOutput() {
-            public void writeValue(boolean bln) {
+            public void set(boolean bln) {
                 r.set(bln ? Relay.Value.kOn : Relay.Value.kOff);
             }
         };
@@ -481,24 +457,24 @@ class IgneousLauncherImpl extends IterativeRobot implements IgneousLauncher {
     public BooleanOutput makeRelayReverseOutput(int channel) {
         final Relay r = new Relay(channel, Relay.Direction.kReverse);
         return new BooleanOutput() {
-            public void writeValue(boolean bln) {
+            public void set(boolean bln) {
                 r.set(bln ? Relay.Value.kOn : Relay.Value.kOff);
             }
         };
     }
 
-    public FloatInputPoll makeGyro(int port, double sensitivity, EventSource evt) {
+    public FloatInputPoll makeGyro(int port, double sensitivity, EventInput evt) {
         final Gyro g = new Gyro(port);
         g.setSensitivity(sensitivity);
         if (evt != null) {
-            evt.addListener(new EventConsumer() {
-                public void eventFired() {
+            evt.send(new EventOutput() {
+                public void event() {
                     g.reset();
                 }
             });
         }
         return new FloatInputPoll() {
-            public float readValue() {
+            public float get() {
                 return (float) g.getAngle();
             }
         };
@@ -509,117 +485,9 @@ class IgneousLauncherImpl extends IterativeRobot implements IgneousLauncher {
         a.setSensitivity(sensitivity);
         a.setZero(zeropoint);
         return new FloatInputPoll() {
-            public float readValue() {
+            public float get() {
                 return (float) a.getAcceleration();
             }
         };
-    }
-
-    public DeviceRegistry getDeviceRegistry() throws DeviceException {
-        if (devTree == null) {
-            devTree = new DeviceRegistry();
-            devTree.putSimple("modes/auto/init", startedAutonomous, EventSource.class);
-            devTree.putSimple("modes/teleop/init", startedTeleop, EventSource.class);
-            devTree.putSimple("modes/test/init", startedTesting, EventSource.class);
-            devTree.putSimple("modes/disabled/init", robotDisabled, EventSource.class);
-            devTree.putSimple("modes/auto/during", duringAutonomous, EventSource.class);
-            devTree.putSimple("modes/teleop/during", duringTeleop, EventSource.class);
-            devTree.putSimple("modes/test/during", duringTesting, EventSource.class);
-            devTree.putSimple("modes/disabled/during", duringDisabled, EventSource.class);
-            devTree.putSimple("modes/always", globalPeriodic, EventSource.class);
-            devTree.putSimple("modes/constant", core.constantPeriodic, EventSource.class);
-            final DriverStation ds = DriverStation.getInstance();
-            for (int joy = 1; joy <= 4; joy++) {
-                final int cJoy = joy;
-                for (int axis = 1; axis <= 6; axis++) {
-                    final int cAxis = axis;
-                    devTree.putSimple("joysticks/" + joy + "/axis" + axis, new FloatInputPoll() {
-                        public float readValue() {
-                            return (float) ds.getStickAxis(cJoy, cAxis);
-                        }
-                    }, FloatInputPoll.class);
-                }
-                for (int button = 1; button <= 12; button++) {
-                    final int cBtn = button;
-                    devTree.putSimple("joysticks/" + joy + "/button" + button, new BooleanInputPoll() {
-                        public boolean readValue() {
-                            return ((1 << (cBtn - 1)) & m_ds.getStickButtons(cJoy)) != 0;
-                        }
-                    }, FloatInputPoll.class);
-                }
-            }
-            for (int pwm = 1; pwm <= 10; pwm++) {
-                devTree.putHandle("pwms/victor" + pwm, new PWMHandle(pwm, PWMHandle.VICTOR));
-                devTree.putHandle("pwms/talon" + pwm, new PWMHandle(pwm, PWMHandle.TALON));
-                devTree.putHandle("pwms/jaguar" + pwm, new PWMHandle(pwm, PWMHandle.JAGUAR));
-                devTree.putHandle("pwms/servo" + pwm, new PWMHandle(pwm, PWMHandle.SERVO));
-            }
-            for (int sol = 1; sol <= 8; sol++) {
-                devTree.putHandle("pneumatics/solen" + sol, new SolenoidHandle(sol));
-            }
-            final BooleanStatus enableCompressor = new BooleanStatus();
-            devTree.putSimple("pneumatics/compressorConf", new LineCollectorOutputStream() {
-                protected void collect(String string) {
-                    int ii = string.indexOf(' ');
-                    if (ii == -1) {
-                        int portno = Integer.parseInt(string);
-                        useCustomCompressor(enableCompressor, portno);
-                    } else {
-                        int portno = Integer.parseInt(string.substring(0, ii));
-                        int extno = Integer.parseInt(string.substring(ii + 1));
-                        enableCompressor.writeValue(true);
-                        useCustomCompressor(Mixing.andBooleans(enableCompressor, makeDigitalInput(extno)), portno);
-                    }
-                }
-            }, OutputStream.class);
-            devTree.putSimple("pneumatics/compressorEnable", enableCompressor, BooleanOutput.class);
-            devTree.putSimple("pneumatics/compressorEnabled", enableCompressor, BooleanInput.class);
-            for (int dgt = 1; dgt <= 14; dgt++) {
-                devTree.putHandle("gpios/out" + dgt, new GPOHandle(dgt));
-                devTree.putHandle("gpios/in" + dgt, new GPIHandle(dgt));
-            }
-            // TODO: Implement encoders, Gyros, accelerometers.
-            //devTree.putHandle("gpios/encoder", null);
-            for (int alg = 1; alg <= 8; alg++) {
-                devTree.putHandle("analogs/in" + alg, new AnalogInputHandle(alg));
-            }
-            for (int lcd = 1; lcd <= 6; lcd++) {
-                final DriverStationLCD.Line l;
-                switch (lcd) {
-                    case 1:
-                        l = DriverStationLCD.Line.kUser1;
-                        break;
-                    case 2:
-                        l = DriverStationLCD.Line.kUser2;
-                        break;
-                    case 3:
-                        l = DriverStationLCD.Line.kUser3;
-                        break;
-                    case 4:
-                        l = DriverStationLCD.Line.kUser4;
-                        break;
-                    case 5:
-                        l = DriverStationLCD.Line.kUser5;
-                        break;
-                    case 6:
-                        l = DriverStationLCD.Line.kUser6;
-                        break;
-                    default:
-                        throw new RuntimeException("Wait, what?");
-                }
-                devTree.putSimple("dslcd/line" + lcd, new LineCollectorOutputStream() {
-                    protected void collect(String string) {
-                        DriverStationLCD lcd = DriverStationLCD.getInstance();
-                        lcd.println(l, 1, string);
-                        lcd.updateLCD();
-                    }
-                }, OutputStream.class);
-            }
-            for (int rel = 1; rel <= 8; rel++) {
-                devTree.putHandle("relays/fwd" + rel, new RelayHandle(rel, Relay.Direction.kForward));
-                devTree.putHandle("relays/rev" + rel, new RelayHandle(rel, Relay.Direction.kReverse));
-            }
-        }
-        return devTree;
     }
 }

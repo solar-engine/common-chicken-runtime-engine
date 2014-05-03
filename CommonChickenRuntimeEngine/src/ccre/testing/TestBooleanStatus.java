@@ -18,10 +18,10 @@
  */
 package ccre.testing;
 
-import ccre.chan.BooleanOutput;
-import ccre.chan.BooleanStatus;
-import ccre.event.Event;
-import ccre.event.EventConsumer;
+import ccre.channel.BooleanOutput;
+import ccre.channel.BooleanStatus;
+import ccre.channel.EventStatus;
+import ccre.channel.EventOutput;
 
 /**
  * Test BooleanStatus.
@@ -87,8 +87,7 @@ public class TestBooleanStatus extends BaseTest {
         assertTrue(cur[1], "Expected write when value modified!");
         assertFalse(cur[0], "Expected write of false!");
         cur[1] = false;
-        assertTrue(status.unsend(b), "Expected existing subscription!");
-        assertFalse(status.unsend(b), "Expected no subscription!");
+        status.unsend(b);
         status.set(true);
         status.set(false);
         assertFalse(cur[1], "Expected no write after removal!");
@@ -112,7 +111,7 @@ public class TestBooleanStatus extends BaseTest {
         status.set(true);
         assertTrue(cur[0], "Expected write!");
         cur[0] = false;
-        assertTrue(status.unsend(b), "Expected subscription!");
+        status.unsend(b);
         status.set(false);
         assertFalse(cur[0], "Expected no write once removed!");
 
@@ -131,14 +130,12 @@ public class TestBooleanStatus extends BaseTest {
         assertTrue(cur[1], "Expected write!");
         cur[0] = false;
         cur[1] = false;
-        assertTrue(status.unsend(b), "Expected subscription!");
-        assertFalse(status.unsend(b), "Expected no subscription!");
+        status.unsend(b);
         status.set(false);
         assertFalse(cur[0], "Expected no write once removed!");
         assertTrue(cur[1], "Expected write!");
         cur[1] = false;
-        assertTrue(status.unsend(b2), "Expected subscription!");
-        assertFalse(status.unsend(b2), "Expected no subscription!");
+        status.unsend(b2);
         status.set(true);
         assertFalse(cur[0], "Expected no write once removed!");
         assertFalse(cur[1], "Expected no write once removed!");
@@ -158,34 +155,34 @@ public class TestBooleanStatus extends BaseTest {
         };
         final BooleanStatus status = new BooleanStatus(b);
         assertFalse(cur[0], "Expected false default!");
-        EventConsumer st = status.getSetTrueEvent();
-        EventConsumer sf = status.getSetFalseEvent();
-        EventConsumer tg = status.getToggleEvent();
+        EventOutput st = status.getSetTrueEvent();
+        EventOutput sf = status.getSetFalseEvent();
+        EventOutput tg = status.getToggleEvent();
         assertFalse(cur[0], "Expected no write when getting events!");
-        st.eventFired();
+        st.event();
         assertTrue(cur[0], "Expected write!");
-        st.eventFired();
+        st.event();
         assertTrue(cur[0], "Expected write!");
-        sf.eventFired();
+        sf.event();
         assertFalse(cur[0], "Expected write!");
-        sf.eventFired();
+        sf.event();
         assertFalse(cur[0], "Expected write!");
-        tg.eventFired();
+        tg.event();
         assertTrue(cur[0], "Expected write!");
-        tg.eventFired();
+        tg.event();
         assertFalse(cur[0], "Expected write!");
-        Event st2 = new Event(), sf2 = new Event(), tg2 = new Event();
+        EventStatus st2 = new EventStatus(), sf2 = new EventStatus(), tg2 = new EventStatus();
         status.setTrueWhen(st2);
         status.setFalseWhen(sf2);
         status.toggleWhen(tg2);
         assertFalse(cur[0], "Expected no write!");
-        st2.eventFired();
+        st2.event();
         assertTrue(cur[0], "Expected write!");
-        sf2.eventFired();
+        sf2.event();
         assertFalse(cur[0], "Expected write!");
-        tg2.eventFired();
+        tg2.event();
         assertTrue(cur[0], "Expected write!");
-        tg2.eventFired();
+        tg2.event();
         assertFalse(cur[0], "Expected write!");
     }
 

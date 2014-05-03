@@ -18,7 +18,7 @@
  */
 package intelligence;
 
-import ccre.chan.BooleanOutput;
+import ccre.channel.BooleanOutput;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.EventQueue;
@@ -72,7 +72,7 @@ public class IndicatorLight extends JComponent implements BooleanOutput {
         g2.fillOval(x, y, w, h);
     }
 
-    public void writeValue(boolean b) {
+    public void set(boolean b) {
         setValue(b);
     }
 }

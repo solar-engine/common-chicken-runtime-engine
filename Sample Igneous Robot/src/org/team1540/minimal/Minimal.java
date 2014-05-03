@@ -18,12 +18,7 @@
  */
 package org.team1540.minimal;
 
-import ccre.cluck.CluckGlobals;
-import ccre.event.EventConsumer;
-import ccre.igneous.SimpleCore;
-import ccre.log.LogLevel;
-import ccre.log.Logger;
-import ccre.testing.ComputationBenchmark;
+import ccre.igneous.IgneousCore;
 import ccre.util.Utils;
 
 /**
@@ -31,20 +26,9 @@ import ccre.util.Utils;
  *
  * @author skeggsc
  */
-public class Minimal extends SimpleCore {
+public class Minimal extends IgneousCore {
 
-    protected void createSimpleControl() {
-        CluckGlobals.node.publish("compute-benchmarks", new EventConsumer() {
-            public void eventFired() {
-                Logger.info("Start");
-                try {
-                    ComputationBenchmark.main(new String[0]);
-                } catch (Throwable thr) {
-                    Logger.log(LogLevel.WARNING, "Oops!", thr);
-                }
-                Logger.info("End");
-            }
-        });
+    protected void createRobotControl() {
         makeDSFloatReadout("I live!", 1, Utils.currentTimeSeconds, globalPeriodic);
     }
 }

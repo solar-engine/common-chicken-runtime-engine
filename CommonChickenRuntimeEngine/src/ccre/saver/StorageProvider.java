@@ -36,7 +36,7 @@ public abstract class StorageProvider {
      * The active storage provider.
      */
     private static StorageProvider provider;
-    
+
     static synchronized void setProvider(StorageProvider provider) {
         if (StorageProvider.provider != null) {
             throw new IllegalStateException("StorageProvider already registered!");
@@ -61,19 +61,6 @@ public abstract class StorageProvider {
                 t = ex;
             }
             provider = new StorageProvider() {
-                @Override
-                protected StorageSegment open(String name) {
-                    return new HashMappedStorageSegment() {
-                        @Override
-                        public void flush() {
-                        }
-
-                        @Override
-                        public void close() {
-                        }
-                    };
-                }
-
                 @Override
                 protected OutputStream openOutputFile(String name) throws IOException {
                     throw new IOException("Cannot write to any files in a FakeStorageProvider!");
@@ -123,24 +110,13 @@ public abstract class StorageProvider {
      * @return the StorageSegment that has been opened.
      */
     public static StorageSegment openStorage(String name) {
-        initProvider();
         for (char c : name.toCharArray()) {
             if (!(Character.isUpperCase(c) || Character.isLowerCase(c) || Character.isDigit(c) || c == '$' || c == '_')) {
                 throw new IllegalArgumentException("Storage names must only contain 'a-zA-Z0-9$_'");
             }
         }
-        return provider.open(name);
+        return new DefaultStorageSegment(name);
     }
-
-    /**
-     * Open a StorageSegment under the specific name. The name of a
-     * StorageSegment must contain only letters, numbers, currency symbols, and
-     * underscores.
-     *
-     * @param name the name of the storage segment.
-     * @return the StorageSegment that has been opened.
-     */
-    protected abstract StorageSegment open(String name);
 
     /**
      * Open an OutputStream to the specified file.

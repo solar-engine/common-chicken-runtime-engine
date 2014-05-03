@@ -18,9 +18,9 @@
  */
 package ccre.holders;
 
-import ccre.chan.FloatStatus;
+import ccre.channel.FloatStatus;
 import ccre.cluck.CluckNode;
-import ccre.event.EventConsumer;
+import ccre.channel.EventOutput;
 import ccre.log.Logger;
 import ccre.saver.StorageProvider;
 import ccre.saver.StorageSegment;
@@ -94,9 +94,9 @@ public final class TuningContext { // TODO: Support booleans for tuning.
      * @return the EventConsumer that will flush this object.
      * @see #flush()
      */
-    public EventConsumer getFlushEvent() {
-        return new EventConsumer() {
-            public void eventFired() {
+    public EventOutput getFlushEvent() {
+        return new EventOutput() {
+            public void event() {
                 flush();
             }
         };

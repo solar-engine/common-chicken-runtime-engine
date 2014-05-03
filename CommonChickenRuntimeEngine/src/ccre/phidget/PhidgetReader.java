@@ -18,11 +18,9 @@
  */
 package ccre.phidget;
 
-import ccre.chan.BooleanInput;
-import ccre.chan.BooleanInputProducer;
-import ccre.chan.BooleanOutput;
-import ccre.chan.FloatInput;
-import ccre.chan.FloatInputProducer;
+import ccre.channel.BooleanInput;
+import ccre.channel.BooleanOutput;
+import ccre.channel.FloatInput;
 import ccre.cluck.CluckGlobals;
 import ccre.ctrl.Mixing;
 import java.io.PrintStream;
@@ -38,13 +36,20 @@ public class PhidgetReader {
     private PhidgetReader() {
     }
 
-    static {
-        CluckGlobals.ensureInitializedCore();
-    }
     /**
      * Digital outputs on the phidget.
      */
-    public static final BooleanOutput[] digitalOutputs = new BooleanOutput[8];
+    private static final BooleanOutput[] digitalOutputs = new BooleanOutput[8];
+
+    /**
+     * Get the specified BooleanOutput.
+     *
+     * @param id The index in digitalInputs.
+     * @return The full BooleanInput.
+     */
+    public static BooleanOutput getDigitalOutput(int id) {
+        return digitalOutputs[id];
+    }
 
     static {
         for (int i = 0; i < digitalOutputs.length; i++) {
@@ -57,7 +62,7 @@ public class PhidgetReader {
      *
      * @see #getDigitalInput(int)
      */
-    public static final BooleanInputProducer[] digitalInputs = new BooleanInputProducer[8];
+    private static final BooleanInput[] digitalInputs = new BooleanInput[8];
 
     /**
      * Get a full version of the BooleanInputs - including polling
@@ -67,7 +72,7 @@ public class PhidgetReader {
      * @return The full BooleanInput.
      */
     public static BooleanInput getDigitalInput(int id) {
-        BooleanInput bi = (BooleanInput) digitalInputs[id];
+        BooleanInput bi = digitalInputs[id];
         bi.send(Mixing.ignoredBooleanOutput);
         return bi;
     }
@@ -80,7 +85,7 @@ public class PhidgetReader {
     /**
      * Analog inputs on the phidget.
      */
-    public static final FloatInputProducer[] analogInputs = new FloatInputProducer[8];
+    private static final FloatInput[] analogInputs = new FloatInput[8];
 
     /**
      * Get a full version of the FloatInputs - including polling functionality.
@@ -89,7 +94,7 @@ public class PhidgetReader {
      * @return The full FloatInput.
      */
     public static FloatInput getAnalogInput(int id) {
-        FloatInput fi = (FloatInput) analogInputs[id];
+        FloatInput fi = analogInputs[id];
         fi.send(Mixing.ignoredFloatOutput);
         return fi;
     }
@@ -100,17 +105,27 @@ public class PhidgetReader {
         }
     }
     /**
-     * LCD lines on the phidget.
+     * LCD lines on the Phidget.
      */
-    public static final PrintStream[] phidgetLCD = new PrintStream[2];
+    private static final PrintStream[] phidgetLCD = new PrintStream[2];
 
     static {
         for (int i = 0; i < phidgetLCD.length; i++) {
             phidgetLCD[i] = new PrintStream(CluckGlobals.getNode().subscribeOS("phidget/phidget-lcd" + i));
         }
     }
+
+    /**
+     * Get the specified line of the Phidget screen.
+     *
+     * @param id The index in digitalInputs.
+     * @return The full BooleanInput.
+     */
+    public static PrintStream getLCDLine(int id) {
+        return phidgetLCD[id];
+    }
     /**
      * If the Phidget is attached to the driver station.
      */
-    public static final BooleanInputProducer attached = CluckGlobals.getNode().subscribeBI("phidget/phidget-attached", false);
+    public static final BooleanInput attached = CluckGlobals.getNode().subscribeBI("phidget/phidget-attached", true);
 }

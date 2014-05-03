@@ -21,11 +21,12 @@ package intelligence;
 import ccre.cluck.*;
 import ccre.cluck.rpc.RemoteProcedure;
 import ccre.concurrency.CollapsingWorkerThread;
-import ccre.event.EventConsumer;
-import ccre.event.EventSource;
+import ccre.channel.EventOutput;
+import ccre.channel.EventInput;
 import ccre.log.*;
 import ccre.ctrl.ExpirationTimer;
 import ccre.ctrl.Ticker;
+import ccre.net.CountingNetworkProvider;
 import ccre.util.UniqueIds;
 import java.awt.*;
 import java.awt.event.*;
@@ -121,11 +122,11 @@ public class IntelligenceMain extends JPanel implements CluckRemoteListener, Mou
     /**
      * The number of bytes transmitted as of the last byte counting operation.
      */
-    protected int baseByteCount = 0;
+    protected long baseByteCount = 0;
     /**
      * The number of bytes transmitted during the last measurement period.
      */
-    protected int lastByteCount = 0;
+    protected long lastByteCount = 0;
     /**
      * The current scrolling position of the object pane.
      */
@@ -151,7 +152,7 @@ public class IntelligenceMain extends JPanel implements CluckRemoteListener, Mou
      * @param seconds An event that will be produced every second.
      *
      */
-    private IntelligenceMain(String[] args, CluckNode node, EventSource seconds, JButton searcher, JButton reconnector) {
+    private IntelligenceMain(String[] args, CluckNode node, EventInput seconds, JButton searcher, JButton reconnector) {
         this.node = node;
         ArrayList<Folder> folderList = new ArrayList<Folder>();
         try {
@@ -220,10 +221,10 @@ public class IntelligenceMain extends JPanel implements CluckRemoteListener, Mou
                 researcher.trigger();
             }
         });
-        seconds.addListener(new EventConsumer() {
+        seconds.send(new EventOutput() {
             @Override
-            public void eventFired() {
-                int cur = IntelligenceMain.this.node.getEstimatedByteCount();
+            public void event() {
+                long cur = CountingNetworkProvider.getTotal();
                 lastByteCount = cur - baseByteCount;
                 baseByteCount = cur;
             }
@@ -242,9 +243,9 @@ public class IntelligenceMain extends JPanel implements CluckRemoteListener, Mou
                 dialog = new PoultryDialog(new String(in), out);
             }
         });
-        painter.schedule(50, new EventConsumer() {
+        painter.schedule(50, new EventOutput() {
             @Override
-            public void eventFired() {
+            public void event() {
                 repaint();
             }
         });
@@ -457,7 +458,7 @@ public class IntelligenceMain extends JPanel implements CluckRemoteListener, Mou
         g.setColor(active);
         g.drawString("Left-click to move", paneWidth, fontMetrics.getAscent());
         g.drawString("Right-click to interact", paneWidth, fontMetrics.getAscent() + lh);
-        String countReport = "Estimated Traffic: " + node.getEstimatedByteCount() + "B (" + (node.getEstimatedByteCount() / 128) + "kbits)";
+        String countReport = "Estimated Traffic: " + CountingNetworkProvider.getTotal() + "B (" + (CountingNetworkProvider.getTotal() / 128) + "kbits)";
         g.drawString(countReport, w - fontMetrics.stringWidth(countReport), fontMetrics.getAscent());
         countReport = "Usage: " + (lastByteCount / 128) + "kbits/sec";
         g.drawString(countReport, w - fontMetrics.stringWidth(countReport), fontMetrics.getAscent() + lh);
@@ -559,7 +560,7 @@ public class IntelligenceMain extends JPanel implements CluckRemoteListener, Mou
 
     @SuppressWarnings("unchecked")
     public static void main(String[] args) {
-        CluckGlobals.ensureInitializedCore();
+        CountingNetworkProvider.register();
         //CluckGlobals.node.debugLogAll = true;
         NetworkAutologger.register();
         FileLogger.register();
@@ -634,9 +635,9 @@ public class IntelligenceMain extends JPanel implements CluckRemoteListener, Mou
         frame.setVisible(true);
         Logger.info("Started Poultry Inspector at " + System.currentTimeMillis());
         final ExpirationTimer ext = new ExpirationTimer();
-        ext.schedule(5000, new EventConsumer() {
+        ext.schedule(5000, new EventOutput() {
             @Override
-            public void eventFired() {
+            public void event() {
                 Logger.info("Current time: " + new Date());
             }
         });
@@ -667,16 +668,16 @@ public class IntelligenceMain extends JPanel implements CluckRemoteListener, Mou
     private static void setupWatchdog(final IPhidgetMonitor monitor) {
         final ExpirationTimer watchdog = new ExpirationTimer();
         watchdog.schedule(500, CluckGlobals.getNode().subscribeEC("robot/phidget/WatchDog"));
-        CluckGlobals.getNode().publish("WatchDog", new EventConsumer() {
+        CluckGlobals.getNode().publish("WatchDog", new EventOutput() {
             @Override
-            public void eventFired() {
+            public void event() {
                 monitor.connectionUp();
                 watchdog.feed();
             }
         });
-        watchdog.schedule(2000, new EventConsumer() {
+        watchdog.schedule(2000, new EventOutput() {
             @Override
-            public void eventFired() {
+            public void event() {
                 monitor.connectionDown();
             }
         });

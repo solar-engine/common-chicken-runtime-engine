@@ -18,11 +18,11 @@
  */
 package ccre.ctrl;
 
-import ccre.chan.FloatInput;
-import ccre.chan.FloatInputPoll;
-import ccre.chan.FloatOutput;
-import ccre.event.EventConsumer;
-import ccre.event.EventSource;
+import ccre.channel.FloatInput;
+import ccre.channel.FloatInputPoll;
+import ccre.channel.FloatOutput;
+import ccre.channel.EventOutput;
+import ccre.channel.EventInput;
 
 /**
  * Contains various presets for driving the robot.
@@ -83,9 +83,9 @@ public class DriverImpls {
      * @return the EventConsumer that will update the motors.
      * @see DriverImpls
      */
-    public static EventConsumer createTankDriverEvent(final FloatInputPoll leftIn, final FloatInputPoll rightIn, final FloatOutput leftOut, final FloatOutput rightOut) {
-        return new EventConsumer() {
-            public void eventFired() {
+    public static EventOutput createTankDriverEvent(final FloatInputPoll leftIn, final FloatInputPoll rightIn, final FloatOutput leftOut, final FloatOutput rightOut) {
+        return new EventOutput() {
+            public void event() {
                 leftOut.set(leftIn.get());
                 rightOut.set(rightIn.get());
             }
@@ -103,8 +103,8 @@ public class DriverImpls {
      * @param rightOut the right motor.
      * @see DriverImpls
      */
-    public static void createSynchTankDriver(EventSource source, FloatInputPoll leftIn, FloatInputPoll rightIn, FloatOutput leftOut, FloatOutput rightOut) {
-        source.addListener(createTankDriverEvent(leftIn, rightIn, leftOut, rightOut));
+    public static void createSynchTankDriver(EventInput source, FloatInputPoll leftIn, FloatInputPoll rightIn, FloatOutput leftOut, FloatOutput rightOut) {
+        source.send(createTankDriverEvent(leftIn, rightIn, leftOut, rightOut));
     }
 
     /**
@@ -119,9 +119,9 @@ public class DriverImpls {
      * @return the EventConsumer that will update the motors.
      * @see DriverImpls
      */
-    public static EventConsumer createExtendedTankDriverEvent(final FloatInputPoll leftIn, final FloatInputPoll rightIn, final FloatInputPoll allIn, final FloatOutput leftOut, final FloatOutput rightOut) {
-        return new EventConsumer() {
-            public void eventFired() {
+    public static EventOutput createExtendedTankDriverEvent(final FloatInputPoll leftIn, final FloatInputPoll rightIn, final FloatInputPoll allIn, final FloatOutput leftOut, final FloatOutput rightOut) {
+        return new EventOutput() {
+            public void event() {
                 float ai = allIn.get();
                 leftOut.set(leftIn.get() + ai);
                 rightOut.set(rightIn.get() + ai);
@@ -141,7 +141,7 @@ public class DriverImpls {
      * @param rightOut the right motor.
      * @see DriverImpls
      */
-    public static void createExtendedSynchTankDriver(EventSource source, FloatInputPoll leftIn, FloatInputPoll rightIn, FloatInputPoll allIn, FloatOutput leftOut, FloatOutput rightOut) {
-        source.addListener(createExtendedTankDriverEvent(leftIn, rightIn, allIn, leftOut, rightOut));
+    public static void createExtendedSynchTankDriver(EventInput source, FloatInputPoll leftIn, FloatInputPoll rightIn, FloatInputPoll allIn, FloatOutput leftOut, FloatOutput rightOut) {
+        source.send(createExtendedTankDriverEvent(leftIn, rightIn, allIn, leftOut, rightOut));
     }
 }

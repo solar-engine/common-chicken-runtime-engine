@@ -18,13 +18,13 @@
  */
 package intelligence;
 
-import ccre.chan.BooleanInput;
-import ccre.chan.BooleanOutput;
-import ccre.chan.BooleanStatus;
-import ccre.chan.FloatInput;
-import ccre.chan.FloatStatus;
+import ccre.channel.BooleanInput;
+import ccre.channel.BooleanOutput;
+import ccre.channel.BooleanStatus;
+import ccre.channel.FloatInput;
+import ccre.channel.FloatStatus;
 import ccre.cluck.CluckNode;
-import ccre.event.EventConsumer;
+import ccre.channel.EventOutput;
 import ccre.holders.StringHolder;
 import ccre.log.LogLevel;
 import ccre.log.Logger;
@@ -122,7 +122,7 @@ public class PhidgetMonitor implements IPhidgetMonitor, AttachListener, DetachLi
             final int cur = i;
             outputs[i] = new BooleanOutput() {
                 @Override
-                public void writeValue(boolean bln) {
+                public void set(boolean bln) {
                     outvals[cur] = bln;
                     updateBooleanOutput(cur);
                 }
@@ -140,9 +140,9 @@ public class PhidgetMonitor implements IPhidgetMonitor, AttachListener, DetachLi
         for (int i = 0; i < LCD_LINES; i++) {
             StringHolder strh = new StringHolder(fillstr, false);
             final int cur = i;
-            strh.whenModified(new EventConsumer() {
+            strh.whenModified(new EventOutput() {
                 @Override
-                public void eventFired() {
+                public void event() {
                     updateStringOutput(cur);
                 }
             });
@@ -277,14 +277,14 @@ public class PhidgetMonitor implements IPhidgetMonitor, AttachListener, DetachLi
                     updateBooleanOutput(i);
                 }
                 for (int i = 0; i < INPUT_COUNT; i++) {
-                    inputStats[i].writeValue(ifa.getInputState(i));
+                    inputStats[i].set(ifa.getInputState(i));
                 }
                 for (int i = 0; i < ANALOG_COUNT; i++) {
                     float moved = (ifa.getSensorValue(i) - 500) / 500.0f;
                     if (moved < -1 || moved > 1) {
                         Logger.warning("Sensor out of range: " + moved);
                     }
-                    analogStats[i].writeValue(moved);
+                    analogStats[i].set(moved);
                 }
             } catch (PhidgetException ex) {
                 Logger.log(LogLevel.SEVERE, "Error on Interface attach", ex);
@@ -302,7 +302,7 @@ public class PhidgetMonitor implements IPhidgetMonitor, AttachListener, DetachLi
 
     private void recalculateAttached() {
         try {
-            attachStat.writeValue(lcd.isAttached() && ifa.isAttached());
+            attachStat.set(lcd.isAttached() && ifa.isAttached());
         } catch (PhidgetException ex) {
             Logger.log(LogLevel.WARNING, "Could not recalculate attachment status!", ex);
         }
@@ -310,7 +310,7 @@ public class PhidgetMonitor implements IPhidgetMonitor, AttachListener, DetachLi
 
     @Override
     public void inputChanged(InputChangeEvent ae) {
-        inputStats[ae.getIndex()].writeValue(ae.getState());
+        inputStats[ae.getIndex()].set(ae.getState());
     }
 
     @Override
@@ -321,7 +321,7 @@ public class PhidgetMonitor implements IPhidgetMonitor, AttachListener, DetachLi
         if (moved < -1 || moved > 1) {
             Logger.warning("Sensor out of range: " + moved);
         }
-        analogStats[ae.getIndex()].writeValue(moved);
+        analogStats[ae.getIndex()].set(moved);
     }
 
     @Override

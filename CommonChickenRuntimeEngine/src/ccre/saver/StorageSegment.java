@@ -18,17 +18,12 @@
  */
 package ccre.saver;
 
-import ccre.chan.FloatOutput;
-import ccre.chan.FloatStatus;
-import ccre.event.EventConsumer;
+import ccre.channel.FloatOutput;
+import ccre.channel.FloatStatus;
+import ccre.channel.EventOutput;
 import ccre.holders.StringHolder;
 import ccre.log.LogLevel;
 import ccre.log.Logger;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.IOException;
 
 /**
  * A storage segment - a place to store various pieces of data. One of these can
@@ -40,51 +35,12 @@ import java.io.IOException;
 public abstract class StorageSegment {
 
     /**
-     * Get raw bytes for the specified key. The return array is expected to not
-     * be modified! Create a copy if you need to change the data.
-     *
-     * @param key the key to look up.
-     * @return the byte data contained there, or null if the key doesn't exist.
-     */
-    public abstract byte[] getBytesForKey(String key);
-
-    /**
      * Get a String value for the specified key.
      *
      * @param key the key to look up.
      * @return the String contained there, or null if the key doesn't exist.
      */
-    public String getStringForKey(String key) {
-        byte[] byts = getBytesForKey(key);
-        return byts == null ? null : new String(byts);
-    }
-
-    /**
-     * Get a DataInputStream that will read from the specified key. This creates
-     * a DataInputStream on a ByteArrayInputStream of the bytes stored in the
-     * key.
-     *
-     * @param key the key to look up.
-     * @return the DataInputStream to read from there, or null if the key
-     * doesn't exist.
-     */
-    public DataInputStream getDataInputForKey(String key) {
-        byte[] byts = getBytesForKey(key);
-        if (byts == null) {
-            return null;
-        }
-        return new DataInputStream(new ByteArrayInputStream(byts));
-    }
-
-    /**
-     * Set the byte data behind the specified key. Note: this method assumes
-     * that the byte array given will not be modified! Do not modify it after
-     * passing it!
-     *
-     * @param key the key to put the bytes under.
-     * @param bytes the bytes to store under this key.
-     */
-    public abstract void setBytesForKey(String key, byte[] bytes);
+    public abstract String getStringForKey(String key);
 
     /**
      * Set the string value behind the specified key.
@@ -92,26 +48,7 @@ public abstract class StorageSegment {
      * @param key the key to put the String under.
      * @param value the String to store under this key.
      */
-    public void setStringForKey(String key, String value) {
-        setBytesForKey(key, value.getBytes());
-    }
-
-    /**
-     * Create a DataOutputStream to allow for easy writing of data to this key.
-     * You must close this stream, or the data will not save!
-     *
-     * @param key the key to store data under.
-     * @return the DataOutputStream to write data to.
-     */
-    // You must close the returned stream for the data to save!
-    public DataOutputStream setDataOutputForKey(final String key) {
-        return new DataOutputStream(new ByteArrayOutputStream() {
-            @Override
-            public void close() {
-                setBytesForKey(key, toByteArray());
-            }
-        });
-    }
+    public abstract void setStringForKey(String key, String value);
 
     /**
      * Flush the segment. This attempts to make sure that all data is stored on
@@ -143,8 +80,8 @@ public abstract class StorageSegment {
      * @param holder the holder to save.
      */
     public void attachStringHolder(String name, final StringHolder holder) {
-        final String key = "$h:" + name;
-        String dflt = "$h@" + name;
+        final String key = "string_holder_" + name;
+        String dflt = "string_holder_default_" + name;
         String value = getStringForKey(key);
         if (value == null) {
             if (holder.hasModified()) {
@@ -160,8 +97,8 @@ public abstract class StorageSegment {
             }
             // Otherwise, the holder has been modified and the default has changed from the holder, and therefore we want the updated value from the holder
         }
-        holder.whenModified(new EventConsumer() {
-            public void eventFired() {
+        holder.whenModified(new EventOutput() {
+            public void event() {
                 setStringForKey(key, holder.get());
             }
         });
@@ -184,48 +121,41 @@ public abstract class StorageSegment {
      */
     public void attachFloatHolder(String name, final FloatStatus holder) {
         // TODO: Fix this up to remove the default field, when it won't break the robot code.
-        final String key = "~h:" + name;
-        DataInputStream din = getDataInputForKey(key);
+        final String key = "float_holder_" + name, default_key = "float_holder_default_" + name;
         final float originalValue = holder.get();
-        if (din != null) {
+        String vraw = getStringForKey(key);
+        if (vraw != null) {
             try {
-                float value = din.readFloat();
-                if (din.readBoolean()) {
-                    float default_ = din.readFloat();
-                    // If the default is the same as the holder's default, then load the value
-                    if (Float.floatToIntBits(default_) == Float.floatToIntBits(originalValue)) {
-                        Logger.config("Loaded config for " + name + ": def:" + default_ + " old:" + originalValue + " new:" + value);
-                        holder.set(value);
-                    }
-                    // Otherwise, the default has changed from the holder, and therefore we want the updated value from the holder
+                float value = Float.parseFloat(vraw);
+                String draw = getStringForKey(default_key);
+                float default_ = draw == null ? Float.NaN : Float.parseFloat(draw);
+                // If the default is the same as the holder's default, then load the value
+                if (draw == null || Float.floatToIntBits(default_) == Float.floatToIntBits(originalValue)) {
+                    Logger.config("Loaded config for " + name + ": def:" + default_ + " old:" + originalValue + " new:" + value);
+                    holder.set(value);
                 }
-            } catch (IOException ex) {
-                Logger.log(LogLevel.WARNING, "Exception in self-contained float saving!", ex);
+                // Otherwise, the default has changed from the holder, and therefore we want the updated value from the holder
+            } catch (NumberFormatException ex) {
+                Logger.log(LogLevel.WARNING, "Invalid float value: '" + vraw + "'!", ex);
             }
         }
-        holder.send(new SegmentFloatSaver(key, originalValue));
+        holder.send(new SegmentFloatSaver(key, default_key, originalValue));
     }
 
     private class SegmentFloatSaver implements FloatOutput {
 
-        private final String key;
+        private final String key, default_key;
         private final float originalValue;
 
-        public SegmentFloatSaver(String key, float originalValue) {
+        public SegmentFloatSaver(String key, String dkey, float originalValue) {
             this.key = key;
+            this.default_key = dkey;
             this.originalValue = originalValue;
         }
 
         public void set(float value) {
-            DataOutputStream dout = setDataOutputForKey(key);
-            try {
-                dout.writeFloat(value); // value
-                dout.writeBoolean(true); // has default
-                dout.writeFloat(originalValue); // default
-                dout.close();
-            } catch (IOException ex) {
-                Logger.log(LogLevel.SEVERE, "Exception in self-contained float saving!", ex);
-            }
+            setStringForKey(key, Float.toString(value));
+            setStringForKey(default_key, Float.toString(originalValue));
         }
     }
 }

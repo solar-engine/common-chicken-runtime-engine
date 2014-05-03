@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 Colby Skeggs, Casey Currey-Wilson
+ * Copyright 2013-2014 Colby Skeggs, Casey Currey-Wilson
  * 
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  * 
@@ -18,23 +18,17 @@
  */
 package org.team1540.infernodante;
 
-import ccre.chan.BooleanInputPoll;
-import ccre.chan.BooleanStatus;
-import ccre.chan.FloatInputPoll;
-import ccre.chan.FloatOutput;
-import ccre.chan.FloatStatus;
+import ccre.channel.*;
 import ccre.cluck.CluckGlobals;
 import ccre.ctrl.Mixing;
-import ccre.event.EventConsumer;
-import ccre.event.EventSource;
 import ccre.holders.TuningContext;
 
-public class PController implements EventConsumer {
+public class PController implements EventOutput {
 
     private static final float HIGH_SPEED = 1.0f;
     private static final float MEDIUM_SPEED = 0.35f;
     private static final float LOW_SPEED = 0.08f;
-    public static final TuningContext context = new TuningContext(CluckGlobals.node, "armTuning").publishSavingEvent("armTuning");
+    public static final TuningContext context = new TuningContext(CluckGlobals.getNode(), "armTuning").publishSavingEvent("armTuning");
     public static final FloatStatus STABLE_RANGE = context.getFloat("arm-stable", 0.17f);
     public static final FloatStatus DEADZONE_RANGE = context.getFloat("arm-deadzone", 0.1f);
     private static final float DEF_ARM_PICKUP_PRESET = Inferno.IS_COMPETITION_ROBOT ? 4.22f : 5.111649321f;
@@ -42,17 +36,17 @@ public class PController implements EventConsumer {
     private static final float DEF_ARM_DRIVE_PRESET = Inferno.IS_COMPETITION_ROBOT ? 0.571f : 4.777641946f;
     private static final float DEF_ARM_LOAD_PRESET = Inferno.IS_COMPETITION_ROBOT ? 0.571f : 3.693807046f;
     // These are not used in this file, but are in Inferno.java
-    public static final FloatStatus ARM_PICKUP_PRESET = context.getFloat("arm-pickup", DEF_ARM_PICKUP_PRESET, "arm-potentiometer");
-    public static final FloatStatus ARM_DROP_PRESET = context.getFloat("arm-drop", DEF_ARM_DROP_PRESET, "arm-potentiometer");
-    public static final FloatStatus ARM_DRIVE_PRESET = context.getFloat("arm-drive", DEF_ARM_DRIVE_PRESET, "arm-potentiometer");
-    public static final FloatStatus ARM_LOAD_PRESET = context.getFloat("arm-load", DEF_ARM_LOAD_PRESET, "arm-potentiometer");
+    public static final FloatStatus ARM_PICKUP_PRESET = context.getFloat("arm-pickup", DEF_ARM_PICKUP_PRESET);
+    public static final FloatStatus ARM_DROP_PRESET = context.getFloat("arm-drop", DEF_ARM_DROP_PRESET);
+    public static final FloatStatus ARM_DRIVE_PRESET = context.getFloat("arm-drive", DEF_ARM_DRIVE_PRESET);
+    public static final FloatStatus ARM_LOAD_PRESET = context.getFloat("arm-load", DEF_ARM_LOAD_PRESET);
     public BooleanStatus enabled = new BooleanStatus();
     public BooleanInputPoll suspendOnceStable = Mixing.alwaysFalse;
     public BooleanInputPoll isBrakeDeactivated = Mixing.alwaysFalse;
     public FloatStatus setpoint = new FloatStatus();
-    private FloatInputPoll source;
-    private FloatOutput output;
-    private FloatInputPoll disabledSource;
+    private final FloatInputPoll source;
+    private final FloatOutput output;
+    private final FloatInputPoll disabledSource;
 
     public PController(FloatInputPoll source, FloatOutput output, FloatInputPoll disabledSource) {
         this.source = source;
@@ -60,28 +54,28 @@ public class PController implements EventConsumer {
         this.output = output;
     }
 
-    public void setSetpointWhen(FloatInputPoll fin, EventSource source) {
+    public void setSetpointWhen(FloatInputPoll fin, EventInput source) {
         Mixing.pumpWhen(source, fin, setpoint);
     }
 
     public boolean isStable() {
-        return enabled.readValue() && Math.abs(source.readValue() - setpoint.readValue()) < STABLE_RANGE.readValue();
+        return enabled.get() && Math.abs(source.get() - setpoint.get()) < STABLE_RANGE.get();
     }
 
     protected boolean isBrakeRange() {
-        return enabled.readValue() && Math.abs(source.readValue() - setpoint.readValue()) < 2 * STABLE_RANGE.readValue();
+        return enabled.get() && Math.abs(source.get() - setpoint.get()) < 2 * STABLE_RANGE.get();
     }
 
-    public void eventFired() {
-        if (!enabled.readValue()) {
-            output.writeValue(disabledSource.readValue());
+    public void event() {
+        if (!enabled.get()) {
+            output.set(disabledSource.get());
         } else {
-            if (!isBrakeDeactivated.readValue() || (isStable() && suspendOnceStable.readValue())) {
-                output.writeValue(0);
+            if (!isBrakeDeactivated.get() || (isStable() && suspendOnceStable.get())) {
+                output.set(0);
                 return;
             }
             // postive UP negative DOWN
-            float v = setpoint.readValue() - source.readValue(), absV = Math.abs(v);
+            float v = setpoint.get() - source.get(), absV = Math.abs(v);
             if (absV <= 0.01) {
                 return;
             }
@@ -99,23 +93,23 @@ public class PController implements EventConsumer {
             if (!Inferno.IS_COMPETITION_ROBOT) {
                 goalSpeed = -goalSpeed;
             }
-            if (!(isStable() && suspendOnceStable.readValue()) && absV > DEADZONE_RANGE.readValue()) {
-                output.writeValue(goalSpeed);
+            if (!(isStable() && suspendOnceStable.get()) && absV > DEADZONE_RANGE.get()) {
+                output.set(goalSpeed);
             } else {
-                output.writeValue(0);
+                output.set(0);
             }
         }
     }
 
-    public void updateWhen(EventSource evt) {
-        evt.addListener(this);
+    public void updateWhen(EventInput evt) {
+        evt.send(this);
     }
 
-    public void disableWhen(EventSource when) {
-        when.addListener(enabled.getSetFalseEvent());
+    public void disableWhen(EventInput when) {
+        enabled.setFalseWhen(when);
     }
 
-    public void enableWhen(EventSource when) {
-        when.addListener(enabled.getSetTrueEvent());
+    public void enableWhen(EventInput when) {
+        enabled.setTrueWhen(when);
     }
 }

@@ -18,8 +18,8 @@
  */
 package ccre.instinct;
 
-import ccre.chan.BooleanInputPoll;
-import ccre.event.EventConsumer;
+import ccre.channel.BooleanInputPoll;
+import ccre.channel.EventOutput;
 
 /**
  * An object that can have InstinctModules attached to it.
@@ -39,5 +39,5 @@ public interface InstinctRegistrar {
      *
      * @param toUpdate The EventConsumer to update.
      */
-    public void updatePeriodicallyAlways(EventConsumer toUpdate);
+    public void updatePeriodicallyAlways(EventOutput toUpdate);
 }

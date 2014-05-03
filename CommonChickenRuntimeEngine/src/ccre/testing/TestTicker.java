@@ -19,9 +19,7 @@
 package ccre.testing;
 
 import ccre.ctrl.Ticker;
-import ccre.event.EventConsumer;
-import ccre.log.LogLevel;
-import ccre.log.Logger;
+import ccre.channel.EventOutput;
 
 /**
  *
@@ -37,8 +35,8 @@ public class TestTicker extends BaseTest {
     @Override
     protected void runTest() throws TestingException, InterruptedException {
         final int[] cur = new int[1];
-        EventConsumer a = new EventConsumer() {
-            public void eventFired() {
+        EventOutput a = new EventOutput() {
+            public void event() {
                 try {
                     Thread.sleep(15);
                     cur[0]++;
@@ -51,7 +49,7 @@ public class TestTicker extends BaseTest {
             cur[0] = 0;
             Ticker t = new Ticker(19, true);
             try {
-                t.addListener(a);
+                t.send(a);
                 Thread.sleep(500);
                 assertTrue(24 <= cur[0] && cur[0] <= 26, "Bad Ticker count: " + cur[0]);
             } finally {
@@ -62,7 +60,7 @@ public class TestTicker extends BaseTest {
             cur[0] = 0;
             Ticker t = new Ticker(19, false);
             try {
-                t.addListener(a);
+                t.send(a);
                 Thread.sleep(500);
                 assertTrue(13 <= cur[0] && cur[0] <= 14, "Bad Ticker count!");
             } finally {

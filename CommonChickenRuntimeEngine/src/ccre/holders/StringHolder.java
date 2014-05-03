@@ -18,7 +18,9 @@
  */
 package ccre.holders;
 
-import ccre.event.*;
+import ccre.channel.EventStatus;
+import ccre.channel.EventOutput;
+import ccre.channel.EventInput;
 import java.io.IOException;
 import java.io.OutputStream;
 
@@ -28,7 +30,7 @@ import java.io.OutputStream;
  *
  * @author skeggsc
  */
-public class StringHolder {
+public class StringHolder { // TODO: This is legacy code! There's always a better way.
 
     /**
      * The current value.
@@ -41,7 +43,7 @@ public class StringHolder {
     /**
      * The event fired when the value is changed.
      */
-    private final Event evt = new Event();
+    private final EventStatus evt = new EventStatus();
 
     /**
      * Create a new StringHolder as if the value is not a default/nonexistence
@@ -55,7 +57,7 @@ public class StringHolder {
     }
 
     /**
-     * Create a new StringHolder. If mod is false, the value is interepreted as
+     * Create a new StringHolder. If mod is false, the value is interpreted as
      * a default/nonexistence value.
      *
      * @param value the string value.
@@ -71,7 +73,7 @@ public class StringHolder {
      *
      * @return the event.
      */
-    public EventSource getModifiedEvent() {
+    public EventInput getModifiedEvent() {
         return evt;
     }
 
@@ -80,8 +82,8 @@ public class StringHolder {
      *
      * @param event the event to fire.
      */
-    public void whenModified(EventConsumer event) {
-        evt.addListener(event);
+    public void whenModified(EventOutput event) {
+        evt.send(event);
     }
 
     /**

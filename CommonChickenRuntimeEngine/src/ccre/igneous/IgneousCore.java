@@ -18,11 +18,13 @@
  */
 package ccre.igneous;
 
-import ccre.chan.*;
+import ccre.channel.FloatInputPoll;
+import ccre.channel.BooleanOutput;
+import ccre.channel.FloatOutput;
+import ccre.channel.BooleanInputPoll;
+import ccre.channel.EventOutput;
+import ccre.channel.EventInput;
 import ccre.ctrl.*;
-import ccre.device.DeviceException;
-import ccre.device.DeviceRegistry;
-import ccre.event.*;
 import ccre.instinct.InstinctRegistrar;
 
 /**
@@ -32,7 +34,24 @@ import ccre.instinct.InstinctRegistrar;
  * @see SimpleCore
  * @author skeggsc
  */
-public abstract class IgneousCore implements InstinctRegistrar {
+public abstract class IgneousCore implements InstinctRegistrar { // TODO: Refactor the Igneous system so that it doesn't need all this make... stuff.
+
+    /**
+     * The first joystick attached to the driver station.
+     */
+    protected IJoystick joystick1;
+    /**
+     * The second joystick attached to the driver station.
+     */
+    protected IJoystick joystick2;
+    /**
+     * The third joystick attached to the driver station.
+     */
+    protected IJoystick joystick3;
+    /**
+     * The fourth joystick attached to the driver station.
+     */
+    protected IJoystick joystick4;
 
     /**
      * The launcher that provides all implementations for this.
@@ -41,44 +60,44 @@ public abstract class IgneousCore implements InstinctRegistrar {
     /**
      * Produced during every state where the driver station is attached.
      */
-    protected EventSource globalPeriodic;
+    protected EventInput globalPeriodic;
     /**
      * Produced when the robot enters autonomous mode.
      */
-    protected EventSource startedAutonomous;
+    protected EventInput startedAutonomous;
     /**
      * Produced during autonomous mode.
      */
-    protected EventSource duringAutonomous;
+    protected EventInput duringAutonomous;
     /**
      * Produced when the robot enters disabled mode.
      */
-    protected EventSource robotDisabled;
+    protected EventInput robotDisabled;
     /**
      * Produced while the robot is disabled.
      */
-    protected EventSource duringDisabled;
+    protected EventInput duringDisabled;
     /**
      * Produced when the robot enters teleop mode.
      */
-    protected EventSource startedTeleop;
+    protected EventInput startedTeleop;
     /**
      * Produced during teleop mode.
      */
-    protected EventSource duringTeleop;
+    protected EventInput duringTeleop;
     /**
      * Produced when the robot enters testing mode.
      */
-    protected EventSource startedTesting;
+    protected EventInput startedTesting;
     /**
      * Produced during testing mode.
      */
-    protected EventSource duringTesting;
+    protected EventInput duringTesting;
     /**
      * Constant time periodic. Should pulse every 10 ms, as accurately as
      * possible.
      */
-    protected EventSource constantPeriodic;
+    protected EventInput constantPeriodic;
 
     /**
      * Implement this method - it should set up everything that your robot needs
@@ -88,54 +107,17 @@ public abstract class IgneousCore implements InstinctRegistrar {
 
     // Factory methods
     /**
-     * Get an ISimpleJoystick for the specified joystick ID. Joysticks 1-4 are
-     * joysticks attached to the driver station. Joystick 5 is the virtual
-     * Kinect left-arm joystick, and joystick 6 is the virtual Kinect right-arm
-     * joystick.
+     * Get an IJoystick for the specified kinect joystick. Joysticks on the
+     * driver station are accessed through the variables joystick1...joystick4.
      *
-     * @param id the joystick ID, from 1 to 6, inclusive.
-     * @return the ISimpleJoystick.
-     * @see #makeDispatchJoystick(int)
+     * @param isRightArm If the right arm joystick should be used instead of the
+     * left. (6 instead of 5 if you're used to the old system.)
+     * @return the IJoystick.
      */
-    protected final IJoystick makeSimpleJoystick(int id) {
-        return launcher.makeSimpleJoystick(id);
+    protected final IJoystick getKinectJoystick(boolean isRightArm) {
+        return launcher.getKinectJoystick(isRightArm);
     }
 
-    /**
-     * Get an IDispatchJoystick for the specified joystick ID. Joysticks 1-4 are
-     * joysticks attached to the driver station. Joystick 5 is the virtual
-     * Kinect left-arm joystick, and joystick 6 is the virtual Kinect right-arm
-     * joystick. The joystick will update the inputs and events during teleop
-     * mode only.
-     *
-     * This is equivalent to
-     * <code>makeDispatchJoystick(id, duringTeleop)</code>.
-     *
-     * @param id the joystick ID, from 1 to 6, inclusive.
-     * @return the IDispatchJoystick.
-     * @see #makeSimpleJoystick(int)
-     * @see #makeDispatchJoystick(int, ccre.event.EventSource)
-     */
-    protected final IDispatchJoystick makeDispatchJoystick(int id) {
-        return launcher.makeDispatchJoystick(id, duringTeleop);
-    }
-
-    /**
-     * Get an IDispatchJoystick for the specified joystick ID. Joysticks 1-4 are
-     * joysticks attached to the driver station. Joystick 5 is the virtual
-     * Kinect left-arm joystick, and joystick 6 is the virtual Kinect right-arm
-     * joystick. The joystick will update the inputs and events when the
-     * specified event is fired.
-     *
-     * @param id the joystick ID, from 1 to 6, inclusive.
-     * @param source when to update the joystick.
-     * @return the IDispatchJoystick.
-     * @see #makeSimpleJoystick(int)
-     * @see #makeDispatchJoystick(int)
-     */
-    protected final IDispatchJoystick makeDispatchJoystick(int id, EventSource source) {
-        return launcher.makeDispatchJoystick(id, source);
-    }
     /**
      * Signifies that the motor should be directly outputted without negation.
      */
@@ -326,7 +308,7 @@ public abstract class IgneousCore implements InstinctRegistrar {
      * @param value the value to display.
      * @param when when to update the output.
      */
-    protected final void makeDSFloatReadout(String prefix, int line, FloatInputPoll value, EventSource when) {
+    protected final void makeDSFloatReadout(String prefix, int line, FloatInputPoll value, EventInput when) {
         Mixing.pumpWhen(when, value, makeDSFloatReadout(prefix, line));
     }
 
@@ -340,7 +322,7 @@ public abstract class IgneousCore implements InstinctRegistrar {
      * @param value the value to display.
      * @param when when to update the output.
      */
-    protected final void makeDSBooleanReadout(String prefix, int line, BooleanInputPoll value, EventSource when) {
+    protected final void makeDSBooleanReadout(String prefix, int line, BooleanInputPoll value, EventInput when) {
         Mixing.pumpWhen(when, value, makeDSBooleanReadout(prefix, line));
     }
 
@@ -420,8 +402,8 @@ public abstract class IgneousCore implements InstinctRegistrar {
         return Mixing.andBooleans(Mixing.invert.wrap(getIsDisabled()), getIsAutonomous());
     }
 
-    public void updatePeriodicallyAlways(EventConsumer toUpdate) {
-        globalPeriodic.addListener(toUpdate);
+    public void updatePeriodicallyAlways(EventOutput toUpdate) {
+        globalPeriodic.send(toUpdate);
     }
 
     /**
@@ -435,7 +417,7 @@ public abstract class IgneousCore implements InstinctRegistrar {
      * event is produced.
      * @return the Encoder, reporting encoder ticks.
      */
-    protected final FloatInputPoll makeEncoder(int aChannel, int bChannel, boolean reverse, EventSource resetWhen) {
+    protected final FloatInputPoll makeEncoder(int aChannel, int bChannel, boolean reverse, EventInput resetWhen) {
         return launcher.makeEncoder(aChannel, bChannel, reverse, resetWhen);
     }
 
@@ -490,7 +472,7 @@ public abstract class IgneousCore implements InstinctRegistrar {
      * @param evt When to reset the Gyro.
      * @return The reference to the Gyro's current value.
      */
-    protected final FloatInputPoll makeGyro(int port, double sensitivity, EventSource evt) {
+    protected final FloatInputPoll makeGyro(int port, double sensitivity, EventInput evt) {
         return launcher.makeGyro(port, sensitivity, evt);
     }
 
@@ -524,17 +506,6 @@ public abstract class IgneousCore implements InstinctRegistrar {
      */
     protected final FloatInputPoll makeAccelerometerAxis(int port, double sensitivity, double zeropoint) {
         return launcher.makeAccelerometerAxis(port, sensitivity, zeropoint);
-    }
-
-    /**
-     * Get a reference to a DeviceRegistry representing everything directly
-     * attached to this robot.
-     *
-     * @return The device registry for this robot.
-     * @throws ccre.device.DeviceException
-     */
-    protected final DeviceRegistry getDeviceRegistry() throws DeviceException {
-        return launcher.getDeviceRegistry();
     }
 
     private class DSFloatReadout implements FloatOutput {

@@ -55,38 +55,20 @@ public class Launcher {
             System.err.println("    tests - SuiteOfTests");
             return;
         }
-        String a = args[0];
+        String command = args[0];
         String[] cargs = new String[args.length - 1];
         System.arraycopy(args, 1, cargs, 0, cargs.length);
-        switch (a.charAt(1)) {
-            case 'l':
-                if (a.equals("cluck")) {
-                    StandaloneCluckServer.main(cargs);
-                    break;
-                }
-                break;
-            case 'c':
-                if (a.equals("rcli")) {
-                    RLoadClient.main(cargs);
-                    break;
-                }
-                break;
-            case 's':
-                if (a.equals("rserv")) {
-                    RLoadServer.main(cargs);
-                    break;
-                }
-                break;
-            case 'e':
-                if (a.equals("tests")) {
-                    SuiteOfTests.main(cargs);
-                    break;
-                }
-                break;
-            default:
-                System.err.println("No such launchee: " + a);
-                System.exit(1);
-                break;
+        if (command.equals("cluck")) {
+            StandaloneCluckServer.main(cargs);
+        } else if (command.equals("rcli")) {
+            RLoadClient.main(cargs);
+        } else if (command.equals("rserv")) {
+            RLoadServer.main(cargs);
+        } else if (command.equals("tests")) {
+            SuiteOfTests.main(cargs);
+        } else {
+            System.err.println("No such launchee: " + command);
+            System.exit(1);
         }
     }
 }

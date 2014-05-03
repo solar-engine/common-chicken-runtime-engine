@@ -18,14 +18,14 @@
  */
 package ccre.obsidian;
 
-import ccre.chan.BooleanInput;
-import ccre.chan.BooleanInputPoll;
-import ccre.chan.BooleanOutput;
-import ccre.chan.FloatInput;
-import ccre.chan.FloatInputPoll;
-import ccre.chan.FloatOutput;
-import ccre.event.Event;
-import ccre.event.EventSource;
+import ccre.channel.BooleanInput;
+import ccre.channel.BooleanInputPoll;
+import ccre.channel.BooleanOutput;
+import ccre.channel.FloatInput;
+import ccre.channel.FloatInputPoll;
+import ccre.channel.FloatOutput;
+import ccre.channel.EventStatus;
+import ccre.channel.EventInput;
 import java.util.Properties;
 
 /**
@@ -40,11 +40,11 @@ public abstract class ObsidianCore implements GPIOChannels {
      * Produced about every twenty milliseconds. This timing is subject to
      * change.
      */
-    protected EventSource periodic;
+    protected EventInput periodic;
     
-    public Event enabled;
+    public EventStatus enabled;
     
-    public Event disabled;
+    public EventStatus disabled;
     /**
      * The properties loaded automatically for Obsidian.
      */

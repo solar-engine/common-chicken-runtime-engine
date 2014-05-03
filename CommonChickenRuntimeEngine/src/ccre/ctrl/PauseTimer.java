@@ -18,11 +18,11 @@
  */
 package ccre.ctrl;
 
-import ccre.chan.BooleanInput;
-import ccre.chan.BooleanOutput;
+import ccre.channel.BooleanInput;
+import ccre.channel.BooleanOutput;
 import ccre.concurrency.ConcurrentDispatchArray;
 import ccre.concurrency.ReporterThread;
-import ccre.event.EventConsumer;
+import ccre.channel.EventOutput;
 import ccre.log.LogLevel;
 import ccre.log.Logger;
 
@@ -36,7 +36,7 @@ import ccre.log.Logger;
  *
  * @author skeggsc
  */
-public class PauseTimer implements BooleanInput, EventConsumer {
+public class PauseTimer implements BooleanInput, EventOutput {
 
     private volatile long endAt;
     private final long timeout;
@@ -74,7 +74,7 @@ public class PauseTimer implements BooleanInput, EventConsumer {
         main.start();
     }
 
-    public void eventFired() {
+    public void event() {
         setEndAt(System.currentTimeMillis() + timeout);
     }
 

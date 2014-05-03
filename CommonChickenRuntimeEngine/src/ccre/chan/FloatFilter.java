@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 Colby Skeggs
+ * Copyright 2013-2014 Colby Skeggs
  * 
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  * 
@@ -39,25 +39,12 @@ public abstract class FloatFilter {
      * Returns a FloatInput representing the filtered version of the specified
      * input.
      *
-     * @param inp The input to filter.
+     * @param input The input to filter.
      * @return the filtered input.
      */
-    public FloatInput wrap(final FloatInput inp) {
-        final FloatStatus out = new FloatStatus(inp.readValue());
-        inp.addTarget(wrap((FloatOutput) out));
-        return out;
-    }
-
-    /**
-     * Returns a FloatInputProducer representing the filtered version of the
-     * specified input.
-     *
-     * @param prd The input to filter.
-     * @return the filtered input.
-     */
-    public FloatInputProducer wrap(final FloatInputProducer prd) {
-        FloatStatus out = new FloatStatus();
-        prd.addTarget(wrap((FloatOutput) out));
+    public FloatInput wrap(final FloatInput input) {
+        FloatStatus out = new FloatStatus(filter(input.get()));
+        input.send(wrap((FloatOutput) out));
         return out;
     }
 
@@ -65,13 +52,13 @@ public abstract class FloatFilter {
      * Returns a FloatInputPoll representing the filtered version of the
      * specified input.
      *
-     * @param inp The input to filter.
+     * @param input The input to filter.
      * @return the filtered input.
      */
-    public FloatInputPoll wrap(final FloatInputPoll inp) {
+    public FloatInputPoll wrap(final FloatInputPoll input) {
         return new FloatInputPoll() {
-            public float readValue() {
-                return filter(inp.readValue());
+            public float get() {
+                return filter(input.get());
             }
         };
     }
@@ -80,13 +67,13 @@ public abstract class FloatFilter {
      * Returns a FloatOutput that, when written to, writes the filtered version
      * of the value through to the specified output.
      *
-     * @param out the output to write filtered values to.
+     * @param output the output to write filtered values to.
      * @return the output to write values to in order to filter them.
      */
-    public FloatOutput wrap(final FloatOutput out) {
+    public FloatOutput wrap(final FloatOutput output) {
         return new FloatOutput() {
-            public void writeValue(float value) {
-                out.writeValue(filter(value));
+            public void set(float value) {
+                output.set(filter(value));
             }
         };
     }

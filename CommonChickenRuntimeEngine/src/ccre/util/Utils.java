@@ -56,7 +56,7 @@ public class Utils {
     public static final FloatInputPoll currentTimeSeconds = new FloatInputPoll() {
         private final long base = System.currentTimeMillis();
 
-        public float readValue() {
+        public float get() {
             return (System.currentTimeMillis() - base) / 1000.0f;
         }
     };

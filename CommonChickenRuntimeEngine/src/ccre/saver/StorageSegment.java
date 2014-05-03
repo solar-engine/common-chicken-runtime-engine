@@ -186,7 +186,7 @@ public abstract class StorageSegment {
         // TODO: Fix this up to remove the default field, when it won't break the robot code.
         final String key = "~h:" + name;
         DataInputStream din = getDataInputForKey(key);
-        final float originalValue = holder.readValue();
+        final float originalValue = holder.get();
         if (din != null) {
             try {
                 float value = din.readFloat();
@@ -195,7 +195,7 @@ public abstract class StorageSegment {
                     // If the default is the same as the holder's default, then load the value
                     if (Float.floatToIntBits(default_) == Float.floatToIntBits(originalValue)) {
                         Logger.config("Loaded config for " + name + ": def:" + default_ + " old:" + originalValue + " new:" + value);
-                        holder.writeValue(value);
+                        holder.set(value);
                     }
                     // Otherwise, the default has changed from the holder, and therefore we want the updated value from the holder
                 }
@@ -203,7 +203,7 @@ public abstract class StorageSegment {
                 Logger.log(LogLevel.WARNING, "Exception in self-contained float saving!", ex);
             }
         }
-        holder.addTarget(new SegmentFloatSaver(key, originalValue));
+        holder.send(new SegmentFloatSaver(key, originalValue));
     }
 
     private class SegmentFloatSaver implements FloatOutput {
@@ -216,7 +216,7 @@ public abstract class StorageSegment {
             this.originalValue = originalValue;
         }
 
-        public void writeValue(float value) {
+        public void set(float value) {
             DataOutputStream dout = setDataOutputForKey(key);
             try {
                 dout.writeFloat(value); // value

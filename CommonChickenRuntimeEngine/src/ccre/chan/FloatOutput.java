@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 Colby Skeggs
+ * Copyright 2013-2014 Colby Skeggs
  * 
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  * 
@@ -38,5 +38,5 @@ public interface FloatOutput {
      *
      * @param value The new value to send to this output.
      */
-    public void writeValue(float value);
+    public void set(float value);
 }

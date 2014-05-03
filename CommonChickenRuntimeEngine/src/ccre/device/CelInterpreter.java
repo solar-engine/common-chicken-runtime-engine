@@ -143,7 +143,7 @@ public class CelInterpreter {
                     BooleanStatus stat = new BooleanStatus();
                     putVar(gStr(1), stat);
                     for (int i = 2; i <= line.length; i++) {
-                        stat.addTarget((BooleanOutput) getVar(line[i]));
+                        stat.send((BooleanOutput) getVar(line[i]));
                     }
                     return;
                 }
@@ -159,7 +159,7 @@ public class CelInterpreter {
                     FloatStatus stat = new FloatStatus();
                     putVar(gStr(1), stat);
                     for (int i = 2; i <= line.length; i++) {
-                        stat.addTarget((FloatOutput) getVar(line[i]));
+                        stat.send((FloatOutput) getVar(line[i]));
                     }
                     return;
                 }
@@ -177,7 +177,7 @@ public class CelInterpreter {
                     final String prefix = gStr(3) + ": ";
                     getAlwaysPeriodic().addListener(new EventConsumer() {
                         public void eventFired() {
-                            lline.println(prefix + inp.readValue());
+                            lline.println(prefix + inp.get());
                         }
                     });
                     return;
@@ -187,7 +187,7 @@ public class CelInterpreter {
                     final String prefix = gStr(3) + ": ";
                     getAlwaysPeriodic().addListener(new EventConsumer() {
                         public void eventFired() {
-                            lline.println(prefix + inp.readValue());
+                            lline.println(prefix + inp.get());
                         }
                     });
                     return;

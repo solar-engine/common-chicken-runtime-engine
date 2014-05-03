@@ -119,7 +119,7 @@ public final class CluckNullLink implements CluckLink {
         return this;
     }
 
-    public boolean transmit(String rest, String source, byte[] data) {
+    public boolean send(String rest, String source, byte[] data) {
         if (paired == null) {
             return true;
         }

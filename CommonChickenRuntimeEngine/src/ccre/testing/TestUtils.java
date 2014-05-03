@@ -44,14 +44,14 @@ public class TestUtils extends BaseTest {
         // Utils.currentTimeSeconds
         boolean success = false;
         for (int i = 0; i < 5; i++) {
-            float here = Utils.currentTimeSeconds.readValue();
+            float here = Utils.currentTimeSeconds.get();
             try {
                 Thread.sleep(99); // 99 because it causes Java SE to make the request more accurate...
             } catch (InterruptedException ex) {
                 assertFail("Interrupted during timing test.");
                 throw ex;
             }
-            float there = Utils.currentTimeSeconds.readValue();
+            float there = Utils.currentTimeSeconds.get();
             float dt = Math.abs(there - here - (99 / 1000f));
             if (dt < 0.002) {
                 success = true;

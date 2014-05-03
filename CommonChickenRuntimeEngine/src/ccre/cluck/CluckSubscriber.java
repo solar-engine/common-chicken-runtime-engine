@@ -49,7 +49,7 @@ public abstract class CluckSubscriber implements CluckLink {
      */
     private String linkName;
 
-    public final boolean transmit(String dest, String source, byte[] data) {
+    public final boolean send(String dest, String source, byte[] data) {
         if (dest == null) {
             receive(source, data);
         } else if ("*".equals(dest)) {

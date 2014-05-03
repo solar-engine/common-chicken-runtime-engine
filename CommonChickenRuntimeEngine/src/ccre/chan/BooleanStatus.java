@@ -44,7 +44,7 @@ public class BooleanStatus implements BooleanOutput, BooleanInput {
      * @param default_ The default value.
      */
     public BooleanStatus(boolean default_) {
-        this.writeValue(default_);
+        this.set(default_);
     }
 
     /**
@@ -53,13 +53,13 @@ public class BooleanStatus implements BooleanOutput, BooleanInput {
      * BooleanStatus. This is the same as creating a new BooleanStatus and then
      * adding the BooleanOutput as a target.
      *
-     * @see BooleanStatus#addTarget(ccre.chan.BooleanOutput)
+     * @see BooleanStatus#send(ccre.chan.BooleanOutput)
      * @param target The BooleanOutput to automatically update.
      */
     public BooleanStatus(BooleanOutput target) {
         consumers = new CArrayList<BooleanOutput>();
         consumers.add(target);
-        target.writeValue(false);
+        target.set(false);
     }
 
     /**
@@ -68,28 +68,28 @@ public class BooleanStatus implements BooleanOutput, BooleanInput {
      * this BooleanStatus. This is the same as creating a new BooleanStatus and
      * then adding all of the BooleanOutputs as targets.
      *
-     * @see BooleanStatus#addTarget(ccre.chan.BooleanOutput)
+     * @see BooleanStatus#send(ccre.chan.BooleanOutput)
      * @param targets The BooleanOutputs to automatically update.
      */
     public BooleanStatus(BooleanOutput... targets) {
         consumers = new CArrayList<BooleanOutput>(CArrayUtils.asList(targets));
         for (BooleanOutput t : targets) {
-            t.writeValue(false);
+            t.set(false);
         }
     }
     /**
      * The current state (true or false) of this BooleanStatus. Do not directly
      * modify this field. Use the writeValue method instead.
      *
-     * @see #writeValue(boolean)
+     * @see #set(boolean)
      */
     private boolean value;
     /**
      * The list of all the BooleanOutputs to modify when this BooleanStatus
      * changes value.
      *
-     * @see #addTarget(ccre.chan.BooleanOutput)
-     * @see #removeTarget(ccre.chan.BooleanOutput)
+     * @see #send(ccre.chan.BooleanOutput)
+     * @see #unsend(ccre.chan.BooleanOutput)
      */
     private CArrayList<BooleanOutput> consumers = null;
     /**
@@ -154,7 +154,7 @@ public class BooleanStatus implements BooleanOutput, BooleanInput {
         if (setTrue == null) {
             setTrue = new EventConsumer() {
                 public void eventFired() {
-                    writeValue(true);
+                    set(true);
                 }
             };
         }
@@ -171,7 +171,7 @@ public class BooleanStatus implements BooleanOutput, BooleanInput {
         if (setFalse == null) {
             setFalse = new EventConsumer() {
                 public void eventFired() {
-                    writeValue(false);
+                    set(false);
                 }
             };
         }
@@ -188,46 +188,42 @@ public class BooleanStatus implements BooleanOutput, BooleanInput {
         if (toggle == null) {
             toggle = new EventConsumer() {
                 public void eventFired() {
-                    writeValue(!readValue());
+                    set(!get());
                 }
             };
         }
         return toggle;
     }
 
-    public final synchronized void writeValue(boolean value) {
+    public final synchronized void set(boolean value) {
         if (this.value == value) {
             return;
         }
         this.value = value;
         if (consumers != null) {
-            for (BooleanOutput fws : consumers) {
-                fws.writeValue(value);
+            for (BooleanOutput output : consumers) {
+                output.set(value);
             }
         }
     }
 
-    public final synchronized boolean readValue() {
+    public final synchronized boolean get() {
         return value;
     }
 
-    public synchronized void addTarget(BooleanOutput csm) {
+    public synchronized void send(BooleanOutput output) {
         if (consumers == null) {
             consumers = new CArrayList<BooleanOutput>();
         }
-        consumers.add(csm);
-        csm.writeValue(value);
+        consumers.add(output);
+        output.set(value);
     }
 
-    public synchronized boolean removeTarget(BooleanOutput consum) {
+    public synchronized void unsend(BooleanOutput output) {
         if (consumers != null) {
-            boolean out = consumers.remove(consum);
-            if (consumers.isEmpty()) {
+            if (consumers.remove(output) && consumers.isEmpty()) {
                 consumers = null;
             }
-            return out;
-        } else {
-            return false;
         }
     }
 }

@@ -40,48 +40,44 @@ public class Mixing {
      * A FloatOutput that goes nowhere. All data sent here is ignored.
      */
     public static final FloatOutput ignoredFloatOutput = new FloatOutput() {
-        public void writeValue(float newValue) {
+        public void set(float newValue) {
         }
     };
     /**
      * A BooleanOutput that goes nowhere. All data sent here is ignored.
      */
     public static final BooleanOutput ignoredBooleanOutput = new BooleanOutput() {
-        public void writeValue(boolean newValue) {
+        public void set(boolean newValue) {
         }
     };
     /**
      * A BooleanInput that is always false.
      */
     public static final BooleanInput alwaysFalse = new BooleanInput() {
-        public boolean readValue() {
+        public boolean get() {
             return false;
         }
 
-        public void addTarget(BooleanOutput consum) {
-            consum.writeValue(false);
+        public void send(BooleanOutput consum) {
+            consum.set(false);
         }
 
-        public boolean removeTarget(BooleanOutput consum) {
-            Logger.warning("Faked removeTarget for Mixing.alwaysFalse");
-            return true; // Faked!
+        public void unsend(BooleanOutput consum) {
         }
     };
     /**
      * A BooleanInput that is always true.
      */
     public static final BooleanInput alwaysTrue = new BooleanInput() {
-        public boolean readValue() {
+        public boolean get() {
             return true;
         }
 
-        public void addTarget(BooleanOutput consum) {
-            consum.writeValue(true);
+        public void send(BooleanOutput consum) {
+            consum.set(true);
         }
 
-        public boolean removeTarget(BooleanOutput consum) {
-            Logger.warning("Faked removeTarget for Mixing.alwaysTrue");
-            return true; // Faked!
+        public void unsend(BooleanOutput consum) {
         }
     };
     /**
@@ -123,9 +119,9 @@ public class Mixing {
      */
     public static FloatOutput combine(final FloatOutput a, final FloatOutput b) {
         return new FloatOutput() {
-            public void writeValue(float value) {
-                a.writeValue(value);
-                b.writeValue(value);
+            public void set(float value) {
+                a.set(value);
+                b.set(value);
             }
         };
     }
@@ -141,10 +137,10 @@ public class Mixing {
      */
     public static FloatOutput combine(final FloatOutput a, final FloatOutput b, final FloatOutput c) {
         return new FloatOutput() {
-            public void writeValue(float value) {
-                a.writeValue(value);
-                b.writeValue(value);
-                c.writeValue(value);
+            public void set(float value) {
+                a.set(value);
+                b.set(value);
+                c.set(value);
             }
         };
     }
@@ -189,9 +185,9 @@ public class Mixing {
      */
     public static BooleanOutput combine(final BooleanOutput a, final BooleanOutput b) {
         return new BooleanOutput() {
-            public void writeValue(boolean value) {
-                a.writeValue(value);
-                b.writeValue(value);
+            public void set(boolean value) {
+                a.set(value);
+                b.set(value);
             }
         };
     }
@@ -207,10 +203,10 @@ public class Mixing {
      */
     public static BooleanOutput combine(final BooleanOutput a, final BooleanOutput b, final BooleanOutput c) {
         return new BooleanOutput() {
-            public void writeValue(boolean value) {
-                a.writeValue(value);
-                b.writeValue(value);
-                c.writeValue(value);
+            public void set(boolean value) {
+                a.set(value);
+                b.set(value);
+                c.set(value);
             }
         };
     }
@@ -242,8 +238,8 @@ public class Mixing {
      * floats.
      */
     public static FloatInput select(BooleanInput selector, float off, float on) {
-        BCF out = new BCF(selector.readValue(), off, on);
-        selector.addTarget(out);
+        BCF out = new BCF(selector.get(), off, on);
+        selector.send(out);
         return out;
     }
 
@@ -259,9 +255,9 @@ public class Mixing {
      * @return the FloatInput calculated from the selector's value and the two
      * floats.
      */
-    public static FloatInput select(BooleanInputProducer selector, boolean default_, float off, float on) {
+    public static FloatInput select(BooleanInput selector, boolean default_, float off, float on) {
         BCF out = new BCF(default_, off, on);
-        selector.addTarget(out);
+        selector.send(out);
         return out;
     }
 
@@ -295,8 +291,8 @@ public class Mixing {
      */
     public static BooleanOutput select(final FloatOutput target, final FloatInputPoll off, final FloatInputPoll on) {
         return new BooleanOutput() {
-            public void writeValue(boolean value) {
-                target.writeValue(value ? on.readValue() : off.readValue());
+            public void set(boolean value) {
+                target.set(value ? on.get() : off.get());
             }
         };
     }
@@ -315,8 +311,8 @@ public class Mixing {
      * of the two arguments.
      */
     public static FloatInput select(BooleanInput selector, FloatInputPoll off, FloatInputPoll on) {
-        BCF2 out = new BCF2(selector.readValue(), off, on);
-        selector.addTarget(out);
+        BCF2 out = new BCF2(selector.get(), off, on);
+        selector.send(out);
         return out;
     }
 
@@ -334,9 +330,9 @@ public class Mixing {
      * @return the value selected based on the selector's value and the statuses
      * of the two arguments.
      */
-    public static FloatInput select(BooleanInputProducer selector, boolean default_, FloatInputPoll off, FloatInputPoll on) {
+    public static FloatInput select(BooleanInput selector, boolean default_, FloatInputPoll off, FloatInputPoll on) {
         BCF2 out = new BCF2(default_, off, on);
-        selector.addTarget(out);
+        selector.send(out);
         return out;
     }
 
@@ -408,20 +404,6 @@ public class Mixing {
     }
 
     /**
-     * Returns a FloatInputProducer with a deadzone applied as specified in
-     * Utils.deadzone
-     *
-     * @param inp the input representing the current value.
-     * @param range the deadzone to apply.
-     * @return the input representing the deadzone applied to the specified
-     * value.
-     * @see ccre.util.Utils#deadzone(float, float)
-     */
-    public static FloatInputProducer deadzone(FloatInputProducer inp, float range) {
-        return deadzone(range).wrap(inp);
-    }
-
-    /**
      * Returns a FloatOutput that writes through a deadzoned version of any
      * values written to it. Deadzones values as specified in Utils.deadzone.
      *
@@ -458,17 +440,6 @@ public class Mixing {
     }
 
     /**
-     * Returns a FloatInputProducer representing the negated version of the
-     * specified input.
-     *
-     * @param value the input to negate.
-     * @return the negated input.
-     */
-    public static FloatInputProducer negate(FloatInputProducer value) {
-        return negate.wrap(value);
-    }
-
-    /**
      * Returns a FloatOutput that, when written to, writes the negation of the
      * value through to the specified output.
      *
@@ -498,17 +469,6 @@ public class Mixing {
      * @return the inverted value.
      */
     public static BooleanInput invert(BooleanInput value) {
-        return invert.wrap(value);
-    }
-
-    /**
-     * Returns a BooleanInputProducer that represents the logical inversion of
-     * the value of the specified input.
-     *
-     * @param value the value to invert.
-     * @return the inverted value.
-     */
-    public static BooleanInputProducer invert(BooleanInputProducer value) {
         return invert.wrap(value);
     }
 
@@ -584,7 +544,7 @@ public class Mixing {
         return new BooleanOutput() {
             private boolean last;
 
-            public void writeValue(boolean value) {
+            public void set(boolean value) {
                 if (value == last) {
                     return;
                 }
@@ -625,9 +585,9 @@ public class Mixing {
      * @param target the target value to trigger the event.
      * @return the EventSource that is fired when the input becomes the target.
      */
-    public static EventSource whenBooleanBecomes(BooleanInputProducer input, boolean target) {
+    public static EventSource whenBooleanBecomes(BooleanInput input, boolean target) {
         final Event out = new Event();
-        input.addTarget(new WBBI(target, out));
+        input.send(new WBBI(target, out));
         return out;
     }
 

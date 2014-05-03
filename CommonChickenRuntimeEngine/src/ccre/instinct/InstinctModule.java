@@ -118,7 +118,7 @@ public abstract class InstinctModule implements EventConsumer {
         protected void threadBody() {
             while (true) {
                 isRunning = false;
-                while (!shouldBeRunning.readValue()) { // TODO: Is it an issue to have this in here instead of further out?
+                while (!shouldBeRunning.get()) { // TODO: Is it an issue to have this in here instead of further out?
                     try {
                         waitCycle();
                     } catch (InterruptedException ex) {
@@ -146,7 +146,7 @@ public abstract class InstinctModule implements EventConsumer {
                 }
                 isRunning = false;
                 isEndWaiting = true;
-                while (shouldBeRunning.readValue()) {
+                while (shouldBeRunning.get()) {
                     try {
                         // Wait until no longer supposed to be running.
                         waitCycle();
@@ -162,7 +162,7 @@ public abstract class InstinctModule implements EventConsumer {
         if (shouldBeRunning == null) {
             throw new RuntimeException("You need to have specified when the Insight module should be running!");
         }
-        if (shouldBeRunning.readValue() || isEndWaiting) {
+        if (shouldBeRunning.get() || isEndWaiting) {
             if (!main.isAlive()) {
                 main.start();
             }
@@ -186,10 +186,10 @@ public abstract class InstinctModule implements EventConsumer {
      */
     protected void waitUntil(BooleanInputPoll waitFor) throws AutonomousModeOverException, InterruptedException {
         while (true) {
-            if (!shouldBeRunning.readValue()) {
+            if (!shouldBeRunning.get()) {
                 throw new AutonomousModeOverException();
             }
-            if (waitFor.readValue()) {
+            if (waitFor.get()) {
                 return;
             }
             waitCycle();
@@ -217,7 +217,7 @@ public abstract class InstinctModule implements EventConsumer {
         source.addListener(c);
         try {
             while (!b[0]) {
-                if (!shouldBeRunning.readValue()) {
+                if (!shouldBeRunning.get()) {
                     throw new AutonomousModeOverException();
                 }
                 waitCycle();
@@ -237,11 +237,11 @@ public abstract class InstinctModule implements EventConsumer {
      */
     protected int waitUntilOneOf(BooleanInputPoll... waitFor) throws AutonomousModeOverException, InterruptedException {
         while (true) {
-            if (!shouldBeRunning.readValue()) {
+            if (!shouldBeRunning.get()) {
                 throw new AutonomousModeOverException();
             }
             for (int i = 0; i < waitFor.length; i++) {
-                if (waitFor[i].readValue()) {
+                if (waitFor[i].get()) {
                     return i;
                 }
             }
@@ -292,7 +292,7 @@ public abstract class InstinctModule implements EventConsumer {
         try {
             Thread.sleep(milliseconds);
         } catch (InterruptedException ex) {
-            if (!shouldBeRunning.readValue()) {
+            if (!shouldBeRunning.get()) {
                 throw new AutonomousModeOverException();
             }
             throw ex;

@@ -34,24 +34,15 @@ public final class CluckGlobals {
     /**
      * The current CluckNode.
      */
-    private static CluckNode node;
+    private static final CluckNode node = new CluckNode();
     /**
      * The current CluckTCPServer.
      */
-    private static CluckTCPServer serv;
+    private static CluckTCPServer server;
     /**
      * The current CluckTCPClient.
      */
-    private static CluckTCPClient cli;
-
-    /**
-     * Create a Cluck node if it's not already initialized.
-     */
-    public static synchronized void ensureInitializedCore() {
-        if (node == null) {
-            node = new CluckNode();
-        }
-    }
+    private static CluckTCPClient client;
 
     /**
      * Get the current global CluckNode.
@@ -68,7 +59,7 @@ public final class CluckGlobals {
      * @return The global CluckTCPServer.
      */
     public static synchronized CluckTCPServer getServer() {
-        return serv;
+        return server;
     }
 
     /**
@@ -77,18 +68,18 @@ public final class CluckGlobals {
      * @return The global CluckTCPClient.
      */
     public static synchronized CluckTCPClient getClient() {
-        return cli;
+        return client;
     }
 
     /**
      * Set up a server on the default port.
      */
-    public static synchronized void setupServer() {
-        if (serv != null) {
+    public static synchronized void setupServer() { // TODO: Is this needed?
+        if (server != null) {
             throw new IllegalStateException("Server already set up!");
         }
-        serv = new CluckTCPServer(node);
-        serv.start();
+        server = new CluckTCPServer(node);
+        server.start();
     }
 
     /**
@@ -102,10 +93,10 @@ public final class CluckGlobals {
      * this.
      */
     public static synchronized void setupClient(String remote, String linkName, String hintedRemoteName) {
-        if (cli != null) {
+        if (client != null) {
             throw new IllegalStateException("Client already set up!");
         }
-        cli = new CluckTCPClient(remote, node, linkName, hintedRemoteName);
-        cli.start();
+        client = new CluckTCPClient(remote, node, linkName, hintedRemoteName);
+        client.start();
     }
 }

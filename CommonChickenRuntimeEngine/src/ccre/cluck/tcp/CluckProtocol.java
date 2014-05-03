@@ -181,7 +181,7 @@ public class CluckProtocol {
         CluckLink clink = new CluckLink() {
             private boolean isRunning = false;
 
-            public synchronized boolean transmit(String dest, String source, byte[] data) {
+            public synchronized boolean send(String dest, String source, byte[] data) {
                 if (isRunning) {
                     Logger.severe("[LOCAL] Already running transmit!");
                     return true;

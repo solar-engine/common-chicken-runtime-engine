@@ -42,7 +42,6 @@ public class StandaloneCluckServer {
      */
     public static void main(String[] args) {
         final long time = System.currentTimeMillis();
-        CluckGlobals.ensureInitializedCore();
         NetworkAutologger.register();
         ReflectionConsole.attach();
         CluckGlobals.getNode().publish("status-report", new EventConsumer() {

@@ -42,19 +42,19 @@ public class TestFloatStatus extends BaseTest {
      */
     protected void testBasicReadWrite() throws TestingException {
         FloatStatus status = new FloatStatus();
-        assertEqual(status.readValue(), 0.0f, "Bad default value!");
-        status.writeValue(1.7f);
-        assertEqual(status.readValue(), 1.7f, "Bad value!");
-        status.writeValue(1.7f);
-        assertEqual(status.readValue(), 1.7f, "Bad value!");
-        status.writeValue(-1.0f);
-        assertEqual(status.readValue(), -1.0f, "Bad value!");
-        status.writeValue(-1.0f);
-        assertEqual(status.readValue(), -1.0f, "Bad value!");
-        status.writeValue(3.6f);
-        assertEqual(status.readValue(), 3.6f, "Bad value!");
-        status.writeValue(-89.2f);
-        assertEqual(status.readValue(), -89.2f, "Bad value!");
+        assertEqual(status.get(), 0.0f, "Bad default value!");
+        status.set(1.7f);
+        assertEqual(status.get(), 1.7f, "Bad value!");
+        status.set(1.7f);
+        assertEqual(status.get(), 1.7f, "Bad value!");
+        status.set(-1.0f);
+        assertEqual(status.get(), -1.0f, "Bad value!");
+        status.set(-1.0f);
+        assertEqual(status.get(), -1.0f, "Bad value!");
+        status.set(3.6f);
+        assertEqual(status.get(), 3.6f, "Bad value!");
+        status.set(-89.2f);
+        assertEqual(status.get(), -89.2f, "Bad value!");
     }
 
     /**
@@ -67,31 +67,31 @@ public class TestFloatStatus extends BaseTest {
         final float[] cur = new float[1];
         final boolean[] c2 = new boolean[1];
         FloatOutput b = new FloatOutput() {
-            public void writeValue(float value) {
+            public void set(float value) {
                 cur[0] = value;
                 c2[0] = true;
             }
         };
-        status.addTarget(b);
+        status.send(b);
         assertTrue(c2[0], "Current value not written!");
         assertEqual(cur[0], 0.0f, "Initial value bad!");
         c2[0] = false;
-        status.writeValue(0.0f);
+        status.set(0.0f);
         assertFalse(c2[0], "Expected no write for the same value!");
-        status.writeValue(0.1f);
+        status.set(0.1f);
         assertTrue(c2[0], "Expected write when value modified!");
         assertEqual(cur[0], 0.1f, "Expected write of 0.1f!");
         c2[0] = false;
-        status.writeValue(0.1f);
+        status.set(0.1f);
         assertFalse(c2[0], "Expected no write for the same value!");
-        status.writeValue(-4.6f);
+        status.set(-4.6f);
         assertTrue(c2[0], "Expected write when value modified!");
         assertEqual(cur[0], -4.6f, "Expected write of -4.6f!");
         c2[0] = false;
-        assertTrue(status.removeTarget(b), "Expected existing subscription!");
-        assertFalse(status.removeTarget(b), "Expected no subscription!");
-        status.writeValue(1.8f);
-        status.writeValue(0.0f);
+        assertTrue(status.unsend(b), "Expected existing subscription!");
+        assertFalse(status.unsend(b), "Expected no subscription!");
+        status.set(1.8f);
+        status.set(0.0f);
         assertFalse(c2[0], "Expected no write after removal!");
     }
 
@@ -103,22 +103,22 @@ public class TestFloatStatus extends BaseTest {
     protected void testCreationTargets() throws TestingException {
         final boolean[] c1 = new boolean[2];
         FloatOutput b = new FloatOutput() {
-            public void writeValue(float value) {
+            public void set(float value) {
                 c1[0] = true;
             }
         };
         FloatStatus status = new FloatStatus(b);
         assertTrue(c1[0], "Expected write when added!");
         c1[0] = false;
-        status.writeValue(1.8f);
+        status.set(1.8f);
         assertTrue(c1[0], "Expected write!");
         c1[0] = false;
-        assertTrue(status.removeTarget(b), "Expected subscription!");
-        status.writeValue(-3.2f);
+        assertTrue(status.unsend(b), "Expected subscription!");
+        status.set(-3.2f);
         assertFalse(c1[0], "Expected no write once removed!");
 
         FloatOutput b2 = new FloatOutput() {
-            public void writeValue(float value) {
+            public void set(float value) {
                 c1[1] = true;
             }
         };
@@ -127,20 +127,20 @@ public class TestFloatStatus extends BaseTest {
         assertTrue(c1[1], "Expected write when added!");
         c1[0] = false;
         c1[1] = false;
-        status.writeValue(123.4f);
+        status.set(123.4f);
         assertTrue(c1[0], "Expected write!");
         assertTrue(c1[1], "Expected write!");
         c1[0] = false;
         c1[1] = false;
-        assertTrue(status.removeTarget(b), "Expected subscription!");
-        assertFalse(status.removeTarget(b), "Expected no subscription!");
-        status.writeValue(-0.002f);
+        assertTrue(status.unsend(b), "Expected subscription!");
+        assertFalse(status.unsend(b), "Expected no subscription!");
+        status.set(-0.002f);
         assertFalse(c1[0], "Expected no write once removed!");
         assertTrue(c1[1], "Expected write!");
         c1[1] = false;
-        assertTrue(status.removeTarget(b2), "Expected subscription!");
-        assertFalse(status.removeTarget(b2), "Expected no subscription!");
-        status.writeValue(3.6f);
+        assertTrue(status.unsend(b2), "Expected subscription!");
+        assertFalse(status.unsend(b2), "Expected no subscription!");
+        status.set(3.6f);
         assertFalse(c1[0], "Expected no write once removed!");
         assertFalse(c1[1], "Expected no write once removed!");
     }
@@ -153,7 +153,7 @@ public class TestFloatStatus extends BaseTest {
     protected void testSetEvents() throws TestingException {
         final float[] cur = new float[1];
         FloatOutput b = new FloatOutput() {
-            public void writeValue(float value) {
+            public void set(float value) {
                 cur[0] = value;
             }
         };

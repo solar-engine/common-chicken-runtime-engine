@@ -42,19 +42,19 @@ public class TestBooleanStatus extends BaseTest {
      */
     protected void testBasicReadWrite() throws TestingException {
         BooleanStatus status = new BooleanStatus();
-        assertFalse(status.readValue(), "Bad default value!");
-        status.writeValue(true);
-        assertTrue(status.readValue(), "Bad value!");
-        status.writeValue(true);
-        assertTrue(status.readValue(), "Bad value!");
-        status.writeValue(false);
-        assertFalse(status.readValue(), "Bad value!");
-        status.writeValue(false);
-        assertFalse(status.readValue(), "Bad value!");
-        status.writeValue(true);
-        assertTrue(status.readValue(), "Bad value!");
-        status.writeValue(false);
-        assertFalse(status.readValue(), "Bad value!");
+        assertFalse(status.get(), "Bad default value!");
+        status.set(true);
+        assertTrue(status.get(), "Bad value!");
+        status.set(true);
+        assertTrue(status.get(), "Bad value!");
+        status.set(false);
+        assertFalse(status.get(), "Bad value!");
+        status.set(false);
+        assertFalse(status.get(), "Bad value!");
+        status.set(true);
+        assertTrue(status.get(), "Bad value!");
+        status.set(false);
+        assertFalse(status.get(), "Bad value!");
     }
 
     /**
@@ -66,31 +66,31 @@ public class TestBooleanStatus extends BaseTest {
         BooleanStatus status = new BooleanStatus();
         final boolean[] cur = new boolean[2];
         BooleanOutput b = new BooleanOutput() {
-            public void writeValue(boolean value) {
+            public void set(boolean value) {
                 cur[0] = value;
                 cur[1] = true;
             }
         };
-        status.addTarget(b);
+        status.send(b);
         assertTrue(cur[1], "Current value not written!");
         assertFalse(cur[0], "Initial value bad!");
         cur[1] = false;
-        status.writeValue(false);
+        status.set(false);
         assertFalse(cur[1], "Expected no write for the same value!");
-        status.writeValue(true);
+        status.set(true);
         assertTrue(cur[1], "Expected write when value modified!");
         assertTrue(cur[0], "Expected write of true!");
         cur[1] = false;
-        status.writeValue(true);
+        status.set(true);
         assertFalse(cur[1], "Expected no write for the same value!");
-        status.writeValue(false);
+        status.set(false);
         assertTrue(cur[1], "Expected write when value modified!");
         assertFalse(cur[0], "Expected write of false!");
         cur[1] = false;
-        assertTrue(status.removeTarget(b), "Expected existing subscription!");
-        assertFalse(status.removeTarget(b), "Expected no subscription!");
-        status.writeValue(true);
-        status.writeValue(false);
+        assertTrue(status.unsend(b), "Expected existing subscription!");
+        assertFalse(status.unsend(b), "Expected no subscription!");
+        status.set(true);
+        status.set(false);
         assertFalse(cur[1], "Expected no write after removal!");
     }
 
@@ -102,22 +102,22 @@ public class TestBooleanStatus extends BaseTest {
     protected void testCreationTargets() throws TestingException {
         final boolean[] cur = new boolean[2];
         BooleanOutput b = new BooleanOutput() {
-            public void writeValue(boolean value) {
+            public void set(boolean value) {
                 cur[0] = true;
             }
         };
         BooleanStatus status = new BooleanStatus(b);
         assertTrue(cur[0], "Expected write when added!");
         cur[0] = false;
-        status.writeValue(true);
+        status.set(true);
         assertTrue(cur[0], "Expected write!");
         cur[0] = false;
-        assertTrue(status.removeTarget(b), "Expected subscription!");
-        status.writeValue(false);
+        assertTrue(status.unsend(b), "Expected subscription!");
+        status.set(false);
         assertFalse(cur[0], "Expected no write once removed!");
 
         BooleanOutput b2 = new BooleanOutput() {
-            public void writeValue(boolean value) {
+            public void set(boolean value) {
                 cur[1] = true;
             }
         };
@@ -126,20 +126,20 @@ public class TestBooleanStatus extends BaseTest {
         assertTrue(cur[1], "Expected write when added!");
         cur[0] = false;
         cur[1] = false;
-        status.writeValue(true);
+        status.set(true);
         assertTrue(cur[0], "Expected write!");
         assertTrue(cur[1], "Expected write!");
         cur[0] = false;
         cur[1] = false;
-        assertTrue(status.removeTarget(b), "Expected subscription!");
-        assertFalse(status.removeTarget(b), "Expected no subscription!");
-        status.writeValue(false);
+        assertTrue(status.unsend(b), "Expected subscription!");
+        assertFalse(status.unsend(b), "Expected no subscription!");
+        status.set(false);
         assertFalse(cur[0], "Expected no write once removed!");
         assertTrue(cur[1], "Expected write!");
         cur[1] = false;
-        assertTrue(status.removeTarget(b2), "Expected subscription!");
-        assertFalse(status.removeTarget(b2), "Expected no subscription!");
-        status.writeValue(true);
+        assertTrue(status.unsend(b2), "Expected subscription!");
+        assertFalse(status.unsend(b2), "Expected no subscription!");
+        status.set(true);
         assertFalse(cur[0], "Expected no write once removed!");
         assertFalse(cur[1], "Expected no write once removed!");
     }
@@ -152,7 +152,7 @@ public class TestBooleanStatus extends BaseTest {
     protected void testSetEvents() throws TestingException {
         final boolean[] cur = new boolean[1];
         BooleanOutput b = new BooleanOutput() {
-            public void writeValue(boolean value) {
+            public void set(boolean value) {
                 cur[0] = value;
             }
         };

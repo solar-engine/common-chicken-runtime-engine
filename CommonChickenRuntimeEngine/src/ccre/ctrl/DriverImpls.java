@@ -18,8 +18,8 @@
  */
 package ccre.ctrl;
 
+import ccre.chan.FloatInput;
 import ccre.chan.FloatInputPoll;
-import ccre.chan.FloatInputProducer;
 import ccre.chan.FloatOutput;
 import ccre.event.EventConsumer;
 import ccre.event.EventSource;
@@ -67,9 +67,9 @@ public class DriverImpls {
      * @param rightOut the right motor.
      * @see DriverImpls
      */
-    public static void createAsynchTankDriver(FloatInputProducer leftIn, FloatInputProducer rightIn, FloatOutput leftOut, FloatOutput rightOut) {
-        leftIn.addTarget(leftOut);
-        rightIn.addTarget(rightOut);
+    public static void createAsynchTankDriver(FloatInput leftIn, FloatInput rightIn, FloatOutput leftOut, FloatOutput rightOut) {
+        leftIn.send(leftOut);
+        rightIn.send(rightOut);
     }
 
     /**
@@ -86,8 +86,8 @@ public class DriverImpls {
     public static EventConsumer createTankDriverEvent(final FloatInputPoll leftIn, final FloatInputPoll rightIn, final FloatOutput leftOut, final FloatOutput rightOut) {
         return new EventConsumer() {
             public void eventFired() {
-                leftOut.writeValue(leftIn.readValue());
-                rightOut.writeValue(rightIn.readValue());
+                leftOut.set(leftIn.get());
+                rightOut.set(rightIn.get());
             }
         };
     }
@@ -122,9 +122,9 @@ public class DriverImpls {
     public static EventConsumer createExtendedTankDriverEvent(final FloatInputPoll leftIn, final FloatInputPoll rightIn, final FloatInputPoll allIn, final FloatOutput leftOut, final FloatOutput rightOut) {
         return new EventConsumer() {
             public void eventFired() {
-                float ai = allIn.readValue();
-                leftOut.writeValue(leftIn.readValue() + ai);
-                rightOut.writeValue(rightIn.readValue() + ai);
+                float ai = allIn.get();
+                leftOut.set(leftIn.get() + ai);
+                rightOut.set(rightIn.get() + ai);
             }
         };
     }

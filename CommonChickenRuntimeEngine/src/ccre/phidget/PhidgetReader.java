@@ -68,13 +68,13 @@ public class PhidgetReader {
      */
     public static BooleanInput getDigitalInput(int id) {
         BooleanInput bi = (BooleanInput) digitalInputs[id];
-        bi.addTarget(Mixing.ignoredBooleanOutput);
+        bi.send(Mixing.ignoredBooleanOutput);
         return bi;
     }
 
     static {
         for (int i = 0; i < digitalInputs.length; i++) {
-            digitalInputs[i] = CluckGlobals.getNode().subscribeBIP("phidget/phidget-bi" + i, false);
+            digitalInputs[i] = CluckGlobals.getNode().subscribeBI("phidget/phidget-bi" + i, false);
         }
     }
     /**
@@ -90,13 +90,13 @@ public class PhidgetReader {
      */
     public static FloatInput getAnalogInput(int id) {
         FloatInput fi = (FloatInput) analogInputs[id];
-        fi.addTarget(Mixing.ignoredFloatOutput);
+        fi.send(Mixing.ignoredFloatOutput);
         return fi;
     }
 
     static {
         for (int i = 0; i < analogInputs.length; i++) {
-            analogInputs[i] = CluckGlobals.getNode().subscribeFIP("phidget/phidget-ai" + i, false);
+            analogInputs[i] = CluckGlobals.getNode().subscribeFI("phidget/phidget-ai" + i, false);
         }
     }
     /**
@@ -112,5 +112,5 @@ public class PhidgetReader {
     /**
      * If the Phidget is attached to the driver station.
      */
-    public static final BooleanInputProducer attached = CluckGlobals.getNode().subscribeBIP("phidget/phidget-attached", false);
+    public static final BooleanInputProducer attached = CluckGlobals.getNode().subscribeBI("phidget/phidget-attached", false);
 }

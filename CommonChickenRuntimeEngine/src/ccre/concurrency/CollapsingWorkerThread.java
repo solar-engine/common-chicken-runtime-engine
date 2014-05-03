@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 Colby Skeggs
+ * Copyright 2013-2014 Colby Skeggs
  * 
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  * 
@@ -145,11 +145,11 @@ public abstract class CollapsingWorkerThread extends ReporterThread implements E
             }
             try {
                 if (runningStatus != null) {
-                    runningStatus.writeValue(true);
+                    runningStatus.set(true);
                     try {
                         doWork();
                     } finally {
-                        runningStatus.writeValue(false);
+                        runningStatus.set(false);
                     }
                 } else {
                     doWork();

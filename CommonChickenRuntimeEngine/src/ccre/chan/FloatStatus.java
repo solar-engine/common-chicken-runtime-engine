@@ -18,9 +18,9 @@
  */
 package ccre.chan;
 
+import ccre.ctrl.Mixing;
 import ccre.event.EventConsumer;
 import ccre.event.EventSource;
-import ccre.holders.FloatTuner;
 import ccre.util.CArrayList;
 import ccre.util.CArrayUtils;
 
@@ -34,7 +34,7 @@ import ccre.util.CArrayUtils;
  *
  * @author skeggsc
  */
-public class FloatStatus implements FloatOutput, FloatInput, FloatTuner {
+public class FloatStatus implements FloatOutput, FloatInput {
 
     /**
      * Create a new FloatStatus with a value of zero.
@@ -48,7 +48,7 @@ public class FloatStatus implements FloatOutput, FloatInput, FloatTuner {
      * @param value The default value.
      */
     public FloatStatus(float value) {
-        this.writeValue(value);
+        this.set(value);
     }
 
     /**
@@ -57,13 +57,13 @@ public class FloatStatus implements FloatOutput, FloatInput, FloatTuner {
      * as creating a new FloatStatus and then adding the FloatOutput as a
      * target.
      *
-     * @see FloatStatus#addTarget(ccre.chan.FloatOutput)
+     * @see FloatStatus#send(ccre.chan.FloatOutput)
      * @param target The FloatOutput to automatically update.
      */
     public FloatStatus(FloatOutput target) {
         consumers = new CArrayList<FloatOutput>();
         consumers.add(target);
-        target.writeValue(0);
+        target.set(0);
     }
 
     /**
@@ -72,13 +72,13 @@ public class FloatStatus implements FloatOutput, FloatInput, FloatTuner {
      * as creating a new FloatStatus and then adding all of the FloatOutputs as
      * targets.
      *
-     * @see FloatStatus#addTarget(ccre.chan.FloatOutput)
+     * @see FloatStatus#send(ccre.chan.FloatOutput)
      * @param targets The FloatOutputs to automatically update.
      */
     public FloatStatus(FloatOutput... targets) {
         consumers = new CArrayList<FloatOutput>(CArrayUtils.asList(targets));
         for (FloatOutput t : targets) {
-            t.writeValue(0);
+            t.set(0);
         }
     }
     /**
@@ -88,7 +88,7 @@ public class FloatStatus implements FloatOutput, FloatInput, FloatTuner {
      * By convention, most float inputs and outputs have states that range from
      * -1.0f to 1.0f.
      *
-     * @see #writeValue(float)
+     * @see #set(float)
      */
     private float value = 0;
 
@@ -96,25 +96,25 @@ public class FloatStatus implements FloatOutput, FloatInput, FloatTuner {
      * The list of all the FloatOutputs to modify when this FloatStatus changes
      * value.
      *
-     * @see #addTarget(ccre.chan.FloatOutput)
-     * @see #removeTarget(ccre.chan.FloatOutput)
+     * @see #send(ccre.chan.FloatOutput)
+     * @see #unsend(ccre.chan.FloatOutput)
      */
     private CArrayList<FloatOutput> consumers = null;
 
     @Override
-    public final synchronized float readValue() {
+    public final synchronized float get() {
         return value;
     }
 
     @Override
-    public final synchronized void writeValue(float newValue) {
+    public final synchronized void set(float newValue) {
         if (Float.floatToIntBits(value) == Float.floatToIntBits(newValue)) {
             return; // Do nothing. We want to ignore the value if it's the same.
         }
         value = newValue;
         if (consumers != null) {
             for (FloatOutput fws : consumers) {
-                fws.writeValue(newValue);
+                fws.set(newValue);
             }
         }
     }
@@ -128,72 +128,35 @@ public class FloatStatus implements FloatOutput, FloatInput, FloatTuner {
      * @see #setWhen(float, ccre.event.EventSource)
      */
     public final EventConsumer getSetEvent(float value) {
-        return new SetEvent(this, value);
-    }
-
-    /**
-     * Implementation detail - used in getSetEvent.
-     */
-    private static final class SetEvent implements EventConsumer {
-
-        private final FloatStatus status;
-        private final float value;
-
-        SetEvent(FloatStatus status, float value) {
-            this.status = status;
-            this.value = value;
-        }
-
-        public void eventFired() {
-            status.writeValue(value);
-        }
+        return Mixing.getSetEvent(this, value);
     }
 
     /**
      * When the specified event occurs, set the state to the specified value.
      *
      * @param value the value to set the state to.
-     * @param event when to set the status.
+     * @param when when to set the status.
      * @see #getSetEvent(float)
      */
-    public final void setWhen(float value, EventSource event) {
-        event.addListener(getSetEvent(value));
+    public final void setWhen(float value, EventSource when) {
+        Mixing.setWhen(when, this, value);
     }
 
     @Override
-    public synchronized void addTarget(FloatOutput csm) {
+    public synchronized void send(FloatOutput output) {
         if (consumers == null) {
             consumers = new CArrayList<FloatOutput>();
         }
-        consumers.add(csm);
-        csm.writeValue(value);
+        consumers.add(output);
+        output.set(value);
     }
 
     @Override
-    public synchronized boolean removeTarget(FloatOutput consum) {
+    public synchronized void unsend(FloatOutput output) {
         if (consumers != null) {
-            boolean out = consumers.remove(consum);
-            if (consumers.isEmpty()) {
+            if (consumers.remove(output) && consumers.isEmpty()) {
                 consumers = null;
             }
-            return out;
-        } else {
-            return false;
         }
-    }
-
-    @Override
-    public FloatInputProducer getAutomaticChannel() {
-        return null;
-    }
-
-    @Override
-    public Float getCurrentValue() {
-        return readValue();
-    }
-
-    @Override
-    public void tuneTo(float newValue) {
-        writeValue(newValue);
     }
 }

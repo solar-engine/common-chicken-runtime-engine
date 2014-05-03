@@ -49,11 +49,13 @@ public final class ConcurrentDispatchArray<E> implements CCollection<E> {
         return new Iterator<E>() {
             private int i = 0;
 
+            @Override
             public boolean hasNext() {
                 return i < dat.length;
             }
 
             @SuppressWarnings("unchecked")
+            @Override
             public E next() {
                 if (!hasNext()) {
                     throw new NoSuchElementException();
@@ -61,6 +63,7 @@ public final class ConcurrentDispatchArray<E> implements CCollection<E> {
                 return (E) dat[i++];
             }
 
+            @Override
             public void remove() {
                 removeSpecificElement(dat[i - 1]);
             }

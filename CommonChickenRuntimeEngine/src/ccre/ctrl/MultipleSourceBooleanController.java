@@ -20,7 +20,6 @@ package ccre.ctrl;
 
 import ccre.chan.BooleanInput;
 import ccre.chan.BooleanInputPoll;
-import ccre.chan.BooleanInputProducer;
 import ccre.chan.BooleanOutput;
 import ccre.event.EventConsumer;
 import ccre.util.CArrayList;
@@ -101,20 +100,7 @@ public final class MultipleSourceBooleanController implements BooleanInput, Even
      * @param inp the boolean to include.
      */
     public synchronized void addInput(BooleanInput inp) {
-        inp.addTarget(getOutput(inp.readValue()));
-        update();
-    }
-
-    /**
-     * Place the specified BooleanInputProducer as an element in the boolean
-     * set.
-     *
-     * @param inp the boolean to include.
-     * @param default_ The default value for this input before the producer
-     * produces any values.
-     */
-    public synchronized void addInput(BooleanInputProducer inp, boolean default_) {
-        inp.addTarget(getOutput(default_));
+        inp.send(getOutput(inp.get()));
         update();
     }
 
@@ -141,7 +127,7 @@ public final class MultipleSourceBooleanController implements BooleanInput, Even
             } else {
                 valOut = true;
                 for (BooleanInputPoll p : ipl) {
-                    if (!p.readValue()) {
+                    if (!p.get()) {
                         valOut = false;
                         break;
                     }
@@ -153,7 +139,7 @@ public final class MultipleSourceBooleanController implements BooleanInput, Even
             } else {
                 valOut = false;
                 for (BooleanInputPoll p : ipl) {
-                    if (p.readValue()) {
+                    if (p.get()) {
                         valOut = true;
                         break;
                     }
@@ -168,21 +154,21 @@ public final class MultipleSourceBooleanController implements BooleanInput, Even
 
     private void notifyConsumers() {
         for (BooleanOutput cnsm : consumers) {
-            cnsm.writeValue(lastValue);
+            cnsm.set(lastValue);
         }
     }
 
-    public boolean readValue() {
+    public boolean get() {
         return lastValue;
     }
 
-    public void addTarget(BooleanOutput output) {
+    public void send(BooleanOutput output) {
         consumers.add(output);
-        output.writeValue(readValue());
+        output.set(get());
     }
 
-    public boolean removeTarget(BooleanOutput output) {
-        return consumers.remove(output);
+    public void unsend(BooleanOutput output) {
+        consumers.remove(output);
     }
 
     public void eventFired() {
@@ -197,7 +183,7 @@ public final class MultipleSourceBooleanController implements BooleanInput, Even
             this.cur = cur;
         }
 
-        public void writeValue(boolean value) {
+        public void set(boolean value) {
             bcur.set(cur, value);
             update();
         }

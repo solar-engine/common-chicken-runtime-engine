@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 Colby Skeggs
+ * Copyright 2013-2014 Colby Skeggs
  * 
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  * 
@@ -21,11 +21,32 @@ package ccre.chan;
 /**
  * A BooleanInput is a way to get the current state of a boolean input, and to
  * subscribe to notifications of changes in the boolean input's value.
- * BooleanInput is the combination of BooleanInputPoll and BooleanInputProducer.
+ * BooleanInput is a subinterface of BooleanInputPoll.
  *
  * @see BooleanInputPoll
- * @see BooleanInputProducer
  * @author skeggsc
  */
-public interface BooleanInput extends BooleanInputPoll, BooleanInputProducer {
+public interface BooleanInput extends BooleanInputPoll {
+
+    /**
+     * Subscribe to changes in this boolean input's value. The boolean output
+     * will be modified whenever the value of this input changes.
+     *
+     * If available, the current value of the input will be written at this
+     * time.
+     *
+     * @param output The boolean output to notify when the value changes.
+     * @see BooleanOutput#writeValue(boolean)
+     * @see #unsend(ccre.chan.BooleanOutput)
+     */
+    public void send(BooleanOutput output);
+
+    /**
+     * Unsubscribe from changes in this boolean input's value. This reverses the
+     * actions of a previous send call.
+     *
+     * @param output The output to unsubscribe.
+     * @see #send(ccre.chan.BooleanOutput)
+     */
+    public void unsend(BooleanOutput output);
 }

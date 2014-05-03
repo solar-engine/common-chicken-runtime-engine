@@ -20,6 +20,7 @@ package ccre.concurrency;
 
 import ccre.log.LogLevel;
 import ccre.log.Logger;
+import ccre.util.UniqueIds;
 import java.io.InterruptedIOException;
 
 /**
@@ -32,14 +33,7 @@ import java.io.InterruptedIOException;
  */
 public abstract class ReporterThread extends Thread {
 
-    /**
-     * The next ID to use for a ReporterThread.
-     */
-    private static int id = 0;
-
-    private static synchronized int nextId() {
-        return id++;
-    }
+    private static final UniqueIds idGen = new UniqueIds();
     /**
      * Has the run method already been called?
      */
@@ -56,7 +50,7 @@ public abstract class ReporterThread extends Thread {
      * @param name the name of this type of thread.
      */
     public ReporterThread(String name) {
-        super(name + "-" + nextId());
+        super(name + "-" + idGen.nextId());
     }
 
     @Override

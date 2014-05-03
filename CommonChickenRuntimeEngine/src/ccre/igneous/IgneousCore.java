@@ -97,7 +97,7 @@ public abstract class IgneousCore implements InstinctRegistrar {
      * @return the ISimpleJoystick.
      * @see #makeDispatchJoystick(int)
      */
-    protected final ISimpleJoystick makeSimpleJoystick(int id) {
+    protected final IJoystick makeSimpleJoystick(int id) {
         return launcher.makeSimpleJoystick(id);
     }
 
@@ -547,7 +547,7 @@ public abstract class IgneousCore implements InstinctRegistrar {
             this.line = line;
         }
 
-        public void writeValue(float f) {
+        public void set(float f) {
             sendDSUpdate(prefix + f, line);
         }
     }
@@ -562,7 +562,7 @@ public abstract class IgneousCore implements InstinctRegistrar {
             this.line = line;
         }
 
-        public void writeValue(boolean f) {
+        public void set(boolean f) {
             sendDSUpdate(prefix + f, line);
         }
     }

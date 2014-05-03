@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 Colby Skeggs
+ * Copyright 2013-2014 Colby Skeggs
  * 
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  * 
@@ -21,14 +21,41 @@ package ccre.chan;
 /**
  * A FloatInput is a way to get the current state of a float input, and to
  * subscribe to notifications of changes in the float input's value. FloatInput
- * is the combination of FloatInputPoll and FloatInputProducer.
+ * is a subinterface of FloatInputPoll.
  *
  * By convention, most float inputs and outputs have states that range from
  * -1.0f to 1.0f.
  *
  * @see FloatInputPoll
- * @see FloatInputProducer
  * @author skeggsc
  */
-public interface FloatInput extends FloatInputPoll, FloatInputProducer {
+public interface FloatInput extends FloatInputPoll {
+
+    /**
+     * Subscribe to changes in this float input's value. The float output will
+     * be modified whenever the value of this input changes.
+     *
+     * By convention, most float inputs and outputs have states that range from
+     * -1.0f to 1.0f.
+     *
+     * If available, the current value of the input will be written at this
+     * time.
+     *
+     * @param output The float output to notify when the value changes.
+     * @see FloatOutput#set(float)
+     * @see #unsend(ccre.chan.FloatOutput)
+     */
+    public void send(FloatOutput output);
+
+    /**
+     * Unsubscribe from changes in this float input's value. This reverses the
+     * actions of a previous send call.
+     *
+     * By convention, most float inputs and outputs have states that range from
+     * -1.0f to 1.0f.
+     *
+     * @param output The output to unsubscribe.
+     * @see #send(ccre.chan.FloatOutput)
+     */
+    public void unsend(FloatOutput output);
 }

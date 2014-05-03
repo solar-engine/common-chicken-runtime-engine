@@ -40,17 +40,15 @@ class MixingImpls {
             this.value = value;
         }
 
-        public float readValue() {
+        public float get() {
             return value;
         }
 
-        public void addTarget(FloatOutput consum) {
-            consum.writeValue(value);
+        public void send(FloatOutput consum) {
+            consum.set(value);
         }
 
-        public boolean removeTarget(FloatOutput consum) {
-            Logger.warning("Faked removeTarget for Mixing.always(" + value + ")");
-            return true; // Faked!
+        public void unsend(FloatOutput consum) {
         }
     }
 
@@ -62,9 +60,9 @@ class MixingImpls {
             this.vals = vals;
         }
 
-        public boolean readValue() {
+        public boolean get() {
             for (BooleanInputPoll val : vals) {
-                if (!val.readValue()) {
+                if (!val.get()) {
                     return false;
                 }
             }
@@ -82,8 +80,8 @@ class MixingImpls {
             this.b = b;
         }
 
-        public boolean readValue() {
-            return a.readValue() && b.readValue();
+        public boolean get() {
+            return a.get() && b.get();
         }
     }
 
@@ -99,31 +97,29 @@ class MixingImpls {
             cur = default_ ? on : off;
         }
 
-        public float readValue() {
+        public float get() {
             return cur;
         }
 
-        public void addTarget(FloatOutput consum) {
+        public void send(FloatOutput consum) {
             if (consumers == null) {
                 consumers = new CArrayList<FloatOutput>();
             }
             consumers.add(consum);
-            consum.writeValue(cur);
+            consum.set(cur);
         }
 
-        public boolean removeTarget(FloatOutput consum) {
+        public void unsend(FloatOutput consum) {
             if (consumers != null) {
                 consumers.remove(consum);
-                return true;
             }
-            return false;
         }
 
-        public void writeValue(boolean value) {
+        public void set(boolean value) {
             cur = value ? on : off;
             if (consumers != null) {
                 for (FloatOutput out : consumers) {
-                    out.writeValue(cur);
+                    out.set(cur);
                 }
             }
         }
@@ -138,34 +134,32 @@ class MixingImpls {
         BCF2(boolean default_, FloatInputPoll off, FloatInputPoll on) {
             this.off = off;
             this.on = on;
-            cur = default_ ? on.readValue() : off.readValue();
+            cur = default_ ? on.get() : off.get();
         }
 
-        public float readValue() {
+        public float get() {
             return cur;
         }
 
-        public void addTarget(FloatOutput consum) {
+        public void send(FloatOutput consum) {
             if (consumers == null) {
                 consumers = new CArrayList<FloatOutput>();
             }
             consumers.add(consum);
-            consum.writeValue(cur);
+            consum.set(cur);
         }
 
-        public boolean removeTarget(FloatOutput consum) {
+        public void unsend(FloatOutput consum) {
             if (consumers != null) {
                 consumers.remove(consum);
-                return true;
             }
-            return false;
         }
 
-        public void writeValue(boolean value) {
-            cur = value ? on.readValue() : off.readValue();
+        public void set(boolean value) {
+            cur = value ? on.get() : off.get();
             if (consumers != null) {
                 for (FloatOutput out : consumers) {
-                    out.writeValue(cur);
+                    out.set(cur);
                 }
             }
         }
@@ -183,8 +177,8 @@ class MixingImpls {
             this.on = on;
         }
 
-        public void writeValue(boolean value) {
-            bout.writeValue(value ? on : off);
+        public void set(boolean value) {
+            bout.set(value ? on : off);
         }
     }
 
@@ -200,8 +194,8 @@ class MixingImpls {
             this.on = on;
         }
 
-        public float readValue() {
-            return binp.readValue() ? on : off;
+        public float get() {
+            return binp.get() ? on : off;
         }
     }
 
@@ -217,8 +211,8 @@ class MixingImpls {
             this.off = off;
         }
 
-        public float readValue() {
-            return selector.readValue() ? on.readValue() : off.readValue();
+        public float get() {
+            return selector.get() ? on.get() : off.get();
         }
     }
 
@@ -267,8 +261,8 @@ class MixingImpls {
             this.deadzone = deadzone;
         }
 
-        public float readValue() {
-            return Utils.deadzone(value.readValue(), deadzone);
+        public float get() {
+            return Utils.deadzone(value.get(), deadzone);
         }
     }
 
@@ -282,8 +276,8 @@ class MixingImpls {
             this.deadzone = deadzone;
         }
 
-        public void writeValue(float newValue) {
-            value.writeValue(Utils.deadzone(newValue, deadzone));
+        public void set(float newValue) {
+            value.set(Utils.deadzone(newValue, deadzone));
         }
     }
 
@@ -300,7 +294,7 @@ class MixingImpls {
         }
 
         public void eventFired() {
-            if (shouldAllow.readValue() == requirement) {
+            if (shouldAllow.get() == requirement) {
                 cnsm.eventFired();
             }
         }
@@ -319,7 +313,7 @@ class MixingImpls {
         }
 
         public void eventFired() {
-            if (shouldAllow.readValue() == requirement) {
+            if (shouldAllow.get() == requirement) {
                 out.produce();
             }
         }
@@ -335,8 +329,8 @@ class MixingImpls {
             this.minimum = minimum;
         }
 
-        public boolean readValue() {
-            return base.readValue() >= minimum;
+        public boolean get() {
+            return base.get() >= minimum;
         }
     }
 
@@ -350,8 +344,8 @@ class MixingImpls {
             this.maximum = maximum;
         }
 
-        public boolean readValue() {
-            return base.readValue() <= maximum;
+        public boolean get() {
+            return base.get() <= maximum;
         }
     }
 
@@ -367,8 +361,8 @@ class MixingImpls {
             this.maximum = maximum;
         }
 
-        public boolean readValue() {
-            float val = base.readValue();
+        public boolean get() {
+            float val = base.get();
             return val >= minimum && val <= maximum;
         }
     }
@@ -385,8 +379,8 @@ class MixingImpls {
             this.maximum = maximum;
         }
 
-        public boolean readValue() {
-            float val = base.readValue();
+        public boolean get() {
+            float val = base.get();
             return val < minimum || val > maximum;
         }
     }
@@ -398,11 +392,11 @@ class MixingImpls {
 
         FindRateImpl(FloatInputPoll input) {
             this.input = input;
-            this.lastValue = input.readValue();
+            this.lastValue = input.get();
         }
 
-        public synchronized float readValue() {
-            float next = input.readValue();
+        public synchronized float get() {
+            float next = input.get();
             float out = next - lastValue;
             lastValue = next;
             return out;
@@ -416,20 +410,20 @@ class MixingImpls {
 
         FindRateCycledImpl(FloatInputPoll input) {
             this.input = input;
-            this.lastValue = input.readValue();
+            this.lastValue = input.get();
         }
 
         public FloatInputPoll start(EventSource updateWhen) {
             updateWhen.addListener(new EventConsumer() {
                 public void eventFired() {
-                    lastValue = input.readValue();
+                    lastValue = input.get();
                 }
             });
             return this;
         }
 
-        public synchronized float readValue() {
-            return input.readValue() - lastValue;
+        public synchronized float get() {
+            return input.get() - lastValue;
         }
     }
 
@@ -444,7 +438,7 @@ class MixingImpls {
         }
 
         public void eventFired() {
-            out.writeValue(value);
+            out.set(value);
         }
     }
 
@@ -459,7 +453,7 @@ class MixingImpls {
         }
 
         public void eventFired() {
-            out.writeValue(value);
+            out.set(value);
         }
     }
 
@@ -500,8 +494,8 @@ class MixingImpls {
             this.range = range;
         }
 
-        public float readValue() {
-            return (base.readValue() - zero) / range;
+        public float get() {
+            return (base.get() - zero) / range;
         }
     }
 
@@ -513,9 +507,9 @@ class MixingImpls {
             this.vals = vals;
         }
 
-        public boolean readValue() {
+        public boolean get() {
             for (BooleanInputPoll val : vals) {
-                if (val.readValue()) {
+                if (val.get()) {
                     return true;
                 }
             }
@@ -533,8 +527,8 @@ class MixingImpls {
             this.b = b;
         }
 
-        public boolean readValue() {
-            return a.readValue() || b.readValue();
+        public boolean get() {
+            return a.get() || b.get();
         }
     }
 
@@ -548,8 +542,8 @@ class MixingImpls {
             this.b = b;
         }
 
-        public boolean readValue() {
-            return a.readValue() ^ b.readValue();
+        public boolean get() {
+            return a.get() ^ b.get();
         }
     }
 
@@ -564,7 +558,7 @@ class MixingImpls {
         }
 
         public void eventFired() {
-            out.writeValue(in.readValue());
+            out.set(in.get());
         }
     }
 
@@ -579,7 +573,7 @@ class MixingImpls {
         }
 
         public void eventFired() {
-            out.writeValue(in.readValue());
+            out.set(in.get());
         }
     }
 
@@ -601,8 +595,8 @@ class MixingImpls {
             this.ff = ff;
         }
 
-        public float readValue() {
-            return alpha.readValue() ? (beta.readValue() ? tt : tf) : (beta.readValue() ? ft : ff);
+        public float get() {
+            return alpha.get() ? (beta.get() ? tt : tf) : (beta.get() ? ft : ff);
         }
     }
 
@@ -624,8 +618,8 @@ class MixingImpls {
             this.ff = ff;
         }
 
-        public float readValue() {
-            return (alpha.readValue() ? (beta.readValue() ? tt : tf) : (beta.readValue() ? ft : ff)).readValue();
+        public float get() {
+            return (alpha.get() ? (beta.get() ? tt : tf) : (beta.get() ? ft : ff)).get();
         }
     }
 
@@ -639,13 +633,13 @@ class MixingImpls {
             this.from = from;
             this.limit = limit;
             this.target = target;
-            last = from.readValue();
+            last = from.get();
         }
         private float last;
 
         public void eventFired() {
-            last = Utils.updateRamping(last, from.readValue(), limit);
-            target.writeValue(last);
+            last = Utils.updateRamping(last, from.get(), limit);
+            target.set(last);
         }
     }
 
@@ -660,7 +654,7 @@ class MixingImpls {
         }
         private boolean last;
 
-        public void writeValue(boolean value) {
+        public void set(boolean value) {
             if (value == last) {
                 return;
             }

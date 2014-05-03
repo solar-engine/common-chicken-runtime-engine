@@ -396,7 +396,7 @@ public final class ExpirationTimer {
      */
     public BooleanOutput getRunningControl() {
         return new BooleanOutput() {
-            public void writeValue(boolean value) {
+            public void set(boolean value) {
                 if (value) {
                     if (!isStarted) {
                         start();

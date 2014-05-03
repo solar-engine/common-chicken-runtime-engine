@@ -32,7 +32,7 @@ import ccre.event.EventSource;
  */
 public interface IgneousLauncher {
 
-    public ISimpleJoystick makeSimpleJoystick(int id);
+    public IJoystick makeSimpleJoystick(int id);
 
     public IDispatchJoystick makeDispatchJoystick(int id, EventSource source);
 

@@ -78,7 +78,7 @@ public class PauseTimer implements BooleanInput, EventConsumer {
         setEndAt(System.currentTimeMillis() + timeout);
     }
 
-    public boolean readValue() {
+    public boolean get() {
         return endAt != 0;
     }
 
@@ -91,16 +91,16 @@ public class PauseTimer implements BooleanInput, EventConsumer {
         }
         if ((endAt == 0) != (old == 0)) {
             for (BooleanOutput c : consumers) {
-                c.writeValue(endAt != 0);
+                c.set(endAt != 0);
             }
         }
     }
 
-    public void addTarget(BooleanOutput output) {
+    public void send(BooleanOutput output) {
         consumers.add(output);
     }
 
-    public boolean removeTarget(BooleanOutput output) {
-        return consumers.remove(output);
+    public void unsend(BooleanOutput output) {
+        consumers.remove(output);
     }
 }

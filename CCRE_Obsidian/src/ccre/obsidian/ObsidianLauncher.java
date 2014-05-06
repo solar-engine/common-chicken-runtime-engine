@@ -24,7 +24,7 @@ import ccre.channel.FloatOutput;
 import ccre.channel.FloatInputPoll;
 import ccre.channel.BooleanOutput;
 import ccre.channel.BooleanInputPoll;
-import ccre.cluck.CluckGlobals;
+import ccre.cluck.Cluck;
 import ccre.channel.EventStatus;
 import ccre.log.LogLevel;
 import ccre.log.Logger;
@@ -87,7 +87,7 @@ public abstract class ObsidianLauncher {
         if (name == null) {
             throw new IOException("Could not find configuration-specified launchee!");
         }
-        CluckGlobals.setupServer();
+        Cluck.setupServer();
         core = (ObsidianCore) loader.loadClass(name).newInstance();
         core.properties = p;
         core.launcher = this;

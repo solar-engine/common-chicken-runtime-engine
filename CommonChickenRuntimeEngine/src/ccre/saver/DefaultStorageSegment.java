@@ -22,7 +22,11 @@ import ccre.log.LogLevel;
 import ccre.log.Logger;
 import ccre.util.CHashMap;
 import ccre.util.UniqueIds;
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.PrintStream;
 
 /**
  * A default StorageSegment implementation.
@@ -30,18 +34,6 @@ import java.io.*;
 final class DefaultStorageSegment extends StorageSegment {
 
     private final CHashMap<String, String> data = new CHashMap<String, String>();
-
-    @Override
-    public synchronized String getStringForKey(String key) {
-        return data.get(key);
-    }
-
-    @Override
-    public synchronized void setStringForKey(String key, String bytes) {
-        data.put(key, bytes);
-        modified = true;
-    }
-
     private String name;
     private boolean modified = false;
 
@@ -75,6 +67,17 @@ final class DefaultStorageSegment extends StorageSegment {
         } catch (IOException ex) {
             Logger.log(LogLevel.WARNING, "Error reading storage: " + name, ex);
         }
+    }
+
+    @Override
+    public synchronized String getStringForKey(String key) {
+        return data.get(key);
+    }
+
+    @Override
+    public synchronized void setStringForKey(String key, String bytes) {
+        data.put(key, bytes);
+        modified = true;
     }
 
     @Override

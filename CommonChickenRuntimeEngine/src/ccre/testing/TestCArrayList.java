@@ -38,8 +38,8 @@ public class TestCArrayList extends BaseTestList {
         super.runTest(new CArrayList<String>());
         super.runTest(new CArrayList<String>(72));
         CArrayList<String> test = new CArrayList<String>(CArrayUtils.asList("Alpha", "Beta", "Gamma", "Delta", "Epsilon"));
-        assertEqual(test.toString(), "[Alpha, Beta, Gamma, Delta, Epsilon]", "Invalid constructor-loaded array!");
+        assertObjectEqual(test.toString(), "[Alpha, Beta, Gamma, Delta, Epsilon]", "Invalid constructor-loaded array!");
         test = new CArrayList<String>(new String[]{"Alpha", "Beta", "Gamma", "Delta", "Epsilon"});
-        assertEqual(test.toString(), "[Alpha, Beta, Gamma, Delta, Epsilon]", "Invalid constructor-loaded array!");
+        assertObjectEqual(test.toString(), "[Alpha, Beta, Gamma, Delta, Epsilon]", "Invalid constructor-loaded array!");
     }
 }

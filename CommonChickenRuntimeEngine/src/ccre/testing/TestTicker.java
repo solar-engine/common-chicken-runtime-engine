@@ -18,8 +18,8 @@
  */
 package ccre.testing;
 
-import ccre.ctrl.Ticker;
 import ccre.channel.EventOutput;
+import ccre.ctrl.Ticker;
 
 /**
  *

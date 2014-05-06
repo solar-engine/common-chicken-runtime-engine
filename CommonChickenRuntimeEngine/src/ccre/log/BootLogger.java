@@ -18,9 +18,10 @@
  */
 package ccre.log;
 
-import ccre.cluck.CluckGlobals;
-import ccre.cluck.CluckNode;
 import ccre.channel.EventOutput;
+import ccre.cluck.Cluck;
+import ccre.cluck.CluckNode;
+import ccre.cluck.CluckPublisher;
 import ccre.workarounds.ThrowablePrinter;
 
 /**
@@ -35,7 +36,7 @@ public class BootLogger implements LoggingTarget {
      * The number of log messages to save.
      */
     private static final int LOG_MESSAGE_COUNT = 20;
-    
+
     /**
      * Register a new BootLogger with the logging manager.
      */
@@ -56,7 +57,7 @@ public class BootLogger implements LoggingTarget {
      * Create a new BootLogger that publishes it over the CluckGlobal node.
      */
     public BootLogger() {
-        this(CluckGlobals.getNode());
+        this(Cluck.getNode());
     }
 
     /**
@@ -66,7 +67,7 @@ public class BootLogger implements LoggingTarget {
      */
     public BootLogger(CluckNode node) {
         final Object[] localOuts = outs;
-        node.publish("post-bootlogs", new EventOutput() {
+        CluckPublisher.publish(node, "post-bootlogs", new EventOutput() {
             public void event() {
                 synchronized (BootLogger.this) {
                     Logger.log(LogLevel.INFO, "[BOOT-START]");

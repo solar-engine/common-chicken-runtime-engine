@@ -33,9 +33,6 @@ import java.io.IOException;
  */
 public class RLoadClient {
 
-    private RLoadClient() {
-    }
-
     /**
      * The main launching function for an RLoad server.
      *
@@ -85,11 +82,15 @@ public class RLoadClient {
             dout.writeInt((int) len);
             dout.write(data);
             dout.writeInt(RLoadServer.checksum(data));
-            if (din.readInt() != (int) ((RLoadServer.MAGIC_HEADER >> 32) ^ RLoadServer.MAGIC_HEADER)) {
+            int expected = (int) ((RLoadServer.MAGIC_HEADER >> 32) ^ RLoadServer.MAGIC_HEADER);
+            if (din.readInt() != expected) {
                 throw new IOException("Failed to transmit!");
             }
         } finally {
             server.close();
         }
+    }
+
+    private RLoadClient() {
     }
 }

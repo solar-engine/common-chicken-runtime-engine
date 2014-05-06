@@ -130,7 +130,7 @@ public class ListModelLogger implements LoggingTarget, ListSelectionListener {
                     model.add(++index, s);
                 }
             }
-            if (body != null && body.length() != 0) {
+            if (body != null && !body.isEmpty()) {
                 for (String line : body.split("\n")) {
                     model.add(++index, line);
                 }

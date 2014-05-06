@@ -18,11 +18,12 @@
  */
 package ccre.ctrl;
 
-import ccre.channel.EventStatus;
-import ccre.channel.EventOutput;
 import ccre.channel.EventInput;
+import ccre.channel.EventOutput;
+import ccre.channel.EventStatus;
 import ccre.concurrency.ReporterThread;
-import ccre.log.*;
+import ccre.log.LogLevel;
+import ccre.log.Logger;
 
 /**
  * An EventSource that will fire the event in all its consumers at a specified
@@ -68,7 +69,6 @@ public final class Ticker implements EventInput {
      */
     public Ticker(final int interval, final boolean fixedRate) {
         this.main = new MainTickerThread((fixedRate ? "FixedTicker-" : "Ticker-") + interval, fixedRate, interval);
-        main.start();
     }
 
     /**
@@ -76,11 +76,13 @@ public final class Ticker implements EventInput {
      * produced by this EventSource.
      *
      * @param ec The EventConsumer to add.
-     * @return Whether the operation was successful, which it always is.
      */
     public void send(EventOutput ec) {
         if (isKilled) {
             throw new IllegalStateException("The Ticker is dead!");
+        }
+        if (!main.isAlive()) {
+            main.start();
         }
         producer.send(ec);
     }
@@ -108,8 +110,9 @@ public final class Ticker implements EventInput {
 
         private final boolean fixedRate;
         private final int interval;
+        private int countFails = 0;
 
-        public MainTickerThread(String name, boolean fixedRate, int interval) {
+        MainTickerThread(String name, boolean fixedRate, int interval) {
             super(name);
             this.fixedRate = fixedRate;
             this.interval = interval;
@@ -135,7 +138,6 @@ public final class Ticker implements EventInput {
                 }
             }
         }
-        private int countFails = 0;
 
         private void cycle() {
             try {

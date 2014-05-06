@@ -19,7 +19,7 @@
 package org.team1540.infernodante;
 
 import ccre.channel.*;
-import ccre.cluck.CluckGlobals;
+import ccre.cluck.Cluck;
 import ccre.ctrl.Mixing;
 import ccre.holders.TuningContext;
 
@@ -28,7 +28,7 @@ public class PController implements EventOutput {
     private static final float HIGH_SPEED = 1.0f;
     private static final float MEDIUM_SPEED = 0.35f;
     private static final float LOW_SPEED = 0.08f;
-    public static final TuningContext context = new TuningContext(CluckGlobals.getNode(), "armTuning").publishSavingEvent("armTuning");
+    public static final TuningContext context = new TuningContext(Cluck.getNode(), "armTuning").publishSavingEvent("armTuning");
     public static final FloatStatus STABLE_RANGE = context.getFloat("arm-stable", 0.17f);
     public static final FloatStatus DEADZONE_RANGE = context.getFloat("arm-deadzone", 0.1f);
     private static final float DEF_ARM_PICKUP_PRESET = Inferno.IS_COMPETITION_ROBOT ? 4.22f : 5.111649321f;

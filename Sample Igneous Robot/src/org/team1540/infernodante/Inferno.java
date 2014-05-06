@@ -19,11 +19,11 @@
 package org.team1540.infernodante;
 
 import ccre.channel.*;
-import ccre.cluck.CluckGlobals;
+import ccre.cluck.Cluck;
 import ccre.ctrl.*;
+import ccre.ctrl.ExpirationTimer;
 import ccre.igneous.IgneousCore;
 import ccre.phidget.PhidgetReader;
-import ccre.ctrl.ExpirationTimer;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -70,7 +70,7 @@ public class Inferno extends IgneousCore {
     private void createArm() {
         FloatInputPoll manualArm = PhidgetReader.getAnalogInput(5);
         FloatInputPoll armPotentiometer = makeAnalogInput(2, 9);
-        CluckGlobals.getNode().publish("arm-potentiometer", Mixing.createDispatch(armPotentiometer, globalPeriodic));
+        Cluck.publish("arm-potentiometer", Mixing.createDispatch(armPotentiometer, globalPeriodic));
         FloatOutput armMotor = IS_COMPETITION_ROBOT ? makeTalonMotor(6, MOTOR_FORWARD, 0) : makeVictorMotor(6, MOTOR_REVERSE, 0);
 
         createPotentiometerReadout(armPotentiometer);

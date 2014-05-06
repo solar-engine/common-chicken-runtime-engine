@@ -18,9 +18,9 @@
  */
 package ccre.holders;
 
-import ccre.channel.EventStatus;
-import ccre.channel.EventOutput;
 import ccre.channel.EventInput;
+import ccre.channel.EventOutput;
+import ccre.channel.EventStatus;
 import java.io.IOException;
 import java.io.OutputStream;
 
@@ -57,8 +57,8 @@ public class StringHolder { // TODO: This is legacy code! There's always a bette
     }
 
     /**
-     * Create a new StringHolder. If mod is false, the value is interpreted as
-     * a default/nonexistence value.
+     * Create a new StringHolder. If mod is false, the value is interpreted as a
+     * default/nonexistence value.
      *
      * @param value the string value.
      * @param mod whether or not the value should be flagged as modified.

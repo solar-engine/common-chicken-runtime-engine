@@ -47,17 +47,6 @@ public final class MultipleSourceBooleanController implements BooleanInput, Even
     public static final boolean OR = false;
 
     /**
-     * Create a new MultipleSourceBooleanController, either as an AND operation
-     * over its boolean set or an OR operation
-     *
-     * @param isAndOperation if an AND operation should be used. an OR operation
-     * is used otherwise. The constants AND and OR can be used for nicer-looking
-     * code.
-     */
-    public MultipleSourceBooleanController(boolean isAndOperation) {
-        isAnd = isAndOperation;
-    }
-    /**
      * The list of polled inputs that are read during the update method.
      */
     private final CArrayList<BooleanInputPoll> ipl = new CArrayList<BooleanInputPoll>();
@@ -79,6 +68,18 @@ public final class MultipleSourceBooleanController implements BooleanInput, Even
      * If the operation is an AND operation as opposed to an OR operation.
      */
     private final boolean isAnd;
+
+    /**
+     * Create a new MultipleSourceBooleanController, either as an AND operation
+     * over its boolean set or an OR operation
+     *
+     * @param isAndOperation if an AND operation should be used. an OR operation
+     * is used otherwise. The constants AND and OR can be used for nicer-looking
+     * code.
+     */
+    public MultipleSourceBooleanController(boolean isAndOperation) {
+        isAnd = isAndOperation;
+    }
 
     /**
      * Get one BooleanOutput that can be written to in order to update its

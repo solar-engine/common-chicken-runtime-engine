@@ -76,10 +76,6 @@ public class IntelligenceMain extends JPanel implements CluckRemoteListener, Mou
      */
     public static final int paneWidth = 256;
     /**
-     * The CluckNode that this displays from.
-     */
-    protected final CluckNode node;
-    /**
      * The currently highlighted row in the object pane.
      */
     protected int activeRow = -1;
@@ -152,8 +148,7 @@ public class IntelligenceMain extends JPanel implements CluckRemoteListener, Mou
      * @param seconds An event that will be produced every second.
      *
      */
-    private IntelligenceMain(String[] args, CluckNode node, EventInput seconds, JButton searcher, JButton reconnector) {
-        this.node = node;
+    private IntelligenceMain(String[] args, EventInput seconds, JButton searcher, JButton reconnector) {
         ArrayList<Folder> folderList = new ArrayList<Folder>();
         try {
             File folder = new File(".").getAbsoluteFile();
@@ -229,7 +224,7 @@ public class IntelligenceMain extends JPanel implements CluckRemoteListener, Mou
                 baseByteCount = cur;
             }
         });
-        CluckGlobals.getNode().getRPCManager().publish("display-dialog", new RemoteProcedure() {
+        Cluck.getNode().getRPCManager().publish("display-dialog", new RemoteProcedure() {
             @Override
             public void invoke(byte[] in, OutputStream out) {
                 if (dialog != null) {
@@ -249,7 +244,7 @@ public class IntelligenceMain extends JPanel implements CluckRemoteListener, Mou
                 repaint();
             }
         });
-        this.node.startSearchRemotes(searchLinkName, this);
+        Cluck.getNode().startSearchRemotes(searchLinkName, this);
         painter.start();
     }
 
@@ -417,11 +412,11 @@ public class IntelligenceMain extends JPanel implements CluckRemoteListener, Mou
     public void handle(String remote, int remoteType) {
         Remote old = remotes.get(remote);
         if (old == null) {
-            remotes.put(remote, new Remote(remote, remoteType, node));
+            remotes.put(remote, new Remote(remote, remoteType));
             sortRemotes = null;
         } else if (old.type != remoteType) {
             Logger.warning("Remote type modified for " + remote + "!");
-            remotes.put(remote, new Remote(remote, remoteType, node));
+            remotes.put(remote, new Remote(remote, remoteType));
             sortRemotes = null;
         }
         repaint();
@@ -433,7 +428,7 @@ public class IntelligenceMain extends JPanel implements CluckRemoteListener, Mou
     public void research() {
         remotes.clear();
         sortRemotes = null;
-        node.cycleSearchRemotes(searchLinkName);
+        Cluck.getNode().cycleSearchRemotes(searchLinkName);
     }
 
     @Override
@@ -628,7 +623,7 @@ public class IntelligenceMain extends JPanel implements CluckRemoteListener, Mou
         btns.add(reconnect);
         jsp.setRightComponent(subpanel);
         IPProvider.init();
-        jsp.setLeftComponent(new IntelligenceMain(args, CluckGlobals.getNode(), new Ticker(1000), refresh, reconnect));
+        jsp.setLeftComponent(new IntelligenceMain(args, new Ticker(1000), refresh, reconnect));
         jsp.setDividerLocation(2 * frame.getHeight() / 3);
         jsp.setResizeWeight(0.7);
         frame.add(jsp);
@@ -642,7 +637,7 @@ public class IntelligenceMain extends JPanel implements CluckRemoteListener, Mou
             }
         });
         ext.schedule(5010, ext.getStopEvent());
-        new CluckSubscriber(CluckGlobals.getNode()) {
+        new CluckSubscriber(Cluck.getNode()) {
             @Override
             protected void receive(String source, byte[] data) {
             }
@@ -654,7 +649,7 @@ public class IntelligenceMain extends JPanel implements CluckRemoteListener, Mou
                 }
             }
         }.attach("notify-fetcher-virt");
-        monitor.share(CluckGlobals.getNode());
+        monitor.share();
         EventQueue.invokeLater(new Runnable() {
             @Override
             public void run() {
@@ -667,8 +662,8 @@ public class IntelligenceMain extends JPanel implements CluckRemoteListener, Mou
 
     private static void setupWatchdog(final IPhidgetMonitor monitor) {
         final ExpirationTimer watchdog = new ExpirationTimer();
-        watchdog.schedule(500, CluckGlobals.getNode().subscribeEC("robot/phidget/WatchDog"));
-        CluckGlobals.getNode().publish("WatchDog", new EventOutput() {
+        watchdog.schedule(500, Cluck.subscribeEC("robot/phidget/WatchDog"));
+        Cluck.publish("WatchDog", new EventOutput() {
             @Override
             public void event() {
                 monitor.connectionUp();

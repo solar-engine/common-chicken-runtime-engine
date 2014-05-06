@@ -18,13 +18,16 @@
  */
 package ccre.igneous;
 
-import ccre.channel.FloatInputPoll;
-import ccre.channel.BooleanOutput;
-import ccre.channel.FloatOutput;
 import ccre.channel.BooleanInputPoll;
-import ccre.channel.EventOutput;
+import ccre.channel.BooleanOutput;
 import ccre.channel.EventInput;
-import ccre.ctrl.*;
+import ccre.channel.EventOutput;
+import ccre.channel.FloatInputPoll;
+import ccre.channel.FloatOutput;
+import ccre.ctrl.BooleanMixing;
+import ccre.ctrl.FloatMixing;
+import ccre.ctrl.IJoystick;
+import ccre.ctrl.Mixing;
 import ccre.instinct.InstinctRegistrar;
 
 /**
@@ -34,8 +37,17 @@ import ccre.instinct.InstinctRegistrar;
  * @see SimpleCore
  * @author skeggsc
  */
-public abstract class IgneousCore implements InstinctRegistrar { // TODO: Refactor the Igneous system so that it doesn't need all this make... stuff.
+public abstract class IgneousCore implements InstinctRegistrar {
+    // TODO: Refactor the Igneous system so that it doesn't need all this make... stuff.
 
+    /**
+     * Signifies that the motor should be directly outputted without negation.
+     */
+    public static final boolean MOTOR_FORWARD = false;
+    /**
+     * Signifies that the motor should be outputted after negating the value.
+     */
+    public static final boolean MOTOR_REVERSE = true;
     /**
      * The first joystick attached to the driver station.
      */
@@ -119,15 +131,6 @@ public abstract class IgneousCore implements InstinctRegistrar { // TODO: Refact
     }
 
     /**
-     * Signifies that the motor should be directly outputted without negation.
-     */
-    public static final boolean MOTOR_FORWARD = false;
-    /**
-     * Signifies that the motor should be outputted after negating the value.
-     */
-    public static final boolean MOTOR_REVERSE = true;
-
-    /**
      * Create a reference to a Jaguar speed controller on the specified ID and
      * motor reversal, with a specified ramping rate.
      *
@@ -146,7 +149,7 @@ public abstract class IgneousCore implements InstinctRegistrar { // TODO: Refact
      * @see #MOTOR_REVERSE
      */
     protected final FloatOutput makeJaguarMotor(int id, boolean negate, float ramping) {
-        return Mixing.addRamping(ramping, constantPeriodic, launcher.makeJaguar(id, negate));
+        return FloatMixing.addRamping(ramping, constantPeriodic, launcher.makeJaguar(id, negate));
     }
 
     /**
@@ -168,7 +171,7 @@ public abstract class IgneousCore implements InstinctRegistrar { // TODO: Refact
      * @see #MOTOR_REVERSE
      */
     protected final FloatOutput makeVictorMotor(int id, boolean negate, float ramping) {
-        return Mixing.addRamping(ramping, constantPeriodic, launcher.makeVictor(id, negate));
+        return FloatMixing.addRamping(ramping, constantPeriodic, launcher.makeVictor(id, negate));
     }
 
     /**
@@ -190,7 +193,7 @@ public abstract class IgneousCore implements InstinctRegistrar { // TODO: Refact
      * @see #MOTOR_REVERSE
      */
     protected final FloatOutput makeTalonMotor(int id, boolean negate, float ramping) {
-        return Mixing.addRamping(ramping, constantPeriodic, launcher.makeTalon(id, negate));
+        return FloatMixing.addRamping(ramping, constantPeriodic, launcher.makeTalon(id, negate));
     }
 
     /**
@@ -309,7 +312,7 @@ public abstract class IgneousCore implements InstinctRegistrar { // TODO: Refact
      * @param when when to update the output.
      */
     protected final void makeDSFloatReadout(String prefix, int line, FloatInputPoll value, EventInput when) {
-        Mixing.pumpWhen(when, value, makeDSFloatReadout(prefix, line));
+        FloatMixing.pumpWhen(when, value, makeDSFloatReadout(prefix, line));
     }
 
     /**
@@ -323,7 +326,7 @@ public abstract class IgneousCore implements InstinctRegistrar { // TODO: Refact
      * @param when when to update the output.
      */
     protected final void makeDSBooleanReadout(String prefix, int line, BooleanInputPoll value, EventInput when) {
-        Mixing.pumpWhen(when, value, makeDSBooleanReadout(prefix, line));
+        BooleanMixing.pumpWhen(when, value, makeDSBooleanReadout(prefix, line));
     }
 
     /**
@@ -372,7 +375,7 @@ public abstract class IgneousCore implements InstinctRegistrar { // TODO: Refact
      * @return the input.
      */
     protected final BooleanInputPoll getIsTeleop() {
-        return Mixing.invert(Mixing.orBooleans(launcher.getIsTest(), launcher.getIsAutonomous()));
+        return BooleanMixing.invert(BooleanMixing.orBooleans(launcher.getIsTest(), launcher.getIsAutonomous()));
     }
 
     /**
@@ -399,7 +402,7 @@ public abstract class IgneousCore implements InstinctRegistrar { // TODO: Refact
     }
 
     public BooleanInputPoll getWhenShouldAutonomousBeRunning() {
-        return Mixing.andBooleans(Mixing.invert.wrap(getIsDisabled()), getIsAutonomous());
+        return BooleanMixing.andBooleans(BooleanMixing.invert.wrap(getIsDisabled()), getIsAutonomous());
     }
 
     public void updatePeriodicallyAlways(EventOutput toUpdate) {
@@ -513,7 +516,7 @@ public abstract class IgneousCore implements InstinctRegistrar { // TODO: Refact
         private final String prefix;
         private final int line;
 
-        public DSFloatReadout(String prefix, int line) {
+        DSFloatReadout(String prefix, int line) {
             this.prefix = prefix;
             this.line = line;
         }
@@ -528,7 +531,7 @@ public abstract class IgneousCore implements InstinctRegistrar { // TODO: Refact
         private final String prefix;
         private final int line;
 
-        public DSBooleanReadout(String prefix, int line) {
+        DSBooleanReadout(String prefix, int line) {
             this.prefix = prefix;
             this.line = line;
         }

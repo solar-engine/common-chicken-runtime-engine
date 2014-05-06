@@ -33,6 +33,11 @@ import java.util.Iterator;
 public class EventStatus implements EventInput, EventOutput {
 
     /**
+     * The events to fire when this event is fired.
+     */
+    private final ConcurrentDispatchArray<EventOutput> consumers;
+
+    /**
      * Create a new Event.
      */
     public EventStatus() {
@@ -62,10 +67,6 @@ public class EventStatus implements EventInput, EventOutput {
         consumers = new ConcurrentDispatchArray<EventOutput>();
         consumers.addAll(CArrayUtils.asList(events));
     }
-    /**
-     * The events to fire when this event is fired.
-     */
-    private final ConcurrentDispatchArray<EventOutput> consumers;
 
     /**
      * Returns whether or not this has any consumers that will get fired. If
@@ -126,6 +127,10 @@ public class EventStatus implements EventInput, EventOutput {
         return found;
     }
 
+    /**
+     * Clear all listeners on this EventStatus. Only do this if you have a very
+     * good reason!
+     */
     public void clearListeners() {
         consumers.clear();
     }

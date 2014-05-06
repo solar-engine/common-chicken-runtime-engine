@@ -18,11 +18,12 @@
  */
 package ccre.instinct;
 
-import ccre.channel.FloatInputPoll;
 import ccre.channel.BooleanInputPoll;
 import ccre.channel.EventInput;
 import ccre.channel.EventOutput;
+import ccre.channel.FloatInputPoll;
 import ccre.concurrency.ReporterThread;
+import ccre.ctrl.FloatMixing;
 import ccre.ctrl.Mixing;
 import ccre.log.LogLevel;
 import ccre.log.Logger;
@@ -41,12 +42,27 @@ public abstract class InstinctModule implements EventOutput {
     /**
      * If this module is currently running.
      */
-    volatile boolean isRunning = false;
+    private volatile boolean isRunning = false;
     /**
      * If this module has finished execution and is waiting for the signal to
      * stop running before continuing.
      */
-    volatile boolean isEndWaiting = false;
+    private volatile boolean isEndWaiting = false;
+    /**
+     * The object used to coordinate when the instinct module should resume
+     * execution.
+     */
+    private final Object autosynch = new Object();
+
+    /**
+     * The main thread for code running in this Instinct Module.
+     */
+    private final ReporterThread main = new ReporterThread("Instinct") {
+        @Override
+        protected void threadBody() {
+            instinctBody();
+        }
+    };
 
     /**
      * Create a new InstinctModule with a BooleanInputPoll controlling when this
@@ -67,6 +83,48 @@ public abstract class InstinctModule implements EventOutput {
      */
     public InstinctModule() {
         this.shouldBeRunning = null;
+    }
+
+    private void instinctBody() {
+        while (true) {
+            isRunning = false;
+            while (!shouldBeRunning.get()) { // TODO: Is it an issue to have this in here instead of further out?
+                try {
+                    waitCycle();
+                } catch (InterruptedException ex) {
+                }
+            }
+            try {
+                // Get rid of any lingering interruptions.
+                waitCycle();
+            } catch (InterruptedException ex) {
+            }
+            try {
+                try {
+                    isRunning = true;
+                    Logger.info("Started " + getTypeName() + ".");
+                    autonomousMain();
+                    Logger.info("Completed " + getTypeName() + ".");
+                } catch (InterruptedException ex) {
+                    Logger.info("Interrupted " + getTypeName() + ".");
+                } catch (AutonomousModeOverException ex) {
+                    Logger.info("Exited " + getTypeName() + " by stop.");
+                    continue;
+                }
+            } catch (Throwable t) {
+                Logger.log(LogLevel.SEVERE, "Exception thrown during Autonomous mode!", t);
+            }
+            isRunning = false;
+            isEndWaiting = true;
+            while (shouldBeRunning.get()) {
+                try {
+                    // Wait until no longer supposed to be running.
+                    waitCycle();
+                } catch (InterruptedException ex) {
+                }
+            }
+            isEndWaiting = false;
+        }
     }
 
     /**
@@ -98,11 +156,6 @@ public abstract class InstinctModule implements EventOutput {
     public void updateWhen(EventInput src) {
         src.send(this);
     }
-    /**
-     * The object used to coordinate when the instinct module should resume
-     * execution.
-     */
-    private final Object autosynch = new Object();
 
     /**
      * Wait until the next time that this module is updated.
@@ -112,53 +165,6 @@ public abstract class InstinctModule implements EventOutput {
             autosynch.wait();
         }
     }
-    /**
-     * The main thread for code running in this Instinct Module.
-     */
-    private final ReporterThread main = new ReporterThread("Instinct") {
-        @Override
-        protected void threadBody() {
-            while (true) {
-                isRunning = false;
-                while (!shouldBeRunning.get()) { // TODO: Is it an issue to have this in here instead of further out?
-                    try {
-                        waitCycle();
-                    } catch (InterruptedException ex) {
-                    }
-                }
-                try {
-                    // Get rid of any lingering interruptions.
-                    waitCycle();
-                } catch (InterruptedException ex) {
-                }
-                try {
-                    try {
-                        isRunning = true;
-                        Logger.info("Started " + getTypeName() + ".");
-                        autonomousMain();
-                        Logger.info("Completed " + getTypeName() + ".");
-                    } catch (InterruptedException ex) {
-                        Logger.info("Interrupted " + getTypeName() + ".");
-                    } catch (AutonomousModeOverException ex) {
-                        Logger.info("Exited " + getTypeName() + " by stop.");
-                        continue;
-                    }
-                } catch (Throwable t) {
-                    Logger.log(LogLevel.SEVERE, "Exception thrown during Autonomous mode!", t);
-                }
-                isRunning = false;
-                isEndWaiting = true;
-                while (shouldBeRunning.get()) {
-                    try {
-                        // Wait until no longer supposed to be running.
-                        waitCycle();
-                    } catch (InterruptedException ex) {
-                    }
-                }
-                isEndWaiting = false;
-            }
-        }
-    };
 
     public final void event() {
         if (shouldBeRunning == null) {
@@ -261,7 +267,7 @@ public abstract class InstinctModule implements EventOutput {
      * @throws InterruptedException Possibly also if autonomous mode has ended.
      */
     protected void waitUntilAtLeast(FloatInputPoll waitFor, float minimum) throws AutonomousModeOverException, InterruptedException {
-        waitUntil(Mixing.floatIsAtLeast(waitFor, minimum));
+        waitUntil(FloatMixing.floatIsAtLeast(waitFor, minimum));
     }
 
     /**
@@ -274,7 +280,7 @@ public abstract class InstinctModule implements EventOutput {
      * @throws InterruptedException Possibly also if autonomous mode has ended.
      */
     protected void waitUntilAtMost(FloatInputPoll waitFor, float maximum) throws AutonomousModeOverException, InterruptedException {
-        waitUntil(Mixing.floatIsAtMost(waitFor, maximum));
+        waitUntil(FloatMixing.floatIsAtMost(waitFor, maximum));
     }
 
     /**

@@ -18,10 +18,10 @@
  */
 package ccre.testing;
 
+import ccre.channel.EventOutput;
+import ccre.channel.EventStatus;
 import ccre.channel.FloatOutput;
 import ccre.channel.FloatStatus;
-import ccre.channel.EventStatus;
-import ccre.channel.EventOutput;
 
 /**
  * Test FloatStatus.
@@ -42,19 +42,19 @@ public class TestFloatStatus extends BaseTest {
      */
     protected void testBasicReadWrite() throws TestingException {
         FloatStatus status = new FloatStatus();
-        assertEqual(status.get(), 0.0f, "Bad default value!");
+        assertObjectEqual(status.get(), 0.0f, "Bad default value!");
         status.set(1.7f);
-        assertEqual(status.get(), 1.7f, "Bad value!");
+        assertObjectEqual(status.get(), 1.7f, "Bad value!");
         status.set(1.7f);
-        assertEqual(status.get(), 1.7f, "Bad value!");
+        assertObjectEqual(status.get(), 1.7f, "Bad value!");
         status.set(-1.0f);
-        assertEqual(status.get(), -1.0f, "Bad value!");
+        assertObjectEqual(status.get(), -1.0f, "Bad value!");
         status.set(-1.0f);
-        assertEqual(status.get(), -1.0f, "Bad value!");
+        assertObjectEqual(status.get(), -1.0f, "Bad value!");
         status.set(3.6f);
-        assertEqual(status.get(), 3.6f, "Bad value!");
+        assertObjectEqual(status.get(), 3.6f, "Bad value!");
         status.set(-89.2f);
-        assertEqual(status.get(), -89.2f, "Bad value!");
+        assertObjectEqual(status.get(), -89.2f, "Bad value!");
     }
 
     /**
@@ -74,19 +74,19 @@ public class TestFloatStatus extends BaseTest {
         };
         status.send(b);
         assertTrue(c2[0], "Current value not written!");
-        assertEqual(cur[0], 0.0f, "Initial value bad!");
+        assertObjectEqual(cur[0], 0.0f, "Initial value bad!");
         c2[0] = false;
         status.set(0.0f);
         assertFalse(c2[0], "Expected no write for the same value!");
         status.set(0.1f);
         assertTrue(c2[0], "Expected write when value modified!");
-        assertEqual(cur[0], 0.1f, "Expected write of 0.1f!");
+        assertObjectEqual(cur[0], 0.1f, "Expected write of 0.1f!");
         c2[0] = false;
         status.set(0.1f);
         assertFalse(c2[0], "Expected no write for the same value!");
         status.set(-4.6f);
         assertTrue(c2[0], "Expected write when value modified!");
-        assertEqual(cur[0], -4.6f, "Expected write of -4.6f!");
+        assertObjectEqual(cur[0], -4.6f, "Expected write of -4.6f!");
         c2[0] = false;
         status.unsend(b);
         status.set(1.8f);
@@ -155,18 +155,18 @@ public class TestFloatStatus extends BaseTest {
             }
         };
         final FloatStatus status = new FloatStatus(b);
-        assertEqual(cur[0], 0.0f, "Expected false default!");
+        assertObjectEqual(cur[0], 0.0f, "Expected false default!");
         EventOutput st1_7f = status.getSetEvent(1.7f);
-        assertEqual(cur[0], 0.0f, "Expected no write when getting events!");
+        assertObjectEqual(cur[0], 0.0f, "Expected no write when getting events!");
         st1_7f.event();
-        assertEqual(cur[0], 1.7f, "Expected write!");
+        assertObjectEqual(cur[0], 1.7f, "Expected write!");
         st1_7f.event();
-        assertEqual(cur[0], 1.7f, "Expected write!");
+        assertObjectEqual(cur[0], 1.7f, "Expected write!");
         EventStatus sp1_7f = new EventStatus();
         status.setWhen(-8.2f, sp1_7f);
-        assertEqual(cur[0], 1.7f, "Expected no write!");
+        assertObjectEqual(cur[0], 1.7f, "Expected no write!");
         sp1_7f.event();
-        assertEqual(cur[0], -8.2f, "Expected write!");
+        assertObjectEqual(cur[0], -8.2f, "Expected write!");
     }
 
     @Override

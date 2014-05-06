@@ -18,6 +18,7 @@
  */
 package ccre.channel;
 
+import ccre.ctrl.FloatMixing;
 import ccre.ctrl.Mixing;
 import ccre.util.CArrayList;
 import ccre.util.CArrayUtils;
@@ -33,6 +34,26 @@ import ccre.util.CArrayUtils;
  * @author skeggsc
  */
 public class FloatStatus implements FloatOutput, FloatInput {
+
+    /**
+     * The current state of this FloatStatus. Do not directly modify this field.
+     * Use the writeValue method instead.
+     *
+     * By convention, most float inputs and outputs have states that range from
+     * -1.0f to 1.0f.
+     *
+     * @see #set(float)
+     */
+    private float value = 0;
+
+    /**
+     * The list of all the FloatOutputs to modify when this FloatStatus changes
+     * value.
+     *
+     * @see #send(ccre.chan.FloatOutput)
+     * @see #unsend(ccre.chan.FloatOutput)
+     */
+    private CArrayList<FloatOutput> consumers = null;
 
     /**
      * Create a new FloatStatus with a value of zero.
@@ -79,25 +100,6 @@ public class FloatStatus implements FloatOutput, FloatInput {
             t.set(0);
         }
     }
-    /**
-     * The current state of this FloatStatus. Do not directly modify this field.
-     * Use the writeValue method instead.
-     *
-     * By convention, most float inputs and outputs have states that range from
-     * -1.0f to 1.0f.
-     *
-     * @see #set(float)
-     */
-    private float value = 0;
-
-    /**
-     * The list of all the FloatOutputs to modify when this FloatStatus changes
-     * value.
-     *
-     * @see #send(ccre.chan.FloatOutput)
-     * @see #unsend(ccre.chan.FloatOutput)
-     */
-    private CArrayList<FloatOutput> consumers = null;
 
     @Override
     public final synchronized float get() {
@@ -126,7 +128,7 @@ public class FloatStatus implements FloatOutput, FloatInput {
      * @see #setWhen(float, ccre.event.EventSource)
      */
     public final EventOutput getSetEvent(float value) {
-        return Mixing.getSetEvent(this, value);
+        return FloatMixing.getSetEvent(this, value);
     }
 
     /**
@@ -137,7 +139,7 @@ public class FloatStatus implements FloatOutput, FloatInput {
      * @see #getSetEvent(float)
      */
     public final void setWhen(float value, EventInput when) {
-        Mixing.setWhen(when, this, value);
+        FloatMixing.setWhen(when, this, value);
     }
 
     @Override

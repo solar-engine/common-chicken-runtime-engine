@@ -18,16 +18,15 @@
  */
 package ccre.ctrl;
 
-import ccre.channel.FloatInputPoll;
-import ccre.channel.BooleanOutput;
-import ccre.channel.FloatFilter;
-import ccre.channel.FloatOutput;
 import ccre.channel.BooleanInputPoll;
-import ccre.channel.FloatInput;
-import ccre.channel.EventStatus;
+import ccre.channel.BooleanOutput;
 import ccre.channel.EventInput;
 import ccre.channel.EventOutput;
-import ccre.log.Logger;
+import ccre.channel.EventStatus;
+import ccre.channel.FloatFilter;
+import ccre.channel.FloatInput;
+import ccre.channel.FloatInputPoll;
+import ccre.channel.FloatOutput;
 import ccre.util.CArrayList;
 import ccre.util.Utils;
 
@@ -635,6 +634,7 @@ class MixingImpls {
         private final FloatInputPoll from;
         private final float limit;
         private final FloatOutput target;
+        private float last;
 
         RampingImpl(FloatInputPoll from, float limit, FloatOutput target) {
             this.from = from;
@@ -642,7 +642,6 @@ class MixingImpls {
             this.target = target;
             last = from.get();
         }
-        private float last;
 
         public void event() {
             last = Utils.updateRamping(last, from.get(), limit);
@@ -654,12 +653,12 @@ class MixingImpls {
 
         private final boolean target;
         private final EventStatus out;
+        private boolean last;
 
         WBBI(boolean target, EventStatus out) {
             this.target = target;
             this.out = out;
         }
-        private boolean last;
 
         public void set(boolean value) {
             if (value == last) {

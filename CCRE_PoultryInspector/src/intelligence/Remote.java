@@ -18,6 +18,7 @@
  */
 package intelligence;
 
+import ccre.cluck.Cluck;
 import ccre.cluck.CluckNode;
 import static ccre.cluck.CluckNode.*;
 import ccre.log.LogLevel;
@@ -44,10 +45,6 @@ public class Remote implements Comparable<Remote> {
      */
     protected final String path;
     /**
-     * The CluckNode that this is from.
-     */
-    protected final CluckNode node;
-    /**
      * The subscribed version of the object.
      */
     protected Object checkout;
@@ -62,12 +59,10 @@ public class Remote implements Comparable<Remote> {
      *
      * @param remote The path.
      * @param remoteType The RMT type.
-     * @param node The CluckNode.
      */
-    protected Remote(String remote, int remoteType, CluckNode node) {
+    protected Remote(String remote, int remoteType) {
         this.path = remote;
         this.type = remoteType;
-        this.node = node;
     }
 
     @Override
@@ -117,31 +112,31 @@ public class Remote implements Comparable<Remote> {
         }
         switch (type) {
             case RMT_EVENTCONSUMER:
-                checkout = node.subscribeEC(path);
+                checkout = Cluck.subscribeEC(path);
                 break;
             case RMT_EVENTSOURCE:
-                checkout = node.subscribeES(path);
+                checkout = Cluck.subscribeES(path);
                 break;
             case RMT_LOGTARGET:
-                checkout = node.subscribeLT(path, LogLevel.FINEST);
+                checkout = Cluck.subscribeLT(path, LogLevel.FINEST);
                 break;
             case RMT_BOOLPROD:
-                checkout = node.subscribeBI(path, false);
+                checkout = Cluck.subscribeBI(path, false);
                 break;
             case RMT_BOOLOUTP:
-                checkout = node.subscribeBO(path);
+                checkout = Cluck.subscribeBO(path);
                 break;
             case RMT_FLOATPROD:
-                checkout = node.subscribeFI(path, false);
+                checkout = Cluck.subscribeFI(path, false);
                 break;
             case RMT_FLOATOUTP:
-                checkout = node.subscribeFO(path);
+                checkout = Cluck.subscribeFO(path);
                 break;
             case RMT_OUTSTREAM:
-                checkout = node.subscribeOS(path);
+                checkout = Cluck.subscribeOS(path);
                 break;
             case RMT_INVOKE:
-                checkout = node.getRPCManager().subscribe(path, 1000);
+                checkout = Cluck.getNode().getRPCManager().subscribe(path, 1000);
                 break;
             default:
                 Logger.severe("No checkout for type: " + CluckNode.rmtToString(type));

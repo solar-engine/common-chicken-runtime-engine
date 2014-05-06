@@ -31,39 +31,41 @@ public class LogLevel {
      * A severe error. This usually means that something major didn't work, or
      * an impossible condition occurred.
      */
-    public static final LogLevel SEVERE = new LogLevel(9, "SEVERE", "SEVR");
+    public static final LogLevel SEVERE = new LogLevel(9, "SEVERE");
     /**
      * A warning. This usually means that something bad happened, but most
      * things should probably still work.
      */
-    public static final LogLevel WARNING = new LogLevel(6, "WARNING", "WARN");
+    public static final LogLevel WARNING = new LogLevel(6, "WARNING");
     /**
      * A piece of info. This usually means something happened that the user
      * might want to know.
      */
-    public static final LogLevel INFO = new LogLevel(3, "INFO", "INFO");
+    public static final LogLevel INFO = new LogLevel(3, "INFO");
     /**
      * A piece of configuration information. This usually means something that
      * isn't really important, but is something triggered by configuration
      * instead of normal operation.
      */
-    public static final LogLevel CONFIG = new LogLevel(0, "CONFIG", "CONF");
+    public static final LogLevel CONFIG = new LogLevel(0, "CONFIG");
     /**
      * A top-level debugging message. This can be caused by anything, but
      * probably shouldn't be logged particularly often.
      */
-    public static final LogLevel FINE = new LogLevel(-3, "FINE", "FINE");
+    public static final LogLevel FINE = new LogLevel(-3, "FINE");
     /**
      * A mid-level debugging message. This can be caused by anything, and can be
      * logged relatively often.
      */
-    public static final LogLevel FINER = new LogLevel(-6, "FINER", "FINR");
+    public static final LogLevel FINER = new LogLevel(-6, "FINER");
     /**
      * A low-level debugging message. This can be caused by anything, and might
      * be called many times per second.
      */
-    public static final LogLevel FINEST = new LogLevel(-9, "FINEST", "FINS");
+    public static final LogLevel FINEST = new LogLevel(-9, "FINEST");
 
+    private static final LogLevel[] levels = new LogLevel[] {FINEST, FINER, FINE, CONFIG, INFO, WARNING, SEVERE};
+    
     /**
      * Get a LogLevel from its ID level. If it doesn't exist, a RuntimeException
      * is thrown. Should probably only be called on the result of toByte.
@@ -74,24 +76,10 @@ public class LogLevel {
      * @see #toByte(ccre.log.LogLevel)
      */
     public static LogLevel fromByte(byte id) {
-        switch (id) {
-            case -9:
-                return FINEST;
-            case -6:
-                return FINER;
-            case -3:
-                return FINE;
-            case 0:
-                return CONFIG;
-            case 3:
-                return INFO;
-            case 6:
-                return WARNING;
-            case 9:
-                return SEVERE;
-            default:
-                throw new RuntimeException("Unknown logging level: " + id);
+        if ((id + 9) % 3 != 0 || id < -9 || id > 9) {
+            throw new RuntimeException("Invalid LogLevel ID: " + id);
         }
+        return levels[(id + 9) / 3];
     }
 
     /**
@@ -118,21 +106,13 @@ public class LogLevel {
      * @see #abbreviation
      */
     public final String message;
-    /**
-     * The 4-letter abbreviation representing this level. This is as opposed to
-     * the long-form message.
-     *
-     * @see #message
-     */
-    public final String abbreviation;
 
-    private LogLevel(int id, String msg, String abbreviation) {
+    private LogLevel(int id, String msg) {
         this.id = (byte) id;
         if (id != this.id) {
             throw new IllegalArgumentException();
         }
         message = msg;
-        this.abbreviation = abbreviation;
     }
 
     /**

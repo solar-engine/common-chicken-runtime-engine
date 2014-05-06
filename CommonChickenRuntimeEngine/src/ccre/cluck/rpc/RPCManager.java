@@ -182,7 +182,7 @@ public final class RPCManager {
         private final String path;
         private final int timeoutAfter;
 
-        public SubscribedProcedure(String path, int timeoutAfter) {
+        SubscribedProcedure(String path, int timeoutAfter) {
             this.path = path;
             this.timeoutAfter = timeoutAfter;
         }

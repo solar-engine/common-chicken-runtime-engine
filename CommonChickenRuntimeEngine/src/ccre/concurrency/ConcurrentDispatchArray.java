@@ -129,7 +129,9 @@ public final class ConcurrentDispatchArray<E> implements CCollection<E> {
     }
 
     /**
-     * Like add, but also returns false (without adding) if the element is already found.
+     * Like add, but also returns false (without adding) if the element is
+     * already found.
+     *
      * @param e The element to add.
      * @return if e is added to the array, not already in it.
      */

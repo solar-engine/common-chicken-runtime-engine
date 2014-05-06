@@ -21,10 +21,11 @@ package intelligence;
 import ccre.channel.BooleanInput;
 import ccre.channel.BooleanOutput;
 import ccre.channel.BooleanStatus;
+import ccre.channel.EventOutput;
 import ccre.channel.FloatInput;
 import ccre.channel.FloatStatus;
+import ccre.cluck.Cluck;
 import ccre.cluck.CluckNode;
-import ccre.channel.EventOutput;
 import ccre.holders.StringHolder;
 import ccre.log.LogLevel;
 import ccre.log.Logger;
@@ -185,19 +186,19 @@ public class PhidgetMonitor implements IPhidgetMonitor, AttachListener, DetachLi
      *
      * @param node the node to share on.
      */
-    public void share(CluckNode node) {
+    public void share() {
         for (int i = 0; i < OUTPUT_COUNT; i++) {
-            node.publish("phidget-bo" + i, outputs[i]);
+            Cluck.publish("phidget-bo" + i, outputs[i]);
         }
         for (int i = 0; i < LCD_LINES; i++) {
-            node.publish("phidget-lcd" + i, lines[i].getOutput());
+            Cluck.publish("phidget-lcd" + i, lines[i].getOutput());
         }
-        node.publish("phidget-attached", isAttached);
+        Cluck.publish("phidget-attached", isAttached);
         for (int i = 0; i < INPUT_COUNT; i++) {
-            node.publish("phidget-bi" + i, inputs[i]);
+            Cluck.publish("phidget-bi" + i, inputs[i]);
         }
         for (int i = 0; i < ANALOG_COUNT; i++) {
-            node.publish("phidget-ai" + i, analogs[i]);
+            Cluck.publish("phidget-ai" + i, analogs[i]);
         }
     }
 

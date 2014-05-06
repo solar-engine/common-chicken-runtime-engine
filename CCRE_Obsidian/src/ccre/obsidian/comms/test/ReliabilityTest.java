@@ -26,6 +26,7 @@ import ccre.concurrency.ReporterThread;
 import ccre.ctrl.Ticker;
 import ccre.channel.EventOutput;
 import ccre.channel.EventLogger;
+import ccre.cluck.CluckPublisher;
 import ccre.log.LogLevel;
 import ccre.log.Logger;
 import ccre.obsidian.comms.ReliableCompressionCluckLink;
@@ -115,8 +116,8 @@ public class ReliabilityTest {
                         Logger.info("Sent new value: " + value);
                     }
                 });
-                rt.alphaNode.publish("intest", (FloatInput) ctr);
-                rt.alphaNode.publish("checker", new EventOutput() {
+                CluckPublisher.publish(rt.alphaNode, "intest", (FloatInput) ctr);
+                CluckPublisher.publish(rt.alphaNode, "checker", new EventOutput() {
                     long start = System.currentTimeMillis();
                     long last = start;
 
@@ -136,7 +137,7 @@ public class ReliabilityTest {
             @Override
             protected void threadBody() throws Throwable {
                 //new Ticker(100).addListener(rt.betaNode.subscribeEC("alpha/checker"));
-                rt.betaNode.subscribeFI("alpha/unF/intest", false).send(new FloatOutput() {
+                CluckPublisher.subscribeFI(rt.betaNode, "alpha/unF/intest", false).send(new FloatOutput() {
                     @Override
                     public void set(float value) {
                         Logger.info("Got new value: " + value);

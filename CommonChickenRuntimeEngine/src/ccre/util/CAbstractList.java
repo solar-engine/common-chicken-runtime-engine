@@ -87,6 +87,7 @@ public abstract class CAbstractList<T> implements CList<T> {
                 return get(i++);
             }
 
+            @Override
             public void remove() {
                 CAbstractList.this.remove(--i);
                 locmod++;
@@ -125,7 +126,8 @@ public abstract class CAbstractList<T> implements CList<T> {
         return mod;
     }
 
-    public boolean addAll(int index, CCollection<? extends T> c) {
+    public boolean addAll(int startAt, CCollection<? extends T> c) {
+        int index = startAt;
         for (T o : c) {
             add(index++, o);
         }

@@ -16,22 +16,13 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with the CCRE.  If not, see <http://www.gnu.org/licenses/>.
  */
-package intelligence;
-
-import ccre.cluck.CluckNode;
+package ccre.igneous;
 
 /**
- * An interface implemented both by the real and fake PhidgetMonitors.
+ * The main class to access Igneous channels.
  *
  * @author skeggsc
  */
-public interface IPhidgetMonitor {
+public class Igneous {
 
-    public void share();
-
-    public void connectionUp();
-
-    public void connectionDown();
-
-    public void displayClosing();
 }

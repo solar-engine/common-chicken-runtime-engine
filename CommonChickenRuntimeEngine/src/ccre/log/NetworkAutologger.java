@@ -18,7 +18,11 @@
  */
 package ccre.log;
 
-import ccre.cluck.*;
+import ccre.cluck.Cluck;
+import ccre.cluck.CluckNode;
+import ccre.cluck.CluckPublisher;
+import ccre.cluck.CluckRemoteListener;
+import ccre.cluck.CluckSubscriber;
 import ccre.concurrency.CollapsingWorkerThread;
 import ccre.concurrency.ConcurrentDispatchArray;
 import ccre.util.CHashMap;
@@ -35,7 +39,16 @@ public final class NetworkAutologger implements LoggingTarget, CluckRemoteListen
     /**
      * Whether or not a NetworkAutologger has been registered globally.
      */
-    private static boolean registered = false;
+    private static volatile boolean registered = false;
+    private static final LoggingTarget localLoggingTarget = new LoggingTarget() {
+        public void log(LogLevel level, String message, Throwable throwable) {
+            Logger.log(level, "[NET] " + message, throwable);
+        }
+        
+        public void log(LogLevel level, String message, String extended) {
+            Logger.logExt(level, "[NET] " + message, extended);
+        }
+    };
 
     /**
      * Register a new global NetworkAutologger with the logging manager. This
@@ -47,7 +60,9 @@ public final class NetworkAutologger implements LoggingTarget, CluckRemoteListen
             return;
         }
         registered = true;
-        Logger.addTarget(new NetworkAutologger(CluckGlobals.getNode()));
+        NetworkAutologger nlog = new NetworkAutologger(Cluck.getNode());
+        Logger.addTarget(nlog);
+        nlog.start();
     }
     /**
      * The current list of remotes to send logging messages to.
@@ -59,16 +74,7 @@ public final class NetworkAutologger implements LoggingTarget, CluckRemoteListen
      */
     private final CHashMap<String, LoggingTarget> targetCache = new CHashMap<String, LoggingTarget>();
     private final CluckNode node;
-    private static final LoggingTarget localLoggingTarget = new LoggingTarget() {
-        public void log(LogLevel level, String message, Throwable throwable) {
-            Logger.log(level, "[NET] " + message, throwable);
-        }
-
-        public void log(LogLevel level, String message, String extended) {
-            Logger.logExt(level, "[NET] " + message, extended);
-        }
-    };
-    private final String localpath;
+    private final String localpath, hereID;
 
     /**
      * Create a new NetworkAutologger hooked up to the specified node.
@@ -76,31 +82,37 @@ public final class NetworkAutologger implements LoggingTarget, CluckRemoteListen
      * @param node The node to attach to.
      */
     public NetworkAutologger(final CluckNode node) {
-        final String here = UniqueIds.global.nextHexId();
-        localpath = "auto-" + here;
+        hereID = UniqueIds.global.nextHexId();
+        localpath = "auto-" + hereID;
+        this.node = node;
+        CluckPublisher.publish(node, localpath, localLoggingTarget);
+    }
+    
+    /**
+     * Start the Autologger - it will now start sending out logged messages.
+     */
+    public void start() {
         final CollapsingWorkerThread autologger = new CollapsingWorkerThread("network-autologger") {
             @Override
             protected void doWork() throws Throwable {
                 Logger.fine("[LOCAL] Rechecking logging...");
-                node.cycleSearchRemotes("auto-checker-" + here);
+                node.cycleSearchRemotes("auto-checker-" + hereID);
             }
         };
-        node.startSearchRemotes("auto-checker-" + here, this);
-        autologger.start();
+        node.startSearchRemotes("auto-checker-" + hereID, this);
+        //autologger.start(); // TODO: Check if it's really safe to comment this out.
         new CluckSubscriber(node) {
             @Override
             protected void receive(String source, byte[] data) {
             }
 
             @Override
-            protected void receiveBroadcast(String source, byte[] data) {
+            protected void receiveBroadcast(String source, byte[] data) { // TODO: This is a common operation. Abstract it out?
                 if (data.length == 1 && data[0] == CluckNode.RMT_NOTIFY) {
                     autologger.trigger();
                 }
             }
-        }.attach("netwatch-" + here);
-        node.publish(localpath, localLoggingTarget);
-        this.node = node;
+        }.attach("netwatch-" + hereID);
     }
 
     public void log(LogLevel level, String message, Throwable throwable) {
@@ -137,8 +149,8 @@ public final class NetworkAutologger implements LoggingTarget, CluckRemoteListen
         if (remoteType != CluckNode.RMT_LOGTARGET) {
             return;
         }
-        if (remote.indexOf("auto-") != -1 && !localpath.equals(remote) && targetCache.get(remote) == null) {
-            targetCache.put(remote, node.subscribeLT(remote, LogLevel.FINEST));
+        if (remote.contains("auto-") && !localpath.equals(remote) && targetCache.get(remote) == null) {
+            targetCache.put(remote, CluckPublisher.subscribeLT(node, remote, LogLevel.FINEST));
             Logger.config("[LOCAL] Loaded logger: " + remote);
         }
         remotes.addIfNotFound(remote);

@@ -18,9 +18,9 @@
  */
 package ccre.saver;
 
+import ccre.channel.EventOutput;
 import ccre.channel.FloatOutput;
 import ccre.channel.FloatStatus;
-import ccre.channel.EventOutput;
 import ccre.holders.StringHolder;
 import ccre.log.LogLevel;
 import ccre.log.Logger;
@@ -147,7 +147,7 @@ public abstract class StorageSegment {
         private final String key, default_key;
         private final float originalValue;
 
-        public SegmentFloatSaver(String key, String dkey, float originalValue) {
+        SegmentFloatSaver(String key, String dkey, float originalValue) {
             this.key = key;
             this.default_key = dkey;
             this.originalValue = originalValue;

@@ -19,7 +19,7 @@
 package ccre.igneous;
 
 import ccre.channel.*;
-import ccre.cluck.CluckGlobals;
+import ccre.cluck.Cluck;
 import ccre.cluck.tcp.CluckTCPServer;
 import ccre.ctrl.*;
 import ccre.log.BootLogger;
@@ -98,8 +98,8 @@ public class EmulatorLauncher implements IgneousLauncher {
      * Called to start the robot running.
      */
     public void start() {
-        CluckGlobals.setupServer();
-        new CluckTCPServer(CluckGlobals.getNode(), 1540).start();
+        Cluck.setupServer();
+        new CluckTCPServer(Cluck.getNode(), 1540).start();
         core.duringAutonomous = this.duringAutonomous;
         core.duringDisabled = this.duringDisabled;
         core.duringTeleop = this.duringTeleop;

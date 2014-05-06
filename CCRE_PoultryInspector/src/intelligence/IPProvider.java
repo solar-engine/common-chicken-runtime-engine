@@ -18,7 +18,7 @@
  */
 package intelligence;
 
-import ccre.cluck.CluckGlobals;
+import ccre.cluck.Cluck;
 import ccre.holders.StringHolder;
 import ccre.log.Logger;
 import ccre.net.Network;
@@ -40,7 +40,7 @@ public class IPProvider {
     private static final boolean useHigherPort;
 
     static {
-        CluckGlobals.getNode().publish("forced-remote-address", forcedAddress.getOutput());
+        Cluck.publish("forced-remote-address", forcedAddress.getOutput());
         String os = System.getProperty("os.name");
         useHigherPort = os != null && os.startsWith("Mac ");
     }
@@ -60,10 +60,10 @@ public class IPProvider {
             return;
         }
         Logger.finer("Found connect address: " + addr);
-        if (CluckGlobals.getClient() == null) {
-            CluckGlobals.setupClient(addr, "robot", "phidget");
+        if (Cluck.getClient() == null) {
+            Cluck.setupClient(addr, "robot", "phidget");
         } else {
-            CluckGlobals.getClient().setRemote(addr);
+            Cluck.getClient().setRemote(addr);
         }
     }
 

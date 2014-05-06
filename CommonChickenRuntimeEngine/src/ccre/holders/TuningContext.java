@@ -18,9 +18,10 @@
  */
 package ccre.holders;
 
+import ccre.channel.EventOutput;
 import ccre.channel.FloatStatus;
 import ccre.cluck.CluckNode;
-import ccre.channel.EventOutput;
+import ccre.cluck.CluckPublisher;
 import ccre.log.Logger;
 import ccre.saver.StorageProvider;
 import ccre.saver.StorageSegment;
@@ -76,7 +77,7 @@ public final class TuningContext { // TODO: Support booleans for tuning.
     public FloatStatus getFloat(String name, float default_) {
         FloatStatus out = new FloatStatus(default_);
         seg.attachFloatHolder(name, out);
-        enc.publish(name, out);
+        CluckPublisher.publish(enc, name, out);
         return out;
     }
 
@@ -111,7 +112,7 @@ public final class TuningContext { // TODO: Support booleans for tuning.
      * @return This TuningContext. Returned for method chaining purposes.
      */
     public TuningContext publishSavingEvent(String name) {
-        enc.publish("Save Tuning for " + name, getFlushEvent());
+        CluckPublisher.publish(enc, "Save Tuning for " + name, getFlushEvent());
         return this;
     }
 }

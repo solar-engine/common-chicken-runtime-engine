@@ -37,21 +37,21 @@ public class TestCLinkedList extends BaseTestList {
     protected void runTest() throws TestingException {
         super.runTest(new CLinkedList<String>());
         CLinkedList<String> test = new CLinkedList<String>(CArrayUtils.asList("Alpha", "Beta", "Gamma", "Delta", "Epsilon"));
-        assertEqual(test.toString(), "[Alpha, Beta, Gamma, Delta, Epsilon]", "Invalid constructor-loaded array!");
+        assertObjectEqual(test.toString(), "[Alpha, Beta, Gamma, Delta, Epsilon]", "Invalid constructor-loaded array!");
         test = new CLinkedList<String>(new String[]{"Alpha", "Beta", "Gamma", "Delta", "Epsilon"});
-        assertEqual(test.toString(), "[Alpha, Beta, Gamma, Delta, Epsilon]", "Invalid constructor-loaded array!");
-        assertEqual(test.getFirst(), "Alpha", "Bad getFirst!");
-        assertEqual(test.getLast(), "Epsilon", "Bad getLast!");
+        assertObjectEqual(test.toString(), "[Alpha, Beta, Gamma, Delta, Epsilon]", "Invalid constructor-loaded array!");
+        assertObjectEqual(test.getFirst(), "Alpha", "Bad getFirst!");
+        assertObjectEqual(test.getLast(), "Epsilon", "Bad getLast!");
         test.addFirst("Null");
-        assertEqual(test.getFirst(), "Null", "Bad addFirst!");
-        assertEqual(test.removeFirst(), "Null", "Bad removeFirst!");
+        assertObjectEqual(test.getFirst(), "Null", "Bad addFirst!");
+        assertObjectEqual(test.removeFirst(), "Null", "Bad removeFirst!");
         test.addLast("Suffix");
-        assertEqual(test.getLast(), "Suffix", "Bad addLast!");
-        assertEqual(test.removeLast(), "Suffix", "Bad removeLast!");
-        assertEqual(test.removeLast(), "Epsilon", "Bad removeLast!");
-        assertEqual(test.removeFirst(), "Alpha", "Bad removeFirst!");
+        assertObjectEqual(test.getLast(), "Suffix", "Bad addLast!");
+        assertObjectEqual(test.removeLast(), "Suffix", "Bad removeLast!");
+        assertObjectEqual(test.removeLast(), "Epsilon", "Bad removeLast!");
+        assertObjectEqual(test.removeFirst(), "Alpha", "Bad removeFirst!");
         test.addLast("Epsilon");
         test.addFirst("Alpha");
-        assertEqual(test.toString(), "[Alpha, Beta, Gamma, Delta, Epsilon]", "List contents corrupted!");
+        assertObjectEqual(test.toString(), "[Alpha, Beta, Gamma, Delta, Epsilon]", "List contents corrupted!");
     }
 }

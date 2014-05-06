@@ -31,6 +31,43 @@ import ccre.util.CArrayUtils;
 public class BooleanStatus implements BooleanOutput, BooleanInput {
 
     /**
+     * The current state (true or false) of this BooleanStatus. Do not directly
+     * modify this field. Use the writeValue method instead.
+     *
+     * @see #set(boolean)
+     */
+    private boolean value;
+    /**
+     * The list of all the BooleanOutputs to modify when this BooleanStatus
+     * changes value.
+     *
+     * @see #send(ccre.chan.BooleanOutput)
+     * @see #unsend(ccre.chan.BooleanOutput)
+     */
+    private CArrayList<BooleanOutput> consumers = null;
+    /**
+     * The cached EventConsumer that sets the current value to true. Use
+     * getSetTrueEvent() instead, because this might be null.
+     *
+     * @see #getSetTrueEvent()
+     */
+    private EventOutput setTrue;
+    /**
+     * The cached EventConsumer that sets the current value to false. Use
+     * getSetFalseEvent() instead, because this might be null.
+     *
+     * @see #getSetFalseEvent()
+     */
+    private EventOutput setFalse;
+    /**
+     * The cached EventConsumer that toggles the current value. Use
+     * getToggleEvent() instead, because this might be null.
+     *
+     * @see #getToggleEvent()
+     */
+    private EventOutput toggle;
+
+    /**
      * Create a new BooleanStatus with the value of false.
      */
     public BooleanStatus() {
@@ -75,42 +112,6 @@ public class BooleanStatus implements BooleanOutput, BooleanInput {
             t.set(false);
         }
     }
-    /**
-     * The current state (true or false) of this BooleanStatus. Do not directly
-     * modify this field. Use the writeValue method instead.
-     *
-     * @see #set(boolean)
-     */
-    private boolean value;
-    /**
-     * The list of all the BooleanOutputs to modify when this BooleanStatus
-     * changes value.
-     *
-     * @see #send(ccre.chan.BooleanOutput)
-     * @see #unsend(ccre.chan.BooleanOutput)
-     */
-    private CArrayList<BooleanOutput> consumers = null;
-    /**
-     * The cached EventConsumer that sets the current value to true. Use
-     * getSetTrueEvent() instead, because this might be null.
-     *
-     * @see #getSetTrueEvent()
-     */
-    private EventOutput setTrue;
-    /**
-     * The cached EventConsumer that sets the current value to false. Use
-     * getSetFalseEvent() instead, because this might be null.
-     *
-     * @see #getSetFalseEvent()
-     */
-    private EventOutput setFalse;
-    /**
-     * The cached EventConsumer that toggles the current value. Use
-     * getToggleEvent() instead, because this might be null.
-     *
-     * @see #getToggleEvent()
-     */
-    private EventOutput toggle;
 
     /**
      * When the specified event occurs, set the status to true.

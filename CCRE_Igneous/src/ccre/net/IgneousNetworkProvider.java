@@ -30,7 +30,7 @@ import javax.microedition.io.*;
  *
  * @author skeggsc
  */
-public class IgneousNetworkProvider implements Network.Provider {
+public class IgneousNetworkProvider implements NetworkProvider {
 
     /**
      * Has this yet been registered as the network provider?

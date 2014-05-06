@@ -20,8 +20,8 @@ package ccre.testing;
 
 import ccre.channel.BooleanOutput;
 import ccre.channel.BooleanStatus;
-import ccre.channel.EventStatus;
 import ccre.channel.EventOutput;
+import ccre.channel.EventStatus;
 
 /**
  * Test BooleanStatus.

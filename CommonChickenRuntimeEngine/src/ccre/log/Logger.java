@@ -28,10 +28,8 @@ import ccre.util.CArrayList;
  */
 public class Logger {
 
-    private Logger() {
-    }
     /**
-     * The logging targets to write logs to by default.
+     * The logging targets to write logs to.
      */
     public static final CArrayList<LoggingTarget> targets = new CArrayList<LoggingTarget>();
 
@@ -221,5 +219,8 @@ public class Logger {
      */
     public static void finest(String message, Throwable thr) {
         log(LogLevel.FINEST, message, thr);
+    }
+
+    private Logger() {
     }
 }

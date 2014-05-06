@@ -18,11 +18,11 @@
  */
 package ccre.ctrl;
 
+import ccre.channel.EventInput;
+import ccre.channel.EventOutput;
 import ccre.channel.FloatInput;
 import ccre.channel.FloatInputPoll;
 import ccre.channel.FloatOutput;
-import ccre.channel.EventOutput;
-import ccre.channel.EventInput;
 
 /**
  * Contains various presets for driving the robot.
@@ -54,9 +54,6 @@ import ccre.channel.EventInput;
  * @author skeggsc
  */
 public class DriverImpls {
-
-    private DriverImpls() {
-    }
 
     /**
      * Run tank drive on the given two FloatInputProducers and FloatOutputs.
@@ -143,5 +140,8 @@ public class DriverImpls {
      */
     public static void createExtendedSynchTankDriver(EventInput source, FloatInputPoll leftIn, FloatInputPoll rightIn, FloatInputPoll allIn, FloatOutput leftOut, FloatOutput rightOut) {
         source.send(createExtendedTankDriverEvent(leftIn, rightIn, allIn, leftOut, rightOut));
+    }
+
+    private DriverImpls() {
     }
 }

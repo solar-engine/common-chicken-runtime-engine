@@ -143,7 +143,7 @@ public abstract class BaseTest {
      * @param message the explanation of what went wrong.
      * @throws TestingException if the integers are unequal.
      */
-    protected void assertEqual(int a, int b, String message) throws TestingException {
+    protected void assertIntsEqual(int a, int b, String message) throws TestingException {
         assertTrue(a == b, message + "( " + a + " != " + b + " )");
     }
 
@@ -156,7 +156,7 @@ public abstract class BaseTest {
      * @param message the explanation of what went wrong.
      * @throws TestingException if the objects are unequal.
      */
-    protected void assertIEqual(Object a, Object b, String message) throws TestingException {
+    protected void assertIdentityEqual(Object a, Object b, String message) throws TestingException {
         assertTrue(a == b, message + "( " + a + " != " + b + " )");
     }
 
@@ -170,7 +170,7 @@ public abstract class BaseTest {
      * @param message the explanation of what went wrong.
      * @throws TestingException if the objects are unequal.
      */
-    protected void assertEqual(Object a, Object b, String message) throws TestingException {
+    protected void assertObjectEqual(Object a, Object b, String message) throws TestingException {
         assertTrue(a == null ? b == null : a.equals(b), message + "( " + a + " != " + b + " )");
     }
 }

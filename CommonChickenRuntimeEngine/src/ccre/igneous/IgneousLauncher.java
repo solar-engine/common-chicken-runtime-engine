@@ -18,12 +18,12 @@
  */
 package ccre.igneous;
 
-import ccre.channel.FloatInputPoll;
-import ccre.channel.BooleanOutput;
-import ccre.channel.FloatOutput;
 import ccre.channel.BooleanInputPoll;
-import ccre.ctrl.*;
+import ccre.channel.BooleanOutput;
 import ccre.channel.EventInput;
+import ccre.channel.FloatInputPoll;
+import ccre.channel.FloatOutput;
+import ccre.ctrl.IJoystick;
 
 /**
  * This is a launcher for an Igneous application. The reason for this is so that

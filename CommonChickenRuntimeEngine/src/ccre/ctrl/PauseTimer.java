@@ -20,9 +20,9 @@ package ccre.ctrl;
 
 import ccre.channel.BooleanInput;
 import ccre.channel.BooleanOutput;
+import ccre.channel.EventOutput;
 import ccre.concurrency.ConcurrentDispatchArray;
 import ccre.concurrency.ReporterThread;
-import ccre.channel.EventOutput;
 import ccre.log.LogLevel;
 import ccre.log.Logger;
 
@@ -71,7 +71,6 @@ public class PauseTimer implements BooleanInput, EventOutput {
      */
     public PauseTimer(long timeout) {
         this.timeout = timeout;
-        main.start();
     }
 
     public void event() {
@@ -84,14 +83,19 @@ public class PauseTimer implements BooleanInput, EventOutput {
 
     private void setEndAt(long endAt) {
         long old;
+        boolean disabling = endAt == 0;
+        if (!disabling && !main.isAlive()) {
+            main.start();
+        }
         synchronized (lock) {
             old = this.endAt;
             this.endAt = endAt;
             lock.notifyAll();
         }
-        if ((endAt == 0) != (old == 0)) {
+        boolean disabled = old == 0;
+        if (disabling != disabled) {
             for (BooleanOutput c : consumers) {
-                c.set(endAt != 0);
+                c.set(!disabling);
             }
         }
     }

@@ -28,11 +28,9 @@ import ccre.log.Logger;
  *
  * @author skeggsc
  */
-public class SuiteOfTests { // TODO: This package needs more tests!
+public class SuiteOfTests {
 
-    private SuiteOfTests() {
-    }
-
+    // TODO: This package needs more tests!
     /**
      * Run all the tests.
      *
@@ -61,7 +59,6 @@ public class SuiteOfTests { // TODO: This package needs more tests!
             // ModeDispatcher - Needed!
             // MultipleSourceBooleanController - Needed!
             new TestTicker(),
-
             // ccre.event
             new TestEvent(),
             // EventLogger - Needed!
@@ -107,5 +104,8 @@ public class SuiteOfTests { // TODO: This package needs more tests!
         } else {
             Logger.info(count + "/" + tests.length + " tests succeeded.");
         }
+    }
+
+    private SuiteOfTests() {
     }
 }

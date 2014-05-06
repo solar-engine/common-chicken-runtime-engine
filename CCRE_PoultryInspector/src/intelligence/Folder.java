@@ -35,7 +35,7 @@ public final class Folder extends Remote {
     protected final String REGEX;
 
     public Folder(String ID, String regex) {
-        super("", 0, null);
+        super("", 0);
         this.REGEX = regex;
         this.ID = ID;
     }

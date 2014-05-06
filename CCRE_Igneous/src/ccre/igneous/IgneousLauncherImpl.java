@@ -19,7 +19,7 @@
 package ccre.igneous;
 
 import ccre.channel.*;
-import ccre.cluck.CluckGlobals;
+import ccre.cluck.Cluck;
 import ccre.cluck.tcp.CluckTCPServer;
 import ccre.ctrl.*;
 import ccre.log.*;
@@ -75,7 +75,7 @@ class IgneousLauncherImpl extends IterativeRobot implements IgneousLauncher {
 
     public final void robotInit() {
         //CluckGlobals.setupServer() - No longer helpful on the robot because this port is now used by default.
-        new CluckTCPServer(CluckGlobals.getNode(), 443).start();
+        new CluckTCPServer(Cluck.getNode(), 443).start();
         core.duringAutonomous = this.duringAutonomous;
         core.duringDisabled = this.duringDisabled;
         core.duringTeleop = this.duringTeleop;
@@ -425,7 +425,7 @@ class IgneousLauncherImpl extends IterativeRobot implements IgneousLauncher {
 
     public void useCustomCompressor(BooleanInputPoll shouldDisable, int compressorRelayChannel) {
         BooleanOutput relay = makeRelayForwardOutput(compressorRelayChannel);
-        Mixing.pumpWhen(new Ticker(500), Mixing.invert(shouldDisable), relay); // TODO: Test this code.
+        BooleanMixing.pumpWhen(new Ticker(500), BooleanMixing.invert(shouldDisable), relay); // TODO: Test this code.
     }
 
     public FloatInputPoll makeEncoder(int aChannel, int bChannel, boolean reverse, EventInput resetWhen) {

@@ -19,10 +19,10 @@
 package ccre.ctrl;
 
 import ccre.channel.BooleanOutput;
-import ccre.concurrency.ReporterThread;
-import ccre.channel.EventStatus;
-import ccre.channel.EventOutput;
 import ccre.channel.EventInput;
+import ccre.channel.EventOutput;
+import ccre.channel.EventStatus;
+import ccre.concurrency.ReporterThread;
 import ccre.log.LogLevel;
 import ccre.log.Logger;
 import ccre.util.CArrayList;
@@ -39,31 +39,6 @@ import ccre.util.CArrayList;
  */
 public final class ExpirationTimer {
 
-    /**
-     * A task that is scheduled for a specific delay after the timer starts.
-     */
-    private static class Task {
-
-        /**
-         * The delay before the event is fired.
-         */
-        public final long delay;
-        /**
-         * The event to fire.
-         */
-        public final EventOutput cnsm;
-
-        /**
-         * Create a new task.
-         *
-         * @param delay The delay after which the task is fired.
-         * @param cnsm The EventConsumer fired by this Task.
-         */
-        Task(long delay, EventOutput cnsm) {
-            this.delay = delay;
-            this.cnsm = cnsm;
-        }
-    }
     /**
      * The list of tasks, sorted in order with the first task (shortest delay)
      * first.
@@ -86,6 +61,18 @@ public final class ExpirationTimer {
             body();
         }
     };
+    /**
+     * The cached value for getStartEvent()
+     */
+    private EventOutput startEvt;
+    /**
+     * The cached value for getFeedEvent()
+     */
+    private EventOutput feedEvt;
+    /**
+     * The cached value for getStopEvent()
+     */
+    private EventOutput stopEvt;
 
     /**
      * Schedule a BooleanOutput to be set to a specified value at a specific
@@ -97,7 +84,7 @@ public final class ExpirationTimer {
      * @throws IllegalStateException if the timer is already running.
      */
     public void scheduleSet(long delay, BooleanOutput out, boolean value) throws IllegalStateException {
-        schedule(delay, Mixing.getSetEvent(out, value));
+        schedule(delay, BooleanMixing.getSetEvent(out, value));
     }
 
     /**
@@ -219,26 +206,30 @@ public final class ExpirationTimer {
         }
     }
 
+    private synchronized void runTasks() throws InterruptedException {
+        long startAt = startedAt;
+        for (Task t : tasks) {
+            long rel = startAt + t.delay - System.currentTimeMillis();
+            while (rel > 0) {
+                wait(rel);
+                rel = startAt + t.delay - System.currentTimeMillis();
+            }
+            try {
+                t.cnsm.event();
+            } catch (Throwable thr) {
+                Logger.log(LogLevel.SEVERE, "Exception in ExpirationTimer dispatch!", thr);
+                // TODO: Detachment error handling.
+            }
+        }
+    }
+
     private synchronized void body() {
         while (true) {
             try {
                 while (!isStarted) {
                     wait();
                 }
-                long startAt = startedAt;
-                for (Task t : tasks) {
-                    long rel = startAt + t.delay - System.currentTimeMillis();
-                    while (rel > 0) {
-                        wait(rel);
-                        rel = startAt + t.delay - System.currentTimeMillis();
-                    }
-                    try {
-                        t.cnsm.event();
-                    } catch (Throwable thr) {
-                        Logger.log(LogLevel.SEVERE, "Exception in ExpirationTimer dispatch!", thr);
-                        // TODO: Detachment error handling.
-                    }
-                }
+                runTasks();
                 while (isStarted) { // Once finished, wait to stop before restarting.
                     wait();
                 }
@@ -274,18 +265,6 @@ public final class ExpirationTimer {
         isStarted = false;
         main.interrupt();
     }
-    /**
-     * The cached value for getStartEvent()
-     */
-    private EventOutput startEvt;
-    /**
-     * The cached value for getFeedEvent()
-     */
-    private EventOutput feedEvt;
-    /**
-     * The cached value for getStopEvent()
-     */
-    private EventOutput stopEvt;
 
     /**
      * Get an event that, when fired, will start the timer. This will not throw
@@ -408,5 +387,31 @@ public final class ExpirationTimer {
                 }
             }
         };
+    }
+
+    /**
+     * A task that is scheduled for a specific delay after the timer starts.
+     */
+    private static class Task {
+
+        /**
+         * The delay before the event is fired.
+         */
+        public final long delay;
+        /**
+         * The event to fire.
+         */
+        public final EventOutput cnsm;
+
+        /**
+         * Create a new task.
+         *
+         * @param delay The delay after which the task is fired.
+         * @param cnsm The EventConsumer fired by this Task.
+         */
+        Task(long delay, EventOutput cnsm) {
+            this.delay = delay;
+            this.cnsm = cnsm;
+        }
     }
 }

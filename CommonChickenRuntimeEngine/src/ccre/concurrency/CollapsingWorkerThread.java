@@ -20,8 +20,8 @@ package ccre.concurrency;
 
 import ccre.channel.BooleanInput;
 import ccre.channel.BooleanStatus;
-import ccre.channel.EventOutput;
 import ccre.channel.EventInput;
+import ccre.channel.EventOutput;
 import ccre.log.LogLevel;
 import ccre.log.Logger;
 
@@ -54,6 +54,10 @@ public abstract class CollapsingWorkerThread extends ReporterThread implements E
      * The internal object to use for notification and synchronization.
      */
     private final Object lockObject = new Object();
+    /**
+     * A BooleanStatus that represents if work is currently running.
+     */
+    private BooleanStatus runningStatus;
 
     /**
      * Create a new CollapsingWorkerThread with the given name. Will ignore any
@@ -116,10 +120,6 @@ public abstract class CollapsingWorkerThread extends ReporterThread implements E
             }
         }
     }
-    /**
-     * A BooleanStatus that represents if work is currently running.
-     */
-    private BooleanStatus runningStatus;
 
     /**
      * Get a BooleanInput that represents whether or not this thread's work is

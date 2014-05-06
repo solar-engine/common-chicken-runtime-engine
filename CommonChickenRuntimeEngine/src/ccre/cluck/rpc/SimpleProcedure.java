@@ -42,7 +42,7 @@ public abstract class SimpleProcedure implements RemoteProcedure {
      * The result returned when a SimpleProcedure call times out.
      */
     public static final Object TIMED_OUT = null;
-    
+
     /**
      * Invoke the specified RemoteProcedure with the specified byte array and
      * return the result, or null (TIMED_OUT) if the request times out.

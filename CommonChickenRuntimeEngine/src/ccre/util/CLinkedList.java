@@ -35,17 +35,6 @@ import java.util.NoSuchElementException;
  */
 public class CLinkedList<T> extends CAbstractList<T> {
 
-    private final static class Node<T> {
-
-        public Node<T> next, prev;
-        public T o;
-
-        Node(Node<T> prev, T o, Node<T> next) {
-            this.next = next;
-            this.prev = prev;
-            this.o = o;
-        }
-    }
     private final Node<T> sentinel;
     private int size = 0;
 
@@ -67,12 +56,6 @@ public class CLinkedList<T> extends CAbstractList<T> {
         this();
         addAllFromArray(coll);
     }
-    
-    private void addAllFromArray(T[] array) {
-        for (T t : array) {
-            addLast(t);
-        }
-    }
 
     /**
      * Create a new CLinkedList from an existing collection.
@@ -84,12 +67,18 @@ public class CLinkedList<T> extends CAbstractList<T> {
         addAll(coll);
     }
 
+    private void addAllFromArray(T[] array) {
+        for (T t : array) {
+            addLast(t);
+        }
+    }
+
     @Override
     public Iterator<T> iterator() {
         final int modCount = getModCount();
         return new LinkedListIterator<T>(this.sentinel, modCount);
     }
-    
+
     void decrementSize() {
         size--;
     }
@@ -105,11 +94,6 @@ public class CLinkedList<T> extends CAbstractList<T> {
         sentinel.next = sentinel;
         sentinel.prev = sentinel;
         size = 0;
-    }
-
-    @Override
-    public boolean isEmpty() {
-        return size == 0;
     }
 
     @Override
@@ -175,20 +159,6 @@ public class CLinkedList<T> extends CAbstractList<T> {
         n.prev.next = n.next;
         n.next.prev = n.prev;
         return n.o;
-    }
-
-    @Override
-    public boolean contains(final Object thing) {
-        Node<T> n = sentinel;
-        while (true) {
-            n = n.next;
-            if (n == sentinel) {
-                return false;
-            }
-            if (thing.equals(n.o)) {
-                return true;
-            }
-        }
     }
 
     @Override
@@ -307,6 +277,19 @@ public class CLinkedList<T> extends CAbstractList<T> {
         return toremove.o;
     }
 
+    private static final class Node<T> {
+
+        public Node<T> next;
+        public Node<T> prev;
+        public T o;
+
+        Node(Node<T> prev, T o, Node<T> next) {
+            this.next = next;
+            this.prev = prev;
+            this.o = o;
+        }
+    }
+
     private class LinkedListIterator<T> implements Iterator<T> {
 
         private final Node<T> sentinel;
@@ -335,6 +318,7 @@ public class CLinkedList<T> extends CAbstractList<T> {
             return out;
         }
 
+        @Override
         public void remove() { // TODO: Make this fail for multiple removes?
             notifyModified();
             decrementSize();

@@ -19,9 +19,9 @@
 package ccre.ctrl;
 
 import ccre.channel.BooleanInputPoll;
+import ccre.channel.EventInput;
 import ccre.channel.FloatInput;
 import ccre.channel.FloatInputPoll;
-import ccre.channel.EventInput;
 
 /**
  * A joystick that provides channels for all of its inputs.

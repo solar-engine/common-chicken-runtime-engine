@@ -31,9 +31,6 @@ import java.io.IOException;
  */
 public class Launcher {
 
-    private Launcher() {
-    }
-
     /**
      * Run a dispatching script for common CCRE utilities.
      *
@@ -70,5 +67,8 @@ public class Launcher {
             System.err.println("No such launchee: " + command);
             System.exit(1);
         }
+    }
+
+    private Launcher() {
     }
 }

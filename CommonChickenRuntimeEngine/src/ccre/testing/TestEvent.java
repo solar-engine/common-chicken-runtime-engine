@@ -18,8 +18,8 @@
  */
 package ccre.testing;
 
-import ccre.channel.EventStatus;
 import ccre.channel.EventOutput;
+import ccre.channel.EventStatus;
 
 /**
  * A test that tests some parts of the Event class.
@@ -28,23 +28,24 @@ import ccre.channel.EventOutput;
  */
 public final class TestEvent extends BaseTest implements EventOutput {
 
+    private int eventCalled = -42;
+
     @Override
     public String getName() {
         return "Event Testing";
     }
-    private int eventCalled = -42;
 
     @Override
     protected void runTest() throws TestingException {
         EventStatus event = new EventStatus();
         eventCalled = 0;
         event.send(this);
-        assertEqual(eventCalled, 0, "Event fired too soon!");
+        assertIntsEqual(eventCalled, 0, "Event fired too soon!");
         event.produce();
-        assertEqual(eventCalled, 1, "Event did not fire properly!");
+        assertIntsEqual(eventCalled, 1, "Event did not fire properly!");
         event.unsend(this);
         event.produce();
-        assertEqual(eventCalled, 1, "Event did not remove properly!");
+        assertIntsEqual(eventCalled, 1, "Event did not remove properly!");
     }
 
     public void event() {

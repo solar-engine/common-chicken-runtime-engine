@@ -32,6 +32,33 @@ import java.util.NoSuchElementException;
 public class CHashMap<K, V> implements Iterable<K> {
 
     /**
+     * The current hash nodes of the map.
+     */
+    private Node<K, V>[] map;
+    /**
+     * The number of elements in the map.
+     */
+    private int size;
+
+    /**
+     * Create a new CHashMap with a given initial array size.
+     *
+     * @param initial initial size.
+     */
+    public CHashMap(int initial) {
+        map = CArrayUtils.castToGeneric(new Node<?, ?>[initial]);
+        size = 0;
+    }
+
+    /**
+     * Create a new CHashMap with a default size of 16.
+     */
+    public CHashMap() {
+        map = CArrayUtils.castToGeneric(new Node<?, ?>[16]);
+        size = 0;
+    }
+
+    /**
      * Iterate over all the keys of this CHashMap.
      */
     public Iterator<K> iterator() { // TODO: Add tracking for modcounts here!
@@ -59,49 +86,11 @@ public class CHashMap<K, V> implements Iterable<K> {
                 return out;
             }
 
+            @Override
             public void remove() {
                 throw new UnsupportedOperationException();
             }
         };
-    }
-
-    private static class Node<K, V> {
-
-        public final K key;
-        public V value;
-        public Node<K, V> next;
-
-        Node(K key, V val, Node<K, V> next) {
-            this.key = key;
-            this.value = val;
-            this.next = next;
-        }
-    }
-    /**
-     * The current hash nodes of the map.
-     */
-    private Node<K, V>[] map;
-    /**
-     * The number of elements in the map.
-     */
-    private int size;
-
-    /**
-     * Create a new CHashMap with a given initial array size.
-     *
-     * @param initial initial size.
-     */
-    public CHashMap(int initial) {
-        map = CArrayUtils.castToGeneric(new Node<?, ?>[initial]);
-        size = 0;
-    }
-
-    /**
-     * Create a new CHashMap with a default size of 16.
-     */
-    public CHashMap() {
-        map = CArrayUtils.castToGeneric(new Node<?, ?>[16]);
-        size = 0;
     }
 
     /**
@@ -243,5 +232,18 @@ public class CHashMap<K, V> implements Iterable<K> {
             n = n.next;
         }
         return null;
+    }
+
+    private static class Node<K, V> {
+
+        public final K key;
+        public V value;
+        public Node<K, V> next;
+
+        Node(K key, V val, Node<K, V> next) {
+            this.key = key;
+            this.value = val;
+            this.next = next;
+        }
     }
 }

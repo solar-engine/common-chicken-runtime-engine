@@ -22,8 +22,8 @@ import ccre.channel.BooleanInput;
 import ccre.channel.BooleanStatus;
 import ccre.channel.FloatInput;
 import ccre.channel.FloatStatus;
-import ccre.cluck.CluckNode;
-import ccre.ctrl.Mixing;
+import ccre.cluck.Cluck;
+import ccre.ctrl.BooleanMixing;
 import ccre.util.LineCollectorOutputStream;
 import static intelligence.PhidgetMonitor.ANALOG_COUNT;
 import static intelligence.PhidgetMonitor.INPUT_COUNT;
@@ -241,16 +241,15 @@ public class VirtualPhidgetMonitor extends javax.swing.JFrame implements IPhidge
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
-
-    public void share(CluckNode node) {
+    public void share() {
         IndicatorLight[] lights = new IndicatorLight[]{out0, out1, out2, out3, out4, out5, out6, out7};
         for (int i = 0; i < OUTPUT_COUNT; i++) {
-            node.publish("phidget-bo" + i, Mixing.invert(lights[i])); // Invert because that's what happens with the real Phidget.
+            Cluck.publish("phidget-bo" + i, BooleanMixing.invert(lights[i])); // Invert because that's what happens with the real Phidget.
         }
         JTextField[] lcd = new JTextField[]{lcdLine0, lcdLine1};
         for (int i = 0; i < LCD_LINES; i++) {
             final JTextField lcdl = lcd[i];
-            node.publish("phidget-lcd" + i, new LineCollectorOutputStream() {
+            Cluck.publish("phidget-lcd" + i, new LineCollectorOutputStream() {
                 @Override
                 protected void collect(final String str) {
                     EventQueue.invokeLater(new Runnable() {
@@ -262,7 +261,7 @@ public class VirtualPhidgetMonitor extends javax.swing.JFrame implements IPhidge
                 }
             });
         }
-        node.publish("phidget-attached", Mixing.alwaysTrue);
+        Cluck.publish("phidget-attached", BooleanMixing.alwaysTrue);
         JToggleButton[] btns = new JToggleButton[]{btn0, btn1, btn2, btn3, btn4, btn5, btn6, btn7};
         for (int i = 0; i < INPUT_COUNT; i++) {
             final BooleanStatus stat = new BooleanStatus();
@@ -273,7 +272,7 @@ public class VirtualPhidgetMonitor extends javax.swing.JFrame implements IPhidge
                     stat.set(btn.isSelected());
                 }
             });
-            node.publish("phidget-bi" + i, (BooleanInput) stat);
+            Cluck.publish("phidget-bi" + i, (BooleanInput) stat);
         }
         JSlider[] anas = new JSlider[]{ana0, ana1, ana2, ana3, ana4, ana5, ana6, ana7};
         for (int i = 0; i < ANALOG_COUNT; i++) {
@@ -285,7 +284,7 @@ public class VirtualPhidgetMonitor extends javax.swing.JFrame implements IPhidge
                     stat.set((ana.getValue() - 50) / 50f);
                 }
             });
-            node.publish("phidget-ai" + i, (FloatInput) stat);
+            Cluck.publish("phidget-ai" + i, (FloatInput) stat);
         }
     }
 

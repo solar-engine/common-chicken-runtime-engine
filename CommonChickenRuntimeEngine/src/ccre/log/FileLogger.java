@@ -18,11 +18,14 @@
  */
 package ccre.log;
 
-import ccre.ctrl.Ticker;
 import ccre.channel.EventOutput;
+import ccre.ctrl.Ticker;
 import ccre.saver.StorageProvider;
 import ccre.workarounds.ThrowablePrinter;
-import java.io.*;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.PrintStream;
 import java.util.Date;
 
 /**
@@ -34,7 +37,8 @@ import java.util.Date;
 public class FileLogger implements LoggingTarget {
 
     /**
-     * Register a new FileLogger writing to a unique file with the logging manager.
+     * Register a new FileLogger writing to a unique file with the logging
+     * manager.
      */
     public static void register() {
         try {

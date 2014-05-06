@@ -29,6 +29,15 @@ import ccre.log.Logger;
 public abstract class CluckSubscriber implements CluckLink {
 
     /**
+     * The CluckNode that this is attached to.
+     */
+    public final CluckNode node;
+    /**
+     * The link name of this subscriber.
+     */
+    private String linkName;
+
+    /**
      * Create a new CluckSubscriber ready to be attached to the specified node.
      *
      * @param node The CluckNode that this should be shared over.
@@ -39,15 +48,6 @@ public abstract class CluckSubscriber implements CluckLink {
         }
         this.node = node;
     }
-
-    /**
-     * The CluckNode that this is attached to.
-     */
-    public final CluckNode node;
-    /**
-     * The link name of this subscriber.
-     */
-    private String linkName;
 
     public final boolean send(String dest, String source, byte[] data) {
         if (dest == null) {
@@ -86,7 +86,7 @@ public abstract class CluckSubscriber implements CluckLink {
      * @param data The message data.
      */
     protected void handleOther(String dest, String source, byte[] data) {
-        // Do nothing by default
+        Logger.warning("Unhandled side-channel message sent to " + linkName + " / " + dest + " from " + source + "!");
     }
 
     /**

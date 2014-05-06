@@ -25,8 +25,6 @@ package ccre.util;
  */
 public class CArrayUtils {
 
-    private CArrayUtils() {
-    }
     /**
      * An empty list. Immutable.
      */
@@ -89,6 +87,9 @@ public class CArrayUtils {
         } else {
             return new FixedArrayList<T>(arr);
         }
+    }
+
+    private CArrayUtils() {
     }
 
     private static class FixedArrayList<T> extends CAbstractList<T> {

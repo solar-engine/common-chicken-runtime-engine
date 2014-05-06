@@ -16,28 +16,16 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with the CCRE.  If not, see <http://www.gnu.org/licenses/>.
  */
-package ccre.instinct;
-
-import ccre.channel.BooleanInputPoll;
-import ccre.channel.EventOutput;
+package ccre.igneous;
 
 /**
- * An object that can have InstinctModules attached to it.
+ * The core Application class for Igneous. Implement this in order to write an
+ * application to run on the robot. Use the Igneous class to access hardware.
  *
+ * @see Igneous
  * @author skeggsc
  */
-public interface InstinctRegistrar {
+public interface IgneousApplication {
 
-    /**
-     * @return the input representing when subscribed modules should be running.
-     */
-    public BooleanInputPoll getWhenShouldAutonomousBeRunning();
-
-    /**
-     * Register the specified EventConsumer to be fired each period, however
-     * that is defined.
-     *
-     * @param toUpdate The EventConsumer to update.
-     */
-    public void updatePeriodicallyAlways(EventOutput toUpdate);
+    public void setupRobot();
 }

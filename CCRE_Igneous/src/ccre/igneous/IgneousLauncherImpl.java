@@ -38,11 +38,6 @@ import edu.wpi.first.wpilibj.*;
  */
 class IgneousLauncherImpl extends IterativeRobot implements IgneousLauncher {
 
-    /**
-     * The robot's core program.
-     */
-    public final IgneousCore core;
-
     IgneousLauncherImpl() {
         IgneousNetworkProvider.register();
         IgneousThrowablePrinter.register();
@@ -50,51 +45,24 @@ class IgneousLauncherImpl extends IterativeRobot implements IgneousLauncher {
         NetworkAutologger.register();
         BootLogger.register();
         FileLogger.register();
-        String name = VM.getManifestProperty("Igneous-Main");
-        if (name == null) {
-            throw new RuntimeException("Could not find MANIFEST-specified launchee!");
-        }
-        try {
-            core = (IgneousCore) Class.forName(name).newInstance();
-        } catch (ClassNotFoundException ex) {
-            ex.printStackTrace();
-            throw new RuntimeException("Could not load " + name + ": " + ex);
-        } catch (InstantiationException ex) {
-            ex.printStackTrace();
-            throw new RuntimeException("Could not load " + name + ": " + ex);
-        } catch (IllegalAccessException ex) {
-            ex.printStackTrace();
-            throw new RuntimeException("Could not load " + name + ": " + ex);
-        }
     }
-    // Default events
     /**
      * Produced during every state where the driver station is attached.
      */
     protected EventStatus globalPeriodic = new EventStatus();
 
     public final void robotInit() {
+        IgneousLauncherHolder.launcher = this;
         //CluckGlobals.setupServer() - No longer helpful on the robot because this port is now used by default.
         new CluckTCPServer(Cluck.getNode(), 443).start();
-        core.duringAutonomous = this.duringAutonomous;
-        core.duringDisabled = this.duringDisabled;
-        core.duringTeleop = this.duringTeleop;
-        core.duringTesting = this.duringTesting;
-        core.globalPeriodic = this.globalPeriodic;
-        core.constantPeriodic = new Ticker(10, true);
-        core.robotDisabled = this.robotDisabled;
-        core.startedAutonomous = this.startedAutonomous;
-        core.startedTeleop = this.startedTeleop;
-        core.startedTesting = this.startedTesting;
-        core.joystick1 = new CJoystick(1, globalPeriodic);
-        core.joystick2 = new CJoystick(2, globalPeriodic);
-        core.joystick3 = new CJoystick(3, globalPeriodic);
-        core.joystick4 = new CJoystick(4, globalPeriodic);
-        core.launcher = this;
         try {
-            core.createRobotControl();
+            String name = VM.getManifestProperty("Igneous-Main");
+            if (name == null) {
+                throw new RuntimeException("Could not find MANIFEST-specified launchee!");
+            }
+            ((IgneousApplication) Class.forName(name).newInstance()).setupRobot();
         } catch (Throwable thr) {
-            Logger.log(LogLevel.SEVERE, "Critical Code Failure in Disabled Init", thr);
+            Logger.log(LogLevel.SEVERE, "Critical Code Failure in Robot Init", thr);
             if (thr instanceof RuntimeException) {
                 throw (RuntimeException) thr;
             } else if (thr instanceof Error) {
@@ -147,12 +115,12 @@ class IgneousLauncherImpl extends IterativeRobot implements IgneousLauncher {
     /**
      * Produced when the robot enters disabled mode.
      */
-    protected EventStatus robotDisabled = new EventStatus();
+    protected EventStatus startDisabled = new EventStatus();
 
     public final void disabledInit() {
         try {
             Logger.fine(DriverStation.getInstance().isFMSAttached() ? "Began disabled on FMS" : "Began disabled mode");
-            robotDisabled.produce();
+            startDisabled.produce();
         } catch (Throwable thr) {
             Logger.log(LogLevel.SEVERE, "Critical Code Failure in Disabled Init", thr);
         }
@@ -265,40 +233,8 @@ class IgneousLauncherImpl extends IterativeRobot implements IgneousLauncher {
         }
     }
 
-    /**
-     * Return a FloatOutput that writes to the specified speed controller.
-     *
-     * @param spc the speed controller
-     * @param negate if the motor direction should be negated. See MOTOR_FORWARD
-     * and MOTOR_REVERSE.
-     * @return the FloatOutput that writes to the controller.
-     */
-    static FloatOutput wrapSpeedController(final SpeedController spc, final boolean negate) {
-        return new FloatOutput() {
-            public void set(float f) {
-                if (negate) {
-                    spc.set(-f);
-                } else {
-                    spc.set(f);
-                }
-            }
-        };
-    }
-
     public IJoystick getKinectJoystick(boolean isRightStick) {
         return new CJoystick(isRightStick ? 6 : 5, globalPeriodic);
-    }
-
-    public FloatOutput makeJaguar(int id, boolean negate) {
-        return wrapSpeedController(new Jaguar(id), negate);
-    }
-
-    public FloatOutput makeVictor(int id, boolean negate) {
-        return wrapSpeedController(new Victor(id), negate);
-    }
-
-    public FloatOutput makeTalon(int id, boolean negate) {
-        return wrapSpeedController(new Talon(id), negate);
     }
 
     public BooleanOutput makeSolenoid(int id) {
@@ -489,5 +425,67 @@ class IgneousLauncherImpl extends IterativeRobot implements IgneousLauncher {
                 return (float) a.getAcceleration();
             }
         };
+    }
+
+    public IJoystick getJoystick(int id) {
+        return new CJoystick(id, globalPeriodic);
+    }
+
+    public FloatOutput makeMotor(int id, int type) {
+        final SpeedController spc;
+        switch (type) {
+            case JAGUAR:
+                spc = new Jaguar(id);
+                break;
+            case VICTOR:
+                spc = new Victor(id);
+                break;
+            case TALON:
+                spc = new Talon(id);
+                break;
+            default:
+                throw new IllegalArgumentException("Unknown type: " + type);
+        }
+        return new FloatOutput() {
+            public void set(float f) {
+                spc.set(f);
+            }
+        };
+    }
+
+    public EventInput getGlobalPeriodic() {
+        return globalPeriodic;
+    }
+
+    public EventInput getStartAuto() {
+        return startedAutonomous;
+    }
+
+    public EventInput getDuringAuto() {
+        return duringAutonomous;
+    }
+
+    public EventInput getStartTele() {
+        return startedTeleop;
+    }
+
+    public EventInput getDuringTele() {
+        return duringTeleop;
+    }
+
+    public EventInput getStartTest() {
+        return startedTesting;
+    }
+
+    public EventInput getDuringTest() {
+        return duringTesting;
+    }
+
+    public EventInput getStartDisabled() {
+        return startDisabled;
+    }
+
+    public EventInput getDuringDisabled() {
+        return duringDisabled;
     }
 }

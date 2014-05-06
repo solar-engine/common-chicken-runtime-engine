@@ -20,29 +20,31 @@ package org.team1540.example;
 
 import ccre.channel.*;
 import ccre.ctrl.DriverImpls;
+import ccre.igneous.Igneous;
 import ccre.igneous.IgneousCore;
 import ccre.instinct.AutonomousModeOverException;
 import ccre.instinct.InstinctModule;
+import ccre.log.LogLevel;
 
 public class Test extends IgneousCore {
 
-    protected void createRobotControl() {
+    public void setupRobot() {
         // Driving
         FloatInputPoll leftAxis = joystick1.getAxisChannel(2);
         FloatInputPoll rightAxis = joystick1.getAxisChannel(5);
         final FloatOutput leftOut = makeTalonMotor(2, MOTOR_FORWARD, 0.1f);
         final FloatOutput rightOut = makeTalonMotor(1, MOTOR_REVERSE, 0.1f);
-        DriverImpls.createSynchTankDriver(duringTeleop, leftAxis, rightAxis, leftOut, rightOut);
+        DriverImpls.createSynchTankDriver(duringTele, leftAxis, rightAxis, leftOut, rightOut);
         // Shifting
         //BooleanOutput o = Mixing.select(makeServo(1, 0, 180), 45, 135);
         BooleanStatus shifter = new BooleanStatus(makeSolenoid(2));
-        shifter.setFalseWhen(startedTeleop);
+        shifter.setFalseWhen(startTele);
         shifter.setTrueWhen(joystick1.getButtonSource(3));
         shifter.setFalseWhen(joystick1.getButtonSource(1));
         // Compressor
         useCompressor(1, 1);
         // Autonomous
-        new InstinctModule() {
+        Igneous.registerAutonomous(new InstinctModule() {
             protected void autonomousMain() throws AutonomousModeOverException, InterruptedException {
                 leftOut.set(-1);
                 rightOut.set(-1);
@@ -50,6 +52,6 @@ public class Test extends IgneousCore {
                 leftOut.set(0);
                 rightOut.set(0);
             }
-        }.register(this);
+        });
     }
 }

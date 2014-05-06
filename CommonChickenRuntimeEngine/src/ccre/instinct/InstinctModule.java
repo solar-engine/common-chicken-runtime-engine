@@ -137,14 +137,17 @@ public abstract class InstinctModule implements EventOutput {
     }
 
     /**
-     * Register this module with an InstinctRegistrar so that it runs when that
-     * InstinctRegistrar wants it to.
+     * Sets this module to run when the specified BooleanInputPoll is true. You
+     * also need to fire the InstinctModule's event - likely with updateWhen().
      *
-     * @param reg The registrar.
+     * @param when When this should be running.
+     * @see #updateWhen(ccre.channel.EventInput)
      */
-    public void register(InstinctRegistrar reg) {
-        this.shouldBeRunning = reg.getWhenShouldAutonomousBeRunning();
-        reg.updatePeriodicallyAlways(this);
+    public void setShouldBeRunning(BooleanInputPoll when) {
+        if (this.shouldBeRunning != null) {
+            throw new IllegalStateException();
+        }
+        shouldBeRunning = when;
     }
 
     /**

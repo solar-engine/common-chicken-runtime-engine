@@ -18,65 +18,81 @@
  */
 package org.team1540.infernodante;
 
-import ccre.channel.*;
+import ccre.channel.BooleanInput;
+import ccre.channel.BooleanInputPoll;
+import ccre.channel.BooleanOutput;
+import ccre.channel.BooleanStatus;
+import ccre.channel.EventInput;
+import ccre.channel.EventOutput;
+import ccre.channel.FloatInput;
+import ccre.channel.FloatInputPoll;
+import ccre.channel.FloatOutput;
 import ccre.cluck.Cluck;
-import ccre.ctrl.*;
+import ccre.ctrl.BooleanMixing;
+import ccre.ctrl.DriverImpls;
+import ccre.ctrl.EventMixing;
 import ccre.ctrl.ExpirationTimer;
+import ccre.ctrl.FloatMixing;
+import ccre.ctrl.Mixing;
+import ccre.ctrl.MultipleSourceBooleanController;
 import ccre.igneous.IgneousCore;
 import ccre.phidget.PhidgetReader;
 import java.util.Timer;
 import java.util.TimerTask;
 
+// Please note that this is not the best example of an Igneous program.
+// A better example would be our 2014 code.
+// This is an incomplete badly-ported version of our 2013 code.
 public class Inferno extends IgneousCore {
 
     public static final boolean IS_COMPETITION_ROBOT = true;
     public static final long FRISBEE_SERVO_DELAY_MILLIS = 500;
     private BooleanInput isKiddieMode;
+    private PController armController;
 
     private void createShifting() {
         EventInput shiftHighBtn = joystick1.getButtonSource(1);
         EventInput shiftLowBtn = joystick1.getButtonSource(3);
         BooleanStatus shifter = new BooleanStatus(makeSolenoid(2));
-        shifter.setFalseWhen(startedTeleop);
+        shifter.setFalseWhen(startTele);
         shifter.setTrueWhen(shiftLowBtn);
         shifter.setFalseWhen(shiftHighBtn);
     }
 
     private void createDriving() {
-        isKiddieMode = IS_COMPETITION_ROBOT ? Mixing.alwaysFalse : PhidgetReader.getDigitalInput(4);
+        isKiddieMode = IS_COMPETITION_ROBOT ? BooleanMixing.alwaysFalse : PhidgetReader.getDigitalInput(4);
         FloatInputPoll leftAxis = joystick1.getAxisChannel(2);
         FloatInputPoll forwardAxis = joystick1.getAxisChannel(3);
         FloatInputPoll rightAxis = joystick1.getAxisChannel(5);
         FloatOutput leftOut = makeTalonMotor(2, MOTOR_FORWARD, 0);
         FloatOutput rightOut = makeTalonMotor(1, IS_COMPETITION_ROBOT ? MOTOR_REVERSE : MOTOR_FORWARD, 0);
-        DriverImpls.createExtendedSynchTankDriver(duringTeleop, leftAxis, rightAxis, forwardAxis, leftOut, rightOut);
+        DriverImpls.createExtendedSynchTankDriver(duringTele, leftAxis, rightAxis, forwardAxis, leftOut, rightOut);
     }
 
     private void createShooterWheel() {
-        FloatOutput wheel = Mixing.combine(makeTalonMotor(3, MOTOR_FORWARD, 0), makeTalonMotor(4, MOTOR_FORWARD, 0), makeTalonMotor(5, MOTOR_FORWARD, 0));
+        FloatOutput wheel = FloatMixing.combine(makeTalonMotor(3, MOTOR_FORWARD, 0), makeTalonMotor(4, MOTOR_FORWARD, 0), makeTalonMotor(5, MOTOR_FORWARD, 0));
         FloatInput moddedSpeed = Mixing.select(isKiddieMode, 1f, 0.5f);
-        BooleanOutput wheelControl = Mixing.select(wheel, Mixing.always(0f), moddedSpeed);
-        BooleanInputPoll runWheelBtn = Mixing.orBooleans(PhidgetReader.getDigitalInput(5), joystick1.getButtonChannel(4));
-        Mixing.pumpWhen(duringTeleop, runWheelBtn, wheelControl);
+        BooleanOutput wheelControl = Mixing.select(wheel, FloatMixing.always(0f), moddedSpeed);
+        BooleanInputPoll runWheelBtn = BooleanMixing.orBooleans(PhidgetReader.getDigitalInput(5), joystick1.getButtonChannel(4));
+        BooleanMixing.pumpWhen(duringTele, runWheelBtn, wheelControl);
     }
 
     private void createShooterPistons() {
-        BooleanOutput fire = Mixing.combine(makeSolenoid(1), makeSolenoid(4));
-        BooleanInputPoll shootWheelBtn = Mixing.orBooleans(PhidgetReader.getDigitalInput(7), joystick1.getButtonChannel(2));
-        Mixing.pumpWhen(duringTeleop, shootWheelBtn, fire);
+        BooleanOutput fire = BooleanMixing.combine(makeSolenoid(1), makeSolenoid(4));
+        BooleanInputPoll shootWheelBtn = BooleanMixing.orBooleans(PhidgetReader.getDigitalInput(7), joystick1.getButtonChannel(2));
+        BooleanMixing.pumpWhen(duringTele, shootWheelBtn, fire);
     }
-    private PController armController;
 
     private void createArm() {
         FloatInputPoll manualArm = PhidgetReader.getAnalogInput(5);
         FloatInputPoll armPotentiometer = makeAnalogInput(2, 9);
-        Cluck.publish("arm-potentiometer", Mixing.createDispatch(armPotentiometer, globalPeriodic));
+        Cluck.publish("arm-potentiometer", FloatMixing.createDispatch(armPotentiometer, globalPeriodic));
         FloatOutput armMotor = IS_COMPETITION_ROBOT ? makeTalonMotor(6, MOTOR_FORWARD, 0) : makeVictorMotor(6, MOTOR_REVERSE, 0);
 
         createPotentiometerReadout(armPotentiometer);
 
-        armController = new PController(armPotentiometer, armMotor, Mixing.deadzone(0.05f).wrap(manualArm));
-        armController.updateWhen(duringTeleop);
+        armController = new PController(armPotentiometer, armMotor, FloatMixing.deadzone(0.05f).wrap(manualArm));
+        armController.updateWhen(duringTele);
 
         BooleanStatus deactivateBrake = IS_COMPETITION_ROBOT ? new BooleanStatus(makeSolenoid(5)) : new BooleanStatus();
         armController.isBrakeDeactivated = deactivateBrake;
@@ -90,19 +106,19 @@ public class Inferno extends IgneousCore {
 
     private void createArmButtonActions(BooleanStatus deactivateBrake) {
         // Check when the arm override mover is moved.
-        BooleanInputPoll isArmOverride = Mixing.floatIsOutsideRange(PhidgetReader.getAnalogInput(5), -0.2f, 0.2f);
-        EventInput duringArmOverride = Mixing.filterEvent(isArmOverride, true, (EventInput) duringTeleop);
+        BooleanInputPoll isArmOverride = FloatMixing.floatIsOutsideRange(PhidgetReader.getAnalogInput(5), -0.2f, 0.2f);
+        EventInput duringArmOverride = EventMixing.filterEvent(isArmOverride, true, (EventInput) duringTele);
         // Check when one of the analog-dispatch buttons is activated.
         FloatInputPoll armSelectorValue = PhidgetReader.getAnalogInput(4);
-        BooleanInputPoll isArmFront = Mixing.floatIsInRange(armSelectorValue, -0.26f, -0.24f); // Measured constants.
-        BooleanInputPoll isArmTop = Mixing.floatIsInRange(armSelectorValue, -1f, -0.99f);
-        BooleanInputPoll isArmBack = Mixing.floatIsInRange(armSelectorValue, 0.362f, 0.382f);
-        EventInput onPressArmFront = Mixing.whenBooleanBecomes(isArmFront, true, duringTeleop);
-        EventInput onPressArmTop = Mixing.whenBooleanBecomes(isArmTop, true, duringTeleop);
-        EventInput onPressArmBack = Mixing.whenBooleanBecomes(isArmBack, true, duringTeleop);
+        BooleanInputPoll isArmFront = FloatMixing.floatIsInRange(armSelectorValue, -0.26f, -0.24f); // Measured constants.
+        BooleanInputPoll isArmTop = FloatMixing.floatIsInRange(armSelectorValue, -1f, -0.99f);
+        BooleanInputPoll isArmBack = FloatMixing.floatIsInRange(armSelectorValue, 0.362f, 0.382f);
+        EventInput onPressArmFront = BooleanMixing.whenBooleanBecomes(isArmFront, true, duringTele);
+        EventInput onPressArmTop = BooleanMixing.whenBooleanBecomes(isArmTop, true, duringTele);
+        EventInput onPressArmBack = BooleanMixing.whenBooleanBecomes(isArmBack, true, duringTele);
         // Chuck when one of the normal buttons is pressed
-        EventInput onPressDropSuction = Mixing.whenBooleanBecomes(PhidgetReader.getDigitalInput(2), true);
-        EventInput onPressPyramidActuated = Mixing.whenBooleanBecomes(PhidgetReader.getDigitalInput(6), true);
+        EventInput onPressDropSuction = BooleanMixing.whenBooleanBecomes(PhidgetReader.getDigitalInput(2), true);
+        EventInput onPressPyramidActuated = BooleanMixing.whenBooleanBecomes(PhidgetReader.getDigitalInput(6), true);
         // Activate the break when the pyramid actuation button is pressed, deactivate on anything else
         deactivateBrake.setFalseWhen(onPressPyramidActuated);
         deactivateBrake.setTrueWhen(duringArmOverride);
@@ -130,9 +146,9 @@ public class Inferno extends IgneousCore {
         FloatOutput armServo = makeServo(7, 0, 170);
         BooleanOutput armDrop = makeSolenoid(3);
         ExpirationTimer delayServoClose = new ExpirationTimer();
-        delayServoClose.schedule(FRISBEE_SERVO_DELAY_MILLIS, Mixing.getSetEvent(armServo, 120));
+        delayServoClose.schedule(FRISBEE_SERVO_DELAY_MILLIS, FloatMixing.getSetEvent(armServo, 120));
         isCorralSwitchUp.send(delayServoClose.getRunningControl());
-        isCorralSwitchUp.send(Mixing.triggerWhenBooleanChanges(Mixing.getSetEvent(armServo, 0), null));
+        isCorralSwitchUp.send(BooleanMixing.triggerWhenBooleanChanges(FloatMixing.getSetEvent(armServo, 0), null));
         isCorralSwitchUp.send(armDrop);
     }
 
@@ -141,8 +157,8 @@ public class Inferno extends IgneousCore {
         final BooleanOutput frontArmLED = PhidgetReader.getDigitalOutput(5), dropSuctionLED = PhidgetReader.getDigitalOutput(2);
         final BooleanOutput leftSuctionLED = PhidgetReader.getDigitalOutput(1), rightSuctionLED = PhidgetReader.getDigitalOutput(3);
 
-        final BooleanOutput leftLEDs = Mixing.combine(backArmLED, topArmLED, frontArmLED);
-        final BooleanOutput rightLEDs = Mixing.combine(dropSuctionLED, leftSuctionLED, rightSuctionLED);
+        final BooleanOutput leftLEDs = BooleanMixing.combine(backArmLED, topArmLED, frontArmLED);
+        final BooleanOutput rightLEDs = BooleanMixing.combine(dropSuctionLED, leftSuctionLED, rightSuctionLED);
         final BooleanInputPoll isDisabled = this.getIsDisabled(), isAuto = this.getIsAutonomous();
         new Timer().schedule(new TimerTask() {
             private int frame = 0;
@@ -214,28 +230,28 @@ public class Inferno extends IgneousCore {
             }
         }, 50, 100);
     }
-    
+
     private void createClimber() {
         MultipleSourceBooleanController valve = new MultipleSourceBooleanController(MultipleSourceBooleanController.OR);
         valve.send(makeSolenoid(8));
         valve.addInput(PhidgetReader.getDigitalInput(3));
         BooleanStatus climbControl = new BooleanStatus(makeSolenoid(6));
         valve.addInput(climbControl);
-        climbControl.setTrueWhen(Mixing.filterEvent(PhidgetReader.getDigitalInput(1), true, duringTeleop));
-        climbControl.setFalseWhen(Mixing.filterEvent(PhidgetReader.getDigitalInput(3), true, duringTeleop));
+        climbControl.setTrueWhen(EventMixing.filterEvent(PhidgetReader.getDigitalInput(1), true, duringTele));
+        climbControl.setFalseWhen(EventMixing.filterEvent(PhidgetReader.getDigitalInput(3), true, duringTele));
     }
 
     private void createPressureMonitoring() {
-        final FloatInputPoll pressure = Mixing.normalizeFloat(makeAnalogInput_ValueBased(1, 14), 100, 587);
+        final FloatInputPoll pressure = FloatMixing.normalizeFloat(makeAnalogInput_ValueBased(1, 14), 100, 587);
         globalPeriodic.send(new EventOutput() {
             public void event() {
                 PhidgetReader.getLCDLine(0).println("Pressure: " + ((int) (pressure.get() * 100)) + "%\n");
             }
         });
-        useCustomCompressor(Mixing.floatIsAtLeast(pressure, 1.0f), 1);
+        useCustomCompressor(FloatMixing.floatIsAtLeast(pressure, 1.0f), 1);
     }
 
-    protected void createRobotControl() {
+    public void setupRobot() {
         createLightPatternGenerator();
         createShifting();
         createDriving();
@@ -247,49 +263,3 @@ public class Inferno extends IgneousCore {
         createPressureMonitoring();
     }
 }
-
-/*
- * Files to port:
- * Arm: Mostly done, needs:
- *      Autonomous
- * [NOT USED] ArmPIDOutput
- * [NOT USED] ArmRegulator
- * [NOT SIGNIFICANT] Autotune
- * [NOT USED] BackupStick
- * [PORTED] ChickenRobot
- * Climber: Not done, needs:
- *      Climbing code
- * [AVAILABLE IN LIBRARY] Compressor1540
- * Config: Not really done, needs:
- *      Autonomous switches
- * Driver: Mostly done, needs:
- *      Autonomous
- * [NOT USED] HertzFinder
- * [NOT REALLY USED] KinectWrapper
- * [PORTED] NonSynchronousTicking
- * [PORTED] PController
- * [NOT USED] PIDController
- * [NOT SIGNIFICANT] Part
- * Shooter: Mostly done, needs:
- *      Autonomous
- *      Spinup Time
- *      Shooter LED
- *      Pushback
- *      Launch Sequencer
- *      Readout of launchability
- * [AVAILABLE IN LIBRARY] Utilities
- */
-
-/*
- * Current bugs:
- * [LOW] Disconnection is not noticed promptly from poultry inspector.
- * [LOW] No reset of IO when phidget gets attached. (could not reproduce)
- * [VERY LOW] Input rate is not modified on phidget.
- * 
- * Needed features:
- *  Simple debugging methods.
- * 
- * Next in Inferno implementation:
- *  1. Climbing
- *  2. Autonomous
- */

@@ -19,7 +19,7 @@
 package org.team1540.example;
 
 import ccre.channel.*;
-import ccre.ctrl.Mixing;
+import ccre.ctrl.FloatMixing;
 import ccre.obsidian.ObsidianCore;
 import ccre.obsidian.PWMPin;
 
@@ -28,7 +28,7 @@ public class Example extends ObsidianCore {
     @Override
     protected void createRobotControl() {
         final FloatInput xAxis = launcher.getJoystickAxis((byte) 1);
-        final FloatInput yAxis = Mixing.negate.wrap(launcher.getJoystickAxis((byte) 2));
+        final FloatInput yAxis = FloatMixing.negate(launcher.getJoystickAxis((byte) 2));
         
         final FloatOutput leftMotor = makePWMOutput(PWMPin.P8_13, 0, 0.333f, 0.666f, 333f, true);
         final FloatOutput rightMotor = makePWMOutput(PWMPin.P9_14, 0, 0.333f, 0.666f, 333f, true);

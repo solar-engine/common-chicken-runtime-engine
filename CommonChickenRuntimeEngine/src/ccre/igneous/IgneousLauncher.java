@@ -34,13 +34,15 @@ import ccre.ctrl.IJoystick;
  */
 public interface IgneousLauncher {
 
+    public static final int JAGUAR = 1;
+    public static final int TALON = 2;
+    public static final int VICTOR = 3;
+
+    public IJoystick getJoystick(int id);
+    
     public IJoystick getKinectJoystick(boolean isRightArm);
 
-    public FloatOutput makeJaguar(int id, boolean negate);
-
-    public FloatOutput makeVictor(int id, boolean negate);
-
-    public FloatOutput makeTalon(int id, boolean negate);
+    public FloatOutput makeMotor(int id, int type);
 
     public BooleanOutput makeSolenoid(int id);
 
@@ -75,4 +77,22 @@ public interface IgneousLauncher {
     public FloatInputPoll makeAccelerometerAxis(int port, double sensitivity, double zeropoint);
 
     public FloatInputPoll getBatteryVoltage();
+
+    public EventInput getGlobalPeriodic();
+
+    public EventInput getStartAuto();
+
+    public EventInput getDuringAuto();
+
+    public EventInput getStartTele();
+
+    public EventInput getDuringTele();
+
+    public EventInput getStartTest();
+
+    public EventInput getDuringTest();
+
+    public EventInput getStartDisabled();
+
+    public EventInput getDuringDisabled();
 }

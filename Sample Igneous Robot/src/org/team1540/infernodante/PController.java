@@ -18,9 +18,16 @@
  */
 package org.team1540.infernodante;
 
-import ccre.channel.*;
+import ccre.channel.BooleanInputPoll;
+import ccre.channel.BooleanStatus;
+import ccre.channel.EventInput;
+import ccre.channel.EventOutput;
+import ccre.channel.FloatInputPoll;
+import ccre.channel.FloatOutput;
+import ccre.channel.FloatStatus;
 import ccre.cluck.Cluck;
-import ccre.ctrl.Mixing;
+import ccre.ctrl.BooleanMixing;
+import ccre.ctrl.FloatMixing;
 import ccre.holders.TuningContext;
 
 public class PController implements EventOutput {
@@ -41,8 +48,8 @@ public class PController implements EventOutput {
     public static final FloatStatus ARM_DRIVE_PRESET = context.getFloat("arm-drive", DEF_ARM_DRIVE_PRESET);
     public static final FloatStatus ARM_LOAD_PRESET = context.getFloat("arm-load", DEF_ARM_LOAD_PRESET);
     public BooleanStatus enabled = new BooleanStatus();
-    public BooleanInputPoll suspendOnceStable = Mixing.alwaysFalse;
-    public BooleanInputPoll isBrakeDeactivated = Mixing.alwaysFalse;
+    public BooleanInputPoll suspendOnceStable = BooleanMixing.alwaysFalse;
+    public BooleanInputPoll isBrakeDeactivated = BooleanMixing.alwaysFalse;
     public FloatStatus setpoint = new FloatStatus();
     private final FloatInputPoll source;
     private final FloatOutput output;
@@ -55,7 +62,7 @@ public class PController implements EventOutput {
     }
 
     public void setSetpointWhen(FloatInputPoll fin, EventInput source) {
-        Mixing.pumpWhen(source, fin, setpoint);
+        FloatMixing.pumpWhen(source, fin, setpoint);
     }
 
     public boolean isStable() {

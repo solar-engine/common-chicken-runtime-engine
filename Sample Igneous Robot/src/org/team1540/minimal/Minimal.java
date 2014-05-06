@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 Colby Skeggs
+ * Copyright 2013-2014 Colby Skeggs
  * 
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  * 
@@ -18,7 +18,8 @@
  */
 package org.team1540.minimal;
 
-import ccre.igneous.IgneousCore;
+import ccre.igneous.Igneous;
+import ccre.igneous.IgneousApplication;
 import ccre.util.Utils;
 
 /**
@@ -26,9 +27,9 @@ import ccre.util.Utils;
  *
  * @author skeggsc
  */
-public class Minimal extends IgneousCore {
+public class Minimal implements IgneousApplication {
 
-    protected void createRobotControl() {
-        makeDSFloatReadout("I live!", 1, Utils.currentTimeSeconds, globalPeriodic);
+    public void setupRobot() {
+        Igneous.makeDSFloatReadout("I live!", 1, Utils.currentTimeSeconds, Igneous.globalPeriodic);
     }
 }

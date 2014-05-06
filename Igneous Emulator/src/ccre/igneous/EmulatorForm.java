@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 Colby Skeggs
+ * Copyright 2013-2014 Colby Skeggs
  * 
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  * 
@@ -18,11 +18,11 @@
  */
 package ccre.igneous;
 
-import ccre.chan.BooleanInputPoll;
-import ccre.chan.BooleanOutput;
-import ccre.chan.FloatInputPoll;
-import ccre.chan.FloatOutput;
-import ccre.event.EventSource;
+import ccre.channel.BooleanInputPoll;
+import ccre.channel.BooleanOutput;
+import ccre.channel.FloatInputPoll;
+import ccre.channel.FloatOutput;
+import ccre.channel.EventInput;
 import ccre.log.LogLevel;
 import ccre.log.Logger;
 import java.awt.Color;
@@ -43,6 +43,7 @@ import javax.swing.UnsupportedLookAndFeelException;
  *
  * @author skeggsc
  */
+@SuppressWarnings({"serial", "rawtypes"})
 public class EmulatorForm extends javax.swing.JFrame {
 
     static {
@@ -1030,7 +1031,8 @@ public class EmulatorForm extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_btnEnableActionPerformed
 
-    public FloatInputPoll makeEncoder(int aChannel, int bChannel, boolean reverse, EventSource resetWhen) {
+    @SuppressWarnings("unchecked")
+    public FloatInputPoll makeEncoder(int aChannel, int bChannel, boolean reverse, EventInput resetWhen) {
         String name = "encoder::" + aChannel + "::" + bChannel;
         if (reverse) {
             name += "::reverse";
@@ -1040,15 +1042,17 @@ public class EmulatorForm extends javax.swing.JFrame {
         extended.put(name, enc);
         return enc;
     }
-    
-    public FloatInputPoll makeGyro(int channel, double sensitivity, EventSource resetWhen) {
+
+    @SuppressWarnings("unchecked")
+    public FloatInputPoll makeGyro(int channel, double sensitivity, EventInput resetWhen) {
         String name = "gyro::" + channel + "::" + sensitivity;
         availableExtendedSelection.addElement(name);
         GyroForm gyr = new GyroForm(name, resetWhen);
         extended.put(name, gyr);
         return gyr;
     }
-    
+
+    @SuppressWarnings("unchecked")
     public FloatInputPoll makeAccelerometerAxis(int channel, double sensitivity, double zeropoint) {
         String name = "accelerometer::" + channel + "::" + sensitivity + "::" + zeropoint;
         availableExtendedSelection.addElement(name);
@@ -1203,6 +1207,17 @@ public class EmulatorForm extends javax.swing.JFrame {
         return getMotorColored(id, new Color(0xFF0000), minInput, maxInput);
     }
 
+    public void freeMotor(int port) {
+        final JProgressBar bar = motors[port - 1];
+        EventQueue.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                bar.setForeground(Color.BLACK);
+                bar.setValue(0);
+            }
+        });
+    }
+
     private FloatOutput getMotorColored(int id, final Color color, final float minInput, final float maxInput) {
         final JProgressBar jpb = motors[id - 1];
         EventQueue.invokeLater(new Runnable() {
@@ -1213,7 +1228,7 @@ public class EmulatorForm extends javax.swing.JFrame {
         });
         return new FloatOutput() {
             @Override
-            public void writeValue(final float f) {
+            public void set(final float f) {
                 EventQueue.invokeLater(new Runnable() {
                     @Override
                     public void run() {
@@ -1254,9 +1269,9 @@ public class EmulatorForm extends javax.swing.JFrame {
             default:
                 throw new RuntimeException("Invalid solenoid ID: " + id);
         }
-        BooleanOutput o = new BooleanOutput() {
+        return new BooleanOutput() {
             @Override
-            public void writeValue(final boolean bln) {
+            public void set(final boolean bln) {
                 EventQueue.invokeLater(new Runnable() {
                     @Override
                     public void run() {
@@ -1265,8 +1280,6 @@ public class EmulatorForm extends javax.swing.JFrame {
                 });
             }
         };
-        o.writeValue(false);
-        return o;
     }
     public static final Color ONCOLOR = new Color(0, 192, 0);
 
@@ -1274,8 +1287,8 @@ public class EmulatorForm extends javax.swing.JFrame {
         final FloatInputPoll base = getAnalogValue(id);
         return new FloatInputPoll() {
             @Override
-            public float readValue() { // Returns in the -3.5v to 3.5v range.
-                return 7 * base.readValue() / 4095f - 3.5f;
+            public float get() { // Returns in the -3.5v to 3.5v range.
+                return 7 * base.get() / 4095f - 3.5f;
             }
         };
     }
@@ -1312,7 +1325,7 @@ public class EmulatorForm extends javax.swing.JFrame {
         }
         return new FloatInputPoll() {
             @Override
-            public float readValue() {
+            public float get() {
                 return sli.getValue();
             }
         };
@@ -1358,20 +1371,29 @@ public class EmulatorForm extends javax.swing.JFrame {
         dig.setEnabled(true);
         return new BooleanInputPoll() {
             @Override
-            public boolean readValue() {
+            public boolean get() {
                 return dig.isSelected();
             }
         };
+    }
+
+    public void freeDigitalInput(int id) {
+        getDigital(id).setEnabled(false);
+        getDigital(id).setSelected(false);
     }
 
     public BooleanOutput getDigitalOutput(int id) {
         final JToggleButton dig = getDigital(id);
         return new BooleanOutput() {
             @Override
-            public void writeValue(boolean out) {
+            public void set(boolean out) {
                 dig.setSelected(out);
             }
         };
+    }
+
+    public void freeDigitalOutput(int id) {
+        getDigital(id).setSelected(false);
     }
 
     public void sendDSUpdate(final String value, int line) {
@@ -1413,17 +1435,21 @@ public class EmulatorForm extends javax.swing.JFrame {
     private BooleanOutput wrapRelayLabel(final JLabel lab) {
         return new BooleanOutput() {
             @Override
-            public void writeValue(boolean value) {
+            public void set(boolean value) {
                 lab.setForeground(value ? Color.GREEN : Color.RED);
             }
         };
     }
 
     public BooleanOutput makeRelayForward(int channel) {
-        return wrapRelayLabel(relayFwd[channel]);
+        return wrapRelayLabel(relayFwd[channel - 1]);
     }
 
     public BooleanOutput makeRelayReverse(int channel) {
-        return wrapRelayLabel(relayRev[channel]);
+        return wrapRelayLabel(relayRev[channel - 1]);
+    }
+
+    public void closeRelay(int id, boolean fwd) {
+        (fwd ? relayFwd : relayRev)[id - 1].setForeground(Color.BLACK);
     }
 }

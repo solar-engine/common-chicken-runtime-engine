@@ -26,12 +26,12 @@ import java.io.PrintStream;
  *
  * @author skeggsc
  */
-public class PrintStreamLogger implements LoggingTarget {
+public final class PrintStreamLogger implements LoggingTarget {
 
     /**
      * The PrintStream to write the logs to.
      */
-    protected PrintStream str;
+    private final PrintStream str;
 
     /**
      * Create a new PrintStreamLogger to log to the specific output.
@@ -45,18 +45,18 @@ public class PrintStreamLogger implements LoggingTarget {
         this.str = out;
     }
 
-    public void log(LogLevel level, String message, Throwable thr) {
+    public synchronized void log(LogLevel level, String message, Throwable thr) {
         if (thr != null) {
-            str.println("LOG{" + level.abbreviation + "} " + message);
+            str.println("LOG{" + level.message + "} " + message);
             ThrowablePrinter.printThrowable(thr, str);
         } else {
-            str.println("LOG[" + level.abbreviation + "] " + message);
+            str.println("LOG[" + level.message + "] " + message);
         }
     }
 
-    public void log(LogLevel level, String message, String extended) {
-        str.println("LOG[" + level.abbreviation + "] " + message);
-        if (extended != null && extended.length() != 0) {
+    public synchronized void log(LogLevel level, String message, String extended) {
+        str.println("LOG[" + level.message + "] " + message);
+        if (extended != null && !extended.isEmpty()) {
             str.println(extended);
         }
     }

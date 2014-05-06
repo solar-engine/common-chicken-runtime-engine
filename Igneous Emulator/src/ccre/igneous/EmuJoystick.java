@@ -18,14 +18,8 @@
  */
 package ccre.igneous;
 
-import ccre.chan.BooleanInputPoll;
-import ccre.chan.FloatInput;
-import ccre.chan.FloatInputPoll;
-import ccre.chan.FloatStatus;
-import ccre.ctrl.IDispatchJoystick;
-import ccre.event.Event;
-import ccre.event.EventConsumer;
-import ccre.event.EventSource;
+import ccre.channel.*;
+import ccre.ctrl.IJoystick;
 import javax.swing.JSlider;
 import javax.swing.JToggleButton;
 
@@ -33,7 +27,7 @@ import javax.swing.JToggleButton;
  * A helper class for EmulatorForm, used to implement GUI-driven joysticks.
  * @author skeggsc
  */
-public final class EmuJoystick implements IDispatchJoystick, EventConsumer {
+public final class EmuJoystick implements IJoystick, EventOutput {
 
     private JToggleButton[] btns;
     private JSlider[] axes;
@@ -48,7 +42,7 @@ public final class EmuJoystick implements IDispatchJoystick, EventConsumer {
     /**
      * Events to fire when the buttons are pressed.
      */
-    Event[] buttons = new Event[12];
+    EventStatus[] buttons = new EventStatus[12];
     /**
      * The last known states of the buttons, used to calculate when to send
      * press events.
@@ -62,7 +56,7 @@ public final class EmuJoystick implements IDispatchJoystick, EventConsumer {
     /**
      * The current eventsource for updating the dispatch outputs.
      */
-    EventSource cursource = null;
+    EventInput cursource = null;
 
     /**
      * Set the update source for this joystick to the specific source. Throw an
@@ -70,18 +64,18 @@ public final class EmuJoystick implements IDispatchJoystick, EventConsumer {
      *
      * @param source when to update the dispatch outputs.
      */
-    public void addSource(EventSource source) {
+    public void addSource(EventInput source) {
         if (cursource != source && cursource != null) {
             throw new RuntimeException("Already had a source!");
         }
-        source.addListener(this);
+        source.send(this);
     }
 
     @Override
-    public EventSource getButtonSource(int id) {
-        Event cur = buttons[id - 1];
+    public EventInput getButtonSource(int id) {
+        EventStatus cur = buttons[id - 1];
         if (cur == null) {
-            cur = new Event();
+            cur = new EventStatus();
             buttons[id - 1] = cur;
             states[id - 1] = btns[id - 1].isSelected();
         }
@@ -94,16 +88,16 @@ public final class EmuJoystick implements IDispatchJoystick, EventConsumer {
         if (fpb == null) {
             fpb = new FloatStatus();
             JSlider sli = axes[axis - 1];
-            fpb.writeValue(2f * sli.getValue() / (sli.getMaximum() - sli.getMinimum()));
+            fpb.set(2f * sli.getValue() / (sli.getMaximum() - sli.getMinimum()));
             valaxes[axis - 1] = fpb;
         }
         return fpb;
     }
 
     @Override
-    public void eventFired() {
+    public void event() {
         for (int i = 0; i < 12; i++) {
-            Event e = buttons[i];
+            EventStatus e = buttons[i];
             if (e == null) {
                 continue;
             }
@@ -121,7 +115,7 @@ public final class EmuJoystick implements IDispatchJoystick, EventConsumer {
                 continue;
             }
             JSlider sli = axes[i];
-            fpb.writeValue(2f * sli.getValue() / (sli.getMaximum() - sli.getMinimum()));
+            fpb.set(2f * sli.getValue() / (sli.getMaximum() - sli.getMinimum()));
         }
     }
 
@@ -130,7 +124,7 @@ public final class EmuJoystick implements IDispatchJoystick, EventConsumer {
         final JSlider axis = axes[i - 1];
         return new FloatInputPoll() {
             @Override
-            public float readValue() {
+            public float get() {
                 return 2f * axis.getValue() / (axis.getMaximum() - axis.getMinimum());
             }
         };
@@ -151,7 +145,7 @@ public final class EmuJoystick implements IDispatchJoystick, EventConsumer {
         final JToggleButton btn = btns[i - 1];
         return new BooleanInputPoll() {
             @Override
-            public boolean readValue() {
+            public boolean get() {
                 return btn.isSelected();
             }
         };

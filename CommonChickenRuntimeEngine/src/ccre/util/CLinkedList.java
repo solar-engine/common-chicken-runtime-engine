@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 Colby Skeggs
+ * Copyright 2013-2014 Colby Skeggs
  * 
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  * 
@@ -35,17 +35,6 @@ import java.util.NoSuchElementException;
  */
 public class CLinkedList<T> extends CAbstractList<T> {
 
-    private final static class Node<T> {
-
-        public Node<T> next, prev;
-        public T o;
-
-        Node(Node<T> prev, T o, Node<T> next) {
-            this.next = next;
-            this.prev = prev;
-            this.o = o;
-        }
-    }
     private final Node<T> sentinel;
     private int size = 0;
 
@@ -65,9 +54,7 @@ public class CLinkedList<T> extends CAbstractList<T> {
      */
     public CLinkedList(T[] coll) {
         this();
-        for (T t : coll) {
-            addLast(t);
-        }
+        addAllFromArray(coll);
     }
 
     /**
@@ -80,41 +67,20 @@ public class CLinkedList<T> extends CAbstractList<T> {
         addAll(coll);
     }
 
+    private void addAllFromArray(T[] array) {
+        for (T t : array) {
+            addLast(t);
+        }
+    }
+
     @Override
     public Iterator<T> iterator() {
-        return new Iterator<T>() {
-            Node<T> current = sentinel.next;
-            int locmod = modCount;
+        final int modCount = getModCount();
+        return new LinkedListIterator<T>(this.sentinel, modCount);
+    }
 
-            public boolean hasNext() {
-                if (locmod != modCount) {
-                    throw new ConcurrentModificationException();
-                }
-                return current != sentinel;
-            }
-
-            public T next() {
-                if (!hasNext()) {
-                    throw new NoSuchElementException();
-                }
-                T out = current.o;
-                current = current.next;
-                return out;
-            }
-
-            public void remove() {
-                notifyModified();
-                size--;
-                current = current.prev;
-                if (current == sentinel) {
-                    throw new IllegalStateException();
-                }
-                current.prev.next = current.next;
-                current.next.prev = current.prev;
-                current = current.next;
-                locmod++;
-            }
-        };
+    void decrementSize() {
+        size--;
     }
 
     @Override
@@ -128,11 +94,6 @@ public class CLinkedList<T> extends CAbstractList<T> {
         sentinel.next = sentinel;
         sentinel.prev = sentinel;
         size = 0;
-    }
-
-    @Override
-    public boolean isEmpty() {
-        return size == 0;
     }
 
     @Override
@@ -201,23 +162,9 @@ public class CLinkedList<T> extends CAbstractList<T> {
     }
 
     @Override
-    public boolean contains(final Object thing) {
-        Node<T> n = sentinel;
-        while (true) {
-            n = n.next;
-            if (n == sentinel) {
-                return false;
-            }
-            if (thing.equals(n.o)) {
-                return true;
-            }
-        }
-    }
-
-    @Override
     public int indexOf(final Object thing) {
         int i = 0;
-        Node n = sentinel;
+        Node<?> n = sentinel;
         while (true) {
             n = n.next;
             if (n == sentinel) {
@@ -233,7 +180,7 @@ public class CLinkedList<T> extends CAbstractList<T> {
     @Override
     public int lastIndexOf(final Object thing) {
         int i = size - 1;
-        Node n = sentinel;
+        Node<?> n = sentinel;
         while (true) {
             n = n.prev;
             if (n == sentinel) {
@@ -328,5 +275,61 @@ public class CLinkedList<T> extends CAbstractList<T> {
         toremove.prev.next = sentinel;
         sentinel.prev = toremove.prev;
         return toremove.o;
+    }
+
+    private static final class Node<T> {
+
+        public Node<T> next;
+        public Node<T> prev;
+        public T o;
+
+        Node(Node<T> prev, T o, Node<T> next) {
+            this.next = next;
+            this.prev = prev;
+            this.o = o;
+        }
+    }
+
+    private class LinkedListIterator<T> implements Iterator<T> {
+
+        private final Node<T> sentinel;
+        private Node<T> current;
+        private int locmod;
+
+        LinkedListIterator(Node<T> sentinel, int lastmod) {
+            this.sentinel = sentinel;
+            current = sentinel.next;
+            this.locmod = lastmod;
+        }
+
+        public boolean hasNext() {
+            if (locmod != getModCount()) {
+                throw new ConcurrentModificationException();
+            }
+            return current != sentinel;
+        }
+
+        public T next() {
+            if (!hasNext()) {
+                throw new NoSuchElementException();
+            }
+            T out = current.o;
+            current = current.next;
+            return out;
+        }
+
+        @Override
+        public void remove() { // TODO: Make this fail for multiple removes?
+            notifyModified();
+            decrementSize();
+            current = current.prev;
+            if (current == sentinel) {
+                throw new IllegalStateException();
+            }
+            current.prev.next = current.next;
+            current.next.prev = current.prev;
+            current = current.next;
+            locmod++;
+        }
     }
 }

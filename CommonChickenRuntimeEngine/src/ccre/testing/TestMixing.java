@@ -18,13 +18,9 @@
  */
 package ccre.testing;
 
-import ccre.chan.FloatFilter;
+import ccre.channel.FloatFilter;
+import ccre.ctrl.FloatMixing;
 import ccre.ctrl.Mixing;
-import ccre.util.CArrayList;
-import ccre.util.CArrayUtils;
-import ccre.util.CList;
-import ccre.util.Utils;
-import java.util.Iterator;
 
 /**
  * Tests the Mixing class, a tiny amount.
@@ -41,13 +37,13 @@ public class TestMixing extends BaseTest {
     @Override
     protected void runTest() throws TestingException {
         // Added to as I need to test things, not fleshed out yet.
-        FloatFilter limit1 = Mixing.limit(Float.NEGATIVE_INFINITY, 0);
-        assertEqual(limit1.filter(-10000), -10000f, "Bad limit!");
-        assertEqual(limit1.filter(0), 0f, "Bad limit!");
-        assertEqual(limit1.filter(1), 0f, "Bad limit!");
-        FloatFilter limit2 = Mixing.limit(0, Float.POSITIVE_INFINITY);
-        assertEqual(limit2.filter(-1), 0f, "Bad limit!");
-        assertEqual(limit2.filter(0), 0f, "Bad limit!");
-        assertEqual(limit2.filter(10000), 10000f, "Bad limit!");
+        FloatFilter limit1 = FloatMixing.limit(Float.NEGATIVE_INFINITY, 0);
+        assertObjectEqual(limit1.filter(-10000), -10000f, "Bad limit!");
+        assertObjectEqual(limit1.filter(0), 0f, "Bad limit!");
+        assertObjectEqual(limit1.filter(1), 0f, "Bad limit!");
+        FloatFilter limit2 = FloatMixing.limit(0, Float.POSITIVE_INFINITY);
+        assertObjectEqual(limit2.filter(-1), 0f, "Bad limit!");
+        assertObjectEqual(limit2.filter(0), 0f, "Bad limit!");
+        assertObjectEqual(limit2.filter(10000), 10000f, "Bad limit!");
     }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 Colby Skeggs
+ * Copyright 2013-2014 Colby Skeggs
  * 
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  * 
@@ -36,41 +36,50 @@ public class TestAllocationPool extends BaseTest {
     @Override
     protected void runTest() throws TestingException {
         final CArrayList<Object> alloced = new CArrayList<Object>();
-        AllocationPool<Object> aop = new AllocationPool<Object>() {
-            @Override
-            protected Object allocateNew() {
-                Object out = new Object();
-                alloced.add(out);
-                return out;
-            }
-        };
-        assertEqual(0, alloced.size(), "Should have different number of allocations!");
+        AllocationPool<Object> aop = new ReportingPool(alloced);
+        assertIntsEqual(0, alloced.size(), "Should have different number of allocations!");
         Object o1 = aop.alloc();
-        assertEqual(1, alloced.size(), "Should have different number of allocations!");
-        assertEqual(o1, alloced.get(0), "Bad allocated object!");
+        assertIntsEqual(1, alloced.size(), "Should have different number of allocations!");
+        assertObjectEqual(o1, alloced.get(0), "Bad allocated object!");
         Object o2 = aop.alloc();
-        assertEqual(2, alloced.size(), "Should have different number of allocations!");
-        assertEqual(o2, alloced.get(1), "Bad allocated object!");
+        assertIntsEqual(2, alloced.size(), "Should have different number of allocations!");
+        assertObjectEqual(o2, alloced.get(1), "Bad allocated object!");
         Object o3 = aop.alloc();
-        assertEqual(3, alloced.size(), "Should have different number of allocations!");
-        assertEqual(o3, alloced.get(2), "Bad allocated object!");
+        assertIntsEqual(3, alloced.size(), "Should have different number of allocations!");
+        assertObjectEqual(o3, alloced.get(2), "Bad allocated object!");
         aop.release(o2);
-        assertEqual(3, alloced.size(), "Should have different number of allocations!");
-        assertEqual(o2, aop.alloc(), "Bad allocated object!");
+        assertIntsEqual(3, alloced.size(), "Should have different number of allocations!");
+        assertObjectEqual(o2, aop.alloc(), "Bad allocated object!");
         aop.release(o1);
         aop.release(o3);
-        assertEqual(3, alloced.size(), "Should have different number of allocations!");
+        assertIntsEqual(3, alloced.size(), "Should have different number of allocations!");
         Object o13 = aop.alloc();
         Object o31 = aop.alloc();
-        assertEqual(3, alloced.size(), "Should have different number of allocations!");
+        assertIntsEqual(3, alloced.size(), "Should have different number of allocations!");
         if (o13 == o1) {
-            assertEqual(o31, o3, "Bad allocated object!");
+            assertObjectEqual(o31, o3, "Bad allocated object!");
         } else {
-            assertEqual(o13, o3, "Bad allocated object!");
-            assertEqual(o31, o1, "Bad allocated object!");
+            assertObjectEqual(o13, o3, "Bad allocated object!");
+            assertObjectEqual(o31, o1, "Bad allocated object!");
         }
         Object o4 = aop.alloc();
-        assertEqual(4, alloced.size(), "Should have different number of allocations!");
-        assertEqual(o4, alloced.get(3), "Bad allocated object!");
+        assertIntsEqual(4, alloced.size(), "Should have different number of allocations!");
+        assertObjectEqual(o4, alloced.get(3), "Bad allocated object!");
+    }
+
+    private static class ReportingPool extends AllocationPool<Object> {
+
+        private final CArrayList<Object> alloced;
+
+        ReportingPool(CArrayList<Object> alloced) {
+            this.alloced = alloced;
+        }
+
+        @Override
+        protected Object allocateNew() {
+            Object out = new Object();
+            alloced.add(out);
+            return out;
+        }
     }
 }

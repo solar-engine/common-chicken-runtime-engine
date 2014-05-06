@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 Colby Skeggs
+ * Copyright 2013-2014 Colby Skeggs
  * 
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  * 
@@ -44,5 +44,5 @@ public interface CluckLink {
      * @return true if more messages should be delivered, false if this should
      * be detached from the CluckNode.
      */
-    public boolean transmit(String dest, String source, byte[] data);
+    public boolean send(String dest, String source, byte[] data);
 }

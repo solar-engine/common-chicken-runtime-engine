@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 Colby Skeggs
+ * Copyright 2013-2014 Colby Skeggs
  * 
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  * 
@@ -31,13 +31,25 @@ public abstract class CluckSubscriber implements CluckLink {
     /**
      * The CluckNode that this is attached to.
      */
-    private CluckNode node;
+    public final CluckNode node;
     /**
      * The link name of this subscriber.
      */
     private String linkName;
 
-    public final boolean transmit(String dest, String source, byte[] data) {
+    /**
+     * Create a new CluckSubscriber ready to be attached to the specified node.
+     *
+     * @param node The CluckNode that this should be shared over.
+     */
+    public CluckSubscriber(CluckNode node) {
+        if (node == null) {
+            throw new NullPointerException();
+        }
+        this.node = node;
+    }
+
+    public final boolean send(String dest, String source, byte[] data) {
         if (dest == null) {
             receive(source, data);
         } else if ("*".equals(dest)) {
@@ -49,19 +61,18 @@ public abstract class CluckSubscriber implements CluckLink {
     }
 
     /**
-     * Attach this subscriber to the specified name on the specified node.
+     * Attach this subscriber to the specified name on the already-attached
+     * node.
      *
-     * @param node The node to attach to.
      * @param name The name to attach with.
      */
-    public final void attach(CluckNode node, String name) {
-        if (node == null || name == null) {
+    public final void attach(String name) {
+        if (name == null) {
             throw new NullPointerException();
         }
-        if (this.node != null) {
-            throw new IllegalStateException("Node already attached!");
+        if (linkName != null) {
+            throw new IllegalStateException("Link name already set!");
         }
-        this.node = node;
         this.linkName = name;
         node.addLink(this, name);
     }
@@ -75,7 +86,7 @@ public abstract class CluckSubscriber implements CluckLink {
      * @param data The message data.
      */
     protected void handleOther(String dest, String source, byte[] data) {
-        // Do nothing by default
+        Logger.warning("Unhandled side-channel message sent to " + linkName + " / " + dest + " from " + source + "!");
     }
 
     /**
@@ -91,17 +102,16 @@ public abstract class CluckSubscriber implements CluckLink {
     protected boolean requireRMT(String source, byte[] data, byte rmt) {
         if (data.length == 0) {
             Logger.warning("Received null message from " + source);
-            return false;
-        }
-        if (data[0] == CluckNode.RMT_PING && data.length == 1) {
+        } else if (data[0] == CluckNode.RMT_PING && data.length == 1) {
             node.transmit(source, linkName, new byte[]{CluckNode.RMT_PING, rmt});
-            return false;
-        }
-        if (data[0] != rmt) {
+        } else if (data[0] == CluckNode.RMT_NEGATIVE_ACK) { // Discard messages saying that the link is closed.
+            // Discard.
+        } else if (data[0] != rmt) {
             Logger.warning("Received wrong RMT: " + data[0] + " from " + source + " (expected " + rmt + ") addressed to " + linkName);
-            return false;
+        } else {
+            return true;
         }
-        return true;
+        return false;
     }
 
     /**

@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 Colby Skeggs
+ * Copyright 2013-2014 Colby Skeggs
  * 
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  * 
@@ -18,9 +18,10 @@
  */
 package ccre.log;
 
-import ccre.cluck.CluckGlobals;
+import ccre.channel.EventOutput;
+import ccre.cluck.Cluck;
 import ccre.cluck.CluckNode;
-import ccre.event.EventConsumer;
+import ccre.cluck.CluckPublisher;
 import ccre.workarounds.ThrowablePrinter;
 
 /**
@@ -31,46 +32,74 @@ import ccre.workarounds.ThrowablePrinter;
  */
 public class BootLogger implements LoggingTarget {
 
+    /**
+     * The number of log messages to save.
+     */
+    private static final int LOG_MESSAGE_COUNT = 20;
+
+    /**
+     * Register a new BootLogger with the logging manager.
+     */
     public static void register() {
         Logger.addTarget(new BootLogger());
     }
-    
-    public String[] outs = new String[20];
-    public int outId = 0;
 
+    /**
+     * The list of twenty lines logged near startup.
+     */
+    private final String[] outs = new String[LOG_MESSAGE_COUNT];
+    /**
+     * The next index in the output array to write.
+     */
+    private volatile int outId = 0;
+
+    /**
+     * Create a new BootLogger that publishes it over the CluckGlobal node.
+     */
     public BootLogger() {
-        this(CluckGlobals.node);
+        this(Cluck.getNode());
     }
 
+    /**
+     * Create a new BootLogger that publishes it over the specified node.
+     *
+     * @param node The CluckNode to publish over.
+     */
     public BootLogger(CluckNode node) {
-        node.publish("post-bootlogs", new EventConsumer() {
-            public void eventFired() {
-                Logger.log(LogLevel.INFO, "[BOOT-START]");
-                for (int i=0;i<outs.length; i++) {
-                    if (outs[i] != null) {
-                        Logger.log(LogLevel.INFO, "[BOOT-" + i + "] " + outs[i]);
+        final Object[] localOuts = outs;
+        CluckPublisher.publish(node, "post-bootlogs", new EventOutput() {
+            public void event() {
+                synchronized (BootLogger.this) {
+                    Logger.log(LogLevel.INFO, "[BOOT-START]");
+                    for (int i = 0; i < LOG_MESSAGE_COUNT; i++) {
+                        if (localOuts[i] != null) {
+                            Logger.log(LogLevel.INFO, "[BOOT-" + i + "] " + localOuts[i]);
+                        }
                     }
+                    Logger.log(LogLevel.INFO, "[BOOT-END]");
                 }
-                Logger.log(LogLevel.INFO, "[BOOT-END]");
             }
         });
     }
 
     public void log(LogLevel level, String message, Throwable throwable) {
-        if (outId >= outs.length) {
+        if (outId >= LOG_MESSAGE_COUNT) {
             return;
         }
         log(level, message, ThrowablePrinter.toStringThrowable(throwable));
     }
 
     public void log(LogLevel level, String message, String extended) {
-        if (outId >= outs.length) {
+        if (outId >= LOG_MESSAGE_COUNT) {
             return;
         }
         if (message.startsWith("[BOOT-")) {
             return;
         }
         synchronized (this) {
+            if (outId >= LOG_MESSAGE_COUNT) {
+                return;
+            }
             if (extended == null) {
                 outs[outId++] = level.toString() + ": " + message;
             } else {

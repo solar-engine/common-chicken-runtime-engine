@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 Colby Skeggs and Vincent Miller
+ * Copyright 2013-2014 Colby Skeggs and Vincent Miller
  * 
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  * 
@@ -18,21 +18,24 @@
  */
 package ccre.ctrl;
 
-import ccre.event.Event;
-import ccre.event.EventConsumer;
-import ccre.event.EventSource;
-import java.util.Timer;
-import java.util.TimerTask;
+import ccre.channel.EventInput;
+import ccre.channel.EventOutput;
+import ccre.channel.EventStatus;
+import ccre.concurrency.ReporterThread;
+import ccre.log.LogLevel;
+import ccre.log.Logger;
 
 /**
  * An EventSource that will fire the event in all its consumers at a specified
  * interval.
  *
- * @author MillerV
+ * @author MillerV, SkeggsC
  */
-public final class Ticker extends TimerTask implements EventSource {
+public final class Ticker implements EventInput {
 
-    private Event producer = new Event();
+    private final EventStatus producer = new EventStatus();
+    private final ReporterThread main;
+    private boolean isKilled = false;
 
     /**
      * Create a new Ticker with the specified interval. The timer will start
@@ -64,13 +67,8 @@ public final class Ticker extends TimerTask implements EventSource {
      * @param interval The desired interval, in milliseconds.
      * @param fixedRate Should the rate be corrected?
      */
-    public Ticker(int interval, boolean fixedRate) {
-        Timer t = new Timer();
-        if (fixedRate) {
-            t.scheduleAtFixedRate(this, interval, interval);
-        } else {
-            t.schedule(this, interval, interval);
-        }
+    public Ticker(final int interval, final boolean fixedRate) {
+        this.main = new MainTickerThread((fixedRate ? "FixedTicker-" : "Ticker-") + interval, fixedRate, interval);
     }
 
     /**
@@ -78,10 +76,15 @@ public final class Ticker extends TimerTask implements EventSource {
      * produced by this EventSource.
      *
      * @param ec The EventConsumer to add.
-     * @return Whether the operation was successful, which it always is.
      */
-    public boolean addListener(EventConsumer ec) {
-        return producer.addListener(ec);
+    public void send(EventOutput ec) {
+        if (isKilled) {
+            throw new IllegalStateException("The Ticker is dead!");
+        }
+        if (!main.isAlive()) {
+            main.start();
+        }
+        producer.send(ec);
     }
 
     /**
@@ -90,14 +93,69 @@ public final class Ticker extends TimerTask implements EventSource {
      *
      * @param ec The EventConsumer to remove.
      */
-    public void removeListener(EventConsumer ec) {
-        producer.removeListener(ec);
+    public void unsend(EventOutput ec) {
+        producer.unsend(ec);
     }
 
     /**
-     * This is called by the timer. Do not call this method yourself.
+     * Destroys this Ticker. It won't function after this.
      */
-    public void run() {
-        producer.produce();
+    public void terminate() {
+        isKilled = true;
+        producer.clearListeners();
+        main.interrupt();
+    }
+
+    private class MainTickerThread extends ReporterThread {
+
+        private final boolean fixedRate;
+        private final int interval;
+        private int countFails = 0;
+
+        MainTickerThread(String name, boolean fixedRate, int interval) {
+            super(name);
+            this.fixedRate = fixedRate;
+            this.interval = interval;
+        }
+
+        @Override
+        protected void threadBody() throws InterruptedException {
+            if (fixedRate) {
+                long next = System.currentTimeMillis() + interval;
+                while (!isKilled) {
+                    long rem = next - System.currentTimeMillis();
+                    if (rem > 0) {
+                        Thread.sleep(rem);
+                        continue;
+                    }
+                    cycle();
+                    next += interval;
+                }
+            } else {
+                while (!isKilled) {
+                    Thread.sleep(interval);
+                    cycle();
+                }
+            }
+        }
+
+        private void cycle() {
+            try {
+                if (countFails >= 50) {
+                    countFails--;
+                    if (producer.produceWithFailureRecovery()) {
+                        countFails = 0;
+                    }
+                } else {
+                    producer.produce();
+                    if (countFails > 0) {
+                        countFails--;
+                    }
+                }
+            } catch (Throwable thr) {
+                Logger.log(LogLevel.SEVERE, "Exception in Ticker main loop!", thr);
+                countFails += 10;
+            }
+        }
     }
 }

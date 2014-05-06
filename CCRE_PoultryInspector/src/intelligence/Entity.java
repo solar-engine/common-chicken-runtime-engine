@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 Colby Skeggs
+ * Copyright 2013-2014 Colby Skeggs
  * 
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  * 
@@ -18,13 +18,17 @@
  */
 package intelligence;
 
-import ccre.chan.*;
+import ccre.channel.BooleanInput;
+import ccre.channel.FloatOutput;
+import ccre.channel.BooleanOutput;
+import ccre.channel.FloatInput;
 import ccre.cluck.CluckNode;
 import static ccre.cluck.CluckNode.*;
-import ccre.event.EventConsumer;
-import ccre.event.EventSource;
+import ccre.channel.EventOutput;
+import ccre.channel.EventInput;
 import ccre.log.LogLevel;
 import ccre.log.Logger;
+import ccre.log.LoggingTarget;
 import java.awt.Color;
 import java.awt.FontMetrics;
 import java.awt.Graphics;
@@ -96,19 +100,21 @@ public final class Entity {
     public void render(Graphics g) {
         g.setFont(IntelligenceMain.console);
         FontMetrics fm = g.getFontMetrics();
-        int w = Math.max(70, fm.stringWidth(represented.remote) / 2), h = fm.getHeight() * 3 / 2;
-        width = w;
-        height = h;
+        int w = width = Math.max(70, fm.stringWidth(represented.path) / 2);
+        int h = height = fm.getHeight() * 3 / 2;
+        // Draw the border
         g.setColor(Color.BLACK);
         g.fillRect(centerX - w, centerY - h, w * 2, h * 2);
+        // Draw the background
         Color col = represented.getColor();
         g.setColor(col);
         g.fillRect(centerX - w + 1, centerY - h + 1, w * 2 - 2, h * 2 - 2);
+        // Draw the title and path
         g.setColor(IntelligenceMain.foreground);
-        g.drawString(represented.remote, centerX - w + 1, centerY - h - 1 + g.getFontMetrics().getAscent());
+        g.drawString(represented.path, centerX - w + 1, centerY - h - 1 + g.getFontMetrics().getAscent());
         g.drawString(CluckNode.rmtToString(represented.type), centerX - w + 1, centerY - h - 1 + g.getFontMetrics().getAscent() + g.getFontMetrics().getHeight());
-        represented.checkout();
-        Object co = represented.checkout;
+        // Draw object-specific data.
+        Object co = represented.checkout();
         if (co == null) {
             return;
         }
@@ -116,17 +122,16 @@ public final class Entity {
         int rh = fm.getHeight();
         switch (represented.type) {
             case RMT_EVENTCONSUMER:
-                EventConsumer ec = (EventConsumer) co;
                 g.setColor(blend(col.darker(), col, count / 500.0f));
                 g.fillRect(centerX - w + 1, centerY + h - rh - 1, w * 2 - 2, rh - 2);
                 break;
             case RMT_EVENTSOURCE:
-                EventSource es = (EventSource) co;
+                EventInput es = (EventInput) co;
                 if (!registered) {
                     registered = true;
-                    es.addListener(new EventConsumer() {
+                    es.send(new EventOutput() {
                         @Override
-                        public void eventFired() {
+                        public void event() {
                             countStart = System.currentTimeMillis();
                         }
                     });
@@ -134,16 +139,13 @@ public final class Entity {
                 g.setColor(blend(col.darker(), col, count / 500.0f));
                 g.fillRect(centerX - w + 1, centerY + h - rh - 1, w * 2 - 2, rh - 2);
                 break;
-            case RMT_LOGTARGET:
-
-                break;
             case RMT_BOOLPROD:
                 BooleanInput bi = (BooleanInput) co;
                 if (!registered) {
                     registered = true;
-                    bi.addTarget(new BooleanOutput() {
+                    bi.send(new BooleanOutput() {
                         @Override
-                        public void writeValue(boolean value) {
+                        public void set(boolean value) {
                             currentValue = value;
                         }
                     });
@@ -156,7 +158,6 @@ public final class Entity {
                 }
                 break;
             case RMT_BOOLOUTP:
-                BooleanOutput bo = (BooleanOutput) co;
                 g.setColor(Color.GREEN);
                 g.fillRect(centerX - w + 1, centerY + h - rh, w - 1, rh - 1);
                 g.setColor(Color.RED);
@@ -175,9 +176,9 @@ public final class Entity {
                 FloatInput fi = (FloatInput) co;
                 if (!registered) {
                     registered = true;
-                    fi.addTarget(new FloatOutput() {
+                    fi.send(new FloatOutput() {
                         @Override
-                        public void writeValue(float value) {
+                        public void set(float value) {
                             currentValue = value;
                         }
                     });
@@ -196,7 +197,6 @@ public final class Entity {
                 g.drawString(String.valueOf(c), centerX - w + 1, centerY + h - fm.getDescent());
                 break;
             case RMT_FLOATOUTP:
-                FloatOutput fo = (FloatOutput) co;
                 if (currentValue != null) {
                     c = (Float) currentValue;
                     Color tcr;
@@ -212,9 +212,6 @@ public final class Entity {
                     g.setColor(c < 0 ? Color.WHITE : Color.BLACK);
                     g.drawString(String.valueOf(c), centerX - w + 1, centerY + h - fm.getDescent());
                 }
-                break;
-            case RMT_OUTSTREAM:
-
                 break;
         }
     }
@@ -239,16 +236,16 @@ public final class Entity {
      * @return The blended color.
      */
     public static Color blend(Color a, Color b, float f) {
-        float bp;
+        float bpart;
         if (f < 0) {
-            bp = 0;
+            bpart = 0;
         } else if (f > 1) {
-            bp = 1;
+            bpart = 1;
         } else {
-            bp = f;
+            bpart = f;
         }
-        float ap = 1 - bp;
-        return new Color(Math.round(a.getRed() * ap + b.getRed() * bp), Math.round(a.getGreen() * ap + b.getGreen() * bp), Math.round(a.getBlue() * ap + b.getBlue() * bp), Math.round(a.getAlpha() * ap + b.getAlpha() * bp));
+        float apart = 1 - bpart;
+        return new Color(Math.round(a.getRed() * apart + b.getRed() * bpart), Math.round(a.getGreen() * apart + b.getGreen() * bpart), Math.round(a.getBlue() * apart + b.getBlue() * bpart), Math.round(a.getAlpha() * apart + b.getAlpha() * bpart));
     }
 
     /**
@@ -264,30 +261,49 @@ public final class Entity {
         }
         switch (represented.type) {
             case RMT_EVENTCONSUMER:
-                EventConsumer ec = (EventConsumer) co;
-                ec.eventFired();
+                EventOutput ec = (EventOutput) co;
+                ec.event();
                 countStart = System.currentTimeMillis();
                 break;
             case RMT_EVENTSOURCE:
-                EventSource es = (EventSource) co;
+                // Interacting with this wouldn't mean anything.
                 break;
             case RMT_LOGTARGET:
-
+                String msg = JOptionPane.showInputDialog("Enter message to log", "");
+                if (msg != null && !msg.isEmpty()) {
+                    ((LoggingTarget) this.represented.checkout()).log(LogLevel.INFO, msg, (String) null);
+                }
                 break;
             case RMT_BOOLPROD:
-
+                if (this.represented.paired.checkout() instanceof BooleanOutput) {
+                    BooleanOutput bo = (BooleanOutput) this.represented.paired.checkout;
+                    bo.set(x < 0);
+                }
                 break;
             case RMT_BOOLOUTP:
                 BooleanOutput bo = (BooleanOutput) co;
                 boolean nw = x < 0;
                 if (currentValue == null || (Boolean) currentValue != nw || System.currentTimeMillis() - countStart >= 200) {
-                    bo.writeValue(nw);
+                    bo.set(nw);
                     currentValue = nw;
                     countStart = System.currentTimeMillis();
                 }
                 break;
             case RMT_FLOATPROD:
-
+                if (this.represented.paired.checkout() instanceof FloatOutput) {
+                    FloatOutput fo = (FloatOutput) this.represented.paired.checkout;
+                    float f = x / (float) width;
+                    if (y < 0) {
+                        try {
+                            String jop = JOptionPane.showInputDialog("Enter a number", "");
+                            f = Float.parseFloat(jop);
+                        } catch (NumberFormatException ex) {
+                            Logger.log(LogLevel.WARNING, "Cannot write new value!", ex);
+                            break;
+                        }
+                    }
+                    fo.set(f);
+                }
                 break;
             case RMT_FLOATOUTP:
                 FloatOutput fo = (FloatOutput) co;
@@ -301,18 +317,31 @@ public final class Entity {
                         break;
                     }
                 }
-                fo.writeValue(f);
+                fo.set(f);
                 currentValue = f;
                 countStart = System.currentTimeMillis();
                 break;
             case RMT_OUTSTREAM:
                 OutputStream outs = (OutputStream) co;
                 try {
-                    outs.write((JOptionPane.showInputDialog("Modify value", "*") + "\n").getBytes());
+                    String raw = JOptionPane.showInputDialog("Modify value", "*");
+                    if (raw == null) {
+                        Logger.warning("No value sent.");
+                    } else {
+                        outs.write((raw + "\n").getBytes());
+                        outs.flush();
+                    }
                 } catch (IOException ex) {
                     Logger.log(LogLevel.WARNING, "Cannot write new value!", ex);
                 }
                 break;
+            case RMT_INVOKE:
+                Logger.info("Cannot interact with RemoteProcedures!");
+                break;
         }
+    }
+
+    public String toString() {
+        return this.represented.path;
     }
 }

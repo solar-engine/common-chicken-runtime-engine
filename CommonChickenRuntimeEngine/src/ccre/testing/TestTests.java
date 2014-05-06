@@ -26,6 +26,25 @@ package ccre.testing;
  */
 public final class TestTests extends BaseTest {
 
+    @Override
+    public String getName() {
+        return "Meta-Test";
+    }
+
+    @Override
+    protected void runTest() throws TestingException, InterruptedException {
+        boolean out = new SucceedTest().test(false);
+        assertTrue(out, "Meta-testing failed!");
+        if (out != true) {
+            throw new RuntimeException("Meta-testing failed!");
+        }
+        out = new FailTest().test(false);
+        assertFalse(out, "Meta-testing failed!");
+        if (out != false) {
+            throw new RuntimeException("Meta-testing failed!");
+        }
+    }
+
     private static final class SucceedTest extends BaseTest {
 
         @Override
@@ -50,25 +69,6 @@ public final class TestTests extends BaseTest {
         protected void runTest() throws TestingException {
             assertTrue(false, "Great! That's correct.");
             throw new RuntimeException("Nope! Testing failed!");
-        }
-    }
-
-    @Override
-    public String getName() {
-        return "Meta-Test";
-    }
-
-    @Override
-    protected void runTest() throws TestingException {
-        boolean out = new SucceedTest().test(false);
-        assertTrue(out, "Meta-testing failed!");
-        if (out != true) {
-            throw new RuntimeException("Meta-testing failed!");
-        }
-        out = new FailTest().test(false);
-        assertFalse(out, "Meta-testing failed!");
-        if (out != false) {
-            throw new RuntimeException("Meta-testing failed!");
         }
     }
 }

@@ -18,9 +18,14 @@
  */
 package ccre.obsidian;
 
-import ccre.chan.*;
-import ccre.cluck.CluckGlobals;
-import ccre.event.Event;
+import ccre.channel.FloatInput;
+import ccre.channel.BooleanInput;
+import ccre.channel.FloatOutput;
+import ccre.channel.FloatInputPoll;
+import ccre.channel.BooleanOutput;
+import ccre.channel.BooleanInputPoll;
+import ccre.cluck.Cluck;
+import ccre.channel.EventStatus;
 import ccre.log.LogLevel;
 import ccre.log.Logger;
 import ccre.log.NetworkAutologger;
@@ -48,7 +53,7 @@ public abstract class ObsidianLauncher {
     /**
      * Periodically is fired by the main loop to update the user program.
      */
-    protected final Event periodic;
+    protected final EventStatus periodic;
     /**
      * The core obsidian program.
      */
@@ -70,7 +75,6 @@ public abstract class ObsidianLauncher {
      */
     public ObsidianLauncher(ClassLoader loader, String hubPath) throws IOException, ClassNotFoundException, InstantiationException, IllegalAccessException {
         this.hubPath = hubPath;
-        CluckGlobals.ensureInitializedCore();
         NetworkAutologger.register();
         Properties p = new Properties();
         InputStream inst = loader.getResourceAsStream("obsidian-conf.properties");
@@ -83,14 +87,14 @@ public abstract class ObsidianLauncher {
         if (name == null) {
             throw new IOException("Could not find configuration-specified launchee!");
         }
-        CluckGlobals.setupServer();
+        Cluck.setupServer();
         core = (ObsidianCore) loader.loadClass(name).newInstance();
         core.properties = p;
         core.launcher = this;
-        periodic = new Event();
+        periodic = new EventStatus();
         core.periodic = periodic;
-        core.enabled = new Event();
-        core.disabled = new Event();
+        core.enabled = new EventStatus();
+        core.disabled = new EventStatus();
     }
 
     /**

@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 Colby Skeggs
+ * Copyright 2013-2014 Colby Skeggs
  * 
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  * 
@@ -26,11 +26,20 @@ package ccre.downgrade;
  * @see java.util.ConcurrentModificationException
  * @author skeggsc
  */
+@SuppressWarnings("serial")
 public class ConcurrentModificationException extends RuntimeException {
 
+    /**
+     * Creates a ConcurrentModificationException with no message.
+     */
     public ConcurrentModificationException() {
     }
 
+    /**
+     * Creates an ConcurrentModificationException with a specified message.
+     *
+     * @param message The specified message.
+     */
     public ConcurrentModificationException(String message) {
         super(message);
     }

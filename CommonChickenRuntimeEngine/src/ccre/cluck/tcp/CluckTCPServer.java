@@ -23,8 +23,10 @@ import ccre.cluck.CluckNode;
 import ccre.log.Logger;
 import ccre.net.ClientSocket;
 import ccre.net.ConnectionReceiverThread;
+import ccre.util.UniqueIds;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
+import java.io.IOException;
 
 /**
  * A server-side handler for Cluck TCP connections.
@@ -59,16 +61,20 @@ public class CluckTCPServer extends ConnectionReceiverThread {
     }
 
     @Override
-    protected void handleClient(ClientSocket conn) throws Throwable {
-        DataInputStream din = conn.openDataInputStream();
-        DataOutputStream dout = conn.openDataOutputStream();
-        String linkName = CluckProtocol.handleHeader(din, dout, null);
-        if (linkName == null) {
-            linkName = "tcpserv-" + Integer.toHexString(conn.hashCode()) + "-" + System.currentTimeMillis();
+    protected void handleClient(ClientSocket conn) {
+        try {
+            DataInputStream din = conn.openDataInputStream();
+            DataOutputStream dout = conn.openDataOutputStream();
+            String linkName = CluckProtocol.handleHeader(din, dout, null);
+            if (linkName == null) {
+                linkName = UniqueIds.global.nextHexId("tcpserv");
+            }
+            Logger.fine("Client connected at " + System.currentTimeMillis() + " named " + linkName);
+            CluckLink deny = CluckProtocol.handleSend(dout, linkName, node);
+            CluckProtocol.handleRecv(din, linkName, node, deny);
+            // node.notifyNetworkModified(); - sent by client, not needed here.
+        } catch (IOException ex) {
+            Logger.warning("Bad IO in " + Thread.currentThread() + ": " + ex);
         }
-        Logger.fine("Client connected at " + System.currentTimeMillis() + " named " + linkName);
-        CluckLink deny = CluckProtocol.handleSend(dout, linkName, node);
-        CluckProtocol.handleRecv(din, linkName, node, deny);
-        // node.notifyNetworkModified(); - sent by client, not needed here.
     }
 }

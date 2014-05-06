@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 Colby Skeggs
+ * Copyright 2013-2014 Colby Skeggs
  * 
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  * 
@@ -37,6 +37,10 @@ import java.io.IOException;
 public class CluckTCPClient extends ReporterThread {
 
     /**
+     * The default port to run on.
+     */
+    public static final int DEFAULT_PORT = 80;
+    /**
      * The CluckNode that this connection shares.
      */
     private final CluckNode node;
@@ -49,17 +53,13 @@ public class CluckTCPClient extends ReporterThread {
      */
     private ClientSocket sock;
     /**
-     * The connection port number.
-     */
-    private int port = 80;
-    /**
      * The connection remote address.
      */
     private String remote;
     /**
-     * The requested delay between each connection to the server.
+     * The delay between each connection to the server.
      */
-    public int reconnectDelayMillis = 5000;
+    private int reconnectDelayMillis = 5000;
     /**
      * The hint for what the other end of the connection should call this link.
      */
@@ -85,17 +85,6 @@ public class CluckTCPClient extends ReporterThread {
     }
 
     /**
-     * Modify the port that this connects to. This defaults to port 80.
-     *
-     * @param port The new port number.
-     * @return This object.
-     */
-    public CluckTCPClient setPort(int port) {
-        this.port = port;
-        return this;
-    }
-
-    /**
      * Set the remote address to this specified address.
      *
      * @param remote The remote address.
@@ -112,49 +101,77 @@ public class CluckTCPClient extends ReporterThread {
         }
     }
 
+    /**
+     * Set the delay between times when this client reconnects to the server.
+     *
+     * @param millis The positive integer of milliseconds to wait.
+     * @throws IllegalArgumentException If millis <= 0.
+     */
+    public void setReconnectDelay(int millis) throws IllegalArgumentException {
+        if (millis <= 0) {
+            throw new IllegalArgumentException("Reconnection delay must be >= 0.");
+        }
+        reconnectDelayMillis = millis;
+    }
+
+    private void closeActiveConnectionIfAny() {
+        if (sock != null) {
+            try {
+                sock.close();
+            } catch (IOException ex) {
+                Logger.log(LogLevel.WARNING, "IO Error while closing connection", ex);
+            }
+        }
+    }
+
     @Override
     protected void threadBody() throws IOException, InterruptedException {
         try {
             while (true) {
                 long start = System.currentTimeMillis();
                 Logger.fine("Connecting to " + remote + " at " + start);
-                if (sock != null) {
-                    try {
-                        sock.close();
-                    } catch (IOException ex) {
-                        Logger.log(LogLevel.WARNING, "IO Error while closing connection", ex);
-                    }
-                }
                 String postfix = "";
+                closeActiveConnectionIfAny();
                 try {
-                    sock = Network.connect(remote, port);
-                    DataInputStream din = sock.openDataInputStream();
-                    DataOutputStream dout = sock.openDataOutputStream();
-                    CluckProtocol.handleHeader(din, dout, remoteNameHint);
-                    Logger.fine("Connected to " + remote + " at " + System.currentTimeMillis());
-                    CluckLink deny = CluckProtocol.handleSend(dout, linkName, node);
-                    node.notifyNetworkModified(); // Only send here, not on server.
-                    CluckProtocol.handleRecv(din, linkName, node, deny);
-                } catch (IOException ex) {
-                    if ("Remote server not available.".equals(ex.getMessage()) || "Timed out while connecting.".equals(ex.getMessage())) {
-                        postfix = " (" + ex.getMessage() + ")";
-                    } else {
-                        Logger.log(LogLevel.WARNING, "IO Error while handling connection", ex);
-                    }
+                    tryConnection();
                 } catch (Throwable ex) {
                     Logger.log(LogLevel.SEVERE, "Uncaught exception in network handler!", ex);
                 }
-                long spent = System.currentTimeMillis() - start;
-                long remaining = reconnectDelayMillis - spent;
-                if (remaining > 0) {
-                    if (remaining > 500) {
-                        Logger.fine("Waiting " + remaining + " milliseconds before reconnecting." + postfix);
-                    }
-                    Thread.sleep(remaining);
-                }
+                pauseBeforeSubsequentCycle(start, postfix);
             }
         } finally {
             sock.close();
         }
+    }
+
+    private void pauseBeforeSubsequentCycle(long start, String postfix) throws InterruptedException {
+        long spent = System.currentTimeMillis() - start;
+        long remaining = reconnectDelayMillis - spent;
+        if (remaining > 0) {
+            if (remaining > 500) {
+                Logger.fine("Waiting " + remaining + " milliseconds before reconnecting." + postfix);
+            }
+            Thread.sleep(remaining);
+        }
+    }
+
+    private String tryConnection() {
+        try {
+            sock = Network.connectDynPort(remote, DEFAULT_PORT);
+            DataInputStream din = sock.openDataInputStream();
+            DataOutputStream dout = sock.openDataOutputStream();
+            CluckProtocol.handleHeader(din, dout, remoteNameHint);
+            Logger.fine("Connected to " + remote + " at " + System.currentTimeMillis());
+            CluckLink deny = CluckProtocol.handleSend(dout, linkName, node);
+            node.notifyNetworkModified(); // Only send here, not on server.
+            CluckProtocol.handleRecv(din, linkName, node, deny);
+        } catch (IOException ex) {
+            if ("Remote server not available.".equals(ex.getMessage()) || "Timed out while connecting.".equals(ex.getMessage())) {
+                return " (" + ex.getMessage() + ")";
+            } else {
+                Logger.log(LogLevel.WARNING, "IO Error while handling connection", ex);
+            }
+        }
+        return "";
     }
 }

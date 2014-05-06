@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 Colby Skeggs
+ * Copyright 2013-2014 Colby Skeggs
  * 
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  * 
@@ -18,6 +18,7 @@
  */
 package ccre.testing;
 
+import ccre.log.LogLevel;
 import ccre.log.Logger;
 
 /**
@@ -39,6 +40,8 @@ public abstract class BaseTest {
      * Run this test. This will throw a TestingException if the test fails.
      *
      * @throws TestingException if the test fails.
+     * @throws java.lang.InterruptedException If the thread is interrupted
+     * during the test.
      */
     protected abstract void runTest() throws TestingException, InterruptedException;
 
@@ -47,8 +50,9 @@ public abstract class BaseTest {
      * test.
      *
      * @return true if the test succeeded and false if it failed.
+     * @throws java.lang.InterruptedException
      */
-    public final boolean test() {
+    public final boolean test() throws InterruptedException {
         return test(true);
     }
 
@@ -58,30 +62,38 @@ public abstract class BaseTest {
      *
      * @param verbose should status messages be logged?
      * @return true if the test succeeded and false if it failed.
+     * @throws java.lang.InterruptedException
      */
-    public final synchronized boolean test(boolean verbose) { // Synchronized so that only one instance of the test will be running.
+    public final synchronized boolean test(boolean verbose) throws InterruptedException { // Synchronized so that only one instance of the test will be running.
         if (verbose) {
             Logger.fine("Attempting test: " + getName());
         }
+        InterruptedException intr = null;
+        boolean failed = false;
         try {
-            runTest();
-        } catch (TestingException ex) {
-            if (verbose) {
-                Logger.warning("Failed test: " + getName());
-                ex.printStackTrace();
+            try {
+                runTest();
+            } catch (InterruptedException ex) {
+                intr = ex; // Can't throw here because of outer Throwable catch.
+            } catch (TestingException ex) {
+                if (verbose) {
+                    Logger.log(LogLevel.WARNING, "Failed test: " + getName(), ex);
+                }
+                failed = true;
             }
-            return false;
         } catch (Throwable t) {
             if (verbose) {
-                Logger.warning("Exception during test: " + getName());
-                t.printStackTrace();
+                Logger.log(LogLevel.WARNING, "Exception during test: " + getName(), t);
             }
-            return false;
+            failed = true;
         }
-        if (verbose) {
+        if (intr != null) {
+            throw intr;
+        }
+        if (!failed && verbose) {
             Logger.info("Test succeeded: " + getName());
         }
-        return true;
+        return !failed;
     }
 
     /**
@@ -131,21 +143,20 @@ public abstract class BaseTest {
      * @param message the explanation of what went wrong.
      * @throws TestingException if the integers are unequal.
      */
-    protected void assertEqual(int a, int b, String message) throws TestingException {
+    protected void assertIntsEqual(int a, int b, String message) throws TestingException {
         assertTrue(a == b, message + "( " + a + " != " + b + " )");
     }
 
     /**
-     * The object arguments should be identity-equal, as in
-     * <code>a == b</code>! If not, the test has failed! Report this and stop
-     * the test.
+     * The object arguments should be identity-equal, as in <code>a == b</code>!
+     * If not, the test has failed! Report this and stop the test.
      *
      * @param a the first object.
      * @param b the second object.
      * @param message the explanation of what went wrong.
      * @throws TestingException if the objects are unequal.
      */
-    protected void assertIEqual(Object a, Object b, String message) throws TestingException {
+    protected void assertIdentityEqual(Object a, Object b, String message) throws TestingException {
         assertTrue(a == b, message + "( " + a + " != " + b + " )");
     }
 
@@ -159,7 +170,7 @@ public abstract class BaseTest {
      * @param message the explanation of what went wrong.
      * @throws TestingException if the objects are unequal.
      */
-    protected void assertEqual(Object a, Object b, String message) throws TestingException {
+    protected void assertObjectEqual(Object a, Object b, String message) throws TestingException {
         assertTrue(a == null ? b == null : a.equals(b), message + "( " + a + " != " + b + " )");
     }
 }

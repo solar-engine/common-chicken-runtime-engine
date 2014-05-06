@@ -25,16 +25,16 @@ package ccre.util;
  * @author skeggsc
  * @param <T> the element type.
  */
-public class CArrayList<T> extends CAbstractList<T> {
+public final class CArrayList<T> extends CAbstractList<T> {
 
     /**
      * The list of contained values.
      */
-    protected T[] values;
+    private T[] values;
     /**
      * The number of contained elements.
      */
-    protected int size;
+    private int size;
 
     /**
      * Create a new CArrayList with a default length of 10.

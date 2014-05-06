@@ -18,14 +18,15 @@
  */
 package ccre.obsidian.comms.test;
 
-import ccre.chan.FloatInput;
-import ccre.chan.FloatOutput;
-import ccre.chan.FloatStatus;
+import ccre.channel.FloatInput;
+import ccre.channel.FloatOutput;
+import ccre.channel.FloatStatus;
 import ccre.cluck.CluckNode;
 import ccre.concurrency.ReporterThread;
 import ccre.ctrl.Ticker;
-import ccre.event.EventConsumer;
-import ccre.event.EventLogger;
+import ccre.channel.EventOutput;
+import ccre.channel.EventLogger;
+import ccre.cluck.CluckPublisher;
 import ccre.log.LogLevel;
 import ccre.log.Logger;
 import ccre.obsidian.comms.ReliableCompressionCluckLink;
@@ -88,10 +89,10 @@ public class ReliabilityTest {
     };
 
     public static void main(String[] args) throws InterruptedException {
-        Logger.minimumLevel = LogLevel.INFO;
+        //Logger.minimumLevel = LogLevel.INFO;
         Logger.info("Starting RT systems");
         final ReliabilityTest rt = new ReliabilityTest();
-        rt.alphaNode.debugLogAll = rt.betaNode.debugLogAll = true;
+        //rt.alphaNode.debugLogAll = rt.betaNode.debugLogAll = true;
         rt.startSubsystems();
         Logger.info("Delaying...");
         Thread.sleep(2000);
@@ -101,27 +102,27 @@ public class ReliabilityTest {
             protected void threadBody() throws Throwable {
                 //rt.alphaNode.publish("log-test", new EventLogger(LogLevel.INFO, "Log-Test on ALPHA!"));
                 final FloatStatus ctr = new FloatStatus();
-                new Ticker(100).addListener(new EventConsumer() {
+                new Ticker(100).send(new EventOutput() {
                     Random r = new Random();
 
                     @Override
-                    public void eventFired() {
-                        ctr.writeValue((float) r.nextGaussian());
+                    public void event() {
+                        ctr.set((float) r.nextGaussian());
                     }
                 });
-                ctr.addTarget(new FloatOutput() {
+                ctr.send(new FloatOutput() {
                     @Override
-                    public void writeValue(float value) {
+                    public void set(float value) {
                         Logger.info("Sent new value: " + value);
                     }
                 });
-                rt.alphaNode.publish("intest", (FloatInput) ctr);
-                rt.alphaNode.publish("checker", new EventConsumer() {
+                CluckPublisher.publish(rt.alphaNode, "intest", (FloatInput) ctr);
+                CluckPublisher.publish(rt.alphaNode, "checker", new EventOutput() {
                     long start = System.currentTimeMillis();
                     long last = start;
 
                     @Override
-                    public void eventFired() {
+                    public void event() {
                         long now = System.currentTimeMillis();
                         Logger.info("Received at " + (now - start) / 1000.0f + " = +" + (now - last));
                         if (now - last < 5) {
@@ -136,13 +137,13 @@ public class ReliabilityTest {
             @Override
             protected void threadBody() throws Throwable {
                 //new Ticker(100).addListener(rt.betaNode.subscribeEC("alpha/checker"));
-                rt.betaNode.subscribeFIP("alpha/unF/intest", false).addTarget(new FloatOutput() {
+                CluckPublisher.subscribeFI(rt.betaNode, "alpha/unF/intest", false).send(new FloatOutput() {
                     @Override
-                    public void writeValue(float value) {
+                    public void set(float value) {
                         Logger.info("Got new value: " + value);
                     }
                 });
-                //rt.betaNode.subscribeEC("alpha/beta/log-test").eventFired();
+                //rt.betaNode.subscribeEC("alpha/beta/log-test").event();
             }
         }.start();
     }

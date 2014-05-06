@@ -26,12 +26,12 @@ package ccre.util;
  * @author skeggsc
  * @param <T> the type that gets allocated.
  */
-public abstract class AllocationPool<T> { // TODO: Test and improve this implementation.
+public abstract class AllocationPool<T> {
 
     /**
      * The list of available instances.
      */
-    protected CArrayList<T> available = new CArrayList<T>(50);
+    private final CArrayList<T> available = new CArrayList<T>(10);
 
     /**
      * Create a new instance, because there are no instances remaining.

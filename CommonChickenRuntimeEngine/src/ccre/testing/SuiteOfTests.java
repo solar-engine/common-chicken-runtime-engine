@@ -28,22 +28,20 @@ import ccre.log.Logger;
  *
  * @author skeggsc
  */
-public class SuiteOfTests { // TODO: This package needs more tests!
+public class SuiteOfTests {
 
-    private SuiteOfTests() {
-    }
-
+    // TODO: This package needs more tests!
     /**
      * Run all the tests.
      *
      * @param args the application arguments. these are ignored.
+     * @throws java.lang.InterruptedException If the main thread is interrupted.
      */
-    public static void main(String[] args) {
+    public static void main(String[] args) throws InterruptedException {
         BaseTest[] tests = new BaseTest[]{
             // ccre.chan
             new TestBooleanStatus(),
             new TestFloatStatus(),
-            
             // ccre.cluck - Tests needed!
 
             // ccre.concurrency
@@ -60,8 +58,7 @@ public class SuiteOfTests { // TODO: This package needs more tests!
             new TestMixing(),
             // ModeDispatcher - Needed!
             // MultipleSourceBooleanController - Needed!
-            // Ticker - Needed!
-
+            new TestTicker(),
             // ccre.event
             new TestEvent(),
             // EventLogger - Needed!
@@ -83,20 +80,17 @@ public class SuiteOfTests { // TODO: This package needs more tests!
 
             // ccre.saver - Needed!
 
-            // ccre.testing
+            // ccre.testing - DONE
             new TestTests(),
-            
-            // ccre.utils
+            // ccre.utils - DONE
             new TestAllocationPool(),
-            // AllocationPool - Needed!
             // CAbstractList - Included in CArrayList and CLinkedList tests
             new TestCArrayList(),
             new TestCHashMap(),
             new TestCLinkedList(),
             // Heap - Not needed because it's a commented-out unfinished class.
             new TestUtils(), // Tests both Utils and CArrayUtils
-            
-            // ccre.workarounds - Needed!
+        // ccre.workarounds - Needed!
         };
         int count = 0;
         for (BaseTest bt : tests) {
@@ -110,5 +104,8 @@ public class SuiteOfTests { // TODO: This package needs more tests!
         } else {
             Logger.info(count + "/" + tests.length + " tests succeeded.");
         }
+    }
+
+    private SuiteOfTests() {
     }
 }

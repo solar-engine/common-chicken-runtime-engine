@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 Colby Skeggs
+ * Copyright 2013-2014 Colby Skeggs
  * 
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  * 
@@ -29,7 +29,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.ConnectException;
-import java.net.Inet4Address;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.Socket;
@@ -44,7 +43,7 @@ import java.util.Enumeration;
  * @see Network
  * @author skeggsc
  */
-class DefaultNetworkProvider implements Network.Provider {
+class DefaultNetworkProvider implements NetworkProvider {
 
     public ClientSocket openClient(String targetAddress, int port) throws IOException {
         try {
@@ -61,6 +60,38 @@ class DefaultNetworkProvider implements Network.Provider {
 
     public String getPlatformType() {
         return "NetFull";
+    }
+
+    public ServerSocket openServer(int port) throws IOException {
+        return new ServerSocketImpl(new java.net.ServerSocket(port));
+    }
+
+    public CCollection<String> listIPv4Addresses() {
+        Enumeration<NetworkInterface> enm;
+        try {
+            enm = NetworkInterface.getNetworkInterfaces();
+        } catch (SocketException ex) {
+            Logger.log(LogLevel.SEVERE, "Could not enumerate IP addresses!", ex);
+            return CArrayUtils.getEmptyList();
+        }
+        if (enm == null) {
+            return CArrayUtils.getEmptyList();
+        }
+        CArrayList<String> allAddresses = new CArrayList<String>();
+        while (enm.hasMoreElements()) {
+            NetworkInterface ni = enm.nextElement();
+            Enumeration<InetAddress> ins = ni.getInetAddresses();
+            while (ins.hasMoreElements()) {
+                InetAddress addr = ins.nextElement();
+                byte[] raw = addr.getAddress();
+                if (raw.length == 4) {
+                    allAddresses.add(addr.getHostAddress());
+                } else if (raw.length != 16) {
+                    Logger.warning("Found an address that's not 4 or 16 long: " + Arrays.toString(raw));
+                }
+            }
+        }
+        return allAddresses;
     }
 
     /**
@@ -95,10 +126,6 @@ class DefaultNetworkProvider implements Network.Provider {
         }
     }
 
-    public ServerSocket openServer(int port) throws IOException {
-        return new ServerSocketImpl(new java.net.ServerSocket(port));
-    }
-
     /**
      * Implementation detail.
      */
@@ -117,33 +144,5 @@ class DefaultNetworkProvider implements Network.Provider {
         public void close() throws IOException {
             sock.close();
         }
-    }
-
-    public CCollection<String> listIPv4Addresses() {
-        Enumeration<NetworkInterface> enm;
-        try {
-            enm = NetworkInterface.getNetworkInterfaces();
-        } catch (SocketException ex) {
-            Logger.log(LogLevel.SEVERE, "Could not enumerate IP addresses!", ex);
-            return CArrayUtils.getEmptyList();
-        }
-        if (enm == null) {
-            return CArrayUtils.getEmptyList();
-        }
-        CArrayList<String> allAddresses = new CArrayList<String>();
-        while (enm.hasMoreElements()) {
-            NetworkInterface ni = enm.nextElement();
-            Enumeration<InetAddress> ins = ni.getInetAddresses();
-            while (ins.hasMoreElements()) {
-                InetAddress addr = ins.nextElement();
-                byte[] raw = addr.getAddress();
-                if (raw.length == 4) {
-                    allAddresses.add(((Inet4Address) addr).getHostAddress());
-                } else if (raw.length != 16) {
-                    Logger.warning("Found an address that's not 4 or 16 long: " + Arrays.toString(raw));
-                }
-            }
-        }
-        return allAddresses;
     }
 }

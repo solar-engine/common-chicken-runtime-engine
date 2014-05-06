@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 Colby Skeggs
+ * Copyright 2013-2014 Colby Skeggs
  * 
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  * 
@@ -18,10 +18,10 @@
  */
 package ccre.concurrency;
 
-import ccre.chan.BooleanInput;
-import ccre.chan.BooleanStatus;
-import ccre.event.EventConsumer;
-import ccre.event.EventSource;
+import ccre.channel.BooleanInput;
+import ccre.channel.BooleanStatus;
+import ccre.channel.EventInput;
+import ccre.channel.EventOutput;
 import ccre.log.LogLevel;
 import ccre.log.Logger;
 
@@ -37,19 +37,27 @@ import ccre.log.Logger;
  *
  * @author skeggsc
  */
-public abstract class CollapsingWorkerThread extends ReporterThread implements EventConsumer {
+public abstract class CollapsingWorkerThread extends ReporterThread implements EventOutput {
 
     /**
      * Does this thread need to run its work?
      */
-    protected volatile boolean needsRun = false;
+    private volatile boolean needsToRun = false;
     /**
      * Should this thread ignore any triggers while it is working? This is set
      * by the constructor.
      *
      * @see #CollapsingWorkerThread(java.lang.String, boolean)
      */
-    protected boolean shouldIgnoreWhileRunning;
+    private final boolean shouldIgnoreWhileRunning;
+    /**
+     * The internal object to use for notification and synchronization.
+     */
+    private final Object lockObject = new Object();
+    /**
+     * A BooleanStatus that represents if work is currently running.
+     */
+    private BooleanStatus runningStatus;
 
     /**
      * Create a new CollapsingWorkerThread with the given name. Will ignore any
@@ -83,7 +91,7 @@ public abstract class CollapsingWorkerThread extends ReporterThread implements E
      *
      * @see #trigger()
      */
-    public void eventFired() {
+    public void event() {
         trigger();
     }
 
@@ -93,27 +101,25 @@ public abstract class CollapsingWorkerThread extends ReporterThread implements E
      * listener to the given EventSource.
      *
      * @param event when to trigger the work.
-     * @see #eventFired()
+     * @see #event()
      */
-    public void triggerWhen(EventSource event) {
-        event.addListener(this);
+    public void triggerWhen(EventInput event) {
+        event.send(this);
     }
 
     /**
      * Trigger the work. When possible, the thread will run its doWork method.
      */
-    public synchronized void trigger() {
-        needsRun = true;
-        if (!isAlive()) {
-            start();
-        } else {
-            notifyAll();
+    public void trigger() {
+        synchronized (lockObject) {
+            needsToRun = true;
+            if (!isAlive()) {
+                start();
+            } else {
+                lockObject.notifyAll();
+            }
         }
     }
-    /**
-     * A BooleanStatus that represents if work is currently running.
-     */
-    protected BooleanStatus runningStatus;
 
     /**
      * Get a BooleanInput that represents whether or not this thread's work is
@@ -131,19 +137,19 @@ public abstract class CollapsingWorkerThread extends ReporterThread implements E
     @Override
     protected final void threadBody() throws InterruptedException {
         while (true) {
-            synchronized (this) {
-                while (!needsRun) {
-                    wait();
+            synchronized (lockObject) {
+                while (!needsToRun) {
+                    lockObject.wait();
                 }
-                needsRun = false;
+                needsToRun = false;
             }
             try {
                 if (runningStatus != null) {
-                    runningStatus.writeValue(true);
+                    runningStatus.set(true);
                     try {
                         doWork();
                     } finally {
-                        runningStatus.writeValue(false);
+                        runningStatus.set(false);
                     }
                 } else {
                     doWork();
@@ -152,7 +158,7 @@ public abstract class CollapsingWorkerThread extends ReporterThread implements E
                 Logger.log(LogLevel.SEVERE, "Uncaught exception in worker thread: " + this.getName(), t);
             }
             if (shouldIgnoreWhileRunning) {
-                needsRun = false;
+                needsToRun = false;
             }
         }
     }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 Colby Skeggs
+ * Copyright 2013-2014 Colby Skeggs, Gregor Peach (Folder compatability)
  * 
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  * 
@@ -18,6 +18,7 @@
  */
 package intelligence;
 
+import ccre.cluck.Cluck;
 import ccre.cluck.CluckNode;
 import static ccre.cluck.CluckNode.*;
 import ccre.log.LogLevel;
@@ -32,44 +33,46 @@ import java.awt.Color;
 public class Remote implements Comparable<Remote> {
 
     /**
-     * The RMT type of the Remote.
+     * The RMT of the Remote.
      */
     protected final int type;
     /**
+     * Is this remote in a folder?
+     */
+    protected boolean inFolder = false;
+    /**
      * The remote path.
      */
-    protected final String remote;
-    /**
-     * The CluckNode that this is from.
-     */
-    protected final CluckNode node;
+    protected final String path;
     /**
      * The subscribed version of the object.
      */
     protected Object checkout;
+    /**
+     * The paired remote, if this is one half of a FloatStatus or BooleanStatus.
+     */
+    protected Remote paired;
 
     /**
      * Create a new remote with a specified remote address, Cluck node, and
      * remote type.
      *
-     * @param remote The remote.
+     * @param remote The path.
      * @param remoteType The RMT type.
-     * @param node The CluckNode.
      */
-    protected Remote(String remote, int remoteType, CluckNode node) {
-        this.remote = remote;
+    protected Remote(String remote, int remoteType) {
+        this.path = remote;
         this.type = remoteType;
-        this.node = node;
     }
 
     @Override
     public int compareTo(Remote o) {
-        return remote.compareTo(o.remote);
+        return path.compareTo(o.path);
     }
 
     @Override
     public String toString() {
-        return remote + " : " + CluckNode.rmtToString(type);
+        return (inFolder ? "  " : "") + path + " : " + CluckNode.rmtToString(type);
     }
 
     /**
@@ -91,43 +94,53 @@ public class Remote implements Comparable<Remote> {
             case RMT_FLOATOUTP:
                 return Color.ORANGE;
             case RMT_OUTSTREAM:
+            case RMT_INVOKE:
                 return Color.CYAN;
             default:
-                return Color.BLACK;
+                return Color.WHITE;
         }
     }
 
     /**
-     * Subscribe this remote and stick it in the checkout.
+     * Subscribe this remote and stick it in the checkout field.
+     *
+     * @return The current checked-out object.
      */
-    protected void checkout() {
+    protected Object checkout() {
+        if (checkout != null) {
+            return checkout;
+        }
         switch (type) {
             case RMT_EVENTCONSUMER:
-                checkout = node.subscribeEC(remote);
+                checkout = Cluck.subscribeEC(path);
                 break;
             case RMT_EVENTSOURCE:
-                checkout = node.subscribeES(remote);
+                checkout = Cluck.subscribeES(path);
                 break;
             case RMT_LOGTARGET:
-                checkout = node.subscribeLT(remote, LogLevel.FINEST);
+                checkout = Cluck.subscribeLT(path, LogLevel.FINEST);
                 break;
             case RMT_BOOLPROD:
-                checkout = node.subscribeBIP(remote, false);
+                checkout = Cluck.subscribeBI(path, false);
                 break;
             case RMT_BOOLOUTP:
-                checkout = node.subscribeBO(remote);
+                checkout = Cluck.subscribeBO(path);
                 break;
             case RMT_FLOATPROD:
-                checkout = node.subscribeFIP(remote, false);
+                checkout = Cluck.subscribeFI(path, false);
                 break;
             case RMT_FLOATOUTP:
-                checkout = node.subscribeFO(remote);
+                checkout = Cluck.subscribeFO(path);
                 break;
             case RMT_OUTSTREAM:
-                checkout = node.subscribeOS(remote);
+                checkout = Cluck.subscribeOS(path);
+                break;
+            case RMT_INVOKE:
+                checkout = Cluck.getNode().getRPCManager().subscribe(path, 1000);
                 break;
             default:
                 Logger.severe("No checkout for type: " + CluckNode.rmtToString(type));
         }
+        return checkout;
     }
 }

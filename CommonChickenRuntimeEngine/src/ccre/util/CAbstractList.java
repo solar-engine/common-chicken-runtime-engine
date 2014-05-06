@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 Colby Skeggs
+ * Copyright 2013-2014 Colby Skeggs
  * 
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  * 
@@ -24,7 +24,7 @@ import java.util.NoSuchElementException;
 
 /**
  * An abstract list. This is the superclass of the list implementations in this
- * class.
+ * package.
  *
  * @author skeggsc
  * @param <T> the element type.
@@ -35,18 +35,30 @@ public abstract class CAbstractList<T> implements CList<T> {
      * The number of times that the list has been modified. This is used to
      * ensure that changes are not made during iteration.
      */
-    protected int modCount = 0;
+    private int modCount = 0;
+    private final Object modCountLock = new Object();
 
     /**
      * Increment the modification count.
+     *
+     * @see #modCount
      */
     protected void notifyModified() {
-        modCount++;
+        synchronized (modCountLock) {
+            modCount++;
+        }
     }
 
-    public abstract int size();
-
-    public abstract T get(int index);
+    /**
+     * Get the current modification count - the number of times that the list
+     * has been modified.
+     *
+     * @return the modcount.
+     * @see #modCount
+     */
+    public int getModCount() {
+        return modCount;
+    }
 
     public boolean isEmpty() {
         return size() == 0;
@@ -58,12 +70,12 @@ public abstract class CAbstractList<T> implements CList<T> {
 
     public Iterator<T> iterator() {
         return new Iterator<T>() {
-            int i = 0;
-            int locmod = modCount;
+            private int i = 0;
+            private int locmod = getModCount();
 
             public boolean hasNext() {
-                if (locmod != modCount) {
-                    throw new ConcurrentModificationException("Modcount is " + modCount + " instead of " + locmod);
+                if (locmod != getModCount()) {
+                    throw new ConcurrentModificationException("Modcount is " + getModCount() + " instead of " + locmod);
                 }
                 return i < size();
             }
@@ -75,6 +87,7 @@ public abstract class CAbstractList<T> implements CList<T> {
                 return get(i++);
             }
 
+            @Override
             public void remove() {
                 CAbstractList.this.remove(--i);
                 locmod++;
@@ -113,7 +126,8 @@ public abstract class CAbstractList<T> implements CList<T> {
         return mod;
     }
 
-    public boolean addAll(int index, CCollection<? extends T> c) {
+    public boolean addAll(int startAt, CCollection<? extends T> c) {
+        int index = startAt;
         for (T o : c) {
             add(index++, o);
         }

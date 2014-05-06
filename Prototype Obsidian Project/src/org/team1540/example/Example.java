@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 Colby Skeggs and Vincent Miller
+ * Copyright 2013-2014 Colby Skeggs and Vincent Miller
  * 
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  * 
@@ -18,10 +18,8 @@
  */
 package org.team1540.example;
 
-import ccre.chan.FloatInput;
-import ccre.chan.FloatOutput;
-import ccre.ctrl.Mixing;
-import ccre.event.EventConsumer;
+import ccre.channel.*;
+import ccre.ctrl.FloatMixing;
 import ccre.obsidian.ObsidianCore;
 import ccre.obsidian.PWMPin;
 
@@ -29,18 +27,18 @@ public class Example extends ObsidianCore {
 
     @Override
     protected void createRobotControl() {
-        final FloatInput xAxis = launcher.getJoystickAxis(1);
-        final FloatInput yAxis = Mixing.negate.wrap(launcher.getJoystickAxis(2));
+        final FloatInput xAxis = launcher.getJoystickAxis((byte) 1);
+        final FloatInput yAxis = FloatMixing.negate(launcher.getJoystickAxis((byte) 2));
         
         final FloatOutput leftMotor = makePWMOutput(PWMPin.P8_13, 0, 0.333f, 0.666f, 333f, true);
         final FloatOutput rightMotor = makePWMOutput(PWMPin.P9_14, 0, 0.333f, 0.666f, 333f, true);
         
-        periodic.addListener(new EventConsumer() {
+        periodic.send(new EventOutput() {
             @Override
-            public void eventFired() {
+            public void event() {
                 //Logger.finest("Vals: " + xAxis.readValue() + ", " + yAxis.readValue());
-                leftMotor.writeValue(yAxis.readValue() + xAxis.readValue());
-                rightMotor.writeValue(yAxis.readValue() - xAxis.readValue());
+                leftMotor.set(yAxis.get() + xAxis.get());
+                rightMotor.set(yAxis.get() - xAxis.get());
                 //rightMotor.writeValue(1.0f);                //leftMotor.writeValue(1.0f);
             }
         });

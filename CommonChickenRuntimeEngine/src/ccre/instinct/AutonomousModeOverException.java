@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 Colby Skeggs
+ * Copyright 2013-2014 Colby Skeggs
  * 
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  * 
@@ -24,12 +24,21 @@ package ccre.instinct;
  *
  * @author skeggsc
  */
+@SuppressWarnings("serial")
 public class AutonomousModeOverException extends Exception {
 
+    /**
+     * Creates a AutonomousModeOverException with no message.
+     */
     public AutonomousModeOverException() {
         super();
     }
 
+    /**
+     * Creates an AutonomousModeOverException with a specified message.
+     *
+     * @param message The specified message.
+     */
     public AutonomousModeOverException(String message) {
         super(message);
     }

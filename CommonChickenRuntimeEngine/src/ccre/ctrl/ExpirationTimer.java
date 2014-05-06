@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 Colby Skeggs
+ * Copyright 2013-2014 Colby Skeggs
  * 
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  * 
@@ -18,11 +18,12 @@
  */
 package ccre.ctrl;
 
-import ccre.chan.BooleanOutput;
+import ccre.channel.BooleanOutput;
+import ccre.channel.EventInput;
+import ccre.channel.EventOutput;
+import ccre.channel.EventStatus;
 import ccre.concurrency.ReporterThread;
-import ccre.event.Event;
-import ccre.event.EventConsumer;
-import ccre.event.EventSource;
+import ccre.log.LogLevel;
 import ccre.log.Logger;
 import ccre.util.CArrayList;
 
@@ -36,46 +37,42 @@ import ccre.util.CArrayList;
  *
  * @author skeggsc
  */
-public class ExpirationTimer { // TODO: Needs to be tested!
+public final class ExpirationTimer {
 
-    /**
-     * A task that is scheduled for a specific delay after the timer starts.
-     */
-    protected class Task {
-
-        /**
-         * The delay before the event is fired.
-         */
-        public final long delay;
-        /**
-         * The event to fire.
-         */
-        public final EventConsumer cnsm;
-
-        Task(long delay, EventConsumer cnsm) {
-            this.delay = delay;
-            this.cnsm = cnsm;
-        }
-    }
     /**
      * The list of tasks, sorted in order with the first task (shortest delay)
      * first.
      */
-    protected final CArrayList<Task> tasks = new CArrayList<Task>();
+    private final CArrayList<Task> tasks = new CArrayList<Task>();
     /**
      * Is this timer running?
      */
-    protected boolean isStarted = false;
+    private boolean isStarted = false;
     /**
      * When did this timer get started? Delays get computer from this point.
      */
-    protected long startedAt;
-    protected final ReporterThread rthr = new ReporterThread("ExpirationTimer") {
+    private long startedAt;
+    /**
+     * The main thread of the Expiration Timer.
+     */
+    private final ReporterThread main = new ReporterThread("ExpirationTimer") {
         @Override
         protected void threadBody() throws Throwable {
             body();
         }
     };
+    /**
+     * The cached value for getStartEvent()
+     */
+    private EventOutput startEvt;
+    /**
+     * The cached value for getFeedEvent()
+     */
+    private EventOutput feedEvt;
+    /**
+     * The cached value for getStopEvent()
+     */
+    private EventOutput stopEvt;
 
     /**
      * Schedule a BooleanOutput to be set to a specified value at a specific
@@ -87,7 +84,7 @@ public class ExpirationTimer { // TODO: Needs to be tested!
      * @throws IllegalStateException if the timer is already running.
      */
     public void scheduleSet(long delay, BooleanOutput out, boolean value) throws IllegalStateException {
-        schedule(delay, Mixing.getSetEvent(out, value));
+        schedule(delay, BooleanMixing.getSetEvent(out, value));
     }
 
     /**
@@ -142,9 +139,10 @@ public class ExpirationTimer { // TODO: Needs to be tested!
      */
     public void scheduleToggleSequence(BooleanOutput control, boolean beginWith, long beginAt, long... additionalToggles) throws IllegalStateException {
         scheduleSet(beginAt, control, beginWith);
+        boolean stateToSet = beginWith;
         for (long cur : additionalToggles) {
-            beginWith = !beginWith;
-            scheduleSet(cur, control, beginWith);
+            stateToSet = !stateToSet;
+            scheduleSet(cur, control, stateToSet);
         }
     }
 
@@ -155,7 +153,7 @@ public class ExpirationTimer { // TODO: Needs to be tested!
      * @param cnsm the event to fire.
      * @throws IllegalStateException if the timer is already running.
      */
-    public synchronized void schedule(long delay, EventConsumer cnsm) throws IllegalStateException {
+    public synchronized void schedule(long delay, EventOutput cnsm) throws IllegalStateException {
         if (isStarted) {
             throw new IllegalStateException("Timer is running!");
         }
@@ -175,8 +173,8 @@ public class ExpirationTimer { // TODO: Needs to be tested!
      * @return the event that will be fired.
      * @throws IllegalStateException if the timer is already running.
      */
-    public EventSource schedule(long delay) throws IllegalStateException {
-        Event evt = new Event();
+    public EventInput schedule(long delay) throws IllegalStateException {
+        EventStatus evt = new EventStatus();
         schedule(delay, evt);
         return evt;
     }
@@ -191,12 +189,12 @@ public class ExpirationTimer { // TODO: Needs to be tested!
             throw new IllegalStateException("Timer is running!");
         }
         isStarted = true;
-        if (!rthr.isAlive()) {
-            rthr.start();
+        if (!main.isAlive()) {
+            main.start();
         }
         feed();
     }
-    
+
     /**
      * Start or restart the timer running.
      */
@@ -208,21 +206,30 @@ public class ExpirationTimer { // TODO: Needs to be tested!
         }
     }
 
+    private synchronized void runTasks() throws InterruptedException {
+        long startAt = startedAt;
+        for (Task t : tasks) {
+            long rel = startAt + t.delay - System.currentTimeMillis();
+            while (rel > 0) {
+                wait(rel);
+                rel = startAt + t.delay - System.currentTimeMillis();
+            }
+            try {
+                t.cnsm.event();
+            } catch (Throwable thr) {
+                Logger.log(LogLevel.SEVERE, "Exception in ExpirationTimer dispatch!", thr);
+                // TODO: Detachment error handling.
+            }
+        }
+    }
+
     private synchronized void body() {
         while (true) {
             try {
                 while (!isStarted) {
                     wait();
                 }
-                long startAt = startedAt;
-                for (Task t : tasks) {
-                    long rel = startAt + t.delay - System.currentTimeMillis();
-                    while (rel > 0) {
-                        wait(rel);
-                        rel = startAt + t.delay - System.currentTimeMillis();
-                    }
-                    t.cnsm.eventFired();
-                }
+                runTasks();
                 while (isStarted) { // Once finished, wait to stop before restarting.
                     wait();
                 }
@@ -242,7 +249,7 @@ public class ExpirationTimer { // TODO: Needs to be tested!
             throw new IllegalStateException("Timer is not running!");
         }
         startedAt = System.currentTimeMillis();
-        rthr.interrupt();
+        main.interrupt();
     }
 
     /**
@@ -256,20 +263,8 @@ public class ExpirationTimer { // TODO: Needs to be tested!
             throw new IllegalStateException("Timer is not running!");
         }
         isStarted = false;
-        rthr.interrupt();
+        main.interrupt();
     }
-    /**
-     * The cached value for getStartEvent()
-     */
-    protected EventConsumer startEvt;
-    /**
-     * The cached value for getFeedEvent()
-     */
-    protected EventConsumer feedEvt;
-    /**
-     * The cached value for getStopEvent()
-     */
-    protected EventConsumer stopEvt;
 
     /**
      * Get an event that, when fired, will start the timer. This will not throw
@@ -278,10 +273,10 @@ public class ExpirationTimer { // TODO: Needs to be tested!
      *
      * @return the event to start the timer.
      */
-    public EventConsumer getStartEvent() {
+    public EventOutput getStartEvent() {
         if (startEvt == null) {
-            startEvt = new EventConsumer() {
-                public void eventFired() {
+            startEvt = new EventOutput() {
+                public void event() {
                     if (isStarted) {
                         Logger.warning("ExpirationTimer already started!");
                     } else {
@@ -300,10 +295,10 @@ public class ExpirationTimer { // TODO: Needs to be tested!
      *
      * @return the event to feed the timer.
      */
-    public EventConsumer getFeedEvent() {
+    public EventOutput getFeedEvent() {
         if (feedEvt == null) {
-            feedEvt = new EventConsumer() {
-                public void eventFired() {
+            feedEvt = new EventOutput() {
+                public void event() {
                     if (!isStarted) {
                         Logger.warning("ExpirationTimer not started!");
                     } else {
@@ -322,10 +317,10 @@ public class ExpirationTimer { // TODO: Needs to be tested!
      *
      * @return the event to stop the timer.
      */
-    public EventConsumer getStopEvent() {
+    public EventOutput getStopEvent() {
         if (stopEvt == null) {
-            stopEvt = new EventConsumer() {
-                public void eventFired() {
+            stopEvt = new EventOutput() {
+                public void event() {
                     if (!isStarted) {
                         Logger.warning("ExpirationTimer not started!");
                     } else {
@@ -344,8 +339,8 @@ public class ExpirationTimer { // TODO: Needs to be tested!
      * @param src
      * @see #getStartEvent()
      */
-    public void startWhen(EventSource src) {
-        src.addListener(getStartEvent());
+    public void startWhen(EventInput src) {
+        src.send(getStartEvent());
     }
 
     /**
@@ -355,8 +350,8 @@ public class ExpirationTimer { // TODO: Needs to be tested!
      * @param src
      * @see #getFeedEvent()
      */
-    public void feedWhen(EventSource src) {
-        src.addListener(getFeedEvent());
+    public void feedWhen(EventInput src) {
+        src.send(getFeedEvent());
     }
 
     /**
@@ -366,8 +361,8 @@ public class ExpirationTimer { // TODO: Needs to be tested!
      * @param src
      * @see #getStopEvent()
      */
-    public void stopWhen(EventSource src) {
-        src.addListener(getStopEvent());
+    public void stopWhen(EventInput src) {
+        src.send(getStopEvent());
     }
 
     /**
@@ -380,7 +375,7 @@ public class ExpirationTimer { // TODO: Needs to be tested!
      */
     public BooleanOutput getRunningControl() {
         return new BooleanOutput() {
-            public void writeValue(boolean value) {
+            public void set(boolean value) {
                 if (value) {
                     if (!isStarted) {
                         start();
@@ -392,5 +387,31 @@ public class ExpirationTimer { // TODO: Needs to be tested!
                 }
             }
         };
+    }
+
+    /**
+     * A task that is scheduled for a specific delay after the timer starts.
+     */
+    private static class Task {
+
+        /**
+         * The delay before the event is fired.
+         */
+        public final long delay;
+        /**
+         * The event to fire.
+         */
+        public final EventOutput cnsm;
+
+        /**
+         * Create a new task.
+         *
+         * @param delay The delay after which the task is fired.
+         * @param cnsm The EventConsumer fired by this Task.
+         */
+        Task(long delay, EventOutput cnsm) {
+            this.delay = delay;
+            this.cnsm = cnsm;
+        }
     }
 }

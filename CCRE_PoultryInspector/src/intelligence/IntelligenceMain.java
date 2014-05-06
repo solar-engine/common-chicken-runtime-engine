@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 Colby Skeggs
+ * Copyright 2013-2014 Colby Skeggs, Gregor Peach (Added Folders)
  * 
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  * 
@@ -18,16 +18,24 @@
  */
 package intelligence;
 
-import ccre.chan.FloatStatus;
 import ccre.cluck.*;
+import ccre.cluck.rpc.RemoteProcedure;
 import ccre.concurrency.CollapsingWorkerThread;
-import ccre.event.EventConsumer;
-import ccre.event.EventSource;
+import ccre.channel.EventOutput;
+import ccre.channel.EventInput;
 import ccre.log.*;
 import ccre.ctrl.ExpirationTimer;
 import ccre.ctrl.Ticker;
+import ccre.net.CountingNetworkProvider;
+import ccre.util.UniqueIds;
 import java.awt.*;
 import java.awt.event.*;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.util.*;
 import javax.swing.*;
 
@@ -36,6 +44,7 @@ import javax.swing.*;
  *
  * @author skeggsc
  */
+@SuppressWarnings({"serial", "rawtypes"})
 public class IntelligenceMain extends JPanel implements CluckRemoteListener, MouseMotionListener, MouseWheelListener, MouseListener {
 
     /**
@@ -66,10 +75,6 @@ public class IntelligenceMain extends JPanel implements CluckRemoteListener, Mou
      * The width of the object pane.
      */
     public static final int paneWidth = 256;
-    /**
-     * The CluckNode that this displays from.
-     */
-    protected final CluckNode node;
     /**
      * The currently highlighted row in the object pane.
      */
@@ -113,15 +118,27 @@ public class IntelligenceMain extends JPanel implements CluckRemoteListener, Mou
     /**
      * The number of bytes transmitted as of the last byte counting operation.
      */
-    protected int baseByteCount = 0;
+    protected long baseByteCount = 0;
     /**
      * The number of bytes transmitted during the last measurement period.
      */
-    protected int lastByteCount = 0;
+    protected long lastByteCount = 0;
     /**
      * The current scrolling position of the object pane.
      */
     protected int currentPaneScroll = 0;
+    /**
+     * Array of folders.
+     */
+    protected final Folder[] folders;
+    /**
+     * The active dialog, if any.
+     */
+    protected PoultryDialog dialog;
+    /**
+     * The list of tabs.
+     */
+    protected final java.util.List<Tab> tabs;
 
     /**
      * Create a new Intelligence Panel.
@@ -129,43 +146,106 @@ public class IntelligenceMain extends JPanel implements CluckRemoteListener, Mou
      * @param args The main arguments to the program.
      * @param node The cluck node that this panel will display.
      * @param seconds An event that will be produced every second.
+     *
      */
-    private IntelligenceMain(String[] args, CluckNode node, EventSource seconds) {
-        this.node = node;
-        searchLinkName = "big-brother-" + Integer.toHexString(args.hashCode());
+    private IntelligenceMain(String[] args, EventInput seconds, JButton searcher, JButton reconnector) {
+        ArrayList<Folder> folderList = new ArrayList<Folder>();
+        try {
+            File folder = new File(".").getAbsoluteFile();
+            File target = null;
+            while (folder != null && folder.exists()) {
+                target = new File(folder, "poultry-settings.txt");
+                if (target.exists() && target.canRead()) {
+                    break;
+                }
+                target = null;
+                folder = folder.getParentFile();
+            }
+            if (target == null) {
+                throw new FileNotFoundException("Could not find folders.");
+            }
+            BufferedReader fin = new BufferedReader(new FileReader(target));
+            try {
+                while (true) {
+                    String line = fin.readLine();
+                    if (line == null) {
+                        break;
+                    }
+                    if (line.trim().isEmpty()) {
+                        continue;
+                    }
+                    String[] pts = line.split("=", 2);
+                    if (pts.length == 1) {
+                        throw new IOException("Bad line: no =.");
+                    }
+                    folderList.add(new Folder(pts[0].trim(), pts[1].trim()));
+                }
+            } finally {
+                fin.close();
+            }
+        } catch (IOException ex) {
+            Logger.log(LogLevel.WARNING, "Could not set up folder list!", ex);
+        }
+        tabs = Tab.getTabs();
+        folders = folderList.toArray(new Folder[folderList.size()]);
+        searchLinkName = UniqueIds.global.nextHexId("big-brother");
         this.addMouseMotionListener(this);
         this.addMouseListener(this);
         this.addMouseWheelListener(this);
-        CollapsingWorkerThread discover = new CollapsingWorkerThread("Cluck-Discoverer") {
+        final CollapsingWorkerThread discover = new CollapsingWorkerThread("Cluck-Discoverer") {
             @Override
             protected void doWork() {
                 IPProvider.connect();
             }
         };
-        CluckGlobals.node.publish("rediscover", discover);
-        CollapsingWorkerThread researcher = new CollapsingWorkerThread("Cluck-Researcher") {
+        reconnector.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                discover.trigger();
+            }
+        });
+        final CollapsingWorkerThread researcher = new CollapsingWorkerThread("Cluck-Researcher") {
             @Override
             protected void doWork() throws Throwable {
                 research();
             }
         };
-        CluckGlobals.node.publish("search", researcher);
-        seconds.addListener(new EventConsumer() {
+        searcher.addActionListener(new ActionListener() {
             @Override
-            public void eventFired() {
-                int cur = IntelligenceMain.this.node.estimatedByteCount;
+            public void actionPerformed(ActionEvent e) {
+                researcher.trigger();
+            }
+        });
+        seconds.send(new EventOutput() {
+            @Override
+            public void event() {
+                long cur = CountingNetworkProvider.getTotal();
                 lastByteCount = cur - baseByteCount;
                 baseByteCount = cur;
             }
         });
-        painter.schedule(50, new EventConsumer() {
+        Cluck.getNode().getRPCManager().publish("display-dialog", new RemoteProcedure() {
             @Override
-            public void eventFired() {
+            public void invoke(byte[] in, OutputStream out) {
+                if (dialog != null) {
+                    try {
+                        out.close();
+                    } catch (IOException ex) {
+                        Logger.log(LogLevel.WARNING, "IOException from return from procedure!", ex);
+                    }
+                    return;
+                }
+                dialog = new PoultryDialog(new String(in), out);
+            }
+        });
+        painter.schedule(50, new EventOutput() {
+            @Override
+            public void event() {
                 repaint();
             }
         });
+        Cluck.getNode().startSearchRemotes(searchLinkName, this);
         painter.start();
-        this.node.startSearchRemotes(searchLinkName, this);
     }
 
     @Override
@@ -218,6 +298,47 @@ public class IntelligenceMain extends JPanel implements CluckRemoteListener, Mou
 
     @Override
     public void mousePressed(MouseEvent e) {
+        int index = 0;
+        for (Iterator<Tab> it = tabs.iterator(); it.hasNext();) {
+            Tab t = it.next();
+            if (this.getWidth() - 80 < e.getX() && 50 + index * 35 < e.getY() && this.getWidth() > e.getX() && (50 + index * 35) + 30 > e.getY()) {
+                if (e.getButton() == MouseEvent.BUTTON3) {
+                    if (JOptionPane.showConfirmDialog(this, "Really delete?") == JOptionPane.OK_OPTION) {
+                        System.out.println("removing");
+                        it.remove();
+                        Tab.removeTab(t);
+                    }
+                } else {
+                    t.enforceTab(ents, remotes);
+                }
+                return;
+            }
+            index++;
+        }
+        if (this.getWidth() - 30 < e.getX() && 50 + index * 35 < e.getY() && this.getWidth() > e.getX() && (50 + index * 35) + 30 > e.getY()) {
+            try {
+                String result = JOptionPane.showInputDialog("What Name?");
+                if (result == null) {
+                    return;
+                }
+                if (result.isEmpty()) {
+                    return;
+                }
+                Entity[] ent = new Entity[ents.values().size()];
+                ents.values().toArray(ent);
+                Tab t = new Tab(result, ent);
+                tabs.add(t);
+                Tab.addTab(t);
+            } catch (IOException ex) {
+                Logger.log(LogLevel.WARNING, "Could not set up tab list!", ex);
+            }
+        }
+        if (dialog != null && dialog.isOver(paneWidth, getWidth(), getHeight(), e.getX(), e.getY())) {
+            if (dialog.press(paneWidth, getWidth(), getHeight(), e.getX(), e.getY())) {
+                dialog = null;
+            }
+            return;
+        }
         mouseBtn = e.getButton();
         if (e.getButton() == MouseEvent.BUTTON3) {
             for (Entity ent : ents.values()) {
@@ -251,14 +372,19 @@ public class IntelligenceMain extends JPanel implements CluckRemoteListener, Mou
             int row = (e.getY() - currentPaneScroll) / rowHeight;
             if (row >= 0 && row < rms.length) {
                 Remote rem = rms[row];
-                if (ents.containsKey(rem.remote)) {
-                    activeEntity = ents.get(rem.remote);
+                if (rem instanceof Folder) {
+                    ((Folder) rem).open = !((Folder) rem).open;
+                    sortRemotes = null;
+                    return;
+                }
+                if (ents.containsKey(rem.path)) {
+                    activeEntity = ents.get(rem.path);
                     relActiveX = relActiveY = 0;
                     sortRemotes = null;
                     return;
                 } else {
                     Entity ent = new Entity(rem, e.getX(), e.getY());
-                    ents.put(rem.remote, ent);
+                    ents.put(rem.path, ent);
                     activeEntity = ent;
                     relActiveX = relActiveY = 0;
                     sortRemotes = null;
@@ -286,11 +412,11 @@ public class IntelligenceMain extends JPanel implements CluckRemoteListener, Mou
     public void handle(String remote, int remoteType) {
         Remote old = remotes.get(remote);
         if (old == null) {
-            remotes.put(remote, new Remote(remote, remoteType, node));
+            remotes.put(remote, new Remote(remote, remoteType));
             sortRemotes = null;
         } else if (old.type != remoteType) {
             Logger.warning("Remote type modified for " + remote + "!");
-            remotes.put(remote, new Remote(remote, remoteType, node));
+            remotes.put(remote, new Remote(remote, remoteType));
             sortRemotes = null;
         }
         repaint();
@@ -300,8 +426,9 @@ public class IntelligenceMain extends JPanel implements CluckRemoteListener, Mou
      * Repeat searching for remote objects.
      */
     public void research() {
-        node.cycleSearchRemotes(searchLinkName);
-        // TODO: Remove old entries
+        remotes.clear();
+        sortRemotes = null;
+        Cluck.getNode().cycleSearchRemotes(searchLinkName);
     }
 
     @Override
@@ -326,19 +453,60 @@ public class IntelligenceMain extends JPanel implements CluckRemoteListener, Mou
         g.setColor(active);
         g.drawString("Left-click to move", paneWidth, fontMetrics.getAscent());
         g.drawString("Right-click to interact", paneWidth, fontMetrics.getAscent() + lh);
-        String countReport = "Estimated Traffic: " + node.estimatedByteCount + "B (" + (node.estimatedByteCount / 128) + "kbits)";
+        String countReport = "Estimated Traffic: " + CountingNetworkProvider.getTotal() + "B (" + (CountingNetworkProvider.getTotal() / 128) + "kbits)";
         g.drawString(countReport, w - fontMetrics.stringWidth(countReport), fontMetrics.getAscent());
         countReport = "Usage: " + (lastByteCount / 128) + "kbits/sec";
         g.drawString(countReport, w - fontMetrics.stringWidth(countReport), fontMetrics.getAscent() + lh);
         Remote[] sremotes = sortRemotes;
         if (sortRemotes == null) {
-            ArrayList<Remote> loc = new ArrayList<Remote>(remotes.values());
+            ArrayList<Remote> loc;
+            try {
+                loc = new ArrayList<Remote>(remotes.values());
+            } catch (ConcurrentModificationException c) {
+                // Wait until next cycle.
+                return;
+            }
+            for (Remote r : loc) {
+                String p = r.path;
+                if (p.endsWith(".output")) {
+                    r.paired = remotes.get(p.substring(0, p.length() - ".output".length()) + ".input");
+                } else if (p.endsWith(".input")) {
+                    r.paired = remotes.get(p.substring(0, p.length() - ".input".length()) + ".output");
+                } else {
+                    r.paired = null;
+                }
+            }
             for (Map.Entry<String, Entity> key : ents.entrySet()) {
                 if (key.getValue().centerX >= paneWidth) {
                     loc.remove(remotes.get(key.getKey()));
                 }
             }
             Collections.sort(loc);
+            loc.addAll(Arrays.asList(folders));
+            for (Folder f : folders) {
+                f.contents.clear();
+                f.hascontents = false;
+            }
+            for (Iterator<Remote> it = loc.iterator(); it.hasNext();) {
+                Remote r = it.next();
+                r.inFolder = false;
+                for (Folder f : folders) {
+                    if (f.isInside(r)) {
+                        it.remove();
+                        f.hascontents = true;
+                        if (f.open) {
+                            f.contents.add(r);
+                        }
+                    }
+                }
+            }
+            for (Folder f : folders) {
+                f.place = loc.indexOf(f);
+                for (Remote r : f.contents) {
+                    r.inFolder = true;
+                    loc.add(f.place + 1, r);
+                }
+            }
             sremotes = loc.toArray(new Remote[loc.size()]);
             sortRemotes = sremotes;
         }
@@ -361,15 +529,62 @@ public class IntelligenceMain extends JPanel implements CluckRemoteListener, Mou
                 ent.render(g);
             }
         }
+        if (dialog != null) {
+            if (dialog.render(g, paneWidth, w, h)) {
+                dialog = null;
+            }
+        }
+        int index = -1;
+        for (Tab t : tabs) {
+            index++;
+            g.setColor(Color.CYAN);
+            g.fillRect(this.getWidth() - 80, 50 + index * 35, 80, 30);
+            g.setColor(Color.BLACK);
+            g.drawRect(this.getWidth() - 81, 49 + index * 35, 82, 31);
+            g.drawString(t.name, this.getWidth() - 80 + 7, 50 + index * 35 + 19);
+        }
+        index++;
+        g.setColor(Color.CYAN);
+        g.fillRect(this.getWidth() - 30, 50 + index * 35, 30, 30);
+        g.setColor(Color.BLACK);
+        g.drawRect(this.getWidth() - 31, 49 + index * 35, 82, 31);
+        g.setColor(Color.BLUE);
+        g.drawString("+", this.getWidth() - 30 + 10, 60 + index * 35);
         painter.feed();
     }
 
+    @SuppressWarnings("unchecked")
     public static void main(String[] args) {
-        CluckGlobals.ensureInitializedCore();
+        CountingNetworkProvider.register();
+        //CluckGlobals.node.debugLogAll = true;
         NetworkAutologger.register();
+        FileLogger.register();
         JFrame frame = new JFrame("Intelligence Panel");
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+        final IPhidgetMonitor monitor = args.length > 0 && "-virtual".equals(args[0]) ? new VirtualPhidgetMonitor() : new PhidgetMonitor();
+        frame.addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent we) {
+                super.windowClosing(we);
+                monitor.displayClosing();
+                System.exit(0);
+            }
+        });
         frame.setSize(640, 480);
+        if (args.length >= 2) {
+            try {
+                frame.setSize(Integer.parseInt(args[0]), Integer.parseInt(args[1]));
+            } catch (NumberFormatException ex) {
+                Logger.log(LogLevel.WARNING, "Bad window position!", ex);
+            }
+        }
+        if (args.length >= 4) {
+            try {
+                frame.setLocation(Integer.parseInt(args[2]), Integer.parseInt(args[3]));
+            } catch (NumberFormatException ex) {
+                Logger.log(LogLevel.WARNING, "Bad window position!", ex);
+            }
+        }
         JSplitPane jsp = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
         JPanel subpanel = new JPanel();
         JScrollPane scroll = new JScrollPane();
@@ -402,16 +617,66 @@ public class IntelligenceMain extends JPanel implements CluckRemoteListener, Mou
             }
         });
         btns.add(clear);
+        final JButton refresh = new JButton("Refresh");
+        btns.add(refresh);
+        JButton reconnect = new JButton("Reconnect");
+        btns.add(reconnect);
         jsp.setRightComponent(subpanel);
         IPProvider.init();
-        jsp.setLeftComponent(new IntelligenceMain(args, CluckGlobals.node, new Ticker(1000)));
-        jsp.setDividerLocation(2 * 480 / 3);
+        jsp.setLeftComponent(new IntelligenceMain(args, new Ticker(1000), refresh, reconnect));
+        jsp.setDividerLocation(2 * frame.getHeight() / 3);
         jsp.setResizeWeight(0.7);
         frame.add(jsp);
         frame.setVisible(true);
         Logger.info("Started Poultry Inspector at " + System.currentTimeMillis());
-        new PhidgetMonitor().share(CluckGlobals.node);
-        CluckGlobals.node.publish("test", new FloatStatus());
+        final ExpirationTimer ext = new ExpirationTimer();
+        ext.schedule(5000, new EventOutput() {
+            @Override
+            public void event() {
+                Logger.info("Current time: " + new Date());
+            }
+        });
+        ext.schedule(5010, ext.getStopEvent());
+        new CluckSubscriber(Cluck.getNode()) {
+            @Override
+            protected void receive(String source, byte[] data) {
+            }
+
+            @Override
+            protected void receiveBroadcast(String source, byte[] data) {
+                if (data.length == 1 && data[0] == CluckNode.RMT_NOTIFY) {
+                    ext.startOrFeed();
+                }
+            }
+        }.attach("notify-fetcher-virt");
+        monitor.share();
+        EventQueue.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                refresh.doClick();
+            }
+        });
         IPProvider.connect();
+        setupWatchdog(monitor);
+    }
+
+    private static void setupWatchdog(final IPhidgetMonitor monitor) {
+        final ExpirationTimer watchdog = new ExpirationTimer();
+        watchdog.schedule(500, Cluck.subscribeEC("robot/phidget/WatchDog"));
+        Cluck.publish("WatchDog", new EventOutput() {
+            @Override
+            public void event() {
+                monitor.connectionUp();
+                watchdog.feed();
+            }
+        });
+        watchdog.schedule(2000, new EventOutput() {
+            @Override
+            public void event() {
+                monitor.connectionDown();
+            }
+        });
+        watchdog.schedule(3000, watchdog.getFeedEvent());
+        watchdog.start();
     }
 }

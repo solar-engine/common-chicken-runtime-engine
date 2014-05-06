@@ -18,8 +18,8 @@
  */
 package ccre.cluck.tcp;
 
-import ccre.cluck.CluckGlobals;
-import ccre.event.EventConsumer;
+import ccre.channel.EventOutput;
+import ccre.cluck.Cluck;
 import ccre.log.Logger;
 import ccre.log.NetworkAutologger;
 import ccre.net.Network;
@@ -31,9 +31,6 @@ import ccre.net.Network;
  */
 public class StandaloneCluckServer {
 
-    private StandaloneCluckServer() {
-    }
-
     /**
      * Start the simple server.
      *
@@ -41,10 +38,9 @@ public class StandaloneCluckServer {
      */
     public static void main(String[] args) {
         final long time = System.currentTimeMillis();
-        CluckGlobals.ensureInitializedCore();
         NetworkAutologger.register();
-        CluckGlobals.node.publish("status-report", new EventConsumer() {
-            public void eventFired() {
+        Cluck.publish("status-report", new EventOutput() {
+            public void event() {
                 StringBuilder b = new StringBuilder("Standalone server online on [");
                 for (String addr : Network.listIPv4Addresses()) {
                     b.append(addr).append(", ");
@@ -53,7 +49,10 @@ public class StandaloneCluckServer {
                 Logger.info(b.append("] - uptime ").append((System.currentTimeMillis() - time) / 1000).append(" seconds.").toString());
             }
         });
-        CluckGlobals.setupServer();
+        Cluck.setupServer();
         Logger.info("Server is running.");
+    }
+
+    private StandaloneCluckServer() {
     }
 }

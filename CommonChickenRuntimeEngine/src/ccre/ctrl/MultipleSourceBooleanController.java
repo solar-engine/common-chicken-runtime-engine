@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 Colby Skeggs
+ * Copyright 2013-2014 Colby Skeggs
  * 
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  * 
@@ -18,11 +18,10 @@
  */
 package ccre.ctrl;
 
-import ccre.chan.BooleanInput;
-import ccre.chan.BooleanInputPoll;
-import ccre.chan.BooleanInputProducer;
-import ccre.chan.BooleanOutput;
-import ccre.event.EventConsumer;
+import ccre.channel.BooleanInput;
+import ccre.channel.BooleanInputPoll;
+import ccre.channel.BooleanOutput;
+import ccre.channel.EventOutput;
 import ccre.util.CArrayList;
 
 /**
@@ -34,11 +33,42 @@ import ccre.util.CArrayList;
  *
  * @author skeggsc
  */
-public class MultipleSourceBooleanController implements BooleanInput, EventConsumer {
+public final class MultipleSourceBooleanController implements BooleanInput, EventOutput {
 
+    /**
+     * Passed to the constructor to make the inputs be combined in an AND
+     * fashion.
+     */
     public static final boolean AND = true;
+    /**
+     * Passed to the constructor to make the inputs be combined in an OR
+     * fashion.
+     */
     public static final boolean OR = false;
-    
+
+    /**
+     * The list of polled inputs that are read during the update method.
+     */
+    private final CArrayList<BooleanInputPoll> ipl = new CArrayList<BooleanInputPoll>();
+    /**
+     * The list of current values for the asynchronously-updated inputs. Any
+     * elements in this list MUST be either Boolean.TRUE or Boolean.FALSE! Even
+     * the result of new Boolean(true) is not allowed!
+     */
+    private final CArrayList<Boolean> bcur = new CArrayList<Boolean>();
+    /**
+     * The list of consumers to be notified when the value changes.
+     */
+    private final CArrayList<BooleanOutput> consumers = new CArrayList<BooleanOutput>();
+    /**
+     * The current value of the result.
+     */
+    private boolean lastValue = false;
+    /**
+     * If the operation is an AND operation as opposed to an OR operation.
+     */
+    private final boolean isAnd;
+
     /**
      * Create a new MultipleSourceBooleanController, either as an AND operation
      * over its boolean set or an OR operation
@@ -50,28 +80,6 @@ public class MultipleSourceBooleanController implements BooleanInput, EventConsu
     public MultipleSourceBooleanController(boolean isAndOperation) {
         isAnd = isAndOperation;
     }
-    /**
-     * The list of polled inputs that are read during the update method.
-     */
-    protected final CArrayList<BooleanInputPoll> ipl = new CArrayList<BooleanInputPoll>();
-    /**
-     * The list of current values for the asynchronously-updated inputs. Any
-     * elements in this list MUST be either Boolean.TRUE or Boolean.FALSE! Even
-     * the result of new Boolean(true) is not allowed!
-     */
-    protected final CArrayList<Boolean> bcur = new CArrayList<Boolean>();
-    /**
-     * The list of consumers to be notified when the value changes.
-     */
-    protected final CArrayList<BooleanOutput> consumers = new CArrayList<BooleanOutput>();
-    /**
-     * The current value of the result.
-     */
-    protected boolean lastValue = false;
-    /**
-     * If the operation is an AND operation as opposed to an OR operation.
-     */
-    protected final boolean isAnd;
 
     /**
      * Get one BooleanOutput that can be written to in order to update its
@@ -93,18 +101,7 @@ public class MultipleSourceBooleanController implements BooleanInput, EventConsu
      * @param inp the boolean to include.
      */
     public synchronized void addInput(BooleanInput inp) {
-        inp.addTarget(getOutput(inp.readValue()));
-        update();
-    }
-
-    /**
-     * Place the specified BooleanInputProducer as an element in the boolean
-     * set.
-     *
-     * @param inp the boolean to include.
-     */
-    public synchronized void addInput(BooleanInputProducer inp, boolean default_) {
-        inp.addTarget(getOutput(default_));
+        inp.send(getOutput(inp.get()));
         update();
     }
 
@@ -123,7 +120,7 @@ public class MultipleSourceBooleanController implements BooleanInput, EventConsu
     /**
      * Update the output from the current state.
      */
-    protected void update() {
+    private void update() {
         boolean valOut;
         if (isAnd) {
             if (bcur.contains(Boolean.FALSE)) {
@@ -131,7 +128,7 @@ public class MultipleSourceBooleanController implements BooleanInput, EventConsu
             } else {
                 valOut = true;
                 for (BooleanInputPoll p : ipl) {
-                    if (!p.readValue()) {
+                    if (!p.get()) {
                         valOut = false;
                         break;
                     }
@@ -143,7 +140,7 @@ public class MultipleSourceBooleanController implements BooleanInput, EventConsu
             } else {
                 valOut = false;
                 for (BooleanInputPoll p : ipl) {
-                    if (p.readValue()) {
+                    if (p.get()) {
                         valOut = true;
                         break;
                     }
@@ -158,24 +155,24 @@ public class MultipleSourceBooleanController implements BooleanInput, EventConsu
 
     private void notifyConsumers() {
         for (BooleanOutput cnsm : consumers) {
-            cnsm.writeValue(lastValue);
+            cnsm.set(lastValue);
         }
     }
 
-    public boolean readValue() {
+    public boolean get() {
         return lastValue;
     }
 
-    public void addTarget(BooleanOutput output) {
+    public void send(BooleanOutput output) {
         consumers.add(output);
-        output.writeValue(readValue());
+        output.set(get());
     }
 
-    public boolean removeTarget(BooleanOutput output) {
-        return consumers.remove(output);
+    public void unsend(BooleanOutput output) {
+        consumers.remove(output);
     }
 
-    public void eventFired() {
+    public void event() {
         update();
     }
 
@@ -183,11 +180,11 @@ public class MultipleSourceBooleanController implements BooleanInput, EventConsu
 
         private final int cur;
 
-        public BooleanOutputElement(int cur) {
+        BooleanOutputElement(int cur) {
             this.cur = cur;
         }
 
-        public void writeValue(boolean value) {
+        public void set(boolean value) {
             bcur.set(cur, value);
             update();
         }

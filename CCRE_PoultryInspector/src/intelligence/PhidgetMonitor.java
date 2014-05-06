@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 Colby Skeggs
+ * Copyright 2013-2014 Colby Skeggs
  * 
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  * 
@@ -18,13 +18,14 @@
  */
 package intelligence;
 
-import ccre.chan.BooleanInput;
-import ccre.chan.BooleanOutput;
-import ccre.chan.BooleanStatus;
-import ccre.chan.FloatInput;
-import ccre.chan.FloatStatus;
+import ccre.channel.BooleanInput;
+import ccre.channel.BooleanOutput;
+import ccre.channel.BooleanStatus;
+import ccre.channel.EventOutput;
+import ccre.channel.FloatInput;
+import ccre.channel.FloatStatus;
+import ccre.cluck.Cluck;
 import ccre.cluck.CluckNode;
-import ccre.event.EventConsumer;
 import ccre.holders.StringHolder;
 import ccre.log.LogLevel;
 import ccre.log.Logger;
@@ -38,7 +39,7 @@ import com.phidgets.event.*;
  *
  * @author skeggsc
  */
-public class PhidgetMonitor implements AttachListener, DetachListener, ErrorListener, InputChangeListener, SensorChangeListener {
+public class PhidgetMonitor implements IPhidgetMonitor, AttachListener, DetachListener, ErrorListener, InputChangeListener, SensorChangeListener {
 
     /**
      * The number of binary outputs to expect on the phidget interface.
@@ -122,7 +123,7 @@ public class PhidgetMonitor implements AttachListener, DetachListener, ErrorList
             final int cur = i;
             outputs[i] = new BooleanOutput() {
                 @Override
-                public void writeValue(boolean bln) {
+                public void set(boolean bln) {
                     outvals[cur] = bln;
                     updateBooleanOutput(cur);
                 }
@@ -140,9 +141,9 @@ public class PhidgetMonitor implements AttachListener, DetachListener, ErrorList
         for (int i = 0; i < LCD_LINES; i++) {
             StringHolder strh = new StringHolder(fillstr, false);
             final int cur = i;
-            strh.whenModified(new EventConsumer() {
+            strh.whenModified(new EventOutput() {
                 @Override
-                public void eventFired() {
+                public void event() {
                     updateStringOutput(cur);
                 }
             });
@@ -183,32 +184,58 @@ public class PhidgetMonitor implements AttachListener, DetachListener, ErrorList
      * Share all the inputs and outputs and the current attachment state over
      * the network.
      *
-     * @param encoder the encoder to share over.
+     * @param node the node to share on.
      */
-    public void share(CluckNode node) {
+    public void share() {
         for (int i = 0; i < OUTPUT_COUNT; i++) {
-            node.publish("phidget-bo" + i, outputs[i]);
+            Cluck.publish("phidget-bo" + i, outputs[i]);
         }
         for (int i = 0; i < LCD_LINES; i++) {
-            node.publish("phidget-lcd" + i, lines[i].getOutput());
+            Cluck.publish("phidget-lcd" + i, lines[i].getOutput());
         }
-        // TODO: Make this be a shared input, not just an input producer
-        node.publish("phidget-attached", isAttached);
+        Cluck.publish("phidget-attached", isAttached);
         for (int i = 0; i < INPUT_COUNT; i++) {
-            node.publish("phidget-bi" + i, inputs[i]);
+            Cluck.publish("phidget-bi" + i, inputs[i]);
         }
         for (int i = 0; i < ANALOG_COUNT; i++) {
-            node.publish("phidget-ai" + i, analogs[i]);
+            Cluck.publish("phidget-ai" + i, analogs[i]);
+        }
+    }
+
+    public void displayClosing() {
+        try {
+            lcd.setDisplayString(0, "Poultry Inspector is");
+            lcd.setDisplayString(1, "     now closed.    ");
+        } catch (PhidgetException ex) {
+            Logger.log(LogLevel.SEVERE, "Cannot update string output to Phidget", ex);
+        }
+    }
+
+    public void connectionDown() {
+        lines[0].set("  Connection lost.  ");
+        lines[1].set("       Sorry.       ");
+    }
+
+    public void connectionUp() {
+        if ("  Connection lost.  ".equals(lines[0].get())) {
+            lines[0].set("  .  .  .  .  .  .  ");
+        }
+        if ("       Sorry.       ".equals(lines[1].get())) {
+            lines[1].set("  .  .  .  .  .  .  ");
         }
     }
 
     private void updateStringOutput(int line) {
         try {
             if (lcd != null) {
-                lcd.setDisplayString(line, lines[line].get().concat(fillLine).substring(0, LCD_WIDTH));
+                lcd.setDisplayString(line, lines[line].get().replace('\r', ' ').concat(fillLine).substring(0, LCD_WIDTH));
             }
         } catch (PhidgetException ex) {
-            Logger.log(LogLevel.SEVERE, "Cannot update string output to Phidget", ex);
+            if (ex.getErrorNumber() == PhidgetException.EPHIDGET_NOTATTACHED) {
+                Logger.log(LogLevel.WARNING, "Phidget not attached!");
+            } else {
+                Logger.log(LogLevel.SEVERE, "Cannot update string output to Phidget", ex);
+            }
         }
     }
 
@@ -233,6 +260,9 @@ public class PhidgetMonitor implements AttachListener, DetachListener, ErrorList
                 }
                 lcd.setBacklight(true);
                 lcd.setContrast(100);
+                for (int i = 0; i < LCD_LINES; i++) {
+                    updateStringOutput(i);
+                }
             } catch (PhidgetException ex) {
                 Logger.log(LogLevel.SEVERE, "Error on LCD attach", ex);
             }
@@ -244,19 +274,19 @@ public class PhidgetMonitor implements AttachListener, DetachListener, ErrorList
                 if (ifa.getSensorCount() != ANALOG_COUNT) {
                     Logger.severe("Interface analog count mismatch: " + ifa.getSensorCount() + " instead of " + ANALOG_COUNT);
                 }
-                // TODO: Fix input rate correction
-                /*for (int i = 0; i < ifa.getInputCount(); i++) {
-                    int rate = ifa.getDataRate(i);
-                    if (rate != INPUT_RATE) {
-                        Logger.fine("Fixing input rate to " + INPUT_RATE + " from " + rate);
-                        ifa.setDataRate(i, INPUT_RATE);
-                        rate = ifa.getDataRate(i);
-                        if (rate != INPUT_RATE) {
-                            Logger.warning("Rate is still not correct: " + rate);
-                        }
+                for (int i = 0; i < OUTPUT_COUNT; i++) {
+                    updateBooleanOutput(i);
+                }
+                for (int i = 0; i < INPUT_COUNT; i++) {
+                    inputStats[i].set(ifa.getInputState(i));
+                }
+                for (int i = 0; i < ANALOG_COUNT; i++) {
+                    float moved = (ifa.getSensorValue(i) - 500) / 500.0f;
+                    if (moved < -1 || moved > 1) {
+                        Logger.warning("Sensor out of range: " + moved);
                     }
-                }*/
-                // TODO: Resubmit all values
+                    analogStats[i].set(moved);
+                }
             } catch (PhidgetException ex) {
                 Logger.log(LogLevel.SEVERE, "Error on Interface attach", ex);
             }
@@ -273,7 +303,7 @@ public class PhidgetMonitor implements AttachListener, DetachListener, ErrorList
 
     private void recalculateAttached() {
         try {
-            attachStat.writeValue(lcd.isAttached() && ifa.isAttached());
+            attachStat.set(lcd.isAttached() && ifa.isAttached());
         } catch (PhidgetException ex) {
             Logger.log(LogLevel.WARNING, "Could not recalculate attachment status!", ex);
         }
@@ -281,7 +311,7 @@ public class PhidgetMonitor implements AttachListener, DetachListener, ErrorList
 
     @Override
     public void inputChanged(InputChangeEvent ae) {
-        inputStats[ae.getIndex()].writeValue(ae.getState());
+        inputStats[ae.getIndex()].set(ae.getState());
     }
 
     @Override
@@ -292,7 +322,7 @@ public class PhidgetMonitor implements AttachListener, DetachListener, ErrorList
         if (moved < -1 || moved > 1) {
             Logger.warning("Sensor out of range: " + moved);
         }
-        analogStats[ae.getIndex()].writeValue(moved);
+        analogStats[ae.getIndex()].set(moved);
     }
 
     @Override

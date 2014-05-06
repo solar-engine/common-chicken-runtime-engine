@@ -19,7 +19,7 @@
 
 package ccre.obsidian;
 
-import ccre.chan.FloatOutput;
+import ccre.channel.FloatOutput;
 
 /**
  *
@@ -33,7 +33,7 @@ public class EmulatorPWMOutput implements FloatOutput {
     }
 
     @Override
-    public void writeValue(float value) {
+    public void set(float value) {
         if (pin.getMode() == EmulatorPin.Mode.PWM) {
             pin.set(value);
         } else {

@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 Colby Skeggs
+ * Copyright 2013-2014 Colby Skeggs
  * 
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  * 
@@ -18,9 +18,11 @@
  */
 package ccre.holders;
 
-import ccre.chan.FloatStatus;
+import ccre.channel.EventOutput;
+import ccre.channel.FloatStatus;
 import ccre.cluck.CluckNode;
-import ccre.event.EventConsumer;
+import ccre.cluck.CluckPublisher;
+import ccre.log.Logger;
 import ccre.saver.StorageProvider;
 import ccre.saver.StorageSegment;
 
@@ -30,16 +32,16 @@ import ccre.saver.StorageSegment;
  *
  * @author skeggsc
  */
-public class TuningContext {
+public final class TuningContext { // TODO: Support booleans for tuning.
 
     /**
      * The node to publish the value to.
      */
-    protected CluckNode enc;
+    private final CluckNode enc;
     /**
      * The segment to store the value in.
      */
-    protected StorageSegment seg;
+    private final StorageSegment seg;
 
     /**
      * Create a new TuningContext from a specified CluckNode and name of storage
@@ -73,31 +75,9 @@ public class TuningContext {
      * @return the FloatStatus representing the current value.
      */
     public FloatStatus getFloat(String name, float default_) {
-        FloatStatus out = new FloatStatus();
-        out.writeValue(default_);
-        out.hasBeenModified = false;
+        FloatStatus out = new FloatStatus(default_);
         seg.attachFloatHolder(name, out);
-        enc.publish(name, out);
-        return out;
-    }
-
-    /**
-     * Get a FloatStatus with the specified name, default value, and the name of
-     * a encoded channel for a FloatInputProducer that should be an option to
-     * tune the variable to. This will be tunable over the network and saved on
-     * the cRIO once flush() is called.
-     *
-     * @param name the name of the tunable value.
-     * @param default_ the default value.
-     * @param targetref the name of the shared value for the tuning's default.
-     * @return the FloatStatus representing the current value.
-     */
-    public FloatStatus getFloat(String name, float default_, String targetref) {
-        FloatStatus out = new FloatStatus();
-        out.writeValue(default_);
-        out.hasBeenModified = false;
-        seg.attachFloatHolder(name, out);
-        enc.publish(name, out);
+        CluckPublisher.publish(enc, name, out);
         return out;
     }
 
@@ -106,6 +86,7 @@ public class TuningContext {
      */
     public void flush() {
         seg.flush();
+        Logger.info("Flushed storage segment.");
     }
 
     /**
@@ -114,16 +95,24 @@ public class TuningContext {
      * @return the EventConsumer that will flush this object.
      * @see #flush()
      */
-    public EventConsumer getFlushEvent() {
-        return new EventConsumer() {
-            public void eventFired() {
+    public EventOutput getFlushEvent() {
+        return new EventOutput() {
+            public void event() {
                 flush();
             }
         };
     }
 
+    /**
+     * Publish an EventConsumer that can be used to save the tuning variables on
+     * this context.
+     *
+     * @param name The name for the EventConsumer to be published under.
+     * (Prefixed by "Save Tuning for ".)
+     * @return This TuningContext. Returned for method chaining purposes.
+     */
     public TuningContext publishSavingEvent(String name) {
-        enc.publish("Save Tuning for " + name, getFlushEvent());
+        CluckPublisher.publish(enc, "Save Tuning for " + name, getFlushEvent());
         return this;
     }
 }

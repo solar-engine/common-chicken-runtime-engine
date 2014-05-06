@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 Colby Skeggs
+ * Copyright 2013-2014 Colby Skeggs
  * 
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  * 
@@ -20,8 +20,9 @@ package ccre.cluck.tcp;
 
 import ccre.cluck.CluckLink;
 import ccre.cluck.CluckNode;
-import ccre.log.LogLevel;
+import ccre.concurrency.ReporterThread;
 import ccre.log.Logger;
+import ccre.util.CLinkedList;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -33,9 +34,6 @@ import java.util.Random;
  * @author skeggsc
  */
 public class CluckProtocol {
-
-    private CluckProtocol() {
-    }
 
     /**
      * Start a Cluck connection. Must be ran from both ends of the connection.
@@ -60,12 +58,9 @@ public class CluckProtocol {
         if (din.readInt() != (ra ^ rb)) {
             throw new IOException("Did not bounce properly!");
         }
-        if (remoteHint == null) {
-            remoteHint = "";
-        }
-        dout.writeUTF(remoteHint);
+        dout.writeUTF(remoteHint == null ? "" : remoteHint);
         String rh = din.readUTF();
-        return rh.length() == 0 ? null : rh;
+        return rh.isEmpty() ? null : rh;
     }
 
     /**
@@ -97,32 +92,21 @@ public class CluckProtocol {
     protected static void handleRecv(DataInputStream din, String linkName, CluckNode node, CluckLink denyLink) throws IOException {
         try {
             while (true) {
-                String dest = din.readUTF();
-                if (dest.length() == 0) {
-                    dest = null;
-                }
-                String source = din.readUTF();
-                if (source.length() == 0) {
-                    source = null;
-                }
-                int len = din.readInt();
-                if (len > 64 * 1024) {
-                    Logger.warning("Received packet of over 64 KB (" + source + " -> " + dest + ")");
-                }
-                byte[] data = new byte[len];
-                long begin = din.readLong();
+                String dest = readNullableString(din);
+                String source = readNullableString(din);
+                byte[] data = new byte[din.readInt()];
+                long checksumBase = din.readLong();
                 din.readFully(data);
-                long check = checksum(data, begin);
-                long end = din.readLong();
-                if (end != check) {
+                if (din.readLong() != checksum(data, checksumBase)) {
                     throw new IOException("Checksums did not match!");
                 }
-                if (source == null) {
-                    source = linkName;
-                } else {
-                    source = linkName + "/" + source;
-                }
+                source = prependLink(linkName, source);
+                long start = System.currentTimeMillis();
                 node.transmit(dest, source, data, denyLink);
+                long endAt = System.currentTimeMillis();
+                if (endAt - start > 1000) {
+                    Logger.warning("[LOCAL] Took a long time to process: " + dest + " <- " + source + " of " + (endAt - start) + " ms");
+                }
             }
         } catch (IOException ex) {
             if (ex.getClass().getName().equals("java.net.SocketException") && ex.getMessage().equals("Connection reset")) {
@@ -131,6 +115,15 @@ public class CluckProtocol {
                 throw ex;
             }
         }
+    }
+
+    private static String readNullableString(DataInputStream din) throws IOException {
+        String out = din.readUTF();
+        return out.isEmpty() ? null : out;
+    }
+
+    private static String prependLink(String linkName, String source) {
+        return source == null ? linkName : linkName + "/" + source;
     }
 
     /**
@@ -146,47 +139,117 @@ public class CluckProtocol {
      * @return The newly created link.
      */
     protected static CluckLink handleSend(final DataOutputStream dout, final String linkName, CluckNode node) {
+        final CLinkedList<SendableEntry> queue = new CLinkedList<SendableEntry>();
+        final ReporterThread main = new CluckSenderThread("Cluck-Send-" + linkName, queue, dout);
+        main.start();
         CluckLink clink = new CluckLink() {
             private boolean isRunning = false;
 
-            public synchronized boolean transmit(String dest, String source, byte[] data) {
+            public synchronized boolean send(String dest, String source, byte[] data) {
                 if (isRunning) {
-                    System.err.println("Already running transmit!");
+                    Logger.severe("[LOCAL] Already running transmit!");
                     return true;
                 }
                 isRunning = true;
                 try {
-                    try {
-                        if (dest == null) {
-                            dout.writeUTF("");
-                        } else {
-                            dout.writeUTF(dest);
-                        }
-                        if (source == null) {
-                            dout.writeUTF("");
-                        } else {
-                            dout.writeUTF(source);
-                        }
-                        dout.writeInt(data.length);
-                        long begin = (((long) data.length) << 32) ^ (dest == null ? 0 : ((long) dest.hashCode()) << 16) ^ (source == null ? 0 : source.hashCode() ^ (((long) source.hashCode()) << 48));
-                        dout.writeLong(begin);
-                        dout.write(data);
-                        dout.writeLong(checksum(data, begin));
-                        return true;
-                    } catch (IOException ex) {
-                        if (ex.getClass().getName().equals("java.net.SocketException") && ex.getMessage().equals("Socket closed")) {
-                            Logger.fine("Link sending disconnected: " + linkName);
-                        } else {
-                            Logger.log(LogLevel.SEVERE, "Could not transmit over cluck connection", ex);
-                        }
-                        return false;
+                    int size;
+                    synchronized (queue) {
+                        queue.addLast(new SendableEntry(source, dest, data));
+                        queue.notifyAll();
+                        size = queue.size();
+                    }
+                    Thread.yield();
+                    if (size > 75) {
+                        Logger.warning("[LOCAL] Queue too long: " + size + " for " + dest + " at " + System.currentTimeMillis());
                     }
                 } finally {
                     isRunning = false;
                 }
+                return main.isAlive();
             }
         };
         node.addOrReplaceLink(clink, linkName);
         return clink;
+    }
+
+    private CluckProtocol() {
+    }
+
+    /**
+     * Stored in a queue of the messages that need to be sent over a connection.
+     *
+     * @author skeggsc
+     */
+    private static class SendableEntry {
+
+        /**
+         * The sender of this message.
+         */
+        public final String src;
+        /**
+         * The receiver of this message.
+         */
+        public final String dst;
+        /**
+         * The contents of this message.
+         */
+        public final byte[] data;
+
+        /**
+         * Create a new SendableEntry with the specified attributes.
+         *
+         * @param src The source of the message.
+         * @param dst The destination of the message.
+         * @param data The contents of the message.
+         */
+        SendableEntry(String src, String dst, byte[] data) {
+            super();
+            this.src = src;
+            this.dst = dst;
+            this.data = data;
+        }
+
+        @Override
+        public String toString() {
+            return "[" + src + "->" + dst + "#" + data.length + "]";
+        }
+    }
+
+    private static class CluckSenderThread extends ReporterThread {
+
+        private final CLinkedList<SendableEntry> queue;
+        private final DataOutputStream dout;
+
+        CluckSenderThread(String name, CLinkedList<SendableEntry> queue, DataOutputStream dout) {
+            super(name);
+            this.queue = queue;
+            this.dout = dout;
+        }
+
+        @Override
+        protected void threadBody() throws InterruptedException {
+            try {
+                while (true) {
+                    SendableEntry ent;
+                    synchronized (queue) {
+                        while (queue.isEmpty()) {
+                            queue.wait();
+                        }
+                        ent = queue.removeFirst();
+                    }
+                    String source = ent.src, dest = ent.dst;
+                    byte[] data = ent.data;
+                    dout.writeUTF(dest == null ? "" : dest);
+                    dout.writeUTF(source == null ? "" : source);
+                    dout.writeInt(data.length);
+                    long begin = (((long) data.length) << 32) ^ (dest == null ? 0 : ((long) dest.hashCode()) << 16) ^ (source == null ? 0 : source.hashCode() ^ (((long) source.hashCode()) << 48));
+                    dout.writeLong(begin);
+                    dout.write(data);
+                    dout.writeLong(checksum(data, begin));
+                }
+            } catch (IOException ex) {
+                Logger.warning("Bad IO in " + this + ": " + ex);
+            }
+        }
     }
 }

@@ -18,7 +18,7 @@
  */
 package ccre.obsidian;
 
-import ccre.chan.FloatInputPoll;
+import ccre.channel.FloatInputPoll;
 import java.io.*;
 
 /**
@@ -54,7 +54,7 @@ class ADCManager {
         }
 
         @Override
-        public float readValue() {
+        public float get() {
             try {
                 FileInputStream fin = new FileInputStream(curF);
                 try {

@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 Colby Skeggs
+ * Copyright 2013-2014 Colby Skeggs
  * 
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  * 
@@ -31,17 +31,28 @@ import java.io.OutputStream;
  */
 public abstract class LineCollectorOutputStream extends OutputStream {
 
-    private final StringBuffer running = new StringBuffer();
-    
+    private byte[] running = new byte[10];
+    private int run_i = 0;
+
     @Override
-    public final void write(int b) throws IOException {
+    public final synchronized void write(int b) throws IOException {
         if (b == '\n') {
-            collect(running.toString());
-            running.setLength(0);
+            collect(new String(running, 0, run_i));
+            run_i = 0;
         } else {
-            running.append((char) b);
+            if (run_i >= running.length) {
+                byte[] nrun = new byte[running.length * 2];
+                System.arraycopy(running, 0, nrun, 0, run_i);
+                running = nrun;
+            }
+            running[run_i++] = (byte) b;
         }
     }
 
-    protected abstract void collect(String toString);
+    /**
+     * Override this to be called each time a new line is received.
+     *
+     * @param param The received line.
+     */
+    protected abstract void collect(String param);
 }

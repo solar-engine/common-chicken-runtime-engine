@@ -18,9 +18,9 @@
  */
 package ccre.igneous;
 
-import ccre.chan.FloatInputPoll;
-import ccre.event.EventConsumer;
-import ccre.event.EventSource;
+import ccre.channel.FloatInputPoll;
+import ccre.channel.EventOutput;
+import ccre.channel.EventInput;
 import java.awt.EventQueue;
 
 /**
@@ -28,9 +28,10 @@ import java.awt.EventQueue;
  *
  * @author skeggsc
  */
+@SuppressWarnings("serial")
 public class EncoderForm extends javax.swing.JFrame implements FloatInputPoll {
 
-    public EncoderForm(final String name, EventSource resetWhen) {
+    public EncoderForm(final String name, EventInput resetWhen) {
         initComponents();
         EventQueue.invokeLater(new Runnable() {
             @Override
@@ -39,9 +40,9 @@ public class EncoderForm extends javax.swing.JFrame implements FloatInputPoll {
             }
         });
         if (resetWhen != null) {
-            resetWhen.addListener(new EventConsumer() {
+            resetWhen.send(new EventOutput() {
                 @Override
-                public void eventFired() {
+                public void event() {
                     EventQueue.invokeLater(new Runnable() {
                         @Override
                         public void run() {
@@ -108,7 +109,7 @@ public class EncoderForm extends javax.swing.JFrame implements FloatInputPoll {
     // End of variables declaration//GEN-END:variables
 
     @Override
-    public float readValue() {
+    public float get() {
         return (Integer) spnValue.getValue();
     }
 }

@@ -18,7 +18,8 @@
  */
 package ccre.obsidian;
 
-import ccre.chan.*;
+import ccre.channel.BooleanOutput;
+import ccre.channel.BooleanInputPoll;
 import ccre.concurrency.ReporterThread;
 import java.io.*;
 
@@ -146,7 +147,7 @@ class GPIOManager {
         }
 
         @Override
-        public void writeValue(boolean bln) throws ObsidianHardwareException {
+        public void set(boolean bln) throws ObsidianHardwareException {
             synchronized (lock) {
                 if (!isExported) {
                     throw new ObsidianHardwareException("Cannot set value unless exported!");
@@ -166,7 +167,7 @@ class GPIOManager {
         }
 
         @Override
-        public boolean readValue() {
+        public boolean get() {
             synchronized (lock) {
                 int c;
                 if (!isExported) {
@@ -223,7 +224,7 @@ class GPIOManager {
             GPIO g = getChannel(gpioID);
             g.export();
             g.setDirection(isOutput);
-            g.writeValue(defaultPullOrValue);
+            g.set(defaultPullOrValue);
             return g;
         }
     }

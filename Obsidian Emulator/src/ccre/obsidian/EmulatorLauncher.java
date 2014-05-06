@@ -18,12 +18,7 @@
  */
 package ccre.obsidian;
 
-import ccre.chan.BooleanInputPoll;
-import ccre.chan.BooleanOutput;
-import ccre.chan.FloatInputPoll;
-import ccre.chan.FloatOutput;
-import ccre.cluck.CluckGlobals;
-import ccre.event.EventConsumer;
+import ccre.channel.*;
 import ccre.log.LogLevel;
 import ccre.log.Logger;
 import ccre.log.NetworkAutologger;
@@ -54,7 +49,6 @@ public class EmulatorLauncher extends ObsidianLauncher {
             System.exit(-1);
             return;
         }
-        CluckGlobals.ensureInitializedCore();
         NetworkAutologger.register();
         URLClassLoader classLoader = new URLClassLoader(new URL[]{new File(args[0]).toURI().toURL()}, EmulatorLauncher.class.getClassLoader());
 
@@ -77,23 +71,21 @@ public class EmulatorLauncher extends ObsidianLauncher {
         if (gui) {
             guiWindow.setVisible(true);
         }
-        periodic.addListener(new EventConsumer() {
+        periodic.send(new EventOutput() {
             @Override
-            public void eventFired() {
+            public void event() {
                 updateModules();
             }
-
         });
     }
     
     @Override
     public void main() {
-        periodic.addListener(new EventConsumer() {
+        periodic.send(new EventOutput() {
             @Override
-            public void eventFired() {
+            public void event() {
                 updateModules();
             }
-
         });
         super.main();
     }

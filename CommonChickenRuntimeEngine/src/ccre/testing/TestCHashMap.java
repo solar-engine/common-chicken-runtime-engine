@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 Colby Skeggs
+ * Copyright 2013-2014 Colby Skeggs
  * 
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  * 
@@ -36,46 +36,46 @@ public class TestCHashMap extends BaseTest {
     @Override
     protected void runTest() throws TestingException {
         CHashMap<String, String> alpha = new CHashMap<String, String>();
-        assertEqual(alpha.get("never"), null, "Bad nonexistent element!");
+        assertObjectEqual(alpha.get("never"), null, "Bad nonexistent element!");
         assertFalse(alpha.containsKey("never"), "Bad contains!");
         assertTrue(alpha.isEmpty(), "Empty map should be empty!");
-        assertEqual(alpha.size(), 0, "Bad size of map!");
-        assertEqual(alpha.put("test", "of course"), null, "Bad put!");
-        assertEqual(alpha.get("test"), "of course", "Bad element!");
+        assertIntsEqual(alpha.size(), 0, "Bad size of map!");
+        assertObjectEqual(alpha.put("test", "of course"), null, "Bad put!");
+        assertObjectEqual(alpha.get("test"), "of course", "Bad element!");
         assertTrue(alpha.containsKey("test"), "Bad contains!");
         assertFalse(alpha.isEmpty(), "Non-empty map should not be empty!");
-        assertEqual(alpha.size(), 1, "Bad size of map!");
+        assertIntsEqual(alpha.size(), 1, "Bad size of map!");
         alpha.put("test2", "secondary"); // Working on checking put results.
-        assertEqual(alpha.get("test"), "of course", "Bad element!");
+        assertObjectEqual(alpha.get("test"), "of course", "Bad element!");
         assertTrue(alpha.containsKey("test"), "Bad contains!");
-        assertEqual(alpha.get("test2"), "secondary", "Bad element!");
+        assertObjectEqual(alpha.get("test2"), "secondary", "Bad element!");
         assertTrue(alpha.containsKey("test2"), "Bad contains!");
-        assertEqual(alpha.get("test3"), null, "Bad element!");
+        assertObjectEqual(alpha.get("test3"), null, "Bad element!");
         assertFalse(alpha.containsKey("test3"), "Bad contains!");
         assertFalse(alpha.isEmpty(), "Non-empty map should not be empty!");
-        assertEqual(alpha.size(), 2, "Bad size of map!");
+        assertIntsEqual(alpha.size(), 2, "Bad size of map!");
         alpha.put("test", "replacement");
-        assertEqual(alpha.get("test"), "replacement", "Bad element!");
+        assertObjectEqual(alpha.get("test"), "replacement", "Bad element!");
         assertTrue(alpha.containsKey("test"), "Bad contains!");
-        assertEqual(alpha.get("test2"), "secondary", "Bad element!");
+        assertObjectEqual(alpha.get("test2"), "secondary", "Bad element!");
         assertTrue(alpha.containsKey("test2"), "Bad contains!");
-        assertEqual(alpha.get("test3"), null, "Bad element!");
+        assertObjectEqual(alpha.get("test3"), null, "Bad element!");
         assertFalse(alpha.containsKey("test3"), "Bad contains!");
         assertFalse(alpha.isEmpty(), "Non-empty map should not be empty!");
-        assertEqual(alpha.size(), 2, "Bad size of map!");
+        assertIntsEqual(alpha.size(), 2, "Bad size of map!");
         alpha.clear();
-        assertEqual(alpha.get("test"), null, "Bad element!");
-        assertEqual(alpha.get("test2"), null, "Bad element!");
-        assertEqual(alpha.get("test3"), null, "Bad element!");
+        assertObjectEqual(alpha.get("test"), null, "Bad element!");
+        assertObjectEqual(alpha.get("test2"), null, "Bad element!");
+        assertObjectEqual(alpha.get("test3"), null, "Bad element!");
         assertFalse(alpha.containsKey("test"), "Bad contains!");
         assertFalse(alpha.containsKey("test2"), "Bad contains!");
         assertFalse(alpha.containsKey("test3"), "Bad contains!");
         assertTrue(alpha.isEmpty(), "Empty map should not be empty!");
-        assertEqual(alpha.size(), 0, "Bad size of map!");
+        assertIntsEqual(alpha.size(), 0, "Bad size of map!");
         alpha.put("other", "ten");
         alpha.put("other", null);
         assertFalse(alpha.isEmpty(), "Not actually empty!");
-        assertEqual(alpha.get("other"), null, "Not actually empty!");
+        assertObjectEqual(alpha.get("other"), null, "Not actually empty!");
         assertTrue(alpha.containsKey("other"), "Not actually empty!");
 
         String[] randoms = {"abcd", "aoeu", "pickles", "overstatement", "understudy", "arrays", "backwards", "sdrawkcab", "additional", "foo", "bar", "1540", "413", "612", "1025", "1111", "yes that is", "many-sided-pickle-adventurer", "chickens", "ignited", "pi", "are you even reading these by now?", "long string!!!!!!......//////_______ hahahahah", "I hope that this works.", "I could do brainstorming in here.", "Finishing up...", "green", "violet", "magenta", "purple", "indigo", "cerulean", "cobalt", "cheese", "potatos", "nitrates", "sodium", "carbohydrates", "snakes", "office", "pocketbook"};
@@ -102,12 +102,12 @@ public class TestCHashMap extends BaseTest {
             testee.put(keys[i], values[i]);
         }
         for (int i = 0; i < keys.length; i++) {
-            assertIEqual(testee.get(keys[i]), values[i], "HashMap returned wrong value!");
+            assertIdentityEqual(testee.get(keys[i]), values[i], "HashMap returned wrong value!");
         }
         boolean[] found = new boolean[keys.length];
         for (String s : testee) {
             for (int i = 0; i < keys.length; i++) {
-                if (keys[i] == s) {
+                if (keys[i].equals(s)) {
                     assertFalse(found[i], "Already found that key!");
                     found[i] = true;
                 }
@@ -116,5 +116,13 @@ public class TestCHashMap extends BaseTest {
         for (boolean b : found) {
             assertTrue(b, "Did not complete all keys!");
         }
+        alpha.clear();
+        alpha.put("Test", "ok");
+        alpha.put("Test2", "not ok");
+        assertObjectEqual(alpha.remove("Test"), "ok", "Did not remove correct element!");
+        assertFalse(alpha.containsKey("Test"), "Alpha still has the removed key!");
+        assertObjectEqual(alpha.get("Test"), null, "Got element even after it was removed!");
+        assertObjectEqual(alpha.get("Test2"), "not ok", "Removed wrong element!");
+        assertObjectEqual(alpha.remove("Test"), null, "Trying to remove an non existent key has unexpected results!");
     }
 }

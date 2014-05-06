@@ -18,12 +18,12 @@
  */
 package ccre.obsidian.comms;
 
-import ccre.chan.BooleanInput;
-import ccre.chan.BooleanOutput;
-import ccre.chan.BooleanStatus;
+import ccre.channel.BooleanInput;
+import ccre.channel.BooleanOutput;
+import ccre.channel.BooleanStatus;
 import ccre.ctrl.Ticker;
-import ccre.event.EventConsumer;
-import ccre.event.EventSource;
+import ccre.channel.EventOutput;
+import ccre.channel.EventInput;
 import ccre.log.LogLevel;
 import ccre.log.Logger;
 import ccre.obsidian.ObsidianCore;
@@ -44,7 +44,7 @@ public class RobotConnection {
 
     public static boolean alive = false;
     private static XBeeRadio radio;
-    private static EventSource heartbeat;
+    private static EventInput heartbeat;
     private static long timeSinceBeat = System.currentTimeMillis();
 
     public static void startConnection(String port, int baud, boolean verified, boolean beta, final ObsidianCore notify) {
@@ -60,38 +60,38 @@ public class RobotConnection {
         heartbeat = ObsidianCommsNode.globalNode.createEventSource(CommsID.ID_HEARTBEAT);
         enabled = ObsidianCommsNode.globalNode.createBooleanInput(CommsID.ID_ENABLED);
 
-        enabled.addTarget(new BooleanOutput() {
+        enabled.send(new BooleanOutput() {
             @Override
-            public void writeValue(boolean b) {
+            public void set(boolean b) {
                 if (b && alive) {
-                    notify.enabled.eventFired();
+                    notify.enabled.event();
                     alive = true;
                     Logger.info("alive");
                 } else if (!b) {
-                    notify.disabled.eventFired();
+                    notify.disabled.event();
                     alive = false;
                     Logger.info("dead");
                 }
             }
         });
 
-        heartbeat.addListener(new EventConsumer() {
+        heartbeat.send(new EventOutput() {
             @Override
-            public void eventFired() {
+            public void event() {
                 timeSinceBeat = System.currentTimeMillis();
-                if (!alive && enabled.readValue()) {
-                    notify.enabled.eventFired();
+                if (!alive && enabled.get()) {
+                    notify.enabled.event();
                     alive = true;
                     Logger.info("alive");
                 }
             }
         });
 
-        new Ticker(20).addListener(new EventConsumer() {
+        new Ticker(20).send(new EventOutput() {
             @Override
-            public void eventFired() {
+            public void event() {
                 if (System.currentTimeMillis() - timeSinceBeat > 1000 && alive) {
-                    notify.disabled.eventFired();
+                    notify.disabled.event();
                     alive = false;
                     Logger.info("dead");
                 }

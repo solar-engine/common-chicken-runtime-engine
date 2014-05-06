@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 Colby Skeggs
+ * Copyright 2013-2014 Colby Skeggs
  * 
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  * 
@@ -29,5 +29,10 @@ package ccre.downgrade;
  */
 public interface Iterable<T> {
 
-    Iterator<T> iterator();
+    /**
+     * Returns an iterator over this object.
+     *
+     * @return The iterator.
+     */
+    public Iterator<T> iterator();
 }

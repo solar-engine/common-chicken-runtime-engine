@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 Colby Skeggs
+ * Copyright 2013-2014 Colby Skeggs
  * 
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  * 
@@ -28,10 +28,8 @@ import ccre.util.CArrayList;
  */
 public class Logger {
 
-    private Logger() {
-    }
     /**
-     * The logging targets to write logs to by default.
+     * The logging targets to write logs to.
      */
     public static final CArrayList<LoggingTarget> targets = new CArrayList<LoggingTarget>();
 
@@ -47,11 +45,6 @@ public class Logger {
     public static synchronized void addTarget(LoggingTarget lt) {
         targets.add(lt);
     }
-    /**
-     * The minimum level of logging to keep when writing data using these
-     * globals. Anything below this level will be ignored.
-     */
-    public static LogLevel minimumLevel = LogLevel.FINEST;
 
     /**
      * Log a given message and throwable at the given log level.
@@ -60,14 +53,12 @@ public class Logger {
      * @param message the message to log.
      * @param thr the Throwable to log
      */
-    public static void log(LogLevel level, String message, Throwable thr) {
-        if (level.atLeastAsImportant(minimumLevel)) {
-            if (level == null || message == null) {
-                throw new NullPointerException();
-            }
-            for (LoggingTarget lt : targets) {
-                lt.log(level, message, thr);
-            }
+    public static void log(LogLevel level, String message, Throwable thr) { // TODO: Use the new methods now.
+        if (level == null || message == null) {
+            throw new NullPointerException();
+        }
+        for (LoggingTarget lt : targets) {
+            lt.log(level, message, thr);
         }
     }
 
@@ -79,13 +70,11 @@ public class Logger {
      * @param extended the extended message to log
      */
     public static void logExt(LogLevel level, String message, String extended) {
-        if (level.atLeastAsImportant(minimumLevel)) {
-            if (level == null || message == null) {
-                throw new NullPointerException();
-            }
-            for (LoggingTarget lt : targets) {
-                lt.log(level, message, extended);
-            }
+        if (level == null || message == null) {
+            throw new NullPointerException();
+        }
+        for (LoggingTarget lt : targets) {
+            lt.log(level, message, extended);
         }
     }
 
@@ -160,5 +149,78 @@ public class Logger {
      */
     public static void finest(String message) {
         log(LogLevel.FINEST, message);
+    }
+
+    /**
+     * Log the given message and exception at SEVERE level.
+     *
+     * @param message the message to log.
+     * @param thr The exception to include in the log.
+     */
+    public static void severe(String message, Throwable thr) {
+        log(LogLevel.SEVERE, message, thr);
+    }
+
+    /**
+     * Log the given message and exception at WARNING level.
+     *
+     * @param message the message to log.
+     * @param thr The exception to include in the log.
+     */
+    public static void warning(String message, Throwable thr) {
+        log(LogLevel.WARNING, message, thr);
+    }
+
+    /**
+     * Log the given message and exception at INFO level.
+     *
+     * @param message the message to log.
+     * @param thr The exception to include in the log.
+     */
+    public static void info(String message, Throwable thr) {
+        log(LogLevel.INFO, message, thr);
+    }
+
+    /**
+     * Log the given message and exception at CONFIG level.
+     *
+     * @param message the message to log.
+     * @param thr The exception to include in the log.
+     */
+    public static void config(String message, Throwable thr) {
+        log(LogLevel.CONFIG, message, thr);
+    }
+
+    /**
+     * Log the given message and exception at FINE level.
+     *
+     * @param message the message to log.
+     * @param thr The exception to include in the log.
+     */
+    public static void fine(String message, Throwable thr) {
+        log(LogLevel.FINE, message, thr);
+    }
+
+    /**
+     * Log the given message and exception at FINER level.
+     *
+     * @param message the message to log.
+     * @param thr The exception to include in the log.
+     */
+    public static void finer(String message, Throwable thr) {
+        log(LogLevel.FINER, message, thr);
+    }
+
+    /**
+     * Log the given message and exception at FINEST level.
+     *
+     * @param message the message to log.
+     * @param thr The exception to include in the log.
+     */
+    public static void finest(String message, Throwable thr) {
+        log(LogLevel.FINEST, message, thr);
+    }
+
+    private Logger() {
     }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 Colby Skeggs
+ * Copyright 2013-2014 Colby Skeggs
  * 
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  * 
@@ -18,17 +18,15 @@
  */
 package ccre.ctrl;
 
-import ccre.chan.BooleanInputPoll;
-import ccre.chan.BooleanInputProducer;
-import ccre.chan.BooleanOutput;
-import ccre.chan.FloatFilter;
-import ccre.chan.FloatInput;
-import ccre.chan.FloatInputPoll;
-import ccre.chan.FloatOutput;
-import ccre.event.Event;
-import ccre.event.EventConsumer;
-import ccre.event.EventSource;
-import ccre.log.Logger;
+import ccre.channel.BooleanInputPoll;
+import ccre.channel.BooleanOutput;
+import ccre.channel.EventInput;
+import ccre.channel.EventOutput;
+import ccre.channel.EventStatus;
+import ccre.channel.FloatFilter;
+import ccre.channel.FloatInput;
+import ccre.channel.FloatInputPoll;
+import ccre.channel.FloatOutput;
 import ccre.util.CArrayList;
 import ccre.util.Utils;
 
@@ -48,17 +46,15 @@ class MixingImpls {
             this.value = value;
         }
 
-        public float readValue() {
+        public float get() {
             return value;
         }
 
-        public void addTarget(FloatOutput consum) {
-            consum.writeValue(value);
+        public void send(FloatOutput consum) {
+            consum.set(value);
         }
 
-        public boolean removeTarget(FloatOutput consum) {
-            Logger.warning("Faked removeTarget for Mixing.always(" + value + ")");
-            return true; // Faked!
+        public void unsend(FloatOutput consum) {
         }
     }
 
@@ -66,13 +62,13 @@ class MixingImpls {
 
         private final BooleanInputPoll[] vals;
 
-        public AndBooleansImpl(BooleanInputPoll[] vals) {
+        AndBooleansImpl(BooleanInputPoll[] vals) {
             this.vals = vals;
         }
 
-        public boolean readValue() {
+        public boolean get() {
             for (BooleanInputPoll val : vals) {
-                if (!val.readValue()) {
+                if (!val.get()) {
                     return false;
                 }
             }
@@ -85,56 +81,51 @@ class MixingImpls {
         private final BooleanInputPoll a;
         private final BooleanInputPoll b;
 
-        public AndBooleansImpl2(BooleanInputPoll a, BooleanInputPoll b) {
+        AndBooleansImpl2(BooleanInputPoll a, BooleanInputPoll b) {
             this.a = a;
             this.b = b;
         }
 
-        public boolean readValue() {
-            return a.readValue() && b.readValue();
+        public boolean get() {
+            return a.get() && b.get();
         }
     }
 
     static final class BCF implements FloatInput, BooleanOutput {
 
-        private final BooleanInputProducer binp;
         private final float off, on;
         private float cur;
         private CArrayList<FloatOutput> consumers = null;
 
-        BCF(BooleanInputProducer binp, boolean default_, float off, float on) {
-            this.binp = binp;
+        BCF(boolean default_, float off, float on) {
             this.off = off;
             this.on = on;
-            binp.addTarget(this);
             cur = default_ ? on : off;
         }
 
-        public float readValue() {
+        public float get() {
             return cur;
         }
 
-        public void addTarget(FloatOutput consum) {
+        public void send(FloatOutput consum) {
             if (consumers == null) {
                 consumers = new CArrayList<FloatOutput>();
             }
             consumers.add(consum);
-            consum.writeValue(cur);
+            consum.set(cur);
         }
 
-        public boolean removeTarget(FloatOutput consum) {
+        public void unsend(FloatOutput consum) {
             if (consumers != null) {
                 consumers.remove(consum);
-                return true;
             }
-            return false;
         }
 
-        public void writeValue(boolean value) {
+        public void set(boolean value) {
             cur = value ? on : off;
             if (consumers != null) {
                 for (FloatOutput out : consumers) {
-                    out.writeValue(cur);
+                    out.set(cur);
                 }
             }
         }
@@ -142,44 +133,39 @@ class MixingImpls {
 
     static final class BCF2 implements FloatInput, BooleanOutput {
 
-        private final BooleanInputProducer binp;
         private final FloatInputPoll off, on;
         private float cur;
         private CArrayList<FloatOutput> consumers = null;
 
-        BCF2(BooleanInputProducer binp, boolean default_, FloatInputPoll off, FloatInputPoll on) {
-            this.binp = binp;
+        BCF2(boolean default_, FloatInputPoll off, FloatInputPoll on) {
             this.off = off;
             this.on = on;
-            binp.addTarget(this);
-            cur = default_ ? on.readValue() : off.readValue();
+            cur = default_ ? on.get() : off.get();
         }
 
-        public float readValue() {
+        public float get() {
             return cur;
         }
 
-        public void addTarget(FloatOutput consum) {
+        public void send(FloatOutput consum) {
             if (consumers == null) {
                 consumers = new CArrayList<FloatOutput>();
             }
             consumers.add(consum);
-            consum.writeValue(cur);
+            consum.set(cur);
         }
 
-        public boolean removeTarget(FloatOutput consum) {
+        public void unsend(FloatOutput consum) {
             if (consumers != null) {
                 consumers.remove(consum);
-                return true;
             }
-            return false;
         }
 
-        public void writeValue(boolean value) {
-            cur = value ? on.readValue() : off.readValue();
+        public void set(boolean value) {
+            cur = value ? on.get() : off.get();
             if (consumers != null) {
                 for (FloatOutput out : consumers) {
-                    out.writeValue(cur);
+                    out.set(cur);
                 }
             }
         }
@@ -197,8 +183,8 @@ class MixingImpls {
             this.on = on;
         }
 
-        public void writeValue(boolean value) {
-            bout.writeValue(value ? on : off);
+        public void set(boolean value) {
+            bout.set(value ? on : off);
         }
     }
 
@@ -214,8 +200,8 @@ class MixingImpls {
             this.on = on;
         }
 
-        public float readValue() {
-            return binp.readValue() ? on : off;
+        public float get() {
+            return binp.get() ? on : off;
         }
     }
 
@@ -231,8 +217,8 @@ class MixingImpls {
             this.off = off;
         }
 
-        public float readValue() {
-            return selector.readValue() ? on.readValue() : off.readValue();
+        public float get() {
+            return selector.get() ? on.get() : off.get();
         }
     }
 
@@ -250,6 +236,27 @@ class MixingImpls {
         }
     }
 
+    static class DebounceImpl implements EventOutput {
+
+        private final EventOutput orig;
+        private long nextFire = 0;
+        private final int delay;
+
+        DebounceImpl(EventOutput orig, int delay) {
+            this.orig = orig;
+            this.delay = delay;
+        }
+
+        public void event() {
+            long now = System.currentTimeMillis();
+            if (now < nextFire) {
+                return; // Ignore event.
+            }
+            nextFire = now + delay;
+            orig.event();
+        }
+    }
+
     static class DZI implements FloatInputPoll {
 
         private final FloatInputPoll value;
@@ -260,8 +267,8 @@ class MixingImpls {
             this.deadzone = deadzone;
         }
 
-        public float readValue() {
-            return Utils.deadzone(value.readValue(), deadzone);
+        public float get() {
+            return Utils.deadzone(value.get(), deadzone);
         }
     }
 
@@ -275,44 +282,44 @@ class MixingImpls {
             this.deadzone = deadzone;
         }
 
-        public void writeValue(float newValue) {
-            value.writeValue(Utils.deadzone(newValue, deadzone));
+        public void set(float newValue) {
+            value.set(Utils.deadzone(newValue, deadzone));
         }
     }
 
-    static class FEC implements EventConsumer {
+    static class FEC implements EventOutput {
 
         private final BooleanInputPoll shouldAllow;
         private final boolean requirement;
-        private final EventConsumer cnsm;
+        private final EventOutput cnsm;
 
-        FEC(BooleanInputPoll shouldAllow, boolean requirement, EventConsumer cnsm) {
+        FEC(BooleanInputPoll shouldAllow, boolean requirement, EventOutput cnsm) {
             this.shouldAllow = shouldAllow;
             this.requirement = requirement;
             this.cnsm = cnsm;
         }
 
-        public void eventFired() {
-            if (shouldAllow.readValue() == requirement) {
-                cnsm.eventFired();
+        public void event() {
+            if (shouldAllow.get() == requirement) {
+                cnsm.event();
             }
         }
     }
 
-    static class FES implements EventConsumer {
+    static class FES implements EventOutput {
 
         private final BooleanInputPoll shouldAllow;
         private final boolean requirement;
-        private final Event out;
+        private final EventStatus out;
 
-        FES(BooleanInputPoll shouldAllow, boolean requirement, Event out) {
+        FES(BooleanInputPoll shouldAllow, boolean requirement, EventStatus out) {
             this.shouldAllow = shouldAllow;
             this.requirement = requirement;
             this.out = out;
         }
 
-        public void eventFired() {
-            if (shouldAllow.readValue() == requirement) {
+        public void event() {
+            if (shouldAllow.get() == requirement) {
                 out.produce();
             }
         }
@@ -328,8 +335,8 @@ class MixingImpls {
             this.minimum = minimum;
         }
 
-        public boolean readValue() {
-            return base.readValue() >= minimum;
+        public boolean get() {
+            return base.get() >= minimum;
         }
     }
 
@@ -343,8 +350,8 @@ class MixingImpls {
             this.maximum = maximum;
         }
 
-        public boolean readValue() {
-            return base.readValue() <= maximum;
+        public boolean get() {
+            return base.get() <= maximum;
         }
     }
 
@@ -360,8 +367,8 @@ class MixingImpls {
             this.maximum = maximum;
         }
 
-        public boolean readValue() {
-            float val = base.readValue();
+        public boolean get() {
+            float val = base.get();
             return val >= minimum && val <= maximum;
         }
     }
@@ -378,8 +385,8 @@ class MixingImpls {
             this.maximum = maximum;
         }
 
-        public boolean readValue() {
-            float val = base.readValue();
+        public boolean get() {
+            float val = base.get();
             return val < minimum || val > maximum;
         }
     }
@@ -391,11 +398,11 @@ class MixingImpls {
 
         FindRateImpl(FloatInputPoll input) {
             this.input = input;
-            this.lastValue = input.readValue();
+            this.lastValue = input.get();
         }
 
-        public synchronized float readValue() {
-            float next = input.readValue();
+        public synchronized float get() {
+            float next = input.get();
             float out = next - lastValue;
             lastValue = next;
             return out;
@@ -405,43 +412,28 @@ class MixingImpls {
     static class FindRateCycledImpl implements FloatInputPoll {
 
         private final FloatInputPoll input;
-        private float lastValue;
+        float lastValue;
 
         FindRateCycledImpl(FloatInputPoll input) {
             this.input = input;
-            this.lastValue = input.readValue();
+            this.lastValue = input.get();
         }
 
-        public FloatInputPoll start(EventSource updateWhen) {
-            updateWhen.addListener(new EventConsumer() {
-                public void eventFired() {
-                    lastValue = input.readValue();
+        public FloatInputPoll start(EventInput updateWhen) {
+            updateWhen.send(new EventOutput() {
+                public void event() {
+                    lastValue = input.get();
                 }
             });
             return this;
         }
 
-        public synchronized float readValue() {
-            return input.readValue() - lastValue;
+        public synchronized float get() {
+            return input.get() - lastValue;
         }
     }
 
-    static class FloatsEqualImpl implements BooleanInputPoll {
-
-        private final FloatInputPoll a;
-        private final FloatInputPoll b;
-
-        public FloatsEqualImpl(FloatInputPoll a, FloatInputPoll b) {
-            this.a = a;
-            this.b = b;
-        }
-
-        public boolean readValue() {
-            return a.readValue() == b.readValue();
-        }
-    }
-
-    static class GSEB implements EventConsumer {
+    static class GSEB implements EventOutput {
 
         private final BooleanOutput out;
         private final boolean value;
@@ -451,12 +443,12 @@ class MixingImpls {
             this.value = value;
         }
 
-        public void eventFired() {
-            out.writeValue(value);
+        public void event() {
+            out.set(value);
         }
     }
 
-    static class GSEF implements EventConsumer {
+    static class GSEF implements EventOutput {
 
         private final FloatOutput out;
         private final float value;
@@ -466,8 +458,8 @@ class MixingImpls {
             this.value = value;
         }
 
-        public void eventFired() {
-            out.writeValue(value);
+        public void event() {
+            out.set(value);
         }
     }
 
@@ -508,8 +500,8 @@ class MixingImpls {
             this.range = range;
         }
 
-        public float readValue() {
-            return (base.readValue() - zero) / range;
+        public float get() {
+            return (base.get() - zero) / range;
         }
     }
 
@@ -517,13 +509,13 @@ class MixingImpls {
 
         private final BooleanInputPoll[] vals;
 
-        public OrBooleansImpl(BooleanInputPoll[] vals) {
+        OrBooleansImpl(BooleanInputPoll[] vals) {
             this.vals = vals;
         }
 
-        public boolean readValue() {
+        public boolean get() {
             for (BooleanInputPoll val : vals) {
-                if (val.readValue()) {
+                if (val.get()) {
                     return true;
                 }
             }
@@ -536,43 +528,58 @@ class MixingImpls {
         private final BooleanInputPoll a;
         private final BooleanInputPoll b;
 
-        public OrBooleansImpl2(BooleanInputPoll a, BooleanInputPoll b) {
+        OrBooleansImpl2(BooleanInputPoll a, BooleanInputPoll b) {
             this.a = a;
             this.b = b;
         }
 
-        public boolean readValue() {
-            return a.readValue() || b.readValue();
+        public boolean get() {
+            return a.get() || b.get();
         }
     }
 
-    static class PumpEventImplF implements EventConsumer {
+    static class XorBooleansImpl implements BooleanInputPoll {
+
+        private final BooleanInputPoll a;
+        private final BooleanInputPoll b;
+
+        XorBooleansImpl(BooleanInputPoll a, BooleanInputPoll b) {
+            this.a = a;
+            this.b = b;
+        }
+
+        public boolean get() {
+            return a.get() ^ b.get();
+        }
+    }
+
+    static class PumpEventImplF implements EventOutput {
 
         private final FloatOutput out;
         private final FloatInputPoll in;
 
-        public PumpEventImplF(FloatOutput out, FloatInputPoll in) {
+        PumpEventImplF(FloatOutput out, FloatInputPoll in) {
             this.out = out;
             this.in = in;
         }
 
-        public void eventFired() {
-            out.writeValue(in.readValue());
+        public void event() {
+            out.set(in.get());
         }
     }
 
-    static class PumpEventImplB implements EventConsumer {
+    static class PumpEventImplB implements EventOutput {
 
         private final BooleanOutput out;
         private final BooleanInputPoll in;
 
-        public PumpEventImplB(BooleanOutput out, BooleanInputPoll in) {
+        PumpEventImplB(BooleanOutput out, BooleanInputPoll in) {
             this.out = out;
             this.in = in;
         }
 
-        public void eventFired() {
-            out.writeValue(in.readValue());
+        public void event() {
+            out.set(in.get());
         }
     }
 
@@ -594,43 +601,66 @@ class MixingImpls {
             this.ff = ff;
         }
 
-        public float readValue() {
-            return alpha.readValue() ? (beta.readValue() ? tt : tf) : (beta.readValue() ? ft : ff);
+        public float get() {
+            return alpha.get() ? (beta.get() ? tt : tf) : (beta.get() ? ft : ff);
         }
     }
 
-    static class RampingImpl implements EventConsumer {
+    static class QuadSelectImpl2 implements FloatInputPoll {
+
+        private final BooleanInputPoll alpha;
+        private final BooleanInputPoll beta;
+        private final FloatInputPoll tt;
+        private final FloatInputPoll tf;
+        private final FloatInputPoll ft;
+        private final FloatInputPoll ff;
+
+        QuadSelectImpl2(BooleanInputPoll alpha, BooleanInputPoll beta, FloatInputPoll tt, FloatInputPoll tf, FloatInputPoll ft, FloatInputPoll ff) {
+            this.alpha = alpha;
+            this.beta = beta;
+            this.tt = tt;
+            this.tf = tf;
+            this.ft = ft;
+            this.ff = ff;
+        }
+
+        public float get() {
+            return (alpha.get() ? (beta.get() ? tt : tf) : (beta.get() ? ft : ff)).get();
+        }
+    }
+
+    static class RampingImpl implements EventOutput {
 
         private final FloatInputPoll from;
         private final float limit;
         private final FloatOutput target;
+        private float last;
 
-        public RampingImpl(FloatInputPoll from, float limit, FloatOutput target) {
+        RampingImpl(FloatInputPoll from, float limit, FloatOutput target) {
             this.from = from;
             this.limit = limit;
             this.target = target;
-            last = from.readValue();
+            last = from.get();
         }
-        public float last;
 
-        public void eventFired() {
-            last = Utils.updateRamping(last, from.readValue(), limit);
-            target.writeValue(last);
+        public void event() {
+            last = Utils.updateRamping(last, from.get(), limit);
+            target.set(last);
         }
     }
 
     static class WBBI implements BooleanOutput {
 
         private final boolean target;
-        private final Event out;
+        private final EventStatus out;
+        private boolean last;
 
-        WBBI(boolean target, Event out) {
+        WBBI(boolean target, EventStatus out) {
             this.target = target;
             this.out = out;
         }
-        protected boolean last;
 
-        public void writeValue(boolean value) {
+        public void set(boolean value) {
             if (value == last) {
                 return;
             }

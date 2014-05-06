@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 Colby Skeggs
+ * Copyright 2013-2014 Colby Skeggs
  * 
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  * 
@@ -18,10 +18,12 @@
  */
 package ccre.downgrade;
 
+import java.util.NoSuchElementException;
+
 /**
- * This is the same as java.util.Iterator. Don't use
- * this. It is used when Retrotranslator downgrades the code to 1.3, because 1.3
- * doesn't have Iterator.
+ * This is the same as java.util.Iterator. Don't use this. It is used when
+ * Retrotranslator downgrades the code to 1.3, because 1.3 doesn't have
+ * Iterator.
  *
  * @param <E> The type returned by the iterator.
  * @see java.util.Iterator
@@ -29,9 +31,30 @@ package ccre.downgrade;
  */
 public interface Iterator<E> {
 
-    boolean hasNext();
+    /**
+     * Checks if there are any more elements to return from the iterator.
+     *
+     * @return If there are more elements.
+     */
+    public boolean hasNext();
 
-    E next();
+    /**
+     * If there are any more elements to return, returns the next. Otherwise
+     * throws NoSuchElementException.
+     *
+     * @return The next element.
+     * @throws NoSuchElementException If there are no more elements.
+     */
+    public E next() throws NoSuchElementException;
 
-    void remove();
+    /**
+     * Removes the element previously returned from next(). This is an optional
+     * operation.
+     *
+     * @throws IllegalStateException If no previous element has been returned
+     * from next(), or if remove() has already been called.
+     * @throws UnsupportedOperationException If this operation is not supported
+     * by the iterator.
+     */
+    public void remove() throws UnsupportedOperationException, IllegalStateException;
 }

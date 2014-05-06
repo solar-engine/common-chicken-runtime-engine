@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 Colby Skeggs
+ * Copyright 2013-2014 Colby Skeggs
  * 
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  * 
@@ -34,7 +34,7 @@ import java.util.NoSuchElementException;
  * @author skeggsc
  * @param <E> The type of the collection's elements
  */
-public class ConcurrentDispatchArray<E> implements CCollection<E> {
+public final class ConcurrentDispatchArray<E> implements CCollection<E> {
 
     /**
      * The array that contains the current data. Do not modify this field
@@ -42,50 +42,56 @@ public class ConcurrentDispatchArray<E> implements CCollection<E> {
      *
      * @see #compareAndSetArray(java.lang.Object[], java.lang.Object[])
      */
-    protected volatile Object[] data = new Object[0];
+    private volatile Object[] data = new Object[0];
 
     public Iterator<E> iterator() {
+        final Object[] dat = data;
         return new Iterator<E>() {
-            Object[] dat = data;
-            int i = 0;
+            private int i = 0;
 
+            @Override
             public boolean hasNext() {
                 return i < dat.length;
             }
 
             @SuppressWarnings("unchecked")
+            @Override
             public E next() {
                 if (!hasNext()) {
                     throw new NoSuchElementException();
                 }
-                E e = (E) dat[i++];
-                return e;
+                return (E) dat[i++];
             }
 
+            @Override
             public void remove() {
-                Object tgt = dat[i - 1];
-                Object[] old, dout;
-                do {
-                    old = data;
-                    dout = new Object[old.length - 1];
-                    int j;
-                    for (j = 0; j < old.length; j++) {
-                        Object cur = old[j];
-                        if (cur == tgt) {
-                            break;
-                        }
-                        dout[j] = cur;
-                    }
-                    if (j == old.length) {
-                        // already removed. do nothing!
-                        return;
-                    }
-                    for (j++; j < old.length; j++) {
-                        dout[j - 1] = old[j];
-                    }
-                } while (!compareAndSetArray(old, dout));
+                removeSpecificElement(dat[i - 1]);
             }
         };
+    }
+
+    private boolean removeSpecificElement(Object tgt) {
+        Object[] previous, active;
+        do {
+            previous = data;
+            active = new Object[previous.length - 1];
+            int j;
+            for (j = 0; j < previous.length; j++) {
+                Object cur = previous[j];
+                if (cur == tgt) {
+                    break;
+                }
+                active[j] = cur;
+            }
+            if (j == previous.length) {
+                // already removed. do nothing!
+                return false;
+            }
+            for (j++; j < previous.length; j++) {
+                active[j - 1] = previous[j];
+            }
+        } while (!compareAndSetArray(previous, active));
+        return true;
     }
 
     /**
@@ -99,7 +105,7 @@ public class ConcurrentDispatchArray<E> implements CCollection<E> {
      * @param update the array that should replace the current array.
      * @return if the replacement completed successfully.
      */
-    protected synchronized boolean compareAndSetArray(Object[] expect, Object[] update) {
+    private synchronized boolean compareAndSetArray(Object[] expect, Object[] update) {
         if (expect == data) {
             data = update;
             return true;
@@ -114,6 +120,32 @@ public class ConcurrentDispatchArray<E> implements CCollection<E> {
         }
         while (true) {
             Object[] old = data;
+            Object[] dout = CArrayUtils.copyOf(old, old.length + 1);
+            dout[dout.length - 1] = e;
+            if (compareAndSetArray(old, dout)) {
+                return true;
+            }
+        }
+    }
+
+    /**
+     * Like add, but also returns false (without adding) if the element is
+     * already found.
+     *
+     * @param e The element to add.
+     * @return if e is added to the array, not already in it.
+     */
+    public boolean addIfNotFound(E e) {
+        if (e == null) {
+            throw new NullPointerException();
+        }
+        while (true) {
+            Object[] old = data;
+            for (Object o : old) {
+                if (e.equals(o)) {
+                    return false;
+                }
+            }
             Object[] dout = CArrayUtils.copyOf(old, old.length + 1);
             dout[dout.length - 1] = e;
             if (compareAndSetArray(old, dout)) {
@@ -138,7 +170,7 @@ public class ConcurrentDispatchArray<E> implements CCollection<E> {
     }
 
     public void clear() {
-        data = new Object[data.length];
+        data = new Object[0];
     }
 
     public boolean addAll(CCollection<? extends E> c) {

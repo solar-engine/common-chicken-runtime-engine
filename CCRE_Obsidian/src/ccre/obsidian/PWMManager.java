@@ -18,7 +18,7 @@
  */
 package ccre.obsidian;
 
-import ccre.chan.FloatOutput;
+import ccre.channel.FloatOutput;
 import ccre.concurrency.ReporterThread;
 import ccre.log.LogLevel;
 import ccre.log.Logger;
@@ -135,7 +135,7 @@ public class PWMManager {
         }
 
         @Override
-        public void writeValue(float f) throws ObsidianHardwareException {
+        public void set(float f) throws ObsidianHardwareException {
             synchronized (lock) {
                 if (destroyed) {
                     throw new ObsidianHardwareException("PWM channel destroyed!");
@@ -235,7 +235,7 @@ public class PWMManager {
                 pwms.put(key, p);
                 p.setPolarity(zeroPolarity);
                 p.setFrequency(frequency);
-                p.writeValue(def);
+                p.set(def);
                 return p;
             } catch (IOException ex) {
                 throw new ObsidianHardwareException("Cannot load PWM: " + key, ex);

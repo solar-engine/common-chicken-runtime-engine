@@ -95,6 +95,7 @@ public class Beeper {
         }
     }
 
+    @SuppressWarnings("serial")
     private static final class CompletedException extends Exception {
     }
     private static final HashMap<String, BeepType> lookups = new HashMap<String, BeepType>();

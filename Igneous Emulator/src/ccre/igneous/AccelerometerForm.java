@@ -18,7 +18,7 @@
  */
 package ccre.igneous;
 
-import ccre.chan.FloatInputPoll;
+import ccre.channel.FloatInputPoll;
 import java.awt.EventQueue;
 
 /**
@@ -26,6 +26,7 @@ import java.awt.EventQueue;
  *
  * @author skeggsc
  */
+@SuppressWarnings("serial")
 public class AccelerometerForm extends javax.swing.JFrame implements FloatInputPoll {
 
     /**
@@ -102,7 +103,7 @@ public class AccelerometerForm extends javax.swing.JFrame implements FloatInputP
     // End of variables declaration//GEN-END:variables
 
     @Override
-    public float readValue() {
+    public float get() {
         return sliValue.getValue() / 100.0f;
     }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 Colby Skeggs
+ * Copyright 2013-2014 Colby Skeggs
  * 
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  * 
@@ -18,10 +18,9 @@
  */
 package ccre.holders;
 
-import ccre.event.Event;
-import ccre.event.EventConsumer;
-import ccre.event.EventSource;
-import ccre.log.Logger;
+import ccre.channel.EventInput;
+import ccre.channel.EventOutput;
+import ccre.channel.EventStatus;
 import java.io.IOException;
 import java.io.OutputStream;
 
@@ -31,20 +30,20 @@ import java.io.OutputStream;
  *
  * @author skeggsc
  */
-public class StringHolder {
+public class StringHolder { // TODO: This is legacy code! There's always a better way.
 
     /**
      * The current value.
      */
-    protected String value;
+    private String value;
     /**
      * If the string has been modified yet from any default/nonexistence value.
      */
-    protected boolean hasModified;
+    private boolean hasModified;
     /**
      * The event fired when the value is changed.
      */
-    protected Event evt = new Event();
+    private final EventStatus evt = new EventStatus();
 
     /**
      * Create a new StringHolder as if the value is not a default/nonexistence
@@ -58,8 +57,8 @@ public class StringHolder {
     }
 
     /**
-     * Create a new StringHolder. If mod is false, the value is interepreted as
-     * a default/nonexistence value.
+     * Create a new StringHolder. If mod is false, the value is interpreted as a
+     * default/nonexistence value.
      *
      * @param value the string value.
      * @param mod whether or not the value should be flagged as modified.
@@ -74,7 +73,7 @@ public class StringHolder {
      *
      * @return the event.
      */
-    public EventSource getModifiedEvent() {
+    public EventInput getModifiedEvent() {
         return evt;
     }
 
@@ -83,8 +82,8 @@ public class StringHolder {
      *
      * @param event the event to fire.
      */
-    public void whenModified(EventConsumer event) {
-        evt.addListener(event);
+    public void whenModified(EventOutput event) {
+        evt.send(event);
     }
 
     /**
@@ -136,8 +135,8 @@ public class StringHolder {
      * @return the output stream that modifies the state of this.
      */
     public OutputStream getOutput() {
-        return new OutputStream() {
-            private StringBuilder sb = new StringBuilder();
+        return new OutputStream() { // TODO: See if I should use LineCollectorOutputStream.
+            private final StringBuilder sb = new StringBuilder(30);
 
             @Override
             public synchronized void write(int b) throws IOException {
@@ -147,7 +146,7 @@ public class StringHolder {
                     set(ts);
                     return;
                 }
-                sb.append((char)b);
+                sb.append((char) b);
             }
         };
     }

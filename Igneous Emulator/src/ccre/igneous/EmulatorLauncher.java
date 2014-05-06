@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 Colby Skeggs
+ * Copyright 2013-2014 Colby Skeggs
  * 
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  * 
@@ -18,16 +18,22 @@
  */
 package ccre.igneous;
 
-import ccre.chan.*;
-import ccre.cluck.CluckGlobals;
-import ccre.ctrl.*;
-import ccre.device.DeviceException;
-import ccre.device.DeviceTree;
-import ccre.event.*;
+import ccre.channel.BooleanInputPoll;
+import ccre.channel.BooleanOutput;
+import ccre.channel.EventInput;
+import ccre.channel.EventOutput;
+import ccre.channel.EventStatus;
+import ccre.channel.FloatInputPoll;
+import ccre.channel.FloatOutput;
+import ccre.cluck.Cluck;
+import ccre.cluck.tcp.CluckTCPServer;
+import ccre.ctrl.IJoystick;
 import ccre.log.BootLogger;
+import ccre.log.FileLogger;
 import ccre.log.NetworkAutologger;
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
 import java.net.URLClassLoader;
@@ -36,19 +42,6 @@ import java.util.TimerTask;
 import java.util.jar.JarFile;
 
 public class EmulatorLauncher implements IgneousLauncher {
-
-    /**
-     * The robot's core program.
-     */
-    public final IgneousCore core;
-    /**
-     * A timer used to know when to call each periodic/during method.
-     */
-    protected Timer periodicTimer = new Timer();
-    /**
-     * The last known operating state of the virtual robot.
-     */
-    protected CurrentState lastState = CurrentState.DISABLED;
 
     public static void main(String[] args) throws IOException, ClassNotFoundException, InstantiationException, NoSuchMethodException, IllegalAccessException, InvocationTargetException {
         if (args.length != 1) {
@@ -67,49 +60,60 @@ public class EmulatorLauncher implements IgneousLauncher {
         if (mainClass == null) {
             throw new RuntimeException("Could not find MANIFEST-specified launchee!");
         }
-        CluckGlobals.ensureInitializedCore();
         NetworkAutologger.register();
         BootLogger.register();
+        FileLogger.register();
         URLClassLoader classLoader = new URLClassLoader(new URL[]{jarFile.toURI().toURL()}, EmulatorLauncher.class.getClassLoader());
-        Class<? extends IgneousCore> asSubclass = classLoader.loadClass(mainClass).asSubclass(IgneousCore.class);
+        Class<? extends IgneousApplication> asSubclass = classLoader.loadClass(mainClass).asSubclass(IgneousApplication.class);
         EmulatorForm emf = new EmulatorForm();
-        EmulatorLauncher main = new EmulatorLauncher(asSubclass.getConstructor().newInstance(), emf);
+        EmulatorLauncher main = new EmulatorLauncher(emf);
         emf.setVisible(true);
-        main.start();
+        main.start(asSubclass.getConstructor());
     }
+
+    /**
+     * The robot's core program.
+     */
+    protected IgneousApplication core;
+    /**
+     * A timer used to know when to call each periodic/during method.
+     */
+    protected Timer periodicTimer = new Timer();
+    /**
+     * The last known operating state of the virtual robot.
+     */
+    protected CurrentState lastState = CurrentState.DISABLED;
+
     protected final EmulatorForm emf;
 
-    public EmulatorLauncher(IgneousCore main, EmulatorForm emf) {
-        this.core = main;
+    protected final EventStatus duringAutonomous = new EventStatus();
+    protected final EventStatus duringDisabled = new EventStatus();
+    protected final EventStatus duringTeleop = new EventStatus();
+    protected final EventStatus duringTesting = new EventStatus();
+    protected final EventStatus globalPeriodic = new EventStatus();
+    protected final EventStatus startedDisabled = new EventStatus();
+    protected final EventStatus startedAutonomous = new EventStatus();
+    protected final EventStatus startedTeleop = new EventStatus();
+    protected final EventStatus startedTesting = new EventStatus();
+
+    public EmulatorLauncher(EmulatorForm emf) {
         this.emf = emf;
     }
-    protected final Event duringAutonomous = new Event();
-    protected final Event duringDisabled = new Event();
-    protected final Event duringTeleop = new Event();
-    protected final Event duringTesting = new Event();
-    protected final Event globalPeriodic = new Event();
-    protected final Event robotDisabled = new Event();
-    protected final Event startedAutonomous = new Event();
-    protected final Event startedTeleop = new Event();
-    protected final Event startedTesting = new Event();
 
     /**
      * Called to start the robot running.
+     *
+     * @param main The main program.
      */
-    public void start() {
-        CluckGlobals.setupServer();
-        core.duringAutonomous = this.duringAutonomous;
-        core.duringDisabled = this.duringDisabled;
-        core.duringTeleop = this.duringTeleop;
-        core.duringTesting = this.duringTesting;
-        core.globalPeriodic = this.globalPeriodic;
-        core.constantPeriodic = new Ticker(10, true);
-        core.robotDisabled = this.robotDisabled;
-        core.startedAutonomous = this.startedAutonomous;
-        core.startedTeleop = this.startedTeleop;
-        core.startedTesting = this.startedTesting;
-        core.launcher = this;
-        core.createRobotControl();
+    public void start(Constructor<? extends IgneousApplication> main) throws InstantiationException, IllegalAccessException, InvocationTargetException {
+        IgneousLauncherHolder.launcher = this;
+        for (EmuJoystick emu : emf.joysticks) {
+            globalPeriodic.send(emu);
+        }
+        Cluck.setupServer();
+        new CluckTCPServer(Cluck.getNode(), 1540).start();
+        this.core = main.newInstance();
+        core.setupRobot();
         periodicTimer.schedule(new TimerTask() {
             @Override
             public void run() {
@@ -127,7 +131,7 @@ public class EmulatorLauncher implements IgneousLauncher {
             this.lastState = curstate;
             switch (curstate) {
                 case DISABLED:
-                    this.robotDisabled.produce();
+                    this.startedDisabled.produce();
                     break;
                 case AUTONOMOUS:
                     this.startedAutonomous.produce();
@@ -158,35 +162,29 @@ public class EmulatorLauncher implements IgneousLauncher {
     }
 
     @Override
-    public ISimpleJoystick makeSimpleJoystick(int id) {
-        return emf.joysticks[id-1];
+    public IJoystick getKinectJoystick(boolean isRightSide) {
+        return emf.joysticks[isRightSide ? 5 : 4];
     }
 
     @Override
-    public IDispatchJoystick makeDispatchJoystick(int id, EventSource source) {
-        EmuJoystick emu = emf.joysticks[id-1];
-        emu.addSource(source);
-        return emu;
-    }
-
-    @Override
-    public FloatOutput makeJaguar(int id, boolean negate) {
-        return emf.getJaguar(id);
-    }
-
-    @Override
-    public FloatOutput makeVictor(int id, boolean negate) {
-        return emf.getVictor(id);
-    }
-
-    @Override
-    public FloatOutput makeTalon(int id, boolean negate) {
-        return emf.getTalon(id);
+    public FloatOutput makeMotor(int id, int type) {
+        switch (type) {
+            case JAGUAR:
+                return emf.getJaguar(id);
+            case VICTOR:
+                return emf.getVictor(id);
+            case TALON:
+                return emf.getTalon(id);
+            default:
+                throw new IllegalArgumentException("Invalid motor type: " + type);
+        }
     }
 
     @Override
     public BooleanOutput makeSolenoid(int id) {
-        return emf.getSolenoid(id);
+        BooleanOutput out = emf.getSolenoid(id);
+        out.set(false);
+        return out;
     }
 
     @Override
@@ -225,7 +223,7 @@ public class EmulatorLauncher implements IgneousLauncher {
     public BooleanInputPoll getIsDisabled() {
         return new BooleanInputPoll() {
             @Override
-            public boolean readValue() {
+            public boolean get() {
                 return emf.getOperatingState() == CurrentState.DISABLED;
             }
         };
@@ -235,25 +233,39 @@ public class EmulatorLauncher implements IgneousLauncher {
     public BooleanInputPoll getIsAutonomous() {
         return new BooleanInputPoll() {
             @Override
-            public boolean readValue() {
+            public boolean get() {
                 return emf.getOperatingState() == CurrentState.AUTONOMOUS;
             }
         };
     }
 
     @Override
-    public void useCustomCompressor(final BooleanInputPoll shouldDisable, int compressorRelayChannel) {
-        emf.setCompressor(false);
-        globalPeriodic.addListener(new EventConsumer() {
+    public BooleanInputPoll getIsTest() {
+        return new BooleanInputPoll() {
             @Override
-            public void eventFired() {
-                emf.setCompressor(emf.getOperatingState() != CurrentState.DISABLED && !shouldDisable.readValue());
+            public boolean get() {
+                return emf.getOperatingState() == CurrentState.TESTING;
+            }
+        };
+    }
+
+    @Override
+    public void useCustomCompressor(final BooleanInputPoll shouldDisable, int compressorRelayChannel) {
+        final BooleanOutput relay = makeRelayForwardOutput(compressorRelayChannel);
+        emf.setCompressor(false);
+        relay.set(false);
+        globalPeriodic.send(new EventOutput() {
+            @Override
+            public void event() {
+                boolean running = !shouldDisable.get();
+                emf.setCompressor(emf.getOperatingState() != CurrentState.DISABLED && running);
+                relay.set(running);
             }
         });
     }
 
     @Override
-    public FloatInputPoll makeEncoder(int aChannel, int bChannel, boolean reverse, EventSource resetWhen) {
+    public FloatInputPoll makeEncoder(int aChannel, int bChannel, boolean reverse, EventInput resetWhen) {
         return emf.makeEncoder(aChannel, bChannel, reverse, resetWhen);
     }
 
@@ -268,7 +280,7 @@ public class EmulatorLauncher implements IgneousLauncher {
     }
 
     @Override
-    public FloatInputPoll makeGyro(int port, double sensitivity, EventSource source) {
+    public FloatInputPoll makeGyro(int port, double sensitivity, EventInput source) {
         return emf.makeGyro(port, sensitivity, source);
     }
 
@@ -278,7 +290,60 @@ public class EmulatorLauncher implements IgneousLauncher {
     }
 
     @Override
-    public DeviceTree getDeviceTree() throws DeviceException {
-        throw new RuntimeException("Device Tree not yet implemented on Emulator!");
+    public FloatInputPoll getBatteryVoltage() {
+        return makeAnalogInput(8, 8);
+    }
+
+    @Override
+    public IJoystick getJoystick(int id) {
+        if (id < 1 || id > 4) {
+            throw new IllegalArgumentException("Expected a Joystick ID from 1 to 4!");
+        }
+        return emf.joysticks[id - 1];
+    }
+
+    @Override
+    public EventInput getGlobalPeriodic() {
+        return globalPeriodic;
+    }
+
+    @Override
+    public EventInput getStartAuto() {
+        return startedAutonomous;
+    }
+
+    @Override
+    public EventInput getDuringAuto() {
+        return duringAutonomous;
+    }
+
+    @Override
+    public EventInput getStartTele() {
+        return startedTeleop;
+    }
+
+    @Override
+    public EventInput getDuringTele() {
+        return duringTeleop;
+    }
+
+    @Override
+    public EventInput getStartTest() {
+        return startedTesting;
+    }
+
+    @Override
+    public EventInput getDuringTest() {
+        return duringTesting;
+    }
+
+    @Override
+    public EventInput getStartDisabled() {
+        return startedDisabled;
+    }
+
+    @Override
+    public EventInput getDuringDisabled() {
+        return duringDisabled;
     }
 }

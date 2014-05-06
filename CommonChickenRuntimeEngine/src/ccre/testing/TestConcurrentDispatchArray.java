@@ -40,9 +40,9 @@ public class TestConcurrentDispatchArray extends BaseTest {
         assertFalse(arr.contains(test), "Bad contains!");
         arr.add(test);
         assertTrue(arr.contains(test), "Bad contains!");
-        Iterator itr = arr.iterator();
+        Iterator<Object> itr = arr.iterator();
         assertTrue(itr.hasNext(), "Bad iterator!");
-        assertIEqual(itr.next(), test, "Bad iterator!");
+        assertIdentityEqual(itr.next(), test, "Bad iterator!");
         assertFalse(itr.hasNext(), "Bad iterator!");
         arr.remove(test);
         assertFalse(arr.contains(test), "Bad remove!");

@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 Colby Skeggs
+ * Copyright 2013-2014 Colby Skeggs
  * 
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  * 
@@ -18,6 +18,8 @@
  */
 package ccre.net;
 
+import ccre.log.LogLevel;
+import ccre.log.Logger;
 import ccre.util.CCollection;
 import java.io.IOException;
 
@@ -30,53 +32,17 @@ import java.io.IOException;
  */
 public class Network {
 
-    private Network() {
-    }
-
-    /**
-     * A Network provider.
-     */
-    static interface Provider {
-
-        /**
-         * Open a client socket to the specified target address and port.
-         *
-         * @param targetAddress the IP address to connect to.
-         * @param port the port to connect to.
-         * @return the ClientSocket that represents the connection.
-         * @throws IOException if an IO error occurs.
-         */
-        ClientSocket openClient(String targetAddress, int port) throws IOException;
-
-        /**
-         * Open a server socket to listen on the specified port.
-         *
-         * @param port the port to listen on.
-         * @return the ServerSocket that represents the connection.
-         * @throws IOException
-         */
-        ServerSocket openServer(int port) throws IOException;
-
-        /**
-         * List all IPv4 addresses of the current system. This includes
-         * 127.0.0.1.
-         *
-         * @return a collection of the IPv4 addresses of the current system.
-         */
-        CCollection<String> listIPv4Addresses();
-
-        /**
-         * Gets a string representing the platform type for this system. This is
-         * used by CluckNode to create a node ID.
-         *
-         * @return The platform type string.
-         */
-        public String getPlatformType();
-    }
     /**
      * The current network provider.
      */
-    static Provider prov = null;
+    private static NetworkProvider prov = null;
+
+    static synchronized void setProvider(NetworkProvider pvdr) {
+        if (prov != null) {
+            throw new IllegalStateException("Provider already registered!");
+        }
+        prov = pvdr;
+    }
 
     /**
      * Return the current network provider, finding it if it doesn't exist. This
@@ -85,18 +51,18 @@ public class Network {
      *
      * @return the active network Provider.
      */
-    static Provider getProvider() {
+    public static synchronized NetworkProvider getProvider() {
         if (prov == null) {
             try {
-                prov = (Provider) Class.forName("ccre.net.DefaultNetworkProvider").newInstance();
+                prov = (NetworkProvider) Class.forName("ccre.net.DefaultNetworkProvider").newInstance();
             } catch (InstantiationException ex) {
-                ex.printStackTrace();
+                Logger.log(LogLevel.WARNING, "Cannot start network provider!", ex);
                 throw new RuntimeException("Cannot load the default network provider. It was probably (purposefully) ignored during the build process.");
             } catch (IllegalAccessException ex) {
-                ex.printStackTrace();
+                Logger.log(LogLevel.WARNING, "Cannot start network provider!", ex);
                 throw new RuntimeException("Cannot load the default network provider. It was probably (purposefully) ignored during the build process.");
             } catch (ClassNotFoundException ex) {
-                ex.printStackTrace();
+                Logger.log(LogLevel.WARNING, "Cannot start network provider!", ex);
                 throw new RuntimeException("Cannot load the default network provider. It was probably (purposefully) ignored during the build process.");
             }
         }
@@ -114,6 +80,33 @@ public class Network {
      */
     public static ClientSocket connect(String targetAddress, int port) throws IOException {
         return getProvider().openClient(targetAddress, port);
+    }
+
+    /**
+     * This is like connect(targetAddress, port), but if the target address ends
+     * in a colon followed by a number, that port will be used instead of the
+     * specified port.
+     *
+     * @param rawAddress the IP address to connect to, with an option port
+     * specifier.
+     * @param default_port the default port to connect to if there is no port specifier.
+     * @return the ClientSocket that represents the connection.
+     * @throws java.io.IOException if an IO error occurs or the port specifier
+     * is invalid.
+     */
+    public static ClientSocket connectDynPort(String rawAddress, int default_port) throws IOException {
+        int cln = rawAddress.lastIndexOf(':');
+        int port = default_port;
+        String realAddress = rawAddress;
+        if (cln != -1) {
+            try {
+                port = Integer.parseInt(rawAddress.substring(cln + 1));
+                realAddress = rawAddress.substring(0, cln);
+            } catch (NumberFormatException ex) {
+                throw new IOException("Cannot connect to address - bad port specifier: " + rawAddress.substring(cln + 1));
+            }
+        }
+        return connect(realAddress, port);
     }
 
     /**
@@ -146,4 +139,8 @@ public class Network {
     public static String getPlatformType() {
         return getProvider().getPlatformType();
     }
+
+    private Network() {
+    }
+
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 Colby Skeggs
+ * Copyright 2013-2014 Colby Skeggs
  * 
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  * 
@@ -18,7 +18,7 @@
  */
 package ccre.util;
 
-import ccre.chan.FloatInputPoll;
+import ccre.channel.FloatInputPoll;
 import ccre.ctrl.Mixing;
 
 /**
@@ -31,8 +31,21 @@ import ccre.ctrl.Mixing;
  */
 public class Utils {
 
-    private Utils() {
-    }
+    /**
+     * An input representing the current time in seconds since a constant but
+     * arbitrary point in the past. The value is equivalent to
+     * <code>System.currentTimeMillis() / 1000.0f - N</code> where N is some
+     * point since when the program was started.
+     *
+     * @see java.lang.System#currentTimeMillis()
+     */
+    public static final FloatInputPoll currentTimeSeconds = new FloatInputPoll() {
+        private final long base = System.currentTimeMillis();
+
+        public float get() {
+            return (System.currentTimeMillis() - base) / 1000.0f;
+        }
+    };
 
     /**
      * Calculate a value with a deadzone. If the value is within the specified
@@ -45,18 +58,6 @@ public class Utils {
     public static float deadzone(float value, float deadzone) {
         return Math.abs(value) > deadzone ? value : 0.0f;
     }
-    /**
-     * An input representing the current time in seconds. The value is
-     * equivalent to
-     * <code>System.currentTimeMillis() / 1000.0f</code>
-     *
-     * @see java.lang.System#currentTimeMillis()
-     */
-    public static final FloatInputPoll currentTimeSeconds = new FloatInputPoll() {
-        public float readValue() {
-            return System.currentTimeMillis() / 1000.0f;
-        }
-    };
 
     /**
      * Split a string into parts delimited by the specified character.
@@ -102,16 +103,19 @@ public class Utils {
      * @return The new value from the ramping cycle
      */
     public static float updateRamping(float previous, float target, float limit) {
+        float reallimit;
         if (limit <= 0) {
             if (limit == 0) {
                 return 0;
             }
-            limit = -limit;
+            reallimit = -limit;
+        } else {
+            reallimit = limit;
         }
-        if (target > previous + limit) {
-            return previous + limit;
-        } else if (target < previous - limit) {
-            return previous - limit;
+        if (target > previous + reallimit) {
+            return previous + reallimit;
+        } else if (target < previous - reallimit) {
+            return previous - reallimit;
         } else {
             return target;
         }
@@ -147,5 +151,63 @@ public class Utils {
     @SuppressWarnings("unchecked")
     public static <T> Class<T> getGenericClass(T obj) {
         return (Class<T>) obj.getClass();
+    }
+
+    /**
+     * Extracts the big-endian integer starting at offset from array. This is
+     * equivalent to:
+     * <code>((array[offset] & 0xff) << 24) | ((array[offset+1] & 0xff) << 16) | ((array[offset+2] & 0xff) << 8) | (array[offset+3] & 0xff)</code>
+     * @param array The array
+     *
+     *
+     *
+     *
+     * to extract data from.
+     * @param offset The offset in the array of the most significant byte.
+     * @return The integer extracted from the array.
+     */
+    public static int bytesToInt(byte[] array, int offset) {
+        int highWord = ((array[offset] & 0xff) << 24) | ((array[offset + 1] & 0xff) << 16);
+        int lowWord = ((array[offset + 2] & 0xff) << 8) | (array[offset + 3] & 0xff);
+        return highWord | lowWord;
+    }
+
+    /**
+     * Extracts the floating-point number starting at offset from array. This is
+     * equivalent to:
+     * <code>Float.intBitsToFloat(Utils.bytesToInt(array, offset))</code>
+     *
+     * @param array The array to extract data from.
+     * @param offset The offset in the array of the most significant byte of the
+     * intermediate integer.
+     * @return The float extracted from the array.
+     */
+    public static float bytesToFloat(byte[] array, int offset) {
+        return Float.intBitsToFloat(Utils.bytesToInt(array, offset));
+    }
+
+    /**
+     * This is a replacement for String.isEmpty() for downgrading.
+     *
+     * @param str The string to check the length of.
+     * @return if the specified string is empty.
+     */
+    public static boolean isStringEmpty(String str) {
+        return str.length() == 0; // TODO: Write docs for this method and then put it places where it could be used.
+    }
+
+    /**
+     * This is a replacement for String.contains(String) for downgrading.
+     *
+     * @param outer The haystack to search.
+     * @param inner The needle to search for.
+     * @return if the inner string is found in the outer string.
+     */
+    public static boolean doesStringContain(String outer, String inner) {
+        int ind = outer.indexOf(inner);
+        return ind != -1;
+    }
+
+    private Utils() {
     }
 }

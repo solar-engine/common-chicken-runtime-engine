@@ -10,6 +10,11 @@
 <project name="CCRE_PoultryInspector" default="default" basedir=".">
     <description>Builds, tests, and runs the project CCRE_PoultryInspector.</description>
     <import file="nbproject/build-impl.xml"/>
+    <target name="test-setup">
+        <property name="application.args" value="-virtual" />
+    </target>
+    <target name="test" depends="test-setup, run" />
+        
     <!--
 
     There exist several targets which are by default empty and which can be 

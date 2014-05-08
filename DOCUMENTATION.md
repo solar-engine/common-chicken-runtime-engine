@@ -1,3 +1,8 @@
+
+# THIS DOCUMENT IS OUT OF DATE
+
+Go [here](https://bitbucket.org/col6y/common-chicken-runtime-engine/wiki) instead!
+
 # What is the CCRE?
 
 The CCRE is a very powerful library for building robot control programs. It was originally created to run FIRST Robotics Competition (FRC) robots.

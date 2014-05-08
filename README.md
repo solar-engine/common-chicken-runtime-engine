@@ -1,7 +1,7 @@
 This is the Common Chicken Runtime Engine core, Poultry Inspector, and Igneous system.
 It will hopefully form the basis for all of Team 1540's robotics-related java programming.
 
-Click on the "Wiki" link at the top of the BitBucket page to see the (in-progress) documentation.
+Go [here](https://bitbucket.org/col6y/common-chicken-runtime-engine/wiki) to see the main documentation.
 
 The old documentation can be found in DOCUMENTATION.MD under the SOURCE tab.
 

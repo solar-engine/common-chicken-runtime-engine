@@ -71,6 +71,10 @@
                     <ide-action name="test"/>
                     <ide-action name="debug"/>
                     <action>
+                        <label>Take Logs</label>
+                        <target>clear-logs</target>
+                    </action>
+                    <action>
                         <label>Sun SPOT-deploy</label>
                         <target>deploy</target>
                     </action>

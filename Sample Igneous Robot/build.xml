@@ -26,11 +26,7 @@
     <property name="manifest.name" value="${resources.dir}/META-INF/MANIFEST.MF"/>
     <property name="emulatee.name" value="${build.dir}/Emulatee.jar"/>
     <property file="${src.dir}/main.properties"/>
-    <target name="calc-cel" if="igneous.cel">
-        <fail if="igneous.main" message="igneous.main OR igneous.cel should be provided, not both!" />
-        <property name="igneous.main" value="cel" />
-    </target>
-    <target name="insert-manifest" depends="calc-cel">
+    <target name="insert-manifest">
         <fail unless="igneous.main" message="igneous.main property required in ${src.dir}/main.properties" />
         <unjar src="${ccrejar}" dest="${resources.dir}">
             <patternset>
@@ -54,6 +50,24 @@
         </jar>
         <unjar src="${ccrejar}" dest="${classes.dir}" />
     </target>
+    <target name="clear-logs">
+        <tempfile property="log.dir" prefix="robot-logs-" />
+        <echo message="Fetching and clearing logfiles from robot..." />
+        <ftp action="get" server="${remoteaddress}" userid="root" password="" remotedir="/">
+            <fileset dir="${log.dir}">
+                <include name="log-*" />
+            </fileset>
+        </ftp>
+        <ftp action="del" server="${remoteaddress}" userid="root" password="" remotedir="/">
+            <fileset>
+                <include name="log-*" />
+            </fileset>
+        </ftp>
+    </target>
+    <target name="deploy" depends="suite,clear-logs">
+        <crio-configure remoteaddress="${remoteaddress}" type="Java" />
+        <crio-deploy suite.file="${suite.file}" remoteaddress="${remoteaddress}"/>	
+    </target>
     <target name="compile" depends="insert-manifest,-actual-compile-compile,-post-compile,paste-ccre" />
     <target name="update-netbeans-project">
         <copy file="nbproject/project.xml" tofile="nbproject/project.bak.xml"/>
@@ -66,19 +80,6 @@
         <java jar="../Igneous Emulator/dist/Igneous_Emulator.jar">
             <arg value="${emulatee.name}" />
         </java>
-    </target>
-    <target name="put-cel">
-        <fail unless="igneous.cel" message="igneous.cel must be set to use put-cel!" />
-        <echo>[cel-deploy] ${igneous.cel} -> ${remoteaddress}</echo>
-        <tstamp/>
-        <echo file="build/notify.txt" message="${TSTAMP}" />
-        <ftp server="${remoteaddress}" remotedir="/"
-             userid="root" password="" retriesAllowed="2">
-            <fileset file="src/${igneous.cel}">
-                <filename name="src/${igneous.cel}" />
-                <filename name="build/notify.txt" />
-            </fileset>
-        </ftp>
     </target>
 
 </project>

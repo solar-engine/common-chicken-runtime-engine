@@ -394,7 +394,6 @@ public class CluckPublisher {
      * @param node The node to publish on.
      * @param name The name for the FloatInput.
      * @param input The FloatInput.
-     * @see #publish(java.lang.String, ccre.chan.FloatInputProducer)
      */
     public static void publish(final CluckNode node, final String name, final FloatInput input) {
         final ConcurrentDispatchArray<String> remotes = new ConcurrentDispatchArray<String>();

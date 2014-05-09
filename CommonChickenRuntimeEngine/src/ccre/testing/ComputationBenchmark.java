@@ -31,7 +31,7 @@ public class ComputationBenchmark {
     /**
      * Run the computation benchmark test.
      *
-     * @param args
+     * @param args The arguments to the program. Ignored.
      */
     public static void main(String[] args) {
         Logger.info("31");

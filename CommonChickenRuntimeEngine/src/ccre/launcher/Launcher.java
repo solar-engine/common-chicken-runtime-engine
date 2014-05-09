@@ -36,11 +36,7 @@ public class Launcher {
      *
      * @param args The utility to be executed followed by the list of arguments
      * to give it.
-     * @throws IOException
-     * @throws ClassNotFoundException
-     * @throws InstantiationException
-     * @throws IllegalAccessException
-     * @throws java.lang.InterruptedException
+     * @throws Exception If something goes wrong while running this.
      */
     public static void main(String[] args) throws Exception {
         if (args.length == 0) {

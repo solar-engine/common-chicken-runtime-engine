@@ -221,7 +221,6 @@ public final class Cluck {
      *
      * @param name The name for the FloatInput.
      * @param input The FloatInput.
-     * @see #publish(java.lang.String, ccre.chan.FloatInputProducer)
      */
     public static void publish(final String name, final FloatInput input) {
         CluckPublisher.publish(node, name, input);

@@ -105,7 +105,7 @@ public class CluckTCPClient extends ReporterThread {
      * Set the delay between times when this client reconnects to the server.
      *
      * @param millis The positive integer of milliseconds to wait.
-     * @throws IllegalArgumentException If millis <= 0.
+     * @throws IllegalArgumentException If millis &lt;= 0.
      */
     public void setReconnectDelay(int millis) throws IllegalArgumentException {
         if (millis <= 0) {

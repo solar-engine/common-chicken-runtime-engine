@@ -88,7 +88,7 @@ public class BooleanStatus implements BooleanOutput, BooleanInput {
      * BooleanStatus. This is the same as creating a new BooleanStatus and then
      * adding the BooleanOutput as a target.
      *
-     * @see BooleanStatus#send(ccre.chan.BooleanOutput)
+     * @see BooleanStatus#send(ccre.channel.BooleanOutput)
      * @param target The BooleanOutput to automatically update.
      */
     public BooleanStatus(BooleanOutput target) {
@@ -103,7 +103,7 @@ public class BooleanStatus implements BooleanOutput, BooleanInput {
      * this BooleanStatus. This is the same as creating a new BooleanStatus and
      * then adding all of the BooleanOutputs as targets.
      *
-     * @see BooleanStatus#send(ccre.chan.BooleanOutput)
+     * @see BooleanStatus#send(ccre.channel.BooleanOutput)
      * @param targets The BooleanOutputs to automatically update.
      */
     public BooleanStatus(BooleanOutput... targets) {
@@ -147,7 +147,7 @@ public class BooleanStatus implements BooleanOutput, BooleanInput {
      * Get an EventConsumer that, when fired, will set the state to true.
      *
      * @return the firable EventConsumer.
-     * @see #setTrueWhen(ccre.event.EventSource)
+     * @see #setTrueWhen(ccre.channel.EventInput)
      */
     public final EventOutput getSetTrueEvent() {
         if (setTrue == null) {
@@ -164,7 +164,7 @@ public class BooleanStatus implements BooleanOutput, BooleanInput {
      * Get an EventConsumer that, when fired, will set the state to false.
      *
      * @return the firable EventConsumer.
-     * @see #setFalseWhen(ccre.event.EventSource)
+     * @see #setFalseWhen(ccre.channel.EventInput)
      */
     public final EventOutput getSetFalseEvent() {
         if (setFalse == null) {
@@ -181,7 +181,7 @@ public class BooleanStatus implements BooleanOutput, BooleanInput {
      * Get an EventConsumer that, when fired, will toggle the state.
      *
      * @return the firable EventConsumer.
-     * @see #toggleWhen(ccre.event.EventSource)
+     * @see #toggleWhen(ccre.channel.EventInput)
      */
     public final EventOutput getToggleEvent() {
         if (toggle == null) {

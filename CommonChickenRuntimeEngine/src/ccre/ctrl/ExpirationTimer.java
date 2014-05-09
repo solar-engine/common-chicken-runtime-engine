@@ -66,6 +66,10 @@ public final class ExpirationTimer {
      */
     private EventOutput startEvt;
     /**
+     * The cached value for getStartOrFeedEvent()
+     */
+    private EventOutput startOrFeedEvt;
+    /**
      * The cached value for getFeedEvent()
      */
     private EventOutput feedEvt;
@@ -268,8 +272,7 @@ public final class ExpirationTimer {
 
     /**
      * Get an event that, when fired, will start the timer. This will not throw
-     * an IllegalStateException if the timer is already running, although it
-     * will log a warning.
+     * an IllegalStateException if the timer is already running.
      *
      * @return the event to start the timer.
      */
@@ -277,9 +280,7 @@ public final class ExpirationTimer {
         if (startEvt == null) {
             startEvt = new EventOutput() {
                 public void event() {
-                    if (isStarted) {
-                        Logger.warning("ExpirationTimer already started!");
-                    } else {
+                    if (!isStarted) {
                         start();
                     }
                 }
@@ -289,9 +290,25 @@ public final class ExpirationTimer {
     }
 
     /**
+     * Get an event that, when fired, will start or feed the timer, like
+     * startOrFeed().
+     *
+     * @return the event to start or feed the timer.
+     */
+    public EventOutput getStartOrFeedEvent() {
+        if (startOrFeedEvt == null) {
+            startOrFeedEvt = new EventOutput() {
+                public void event() {
+                    startOrFeed();
+                }
+            };
+        }
+        return startOrFeedEvt;
+    }
+
+    /**
      * Get an event that, when fired, will feed the timer. This will not throw
-     * an IllegalStateException if the timer is not running, although it will
-     * log a warning.
+     * an IllegalStateException if the timer is not running.
      *
      * @return the event to feed the timer.
      */
@@ -299,9 +316,7 @@ public final class ExpirationTimer {
         if (feedEvt == null) {
             feedEvt = new EventOutput() {
                 public void event() {
-                    if (!isStarted) {
-                        Logger.warning("ExpirationTimer not started!");
-                    } else {
+                    if (isStarted) {
                         feed();
                     }
                 }
@@ -312,8 +327,7 @@ public final class ExpirationTimer {
 
     /**
      * Get an event that, when fired, will stop the timer. This will not throw
-     * an IllegalStateException if the timer is not running, although it will
-     * log a warning.
+     * an IllegalStateException if the timer is not running.
      *
      * @return the event to stop the timer.
      */
@@ -321,9 +335,7 @@ public final class ExpirationTimer {
         if (stopEvt == null) {
             stopEvt = new EventOutput() {
                 public void event() {
-                    if (!isStarted) {
-                        Logger.warning("ExpirationTimer not started!");
-                    } else {
+                    if (isStarted) {
                         stop();
                     }
                 }
@@ -336,7 +348,7 @@ public final class ExpirationTimer {
      * When the specified event occurs, start the timer. See getStartEvent() for
      * details.
      *
-     * @param src
+     * @param src When to start the timer.
      * @see #getStartEvent()
      */
     public void startWhen(EventInput src) {
@@ -347,7 +359,7 @@ public final class ExpirationTimer {
      * When the specified event occurs, feed the timer. See getFeedEvent() for
      * details.
      *
-     * @param src
+     * @param src When to feed the timer.
      * @see #getFeedEvent()
      */
     public void feedWhen(EventInput src) {
@@ -355,10 +367,21 @@ public final class ExpirationTimer {
     }
 
     /**
+     * When the specified event occurs, start or feed the timer. See
+     * getStartOrFeedEvent() for details.
+     *
+     * @param src When to start or feed the timer.
+     * @see #getStartOrFeedEvent()
+     */
+    public void startOrFeedWhen(EventInput src) {
+        src.send(getStartOrFeedEvent());
+    }
+
+    /**
      * When the specified event occurs, stop the timer. See getStopEvent() for
      * details.
      *
-     * @param src
+     * @param src When to stop the timer.
      * @see #getStopEvent()
      */
     public void stopWhen(EventInput src) {

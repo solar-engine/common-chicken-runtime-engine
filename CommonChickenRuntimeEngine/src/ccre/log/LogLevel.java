@@ -100,10 +100,7 @@ public class LogLevel {
      */
     public final byte id;
     /**
-     * The long-form message representing this level. This is as opposed to the
-     * abbreviation.
-     *
-     * @see #abbreviation
+     * The long-form message representing this level.
      */
     public final String message;
 

@@ -156,7 +156,7 @@ public class Utils {
     /**
      * Extracts the big-endian integer starting at offset from array. This is
      * equivalent to:
-     * <code>((array[offset] & 0xff) << 24) | ((array[offset+1] & 0xff) << 16) | ((array[offset+2] & 0xff) << 8) | (array[offset+3] & 0xff)</code>
+     * <code>((array[offset] &amp; 0xff) &lt;&lt; 24) | ((array[offset+1] &amp; 0xff) &lt;&lt; 16) | ((array[offset+2] &amp; 0xff) &lt;&lt; 8) | (array[offset+3] &amp; 0xff)</code>
      * @param array The array
      *
      *

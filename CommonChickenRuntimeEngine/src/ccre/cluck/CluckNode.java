@@ -279,7 +279,7 @@ public class CluckNode {
      * @param remoteType The remote type to search for, or null for all types.
      * @param timeout How long to wait for responses.
      * @return The snapshot of remotes.
-     * @throws InterruptedException
+     * @throws InterruptedException If the current thread is interrupted while searching for remotes.
      */
     public String[] searchRemotes(final Integer remoteType, int timeout) throws InterruptedException { // TODO: Make this a separate part of the library, or delete it.
         final CArrayList<String> discovered = new CArrayList<String>();

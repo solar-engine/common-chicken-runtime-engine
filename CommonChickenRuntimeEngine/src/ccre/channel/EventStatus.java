@@ -49,7 +49,7 @@ public class EventStatus implements EventInput, EventOutput {
      * equivalent to adding the event as a listener.
      *
      * @param event the event to fire when this event is fired.
-     * @see #addListener(ccre.event.EventConsumer)
+     * @see #send(ccre.channel.EventOutput)
      */
     public EventStatus(EventOutput event) {
         consumers = new ConcurrentDispatchArray<EventOutput>();
@@ -61,7 +61,7 @@ public class EventStatus implements EventInput, EventOutput {
      * equivalent to adding the events as listeners.
      *
      * @param events the events to fire when this event is fired.
-     * @see #addListener(ccre.event.EventConsumer)
+     * @see #send(ccre.channel.EventOutput)
      */
     public EventStatus(EventOutput... events) {
         consumers = new ConcurrentDispatchArray<EventOutput>();

@@ -62,7 +62,7 @@ public class BooleanMixing {
         }
     };
     /**
-     * A BooleanFilter that inverts a value. (True->False, False->True).
+     * A BooleanFilter that inverts a value. (True-&gt;False, False-&gt;True).
      */
     public static final BooleanFilter invert = new BooleanFilter() {
         @Override

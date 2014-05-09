@@ -45,7 +45,7 @@ public class RLoadServer extends ReporterThread {
     /**
      * The main launching function for an RLoad server.
      *
-     * @param args
+     * @param args The arguments to the program.
      */
     public static void main(String[] args) {
         if (args.length != 1 && (args.length != 2 || !args[1].equals("-tell-watcher"))) {

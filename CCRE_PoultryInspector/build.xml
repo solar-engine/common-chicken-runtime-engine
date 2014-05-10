@@ -14,6 +14,9 @@
         <property name="application.args" value="-virtual" />
     </target>
     <target name="test" depends="test-setup, run" />
+    <target name="phidget">
+        <property name="application.args" value="-phidget" />
+    </target>
         
     <!--
 

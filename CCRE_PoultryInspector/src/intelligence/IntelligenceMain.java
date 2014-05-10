@@ -561,7 +561,7 @@ public class IntelligenceMain extends JPanel implements CluckRemoteListener, Mou
         FileLogger.register();
         JFrame frame = new JFrame("Intelligence Panel");
         frame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
-        final IPhidgetMonitor monitor = args.length > 0 && "-virtual".equals(args[0]) ? new VirtualPhidgetMonitor() : new PhidgetMonitor();
+        final IPhidgetMonitor monitor = args.length > 0 && "-virtual".equals(args[0]) ? new VirtualPhidgetMonitor() : args.length > 0 && "-phidget".equals(args[0]) ? new PhidgetMonitor() : new NonexistentPhidgetMonitor();
         frame.addWindowListener(new WindowAdapter() {
             @Override
             public void windowClosing(WindowEvent we) {

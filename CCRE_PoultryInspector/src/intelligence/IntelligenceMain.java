@@ -662,7 +662,7 @@ public class IntelligenceMain extends JPanel implements CluckRemoteListener, Mou
 
     private static void setupWatchdog(final IPhidgetMonitor monitor) {
         final ExpirationTimer watchdog = new ExpirationTimer();
-        watchdog.schedule(500, Cluck.subscribeEC("robot/phidget/WatchDog"));
+        watchdog.schedule(500, Cluck.subscribeEO("robot/phidget/WatchDog"));
         Cluck.publish("WatchDog", new EventOutput() {
             @Override
             public void event() {

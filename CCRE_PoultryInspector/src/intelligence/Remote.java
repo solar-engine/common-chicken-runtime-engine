@@ -112,10 +112,10 @@ public class Remote implements Comparable<Remote> {
         }
         switch (type) {
             case RMT_EVENTOUTP:
-                checkout = Cluck.subscribeEC(path);
+                checkout = Cluck.subscribeEO(path);
                 break;
             case RMT_EVENTINPUT:
-                checkout = Cluck.subscribeES(path);
+                checkout = Cluck.subscribeEI(path);
                 break;
             case RMT_LOGTARGET:
                 checkout = Cluck.subscribeLT(path, LogLevel.FINEST);

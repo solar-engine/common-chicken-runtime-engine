@@ -46,21 +46,21 @@ public class BooleanStatus implements BooleanOutput, BooleanInput {
      */
     private CArrayList<BooleanOutput> consumers = null;
     /**
-     * The cached EventConsumer that sets the current value to true. Use
+     * The cached EventOutput that sets the current value to true. Use
      * getSetTrueEvent() instead, because this might be null.
      *
      * @see #getSetTrueEvent()
      */
     private EventOutput setTrue;
     /**
-     * The cached EventConsumer that sets the current value to false. Use
+     * The cached EventOutput that sets the current value to false. Use
      * getSetFalseEvent() instead, because this might be null.
      *
      * @see #getSetFalseEvent()
      */
     private EventOutput setFalse;
     /**
-     * The cached EventConsumer that toggles the current value. Use
+     * The cached EventOutput that toggles the current value. Use
      * getToggleEvent() instead, because this might be null.
      *
      * @see #getToggleEvent()
@@ -144,9 +144,9 @@ public class BooleanStatus implements BooleanOutput, BooleanInput {
     }
 
     /**
-     * Get an EventConsumer that, when fired, will set the state to true.
+     * Get an EventOutput that, when fired, will set the state to true.
      *
-     * @return the firable EventConsumer.
+     * @return the firable EventOutput.
      * @see #setTrueWhen(ccre.channel.EventInput)
      */
     public final EventOutput getSetTrueEvent() {
@@ -161,9 +161,9 @@ public class BooleanStatus implements BooleanOutput, BooleanInput {
     }
 
     /**
-     * Get an EventConsumer that, when fired, will set the state to false.
+     * Get an EventOutput that, when fired, will set the state to false.
      *
-     * @return the firable EventConsumer.
+     * @return the firable EventOutput.
      * @see #setFalseWhen(ccre.channel.EventInput)
      */
     public final EventOutput getSetFalseEvent() {
@@ -178,9 +178,9 @@ public class BooleanStatus implements BooleanOutput, BooleanInput {
     }
 
     /**
-     * Get an EventConsumer that, when fired, will toggle the state.
+     * Get an EventOutput that, when fired, will toggle the state.
      *
-     * @return the firable EventConsumer.
+     * @return the firable EventOutput.
      * @see #toggleWhen(ccre.channel.EventInput)
      */
     public final EventOutput getToggleEvent() {

@@ -225,24 +225,24 @@ public class BooleanMixing {
     /**
      * When the checkTrigger event is fired, check if the specified input has
      * changed to the target value since the last check. If it has, then the
-     * returned EventSource is fired.
+     * returned EventInput is fired.
      *
      * @param input the value to check.
      * @param target the target value to trigger the event.
      * @param checkTrigger when to check for changes.
-     * @return the EventSource that is fired when the input becomes the target.
+     * @return the EventInput that is fired when the input becomes the target.
      */
     public static EventInput whenBooleanBecomes(BooleanInputPoll input, boolean target, EventInput checkTrigger) {
         return whenBooleanBecomes(createDispatch(input, checkTrigger), target);
     }
 
     /**
-     * Returns an EventSource that fires when the input changes to the target
+     * Returns an EventInput that fires when the input changes to the target
      * value.
      *
      * @param input the value to check.
      * @param target the target value to trigger the event.
-     * @return the EventSource that is fired when the input becomes the target.
+     * @return the EventInput that is fired when the input becomes the target.
      */
     public static EventInput whenBooleanBecomes(BooleanInput input, boolean target) {
         final EventStatus out = new EventStatus();
@@ -263,7 +263,7 @@ public class BooleanMixing {
     }
 
     /**
-     * Returns an EventConsumer that, when fired, writes the specified value to
+     * Returns an EventOutput that, when fired, writes the specified value to
      * the specified output.
      *
      * @param output the output to write to.
@@ -275,12 +275,12 @@ public class BooleanMixing {
     }
 
     /**
-     * Returns an EventConsumer that, when called, pumps the value from the
+     * Returns an EventOutput that, when called, pumps the value from the
      * specified input to the specified output
      *
      * @param in the input
      * @param out the output
-     * @return the EventConsumer that pumps the value
+     * @return the EventOutput that pumps the value
      */
     public static EventOutput pumpEvent(final BooleanInputPoll in, final BooleanOutput out) {
         return new MixingImpls.PumpEventImplB(out, in);
@@ -325,7 +325,7 @@ public class BooleanMixing {
     }
 
     /**
-     * When the specified EventSource is fired, write the specified value to the
+     * When the specified EventInput is fired, write the specified value to the
      * specified output
      *
      * @param when when to write the value.

@@ -454,7 +454,7 @@ public class Igneous {
     /**
      * Create a reference to a Gyro on the specified port with the specified
      * sensitivity. This will allow reading the current rotation of the Gyro.
-     * This also takes an EventSource, and when this is fired, the Gyro will be
+     * This also takes an EventInput, and when this is fired, the Gyro will be
      * reset.
      *
      * Increased sensitivity means a smaller output for the same turn.

@@ -25,8 +25,8 @@ import ccre.util.CArrayUtils;
 import java.util.Iterator;
 
 /**
- * An implementation of an EventSource. This can be fired using the .produce()
- * method or by firing this event as an EventConsumer.
+ * An implementation of an EventInput. This can be fired using the .produce()
+ * method or by firing this event as an EventOutput.
  *
  * @author skeggsc
  */

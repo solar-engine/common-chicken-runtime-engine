@@ -120,11 +120,11 @@ public class FloatStatus implements FloatOutput, FloatInput {
     }
 
     /**
-     * Get an EventConsumer that, when fired, will set the state to the given
+     * Get an EventOutput that, when fired, will set the state to the given
      * float.
      *
      * @param value the value to set the state to.
-     * @return the firable EventConsumer.
+     * @return the fire-able EventOutput.
      * @see #setWhen(float, ccre.channel.EventInput)
      */
     public final EventOutput getSetEvent(float value) {

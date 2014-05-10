@@ -33,10 +33,10 @@ import ccre.cluck.CluckNode;
  * CluckNullLink betaLink = new CluckNullLink(beta).name("beta-to-alpha");<br>
  * betaLink.attach(alphaLink);
  * <br>
- * EventConsumer test = new EventLogger(LogLevel.INFO, "Pseudo-networked
+ * EventOutput test = new EventLogger(LogLevel.INFO, "Pseudo-networked
  * test!");<br>
  * alpha.publish("test", test);<br>
- * EventConsumer test2 = beta.subscribeEC("beta-to-alpha/test");<br>
+ * EventOutput test2 = beta.subscribeEC("beta-to-alpha/test");<br>
  * test2.eventFired();<br>
  * </code><br>
  * This will log "Pseudo-networked test!" at LogLevel INFO.

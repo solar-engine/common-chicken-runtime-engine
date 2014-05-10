@@ -208,7 +208,7 @@ public abstract class InstinctModule implements EventOutput {
     }
 
     /**
-     * Wait until the specified EventSource is produced before returning.
+     * Wait until the specified EventInput is produced before returning.
      *
      * @param source The event to wait for.
      * @throws AutonomousModeOverException If the autonomous mode has ended.

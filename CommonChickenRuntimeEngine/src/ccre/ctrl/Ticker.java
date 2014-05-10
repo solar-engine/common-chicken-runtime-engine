@@ -26,7 +26,7 @@ import ccre.log.LogLevel;
 import ccre.log.Logger;
 
 /**
- * An EventSource that will fire the event in all its consumers at a specified
+ * An EventInput that will fire the event in all its consumers at a specified
  * interval.
  *
  * @author MillerV, SkeggsC
@@ -72,10 +72,10 @@ public final class Ticker implements EventInput {
     }
 
     /**
-     * Adds an EventConsumer to listen for the periodically fired events
-     * produced by this EventSource.
+     * Adds an EventOutput to listen for the periodically fired events
+     * produced by this EventInput.
      *
-     * @param ec The EventConsumer to add.
+     * @param ec The EventOutput to add.
      */
     public void send(EventOutput ec) {
         if (isKilled) {
@@ -88,10 +88,10 @@ public final class Ticker implements EventInput {
     }
 
     /**
-     * Removes the specified EventConsumer, so that its eventFired method will
-     * no longer be called by this EventSource.
+     * Removes the specified EventOutput, so that its eventFired method will
+     * no longer be called by this EventInput.
      *
-     * @param ec The EventConsumer to remove.
+     * @param ec The EventOutput to remove.
      */
     public void unsend(EventOutput ec) {
         producer.unsend(ec);

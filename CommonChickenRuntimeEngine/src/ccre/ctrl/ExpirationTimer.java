@@ -151,7 +151,7 @@ public final class ExpirationTimer {
     }
 
     /**
-     * Schedule an EventConsumer to be triggered at a specific delay.
+     * Schedule an EventOutput to be triggered at a specific delay.
      *
      * @param delay the delay (in milliseconds) to trigger at.
      * @param cnsm the event to fire.
@@ -430,7 +430,7 @@ public final class ExpirationTimer {
          * Create a new task.
          *
          * @param delay The delay after which the task is fired.
-         * @param cnsm The EventConsumer fired by this Task.
+         * @param cnsm The EventOutput fired by this Task.
          */
         Task(long delay, EventOutput cnsm) {
             this.delay = delay;

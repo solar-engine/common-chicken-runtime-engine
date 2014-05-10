@@ -45,7 +45,7 @@ import ccre.channel.FloatOutput;
  * Event: Can use FloatInputPoll, and returns an event that will update the
  * motors.
  *
- * Synchronous: Can use FloatInputPoll; when a given EventSource is fired, the
+ * Synchronous: Can use FloatInputPoll; when a given EventInput is fired, the
  * motors will update.
  *
  * Mixing contains many more generic methods to work with channels.
@@ -70,14 +70,14 @@ public class DriverImpls {
     }
 
     /**
-     * When the returned EventConsumer is fired, run tank drive on the given two
+     * When the returned EventOutput is fired, run tank drive on the given two
      * FloatInputPolls and FloatOutputs.
      *
      * @param leftIn the left control axis.
      * @param rightIn the right control axis.
      * @param leftOut the left motor.
      * @param rightOut the right motor.
-     * @return the EventConsumer that will update the motors.
+     * @return the EventOutput that will update the motors.
      * @see DriverImpls
      */
     public static EventOutput createTankDriverEvent(final FloatInputPoll leftIn, final FloatInputPoll rightIn, final FloatOutput leftOut, final FloatOutput rightOut) {
@@ -90,7 +90,7 @@ public class DriverImpls {
     }
 
     /**
-     * When the specified EventSource is fired, run tank drive on the given two
+     * When the specified EventInput is fired, run tank drive on the given two
      * FloatInputPolls and FloatOutputs.
      *
      * @param source when to update the motors.
@@ -105,7 +105,7 @@ public class DriverImpls {
     }
 
     /**
-     * When the returned EventConsumer is fired, run extended tank drive on the
+     * When the returned EventOutput is fired, run extended tank drive on the
      * given three FloatInputPolls and FloatOutputs.
      *
      * @param leftIn the left control axis.
@@ -113,7 +113,7 @@ public class DriverImpls {
      * @param allIn the forward control axis. will be added to both outputs.
      * @param leftOut the left motor.
      * @param rightOut the right motor.
-     * @return the EventConsumer that will update the motors.
+     * @return the EventOutput that will update the motors.
      * @see DriverImpls
      */
     public static EventOutput createExtendedTankDriverEvent(final FloatInputPoll leftIn, final FloatInputPoll rightIn, final FloatInputPoll allIn, final FloatOutput leftOut, final FloatOutput rightOut) {
@@ -127,7 +127,7 @@ public class DriverImpls {
     }
 
     /**
-     * When the specified EventSource is fired, run extended tank drive on the
+     * When the specified EventInput is fired, run extended tank drive on the
      * given three FloatInputPolls and FloatOutputs.
      *
      * @param source when to update the motors.

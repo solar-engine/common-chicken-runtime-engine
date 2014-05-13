@@ -23,8 +23,8 @@ import ccre.log.Logger;
 import ccre.util.CHashMap;
 import ccre.util.UniqueIds;
 import java.io.BufferedReader;
-import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.PrintStream;
 
@@ -40,30 +40,32 @@ final class DefaultStorageSegment extends StorageSegment {
     DefaultStorageSegment(String name) {
         this.name = name;
         try {
-            BufferedReader din = new BufferedReader(new InputStreamReader(StorageProvider.openInput("ccre_storage_" + name)));
-            try {
-                while (true) {
-                    String line = din.readLine();
-                    if (line == null) {
-                        break;
-                    }
-                    int ind = line.indexOf('=');
-                    if (ind == -1) { // Invalid or empty line.
-                        if (!line.isEmpty()) {
-                            Logger.warning("Invalid line ignored in configuration: " + line + " - saving under backup key.");
-                            data.put(UniqueIds.global.nextHexId("unknown-" + System.currentTimeMillis() + "-" + line.hashCode()), line);
+            InputStream target = StorageProvider.openInput("ccre_storage_" + name);
+            if (target == null) {
+                Logger.info("No data file for: " + name + " - assuming empty.");
+            } else {
+                BufferedReader din = new BufferedReader(new InputStreamReader(target));
+                try {
+                    while (true) {
+                        String line = din.readLine();
+                        if (line == null) {
+                            break;
                         }
-                        continue;
+                        int ind = line.indexOf('=');
+                        if (ind == -1) { // Invalid or empty line.
+                            if (!line.isEmpty()) {
+                                Logger.warning("Invalid line ignored in configuration: " + line + " - saving under backup key.");
+                                data.put(UniqueIds.global.nextHexId("unknown-" + System.currentTimeMillis() + "-" + line.hashCode()), line);
+                            }
+                            continue;
+                        }
+                        String key = line.substring(0, ind), value = line.substring(ind + 1);
+                        data.put(key, value);
                     }
-                    String key = line.substring(0, ind), value = line.substring(ind + 1);
-                    data.put(key, value);
+                } finally {
+                    din.close();
                 }
-            } finally {
-                din.close();
             }
-        } catch (FileNotFoundException ex) {
-            Logger.info("No data file for: " + name + " - assuming empty.");
-            // No data by default. Do nothing
         } catch (IOException ex) {
             Logger.log(LogLevel.WARNING, "Error reading storage: " + name, ex);
         }

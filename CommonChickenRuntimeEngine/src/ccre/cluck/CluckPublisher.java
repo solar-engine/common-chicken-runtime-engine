@@ -30,9 +30,9 @@ import ccre.channel.FloatStatus;
 import static ccre.cluck.CluckNode.RMT_BOOLOUTP;
 import static ccre.cluck.CluckNode.RMT_BOOLPROD;
 import static ccre.cluck.CluckNode.RMT_BOOLPRODRESP;
-import static ccre.cluck.CluckNode.RMT_EVENTCONSUMER;
-import static ccre.cluck.CluckNode.RMT_EVENTSOURCE;
-import static ccre.cluck.CluckNode.RMT_EVENTSOURCERESP;
+import static ccre.cluck.CluckNode.RMT_EVENTOUTP;
+import static ccre.cluck.CluckNode.RMT_EVENTINPUT;
+import static ccre.cluck.CluckNode.RMT_EVENTINPUTRESP;
 import static ccre.cluck.CluckNode.RMT_FLOATOUTP;
 import static ccre.cluck.CluckNode.RMT_FLOATPROD;
 import static ccre.cluck.CluckNode.RMT_FLOATPRODRESP;
@@ -59,56 +59,56 @@ public class CluckPublisher {
     private static long lastReportedRemoteLoggingError = 0;
 
     /**
-     * Publish an EventConsumer on the network.
+     * Publish an EventOutput on the network.
      *
      * @param node The node to publish on.
-     * @param name The name for the EventConsumer.
-     * @param consumer The EventConsumer.
+     * @param name The name for the EventOutput.
+     * @param consumer The EventOutput.
      */
     public static void publish(final CluckNode node, String name, final EventOutput consumer) {
         new CluckSubscriber(node) {
             @Override
             protected void receive(String source, byte[] data) {
-                if (requireRMT(source, data, RMT_EVENTCONSUMER)) {
+                if (requireRMT(source, data, RMT_EVENTOUTP)) {
                     consumer.event();
                 }
             }
 
             @Override
             protected void receiveBroadcast(String source, byte[] data) {
-                defaultBroadcastHandle(source, data, RMT_EVENTCONSUMER); // TODO: Can I make these anonymous classes simpler?
+                defaultBroadcastHandle(source, data, RMT_EVENTOUTP); // TODO: Can I make these anonymous classes simpler?
             }
         }.attach(name);
     }
 
     /**
-     * Subscribe to an EventConsumer from the network at the specified path.
+     * Subscribe to an EventOutput from the network at the specified path.
      *
      * @param node The node to publish on.
      * @param path The path to subscribe to.
-     * @return the EventConsumer.
+     * @return the EventOutput.
      */
-    public static EventOutput subscribeEC(final CluckNode node, final String path) {
+    public static EventOutput subscribeEO(final CluckNode node, final String path) {
         return new EventOutput() {
             public void event() {
-                node.transmit(path, null, new byte[]{RMT_EVENTCONSUMER});
+                node.transmit(path, null, new byte[]{RMT_EVENTOUTP});
             }
         };
     }
 
     /**
-     * Publish an EventSource on the network.
+     * Publish an EventInput on the network.
      *
      * @param node The node to publish on.
-     * @param name The name for the EventSource.
-     * @param source The EventSource.
+     * @param name The name for the EventInput.
+     * @param source The EventInput.
      */
     public static void publish(final CluckNode node, final String name, EventInput source) {
         final ConcurrentDispatchArray<String> remotes = new ConcurrentDispatchArray<String>();
         source.send(new EventOutput() {
             public void event() {
                 for (String remote : remotes) {
-                    node.transmit(remote, name, new byte[]{RMT_EVENTSOURCERESP});
+                    node.transmit(remote, name, new byte[]{RMT_EVENTINPUTRESP});
                 }
             }
         });
@@ -121,26 +121,26 @@ public class CluckPublisher {
                     } else {
                         Logger.warning("Received cancellation to nonexistent " + src + " on " + name);
                     }
-                } else if (requireRMT(src, data, RMT_EVENTSOURCE) && !remotes.contains(src)) {
+                } else if (requireRMT(src, data, RMT_EVENTINPUT) && !remotes.contains(src)) {
                     remotes.add(src);
                 }
             }
 
             @Override
             protected void receiveBroadcast(String source, byte[] data) {
-                defaultBroadcastHandle(source, data, RMT_EVENTSOURCE);
+                defaultBroadcastHandle(source, data, RMT_EVENTINPUT);
             }
         }.attach(name);
     }
 
     /**
-     * Subscribe to an EventSource from the network at the specified path.
+     * Subscribe to an EventInput from the network at the specified path.
      *
      * @param node The node to publish on.
      * @param path The path to subscribe to.
-     * @return the EventSource.
+     * @return the EventInput.
      */
-    public static EventInput subscribeES(final CluckNode node, final String path) {
+    public static EventInput subscribeEI(final CluckNode node, final String path) {
         final String linkName = "srcES-" + path.hashCode() + "-" + UniqueIds.global.nextHexId();
         final BooleanStatus sent = new BooleanStatus();
         final EventStatus e = new EventStatus() {
@@ -149,14 +149,14 @@ public class CluckPublisher {
                 super.send(cns);
                 if (!sent.get()) {
                     sent.set(true);
-                    node.transmit(path, linkName, new byte[]{RMT_EVENTSOURCE});
+                    node.transmit(path, linkName, new byte[]{RMT_EVENTINPUT});
                 }
             }
         };
         new CluckSubscriber(node) {
             @Override
             protected void receive(String src, byte[] data) {
-                if (requireRMT(src, data, RMT_EVENTSOURCERESP)) {
+                if (requireRMT(src, data, RMT_EVENTINPUTRESP)) {
                     e.produce();
                 }
             }
@@ -165,7 +165,7 @@ public class CluckPublisher {
             protected void receiveBroadcast(String source, byte[] data) {
                 if (data.length == 1 && data[0] == CluckNode.RMT_NOTIFY) {
                     if (sent.get()) {
-                        node.transmit(path, linkName, new byte[]{RMT_EVENTSOURCE});
+                        node.transmit(path, linkName, new byte[]{RMT_EVENTINPUT});
                     }
                 }
             }
@@ -394,7 +394,6 @@ public class CluckPublisher {
      * @param node The node to publish on.
      * @param name The name for the FloatInput.
      * @param input The FloatInput.
-     * @see #publish(java.lang.String, ccre.chan.FloatInputProducer)
      */
     public static void publish(final CluckNode node, final String name, final FloatInput input) {
         final ConcurrentDispatchArray<String> remotes = new ConcurrentDispatchArray<String>();

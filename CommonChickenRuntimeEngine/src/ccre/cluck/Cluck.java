@@ -110,43 +110,43 @@ public final class Cluck {
     }
 
     /**
-     * Publish an EventConsumer on the network.
+     * Publish an EventOutput on the network.
      *
-     * @param name The name for the EventConsumer.
-     * @param consumer The EventConsumer.
+     * @param name The name for the EventOutput.
+     * @param consumer The EventOutput.
      */
     public static void publish(String name, final EventOutput consumer) {
         CluckPublisher.publish(node, name, consumer);
     }
 
     /**
-     * Subscribe to an EventConsumer from the network at the specified path.
+     * Subscribe to an EventOutput from the network at the specified path.
      *
      * @param path The path to subscribe to.
-     * @return the EventConsumer.
+     * @return the EventOutput.
      */
-    public static EventOutput subscribeEC(final String path) {
-        return CluckPublisher.subscribeEC(node, path);
+    public static EventOutput subscribeEO(final String path) {
+        return CluckPublisher.subscribeEO(node, path);
     }
 
     /**
-     * Publish an EventSource on the network.
+     * Publish an EventInput on the network.
      *
-     * @param name The name for the EventSource.
-     * @param source The EventSource.
+     * @param name The name for the EventInput.
+     * @param source The EventInput.
      */
     public static void publish(final String name, EventInput source) {
         CluckPublisher.publish(node, name, source);
     }
 
     /**
-     * Subscribe to an EventSource from the network at the specified path.
+     * Subscribe to an EventInput from the network at the specified path.
      *
      * @param path The path to subscribe to.
-     * @return the EventSource.
+     * @return the EventInput.
      */
-    public static EventInput subscribeES(final String path) {
-        return CluckPublisher.subscribeES(node, path);
+    public static EventInput subscribeEI(final String path) {
+        return CluckPublisher.subscribeEI(node, path);
     }
 
     /**
@@ -221,7 +221,6 @@ public final class Cluck {
      *
      * @param name The name for the FloatInput.
      * @param input The FloatInput.
-     * @see #publish(java.lang.String, ccre.chan.FloatInputProducer)
      */
     public static void publish(final String name, final FloatInput input) {
         CluckPublisher.publish(node, name, input);

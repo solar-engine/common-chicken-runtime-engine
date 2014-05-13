@@ -39,7 +39,7 @@ public class Tokenizer {
     /**
      * Set the specified block of text
      *
-     * @param input
+     * @param input The text to process.
      */
     public void setInput(String input) {
         this.input = input;

@@ -53,7 +53,7 @@ public class EventMixing {
     };
 
     /**
-     * Combine two EventSources so that either event firing will fire the result
+     * Combine two EventInputs so that either event firing will fire the result
      * event.
      *
      * @param a the first event source
@@ -68,7 +68,7 @@ public class EventMixing {
     }
 
     /**
-     * Combine multiple EventSources so that any event firing will fire the
+     * Combine multiple EventInputs so that any event firing will fire the
      * result event.
      *
      * @param sources the event sources
@@ -84,7 +84,7 @@ public class EventMixing {
 
     /**
      * Returns a combination of the specified events such that the returned
-     * EventConsumer will fire all arguments when fired.
+     * EventOutput will fire all arguments when fired.
      *
      * @param events the events to fire
      * @return the trigger for firing the arguments.
@@ -101,7 +101,7 @@ public class EventMixing {
 
     /**
      * Returns a combination of the specified events such that the returned
-     * EventConsumer will fire both arguments when fired.
+     * EventOutput will fire both arguments when fired.
      *
      * @param a the first event
      * @param b the second event
@@ -117,12 +117,12 @@ public class EventMixing {
     }
 
     /**
-     * Returns a debounced version of the specified EventConsumer, such that
+     * Returns a debounced version of the specified EventOutput, such that
      * there is a minimum delay of minMillis milliseconds between events.
      *
      * Any event sent before the timeout will be ignored.
      *
-     * @param orig The EventConsumer to debounce.
+     * @param orig The EventOutput to debounce.
      * @param minMillis The minimum event delay.
      * @return The debounced version of the event consumer.
      */
@@ -131,12 +131,12 @@ public class EventMixing {
     }
 
     /**
-     * Returns a debounced version of the specified EventSource, such that there
+     * Returns a debounced version of the specified EventInput, such that there
      * is a minimum delay of minMillis milliseconds between events.
      *
      * Any event sent before the timeout will be ignored.
      *
-     * @param orig The EventSource to debounce.
+     * @param orig The EventInput to debounce.
      * @param minMillis The minimum event delay.
      * @return The debounced version of the event source.
      */
@@ -147,9 +147,9 @@ public class EventMixing {
     }
 
     /**
-     * When the returned EventConsumer is fired and the specified
+     * When the returned EventOutput is fired and the specified
      * BooleanInputPoll is the specified requirement, fire the passed
-     * EventConsumer.
+     * EventOutput.
      *
      * @param input the input to test.
      * @param requirement the value to require.
@@ -161,7 +161,7 @@ public class EventMixing {
     }
 
     /**
-     * Return an EventSource that is fired when the specified EventSource is
+     * Return an EventInput that is fired when the specified EventInput is
      * fired and the specified BooleanInputPoll is the specified requirement.
      *
      * @param input the input to test.

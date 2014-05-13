@@ -54,7 +54,7 @@ public class RLoadClient {
      *
      * @param target The file to upload.
      * @param remote The remote address.
-     * @throws IOException
+     * @throws IOException If the file cannot be uploaded.
      */
     public static void upload(File target, String remote) throws IOException {
         long len = target.length();

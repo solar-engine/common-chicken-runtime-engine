@@ -207,7 +207,7 @@ public class PhidgetMonitor implements IPhidgetMonitor, AttachListener, DetachLi
             lcd.setDisplayString(0, "Poultry Inspector is");
             lcd.setDisplayString(1, "     now closed.    ");
         } catch (PhidgetException ex) {
-            Logger.log(LogLevel.SEVERE, "Cannot update string output to Phidget", ex);
+            Logger.log(LogLevel.SEVERE, "Cannot update string output to Phidget: " + ex);
         }
     }
 
@@ -234,7 +234,7 @@ public class PhidgetMonitor implements IPhidgetMonitor, AttachListener, DetachLi
             if (ex.getErrorNumber() == PhidgetException.EPHIDGET_NOTATTACHED) {
                 Logger.log(LogLevel.WARNING, "Phidget not attached!");
             } else {
-                Logger.log(LogLevel.SEVERE, "Cannot update string output to Phidget", ex);
+                Logger.severe("Cannot update string output to Phidget: " + ex);
             }
         }
     }
@@ -243,7 +243,7 @@ public class PhidgetMonitor implements IPhidgetMonitor, AttachListener, DetachLi
         try {
             ifa.setOutputState(cur, outvals[cur]);
         } catch (PhidgetException ex) {
-            Logger.log(LogLevel.SEVERE, "Cannot update boolean output to Phidget", ex);
+            Logger.severe("Cannot update boolean output to Phidget: " + ex);
         }
     }
 
@@ -288,7 +288,7 @@ public class PhidgetMonitor implements IPhidgetMonitor, AttachListener, DetachLi
                     analogStats[i].set(moved);
                 }
             } catch (PhidgetException ex) {
-                Logger.log(LogLevel.SEVERE, "Error on Interface attach", ex);
+                Logger.log(LogLevel.SEVERE, "Error on Interface attach: " + ex);
             }
         } else {
             Logger.log(LogLevel.WARNING, "Attach of unknown phidget!");
@@ -305,7 +305,7 @@ public class PhidgetMonitor implements IPhidgetMonitor, AttachListener, DetachLi
         try {
             attachStat.set(lcd.isAttached() && ifa.isAttached());
         } catch (PhidgetException ex) {
-            Logger.log(LogLevel.WARNING, "Could not recalculate attachment status!", ex);
+            Logger.log(LogLevel.WARNING, "Could not recalculate attachment status: " + ex);
         }
     }
 
@@ -327,6 +327,6 @@ public class PhidgetMonitor implements IPhidgetMonitor, AttachListener, DetachLi
 
     @Override
     public void error(ErrorEvent ae) {
-        Logger.log(LogLevel.SEVERE, "Phidget Reported Error: " + ae, ae.getException());
+        Logger.log(LogLevel.SEVERE, "Phidget Reported Error: " + ae);
     }
 }

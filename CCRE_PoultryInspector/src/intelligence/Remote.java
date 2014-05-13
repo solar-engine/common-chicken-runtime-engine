@@ -82,8 +82,8 @@ public class Remote implements Comparable<Remote> {
      */
     public Color getColor() {
         switch (type) {
-            case RMT_EVENTCONSUMER:
-            case RMT_EVENTSOURCE:
+            case RMT_EVENTOUTP:
+            case RMT_EVENTINPUT:
                 return Color.MAGENTA;
             case RMT_LOGTARGET:
                 return Color.RED;
@@ -111,11 +111,11 @@ public class Remote implements Comparable<Remote> {
             return checkout;
         }
         switch (type) {
-            case RMT_EVENTCONSUMER:
-                checkout = Cluck.subscribeEC(path);
+            case RMT_EVENTOUTP:
+                checkout = Cluck.subscribeEO(path);
                 break;
-            case RMT_EVENTSOURCE:
-                checkout = Cluck.subscribeES(path);
+            case RMT_EVENTINPUT:
+                checkout = Cluck.subscribeEI(path);
                 break;
             case RMT_LOGTARGET:
                 checkout = Cluck.subscribeLT(path, LogLevel.FINEST);

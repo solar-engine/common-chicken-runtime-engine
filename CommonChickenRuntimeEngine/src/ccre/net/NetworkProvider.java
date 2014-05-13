@@ -42,7 +42,7 @@ public interface NetworkProvider {
      *
      * @param port the port to listen on.
      * @return the ServerSocket that represents the connection.
-     * @throws IOException
+     * @throws IOException If a server cannot be started.
      */
     ServerSocket openServer(int port) throws IOException;
 

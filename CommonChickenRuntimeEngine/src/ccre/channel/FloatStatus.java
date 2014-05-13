@@ -76,7 +76,7 @@ public class FloatStatus implements FloatOutput, FloatInput {
      * as creating a new FloatStatus and then adding the FloatOutput as a
      * target.
      *
-     * @see FloatStatus#send(ccre.chan.FloatOutput)
+     * @see FloatStatus#send(ccre.channel.FloatOutput)
      * @param target The FloatOutput to automatically update.
      */
     public FloatStatus(FloatOutput target) {
@@ -91,7 +91,7 @@ public class FloatStatus implements FloatOutput, FloatInput {
      * as creating a new FloatStatus and then adding all of the FloatOutputs as
      * targets.
      *
-     * @see FloatStatus#send(ccre.chan.FloatOutput)
+     * @see FloatStatus#send(ccre.channel.FloatOutput)
      * @param targets The FloatOutputs to automatically update.
      */
     public FloatStatus(FloatOutput... targets) {
@@ -120,12 +120,12 @@ public class FloatStatus implements FloatOutput, FloatInput {
     }
 
     /**
-     * Get an EventConsumer that, when fired, will set the state to the given
+     * Get an EventOutput that, when fired, will set the state to the given
      * float.
      *
      * @param value the value to set the state to.
-     * @return the firable EventConsumer.
-     * @see #setWhen(float, ccre.event.EventSource)
+     * @return the fire-able EventOutput.
+     * @see #setWhen(float, ccre.channel.EventInput)
      */
     public final EventOutput getSetEvent(float value) {
         return FloatMixing.getSetEvent(this, value);

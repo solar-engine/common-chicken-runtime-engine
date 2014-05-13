@@ -121,11 +121,11 @@ public final class Entity {
         long count = (System.currentTimeMillis() - countStart);
         int rh = fm.getHeight();
         switch (represented.type) {
-            case RMT_EVENTCONSUMER:
+            case RMT_EVENTOUTP:
                 g.setColor(blend(col.darker(), col, count / 500.0f));
                 g.fillRect(centerX - w + 1, centerY + h - rh - 1, w * 2 - 2, rh - 2);
                 break;
-            case RMT_EVENTSOURCE:
+            case RMT_EVENTINPUT:
                 EventInput es = (EventInput) co;
                 if (!registered) {
                     registered = true;
@@ -260,12 +260,12 @@ public final class Entity {
             return;
         }
         switch (represented.type) {
-            case RMT_EVENTCONSUMER:
+            case RMT_EVENTOUTP:
                 EventOutput ec = (EventOutput) co;
                 ec.event();
                 countStart = System.currentTimeMillis();
                 break;
-            case RMT_EVENTSOURCE:
+            case RMT_EVENTINPUT:
                 // Interacting with this wouldn't mean anything.
                 break;
             case RMT_LOGTARGET:

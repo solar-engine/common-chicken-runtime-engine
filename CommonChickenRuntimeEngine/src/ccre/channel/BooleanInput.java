@@ -36,8 +36,8 @@ public interface BooleanInput extends BooleanInputPoll {
      * time.
      *
      * @param output The boolean output to notify when the value changes.
-     * @see BooleanOutput#writeValue(boolean)
-     * @see #unsend(ccre.chan.BooleanOutput)
+     * @see BooleanOutput#set(boolean)
+     * @see #unsend(ccre.channel.BooleanOutput)
      */
     public void send(BooleanOutput output);
 
@@ -46,7 +46,7 @@ public interface BooleanInput extends BooleanInputPoll {
      * actions of a previous send call.
      *
      * @param output The output to unsubscribe.
-     * @see #send(ccre.chan.BooleanOutput)
+     * @see #send(ccre.channel.BooleanOutput)
      */
     public void unsend(BooleanOutput output);
 }

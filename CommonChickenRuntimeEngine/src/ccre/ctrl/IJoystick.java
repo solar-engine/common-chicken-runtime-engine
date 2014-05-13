@@ -31,10 +31,10 @@ import ccre.channel.FloatInputPoll;
 public interface IJoystick {
 
     /**
-     * Get an EventSource that will be fired when the given button is pressed.
+     * Get an EventInput that will be fired when the given button is pressed.
      *
      * @param id the button ID.
-     * @return the EventSource representing the button being pressed.
+     * @return the EventInput representing the button being pressed.
      */
     public EventInput getButtonSource(int id);
 

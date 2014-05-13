@@ -28,7 +28,7 @@ import ccre.util.CArrayList;
  * A controller that combines a series of registered BooleanOutputs or
  * BooleanInputs to create a single output or input line.
  *
- * This is a BooleanInput representing the current value, and an EventConsumer
+ * This is a BooleanInput representing the current value, and an EventOutput
  * such that once the event is fired, the output will be correct.
  *
  * @author skeggsc

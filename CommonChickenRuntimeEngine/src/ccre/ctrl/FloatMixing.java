@@ -56,7 +56,7 @@ public class FloatMixing {
     };
 
     /**
-     * Returns an EventConsumer that, when fired, writes the specified value to
+     * Returns an EventOutput that, when fired, writes the specified value to
      * the specified output.
      *
      * @param output the output to write to.
@@ -143,12 +143,12 @@ public class FloatMixing {
     }
 
     /**
-     * Returns an EventConsumer that, when called, pumps the value from the
+     * Returns an EventOutput that, when called, pumps the value from the
      * specified input to the specified output
      *
      * @param in the input
      * @param out the output
-     * @return the EventConsumer that pumps the value
+     * @return the EventOutput that pumps the value
      */
     public static EventOutput pumpEvent(final FloatInputPoll in, final FloatOutput out) {
         return new MixingImpls.PumpEventImplF(out, in);
@@ -221,13 +221,13 @@ public class FloatMixing {
 
     /**
      * Add a ramping system between the specified input and output, with the
-     * specified acceleration limit, and returns the EventConsumer to update the
+     * specified acceleration limit, and returns the EventOutput to update the
      * ramping system.
      *
      * @param limit The maximum delta per update.
      * @param from The FloatInputPoll to control the expected value.
      * @param target The output to write the current value to.
-     * @return The EventConsumer that updates the ramping system.
+     * @return The EventOutput that updates the ramping system.
      */
     public static EventOutput createRamper(final float limit, final FloatInputPoll from, final FloatOutput target) {
         return new MixingImpls.RampingImpl(from, limit, target);
@@ -272,7 +272,7 @@ public class FloatMixing {
     }
 
     /**
-     * When the specified EventSource is fired, write the specified value to the
+     * When the specified EventInput is fired, write the specified value to the
      * specified output
      *
      * @param when when to write the value.
@@ -379,7 +379,7 @@ public class FloatMixing {
     /**
      * Returns a FloatInputPoll representing the delta between the current value
      * of input and the value in the last cycle, denoted by the specified
-     * EventSource.
+     * EventInput.
      *
      * If you only need to use this in one place, then using findRate with one
      * argument might be a better choice.

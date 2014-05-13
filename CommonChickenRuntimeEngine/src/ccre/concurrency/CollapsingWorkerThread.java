@@ -32,7 +32,7 @@ import ccre.log.Logger;
  * shouldIgnoreWhileRunning was not set to true in the constructor, the trigger
  * is ignored.
  *
- * This is an EventConsumer - when it is fired, it will trigger this thread's
+ * This is an EventOutput - when it is fired, it will trigger this thread's
  * work.
  *
  * @author skeggsc
@@ -86,7 +86,7 @@ public abstract class CollapsingWorkerThread extends ReporterThread implements E
 
     /**
      * Trigger the work. When possible, the thread will run its doWork method.
-     * This method exists for using this thread as an EventConsumer. You may
+     * This method exists for using this thread as an EventOutput. You may
      * prefer trigger() instead, although there is no functional difference.
      *
      * @see #trigger()
@@ -98,7 +98,7 @@ public abstract class CollapsingWorkerThread extends ReporterThread implements E
     /**
      * When the given event is fired, trigger this thread's work as in the
      * eventFired() method. This is equivalent to adding this object as a
-     * listener to the given EventSource.
+     * listener to the given EventInput.
      *
      * @param event when to trigger the work.
      * @see #event()

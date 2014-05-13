@@ -43,7 +43,7 @@ public interface FloatInput extends FloatInputPoll {
      *
      * @param output The float output to notify when the value changes.
      * @see FloatOutput#set(float)
-     * @see #unsend(ccre.chan.FloatOutput)
+     * @see #unsend(ccre.channel.FloatOutput)
      */
     public void send(FloatOutput output);
 
@@ -55,7 +55,7 @@ public interface FloatInput extends FloatInputPoll {
      * -1.0f to 1.0f.
      *
      * @param output The output to unsubscribe.
-     * @see #send(ccre.chan.FloatOutput)
+     * @see #send(ccre.channel.FloatOutput)
      */
     public void unsend(FloatOutput output);
 }

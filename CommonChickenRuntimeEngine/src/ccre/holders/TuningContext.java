@@ -92,7 +92,7 @@ public final class TuningContext { // TODO: Support booleans for tuning.
     /**
      * Get an event that flushes this object.
      *
-     * @return the EventConsumer that will flush this object.
+     * @return the EventOutput that will flush this object.
      * @see #flush()
      */
     public EventOutput getFlushEvent() {
@@ -104,10 +104,10 @@ public final class TuningContext { // TODO: Support booleans for tuning.
     }
 
     /**
-     * Publish an EventConsumer that can be used to save the tuning variables on
+     * Publish an EventOutput that can be used to save the tuning variables on
      * this context.
      *
-     * @param name The name for the EventConsumer to be published under.
+     * @param name The name for the EventOutput to be published under.
      * (Prefixed by "Save Tuning for ".)
      * @return This TuningContext. Returned for method chaining purposes.
      */

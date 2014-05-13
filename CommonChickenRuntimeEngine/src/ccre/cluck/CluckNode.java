@@ -41,17 +41,17 @@ public class CluckNode {
      */
     public static final byte RMT_PING = 0;
     /**
-     * The ID representing an EventConsumer firing message.
+     * The ID representing an EventOutput firing message.
      */
-    public static final byte RMT_EVENTCONSUMER = 1;
+    public static final byte RMT_EVENTOUTP = 1;
     /**
-     * The ID representing an EventSource subscription message.
+     * The ID representing an EventInput subscription message.
      */
-    public static final byte RMT_EVENTSOURCE = 2;
+    public static final byte RMT_EVENTINPUT = 2;
     /**
-     * The ID representing an EventSource response message.
+     * The ID representing an EventInput response message.
      */
-    public static final byte RMT_EVENTSOURCERESP = 3;
+    public static final byte RMT_EVENTINPUTRESP = 3;
     /**
      * The ID representing a logging message.
      */
@@ -100,7 +100,7 @@ public class CluckNode {
      * The ID representing a notification that a link doesn't exist.
      */
     public static final byte RMT_NEGATIVE_ACK = 15;
-    private static final String[] remoteNames = new String[]{"Ping", "EventConsumer", "EventSource", "EventSourceResponse", "LogTarget",
+    private static final String[] remoteNames = new String[]{"Ping", "EventOutput", "EventInput", "EventInputResponse", "LogTarget",
         "BooleanInputProducer", "BooleanInputProducerResponse", "BooleanOutput", "FloatInputProducer", "FloatInputProducerResponse",
         "FloatOutput", "OutputStream", "Notify", "RemoteProcedure", "RemoteProcedureReply", "NonexistenceNotification"};
 
@@ -279,7 +279,7 @@ public class CluckNode {
      * @param remoteType The remote type to search for, or null for all types.
      * @param timeout How long to wait for responses.
      * @return The snapshot of remotes.
-     * @throws InterruptedException
+     * @throws InterruptedException If the current thread is interrupted while searching for remotes.
      */
     public String[] searchRemotes(final Integer remoteType, int timeout) throws InterruptedException { // TODO: Make this a separate part of the library, or delete it.
         final CArrayList<String> discovered = new CArrayList<String>();

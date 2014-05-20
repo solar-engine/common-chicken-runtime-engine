@@ -193,7 +193,7 @@ public class Utils {
      * @return if the specified string is empty.
      */
     public static boolean isStringEmpty(String str) {
-        return str.length() == 0; // TODO: Write docs for this method and then put it places where it could be used.
+        return str.length() == 0;
     }
 
     /**

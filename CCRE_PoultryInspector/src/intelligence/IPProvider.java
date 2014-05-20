@@ -35,12 +35,11 @@ public class IPProvider {
      * The address that should be connected to. "*" means that it should
      * autoconfigure based on the network.
      */
-    public static final StringHolder forcedAddress = new StringHolder("*");
+    public static String forcedAddress = "*";
 
     private static final boolean useHigherPort;
 
     static {
-        Cluck.publish("forced-remote-address", forcedAddress.getOutput());
         String os = System.getProperty("os.name");
         useHigherPort = os != null && os.startsWith("Mac ");
     }
@@ -49,17 +48,13 @@ public class IPProvider {
      * Compute an address and connect to it.
      */
     public static void connect() {
-        Logger.finest("Connecting...");
-        String val = forcedAddress.get();
-        if (val.isEmpty()) {
-            val = "*";
-            forcedAddress.set("*");
+        String addr;
+        if ("*".equals(forcedAddress)) {
+            addr = getAddress();
+        } else {
+            addr = forcedAddress;
+            Logger.finer("Forced connect address: " + addr);
         }
-        String addr = val.equals("*") ? getAddress() : val;
-        if (addr == null) {
-            return;
-        }
-        Logger.finer("Found connect address: " + addr);
         if (Cluck.getClient() == null) {
             Cluck.setupClient(addr, "robot", "phidget");
         } else {
@@ -77,12 +72,15 @@ public class IPProvider {
         CCollection<String> addresses = Network.listIPv4Addresses();
         for (String addr : addresses) {
             if (addr.startsWith("10.") && addr.substring(0, addr.lastIndexOf('.')).length() <= 8) {
-                return addr.substring(0, addr.lastIndexOf('.') + 1).concat("2:443");
+                String out = addr.substring(0, addr.lastIndexOf('.') + 1).concat("2:443");
+                Logger.fine("Connecting to robot at: " + out);
+                return out;
             } else if (addr.equals("192.168.7.1")) {
-                return "192.168.7.2"; // BeagleBone direct connection
+                Logger.fine("Connecting over BeagleBone direct connection.");
+                return "192.168.7.2";
             }
         }
-        Logger.warning("Subnet Autodetect: Cannot find any valid network addresses! Defaulting to localhost.");
+        Logger.warning("Autodetect: Not on robot subnet. Defaulting to localhost.");
         return useHigherPort ? "127.0.0.1:1540" : "127.0.0.1";
     }
 

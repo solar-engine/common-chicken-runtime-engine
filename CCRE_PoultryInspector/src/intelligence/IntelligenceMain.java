@@ -621,6 +621,17 @@ public class IntelligenceMain extends JPanel implements CluckRemoteListener, Mou
         btns.add(refresh);
         JButton reconnect = new JButton("Reconnect");
         btns.add(reconnect);
+        final JTextField forcedAddress = new JTextField("*");
+        forcedAddress.setFont(new Font("Monospaced", 0, 12));
+        btns.add(forcedAddress);
+        JButton setAddress = new JButton("Set Address");
+        setAddress.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                IPProvider.forcedAddress = forcedAddress.getText();
+            }
+        });
+        btns.add(setAddress);
         jsp.setRightComponent(subpanel);
         IPProvider.init();
         jsp.setLeftComponent(new IntelligenceMain(args, new Ticker(1000), refresh, reconnect));

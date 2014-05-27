@@ -18,16 +18,95 @@
  */
 package intelligence;
 
-import java.io.*;
-import java.net.*;
-import javax.imageio.ImageIO;
-import java.awt.*;
-import java.awt.image.*;
-import java.awt.geom.*;
+import java.awt.Graphics2D;
+import java.awt.GraphicsConfiguration;
+import java.awt.GraphicsDevice;
+import java.awt.GraphicsEnvironment;
+import java.awt.geom.AffineTransform;
+import java.awt.image.AffineTransformOp;
+import java.awt.image.BufferedImage;
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.ByteArrayInputStream;
+import java.io.EOFException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.Socket;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
+import javax.imageio.ImageIO;
 
 public class Webcam extends Thread {
+
+    private static GraphicsConfiguration graphicsConfiguration;
+    private static final boolean retryConnections = true;
+
+    static {
+        GraphicsEnvironment graphEnv = GraphicsEnvironment.getLocalGraphicsEnvironment();
+        GraphicsDevice graphDevice = graphEnv.getDefaultScreenDevice();
+        graphicsConfiguration = graphDevice.getDefaultConfiguration();
+    }
+
+    private static Iterable<String> readLinesUntilEmptyLine(final InputStream socketInputStream) {
+        return new Iterable<String>() {
+            @Override
+            public Iterator<String> iterator() {
+                return new Iterator<String>() {
+                    public String next = null;
+
+                    @Override
+                    public boolean hasNext() {
+                        if (next == null) {
+                            try {
+                                next = readLine(socketInputStream);
+                            } catch (IOException ex) {
+                                throw new WrappedIOException(ex);
+                            }
+                        }
+                        return !next.isEmpty();
+                    }
+
+                    @Override
+                    public String next() throws NoSuchElementException {
+                        if (!hasNext()) {
+                            throw new NoSuchElementException();
+                        }
+                        String out = next;
+                        next = null;
+                        return out;
+                    }
+
+                    @Override
+                    public void remove() {
+                        throw new UnsupportedOperationException("Not supported yet.");
+                    }
+                };
+            }
+        };
+    }
+
+    static String readLine(InputStream stream) throws IOException, EOFException {
+        final int BUFSIZE = 1024;
+        byte[] buffer = new byte[BUFSIZE];
+        int b;
+        int i = 0;
+        while (true) {
+            b = stream.read();
+            if (b == -1) {
+                throw new EOFException();
+            }
+            buffer[i] = (byte) b;
+            if (i > 0 && b == 10 && buffer[i - 1] == 13) {
+                return new String(buffer, 0, i - 1);
+            } else {
+                i++;
+                if (i >= BUFSIZE) {
+                    break;
+                }
+            }
+        }
+        return null;
+    }
 
     private String label;
     private String address;
@@ -37,15 +116,9 @@ public class Webcam extends Thread {
     private int frameCount;
     private long startTime;
     private int rotate = 0;
-    private static GraphicsConfiguration graphicsConfiguration;
     private volatile long lastReceived = 0;
 
-    static {
-        GraphicsEnvironment graphEnv = GraphicsEnvironment.getLocalGraphicsEnvironment();
-        GraphicsDevice graphDevice = graphEnv.getDefaultScreenDevice();
-        graphicsConfiguration = graphDevice.getDefaultConfiguration();
-    }
-    private static final boolean retryConnections = true;
+    private Socket curclose = null;
 
     public Webcam(String label, String address, boolean active, int rotate) {
         this.label = label;
@@ -56,8 +129,6 @@ public class Webcam extends Thread {
         this.keepRunning = true;
         this.start();
     }
-
-    private Socket curclose = null;
 
     public void reconnect() {
         System.out.println("DoInterrupt");
@@ -70,14 +141,6 @@ public class Webcam extends Thread {
             }
         }
         this.interrupt();
-    }
-
-    @SuppressWarnings("serial")
-    private static class WrappedIOException extends RuntimeException {
-
-        WrappedIOException(IOException io) {
-            super(io);
-        }
     }
 
     public void run() {
@@ -205,67 +268,6 @@ public class Webcam extends Thread {
         }
     }
 
-    private static Iterable<String> readLinesUntilEmptyLine(final InputStream socketInputStream) {
-        return new Iterable<String>() {
-            @Override
-            public Iterator<String> iterator() {
-                return new Iterator<String>() {
-                    public String next = null;
-
-                    @Override
-                    public boolean hasNext() {
-                        if (next == null) {
-                            try {
-                                next = readLine(socketInputStream);
-                            } catch (IOException ex) {
-                                throw new WrappedIOException(ex);
-                            }
-                        }
-                        return !next.isEmpty();
-                    }
-
-                    @Override
-                    public String next() throws NoSuchElementException {
-                        if (!hasNext()) {
-                            throw new NoSuchElementException();
-                        }
-                        String out = next;
-                        next = null;
-                        return out;
-                    }
-
-                    @Override
-                    public void remove() {
-                        throw new UnsupportedOperationException("Not supported yet.");
-                    }
-                };
-            }
-        };
-    }
-
-    static String readLine(InputStream stream) throws IOException, EOFException {
-        final int BUFSIZE = 1024;
-        byte[] buffer = new byte[BUFSIZE];
-        int b;
-        int i = 0;
-        while (true) {
-            b = stream.read();
-            if (b == -1) {
-                throw new EOFException();
-            }
-            buffer[i] = (byte) b;
-            if (i > 0 && b == 10 && buffer[i - 1] == 13) {
-                return new String(buffer, 0, i - 1);
-            } else {
-                i++;
-                if (i >= BUFSIZE) {
-                    break;
-                }
-            }
-        }
-        return null;
-    }
-
     BufferedImage readImage(InputStream stream, int contentLength) throws IOException, EOFException {
         byte[] imageBytes = new byte[contentLength];
         int bytesRemaining = contentLength;
@@ -288,5 +290,13 @@ public class Webcam extends Thread {
 
     public boolean isUpToDate() {
         return (System.nanoTime() - lastReceived) < 1000 * 1000000L; // 1 second
+    }
+
+    @SuppressWarnings(value = "serial")
+    private static class WrappedIOException extends RuntimeException {
+
+        WrappedIOException(IOException io) {
+            super(io);
+        }
     }
 }

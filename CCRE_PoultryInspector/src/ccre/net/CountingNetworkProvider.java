@@ -32,13 +32,28 @@ import java.util.concurrent.atomic.AtomicLong;
  */
 public class CountingNetworkProvider extends DefaultNetworkProvider {
 
+    /**
+     * The total number of bytes sent through the CountingNetworkProvider.
+     */
+    public static final AtomicLong totalBytesSent = new AtomicLong();
+    /**
+     * The total number of bytes received through the CountingNetworkProvider.
+     */
+    public static final AtomicLong totalBytesReceived = new AtomicLong();
+
+    /**
+     * Register the CountingNetworkProvider as the global Network provider. This
+     * must be called before any other networking methods!
+     */
     public static void register() {
         Network.setProvider(new CountingNetworkProvider());
     }
-    
-    public static AtomicLong totalBytesSent = new AtomicLong();
-    public static AtomicLong totalBytesReceived = new AtomicLong();
 
+    /**
+     * Calculates the total number of bytes sent or received.
+     *
+     * @return the total number of bytes.
+     */
     public static long getTotal() {
         return totalBytesReceived.get() + totalBytesSent.get();
     }
@@ -48,6 +63,7 @@ public class CountingNetworkProvider extends DefaultNetworkProvider {
         return new CountingClientSocket(super.openClient(targetAddress, port));
     }
 
+    @Override
     public ServerSocket openServer(int port) throws IOException {
         return new CountingServerSocket(super.openServer(port));
     }
@@ -56,7 +72,7 @@ public class CountingNetworkProvider extends DefaultNetworkProvider {
 
         private final ClientSocket base;
 
-        public CountingClientSocket(ClientSocket base) {
+        CountingClientSocket(ClientSocket base) {
             this.base = base;
         }
 
@@ -90,7 +106,7 @@ public class CountingNetworkProvider extends DefaultNetworkProvider {
 
         private final ServerSocket base;
 
-        public CountingServerSocket(ServerSocket base) {
+        CountingServerSocket(ServerSocket base) {
             this.base = base;
         }
 
@@ -109,7 +125,7 @@ public class CountingNetworkProvider extends DefaultNetworkProvider {
 
         private final InputStream base;
 
-        public CountingInputStream(InputStream base) {
+        CountingInputStream(InputStream base) {
             this.base = base;
         }
 
@@ -122,6 +138,7 @@ public class CountingNetworkProvider extends DefaultNetworkProvider {
             return out;
         }
 
+        @Override
         public int read(byte[] b) throws IOException {
             int count = base.read(b);
             if (count > 0) {
@@ -130,6 +147,7 @@ public class CountingNetworkProvider extends DefaultNetworkProvider {
             return count;
         }
 
+        @Override
         public int read(byte b[], int off, int len) throws IOException {
             int count = base.read(b, off, len);
             if (count > 0) {
@@ -138,6 +156,7 @@ public class CountingNetworkProvider extends DefaultNetworkProvider {
             return count;
         }
 
+        @Override
         public long skip(long n) throws IOException {
             long count = base.skip(n);
             if (count > 0) {
@@ -146,22 +165,27 @@ public class CountingNetworkProvider extends DefaultNetworkProvider {
             return count;
         }
 
+        @Override
         public int available() throws IOException {
             return base.available();
         }
 
+        @Override
         public void close() throws IOException {
             base.close();
         }
 
+        @Override
         public void mark(int readlimit) {
             base.mark(readlimit);
         }
 
+        @Override
         public void reset() throws IOException {
             base.reset();
         }
 
+        @Override
         public boolean markSupported() {
             return base.markSupported();
         }
@@ -171,7 +195,7 @@ public class CountingNetworkProvider extends DefaultNetworkProvider {
 
         private final OutputStream base;
 
-        public CountingOutputStream(OutputStream base) {
+        CountingOutputStream(OutputStream base) {
             this.base = base;
         }
 
@@ -187,15 +211,18 @@ public class CountingNetworkProvider extends DefaultNetworkProvider {
             totalBytesSent.getAndAdd(b.length);
         }
 
+        @Override
         public void write(byte[] b, int off, int len) throws IOException {
             base.write(b, off, len);
             totalBytesSent.getAndAdd(b.length);
         }
 
+        @Override
         public void flush() throws IOException {
             base.flush();
         }
 
+        @Override
         public void close() throws IOException {
             base.close();
         }

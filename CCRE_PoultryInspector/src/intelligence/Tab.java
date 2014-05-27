@@ -41,24 +41,8 @@ import java.util.Map;
 public class Tab {
 
     /**
-     * The paths to find the monitored entities.
-     */
-    private String[] monitoredEntitys;
-    /**
-     * The X locations of the monitored entities.
-     */
-    private final int[] monitoredX;
-    /**
-     * The Y locations of the monitored entities.
-     */
-    private final int[] monitoredY;
-    /**
-     * The name of this tab.
-     */
-    public final String name;
-
-    /**
      * Remove the designated tab.
+     *
      * @param t the tab to remove.
      */
     public static void removeTab(Tab t) {
@@ -72,8 +56,8 @@ public class Tab {
             target = null;
             folder = folder.getParentFile();
         }
-        PrintWriter pw=null;
-        BufferedReader br=null;
+        PrintWriter pw = null;
+        BufferedReader br = null;
         try {
             File inFile = new File(target.toURI());
             File tempFile = new File(inFile.getAbsolutePath() + ".tmp");
@@ -94,27 +78,28 @@ public class Tab {
             }
             if (!tempFile.renameTo(inFile)) {
                 throw new IOException("Could not rename file");
-            } 
+            }
         } catch (IOException ex) {
-             Logger.log(LogLevel.WARNING,"Couldn't open file",ex);
-        }
-        finally{
-            try{
-                if(pw!=null){
+            Logger.warning("Couldn't open file", ex);
+        } finally {
+            try {
+                if (pw != null) {
                     pw.close();
                 }
-                if(br!=null){
+                if (br != null) {
                     br.close();
                 }
-            }catch(IOException e){
-                Logger.log(LogLevel.WARNING, "Couldn't close the files",e);
+            } catch (IOException e) {
+                Logger.warning("Couldn't close the files", e);
             }
         }
     }
+
     /**
      * Adds a tab to the tab list file.
+     *
      * @param t the tab to add.
-     * @throws IOException 
+     * @throws IOException
      */
     public static void addTab(Tab t) throws IOException {
         File folder = new File(".").getAbsoluteFile();
@@ -143,6 +128,7 @@ public class Tab {
 
     /**
      * Get all the tabs.
+     *
      * @return a list of the tabs.
      */
     public static List<Tab> getTabs() {
@@ -177,13 +163,14 @@ public class Tab {
                 fin.close();
             }
         } catch (IOException ex) {
-            Logger.log(LogLevel.WARNING, "Could not set up tab list!", ex);
+            Logger.warning("Could not set up tab list!", ex);
         }
         return tabs;
     }
 
     /**
      * Turn a tab.ecode() to a tab.
+     *
      * @param line The string that represents a tab.
      * @return A tab represented by the string.
      */
@@ -205,7 +192,47 @@ public class Tab {
     }
 
     /**
+     * The paths to find the monitored entities.
+     */
+    private String[] monitoredEntitys;
+    /**
+     * The X locations of the monitored entities.
+     */
+    private final int[] monitoredX;
+    /**
+     * The Y locations of the monitored entities.
+     */
+    private final int[] monitoredY;
+    /**
+     * The name of this tab.
+     */
+    public final String name;
+
+    public Tab(String n, Entity[] rem) {
+        name = n;
+        String[] names = new String[rem.length];
+        int[] xs = new int[rem.length];
+        int[] ys = new int[rem.length];
+        for (int x = 0; x < rem.length; x++) {
+            names[x] = rem[x].toString();
+            xs[x] = rem[x].centerX;
+            ys[x] = rem[x].centerY;
+        }
+        monitoredEntitys = names;
+        monitoredX = xs;
+        monitoredY = ys;
+    }
+
+    public Tab(String n, String[] remotes, int[] xs, int[] ys) {
+        name = n;
+        monitoredEntitys = remotes;
+        monitoredX = xs;
+        monitoredY = ys;
+    }
+
+    /**
      * A function to encode tabs.
+     *
      * @return A string that represents this tab.
      */
     public String encode() {
@@ -229,28 +256,6 @@ public class Tab {
         build.deleteCharAt(build.lastIndexOf("\2"));
         build.append("\1" + name);
         return build.toString();
-    }
-
-    public Tab(String n, Entity[] rem) {
-        name = n;
-        String[] names = new String[rem.length];
-        int[] xs = new int[rem.length];
-        int[] ys = new int[rem.length];
-        for (int x = 0; x < rem.length; x++) {
-            names[x] = rem[x].toString();
-            xs[x] = rem[x].centerX;
-            ys[x] = rem[x].centerY;
-        }
-        monitoredEntitys = names;
-        monitoredX = xs;
-        monitoredY = ys;
-    }
-
-    public Tab(String n, String[] remotes, int[] xs, int[] ys) {
-        name = n;
-        monitoredEntitys = remotes;
-        monitoredX = xs;
-        monitoredY = ys;
     }
 
     /**
@@ -278,4 +283,5 @@ public class Tab {
             ents.get(monitoredEntitys[index]).centerY = monitoredY[index];
         }
     }
+
 }

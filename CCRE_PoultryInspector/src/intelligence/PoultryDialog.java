@@ -34,6 +34,11 @@ import java.io.OutputStream;
  */
 public final class PoultryDialog {
 
+    public static final int DEFAULT_WIDTH = 400, DEFAULT_HEIGHT = 300, BUTTON_HEIGHT = 50, BUTTON_PADDING = 25, BUTTONS_PER_LINE = 3;
+
+    public static final Font TITLE_FONT = new Font("Monospaced", Font.PLAIN, 20);
+    public static final Font BUTTON_FONT = new Font("Monospaced", Font.PLAIN, 12);
+    public static final Font TEXT_FONT = new Font("Monospaced", Font.PLAIN, 12);
     /**
      * The string that describes the contents of this window.
      */
@@ -50,12 +55,6 @@ public final class PoultryDialog {
      * The positions of the buttons.
      */
     private final int[][] buttonPositions;
-
-    public static final int DEFAULT_WIDTH = 400, DEFAULT_HEIGHT = 300, BUTTON_HEIGHT = 50, BUTTON_PADDING = 25, BUTTONS_PER_LINE = 3;
-
-    public static final Font TITLE_FONT = new Font("Monospaced", Font.PLAIN, 20);
-    public static final Font BUTTON_FONT = new Font("Monospaced", Font.PLAIN, 12);
-    public static final Font TEXT_FONT = new Font("Monospaced", Font.PLAIN, 12);
     /**
      * The OutputStream to send results to.
      */
@@ -79,7 +78,7 @@ public final class PoultryDialog {
                 try {
                     timeout = Integer.parseInt(line.substring("TIMEOUT ".length()));
                 } catch (NumberFormatException ex) {
-                    Logger.log(LogLevel.WARNING, "Invalid timeout", ex);
+                    Logger.warning("Invalid timeout", ex);
                 }
             }
         }
@@ -208,7 +207,7 @@ public final class PoultryDialog {
                 resultTo.write(result.getBytes());
                 resultTo.close();
             } catch (IOException ex) {
-                Logger.log(LogLevel.WARNING, "Cannot return result from Dialog!", ex);
+                Logger.warning("Cannot return result from Dialog!", ex);
             }
             return true;
         } else {

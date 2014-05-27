@@ -19,7 +19,6 @@
 package intelligence;
 
 import ccre.cluck.Cluck;
-import ccre.holders.StringHolder;
 import ccre.log.Logger;
 import ccre.net.Network;
 import ccre.util.CCollection;

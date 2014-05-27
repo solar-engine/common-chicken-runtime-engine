@@ -18,8 +18,6 @@
  */
 package intelligence;
 
-import ccre.cluck.CluckNode;
-
 /**
  * An interface implemented both by the real and fake PhidgetMonitors.
  *

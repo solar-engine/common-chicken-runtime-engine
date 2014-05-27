@@ -34,9 +34,81 @@ import javax.sound.sampled.SourceDataLine;
  */
 public class Beeper {
 
+    private static final HashMap<String, BeepType> lookups = new HashMap<String, BeepType>();
+    private static BeepType current = null;
+    private static final Object cursync = new Object();
+
+    static {
+        for (BeepType bt : BeepType.values()) {
+            lookups.put(bt.name(), bt);
+        }
+    }
+
+    static {
+        Thread t = new Thread("beeper") {
+            @Override
+            public void run() {
+                while (true) {
+                    BeepType bt;
+                    synchronized (cursync) {
+                        while (current == null) {
+                            try {
+                                cursync.wait();
+                            } catch (InterruptedException ex) {
+                            }
+                        }
+                        bt = current;
+                        current = null;
+                    }
+                    beep(bt);
+                }
+            }
+        };
+        t.setDaemon(true);
+        t.start();
+    }
+
     public static void main(String[] args) throws InterruptedException {
         beep(BeepType.CORRAL);
         Thread.sleep(5000);
+    }
+
+    public static void beep(String name) {
+        BeepType bt = lookups.get(name);
+        if (bt == null) {
+            bt = BeepType.OOPS;
+        }
+        synchronized (cursync) {
+            current = bt;
+            cursync.notifyAll();
+        }
+    }
+
+    public static void beep(BeepType bt) {
+        System.out.println("Beeping: " + bt);
+        try {
+            AudioFormat format = new AudioFormat(bt.rate(), 8, 1, false, true);
+            SourceDataLine line = AudioSystem.getSourceDataLine(format);
+            line.open(format);
+            line.start();
+            long time = 0;
+            while (true) {
+                byte[] more = new byte[1024];
+                int i = 0;
+                try {
+                    for (; i < more.length; i++) {
+                        more[i] = bt.generateOne(time++);
+                    }
+                } catch (CompletedException ex) {
+                    line.write(more, 0, i);
+                    break;
+                }
+                line.write(more, 0, i);
+            }
+            line.drain();
+        } catch (LineUnavailableException ex) {
+            ex.printStackTrace();
+        }
     }
 
     public static enum BeepType {
@@ -95,78 +167,7 @@ public class Beeper {
         }
     }
 
-    @SuppressWarnings("serial")
+    @SuppressWarnings(value = "serial")
     private static final class CompletedException extends Exception {
-    }
-    private static final HashMap<String, BeepType> lookups = new HashMap<String, BeepType>();
-
-    static {
-        for (BeepType bt : BeepType.values()) {
-            lookups.put(bt.name(), bt);
-        }
-    }
-    private static BeepType current = null;
-    private static final Object cursync = new Object();
-
-    static {
-        Thread t = new Thread("beeper") {
-            @Override
-            public void run() {
-                while (true) {
-                    BeepType bt;
-                    synchronized (cursync) {
-                        while (current == null) {
-                            try {
-                                cursync.wait();
-                            } catch (InterruptedException ex) {
-                            }
-                        }
-                        bt = current;
-                        current = null;
-                    }
-                    beep(bt);
-                }
-            }
-        };
-        t.setDaemon(true);
-        t.start();
-    }
-
-    public static void beep(String name) {
-        BeepType bt = lookups.get(name);
-        if (bt == null) {
-            bt = BeepType.OOPS;
-        }
-        synchronized (cursync) {
-            current = bt;
-            cursync.notifyAll();
-        }
-    }
-
-    public static void beep(BeepType bt) {
-        System.out.println("Beeping: " + bt);
-        try {
-            AudioFormat format = new AudioFormat(bt.rate(), 8, 1, false, true);
-            SourceDataLine line = AudioSystem.getSourceDataLine(format);
-            line.open(format);
-            line.start();
-            long time = 0;
-            while (true) {
-                byte[] more = new byte[1024];
-                int i = 0;
-                try {
-                    for (; i < more.length; i++) {
-                        more[i] = bt.generateOne(time++);
-                    }
-                } catch (CompletedException ex) {
-                    line.write(more, 0, i);
-                    break;
-                }
-                line.write(more, 0, i);
-            }
-            line.drain();
-        } catch (LineUnavailableException ex) {
-            ex.printStackTrace();
-        }
     }
 }

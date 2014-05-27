@@ -18,7 +18,9 @@
  */
 package intelligence;
 
-import ccre.log.*;
+import ccre.log.LogLevel;
+import ccre.log.Logger;
+import ccre.log.LoggingTarget;
 import ccre.util.CArrayList;
 import ccre.util.CList;
 import java.lang.reflect.InvocationTargetException;
@@ -48,11 +50,11 @@ public class ListModelLogger implements LoggingTarget, ListSelectionListener {
             // Print suppressed exceptions, if any
             getSuppressed = Class.forName("java.lang.Throwable").getMethod("getSuppressed");
         } catch (ClassNotFoundException ex) {
-            Logger.log(LogLevel.WARNING, "Could not find Throwable!", ex);
+            Logger.warning("Could not find Throwable!", ex);
         } catch (NoSuchMethodException ex) {
             // Do nothing.
         } catch (SecurityException ex) {
-            Logger.log(LogLevel.WARNING, "Could not init getSuppressed", ex);
+            Logger.warning("Could not init getSuppressed", ex);
         }
     }
     /**
@@ -85,7 +87,7 @@ public class ListModelLogger implements LoggingTarget, ListSelectionListener {
      *
      * @param elem the element to add.
      */
-    private void add(final Element elem) {
+    protected void add(final Element elem) {
         java.awt.EventQueue.invokeLater(new Runnable() {
             @Override
             public void run() {
@@ -164,10 +166,10 @@ public class ListModelLogger implements LoggingTarget, ListSelectionListener {
                 thrs = (Throwable[]) getSuppressed.invoke(thr);
             } catch (IllegalAccessException ex) {
                 getSuppressed = null;
-                Logger.log(LogLevel.WARNING, "Cannot log message!", ex);
+                Logger.warning("Cannot log message!", ex);
             } catch (InvocationTargetException ex) {
                 getSuppressed = null;
-                Logger.log(LogLevel.WARNING, "Cannot log message!", ex);
+                Logger.warning("Cannot log message!", ex);
             }
         }
 
@@ -215,10 +217,10 @@ public class ListModelLogger implements LoggingTarget, ListSelectionListener {
                     thrs = (Throwable[]) getSuppressed.invoke(thr);
                 } catch (IllegalAccessException ex) {
                     getSuppressed = null;
-                    Logger.log(LogLevel.WARNING, "Cannot log message!", ex);
+                    Logger.warning("Cannot log message!", ex);
                 } catch (InvocationTargetException ex) {
                     getSuppressed = null;
-                    Logger.log(LogLevel.WARNING, "Cannot log message!", ex);
+                    Logger.warning("Cannot log message!", ex);
                 }
             }
 

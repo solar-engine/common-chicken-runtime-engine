@@ -19,13 +19,21 @@
 package intelligence;
 
 import ccre.channel.BooleanInput;
-import ccre.channel.FloatOutput;
 import ccre.channel.BooleanOutput;
-import ccre.channel.FloatInput;
-import ccre.cluck.CluckNode;
-import static ccre.cluck.CluckNode.*;
-import ccre.channel.EventOutput;
 import ccre.channel.EventInput;
+import ccre.channel.EventOutput;
+import ccre.channel.FloatInput;
+import ccre.channel.FloatOutput;
+import ccre.cluck.CluckNode;
+import static ccre.cluck.CluckNode.RMT_BOOLOUTP;
+import static ccre.cluck.CluckNode.RMT_BOOLPROD;
+import static ccre.cluck.CluckNode.RMT_EVENTINPUT;
+import static ccre.cluck.CluckNode.RMT_EVENTOUTP;
+import static ccre.cluck.CluckNode.RMT_FLOATOUTP;
+import static ccre.cluck.CluckNode.RMT_FLOATPROD;
+import static ccre.cluck.CluckNode.RMT_INVOKE;
+import static ccre.cluck.CluckNode.RMT_LOGTARGET;
+import static ccre.cluck.CluckNode.RMT_OUTSTREAM;
 import ccre.log.LogLevel;
 import ccre.log.Logger;
 import ccre.log.LoggingTarget;
@@ -43,6 +51,28 @@ import javax.swing.JOptionPane;
  * @author skeggsc
  */
 public final class Entity {
+
+    /**
+     * Blend the specified colors using the specified fraction. 0 means all
+     * color A, 1 means all color B, 0.5 is half-and-half, etc.
+     *
+     * @param a The first color.
+     * @param b The second color.
+     * @param f The blending factor.
+     * @return The blended color.
+     */
+    public static Color blend(Color a, Color b, float f) {
+        float bpart;
+        if (f < 0) {
+            bpart = 0;
+        } else if (f > 1) {
+            bpart = 1;
+        } else {
+            bpart = f;
+        }
+        float apart = 1 - bpart;
+        return new Color(Math.round(a.getRed() * apart + b.getRed() * bpart), Math.round(a.getGreen() * apart + b.getGreen() * bpart), Math.round(a.getBlue() * apart + b.getBlue() * bpart), Math.round(a.getAlpha() * apart + b.getAlpha() * bpart));
+    }
 
     /**
      * The Remote that this Entity displays.
@@ -227,28 +257,6 @@ public final class Entity {
     }
 
     /**
-     * Blend the specified colors using the specified fraction. 0 means all
-     * color A, 1 means all color B, 0.5 is half-and-half, etc.
-     *
-     * @param a The first color.
-     * @param b The second color.
-     * @param f The blending factor.
-     * @return The blended color.
-     */
-    public static Color blend(Color a, Color b, float f) {
-        float bpart;
-        if (f < 0) {
-            bpart = 0;
-        } else if (f > 1) {
-            bpart = 1;
-        } else {
-            bpart = f;
-        }
-        float apart = 1 - bpart;
-        return new Color(Math.round(a.getRed() * apart + b.getRed() * bpart), Math.round(a.getGreen() * apart + b.getGreen() * bpart), Math.round(a.getBlue() * apart + b.getBlue() * bpart), Math.round(a.getAlpha() * apart + b.getAlpha() * bpart));
-    }
-
-    /**
      * Interact with this Entity - this is called when it is right-clicked.
      *
      * @param x The relative mouse X.
@@ -298,7 +306,7 @@ public final class Entity {
                             String jop = JOptionPane.showInputDialog("Enter a number", "");
                             f = Float.parseFloat(jop);
                         } catch (NumberFormatException ex) {
-                            Logger.log(LogLevel.WARNING, "Cannot write new value!", ex);
+                            Logger.warning("Cannot write new value!", ex);
                             break;
                         }
                     }
@@ -313,7 +321,7 @@ public final class Entity {
                         String jop = JOptionPane.showInputDialog("Enter a number", "");
                         f = Float.parseFloat(jop);
                     } catch (NumberFormatException ex) {
-                        Logger.log(LogLevel.WARNING, "Cannot write new value!", ex);
+                        Logger.warning("Cannot write new value!", ex);
                         break;
                     }
                 }
@@ -332,7 +340,7 @@ public final class Entity {
                         outs.flush();
                     }
                 } catch (IOException ex) {
-                    Logger.log(LogLevel.WARNING, "Cannot write new value!", ex);
+                    Logger.warning("Cannot write new value!", ex);
                 }
                 break;
             case RMT_INVOKE:
@@ -344,4 +352,5 @@ public final class Entity {
     public String toString() {
         return this.represented.path;
     }
+
 }

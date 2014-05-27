@@ -20,7 +20,15 @@ package intelligence;
 
 import ccre.cluck.Cluck;
 import ccre.cluck.CluckNode;
-import static ccre.cluck.CluckNode.*;
+import static ccre.cluck.CluckNode.RMT_BOOLOUTP;
+import static ccre.cluck.CluckNode.RMT_BOOLPROD;
+import static ccre.cluck.CluckNode.RMT_EVENTINPUT;
+import static ccre.cluck.CluckNode.RMT_EVENTOUTP;
+import static ccre.cluck.CluckNode.RMT_FLOATOUTP;
+import static ccre.cluck.CluckNode.RMT_FLOATPROD;
+import static ccre.cluck.CluckNode.RMT_INVOKE;
+import static ccre.cluck.CluckNode.RMT_LOGTARGET;
+import static ccre.cluck.CluckNode.RMT_OUTSTREAM;
 import ccre.log.LogLevel;
 import ccre.log.Logger;
 import java.awt.Color;

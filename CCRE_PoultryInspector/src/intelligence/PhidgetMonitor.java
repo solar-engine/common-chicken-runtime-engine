@@ -25,12 +25,23 @@ import ccre.channel.EventOutput;
 import ccre.channel.FloatInput;
 import ccre.channel.FloatStatus;
 import ccre.cluck.Cluck;
-import ccre.cluck.CluckNode;
 import ccre.holders.StringHolder;
 import ccre.log.LogLevel;
 import ccre.log.Logger;
-import com.phidgets.*;
-import com.phidgets.event.*;
+import com.phidgets.InterfaceKitPhidget;
+import com.phidgets.Phidget;
+import com.phidgets.PhidgetException;
+import com.phidgets.TextLCDPhidget;
+import com.phidgets.event.AttachEvent;
+import com.phidgets.event.AttachListener;
+import com.phidgets.event.DetachEvent;
+import com.phidgets.event.DetachListener;
+import com.phidgets.event.ErrorEvent;
+import com.phidgets.event.ErrorListener;
+import com.phidgets.event.InputChangeEvent;
+import com.phidgets.event.InputChangeListener;
+import com.phidgets.event.SensorChangeEvent;
+import com.phidgets.event.SensorChangeListener;
 
 /**
  * The interface to the Phidget system. Currently, this has hardcoded constants
@@ -176,7 +187,7 @@ public class PhidgetMonitor implements IPhidgetMonitor, AttachListener, DetachLi
             lcd.setBacklight(true);
             lcd.setContrast(100);
         } catch (PhidgetException ex) {
-            Logger.log(LogLevel.SEVERE, "Could not initialize Phidget", ex);
+            Logger.severe("Could not initialize Phidget", ex);
         }
     }
 
@@ -207,7 +218,7 @@ public class PhidgetMonitor implements IPhidgetMonitor, AttachListener, DetachLi
             lcd.setDisplayString(0, "Poultry Inspector is");
             lcd.setDisplayString(1, "     now closed.    ");
         } catch (PhidgetException ex) {
-            Logger.log(LogLevel.SEVERE, "Cannot update string output to Phidget: " + ex);
+            Logger.severe("Cannot update string output to Phidget: " + ex);
         }
     }
 
@@ -232,7 +243,7 @@ public class PhidgetMonitor implements IPhidgetMonitor, AttachListener, DetachLi
             }
         } catch (PhidgetException ex) {
             if (ex.getErrorNumber() == PhidgetException.EPHIDGET_NOTATTACHED) {
-                Logger.log(LogLevel.WARNING, "Phidget not attached!");
+                Logger.warning("Phidget not attached!");
             } else {
                 Logger.severe("Cannot update string output to Phidget: " + ex);
             }
@@ -264,7 +275,7 @@ public class PhidgetMonitor implements IPhidgetMonitor, AttachListener, DetachLi
                     updateStringOutput(i);
                 }
             } catch (PhidgetException ex) {
-                Logger.log(LogLevel.SEVERE, "Error on LCD attach", ex);
+                Logger.severe("Error on LCD attach", ex);
             }
         } else if (p == ifa) {
             try {
@@ -288,10 +299,10 @@ public class PhidgetMonitor implements IPhidgetMonitor, AttachListener, DetachLi
                     analogStats[i].set(moved);
                 }
             } catch (PhidgetException ex) {
-                Logger.log(LogLevel.SEVERE, "Error on Interface attach: " + ex);
+                Logger.severe("Error on Interface attach: " + ex);
             }
         } else {
-            Logger.log(LogLevel.WARNING, "Attach of unknown phidget!");
+            Logger.warning("Attach of unknown phidget!");
         }
         recalculateAttached();
     }
@@ -305,7 +316,7 @@ public class PhidgetMonitor implements IPhidgetMonitor, AttachListener, DetachLi
         try {
             attachStat.set(lcd.isAttached() && ifa.isAttached());
         } catch (PhidgetException ex) {
-            Logger.log(LogLevel.WARNING, "Could not recalculate attachment status: " + ex);
+            Logger.warning("Could not recalculate attachment status: " + ex);
         }
     }
 
@@ -327,6 +338,6 @@ public class PhidgetMonitor implements IPhidgetMonitor, AttachListener, DetachLi
 
     @Override
     public void error(ErrorEvent ae) {
-        Logger.log(LogLevel.SEVERE, "Phidget Reported Error: " + ae);
+        Logger.severe("Phidget Reported Error: " + ae);
     }
 }

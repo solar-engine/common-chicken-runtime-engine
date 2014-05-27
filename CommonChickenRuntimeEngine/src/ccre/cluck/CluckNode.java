@@ -18,8 +18,8 @@
  */
 package ccre.cluck;
 
+import ccre.channel.EventOutput;
 import ccre.cluck.rpc.RPCManager;
-import ccre.log.LogLevel;
 import ccre.log.Logger;
 import ccre.util.CArrayList;
 import ccre.util.CHashMap;
@@ -175,7 +175,7 @@ public class CluckNode {
         //estimatedByteCount += 24 + (target == null ? 0 : target.length()) + (source == null ? 0 : source.length()) + data.length; // 24 is the estimated packet overhead with a CluckTCPClient.
         if (target == null) {
             if (data.length == 0 || data[0] != RMT_NEGATIVE_ACK) {
-                Logger.log(LogLevel.WARNING, "Received message addressed to unreceving node (source: " + source + ")");
+                Logger.warning("Received message addressed to unreceving node (source: " + source + ")");
             }
         } else if ("*".equals(target)) {
             broadcast(source, data, denyLink);
@@ -227,9 +227,31 @@ public class CluckNode {
                 && (!direct.equals(lastMissingLink) || System.currentTimeMillis() >= lastMissingLinkError + 1000)) {
             lastMissingLink = direct;
             lastMissingLinkError = System.currentTimeMillis();
-            Logger.log(LogLevel.WARNING, "No link for " + target + "(" + direct + ") from " + source + "!");
+            Logger.warning("No link for " + target + "(" + direct + ") from " + source + "!");
             transmit(source, target, new byte[]{RMT_NEGATIVE_ACK});
         }
+    }
+
+    /**
+     * Subscribe to any network structure modification notification messages,
+     * which are sent each time that the structure of the Cluck network changes.
+     *
+     * @param localRecvName The name to bind to.
+     * @param listener The listener to notify.
+     */
+    public void subscribeToStructureNotifications(String localRecvName, final EventOutput listener) {
+        new CluckSubscriber(Cluck.getNode()) {
+            @Override
+            protected void receive(String source, byte[] data) {
+            }
+
+            @Override
+            protected void receiveBroadcast(String source, byte[] data) {
+                if (data.length == 1 && data[0] == CluckNode.RMT_NOTIFY) {
+                    listener.event();
+                }
+            }
+        }.attach(localRecvName);
     }
 
     /**
@@ -279,7 +301,8 @@ public class CluckNode {
      * @param remoteType The remote type to search for, or null for all types.
      * @param timeout How long to wait for responses.
      * @return The snapshot of remotes.
-     * @throws InterruptedException If the current thread is interrupted while searching for remotes.
+     * @throws InterruptedException If the current thread is interrupted while
+     * searching for remotes.
      */
     public String[] searchRemotes(final Integer remoteType, int timeout) throws InterruptedException { // TODO: Make this a separate part of the library, or delete it.
         final CArrayList<String> discovered = new CArrayList<String>();

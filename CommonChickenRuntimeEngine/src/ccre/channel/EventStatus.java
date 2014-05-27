@@ -119,7 +119,7 @@ public class EventStatus implements EventInput, EventOutput {
             try {
                 ec.event();
             } catch (Throwable thr) {
-                Logger.log(LogLevel.SEVERE, "Event Subscribed Detached: " + ec, thr);
+                Logger.severe("Event Subscribed Detached: " + ec, thr);
                 it.remove();
                 found = true;
             }

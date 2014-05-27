@@ -53,7 +53,7 @@ public class Logger {
      * @param message the message to log.
      * @param thr the Throwable to log
      */
-    public static void log(LogLevel level, String message, Throwable thr) { // TODO: Use the new methods now.
+    public static void log(LogLevel level, String message, Throwable thr) {
         if (level == null || message == null) {
             throw new NullPointerException();
         }

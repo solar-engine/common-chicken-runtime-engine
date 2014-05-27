@@ -71,7 +71,7 @@ public abstract class StorageProvider {
                     return null;
                 }
             };
-            Logger.log(LogLevel.WARNING, "No throwable printing provider!", t);
+            Logger.warning("No throwable printing provider!", t);
         }
     }
 

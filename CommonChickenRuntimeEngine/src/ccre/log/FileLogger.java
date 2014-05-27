@@ -53,7 +53,7 @@ public class FileLogger implements LoggingTarget {
             }
             Logger.addTarget(new FileLogger("log-" + i));
         } catch (IOException ex) {
-            Logger.log(LogLevel.WARNING, "Could not set up File logging!", ex);
+            Logger.warning("Could not set up File logging!", ex);
         }
     }
 

@@ -153,7 +153,7 @@ public final class Ticker implements EventInput {
                     }
                 }
             } catch (Throwable thr) {
-                Logger.log(LogLevel.SEVERE, "Exception in Ticker main loop!", thr);
+                Logger.severe("Exception in Ticker main loop!", thr);
                 countFails += 10;
             }
         }

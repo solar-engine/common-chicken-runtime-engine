@@ -76,7 +76,7 @@ public final class RPCManager {
                             stream.write(data, 1, data.length - 1);
                             stream.close();
                         } catch (IOException ex) {
-                            Logger.log(LogLevel.WARNING, "Exception in RPC response write!", ex);
+                            Logger.warning("Exception in RPC response write!", ex);
                         }
                         synchronized (RPCManager.this) {
                             localBindings.remove(dest);
@@ -151,7 +151,7 @@ public final class RPCManager {
                 try {
                     bindings.remove(rmt).close();
                 } catch (IOException ex) {
-                    Logger.log(LogLevel.WARNING, "Exception during timeout close!", ex);
+                    Logger.warning("Exception during timeout close!", ex);
                 }
             }
         }

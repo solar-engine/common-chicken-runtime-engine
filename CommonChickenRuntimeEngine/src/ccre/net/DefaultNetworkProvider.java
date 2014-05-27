@@ -71,7 +71,7 @@ class DefaultNetworkProvider implements NetworkProvider {
         try {
             enm = NetworkInterface.getNetworkInterfaces();
         } catch (SocketException ex) {
-            Logger.log(LogLevel.SEVERE, "Could not enumerate IP addresses!", ex);
+            Logger.severe("Could not enumerate IP addresses!", ex);
             return CArrayUtils.getEmptyList();
         }
         if (enm == null) {

@@ -77,13 +77,13 @@ public abstract class BaseTest {
                 intr = ex; // Can't throw here because of outer Throwable catch.
             } catch (TestingException ex) {
                 if (verbose) {
-                    Logger.log(LogLevel.WARNING, "Failed test: " + getName(), ex);
+                    Logger.warning("Failed test: " + getName(), ex);
                 }
                 failed = true;
             }
         } catch (Throwable t) {
             if (verbose) {
-                Logger.log(LogLevel.WARNING, "Exception during test: " + getName(), t);
+                Logger.warning("Exception during test: " + getName(), t);
             }
             failed = true;
         }

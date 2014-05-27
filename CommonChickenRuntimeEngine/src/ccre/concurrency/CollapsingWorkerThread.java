@@ -155,7 +155,7 @@ public abstract class CollapsingWorkerThread extends ReporterThread implements E
                     doWork();
                 }
             } catch (Throwable t) {
-                Logger.log(LogLevel.SEVERE, "Uncaught exception in worker thread: " + this.getName(), t);
+                Logger.severe("Uncaught exception in worker thread: " + this.getName(), t);
             }
             if (shouldIgnoreWhileRunning) {
                 needsToRun = false;

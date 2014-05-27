@@ -112,7 +112,7 @@ public abstract class InstinctModule implements EventOutput {
                     continue;
                 }
             } catch (Throwable t) {
-                Logger.log(LogLevel.SEVERE, "Exception thrown during Autonomous mode!", t);
+                Logger.severe("Exception thrown during Autonomous mode!", t);
             }
             isRunning = false;
             isEndWaiting = true;

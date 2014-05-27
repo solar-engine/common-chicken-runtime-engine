@@ -56,13 +56,13 @@ public class Network {
             try {
                 prov = (NetworkProvider) Class.forName("ccre.net.DefaultNetworkProvider").newInstance();
             } catch (InstantiationException ex) {
-                Logger.log(LogLevel.WARNING, "Cannot start network provider!", ex);
+                Logger.warning("Cannot start network provider!", ex);
                 throw new RuntimeException("Cannot load the default network provider. It was probably (purposefully) ignored during the build process.");
             } catch (IllegalAccessException ex) {
-                Logger.log(LogLevel.WARNING, "Cannot start network provider!", ex);
+                Logger.warning("Cannot start network provider!", ex);
                 throw new RuntimeException("Cannot load the default network provider. It was probably (purposefully) ignored during the build process.");
             } catch (ClassNotFoundException ex) {
-                Logger.log(LogLevel.WARNING, "Cannot start network provider!", ex);
+                Logger.warning("Cannot start network provider!", ex);
                 throw new RuntimeException("Cannot load the default network provider. It was probably (purposefully) ignored during the build process.");
             }
         }

@@ -67,7 +67,7 @@ final class DefaultStorageSegment extends StorageSegment {
                 }
             }
         } catch (IOException ex) {
-            Logger.log(LogLevel.WARNING, "Error reading storage: " + name, ex);
+            Logger.warning("Error reading storage: " + name, ex);
         }
     }
 
@@ -101,7 +101,7 @@ final class DefaultStorageSegment extends StorageSegment {
                     pout.close();
                 }
             } catch (IOException ex) {
-                Logger.log(LogLevel.WARNING, "Error writing storage: " + name, ex);
+                Logger.warning("Error writing storage: " + name, ex);
             }
             modified = false;
         }

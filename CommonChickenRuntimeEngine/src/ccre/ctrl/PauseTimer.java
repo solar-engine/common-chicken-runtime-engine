@@ -58,7 +58,7 @@ public class PauseTimer implements BooleanInput, EventOutput {
                 try {
                     setEndAt(0);
                 } catch (Throwable thr) {
-                    Logger.log(LogLevel.SEVERE, "Exception in PauseTimer main loop!", thr);
+                    Logger.severe("Exception in PauseTimer main loop!", thr);
                 }
             }
         }
@@ -106,5 +106,34 @@ public class PauseTimer implements BooleanInput, EventOutput {
 
     public void unsend(BooleanOutput output) {
         consumers.remove(output);
+    }
+
+    /**
+     * When this timer stops running, trigger the specified EventOutput.
+     *
+     * @param trigger The EventOutput to trigger.
+     */
+    public void triggerAtEnd(EventOutput trigger) {
+        send(BooleanMixing.triggerWhenBooleanChanges(trigger, null));
+    }
+
+    /**
+     * When this timer starts running, trigger the specified EventOutput.
+     *
+     * @param trigger The EventOutput to trigger.
+     */
+    public void triggerAtStart(EventOutput trigger) {
+        send(BooleanMixing.triggerWhenBooleanChanges(null, trigger));
+    }
+
+    /**
+     * When this timer starts or stops running, trigger the specified
+     * EventOutputs.
+     *
+     * @param start The EventOutput to trigger when the timer starts.
+     * @param end The EventOutput to trigger when the timer ends.
+     */
+    public void triggerAtChanges(EventOutput start, EventOutput end) {
+        send(BooleanMixing.triggerWhenBooleanChanges(end, start));
     }
 }

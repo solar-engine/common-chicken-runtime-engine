@@ -248,7 +248,7 @@ public class CluckPublisher {
                     }
                 } catch (Throwable thr) {
                     if (System.currentTimeMillis() - lastReportedRemoteLoggingError > 500) {
-                        Logger.log(LogLevel.SEVERE, "Error during remote log", thr);
+                        Logger.severe("Error during remote log", thr);
                         lastReportedRemoteLoggingError = System.currentTimeMillis();
                     }
                 }
@@ -565,7 +565,7 @@ public class CluckPublisher {
                         try {
                             out.write(data, 1, data.length - 1);
                         } catch (IOException ex) {
-                            Logger.log(LogLevel.WARNING, "IO Exception during network transfer!", ex);
+                            Logger.warning("IO Exception during network transfer!", ex);
                         }
                     }
                 }

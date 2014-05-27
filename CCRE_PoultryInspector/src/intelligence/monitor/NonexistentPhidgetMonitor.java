@@ -16,20 +16,29 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with the CCRE.  If not, see <http://www.gnu.org/licenses/>.
  */
-package intelligence;
+package intelligence.monitor;
 
 /**
- * An interface implemented both by the real and fake PhidgetMonitors.
+ * An IPhidgetMonitor that doesn't actually publish anything.
  *
  * @author skeggsc
  */
-public interface IPhidgetMonitor {
+public class NonexistentPhidgetMonitor implements IPhidgetMonitor {
 
-    public void share();
+    @Override
+    public void share() {
+    }
 
-    public void connectionUp();
+    @Override
+    public void connectionUp() {
+    }
 
-    public void connectionDown();
+    @Override
+    public void connectionDown() {
+    }
 
-    public void displayClosing();
+    @Override
+    public void displayClosing() {
+    }
+
 }

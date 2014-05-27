@@ -4,6 +4,13 @@
   <NonVisualComponents>
     <Component class="javax.swing.DefaultListModel" name="loggingEntries">
     </Component>
+    <Component class="intelligence.RescrollingThread" name="rescroller">
+      <Properties>
+        <Property name="scrollBar" type="javax.swing.JScrollBar" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
+          <Connection component="loggingScroller" name="verticalScrollBar" type="property"/>
+        </Property>
+      </Properties>
+    </Component>
   </NonVisualComponents>
   <Properties>
     <Property name="defaultCloseOperation" type="int" value="0"/>
@@ -147,6 +154,9 @@
               <Properties>
                 <Property name="text" type="java.lang.String" value="Reconnect"/>
               </Properties>
+              <Events>
+                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnReconnectActionPerformed"/>
+              </Events>
             </Component>
             <Component class="javax.swing.JTextField" name="textAddress">
               <Properties>

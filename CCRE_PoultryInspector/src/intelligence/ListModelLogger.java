@@ -57,6 +57,10 @@ public class ListModelLogger implements LoggingTarget, ListSelectionListener {
             Logger.warning("Could not init getSuppressed", ex);
         }
     }
+
+    public static void register(DefaultListModel entries, JList list, RescrollingThread rescroller) {
+        Logger.addTarget(new ListModelLogger(entries, list, rescroller));
+    }
     /**
      * The list model to update.
      */
@@ -69,17 +73,20 @@ public class ListModelLogger implements LoggingTarget, ListSelectionListener {
      * The last known index of the selection.
      */
     protected int lastIndex = -1;
+    private final RescrollingThread rescroller;
 
     /**
-     * Create a new ListModelLogger from a specified model and JList.
+     * Create a new ListModelLogger from a specified model, JList, and RescrollingThread.
      *
      * @param errorListing the model to store data in.
      * @param lstErrors the JList to determine what the selection is.
+     * @param rescroller The RescrollingThread to cooperate with.
      */
-    public ListModelLogger(DefaultListModel errorListing, JList lstErrors) {
+    public ListModelLogger(DefaultListModel errorListing, JList lstErrors, RescrollingThread rescroller) {
         model = errorListing;
         this.lstErrors = lstErrors;
         lstErrors.addListSelectionListener(this);
+        this.rescroller = rescroller;
     }
 
     /**
@@ -87,11 +94,15 @@ public class ListModelLogger implements LoggingTarget, ListSelectionListener {
      *
      * @param elem the element to add.
      */
-    protected void add(final Element elem) {
+    protected void add(final ListModelLogger.Element elem) {
         java.awt.EventQueue.invokeLater(new Runnable() {
             @Override
             public void run() {
+                boolean shouldRescroll = rescroller.shouldRescroll();
                 model.addElement(elem);
+                if (shouldRescroll) {
+                    rescroller.trigger();
+                }
             }
         });
     }

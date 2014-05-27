@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with the CCRE.  If not, see <http://www.gnu.org/licenses/>.
  */
-package intelligence;
+package intelligence.monitor;
 
 import ccre.channel.BooleanInput;
 import ccre.channel.BooleanOutput;

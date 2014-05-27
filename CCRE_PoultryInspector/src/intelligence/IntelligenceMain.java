@@ -25,6 +25,7 @@ import ccre.cluck.CluckRemoteListener;
 import ccre.cluck.rpc.RemoteProcedure;
 import ccre.concurrency.CollapsingWorkerThread;
 import ccre.ctrl.ExpirationTimer;
+import ccre.ctrl.Ticker;
 import ccre.log.Logger;
 import ccre.net.CountingNetworkProvider;
 import ccre.util.UniqueIds;
@@ -158,6 +159,8 @@ public class IntelligenceMain extends JPanel implements CluckRemoteListener, Mou
      * The list of tabs.
      */
     protected final java.util.List<Tab> tabs;
+    private CollapsingWorkerThread researcher;
+    private CollapsingWorkerThread discover;
 
     public IntelligenceMain() {
         folders = setupFolders();
@@ -165,35 +168,23 @@ public class IntelligenceMain extends JPanel implements CluckRemoteListener, Mou
         searchLinkName = UniqueIds.global.nextHexId("big-brother");
     }
 
-    public void start(EventInput seconds, JButton searcher, JButton reconnector) {
+    public void start() {
         this.addMouseMotionListener(this);
         this.addMouseListener(this);
         this.addMouseWheelListener(this);
-        final CollapsingWorkerThread discover = new CollapsingWorkerThread("Cluck-Discoverer") {
+        this.discover = new CollapsingWorkerThread("Cluck-Discoverer") {
             @Override
             protected void doWork() {
                 IPProvider.connect();
             }
         };
-        reconnector.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                discover.trigger();
-            }
-        });
-        final CollapsingWorkerThread researcher = new CollapsingWorkerThread("Cluck-Researcher") {
+        this.researcher = new CollapsingWorkerThread("Cluck-Researcher") {
             @Override
             protected void doWork() throws Throwable {
                 research();
             }
         };
-        searcher.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                researcher.trigger();
-            }
-        });
-        seconds.send(new EventOutput() {
+        new Ticker(1000).send(new EventOutput() {
             @Override
             public void event() {
                 long cur = CountingNetworkProvider.getTotal();
@@ -224,7 +215,15 @@ public class IntelligenceMain extends JPanel implements CluckRemoteListener, Mou
         });
         Cluck.getNode().startSearchRemotes(searchLinkName, this);
         painter.start();
+        triggerResearch();
+    }
+    
+    public void triggerResearch() {
         researcher.trigger();
+    }
+    
+    public void triggerDiscover() {
+        discover.trigger();
     }
 
     @Override

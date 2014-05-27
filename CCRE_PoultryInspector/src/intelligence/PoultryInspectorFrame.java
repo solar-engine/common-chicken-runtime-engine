@@ -20,20 +20,18 @@ package intelligence;
 
 import ccre.channel.EventOutput;
 import ccre.cluck.Cluck;
-import ccre.cluck.CluckNode;
-import ccre.cluck.CluckSubscriber;
-import ccre.concurrency.CollapsingWorkerThread;
 import ccre.ctrl.ExpirationTimer;
 import ccre.ctrl.PauseTimer;
-import ccre.ctrl.Ticker;
 import ccre.log.FileLogger;
 import ccre.log.Logger;
 import ccre.log.NetworkAutologger;
 import ccre.net.CountingNetworkProvider;
-import java.awt.EventQueue;
+import intelligence.monitor.IPhidgetMonitor;
+import intelligence.monitor.NonexistentPhidgetMonitor;
+import intelligence.monitor.PhidgetMonitor;
+import intelligence.monitor.VirtualPhidgetMonitor;
 import java.util.Arrays;
 import java.util.Date;
-import javax.swing.JScrollBar;
 
 /**
  * The main frame for the Poultry Inspector.
@@ -47,92 +45,61 @@ public class PoultryInspectorFrame extends javax.swing.JFrame {
         NetworkAutologger.register();
         FileLogger.register();
         IPProvider.init();
-        PoultryInspectorFrame frame = new PoultryInspectorFrame();
-        frame.setVisible(true);
-        frame.start(args);
+        new PoultryInspectorFrame().start(args);
     }
-    private final CollapsingWorkerThread rescroller;
     private IPhidgetMonitor monitor;
 
     public PoultryInspectorFrame() {
         initComponents();
-        this.rescroller = new CollapsingWorkerThread("Rescroller", false) {
-            @Override
-            protected void doWork() throws Throwable {
-                EventQueue.invokeLater(new Runnable() {
-                    @Override
-                    public void run() {
-                        try {
-                            Thread.sleep(50);
-                        } catch (InterruptedException ex) {
-                            throw new RuntimeException(ex);
-                        }
-                        final JScrollBar scroll = loggingScroller.getVerticalScrollBar();
-                        scroll.setValue(scroll.getMaximum() - scroll.getVisibleAmount());
-                    }
-                });
-            }
-        };
     }
 
     private void start(String[] args) {
-        Logger.addTarget(new ListModelLogger(loggingEntries, loggingList) {
-            protected void add(final ListModelLogger.Element elem) {
-                java.awt.EventQueue.invokeLater(new Runnable() {
-                    @Override
-                    public void run() {
-                        final JScrollBar scroll = loggingScroller.getVerticalScrollBar();
-                        boolean should = scroll.getValue() + scroll.getVisibleAmount() + 16 >= scroll.getMaximum();
-                        model.addElement(elem);
-                        if (should) {
-                            rescroller.trigger();
-                        }
-                    }
-                });
-            }
-        });
-        monitor = new NonexistentPhidgetMonitor();
-        if (args.length > 0) {
-            if (args[0].equals("-virtual")) {
-                monitor = new VirtualPhidgetMonitor();
-                args = Arrays.copyOfRange(args, 1, args.length - 1);
-            } else if (args[0].equals("-phidget")) {
-                monitor = new PhidgetMonitor();
-                args = Arrays.copyOfRange(args, 1, args.length - 1);
-            }
-            if (args.length >= 2) {
-                try {
-                    this.setSize(Integer.parseInt(args[0]), Integer.parseInt(args[1]));
-                } catch (NumberFormatException ex) {
-                    Logger.warning("Bad window size!", ex);
-                }
-            }
-            if (args.length >= 4) {
-                try {
-                    this.setLocation(Integer.parseInt(args[2]), Integer.parseInt(args[3]));
-                } catch (NumberFormatException ex) {
-                    Logger.warning("Bad window position!", ex);
-                }
-            }
-        }
-        intelligenceMain.start(new Ticker(1000), btnRefresh, btnReconnect);
+        this.setVisible(true);
+        
+        ListModelLogger.register(loggingEntries, loggingList, rescroller);
         Logger.info("Started Poultry Inspector at " + System.currentTimeMillis());
+        
+        monitor = new NonexistentPhidgetMonitor();
+        processArguments(args);
         monitor.share();
+        
         setupTimeNotifier();
         setupWatchdog(monitor);
         IPProvider.connect();
+        
+        intelligenceMain.start();
+    }
+
+    private void processArguments(String[] args) {
+        if (args.length == 0) {
+            return;
+        }
+        if (args[0].equals("-virtual")) {
+            monitor = new VirtualPhidgetMonitor();
+            args = Arrays.copyOfRange(args, 1, args.length - 1);
+        } else if (args[0].equals("-phidget")) {
+            monitor = new PhidgetMonitor();
+            args = Arrays.copyOfRange(args, 1, args.length - 1);
+        }
+        if (args.length >= 2) {
+            try {
+                this.setSize(Integer.parseInt(args[0]), Integer.parseInt(args[1]));
+            } catch (NumberFormatException ex) {
+                Logger.warning("Bad window size!", ex);
+            }
+        }
+        if (args.length >= 4) {
+            try {
+                this.setLocation(Integer.parseInt(args[2]), Integer.parseInt(args[3]));
+            } catch (NumberFormatException ex) {
+                Logger.warning("Bad window position!", ex);
+            }
+        }
     }
 
     private static void setupWatchdog(final IPhidgetMonitor monitor) {
         final ExpirationTimer watchdog = new ExpirationTimer();
         watchdog.schedule(500, Cluck.subscribeEO("robot/phidget/WatchDog"));
-        Cluck.publish("WatchDog", new EventOutput() {
-            @Override
-            public void event() {
-                monitor.connectionUp();
-                watchdog.feed();
-            }
-        });
         watchdog.schedule(2000, new EventOutput() {
             @Override
             public void event() {
@@ -141,29 +108,24 @@ public class PoultryInspectorFrame extends javax.swing.JFrame {
         });
         watchdog.schedule(3000, watchdog.getFeedEvent());
         watchdog.start();
+        Cluck.publish("WatchDog", new EventOutput() {
+            @Override
+            public void event() {
+                monitor.connectionUp();
+                watchdog.feed();
+            }
+        });
     }
 
     private void setupTimeNotifier() {
-        final ExpirationTimer ext = new ExpirationTimer();
-        ext.schedule(5000, new EventOutput() {
+        final PauseTimer timer = new PauseTimer(5000);
+        timer.triggerAtEnd(new EventOutput() {
             @Override
             public void event() {
                 Logger.info("Current time: " + new Date());
-                ext.stop();
             }
         });
-        new CluckSubscriber(Cluck.getNode()) {
-            @Override
-            protected void receive(String source, byte[] data) {
-            }
-
-            @Override
-            protected void receiveBroadcast(String source, byte[] data) {
-                if (data.length == 1 && data[0] == CluckNode.RMT_NOTIFY) {
-                    ext.startOrFeed();
-                }
-            }
-        }.attach("notify-fetcher-virt");
+        Cluck.getNode().subscribeToStructureNotifications("notify-fetcher-virt", timer);
     }
 
     /**
@@ -176,6 +138,7 @@ public class PoultryInspectorFrame extends javax.swing.JFrame {
     private void initComponents() {
 
         loggingEntries = new javax.swing.DefaultListModel();
+        rescroller = new intelligence.RescrollingThread();
         jSplitPane1 = new javax.swing.JSplitPane();
         intelligenceMain = new intelligence.IntelligenceMain();
         jPanel1 = new javax.swing.JPanel();
@@ -186,6 +149,8 @@ public class PoultryInspectorFrame extends javax.swing.JFrame {
         btnReconnect = new javax.swing.JButton();
         textAddress = new javax.swing.JTextField();
         btnSetAddress = new javax.swing.JButton();
+
+        rescroller.setScrollBar(loggingScroller.getVerticalScrollBar());
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DO_NOTHING_ON_CLOSE);
         setTitle("Poultry Inspector");
@@ -230,6 +195,11 @@ public class PoultryInspectorFrame extends javax.swing.JFrame {
         });
 
         btnReconnect.setText("Reconnect");
+        btnReconnect.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnReconnectActionPerformed(evt);
+            }
+        });
 
         textAddress.setFont(new java.awt.Font("Monospaced", 0, 12)); // NOI18N
         textAddress.setText("*");
@@ -300,8 +270,12 @@ public class PoultryInspectorFrame extends javax.swing.JFrame {
     }//GEN-LAST:event_btnSetAddressActionPerformed
 
     private void btnRefreshActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnRefreshActionPerformed
-        // TODO add your handling code here:
+        intelligenceMain.triggerResearch();
     }//GEN-LAST:event_btnRefreshActionPerformed
+
+    private void btnReconnectActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnReconnectActionPerformed
+        intelligenceMain.triggerDiscover();
+    }//GEN-LAST:event_btnReconnectActionPerformed
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnClear;
@@ -314,6 +288,7 @@ public class PoultryInspectorFrame extends javax.swing.JFrame {
     private javax.swing.DefaultListModel loggingEntries;
     private javax.swing.JList loggingList;
     private javax.swing.JScrollPane loggingScroller;
+    private intelligence.RescrollingThread rescroller;
     private javax.swing.JTextField textAddress;
     // End of variables declaration//GEN-END:variables
 }

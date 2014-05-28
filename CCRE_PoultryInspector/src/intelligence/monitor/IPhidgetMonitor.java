@@ -25,11 +25,27 @@ package intelligence.monitor;
  */
 public interface IPhidgetMonitor {
 
+    /**
+     * Share all the inputs and outputs and the current attachment state over
+     * the network, if available, and set up anything else required.
+     */
     public void share();
 
+    /**
+     * Called when the connection becomes online, so the LCD screen can be
+     * updated.
+     */
     public void connectionUp();
 
+    /**
+     * Called when the connection becomes offline, so the LCD screen can be
+     * updated.
+     */
     public void connectionDown();
 
+    /**
+     * Called when the program is about to shut down, so the LCD screen can be
+     * updated.
+     */
     public void displayClosing();
 }

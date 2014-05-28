@@ -18,7 +18,6 @@
  */
 package intelligence;
 
-import ccre.channel.EventInput;
 import ccre.channel.EventOutput;
 import ccre.cluck.Cluck;
 import ccre.cluck.CluckRemoteListener;
@@ -33,8 +32,6 @@ import java.awt.Color;
 import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Graphics;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
@@ -54,7 +51,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import javax.swing.JButton;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
@@ -64,108 +60,78 @@ import javax.swing.JPanel;
  * @author skeggsc
  */
 @SuppressWarnings({"serial", "rawtypes"})
-public class IntelligenceMain extends JPanel implements CluckRemoteListener, MouseMotionListener, MouseWheelListener, MouseListener {
+public final class IntelligenceMain extends JPanel implements CluckRemoteListener, MouseMotionListener, MouseWheelListener, MouseListener {
 
-    /**
-     * The background color for the main canvas.
-     */
-    public static final Color canvasBackground = Color.WHITE;
-    /**
-     * The background color for the object pane.
-     */
-    public static final Color paneBackground = Color.YELLOW;
-    /**
-     * The highlight color.
-     */
-    public static final Color highlight = Color.ORANGE;
-    /**
-     * The active selection color.
-     */
-    public static final Color active = Color.RED;
-    /**
-     * The foreground color.
-     */
-    public static final Color foreground = Color.BLACK;
-    /**
-     * The font used for everything.
-     */
-    public static final Font console = new Font("Monospaced", Font.PLAIN, 11);
     /**
      * The width of the object pane.
      */
     public static final int paneWidth = 256;
-
     /**
      * The currently highlighted row in the object pane.
      */
-    protected int activeRow = -1;
+    private int activeRow = -1;
     /**
      * The cached height of each row.
      */
-    protected int rowHeight = -1;
-    /**
-     * The name of the searching link.
-     */
-    protected final String searchLinkName;
+    private int rowHeight = -1;
     /**
      * The mapping of the Remote addresses to the Remotes.
      */
-    protected final HashMap<String, Remote> remotes = new HashMap<String, Remote>();
+    private final HashMap<String, Remote> remotes = new HashMap<String, Remote>();
     /**
      * A cached sorted version of the remotes.
      */
-    protected Remote[] sortRemotes = null;
+    private Remote[] sortRemotes = null;
     /**
      * The current mapping of remote names to entities.
      */
-    protected final LinkedHashMap<String, Entity> ents = new LinkedHashMap<String, Entity>();
+    private final LinkedHashMap<String, Entity> ents = new LinkedHashMap<String, Entity>();
     /**
      * The currently held entity.
      */
-    protected Entity activeEntity = null;
+    private Entity activeEntity = null;
     /**
      * The relative position between the cursor and the entity.
      */
-    protected int relActiveX, relActiveY;
+    private int relActiveX, relActiveY;
     /**
      * The mouse button pressed while dragging an entity.
      */
-    protected int mouseBtn;
+    private int mouseBtn;
     /**
      * An expiration timer to repaint the pane when appropriate.
      */
-    protected ExpirationTimer painter;
+    private ExpirationTimer painter;
     /**
      * The number of bytes transmitted as of the last byte counting operation.
      */
-    protected long baseByteCount = 0;
+    private long baseByteCount = 0;
     /**
      * The number of bytes transmitted during the last measurement period.
      */
-    protected long lastByteCount = 0;
+    private long lastByteCount = 0;
     /**
      * The current scrolling position of the object pane.
      */
-    protected int currentPaneScroll = 0;
+    private int currentPaneScroll = 0;
     /**
      * Array of folders.
      */
-    protected final Folder[] folders;
+    private final Folder[] folders;
     /**
      * The active dialog, if any.
      */
-    protected PoultryDialog dialog;
+    private PoultryDialog dialog;
     /**
      * The list of tabs.
      */
-    protected final java.util.List<Tab> tabs;
+    private final java.util.List<Tab> tabs;
     private CollapsingWorkerThread researcher;
     private CollapsingWorkerThread discover;
 
     public IntelligenceMain() {
         folders = setupFolders();
         tabs = Tab.getTabs();
-        searchLinkName = UniqueIds.global.nextHexId("big-brother");
     }
 
     public void start() {
@@ -176,12 +142,6 @@ public class IntelligenceMain extends JPanel implements CluckRemoteListener, Mou
             @Override
             protected void doWork() {
                 IPProvider.connect();
-            }
-        };
-        this.researcher = new CollapsingWorkerThread("Cluck-Researcher") {
-            @Override
-            protected void doWork() throws Throwable {
-                research();
             }
         };
         new Ticker(1000).send(new EventOutput() {
@@ -213,15 +173,24 @@ public class IntelligenceMain extends JPanel implements CluckRemoteListener, Mou
                 repaint();
             }
         });
+        final String searchLinkName = UniqueIds.global.nextHexId("big-brother");
+        this.researcher = new CollapsingWorkerThread("Cluck-Researcher") {
+            @Override
+            protected void doWork() throws Throwable {
+                remotes.clear();
+                sortRemotes = null;
+                Cluck.getNode().cycleSearchRemotes(searchLinkName);
+            }
+        };
         Cluck.getNode().startSearchRemotes(searchLinkName, this);
         painter.start();
         triggerResearch();
     }
-    
+
     public void triggerResearch() {
         researcher.trigger();
     }
-    
+
     public void triggerDiscover() {
         discover.trigger();
     }
@@ -231,7 +200,7 @@ public class IntelligenceMain extends JPanel implements CluckRemoteListener, Mou
         if (mouseBtn == MouseEvent.BUTTON3) {
             for (Entity ent : ents.values()) {
                 if (ent.centerX >= paneWidth && ent.isOver(e.getPoint())) {
-                    ent.interact(e.getX() - ent.centerX, e.getY() - ent.centerY);
+                    ent.interact(e.getX(), e.getY());
                     return;
                 }
             }
@@ -321,7 +290,7 @@ public class IntelligenceMain extends JPanel implements CluckRemoteListener, Mou
         if (e.getButton() == MouseEvent.BUTTON3) {
             for (Entity ent : ents.values()) {
                 if (ent.centerX >= paneWidth && ent.isOver(e.getPoint())) {
-                    ent.interact(e.getX() - ent.centerX, e.getY() - ent.centerY);
+                    ent.interact(e.getX(), e.getY());
                     return;
                 }
             }
@@ -400,35 +369,26 @@ public class IntelligenceMain extends JPanel implements CluckRemoteListener, Mou
         repaint();
     }
 
-    /**
-     * Repeat searching for remote objects.
-     */
-    public void research() {
-        remotes.clear();
-        sortRemotes = null;
-        Cluck.getNode().cycleSearchRemotes(searchLinkName);
-    }
-
     @Override
     public void paint(Graphics g) {
         int w = getWidth();
         int h = getHeight();
-        g.setFont(console);
-        g.setColor(active);
+        g.setFont(Rendering.console);
+        g.setColor(Color.RED);
         g.fillRect(0, 0, paneWidth, h);
-        g.setColor(canvasBackground);
+        g.setColor(Color.WHITE);
         g.fillRect(paneWidth, 0, w - paneWidth, h);
-        g.setColor(paneBackground);
+        g.setColor(Color.YELLOW);
         g.fillRect(paneWidth, 32, 16, 16);
         g.fillRect(paneWidth, h - 48, 16, 16);
-        g.setColor(active);
+        g.setColor(Color.RED);
         g.drawLine(paneWidth, 47, paneWidth + 7, 32); // ABOUT TO MAKE THESE SCROLL
         g.drawLine(paneWidth + 15, 47, paneWidth + 8, 32);
         g.drawLine(paneWidth, h - 48, paneWidth + 7, h - 33);
         g.drawLine(paneWidth + 15, h - 48, paneWidth + 8, h - 33);
         FontMetrics fontMetrics = g.getFontMetrics();
         int lh = fontMetrics.getHeight();
-        g.setColor(active);
+        g.setColor(Color.RED);
         g.drawString("Left-click to move", paneWidth, fontMetrics.getAscent());
         g.drawString("Right-click to interact", paneWidth, fontMetrics.getAscent() + lh);
         String countReport = "Estimated Traffic: " + CountingNetworkProvider.getTotal() + "B (" + (CountingNetworkProvider.getTotal() / 128) + "kbits)";
@@ -488,14 +448,14 @@ public class IntelligenceMain extends JPanel implements CluckRemoteListener, Mou
             sremotes = loc.toArray(new Remote[loc.size()]);
             sortRemotes = sremotes;
         }
-        g.setColor(paneBackground);
+        g.setColor(Color.YELLOW);
         Graphics subscreen = g.create(1, 1, paneWidth - 2, h - 2);
         subscreen.fillRect(0, 0, paneWidth, h);
         if (activeRow != -1) {
-            subscreen.setColor(highlight);
+            subscreen.setColor(Color.ORANGE);
             subscreen.fillRect(0, activeRow * rowHeight + currentPaneScroll, paneWidth, rowHeight);
         }
-        subscreen.setColor(foreground);
+        subscreen.setColor(Color.BLACK);
         rowHeight = lh;
         int suby = fontMetrics.getAscent() + currentPaneScroll;
         for (Remote rem : sremotes) {

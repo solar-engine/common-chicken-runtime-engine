@@ -26,7 +26,6 @@ import ccre.channel.FloatInput;
 import ccre.channel.FloatStatus;
 import ccre.cluck.Cluck;
 import ccre.holders.StringHolder;
-import ccre.log.LogLevel;
 import ccre.log.Logger;
 import com.phidgets.InterfaceKitPhidget;
 import com.phidgets.Phidget;
@@ -42,6 +41,7 @@ import com.phidgets.event.InputChangeEvent;
 import com.phidgets.event.InputChangeListener;
 import com.phidgets.event.SensorChangeEvent;
 import com.phidgets.event.SensorChangeListener;
+import java.util.Arrays;
 
 /**
  * The interface to the Phidget system. Currently, this has hardcoded constants
@@ -79,57 +79,44 @@ public class PhidgetMonitor implements IPhidgetMonitor, AttachListener, DetachLi
     /**
      * The LCD handle for the phidget.
      */
-    protected TextLCDPhidget lcd;
+    private TextLCDPhidget lcd;
     /**
      * The InterfaceKit handle for the phidget.
      */
-    protected InterfaceKitPhidget ifa;
+    private InterfaceKitPhidget ifa;
     /**
      * The boolean outputs to the phidget.
      */
-    public BooleanOutput[] outputs = new BooleanOutput[OUTPUT_COUNT];
+    private final BooleanOutput[] outputs = new BooleanOutput[OUTPUT_COUNT];
     /**
      * The current values for the boolean outputs.
      */
-    protected boolean[] outvals = new boolean[OUTPUT_COUNT];
+    private final boolean[] outvals = new boolean[OUTPUT_COUNT];
     /**
      * The generated string to fill each row with.
      */
-    protected String fillLine;
+    private final String fillLine;
     /**
      * The lines of the LCD.
      */
-    public StringHolder[] lines = new StringHolder[LCD_LINES];
+    private final StringHolder[] lines = new StringHolder[LCD_LINES];
     /**
      * The internal status of whether or not the phidget is attached.
      */
-    protected BooleanStatus attachStat = new BooleanStatus();
+    private final BooleanStatus attachStat = new BooleanStatus();
     /**
-     * The external status of whether or not the phidget is attached.
+     * The binary inputs that the Phidget provides.
      */
-    public BooleanInput isAttached;
+    private final BooleanStatus[] inputs = new BooleanStatus[INPUT_COUNT];
     /**
-     * The binary inputs that the phidget provides.
+     * The analog inputs that the Phidget provides.
      */
-    public BooleanInput[] inputs = new BooleanInput[INPUT_COUNT];
-    /**
-     * The BooleanStatuses behind the phidget's inputs.
-     */
-    protected BooleanStatus[] inputStats = new BooleanStatus[INPUT_COUNT];
-    /**
-     * The analog inputs that the phidget provides.
-     */
-    public FloatInput[] analogs = new FloatInput[ANALOG_COUNT];
-    /**
-     * The FloatStatuses behind the phidget's input.
-     */
-    protected FloatStatus[] analogStats = new FloatStatus[ANALOG_COUNT];
+    private final FloatStatus[] analogs = new FloatStatus[ANALOG_COUNT];
 
     /**
      * Create a new PhidgetMonitor.
      */
     public PhidgetMonitor() {
-        isAttached = attachStat;
         for (int i = 0; i < OUTPUT_COUNT; i++) {
             final int cur = i;
             outputs[i] = new BooleanOutput() {
@@ -141,13 +128,9 @@ public class PhidgetMonitor implements IPhidgetMonitor, AttachListener, DetachLi
             };
         }
         char[] fillchars = new char[LCD_WIDTH];
-        for (int j = 0; j < LCD_WIDTH; j++) {
-            fillchars[j] = '.';
-        }
+        Arrays.fill(fillchars, '.');
         String fillstr = new String(fillchars);
-        for (int j = 0; j < LCD_WIDTH; j++) {
-            fillchars[j] = ' ';
-        }
+        Arrays.fill(fillchars, ' ');
         fillLine = new String(fillchars);
         for (int i = 0; i < LCD_LINES; i++) {
             StringHolder strh = new StringHolder(fillstr, false);
@@ -162,57 +145,53 @@ public class PhidgetMonitor implements IPhidgetMonitor, AttachListener, DetachLi
             strh.notifyChanged();
         }
         for (int i = 0; i < INPUT_COUNT; i++) {
-            BooleanStatus stat = new BooleanStatus();
-            inputs[i] = stat;
-            inputStats[i] = stat;
+            inputs[i] = new BooleanStatus();
         }
         for (int i = 0; i < ANALOG_COUNT; i++) {
-            FloatStatus stat = new FloatStatus();
-            analogs[i] = stat;
-            analogStats[i] = stat;
+            analogs[i] = new FloatStatus();
         }
         try {
             lcd = new TextLCDPhidget();
             ifa = new InterfaceKitPhidget();
-            lcd.addAttachListener(this);
-            lcd.addDetachListener(this);
-            lcd.addErrorListener(this);
-            ifa.addAttachListener(this);
-            ifa.addDetachListener(this);
-            ifa.addErrorListener(this);
-            ifa.addInputChangeListener(this);
-            ifa.addSensorChangeListener(this);
+        } catch (PhidgetException ex) {
+            Logger.severe("Could not initialize Phidget!", ex);
+        }
+    }
+
+    @Override
+    public void share() {
+        lcd.addAttachListener(this);
+        lcd.addDetachListener(this);
+        lcd.addErrorListener(this);
+        ifa.addAttachListener(this);
+        ifa.addDetachListener(this);
+        ifa.addErrorListener(this);
+        ifa.addInputChangeListener(this);
+        ifa.addSensorChangeListener(this);
+        try {
             lcd.openAny();
             ifa.openAny();
             lcd.setBacklight(true);
             lcd.setContrast(100);
         } catch (PhidgetException ex) {
-            Logger.severe("Could not initialize Phidget", ex);
+            Logger.severe("Could not initialize Phidget!", ex);
         }
-    }
-
-    /**
-     * Share all the inputs and outputs and the current attachment state over
-     * the network.
-     *
-     * @param node the node to share on.
-     */
-    public void share() {
         for (int i = 0; i < OUTPUT_COUNT; i++) {
             Cluck.publish("phidget-bo" + i, outputs[i]);
         }
         for (int i = 0; i < LCD_LINES; i++) {
             Cluck.publish("phidget-lcd" + i, lines[i].getOutput());
         }
-        Cluck.publish("phidget-attached", isAttached);
+        Cluck.publish("phidget-attached", (BooleanInput) attachStat);
         for (int i = 0; i < INPUT_COUNT; i++) {
-            Cluck.publish("phidget-bi" + i, inputs[i]);
+            Cluck.publish("phidget-bi" + i, (BooleanInput) inputs[i]);
         }
         for (int i = 0; i < ANALOG_COUNT; i++) {
-            Cluck.publish("phidget-ai" + i, analogs[i]);
+            Cluck.publish("phidget-ai" + i, (FloatInput) analogs[i]);
         }
     }
 
+    @Override
     public void displayClosing() {
         try {
             lcd.setDisplayString(0, "Poultry Inspector is");
@@ -222,11 +201,13 @@ public class PhidgetMonitor implements IPhidgetMonitor, AttachListener, DetachLi
         }
     }
 
+    @Override
     public void connectionDown() {
         lines[0].set("  Connection lost.  ");
         lines[1].set("       Sorry.       ");
     }
 
+    @Override
     public void connectionUp() {
         if ("  Connection lost.  ".equals(lines[0].get())) {
             lines[0].set("  .  .  .  .  .  .  ");
@@ -258,46 +239,23 @@ public class PhidgetMonitor implements IPhidgetMonitor, AttachListener, DetachLi
         }
     }
 
+    /**
+     * Called when any relevant Phidget device is attached.
+     *
+     * @param ae The attachment event.
+     */
     @Override
     public void attached(AttachEvent ae) {
         Phidget p = ae.getSource();
         if (p == lcd) {
             try {
-                if (lcd.getColumnCount() != LCD_WIDTH) {
-                    Logger.severe("LCD column count mismatch: " + lcd.getColumnCount() + " instead of " + LCD_WIDTH);
-                }
-                if (lcd.getRowCount() != LCD_LINES) {
-                    Logger.severe("LCD row count mismatch: " + lcd.getRowCount() + " instead of " + LCD_LINES);
-                }
-                lcd.setBacklight(true);
-                lcd.setContrast(100);
-                for (int i = 0; i < LCD_LINES; i++) {
-                    updateStringOutput(i);
-                }
+                onAttachLCD();
             } catch (PhidgetException ex) {
                 Logger.severe("Error on LCD attach", ex);
             }
         } else if (p == ifa) {
             try {
-                if (ifa.getInputCount() != INPUT_COUNT) {
-                    Logger.severe("Interface input count mismatch: " + ifa.getInputCount() + " instead of " + INPUT_COUNT);
-                }
-                if (ifa.getSensorCount() != ANALOG_COUNT) {
-                    Logger.severe("Interface analog count mismatch: " + ifa.getSensorCount() + " instead of " + ANALOG_COUNT);
-                }
-                for (int i = 0; i < OUTPUT_COUNT; i++) {
-                    updateBooleanOutput(i);
-                }
-                for (int i = 0; i < INPUT_COUNT; i++) {
-                    inputStats[i].set(ifa.getInputState(i));
-                }
-                for (int i = 0; i < ANALOG_COUNT; i++) {
-                    float moved = (ifa.getSensorValue(i) - 500) / 500.0f;
-                    if (moved < -1 || moved > 1) {
-                        Logger.warning("Sensor out of range: " + moved);
-                    }
-                    analogStats[i].set(moved);
-                }
+                onAttachInterface();
             } catch (PhidgetException ex) {
                 Logger.severe("Error on Interface attach: " + ex);
             }
@@ -307,6 +265,47 @@ public class PhidgetMonitor implements IPhidgetMonitor, AttachListener, DetachLi
         recalculateAttached();
     }
 
+    private void onAttachInterface() throws PhidgetException {
+        if (ifa.getInputCount() != INPUT_COUNT) {
+            Logger.severe("Interface input count mismatch: " + ifa.getInputCount() + " instead of " + INPUT_COUNT);
+        }
+        if (ifa.getSensorCount() != ANALOG_COUNT) {
+            Logger.severe("Interface analog count mismatch: " + ifa.getSensorCount() + " instead of " + ANALOG_COUNT);
+        }
+        for (int i = 0; i < OUTPUT_COUNT; i++) {
+            updateBooleanOutput(i);
+        }
+        for (int i = 0; i < INPUT_COUNT; i++) {
+            inputs[i].set(ifa.getInputState(i));
+        }
+        for (int i = 0; i < ANALOG_COUNT; i++) {
+            float moved = (ifa.getSensorValue(i) - 500) / 500.0f;
+            if (moved < -1 || moved > 1) {
+                Logger.warning("Sensor out of range: " + moved);
+            }
+            analogs[i].set(moved);
+        }
+    }
+
+    private void onAttachLCD() throws PhidgetException {
+        if (lcd.getColumnCount() != LCD_WIDTH) {
+            Logger.severe("LCD column count mismatch: " + lcd.getColumnCount() + " instead of " + LCD_WIDTH);
+        }
+        if (lcd.getRowCount() != LCD_LINES) {
+            Logger.severe("LCD row count mismatch: " + lcd.getRowCount() + " instead of " + LCD_LINES);
+        }
+        lcd.setBacklight(true);
+        lcd.setContrast(100);
+        for (int i = 0; i < LCD_LINES; i++) {
+            updateStringOutput(i);
+        }
+    }
+
+    /**
+     * Called when any relevant Phidget device is detached.
+     *
+     * @param ae The detachment event.
+     */
     @Override
     public void detached(DetachEvent ae) {
         recalculateAttached();
@@ -320,11 +319,21 @@ public class PhidgetMonitor implements IPhidgetMonitor, AttachListener, DetachLi
         }
     }
 
+    /**
+     * Called when any relevant Phidget boolean input changes.
+     *
+     * @param ae The input change event.
+     */
     @Override
     public void inputChanged(InputChangeEvent ae) {
-        inputStats[ae.getIndex()].set(ae.getState());
+        inputs[ae.getIndex()].set(ae.getState());
     }
 
+    /**
+     * Called when any relevant Phidget float sensor changes.
+     *
+     * @param ae The sensor change event.
+     */
     @Override
     public void sensorChanged(SensorChangeEvent ae) {
         int val = ae.getValue();
@@ -333,9 +342,14 @@ public class PhidgetMonitor implements IPhidgetMonitor, AttachListener, DetachLi
         if (moved < -1 || moved > 1) {
             Logger.warning("Sensor out of range: " + moved);
         }
-        analogStats[ae.getIndex()].set(moved);
+        analogs[ae.getIndex()].set(moved);
     }
 
+    /**
+     * Called when any relevant Phidget error occurs.
+     *
+     * @param ae The error event.
+     */
     @Override
     public void error(ErrorEvent ae) {
         Logger.severe("Phidget Reported Error: " + ae);

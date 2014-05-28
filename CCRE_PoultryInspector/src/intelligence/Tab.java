@@ -19,7 +19,6 @@
  */
 package intelligence;
 
-import ccre.log.LogLevel;
 import ccre.log.Logger;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;

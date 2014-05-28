@@ -240,6 +240,7 @@ public class VirtualPhidgetMonitor extends javax.swing.JFrame implements IPhidge
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
+    @Override
     public void share() {
         IndicatorLight[] lights = new IndicatorLight[]{out0, out1, out2, out3, out4, out5, out6, out7};
         for (int i = 0; i < OUTPUT_COUNT; i++) {

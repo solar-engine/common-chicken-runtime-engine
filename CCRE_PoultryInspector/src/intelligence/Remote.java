@@ -84,32 +84,6 @@ public class Remote implements Comparable<Remote> {
     }
 
     /**
-     * Get the color of the remote type.
-     *
-     * @return The color.
-     */
-    public Color getColor() {
-        switch (type) {
-            case RMT_EVENTOUTP:
-            case RMT_EVENTINPUT:
-                return Color.MAGENTA;
-            case RMT_LOGTARGET:
-                return Color.RED;
-            case RMT_BOOLPROD:
-            case RMT_BOOLOUTP:
-                return Color.YELLOW;
-            case RMT_FLOATPROD:
-            case RMT_FLOATOUTP:
-                return Color.ORANGE;
-            case RMT_OUTSTREAM:
-            case RMT_INVOKE:
-                return Color.CYAN;
-            default:
-                return Color.WHITE;
-        }
-    }
-
-    /**
      * Subscribe this remote and stick it in the checkout field.
      *
      * @return The current checked-out object.

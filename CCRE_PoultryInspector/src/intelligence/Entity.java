@@ -31,19 +31,9 @@ import static ccre.cluck.CluckNode.RMT_EVENTINPUT;
 import static ccre.cluck.CluckNode.RMT_EVENTOUTP;
 import static ccre.cluck.CluckNode.RMT_FLOATOUTP;
 import static ccre.cluck.CluckNode.RMT_FLOATPROD;
-import static ccre.cluck.CluckNode.RMT_INVOKE;
-import static ccre.cluck.CluckNode.RMT_LOGTARGET;
-import static ccre.cluck.CluckNode.RMT_OUTSTREAM;
-import ccre.log.LogLevel;
-import ccre.log.Logger;
-import ccre.log.LoggingTarget;
 import java.awt.Color;
-import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.Point;
-import java.io.IOException;
-import java.io.OutputStream;
-import javax.swing.JOptionPane;
 
 /**
  * A block on the screen representing a remote target.
@@ -51,28 +41,6 @@ import javax.swing.JOptionPane;
  * @author skeggsc
  */
 public final class Entity {
-
-    /**
-     * Blend the specified colors using the specified fraction. 0 means all
-     * color A, 1 means all color B, 0.5 is half-and-half, etc.
-     *
-     * @param a The first color.
-     * @param b The second color.
-     * @param f The blending factor.
-     * @return The blended color.
-     */
-    public static Color blend(Color a, Color b, float f) {
-        float bpart;
-        if (f < 0) {
-            bpart = 0;
-        } else if (f > 1) {
-            bpart = 1;
-        } else {
-            bpart = f;
-        }
-        float apart = 1 - bpart;
-        return new Color(Math.round(a.getRed() * apart + b.getRed() * bpart), Math.round(a.getGreen() * apart + b.getGreen() * bpart), Math.round(a.getBlue() * apart + b.getBlue() * bpart), Math.round(a.getAlpha() * apart + b.getAlpha() * bpart));
-    }
 
     /**
      * The Remote that this Entity displays.
@@ -128,120 +96,62 @@ public final class Entity {
      * @param g The graphics pane.
      */
     public void render(Graphics g) {
-        g.setFont(IntelligenceMain.console);
-        FontMetrics fm = g.getFontMetrics();
-        int w = width = Math.max(70, fm.stringWidth(represented.path) / 2);
-        int h = height = fm.getHeight() * 3 / 2;
-        // Draw the border
-        g.setColor(Color.BLACK);
-        g.fillRect(centerX - w, centerY - h, w * 2, h * 2);
-        // Draw the background
-        Color col = represented.getColor();
-        g.setColor(col);
-        g.fillRect(centerX - w + 1, centerY - h + 1, w * 2 - 2, h * 2 - 2);
-        // Draw the title and path
-        g.setColor(IntelligenceMain.foreground);
-        g.drawString(represented.path, centerX - w + 1, centerY - h - 1 + g.getFontMetrics().getAscent());
-        g.drawString(CluckNode.rmtToString(represented.type), centerX - w + 1, centerY - h - 1 + g.getFontMetrics().getAscent() + g.getFontMetrics().getHeight());
-        // Draw object-specific data.
+        Rendering.setupFont(g);
+        width = Rendering.calculateEntityWidth(g, represented.path);
+        height = Rendering.calculateEntityHeight(g, represented.path);
+        Rendering.drawEntityBackplate(g, centerX, centerY, width, height, Rendering.getColor(represented));
+        Rendering.drawEntityText(g, centerX - width + 1, centerY - height + 1, new String[]{
+            represented.path,
+            CluckNode.rmtToString(represented.type)
+        });
         Object co = represented.checkout();
         if (co == null) {
             return;
         }
+        Color col = Rendering.getColor(represented);
         long count = (System.currentTimeMillis() - countStart);
-        int rh = fm.getHeight();
+        int rh = g.getFontMetrics().getHeight();
+        if (!registered) {
+            registered = true;
+            this.register(co);
+        }
         switch (represented.type) {
             case RMT_EVENTOUTP:
-                g.setColor(blend(col.darker(), col, count / 500.0f));
-                g.fillRect(centerX - w + 1, centerY + h - rh - 1, w * 2 - 2, rh - 2);
-                break;
             case RMT_EVENTINPUT:
-                EventInput es = (EventInput) co;
-                if (!registered) {
-                    registered = true;
-                    es.send(new EventOutput() {
-                        @Override
-                        public void event() {
-                            countStart = System.currentTimeMillis();
-                        }
-                    });
-                }
-                g.setColor(blend(col.darker(), col, count / 500.0f));
-                g.fillRect(centerX - w + 1, centerY + h - rh - 1, w * 2 - 2, rh - 2);
+                g.setColor(Rendering.blend(col.darker(), col, count / 500.0f));
+                g.fillRect(centerX - width + 1, centerY + height - rh - 1, width * 2 - 2, rh - 2);
                 break;
             case RMT_BOOLPROD:
-                BooleanInput bi = (BooleanInput) co;
-                if (!registered) {
-                    registered = true;
-                    bi.send(new BooleanOutput() {
-                        @Override
-                        public void set(boolean value) {
-                            currentValue = value;
-                        }
-                    });
-                }
                 if (currentValue != null) {
                     g.setColor((Boolean) currentValue ? Color.GREEN : Color.RED);
-                    g.fillRect(centerX - w + 1, centerY + h - rh, w * 2 - 2, rh - 1);
+                    g.fillRect(centerX - width + 1, centerY + height - rh, width * 2 - 2, rh - 1);
                     g.setColor(Color.YELLOW);
-                    g.drawString((Boolean) currentValue ? "TRUE" : "FALSE", centerX - w + 1, centerY + h - fm.getDescent());
+                    g.drawString((Boolean) currentValue ? "TRUE" : "FALSE", centerX - width + 1, centerY + height - g.getFontMetrics().getDescent());
                 }
                 break;
             case RMT_BOOLOUTP:
                 g.setColor(Color.GREEN);
-                g.fillRect(centerX - w + 1, centerY + h - rh, w - 1, rh - 1);
+                g.fillRect(centerX - width + 1, centerY + height - rh, width - 1, rh - 1);
                 g.setColor(Color.RED);
-                g.fillRect(centerX, centerY + h - rh, w - 1, rh - 1);
+                g.fillRect(centerX, centerY + height - rh, width - 1, rh - 1);
                 if (currentValue != null) {
-                    if ((Boolean) currentValue) {
-                        g.setColor(blend(Color.BLACK, Color.GREEN, count / 500.0f));
-                        g.drawString("TRUE", centerX - fm.stringWidth("TRUE"), centerY + h - fm.getDescent());
-                    } else {
-                        g.setColor(blend(Color.BLACK, Color.RED, count / 500.0f));
-                        g.drawString("FALSE", centerX, centerY + h - fm.getDescent());
-                    }
+                    boolean cur = (Boolean) currentValue;
+                    g.setColor(Rendering.blend(Color.BLACK, cur ? Color.GREEN : Color.RED, count / 500.0f));
+                    g.drawString(cur ? "TRUE" : "FALSE",
+                            cur ? centerX - g.getFontMetrics().stringWidth("TRUE") : centerX,
+                            centerY + height - g.getFontMetrics().getDescent());
                 }
-                break;
-            case RMT_FLOATPROD:
-                FloatInput fi = (FloatInput) co;
-                if (!registered) {
-                    registered = true;
-                    fi.send(new FloatOutput() {
-                        @Override
-                        public void set(float value) {
-                            currentValue = value;
-                        }
-                    });
-                    currentValue = 0f;
-                }
-                float c = (Float) currentValue;
-                if (c < -1) {
-                    g.setColor(blend(Color.BLACK, col.darker(), c + 2));
-                } else if (c > 1) {
-                    g.setColor(blend(col.brighter(), Color.WHITE, c - 1));
-                } else {
-                    g.setColor(blend(col.darker(), col.brighter(), (c + 1) / 2));
-                }
-                g.fillRect(centerX - w + 1, centerY + h - rh - 1, w * 2 - 2, rh - 2);
-                g.setColor(c < 0 ? Color.WHITE : Color.BLACK);
-                g.drawString(String.valueOf(c), centerX - w + 1, centerY + h - fm.getDescent());
                 break;
             case RMT_FLOATOUTP:
-                if (currentValue != null) {
-                    c = (Float) currentValue;
-                    Color tcr;
-                    if (c < -1) {
-                        tcr = blend(Color.BLACK, col.darker(), c + 2);
-                    } else if (c > 1) {
-                        tcr = blend(col.brighter(), Color.WHITE, c - 1);
-                    } else {
-                        tcr = blend(col.darker(), col.brighter(), (c + 1) / 2);
-                    }
-                    g.setColor(blend(tcr, col, count / 500.0f));
-                    g.fillRect(centerX - w + 1, centerY + h - rh - 1, w * 2 - 2, rh - 2);
-                    g.setColor(c < 0 ? Color.WHITE : Color.BLACK);
-                    g.drawString(String.valueOf(c), centerX - w + 1, centerY + h - fm.getDescent());
+                if (currentValue == null) {
+                    break;
                 }
+            case RMT_FLOATPROD:
+                float c = (Float) currentValue;
+                g.setColor(Rendering.blend(Rendering.floatColorCalculate(c, col), col, count / 500.0f));
+                g.fillRect(centerX - width + 1, centerY + height - rh - 1, width * 2 - 2, rh - 2);
+                g.setColor(c < 0 ? Color.WHITE : Color.BLACK);
+                g.drawString(String.valueOf(c), centerX - width + 1, centerY + height - g.getFontMetrics().getDescent());
                 break;
         }
     }
@@ -259,98 +169,44 @@ public final class Entity {
     /**
      * Interact with this Entity - this is called when it is right-clicked.
      *
-     * @param x The relative mouse X.
-     * @param y The relative mouse Y.
+     * @param x The absolute mouse X.
+     * @param y The absolute mouse Y.
      */
     public void interact(int x, int y) {
-        Object co = represented.checkout;
-        if (co == null) {
-            return;
-        }
-        switch (represented.type) {
-            case RMT_EVENTOUTP:
-                EventOutput ec = (EventOutput) co;
-                ec.event();
-                countStart = System.currentTimeMillis();
-                break;
-            case RMT_EVENTINPUT:
-                // Interacting with this wouldn't mean anything.
-                break;
-            case RMT_LOGTARGET:
-                String msg = JOptionPane.showInputDialog("Enter message to log", "");
-                if (msg != null && !msg.isEmpty()) {
-                    ((LoggingTarget) this.represented.checkout()).log(LogLevel.INFO, msg, (String) null);
-                }
-                break;
-            case RMT_BOOLPROD:
-                if (this.represented.paired.checkout() instanceof BooleanOutput) {
-                    BooleanOutput bo = (BooleanOutput) this.represented.paired.checkout;
-                    bo.set(x < 0);
-                }
-                break;
-            case RMT_BOOLOUTP:
-                BooleanOutput bo = (BooleanOutput) co;
-                boolean nw = x < 0;
-                if (currentValue == null || (Boolean) currentValue != nw || System.currentTimeMillis() - countStart >= 200) {
-                    bo.set(nw);
-                    currentValue = nw;
-                    countStart = System.currentTimeMillis();
-                }
-                break;
-            case RMT_FLOATPROD:
-                if (this.represented.paired.checkout() instanceof FloatOutput) {
-                    FloatOutput fo = (FloatOutput) this.represented.paired.checkout;
-                    float f = x / (float) width;
-                    if (y < 0) {
-                        try {
-                            String jop = JOptionPane.showInputDialog("Enter a number", "");
-                            f = Float.parseFloat(jop);
-                        } catch (NumberFormatException ex) {
-                            Logger.warning("Cannot write new value!", ex);
-                            break;
-                        }
-                    }
-                    fo.set(f);
-                }
-                break;
-            case RMT_FLOATOUTP:
-                FloatOutput fo = (FloatOutput) co;
-                float f = x / (float) width;
-                if (y < 0) {
-                    try {
-                        String jop = JOptionPane.showInputDialog("Enter a number", "");
-                        f = Float.parseFloat(jop);
-                    } catch (NumberFormatException ex) {
-                        Logger.warning("Cannot write new value!", ex);
-                        break;
-                    }
-                }
-                fo.set(f);
-                currentValue = f;
-                countStart = System.currentTimeMillis();
-                break;
-            case RMT_OUTSTREAM:
-                OutputStream outs = (OutputStream) co;
-                try {
-                    String raw = JOptionPane.showInputDialog("Modify value", "*");
-                    if (raw == null) {
-                        Logger.warning("No value sent.");
-                    } else {
-                        outs.write((raw + "\n").getBytes());
-                        outs.flush();
-                    }
-                } catch (IOException ex) {
-                    Logger.warning("Cannot write new value!", ex);
-                }
-                break;
-            case RMT_INVOKE:
-                Logger.info("Cannot interact with RemoteProcedures!");
-                break;
-        }
+        Interactions.interact(this, represented, x - centerX, y - centerY);
     }
 
     public String toString() {
         return this.represented.path;
     }
 
+    private void register(Object co) {
+        switch (represented.type) {
+            case RMT_EVENTINPUT:
+                ((EventInput) co).send(new EventOutput() {
+                    @Override
+                    public void event() {
+                        countStart = System.currentTimeMillis();
+                    }
+                });
+                break;
+            case RMT_BOOLPROD:
+                ((BooleanInput) co).send(new BooleanOutput() {
+                    @Override
+                    public void set(boolean value) {
+                        currentValue = value;
+                    }
+                });
+                break;
+            case RMT_FLOATPROD:
+                ((FloatInput) co).send(new FloatOutput() {
+                    @Override
+                    public void set(float value) {
+                        currentValue = value;
+                    }
+                });
+                currentValue = 0f;
+                break;
+        }
+    }
 }

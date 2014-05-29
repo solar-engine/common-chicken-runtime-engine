@@ -60,7 +60,7 @@ public class Interactions {
         switch (remote.type) {
             case RMT_EVENTOUTP:
                 ((EventOutput) co).event();
-                ent.countStart = System.currentTimeMillis();
+                ent.restartCount();
                 break;
             case RMT_EVENTINPUT:
                 // Interacting with this wouldn't mean anything.
@@ -80,17 +80,17 @@ public class Interactions {
             case RMT_BOOLOUTP:
                 BooleanOutput bo = (BooleanOutput) co;
                 boolean nw = x < 0;
-                if (ent.currentValue == null || (Boolean) ent.currentValue != nw || System.currentTimeMillis() - ent.countStart >= 200) {
+                if (!ent.hasCurrentValue() || ent.getCurrentBoolean() != nw || ent.getCountElapsed() >= 200) {
                     bo.set(nw);
-                    ent.currentValue = nw;
-                    ent.countStart = System.currentTimeMillis();
+                    ent.setCurrentValue(nw);
+                    ent.restartCount();
                 }
                 break;
             case RMT_FLOATPROD:
                 o = remote.paired.checkout();
                 if (o instanceof FloatOutput) {
                     FloatOutput fo = (FloatOutput) o;
-                    float f = x / (float) ent.width;
+                    float f = ent.getPositionalFloat(x);
                     if (y < 0) {
                         try {
                             String jop = JOptionPane.showInputDialog("Enter a number", "");
@@ -105,7 +105,7 @@ public class Interactions {
                 break;
             case RMT_FLOATOUTP:
                 FloatOutput fo = (FloatOutput) co;
-                float f = x / (float) ent.width;
+                float f = ent.getPositionalFloat(x);
                 if (y < 0) {
                     try {
                         String jop = JOptionPane.showInputDialog("Enter a number", "");
@@ -116,8 +116,8 @@ public class Interactions {
                     }
                 }
                 fo.set(f);
-                ent.currentValue = f;
-                ent.countStart = System.currentTimeMillis();
+                ent.setCurrentValue(f);
+                ent.restartCount();
                 break;
             case RMT_OUTSTREAM:
                 OutputStream outs = (OutputStream) co;
@@ -137,6 +137,9 @@ public class Interactions {
                 Logger.info("Cannot interact with RemoteProcedures!");
                 break;
         }
+    }
+
+    private Interactions() {
     }
 
 }

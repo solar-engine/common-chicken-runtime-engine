@@ -41,7 +41,7 @@ import javax.swing.event.ListSelectionListener;
  * @author skeggsc
  */
 @SuppressWarnings({"unchecked", "rawtypes"})
-public class ListModelLogger implements LoggingTarget, ListSelectionListener {
+public final class ListModelLogger implements LoggingTarget, ListSelectionListener {
 
     private static Method getSuppressed;
 
@@ -58,8 +58,17 @@ public class ListModelLogger implements LoggingTarget, ListSelectionListener {
         }
     }
 
+    /**
+     * Set up a global logging target working with the specified objects.
+     *
+     * @param entries the list of entries to manage.
+     * @param list the list to attach to.
+     * @param rescroller the thread to handle autoscrolling.
+     */
     public static void register(DefaultListModel entries, JList list, RescrollingThread rescroller) {
-        Logger.addTarget(new ListModelLogger(entries, list, rescroller));
+        ListModelLogger logger = new ListModelLogger(entries, list, rescroller);
+        Logger.addTarget(logger);
+        logger.start();
     }
     /**
      * The list model to update.
@@ -72,21 +81,25 @@ public class ListModelLogger implements LoggingTarget, ListSelectionListener {
     /**
      * The last known index of the selection.
      */
-    protected int lastIndex = -1;
+    private int lastIndex = -1;
     private final RescrollingThread rescroller;
 
     /**
-     * Create a new ListModelLogger from a specified model, JList, and RescrollingThread.
+     * Create a new ListModelLogger from a specified model, JList, and
+     * RescrollingThread.
      *
      * @param errorListing the model to store data in.
      * @param lstErrors the JList to determine what the selection is.
      * @param rescroller The RescrollingThread to cooperate with.
      */
-    public ListModelLogger(DefaultListModel errorListing, JList lstErrors, RescrollingThread rescroller) {
+    private ListModelLogger(DefaultListModel errorListing, JList lstErrors, RescrollingThread rescroller) {
         model = errorListing;
         this.lstErrors = lstErrors;
-        lstErrors.addListSelectionListener(this);
         this.rescroller = rescroller;
+    }
+    
+    private void start() {
+        lstErrors.addListSelectionListener(this);
     }
 
     /**
@@ -94,7 +107,7 @@ public class ListModelLogger implements LoggingTarget, ListSelectionListener {
      *
      * @param elem the element to add.
      */
-    protected void add(final ListModelLogger.Element elem) {
+    private void add(final ListModelLogger.Element elem) {
         java.awt.EventQueue.invokeLater(new Runnable() {
             @Override
             public void run() {
@@ -162,7 +175,7 @@ public class ListModelLogger implements LoggingTarget, ListSelectionListener {
         CArrayList<String> out = new CArrayList<String>();
         // Guard against malicious overrides of Throwable.equals by
         // using a Set with identity equality semantics.
-        Set<Throwable> dejaVu = Collections.newSetFromMap(new IdentityHashMap<Throwable, Boolean>());
+        Set<Throwable> dejaVu = Collections.newSetFromMap(new IdentityHashMap<Throwable, Boolean>(4));
         dejaVu.add(thr);
 
         // Print our stack trace
@@ -252,12 +265,12 @@ public class ListModelLogger implements LoggingTarget, ListSelectionListener {
      * An element of the log, which may include a log level, message, and
      * optionally either a throwable or message body.
      */
-    public static class Element {
+    private static class Element {
 
-        public final LogLevel level;
-        public final String msg;
-        public final Throwable thr;
-        public final String body;
+        final LogLevel level;
+        final String msg;
+        final Throwable thr;
+        final String body;
 
         Element(LogLevel level, String msg, Throwable thr) {
             this.level = level;

@@ -49,32 +49,32 @@ public final class Entity {
     /**
      * The X coordinate of the Entity on the screen.
      */
-    public int centerX;
+    private int centerX;
     /**
      * The Y coordinate of the Entity on the screen.
      */
-    public int centerY;
+    private int centerY;
     /**
      * Has this been registered so that it will be updated by the remote?
      */
-    protected boolean registered;
+    private boolean registered;
     /**
      * When did the current animation cycle start, if an animation cycle is
      * being used?
      */
-    protected long countStart = 0;
+    private long countStart = 0;
     /**
      * The current value - this depends on the kind of Remote.
      */
-    protected Object currentValue;
+    private Object currentValue;
     /**
      * The cached width of the Entity.
      */
-    protected int width = 20;
+    private int width = 20;
     /**
      * The cached height of the Entity.
      */
-    protected int height = 20;
+    private int height = 20;
 
     /**
      * Create an Entity at the specified location and using the specified
@@ -176,6 +176,7 @@ public final class Entity {
         Interactions.interact(this, represented, x - centerX, y - centerY);
     }
 
+    @Override
     public String toString() {
         return this.represented.path;
     }
@@ -208,5 +209,94 @@ public final class Entity {
                 currentValue = 0f;
                 break;
         }
+    }
+
+    /**
+     * Move the Entity offscreen so that it isn't in the canvas.
+     */
+    public void moveOffScreen() {
+        centerX = 0;
+        centerY = 0;
+    }
+
+    /**
+     * Move the entity to the specified center position.
+     *
+     * @param x The center X coordinate.
+     * @param y The center Y coordinate.
+     */
+    public void moveTo(int x, int y) {
+        centerX = x;
+        centerY = y;
+    }
+
+    /**
+     * @return the center X position of this entity.
+     */
+    public int getCenterX() {
+        return centerX;
+    }
+
+    /**
+     * @return the center Y position of this entity.
+     */
+    public int getCenterY() {
+        return centerY;
+    }
+
+    /**
+     * @return if this Entity is within the canvas (and thusly, interactable)
+     */
+    public boolean isInCanvas() {
+        return centerX >= IntelligenceMain.paneWidth;
+    }
+
+    /**
+     * @return The amount of time since the counter was last restarted.
+     */
+    public long getCountElapsed() {
+        return System.currentTimeMillis() - countStart;
+    }
+
+    /**
+     * Restart the counter.
+     */
+    public void restartCount() {
+        countStart = System.currentTimeMillis();
+    }
+
+    /**
+     * @return true if the Entity has a current value (float or boolean).
+     */
+    public boolean hasCurrentValue() {
+        return currentValue != null;
+    }
+
+    /**
+     * @return the current value of the Entity.
+     * @throws NullPointerException If the entity doesn't have a Boolean value.
+     */
+    public boolean getCurrentBoolean() throws NullPointerException {
+        return (Boolean) currentValue;
+    }
+
+    /**
+     * Set the current value of the entity to the specified float or boolean.
+     *
+     * @param o The float or boolean to set this entity to.
+     */
+    public void setCurrentValue(Object o) {
+        currentValue = o;
+    }
+
+    /**
+     * With the left side of the entity as -1 and the right side as 1, calculate
+     * the float value of the given position.
+     *
+     * @param x The relative position within the entity (-width ... width).
+     * @return the scaled float value of the given position.
+     */
+    public float getPositionalFloat(int x) {
+        return x / (float) width;
     }
 }

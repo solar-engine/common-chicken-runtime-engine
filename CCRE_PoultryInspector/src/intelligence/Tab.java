@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 Gregor Peach
+ * Copyright 2014 Gregor Peach, modified by Colby Skeggs
  * 
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  * 
@@ -193,7 +193,7 @@ public class Tab {
     /**
      * The paths to find the monitored entities.
      */
-    private String[] monitoredEntitys;
+    private final String[] monitoredEntities;
     /**
      * The X locations of the monitored entities.
      */
@@ -214,17 +214,17 @@ public class Tab {
         int[] ys = new int[rem.length];
         for (int x = 0; x < rem.length; x++) {
             names[x] = rem[x].toString();
-            xs[x] = rem[x].centerX;
-            ys[x] = rem[x].centerY;
+            xs[x] = rem[x].getCenterX();
+            ys[x] = rem[x].getCenterY();
         }
-        monitoredEntitys = names;
+        monitoredEntities = names;
         monitoredX = xs;
         monitoredY = ys;
     }
 
     public Tab(String n, String[] remotes, int[] xs, int[] ys) {
         name = n;
-        monitoredEntitys = remotes;
+        monitoredEntities = remotes;
         monitoredX = xs;
         monitoredY = ys;
     }
@@ -236,7 +236,7 @@ public class Tab {
      */
     public String encode() {
         StringBuilder build = new StringBuilder();
-        for (String s : monitoredEntitys) {
+        for (String s : monitoredEntities) {
             build.append(s);
             build.append("\2");
         }
@@ -253,7 +253,7 @@ public class Tab {
             build.append("\2");
         }
         build.deleteCharAt(build.lastIndexOf("\2"));
-        build.append("\1" + name);
+        build.append("\1").append(name);
         return build.toString();
     }
 
@@ -265,22 +265,19 @@ public class Tab {
      */
     public void enforceTab(Map<String, Entity> ents, Map<String, Remote> rems) {
         for (Entity e : ents.values()) {
-            e.centerX = 0;
-            e.centerY = 0;
+            e.moveOffScreen();
         }
-        for (int index = 0; index < monitoredEntitys.length; index++) {
-            if (!ents.containsKey(monitoredEntitys[index])) {
-                if (rems.containsKey(monitoredEntitys[index])) {
-                    Remote rem = rems.get(monitoredEntitys[index]);
+        for (int index = 0; index < monitoredEntities.length; index++) {
+            if (!ents.containsKey(monitoredEntities[index])) {
+                if (rems.containsKey(monitoredEntities[index])) {
+                    Remote rem = rems.get(monitoredEntities[index]);
                     Entity ent = new Entity(rem, 0, 0);
                     ents.put(rem.path, ent);
                 } else {
-                    Logger.info("Couldn't find path:" + monitoredEntitys[index]);
+                    Logger.info("Couldn't find path:" + monitoredEntities[index]);
                 }
             }
-            ents.get(monitoredEntitys[index]).centerX = monitoredX[index];
-            ents.get(monitoredEntitys[index]).centerY = monitoredY[index];
+            ents.get(monitoredEntities[index]).moveTo(monitoredX[index], monitoredY[index]);
         }
     }
-
 }

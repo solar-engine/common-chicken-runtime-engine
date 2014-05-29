@@ -29,7 +29,6 @@ import ccre.log.Logger;
 import ccre.net.CountingNetworkProvider;
 import ccre.util.UniqueIds;
 import java.awt.Color;
-import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.event.MouseEvent;
@@ -37,10 +36,6 @@ import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.ArrayList;
@@ -77,7 +72,7 @@ public final class IntelligenceMain extends JPanel implements CluckRemoteListene
     /**
      * The mapping of the Remote addresses to the Remotes.
      */
-    private final HashMap<String, Remote> remotes = new HashMap<String, Remote>();
+    private final HashMap<String, Remote> remotes = new HashMap<String, Remote>(100);
     /**
      * A cached sorted version of the remotes.
      */
@@ -85,7 +80,7 @@ public final class IntelligenceMain extends JPanel implements CluckRemoteListene
     /**
      * The current mapping of remote names to entities.
      */
-    private final LinkedHashMap<String, Entity> ents = new LinkedHashMap<String, Entity>();
+    private final LinkedHashMap<String, Entity> ents = new LinkedHashMap<String, Entity>(100);
     /**
      * The currently held entity.
      */
@@ -129,11 +124,17 @@ public final class IntelligenceMain extends JPanel implements CluckRemoteListene
     private CollapsingWorkerThread researcher;
     private CollapsingWorkerThread discover;
 
+    /**
+     * Create and set up a new IntelligenceMain instance.
+     */
     public IntelligenceMain() {
-        folders = setupFolders();
+        folders = Folder.setupFolders();
         tabs = Tab.getTabs();
     }
 
+    /**
+     * Start the IntelligenceMain instance so that it runs.
+     */
     public void start() {
         this.addMouseMotionListener(this);
         this.addMouseListener(this);
@@ -187,10 +188,16 @@ public final class IntelligenceMain extends JPanel implements CluckRemoteListene
         triggerResearch();
     }
 
+    /**
+     * Search for new remotes at the next available opportunity.
+     */
     public void triggerResearch() {
         researcher.trigger();
     }
 
+    /**
+     * Rediscover the remote address at the next available opportunity.
+     */
     public void triggerDiscover() {
         discover.trigger();
     }
@@ -199,7 +206,7 @@ public final class IntelligenceMain extends JPanel implements CluckRemoteListene
     public void mouseDragged(MouseEvent e) {
         if (mouseBtn == MouseEvent.BUTTON3) {
             for (Entity ent : ents.values()) {
-                if (ent.centerX >= paneWidth && ent.isOver(e.getPoint())) {
+                if (ent.isInCanvas() && ent.isOver(e.getPoint())) {
                     ent.interact(e.getX(), e.getY());
                     return;
                 }
@@ -207,10 +214,9 @@ public final class IntelligenceMain extends JPanel implements CluckRemoteListene
             return;
         }
         if (activeEntity != null) {
-            boolean a = activeEntity.centerX < paneWidth;
-            activeEntity.centerX = relActiveX + e.getX();
-            activeEntity.centerY = relActiveY + e.getY();
-            if (a != (activeEntity.centerX < paneWidth)) {
+            boolean a = activeEntity.isInCanvas();
+            activeEntity.moveTo(relActiveX + e.getX(), relActiveY + e.getY());
+            if (a != (activeEntity.isInCanvas())) {
                 sortRemotes = null;
             }
             repaint();
@@ -289,7 +295,7 @@ public final class IntelligenceMain extends JPanel implements CluckRemoteListene
         mouseBtn = e.getButton();
         if (e.getButton() == MouseEvent.BUTTON3) {
             for (Entity ent : ents.values()) {
-                if (ent.centerX >= paneWidth && ent.isOver(e.getPoint())) {
+                if (ent.isInCanvas() && ent.isOver(e.getPoint())) {
                     ent.interact(e.getX(), e.getY());
                     return;
                 }
@@ -307,10 +313,10 @@ public final class IntelligenceMain extends JPanel implements CluckRemoteListene
             }
         }
         for (Entity ent : ents.values()) {
-            if (ent.centerX >= paneWidth && ent.isOver(e.getPoint())) {
+            if (ent.isInCanvas() && ent.isOver(e.getPoint())) {
                 activeEntity = ent;
-                relActiveX = ent.centerX - e.getX();
-                relActiveY = ent.centerY - e.getY();
+                relActiveX = ent.getCenterX() - e.getX();
+                relActiveY = ent.getCenterY() - e.getY();
                 return;
             }
         }
@@ -415,7 +421,7 @@ public final class IntelligenceMain extends JPanel implements CluckRemoteListene
                 }
             }
             for (Map.Entry<String, Entity> key : ents.entrySet()) {
-                if (key.getValue().centerX >= paneWidth) {
+                if (key.getValue().isInCanvas()) {
                     loc.remove(remotes.get(key.getKey()));
                 }
             }
@@ -463,7 +469,7 @@ public final class IntelligenceMain extends JPanel implements CluckRemoteListene
             suby += lh;
         }
         for (Entity ent : ents.values()) {
-            if (ent.centerX >= paneWidth) {
+            if (ent.isInCanvas()) {
                 ent.render(g);
             }
         }
@@ -493,44 +499,4 @@ public final class IntelligenceMain extends JPanel implements CluckRemoteListene
         }
     }
 
-    private static Folder[] setupFolders() {
-        ArrayList<Folder> folderList = new ArrayList<Folder>();
-        try {
-            File folder = new File(".").getAbsoluteFile();
-            File target = null;
-            while (folder != null && folder.exists()) {
-                target = new File(folder, "poultry-settings.txt");
-                if (target.exists() && target.canRead()) {
-                    break;
-                }
-                target = null;
-                folder = folder.getParentFile();
-            }
-            if (target == null) {
-                throw new FileNotFoundException("Could not find folders.");
-            }
-            BufferedReader fin = new BufferedReader(new FileReader(target));
-            try {
-                while (true) {
-                    String line = fin.readLine();
-                    if (line == null) {
-                        break;
-                    }
-                    if (line.trim().isEmpty()) {
-                        continue;
-                    }
-                    String[] pts = line.split("=", 2);
-                    if (pts.length == 1) {
-                        throw new IOException("Bad line: no =.");
-                    }
-                    folderList.add(new Folder(pts[0].trim(), pts[1].trim()));
-                }
-            } finally {
-                fin.close();
-            }
-        } catch (IOException ex) {
-            Logger.warning("Could not set up folder list!", ex);
-        }
-        return folderList.toArray(new Folder[folderList.size()]);
-    }
 }

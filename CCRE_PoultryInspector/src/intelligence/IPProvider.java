@@ -34,13 +34,20 @@ public class IPProvider {
      * The address that should be connected to. "*" means that it should
      * autoconfigure based on the network.
      */
-    public static String forcedAddress = "*";
+    private static String forcedAddress = "*";
 
     private static final boolean useHigherPort;
 
     static {
         String os = System.getProperty("os.name");
         useHigherPort = os != null && os.startsWith("Mac ");
+    }
+
+    /**
+     * @param aForcedAddress the forcedAddress to set
+     */
+    public static void setForcedAddress(String aForcedAddress) {
+        forcedAddress = aForcedAddress;
     }
 
     /**
@@ -68,19 +75,25 @@ public class IPProvider {
      * determined.
      */
     public static String getAddress() {
+        String connectTo = null;
         CCollection<String> addresses = Network.listIPv4Addresses();
         for (String addr : addresses) {
             if (addr.startsWith("10.") && addr.substring(0, addr.lastIndexOf('.')).length() <= 8) {
                 String out = addr.substring(0, addr.lastIndexOf('.') + 1).concat("2:443");
                 Logger.fine("Connecting to robot at: " + out);
-                return out;
+                connectTo = out;
+                break;
             } else if (addr.equals("192.168.7.1")) {
                 Logger.fine("Connecting over BeagleBone direct connection.");
-                return "192.168.7.2";
+                connectTo = "192.168.7.2";
+                break;
             }
         }
-        Logger.warning("Autodetect: Not on robot subnet. Defaulting to localhost.");
-        return useHigherPort ? "127.0.0.1:1540" : "127.0.0.1";
+        if (connectTo == null) {
+            Logger.warning("Autodetect: Not on robot subnet. Defaulting to localhost.");
+            connectTo = useHigherPort ? "127.0.0.1:1540" : "127.0.0.1";
+        }
+        return connectTo;
     }
 
     /**
@@ -88,5 +101,8 @@ public class IPProvider {
      */
     public static void init() {
         // Do nothing
+    }
+
+    private IPProvider() {
     }
 }

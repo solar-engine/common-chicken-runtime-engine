@@ -40,6 +40,12 @@ import java.util.Date;
  */
 public class PoultryInspectorFrame extends javax.swing.JFrame {
 
+    /**
+     * The main entry point for the program. Sets up various subsystems and then
+     * starts the GUI.
+     *
+     * @param args The program arguments.
+     */
     public static void main(String[] args) {
         CountingNetworkProvider.register();
         NetworkAutologger.register();
@@ -49,28 +55,32 @@ public class PoultryInspectorFrame extends javax.swing.JFrame {
     }
     private IPhidgetMonitor monitor;
 
+    /**
+     * Create a new PoultryInspectorFrame.
+     */
     public PoultryInspectorFrame() {
         initComponents();
     }
 
     private void start(String[] args) {
         this.setVisible(true);
-        
+
         ListModelLogger.register(loggingEntries, loggingList, rescroller);
         Logger.info("Started Poultry Inspector at " + System.currentTimeMillis());
-        
+
         monitor = new NonexistentPhidgetMonitor();
         processArguments(args);
         monitor.share();
-        
+
         setupTimeNotifier();
         setupWatchdog(monitor);
         IPProvider.connect();
-        
+
         intelligenceMain.start();
     }
 
-    private void processArguments(String[] args) {
+    private void processArguments(String[] iargs) {
+        String[] args = iargs;
         if (args.length == 0) {
             return;
         }
@@ -266,7 +276,7 @@ public class PoultryInspectorFrame extends javax.swing.JFrame {
     }//GEN-LAST:event_btnClearActionPerformed
 
     private void btnSetAddressActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSetAddressActionPerformed
-        IPProvider.forcedAddress = textAddress.getText();
+        IPProvider.setForcedAddress(textAddress.getText());
     }//GEN-LAST:event_btnSetAddressActionPerformed
 
     private void btnRefreshActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnRefreshActionPerformed

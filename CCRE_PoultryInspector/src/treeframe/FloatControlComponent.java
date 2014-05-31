@@ -44,6 +44,15 @@ public class FloatControlComponent extends DraggableBoxComponent implements Floa
     }
 
     @Override
+    protected boolean containsForInteract(int x, int y) {
+        return x >= centerX - width + 10 && x <= centerX + width - 10 && y >= centerY - height / 2 && y <= centerY + height / 2;
+    }
+    
+    public boolean wantsDragSelect() {
+        return true;
+    }
+
+    @Override
     public void render(Graphics2D g, int screenWidth, int screenHeight, FontMetrics fontMetrics, int mouseX, int mouseY) {
         width = Math.max(70, g.getFontMetrics().stringWidth(name) / 2);
         height = width * 2 / 3;

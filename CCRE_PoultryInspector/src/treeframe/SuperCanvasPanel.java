@@ -23,7 +23,6 @@ import ccre.ctrl.ExpirationTimer;
 import intelligence.Rendering;
 import java.awt.Color;
 import java.awt.FontMetrics;
-import java.awt.GradientPaint;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.RadialGradientPaint;
@@ -158,6 +157,16 @@ public final class SuperCanvasPanel extends JPanel implements MouseMotionListene
                 gy = getHeight() - 5;
             }
             activeEntity.moveForDrag(relActiveX + gx, relActiveY + gy);
+            repaint();
+        } else {
+            for (ListIterator<SuperCanvasComponent> it = components.listIterator(components.size()); it.hasPrevious();) {
+                SuperCanvasComponent comp = it.previous();
+                if (comp.wantsDragSelect() && comp.contains(e.getX(), e.getY())) {
+                    if (comp.onSelect(e.getX(), e.getY())) {
+                        break;
+                    }
+                }
+            }
             repaint();
         }
     }

@@ -45,6 +45,11 @@ public class EventControlComponent extends DraggableBoxComponent implements Even
     }
 
     @Override
+    protected boolean containsForInteract(int x, int y) {
+        return x >= centerX - width / 3 - 10 && x <= centerX + width / 3 + 10 && y >= centerY - height / 3 - 10 && y <= centerY + height / 3 + 20;
+    }
+
+    @Override
     public void render(Graphics2D g, int screenWidth, int screenHeight, FontMetrics fontMetrics, int mouseX, int mouseY) {
         width = Math.max(70, g.getFontMetrics().stringWidth(name) / 2);
         height = width * 2 / 3;

@@ -198,4 +198,8 @@ public abstract class SuperCanvasComponent {
 
     protected void onChangePanel(SuperCanvasPanel panel) {
     }
+
+    public boolean wantsDragSelect() {
+        return false;
+    }
 }

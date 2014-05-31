@@ -38,6 +38,10 @@ public abstract class DraggableBoxComponent extends SuperCanvasComponent {
         return Math.abs(x - centerX) <= width && Math.abs(y - centerY) <= height;
     }
 
+    protected boolean containsForInteract(int x, int y) {
+        return false;
+    }
+
     @Override
     public int getDragRelX(int x) {
         return centerX - x;
@@ -56,7 +60,11 @@ public abstract class DraggableBoxComponent extends SuperCanvasComponent {
 
     @Override
     public boolean onSelect(int x, int y) {
-        getPanel().startDrag(this, x, y);
-        return true;
+        if (containsForInteract(x, y)) {
+            return onInteract(x, y);
+        } else {
+            getPanel().startDrag(this, x, y);
+            return true;
+        }
     }
 }

@@ -45,6 +45,11 @@ public class BooleanControlComponent extends DraggableBoxComponent implements Bo
     }
 
     @Override
+    protected boolean containsForInteract(int x, int y) {
+        return x >= centerX - 30 && x <= centerX + 30 && y >= centerY - 20 && y <= centerY + 30;
+    }
+
+    @Override
     public void render(Graphics2D g, int screenWidth, int screenHeight, FontMetrics fontMetrics, int mouseX, int mouseY) {
         width = Math.max(70, g.getFontMetrics().stringWidth(name) / 2);
         height = width * 2 / 3;

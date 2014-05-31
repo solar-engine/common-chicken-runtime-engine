@@ -23,6 +23,7 @@ import ccre.ctrl.ExpirationTimer;
 import intelligence.Rendering;
 import java.awt.Color;
 import java.awt.FontMetrics;
+import java.awt.GradientPaint;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.RadialGradientPaint;
@@ -286,9 +287,10 @@ public final class SuperCanvasPanel extends JPanel implements MouseMotionListene
     }
 
     private void renderBackground(Graphics2D g, int w, int h, FontMetrics fontMetrics, int mouseX, int mouseY) {
-        float[] gf = {0, 1};
+        /*float[] gf = {0, 1};
         Color[] gc = {Color.ORANGE, Color.RED};
-        g.setPaint(new RadialGradientPaint(w / 3f, h / 3f, (w + h) / 2f, gf, gc));
+        g.setPaint(new RadialGradientPaint(w / 3f, h / 3f, (w + h) / 2f, gf, gc));*/
+        g.setPaint(new GradientPaint(0, h, Color.ORANGE, w, 0, Color.RED));
         //g.setColor(Color.WHITE);
         g.fillRect(0, 0, w, h);
     }

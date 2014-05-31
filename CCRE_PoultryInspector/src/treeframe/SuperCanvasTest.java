@@ -21,9 +21,11 @@ package treeframe;
 import ccre.channel.BooleanStatus;
 import ccre.channel.EventStatus;
 import ccre.channel.FloatStatus;
+import java.util.ArrayList;
+import treeframe.PaletteComponent.PaletteEntry;
 
 public class SuperCanvasTest extends javax.swing.JFrame {
-
+    
     /**
      * Creates new form SuperCanvasTest
      */
@@ -32,12 +34,19 @@ public class SuperCanvasTest extends javax.swing.JFrame {
         EventStatus event = new EventStatus();
         BooleanStatus bool = new BooleanStatus();
         FloatStatus num = new FloatStatus();
-        canvas.add(new EventControlComponent(100, 50, "control/event", event));
-        canvas.add(new BooleanControlComponent(100, 200, "control/boolean", bool));
-        canvas.add(new FloatControlComponent(100, 350, "control/float", num));
-        canvas.add(new EventDisplayComponent(300, 50, "display/event", event));
-        canvas.add(new BooleanDisplayComponent(300, 200, "display/boolean", bool));
-        canvas.add(new FloatDisplayComponent(300, 350, "display/float", num));
+        ArrayList<SuperCanvasComponent> components = new ArrayList<SuperCanvasComponent>();
+        components.add(new EventControlComponent(100, 50, "control/event", event));
+        components.add(new BooleanControlComponent(100, 200, "control/boolean", bool));
+        components.add(new FloatControlComponent(100, 350, "control/float", num));
+        components.add(new EventDisplayComponent(300, 50, "display/event", event));
+        components.add(new BooleanDisplayComponent(300, 200, "display/boolean", bool));
+        components.add(new FloatDisplayComponent(300, 350, "display/float", num));
+        ArrayList<PaletteEntry> entries = new ArrayList<PaletteEntry>();
+        ListPaletteComponent lpc = new ListPaletteComponent(100, 100, entries);
+        for (SuperCanvasComponent c : components) {
+            entries.add(lpc.wrap(c));
+        }
+        canvas.add(lpc);
         //canvas.add(new FolderComponent(100, 100));
         /*canvas.add(new FolderComponent(100, 250));
          canvas.add(new PaletteComponent(100, 300, Arrays.<PaletteComponent.PaletteEntry>asList(

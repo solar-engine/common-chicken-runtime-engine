@@ -22,6 +22,10 @@ import java.util.Collection;
 
 public class ListPaletteComponent extends PaletteComponent<Collection<PaletteComponent.PaletteEntry>> {
 
+    public PaletteEntry wrap(SuperCanvasComponent c) {
+        return new Element(c, 0, 0);
+    }
+
     private class Element implements PaletteComponent.PaletteEntry {
 
         public final SuperCanvasComponent component;

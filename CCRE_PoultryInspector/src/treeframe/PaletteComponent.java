@@ -20,6 +20,7 @@ package treeframe;
 
 import java.awt.Color;
 import java.awt.FontMetrics;
+import java.awt.GradientPaint;
 import java.awt.Graphics2D;
 
 public class PaletteComponent<T extends Iterable<PaletteComponent.PaletteEntry>> extends DraggableBoxComponent {
@@ -34,21 +35,23 @@ public class PaletteComponent<T extends Iterable<PaletteComponent.PaletteEntry>>
             maxWidth = Math.max(maxWidth, fontMetrics.stringWidth(ent.getName()));
             count++;
         }
-        width = (maxWidth + 10) / 2;
+        width = (maxWidth) / 2 + 20;
         rowHeight = fontMetrics.getHeight();
         height = (count * rowHeight + 40) / 2;
-        g.setColor(Color.BLACK);
-        g.fillRect(centerX - width, centerY - height, width * 2, height * 2);
-        g.setColor(Color.YELLOW);
-        g.fillRect(centerX - width + 1, centerY - height + 1, width * 2 - 2, height * 2 - 2);
-        int xPos = centerX - width + 1;
+        g.setPaint(new GradientPaint(centerX + 20, centerY - height, Color.LIGHT_GRAY, centerX - 20, centerY + height, Color.LIGHT_GRAY.darker()));
+        g.fillRoundRect(centerX - width + 1, centerY - height + 1, width * 2 - 2, height * 2 - 2, 10, 10);
+        int xPos = centerX - width + 16;
         int yPos = centerY - height + 26;
         yshift = fontMetrics.getAscent();
         for (PaletteEntry ent : entries) {
             if (mouseX >= xPos && mouseX <= xPos + width * 2 - 2
                     && mouseY >= yPos - yshift && mouseY < yPos - yshift + rowHeight) {
-                g.setColor(Color.ORANGE);
-                g.fillRect(xPos, yPos - yshift, width * 2 - 2, rowHeight);
+                if (yPos - yshift + rowHeight / 2 < centerY) {
+                    g.setColor(Color.RED);
+                } else {
+                }
+                g.setColor(Color.WHITE);
+                g.fillRoundRect(xPos - 5, yPos - yshift, width * 2 - 22, rowHeight, 10, 10);
             }
             g.setColor(Color.BLACK);
             g.drawString(ent.getName(), xPos, yPos);

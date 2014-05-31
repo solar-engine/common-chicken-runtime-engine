@@ -47,7 +47,7 @@ public class FloatControlComponent extends DraggableBoxComponent implements Floa
     protected boolean containsForInteract(int x, int y) {
         return x >= centerX - width + 10 && x <= centerX + width - 10 && y >= centerY - height / 2 && y <= centerY + height / 2;
     }
-    
+
     public boolean wantsDragSelect() {
         return true;
     }
@@ -96,7 +96,9 @@ public class FloatControlComponent extends DraggableBoxComponent implements Floa
         if (-0.1 < value && value < 0.1) {
             value = 0;
         }
-        stat.set(value);
+        if (value != stat.get()) {
+            stat.set(value);
+        }
         return true;
     }
 

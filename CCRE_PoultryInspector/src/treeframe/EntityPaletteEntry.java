@@ -35,7 +35,7 @@ public class EntityPaletteEntry implements PaletteEntry {
 
     @Override
     public SuperCanvasComponent fetch(int x, int y) {
-        return new EntityComponent(x, y, name);
+        return new EventControlComponent(x, y, name);
     }
 
 }

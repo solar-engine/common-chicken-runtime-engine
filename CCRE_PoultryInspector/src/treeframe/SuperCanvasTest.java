@@ -18,13 +18,6 @@
  */
 package treeframe;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-
-/**
- *
- * @author skeggsc
- */
 public class SuperCanvasTest extends javax.swing.JFrame {
 
     /**
@@ -32,10 +25,10 @@ public class SuperCanvasTest extends javax.swing.JFrame {
      */
     public SuperCanvasTest() {
         initComponents();
-        canvas.add(new EntityComponent(100, 50, "virtual/test"));
+        canvas.add(new EventControlComponent(100, 50, "virtual/test"));
         //canvas.add(new FolderComponent(100, 100));
-        canvas.add(new EntityComponent(100, 150, "virtual/test2"));
-        canvas.add(new EntityComponent(100, 200, "virtual/test3"));
+        canvas.add(new BooleanControlComponent(100, 200, "virtual/test2"));
+        canvas.add(new FloatControlComponent(100, 350, "virtual/test3"));
         /*canvas.add(new FolderComponent(100, 250));
         canvas.add(new PaletteComponent(100, 300, Arrays.<PaletteComponent.PaletteEntry>asList(
                 new EntityPaletteEntry("dyn/a"),

@@ -25,26 +25,26 @@ import java.awt.Graphics2D;
 import java.awt.Shape;
 import java.awt.geom.RoundRectangle2D;
 
-public class EntityComponent extends DraggableBoxComponent {
+public class EventControlComponent extends DraggableBoxComponent {
 
     private long countStart;
-    private final String path;
+    private final String name;
 
-    public EntityComponent(int cx, int cy, String path) {
+    public EventControlComponent(int cx, int cy, String name) {
         super(cx, cy);
-        this.path = path;
+        this.name = name;
     }
 
     @Override
     public void render(Graphics2D g, int screenWidth, int screenHeight, FontMetrics fontMetrics, int mouseX, int mouseY) {
-        width = Math.max(70, g.getFontMetrics().stringWidth(path) / 2);
+        width = Math.max(70, g.getFontMetrics().stringWidth(name) / 2);
         height = width * 2 / 3;
         GradientPaint gp = new GradientPaint(centerX, centerY, Color.YELLOW, centerX + height, centerY - height, Color.ORANGE);
         ((Graphics2D) g).setPaint(gp);
         Shape s = new RoundRectangle2D.Float(centerX - width, centerY - height, width * 2, height * 2, 15, 15);
         ((Graphics2D) g).fill(s);
         g.setColor(Color.BLACK);
-        g.drawString(path, centerX - width + 5, centerY - height + 1 + g.getFontMetrics().getAscent());
+        g.drawString(name, centerX - width + 5, centerY - height + 1 + g.getFontMetrics().getAscent());
         long count = (System.currentTimeMillis() - countStart);
         g.setColor(Color.ORANGE.darker());
         int rel = count < 500 ? 3 : 10;
@@ -61,6 +61,6 @@ public class EntityComponent extends DraggableBoxComponent {
     }
 
     public String toString() {
-        return path;
+        return name;
     }
 }

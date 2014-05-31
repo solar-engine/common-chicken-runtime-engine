@@ -18,7 +18,6 @@
  */
 package treeframe;
 
-import ccre.channel.FloatInput;
 import ccre.channel.FloatOutput;
 import ccre.channel.FloatStatus;
 import java.awt.Color;
@@ -28,19 +27,21 @@ import java.awt.Graphics2D;
 import java.awt.Shape;
 import java.awt.geom.RoundRectangle2D;
 
-public class FloatControlComponent extends DraggableBoxComponent implements FloatInput {
+public class FloatDisplayComponent extends DraggableBoxComponent implements FloatOutput {
 
+    private float value;
+    private boolean subscribed;
     private final String name;
-    private final FloatStatus stat = new FloatStatus();
+    private final FloatStatus inp;
 
-    public FloatControlComponent(int cx, int cy, String name) {
-        super(cx, cy);
-        this.name = name;
+    public FloatDisplayComponent(int cx, int cy, String name) {
+        this(cx, cy, name, null);
     }
 
-    public FloatControlComponent(int cx, int cy, String name, FloatOutput num) {
-        this(cx, cy, name);
-        stat.send(num);
+    public FloatDisplayComponent(int cx, int cy, String name, FloatStatus inp) {
+        super(cx, cy);
+        this.name = name;
+        this.inp = inp;
     }
 
     @Override
@@ -54,9 +55,9 @@ public class FloatControlComponent extends DraggableBoxComponent implements Floa
         g.setColor(Color.BLACK);
         g.drawString(name, centerX - width + 5, centerY - height + 1 + g.getFontMetrics().getAscent());
         g.setColor(Color.WHITE);
-        g.fillRect(centerX - width + 10, centerY - height / 2, 2 * width - 19, height);
+        g.fillRect(centerX - width + 10, centerY - height / 2, 2 * width - 20, height);
         g.setColor(Color.BLACK);
-        g.drawRect(centerX - width + 10, centerY - height / 2, 2 * width - 20, height - 1);
+        g.drawRect(centerX - width + 10, centerY - height / 2, 2 * width - 21, height - 1);
         g.drawLine(centerX, centerY + height / 2 - 1, centerX, centerY + 5);
         g.drawLine(centerX + width * 2 / 3, centerY + height / 2 - 1, centerX + width * 2 / 3, centerY + 5);
         g.drawLine(centerX - width * 2 / 3, centerY + height / 2 - 1, centerX - width * 2 / 3, centerY + 5);
@@ -66,7 +67,6 @@ public class FloatControlComponent extends DraggableBoxComponent implements Floa
         g.drawLine(centerX + width / 3, centerY + height / 2 - 1, centerX + width / 3, centerY + 10);
         g.drawLine(centerX - 3 * width / 6, centerY + height / 2 - 1, centerX - 3 * width / 6, centerY + 15);
         g.drawLine(centerX + 3 * width / 6, centerY + height / 2 - 1, centerX + 3 * width / 6, centerY + 15);
-        float value = this.stat.get();
         int ptrCtr = centerX + (int) (width * 2 / 3 * value);
         if (value < 0) {
             g.setColor(value == -1 ? Color.RED : Color.RED.darker().darker());
@@ -75,20 +75,13 @@ public class FloatControlComponent extends DraggableBoxComponent implements Floa
         } else {
             g.setColor(Color.ORANGE);
         }
-        g.drawPolygon(new int[]{ptrCtr - 12, ptrCtr - 8, ptrCtr - 12}, new int[]{centerY - 8, centerY - 4, centerY}, 3);
-        g.drawPolygon(new int[]{ptrCtr + 12, ptrCtr + 8, ptrCtr + 12}, new int[]{centerY - 8, centerY - 4, centerY}, 3);
         g.fillRect(ptrCtr - 5, centerY - height / 2 + 1, 11, height / 2 - 4);
         g.fillPolygon(new int[]{ptrCtr - 5, ptrCtr, ptrCtr + 6}, new int[]{centerY - 3, centerY + 3, centerY - 3}, 3);
     }
 
     @Override
     public boolean onInteract(int x, int y) {
-        float value = Math.min(1, Math.max(-1, (x - centerX) / (float) (width * 2 / 3)));
-        if (-0.1 < value && value < 0.1) {
-            value = 0;
-        }
-        stat.set(value);
-        return true;
+        return false;
     }
 
     public String toString() {
@@ -96,17 +89,20 @@ public class FloatControlComponent extends DraggableBoxComponent implements Floa
     }
 
     @Override
-    public void send(FloatOutput output) {
-        stat.send(output);
+    protected void onChangePanel(SuperCanvasPanel panel) {
+        boolean hasPanel = panel != null;
+        if (inp != null && hasPanel != subscribed) {
+            if (hasPanel) {
+                inp.send(this);
+            } else {
+                inp.unsend(this);
+            }
+            subscribed = hasPanel;
+        }
     }
 
     @Override
-    public void unsend(FloatOutput output) {
-        stat.unsend(output);
-    }
-
-    @Override
-    public float get() {
-        return stat.get();
+    public void set(float value) {
+        this.value = value;
     }
 }

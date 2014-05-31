@@ -31,7 +31,7 @@ import java.awt.Graphics2D;
 public abstract class SuperCanvasComponent {
 
     private SuperCanvasPanel panel;
-    
+
     /**
      * Called to render this component.
      *
@@ -178,6 +178,7 @@ public abstract class SuperCanvasComponent {
             throw new IllegalStateException("This already has a panel!");
         }
         panel = npanel;
+        onChangePanel(npanel);
     }
 
     void unsetPanel(SuperCanvasPanel npanel) {
@@ -188,9 +189,13 @@ public abstract class SuperCanvasComponent {
             throw new IllegalStateException("That's not the panel here!");
         }
         panel = null;
+        onChangePanel(null);
     }
-    
+
     public SuperCanvasPanel getPanel() {
         return panel;
+    }
+
+    protected void onChangePanel(SuperCanvasPanel panel) {
     }
 }

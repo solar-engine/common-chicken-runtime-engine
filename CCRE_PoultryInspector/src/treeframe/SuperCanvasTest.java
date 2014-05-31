@@ -18,6 +18,10 @@
  */
 package treeframe;
 
+import ccre.channel.BooleanStatus;
+import ccre.channel.EventStatus;
+import ccre.channel.FloatStatus;
+
 public class SuperCanvasTest extends javax.swing.JFrame {
 
     /**
@@ -25,19 +29,25 @@ public class SuperCanvasTest extends javax.swing.JFrame {
      */
     public SuperCanvasTest() {
         initComponents();
-        canvas.add(new EventControlComponent(100, 50, "virtual/test"));
+        EventStatus event = new EventStatus();
+        BooleanStatus bool = new BooleanStatus();
+        FloatStatus num = new FloatStatus();
+        canvas.add(new EventControlComponent(100, 50, "control/event", event));
+        canvas.add(new BooleanControlComponent(100, 200, "control/boolean", bool));
+        canvas.add(new FloatControlComponent(100, 350, "control/float", num));
+        canvas.add(new EventDisplayComponent(300, 50, "display/event", event));
+        canvas.add(new BooleanDisplayComponent(300, 200, "display/boolean", bool));
+        canvas.add(new FloatDisplayComponent(300, 350, "display/float", num));
         //canvas.add(new FolderComponent(100, 100));
-        canvas.add(new BooleanControlComponent(100, 200, "virtual/test2"));
-        canvas.add(new FloatControlComponent(100, 350, "virtual/test3"));
         /*canvas.add(new FolderComponent(100, 250));
-        canvas.add(new PaletteComponent(100, 300, Arrays.<PaletteComponent.PaletteEntry>asList(
-                new EntityPaletteEntry("dyn/a"),
-                new EntityPaletteEntry("dyn/b"),
-                new EntityPaletteEntry("dyn/c"),
-                new EntityPaletteEntry("dyn/d"),
-                new EntityPaletteEntry("dyn/e"))));
-        canvas.add(new TrashComponent(100, 350));
-        canvas.add(new ListPaletteComponent(100, 400, new ArrayList()));*/
+         canvas.add(new PaletteComponent(100, 300, Arrays.<PaletteComponent.PaletteEntry>asList(
+         new EntityPaletteEntry("dyn/a"),
+         new EntityPaletteEntry("dyn/b"),
+         new EntityPaletteEntry("dyn/c"),
+         new EntityPaletteEntry("dyn/d"),
+         new EntityPaletteEntry("dyn/e"))));
+         canvas.add(new TrashComponent(100, 350));
+         canvas.add(new ListPaletteComponent(100, 400, new ArrayList()));*/
         canvas.start();
     }
 

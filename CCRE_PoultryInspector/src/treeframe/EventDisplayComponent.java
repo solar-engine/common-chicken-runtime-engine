@@ -18,30 +18,31 @@
  */
 package treeframe;
 
-import ccre.channel.BooleanInput;
-import ccre.channel.BooleanOutput;
-import ccre.channel.BooleanStatus;
+import ccre.channel.EventInput;
+import ccre.channel.EventOutput;
+import intelligence.Rendering;
 import java.awt.Color;
 import java.awt.FontMetrics;
 import java.awt.GradientPaint;
 import java.awt.Graphics2D;
 import java.awt.Shape;
-import java.awt.geom.AffineTransform;
 import java.awt.geom.RoundRectangle2D;
 
-public class BooleanControlComponent extends DraggableBoxComponent implements BooleanInput {
+public class EventDisplayComponent extends DraggableBoxComponent implements EventOutput {
 
-    private final BooleanStatus pressed = new BooleanStatus();
+    private long countStart;
+    private boolean subscribed;
     private final String name;
+    private final EventInput inp;
 
-    public BooleanControlComponent(int cx, int cy, String name, BooleanOutput out) {
-        this(cx, cy, name);
-        pressed.send(out);
+    public EventDisplayComponent(int cx, int cy, String name) {
+        this(cx, cy, name, null);
     }
 
-    public BooleanControlComponent(int cx, int cy, String name) {
+    public EventDisplayComponent(int cx, int cy, String name, EventInput inp) {
         super(cx, cy);
         this.name = name;
+        this.inp = inp;
     }
 
     @Override
@@ -54,34 +55,15 @@ public class BooleanControlComponent extends DraggableBoxComponent implements Bo
         ((Graphics2D) g).fill(s);
         g.setColor(Color.BLACK);
         g.drawString(name, centerX - width + 5, centerY - height + 1 + g.getFontMetrics().getAscent());
-        AffineTransform origO = g.getTransform();
-        boolean isPressed = this.pressed.get();
-        {
-            g.setColor(isPressed ? Color.GREEN.darker() : Color.RED.darker());
-            AffineTransform orig = g.getTransform();
-            g.rotate(isPressed ? 10 : -10, centerX + (isPressed ? 3 : -3), centerY + 10);
-            g.fillRect(centerX - 5, centerY + 5, 10, 45);
-            g.setTransform(orig);
-            g.setColor(Color.GRAY.darker().darker());
-            g.fillRect(centerX - 20, centerY + 10, 40, 20);
-        }
-        g.translate(-5, 2);
-        {
-            g.setColor(isPressed ? Color.GREEN : Color.RED);
-            AffineTransform orig = g.getTransform();
-            g.rotate(isPressed ? 10 : -10, centerX + (isPressed ? 3 : -3), centerY + 10);
-            g.fillRect(centerX - 5, centerY + 5, 10, 45);
-            g.setTransform(orig);
-            g.setColor(Color.GRAY.darker());
-            g.fillRect(centerX - 20, centerY + 10, 40, 20);
-        }
-        g.setTransform(origO);
+        long count = (System.currentTimeMillis() - countStart);
+        g.setColor(Rendering.blend(Color.green, Color.orange, count / 500.0f));
+        int rad = Math.min(width / 3, height / 3);
+        g.fillOval(centerX - rad, centerY - rad, rad * 2, rad * 2);
     }
 
     @Override
     public boolean onInteract(int x, int y) {
-        pressed.set(!pressed.get());
-        return true;
+        return false;
     }
 
     public String toString() {
@@ -89,17 +71,20 @@ public class BooleanControlComponent extends DraggableBoxComponent implements Bo
     }
 
     @Override
-    public void send(BooleanOutput output) {
-        pressed.send(output);
+    protected void onChangePanel(SuperCanvasPanel panel) {
+        boolean hasPanel = panel != null;
+        if (inp != null && hasPanel != subscribed) {
+            if (hasPanel) {
+                inp.send(this);
+            } else {
+                inp.unsend(this);
+            }
+            subscribed = hasPanel;
+        }
     }
 
     @Override
-    public void unsend(BooleanOutput output) {
-        pressed.unsend(output);
-    }
-
-    @Override
-    public boolean get() {
-        return pressed.get();
+    public void event() {
+        countStart = System.currentTimeMillis();
     }
 }

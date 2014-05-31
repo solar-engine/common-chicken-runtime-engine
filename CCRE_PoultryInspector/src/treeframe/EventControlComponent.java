@@ -18,6 +18,9 @@
  */
 package treeframe;
 
+import ccre.channel.EventInput;
+import ccre.channel.EventOutput;
+import ccre.channel.EventStatus;
 import java.awt.Color;
 import java.awt.FontMetrics;
 import java.awt.GradientPaint;
@@ -25,14 +28,20 @@ import java.awt.Graphics2D;
 import java.awt.Shape;
 import java.awt.geom.RoundRectangle2D;
 
-public class EventControlComponent extends DraggableBoxComponent {
+public class EventControlComponent extends DraggableBoxComponent implements EventInput {
 
     private long countStart;
     private final String name;
+    private final EventStatus stat = new EventStatus();
 
     public EventControlComponent(int cx, int cy, String name) {
         super(cx, cy);
         this.name = name;
+    }
+
+    public EventControlComponent(int cx, int cy, String name, EventOutput event) {
+        this(cx, cy, name);
+        stat.send(event);
     }
 
     @Override
@@ -47,20 +56,31 @@ public class EventControlComponent extends DraggableBoxComponent {
         g.drawString(name, centerX - width + 5, centerY - height + 1 + g.getFontMetrics().getAscent());
         long count = (System.currentTimeMillis() - countStart);
         g.setColor(Color.ORANGE.darker());
-        int rel = count < 500 ? 3 : 10;
+        int rel = count < 200 ? 3 : 10;
         g.fillOval(centerX - width / 3, 10 + centerY - height / 3, 2 * width / 3, 2 * height / 3);
         g.fillRect(centerX - width / 3 + 1, 10 + centerY - rel, 2 * width / 3 - 1, rel);
-        g.setColor(count < 500 ? Color.GREEN : Color.RED);
+        g.setColor(count < 200 ? Color.GREEN : Color.RED);
         g.fillOval(centerX - width / 3, 10 + centerY - height / 3 - rel, 2 * width / 3, 2 * height / 3);
     }
 
     @Override
     public boolean onInteract(int x, int y) {
+        stat.event();
         countStart = System.currentTimeMillis();
         return true;
     }
 
     public String toString() {
         return name;
+    }
+
+    @Override
+    public void send(EventOutput listener) {
+        stat.send(listener);
+    }
+
+    @Override
+    public void unsend(EventOutput listener) {
+        stat.unsend(listener);
     }
 }

@@ -48,7 +48,7 @@ public class TrashComponent extends DraggableBoxComponent {
     public boolean onInteract(int x, int y) {
         return false;
     }
-    
+
     public String toString() {
         return "Trash Can";
     }

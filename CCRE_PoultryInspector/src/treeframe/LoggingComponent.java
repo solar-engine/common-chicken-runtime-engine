@@ -43,7 +43,7 @@ public class LoggingComponent extends DraggableBoxComponent {
 
     public LoggingComponent(int cx, int cy) {
         super(cx, cy);
-        halfWidth = 100;
+        halfWidth = 200;
         halfHeight = 95;
         this.pstr = new PrintStream(new LineCollectorOutputStream() {
             @Override
@@ -172,11 +172,11 @@ public class LoggingComponent extends DraggableBoxComponent {
                 if (fontMetrics.stringWidth(line) > halfWidth * 2 - 32) {
                     temp.clear();
                     int base = 0;
-                    for (int j = line.length() - 1; j > base; j--) {
+                    for (int j = line.length(); j > base; j--) {
                         if (fontMetrics.stringWidth(line.substring(base, j)) <= halfWidth * 2 - 32) {
                             temp.add(line.substring(base, j));
                             base = j;
-                            j = line.length() - 1;
+                            j = line.length();
                         }
                     }
                     for (int j = temp.size() - 1; j >= 0; j--) {
@@ -256,6 +256,10 @@ public class LoggingComponent extends DraggableBoxComponent {
 
     public String toString() {
         return "logging window [" + lines.size() + "]";
+    }
+    
+    public boolean onDelete() {
+        return false;
     }
 
     private static enum ResizeState {

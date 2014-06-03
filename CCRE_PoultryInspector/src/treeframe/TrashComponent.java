@@ -18,9 +18,9 @@
  */
 package treeframe;
 
+import ccre.log.Logger;
 import java.awt.Color;
 import java.awt.FontMetrics;
-import java.awt.Graphics;
 import java.awt.Graphics2D;
 
 /**
@@ -34,14 +34,26 @@ public class TrashComponent extends DraggableBoxComponent {
     }
 
     public boolean onReceiveDrop(int x, int y, SuperCanvasComponent activeEntity) {
-        getPanel().remove(activeEntity);
+        if (activeEntity.onDelete()) {
+            getPanel().remove(activeEntity);
+            Logger.fine("Deleted component: " + activeEntity);
+        } else {
+            Logger.warning("Component deletion disallowed: " + activeEntity);
+        }
         return true;
     }
 
     @Override
     public void render(Graphics2D g, int screenWidth, int screenHeight, FontMetrics fontMetrics, int mouseX, int mouseY) {
-        g.setColor(Color.ORANGE);
-        g.fillRoundRect(centerX - halfWidth, centerY - halfHeight, halfWidth * 2, halfHeight * 2, 10, 10);
+        g.setColor(Color.GRAY);
+        g.fillRect(centerX - halfWidth, centerY - halfHeight * 2 / 3, halfWidth * 2, halfHeight * 4 / 3);
+        g.fillOval(centerX - halfWidth - 1, centerY + halfHeight / 3, halfWidth * 2, halfHeight * 2 / 3);
+        g.setColor(Color.RED);
+        g.drawLine(centerX - halfWidth / 4, centerY, centerX + halfWidth / 4, centerY + halfHeight / 2);
+        g.drawLine(centerX + halfWidth / 4, centerY, centerX - halfWidth / 4, centerY + halfHeight / 2);
+        g.setColor(Color.LIGHT_GRAY);
+        g.fillOval(centerX - halfWidth - 1, centerY - halfHeight, halfWidth * 2, halfHeight * 2 / 3);
+        //g.fillRoundRect(centerX - halfWidth, centerY - halfHeight, halfWidth * 2, halfHeight * 2, 10, 10);
     }
 
     @Override

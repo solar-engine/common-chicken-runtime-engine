@@ -48,6 +48,7 @@ public class SuperCanvasTest extends javax.swing.JFrame {
             entries.add(lpc.wrap(c));
         }
         canvas.add(new LoggingComponent(300, 300));
+        canvas.add(new TrashComponent(200, 200));
         canvas.add(lpc);
         //canvas.add(new FolderComponent(100, 100));
         /*canvas.add(new FolderComponent(100, 250));

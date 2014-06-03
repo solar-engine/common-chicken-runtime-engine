@@ -206,4 +206,8 @@ public abstract class SuperCanvasComponent {
     public boolean canDrop() {
         return true;
     }
+
+    public boolean onDelete() {
+        return true;
+    }
 }

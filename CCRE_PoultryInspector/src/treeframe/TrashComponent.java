@@ -41,7 +41,7 @@ public class TrashComponent extends DraggableBoxComponent {
     @Override
     public void render(Graphics2D g, int screenWidth, int screenHeight, FontMetrics fontMetrics, int mouseX, int mouseY) {
         g.setColor(Color.ORANGE);
-        g.fillRoundRect(centerX - width, centerY - height, width * 2, height * 2, 10, 10);
+        g.fillRoundRect(centerX - halfWidth, centerY - halfHeight, halfWidth * 2, halfHeight * 2, 10, 10);
     }
 
     @Override

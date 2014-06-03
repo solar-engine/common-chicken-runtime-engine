@@ -21,6 +21,7 @@ package treeframe;
 import ccre.channel.BooleanStatus;
 import ccre.channel.EventStatus;
 import ccre.channel.FloatStatus;
+import intelligence.IPProvider;
 import java.util.ArrayList;
 import treeframe.PaletteComponent.PaletteEntry;
 
@@ -46,6 +47,7 @@ public class SuperCanvasTest extends javax.swing.JFrame {
         for (SuperCanvasComponent c : components) {
             entries.add(lpc.wrap(c));
         }
+        canvas.add(new LoggingComponent(300, 300));
         canvas.add(lpc);
         //canvas.add(new FolderComponent(100, 100));
         /*canvas.add(new FolderComponent(100, 250));
@@ -58,6 +60,8 @@ public class SuperCanvasTest extends javax.swing.JFrame {
          canvas.add(new TrashComponent(100, 350));
          canvas.add(new ListPaletteComponent(100, 400, new ArrayList()));*/
         canvas.start();
+        IPProvider.init();
+        IPProvider.connect();
     }
 
     /**

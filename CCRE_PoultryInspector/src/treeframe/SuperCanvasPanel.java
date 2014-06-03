@@ -243,7 +243,7 @@ public final class SuperCanvasPanel extends JPanel implements MouseMotionListene
             for (ListIterator<SuperCanvasComponent> it = components.listIterator(components.size()); it.hasPrevious();) {
                 SuperCanvasComponent comp = it.previous();
                 if (comp != activeEntity && comp.contains(e.getX(), e.getY())) {
-                    if (comp.onReceiveDrop(e.getX(), e.getY(), activeEntity)) {
+                    if (activeEntity.canDrop() && comp.onReceiveDrop(e.getX(), e.getY(), activeEntity)) {
                         break;
                     }
                 }

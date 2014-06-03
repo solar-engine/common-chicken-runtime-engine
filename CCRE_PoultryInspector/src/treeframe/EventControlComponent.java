@@ -46,26 +46,26 @@ public class EventControlComponent extends DraggableBoxComponent implements Even
 
     @Override
     protected boolean containsForInteract(int x, int y) {
-        return x >= centerX - width / 3 - 10 && x <= centerX + width / 3 + 10 && y >= centerY - height / 3 - 10 && y <= centerY + height / 3 + 20;
+        return x >= centerX - halfWidth / 3 - 10 && x <= centerX + halfWidth / 3 + 10 && y >= centerY - halfHeight / 3 - 10 && y <= centerY + halfHeight / 3 + 20;
     }
 
     @Override
     public void render(Graphics2D g, int screenWidth, int screenHeight, FontMetrics fontMetrics, int mouseX, int mouseY) {
-        width = Math.max(70, g.getFontMetrics().stringWidth(name) / 2);
-        height = width * 2 / 3;
-        GradientPaint gp = new GradientPaint(centerX, centerY, Color.YELLOW, centerX + height, centerY - height, Color.ORANGE);
+        halfWidth = Math.max(70, g.getFontMetrics().stringWidth(name) / 2);
+        halfHeight = halfWidth * 2 / 3;
+        GradientPaint gp = new GradientPaint(centerX, centerY, Color.YELLOW, centerX + halfHeight, centerY - halfHeight, Color.ORANGE);
         ((Graphics2D) g).setPaint(gp);
-        Shape s = new RoundRectangle2D.Float(centerX - width, centerY - height, width * 2, height * 2, 15, 15);
+        Shape s = new RoundRectangle2D.Float(centerX - halfWidth, centerY - halfHeight, halfWidth * 2, halfHeight * 2, 15, 15);
         ((Graphics2D) g).fill(s);
         g.setColor(Color.BLACK);
-        g.drawString(name, centerX - width + 5, centerY - height + 1 + g.getFontMetrics().getAscent());
+        g.drawString(name, centerX - halfWidth + 5, centerY - halfHeight + 1 + g.getFontMetrics().getAscent());
         long count = (System.currentTimeMillis() - countStart);
         g.setColor(Color.ORANGE.darker());
         int rel = count < 200 ? 3 : 10;
-        g.fillOval(centerX - width / 3, 10 + centerY - height / 3, 2 * width / 3, 2 * height / 3);
-        g.fillRect(centerX - width / 3 + 1, 10 + centerY - rel, 2 * width / 3 - 1, rel);
+        g.fillOval(centerX - halfWidth / 3, 10 + centerY - halfHeight / 3, 2 * halfWidth / 3, 2 * halfHeight / 3);
+        g.fillRect(centerX - halfWidth / 3 + 1, 10 + centerY - rel, 2 * halfWidth / 3 - 1, rel);
         g.setColor(count < 200 ? Color.GREEN : Color.RED);
-        g.fillOval(centerX - width / 3, 10 + centerY - height / 3 - rel, 2 * width / 3, 2 * height / 3);
+        g.fillOval(centerX - halfWidth / 3, 10 + centerY - halfHeight / 3 - rel, 2 * halfWidth / 3, 2 * halfHeight / 3);
     }
 
     @Override

@@ -202,4 +202,8 @@ public abstract class SuperCanvasComponent {
     public boolean wantsDragSelect() {
         return false;
     }
+
+    public boolean canDrop() {
+        return true;
+    }
 }

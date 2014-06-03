@@ -26,7 +26,7 @@ package treeframe;
 public abstract class DraggableBoxComponent extends SuperCanvasComponent {
 
     protected int centerX, centerY;
-    protected int width = 20, height = 20;
+    protected int halfWidth = 20, halfHeight = 20;
 
     public DraggableBoxComponent(int cx, int cy) {
         centerX = cx;
@@ -35,7 +35,7 @@ public abstract class DraggableBoxComponent extends SuperCanvasComponent {
 
     @Override
     public boolean contains(int x, int y) {
-        return Math.abs(x - centerX) <= width && Math.abs(y - centerY) <= height;
+        return Math.abs(x - centerX) <= halfWidth && Math.abs(y - centerY) <= halfHeight;
     }
 
     protected boolean containsForInteract(int x, int y) {

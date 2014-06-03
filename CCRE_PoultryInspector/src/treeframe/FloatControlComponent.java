@@ -45,7 +45,7 @@ public class FloatControlComponent extends DraggableBoxComponent implements Floa
 
     @Override
     protected boolean containsForInteract(int x, int y) {
-        return x >= centerX - width + 10 && x <= centerX + width - 10 && y >= centerY - height / 2 && y <= centerY + height / 2;
+        return x >= centerX - halfWidth + 10 && x <= centerX + halfWidth - 10 && y >= centerY - halfHeight / 2 && y <= centerY + halfHeight / 2;
     }
 
     public boolean wantsDragSelect() {
@@ -54,29 +54,29 @@ public class FloatControlComponent extends DraggableBoxComponent implements Floa
 
     @Override
     public void render(Graphics2D g, int screenWidth, int screenHeight, FontMetrics fontMetrics, int mouseX, int mouseY) {
-        width = Math.max(70, g.getFontMetrics().stringWidth(name) / 2);
-        height = width * 2 / 3;
-        GradientPaint gp = new GradientPaint(centerX, centerY, Color.YELLOW, centerX + height, centerY - height, Color.ORANGE);
+        halfWidth = Math.max(70, g.getFontMetrics().stringWidth(name) / 2);
+        halfHeight = halfWidth * 2 / 3;
+        GradientPaint gp = new GradientPaint(centerX, centerY, Color.YELLOW, centerX + halfHeight, centerY - halfHeight, Color.ORANGE);
         ((Graphics2D) g).setPaint(gp);
-        Shape s = new RoundRectangle2D.Float(centerX - width, centerY - height, width * 2, height * 2, 15, 15);
+        Shape s = new RoundRectangle2D.Float(centerX - halfWidth, centerY - halfHeight, halfWidth * 2, halfHeight * 2, 15, 15);
         ((Graphics2D) g).fill(s);
         g.setColor(Color.BLACK);
-        g.drawString(name, centerX - width + 5, centerY - height + 1 + g.getFontMetrics().getAscent());
+        g.drawString(name, centerX - halfWidth + 5, centerY - halfHeight + 1 + g.getFontMetrics().getAscent());
         g.setColor(Color.WHITE);
-        g.fillRect(centerX - width + 10, centerY - height / 2, 2 * width - 19, height);
+        g.fillRect(centerX - halfWidth + 10, centerY - halfHeight / 2, 2 * halfWidth - 19, halfHeight);
         g.setColor(Color.BLACK);
-        g.drawRect(centerX - width + 10, centerY - height / 2, 2 * width - 20, height - 1);
-        g.drawLine(centerX, centerY + height / 2 - 1, centerX, centerY + 5);
-        g.drawLine(centerX + width * 2 / 3, centerY + height / 2 - 1, centerX + width * 2 / 3, centerY + 5);
-        g.drawLine(centerX - width * 2 / 3, centerY + height / 2 - 1, centerX - width * 2 / 3, centerY + 5);
-        g.drawLine(centerX - width / 6, centerY + height / 2 - 1, centerX - width / 6, centerY + 15);
-        g.drawLine(centerX + width / 6, centerY + height / 2 - 1, centerX + width / 6, centerY + 15);
-        g.drawLine(centerX - width / 3, centerY + height / 2 - 1, centerX - width / 3, centerY + 10);
-        g.drawLine(centerX + width / 3, centerY + height / 2 - 1, centerX + width / 3, centerY + 10);
-        g.drawLine(centerX - 3 * width / 6, centerY + height / 2 - 1, centerX - 3 * width / 6, centerY + 15);
-        g.drawLine(centerX + 3 * width / 6, centerY + height / 2 - 1, centerX + 3 * width / 6, centerY + 15);
+        g.drawRect(centerX - halfWidth + 10, centerY - halfHeight / 2, 2 * halfWidth - 20, halfHeight - 1);
+        g.drawLine(centerX, centerY + halfHeight / 2 - 1, centerX, centerY + 5);
+        g.drawLine(centerX + halfWidth * 2 / 3, centerY + halfHeight / 2 - 1, centerX + halfWidth * 2 / 3, centerY + 5);
+        g.drawLine(centerX - halfWidth * 2 / 3, centerY + halfHeight / 2 - 1, centerX - halfWidth * 2 / 3, centerY + 5);
+        g.drawLine(centerX - halfWidth / 6, centerY + halfHeight / 2 - 1, centerX - halfWidth / 6, centerY + 15);
+        g.drawLine(centerX + halfWidth / 6, centerY + halfHeight / 2 - 1, centerX + halfWidth / 6, centerY + 15);
+        g.drawLine(centerX - halfWidth / 3, centerY + halfHeight / 2 - 1, centerX - halfWidth / 3, centerY + 10);
+        g.drawLine(centerX + halfWidth / 3, centerY + halfHeight / 2 - 1, centerX + halfWidth / 3, centerY + 10);
+        g.drawLine(centerX - 3 * halfWidth / 6, centerY + halfHeight / 2 - 1, centerX - 3 * halfWidth / 6, centerY + 15);
+        g.drawLine(centerX + 3 * halfWidth / 6, centerY + halfHeight / 2 - 1, centerX + 3 * halfWidth / 6, centerY + 15);
         float value = this.stat.get();
-        int ptrCtr = centerX + (int) (width * 2 / 3 * value);
+        int ptrCtr = centerX + (int) (halfWidth * 2 / 3 * value);
         if (value < 0) {
             g.setColor(value == -1 ? Color.RED : Color.RED.darker().darker());
         } else if (value > 0) {
@@ -86,13 +86,13 @@ public class FloatControlComponent extends DraggableBoxComponent implements Floa
         }
         g.drawPolygon(new int[]{ptrCtr - 12, ptrCtr - 8, ptrCtr - 12}, new int[]{centerY - 8, centerY - 4, centerY}, 3);
         g.drawPolygon(new int[]{ptrCtr + 12, ptrCtr + 8, ptrCtr + 12}, new int[]{centerY - 8, centerY - 4, centerY}, 3);
-        g.fillRect(ptrCtr - 5, centerY - height / 2 + 1, 11, height / 2 - 4);
+        g.fillRect(ptrCtr - 5, centerY - halfHeight / 2 + 1, 11, halfHeight / 2 - 4);
         g.fillPolygon(new int[]{ptrCtr - 5, ptrCtr, ptrCtr + 6}, new int[]{centerY - 3, centerY + 3, centerY - 3}, 3);
     }
 
     @Override
     public boolean onInteract(int x, int y) {
-        float value = Math.min(1, Math.max(-1, (x - centerX) / (float) (width * 2 / 3)));
+        float value = Math.min(1, Math.max(-1, (x - centerX) / (float) (halfWidth * 2 / 3)));
         if (-0.1 < value && value < 0.1) {
             value = 0;
         }

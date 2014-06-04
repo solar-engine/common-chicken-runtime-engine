@@ -34,7 +34,7 @@ public class TrashComponent extends DraggableBoxComponent {
     }
 
     public boolean onReceiveDrop(int x, int y, SuperCanvasComponent activeEntity) {
-        if (activeEntity.onDelete()) {
+        if (activeEntity.onDelete(false)) {
             getPanel().remove(activeEntity);
             Logger.fine("Deleted component: " + activeEntity);
         } else {

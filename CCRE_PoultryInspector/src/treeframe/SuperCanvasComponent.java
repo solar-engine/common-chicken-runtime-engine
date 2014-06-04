@@ -19,8 +19,8 @@
 package treeframe;
 
 import java.awt.FontMetrics;
-import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.io.Serializable;
 
 /**
  * A SuperCanvasComponent can be displayed and interacted with inside a
@@ -28,9 +28,11 @@ import java.awt.Graphics2D;
  *
  * @author skeggsc
  */
-public abstract class SuperCanvasComponent {
+public abstract class SuperCanvasComponent implements Serializable {
+    
+    static final long serialVersionUID = -8154707099757626085L;
 
-    private SuperCanvasPanel panel;
+    private transient SuperCanvasPanel panel;
 
     /**
      * Called to render this component.
@@ -207,7 +209,7 @@ public abstract class SuperCanvasComponent {
         return true;
     }
 
-    public boolean onDelete() {
+    public boolean onDelete(boolean forced) {
         return true;
     }
 }

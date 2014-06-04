@@ -26,12 +26,16 @@ import java.awt.FontMetrics;
 import java.awt.GradientPaint;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
-import java.awt.RadialGradientPaint;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.util.Collection;
+import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.ListIterator;
@@ -48,7 +52,7 @@ public final class SuperCanvasPanel extends JPanel implements MouseMotionListene
     /**
      * The currently held component.
      */
-    private SuperCanvasComponent activeEntity = null;
+    private transient SuperCanvasComponent activeEntity = null;
     /**
      * The currently visible list of components.
      */
@@ -56,25 +60,70 @@ public final class SuperCanvasPanel extends JPanel implements MouseMotionListene
     /**
      * The components currently being hovered over by the mouse.
      */
-    private final LinkedHashSet<SuperCanvasComponent> mouseOver = new LinkedHashSet<SuperCanvasComponent>();
+    private transient final LinkedHashSet<SuperCanvasComponent> mouseOver = new LinkedHashSet<SuperCanvasComponent>();
     /**
      * The relative position between the cursor and the currently held
      * component.
      */
-    private int relActiveX, relActiveY;
+    private transient int relActiveX, relActiveY;
     /**
      * The most recent position of the mouse.
      */
-    private int mouseX, mouseY;
+    private transient int mouseX, mouseY;
     /**
      * The mouse button pressed while dragging a component.
      */
-    private int dragBtn;
+    private transient int dragBtn;
     /**
      * An expiration timer to repaint the pane when appropriate.
      */
-    private ExpirationTimer painter;
+    private transient ExpirationTimer painter;
 
+    /*public void save(DataOutputStream dout) throws IOException {
+     dout.writeInt(0xC00FFEED);
+     SuperCanvasComponent[] out = components.toArray(new SuperCanvasComponent[components.size()]);
+     dout.writeInt(out.length);
+     for (SuperCanvasComponent elem : out) {
+     dout.writeUTF(elem.getClass().getName());
+     elem.save(dout);
+     }
+     dout.writeInt(0xA11DEAD);
+     }
+
+     public void load(DataInputStream din) throws IOException {
+     components.clear();
+     if (din.readInt() != (int) 0xC00FEED) {
+     throw new IOException("Bad magic number!");
+     }
+     int count = din.readInt();
+     if (count < 0 || count > 65536) {
+     throw new IOException("Bad count!");
+     }
+     while (count-- > 0) {
+     try {
+     Class<? extends SuperCanvasComponent> cf = Class.forName(din.readUTF()).asSubclass(SuperCanvasComponent.class);
+     Method mthd = cf.getMethod("loadCanvasComponent", DataInputStream.class);
+     Object comp = mthd.invoke(null, din);
+     if (!(comp instanceof SuperCanvasComponent)) {
+     throw new IOException("Result from loadCanvasComponent is not a SuperCanvasComponent!");
+     }
+     components.add((SuperCanvasComponent) comp);
+     } catch (ClassNotFoundException ex) {
+     throw new IOException("Cannot load serialized class", ex);
+     } catch (NoSuchMethodException ex) {
+     throw new IOException("Cannot load deserialization method", ex);
+     } catch (IllegalAccessException ex) {
+     throw new IOException("Cannot access deserialization method", ex);
+     } catch (IllegalArgumentException ex) {
+     throw new IOException("Cannot invoke deserialization method", ex);
+     } catch (InvocationTargetException ex) {
+     throw new IOException("Cannot deserialize component", ex);
+     }
+     }
+     if (din.readInt() != (int) 0xA11DEAD) {
+     throw new IOException("Bad MAGIC post-number when deserializing!");
+     }
+     }*/
     /**
      * Add the specified component to this panel.
      *
@@ -288,10 +337,34 @@ public final class SuperCanvasPanel extends JPanel implements MouseMotionListene
 
     private void renderBackground(Graphics2D g, int w, int h, FontMetrics fontMetrics, int mouseX, int mouseY) {
         /*float[] gf = {0, 1};
-        Color[] gc = {Color.ORANGE, Color.RED};
-        g.setPaint(new RadialGradientPaint(w / 3f, h / 3f, (w + h) / 2f, gf, gc));*/
+         Color[] gc = {Color.ORANGE, Color.RED};
+         g.setPaint(new RadialGradientPaint(w / 3f, h / 3f, (w + h) / 2f, gf, gc));*/
         g.setPaint(new GradientPaint(0, h, Color.ORANGE, w, 0, Color.RED));
         //g.setColor(Color.WHITE);
         g.fillRect(0, 0, w, h);
+    }
+
+    public void save(ObjectOutputStream out) throws IOException {
+        out.writeObject(components);
+    }
+
+    public void load(ObjectInputStream in) throws IOException, ClassNotFoundException {
+        // Remove components
+        for (Iterator<SuperCanvasComponent> it = components.iterator(); it.hasNext();) {
+            SuperCanvasComponent comp = it.next();
+            comp.unsetPanel(this);
+            comp.onDelete(true);
+            it.remove();
+            if (comp == activeEntity) {
+                activeEntity = null;
+            }
+            mouseOver.remove(comp);
+        }
+        // Load new components
+        components.addAll((Collection<? extends SuperCanvasComponent>) in.readObject());
+        for (SuperCanvasComponent comp : components) {
+            comp.setPanel(this);
+        }
+        repaint();
     }
 }

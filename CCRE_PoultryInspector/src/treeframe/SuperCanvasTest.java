@@ -50,16 +50,7 @@ public class SuperCanvasTest extends javax.swing.JFrame {
         canvas.add(new LoggingComponent(300, 300));
         canvas.add(new TrashComponent(200, 200));
         canvas.add(lpc);
-        //canvas.add(new FolderComponent(100, 100));
-        /*canvas.add(new FolderComponent(100, 250));
-         canvas.add(new PaletteComponent(100, 300, Arrays.<PaletteComponent.PaletteEntry>asList(
-         new EntityPaletteEntry("dyn/a"),
-         new EntityPaletteEntry("dyn/b"),
-         new EntityPaletteEntry("dyn/c"),
-         new EntityPaletteEntry("dyn/d"),
-         new EntityPaletteEntry("dyn/e"))));
-         canvas.add(new TrashComponent(100, 350));
-         canvas.add(new ListPaletteComponent(100, 400, new ArrayList()));*/
+        canvas.add(new SaveLoadComponent(0, 0));
         canvas.start();
         IPProvider.init();
         IPProvider.connect();
@@ -107,6 +98,7 @@ public class SuperCanvasTest extends javax.swing.JFrame {
      * @param args the command line arguments
      */
     public static void main(String args[]) {
+        System.setProperty("sun.io.serialization.extendedDebugInfo", "true");
         /* Set the Nimbus look and feel */
         //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
         /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.

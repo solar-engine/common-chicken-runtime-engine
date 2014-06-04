@@ -22,11 +22,12 @@ import java.awt.Color;
 import java.awt.FontMetrics;
 import java.awt.GradientPaint;
 import java.awt.Graphics2D;
+import java.io.Serializable;
 
 public class PaletteComponent<T extends Iterable<PaletteComponent.PaletteEntry>> extends DraggableBoxComponent {
 
     public final T entries;
-    private int rowHeight, yshift;
+    private transient int rowHeight, yshift;
 
     @Override
     public void render(Graphics2D g, int screenWidth, int screenHeight, FontMetrics fontMetrics, int mouseX, int mouseY) {
@@ -93,7 +94,7 @@ public class PaletteComponent<T extends Iterable<PaletteComponent.PaletteEntry>>
         return true;
     }
 
-    public static interface PaletteEntry {
+    public static interface PaletteEntry extends Serializable {
 
         public String getName();
 

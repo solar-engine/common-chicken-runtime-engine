@@ -30,7 +30,7 @@ import java.awt.geom.RoundRectangle2D;
 
 public class EventControlComponent extends DraggableBoxComponent implements EventInput {
 
-    private long countStart;
+    private transient long countStart;
     private final String name;
     private final EventStatus stat = new EventStatus();
 

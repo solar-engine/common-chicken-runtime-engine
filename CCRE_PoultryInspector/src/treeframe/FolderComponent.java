@@ -20,13 +20,13 @@ package treeframe;
 
 import java.awt.Color;
 import java.awt.FontMetrics;
-import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.io.Serializable;
 import java.util.ArrayList;
 
 public class FolderComponent extends DraggableBoxComponent {
 
-    private static class Element {
+    private static class Element implements Serializable {
 
         public final SuperCanvasComponent component;
         public final int relX;

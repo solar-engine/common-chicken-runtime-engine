@@ -29,22 +29,31 @@ import java.awt.GradientPaint;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.awt.Shape;
+import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.List;
 
 public class LoggingComponent extends DraggableBoxComponent {
 
-    private final List<String> lines = new ArrayList<String>();
-    private final PrintStream pstr;
+    static final long serialVersionUID = -946247852428245215L;
+    
+    private transient List<String> lines;
+    private transient PrintStream pstr;
+    private transient LoggingTarget tgt;
     private ResizeState resizeState = ResizeState.TRANSLATE;
-    private int scroll = 0;
-    private int maxScroll = 0;
+    private int scroll = 0, maxScroll = 0;
 
     public LoggingComponent(int cx, int cy) {
         super(cx, cy);
-        halfWidth = 200;
+        halfWidth = 210;
         halfHeight = 95;
+        setupLines();
+    }
+
+    private void setupLines() {
+        lines = new ArrayList<String>();
         this.pstr = new PrintStream(new LineCollectorOutputStream() {
             @Override
             protected void collect(String param) {
@@ -53,7 +62,7 @@ public class LoggingComponent extends DraggableBoxComponent {
                 }
             }
         });
-        Logger.addTarget(new LoggingTarget() {
+        this.tgt = new LoggingTarget() {
             public synchronized void log(LogLevel level, String message, Throwable thr) {
                 if (thr != null) {
                     pstr.println("{" + level.message + "} " + message);
@@ -69,7 +78,13 @@ public class LoggingComponent extends DraggableBoxComponent {
                     pstr.println(extended);
                 }
             }
-        });
+        };
+        Logger.addTarget(tgt);
+    }
+
+    private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
+        in.defaultReadObject();
+        setupLines();
     }
 
     @Override
@@ -255,11 +270,18 @@ public class LoggingComponent extends DraggableBoxComponent {
     }
 
     public String toString() {
-        return "logging window [" + lines.size() + "]";
+        return lines == null ? "deactivated logging window" : "logging window [" + lines.size() + "]";
     }
-    
-    public boolean onDelete() {
-        return false;
+
+    @Override
+    public boolean onDelete(boolean forced) {
+        if (tgt != null) {
+            Logger.removeTarget(tgt);
+            tgt = null;
+            pstr = null;
+            lines = null;
+        }
+        return true;
     }
 
     private static enum ResizeState {

@@ -20,6 +20,7 @@ package ccre.concurrency;
 
 import ccre.util.CArrayUtils;
 import ccre.util.CCollection;
+import java.io.Serializable;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
@@ -34,7 +35,24 @@ import java.util.NoSuchElementException;
  * @author skeggsc
  * @param <E> The type of the collection's elements
  */
-public final class ConcurrentDispatchArray<E> implements CCollection<E> {
+public final class ConcurrentDispatchArray<E> implements CCollection<E>, Serializable {
+
+    /**
+     * Create a new empty ConcurrentDispatchArray.
+     */
+    public ConcurrentDispatchArray() {
+        data = new Object[0];
+    }
+
+    /**
+     * Create a new prefilled ConcurrentDispatchArray with the specified
+     * elements.
+     *
+     * @param base The elements to add to the list.
+     */
+    public ConcurrentDispatchArray(CCollection<? extends E> base) {
+        data = base.toArray();
+    }
 
     /**
      * The array that contains the current data. Do not modify this field
@@ -42,7 +60,7 @@ public final class ConcurrentDispatchArray<E> implements CCollection<E> {
      *
      * @see #compareAndSetArray(java.lang.Object[], java.lang.Object[])
      */
-    private volatile Object[] data = new Object[0];
+    private volatile Object[] data;
 
     public Iterator<E> iterator() {
         final Object[] dat = data;

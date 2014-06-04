@@ -30,9 +30,9 @@ import ccre.channel.FloatStatus;
 import static ccre.cluck.CluckNode.RMT_BOOLOUTP;
 import static ccre.cluck.CluckNode.RMT_BOOLPROD;
 import static ccre.cluck.CluckNode.RMT_BOOLPRODRESP;
-import static ccre.cluck.CluckNode.RMT_EVENTOUTP;
 import static ccre.cluck.CluckNode.RMT_EVENTINPUT;
 import static ccre.cluck.CluckNode.RMT_EVENTINPUTRESP;
+import static ccre.cluck.CluckNode.RMT_EVENTOUTP;
 import static ccre.cluck.CluckNode.RMT_FLOATOUTP;
 import static ccre.cluck.CluckNode.RMT_FLOATPROD;
 import static ccre.cluck.CluckNode.RMT_FLOATPRODRESP;
@@ -47,6 +47,8 @@ import ccre.util.UniqueIds;
 import ccre.util.Utils;
 import ccre.workarounds.ThrowablePrinter;
 import java.io.IOException;
+import java.io.NotSerializableException;
+import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 
 /**
@@ -151,6 +153,10 @@ public class CluckPublisher {
                     sent.set(true);
                     node.transmit(path, linkName, new byte[]{RMT_EVENTINPUT});
                 }
+            }
+
+            private void writeObject(ObjectOutputStream out) throws IOException {
+                throw new NotSerializableException("Not today!");
             }
         };
         new CluckSubscriber(node) {
@@ -317,6 +323,10 @@ public class CluckPublisher {
                     node.transmit(path, linkName, new byte[]{RMT_BOOLPROD});
                 }
             }
+
+            private void writeObject(ObjectOutputStream out) throws IOException {
+                throw new NotSerializableException("Not today!");
+            }
         };
         if (shouldSubscribeByDefault) {
             node.transmit(path, linkName, new byte[]{RMT_BOOLPROD});
@@ -449,6 +459,10 @@ public class CluckPublisher {
                     sent.set(true);
                     node.transmit(path, linkName, new byte[]{RMT_FLOATPROD});
                 }
+            }
+
+            private void writeObject(ObjectOutputStream out) throws IOException {
+                throw new NotSerializableException("Not today!");
             }
         };
         if (subscribeByDefault) {

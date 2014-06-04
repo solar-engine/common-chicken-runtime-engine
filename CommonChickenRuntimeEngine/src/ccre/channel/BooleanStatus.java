@@ -18,8 +18,10 @@
  */
 package ccre.channel;
 
+import ccre.concurrency.ConcurrentDispatchArray;
 import ccre.util.CArrayList;
 import ccre.util.CArrayUtils;
+import java.io.Serializable;
 
 /**
  * A virtual node that is both a BooleanOutput and a BooleanInput. You can
@@ -28,8 +30,10 @@ import ccre.util.CArrayUtils;
  *
  * @author skeggsc
  */
-public class BooleanStatus implements BooleanOutput, BooleanInput {
+public class BooleanStatus implements BooleanOutput, BooleanInput, Serializable {
 
+    static final long serialVersionUID = 2573411070442038676L;
+    
     /**
      * The current state (true or false) of this BooleanStatus. Do not directly
      * modify this field. Use the writeValue method instead.
@@ -44,28 +48,28 @@ public class BooleanStatus implements BooleanOutput, BooleanInput {
      * @see #send(ccre.chan.BooleanOutput)
      * @see #unsend(ccre.chan.BooleanOutput)
      */
-    private CArrayList<BooleanOutput> consumers = null;
+    private ConcurrentDispatchArray<BooleanOutput> consumers = null;
     /**
      * The cached EventOutput that sets the current value to true. Use
      * getSetTrueEvent() instead, because this might be null.
      *
      * @see #getSetTrueEvent()
      */
-    private EventOutput setTrue;
+    private transient EventOutput setTrue;
     /**
      * The cached EventOutput that sets the current value to false. Use
      * getSetFalseEvent() instead, because this might be null.
      *
      * @see #getSetFalseEvent()
      */
-    private EventOutput setFalse;
+    private transient EventOutput setFalse;
     /**
      * The cached EventOutput that toggles the current value. Use
      * getToggleEvent() instead, because this might be null.
      *
      * @see #getToggleEvent()
      */
-    private EventOutput toggle;
+    private transient EventOutput toggle;
 
     /**
      * Create a new BooleanStatus with the value of false.
@@ -92,7 +96,7 @@ public class BooleanStatus implements BooleanOutput, BooleanInput {
      * @param target The BooleanOutput to automatically update.
      */
     public BooleanStatus(BooleanOutput target) {
-        consumers = new CArrayList<BooleanOutput>();
+        consumers = new ConcurrentDispatchArray<BooleanOutput>();
         consumers.add(target);
         target.set(false);
     }
@@ -107,7 +111,7 @@ public class BooleanStatus implements BooleanOutput, BooleanInput {
      * @param targets The BooleanOutputs to automatically update.
      */
     public BooleanStatus(BooleanOutput... targets) {
-        consumers = new CArrayList<BooleanOutput>(CArrayUtils.asList(targets));
+        consumers = new ConcurrentDispatchArray<BooleanOutput>(CArrayUtils.asList(targets));
         for (BooleanOutput t : targets) {
             t.set(false);
         }
@@ -212,7 +216,7 @@ public class BooleanStatus implements BooleanOutput, BooleanInput {
 
     public synchronized void send(BooleanOutput output) {
         if (consumers == null) {
-            consumers = new CArrayList<BooleanOutput>();
+            consumers = new ConcurrentDispatchArray<BooleanOutput>();
         }
         consumers.add(output);
         output.set(value);

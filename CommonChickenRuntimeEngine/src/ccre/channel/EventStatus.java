@@ -19,9 +19,9 @@
 package ccre.channel;
 
 import ccre.concurrency.ConcurrentDispatchArray;
-import ccre.log.LogLevel;
 import ccre.log.Logger;
 import ccre.util.CArrayUtils;
+import java.io.Serializable;
 import java.util.Iterator;
 
 /**
@@ -30,8 +30,10 @@ import java.util.Iterator;
  *
  * @author skeggsc
  */
-public class EventStatus implements EventInput, EventOutput {
+public class EventStatus implements EventInput, EventOutput, Serializable {
 
+    static final long serialVersionUID = 115846451690403376L;
+    
     /**
      * The events to fire when this event is fired.
      */

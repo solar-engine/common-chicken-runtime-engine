@@ -18,6 +18,7 @@
  */
 package treeframe;
 
+import ccre.channel.FloatInput;
 import ccre.channel.FloatOutput;
 import ccre.channel.FloatStatus;
 import java.awt.Color;
@@ -32,13 +33,13 @@ public class FloatDisplayComponent extends DraggableBoxComponent implements Floa
     private float value;
     private boolean subscribed;
     private final String name;
-    private final FloatStatus inp;
+    private final FloatInput inp;
 
     public FloatDisplayComponent(int cx, int cy, String name) {
         this(cx, cy, name, null);
     }
 
-    public FloatDisplayComponent(int cx, int cy, String name, FloatStatus inp) {
+    public FloatDisplayComponent(int cx, int cy, String name, FloatInput inp) {
         super(cx, cy);
         this.name = name;
         this.inp = inp;

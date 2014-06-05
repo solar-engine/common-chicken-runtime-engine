@@ -42,8 +42,8 @@ public class LoggingComponent extends DraggableBoxComponent {
     private transient List<String> lines;
     private transient PrintStream pstr;
     private transient LoggingTarget tgt;
-    private ResizeState resizeState = ResizeState.TRANSLATE;
-    private int scroll = 0, maxScroll = 0;
+    private transient ResizeState resizeState;
+    private transient int scroll = 0, maxScroll = 0;
 
     public LoggingComponent(int cx, int cy) {
         super(cx, cy);
@@ -53,6 +53,7 @@ public class LoggingComponent extends DraggableBoxComponent {
     }
 
     private void setupLines() {
+        resizeState = ResizeState.TRANSLATE;
         lines = new ArrayList<String>();
         this.pstr = new PrintStream(new LineCollectorOutputStream() {
             @Override
@@ -174,9 +175,6 @@ public class LoggingComponent extends DraggableBoxComponent {
         int yPos = centerY + halfHeight - 16 - fontMetrics.getDescent() - scroll;
         ArrayList<String> temp = new ArrayList<String>();
         Shape origClip = g.getClip();
-        if (origClip != null) {
-            //System.err.println("Existing clip! Undefined results: " + origClip);
-        }
         g.setClip(new Rectangle(centerX - halfWidth + 16, centerY - halfHeight + 16, halfWidth * 2 - 32, halfHeight * 2 - 32));
         int lineCount = 0;
         synchronized (LoggingComponent.this) {
@@ -247,7 +245,7 @@ public class LoggingComponent extends DraggableBoxComponent {
                 } else if (y <= centerY - halfHeight + 10) {
                     resizeState = ResizeState.CORNER_UL;
                 } else {
-                    resizeState = resizeState.SCROLL;
+                    resizeState = ResizeState.SCROLL;
                 }
             }
             getPanel().startDrag(this, x, y);

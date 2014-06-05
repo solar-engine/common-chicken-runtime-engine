@@ -1,0 +1,66 @@
+/*
+ * Copyright 2014 Colby Skeggs.
+ * 
+ * This file is part of the CCRE, the Common Chicken Runtime Engine.
+ * 
+ * The CCRE is free software: you can redistribute it and/or modify it under the
+ * terms of the GNU Lesser General Public License as published by the Free
+ * Software Foundation, either version 3 of the License, or (at your option) any
+ * later version.
+ * 
+ * The CCRE is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
+ * A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
+ * details.
+ * 
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with the CCRE.  If not, see <http://www.gnu.org/licenses/>.
+ */
+package treeframe;
+
+import ccre.cluck.CluckNode;
+import java.awt.Color;
+import java.awt.FontMetrics;
+import java.awt.GradientPaint;
+import java.awt.Graphics2D;
+import java.awt.Shape;
+import java.awt.geom.RoundRectangle2D;
+
+/**
+ * A component that represents an object that can't otherwise be displayed.
+ *
+ * @author skeggsc
+ */
+public class FictionalComponent extends DraggableBoxComponent {
+
+    private final String name;
+    private final String tstr;
+
+    public FictionalComponent(String name, int type, int x, int y) {
+        super(x, y);
+        this.name = name;
+        this.tstr = CluckNode.rmtToString(type);
+    }
+
+    @Override
+    public void render(Graphics2D g, int screenWidth, int screenHeight, FontMetrics fontMetrics, int mouseX, int mouseY) {
+        halfWidth = Math.max(70, Math.max(fontMetrics.stringWidth(name) / 2, fontMetrics.stringWidth(tstr) / 2));
+        halfHeight = fontMetrics.getHeight() + 1;
+        GradientPaint gp = new GradientPaint(centerX, centerY, Color.LIGHT_GRAY, centerX + halfHeight, centerY - halfHeight, Color.GRAY);
+        ((Graphics2D) g).setPaint(gp);
+        Shape s = new RoundRectangle2D.Float(centerX - halfWidth, centerY - halfHeight, halfWidth * 2, halfHeight * 2, 15, 15);
+        ((Graphics2D) g).fill(s);
+        g.setColor(Color.BLACK);
+        g.drawString(name, centerX - halfWidth + 5, centerY - halfHeight + 1 + fontMetrics.getAscent());
+        g.drawString(tstr, centerX - halfWidth + 5, centerY - halfHeight + 1 + fontMetrics.getAscent() + fontMetrics.getHeight());
+    }
+
+    @Override
+    public boolean onInteract(int x, int y) {
+        return false;
+    }
+    
+    public String toString() {
+        return "Fictional Component: " + name + "[" + tstr + "]";
+    }
+}

@@ -18,12 +18,10 @@
  */
 package treeframe;
 
-import ccre.channel.BooleanStatus;
-import ccre.channel.EventStatus;
-import ccre.channel.FloatStatus;
+import ccre.log.FileLogger;
+import ccre.log.NetworkAutologger;
+import ccre.net.CountingNetworkProvider;
 import intelligence.IPProvider;
-import java.util.ArrayList;
-import treeframe.PaletteComponent.PaletteEntry;
 
 public class SuperCanvasTest extends javax.swing.JFrame {
     
@@ -32,7 +30,7 @@ public class SuperCanvasTest extends javax.swing.JFrame {
      */
     public SuperCanvasTest() {
         initComponents();
-        EventStatus event = new EventStatus();
+        /*EventStatus event = new EventStatus();
         BooleanStatus bool = new BooleanStatus();
         FloatStatus num = new FloatStatus();
         ArrayList<SuperCanvasComponent> components = new ArrayList<SuperCanvasComponent>();
@@ -46,13 +44,14 @@ public class SuperCanvasTest extends javax.swing.JFrame {
         ListPaletteComponent lpc = new ListPaletteComponent(100, 100, entries);
         for (SuperCanvasComponent c : components) {
             entries.add(lpc.wrap(c));
-        }
+        }*/
         canvas.add(new LoggingComponent(300, 300));
         canvas.add(new TrashComponent(200, 200));
-        canvas.add(lpc);
+        canvas.add(new NetworkPaletteComponent(100, 100));
+        canvas.add(new NetworkProfilerComponent());
+        //canvas.add(lpc);
         canvas.add(new SaveLoadComponent(0, 0));
         canvas.start();
-        IPProvider.init();
         IPProvider.connect();
     }
 
@@ -99,6 +98,10 @@ public class SuperCanvasTest extends javax.swing.JFrame {
      */
     public static void main(String args[]) {
         System.setProperty("sun.io.serialization.extendedDebugInfo", "true");
+        CountingNetworkProvider.register();
+        NetworkAutologger.register();
+        FileLogger.register();
+        IPProvider.init();
         /* Set the Nimbus look and feel */
         //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
         /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.

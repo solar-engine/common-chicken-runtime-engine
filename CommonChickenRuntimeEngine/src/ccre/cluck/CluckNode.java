@@ -100,9 +100,13 @@ public class CluckNode {
      * The ID representing a notification that a link doesn't exist.
      */
     public static final byte RMT_NEGATIVE_ACK = 15;
+    /**
+     * The ID representing an EventInput unsubscription request.
+     */
+    public static final byte RMT_EVENTINPUT_UNSUB = 16;
     private static final String[] remoteNames = new String[]{"Ping", "EventOutput", "EventInput", "EventInputResponse", "LogTarget",
         "BooleanInputProducer", "BooleanInputProducerResponse", "BooleanOutput", "FloatInputProducer", "FloatInputProducerResponse",
-        "FloatOutput", "OutputStream", "Notify", "RemoteProcedure", "RemoteProcedureReply", "NonexistenceNotification"};
+        "FloatOutput", "OutputStream", "Notify", "RemoteProcedure", "RemoteProcedureReply", "NonexistenceNotification", "EventInputUnsubscription"};
 
     /**
      * Convert an RMT ID to a string.

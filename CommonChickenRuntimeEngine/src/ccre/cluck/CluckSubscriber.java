@@ -107,7 +107,7 @@ public abstract class CluckSubscriber implements CluckLink {
         } else if (data[0] == CluckNode.RMT_NEGATIVE_ACK) { // Discard messages saying that the link is closed.
             // Discard.
         } else if (data[0] != rmt) {
-            Logger.warning("Received wrong RMT: " + data[0] + " from " + source + " (expected " + rmt + ") addressed to " + linkName);
+            Logger.warning("Received wrong RMT: " + CluckNode.rmtToString(data[0]) + " from " + source + " (expected " + CluckNode.rmtToString(rmt) + ") addressed to " + linkName);
         } else {
             return true;
         }

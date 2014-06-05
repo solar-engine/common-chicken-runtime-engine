@@ -32,6 +32,7 @@ import static ccre.cluck.CluckNode.RMT_BOOLPROD;
 import static ccre.cluck.CluckNode.RMT_BOOLPRODRESP;
 import static ccre.cluck.CluckNode.RMT_EVENTINPUT;
 import static ccre.cluck.CluckNode.RMT_EVENTINPUTRESP;
+import static ccre.cluck.CluckNode.RMT_EVENTINPUT_UNSUB;
 import static ccre.cluck.CluckNode.RMT_EVENTOUTP;
 import static ccre.cluck.CluckNode.RMT_FLOATOUTP;
 import static ccre.cluck.CluckNode.RMT_FLOATPROD;
@@ -117,7 +118,7 @@ public class CluckPublisher {
         new CluckSubscriber(node) {
             @Override
             protected void receive(String src, byte[] data) {
-                if (data.length != 0 && data[0] == RMT_NEGATIVE_ACK) {
+                if (data.length != 0 && (data[0] == RMT_NEGATIVE_ACK || data[0] == RMT_EVENTINPUT_UNSUB)) {
                     if (remotes.remove(src)) {
                         Logger.warning("Connection cancelled to " + src + " on " + name);
                     } else {
@@ -147,11 +148,20 @@ public class CluckPublisher {
         final BooleanStatus sent = new BooleanStatus();
         final EventStatus e = new EventStatus() {
             @Override
-            public void send(EventOutput cns) {
+            public synchronized void send(EventOutput cns) {
                 super.send(cns);
                 if (!sent.get()) {
                     sent.set(true);
                     node.transmit(path, linkName, new byte[]{RMT_EVENTINPUT});
+                }
+            }
+            
+            @Override
+            public synchronized void unsend(EventOutput cns) {
+                super.unsend(cns);
+                if (sent.get() && !this.hasConsumers()) {
+                    sent.set(false);
+                    node.transmit(path, linkName, new byte[]{RMT_EVENTINPUT_UNSUB});
                 }
             }
 

@@ -47,6 +47,15 @@ public class Logger {
     }
 
     /**
+     * Remove the specified target from the list of targets.
+     *
+     * @param lt The target to remove.
+     */
+    public static synchronized void removeTarget(LoggingTarget lt) {
+        targets.remove(lt);
+    }
+
+    /**
      * Log a given message and throwable at the given log level.
      *
      * @param level the level to log at.

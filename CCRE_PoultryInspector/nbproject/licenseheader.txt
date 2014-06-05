@@ -1,7 +1,7 @@
 <#if licenseFirst??>
 ${licenseFirst}
 </#if>
-${licensePrefix}Copyright 2013-2014 Colby Skeggs.
+${licensePrefix}Copyright 2014 (YOUR NAME HERE).
 ${licensePrefix}
 ${licensePrefix}This file is part of the CCRE, the Common Chicken Runtime Engine.
 ${licensePrefix}

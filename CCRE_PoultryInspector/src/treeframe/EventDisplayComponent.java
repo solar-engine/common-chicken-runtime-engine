@@ -20,6 +20,7 @@ package treeframe;
 
 import ccre.channel.EventInput;
 import ccre.channel.EventOutput;
+import ccre.log.Logger;
 import intelligence.Rendering;
 import java.awt.Color;
 import java.awt.FontMetrics;
@@ -77,6 +78,7 @@ public class EventDisplayComponent extends DraggableBoxComponent implements Even
             if (hasPanel) {
                 inp.send(this);
             } else {
+                Logger.info("UNSUBSCRIBE");
                 inp.unsend(this);
             }
             subscribed = hasPanel;

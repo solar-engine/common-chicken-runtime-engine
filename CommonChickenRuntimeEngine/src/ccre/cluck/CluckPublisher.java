@@ -30,6 +30,7 @@ import ccre.channel.FloatStatus;
 import static ccre.cluck.CluckNode.RMT_BOOLOUTP;
 import static ccre.cluck.CluckNode.RMT_BOOLPROD;
 import static ccre.cluck.CluckNode.RMT_BOOLPRODRESP;
+import static ccre.cluck.CluckNode.RMT_BOOLPROD_UNSUB;
 import static ccre.cluck.CluckNode.RMT_EVENTINPUT;
 import static ccre.cluck.CluckNode.RMT_EVENTINPUTRESP;
 import static ccre.cluck.CluckNode.RMT_EVENTINPUT_UNSUB;
@@ -37,6 +38,7 @@ import static ccre.cluck.CluckNode.RMT_EVENTOUTP;
 import static ccre.cluck.CluckNode.RMT_FLOATOUTP;
 import static ccre.cluck.CluckNode.RMT_FLOATPROD;
 import static ccre.cluck.CluckNode.RMT_FLOATPRODRESP;
+import static ccre.cluck.CluckNode.RMT_FLOATPROD_UNSUB;
 import static ccre.cluck.CluckNode.RMT_LOGTARGET;
 import static ccre.cluck.CluckNode.RMT_NEGATIVE_ACK;
 import static ccre.cluck.CluckNode.RMT_OUTSTREAM;
@@ -292,7 +294,7 @@ public class CluckPublisher {
         new CluckSubscriber(node) {
             @Override
             protected void receive(String src, byte[] data) {
-                if (data.length != 0 && data[0] == RMT_NEGATIVE_ACK) {
+                if (data.length != 0 && (data[0] == RMT_NEGATIVE_ACK || data[0] == RMT_BOOLPROD_UNSUB)) {
                     if (remotes.remove(src)) {
                         Logger.warning("Connection cancelled to " + src + " on " + name);
                     } else {
@@ -321,16 +323,25 @@ public class CluckPublisher {
      * false, then readValue() won't work until you run addTarget().
      * @return the BooleanInput.
      */
-    public static BooleanInput subscribeBI(final CluckNode node, final String path, boolean shouldSubscribeByDefault) {
+    public static BooleanInput subscribeBI(final CluckNode node, final String path, final boolean shouldSubscribeByDefault) {
         final String linkName = "srcBI-" + path.hashCode() + "-" + UniqueIds.global.nextHexId();
         final BooleanStatus sent = new BooleanStatus(shouldSubscribeByDefault);
         final BooleanStatus result = new BooleanStatus() {
             @Override
-            public void send(BooleanOutput out) {
+            public synchronized void send(BooleanOutput out) {
                 super.send(out);
                 if (!sent.get()) {
                     sent.set(true);
                     node.transmit(path, linkName, new byte[]{RMT_BOOLPROD});
+                }
+            }
+            
+            @Override
+            public synchronized void unsend(BooleanOutput cns) {
+                super.unsend(cns);
+                if (sent.get() && !shouldSubscribeByDefault && !this.hasConsumers()) {
+                    sent.set(false);
+                    node.transmit(path, linkName, new byte[]{RMT_BOOLPROD_UNSUB});
                 }
             }
 
@@ -428,7 +439,7 @@ public class CluckPublisher {
         new CluckSubscriber(node) {
             @Override
             protected void receive(String src, byte[] data) {
-                if (data.length != 0 && data[0] == RMT_NEGATIVE_ACK) {
+                if (data.length != 0 && (data[0] == RMT_NEGATIVE_ACK || data[0] == RMT_FLOATPROD_UNSUB)) {
                     if (remotes.remove(src)) {
                         Logger.warning("Connection cancelled to " + src + " on " + name);
                     } else {
@@ -458,16 +469,25 @@ public class CluckPublisher {
      * then readValue() won't work until you run addTarget().
      * @return the FloatInput.
      */
-    public static FloatInput subscribeFI(final CluckNode node, final String path, boolean subscribeByDefault) {
+    public static FloatInput subscribeFI(final CluckNode node, final String path, final boolean subscribeByDefault) {
         final String linkName = "srcFI-" + path.hashCode() + "-" + UniqueIds.global.nextHexId();
         final BooleanStatus sent = new BooleanStatus(subscribeByDefault);
         final FloatStatus result = new FloatStatus() {
             @Override
-            public void send(FloatOutput out) {
+            public synchronized void send(FloatOutput out) {
                 super.send(out);
                 if (!sent.get()) {
                     sent.set(true);
                     node.transmit(path, linkName, new byte[]{RMT_FLOATPROD});
+                }
+            }
+            
+            @Override
+            public synchronized void unsend(FloatOutput cns) {
+                super.unsend(cns);
+                if (sent.get() && !subscribeByDefault && !this.hasConsumers()) {
+                    sent.set(false);
+                    node.transmit(path, linkName, new byte[]{RMT_FLOATPROD_UNSUB});
                 }
             }
 

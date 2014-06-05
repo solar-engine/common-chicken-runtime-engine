@@ -104,9 +104,18 @@ public class CluckNode {
      * The ID representing an EventInput unsubscription request.
      */
     public static final byte RMT_EVENTINPUT_UNSUB = 16;
+    /**
+     * The ID representing an BooleanInputProducer unsubscription request.
+     */
+    public static final byte RMT_BOOLPROD_UNSUB = 17;
+    /**
+     * The ID representing an FloatInputProducer unsubscription request.
+     */
+    public static final byte RMT_FLOATPROD_UNSUB = 18;
     private static final String[] remoteNames = new String[]{"Ping", "EventOutput", "EventInput", "EventInputResponse", "LogTarget",
-        "BooleanInputProducer", "BooleanInputProducerResponse", "BooleanOutput", "FloatInputProducer", "FloatInputProducerResponse",
-        "FloatOutput", "OutputStream", "Notify", "RemoteProcedure", "RemoteProcedureReply", "NonexistenceNotification", "EventInputUnsubscription"};
+        "BooleanInput", "BooleanInputResponse", "BooleanOutput", "FloatInput", "FloatInputResponse",
+        "FloatOutput", "OutputStream", "Notify", "RemoteProcedure", "RemoteProcedureReply", "NonexistenceNotification",
+        "EventInputUnsubscription", "BooleanInputUnsubscription", "FloatInputUnsubscription"};
 
     /**
      * Convert an RMT ID to a string.

@@ -20,8 +20,6 @@ package ccre.channel;
 
 import ccre.concurrency.ConcurrentDispatchArray;
 import ccre.ctrl.FloatMixing;
-import ccre.ctrl.Mixing;
-import ccre.util.CArrayList;
 import ccre.util.CArrayUtils;
 import java.io.Serializable;
 
@@ -108,6 +106,18 @@ public class FloatStatus implements FloatOutput, FloatInput, Serializable {
     @Override
     public final synchronized float get() {
         return value;
+    }
+
+    /**
+     * Returns whether or not this has any targets that will get modified when
+     * the value changes If this returns false, the set() method will not notify
+     * anyone.
+     *
+     * @return whether or not the set() method would notify any targets.
+     * @see #set(float)
+     */
+    public boolean hasConsumers() {
+        return !consumers.isEmpty();
     }
 
     @Override

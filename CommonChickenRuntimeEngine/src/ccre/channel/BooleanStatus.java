@@ -19,7 +19,6 @@
 package ccre.channel;
 
 import ccre.concurrency.ConcurrentDispatchArray;
-import ccre.util.CArrayList;
 import ccre.util.CArrayUtils;
 import java.io.Serializable;
 
@@ -33,7 +32,7 @@ import java.io.Serializable;
 public class BooleanStatus implements BooleanOutput, BooleanInput, Serializable {
 
     static final long serialVersionUID = 2573411070442038676L;
-    
+
     /**
      * The current state (true or false) of this BooleanStatus. Do not directly
      * modify this field. Use the writeValue method instead.
@@ -196,6 +195,18 @@ public class BooleanStatus implements BooleanOutput, BooleanInput, Serializable 
             };
         }
         return toggle;
+    }
+
+    /**
+     * Returns whether or not this has any targets that will get modified when
+     * the value changes If this returns false, the set() method will not notify
+     * anyone.
+     *
+     * @return whether or not the set() method would notify any targets.
+     * @see #set(boolean)
+     */
+    public boolean hasConsumers() {
+        return !consumers.isEmpty();
     }
 
     public final synchronized void set(boolean value) {

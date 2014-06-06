@@ -36,6 +36,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.Serializable;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.TreeSet;
 
 public class NetworkPaletteComponent extends PaletteComponent<Collection<NetworkPaletteComponent.Element>> {
@@ -124,7 +125,7 @@ public class NetworkPaletteComponent extends PaletteComponent<Collection<Network
     }
 
     public NetworkPaletteComponent(int cx, int cy) {
-        super(cx, cy, new TreeSet<Element>());
+        super(cx, cy, Collections.synchronizedSet(new TreeSet<Element>()));
         start();
     }
     

@@ -35,9 +35,11 @@ public class PaletteComponent<T extends Iterable<? extends PaletteComponent.Pale
     @Override
     public void render(Graphics2D g, int screenWidth, int screenHeight, FontMetrics fontMetrics, int mouseX, int mouseY) {
         int maxWidth = 100, count = 0;
-        for (PaletteEntry ent : entries) {
-            maxWidth = Math.max(maxWidth, fontMetrics.stringWidth(ent.getName()));
-            count++;
+        synchronized (entries) {
+            for (PaletteEntry ent : entries) {
+                maxWidth = Math.max(maxWidth, fontMetrics.stringWidth(ent.getName()));
+                count++;
+            }
         }
         halfWidth = (maxWidth) / 2 + 20;
         rowHeight = fontMetrics.getHeight();
@@ -53,16 +55,18 @@ public class PaletteComponent<T extends Iterable<? extends PaletteComponent.Pale
         Shape clip = g.getClip();
         g.setClip(new Rectangle(centerX - halfWidth + 5, centerY - halfHeight + 5, halfWidth * 2 - 10, halfHeight * 2 - 10));
         int cnt = 0;
-        for (PaletteEntry ent : entries) {
-            if (mouseX >= xPos - 5 && mouseX <= xPos + halfWidth * 2 - 28
-                    && mouseY >= yPos - yshift && mouseY < yPos - yshift + rowHeight) {
-                g.setColor(Color.WHITE);
-                g.fillRoundRect(xPos - 5, yPos - yshift, halfWidth * 2 - 22, rowHeight, 10, 10);
+        synchronized (entries) {
+            for (PaletteEntry ent : entries) {
+                if (mouseX >= xPos - 5 && mouseX <= xPos + halfWidth * 2 - 28
+                        && mouseY >= yPos - yshift && mouseY < yPos - yshift + rowHeight) {
+                    g.setColor(Color.WHITE);
+                    g.fillRoundRect(xPos - 5, yPos - yshift, halfWidth * 2 - 22, rowHeight, 10, 10);
+                }
+                g.setColor(Color.BLACK);
+                g.drawString(ent.getName(), xPos, yPos);
+                yPos += rowHeight;
+                cnt++;
             }
-            g.setColor(Color.BLACK);
-            g.drawString(ent.getName(), xPos, yPos);
-            yPos += rowHeight;
-            cnt++;
         }
         this.maxScroll = cnt * fontMetrics.getHeight() - halfHeight;
         g.setClip(clip);

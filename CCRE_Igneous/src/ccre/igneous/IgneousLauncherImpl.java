@@ -62,7 +62,7 @@ class IgneousLauncherImpl extends IterativeRobot implements IgneousLauncher {
             }
             ((IgneousApplication) Class.forName(name).newInstance()).setupRobot();
         } catch (Throwable thr) {
-            Logger.log(LogLevel.SEVERE, "Critical Code Failure in Robot Init", thr);
+            Logger.severe("Critical Code Failure in Robot Init", thr);
             if (thr instanceof RuntimeException) {
                 throw (RuntimeException) thr;
             } else if (thr instanceof Error) {
@@ -81,7 +81,7 @@ class IgneousLauncherImpl extends IterativeRobot implements IgneousLauncher {
             Logger.fine(DriverStation.getInstance().isFMSAttached() ? "Began autonomous on FMS" : "Began autonomous mode");
             startedAutonomous.produce();
         } catch (Throwable thr) {
-            Logger.log(LogLevel.SEVERE, "Critical Code Failure in Autonomous Init", thr);
+            Logger.severe("Critical Code Failure in Autonomous Init", thr);
         }
     }
     /**
@@ -108,7 +108,7 @@ class IgneousLauncherImpl extends IterativeRobot implements IgneousLauncher {
                 }
             }
         } catch (Throwable thr) {
-            Logger.log(LogLevel.SEVERE, "Critical Code Failure in Autonomous Periodic", thr);
+            Logger.severe("Critical Code Failure in Autonomous Periodic", thr);
             countFails += 10;
         }
     }
@@ -122,7 +122,7 @@ class IgneousLauncherImpl extends IterativeRobot implements IgneousLauncher {
             Logger.fine(DriverStation.getInstance().isFMSAttached() ? "Began disabled on FMS" : "Began disabled mode");
             startDisabled.produce();
         } catch (Throwable thr) {
-            Logger.log(LogLevel.SEVERE, "Critical Code Failure in Disabled Init", thr);
+            Logger.severe("Critical Code Failure in Disabled Init", thr);
         }
     }
     /**
@@ -148,7 +148,7 @@ class IgneousLauncherImpl extends IterativeRobot implements IgneousLauncher {
                 }
             }
         } catch (Throwable thr) {
-            Logger.log(LogLevel.SEVERE, "Critical Code Failure in Disabled Periodic", thr);
+            Logger.severe("Critical Code Failure in Disabled Periodic", thr);
             countFails += 10;
         }
     }
@@ -162,7 +162,7 @@ class IgneousLauncherImpl extends IterativeRobot implements IgneousLauncher {
             Logger.fine(DriverStation.getInstance().isFMSAttached() ? "Began teleop on FMS" : "Began teleop mode");
             startedTeleop.produce();
         } catch (Throwable thr) {
-            Logger.log(LogLevel.SEVERE, "Critical Code Failure in Teleop Init", thr);
+            Logger.severe("Critical Code Failure in Teleop Init", thr);
         }
     }
     /**
@@ -188,7 +188,7 @@ class IgneousLauncherImpl extends IterativeRobot implements IgneousLauncher {
                 }
             }
         } catch (Throwable thr) {
-            Logger.log(LogLevel.SEVERE, "Critical Code Failure in Teleop Periodic", thr);
+            Logger.severe("Critical Code Failure in Teleop Periodic", thr);
             countFails += 10;
         }
     }
@@ -202,7 +202,7 @@ class IgneousLauncherImpl extends IterativeRobot implements IgneousLauncher {
             Logger.fine(DriverStation.getInstance().isFMSAttached() ? "Began testing on FMS (?????)" : "Began testing mode");
             startedTesting.produce();
         } catch (Throwable thr) {
-            Logger.log(LogLevel.SEVERE, "Critical Code Failure in Testing Init", thr);
+            Logger.severe("Critical Code Failure in Testing Init", thr);
         }
     }
     /**
@@ -228,7 +228,7 @@ class IgneousLauncherImpl extends IterativeRobot implements IgneousLauncher {
                 }
             }
         } catch (Throwable thr) {
-            Logger.log(LogLevel.SEVERE, "Critical Code Failure in Testing Periodic", thr);
+            Logger.severe("Critical Code Failure in Testing Periodic", thr);
             countFails += 10;
         }
     }

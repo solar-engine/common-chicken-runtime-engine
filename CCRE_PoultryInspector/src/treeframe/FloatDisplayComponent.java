@@ -20,7 +20,6 @@ package treeframe;
 
 import ccre.channel.FloatInput;
 import ccre.channel.FloatOutput;
-import ccre.channel.FloatStatus;
 import java.awt.Color;
 import java.awt.FontMetrics;
 import java.awt.GradientPaint;
@@ -68,13 +67,19 @@ public class FloatDisplayComponent extends DraggableBoxComponent implements Floa
         g.drawLine(centerX + halfWidth / 3, centerY + halfHeight / 2 - 1, centerX + halfWidth / 3, centerY + 10);
         g.drawLine(centerX - 3 * halfWidth / 6, centerY + halfHeight / 2 - 1, centerX - 3 * halfWidth / 6, centerY + 15);
         g.drawLine(centerX + 3 * halfWidth / 6, centerY + halfHeight / 2 - 1, centerX + 3 * halfWidth / 6, centerY + 15);
+        if (value != 0) {
+            String strv = Float.toString(value);
+            g.drawString(strv, value > 0 ? centerX - fontMetrics.stringWidth(strv) - 10 : centerX + 10, centerY - halfHeight / 2 + fontMetrics.getHeight());
+        }
         int ptrCtr = centerX + (int) (halfWidth * 2 / 3 * value);
-        if (value < 0) {
-            g.setColor(value == -1 ? Color.RED : Color.RED.darker().darker());
-        } else if (value > 0) {
-            g.setColor(value == 1 ? Color.GREEN : Color.GREEN.darker().darker());
-        } else {
-            g.setColor(Color.ORANGE);
+        if (Math.abs(value) <= 1.1) {
+            if (value < 0) {
+                g.setColor(value == -1 ? Color.RED : Color.RED.darker().darker());
+            } else if (value > 0) {
+                g.setColor(value == 1 ? Color.GREEN : Color.GREEN.darker().darker());
+            } else {
+                g.setColor(Color.ORANGE);
+            }
         }
         g.fillRect(ptrCtr - 5, centerY - halfHeight / 2 + 1, 11, halfHeight / 2 - 4);
         g.fillPolygon(new int[]{ptrCtr - 5, ptrCtr, ptrCtr + 6}, new int[]{centerY - 3, centerY + 3, centerY - 3}, 3);

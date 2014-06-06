@@ -51,13 +51,13 @@ public class EmulatorForm extends javax.swing.JFrame {
             UIManager.setLookAndFeel(UIManager.getCrossPlatformLookAndFeelClassName());
             Logger.info("Set look-and-feel!");
         } catch (ClassNotFoundException ex) {
-            Logger.log(LogLevel.WARNING, "Cannot use look-and-feel!", ex);
+            Logger.warning("Cannot use look-and-feel!", ex);
         } catch (InstantiationException ex) {
-            Logger.log(LogLevel.WARNING, "Cannot use look-and-feel!", ex);
+            Logger.warning("Cannot use look-and-feel!", ex);
         } catch (IllegalAccessException ex) {
-            Logger.log(LogLevel.WARNING, "Cannot use look-and-feel!", ex);
+            Logger.warning("Cannot use look-and-feel!", ex);
         } catch (UnsupportedLookAndFeelException ex) {
-            Logger.log(LogLevel.WARNING, "Cannot use look-and-feel!", ex);
+            Logger.warning("Cannot use look-and-feel!", ex);
         }
     }
 

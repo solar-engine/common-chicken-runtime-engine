@@ -19,6 +19,7 @@
 package treeframe;
 
 import ccre.channel.EventOutput;
+import ccre.cluck.Cluck;
 import ccre.ctrl.ExpirationTimer;
 import intelligence.Rendering;
 import java.awt.Color;
@@ -365,6 +366,7 @@ public final class SuperCanvasPanel extends JPanel implements MouseMotionListene
         for (SuperCanvasComponent comp : components) {
             comp.setPanel(this);
         }
+        Cluck.getNode().notifyNetworkModified();
         repaint();
     }
 }

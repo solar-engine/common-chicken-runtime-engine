@@ -78,7 +78,6 @@ public class EventDisplayComponent extends DraggableBoxComponent implements Even
             if (hasPanel) {
                 inp.send(this);
             } else {
-                Logger.info("UNSUBSCRIBE");
                 inp.unsend(this);
             }
             subscribed = hasPanel;

@@ -295,6 +295,7 @@ public class CLinkedList<T> extends CAbstractList<T> {
         private final Node<T> sentinel;
         private Node<T> current;
         private int locmod;
+        private boolean canRemove = false;
 
         LinkedListIterator(Node<T> sentinel, int lastmod) {
             this.sentinel = sentinel;
@@ -315,11 +316,16 @@ public class CLinkedList<T> extends CAbstractList<T> {
             }
             T out = current.o;
             current = current.next;
+            canRemove = true;
             return out;
         }
 
         @Override
-        public void remove() { // TODO: Make this fail for multiple removes?
+        public void remove() {
+            if (!canRemove) {
+                throw new IllegalStateException();
+            }
+            canRemove = false;
             notifyModified();
             decrementSize();
             current = current.prev;

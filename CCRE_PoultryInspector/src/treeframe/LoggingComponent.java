@@ -23,7 +23,9 @@ import ccre.log.Logger;
 import ccre.log.LoggingTarget;
 import ccre.util.LineCollectorOutputStream;
 import ccre.workarounds.ThrowablePrinter;
+import java.awt.AlphaComposite;
 import java.awt.Color;
+import java.awt.Composite;
 import java.awt.FontMetrics;
 import java.awt.GradientPaint;
 import java.awt.Graphics2D;
@@ -38,12 +40,13 @@ import java.util.List;
 public class LoggingComponent extends DraggableBoxComponent {
 
     static final long serialVersionUID = -946247852428245215L;
-    
+
     private transient List<String> lines;
     private transient PrintStream pstr;
     private transient LoggingTarget tgt;
     private transient ResizeState resizeState;
-    private transient int scroll = 0, maxScroll = 0;
+    private transient int scroll = 0, maxScroll = 0, clearingThreshold = 0;
+    private transient boolean isClearing = false;
 
     public LoggingComponent(int cx, int cy) {
         super(cx, cy);
@@ -220,10 +223,43 @@ public class LoggingComponent extends DraggableBoxComponent {
         }
         g.setColor(scroll == 0 ? Color.GREEN : Color.BLACK);
         g.fillOval(centerX - halfWidth + 4, centerY - halfHeight + 8 + (int) ((2 * halfHeight - 24) * frac), 8, 8);
+        if (isClearing) {
+            GradientPaint paint2 = new GradientPaint(centerX + 20, centerY - halfHeight, Color.WHITE, centerX - 20, centerY + halfHeight, Color.WHITE.darker());
+            g.setPaint(paint2);
+            Composite composite = g.getComposite();
+            g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_ATOP, 0.7f));
+            g.fillRoundRect(centerX - halfWidth + 1, centerY - halfHeight + 1, halfWidth * 2 - 2, halfHeight * 2 - 2, 10, 10);
+            g.setComposite(composite);
+            String display = "Really clear?";
+            int width = fontMetrics.stringWidth(display);
+            g.setColor(mouseX < centerX - width / 2 ? Color.RED : Color.GRAY);
+            g.drawLine(centerX - halfWidth + 12, centerY - halfHeight + 12, centerX - width / 2 - 2, centerY - fontMetrics.getAscent());
+            g.drawLine(centerX - halfWidth + 12, centerY + halfHeight - 12, centerX - width / 2 - 2, centerY - fontMetrics.getAscent() + fontMetrics.getHeight());
+            g.setColor(mouseX > centerX + width / 2 ? Color.GREEN.darker() : Color.GRAY);
+            g.drawLine(centerX + halfWidth - 12, centerY - halfHeight + 12, centerX + width / 2 + 2, centerY - fontMetrics.getAscent());
+            g.drawLine(centerX + halfWidth - 12, centerY + halfHeight - 12, centerX + width / 2 + 2, centerY - fontMetrics.getAscent() + fontMetrics.getHeight());
+            g.setColor(Color.BLACK);
+            clearingThreshold = centerX - width / 2;
+            g.drawString(display, centerX - width / 2, centerY);
+            display = "Clear";
+            g.setColor(Color.RED);
+            g.drawString(display, centerX - halfWidth / 2 - fontMetrics.stringWidth(display) / 2, centerY);
+            display = "Preserve";
+            g.setColor(Color.GREEN.darker());
+            g.drawString(display, centerX + halfWidth / 2 - fontMetrics.stringWidth(display) / 2, centerY);
+        }
     }
 
     @Override
     public boolean onInteract(int x, int y) {
+        if (isClearing) {
+            if (x < clearingThreshold) {
+                lines.clear();
+            }
+            isClearing = false;
+        } else {
+            isClearing = true;
+        }
         return false;
     }
 

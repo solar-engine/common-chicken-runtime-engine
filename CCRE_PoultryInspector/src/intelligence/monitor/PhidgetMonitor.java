@@ -190,6 +190,31 @@ public class PhidgetMonitor implements IPhidgetMonitor, AttachListener, DetachLi
             Cluck.publish("phidget-ai" + i, (FloatInput) analogs[i]);
         }
     }
+    
+    public void unshare() {
+        lcd.removeAttachListener(this);
+        lcd.removeDetachListener(this);
+        lcd.removeErrorListener(this);
+        ifa.removeAttachListener(this);
+        ifa.removeDetachListener(this);
+        ifa.removeErrorListener(this);
+        ifa.removeInputChangeListener(this);
+        ifa.removeSensorChangeListener(this);
+        attachStat.set(false);
+        for (int i = 0; i < OUTPUT_COUNT; i++) {
+            Cluck.getNode().removeLink("phidget-bo" + i);
+        }
+        for (int i = 0; i < LCD_LINES; i++) {
+            Cluck.getNode().removeLink("phidget-lcd" + i);
+        }
+        Cluck.getNode().removeLink("phidget-attached");
+        for (int i = 0; i < INPUT_COUNT; i++) {
+            Cluck.getNode().removeLink("phidget-bi" + i);
+        }
+        for (int i = 0; i < ANALOG_COUNT; i++) {
+            Cluck.getNode().removeLink("phidget-ai" + i);
+        }
+    }
 
     @Override
     public void displayClosing() {

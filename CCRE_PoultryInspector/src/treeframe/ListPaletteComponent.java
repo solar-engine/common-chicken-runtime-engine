@@ -18,6 +18,7 @@
  */
 package treeframe;
 
+import java.util.ArrayList;
 import java.util.Collection;
 
 public class ListPaletteComponent extends PaletteComponent<Collection<PaletteComponent.PaletteEntry>> {
@@ -53,6 +54,10 @@ public class ListPaletteComponent extends PaletteComponent<Collection<PaletteCom
 
     public ListPaletteComponent(int cx, int cy, Collection<PaletteEntry> entries) {
         super(cx, cy, entries);
+    }
+    
+    public ListPaletteComponent(int cx, int cy) {
+        super(cx, cy, new ArrayList<PaletteEntry>());
     }
 
     public boolean onReceiveDrop(int x, int y, final SuperCanvasComponent activeComponent) {

@@ -32,6 +32,8 @@ import ccre.ctrl.PauseTimer;
 import ccre.log.LogLevel;
 import ccre.log.Logger;
 import ccre.util.UniqueIds;
+import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.TreeSet;
@@ -123,6 +125,15 @@ public class NetworkPaletteComponent extends PaletteComponent<Collection<Network
 
     public NetworkPaletteComponent(int cx, int cy) {
         super(cx, cy, new TreeSet<Element>());
+        start();
+    }
+    
+    private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
+        in.defaultReadObject();
+        start();
+    }
+
+    private void start() {
         final String searchLinkName = UniqueIds.global.nextHexId("researcher");
         this.researcher = new PauseTimer(500);
         researcher.triggerAtEnd(new CollapsingWorkerThread("Cluck-Researcher") {

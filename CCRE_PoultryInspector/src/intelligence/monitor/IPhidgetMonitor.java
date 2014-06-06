@@ -32,6 +32,12 @@ public interface IPhidgetMonitor {
     public void share();
 
     /**
+     * Unshare (remove) all the inputs and outputs and the current attachment
+     * state from the network.
+     */
+    public void unshare();
+
+    /**
      * Called when the connection becomes online, so the LCD screen can be
      * updated.
      */

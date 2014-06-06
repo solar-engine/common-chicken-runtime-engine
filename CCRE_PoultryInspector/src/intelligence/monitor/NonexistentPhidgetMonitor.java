@@ -30,6 +30,10 @@ public class NonexistentPhidgetMonitor implements IPhidgetMonitor {
     }
 
     @Override
+    public void unshare() {
+    }
+
+    @Override
     public void connectionUp() {
     }
 

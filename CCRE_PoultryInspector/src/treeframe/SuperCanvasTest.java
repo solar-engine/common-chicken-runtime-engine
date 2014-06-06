@@ -19,38 +19,52 @@
 package treeframe;
 
 import ccre.log.FileLogger;
+import ccre.log.Logger;
 import ccre.log.NetworkAutologger;
 import ccre.net.CountingNetworkProvider;
 import intelligence.IPProvider;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 
 public class SuperCanvasTest extends javax.swing.JFrame {
-    
+
     /**
      * Creates new form SuperCanvasTest
      */
     public SuperCanvasTest() {
         initComponents();
+        this.addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyPressed(KeyEvent e) {
+                if (e.getKeyCode() == KeyEvent.VK_SHIFT) {
+                    if (!canvas.removeAny(TopLevelPaletteComponent.class)) {
+                        canvas.add(new TopLevelPaletteComponent(200, 200));
+                    }
+                }
+            }
+        });
         /*EventStatus event = new EventStatus();
-        BooleanStatus bool = new BooleanStatus();
-        FloatStatus num = new FloatStatus();
-        ArrayList<SuperCanvasComponent> components = new ArrayList<SuperCanvasComponent>();
-        components.add(new EventControlComponent(100, 50, "control/event", event));
-        components.add(new BooleanControlComponent(100, 200, "control/boolean", bool));
-        components.add(new FloatControlComponent(100, 350, "control/float", num));
-        components.add(new EventDisplayComponent(300, 50, "display/event", event));
-        components.add(new BooleanDisplayComponent(300, 200, "display/boolean", bool));
-        components.add(new FloatDisplayComponent(300, 350, "display/float", num));
-        ArrayList<PaletteEntry> entries = new ArrayList<PaletteEntry>();
-        ListPaletteComponent lpc = new ListPaletteComponent(100, 100, entries);
-        for (SuperCanvasComponent c : components) {
-            entries.add(lpc.wrap(c));
-        }*/
+         BooleanStatus bool = new BooleanStatus();
+         FloatStatus num = new FloatStatus();
+         ArrayList<SuperCanvasComponent> components = new ArrayList<SuperCanvasComponent>();
+         components.add(new EventControlComponent(100, 50, "control/event", event));
+         components.add(new BooleanControlComponent(100, 200, "control/boolean", bool));
+         components.add(new FloatControlComponent(100, 350, "control/float", num));
+         components.add(new EventDisplayComponent(300, 50, "display/event", event));
+         components.add(new BooleanDisplayComponent(300, 200, "display/boolean", bool));
+         components.add(new FloatDisplayComponent(300, 350, "display/float", num));
+         ArrayList<PaletteEntry> entries = new ArrayList<PaletteEntry>();
+         ListPaletteComponent lpc = new ListPaletteComponent(100, 100, entries);
+         for (SuperCanvasComponent c : components) {
+         entries.add(lpc.wrap(c));
+         }*/
         canvas.add(new LoggingComponent(300, 300));
         canvas.add(new TrashComponent(200, 200));
-        canvas.add(new NetworkPaletteComponent(100, 100));
+        canvas.add(new NetworkPaletteComponent(400, 200));
         canvas.add(new NetworkProfilerComponent());
         //canvas.add(lpc);
         canvas.add(new SaveLoadComponent(0, 0));
+        canvas.add(new PhidgetMonitorComponent(100, 100/*, new VirtualPhidgetMonitor(), "Virtual Phidget"*/));
         canvas.start();
         IPProvider.connect();
     }

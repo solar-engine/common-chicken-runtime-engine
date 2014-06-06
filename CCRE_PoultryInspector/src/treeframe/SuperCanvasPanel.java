@@ -356,11 +356,9 @@ public final class SuperCanvasPanel extends JPanel implements MouseMotionListene
             comp.unsetPanel(this);
             comp.onDelete(true);
             it.remove();
-            if (comp == activeEntity) {
-                activeEntity = null;
-            }
-            mouseOver.remove(comp);
         }
+        activeEntity = null;
+        mouseOver.clear();
         // Load new components
         components.addAll((Collection<? extends SuperCanvasComponent>) in.readObject());
         for (SuperCanvasComponent comp : components) {
@@ -368,5 +366,23 @@ public final class SuperCanvasPanel extends JPanel implements MouseMotionListene
         }
         Cluck.getNode().notifyNetworkModified();
         repaint();
+    }
+
+    public boolean removeAny(Class<? extends SuperCanvasComponent> aClass) {
+        boolean any = false;
+        for (Iterator<SuperCanvasComponent> it = components.iterator(); it.hasNext();) {
+            SuperCanvasComponent comp = it.next();
+            if (aClass.isAssignableFrom(comp.getClass())) {
+                comp.unsetPanel(this);
+                comp.onDelete(true);
+                it.remove();
+                if (comp == activeEntity) {
+                    activeEntity = null;
+                }
+                mouseOver.remove(comp);
+                any = true;
+            }
+        }
+        return any;
     }
 }

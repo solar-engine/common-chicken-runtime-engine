@@ -158,20 +158,15 @@ public class CluckPublisher {
         new CluckSubscriber(node) {
             @Override
             protected void receive(String source, byte[] data) {
-                if (requireRMT(source, data, RMT_LOGTARGET)) {
-                    int l1, l2;
-                    if (data.length < 10) {
-                        Logger.warning("Not enough data to Logging Target!");
-                        return;
-                    }
-                    l1 = Utils.bytesToInt(data, 2);
-                    l2 = Utils.bytesToInt(data, 6);
-                    if (l1 + l2 + 10 != data.length) {
+                if (requireRMT(source, data, RMT_LOGTARGET, 10)) {
+                    int len1 = Utils.bytesToInt(data, 2);
+                    int len2 = Utils.bytesToInt(data, 6);
+                    if (len1 + len2 + 10 != data.length) {
                         Logger.warning("Bad data length to Logging Target!");
                         return;
                     }
-                    String message = new String(data, 10, l1);
-                    String extended = l2 == 0 ? null : new String(data, 10 + l1, l2);
+                    String message = new String(data, 10, len1);
+                    String extended = len2 == 0 ? null : new String(data, 10 + len1, len2);
                     lt.log(LogLevel.fromByte(data[1]), message, extended);
                 }
             }
@@ -265,11 +260,7 @@ public class CluckPublisher {
         new CluckSubscriber(node) {
             @Override
             protected void receive(String source, byte[] data) {
-                if (requireRMT(source, data, RMT_BOOLOUTP)) {
-                    if (data.length < 2) {
-                        Logger.warning("Not enough bytes for boolean output!");
-                        return;
-                    }
+                if (requireRMT(source, data, RMT_BOOLOUTP, 2)) {
                     output.set(data[1] != 0);
                 }
             }
@@ -363,11 +354,7 @@ public class CluckPublisher {
         new CluckSubscriber(node) {
             @Override
             protected void receive(String source, byte[] data) {
-                if (requireRMT(source, data, RMT_FLOATOUTP)) {
-                    if (data.length < 5) { // TODO: Can this be part of the superclass?
-                        Logger.warning("Not enough bytes for float output!");
-                        return;
-                    }
+                if (requireRMT(source, data, RMT_FLOATOUTP, 5)) {
                     out.set(Utils.bytesToFloat(data, 1));
                 }
             }
@@ -429,13 +416,11 @@ public class CluckPublisher {
         new CluckSubscriber(node) {
             @Override
             protected void receive(String source, byte[] data) {
-                if (requireRMT(source, data, RMT_OUTSTREAM)) {
-                    if (data.length > 1) {
-                        try {
-                            out.write(data, 1, data.length - 1);
-                        } catch (IOException ex) {
-                            Logger.warning("IO Exception during network transfer!", ex);
-                        }
+                if (requireRMT(source, data, RMT_OUTSTREAM) && data.length > 1) {
+                    try {
+                        out.write(data, 1, data.length - 1);
+                    } catch (IOException ex) {
+                        Logger.warning("IO Exception during network transfer!", ex);
                     }
                 }
             }
@@ -574,11 +559,7 @@ public class CluckPublisher {
 
         @Override
         protected void receive(String src, byte[] data) {
-            if (requireRMT(src, data, RMT_FLOATPRODRESP)) {
-                if (data.length < 5) {
-                    Logger.warning("Not enough bytes for float producer response!");
-                    return;
-                }
+            if (requireRMT(src, data, RMT_FLOATPRODRESP, 5)) {
                 result.set(Utils.bytesToFloat(data, 1));
             }
         }
@@ -663,11 +644,7 @@ public class CluckPublisher {
 
         @Override
         protected void receive(String src, byte[] data) {
-            if (requireRMT(src, data, RMT_BOOLPRODRESP)) {
-                if (data.length < 2) {
-                    Logger.warning("Not enough bytes for boolean producer response!");
-                    return;
-                }
+            if (requireRMT(src, data, RMT_BOOLPRODRESP, 2)) {
                 result.set(data[1] != 0);
             }
         }
@@ -689,7 +666,7 @@ public class CluckPublisher {
     private static class SubscribedEventInput extends EventStatus { // TODO: Links not removed on unload!
 
         static final long serialVersionUID = -4051785233205840392L;
-        
+
         private boolean sent;
         private final CluckNode node;
         private final String path;
@@ -762,7 +739,7 @@ public class CluckPublisher {
                 }
             }
         }
-        
+
         public void attach() {
             this.attach(linkName);
         }

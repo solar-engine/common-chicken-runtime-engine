@@ -189,8 +189,6 @@ public class CluckNode implements Serializable {
      * @param denyLink The link for broadcasts to not follow.
      */
     public void transmit(String target, String source, byte[] data, CluckLink denyLink) {
-        // TODO: Redo the byte counting mechanism!
-        //estimatedByteCount += 24 + (target == null ? 0 : target.length()) + (source == null ? 0 : source.length()) + data.length; // 24 is the estimated packet overhead with a CluckTCPClient.
         if (target == null) {
             if (data.length == 0 || data[0] != RMT_NEGATIVE_ACK) {
                 Logger.warning("Received message addressed to unreceving node (source: " + source + ")");

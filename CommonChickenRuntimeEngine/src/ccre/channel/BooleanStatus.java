@@ -206,7 +206,7 @@ public class BooleanStatus implements BooleanOutput, BooleanInput, Serializable 
      * @see #set(boolean)
      */
     public boolean hasConsumers() {
-        return !consumers.isEmpty();
+        return consumers != null && !consumers.isEmpty();
     }
 
     public final synchronized void set(boolean value) {

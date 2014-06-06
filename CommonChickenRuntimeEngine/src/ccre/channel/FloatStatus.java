@@ -117,7 +117,7 @@ public class FloatStatus implements FloatOutput, FloatInput, Serializable {
      * @see #set(float)
      */
     public boolean hasConsumers() {
-        return !consumers.isEmpty();
+        return consumers != null && !consumers.isEmpty();
     }
 
     @Override

@@ -50,9 +50,9 @@ import ccre.util.UniqueIds;
 import ccre.util.Utils;
 import ccre.workarounds.ThrowablePrinter;
 import java.io.IOException;
-import java.io.NotSerializableException;
-import java.io.ObjectOutputStream;
+import java.io.ObjectInputStream;
 import java.io.OutputStream;
+import java.io.Serializable;
 
 /**
  * A file that handles publishing and subscribing of basic channels.
@@ -94,11 +94,7 @@ public class CluckPublisher {
      * @return the EventOutput.
      */
     public static EventOutput subscribeEO(final CluckNode node, final String path) {
-        return new EventOutput() {
-            public void event() {
-                node.transmit(path, null, new byte[]{RMT_EVENTOUTP});
-            }
-        };
+        return new SubscribedEventOutput(node, path);
     }
 
     /**
@@ -146,49 +142,9 @@ public class CluckPublisher {
      * @return the EventInput.
      */
     public static EventInput subscribeEI(final CluckNode node, final String path) {
-        final String linkName = "srcES-" + path.hashCode() + "-" + UniqueIds.global.nextHexId();
-        final BooleanStatus sent = new BooleanStatus();
-        final EventStatus e = new EventStatus() {
-            @Override
-            public synchronized void send(EventOutput cns) {
-                super.send(cns);
-                if (!sent.get()) {
-                    sent.set(true);
-                    node.transmit(path, linkName, new byte[]{RMT_EVENTINPUT});
-                }
-            }
-            
-            @Override
-            public synchronized void unsend(EventOutput cns) {
-                super.unsend(cns);
-                if (sent.get() && !this.hasConsumers()) {
-                    sent.set(false);
-                    node.transmit(path, linkName, new byte[]{RMT_EVENTINPUT_UNSUB});
-                }
-            }
-
-            private void writeObject(ObjectOutputStream out) throws IOException {
-                throw new NotSerializableException("Not today!");
-            }
-        };
-        new CluckSubscriber(node) {
-            @Override
-            protected void receive(String src, byte[] data) {
-                if (requireRMT(src, data, RMT_EVENTINPUTRESP)) {
-                    e.produce();
-                }
-            }
-
-            @Override
-            protected void receiveBroadcast(String source, byte[] data) {
-                if (data.length == 1 && data[0] == CluckNode.RMT_NOTIFY) {
-                    if (sent.get()) {
-                        node.transmit(path, linkName, new byte[]{RMT_EVENTINPUT});
-                    }
-                }
-            }
-        }.attach(linkName);
-        return e;
+        final SubscribedEventInput result = new SubscribedEventInput(node, path);
+        new EventInputReceiver(node, result, path).attach();
+        return result;
     }
 
     /**
@@ -237,41 +193,7 @@ public class CluckPublisher {
      * @return the LoggingTarget.
      */
     public static LoggingTarget subscribeLT(final CluckNode node, final String path, final LogLevel minimum) {
-        return new LoggingTarget() {
-            public void log(LogLevel level, String message, Throwable throwable) {
-                log(level, message, ThrowablePrinter.toStringThrowable(throwable));
-            }
-
-            public void log(LogLevel level, String message, String extended) {
-                try {
-                    if (level.atLeastAsImportant(minimum)) {
-                        byte[] msg = message.getBytes();
-                        byte[] ext = extended == null ? new byte[0] : extended.getBytes();
-                        byte[] out = new byte[10 + msg.length + ext.length];
-                        out[0] = RMT_LOGTARGET;
-                        out[1] = LogLevel.toByte(level);
-                        int lm = msg.length;
-                        out[2] = (byte) (lm >> 24);
-                        out[3] = (byte) (lm >> 16);
-                        out[4] = (byte) (lm >> 8);
-                        out[5] = (byte) (lm);
-                        int le = ext.length;
-                        out[6] = (byte) (le >> 24);
-                        out[7] = (byte) (le >> 16);
-                        out[8] = (byte) (le >> 8);
-                        out[9] = (byte) (le);
-                        System.arraycopy(msg, 0, out, 10, msg.length);
-                        System.arraycopy(ext, 0, out, 10 + msg.length, ext.length);
-                        node.transmit(path, null, out);
-                    }
-                } catch (Throwable thr) {
-                    if (System.currentTimeMillis() - lastReportedRemoteLoggingError > 500) {
-                        Logger.severe("Error during remote log", thr);
-                        lastReportedRemoteLoggingError = System.currentTimeMillis();
-                    }
-                }
-            }
-        };
+        return new SubscribedLoggingTarget(minimum, node, path);
     }
 
     /**
@@ -324,55 +246,11 @@ public class CluckPublisher {
      * @return the BooleanInput.
      */
     public static BooleanInput subscribeBI(final CluckNode node, final String path, final boolean shouldSubscribeByDefault) {
-        final String linkName = "srcBI-" + path.hashCode() + "-" + UniqueIds.global.nextHexId();
-        final BooleanStatus sent = new BooleanStatus(shouldSubscribeByDefault);
-        final BooleanStatus result = new BooleanStatus() {
-            @Override
-            public synchronized void send(BooleanOutput out) {
-                super.send(out);
-                if (!sent.get()) {
-                    sent.set(true);
-                    node.transmit(path, linkName, new byte[]{RMT_BOOLPROD});
-                }
-            }
-            
-            @Override
-            public synchronized void unsend(BooleanOutput cns) {
-                super.unsend(cns);
-                if (sent.get() && !shouldSubscribeByDefault && !this.hasConsumers()) {
-                    sent.set(false);
-                    node.transmit(path, linkName, new byte[]{RMT_BOOLPROD_UNSUB});
-                }
-            }
-
-            private void writeObject(ObjectOutputStream out) throws IOException {
-                throw new NotSerializableException("Not today!");
-            }
-        };
+        final SubscribedBooleanInput result = new SubscribedBooleanInput(node, path, shouldSubscribeByDefault);
         if (shouldSubscribeByDefault) {
-            node.transmit(path, linkName, new byte[]{RMT_BOOLPROD});
+            node.transmit(path, result.linkName, new byte[]{RMT_BOOLPROD});
         }
-        new CluckSubscriber(node) {
-            @Override
-            protected void receive(String src, byte[] data) {
-                if (requireRMT(src, data, RMT_BOOLPRODRESP)) {
-                    if (data.length < 2) {
-                        Logger.warning("Not enough bytes for boolean producer response!");
-                        return;
-                    }
-                    result.set(data[1] != 0);
-                }
-            }
-
-            @Override
-            protected void receiveBroadcast(String source, byte[] data) {
-                if (data.length == 1 && data[0] == CluckNode.RMT_NOTIFY) {
-                    if (sent.get()) {
-                        node.transmit(path, linkName, new byte[]{RMT_BOOLPROD});
-                    }
-                }
-            }
-        }.attach(linkName);
+        new BooleanInputReceiver(node, result, path).attach();
         return result;
     }
 
@@ -411,11 +289,7 @@ public class CluckPublisher {
      * @return the BooleanOutput.
      */
     public static BooleanOutput subscribeBO(final CluckNode node, final String path) {
-        return new BooleanOutput() {
-            public void set(boolean b) {
-                node.transmit(path, null, new byte[]{RMT_BOOLOUTP, b ? (byte) 1 : 0});
-            }
-        };
+        return new SubscribedBooleanOutput(node, path);
     }
 
     /**
@@ -470,55 +344,11 @@ public class CluckPublisher {
      * @return the FloatInput.
      */
     public static FloatInput subscribeFI(final CluckNode node, final String path, final boolean subscribeByDefault) {
-        final String linkName = "srcFI-" + path.hashCode() + "-" + UniqueIds.global.nextHexId();
-        final BooleanStatus sent = new BooleanStatus(subscribeByDefault);
-        final FloatStatus result = new FloatStatus() {
-            @Override
-            public synchronized void send(FloatOutput out) {
-                super.send(out);
-                if (!sent.get()) {
-                    sent.set(true);
-                    node.transmit(path, linkName, new byte[]{RMT_FLOATPROD});
-                }
-            }
-            
-            @Override
-            public synchronized void unsend(FloatOutput cns) {
-                super.unsend(cns);
-                if (sent.get() && !subscribeByDefault && !this.hasConsumers()) {
-                    sent.set(false);
-                    node.transmit(path, linkName, new byte[]{RMT_FLOATPROD_UNSUB});
-                }
-            }
-
-            private void writeObject(ObjectOutputStream out) throws IOException {
-                throw new NotSerializableException("Not today!");
-            }
-        };
+        final SubscribedFloatInput result = new SubscribedFloatInput(node, path, subscribeByDefault);
         if (subscribeByDefault) {
-            node.transmit(path, linkName, new byte[]{RMT_FLOATPROD});
+            node.transmit(path, result.linkName, new byte[]{RMT_FLOATPROD});
         }
-        new CluckSubscriber(node) {
-            @Override
-            protected void receive(String src, byte[] data) {
-                if (requireRMT(src, data, RMT_FLOATPRODRESP)) {
-                    if (data.length < 5) {
-                        Logger.warning("Not enough bytes for float producer response!");
-                        return;
-                    }
-                    result.set(Utils.bytesToFloat(data, 1));
-                }
-            }
-
-            @Override
-            protected void receiveBroadcast(String source, byte[] data) {
-                if (data.length == 1 && data[0] == CluckNode.RMT_NOTIFY) {
-                    if (sent.get()) {
-                        node.transmit(path, linkName, new byte[]{RMT_FLOATPROD});
-                    }
-                }
-            }
-        }.attach(linkName);
+        new FloatInputReceiver(node, result, path).attach();
         return result;
     }
 
@@ -557,12 +387,7 @@ public class CluckPublisher {
      * @return the FloatOutput.
      */
     public static FloatOutput subscribeFO(final CluckNode node, final String path) {
-        return new FloatOutput() {
-            public void set(float f) {
-                int iver = Float.floatToIntBits(f); // TODO: Can float->byte and similar operations be in a utility class?
-                node.transmit(path, null, new byte[]{RMT_FLOATOUTP, (byte) (iver >> 24), (byte) (iver >> 16), (byte) (iver >> 8), (byte) iver});
-            }
-        };
+        return new SubscribedFloatOutput(node, path);
     }
 
     /**
@@ -630,22 +455,387 @@ public class CluckPublisher {
      * @return the OutputStream.
      */
     public static OutputStream subscribeOS(final CluckNode node, final String path) {
-        return new OutputStream() {
-            @Override
-            public void write(int b) throws IOException {
-                node.transmit(path, null, new byte[]{RMT_OUTSTREAM, (byte) b});
-            }
-
-            @Override
-            public void write(byte b[], int off, int len) throws IOException {
-                byte[] newbyteout = new byte[len + 1];
-                newbyteout[0] = RMT_OUTSTREAM;
-                System.arraycopy(b, off, newbyteout, 1, len);
-                node.transmit(path, null, newbyteout);
-            }
-        };
+        return new SubscribedObjectStream(node, path);
     }
 
     private CluckPublisher() {
     }
+
+    private static class SubscribedLoggingTarget implements LoggingTarget, Serializable {
+
+        private final LogLevel minimum;
+        private final CluckNode node;
+        private final String path;
+
+        SubscribedLoggingTarget(LogLevel minimum, CluckNode node, String path) {
+            this.minimum = minimum;
+            this.node = node;
+            this.path = path;
+        }
+
+        public void log(LogLevel level, String message, Throwable throwable) {
+            log(level, message, ThrowablePrinter.toStringThrowable(throwable));
+        }
+
+        public void log(LogLevel level, String message, String extended) {
+            try {
+                if (level.atLeastAsImportant(minimum)) {
+                    byte[] msg = message.getBytes();
+                    byte[] ext = extended == null ? new byte[0] : extended.getBytes();
+                    byte[] out = new byte[10 + msg.length + ext.length];
+                    out[0] = RMT_LOGTARGET;
+                    out[1] = LogLevel.toByte(level);
+                    int lm = msg.length;
+                    out[2] = (byte) (lm >> 24);
+                    out[3] = (byte) (lm >> 16);
+                    out[4] = (byte) (lm >> 8);
+                    out[5] = (byte) (lm);
+                    int le = ext.length;
+                    out[6] = (byte) (le >> 24);
+                    out[7] = (byte) (le >> 16);
+                    out[8] = (byte) (le >> 8);
+                    out[9] = (byte) (le);
+                    System.arraycopy(msg, 0, out, 10, msg.length);
+                    System.arraycopy(ext, 0, out, 10 + msg.length, ext.length);
+                    node.transmit(path, null, out);
+                }
+            } catch (Throwable thr) {
+                if (System.currentTimeMillis() - lastReportedRemoteLoggingError > 500) {
+                    Logger.severe("Error during remote log", thr);
+                    lastReportedRemoteLoggingError = System.currentTimeMillis();
+                }
+            }
+        }
+    }
+
+    private static class SubscribedFloatInput extends FloatStatus {
+
+        static final long serialVersionUID = 1031666017588055705L;
+
+        private boolean sent;
+        private final CluckNode node;
+        private final String path;
+        private transient String linkName;
+        private final boolean canUnsubscribe;
+
+        SubscribedFloatInput(CluckNode node, String path, boolean subscribeByDefault) {
+            this.sent = subscribeByDefault;
+            this.node = node;
+            this.path = path;
+            generateLinkName();
+            this.canUnsubscribe = !subscribeByDefault;
+        }
+
+        @Override
+        public synchronized void send(FloatOutput out) {
+            super.send(out);
+            if (!sent) {
+                sent = true;
+                node.transmit(path, linkName, new byte[]{RMT_FLOATPROD});
+            }
+        }
+
+        @Override
+        public synchronized void unsend(FloatOutput cns) {
+            super.unsend(cns);
+            if (canUnsubscribe && sent && !this.hasConsumers()) {
+                sent = false;
+                node.transmit(path, linkName, new byte[]{RMT_FLOATPROD_UNSUB});
+            }
+        }
+
+        private boolean shouldResend() {
+            return sent;
+        }
+
+        private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
+            in.defaultReadObject();
+            generateLinkName();
+            new FloatInputReceiver(node, this, path).attach();
+        }
+
+        private void generateLinkName() {
+            linkName = UniqueIds.global.nextHexId("srcFI");
+        }
+    }
+
+    private static class FloatInputReceiver extends CluckSubscriber {
+
+        private final SubscribedFloatInput result;
+        private final String path;
+        private final String linkName;
+
+        public FloatInputReceiver(CluckNode node, SubscribedFloatInput result, String path) {
+            super(node);
+            this.result = result;
+            this.path = path;
+            this.linkName = result.linkName;
+        }
+
+        @Override
+        protected void receive(String src, byte[] data) {
+            if (requireRMT(src, data, RMT_FLOATPRODRESP)) {
+                if (data.length < 5) {
+                    Logger.warning("Not enough bytes for float producer response!");
+                    return;
+                }
+                result.set(Utils.bytesToFloat(data, 1));
+            }
+        }
+
+        @Override
+        protected void receiveBroadcast(String source, byte[] data) {
+            if (data.length == 1 && data[0] == CluckNode.RMT_NOTIFY) {
+                if (result.shouldResend()) {
+                    node.transmit(path, linkName, new byte[]{RMT_FLOATPROD});
+                }
+            }
+        }
+
+        public void attach() {
+            attach(linkName);
+        }
+    }
+
+    private static class SubscribedBooleanInput extends BooleanStatus {
+
+        static final long serialVersionUID = 6685907502662588221L;
+
+        private boolean sent;
+        private final CluckNode node;
+        private final String path;
+        private transient String linkName;
+        private final boolean canUnsubscribe;
+
+        SubscribedBooleanInput(CluckNode node, String path, boolean shouldSubscribeByDefault) {
+            this.sent = shouldSubscribeByDefault;
+            this.node = node;
+            this.path = path;
+            this.canUnsubscribe = !shouldSubscribeByDefault;
+            generateLinkName();
+        }
+
+        @Override
+        public synchronized void send(BooleanOutput out) {
+            super.send(out);
+            if (!sent) {
+                sent = true;
+                node.transmit(path, linkName, new byte[]{RMT_BOOLPROD});
+            }
+        }
+
+        @Override
+        public synchronized void unsend(BooleanOutput cns) {
+            super.unsend(cns);
+            if (canUnsubscribe && sent && !this.hasConsumers()) {
+                sent = false;
+                node.transmit(path, linkName, new byte[]{RMT_BOOLPROD_UNSUB});
+            }
+        }
+
+        private boolean shouldResend() {
+            return sent;
+        }
+
+        private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
+            in.defaultReadObject();
+            generateLinkName();
+            new BooleanInputReceiver(node, this, path).attach();
+        }
+
+        private void generateLinkName() {
+            linkName = UniqueIds.global.nextHexId("srcBI");
+        }
+    }
+
+    private static class BooleanInputReceiver extends CluckSubscriber {
+
+        private final SubscribedBooleanInput result;
+        private final String path;
+        private final String linkName;
+
+        public BooleanInputReceiver(CluckNode node, SubscribedBooleanInput result, String path) {
+            super(node);
+            this.result = result;
+            this.path = path;
+            this.linkName = result.linkName;
+        }
+
+        @Override
+        protected void receive(String src, byte[] data) {
+            if (requireRMT(src, data, RMT_BOOLPRODRESP)) {
+                if (data.length < 2) {
+                    Logger.warning("Not enough bytes for boolean producer response!");
+                    return;
+                }
+                result.set(data[1] != 0);
+            }
+        }
+
+        @Override
+        protected void receiveBroadcast(String source, byte[] data) {
+            if (data.length == 1 && data[0] == CluckNode.RMT_NOTIFY) {
+                if (result.shouldResend()) {
+                    node.transmit(path, linkName, new byte[]{RMT_BOOLPROD});
+                }
+            }
+        }
+
+        public void attach() {
+            attach(linkName);
+        }
+    }
+
+    private static class SubscribedEventInput extends EventStatus { // TODO: Links not removed on unload!
+
+        static final long serialVersionUID = -4051785233205840392L;
+        
+        private boolean sent;
+        private final CluckNode node;
+        private final String path;
+        private transient String linkName;
+
+        SubscribedEventInput(CluckNode node, String path) {
+            this.node = node;
+            this.path = path;
+            generateLinkName();
+        }
+
+        @Override
+        public synchronized void send(EventOutput cns) {
+            super.send(cns);
+            if (!sent) {
+                sent = true;
+                node.transmit(path, linkName, new byte[]{RMT_EVENTINPUT});
+            }
+        }
+
+        @Override
+        public synchronized void unsend(EventOutput cns) {
+            super.unsend(cns);
+            if (sent && !this.hasConsumers()) {
+                sent = false;
+                node.transmit(path, linkName, new byte[]{RMT_EVENTINPUT_UNSUB});
+            }
+        }
+
+        private boolean shouldResend() {
+            return sent;
+        }
+
+        private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
+            in.defaultReadObject();
+            generateLinkName();
+            new EventInputReceiver(node, this, path).attach();
+        }
+
+        private void generateLinkName() {
+            this.linkName = UniqueIds.global.nextHexId("srcES");
+        }
+    }
+
+    private static class EventInputReceiver extends CluckSubscriber {
+
+        private final SubscribedEventInput result;
+        private final String path;
+        private final String linkName;
+
+        public EventInputReceiver(CluckNode node, SubscribedEventInput result, String path) {
+            super(node);
+            this.result = result;
+            this.path = path;
+            this.linkName = result.linkName;
+        }
+
+        @Override
+        protected void receive(String src, byte[] data) {
+            if (requireRMT(src, data, RMT_EVENTINPUTRESP)) {
+                result.produce();
+            }
+        }
+
+        @Override
+        protected void receiveBroadcast(String source, byte[] data) {
+            if (data.length == 1 && data[0] == CluckNode.RMT_NOTIFY) {
+                if (result.shouldResend()) {
+                    node.transmit(path, linkName, new byte[]{RMT_EVENTINPUT});
+                }
+            }
+        }
+        
+        public void attach() {
+            this.attach(linkName);
+        }
+    }
+
+    private static class SubscribedEventOutput implements EventOutput, Serializable {
+
+        private final CluckNode node;
+        private final String path;
+
+        public SubscribedEventOutput(CluckNode node, String path) {
+            this.node = node;
+            this.path = path;
+        }
+
+        public void event() {
+            node.transmit(path, null, new byte[]{RMT_EVENTOUTP});
+        }
+    }
+
+    private static class SubscribedBooleanOutput implements BooleanOutput, Serializable {
+
+        private final CluckNode node;
+        private final String path;
+
+        public SubscribedBooleanOutput(CluckNode node, String path) {
+            this.node = node;
+            this.path = path;
+        }
+
+        public void set(boolean b) {
+            node.transmit(path, null, new byte[]{RMT_BOOLOUTP, b ? (byte) 1 : 0});
+        }
+    }
+
+    private static class SubscribedFloatOutput implements FloatOutput, Serializable {
+
+        private final CluckNode node;
+        private final String path;
+
+        public SubscribedFloatOutput(CluckNode node, String path) {
+            this.node = node;
+            this.path = path;
+        }
+
+        public void set(float f) {
+            int iver = Float.floatToIntBits(f); // TODO: Can float->byte and similar operations be in a utility class?
+            node.transmit(path, null, new byte[]{RMT_FLOATOUTP, (byte) (iver >> 24), (byte) (iver >> 16), (byte) (iver >> 8), (byte) iver});
+        }
+    }
+
+    private static class SubscribedObjectStream extends OutputStream implements Serializable {
+
+        private final CluckNode node;
+        private final String path;
+
+        public SubscribedObjectStream(CluckNode node, String path) {
+            this.node = node;
+            this.path = path;
+        }
+
+        @Override
+        public void write(int b) throws IOException {
+            node.transmit(path, null, new byte[]{RMT_OUTSTREAM, (byte) b});
+        }
+
+        @Override
+        public void write(byte b[], int off, int len) throws IOException {
+            byte[] newbyteout = new byte[len + 1];
+            newbyteout[0] = RMT_OUTSTREAM;
+            System.arraycopy(b, off, newbyteout, 1, len);
+            node.transmit(path, null, newbyteout);
+        }
+    }
+
 }

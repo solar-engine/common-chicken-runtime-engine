@@ -24,6 +24,11 @@ import ccre.log.Logger;
 import ccre.util.CArrayList;
 import ccre.util.CHashMap;
 import ccre.util.UniqueIds;
+import java.io.IOException;
+import java.io.NotSerializableException;
+import java.io.ObjectOutputStream;
+import java.io.ObjectStreamException;
+import java.io.Serializable;
 import java.util.Iterator;
 
 /**
@@ -34,7 +39,7 @@ import java.util.Iterator;
  *
  * @author skeggsc
  */
-public class CluckNode {
+public class CluckNode implements Serializable {
 
     /**
      * The ID representing a PING message.
@@ -391,7 +396,7 @@ public class CluckNode {
             throw new NullPointerException();
         }
         if (links.get(linkName) != null) {
-            throw new IllegalStateException("Link name already used!");
+            throw new IllegalStateException("Link name already used: " + linkName + " for " + links.get(linkName) + " not " + link);
         }
         links.put(linkName, link);
     }
@@ -424,5 +429,20 @@ public class CluckNode {
             rpcManager = new RPCManager(this);
         }
         return rpcManager;
+    }
+
+    private void writeObject(ObjectOutputStream out) throws IOException {
+        throw new NotSerializableException("Not serializable!");
+    }
+
+    private Object writeReplace() {
+        return this == Cluck.getNode() ? new SerializedGlobalCluckNode() : this;
+    }
+
+    private static class SerializedGlobalCluckNode implements Serializable {
+
+        private Object readResolve() {
+            return Cluck.getNode();
+        }
     }
 }

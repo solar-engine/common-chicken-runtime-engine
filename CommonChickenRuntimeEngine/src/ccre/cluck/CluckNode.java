@@ -402,6 +402,16 @@ public class CluckNode implements Serializable {
     }
 
     /**
+     * Remove the link attached to the specified link name.
+     *
+     * @param linkName The link name to remove.
+     * @return whether or not there had been a link to remove.
+     */
+    public boolean removeLink(String linkName) {
+        return links.remove(linkName) != null;
+    }
+
+    /**
      * Adds the specified link at the specified link name, replacing the current
      * link if necessary.
      *

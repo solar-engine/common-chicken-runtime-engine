@@ -18,11 +18,13 @@
  */
 package ccre.saver;
 
-import ccre.log.*;
+import ccre.log.Logger;
 import com.sun.squawk.microedition.io.FileConnection;
 import com.sun.squawk.platform.posix.LibCUtil;
 import com.sun.squawk.platform.posix.natives.LibC;
-import java.io.*;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import javax.microedition.io.Connector;
 
 /**
@@ -51,73 +53,89 @@ public class IgneousStorageProvider extends StorageProvider {
         StorageProvider.setProvider(new IgneousStorageProvider());
     }
 
-    protected OutputStream openOutputFile(String string) throws IOException {
-        // Warning! This is very experimental! This is needed because the usual implementations don't allow for multiple open files, and I needed to have a log file always open.
-        final LibC c = LibC.INSTANCE;
-        final int fd = c.open("/" + string, LibC.O_CREAT | LibC.O_WRONLY | LibC.O_EXCL, 0666);
-        if (fd == -1) {
-            throw new IOException("Could not open file to write: errno " + LibCUtil.errno());
-        }
-        return new OutputStream() {
-            boolean closed = false;
-
-            public void write(int b) throws IOException {
-                write(new byte[]{(byte) b});
-            }
-
-            public synchronized void write(byte[] b, int off, int len) throws IOException {
-                if (b == null) {
-                    throw new NullPointerException();
-                }
-                if (off < 0 || len < 0 || off + len > b.length) {
-                    throw new IllegalArgumentException();
-                }
-                if (closed) {
-                    throw new IOException("Already closed!");
-                }
-                if (len == 0) {
-                    return;
-                }
-                if (off != 0) {
-                    byte[] na = new byte[len];
-                    System.arraycopy(b, off, na, 0, len);
-                    b = na;
-                }
-                int count = c.write(fd, b, len);
-                if (count < 0) {
-                    throw new IOException("Could not write: errno " + LibCUtil.errno() + " for " + count);
-                } else if (count > len || count == 0) {
-                    throw new IOException("Could not write: " + count + " bad for " + len);
-                } else if (count < len) {
-                    write(b, off + count, len - count); // Try again!
-                }
-            }
-
-            public synchronized void close() throws IOException {
-                if (closed) {
-                    return;
-                }
-                closed = true;
-                int out = c.close(fd);
-                if (out != 0) {
-                    throw new IOException("Could not close: " + out + " errno " + LibCUtil.errno());
-                }
-            }
-
-            public synchronized void flush() throws IOException {
-                if (closed) {
-                    throw new IOException("Already closed!");
-                }
-                int out = c.fsync(fd);
-                if (out != 0) {
-                    throw new IOException("Could not close: " + out + " errno " + LibCUtil.errno());
-                }
-            }
-        };
+    protected OutputStream openOutputFile(String name) throws IOException {
+        return new IgneousCRIOFile(name);
     }
 
     protected InputStream openInputFile(String string) throws IOException { // TODO: Make this have a similar implementation.
         FileConnection fc = (FileConnection) Connector.open("file:///" + string, Connector.READ);
         return fc.exists() ? fc.openInputStream() : null;
+    }
+
+    private class IgneousCRIOFile extends OutputStream {
+        // Warning! This is very experimental!
+        // This is needed because the usual implementations don't allow for multiple open files,
+        // and I needed to have a log file always open.
+
+        private final int fd;
+        private boolean closed = false;
+
+        IgneousCRIOFile(String filename) throws IOException {
+            this.fd = LibC.INSTANCE.open("/" + filename, LibC.O_CREAT | LibC.O_WRONLY | LibC.O_EXCL, 0666);
+            if (fd == -1) {
+                throw new IOException("Could not open file to write: errno " + LibCUtil.errno());
+            }
+        }
+
+        public void write(int b) throws IOException {
+            write(new byte[]{(byte) b});
+        }
+
+        public synchronized void write(byte[] b, int off, int len) throws IOException {
+            if (b == null) {
+                throw new NullPointerException();
+            }
+            ensureArrayReferenceInRange(off, len, b);
+            ensureNotClosed();
+            if (len == 0) {
+                return;
+            }
+            byte[] actualBuffer;
+            if (off != 0) {
+                actualBuffer = new byte[len];
+                System.arraycopy(b, off, actualBuffer, 0, len);
+            } else {
+                actualBuffer = b;
+            }
+            int count = LibC.INSTANCE.write(fd, actualBuffer, len);
+            if (count < 0) {
+                throw new IOException("Could not write: errno " + LibCUtil.errno() + " for " + count);
+            } else if (count > len || count == 0) {
+                throw new IOException("Could not write: " + count + " bad for " + len);
+            } else if (count < len) {
+                write(b, off + count, len - count); // Try again!
+            }
+        }
+
+        private void ensureArrayReferenceInRange(int off, int len, byte[] b) throws IllegalArgumentException {
+            if (off < 0 || len < 0 || off + len > b.length) {
+                throw new IllegalArgumentException();
+            }
+        }
+
+        private void ensureNotClosed() throws IOException {
+            if (closed) {
+                throw new IOException("Already closed!");
+            }
+        }
+
+        public synchronized void close() throws IOException {
+            if (closed) {
+                return;
+            }
+            closed = true;
+            int out = LibC.INSTANCE.close(fd);
+            if (out != 0) {
+                throw new IOException("Could not close: " + out + " errno " + LibCUtil.errno());
+            }
+        }
+
+        public synchronized void flush() throws IOException {
+            ensureNotClosed();
+            int out = LibC.INSTANCE.fsync(fd);
+            if (out != 0) {
+                throw new IOException("Could not close: " + out + " errno " + LibCUtil.errno());
+            }
+        }
     }
 }

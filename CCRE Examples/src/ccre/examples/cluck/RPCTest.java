@@ -24,8 +24,20 @@ import ccre.cluck.rpc.RemoteProcedure;
 import ccre.cluck.rpc.SimpleProcedure;
 import ccre.log.Logger;
 
+/**
+ * A class that provides a simple example of the RPC mechanisms in the CCRE.
+ *
+ * @author skeggsc
+ */
 public class RPCTest {
 
+    /**
+     * Run the basic example of the RPC mechanisms: connect two nodes and make
+     * an RPC call through them.
+     *
+     * @param args
+     * @throws InterruptedException
+     */
     public static void main(String[] args) throws InterruptedException {
         CluckNode clientNode = new CluckNode();
         CluckNode serverNode = new CluckNode();

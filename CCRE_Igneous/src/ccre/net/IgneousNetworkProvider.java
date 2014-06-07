@@ -19,10 +19,18 @@
 package ccre.net;
 
 import ccre.log.Logger;
-import ccre.util.*;
+import ccre.util.CArrayUtils;
+import ccre.util.CCollection;
 import edu.wpi.first.wpilibj.DriverStation;
-import java.io.*;
-import javax.microedition.io.*;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import javax.microedition.io.Connector;
+import javax.microedition.io.ServerSocketConnection;
+import javax.microedition.io.SocketConnection;
+import javax.microedition.io.StreamConnection;
 
 /**
  * A network provider that works on Squawk and the FRC robot. This is because
@@ -58,44 +66,11 @@ public class IgneousNetworkProvider implements NetworkProvider {
 
     public ClientSocket openClient(String host, int port) throws IOException {
         final SocketConnection conn = (SocketConnection) Connector.open("socket://" + host + ":" + port);
-        return wrap(conn);
+        return new IgneousClientSocket(conn);
     }
 
     public ServerSocket openServer(int port) throws IOException {
-        final ServerSocketConnection conn = (ServerSocketConnection) Connector.open("socket://:" + port);
-        return new ServerSocket() {
-            public ClientSocket accept() throws IOException {
-                return wrap(conn.acceptAndOpen());
-            }
-
-            public void close() throws IOException {
-                conn.close();
-            }
-        };
-    }
-
-    private ClientSocket wrap(final StreamConnection conn) {
-        return new ClientSocket() {
-            public InputStream openInputStream() throws IOException {
-                return conn.openInputStream();
-            }
-
-            public OutputStream openOutputStream() throws IOException {
-                return conn.openOutputStream();
-            }
-
-            public DataInputStream openDataInputStream() throws IOException {
-                return conn.openDataInputStream();
-            }
-
-            public DataOutputStream openDataOutputStream() throws IOException {
-                return conn.openDataOutputStream();
-            }
-
-            public void close() throws IOException {
-                conn.close();
-            }
-        };
+        return new IgneousServerSocket((ServerSocketConnection) Connector.open("socket://:" + port));
     }
 
     // Faked - there's no obvious way to get this info, so it's assumed based on the team number.
@@ -106,5 +81,51 @@ public class IgneousNetworkProvider implements NetworkProvider {
 
     public String getPlatformType() {
         return "NetIgneous";
+    }
+
+    private static class IgneousClientSocket implements ClientSocket {
+
+        private final StreamConnection conn;
+
+        IgneousClientSocket(StreamConnection conn) {
+            this.conn = conn;
+        }
+
+        public InputStream openInputStream() throws IOException {
+            return conn.openInputStream();
+        }
+
+        public OutputStream openOutputStream() throws IOException {
+            return conn.openOutputStream();
+        }
+
+        public DataInputStream openDataInputStream() throws IOException {
+            return conn.openDataInputStream();
+        }
+
+        public DataOutputStream openDataOutputStream() throws IOException {
+            return conn.openDataOutputStream();
+        }
+
+        public void close() throws IOException {
+            conn.close();
+        }
+    }
+
+    private class IgneousServerSocket implements ServerSocket {
+
+        private final ServerSocketConnection conn;
+
+        IgneousServerSocket(ServerSocketConnection conn) {
+            this.conn = conn;
+        }
+
+        public ClientSocket accept() throws IOException {
+            return new IgneousClientSocket(conn.acceptAndOpen());
+        }
+
+        public void close() throws IOException {
+            conn.close();
+        }
     }
 }

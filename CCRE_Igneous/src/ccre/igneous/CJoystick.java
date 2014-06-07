@@ -18,7 +18,13 @@
  */
 package ccre.igneous;
 
-import ccre.channel.*;
+import ccre.channel.BooleanInputPoll;
+import ccre.channel.EventInput;
+import ccre.channel.EventOutput;
+import ccre.channel.EventStatus;
+import ccre.channel.FloatInput;
+import ccre.channel.FloatInputPoll;
+import ccre.channel.FloatStatus;
 import ccre.ctrl.IJoystick;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.Joystick;
@@ -30,16 +36,36 @@ import edu.wpi.first.wpilibj.KinectStick;
  *
  * @author skeggsc
  */
-class CJoystick implements EventOutput, IJoystick {
+final class CJoystick implements EventOutput, IJoystick {
 
     /**
-     * Create a new CJoystick for a specific joystick ID and a specific
-     * EventSource that is listened to in order to update the outputs.
+     * The joystick object that is read from.
+     */
+    private final GenericHID joy;
+
+    /**
+     * Events to fire when the buttons are pressed.
+     */
+    private final EventStatus[] buttons = new EventStatus[12];
+    /**
+     * The last known states of the buttons, used to calculate when to send
+     * press events.
+     */
+    private final boolean[] states = new boolean[12];
+    /**
+     * The objects behind the provided FloatInputs that represent the current
+     * values of the joysticks.
+     */
+    private final FloatStatus[] axes = new FloatStatus[6];
+
+    /**
+     * Create a new CJoystick for a specific joystick ID. It will be important
+     * to call attach() to add a source to update this object.
      *
      * @param joystick the joystick ID
-     * @param source when to update the outputs.
+     * @see #attach(ccre.channel.EventInput)
      */
-    CJoystick(int joystick, EventInput source) {
+    CJoystick(int joystick) {
         if (joystick == 5) {
             joy = new KinectStick(1);
         } else if (joystick == 6) {
@@ -47,14 +73,21 @@ class CJoystick implements EventOutput, IJoystick {
         } else {
             joy = new Joystick(joystick);
         }
-        if (source != null) {
-            source.send(this);
-        }
     }
+
     /**
-     * The joystick object that is read from.
+     * Attach the specified event input to update this (if it's not null), and
+     * then return this object itself for the purpose of method chaining.
+     *
+     * @param input The input to update this with.
+     * @return this object.
      */
-    protected GenericHID joy;
+    public CJoystick attach(EventInput input) {
+        if (input != null) {
+            input.send(this);
+        }
+        return this;
+    }
 
     public FloatInputPoll getAxisChannel(final int axis) {
         return new FloatInputPoll() {
@@ -87,21 +120,6 @@ class CJoystick implements EventOutput, IJoystick {
             }
         };
     }
-
-    /**
-     * Events to fire when the buttons are pressed.
-     */
-    protected EventStatus[] buttons = new EventStatus[12];
-    /**
-     * The last known states of the buttons, used to calculate when to send
-     * press events.
-     */
-    protected boolean[] states = new boolean[12];
-    /**
-     * The objects behind the provided FloatInputs that represent the current
-     * values of the joysticks.
-     */
-    protected FloatStatus[] axes = new FloatStatus[6];
 
     public EventInput getButtonSource(int id) {
         EventStatus cur = buttons[id - 1];

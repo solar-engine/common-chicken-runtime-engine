@@ -22,7 +22,6 @@ import ccre.log.Logger;
 import com.sun.squawk.ExecutionPoint;
 import com.sun.squawk.GC;
 import com.sun.squawk.NativeUnsafe;
-import com.sun.squawk.VM;
 import com.sun.squawk.vm.FieldOffsets;
 import java.io.PrintStream;
 
@@ -61,21 +60,21 @@ public class IgneousThrowablePrinter extends ThrowablePrinter {
         // The code here works similarly to VM.printExceptionAndTrace
         pstr.print(GC.getKlass(thr).getName());
         String message = thr.getMessage();
-        if (message != null) {
+        if (message == null) {
+            pstr.println();
+        } else {
             pstr.print(": ");
             pstr.println(message);
-        } else {
-            pstr.println();
         }
         ExecutionPoint[] trace = (ExecutionPoint[]) NativeUnsafe.getObject(thr, (int) FieldOffsets.java_lang_Throwable$trace);
-        if (thr != VM.getOutOfMemoryError() && trace != null) {
+        if (trace != null) {
             for (int i = 0; i < trace.length; ++i) {
-                if (trace[i] != null) {
+                if (trace[i] == null) {
+                    pstr.println("    undecipherable");
+                } else {
                     pstr.print("    ");
                     trace[i].print(pstr);
                     pstr.println();
-                } else {
-                    pstr.println("    undecipherable");
                 }
             }
         }

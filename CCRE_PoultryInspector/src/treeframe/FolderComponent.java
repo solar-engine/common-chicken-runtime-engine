@@ -24,6 +24,11 @@ import java.awt.Graphics2D;
 import java.io.Serializable;
 import java.util.ArrayList;
 
+/**
+ * A very simple box that can store other components.
+ *
+ * @author skeggsc
+ */
 public class FolderComponent extends DraggableBoxComponent {
 
     private static class Element implements Serializable {
@@ -32,21 +37,28 @@ public class FolderComponent extends DraggableBoxComponent {
         public final int relX;
         public final int relY;
 
-        public Element(SuperCanvasComponent component, int relX, int relY) {
+        Element(SuperCanvasComponent component, int relX, int relY) {
             this.component = component;
             this.relX = relX;
             this.relY = relY;
         }
     }
 
-    private final ArrayList<Element> components = new ArrayList<Element>();
+    private final ArrayList<Element> components = new ArrayList<Element>(5);
 
+    /**
+     * Create a new FolderComponent.
+     *
+     * @param cx The X-coordinate.
+     * @param cy The Y-coordinate.
+     */
     public FolderComponent(int cx, int cy) {
         super(cx, cy);
     }
 
     @Override
     public void render(Graphics2D g, int screenWidth, int screenHeight, FontMetrics fontMetrics, int mouseX, int mouseY) {
+        // TODO: Upgrade the appearance of this component.
         this.halfWidth = 20;
         this.halfHeight = 20;
         String str = "[" + components.size() + "]";
@@ -69,6 +81,7 @@ public class FolderComponent extends DraggableBoxComponent {
         return false;
     }
 
+    @Override
     public boolean onReceiveDrop(int x, int y, SuperCanvasComponent activeEntity) {
         getPanel().remove(activeEntity);
         components.add(new Element(activeEntity, activeEntity.getDragRelX(centerX), activeEntity.getDragRelY(centerY)));

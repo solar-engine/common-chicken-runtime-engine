@@ -20,20 +20,34 @@ package treeframe;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
+import java.util.Arrays;
 
+/**
+ * A top-level palette, which means that it contains important components that
+ * the user might want to always be able to instantiate regardless of context.
+ *
+ * @author skeggsc
+ */
 public class TopLevelPaletteComponent extends PaletteComponent {
 
-    private static final ArrayList<PaletteComponent.PaletteEntry> topLevel = new ArrayList<PaletteComponent.PaletteEntry>();
+    private static final Iterable<PaletteComponent.PaletteEntry> topLevel;
 
     static {
-        topLevel.add(new AllocationPaletteEntry(LoggingComponent.class));
-        topLevel.add(new AllocationPaletteEntry(PhidgetMonitorComponent.class));
-        topLevel.add(new AllocationPaletteEntry(NetworkPaletteComponent.class));
-        topLevel.add(new AllocationPaletteEntry(ListPaletteComponent.class));
-        topLevel.add(new AllocationPaletteEntry(FolderComponent.class));
-        topLevel.add(new AllocationPaletteEntry(TrashComponent.class));
+        topLevel = Arrays.<PaletteComponent.PaletteEntry>asList(
+                new AllocationPaletteEntry(LoggingComponent.class),
+                new AllocationPaletteEntry(PhidgetMonitorComponent.class),
+                new AllocationPaletteEntry(NetworkPaletteComponent.class),
+                new AllocationPaletteEntry(ListPaletteComponent.class),
+                new AllocationPaletteEntry(FolderComponent.class),
+                new AllocationPaletteEntry(TrashComponent.class));
     }
 
+    /**
+     * Create a new TopLevelPaletteComponent.
+     *
+     * @param x the X-coordinate.
+     * @param y the Y-coordinate.
+     */
     public TopLevelPaletteComponent(int x, int y) {
         super(x, y, topLevel);
     }
@@ -42,7 +56,7 @@ public class TopLevelPaletteComponent extends PaletteComponent {
 
         private final Class<? extends SuperCanvasComponent> aClass;
 
-        public AllocationPaletteEntry(Class<? extends SuperCanvasComponent> aClass) {
+        AllocationPaletteEntry(Class<? extends SuperCanvasComponent> aClass) {
             this.aClass = aClass;
         }
 

@@ -28,28 +28,44 @@ import java.awt.Graphics2D;
 import java.awt.Shape;
 import java.awt.geom.RoundRectangle2D;
 
+/**
+ * A component allowing interaction with floats.
+ *
+ * @author skeggsc
+ */
 public class FloatControlComponent extends DraggableBoxComponent implements FloatInput {
 
     private final String name;
     private final FloatStatus stat = new FloatStatus();
 
+    /**
+     * Create a new FloatControlComponent with a FloatOutput to control.
+     *
+     * @param cx the X coordinate.
+     * @param cy the Y coordinate.
+     * @param name the name of the output.
+     * @param out the FloatOutput to control.
+     */
+    public FloatControlComponent(int cx, int cy, String name, FloatOutput out) {
+        this(cx, cy, name);
+        stat.send(out);
+    }
+
+    /**
+     * Create a new FloatControlComponent.
+     *
+     * @param cx the X coordinate.
+     * @param cy the Y coordinate.
+     * @param name the name of the output.
+     */
     public FloatControlComponent(int cx, int cy, String name) {
         super(cx, cy);
         this.name = name;
     }
 
-    public FloatControlComponent(int cx, int cy, String name, FloatOutput num) {
-        this(cx, cy, name);
-        stat.send(num);
-    }
-
     @Override
     protected boolean containsForInteract(int x, int y) {
         return x >= centerX - halfWidth + 10 && x <= centerX + halfWidth - 10 && y >= centerY - halfHeight / 2 && y <= centerY + halfHeight / 2;
-    }
-
-    public boolean wantsDragSelect() {
-        return true;
     }
 
     @Override
@@ -88,6 +104,10 @@ public class FloatControlComponent extends DraggableBoxComponent implements Floa
         g.drawPolygon(new int[]{ptrCtr + 12, ptrCtr + 8, ptrCtr + 12}, new int[]{centerY - 8, centerY - 4, centerY}, 3);
         g.fillRect(ptrCtr - 5, centerY - halfHeight / 2 + 1, 11, halfHeight / 2 - 4);
         g.fillPolygon(new int[]{ptrCtr - 5, ptrCtr, ptrCtr + 6}, new int[]{centerY - 3, centerY + 3, centerY - 3}, 3);
+    }
+
+    public boolean wantsDragSelect() {
+        return true;
     }
 
     @Override

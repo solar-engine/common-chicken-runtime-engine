@@ -489,7 +489,7 @@ public class CluckPublisher {
 
     private static class SubscribedFloatInput extends FloatStatus {
 
-        static final long serialVersionUID = 1031666017588055705L;
+        private static final long serialVersionUID = 1031666017588055705L;
 
         private boolean sent;
         private final CluckNode node;
@@ -584,7 +584,7 @@ public class CluckPublisher {
 
     private static class SubscribedBooleanInput extends BooleanStatus {
 
-        static final long serialVersionUID = 6685907502662588221L;
+        private static final long serialVersionUID = 6685907502662588221L;
 
         private boolean sent;
         private final CluckNode node;
@@ -679,7 +679,7 @@ public class CluckPublisher {
 
     private static class SubscribedEventInput extends EventStatus { // TODO: Links not removed on unload!
 
-        static final long serialVersionUID = -4051785233205840392L;
+        private static final long serialVersionUID = -4051785233205840392L;
 
         private boolean sent;
         private final CluckNode node;

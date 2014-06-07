@@ -19,13 +19,19 @@
 package treeframe;
 
 import ccre.log.FileLogger;
-import ccre.log.Logger;
 import ccre.log.NetworkAutologger;
 import ccre.net.CountingNetworkProvider;
 import intelligence.IPProvider;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 
+/**
+ * A test launcher for the SuperCanvas system. This will be superceded, or at
+ * least renamed, when this becomes the main mechanism for the Poultry
+ * Inspector.
+ *
+ * @author skeggsc
+ */
 public class SuperCanvasTest extends javax.swing.JFrame {
 
     /**
@@ -37,7 +43,7 @@ public class SuperCanvasTest extends javax.swing.JFrame {
             @Override
             public void keyPressed(KeyEvent e) {
                 if (e.getKeyCode() == KeyEvent.VK_SHIFT) {
-                    if (!canvas.removeAny(TopLevelPaletteComponent.class)) {
+                    if (!canvas.removeAll(TopLevelPaletteComponent.class)) {
                         canvas.add(new TopLevelPaletteComponent(200, 200));
                     }
                 }
@@ -141,6 +147,7 @@ public class SuperCanvasTest extends javax.swing.JFrame {
 
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
+            @Override
             public void run() {
                 new SuperCanvasTest().setVisible(true);
             }

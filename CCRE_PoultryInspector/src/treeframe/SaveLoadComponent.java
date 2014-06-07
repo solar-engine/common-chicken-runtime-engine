@@ -24,16 +24,29 @@ import java.awt.FontMetrics;
 import java.awt.GradientPaint;
 import java.awt.Graphics2D;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 
+/**
+ * A component that always displays in a fixed position, allowing for saving and
+ * loading of layouts of the canvas.
+ *
+ * @author skeggsc
+ */
 public class SaveLoadComponent extends SuperCanvasComponent {
 
     private final int x, y;
     private int width = 10, height = 10, btnBorder = 5;
 
+    /**
+     * Create a new SaveLoadComponent.
+     *
+     * @param x the X-coordinate.
+     * @param y the Y-coordinate.
+     */
     public SaveLoadComponent(int x, int y) {
         this.x = x;
         this.y = y;
@@ -61,48 +74,14 @@ public class SaveLoadComponent extends SuperCanvasComponent {
         if (y < btnBorder) {
             Logger.info("Saving...");
             try {
-                FileOutputStream fout = new FileOutputStream("saved-panel.ser");
-                ObjectOutputStream out;
-                try {
-                    out = new ObjectOutputStream(fout);
-                } catch (IOException thr) {
-                    try {
-                        fout.close();
-                    } catch (IOException ex) {
-                        thr.addSuppressed(ex);
-                    }
-                    throw thr;
-                }
-                try {
-                    getPanel().save(out);
-                } finally {
-                    out.close();
-                }
-                Logger.info("Saved!");
+                saveLayout();
             } catch (IOException ex) {
                 Logger.severe("Could not save!", ex);
             }
         } else {
             Logger.info("Loading...");
             try {
-                FileInputStream fin = new FileInputStream("saved-panel.ser");
-                ObjectInputStream in;
-                try {
-                    in = new ObjectInputStream(fin);
-                } catch (IOException thr) {
-                    try {
-                        fin.close();
-                    } catch (IOException ex) {
-                        thr.addSuppressed(ex);
-                    }
-                    throw thr;
-                }
-                try {
-                    getPanel().load(in);
-                } finally {
-                    in.close();
-                }
-                Logger.info("Loaded!");
+                loadLayout();
             } catch (ClassNotFoundException ex) {
                 Logger.severe("Could not load!", ex);
             } catch (IOException ex) {
@@ -110,6 +89,48 @@ public class SaveLoadComponent extends SuperCanvasComponent {
             }
         }
         return true;
+    }
+
+    private void saveLayout() throws IOException, FileNotFoundException {
+        FileOutputStream fout = new FileOutputStream("saved-panel.ser");
+        ObjectOutputStream out;
+        try {
+            out = new ObjectOutputStream(fout);
+        } catch (IOException thr) {
+            try {
+                fout.close();
+            } catch (IOException ex) {
+                thr.addSuppressed(ex);
+            }
+            throw thr;
+        }
+        try {
+            getPanel().save(out);
+        } finally {
+            out.close();
+        }
+        Logger.info("Saved!");
+    }
+
+    private void loadLayout() throws ClassNotFoundException, IOException, FileNotFoundException {
+        FileInputStream fin = new FileInputStream("saved-panel.ser");
+        ObjectInputStream in;
+        try {
+            in = new ObjectInputStream(fin);
+        } catch (IOException thr) {
+            try {
+                fin.close();
+            } catch (IOException ex) {
+                thr.addSuppressed(ex);
+            }
+            throw thr;
+        }
+        try {
+            getPanel().load(in);
+        } finally {
+            in.close();
+        }
+        Logger.info("Loaded!");
     }
 
     @Override

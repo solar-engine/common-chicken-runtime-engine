@@ -25,9 +25,29 @@ package treeframe;
  */
 public abstract class DraggableBoxComponent extends SuperCanvasComponent {
 
-    protected int centerX, centerY;
-    protected int halfWidth = 20, halfHeight = 20;
+    /**
+     * The X-coordinate of the center of the draggable box.
+     */
+    protected int centerX;
+    /**
+     * The Y-coordinate of the center of the draggable box.
+     */
+    protected int centerY;
+    /**
+     * The horizontal distance from the center to the side of the box.
+     */
+    protected int halfWidth = 20;
+    /**
+     * The vertical distance from the center to the side of the box.
+     */
+    protected int halfHeight = 20;
 
+    /**
+     * Construct a new DraggableBoxComponent with the specified position.
+     *
+     * @param cx The X-coordinate.
+     * @param cy The Y-coordinate.
+     */
     public DraggableBoxComponent(int cx, int cy) {
         centerX = cx;
         centerY = cy;
@@ -38,6 +58,14 @@ public abstract class DraggableBoxComponent extends SuperCanvasComponent {
         return Math.abs(x - centerX) <= halfWidth && Math.abs(y - centerY) <= halfHeight;
     }
 
+    /**
+     * Check if clicks on the specified position should be sent as an
+     * interaction event instead of selection event.
+     *
+     * @param x the X-coordinate.
+     * @param y the Y-coordinate.
+     * @return if the position is in an interaction zone.
+     */
     protected boolean containsForInteract(int x, int y) {
         return false;
     }

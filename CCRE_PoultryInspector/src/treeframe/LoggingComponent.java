@@ -37,9 +37,14 @@ import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * A component that displays a scrollable log of recentCCRE logging messages.
+ *
+ * @author skeggsc
+ */
 public class LoggingComponent extends DraggableBoxComponent {
 
-    static final long serialVersionUID = -946247852428245215L;
+    private static final long serialVersionUID = -946247852428245215L;
 
     private transient List<String> lines;
     private transient PrintStream pstr;
@@ -48,6 +53,12 @@ public class LoggingComponent extends DraggableBoxComponent {
     private transient int scroll = 0, maxScroll = 0, clearingThreshold = 0;
     private transient boolean isClearing = false;
 
+    /**
+     * Create a new LoggingComponent at the specified position.
+     *
+     * @param cx the X-coordinate.
+     * @param cy the Y-coordinate.
+     */
     public LoggingComponent(int cx, int cy) {
         super(cx, cy);
         halfWidth = 210;
@@ -57,7 +68,7 @@ public class LoggingComponent extends DraggableBoxComponent {
 
     private void setupLines() {
         resizeState = ResizeState.TRANSLATE;
-        lines = new ArrayList<String>();
+        lines = new ArrayList<String>(100);
         this.pstr = new PrintStream(new LineCollectorOutputStream() {
             @Override
             protected void collect(String param) {
@@ -67,6 +78,7 @@ public class LoggingComponent extends DraggableBoxComponent {
             }
         });
         this.tgt = new LoggingTarget() {
+            @Override
             public synchronized void log(LogLevel level, String message, Throwable thr) {
                 if (thr != null) {
                     pstr.println("{" + level.message + "} " + message);
@@ -76,6 +88,7 @@ public class LoggingComponent extends DraggableBoxComponent {
                 }
             }
 
+            @Override
             public synchronized void log(LogLevel level, String message, String extended) {
                 pstr.println("[" + level.message + "] " + message);
                 if (extended != null && !extended.isEmpty()) {
@@ -176,7 +189,7 @@ public class LoggingComponent extends DraggableBoxComponent {
         g.drawLine(centerX + halfWidth - 6, centerY + halfHeight - 10, centerX + halfWidth - 10, centerY + halfHeight - 6);
         int xPos = centerX - halfWidth + 16;
         int yPos = centerY + halfHeight - 16 - fontMetrics.getDescent() - scroll;
-        ArrayList<String> temp = new ArrayList<String>();
+        ArrayList<String> temp = new ArrayList<String>(lines.size() + lines.size() >> 1);
         Shape origClip = g.getClip();
         g.setClip(new Rectangle(centerX - halfWidth + 16, centerY - halfHeight + 16, halfWidth * 2 - 32, halfHeight * 2 - 32));
         int lineCount = 0;
@@ -289,6 +302,7 @@ public class LoggingComponent extends DraggableBoxComponent {
         }
     }
 
+    @Override
     public boolean onScroll(int x, int y, int wheelRotation) {
         scroll += wheelRotation;
         constrainScrolling();
@@ -303,6 +317,7 @@ public class LoggingComponent extends DraggableBoxComponent {
         }
     }
 
+    @Override
     public String toString() {
         return lines == null ? "deactivated logging window" : "logging window [" + lines.size() + "]";
     }

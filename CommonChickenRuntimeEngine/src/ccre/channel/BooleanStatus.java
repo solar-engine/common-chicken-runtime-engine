@@ -31,7 +31,7 @@ import java.io.Serializable;
  */
 public class BooleanStatus implements BooleanOutput, BooleanInput, Serializable {
 
-    static final long serialVersionUID = 2573411070442038676L;
+    private static final long serialVersionUID = 2573411070442038676L;
 
     /**
      * The current state (true or false) of this BooleanStatus. Do not directly

@@ -28,20 +28,40 @@ import java.awt.Graphics2D;
 import java.awt.Shape;
 import java.awt.geom.RoundRectangle2D;
 
+/**
+ * A component allowing interaction with events.
+ *
+ * @author skeggsc
+ */
 public class EventControlComponent extends DraggableBoxComponent implements EventInput {
 
     private transient long countStart;
     private final String name;
     private final EventStatus stat = new EventStatus();
 
+    /**
+     * Create a new EventControlComponent with a EventOutput to control.
+     *
+     * @param cx the X coordinate.
+     * @param cy the Y coordinate.
+     * @param name the name of the output.
+     * @param out the EventOutput to control.
+     */
+    public EventControlComponent(int cx, int cy, String name, EventOutput out) {
+        this(cx, cy, name);
+        stat.send(out);
+    }
+
+    /**
+     * Create a new EventControlComponent.
+     *
+     * @param cx the X coordinate.
+     * @param cy the Y coordinate.
+     * @param name the name of the output.
+     */
     public EventControlComponent(int cx, int cy, String name) {
         super(cx, cy);
         this.name = name;
-    }
-
-    public EventControlComponent(int cx, int cy, String name, EventOutput event) {
-        this(cx, cy, name);
-        stat.send(event);
     }
 
     @Override
@@ -54,9 +74,9 @@ public class EventControlComponent extends DraggableBoxComponent implements Even
         halfWidth = Math.max(70, g.getFontMetrics().stringWidth(name) / 2);
         halfHeight = halfWidth * 2 / 3;
         GradientPaint gp = new GradientPaint(centerX, centerY, Color.YELLOW, centerX + halfHeight, centerY - halfHeight, Color.ORANGE);
-        ((Graphics2D) g).setPaint(gp);
+        g.setPaint(gp);
         Shape s = new RoundRectangle2D.Float(centerX - halfWidth, centerY - halfHeight, halfWidth * 2, halfHeight * 2, 15, 15);
-        ((Graphics2D) g).fill(s);
+        g.fill(s);
         g.setColor(Color.BLACK);
         g.drawString(name, centerX - halfWidth + 5, centerY - halfHeight + 1 + g.getFontMetrics().getAscent());
         long count = (System.currentTimeMillis() - countStart);
@@ -75,6 +95,7 @@ public class EventControlComponent extends DraggableBoxComponent implements Even
         return true;
     }
 
+    @Override
     public String toString() {
         return name;
     }

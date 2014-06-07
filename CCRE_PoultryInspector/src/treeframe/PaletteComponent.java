@@ -26,11 +26,26 @@ import java.awt.Rectangle;
 import java.awt.Shape;
 import java.io.Serializable;
 
+/**
+ * A palette of entities - which can be dragged out of the palette into the main
+ * canvas. This is backed by an iterable, usually managed by a subclass.
+ *
+ * @author skeggsc
+ * @param <T> The type of the backing iterable or collection.
+ */
 public class PaletteComponent<T extends Iterable<? extends PaletteComponent.PaletteEntry>> extends DraggableBoxComponent {
 
+    /**
+     * The list of entries available in this component.
+     */
     public final T entries;
     private transient int rowHeight, yshift, scroll, maxScroll;
     private transient boolean isScrolling = false;
+
+    public PaletteComponent(int cx, int cy, T entries) {
+        super(cx, cy);
+        this.entries = entries;
+    }
 
     @Override
     public void render(Graphics2D g, int screenWidth, int screenHeight, FontMetrics fontMetrics, int mouseX, int mouseY) {
@@ -93,6 +108,12 @@ public class PaletteComponent<T extends Iterable<? extends PaletteComponent.Pale
         return false;
     }
 
+    /**
+     * Called when the specified PaletteEntry is right-clicked on in the
+     * palette.
+     *
+     * @param ent the entry clicked on.
+     */
     protected void onInteract(PaletteEntry ent) {
         // No default active.
     }
@@ -118,22 +139,12 @@ public class PaletteComponent<T extends Iterable<? extends PaletteComponent.Pale
         return true;
     }
 
-    public static interface PaletteEntry extends Serializable {
-
-        public String getName();
-
-        public SuperCanvasComponent fetch(int x, int y);
-    }
-
-    public PaletteComponent(int cx, int cy, T entries) {
-        super(cx, cy);
-        this.entries = entries;
-    }
-
+    @Override
     public boolean onMouseMove(int x, int y) {
         return true;
     }
 
+    @Override
     public boolean onScroll(int x, int y, int wheelRotation) {
         scroll += wheelRotation;
         constrainScrolling();
@@ -175,6 +186,13 @@ public class PaletteComponent<T extends Iterable<? extends PaletteComponent.Pale
         } else {
             return super.getDragRelY(y);
         }
+    }
+
+    public static interface PaletteEntry extends Serializable {
+
+        public String getName();
+
+        public SuperCanvasComponent fetch(int x, int y);
     }
 
 }

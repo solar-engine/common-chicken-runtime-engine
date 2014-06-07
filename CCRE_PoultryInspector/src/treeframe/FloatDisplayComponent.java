@@ -27,6 +27,11 @@ import java.awt.Graphics2D;
 import java.awt.Shape;
 import java.awt.geom.RoundRectangle2D;
 
+/**
+ * A component allowing display of floats.
+ *
+ * @author skeggsc
+ */
 public class FloatDisplayComponent extends DraggableBoxComponent implements FloatOutput {
 
     private float value;
@@ -34,14 +39,29 @@ public class FloatDisplayComponent extends DraggableBoxComponent implements Floa
     private final String name;
     private final FloatInput inp;
 
-    public FloatDisplayComponent(int cx, int cy, String name) {
-        this(cx, cy, name, null);
-    }
-
+    /**
+     * Create a new FloatDisplayComponent with a FloatInput to read from.
+     *
+     * @param cx the X coordinate.
+     * @param cy the Y coordinate.
+     * @param name the name of the input.
+     * @param inp the FloatInput to read from.
+     */
     public FloatDisplayComponent(int cx, int cy, String name, FloatInput inp) {
         super(cx, cy);
         this.name = name;
         this.inp = inp;
+    }
+
+    /**
+     * Create a new FloatDisplayComponent.
+     *
+     * @param cx the X coordinate.
+     * @param cy the Y coordinate.
+     * @param name the name of the input.
+     */
+    public FloatDisplayComponent(int cx, int cy, String name) {
+        this(cx, cy, name, null);
     }
 
     @Override
@@ -49,9 +69,9 @@ public class FloatDisplayComponent extends DraggableBoxComponent implements Floa
         halfWidth = Math.max(70, g.getFontMetrics().stringWidth(name) / 2);
         halfHeight = halfWidth * 2 / 3;
         GradientPaint gp = new GradientPaint(centerX, centerY, Color.YELLOW, centerX + halfHeight, centerY - halfHeight, Color.ORANGE);
-        ((Graphics2D) g).setPaint(gp);
+        g.setPaint(gp);
         Shape s = new RoundRectangle2D.Float(centerX - halfWidth, centerY - halfHeight, halfWidth * 2, halfHeight * 2, 15, 15);
-        ((Graphics2D) g).fill(s);
+        g.fill(s);
         g.setColor(Color.BLACK);
         g.drawString(name, centerX - halfWidth + 5, centerY - halfHeight + 1 + g.getFontMetrics().getAscent());
         g.setColor(Color.WHITE);
@@ -90,6 +110,7 @@ public class FloatDisplayComponent extends DraggableBoxComponent implements Floa
         return false;
     }
 
+    @Override
     public String toString() {
         return name;
     }

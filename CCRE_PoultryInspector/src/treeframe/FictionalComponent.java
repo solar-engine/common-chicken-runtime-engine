@@ -18,7 +18,6 @@
  */
 package treeframe;
 
-import ccre.cluck.CluckNode;
 import java.awt.Color;
 import java.awt.FontMetrics;
 import java.awt.GradientPaint;
@@ -36,10 +35,19 @@ public class FictionalComponent extends DraggableBoxComponent {
     private final String name;
     private final String tstr;
 
-    public FictionalComponent(String name, int type, int x, int y) {
-        super(x, y);
+    /**
+     * Create a new FictionalComponent.
+     *
+     * @param cx the X-coordinate.
+     * @param cy the Y-coordinate.
+     * @param name the name of the FictionalComponent.
+     * @param tstring The string representing the type of object that can't be
+     * displayed.
+     */
+    public FictionalComponent(int cx, int cy, String name, String tstring) {
+        super(cx, cy);
         this.name = name;
-        this.tstr = CluckNode.rmtToString(type);
+        this.tstr = tstring;
     }
 
     @Override
@@ -47,9 +55,9 @@ public class FictionalComponent extends DraggableBoxComponent {
         halfWidth = Math.max(70, Math.max(fontMetrics.stringWidth(name) / 2, fontMetrics.stringWidth(tstr) / 2));
         halfHeight = fontMetrics.getHeight() + 1;
         GradientPaint gp = new GradientPaint(centerX, centerY, Color.LIGHT_GRAY, centerX + halfHeight, centerY - halfHeight, Color.GRAY);
-        ((Graphics2D) g).setPaint(gp);
+        g.setPaint(gp);
         Shape s = new RoundRectangle2D.Float(centerX - halfWidth, centerY - halfHeight, halfWidth * 2, halfHeight * 2, 15, 15);
-        ((Graphics2D) g).fill(s);
+        g.fill(s);
         g.setColor(Color.BLACK);
         g.drawString(name, centerX - halfWidth + 5, centerY - halfHeight + 1 + fontMetrics.getAscent());
         g.drawString(tstr, centerX - halfWidth + 5, centerY - halfHeight + 1 + fontMetrics.getAscent() + fontMetrics.getHeight());
@@ -59,7 +67,8 @@ public class FictionalComponent extends DraggableBoxComponent {
     public boolean onInteract(int x, int y) {
         return false;
     }
-    
+
+    @Override
     public String toString() {
         return "Fictional Component: " + name + "[" + tstr + "]";
     }

@@ -40,6 +40,12 @@ public class PhidgetMonitorComponent extends DraggableBoxComponent {
     private final String label;
     private boolean shared = false;
 
+    /**
+     * Create a new PhidgetMonitorComponent with a VirtualPhidgetMonitor.
+     *
+     * @param cx the X-coordinate.
+     * @param cy the Y-coordinate.
+     */
     public PhidgetMonitorComponent(int cx, int cy) {
         super(cx, cy);
         this.label = "VirtualPhidget";
@@ -51,9 +57,9 @@ public class PhidgetMonitorComponent extends DraggableBoxComponent {
         halfWidth = Math.max(70, fontMetrics.stringWidth(label) / 2);
         halfHeight = fontMetrics.getHeight() / 2 + 1;
         GradientPaint gp = new GradientPaint(centerX, centerY, Color.RED, centerX + halfHeight, centerY - halfHeight, Color.ORANGE);
-        ((Graphics2D) g).setPaint(gp);
+        g.setPaint(gp);
         Shape s = new RoundRectangle2D.Float(centerX - halfWidth, centerY - halfHeight, halfWidth * 2, halfHeight * 2, 15, 15);
-        ((Graphics2D) g).fill(s);
+        g.fill(s);
         g.setColor(Color.BLACK);
         g.drawString(label, centerX - halfWidth + 5, centerY - halfHeight + 1 + fontMetrics.getAscent());
     }
@@ -63,6 +69,7 @@ public class PhidgetMonitorComponent extends DraggableBoxComponent {
         return false;
     }
 
+    @Override
     public String toString() {
         return "Phidget Monitor: " + label;
     }

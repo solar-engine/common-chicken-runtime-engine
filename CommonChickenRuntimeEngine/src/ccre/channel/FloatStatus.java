@@ -35,7 +35,7 @@ import java.io.Serializable;
  */
 public class FloatStatus implements FloatOutput, FloatInput, Serializable {
 
-    static final long serialVersionUID = -579209218982597622L;
+    private static final long serialVersionUID = -579209218982597622L;
 
     /**
      * The current state of this FloatStatus. Do not directly modify this field.

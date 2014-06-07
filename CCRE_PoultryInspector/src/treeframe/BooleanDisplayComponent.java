@@ -27,6 +27,11 @@ import java.awt.Graphics2D;
 import java.awt.Shape;
 import java.awt.geom.RoundRectangle2D;
 
+/**
+ * A component allowing display of booleans.
+ *
+ * @author skeggsc
+ */
 public class BooleanDisplayComponent extends DraggableBoxComponent implements BooleanOutput {
 
     private boolean pressed;
@@ -34,14 +39,29 @@ public class BooleanDisplayComponent extends DraggableBoxComponent implements Bo
     private final String name;
     private final BooleanInput inp;
 
-    public BooleanDisplayComponent(int cx, int cy, String name) {
-        this(cx, cy, name, null);
-    }
-
+    /**
+     * Create a new BooleanDisplayComponent with a BooleanInput to read from.
+     *
+     * @param cx the X coordinate.
+     * @param cy the Y coordinate.
+     * @param name the name of the input.
+     * @param inp the BooleanInput to read from.
+     */
     public BooleanDisplayComponent(int cx, int cy, String name, BooleanInput inp) {
         super(cx, cy);
         this.name = name;
         this.inp = inp;
+    }
+
+    /**
+     * Create a new BooleanDisplayComponent.
+     *
+     * @param cx the X coordinate.
+     * @param cy the Y coordinate.
+     * @param name the name of the input.
+     */
+    public BooleanDisplayComponent(int cx, int cy, String name) {
+        this(cx, cy, name, null);
     }
 
     @Override
@@ -49,9 +69,9 @@ public class BooleanDisplayComponent extends DraggableBoxComponent implements Bo
         halfWidth = Math.max(70, g.getFontMetrics().stringWidth(name) / 2);
         halfHeight = halfWidth * 2 / 3;
         GradientPaint gp = new GradientPaint(centerX, centerY, Color.YELLOW, centerX + halfHeight, centerY - halfHeight, Color.ORANGE);
-        ((Graphics2D) g).setPaint(gp);
+        g.setPaint(gp);
         Shape s = new RoundRectangle2D.Float(centerX - halfWidth, centerY - halfHeight, halfWidth * 2, halfHeight * 2, 15, 15);
-        ((Graphics2D) g).fill(s);
+        g.fill(s);
         g.setColor(Color.BLACK);
         g.drawString(name, centerX - halfWidth + 5, centerY - halfHeight + 1 + g.getFontMetrics().getAscent());
         g.setColor(pressed ? Color.GREEN : Color.RED);
@@ -64,6 +84,7 @@ public class BooleanDisplayComponent extends DraggableBoxComponent implements Bo
         return false;
     }
 
+    @Override
     public String toString() {
         return name;
     }

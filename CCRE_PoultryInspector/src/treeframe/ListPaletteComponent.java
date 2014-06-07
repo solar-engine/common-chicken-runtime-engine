@@ -21,10 +21,40 @@ package treeframe;
 import java.util.ArrayList;
 import java.util.Collection;
 
+/**
+ * Create a new Palette backed by a collection (usually a list, hence the name),
+ * and thusly can receive new objects added to it.
+ *
+ * @author skeggsc
+ */
 public class ListPaletteComponent extends PaletteComponent<Collection<PaletteComponent.PaletteEntry>> {
 
-    public PaletteEntry wrap(SuperCanvasComponent c) {
-        return new Element(c, 0, 0);
+    /**
+     * Create a new ListPaletteComponent backed by the specified collection.
+     *
+     * @param cx the X-coordinate.
+     * @param cy the Y-coordinate.
+     * @param entries the collection backing this object.
+     */
+    public ListPaletteComponent(int cx, int cy, Collection<PaletteEntry> entries) {
+        super(cx, cy, entries);
+    }
+
+    /**
+     * Create a new ListPaletteComponent backed by a new ArrayList.
+     *
+     * @param cx the X-coordinate.
+     * @param cy the Y-coordinate.
+     */
+    public ListPaletteComponent(int cx, int cy) {
+        super(cx, cy, new ArrayList<PaletteEntry>(8));
+    }
+
+    @Override
+    public boolean onReceiveDrop(int x, int y, final SuperCanvasComponent activeComponent) {
+        entries.add(new Element(activeComponent, activeComponent.getDragRelX(x), activeComponent.getDragRelY(y)));
+        getPanel().remove(activeComponent);
+        return true;
     }
 
     private class Element implements PaletteComponent.PaletteEntry {
@@ -33,7 +63,7 @@ public class ListPaletteComponent extends PaletteComponent<Collection<PaletteCom
         public final int relX;
         public final int relY;
 
-        public Element(SuperCanvasComponent component, int relX, int relY) {
+        Element(SuperCanvasComponent component, int relX, int relY) {
             this.component = component;
             this.relX = relX;
             this.relY = relY;
@@ -50,19 +80,5 @@ public class ListPaletteComponent extends PaletteComponent<Collection<PaletteCom
             component.moveForDrag(x, y);
             return component;
         }
-    }
-
-    public ListPaletteComponent(int cx, int cy, Collection<PaletteEntry> entries) {
-        super(cx, cy, entries);
-    }
-    
-    public ListPaletteComponent(int cx, int cy) {
-        super(cx, cy, new ArrayList<PaletteEntry>());
-    }
-
-    public boolean onReceiveDrop(int x, int y, final SuperCanvasComponent activeComponent) {
-        entries.add(new Element(activeComponent, activeComponent.getDragRelX(x), activeComponent.getDragRelY(y)));
-        getPanel().remove(activeComponent);
-        return true;
     }
 }

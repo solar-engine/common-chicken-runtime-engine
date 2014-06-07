@@ -29,8 +29,8 @@ import java.io.Serializable;
  * @author skeggsc
  */
 public abstract class SuperCanvasComponent implements Serializable {
-    
-    static final long serialVersionUID = -8154707099757626085L;
+
+    private static final long serialVersionUID = -8154707099757626085L;
 
     private transient SuperCanvasPanel panel;
 
@@ -194,21 +194,44 @@ public abstract class SuperCanvasComponent implements Serializable {
         onChangePanel(null);
     }
 
+    /**
+     * @return the panel that this component is on.
+     */
     public SuperCanvasPanel getPanel() {
         return panel;
     }
 
+    /**
+     * Called when the current panel changes.
+     *
+     * @param panel the new panel.
+     */
     protected void onChangePanel(SuperCanvasPanel panel) {
     }
 
+    /**
+     * @return true if this component wants selection events to be sent while
+     * the mouse is dragged, instead of just once when pressed. Note that this
+     * is different from dragging components to move them.
+     */
     public boolean wantsDragSelect() {
         return false;
     }
 
+    /**
+     * @return true if this component can be dropped into other components (if
+     * it gets dragged around).
+     */
     public boolean canDrop() {
         return true;
     }
 
+    /**
+     * Called when this component is about to be deleted.
+     *
+     * @param forced if this component has no choice in the matter.
+     * @return false if this component doesn't want to be deleted.
+     */
     public boolean onDelete(boolean forced) {
         return true;
     }

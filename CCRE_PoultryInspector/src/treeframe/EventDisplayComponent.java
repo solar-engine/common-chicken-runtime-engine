@@ -20,7 +20,6 @@ package treeframe;
 
 import ccre.channel.EventInput;
 import ccre.channel.EventOutput;
-import ccre.log.Logger;
 import intelligence.Rendering;
 import java.awt.Color;
 import java.awt.FontMetrics;
@@ -29,6 +28,11 @@ import java.awt.Graphics2D;
 import java.awt.Shape;
 import java.awt.geom.RoundRectangle2D;
 
+/**
+ * A component allowing display of events.
+ *
+ * @author skeggsc
+ */
 public class EventDisplayComponent extends DraggableBoxComponent implements EventOutput {
 
     private transient long countStart;
@@ -36,14 +40,27 @@ public class EventDisplayComponent extends DraggableBoxComponent implements Even
     private final String name;
     private final EventInput inp;
 
-    public EventDisplayComponent(int cx, int cy, String name) {
-        this(cx, cy, name, null);
-    }
-
+    /**
+     * Create a new EventDisplayComponent with a EventInput to read from.
+     * @param cx the X coordinate.
+     * @param cy the Y coordinate.
+     * @param name the name of the input.
+     * @param inp the EventInput to read from.
+     */
     public EventDisplayComponent(int cx, int cy, String name, EventInput inp) {
         super(cx, cy);
         this.name = name;
         this.inp = inp;
+    }
+
+    /**
+     * Create a new EventDisplayComponent.
+     * @param cx the X coordinate.
+     * @param cy the Y coordinate.
+     * @param name the name of the input.
+     */
+    public EventDisplayComponent(int cx, int cy, String name) {
+        this(cx, cy, name, null);
     }
 
     @Override
@@ -51,9 +68,9 @@ public class EventDisplayComponent extends DraggableBoxComponent implements Even
         halfWidth = Math.max(70, g.getFontMetrics().stringWidth(name) / 2);
         halfHeight = halfWidth * 2 / 3;
         GradientPaint gp = new GradientPaint(centerX, centerY, Color.YELLOW, centerX + halfHeight, centerY - halfHeight, Color.ORANGE);
-        ((Graphics2D) g).setPaint(gp);
+        g.setPaint(gp);
         Shape s = new RoundRectangle2D.Float(centerX - halfWidth, centerY - halfHeight, halfWidth * 2, halfHeight * 2, 15, 15);
-        ((Graphics2D) g).fill(s);
+        g.fill(s);
         g.setColor(Color.BLACK);
         g.drawString(name, centerX - halfWidth + 5, centerY - halfHeight + 1 + g.getFontMetrics().getAscent());
         long count = (System.currentTimeMillis() - countStart);
@@ -67,6 +84,7 @@ public class EventDisplayComponent extends DraggableBoxComponent implements Even
         return false;
     }
 
+    @Override
     public String toString() {
         return name;
     }

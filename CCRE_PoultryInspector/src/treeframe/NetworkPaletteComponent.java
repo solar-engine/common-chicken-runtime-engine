@@ -39,43 +39,14 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.TreeSet;
 
+/**
+ * A palette that contains all the visible objects on the network.
+ *
+ * @author skeggsc
+ */
 public class NetworkPaletteComponent extends PaletteComponent<Collection<NetworkPaletteComponent.Element>> {
 
-    private transient PauseTimer researcher;
-
-    public static class Element implements PaletteComponent.PaletteEntry, Serializable, Comparable<Element> {
-
-        private final String name;
-        private final int type;
-        private final Object target;
-
-        public Element(String name, Object target, int type) {
-            this.name = name;
-            this.target = target;
-            this.type = type;
-        }
-
-        @Override
-        public String getName() {
-            return name;
-        }
-
-        @Override
-        public SuperCanvasComponent fetch(int x, int y) {
-            SuperCanvasComponent out = createComponent(name, target, type, x, y);
-            if (out == null) {
-                return new FictionalComponent(name, type, x, y);
-            }
-            return out;
-        }
-
-        @Override
-        public int compareTo(Element o) {
-            return name.compareTo(o.name);
-        }
-    }
-
-    public static SuperCanvasComponent createComponent(String name, Object target, int type, int x, int y) {
+    private static SuperCanvasComponent createComponent(String name, Object target, int type, int x, int y) {
         switch (type) {
             case CluckNode.RMT_BOOLOUTP:
                 return new BooleanControlComponent(x, y, name, (BooleanOutput) target);
@@ -98,7 +69,7 @@ public class NetworkPaletteComponent extends PaletteComponent<Collection<Network
         }
     }
 
-    public static Object subscribeByType(String path, int type) {
+    private static Object subscribeByType(String path, int type) {
         switch (type) {
             case CluckNode.RMT_BOOLOUTP:
                 return Cluck.subscribeBO(path);
@@ -124,11 +95,13 @@ public class NetworkPaletteComponent extends PaletteComponent<Collection<Network
         }
     }
 
+    private transient PauseTimer researcher;
+
     public NetworkPaletteComponent(int cx, int cy) {
         super(cx, cy, Collections.synchronizedSet(new TreeSet<Element>()));
         start();
     }
-    
+
     private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
         in.defaultReadObject();
         start();
@@ -162,6 +135,38 @@ public class NetworkPaletteComponent extends PaletteComponent<Collection<Network
                 }
             }
         });
+    }
+
+    static class Element implements PaletteComponent.PaletteEntry, Serializable, Comparable<Element> {
+
+        private final String name;
+        private final int type;
+        private final Object target;
+
+        Element(String name, Object target, int type) {
+            this.name = name;
+            this.target = target;
+            this.type = type;
+        }
+
+        @Override
+        public String getName() {
+            return name;
+        }
+
+        @Override
+        public SuperCanvasComponent fetch(int x, int y) {
+            SuperCanvasComponent out = createComponent(name, target, type, x, y);
+            if (out == null) {
+                return new FictionalComponent(x, y, name, CluckNode.rmtToString(type));
+            }
+            return out;
+        }
+
+        @Override
+        public int compareTo(Element o) {
+            return name.compareTo(o.name);
+        }
     }
 
 }

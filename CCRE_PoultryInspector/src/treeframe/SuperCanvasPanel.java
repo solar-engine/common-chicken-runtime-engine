@@ -61,7 +61,7 @@ public final class SuperCanvasPanel extends JPanel implements MouseMotionListene
     /**
      * The components currently being hovered over by the mouse.
      */
-    private transient final LinkedHashSet<SuperCanvasComponent> mouseOver = new LinkedHashSet<SuperCanvasComponent>();
+    private transient final LinkedHashSet<SuperCanvasComponent> mouseOver = new LinkedHashSet<SuperCanvasComponent>(4);
     /**
      * The relative position between the cursor and the currently held
      * component.
@@ -330,10 +330,20 @@ public final class SuperCanvasPanel extends JPanel implements MouseMotionListene
         }
     }
 
-    public void startDrag(SuperCanvasComponent comp, int x, int y) {
-        activeEntity = comp;
-        relActiveX = comp.getDragRelX(x);
-        relActiveY = comp.getDragRelY(y);
+    /**
+     * Start a drag operation on the specified component. This involves asking
+     * it for its drag offsets and beginning the drag.
+     *
+     * @param component the component to drag.
+     * @param x the mouse X coordinate.
+     * @param y the mouse Y coordinate.
+     * @see SuperCanvasComponent#getDragRelX(int)
+     * @see SuperCanvasComponent#getDragRelY(int)
+     */
+    public void startDrag(SuperCanvasComponent component, int x, int y) {
+        activeEntity = component;
+        relActiveX = component.getDragRelX(x);
+        relActiveY = component.getDragRelY(y);
     }
 
     private void renderBackground(Graphics2D g, int w, int h, FontMetrics fontMetrics, int mouseX, int mouseY) {
@@ -345,10 +355,23 @@ public final class SuperCanvasPanel extends JPanel implements MouseMotionListene
         g.fillRect(0, 0, w, h);
     }
 
+    /**
+     * Save the layout of this panel to the specified ObjectOutputStream.
+     *
+     * @param out the stream to write to.
+     * @throws IOException if the contents cannot be saved.
+     */
     public void save(ObjectOutputStream out) throws IOException {
         out.writeObject(components);
     }
 
+    /**
+     * Load the layout of this panel from the specified ObjectInputStream. This
+     * deletes all of the current contents of the panel!
+     *
+     * @param in the stream to read from.
+     * @throws IOException if the contents cannot be loaded.
+     */
     public void load(ObjectInputStream in) throws IOException, ClassNotFoundException {
         // Remove components
         for (Iterator<SuperCanvasComponent> it = components.iterator(); it.hasNext();) {
@@ -368,11 +391,18 @@ public final class SuperCanvasPanel extends JPanel implements MouseMotionListene
         repaint();
     }
 
-    public boolean removeAny(Class<? extends SuperCanvasComponent> aClass) {
+    /**
+     * (Safely) remove all instances of the specified class (or any subclass)
+     * present in this panel.
+     *
+     * @param componentType the type of component to remove.
+     * @return if any components were removed by this operation.
+     */
+    public boolean removeAll(Class<? extends SuperCanvasComponent> componentType) {
         boolean any = false;
         for (Iterator<SuperCanvasComponent> it = components.iterator(); it.hasNext();) {
             SuperCanvasComponent comp = it.next();
-            if (aClass.isAssignableFrom(comp.getClass())) {
+            if (componentType.isAssignableFrom(comp.getClass())) {
                 comp.unsetPanel(this);
                 comp.onDelete(true);
                 it.remove();

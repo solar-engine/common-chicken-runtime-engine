@@ -29,16 +29,34 @@ import java.awt.Shape;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.RoundRectangle2D;
 
+/**
+ * A component allowing interaction with booleans.
+ *
+ * @author skeggsc
+ */
 public class BooleanControlComponent extends DraggableBoxComponent implements BooleanInput {
 
     private final BooleanStatus pressed = new BooleanStatus();
     private final String name;
 
+    /**
+     * Create a new BooleanControlComponent with a BooleanOutput to control.
+     * @param cx the X coordinate.
+     * @param cy the Y coordinate.
+     * @param name the name of the output.
+     * @param out the BooleanOutput to control.
+     */
     public BooleanControlComponent(int cx, int cy, String name, BooleanOutput out) {
         this(cx, cy, name);
         pressed.send(out);
     }
 
+    /**
+     * Create a new BooleanControlComponent.
+     * @param cx the X coordinate.
+     * @param cy the Y coordinate.
+     * @param name the name of the output.
+     */
     public BooleanControlComponent(int cx, int cy, String name) {
         super(cx, cy);
         this.name = name;
@@ -54,9 +72,9 @@ public class BooleanControlComponent extends DraggableBoxComponent implements Bo
         halfWidth = Math.max(70, g.getFontMetrics().stringWidth(name) / 2);
         halfHeight = halfWidth * 2 / 3;
         GradientPaint gp = new GradientPaint(centerX, centerY, Color.YELLOW, centerX + halfHeight, centerY - halfHeight, Color.ORANGE);
-        ((Graphics2D) g).setPaint(gp);
+        g.setPaint(gp);
         Shape s = new RoundRectangle2D.Float(centerX - halfWidth, centerY - halfHeight, halfWidth * 2, halfHeight * 2, 15, 15);
-        ((Graphics2D) g).fill(s);
+        g.fill(s);
         g.setColor(Color.BLACK);
         g.drawString(name, centerX - halfWidth + 5, centerY - halfHeight + 1 + g.getFontMetrics().getAscent());
         AffineTransform origO = g.getTransform();
@@ -89,6 +107,7 @@ public class BooleanControlComponent extends DraggableBoxComponent implements Bo
         return true;
     }
 
+    @Override
     public String toString() {
         return name;
     }

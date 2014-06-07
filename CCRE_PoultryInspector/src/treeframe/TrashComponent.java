@@ -24,15 +24,24 @@ import java.awt.FontMetrics;
 import java.awt.Graphics2D;
 
 /**
+ * A trash can - (almost?) anything can be dragged here to delete it from the
+ * canvas.
  *
  * @author skeggsc
  */
 public class TrashComponent extends DraggableBoxComponent {
 
+    /**
+     * Create a new TrashComponent.
+     *
+     * @param cx the X coordinate.
+     * @param cy the Y coordinate.
+     */
     public TrashComponent(int cx, int cy) {
         super(cx, cy);
     }
 
+    @Override
     public boolean onReceiveDrop(int x, int y, SuperCanvasComponent activeEntity) {
         if (activeEntity.onDelete(false)) {
             getPanel().remove(activeEntity);
@@ -45,6 +54,7 @@ public class TrashComponent extends DraggableBoxComponent {
 
     @Override
     public void render(Graphics2D g, int screenWidth, int screenHeight, FontMetrics fontMetrics, int mouseX, int mouseY) {
+        // TODO: Improve graphics?
         g.setColor(Color.GRAY);
         g.fillRect(centerX - halfWidth, centerY - halfHeight * 2 / 3, halfWidth * 2, halfHeight * 4 / 3);
         g.fillOval(centerX - halfWidth - 1, centerY + halfHeight / 3, halfWidth * 2, halfHeight * 2 / 3);
@@ -61,6 +71,7 @@ public class TrashComponent extends DraggableBoxComponent {
         return false;
     }
 
+    @Override
     public String toString() {
         return "Trash Can";
     }

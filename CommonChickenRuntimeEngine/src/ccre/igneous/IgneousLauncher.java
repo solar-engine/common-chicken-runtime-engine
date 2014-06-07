@@ -39,7 +39,7 @@ public interface IgneousLauncher {
     public static final int VICTOR = 3;
 
     public IJoystick getJoystick(int id);
-    
+
     public IJoystick getKinectJoystick(boolean isRightArm);
 
     public FloatOutput makeMotor(int id, int type);

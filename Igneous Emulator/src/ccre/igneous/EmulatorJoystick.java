@@ -18,12 +18,23 @@ public class EmulatorJoystick extends javax.swing.JPanel {
         initComponents();
         joy = new EmuJoystick(new JToggleButton[]{btn1, btn2, btn3, btn4, btn5, btn6, btn7, btn8, btn9, btn10, btn11, btn12}, new JSlider[]{axis1, axis2, axis3, axis4, axis5, axis6});
     }
+    /**
+     * The EmuJoystick connected to this GUI joystick.
+     */
     public final EmuJoystick joy;
-    
+
+    /**
+     * Set the name of the Joystick.
+     *
+     * @param name the new name of the Joystick.
+     */
     public void setText(String name) {
         this.labTitle.setText(name);
     }
-    
+
+    /**
+     * @return the name of the Joystick.
+     */
     public String getText() {
         return this.labTitle.getText();
     }

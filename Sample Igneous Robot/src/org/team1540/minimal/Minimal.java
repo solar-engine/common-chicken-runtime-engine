@@ -29,6 +29,10 @@ import ccre.util.Utils;
  */
 public class Minimal implements IgneousApplication {
 
+    /**
+     * Set up the robot. For the minimal robot, this only means adding a line to
+     * the Driver Station LCD that displays the current time in seconds.
+     */
     public void setupRobot() {
         Igneous.makeDSFloatReadout("I live!", 1, Utils.currentTimeSeconds, Igneous.globalPeriodic);
     }

@@ -31,6 +31,8 @@ public class AccelerometerForm extends javax.swing.JFrame implements FloatInputP
 
     /**
      * Creates new form ExtendedForm
+     *
+     * @param title The name of the accelerometer.
      */
     public AccelerometerForm(final String title) {
         initComponents();

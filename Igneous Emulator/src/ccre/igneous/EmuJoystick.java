@@ -18,13 +18,20 @@
  */
 package ccre.igneous;
 
-import ccre.channel.*;
+import ccre.channel.BooleanInputPoll;
+import ccre.channel.EventInput;
+import ccre.channel.EventOutput;
+import ccre.channel.EventStatus;
+import ccre.channel.FloatInput;
+import ccre.channel.FloatInputPoll;
+import ccre.channel.FloatStatus;
 import ccre.ctrl.IJoystick;
 import javax.swing.JSlider;
 import javax.swing.JToggleButton;
 
 /**
  * A helper class for EmulatorForm, used to implement GUI-driven joysticks.
+ *
  * @author skeggsc
  */
 public final class EmuJoystick implements IJoystick, EventOutput {
@@ -32,6 +39,31 @@ public final class EmuJoystick implements IJoystick, EventOutput {
     private JToggleButton[] btns;
     private JSlider[] axes;
 
+    /**
+     * Events to fire when the buttons are pressed.
+     */
+    private final EventStatus[] buttons = new EventStatus[12];
+    /**
+     * The last known states of the buttons, used to calculate when to send
+     * press events.
+     */
+    private final boolean[] states = new boolean[12];
+    /**
+     * The objects behind the provided FloatInputs that represent the current
+     * values of the joysticks.
+     */
+    private final FloatStatus[] valaxes = new FloatStatus[6];
+    /**
+     * The current eventsource for updating the dispatch outputs.
+     */
+    private final EventInput cursource = null;
+
+    /**
+     * Create an Emulated Joystick.
+     *
+     * @param btns the digital buttons to contain.
+     * @param axes the analog inputs to contain.
+     */
     public EmuJoystick(JToggleButton[] btns, JSlider[] axes) {
         if (btns.length != 12 || axes.length != 6) {
             throw new RuntimeException("Bad number for joystick!");
@@ -39,24 +71,6 @@ public final class EmuJoystick implements IJoystick, EventOutput {
         this.btns = btns;
         this.axes = axes;
     }
-    /**
-     * Events to fire when the buttons are pressed.
-     */
-    EventStatus[] buttons = new EventStatus[12];
-    /**
-     * The last known states of the buttons, used to calculate when to send
-     * press events.
-     */
-    boolean[] states = new boolean[12];
-    /**
-     * The objects behind the provided FloatInputs that represent the current
-     * values of the joysticks.
-     */
-    FloatStatus[] valaxes = new FloatStatus[6];
-    /**
-     * The current eventsource for updating the dispatch outputs.
-     */
-    EventInput cursource = null;
 
     /**
      * Set the update source for this joystick to the specific source. Throw an

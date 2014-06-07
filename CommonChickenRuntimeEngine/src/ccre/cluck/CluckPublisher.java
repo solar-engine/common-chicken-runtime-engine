@@ -235,16 +235,13 @@ public class CluckPublisher {
      *
      * @param node The node to publish on.
      * @param path The path to subscribe to.
-     * @param shouldSubscribeByDefault Should this request the value from the
-     * remote by default, as opposed to waiting until this is needed. If this is
-     * false, then readValue() won't work until you run addTarget().
+     * @param subscribeByDefault Should this request the value from the remote
+     * by default, as opposed to waiting until this is needed. If this is false,
+     * then readValue() won't work until you run addTarget().
      * @return the BooleanInput.
      */
-    public static BooleanInput subscribeBI(final CluckNode node, final String path, final boolean shouldSubscribeByDefault) {
-        final SubscribedBooleanInput result = new SubscribedBooleanInput(node, path, shouldSubscribeByDefault);
-        if (shouldSubscribeByDefault) {
-            node.transmit(path, result.linkName, new byte[]{RMT_BOOLPROD});
-        }
+    public static BooleanInput subscribeBI(final CluckNode node, final String path, final boolean subscribeByDefault) {
+        final SubscribedBooleanInput result = new SubscribedBooleanInput(node, path, subscribeByDefault);
         new BooleanInputReceiver(node, result, path).attach();
         return result;
     }
@@ -336,9 +333,6 @@ public class CluckPublisher {
      */
     public static FloatInput subscribeFI(final CluckNode node, final String path, final boolean subscribeByDefault) {
         final SubscribedFloatInput result = new SubscribedFloatInput(node, path, subscribeByDefault);
-        if (subscribeByDefault) {
-            node.transmit(path, result.linkName, new byte[]{RMT_FLOATPROD});
-        }
         new FloatInputReceiver(node, result, path).attach();
         return result;
     }
@@ -509,6 +503,9 @@ public class CluckPublisher {
             this.path = path;
             generateLinkName();
             this.canUnsubscribe = !subscribeByDefault;
+            if (subscribeByDefault) {
+                node.transmit(path, linkName, new byte[]{RMT_FLOATPROD});
+            }
         }
 
         @Override
@@ -542,6 +539,13 @@ public class CluckPublisher {
         private void generateLinkName() {
             linkName = UniqueIds.global.nextHexId("srcFI");
         }
+
+        /**
+         * @return the linkName
+         */
+        public String getLinkName() {
+            return linkName;
+        }
     }
 
     private static class FloatInputReceiver extends CluckSubscriber {
@@ -550,11 +554,11 @@ public class CluckPublisher {
         private final String path;
         private final String linkName;
 
-        public FloatInputReceiver(CluckNode node, SubscribedFloatInput result, String path) {
+        FloatInputReceiver(CluckNode node, SubscribedFloatInput result, String path) {
             super(node);
             this.result = result;
             this.path = path;
-            this.linkName = result.linkName;
+            this.linkName = result.getLinkName();
         }
 
         @Override
@@ -588,12 +592,15 @@ public class CluckPublisher {
         private transient String linkName;
         private final boolean canUnsubscribe;
 
-        SubscribedBooleanInput(CluckNode node, String path, boolean shouldSubscribeByDefault) {
-            this.sent = shouldSubscribeByDefault;
+        SubscribedBooleanInput(CluckNode node, String path, boolean subscribeByDefault) {
+            this.sent = subscribeByDefault;
             this.node = node;
             this.path = path;
-            this.canUnsubscribe = !shouldSubscribeByDefault;
+            this.canUnsubscribe = !subscribeByDefault;
             generateLinkName();
+            if (subscribeByDefault) {
+                node.transmit(path, linkName, new byte[]{RMT_BOOLPROD});
+            }
         }
 
         @Override
@@ -627,6 +634,13 @@ public class CluckPublisher {
         private void generateLinkName() {
             linkName = UniqueIds.global.nextHexId("srcBI");
         }
+
+        /**
+         * @return the linkName
+         */
+        public String getLinkName() {
+            return linkName;
+        }
     }
 
     private static class BooleanInputReceiver extends CluckSubscriber {
@@ -635,11 +649,11 @@ public class CluckPublisher {
         private final String path;
         private final String linkName;
 
-        public BooleanInputReceiver(CluckNode node, SubscribedBooleanInput result, String path) {
+        BooleanInputReceiver(CluckNode node, SubscribedBooleanInput result, String path) {
             super(node);
             this.result = result;
             this.path = path;
-            this.linkName = result.linkName;
+            this.linkName = result.getLinkName();
         }
 
         @Override
@@ -709,6 +723,13 @@ public class CluckPublisher {
         private void generateLinkName() {
             this.linkName = UniqueIds.global.nextHexId("srcES");
         }
+
+        /**
+         * @return the linkName
+         */
+        public String getLinkName() {
+            return linkName;
+        }
     }
 
     private static class EventInputReceiver extends CluckSubscriber {
@@ -717,11 +738,11 @@ public class CluckPublisher {
         private final String path;
         private final String linkName;
 
-        public EventInputReceiver(CluckNode node, SubscribedEventInput result, String path) {
+        EventInputReceiver(CluckNode node, SubscribedEventInput result, String path) {
             super(node);
             this.result = result;
             this.path = path;
-            this.linkName = result.linkName;
+            this.linkName = result.getLinkName();
         }
 
         @Override
@@ -750,7 +771,7 @@ public class CluckPublisher {
         private final CluckNode node;
         private final String path;
 
-        public SubscribedEventOutput(CluckNode node, String path) {
+        SubscribedEventOutput(CluckNode node, String path) {
             this.node = node;
             this.path = path;
         }
@@ -765,7 +786,7 @@ public class CluckPublisher {
         private final CluckNode node;
         private final String path;
 
-        public SubscribedBooleanOutput(CluckNode node, String path) {
+        SubscribedBooleanOutput(CluckNode node, String path) {
             this.node = node;
             this.path = path;
         }
@@ -780,7 +801,7 @@ public class CluckPublisher {
         private final CluckNode node;
         private final String path;
 
-        public SubscribedFloatOutput(CluckNode node, String path) {
+        SubscribedFloatOutput(CluckNode node, String path) {
             this.node = node;
             this.path = path;
         }
@@ -796,7 +817,7 @@ public class CluckPublisher {
         private final CluckNode node;
         private final String path;
 
-        public SubscribedObjectStream(CluckNode node, String path) {
+        SubscribedObjectStream(CluckNode node, String path) {
             this.node = node;
             this.path = path;
         }

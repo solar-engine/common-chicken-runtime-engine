@@ -18,7 +18,6 @@
  */
 package ccre.net;
 
-import ccre.log.LogLevel;
 import ccre.log.Logger;
 import ccre.util.CCollection;
 import java.io.IOException;

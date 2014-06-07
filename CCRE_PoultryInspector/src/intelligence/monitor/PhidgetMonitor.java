@@ -190,7 +190,8 @@ public class PhidgetMonitor implements IPhidgetMonitor, AttachListener, DetachLi
             Cluck.publish("phidget-ai" + i, (FloatInput) analogs[i]);
         }
     }
-    
+
+    @Override
     public void unshare() {
         lcd.removeAttachListener(this);
         lcd.removeDetachListener(this);

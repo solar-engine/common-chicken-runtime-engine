@@ -22,7 +22,6 @@ import ccre.channel.EventOutput;
 import ccre.channel.FloatOutput;
 import ccre.channel.FloatStatus;
 import ccre.holders.StringHolder;
-import ccre.log.LogLevel;
 import ccre.log.Logger;
 
 /**

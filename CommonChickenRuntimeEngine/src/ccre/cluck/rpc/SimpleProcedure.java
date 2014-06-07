@@ -18,7 +18,6 @@
  */
 package ccre.cluck.rpc;
 
-import ccre.log.LogLevel;
 import ccre.log.Logger;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;

@@ -38,6 +38,14 @@ import java.util.NoSuchElementException;
 public final class ConcurrentDispatchArray<E> implements CCollection<E>, Serializable {
 
     /**
+     * The array that contains the current data. Do not modify this field
+     * directly - use compareAndSetArray.
+     *
+     * @see #compareAndSetArray(java.lang.Object[], java.lang.Object[])
+     */
+    private volatile Object[] data;
+
+    /**
      * Create a new empty ConcurrentDispatchArray.
      */
     public ConcurrentDispatchArray() {
@@ -53,14 +61,6 @@ public final class ConcurrentDispatchArray<E> implements CCollection<E>, Seriali
     public ConcurrentDispatchArray(CCollection<? extends E> base) {
         data = base.toArray();
     }
-
-    /**
-     * The array that contains the current data. Do not modify this field
-     * directly - use compareAndSetArray.
-     *
-     * @see #compareAndSetArray(java.lang.Object[], java.lang.Object[])
-     */
-    private volatile Object[] data;
 
     public Iterator<E> iterator() {
         final Object[] dat = data;

@@ -20,7 +20,6 @@ package ccre.cluck.rpc;
 
 import ccre.cluck.CluckNode;
 import ccre.cluck.CluckSubscriber;
-import ccre.log.LogLevel;
 import ccre.log.Logger;
 import ccre.util.CArrayList;
 import ccre.util.CHashMap;

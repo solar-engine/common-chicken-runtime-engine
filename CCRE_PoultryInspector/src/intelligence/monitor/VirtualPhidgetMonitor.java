@@ -57,9 +57,12 @@ public class VirtualPhidgetMonitor extends javax.swing.JFrame implements IPhidge
         initComponents();
         this.wantClose = null;
     }
-    
+
     /**
      * Creates new form VirtualPhidgetDevice
+     *
+     * @param wantClose the event to notify when this monitor is trying to
+     * close.
      */
     public VirtualPhidgetMonitor(EventOutput wantClose) {
         initComponents();
@@ -317,6 +320,7 @@ public class VirtualPhidgetMonitor extends javax.swing.JFrame implements IPhidge
         this.setVisible(true);
     }
 
+    @Override
     public void unshare() {
         this.setVisible(false);
         attached.set(false);

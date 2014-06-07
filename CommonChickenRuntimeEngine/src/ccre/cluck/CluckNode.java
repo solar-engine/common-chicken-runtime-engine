@@ -27,7 +27,6 @@ import ccre.util.UniqueIds;
 import java.io.IOException;
 import java.io.NotSerializableException;
 import java.io.ObjectOutputStream;
-import java.io.ObjectStreamException;
 import java.io.Serializable;
 import java.util.Iterator;
 

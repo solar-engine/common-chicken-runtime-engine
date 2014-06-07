@@ -22,7 +22,6 @@ import ccre.channel.BooleanInput;
 import ccre.channel.BooleanStatus;
 import ccre.channel.EventInput;
 import ccre.channel.EventOutput;
-import ccre.log.LogLevel;
 import ccre.log.Logger;
 
 /**

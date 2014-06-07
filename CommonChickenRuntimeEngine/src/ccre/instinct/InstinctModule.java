@@ -24,8 +24,6 @@ import ccre.channel.EventOutput;
 import ccre.channel.FloatInputPoll;
 import ccre.concurrency.ReporterThread;
 import ccre.ctrl.FloatMixing;
-import ccre.ctrl.Mixing;
-import ccre.log.LogLevel;
 import ccre.log.Logger;
 
 /**

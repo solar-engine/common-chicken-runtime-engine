@@ -18,7 +18,6 @@
  */
 package ccre.workarounds;
 
-import ccre.log.LogLevel;
 import ccre.log.Logger;
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;

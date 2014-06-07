@@ -24,7 +24,6 @@ import ccre.channel.FloatInput;
 import ccre.cluck.Cluck;
 import ccre.ctrl.BooleanMixing;
 import ccre.ctrl.FloatMixing;
-import ccre.ctrl.Mixing;
 import java.io.PrintStream;
 
 /**

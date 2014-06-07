@@ -19,7 +19,6 @@
 package ccre.rload;
 
 import ccre.concurrency.ReporterThread;
-import ccre.log.LogLevel;
 import ccre.log.Logger;
 import ccre.net.ClientSocket;
 import ccre.net.Network;

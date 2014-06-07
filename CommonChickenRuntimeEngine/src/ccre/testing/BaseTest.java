@@ -18,7 +18,6 @@
  */
 package ccre.testing;
 
-import ccre.log.LogLevel;
 import ccre.log.Logger;
 
 /**

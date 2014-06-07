@@ -127,7 +127,7 @@ public final class EmulatorLauncher implements IgneousLauncher {
      * @throws java.lang.reflect.InvocationTargetException
      */
     public void start(Constructor<? extends IgneousApplication> main) throws InstantiationException, IllegalAccessException, InvocationTargetException {
-        IgneousLauncherHolder.launcher = this;
+        IgneousLauncherHolder.setLauncher(this);
         for (EmuJoystick emu : emf.joysticks) {
             globalPeriodic.send(emu);
         }

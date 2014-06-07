@@ -18,7 +18,6 @@
  */
 package ccre.saver;
 
-import ccre.log.LogLevel;
 import ccre.log.Logger;
 import java.io.IOException;
 import java.io.InputStream;

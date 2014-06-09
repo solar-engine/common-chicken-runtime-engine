@@ -97,6 +97,9 @@ public class Utils {
      * from the previous ramping value, in which case it will be as close as
      * possible.
      *
+     * If the ramping constant is zero, no ramping will be applied - the input
+     * will be copied to the result.
+     *
      * @param previous The previous ramping value.
      * @param target The target value.
      * @param limit The acceleration limit.
@@ -106,7 +109,7 @@ public class Utils {
         float reallimit;
         if (limit <= 0) {
             if (limit == 0) {
-                return 0;
+                return target;
             }
             reallimit = -limit;
         } else {
@@ -157,6 +160,7 @@ public class Utils {
      * Extracts the big-endian integer starting at offset from array. This is
      * equivalent to:
      * <code>((array[offset] &amp; 0xff) &lt;&lt; 24) | ((array[offset+1] &amp; 0xff) &lt;&lt; 16) | ((array[offset+2] &amp; 0xff) &lt;&lt; 8) | (array[offset+3] &amp; 0xff)</code>
+     *
      * @param array The array
      *
      *

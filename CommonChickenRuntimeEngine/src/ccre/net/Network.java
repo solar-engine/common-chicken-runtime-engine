@@ -88,7 +88,8 @@ public class Network {
      *
      * @param rawAddress the IP address to connect to, with an option port
      * specifier.
-     * @param default_port the default port to connect to if there is no port specifier.
+     * @param default_port the default port to connect to if there is no port
+     * specifier.
      * @return the ClientSocket that represents the connection.
      * @throws java.io.IOException if an IO error occurs or the port specifier
      * is invalid.

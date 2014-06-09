@@ -49,7 +49,8 @@ public abstract class BaseTest {
      * test.
      *
      * @return true if the test succeeded and false if it failed.
-     * @throws java.lang.InterruptedException If the test is interrupted while it runs.
+     * @throws java.lang.InterruptedException If the test is interrupted while
+     * it runs.
      */
     public final boolean test() throws InterruptedException {
         return test(true);
@@ -61,7 +62,8 @@ public abstract class BaseTest {
      *
      * @param verbose should status messages be logged?
      * @return true if the test succeeded and false if it failed.
-     * @throws java.lang.InterruptedException If the test is interrupted while it runs.
+     * @throws java.lang.InterruptedException If the test is interrupted while
+     * it runs.
      */
     public final synchronized boolean test(boolean verbose) throws InterruptedException { // Synchronized so that only one instance of the test will be running.
         if (verbose) {

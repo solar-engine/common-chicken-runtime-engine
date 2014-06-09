@@ -107,8 +107,8 @@ public final class TuningContext { // TODO: Support booleans for tuning.
      * Publish an EventOutput that can be used to save the tuning variables on
      * this context.
      *
-     * @param name The name for the EventOutput to be published under.
-     * (Prefixed by "Save Tuning for ".)
+     * @param name The name for the EventOutput to be published under. (Prefixed
+     * by "Save Tuning for ".)
      * @return This TuningContext. Returned for method chaining purposes.
      */
     public TuningContext publishSavingEvent(String name) {

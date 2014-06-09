@@ -21,9 +21,9 @@ package ccre.downgrade;
 import java.io.IOException;
 
 /**
- * This is the same as java.io.NotSerializableException. Don't use this.
- * It is used when Retrotranslator downgrades the code to 1.3, because 1.3
- * doesn't have NotSerializableException.
+ * This is the same as java.io.NotSerializableException. Don't use this. It is
+ * used when Retrotranslator downgrades the code to 1.3, because 1.3 doesn't
+ * have NotSerializableException.
  *
  * @see java.lang.NotSerializableException
  * @author skeggsc

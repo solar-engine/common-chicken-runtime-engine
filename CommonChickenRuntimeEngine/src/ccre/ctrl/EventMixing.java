@@ -117,8 +117,8 @@ public class EventMixing {
     }
 
     /**
-     * Returns a debounced version of the specified EventOutput, such that
-     * there is a minimum delay of minMillis milliseconds between events.
+     * Returns a debounced version of the specified EventOutput, such that there
+     * is a minimum delay of minMillis milliseconds between events.
      *
      * Any event sent before the timeout will be ignored.
      *
@@ -147,9 +147,8 @@ public class EventMixing {
     }
 
     /**
-     * When the returned EventOutput is fired and the specified
-     * BooleanInputPoll is the specified requirement, fire the passed
-     * EventOutput.
+     * When the returned EventOutput is fired and the specified BooleanInputPoll
+     * is the specified requirement, fire the passed EventOutput.
      *
      * @param input the input to test.
      * @param requirement the value to require.
@@ -161,8 +160,8 @@ public class EventMixing {
     }
 
     /**
-     * Return an EventInput that is fired when the specified EventInput is
-     * fired and the specified BooleanInputPoll is the specified requirement.
+     * Return an EventInput that is fired when the specified EventInput is fired
+     * and the specified BooleanInputPoll is the specified requirement.
      *
      * @param input the input to test.
      * @param requirement the value to require.

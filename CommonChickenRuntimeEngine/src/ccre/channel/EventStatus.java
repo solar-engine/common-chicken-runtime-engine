@@ -33,7 +33,7 @@ import java.util.Iterator;
 public class EventStatus implements EventInput, EventOutput, Serializable {
 
     private static final long serialVersionUID = 115846451690403376L;
-    
+
     /**
      * The events to fire when this event is fired.
      */

@@ -71,8 +71,8 @@ public final class Ticker implements EventInput {
     }
 
     /**
-     * Adds an EventOutput to listen for the periodically fired events
-     * produced by this EventInput.
+     * Adds an EventOutput to listen for the periodically fired events produced
+     * by this EventInput.
      *
      * @param ec The EventOutput to add.
      */
@@ -87,8 +87,8 @@ public final class Ticker implements EventInput {
     }
 
     /**
-     * Removes the specified EventOutput, so that its eventFired method will
-     * no longer be called by this EventInput.
+     * Removes the specified EventOutput, so that its eventFired method will no
+     * longer be called by this EventInput.
      *
      * @param ec The EventOutput to remove.
      */

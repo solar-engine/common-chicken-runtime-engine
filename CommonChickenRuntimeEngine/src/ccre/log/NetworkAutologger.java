@@ -44,7 +44,7 @@ public final class NetworkAutologger implements LoggingTarget, CluckRemoteListen
         public void log(LogLevel level, String message, Throwable throwable) {
             Logger.log(level, "[NET] " + message, throwable);
         }
-        
+
         public void log(LogLevel level, String message, String extended) {
             Logger.logExt(level, "[NET] " + message, extended);
         }
@@ -87,7 +87,7 @@ public final class NetworkAutologger implements LoggingTarget, CluckRemoteListen
         this.node = node;
         CluckPublisher.publish(node, localpath, localLoggingTarget);
     }
-    
+
     /**
      * Start the Autologger - it will now start sending out logged messages.
      */

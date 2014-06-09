@@ -69,6 +69,7 @@ public final class Cluck {
 
     /**
      * Set up a server on the default port.
+     *
      * @return the server that was set up.
      */
     public static synchronized CluckTCPServer setupServer() {

@@ -66,8 +66,8 @@ public class LogLevel implements Serializable {
      */
     public static final LogLevel FINEST = new LogLevel(-9, "FINEST");
 
-    private static final LogLevel[] levels = new LogLevel[] {FINEST, FINER, FINE, CONFIG, INFO, WARNING, SEVERE};
-    
+    private static final LogLevel[] levels = new LogLevel[]{FINEST, FINER, FINE, CONFIG, INFO, WARNING, SEVERE};
+
     /**
      * Get a LogLevel from its ID level. If it doesn't exist, a RuntimeException
      * is thrown. Should probably only be called on the result of toByte.
@@ -134,7 +134,7 @@ public class LogLevel implements Serializable {
     public String toString() {
         return message;
     }
-    
+
     private Object readResolve() {
         return fromByte(id);
     }

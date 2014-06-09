@@ -34,65 +34,258 @@ import ccre.ctrl.IJoystick;
  */
 public interface IgneousLauncher {
 
+    /**
+     * The ID for a Jaguar speed controller.
+     */
     public static final int JAGUAR = 1;
+    /**
+     * The ID for a Talon speed controller.
+     */
     public static final int TALON = 2;
+    /**
+     * The ID for a Victor speed controller.
+     */
     public static final int VICTOR = 3;
 
+    /**
+     * Accesses a Joystick from the Driver Station.
+     *
+     * @param id the Joystick number (1-4)
+     * @return the associated joystick on the driver station.
+     */
     public IJoystick getJoystick(int id);
 
+    /**
+     * Get an IJoystick for the specified Kinect virtual joystick.
+     *
+     * @param isRightArm If the right arm joystick should be used instead of the
+     * left. (6 instead of 5 if you're used to the old system.)
+     * @return the IJoystick.
+     */
     public IJoystick getKinectJoystick(boolean isRightArm);
 
+    /**
+     * Create a reference to a speed controller.
+     *
+     * @param id the motor port ID, from 1 to 10, inclusive.
+     * @param type the motor type: JAGUAR, VICTOR, or TALON.
+     * @return the output that will output to the specified motor.
+     * @see #JAGUAR
+     * @see #VICTOR
+     * @see #TALON
+     */
     public FloatOutput makeMotor(int id, int type);
 
+    /**
+     * Create a reference to a solenoid on the specified port.
+     *
+     * @param id the port of the solenoid.
+     * @return the output that will control the solenoid.
+     */
     public BooleanOutput makeSolenoid(int id);
 
+    /**
+     * Create a reference to a digital output on the specified port.
+     *
+     * @param id the port of the digital output.
+     * @return the output that will control the digital output.
+     */
     public BooleanOutput makeDigitalOutput(int id);
 
+    /**
+     * Create a reference to an analog input on the specified port with the
+     * specified number of average bits.
+     *
+     * @param id the port number.
+     * @param averageBits the number of averaging bits.
+     * @return the analog input, reporting in voltage.
+     */
     public FloatInputPoll makeAnalogInput(int id, int averageBits);
 
+    /**
+     * Create a reference to an analog input's raw value on the specified port
+     * with the specified number of average bits.
+     *
+     * @param id the port number.
+     * @param averageBits the number of averaging bits.
+     * @return the analog input, reporting in uncalibrated units.
+     */
     public FloatInputPoll makeAnalogInput_ValuedBased(int id, int averageBits);
 
+    /**
+     * Create a reference to a digital input on the specified port.
+     *
+     * @param id the port number.
+     * @return the digital input.
+     */
     public BooleanInputPoll makeDigitalInput(int id);
 
+    /**
+     * Create a reference to a servo controller for the specified port and
+     * minimum and maximum values.
+     *
+     * @param id the port number.
+     * @param minInput the value on the output that should correspond to the
+     * servo's minimum position.
+     * @param maxInput the value on the output that should correspond to the
+     * servo's maximum position.
+     * @return the FloatOutput that controls the servo.
+     */
     public FloatOutput makeServo(int id, float minInput, float maxInput);
 
+    /**
+     * Send the specified string to the specified line of the driver station.
+     *
+     * @param value The string to display.
+     * @param lineid The line number (1-6).
+     */
     public void sendDSUpdate(String value, int lineid);
 
+    /**
+     * Get a boolean input that checks if the robot is currently disabled.
+     *
+     * @return the input.
+     */
     public BooleanInputPoll getIsDisabled();
 
+    /**
+     * Get a boolean input that checks if the robot is currently in autonomous,
+     * as opposed to teleop and testing.
+     *
+     * @return the input.
+     */
     public BooleanInputPoll getIsAutonomous();
 
+    /**
+     * Get a boolean input that checks if the robot is currently in testing
+     * mode, as opposed to teleop and autonomous.
+     *
+     * @return the input.
+     */
     public BooleanInputPoll getIsTest();
 
+    /**
+     * Activate the compressor on the given pressure switch input and compressor
+     * relay channel.
+     *
+     * @param shouldDisable should the compressor be turned off.
+     * @param compressorRelayChannel the channel of the compressor's relay.
+     */
     public void useCustomCompressor(BooleanInputPoll shouldDisable, int compressorRelayChannel);
 
+    /**
+     * Create a reference to an Encoder on the specified ports with the
+     * specified number of average bits.
+     *
+     * @param aChannel The alpha-channel for the encoder.
+     * @param bChannel The beta-channel for the encoder.
+     * @param reverse Should the result of the encoder be negated?
+     * @param resetWhen If provided, the Encoder's value will be reset when this
+     * event is produced.
+     * @return the Encoder, reporting encoder ticks.
+     */
     public FloatInputPoll makeEncoder(int aChannel, int bChannel, boolean reverse, EventInput resetWhen);
 
+    /**
+     * Create a reference to the Forward side of the relay on the specified
+     * channel - this side can be turned on and off.
+     *
+     * @param channel The relay channel.
+     * @return the output that will modify the forward side of the channel.
+     */
     public BooleanOutput makeRelayForwardOutput(int channel);
 
+    /**
+     * Create a reference to the Reverse side of the relay on the specified
+     * channel - this side can be turned on and off.
+     *
+     * @param channel The relay channel.
+     * @return the output that will modify the reverse side of the channel.
+     */
     public BooleanOutput makeRelayReverseOutput(int channel);
 
-    public FloatInputPoll makeGyro(int port, double sensitivity, EventInput object);
+    /**
+     * Create a reference to a Gyro on the specified port with the specified
+     * sensitivity. This will allow reading the current rotation of the Gyro.
+     * This also takes an EventInput, and when this is fired, the Gyro will be
+     * reset.
+     *
+     * Increased sensitivity means a smaller output for the same turn.
+     *
+     * @param port The Gyro port number.
+     * @param sensitivity The sensitivity of the Gyro. This is the number of
+     * volts/degree/second sensitivity of the gyro and is used in calculations
+     * to allow the code to work with multiple gyros. 0.007 is a good default
+     * value.
+     * @param evt When to reset the Gyro.
+     * @return The reference to the Gyro's current value.
+     */
+    public FloatInputPoll makeGyro(int port, double sensitivity, EventInput evt);
 
+    /**
+     * Create a reference to a Accelerometer Axis on the specified port, with
+     * the specified sensitivity and voltage zero point.
+     *
+     * @param port The port number to attach to.
+     * @param sensitivity The sensitivity of the accelerometer. This varies per
+     * model.
+     * @param zeropoint The voltage that corresponds to 0 G. This also varies by
+     * model.
+     * @return The reference to the axis on the Accelerometer.
+     */
     public FloatInputPoll makeAccelerometerAxis(int port, double sensitivity, double zeropoint);
 
+    /**
+     * Get a reference to the analog input that reads the current battery
+     * voltage, scaled to represent the real battery voltage.
+     *
+     * @return The current battery voltage.
+     */
     public FloatInputPoll getBatteryVoltage();
 
+    /**
+     * @return an event that is produced during every mode if the driver station
+     * is attached.
+     */
     public EventInput getGlobalPeriodic();
 
+    /**
+     * @return an event that is produced when the robot enters autonomous mode.
+     */
     public EventInput getStartAuto();
 
+    /**
+     * @return an event that is produced during autonomous mode.
+     */
     public EventInput getDuringAuto();
 
+    /**
+     * @return an event that is produced when the robot enters teleop mode.
+     */
     public EventInput getStartTele();
 
+    /**
+     * @return an event that is produced during teleop mode.
+     */
     public EventInput getDuringTele();
 
+    /**
+     * @return an event that is produced when the robot enters testing mode.
+     */
     public EventInput getStartTest();
 
+    /**
+     * @return an event that is produced during testing mode.
+     */
     public EventInput getDuringTest();
 
+    /**
+     * @return an event that is produced when the robot enters disabled mode.
+     */
     public EventInput getStartDisabled();
 
+    /**
+     * @return an event that is produced while the robot is disabled.
+     */
     public EventInput getDuringDisabled();
 }

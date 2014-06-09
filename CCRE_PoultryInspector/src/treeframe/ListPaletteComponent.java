@@ -27,7 +27,7 @@ import java.util.Collection;
  *
  * @author skeggsc
  */
-public class ListPaletteComponent extends PaletteComponent<Collection<PaletteComponent.PaletteEntry>> {
+public class ListPaletteComponent extends PaletteComponent<Collection<PaletteEntry>> {
 
     /**
      * Create a new ListPaletteComponent backed by the specified collection.
@@ -57,7 +57,7 @@ public class ListPaletteComponent extends PaletteComponent<Collection<PaletteCom
         return true;
     }
 
-    private class Element implements PaletteComponent.PaletteEntry {
+    private class Element implements PaletteEntry {
 
         public final SuperCanvasComponent component;
         public final int relX;

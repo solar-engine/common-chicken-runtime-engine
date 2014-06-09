@@ -31,19 +31,6 @@ import java.util.ArrayList;
  */
 public class FolderComponent extends DraggableBoxComponent {
 
-    private static class Element implements Serializable {
-
-        public final SuperCanvasComponent component;
-        public final int relX;
-        public final int relY;
-
-        Element(SuperCanvasComponent component, int relX, int relY) {
-            this.component = component;
-            this.relX = relX;
-            this.relY = relY;
-        }
-    }
-
     private final ArrayList<Element> components = new ArrayList<Element>(5);
 
     /**
@@ -86,5 +73,18 @@ public class FolderComponent extends DraggableBoxComponent {
         getPanel().remove(activeEntity);
         components.add(new Element(activeEntity, activeEntity.getDragRelX(centerX), activeEntity.getDragRelY(centerY)));
         return true;
+    }
+
+    private static class Element implements Serializable {
+
+        public final SuperCanvasComponent component;
+        public final int relX;
+        public final int relY;
+
+        Element(SuperCanvasComponent component, int relX, int relY) {
+            this.component = component;
+            this.relX = relX;
+            this.relY = relY;
+        }
     }
 }

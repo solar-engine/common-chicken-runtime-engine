@@ -22,21 +22,17 @@ import ccre.channel.FloatInput;
 import ccre.channel.FloatOutput;
 import java.awt.Color;
 import java.awt.FontMetrics;
-import java.awt.GradientPaint;
 import java.awt.Graphics2D;
-import java.awt.Shape;
-import java.awt.geom.RoundRectangle2D;
 
 /**
  * A component allowing display of floats.
  *
  * @author skeggsc
  */
-public class FloatDisplayComponent extends DraggableBoxComponent implements FloatOutput {
+public class FloatDisplayComponent extends BaseChannelComponent implements FloatOutput {
 
     private float value;
     private boolean subscribed;
-    private final String name;
     private final FloatInput inp;
 
     /**
@@ -48,8 +44,7 @@ public class FloatDisplayComponent extends DraggableBoxComponent implements Floa
      * @param inp the FloatInput to read from.
      */
     public FloatDisplayComponent(int cx, int cy, String name, FloatInput inp) {
-        super(cx, cy);
-        this.name = name;
+        super(cx, cy, name);
         this.inp = inp;
     }
 
@@ -65,15 +60,7 @@ public class FloatDisplayComponent extends DraggableBoxComponent implements Floa
     }
 
     @Override
-    public void render(Graphics2D g, int screenWidth, int screenHeight, FontMetrics fontMetrics, int mouseX, int mouseY) {
-        halfWidth = Math.max(70, g.getFontMetrics().stringWidth(name) / 2);
-        halfHeight = halfWidth * 2 / 3;
-        GradientPaint gp = new GradientPaint(centerX, centerY, Color.YELLOW, centerX + halfHeight, centerY - halfHeight, Color.ORANGE);
-        g.setPaint(gp);
-        Shape s = new RoundRectangle2D.Float(centerX - halfWidth, centerY - halfHeight, halfWidth * 2, halfHeight * 2, 15, 15);
-        g.fill(s);
-        g.setColor(Color.BLACK);
-        g.drawString(name, centerX - halfWidth + 5, centerY - halfHeight + 1 + g.getFontMetrics().getAscent());
+    public void channelRender(Graphics2D g, int screenWidth, int screenHeight, FontMetrics fontMetrics, int mouseX, int mouseY) {
         g.setColor(Color.WHITE);
         g.fillRect(centerX - halfWidth + 10, centerY - halfHeight / 2, 2 * halfWidth - 20, halfHeight);
         g.setColor(Color.BLACK);
@@ -108,11 +95,6 @@ public class FloatDisplayComponent extends DraggableBoxComponent implements Floa
     @Override
     public boolean onInteract(int x, int y) {
         return false;
-    }
-
-    @Override
-    public String toString() {
-        return name;
     }
 
     @Override

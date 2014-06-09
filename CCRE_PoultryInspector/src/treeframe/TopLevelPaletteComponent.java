@@ -19,7 +19,6 @@
 package treeframe;
 
 import java.lang.reflect.InvocationTargetException;
-import java.util.ArrayList;
 import java.util.Arrays;
 
 /**
@@ -30,10 +29,10 @@ import java.util.Arrays;
  */
 public class TopLevelPaletteComponent extends PaletteComponent {
 
-    private static final Iterable<PaletteComponent.PaletteEntry> topLevel;
+    private static final Iterable<PaletteEntry> topLevel;
 
     static {
-        topLevel = Arrays.<PaletteComponent.PaletteEntry>asList(
+        topLevel = Arrays.<PaletteEntry>asList(
                 new AllocationPaletteEntry(LoggingComponent.class),
                 new AllocationPaletteEntry(PhidgetMonitorComponent.class),
                 new AllocationPaletteEntry(NetworkPaletteComponent.class),
@@ -54,7 +53,7 @@ public class TopLevelPaletteComponent extends PaletteComponent {
 
     private static class AllocationPaletteEntry implements PaletteEntry {
 
-        private final Class<? extends SuperCanvasComponent> aClass;
+        final Class<? extends SuperCanvasComponent> aClass;
 
         AllocationPaletteEntry(Class<? extends SuperCanvasComponent> aClass) {
             this.aClass = aClass;

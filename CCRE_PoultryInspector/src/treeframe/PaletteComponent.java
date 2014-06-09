@@ -24,7 +24,6 @@ import java.awt.GradientPaint;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.awt.Shape;
-import java.io.Serializable;
 
 /**
  * A palette of entities - which can be dragged out of the palette into the main
@@ -33,7 +32,7 @@ import java.io.Serializable;
  * @author skeggsc
  * @param <T> The type of the backing iterable or collection.
  */
-public class PaletteComponent<T extends Iterable<? extends PaletteComponent.PaletteEntry>> extends DraggableBoxComponent {
+public class PaletteComponent<T extends Iterable<? extends PaletteEntry>> extends DraggableBoxComponent {
 
     /**
      * The list of entries available in this component.
@@ -42,6 +41,14 @@ public class PaletteComponent<T extends Iterable<? extends PaletteComponent.Pale
     private transient int rowHeight, yshift, scroll, maxScroll;
     private transient boolean isScrolling = false;
 
+    /**
+     * Create a new PaletteComponent at the specified position with the
+     * specified iterator backing this element.
+     *
+     * @param cx The X coordinate.
+     * @param cy The Y coordinate.
+     * @param entries The iterable of entries to include on the list.
+     */
     public PaletteComponent(int cx, int cy, T entries) {
         super(cx, cy);
         this.entries = entries;
@@ -49,6 +56,49 @@ public class PaletteComponent<T extends Iterable<? extends PaletteComponent.Pale
 
     @Override
     public void render(Graphics2D g, int screenWidth, int screenHeight, FontMetrics fontMetrics, int mouseX, int mouseY) {
+        calculatePaletteSize(fontMetrics);
+        g.setPaint(new GradientPaint(centerX + 20, centerY - halfHeight, Color.LIGHT_GRAY, centerX - 20, centerY + halfHeight, Color.LIGHT_GRAY.darker()));
+        g.fillRoundRect(centerX - halfWidth + 1, centerY - halfHeight + 1, halfWidth * 2 - 2, halfHeight * 2 - 2, 10, 10);
+        Shape clip = g.getClip();
+        g.setClip(new Rectangle(centerX - halfWidth + 5, centerY - halfHeight + 5, halfWidth * 2 - 10, halfHeight * 2 - 10));
+        int entryCount = drawPaletteEntries(mouseX, mouseY, centerX - halfWidth + 16, centerY - halfHeight + 26 - scroll, g, fontMetrics);
+        g.setClip(clip);
+        drawScrollbar(entryCount, fontMetrics, g);
+    }
+
+    private int drawPaletteEntries(int mouseX, int mouseY, int xPos, int initialYPos, Graphics2D g, FontMetrics fontMetrics) {
+        int yPos = initialYPos;
+        yshift = fontMetrics.getAscent();
+        int entryCount = 0;
+        synchronized (entries) {
+            for (PaletteEntry ent : entries) {
+                if (mouseX >= xPos - 5 && mouseX <= xPos + halfWidth * 2 - 28
+                        && mouseY >= yPos - yshift && mouseY < yPos - yshift + rowHeight) {
+                    g.setColor(Color.WHITE);
+                    g.fillRoundRect(xPos - 5, yPos - yshift, halfWidth * 2 - 22, rowHeight, 10, 10);
+                }
+                g.setColor(Color.BLACK);
+                g.drawString(ent.getName(), xPos, yPos);
+                yPos += rowHeight;
+                entryCount++;
+            }
+        }
+        return entryCount;
+    }
+
+    private void drawScrollbar(int cnt, FontMetrics fontMetrics, Graphics2D g) {
+        this.maxScroll = cnt * fontMetrics.getHeight() - halfHeight;
+        float frac = scroll / (float) maxScroll;
+        if (frac < 0) {
+            frac = 0;
+        } else if (frac > 1) {
+            frac = 1;
+        }
+        g.setColor(scroll == 0 ? Color.GREEN : Color.BLACK);
+        g.fillOval(centerX - halfWidth + 4, centerY - halfHeight + 8 + (int) ((2 * halfHeight - 24) * frac), 8, 8);
+    }
+
+    private void calculatePaletteSize(FontMetrics fontMetrics) {
         int maxWidth = 100, count = 0;
         synchronized (entries) {
             for (PaletteEntry ent : entries) {
@@ -62,37 +112,6 @@ public class PaletteComponent<T extends Iterable<? extends PaletteComponent.Pale
         if (halfHeight > 200) {
             halfHeight = 200;
         }
-        g.setPaint(new GradientPaint(centerX + 20, centerY - halfHeight, Color.LIGHT_GRAY, centerX - 20, centerY + halfHeight, Color.LIGHT_GRAY.darker()));
-        g.fillRoundRect(centerX - halfWidth + 1, centerY - halfHeight + 1, halfWidth * 2 - 2, halfHeight * 2 - 2, 10, 10);
-        int xPos = centerX - halfWidth + 16;
-        int yPos = centerY - halfHeight + 26 - scroll;
-        yshift = fontMetrics.getAscent();
-        Shape clip = g.getClip();
-        g.setClip(new Rectangle(centerX - halfWidth + 5, centerY - halfHeight + 5, halfWidth * 2 - 10, halfHeight * 2 - 10));
-        int cnt = 0;
-        synchronized (entries) {
-            for (PaletteEntry ent : entries) {
-                if (mouseX >= xPos - 5 && mouseX <= xPos + halfWidth * 2 - 28
-                        && mouseY >= yPos - yshift && mouseY < yPos - yshift + rowHeight) {
-                    g.setColor(Color.WHITE);
-                    g.fillRoundRect(xPos - 5, yPos - yshift, halfWidth * 2 - 22, rowHeight, 10, 10);
-                }
-                g.setColor(Color.BLACK);
-                g.drawString(ent.getName(), xPos, yPos);
-                yPos += rowHeight;
-                cnt++;
-            }
-        }
-        this.maxScroll = cnt * fontMetrics.getHeight() - halfHeight;
-        g.setClip(clip);
-        float frac = scroll / (float) maxScroll;
-        if (frac < 0) {
-            frac = 0;
-        } else if (frac > 1) {
-            frac = 1;
-        }
-        g.setColor(scroll == 0 ? Color.GREEN : Color.BLACK);
-        g.fillOval(centerX - halfWidth + 4, centerY - halfHeight + 8 + (int) ((2 * halfHeight - 24) * frac), 8, 8);
     }
 
     @Override
@@ -187,12 +206,4 @@ public class PaletteComponent<T extends Iterable<? extends PaletteComponent.Pale
             return super.getDragRelY(y);
         }
     }
-
-    public static interface PaletteEntry extends Serializable {
-
-        public String getName();
-
-        public SuperCanvasComponent fetch(int x, int y);
-    }
-
 }

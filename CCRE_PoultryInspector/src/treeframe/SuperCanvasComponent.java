@@ -207,6 +207,7 @@ public abstract class SuperCanvasComponent implements Serializable {
      * @param panel the new panel.
      */
     protected void onChangePanel(SuperCanvasPanel panel) {
+        assert panel == getPanel(); // Here to solve a FindBugs warning.
     }
 
     /**

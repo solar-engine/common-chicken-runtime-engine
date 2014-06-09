@@ -22,21 +22,17 @@ import ccre.channel.BooleanInput;
 import ccre.channel.BooleanOutput;
 import java.awt.Color;
 import java.awt.FontMetrics;
-import java.awt.GradientPaint;
 import java.awt.Graphics2D;
-import java.awt.Shape;
-import java.awt.geom.RoundRectangle2D;
 
 /**
  * A component allowing display of booleans.
  *
  * @author skeggsc
  */
-public class BooleanDisplayComponent extends DraggableBoxComponent implements BooleanOutput {
+public class BooleanDisplayComponent extends BaseChannelComponent implements BooleanOutput {
 
     private boolean pressed;
     private boolean subscribed;
-    private final String name;
     private final BooleanInput inp;
 
     /**
@@ -48,8 +44,7 @@ public class BooleanDisplayComponent extends DraggableBoxComponent implements Bo
      * @param inp the BooleanInput to read from.
      */
     public BooleanDisplayComponent(int cx, int cy, String name, BooleanInput inp) {
-        super(cx, cy);
-        this.name = name;
+        super(cx, cy, name);
         this.inp = inp;
     }
 
@@ -65,15 +60,7 @@ public class BooleanDisplayComponent extends DraggableBoxComponent implements Bo
     }
 
     @Override
-    public void render(Graphics2D g, int screenWidth, int screenHeight, FontMetrics fontMetrics, int mouseX, int mouseY) {
-        halfWidth = Math.max(70, g.getFontMetrics().stringWidth(name) / 2);
-        halfHeight = halfWidth * 2 / 3;
-        GradientPaint gp = new GradientPaint(centerX, centerY, Color.YELLOW, centerX + halfHeight, centerY - halfHeight, Color.ORANGE);
-        g.setPaint(gp);
-        Shape s = new RoundRectangle2D.Float(centerX - halfWidth, centerY - halfHeight, halfWidth * 2, halfHeight * 2, 15, 15);
-        g.fill(s);
-        g.setColor(Color.BLACK);
-        g.drawString(name, centerX - halfWidth + 5, centerY - halfHeight + 1 + g.getFontMetrics().getAscent());
+    public void channelRender(Graphics2D g, int screenWidth, int screenHeight, FontMetrics fontMetrics, int mouseX, int mouseY) {
         g.setColor(pressed ? Color.GREEN : Color.RED);
         int rad = Math.min(halfWidth / 3, halfHeight / 3);
         g.fillOval(centerX - rad, centerY - rad, rad * 2, rad * 2);
@@ -82,11 +69,6 @@ public class BooleanDisplayComponent extends DraggableBoxComponent implements Bo
     @Override
     public boolean onInteract(int x, int y) {
         return false;
-    }
-
-    @Override
-    public String toString() {
-        return name;
     }
 
     @Override

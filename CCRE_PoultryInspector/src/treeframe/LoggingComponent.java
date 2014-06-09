@@ -177,56 +177,32 @@ public class LoggingComponent extends DraggableBoxComponent {
     }
 
     @Override
-    public void render(Graphics2D g, int screenWidth, int screenHeight, FontMetrics fontMetrics, int mouseX, int mouseY) {
-        int rowHeight = fontMetrics.getHeight();
-        GradientPaint paint = new GradientPaint(centerX + 20, centerY - halfHeight, Color.WHITE, centerX - 20, centerY + halfHeight, Color.WHITE.darker());
-        g.setPaint(paint);
+    public void render(Graphics2D g, int screenWidth, int screenHeight, FontMetrics fontMetrics, int mouseX, int mouseY) {;
+        drawBackground(g);
+        Shape originalClippingShape = g.getClip();
+        int lineCount;
+        {
+            g.setClip(new Rectangle(centerX - halfWidth + 16, centerY - halfHeight + 16, halfWidth * 2 - 32, halfHeight * 2 - 32));
+            lineCount = drawLoggedLines(g, fontMetrics, centerY + halfHeight - 16 - fontMetrics.getDescent() - scroll, centerX - halfWidth + 16, fontMetrics.getHeight());
+        }
+        g.setClip(originalClippingShape);
+        drawScrollbar(lineCount, fontMetrics, g);
+        if (isClearing) {
+            drawClearingOverlay(g, fontMetrics, mouseX);
+        }
+    }
+
+    private void drawBackground(Graphics2D g) {
+        g.setPaint(new GradientPaint(centerX + 20, centerY - halfHeight, Color.WHITE, centerX - 20, centerY + halfHeight, Color.WHITE.darker()));
         g.fillRoundRect(centerX - halfWidth + 1, centerY - halfHeight + 1, halfWidth * 2 - 2, halfHeight * 2 - 2, 10, 10);
         g.setColor(Color.BLACK);
         g.drawLine(centerX - halfWidth + 6, centerY - halfHeight + 10, centerX - halfWidth + 10, centerY - halfHeight + 6);
         g.drawLine(centerX + halfWidth - 6, centerY - halfHeight + 10, centerX + halfWidth - 10, centerY - halfHeight + 6);
         g.drawLine(centerX - halfWidth + 6, centerY + halfHeight - 10, centerX - halfWidth + 10, centerY + halfHeight - 6);
         g.drawLine(centerX + halfWidth - 6, centerY + halfHeight - 10, centerX + halfWidth - 10, centerY + halfHeight - 6);
-        int xPos = centerX - halfWidth + 16;
-        int yPos = centerY + halfHeight - 16 - fontMetrics.getDescent() - scroll;
-        ArrayList<String> temp = new ArrayList<String>(lines.size() + lines.size() >> 1);
-        Shape origClip = g.getClip();
-        g.setClip(new Rectangle(centerX - halfWidth + 16, centerY - halfHeight + 16, halfWidth * 2 - 32, halfHeight * 2 - 32));
-        int lineCount = 0;
-        synchronized (LoggingComponent.this) {
-            outer:
-            for (int i = lines.size() - 1; i >= 0; i--) {
-                g.setColor(Color.BLACK);
-                String line = lines.get(i);
-                if (fontMetrics.stringWidth(line) > halfWidth * 2 - 32) {
-                    temp.clear();
-                    int base = 0;
-                    for (int j = line.length(); j > base; j--) {
-                        if (fontMetrics.stringWidth(line.substring(base, j)) <= halfWidth * 2 - 32) {
-                            temp.add(line.substring(base, j));
-                            base = j;
-                            j = line.length();
-                        }
-                    }
-                    for (int j = temp.size() - 1; j >= 0; j--) {
-                        if (yPos < centerY - halfHeight + 8) {
-                            //break outer;
-                        }
-                        g.drawString(temp.get(j), xPos, yPos);
-                        yPos -= rowHeight;
-                        lineCount++;
-                    }
-                } else {
-                    if (yPos < centerY - halfHeight + 8) {
-                        //break;
-                    }
-                    g.drawString(line, xPos, yPos);
-                    yPos -= rowHeight;
-                    lineCount++;
-                }
-            }
-        }
-        g.setClip(origClip);
+    }
+
+    private void drawScrollbar(int lineCount, FontMetrics fontMetrics, Graphics2D g) {
         this.maxScroll = lineCount * fontMetrics.getHeight() - halfHeight;
         float frac = scroll / (float) -maxScroll;
         if (frac < 0) {
@@ -236,31 +212,66 @@ public class LoggingComponent extends DraggableBoxComponent {
         }
         g.setColor(scroll == 0 ? Color.GREEN : Color.BLACK);
         g.fillOval(centerX - halfWidth + 4, centerY - halfHeight + 8 + (int) ((2 * halfHeight - 24) * frac), 8, 8);
-        if (isClearing) {
-            GradientPaint paint2 = new GradientPaint(centerX + 20, centerY - halfHeight, Color.WHITE, centerX - 20, centerY + halfHeight, Color.WHITE.darker());
-            g.setPaint(paint2);
-            Composite composite = g.getComposite();
-            g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_ATOP, 0.7f));
-            g.fillRoundRect(centerX - halfWidth + 1, centerY - halfHeight + 1, halfWidth * 2 - 2, halfHeight * 2 - 2, 10, 10);
-            g.setComposite(composite);
-            String display = "Really clear?";
-            int width = fontMetrics.stringWidth(display);
-            g.setColor(mouseX < centerX - width / 2 ? Color.RED : Color.GRAY);
-            g.drawLine(centerX - halfWidth + 12, centerY - halfHeight + 12, centerX - width / 2 - 2, centerY - fontMetrics.getAscent());
-            g.drawLine(centerX - halfWidth + 12, centerY + halfHeight - 12, centerX - width / 2 - 2, centerY - fontMetrics.getAscent() + fontMetrics.getHeight());
-            g.setColor(mouseX > centerX + width / 2 ? Color.GREEN.darker() : Color.GRAY);
-            g.drawLine(centerX + halfWidth - 12, centerY - halfHeight + 12, centerX + width / 2 + 2, centerY - fontMetrics.getAscent());
-            g.drawLine(centerX + halfWidth - 12, centerY + halfHeight - 12, centerX + width / 2 + 2, centerY - fontMetrics.getAscent() + fontMetrics.getHeight());
+    }
+
+    private synchronized int drawLoggedLines(Graphics2D g, FontMetrics fontMetrics, int initialYPos, int xPos, int rowHeight) {
+        int yPos = initialYPos;
+        ArrayList<String> temp = new ArrayList<String>(lines.size() + lines.size() >> 1);
+        int lineCount = 0;
+        for (int i = lines.size() - 1; i >= 0; i--) {
             g.setColor(Color.BLACK);
-            clearingThreshold = centerX - width / 2;
-            g.drawString(display, centerX - width / 2, centerY);
-            display = "Clear";
-            g.setColor(Color.RED);
-            g.drawString(display, centerX - halfWidth / 2 - fontMetrics.stringWidth(display) / 2, centerY);
-            display = "Preserve";
-            g.setColor(Color.GREEN.darker());
-            g.drawString(display, centerX + halfWidth / 2 - fontMetrics.stringWidth(display) / 2, centerY);
+            String line = lines.get(i);
+            if (fontMetrics.stringWidth(line) > halfWidth * 2 - 32) {
+                temp.clear();
+                int base = 0;
+                int linepos = line.length();
+                while (linepos > base) {
+                    String substr = line.substring(base, linepos);
+                    if (fontMetrics.stringWidth(substr) <= halfWidth * 2 - 32) {
+                        temp.add(substr);
+                        base = linepos;
+                        linepos = line.length() - 1;
+                    } else {
+                        linepos -= 1;
+                    }
+                }
+                for (int j = temp.size() - 1; j >= 0; j--) {
+                    g.drawString(temp.get(j), xPos, yPos);
+                    yPos -= rowHeight;
+                    lineCount++;
+                }
+            } else {
+                g.drawString(line, xPos, yPos);
+                yPos -= rowHeight;
+                lineCount++;
+            }
         }
+        return lineCount;
+    }
+
+    private void drawClearingOverlay(Graphics2D g, FontMetrics fontMetrics, int mouseX) {
+        g.setPaint(new GradientPaint(centerX + 20, centerY - halfHeight, Color.WHITE, centerX - 20, centerY + halfHeight, Color.WHITE.darker()));
+        Composite composite = g.getComposite();
+        g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_ATOP, 0.7f));
+        g.fillRoundRect(centerX - halfWidth + 1, centerY - halfHeight + 1, halfWidth * 2 - 2, halfHeight * 2 - 2, 10, 10);
+        g.setComposite(composite);
+        String display = "Really clear?";
+        int width = fontMetrics.stringWidth(display);
+        g.setColor(mouseX < centerX - width / 2 ? Color.RED : Color.GRAY);
+        g.drawLine(centerX - halfWidth + 12, centerY - halfHeight + 12, centerX - width / 2 - 2, centerY - fontMetrics.getAscent());
+        g.drawLine(centerX - halfWidth + 12, centerY + halfHeight - 12, centerX - width / 2 - 2, centerY - fontMetrics.getAscent() + fontMetrics.getHeight());
+        g.setColor(mouseX > centerX + width / 2 ? Color.GREEN.darker() : Color.GRAY);
+        g.drawLine(centerX + halfWidth - 12, centerY - halfHeight + 12, centerX + width / 2 + 2, centerY - fontMetrics.getAscent());
+        g.drawLine(centerX + halfWidth - 12, centerY + halfHeight - 12, centerX + width / 2 + 2, centerY - fontMetrics.getAscent() + fontMetrics.getHeight());
+        g.setColor(Color.BLACK);
+        clearingThreshold = centerX - width / 2;
+        g.drawString(display, centerX - width / 2, centerY);
+        display = "Clear";
+        g.setColor(Color.RED);
+        g.drawString(display, centerX - halfWidth / 2 - fontMetrics.stringWidth(display) / 2, centerY);
+        display = "Preserve";
+        g.setColor(Color.GREEN.darker());
+        g.drawString(display, centerX + halfWidth / 2 - fontMetrics.stringWidth(display) / 2, centerY);
     }
 
     @Override

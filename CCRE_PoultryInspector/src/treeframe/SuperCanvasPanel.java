@@ -27,11 +27,9 @@ import java.awt.FontMetrics;
 import java.awt.GradientPaint;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
-import java.awt.event.MouseMotionListener;
 import java.awt.event.MouseWheelEvent;
-import java.awt.event.MouseWheelListener;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -48,7 +46,7 @@ import javax.swing.JPanel;
  *
  * @author skeggsc
  */
-public final class SuperCanvasPanel extends JPanel implements MouseMotionListener, MouseWheelListener, MouseListener {
+public final class SuperCanvasPanel extends JPanel {
 
     /**
      * The currently held component.
@@ -80,51 +78,6 @@ public final class SuperCanvasPanel extends JPanel implements MouseMotionListene
      */
     private transient ExpirationTimer painter;
 
-    /*public void save(DataOutputStream dout) throws IOException {
-     dout.writeInt(0xC00FFEED);
-     SuperCanvasComponent[] out = components.toArray(new SuperCanvasComponent[components.size()]);
-     dout.writeInt(out.length);
-     for (SuperCanvasComponent elem : out) {
-     dout.writeUTF(elem.getClass().getName());
-     elem.save(dout);
-     }
-     dout.writeInt(0xA11DEAD);
-     }
-
-     public void load(DataInputStream din) throws IOException {
-     components.clear();
-     if (din.readInt() != (int) 0xC00FEED) {
-     throw new IOException("Bad magic number!");
-     }
-     int count = din.readInt();
-     if (count < 0 || count > 65536) {
-     throw new IOException("Bad count!");
-     }
-     while (count-- > 0) {
-     try {
-     Class<? extends SuperCanvasComponent> cf = Class.forName(din.readUTF()).asSubclass(SuperCanvasComponent.class);
-     Method mthd = cf.getMethod("loadCanvasComponent", DataInputStream.class);
-     Object comp = mthd.invoke(null, din);
-     if (!(comp instanceof SuperCanvasComponent)) {
-     throw new IOException("Result from loadCanvasComponent is not a SuperCanvasComponent!");
-     }
-     components.add((SuperCanvasComponent) comp);
-     } catch (ClassNotFoundException ex) {
-     throw new IOException("Cannot load serialized class", ex);
-     } catch (NoSuchMethodException ex) {
-     throw new IOException("Cannot load deserialization method", ex);
-     } catch (IllegalAccessException ex) {
-     throw new IOException("Cannot access deserialization method", ex);
-     } catch (IllegalArgumentException ex) {
-     throw new IOException("Cannot invoke deserialization method", ex);
-     } catch (InvocationTargetException ex) {
-     throw new IOException("Cannot deserialize component", ex);
-     }
-     }
-     if (din.readInt() != (int) 0xA11DEAD) {
-     throw new IOException("Bad MAGIC post-number when deserializing!");
-     }
-     }*/
     /**
      * Add the specified component to this panel.
      *
@@ -168,9 +121,10 @@ public final class SuperCanvasPanel extends JPanel implements MouseMotionListene
      * Start the IntelligenceMain instance so that it runs.
      */
     public void start() {
-        this.addMouseMotionListener(this);
-        this.addMouseListener(this);
-        this.addMouseWheelListener(this);
+        MouseAdapter listener = new SuperCanvasMouseAdapter();
+        this.addMouseWheelListener(listener);
+        this.addMouseListener(listener);
+        this.addMouseMotionListener(listener);
         painter = new ExpirationTimer();
         painter.schedule(100, new EventOutput() {
             @Override
@@ -179,135 +133,6 @@ public final class SuperCanvasPanel extends JPanel implements MouseMotionListene
             }
         });
         painter.start();
-    }
-
-    @Override
-    public void mouseDragged(MouseEvent e) {
-        mouseX = e.getX();
-        mouseY = e.getY();
-        if (dragBtn == MouseEvent.BUTTON3) {
-            for (ListIterator<SuperCanvasComponent> it = components.listIterator(components.size()); it.hasPrevious();) {
-                SuperCanvasComponent comp = it.previous();
-                if (comp.contains(e.getX(), e.getY())) {
-                    if (comp.onInteract(e.getX(), e.getY())) {
-                        break;
-                    }
-                }
-            }
-            repaint();
-        } else if (activeEntity != null) {
-            int gx = e.getX(), gy = e.getY();
-            if (gx < 5) {
-                gx = 5;
-            } else if (gx > getWidth() - 5) {
-                gx = getWidth() - 5;
-            }
-            if (gy < 5) {
-                gy = 5;
-            } else if (gy > getHeight() - 5) {
-                gy = getHeight() - 5;
-            }
-            activeEntity.moveForDrag(relActiveX + gx, relActiveY + gy);
-            repaint();
-        } else {
-            for (ListIterator<SuperCanvasComponent> it = components.listIterator(components.size()); it.hasPrevious();) {
-                SuperCanvasComponent comp = it.previous();
-                if (comp.wantsDragSelect() && comp.contains(e.getX(), e.getY())) {
-                    if (comp.onSelect(e.getX(), e.getY())) {
-                        break;
-                    }
-                }
-            }
-            repaint();
-        }
-    }
-
-    @Override
-    public void mouseMoved(MouseEvent e) {
-        boolean mod = false;
-        this.mouseX = e.getX();
-        this.mouseY = e.getY();
-        for (SuperCanvasComponent cmp : components) {
-            if (cmp.contains(e.getX(), e.getY())) {
-                if (mouseOver.add(cmp)) {
-                    mod |= cmp.onMouseEnter(e.getX(), e.getY());
-                } else {
-                    mod |= cmp.onMouseMove(e.getX(), e.getY());
-                }
-            } else {
-                if (mouseOver.remove(cmp)) {
-                    mod |= cmp.onMouseExit(e.getX(), e.getY());
-                }
-            }
-        }
-        if (mod) {
-            repaint();
-        }
-    }
-
-    @Override
-    public void mouseWheelMoved(MouseWheelEvent e) {
-        for (ListIterator<SuperCanvasComponent> it = components.listIterator(components.size()); it.hasPrevious();) {
-            SuperCanvasComponent comp = it.previous();
-            if (comp.contains(e.getX(), e.getY())) { // TODO: Does the X, Y get set for this event?
-                if (comp.onScroll(e.getX(), e.getY(), e.getWheelRotation())) {
-                    break;
-                }
-            }
-        }
-        repaint();
-    }
-
-    @Override
-    public void mouseClicked(MouseEvent e) {
-    }
-
-    @Override
-    public void mousePressed(MouseEvent e) {
-        dragBtn = e.getButton();
-        if (e.getButton() == MouseEvent.BUTTON3) {
-            for (ListIterator<SuperCanvasComponent> it = components.listIterator(components.size()); it.hasPrevious();) {
-                SuperCanvasComponent comp = it.previous();
-                if (comp.contains(e.getX(), e.getY())) {
-                    if (comp.onInteract(e.getX(), e.getY())) {
-                        break;
-                    }
-                }
-            }
-        } else {
-            for (ListIterator<SuperCanvasComponent> it = components.listIterator(components.size()); it.hasPrevious();) {
-                SuperCanvasComponent comp = it.previous();
-                if (comp.contains(e.getX(), e.getY())) {
-                    raise(comp);
-                    if (comp.onSelect(e.getX(), e.getY())) {
-                        break;
-                    }
-                }
-            }
-        }
-    }
-
-    @Override
-    public void mouseReleased(MouseEvent e) {
-        if (activeEntity != null) {
-            for (ListIterator<SuperCanvasComponent> it = components.listIterator(components.size()); it.hasPrevious();) {
-                SuperCanvasComponent comp = it.previous();
-                if (comp != activeEntity && comp.contains(e.getX(), e.getY())) {
-                    if (activeEntity.canDrop() && comp.onReceiveDrop(e.getX(), e.getY(), activeEntity)) {
-                        break;
-                    }
-                }
-            }
-            activeEntity = null;
-        }
-    }
-
-    @Override
-    public void mouseEntered(MouseEvent e) {
-    }
-
-    @Override
-    public void mouseExited(MouseEvent e) {
     }
 
     @Override
@@ -371,6 +196,8 @@ public final class SuperCanvasPanel extends JPanel implements MouseMotionListene
      *
      * @param in the stream to read from.
      * @throws IOException if the contents cannot be loaded.
+     * @throws java.lang.ClassNotFoundException if the contents cannot be
+     * loaded.
      */
     public void load(ObjectInputStream in) throws IOException, ClassNotFoundException {
         // Remove components
@@ -414,5 +241,138 @@ public final class SuperCanvasPanel extends JPanel implements MouseMotionListene
             }
         }
         return any;
+    }
+
+    private class SuperCanvasMouseAdapter extends MouseAdapter {
+
+        SuperCanvasMouseAdapter() {
+        }
+
+        @Override
+        public void mousePressed(MouseEvent e) {
+            dragBtn = e.getButton();
+            if (e.getButton() == MouseEvent.BUTTON3) {
+                for (ListIterator<SuperCanvasComponent> it = components.listIterator(components.size()); it.hasPrevious();) {
+                    SuperCanvasComponent comp = it.previous();
+                    if (comp.contains(e.getX(), e.getY())) {
+                        if (comp.onInteract(e.getX(), e.getY())) {
+                            break;
+                        }
+                    }
+                }
+            } else {
+                for (ListIterator<SuperCanvasComponent> it = components.listIterator(components.size()); it.hasPrevious();) {
+                    SuperCanvasComponent comp = it.previous();
+                    if (comp.contains(e.getX(), e.getY())) {
+                        raise(comp);
+                        if (comp.onSelect(e.getX(), e.getY())) {
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+
+            @Override
+            public void mouseReleased(MouseEvent e) {
+                if (activeEntity != null) {
+                    for (ListIterator<SuperCanvasComponent> it = components.listIterator(components.size()); it.hasPrevious();) {
+                        SuperCanvasComponent comp = it.previous();
+                        if (comp != activeEntity && comp.contains(e.getX(), e.getY())) {
+                            if (activeEntity.canDrop() && comp.onReceiveDrop(e.getX(), e.getY(), activeEntity)) {
+                                break;
+                            }
+                        }
+                    }
+                    activeEntity = null;
+                }
+            }
+
+            @Override
+            public void mouseWheelMoved(MouseWheelEvent e) {
+                for (ListIterator<SuperCanvasComponent> it = components.listIterator(components.size()); it.hasPrevious();) {
+                    SuperCanvasComponent comp = it.previous();
+                    if (comp.contains(e.getX(), e.getY())) { // TODO: Does the X, Y get set for this event?
+                        if (comp.onScroll(e.getX(), e.getY(), e.getWheelRotation())) {
+                            break;
+                        }
+                    }
+                }
+                repaint();
+            }
+
+            @Override
+            public void mouseDragged(MouseEvent e) {
+                mouseX = e.getX();
+                mouseY = e.getY();
+                if (dragBtn == MouseEvent.BUTTON3) {
+                    dragToInteract();
+                } else if (activeEntity != null) {
+                    dragToMove(e);
+                } else {
+                    dragToSelect(e);
+                }
+                repaint();
+            }
+
+            private void dragToSelect(MouseEvent e) {
+                for (ListIterator<SuperCanvasComponent> it = components.listIterator(components.size()); it.hasPrevious();) {
+                    SuperCanvasComponent comp = it.previous();
+                    if (comp.wantsDragSelect() && comp.contains(e.getX(), e.getY())) {
+                        if (comp.onSelect(e.getX(), e.getY())) {
+                            break;
+                        }
+                    }
+                }
+            }
+
+        private void dragToMove(MouseEvent e) {
+            int gx = e.getX(), gy = e.getY();
+            if (gx < 5) {
+                gx = 5;
+            } else if (gx > getWidth() - 5) {
+                gx = getWidth() - 5;
+            }
+            if (gy < 5) {
+                gy = 5;
+            } else if (gy > getHeight() - 5) {
+                gy = getHeight() - 5;
+            }
+            activeEntity.moveForDrag(relActiveX + gx, relActiveY + gy);
+        }
+
+        private void dragToInteract() {
+            for (ListIterator<SuperCanvasComponent> it = components.listIterator(components.size()); it.hasPrevious();) {
+                SuperCanvasComponent comp = it.previous();
+                if (comp.contains(mouseX, mouseY)) {
+                    if (comp.onInteract(mouseX, mouseY)) {
+                        break;
+                    }
+                }
+            }
+        }
+
+        @Override
+        public void mouseMoved(MouseEvent e) {
+            boolean mod = false;
+            mouseX = e.getX();
+            mouseY = e.getY();
+            for (SuperCanvasComponent cmp : components) {
+                if (cmp.contains(e.getX(), e.getY())) {
+                    if (mouseOver.add(cmp)) {
+                        mod |= cmp.onMouseEnter(e.getX(), e.getY());
+                    } else {
+                        mod |= cmp.onMouseMove(e.getX(), e.getY());
+                    }
+                } else {
+                    if (mouseOver.remove(cmp)) {
+                        mod |= cmp.onMouseExit(e.getX(), e.getY());
+                    }
+                }
+            }
+            if (mod) {
+                repaint();
+            }
+        }
     }
 }

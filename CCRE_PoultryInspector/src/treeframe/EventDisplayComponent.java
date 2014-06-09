@@ -23,38 +23,35 @@ import ccre.channel.EventOutput;
 import intelligence.Rendering;
 import java.awt.Color;
 import java.awt.FontMetrics;
-import java.awt.GradientPaint;
 import java.awt.Graphics2D;
-import java.awt.Shape;
-import java.awt.geom.RoundRectangle2D;
 
 /**
  * A component allowing display of events.
  *
  * @author skeggsc
  */
-public class EventDisplayComponent extends DraggableBoxComponent implements EventOutput {
+public class EventDisplayComponent extends BaseChannelComponent implements EventOutput {
 
     private transient long countStart;
     private boolean subscribed;
-    private final String name;
     private final EventInput inp;
 
     /**
      * Create a new EventDisplayComponent with a EventInput to read from.
+     *
      * @param cx the X coordinate.
      * @param cy the Y coordinate.
      * @param name the name of the input.
      * @param inp the EventInput to read from.
      */
     public EventDisplayComponent(int cx, int cy, String name, EventInput inp) {
-        super(cx, cy);
-        this.name = name;
+        super(cx, cy, name);
         this.inp = inp;
     }
 
     /**
      * Create a new EventDisplayComponent.
+     *
      * @param cx the X coordinate.
      * @param cy the Y coordinate.
      * @param name the name of the input.
@@ -64,15 +61,7 @@ public class EventDisplayComponent extends DraggableBoxComponent implements Even
     }
 
     @Override
-    public void render(Graphics2D g, int screenWidth, int screenHeight, FontMetrics fontMetrics, int mouseX, int mouseY) {
-        halfWidth = Math.max(70, g.getFontMetrics().stringWidth(name) / 2);
-        halfHeight = halfWidth * 2 / 3;
-        GradientPaint gp = new GradientPaint(centerX, centerY, Color.YELLOW, centerX + halfHeight, centerY - halfHeight, Color.ORANGE);
-        g.setPaint(gp);
-        Shape s = new RoundRectangle2D.Float(centerX - halfWidth, centerY - halfHeight, halfWidth * 2, halfHeight * 2, 15, 15);
-        g.fill(s);
-        g.setColor(Color.BLACK);
-        g.drawString(name, centerX - halfWidth + 5, centerY - halfHeight + 1 + g.getFontMetrics().getAscent());
+    public void channelRender(Graphics2D g, int screenWidth, int screenHeight, FontMetrics fontMetrics, int mouseX, int mouseY) {
         long count = (System.currentTimeMillis() - countStart);
         g.setColor(Rendering.blend(Color.green, Color.orange, count / 500.0f));
         int rad = Math.min(halfWidth / 3, halfHeight / 3);
@@ -82,11 +71,6 @@ public class EventDisplayComponent extends DraggableBoxComponent implements Even
     @Override
     public boolean onInteract(int x, int y) {
         return false;
-    }
-
-    @Override
-    public String toString() {
-        return name;
     }
 
     @Override

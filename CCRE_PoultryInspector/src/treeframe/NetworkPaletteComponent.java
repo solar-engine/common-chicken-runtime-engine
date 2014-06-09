@@ -34,7 +34,6 @@ import ccre.log.Logger;
 import ccre.util.UniqueIds;
 import java.io.IOException;
 import java.io.ObjectInputStream;
-import java.io.Serializable;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.TreeSet;
@@ -44,9 +43,9 @@ import java.util.TreeSet;
  *
  * @author skeggsc
  */
-public class NetworkPaletteComponent extends PaletteComponent<Collection<NetworkPaletteComponent.Element>> {
+public class NetworkPaletteComponent extends PaletteComponent<Collection<NetworkPaletteElement>> {
 
-    private static SuperCanvasComponent createComponent(String name, Object target, int type, int x, int y) {
+    static SuperCanvasComponent createComponent(String name, Object target, int type, int x, int y) {
         switch (type) {
             case CluckNode.RMT_BOOLOUTP:
                 return new BooleanControlComponent(x, y, name, (BooleanOutput) target);
@@ -97,8 +96,14 @@ public class NetworkPaletteComponent extends PaletteComponent<Collection<Network
 
     private transient PauseTimer researcher;
 
+    /**
+     * Create a new NetworkPaletteComponent at the specified position.
+     *
+     * @param cx The X coordinate.
+     * @param cy The Y coordinate.
+     */
     public NetworkPaletteComponent(int cx, int cy) {
-        super(cx, cy, Collections.synchronizedSet(new TreeSet<Element>()));
+        super(cx, cy, Collections.synchronizedSet(new TreeSet<NetworkPaletteElement>()));
         start();
     }
 
@@ -121,9 +126,9 @@ public class NetworkPaletteComponent extends PaletteComponent<Collection<Network
         Cluck.getNode().startSearchRemotes(searchLinkName, new CluckRemoteListener() {
             @Override
             public synchronized void handle(String remote, int remoteType) {
-                for (Element e : entries) {
-                    if (e.name.equals(remote)) {
-                        if (e.type != remoteType) {
+                for (NetworkPaletteElement e : entries) {
+                    if (e.getName().equals(remote)) {
+                        if (e.getType() != remoteType) {
                             Logger.warning("Mismatched remote type in search@");
                         }
                         return;
@@ -131,42 +136,9 @@ public class NetworkPaletteComponent extends PaletteComponent<Collection<Network
                 }
                 Object sub = subscribeByType(remote, remoteType);
                 if (sub != null) {
-                    entries.add(new Element(remote, sub, remoteType));
+                    entries.add(new NetworkPaletteElement(remote, sub, remoteType));
                 }
             }
         });
     }
-
-    static class Element implements PaletteComponent.PaletteEntry, Serializable, Comparable<Element> {
-
-        private final String name;
-        private final int type;
-        private final Object target;
-
-        Element(String name, Object target, int type) {
-            this.name = name;
-            this.target = target;
-            this.type = type;
-        }
-
-        @Override
-        public String getName() {
-            return name;
-        }
-
-        @Override
-        public SuperCanvasComponent fetch(int x, int y) {
-            SuperCanvasComponent out = createComponent(name, target, type, x, y);
-            if (out == null) {
-                return new FictionalComponent(x, y, name, CluckNode.rmtToString(type));
-            }
-            return out;
-        }
-
-        @Override
-        public int compareTo(Element o) {
-            return name.compareTo(o.name);
-        }
-    }
-
 }

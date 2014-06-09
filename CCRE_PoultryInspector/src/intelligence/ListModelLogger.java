@@ -97,7 +97,7 @@ public final class ListModelLogger implements LoggingTarget, ListSelectionListen
         this.lstErrors = lstErrors;
         this.rescroller = rescroller;
     }
-    
+
     private void start() {
         lstErrors.addListSelectionListener(this);
     }

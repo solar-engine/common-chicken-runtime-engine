@@ -125,7 +125,7 @@ final class IgneousLauncherImpl extends IterativeRobot implements IgneousLaunche
     }
 
     public void robotInit() {
-        IgneousLauncherHolder.launcher = this;
+        IgneousLauncherHolder.setLauncher(this);
         //CluckGlobals.setupServer() - No longer helpful on the robot because this port is now used by default.
         new CluckTCPServer(Cluck.getNode(), 443).start();
         try {

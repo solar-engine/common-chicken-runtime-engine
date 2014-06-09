@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with the CCRE.  If not, see <http://www.gnu.org/licenses/>.
  */
-package treeframe;
+package supercanvas;
 
 import ccre.net.CountingNetworkProvider;
 import java.awt.Color;

@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with the CCRE.  If not, see <http://www.gnu.org/licenses/>.
  */
-package treeframe;
+package supercanvas;
 
 import ccre.log.FileLogger;
 import ccre.log.NetworkAutologger;
@@ -84,7 +84,7 @@ public class SuperCanvasTest extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        canvas = new treeframe.SuperCanvasPanel();
+        canvas = new supercanvas.SuperCanvasPanel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -155,6 +155,6 @@ public class SuperCanvasTest extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private treeframe.SuperCanvasPanel canvas;
+    private supercanvas.SuperCanvasPanel canvas;
     // End of variables declaration//GEN-END:variables
 }

@@ -16,52 +16,54 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with the CCRE.  If not, see <http://www.gnu.org/licenses/>.
  */
-package treeframe;
+package supercanvas;
 
-import ccre.channel.BooleanInput;
-import ccre.channel.BooleanOutput;
+import ccre.channel.EventInput;
+import ccre.channel.EventOutput;
+import intelligence.Rendering;
 import java.awt.Color;
 import java.awt.FontMetrics;
 import java.awt.Graphics2D;
 
 /**
- * A component allowing display of booleans.
+ * A component allowing display of events.
  *
  * @author skeggsc
  */
-public class BooleanDisplayComponent extends BaseChannelComponent implements BooleanOutput {
+public class EventDisplayComponent extends BaseChannelComponent implements EventOutput {
 
-    private boolean pressed;
+    private transient long countStart;
     private boolean subscribed;
-    private final BooleanInput inp;
+    private final EventInput inp;
 
     /**
-     * Create a new BooleanDisplayComponent with a BooleanInput to read from.
+     * Create a new EventDisplayComponent with a EventInput to read from.
      *
      * @param cx the X coordinate.
      * @param cy the Y coordinate.
      * @param name the name of the input.
-     * @param inp the BooleanInput to read from.
+     * @param inp the EventInput to read from.
      */
-    public BooleanDisplayComponent(int cx, int cy, String name, BooleanInput inp) {
+    public EventDisplayComponent(int cx, int cy, String name, EventInput inp) {
         super(cx, cy, name);
         this.inp = inp;
     }
 
     /**
-     * Create a new BooleanDisplayComponent.
+     * Create a new EventDisplayComponent.
      *
      * @param cx the X coordinate.
      * @param cy the Y coordinate.
      * @param name the name of the input.
      */
-    public BooleanDisplayComponent(int cx, int cy, String name) {
+    public EventDisplayComponent(int cx, int cy, String name) {
         this(cx, cy, name, null);
     }
 
     @Override
     public void channelRender(Graphics2D g, int screenWidth, int screenHeight, FontMetrics fontMetrics, int mouseX, int mouseY) {
-        g.setColor(pressed ? Color.GREEN : Color.RED);
+        long count = (System.currentTimeMillis() - countStart);
+        g.setColor(Rendering.blend(Color.green, Color.orange, count / 500.0f));
         int rad = Math.min(halfWidth / 3, halfHeight / 3);
         g.fillOval(centerX - rad, centerY - rad, rad * 2, rad * 2);
     }
@@ -85,7 +87,7 @@ public class BooleanDisplayComponent extends BaseChannelComponent implements Boo
     }
 
     @Override
-    public void set(boolean value) {
-        pressed = value;
+    public void event() {
+        countStart = System.currentTimeMillis();
     }
 }

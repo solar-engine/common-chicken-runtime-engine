@@ -33,7 +33,7 @@
     </DimensionLayout>
   </Layout>
   <SubComponents>
-    <Container class="treeframe.SuperCanvasPanel" name="canvas">
+    <Container class="supercanvas.SuperCanvasPanel" name="canvas">
 
       <Layout>
         <DimensionLayout dim="0">

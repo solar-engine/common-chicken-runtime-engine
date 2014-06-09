@@ -26,6 +26,8 @@ package ccre.igneous;
  */
 class IgneousLauncherHolder {
 
+    private static IgneousLauncher launcher;
+
     /**
      * @return the launcher
      */
@@ -45,6 +47,4 @@ class IgneousLauncherHolder {
 
     private IgneousLauncherHolder() {
     }
-
-    private static IgneousLauncher launcher;
 }

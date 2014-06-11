@@ -18,6 +18,7 @@
  */
 package ccre.util;
 
+import java.util.ConcurrentModificationException;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
@@ -29,7 +30,7 @@ import java.util.NoSuchElementException;
  * @param <K> the key type.
  * @param <V> the value type.
  */
-public class CHashMap<K, V> implements Iterable<K> {
+public final class CHashMap<K, V> implements Iterable<K> {
 
     /**
      * The current hash nodes of the map.
@@ -39,6 +40,10 @@ public class CHashMap<K, V> implements Iterable<K> {
      * The number of elements in the map.
      */
     private int size;
+    /**
+     * The number of structural modifications made to the CHashMap.
+     */
+    private transient volatile int modcount = 0;
 
     /**
      * Create a new CHashMap with a given initial array size.
@@ -61,13 +66,17 @@ public class CHashMap<K, V> implements Iterable<K> {
     /**
      * Iterate over all the keys of this CHashMap.
      */
-    public Iterator<K> iterator() { // TODO: Add tracking for modcounts here!
+    public Iterator<K> iterator() {
         final Node<K, V>[] localMap = this.map;
         return new Iterator<K>() {
             private int index = 0;
             private Node<K, V> next = null;
+            private final int expectedModcount = modcount;
 
             public boolean hasNext() {
+                if (modcount != expectedModcount) {
+                    throw new ConcurrentModificationException();
+                }
                 while (next == null) {
                     if (index >= localMap.length) {
                         return false;
@@ -87,7 +96,7 @@ public class CHashMap<K, V> implements Iterable<K> {
             }
 
             @Override
-            public void remove() {
+            public void remove() { // TODO: Support removal.
                 throw new UnsupportedOperationException();
             }
         };
@@ -113,7 +122,7 @@ public class CHashMap<K, V> implements Iterable<K> {
      * Set the specified key in the map to the specified value.
      *
      * @param key the key.
-     * @param value the value.
+     * @param value the value.  
      * @return the previous value at that key, or null if no such key existed.
      */
     public V put(K key, V value) {
@@ -145,6 +154,7 @@ public class CHashMap<K, V> implements Iterable<K> {
         int h = hash(key);
         map[h] = new Node<K, V>(key, value, map[h]);
         size++;
+        modcount++;
         return null;
     }
 
@@ -190,6 +200,7 @@ public class CHashMap<K, V> implements Iterable<K> {
             map[i] = null;
         }
         size = 0;
+        modcount++;
     }
 
     /**
@@ -226,6 +237,8 @@ public class CHashMap<K, V> implements Iterable<K> {
                 } else {
                     map[hash(key)] = n.next;
                 }
+                size--;
+                modcount++;
                 return n.value;
             }
             previous = n;

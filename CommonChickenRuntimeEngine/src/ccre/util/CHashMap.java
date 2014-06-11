@@ -23,8 +23,8 @@ import java.util.Iterator;
 import java.util.NoSuchElementException;
 
 /**
- * A basic hash map. Does not yet support removal of keys. Iterate over this to
- * iterate over all the keys.
+ * A basic hash map. Iterate over this to iterate over all the keys. Does not
+ * support null keys, but does support null values.
  *
  * @author skeggsc
  * @param <K> the key type.
@@ -71,7 +71,8 @@ public final class CHashMap<K, V> implements Iterable<K> {
         return new Iterator<K>() {
             private int index = 0;
             private Node<K, V> next = null;
-            private final int expectedModcount = modcount;
+            private int expectedModcount = modcount;
+            private K keyToRemove = null;
 
             public boolean hasNext() {
                 if (modcount != expectedModcount) {
@@ -92,12 +93,20 @@ public final class CHashMap<K, V> implements Iterable<K> {
                 }
                 K out = next.key;
                 next = next.next;
+                keyToRemove = out;
                 return out;
             }
 
             @Override
-            public void remove() { // TODO: Support removal.
-                throw new UnsupportedOperationException();
+            public void remove() {
+                if (keyToRemove == null) {
+                    throw new IllegalStateException("Cannot remove nothing!");
+                }
+                if (modcount != expectedModcount) {
+                    throw new ConcurrentModificationException();
+                }
+                CHashMap.this.remove(keyToRemove);
+                expectedModcount++;
             }
         };
     }
@@ -122,7 +131,7 @@ public final class CHashMap<K, V> implements Iterable<K> {
      * Set the specified key in the map to the specified value.
      *
      * @param key the key.
-     * @param value the value.  
+     * @param value the value.
      * @return the previous value at that key, or null if no such key existed.
      */
     public V put(K key, V value) {

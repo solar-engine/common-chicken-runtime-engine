@@ -225,7 +225,7 @@ public class CluckNode implements Serializable {
      * ccre.cluck.CluckLink)
      */
     public void broadcast(String source, byte[] data, CluckLink denyLink) {
-        for (Iterator<String> linkIter = links.iterator(); linkIter.hasNext();) {
+        for (Iterator<String> linkIter = links.looseIterator(); linkIter.hasNext();) {
             CluckLink cl = links.get(linkIter.next());
             if (cl != null && cl != denyLink) {
                 if (cl.send("*", source, data) == false) {

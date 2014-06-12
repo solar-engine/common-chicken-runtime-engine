@@ -25,6 +25,7 @@ import ccre.channel.FloatInput;
 import ccre.channel.FloatStatus;
 import ccre.cluck.Cluck;
 import ccre.ctrl.BooleanMixing;
+import ccre.log.Logger;
 import ccre.util.LineCollectorOutputStream;
 import intelligence.IndicatorLight;
 import static intelligence.monitor.PhidgetMonitor.ANALOG_COUNT;
@@ -293,9 +294,12 @@ public class VirtualPhidgetMonitor extends javax.swing.JFrame implements IPhidge
         }
         Cluck.publish("phidget-attached", (BooleanInput) attached);
         JToggleButton[] btns = new JToggleButton[]{btn0, btn1, btn2, btn3, btn4, btn5, btn6, btn7};
-        for (int i = 0; i < INPUT_COUNT; i++) { // TODO: Remove listeners properly.
+        for (int i = 0; i < INPUT_COUNT; i++) {
             final BooleanStatus stat = new BooleanStatus();
             final JToggleButton btn = btns[i];
+            if (btn.getActionListeners().length != 0) {
+                Logger.warning("Bad listener count on unattached button!");
+            }
             btn.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
@@ -308,6 +312,9 @@ public class VirtualPhidgetMonitor extends javax.swing.JFrame implements IPhidge
         for (int i = 0; i < ANALOG_COUNT; i++) {
             final FloatStatus stat = new FloatStatus();
             final JSlider ana = anas[i];
+            if (ana.getChangeListeners().length != 0) {
+                Logger.warning("Bad listener count on unattached analog!");
+            }
             ana.addChangeListener(new ChangeListener() {
                 @Override
                 public void stateChanged(ChangeEvent e) {
@@ -331,10 +338,26 @@ public class VirtualPhidgetMonitor extends javax.swing.JFrame implements IPhidge
         for (int i = 0; i < LCD_LINES; i++) {
             Cluck.getNode().removeLink("phidget-lcd" + i);
         }
+        JToggleButton[] btns = new JToggleButton[]{btn0, btn1, btn2, btn3, btn4, btn5, btn6, btn7};
         for (int i = 0; i < INPUT_COUNT; i++) {
+            final JToggleButton btn = btns[i];
+            if (btn.getActionListeners().length != 1) {
+                Logger.warning("Bad listener count on unattached button!");
+            }
+            for (ActionListener listener : btn.getActionListeners()) {
+                btn.removeActionListener(listener);
+            }
             Cluck.getNode().removeLink("phidget-bi" + i);
         }
+        JSlider[] anas = new JSlider[]{ana0, ana1, ana2, ana3, ana4, ana5, ana6, ana7};
         for (int i = 0; i < ANALOG_COUNT; i++) {
+            final JSlider ana = anas[i];
+            if (ana.getChangeListeners().length != 1) {
+                Logger.warning("Bad listener count on unattached button!");
+            }
+            for (ChangeListener listener : ana.getChangeListeners()) {
+                ana.removeChangeListener(listener);
+            }
             Cluck.getNode().removeLink("phidget-ai" + i);
         }
         Cluck.getNode().notifyNetworkModified();

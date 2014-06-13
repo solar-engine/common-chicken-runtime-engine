@@ -86,7 +86,7 @@ public abstract class InstinctModule implements EventOutput {
     private void instinctBody() {
         while (true) {
             isRunning = false;
-            while (!shouldBeRunning.get()) { // TODO: Is it an issue to have this in here instead of further out?
+            while (!shouldBeRunning.get()) {
                 try {
                     waitCycle();
                 } catch (InterruptedException ex) {

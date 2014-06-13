@@ -42,6 +42,7 @@ import static ccre.cluck.CluckNode.RMT_FLOATPROD_UNSUB;
 import static ccre.cluck.CluckNode.RMT_LOGTARGET;
 import static ccre.cluck.CluckNode.RMT_NEGATIVE_ACK;
 import static ccre.cluck.CluckNode.RMT_OUTSTREAM;
+import static ccre.cluck.CluckNode.RMT_PING;
 import ccre.concurrency.ConcurrentDispatchArray;
 import ccre.log.LogLevel;
 import ccre.log.Logger;
@@ -49,6 +50,7 @@ import ccre.log.LoggingTarget;
 import ccre.util.UniqueIds;
 import ccre.util.Utils;
 import ccre.workarounds.ThrowablePrinter;
+import java.io.Closeable;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.OutputStream;
@@ -62,6 +64,40 @@ import java.io.Serializable;
 public class CluckPublisher {
 
     private static long lastReportedRemoteLoggingError = 0;
+
+    /**
+     * Start a search process on the specified network. This will tell the
+     * listener each time a new remote is discovered, and the EventOutput
+     * returned from this method will cause the network to be rechecked for new
+     * elements.
+     *
+     * Note that unlike the previous implementation, this implementation will
+     * not send a checking message until the EventOutput is fired.
+     *
+     * @param node the network to search.
+     * @param listener the listener to tell about new nodes.
+     * @return the EventOutput that rechecks the network.
+     */
+    public static EventOutput setupSearching(final CluckNode node, final CluckRemoteListener listener) {
+        final String local = UniqueIds.global.nextHexId("search-");
+        new CluckSubscriber(node) {
+            @Override
+            protected void receive(String source, byte[] data) {
+                if (data.length == 2 && data[0] == RMT_PING) {
+                    listener.handle(source, data[1]);
+                }
+            }
+
+            @Override
+            protected void receiveBroadcast(String source, byte[] data) {
+            }
+        }.attach(local);
+        return new EventOutput() {
+            public void event() {
+                node.broadcast(local, new byte[]{RMT_PING}, null);
+            }
+        };
+    }
 
     /**
      * Publish an EventOutput on the network.
@@ -807,7 +843,7 @@ public class CluckPublisher {
         }
 
         public void set(float f) {
-            int iver = Float.floatToIntBits(f); // TODO: Can float->byte and similar operations be in a utility class?
+            int iver = Float.floatToIntBits(f);
             node.transmit(path, null, new byte[]{RMT_FLOATOUTP, (byte) (iver >> 24), (byte) (iver >> 16), (byte) (iver >> 8), (byte) iver});
         }
     }

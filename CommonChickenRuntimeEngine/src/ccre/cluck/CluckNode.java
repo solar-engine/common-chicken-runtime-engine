@@ -220,7 +220,7 @@ public class CluckNode implements Serializable {
      *
      * @param source The source of the message.
      * @param data The contents of the message.
-     * @param denyLink The link to not send broadcasts to.
+     * @param denyLink The link to not send broadcasts to, or null.
      * @see #transmit(java.lang.String, java.lang.String, byte[],
      * ccre.cluck.CluckLink)
      */
@@ -255,7 +255,7 @@ public class CluckNode implements Serializable {
      * @param listener The listener to notify.
      */
     public void subscribeToStructureNotifications(String localRecvName, final EventOutput listener) {
-        new CluckSubscriber(Cluck.getNode()) {
+        new CluckSubscriber(this) {
             @Override
             protected void receive(String source, byte[] data) {
             }
@@ -280,8 +280,9 @@ public class CluckNode implements Serializable {
      * unique.
      * @param listener The listener to notify with all found remotes.
      * @see #cycleSearchRemotes(java.lang.String)
+     * @deprecated Use CluckPublisher.setupSearching instead.
      */
-    public void startSearchRemotes(String localRecvName, final CluckRemoteListener listener) { // TODO: Make this a separate part of the library.
+    public void startSearchRemotes(String localRecvName, final CluckRemoteListener listener) {
         new CluckSubscriber(this) {
             @Override
             protected void receive(String source, byte[] data) {
@@ -304,8 +305,9 @@ public class CluckNode implements Serializable {
      * the one passed to startSearchRemotes originally.
      * @see #startSearchRemotes(java.lang.String,
      * ccre.cluck.CluckRemoteListener)
+     * @deprecated Use CluckPublisher.setupSearching instead.
      */
-    public void cycleSearchRemotes(String localRecv) { // TODO: Make this a separate part of the library.
+    public void cycleSearchRemotes(String localRecv) {
         transmit("*", localRecv, new byte[]{RMT_PING});
     }
 
@@ -318,8 +320,9 @@ public class CluckNode implements Serializable {
      * @return The snapshot of remotes.
      * @throws InterruptedException If the current thread is interrupted while
      * searching for remotes.
+     * @deprecated Use CluckPublisher.setupSearching instead.
      */
-    public String[] searchRemotes(final Integer remoteType, int timeout) throws InterruptedException { // TODO: Make this a separate part of the library, or delete it.
+    public String[] searchRemotes(final Integer remoteType, int timeout) throws InterruptedException {
         final CArrayList<String> discovered = new CArrayList<String>();
         String localRecv = UniqueIds.global.nextHexId("rsch");
         new CluckSubscriber(this) {

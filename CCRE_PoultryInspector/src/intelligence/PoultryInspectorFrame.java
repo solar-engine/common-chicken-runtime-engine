@@ -86,10 +86,11 @@ public class PoultryInspectorFrame extends javax.swing.JFrame {
         }
         if (args[0].equals("-virtual")) {
             monitor = new VirtualPhidgetMonitor();
-            args = Arrays.copyOfRange(args, 1, args.length - 1);
+            System.out.println("Current argument count: " + args.length);
+            args = Arrays.copyOfRange(args, 1, args.length);
         } else if (args[0].equals("-phidget")) {
             monitor = new PhidgetMonitor();
-            args = Arrays.copyOfRange(args, 1, args.length - 1);
+            args = Arrays.copyOfRange(args, 1, args.length);
         }
         if (args.length >= 2) {
             try {

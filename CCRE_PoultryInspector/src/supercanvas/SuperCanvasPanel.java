@@ -292,7 +292,7 @@ public final class SuperCanvasPanel extends JPanel {
             public void mouseWheelMoved(MouseWheelEvent e) {
                 for (ListIterator<SuperCanvasComponent> it = components.listIterator(components.size()); it.hasPrevious();) {
                     SuperCanvasComponent comp = it.previous();
-                    if (comp.contains(e.getX(), e.getY())) { // TODO: Does the X, Y get set for this event?
+                    if (comp.contains(e.getX(), e.getY())) {
                         if (comp.onScroll(e.getX(), e.getY(), e.getWheelRotation())) {
                             break;
                         }

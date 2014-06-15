@@ -26,6 +26,7 @@ import ccre.channel.FloatInput;
 import ccre.channel.FloatOutput;
 import ccre.cluck.Cluck;
 import ccre.cluck.CluckNode;
+import ccre.cluck.CluckPublisher;
 import ccre.cluck.CluckRemoteListener;
 import ccre.concurrency.CollapsingWorkerThread;
 import ccre.ctrl.PauseTimer;
@@ -113,17 +114,8 @@ public class NetworkPaletteComponent extends PaletteComponent<Collection<Network
     }
 
     private void start() {
-        final String searchLinkName = UniqueIds.global.nextHexId("researcher");
         this.researcher = new PauseTimer(500);
-        researcher.triggerAtEnd(new CollapsingWorkerThread("Cluck-Researcher") {
-            @Override
-            protected void doWork() throws Throwable {
-                entries.clear();
-                Cluck.getNode().cycleSearchRemotes(searchLinkName);
-            }
-        });
-        Cluck.getNode().subscribeToStructureNotifications(UniqueIds.global.nextHexId("notification-subscriber"), researcher);
-        Cluck.getNode().startSearchRemotes(searchLinkName, new CluckRemoteListener() {
+        final EventOutput searcher = CluckPublisher.setupSearching(Cluck.getNode(), new CluckRemoteListener() {
             @Override
             public synchronized void handle(String remote, int remoteType) {
                 for (NetworkPaletteElement e : entries) {
@@ -140,5 +132,13 @@ public class NetworkPaletteComponent extends PaletteComponent<Collection<Network
                 }
             }
         });
+        researcher.triggerAtEnd(new EventOutput() {
+            public void event() {
+                entries.clear();
+                searcher.event();
+            }
+        });
+        Cluck.getNode().subscribeToStructureNotifications(UniqueIds.global.nextHexId("notification-subscriber"), researcher);
+        searcher.event();
     }
 }

@@ -20,6 +20,7 @@ package intelligence;
 
 import ccre.channel.EventOutput;
 import ccre.cluck.Cluck;
+import ccre.cluck.CluckPublisher;
 import ccre.cluck.CluckRemoteListener;
 import ccre.cluck.rpc.RemoteProcedure;
 import ccre.concurrency.CollapsingWorkerThread;
@@ -174,16 +175,16 @@ public final class IntelligenceMain extends JPanel implements CluckRemoteListene
                 repaint();
             }
         });
-        final String searchLinkName = UniqueIds.global.nextHexId("big-brother");
+        final EventOutput searcher = CluckPublisher.setupSearching(Cluck.getNode(), this);
         this.researcher = new CollapsingWorkerThread("Cluck-Researcher") {
             @Override
             protected void doWork() throws Throwable {
                 remotes.clear();
                 sortRemotes = null;
-                Cluck.getNode().cycleSearchRemotes(searchLinkName);
+                searcher.event();
             }
         };
-        Cluck.getNode().startSearchRemotes(searchLinkName, this);
+        searcher.event();
         painter.start();
         triggerResearch();
     }

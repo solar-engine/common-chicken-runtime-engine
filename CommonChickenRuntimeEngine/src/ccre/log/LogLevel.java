@@ -29,7 +29,8 @@ import java.io.Serializable;
  */
 public class LogLevel implements Serializable {
 
-    /**
+	private static final long serialVersionUID = 6646883245419060561L;
+	/**
      * A severe error. This usually means that something major didn't work, or
      * an impossible condition occurred.
      */

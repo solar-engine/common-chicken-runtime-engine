@@ -102,7 +102,6 @@ public class EventStatus implements EventInput, EventOutput, Serializable {
         }
     }
 
-    @Override
     public void event() {
         produce();
     }

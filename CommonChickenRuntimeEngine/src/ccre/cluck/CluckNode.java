@@ -40,7 +40,8 @@ import java.util.Iterator;
  */
 public class CluckNode implements Serializable {
 
-    /**
+	private static final long serialVersionUID = -5439319159206467512L;
+	/**
      * The ID representing a PING message.
      */
     public static final byte RMT_PING = 0;
@@ -451,7 +452,9 @@ public class CluckNode implements Serializable {
 
     private static class SerializedGlobalCluckNode implements Serializable {
 
-        private Object readResolve() {
+		private static final long serialVersionUID = 6554282414281830927L;
+
+		private Object readResolve() {
             return Cluck.getNode();
         }
     }

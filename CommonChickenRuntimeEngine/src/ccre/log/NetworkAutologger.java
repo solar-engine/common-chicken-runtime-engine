@@ -18,16 +18,12 @@
  */
 package ccre.log;
 
-import ccre.channel.EventLogger;
 import ccre.channel.EventOutput;
 import ccre.cluck.Cluck;
 import ccre.cluck.CluckNode;
 import ccre.cluck.CluckPublisher;
 import ccre.cluck.CluckRemoteListener;
-import ccre.cluck.CluckSubscriber;
-import ccre.concurrency.CollapsingWorkerThread;
 import ccre.concurrency.ConcurrentDispatchArray;
-import ccre.ctrl.EventMixing;
 import ccre.util.CHashMap;
 import ccre.util.UniqueIds;
 

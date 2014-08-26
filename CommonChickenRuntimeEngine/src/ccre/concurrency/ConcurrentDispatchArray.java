@@ -37,7 +37,8 @@ import java.util.NoSuchElementException;
  */
 public final class ConcurrentDispatchArray<E> implements CCollection<E>, Serializable {
 
-    /**
+	private static final long serialVersionUID = -7949492774411494179L;
+	/**
      * The array that contains the current data. Do not modify this field
      * directly - use compareAndSetArray.
      *
@@ -67,13 +68,11 @@ public final class ConcurrentDispatchArray<E> implements CCollection<E>, Seriali
         return new Iterator<E>() {
             private int i = 0;
 
-            @Override
             public boolean hasNext() {
                 return i < dat.length;
             }
 
             @SuppressWarnings("unchecked")
-            @Override
             public E next() {
                 if (!hasNext()) {
                     throw new NoSuchElementException();
@@ -81,7 +80,6 @@ public final class ConcurrentDispatchArray<E> implements CCollection<E>, Seriali
                 return (E) dat[i++];
             }
 
-            @Override
             public void remove() {
                 removeSpecificElement(dat[i - 1]);
             }

@@ -76,14 +76,13 @@ public class CLinkedList<T> extends CAbstractList<T> {
     @Override
     public Iterator<T> iterator() {
         final int modCount = getModCount();
-        return new LinkedListIterator<T>(this.sentinel, modCount);
+        return new LinkedListIterator(this.sentinel, modCount);
     }
 
     void decrementSize() {
         size--;
     }
 
-    @Override
     public int size() {
         return size;
     }
@@ -133,7 +132,6 @@ public class CLinkedList<T> extends CAbstractList<T> {
         size++;
     }
 
-    @Override
     public T get(final int index) {
         requireIndexIn(0, index, size);
         Node<T> n = getNodeAt(index);
@@ -290,7 +288,7 @@ public class CLinkedList<T> extends CAbstractList<T> {
         }
     }
 
-    private class LinkedListIterator<T> implements Iterator<T> {
+    private class LinkedListIterator implements Iterator<T> {
 
         private final Node<T> sentinel;
         private Node<T> current;
@@ -320,7 +318,6 @@ public class CLinkedList<T> extends CAbstractList<T> {
             return out;
         }
 
-        @Override
         public void remove() {
             if (!canRemove) {
                 throw new IllegalStateException();

@@ -87,7 +87,6 @@ public abstract class CAbstractList<T> implements CList<T> {
                 return get(i++);
             }
 
-            @Override
             public void remove() {
                 CAbstractList.this.remove(--i);
                 locmod++;
@@ -230,7 +229,6 @@ public abstract class CAbstractList<T> implements CList<T> {
         return sb.toString();
     }
 
-    @Override
     public Object[] toArray() {
         Object[] out = new Object[size()];
         if (fillArray(out) != 0) {
@@ -239,7 +237,6 @@ public abstract class CAbstractList<T> implements CList<T> {
         return out;
     }
 
-    @Override
     public int fillArray(Object[] target) {
         Iterator<T> it = this.iterator();
         int i = 0;

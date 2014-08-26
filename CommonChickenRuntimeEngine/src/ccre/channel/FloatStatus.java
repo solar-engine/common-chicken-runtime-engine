@@ -103,7 +103,6 @@ public class FloatStatus implements FloatOutput, FloatInput, Serializable {
         }
     }
 
-    @Override
     public final synchronized float get() {
         return value;
     }
@@ -120,7 +119,6 @@ public class FloatStatus implements FloatOutput, FloatInput, Serializable {
         return consumers != null && !consumers.isEmpty();
     }
 
-    @Override
     public final synchronized void set(float newValue) {
         if (Float.floatToIntBits(value) == Float.floatToIntBits(newValue)) {
             return; // Do nothing. We want to ignore the value if it's the same.
@@ -156,7 +154,6 @@ public class FloatStatus implements FloatOutput, FloatInput, Serializable {
         FloatMixing.setWhen(when, this, value);
     }
 
-    @Override
     public synchronized void send(FloatOutput output) {
         if (consumers == null) {
             consumers = new ConcurrentDispatchArray<FloatOutput>();
@@ -165,7 +162,6 @@ public class FloatStatus implements FloatOutput, FloatInput, Serializable {
         output.set(value);
     }
 
-    @Override
     public synchronized void unsend(FloatOutput output) {
         if (consumers != null) {
             if (consumers.remove(output) && consumers.isEmpty()) {

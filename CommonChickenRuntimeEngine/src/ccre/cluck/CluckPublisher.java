@@ -18,15 +18,6 @@
  */
 package ccre.cluck;
 
-import ccre.channel.BooleanInput;
-import ccre.channel.BooleanOutput;
-import ccre.channel.BooleanStatus;
-import ccre.channel.EventInput;
-import ccre.channel.EventOutput;
-import ccre.channel.EventStatus;
-import ccre.channel.FloatInput;
-import ccre.channel.FloatOutput;
-import ccre.channel.FloatStatus;
 import static ccre.cluck.CluckNode.RMT_BOOLOUTP;
 import static ccre.cluck.CluckNode.RMT_BOOLPROD;
 import static ccre.cluck.CluckNode.RMT_BOOLPRODRESP;
@@ -43,6 +34,21 @@ import static ccre.cluck.CluckNode.RMT_LOGTARGET;
 import static ccre.cluck.CluckNode.RMT_NEGATIVE_ACK;
 import static ccre.cluck.CluckNode.RMT_OUTSTREAM;
 import static ccre.cluck.CluckNode.RMT_PING;
+
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.OutputStream;
+import java.io.Serializable;
+
+import ccre.channel.BooleanInput;
+import ccre.channel.BooleanOutput;
+import ccre.channel.BooleanStatus;
+import ccre.channel.EventInput;
+import ccre.channel.EventOutput;
+import ccre.channel.EventStatus;
+import ccre.channel.FloatInput;
+import ccre.channel.FloatOutput;
+import ccre.channel.FloatStatus;
 import ccre.concurrency.ConcurrentDispatchArray;
 import ccre.log.LogLevel;
 import ccre.log.Logger;
@@ -50,11 +56,6 @@ import ccre.log.LoggingTarget;
 import ccre.util.UniqueIds;
 import ccre.util.Utils;
 import ccre.workarounds.ThrowablePrinter;
-import java.io.Closeable;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.OutputStream;
-import java.io.Serializable;
 
 /**
  * A file that handles publishing and subscribing of basic channels.
@@ -478,7 +479,8 @@ public class CluckPublisher {
 
     private static class SubscribedLoggingTarget implements LoggingTarget, Serializable {
 
-        private final LogLevel minimum;
+		private static final long serialVersionUID = 5342629979840268661L;
+		private final LogLevel minimum;
         private final CluckNode node;
         private final String path;
 
@@ -804,7 +806,8 @@ public class CluckPublisher {
 
     private static class SubscribedEventOutput implements EventOutput, Serializable {
 
-        private final CluckNode node;
+		private static final long serialVersionUID = 5103577228341124318L;
+		private final CluckNode node;
         private final String path;
 
         SubscribedEventOutput(CluckNode node, String path) {
@@ -819,7 +822,8 @@ public class CluckPublisher {
 
     private static class SubscribedBooleanOutput implements BooleanOutput, Serializable {
 
-        private final CluckNode node;
+		private static final long serialVersionUID = -4068385997161728204L;
+		private final CluckNode node;
         private final String path;
 
         SubscribedBooleanOutput(CluckNode node, String path) {
@@ -834,7 +838,8 @@ public class CluckPublisher {
 
     private static class SubscribedFloatOutput implements FloatOutput, Serializable {
 
-        private final CluckNode node;
+		private static final long serialVersionUID = -4377296771561862860L;
+		private final CluckNode node;
         private final String path;
 
         SubscribedFloatOutput(CluckNode node, String path) {
@@ -850,7 +855,8 @@ public class CluckPublisher {
 
     private static class SubscribedObjectStream extends OutputStream implements Serializable {
 
-        private final CluckNode node;
+		private static final long serialVersionUID = -9002013295388072459L;
+		private final CluckNode node;
         private final String path;
 
         SubscribedObjectStream(CluckNode node, String path) {

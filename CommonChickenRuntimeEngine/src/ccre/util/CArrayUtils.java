@@ -100,12 +100,10 @@ public class CArrayUtils {
             this.arr = arr;
         }
 
-        @Override
         public int size() {
             return arr.length;
         }
 
-        @Override
         public T get(int index) {
             return arr[index];
         }

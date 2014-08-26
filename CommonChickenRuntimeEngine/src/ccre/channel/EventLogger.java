@@ -39,6 +39,7 @@ public final class EventLogger implements EventOutput {
     public static void log(EventInput when, LogLevel level, String message) {
         when.send(new EventLogger(level, message));
     }
+
     /**
      * The logging level at which to log the message.
      */

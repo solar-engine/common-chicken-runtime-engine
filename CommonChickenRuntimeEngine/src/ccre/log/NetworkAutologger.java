@@ -63,6 +63,7 @@ public final class NetworkAutologger implements LoggingTarget, CluckRemoteListen
         Logger.addTarget(nlog);
         nlog.start();
     }
+
     /**
      * The current list of remotes to send logging messages to.
      */

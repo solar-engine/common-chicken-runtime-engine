@@ -37,8 +37,8 @@ import java.util.NoSuchElementException;
  */
 public final class ConcurrentDispatchArray<E> implements CCollection<E>, Serializable {
 
-	private static final long serialVersionUID = -7949492774411494179L;
-	/**
+    private static final long serialVersionUID = -7949492774411494179L;
+    /**
      * The array that contains the current data. Do not modify this field
      * directly - use compareAndSetArray.
      *

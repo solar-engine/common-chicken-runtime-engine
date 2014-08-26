@@ -56,12 +56,14 @@ public class TestUtils extends BaseTest {
                 break;
             } else {
                 Logger.warning("Failed timing test: " + here + " to " + there + " is " + (there - here) + " and expected " + (100 / 1000f));
-                /*Map<Thread, StackTraceElement[]> allStackTraces = Thread.getAllStackTraces();
-                 for (Map.Entry<Thread, StackTraceElement[]> elem : allStackTraces.entrySet()) {
-                 Throwable tmp = new Throwable("Trace for " + elem.getKey());
-                 tmp.setStackTrace(elem.getValue());
-                 Logger.log(LogLevel.INFO, "Traces", tmp);
-                 }*/
+                /*
+                 * Map<Thread, StackTraceElement[]> allStackTraces =
+                 * Thread.getAllStackTraces(); for (Map.Entry<Thread,
+                 * StackTraceElement[]> elem : allStackTraces.entrySet()) {
+                 * Throwable tmp = new Throwable("Trace for " + elem.getKey());
+                 * tmp.setStackTrace(elem.getValue()); Logger.log(LogLevel.INFO,
+                 * "Traces", tmp); }
+                 */
             }
         }
         assertTrue(success, "Five timing check attempts failed!");
@@ -100,20 +102,20 @@ public class TestUtils extends BaseTest {
             // Correct!
         }
         try {
-            c.addAll(new CArrayList<String>(new String[]{"Test", "Exactly!"}));
+            c.addAll(new CArrayList<String>(new String[] { "Test", "Exactly!" }));
             assertFail("Should have errored!");
         } catch (UnsupportedOperationException u) {
             // Correct!
         }
         try {
-            c.addAll(0, new CArrayList<String>(new String[]{"Test", "Exactly!"}));
+            c.addAll(0, new CArrayList<String>(new String[] { "Test", "Exactly!" }));
             assertFail("Should have errored!");
         } catch (UnsupportedOperationException u) {
             // Correct!
         }
         assertFalse(c.contains(3), "Should not contain anything!");
         assertTrue(c.containsAll(new CArrayList<Object>()), "Should contain nothing!");
-        assertFalse(c.containsAll(new CArrayList<Object>(new Object[]{null})), "Should not contain anything!");
+        assertFalse(c.containsAll(new CArrayList<Object>(new Object[] { null })), "Should not contain anything!");
         assertIntsEqual(c.fillArray(new Object[0]), 0, "Should be empty!");
         try {
             c.get(0);
@@ -218,7 +220,7 @@ public class TestUtils extends BaseTest {
         assertObjectEqual(asList.toString(), "[10, 100, 30, 40]", "Bad toString!");
         // CArrayUtils.castToGeneric not tested here, because it's really hard to test and only exists to counter compiler warnings.
         // CArrayUtils.copyOf
-        Object[] old = new Object[]{"A", "B", "C", "D"};
+        Object[] old = new Object[] { "A", "B", "C", "D" };
         Object[] arr2 = CArrayUtils.copyOf(old, 3);
         Object[] arr3 = CArrayUtils.copyOf(arr2, 5);
         assertIntsEqual(arr2.length, 3, "Bad copyOf!");

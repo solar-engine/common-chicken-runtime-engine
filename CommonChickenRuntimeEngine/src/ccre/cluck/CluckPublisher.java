@@ -95,7 +95,7 @@ public class CluckPublisher {
         }.attach(local);
         return new EventOutput() {
             public void event() {
-                node.broadcast(local, new byte[]{RMT_PING}, null);
+                node.broadcast(local, new byte[] { RMT_PING }, null);
             }
         };
     }
@@ -146,7 +146,7 @@ public class CluckPublisher {
         source.send(new EventOutput() {
             public void event() {
                 for (String remote : remotes) {
-                    node.transmit(remote, name, new byte[]{RMT_EVENTINPUTRESP});
+                    node.transmit(remote, name, new byte[] { RMT_EVENTINPUTRESP });
                 }
             }
         });
@@ -241,7 +241,7 @@ public class CluckPublisher {
         input.send(new BooleanOutput() {
             public void set(boolean value) {
                 for (String remote : remotes) {
-                    node.transmit(remote, name, new byte[]{RMT_BOOLPRODRESP, value ? (byte) 1 : 0});
+                    node.transmit(remote, name, new byte[] { RMT_BOOLPRODRESP, value ? (byte) 1 : 0 });
                 }
             }
         });
@@ -256,7 +256,7 @@ public class CluckPublisher {
                     }
                 } else if (requireRMT(src, data, RMT_BOOLPROD)) {
                     remotes.add(src);
-                    node.transmit(src, name, new byte[]{RMT_BOOLPRODRESP, input.get() ? (byte) 1 : 0});
+                    node.transmit(src, name, new byte[] { RMT_BOOLPRODRESP, input.get() ? (byte) 1 : 0 });
                 }
             }
 
@@ -331,7 +331,7 @@ public class CluckPublisher {
             public void set(float value) {
                 for (String remote : remotes) {
                     int iver = Float.floatToIntBits(value);
-                    node.transmit(remote, name, new byte[]{RMT_FLOATPRODRESP, (byte) (iver >> 24), (byte) (iver >> 16), (byte) (iver >> 8), (byte) iver});
+                    node.transmit(remote, name, new byte[] { RMT_FLOATPRODRESP, (byte) (iver >> 24), (byte) (iver >> 16), (byte) (iver >> 8), (byte) iver });
                 }
             }
         });
@@ -347,7 +347,7 @@ public class CluckPublisher {
                 } else if (requireRMT(src, data, RMT_FLOATPROD)) {
                     remotes.add(src);
                     int iver = Float.floatToIntBits(input.get());
-                    node.transmit(src, name, new byte[]{RMT_FLOATPRODRESP, (byte) (iver >> 24), (byte) (iver >> 16), (byte) (iver >> 8), (byte) iver});
+                    node.transmit(src, name, new byte[] { RMT_FLOATPRODRESP, (byte) (iver >> 24), (byte) (iver >> 16), (byte) (iver >> 8), (byte) iver });
                 }
             }
 
@@ -479,8 +479,8 @@ public class CluckPublisher {
 
     private static class SubscribedLoggingTarget implements LoggingTarget, Serializable {
 
-		private static final long serialVersionUID = 5342629979840268661L;
-		private final LogLevel minimum;
+        private static final long serialVersionUID = 5342629979840268661L;
+        private final LogLevel minimum;
         private final CluckNode node;
         private final String path;
 
@@ -542,7 +542,7 @@ public class CluckPublisher {
             generateLinkName();
             this.canUnsubscribe = !subscribeByDefault;
             if (subscribeByDefault) {
-                node.transmit(path, linkName, new byte[]{RMT_FLOATPROD});
+                node.transmit(path, linkName, new byte[] { RMT_FLOATPROD });
             }
         }
 
@@ -551,7 +551,7 @@ public class CluckPublisher {
             super.send(out);
             if (!sent) {
                 sent = true;
-                node.transmit(path, linkName, new byte[]{RMT_FLOATPROD});
+                node.transmit(path, linkName, new byte[] { RMT_FLOATPROD });
             }
         }
 
@@ -560,7 +560,7 @@ public class CluckPublisher {
             super.unsend(cns);
             if (canUnsubscribe && sent && !this.hasConsumers()) {
                 sent = false;
-                node.transmit(path, linkName, new byte[]{RMT_FLOATPROD_UNSUB});
+                node.transmit(path, linkName, new byte[] { RMT_FLOATPROD_UNSUB });
             }
         }
 
@@ -610,7 +610,7 @@ public class CluckPublisher {
         protected void receiveBroadcast(String source, byte[] data) {
             if (data.length == 1 && data[0] == CluckNode.RMT_NOTIFY) {
                 if (result.shouldResend()) {
-                    node.transmit(path, linkName, new byte[]{RMT_FLOATPROD});
+                    node.transmit(path, linkName, new byte[] { RMT_FLOATPROD });
                 }
             }
         }
@@ -637,7 +637,7 @@ public class CluckPublisher {
             this.canUnsubscribe = !subscribeByDefault;
             generateLinkName();
             if (subscribeByDefault) {
-                node.transmit(path, linkName, new byte[]{RMT_BOOLPROD});
+                node.transmit(path, linkName, new byte[] { RMT_BOOLPROD });
             }
         }
 
@@ -646,7 +646,7 @@ public class CluckPublisher {
             super.send(out);
             if (!sent) {
                 sent = true;
-                node.transmit(path, linkName, new byte[]{RMT_BOOLPROD});
+                node.transmit(path, linkName, new byte[] { RMT_BOOLPROD });
             }
         }
 
@@ -655,7 +655,7 @@ public class CluckPublisher {
             super.unsend(cns);
             if (canUnsubscribe && sent && !this.hasConsumers()) {
                 sent = false;
-                node.transmit(path, linkName, new byte[]{RMT_BOOLPROD_UNSUB});
+                node.transmit(path, linkName, new byte[] { RMT_BOOLPROD_UNSUB });
             }
         }
 
@@ -705,7 +705,7 @@ public class CluckPublisher {
         protected void receiveBroadcast(String source, byte[] data) {
             if (data.length == 1 && data[0] == CluckNode.RMT_NOTIFY) {
                 if (result.shouldResend()) {
-                    node.transmit(path, linkName, new byte[]{RMT_BOOLPROD});
+                    node.transmit(path, linkName, new byte[] { RMT_BOOLPROD });
                 }
             }
         }
@@ -735,7 +735,7 @@ public class CluckPublisher {
             super.send(cns);
             if (!sent) {
                 sent = true;
-                node.transmit(path, linkName, new byte[]{RMT_EVENTINPUT});
+                node.transmit(path, linkName, new byte[] { RMT_EVENTINPUT });
             }
         }
 
@@ -744,7 +744,7 @@ public class CluckPublisher {
             super.unsend(cns);
             if (sent && !this.hasConsumers()) {
                 sent = false;
-                node.transmit(path, linkName, new byte[]{RMT_EVENTINPUT_UNSUB});
+                node.transmit(path, linkName, new byte[] { RMT_EVENTINPUT_UNSUB });
             }
         }
 
@@ -794,7 +794,7 @@ public class CluckPublisher {
         protected void receiveBroadcast(String source, byte[] data) {
             if (data.length == 1 && data[0] == CluckNode.RMT_NOTIFY) {
                 if (result.shouldResend()) {
-                    node.transmit(path, linkName, new byte[]{RMT_EVENTINPUT});
+                    node.transmit(path, linkName, new byte[] { RMT_EVENTINPUT });
                 }
             }
         }
@@ -806,8 +806,8 @@ public class CluckPublisher {
 
     private static class SubscribedEventOutput implements EventOutput, Serializable {
 
-		private static final long serialVersionUID = 5103577228341124318L;
-		private final CluckNode node;
+        private static final long serialVersionUID = 5103577228341124318L;
+        private final CluckNode node;
         private final String path;
 
         SubscribedEventOutput(CluckNode node, String path) {
@@ -816,14 +816,14 @@ public class CluckPublisher {
         }
 
         public void event() {
-            node.transmit(path, null, new byte[]{RMT_EVENTOUTP});
+            node.transmit(path, null, new byte[] { RMT_EVENTOUTP });
         }
     }
 
     private static class SubscribedBooleanOutput implements BooleanOutput, Serializable {
 
-		private static final long serialVersionUID = -4068385997161728204L;
-		private final CluckNode node;
+        private static final long serialVersionUID = -4068385997161728204L;
+        private final CluckNode node;
         private final String path;
 
         SubscribedBooleanOutput(CluckNode node, String path) {
@@ -832,14 +832,14 @@ public class CluckPublisher {
         }
 
         public void set(boolean b) {
-            node.transmit(path, null, new byte[]{RMT_BOOLOUTP, b ? (byte) 1 : 0});
+            node.transmit(path, null, new byte[] { RMT_BOOLOUTP, b ? (byte) 1 : 0 });
         }
     }
 
     private static class SubscribedFloatOutput implements FloatOutput, Serializable {
 
-		private static final long serialVersionUID = -4377296771561862860L;
-		private final CluckNode node;
+        private static final long serialVersionUID = -4377296771561862860L;
+        private final CluckNode node;
         private final String path;
 
         SubscribedFloatOutput(CluckNode node, String path) {
@@ -849,14 +849,14 @@ public class CluckPublisher {
 
         public void set(float f) {
             int iver = Float.floatToIntBits(f);
-            node.transmit(path, null, new byte[]{RMT_FLOATOUTP, (byte) (iver >> 24), (byte) (iver >> 16), (byte) (iver >> 8), (byte) iver});
+            node.transmit(path, null, new byte[] { RMT_FLOATOUTP, (byte) (iver >> 24), (byte) (iver >> 16), (byte) (iver >> 8), (byte) iver });
         }
     }
 
     private static class SubscribedObjectStream extends OutputStream implements Serializable {
 
-		private static final long serialVersionUID = -9002013295388072459L;
-		private final CluckNode node;
+        private static final long serialVersionUID = -9002013295388072459L;
+        private final CluckNode node;
         private final String path;
 
         SubscribedObjectStream(CluckNode node, String path) {
@@ -866,7 +866,7 @@ public class CluckPublisher {
 
         @Override
         public void write(int b) throws IOException {
-            node.transmit(path, null, new byte[]{RMT_OUTSTREAM, (byte) b});
+            node.transmit(path, null, new byte[] { RMT_OUTSTREAM, (byte) b });
         }
 
         @Override

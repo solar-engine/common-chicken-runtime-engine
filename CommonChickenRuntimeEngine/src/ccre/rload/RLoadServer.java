@@ -62,6 +62,7 @@ public class RLoadServer extends ReporterThread {
         }
         return h;
     }
+
     private final File output;
 
     private final boolean watcher;

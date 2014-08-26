@@ -40,8 +40,8 @@ import java.util.Iterator;
  */
 public class CluckNode implements Serializable {
 
-	private static final long serialVersionUID = -5439319159206467512L;
-	/**
+    private static final long serialVersionUID = -5439319159206467512L;
+    /**
      * The ID representing a PING message.
      */
     public static final byte RMT_PING = 0;
@@ -117,10 +117,7 @@ public class CluckNode implements Serializable {
      * The ID representing an FloatInputProducer unsubscription request.
      */
     public static final byte RMT_FLOATPROD_UNSUB = 18;
-    private static final String[] remoteNames = new String[]{"Ping", "EventOutput", "EventInput", "EventInputResponse", "LogTarget",
-        "BooleanInput", "BooleanInputResponse", "BooleanOutput", "FloatInput", "FloatInputResponse",
-        "FloatOutput", "OutputStream", "Notify", "RemoteProcedure", "RemoteProcedureReply", "NonexistenceNotification",
-        "EventInputUnsubscription", "BooleanInputUnsubscription", "FloatInputUnsubscription"};
+    private static final String[] remoteNames = new String[] { "Ping", "EventOutput", "EventInput", "EventInputResponse", "LogTarget", "BooleanInput", "BooleanInputResponse", "BooleanOutput", "FloatInput", "FloatInputResponse", "FloatOutput", "OutputStream", "Notify", "RemoteProcedure", "RemoteProcedureReply", "NonexistenceNotification", "EventInputUnsubscription", "BooleanInputUnsubscription", "FloatInputUnsubscription" };
 
     /**
      * Convert an RMT ID to a string.
@@ -135,6 +132,7 @@ public class CluckNode implements Serializable {
             return "Unknown #" + type;
         }
     }
+
     /**
      * A map of the current link names to the CluckLinks.
      */
@@ -158,7 +156,7 @@ public class CluckNode implements Serializable {
      * modified - for example, when a connection is opened or closed.
      */
     public void notifyNetworkModified() {
-        transmit("*", "#modsrc", new byte[]{RMT_NOTIFY});
+        transmit("*", "#modsrc", new byte[] { RMT_NOTIFY });
     }
 
     /**
@@ -239,12 +237,11 @@ public class CluckNode implements Serializable {
     private void reportMissingLink(byte[] data, String source, String target, String direct) {
         // Warnings about lost RMT_NEGATIVE_ACK messages or research messages are annoying, so don't send these,
         // and don't warn about the same message path too quickly.
-        if ((data.length == 0 || data[0] != RMT_NEGATIVE_ACK) && !target.contains("/rsch-")
-                && (!direct.equals(lastMissingLink) || System.currentTimeMillis() >= lastMissingLinkError + 1000)) {
+        if ((data.length == 0 || data[0] != RMT_NEGATIVE_ACK) && !target.contains("/rsch-") && (!direct.equals(lastMissingLink) || System.currentTimeMillis() >= lastMissingLinkError + 1000)) {
             lastMissingLink = direct;
             lastMissingLinkError = System.currentTimeMillis();
             Logger.warning("No link for " + target + "(" + direct + ") from " + source + "!");
-            transmit(source, target, new byte[]{RMT_NEGATIVE_ACK});
+            transmit(source, target, new byte[] { RMT_NEGATIVE_ACK });
         }
     }
 
@@ -296,7 +293,7 @@ public class CluckNode implements Serializable {
             protected void receiveBroadcast(String source, byte[] data) {
             }
         }.attach(localRecvName);
-        transmit("*", localRecvName, new byte[]{RMT_PING});
+        transmit("*", localRecvName, new byte[] { RMT_PING });
     }
 
     /**
@@ -309,7 +306,7 @@ public class CluckNode implements Serializable {
      * @deprecated Use CluckPublisher.setupSearching instead.
      */
     public void cycleSearchRemotes(String localRecv) {
-        transmit("*", localRecv, new byte[]{RMT_PING});
+        transmit("*", localRecv, new byte[] { RMT_PING });
     }
 
     /**
@@ -343,7 +340,7 @@ public class CluckNode implements Serializable {
             }
         }.attach(localRecv);
         try {
-            transmit("*", localRecv, new byte[]{RMT_PING});
+            transmit("*", localRecv, new byte[] { RMT_PING });
             Thread.sleep(timeout);
         } finally {
             links.remove(localRecv);
@@ -452,9 +449,9 @@ public class CluckNode implements Serializable {
 
     private static class SerializedGlobalCluckNode implements Serializable {
 
-		private static final long serialVersionUID = 6554282414281830927L;
+        private static final long serialVersionUID = 6554282414281830927L;
 
-		private Object readResolve() {
+        private Object readResolve() {
             return Cluck.getNode();
         }
     }

@@ -38,7 +38,7 @@ public class TestCLinkedList extends BaseTestList {
         super.runTest(new CLinkedList<String>());
         CLinkedList<String> test = new CLinkedList<String>(CArrayUtils.asList("Alpha", "Beta", "Gamma", "Delta", "Epsilon"));
         assertObjectEqual(test.toString(), "[Alpha, Beta, Gamma, Delta, Epsilon]", "Invalid constructor-loaded array!");
-        test = new CLinkedList<String>(new String[]{"Alpha", "Beta", "Gamma", "Delta", "Epsilon"});
+        test = new CLinkedList<String>(new String[] { "Alpha", "Beta", "Gamma", "Delta", "Epsilon" });
         assertObjectEqual(test.toString(), "[Alpha, Beta, Gamma, Delta, Epsilon]", "Invalid constructor-loaded array!");
         assertObjectEqual(test.getFirst(), "Alpha", "Bad getFirst!");
         assertObjectEqual(test.getLast(), "Epsilon", "Bad getLast!");

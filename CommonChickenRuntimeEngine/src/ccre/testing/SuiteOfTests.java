@@ -38,58 +38,54 @@ public class SuiteOfTests {
      * @throws java.lang.InterruptedException If the main thread is interrupted.
      */
     public static void main(String[] args) throws InterruptedException {
-        BaseTest[] tests = new BaseTest[]{
-            // ccre.chan
-            new TestBooleanStatus(),
-            new TestFloatStatus(),
-            // ccre.cluck - Tests needed!
+        BaseTest[] tests = new BaseTest[] {
+                // ccre.chan
+        new TestBooleanStatus(), new TestFloatStatus(),
+                // ccre.cluck - Tests needed!
 
-            // ccre.concurrency
-            // CollapsingWorkerThread - Needed!
-            // ConcurrentDispatchArray - Needed to improve!
-            new TestConcurrentDispatchArray(),
-            new TestReporterThread(),
-            // ReporterThread - Needed!
+                // ccre.concurrency
+                // CollapsingWorkerThread - Needed!
+                // ConcurrentDispatchArray - Needed to improve!
+        new TestConcurrentDispatchArray(), new TestReporterThread(),
+                // ReporterThread - Needed!
 
-            // ccre.ctrl
-            // DriverImpls - Needed!
-            // ExpirationTimer - Needed!
-            // Mixing - Needed to be fleshed out a lot!
-            new TestMixing(),
-            // ModeDispatcher - Needed!
-            // MultipleSourceBooleanController - Needed!
-            new TestTicker(),
-            // ccre.event
-            new TestEvent(),
-            // EventLogger - Needed!
+                // ccre.ctrl
+                // DriverImpls - Needed!
+                // ExpirationTimer - Needed!
+                // Mixing - Needed to be fleshed out a lot!
+        new TestMixing(),
+                // ModeDispatcher - Needed!
+                // MultipleSourceBooleanController - Needed!
+        new TestTicker(),
+                // ccre.event
+        new TestEvent(),
+                // EventLogger - Needed!
 
-            // ccre.holders - Needed!
+                // ccre.holders - Needed!
 
-            // ccre.instinct - Needed!
+                // ccre.instinct - Needed!
 
-            // ccre.launcher - Not needed.
+                // ccre.launcher - Not needed.
 
-            // ccre.log - Needed!
+                // ccre.log - Needed!
 
-            // ccre.net - Needed!
+                // ccre.net - Needed!
 
-            // ccre.phidget
-            // PhidgetReader - Needed!
+                // ccre.phidget
+                // PhidgetReader - Needed!
 
-            // ccre.rload - Do I need this?
+                // ccre.rload - Do I need this?
 
-            // ccre.saver - Needed!
+                // ccre.saver - Needed!
 
-            // ccre.testing - DONE
-            new TestTests(),
-            // ccre.utils - DONE
-            new TestAllocationPool(),
-            // CAbstractList - Included in CArrayList and CLinkedList tests
-            new TestCArrayList(),
-            new TestCHashMap(),
-            new TestCLinkedList(),
-            // Heap - Not needed because it's a commented-out unfinished class.
-            new TestUtils(), // Tests both Utils and CArrayUtils
+                // ccre.testing - DONE
+        new TestTests(),
+                // ccre.utils - DONE
+        new TestAllocationPool(),
+                // CAbstractList - Included in CArrayList and CLinkedList tests
+        new TestCArrayList(), new TestCHashMap(), new TestCLinkedList(),
+                // Heap - Not needed because it's a commented-out unfinished class.
+        new TestUtils(), // Tests both Utils and CArrayUtils
         // ccre.workarounds - Needed!
         };
         int count = 0;

@@ -146,13 +146,9 @@ public class ComputationBenchmark {
                     }
                 }
             }/*
-             for (int x=0; x<640; x++) {
-             for (int y=0; y<480; y++) {
-             if (outs[x][y]) {
-             count++;
-             }
-             }
-             }*/
+              * for (int x=0; x<640; x++) { for (int y=0; y<480; y++) { if
+              * (outs[x][y]) { count++; } } }
+              */
 
         } // 238 microseconds per operation.
         endAt = System.currentTimeMillis();
@@ -161,16 +157,10 @@ public class ComputationBenchmark {
 }
 
 /*
- * From robot:
- * [cRIO] LOG[INFO] Benchmark 1: 812 ms
- * [cRIO] LOG[INFO] Benchmark 2: 72 ms
- * [cRIO] LOG[INFO] Benchmark 3: 1084 ms
- * [cRIO] LOG[INFO] Benchmark 4: 1217 ms
- * [cRIO] LOG[INFO] Benchmark 5: 1158 ms
- * [cRIO] LOG[INFO] Benchmark 6: 1084 ms
- * [cRIO] LOG[INFO] Benchmark 7: 1218 ms
- * [cRIO] LOG[INFO] Benchmark 8: 1136 ms
- * [cRIO] LOG[INFO] Benchmark 9: 1273 ms
- * [cRIO] LOG[INFO] Benchmark 10: 1010090:: 2533 each
- * [cRIO] LOG[INFO] End
+ * From robot: [cRIO] LOG[INFO] Benchmark 1: 812 ms [cRIO] LOG[INFO] Benchmark
+ * 2: 72 ms [cRIO] LOG[INFO] Benchmark 3: 1084 ms [cRIO] LOG[INFO] Benchmark 4:
+ * 1217 ms [cRIO] LOG[INFO] Benchmark 5: 1158 ms [cRIO] LOG[INFO] Benchmark 6:
+ * 1084 ms [cRIO] LOG[INFO] Benchmark 7: 1218 ms [cRIO] LOG[INFO] Benchmark 8:
+ * 1136 ms [cRIO] LOG[INFO] Benchmark 9: 1273 ms [cRIO] LOG[INFO] Benchmark 10:
+ * 1010090:: 2533 each [cRIO] LOG[INFO] End
  */

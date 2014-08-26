@@ -121,7 +121,7 @@ public abstract class CluckSubscriber implements CluckLink {
         } else if (data.length < minLength) {
             Logger.warning("Received too-short message from " + source);
         } else if (data[0] == CluckNode.RMT_PING && data.length == 1) {
-            node.transmit(source, linkName, new byte[]{CluckNode.RMT_PING, rmt});
+            node.transmit(source, linkName, new byte[] { CluckNode.RMT_PING, rmt });
         } else if (data[0] == CluckNode.RMT_NEGATIVE_ACK) { // Discard messages saying that the link is closed.
             // Discard.
         } else if (data[0] != rmt) {
@@ -142,7 +142,7 @@ public abstract class CluckSubscriber implements CluckLink {
      */
     protected void defaultBroadcastHandle(String source, byte[] data, byte rmt) {
         if (data.length == 1 && data[0] == CluckNode.RMT_PING) {
-            node.transmit(source, linkName, new byte[]{CluckNode.RMT_PING, rmt});
+            node.transmit(source, linkName, new byte[] { CluckNode.RMT_PING, rmt });
         }
     }
 

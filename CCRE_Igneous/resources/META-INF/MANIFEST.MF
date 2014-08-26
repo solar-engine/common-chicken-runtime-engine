@@ -1,7 +1,0 @@
-MIDlet-Name: CCRE_Igneous
-MIDlet-Version: 1.0.0
-MIDlet-Vendor: Team 1540
-MIDlet-1: IgneousApp, , ccre.igneous.IgneousLauncherImpl
-MicroEdition-Profile: IMP-1.0
-MicroEdition-Configuration: CLDC-1.1
-X-Comment: Igneous-Main will be added by the build script later.

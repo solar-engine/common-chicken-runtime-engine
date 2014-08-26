@@ -18,9 +18,7 @@
  */
 package org.team1540.minimal;
 
-import ccre.igneous.Igneous;
 import ccre.igneous.IgneousApplication;
-import ccre.util.Utils;
 
 /**
  * A very simple example program.
@@ -30,10 +28,10 @@ import ccre.util.Utils;
 public class Minimal implements IgneousApplication {
 
     /**
-     * Set up the robot. For the minimal robot, this only means adding a line to
-     * the Driver Station LCD that displays the current time in seconds.
+     * Set up the robot. For the minimal robot, this only means printing a
+     * message.
      */
     public void setupRobot() {
-        Igneous.makeDSFloatReadout("I live!", 1, Utils.currentTimeSeconds, Igneous.globalPeriodic);
+        System.out.println("I live!");
     }
 }

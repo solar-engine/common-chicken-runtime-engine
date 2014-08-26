@@ -383,6 +383,38 @@ public class Igneous {
     public static void useCompressor(int pressureSwitchChannel, int compressorRelayChannel) {
         useCustomCompressor(makeDigitalInput(pressureSwitchChannel), compressorRelayChannel);
     }
+    
+    /**
+     * Get control of the PCM-attached compressor.
+     * This makes sure that the PCM compressor is running the closed loop control, and provides a BooleanOutput that can turn this on and off.
+     */
+    public static BooleanOutput usePCMCompressor() {
+        return launcher.usePCMCompressor();
+    }
+    
+    /**
+     * Reads the current status of the PCM pressure switch.
+     * @return the pressure switch status.
+     */
+    public static BooleanInputPoll getPCMPressureSwitch() {
+        return launcher.getPCMPressureSwitch();
+    }
+    
+    /**
+     * Reads the current status of the PCM compressor enable output.
+     * @return the compressor enable output.
+     */
+    public static BooleanInputPoll getPCMCompressorRunning() {
+        return launcher.getPCMCompressorRunning();
+    }
+    
+    /**
+     * Reads the current draw of the PCM compressor.
+     * @return the current being used by the compressor.
+     */
+    public static FloatInputPoll getPCMCompressorCurrent() {
+        return launcher.getPCMCompressorCurrent();
+    }
 
     /**
      * Activate the compressor on the given pressure switch input and compressor

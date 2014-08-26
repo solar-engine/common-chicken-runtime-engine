@@ -18,6 +18,10 @@
  */
 package ccre.igneous;
 
+import java.net.URL;
+import java.util.Enumeration;
+import java.util.jar.Manifest;
+
 import ccre.channel.BooleanInputPoll;
 import ccre.channel.BooleanOutput;
 import ccre.channel.EventInput;
@@ -34,16 +38,12 @@ import ccre.log.BootLogger;
 import ccre.log.FileLogger;
 import ccre.log.Logger;
 import ccre.log.NetworkAutologger;
-import ccre.net.IgneousNetworkProvider;
-import ccre.saver.IgneousStorageProvider;
-import ccre.workarounds.IgneousThrowablePrinter;
-import com.sun.squawk.VM;
-import edu.wpi.first.wpilibj.Accelerometer;
-import edu.wpi.first.wpilibj.AnalogChannel;
+import edu.wpi.first.wpilibj.AnalogAccelerometer;
+import edu.wpi.first.wpilibj.AnalogInput;
+import edu.wpi.first.wpilibj.Compressor;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DigitalOutput;
 import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.DriverStationLCD;
 import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.Gyro;
 import edu.wpi.first.wpilibj.IterativeRobot;
@@ -115,10 +115,12 @@ final class IgneousLauncherImpl extends IterativeRobot implements IgneousLaunche
      */
     private final EventStatus duringTesting = new EventStatus();
 
+    /**
+     * Initialized by usePCMCompressor if needed.
+     */
+    private Compressor pcmCompressor;
+
     IgneousLauncherImpl() {
-        IgneousNetworkProvider.register();
-        IgneousThrowablePrinter.register();
-        IgneousStorageProvider.register();
         NetworkAutologger.register();
         BootLogger.register();
         FileLogger.register();
@@ -143,7 +145,12 @@ final class IgneousLauncherImpl extends IterativeRobot implements IgneousLaunche
     }
 
     private void setupMain() throws Throwable {
-        String name = VM.getManifestProperty("Igneous-Main");
+        Enumeration<URL> resources = IgneousLauncherImpl.class.getClassLoader().getResources("META-INF/MANIFEST.MF");
+        String name = null;
+        while (resources != null && resources.hasMoreElements()) {
+            Manifest manifest = new Manifest(resources.nextElement().openStream());
+            name = manifest.getMainAttributes().getValue("Robot-Class");
+        }
         if (name == null) {
             throw new RuntimeException("Could not find MANIFEST-specified launchee!");
         }
@@ -311,7 +318,7 @@ final class IgneousLauncherImpl extends IterativeRobot implements IgneousLaunche
     }
 
     public FloatInputPoll makeAnalogInput(int id, int averageBits) {
-        final AnalogChannel chan = new AnalogChannel(id);
+        final AnalogInput chan = new AnalogInput(id);
         chan.setAverageBits(averageBits);
         return new FloatInputPoll() {
             public float get() {
@@ -321,7 +328,7 @@ final class IgneousLauncherImpl extends IterativeRobot implements IgneousLaunche
     }
 
     public FloatInputPoll makeAnalogInput_ValuedBased(int id, int averageBits) {
-        final AnalogChannel chan = new AnalogChannel(id);
+        final AnalogInput chan = new AnalogInput(id);
         chan.setAverageBits(averageBits);
         return new FloatInputPoll() {
             public float get() {
@@ -350,33 +357,7 @@ final class IgneousLauncherImpl extends IterativeRobot implements IgneousLaunche
     }
 
     public void sendDSUpdate(String value, int lineid) {
-        final DriverStationLCD.Line line;
-        switch (lineid) {
-            case 1:
-                line = DriverStationLCD.Line.kUser1;
-                break;
-            case 2:
-                line = DriverStationLCD.Line.kUser2;
-                break;
-            case 3:
-                line = DriverStationLCD.Line.kUser3;
-                break;
-            case 4:
-                line = DriverStationLCD.Line.kUser4;
-                break;
-            case 5:
-                line = DriverStationLCD.Line.kUser5;
-                break;
-            case 6:
-                line = DriverStationLCD.Line.kUser6;
-                break;
-            default:
-                throw new IllegalArgumentException("Bad line number (expected 1-6): " + lineid);
-        }
-        DriverStationLCD dslcd = DriverStationLCD.getInstance();
-        dslcd.println(line, 1, "                    ");
-        dslcd.println(line, 1, value);
-        dslcd.updateLCD();
+        Logger.warning("The Driver Station LCD no longer exists!");
     }
 
     public BooleanInputPoll getIsDisabled() {
@@ -411,7 +392,6 @@ final class IgneousLauncherImpl extends IterativeRobot implements IgneousLaunche
 
     public FloatInputPoll makeEncoder(int aChannel, int bChannel, boolean reverse, EventInput resetWhen) {
         final Encoder enc = new Encoder(aChannel, bChannel, reverse);
-        enc.start();
         if (resetWhen != null) {
             resetWhen.send(new EventOutput() {
                 public void event() {
@@ -462,7 +442,7 @@ final class IgneousLauncherImpl extends IterativeRobot implements IgneousLaunche
     }
 
     public FloatInputPoll makeAccelerometerAxis(int port, double sensitivity, double zeropoint) {
-        final Accelerometer a = new Accelerometer(port);
+        final AnalogAccelerometer a = new AnalogAccelerometer(port);
         a.setSensitivity(sensitivity);
         a.setZero(zeropoint);
         return new FloatInputPoll() {
@@ -479,17 +459,17 @@ final class IgneousLauncherImpl extends IterativeRobot implements IgneousLaunche
     public FloatOutput makeMotor(int id, int type) {
         final SpeedController spc;
         switch (type) {
-            case JAGUAR:
-                spc = new Jaguar(id);
-                break;
-            case VICTOR:
-                spc = new Victor(id);
-                break;
-            case TALON:
-                spc = new Talon(id);
-                break;
-            default:
-                throw new IllegalArgumentException("Unknown type: " + type);
+        case JAGUAR:
+            spc = new Jaguar(id);
+            break;
+        case VICTOR:
+            spc = new Victor(id);
+            break;
+        case TALON:
+            spc = new Talon(id);
+            break;
+        default:
+            throw new IllegalArgumentException("Unknown type: " + type);
         }
         return new FloatOutput() {
             public void set(float f) {
@@ -532,5 +512,45 @@ final class IgneousLauncherImpl extends IterativeRobot implements IgneousLaunche
 
     public EventInput getDuringDisabled() {
         return duringDisabled;
+    }
+
+    private synchronized Compressor getPCMCompressor() {
+        if (pcmCompressor == null) {
+            pcmCompressor = new Compressor();
+        }
+        return pcmCompressor;
+    }
+
+    public BooleanOutput usePCMCompressor() {
+        getPCMCompressor().setClosedLoopControl(true);
+        return new BooleanOutput() {
+            public void set(boolean value) {
+                getPCMCompressor().setClosedLoopControl(value);
+            }
+        };
+    }
+
+    public BooleanInputPoll getPCMPressureSwitch() {
+        return new BooleanInputPoll() {
+            public boolean get() {
+                return getPCMCompressor().getPressureSwitchValue();
+            }
+        };
+    }
+
+    public BooleanInputPoll getPCMCompressorRunning() {
+        return new BooleanInputPoll() {
+            public boolean get() {
+                return getPCMCompressor().enabled();
+            }
+        };
+    }
+
+    public FloatInputPoll getPCMCompressorCurrent() {
+        return new FloatInputPoll() {
+            public float get() {
+                return getPCMCompressor().getCompressorCurrent();
+            }
+        };
     }
 }

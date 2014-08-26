@@ -28,7 +28,6 @@ import ccre.channel.FloatStatus;
 import ccre.ctrl.IJoystick;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.Joystick;
-import edu.wpi.first.wpilibj.KinectStick;
 
 /**
  * An IJoystick implementation that allows reading from a joystick on the driver
@@ -66,10 +65,8 @@ final class CJoystick implements EventOutput, IJoystick {
      * @see #attach(ccre.channel.EventInput)
      */
     CJoystick(int joystick) {
-        if (joystick == 5) {
-            joy = new KinectStick(1);
-        } else if (joystick == 6) {
-            joy = new KinectStick(2);
+        if (joystick == 5 || joystick == 6) {
+            throw new IllegalArgumentException("Kinect Joysticks are not supported by the RoboRIO.");
         } else {
             joy = new Joystick(joystick);
         }

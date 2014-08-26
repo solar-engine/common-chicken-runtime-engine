@@ -288,4 +288,24 @@ public interface IgneousLauncher {
      * @return an event that is produced while the robot is disabled.
      */
     public EventInput getDuringDisabled();
+
+    /**
+     * @return an output that enables and disabled the PCM compressor's closed-loop control.
+     */
+    public BooleanOutput usePCMCompressor();
+
+    /**
+     * @return the status of the PCM pressure switch.
+     */
+    public BooleanInputPoll getPCMPressureSwitch();
+    
+    /**
+     * @return the status of the PCM compressor enable.
+     */
+    public BooleanInputPoll getPCMCompressorRunning();
+    
+    /**
+     * @return the current draw of the PCM compressor.
+     */
+    public FloatInputPoll getPCMCompressorCurrent();
 }

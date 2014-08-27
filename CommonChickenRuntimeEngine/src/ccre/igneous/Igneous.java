@@ -386,7 +386,8 @@ public class Igneous {
     
     /**
      * Get control of the PCM-attached compressor.
-     * This makes sure that the PCM compressor is running the closed loop control, and provides a BooleanOutput that can turn this on and off.
+     * This makes sure that the PCM compressor is running the closed loop control.
+     * @return a BooleanOutput that can turn closed loop control on and off.
      */
     public static BooleanOutput usePCMCompressor() {
         return launcher.usePCMCompressor();

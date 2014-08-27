@@ -34,8 +34,8 @@ public class ObjectInputStream {
     /**
      * A faked method for the downgrade version of ObjectInputStream.
      *
-     * @throws IOException
-     * @throws ClassNotFoundException
+     * @throws IOException (faked)
+     * @throws ClassNotFoundException (faked)
      */
     public void defaultReadObject() throws IOException, ClassNotFoundException {
         throw new RuntimeException("ObjectInputStreams are unusable when downgraded!");

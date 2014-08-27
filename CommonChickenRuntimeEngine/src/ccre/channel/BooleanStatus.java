@@ -44,8 +44,8 @@ public class BooleanStatus implements BooleanOutput, BooleanInput, Serializable 
      * The list of all the BooleanOutputs to modify when this BooleanStatus
      * changes value.
      *
-     * @see #send(ccre.chan.BooleanOutput)
-     * @see #unsend(ccre.chan.BooleanOutput)
+     * @see #send(ccre.channel.BooleanOutput)
+     * @see #unsend(ccre.channel.BooleanOutput)
      */
     private ConcurrentDispatchArray<BooleanOutput> consumers = null;
     /**

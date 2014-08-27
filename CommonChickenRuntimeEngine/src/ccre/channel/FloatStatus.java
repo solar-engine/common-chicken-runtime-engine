@@ -52,8 +52,8 @@ public class FloatStatus implements FloatOutput, FloatInput, Serializable {
      * The list of all the FloatOutputs to modify when this FloatStatus changes
      * value.
      *
-     * @see #send(ccre.chan.FloatOutput)
-     * @see #unsend(ccre.chan.FloatOutput)
+     * @see #send(ccre.channel.FloatOutput)
+     * @see #unsend(ccre.channel.FloatOutput)
      */
     private ConcurrentDispatchArray<FloatOutput> consumers = null;
 

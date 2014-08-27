@@ -25,7 +25,7 @@ import java.io.IOException;
  * used when Retrotranslator downgrades the code to 1.3, because 1.3 doesn't
  * have NotSerializableException.
  *
- * @see java.lang.NotSerializableException
+ * @see java.io.NotSerializableException
  * @author skeggsc
  */
 @SuppressWarnings("serial")

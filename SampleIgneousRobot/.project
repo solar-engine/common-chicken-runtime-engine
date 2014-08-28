@@ -5,6 +5,7 @@
 	<projects>
 		<project>CCRE_Igneous</project>
 		<project>CommonChickenRuntimeEngine</project>
+		<project>IgneousEmulator</project>
 	</projects>
 	<buildSpec>
 		<buildCommand>

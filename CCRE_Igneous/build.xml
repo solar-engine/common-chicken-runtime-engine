@@ -1,10 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <project name="Build Jar">
     <target name="build-jar">
-    	<jar destfile="Emulator.jar" update="false">
-    		<manifest>
-    			<attribute name="Main-Class" value="ccre.igneous.EmulatorLauncher"/>
-    		</manifest>
+    	<jar destfile="Igneous.jar" update="false">
 			<fileset dir="bin" includes="**/*.class"/>
 			<fileset dir="../CommonChickenRuntimeEngine/bin" includes="**/*.class"/>
 		</jar>

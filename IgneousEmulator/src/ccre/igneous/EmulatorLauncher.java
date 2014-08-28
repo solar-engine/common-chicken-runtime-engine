@@ -31,12 +31,14 @@ import ccre.ctrl.IJoystick;
 import ccre.log.BootLogger;
 import ccre.log.FileLogger;
 import ccre.log.NetworkAutologger;
+
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.util.HashMap;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.jar.JarFile;
@@ -71,6 +73,7 @@ public final class EmulatorLauncher implements IgneousLauncher {
         JarFile igneousJar = new JarFile(jarFile);
         String mainClass;
         try {
+        	System.out.println("Here: " + new HashMap<Object, Object>(igneousJar.getManifest().getMainAttributes()));
             mainClass = igneousJar.getManifest().getMainAttributes().getValue("Igneous-Main");
         } finally {
             igneousJar.close();
@@ -367,4 +370,24 @@ public final class EmulatorLauncher implements IgneousLauncher {
     public EventInput getDuringDisabled() {
         return duringDisabled;
     }
+
+	@Override
+	public BooleanOutput usePCMCompressor() {
+		throw new RuntimeException("PCM not supported under cRIO emulator.");
+	}
+
+	@Override
+	public BooleanInputPoll getPCMPressureSwitch() {
+		throw new RuntimeException("PCM not supported under cRIO emulator.");
+	}
+
+	@Override
+	public BooleanInputPoll getPCMCompressorRunning() {
+		throw new RuntimeException("PCM not supported under cRIO emulator.");
+	}
+
+	@Override
+	public FloatInputPoll getPCMCompressorCurrent() {
+		throw new RuntimeException("PCM not supported under cRIO emulator.");
+	}
 }

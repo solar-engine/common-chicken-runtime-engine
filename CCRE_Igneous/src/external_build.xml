@@ -5,18 +5,38 @@
   <property file="${user.home}/wpilib/wpilib.properties"/>
   <property file="build.properties"/>
   <property file="${user.home}/wpilib/java/${version}/ant/build.properties"/>
+  <property file="src/main.properties"/>
+  
+  <property name="emulate.jar" value="${dist.dir}/EmulationTarget.jar"/>
+  <property name="emulator.dir" value="../IgneousEmulator/bin"/>
+  <property name="classpath-new" value="${classpath}:../CCRE_Igneous/Igneous.jar"/>
   
   <import file="${wpilib.ant.dir}/build.xml"/>
+
+  <target name="compile" description="Compile the source code.">
+    <mkdir dir="${build.dir}"/>
+    <echo>[athena-compile] Compiling ${src.dir} with classpath=${classpath-new} to ${build.dir}</echo>
+
+    <javac srcdir="${src.dir}"
+     destdir="${build.dir}"
+     includeAntRuntime="no"
+     includeJavaRuntime="no"
+     classpath="${classpath-new}"
+     target="1.7"
+     source="1.7"
+     debug="true">
+    </javac>
+  </target>
   
   <target name="jar" depends="compile">
     <echo>[athena-jar] Making jar ${dist.jar}.</echo>
     <mkdir dir="${dist.dir}" />
     <mkdir dir="${build.jars}" />
 
-    <echo>[athena-jar] Copying jars from ${classpath} to ${build.jars}.</echo>
+    <echo>[athena-jar] Copying jars from ${classpath-new} to ${build.jars}.</echo>
     <copy todir="${build.jars}" flatten="true">
       <path>
-        <pathelement path="${classpath}"/>
+        <pathelement path="${classpath-new}"/>
       </path>
     </copy>
 
@@ -24,7 +44,7 @@
       <manifest>
     	<attribute name="Main-Class" value="edu.wpi.first.wpilibj.RobotBase"/>
     	<attribute name="Robot-Class" value="ccre.igneous.IgneousLauncherImpl"/>
-    	<attribute name="CCRE-Main" value="${robot.class}"/>
+    	<attribute name="CCRE-Main" value="${igneous.main}"/>
     	<attribute name="Class-Path" value="."/>
       </manifest>
 
@@ -34,6 +54,23 @@
         <include name="**/*.jar" />
       </zipgroupfileset>
     </jar>
+
+    <jar destfile="${emulate.jar}" update="false">
+        <manifest>
+        	<attribute name="Igneous-Main" value="${igneous.main}"/>
+        </manifest>
+
+      <fileset dir="${build.dir}" includes="**/*.class"/>
+    </jar>
+  </target>
+	
+  <target name="emulate" depends="jar">
+    <java jar="../IgneousEmulator/Emulator.jar" fork="true">
+      <arg value="${emulate.jar}"/>
+      <classpath>
+      	<fileset dir="${emulator.dir}" includes="**/*.class" />
+      </classpath>
+    </java>
   </target>
 
 </project>

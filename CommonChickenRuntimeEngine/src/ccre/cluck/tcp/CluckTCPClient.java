@@ -63,6 +63,10 @@ public class CluckTCPClient extends ReporterThread {
      * The hint for what the other end of the connection should call this link.
      */
     private final String remoteNameHint;
+    /**
+     * Should this client continue running?
+     */
+    private volatile boolean isRunning = true;
 
     /**
      * Create a new CluckTCPClient connecting to the specified remote on the
@@ -90,14 +94,23 @@ public class CluckTCPClient extends ReporterThread {
      */
     public void setRemote(String remote) {
         this.remote = remote;
-        if (sock != null) {
-            try {
-                sock.close();
-            } catch (IOException ex) {
-                Logger.warning("IO Error while closing connection", ex);
-            }
-            sock = null;
-        }
+        closeActiveConnectionIfAny();
+    }
+    
+    /**
+     * Get the remote address.
+     * @return the remote address.
+     */
+    public String getRemote() {
+        return remote;
+    }
+    
+    /**
+     * End the active connection and don't reconnect.
+     */
+    public void terminate() {
+        isRunning = false;
+        closeActiveConnectionIfAny();
     }
 
     /**
@@ -126,7 +139,7 @@ public class CluckTCPClient extends ReporterThread {
     @Override
     protected void threadBody() throws IOException, InterruptedException {
         try {
-            while (true) {
+            while (isRunning) {
                 long start = System.currentTimeMillis();
                 Logger.fine("Connecting to " + remote + " at " + start);
                 String postfix = "";
@@ -139,7 +152,9 @@ public class CluckTCPClient extends ReporterThread {
                 pauseBeforeSubsequentCycle(start, postfix);
             }
         } finally {
-            sock.close();
+            if (sock != null) {
+                sock.close();
+            }
         }
     }
 

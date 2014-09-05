@@ -18,6 +18,7 @@
  */
 package ccre.igneous;
 
+import java.io.File;
 import java.net.URL;
 import java.util.Enumeration;
 import java.util.jar.Manifest;
@@ -38,6 +39,7 @@ import ccre.log.BootLogger;
 import ccre.log.FileLogger;
 import ccre.log.Logger;
 import ccre.log.NetworkAutologger;
+import ccre.saver.DefaultStorageProvider;
 import edu.wpi.first.wpilibj.AnalogAccelerometer;
 import edu.wpi.first.wpilibj.AnalogInput;
 import edu.wpi.first.wpilibj.Compressor;
@@ -62,7 +64,7 @@ import edu.wpi.first.wpilibj.Victor;
  * @see IgneousLauncher
  * @author skeggsc
  */
-final class IgneousLauncherImpl extends IterativeRobot implements IgneousLauncher {
+public final class IgneousLauncherImpl extends IterativeRobot implements IgneousLauncher {
 
     /**
      * Produced during every state where the driver station is attached.
@@ -120,7 +122,10 @@ final class IgneousLauncherImpl extends IterativeRobot implements IgneousLaunche
      */
     private Compressor pcmCompressor;
 
-    IgneousLauncherImpl() {
+    public IgneousLauncherImpl() {
+        File rootDir = new File("/home/lvuser/ccre-storage");
+        rootDir.mkdirs();
+        DefaultStorageProvider.register(rootDir);
         NetworkAutologger.register();
         BootLogger.register();
         FileLogger.register();
@@ -130,6 +135,7 @@ final class IgneousLauncherImpl extends IterativeRobot implements IgneousLaunche
         IgneousLauncherHolder.setLauncher(this);
         //CluckGlobals.setupServer() - No longer helpful on the robot because this port is now used by default.
         new CluckTCPServer(Cluck.getNode(), 443).start();
+        new CluckTCPServer(Cluck.getNode(), 1540).start();
         try {
             setupMain();
         } catch (RuntimeException ex) {
@@ -149,7 +155,7 @@ final class IgneousLauncherImpl extends IterativeRobot implements IgneousLaunche
         String name = null;
         while (resources != null && resources.hasMoreElements()) {
             Manifest manifest = new Manifest(resources.nextElement().openStream());
-            name = manifest.getMainAttributes().getValue("Robot-Class");
+            name = manifest.getMainAttributes().getValue("CCRE-Main");
         }
         if (name == null) {
             throw new RuntimeException("Could not find MANIFEST-specified launchee!");

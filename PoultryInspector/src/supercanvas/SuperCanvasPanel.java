@@ -80,6 +80,10 @@ public final class SuperCanvasPanel extends JPanel {
      * An expiration timer to repaint the pane when appropriate.
      */
     private transient ExpirationTimer painter;
+    /**
+     * The current string being edited, if any.
+     */
+    public StringBuilder editing = null; 
 
     /**
      * Add the specified component to this panel.
@@ -172,6 +176,15 @@ public final class SuperCanvasPanel extends JPanel {
         activeEntity = component;
         relActiveX = component.getDragRelX(x);
         relActiveY = component.getDragRelY(y);
+    }
+    
+    /**
+     * Called to notify components that enter has been pressed, for example to finish text input.
+     */
+    public void pressedEnter() {
+        for (ListIterator<SuperCanvasComponent> it = components.listIterator(components.size()); it.hasPrevious();) {
+            it.previous().onPressedEnter();
+        }
     }
 
     private void renderBackground(Graphics2D g, int w, int h, FontMetrics fontMetrics, int mouseX, int mouseY) {
@@ -270,8 +283,8 @@ public final class SuperCanvasPanel extends JPanel {
                 for (ListIterator<SuperCanvasComponent> it = components.listIterator(components.size()); it.hasPrevious();) {
                     SuperCanvasComponent comp = it.previous();
                     if (comp.contains(e.getX(), e.getY())) {
-                        raise(comp);
                         if (comp.onSelect(e.getX(), e.getY())) {
+                            raise(comp);
                             break;
                         }
                     }

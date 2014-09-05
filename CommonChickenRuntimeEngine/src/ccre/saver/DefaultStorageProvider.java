@@ -18,6 +18,7 @@
  */
 package ccre.saver;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -32,17 +33,31 @@ import java.io.OutputStream;
  *
  * @author skeggsc
  */
-class DefaultStorageProvider extends StorageProvider {
+public class DefaultStorageProvider extends StorageProvider {
 
+    private final File basedir;
+    
+    public DefaultStorageProvider() {
+        basedir = new File(".");
+    }
+    
+    public DefaultStorageProvider(File basedir) {
+        this.basedir = basedir;
+    }
+    
+    public static void register(File basedir) {
+        StorageProvider.setProvider(new DefaultStorageProvider(basedir));
+    }
+    
     @Override
     protected OutputStream openOutputFile(String name) throws IOException {
-        return new FileOutputStream(name);
+        return new FileOutputStream(new File(basedir, name));
     }
 
     @Override
     protected InputStream openInputFile(String name) throws IOException {
         try {
-            return new FileInputStream(name);
+            return new FileInputStream(new File(basedir, name));
         } catch (FileNotFoundException ex) {
             return null;
         }

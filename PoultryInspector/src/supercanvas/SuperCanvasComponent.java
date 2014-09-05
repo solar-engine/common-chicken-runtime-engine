@@ -236,4 +236,10 @@ public abstract class SuperCanvasComponent implements Serializable {
     public boolean onDelete(boolean forced) {
         return true;
     }
+
+    /**
+     * Called to notify the component that enter has been pressed.
+     */
+    public void onPressedEnter() {
+    }
 }

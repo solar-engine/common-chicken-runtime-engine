@@ -44,7 +44,18 @@ public class SuperCanvasTest extends javax.swing.JFrame {
         this.addKeyListener(new KeyAdapter() {
             @Override
             public void keyPressed(KeyEvent e) {
-                if (e.getKeyCode() == KeyEvent.VK_SHIFT) {
+                if (canvas.editing != null) {
+                    char c = e.getKeyChar();
+                    if (c >= 32) {
+                        canvas.editing.append(c);
+                    } else {
+                        switch (e.getKeyCode()) {
+                        case KeyEvent.VK_ESCAPE: canvas.editing.setLength(0); break;
+                        case KeyEvent.VK_BACK_SPACE: canvas.editing.setLength(Math.max(0, canvas.editing.length() - 1)); break;
+                        case KeyEvent.VK_ENTER: canvas.pressedEnter(); break;
+                        }
+                    }
+                } else if (e.getKeyCode() == KeyEvent.VK_SHIFT) {
                     if (!canvas.removeAll(TopLevelPaletteComponent.class)) {
                         canvas.add(new TopLevelPaletteComponent(200, 200));
                     }
@@ -81,7 +92,6 @@ public class SuperCanvasTest extends javax.swing.JFrame {
                                                         * (), "Virtual Phidget"
                                                         */));
         canvas.start();
-        IPProvider.connect();
     }
 
     /**
@@ -117,7 +127,6 @@ public class SuperCanvasTest extends javax.swing.JFrame {
         CountingNetworkProvider.register();
         NetworkAutologger.register();
         FileLogger.register();
-        IPProvider.init();
         /* Set the Nimbus look and feel */
         //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
         /*

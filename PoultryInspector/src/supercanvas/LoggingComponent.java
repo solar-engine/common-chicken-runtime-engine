@@ -178,7 +178,6 @@ public class LoggingComponent extends DraggableBoxComponent {
 
     @Override
     public void render(Graphics2D g, int screenWidth, int screenHeight, FontMetrics fontMetrics, int mouseX, int mouseY) {
-        ;
         drawBackground(g);
         Shape originalClippingShape = g.getClip();
         int lineCount;

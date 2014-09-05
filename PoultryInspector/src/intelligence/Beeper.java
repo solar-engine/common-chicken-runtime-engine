@@ -69,7 +69,7 @@ public class Beeper {
     }
 
     public static void main(String[] args) throws InterruptedException {
-        beep(BeepType.CORRAL);
+        beep(BeepType.LOW); //ALARM, ANNOY, LOW, FASTALARM, SIREN, OOPS, AIMED, CORRAL;
         Thread.sleep(5000);
     }
 

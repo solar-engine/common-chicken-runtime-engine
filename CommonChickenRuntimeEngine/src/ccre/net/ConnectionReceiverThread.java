@@ -19,6 +19,8 @@
 package ccre.net;
 
 import ccre.concurrency.ReporterThread;
+import ccre.log.Logger;
+
 import java.io.IOException;
 
 /**
@@ -53,6 +55,7 @@ public abstract class ConnectionReceiverThread extends ReporterThread {
 
     @Override
     protected final void threadBody() throws IOException {
+        Logger.fine("About to listen on " + port);
         ServerSocket sock = Network.bind(port);
         while (true) {
             final ClientSocket conn = sock.accept();

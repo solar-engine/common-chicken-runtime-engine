@@ -22,6 +22,8 @@ import ccre.channel.EventOutput;
 import ccre.ctrl.Ticker;
 import ccre.saver.StorageProvider;
 import ccre.workarounds.ThrowablePrinter;
+
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;

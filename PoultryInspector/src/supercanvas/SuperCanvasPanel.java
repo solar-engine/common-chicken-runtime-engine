@@ -21,6 +21,7 @@ package supercanvas;
 import ccre.channel.EventOutput;
 import ccre.cluck.Cluck;
 import ccre.ctrl.ExpirationTimer;
+import ccre.log.Logger;
 import intelligence.Rendering;
 
 import java.awt.Color;
@@ -83,7 +84,7 @@ public final class SuperCanvasPanel extends JPanel {
     /**
      * The current string being edited, if any.
      */
-    public StringBuilder editing = null; 
+    public StringBuilder editing = null;
 
     /**
      * Add the specified component to this panel.
@@ -144,21 +145,25 @@ public final class SuperCanvasPanel extends JPanel {
 
     @Override
     public void paint(Graphics go) {
-        Graphics2D g = (Graphics2D) go;
-        int w = getWidth();
-        int h = getHeight();
-        g.setFont(Rendering.console);
-        FontMetrics fontMetrics = g.getFontMetrics();
-        renderBackground(g, w, h, fontMetrics, mouseX, mouseY);
-        for (SuperCanvasComponent comp : components) {
-            comp.render(g, w, h, fontMetrics, mouseX, mouseY);
-        }
-        if (painter != null) {
-            painter.feed();
-        } else {
-            String navail = "Panel Not Started";
-            g.setColor(Color.BLACK);
-            g.drawString(navail, w / 2 - fontMetrics.stringWidth(navail) / 2, h / 2 - fontMetrics.getHeight() / 2);
+        try {
+            Graphics2D g = (Graphics2D) go;
+            int w = getWidth();
+            int h = getHeight();
+            g.setFont(Rendering.console);
+            FontMetrics fontMetrics = g.getFontMetrics();
+            renderBackground(g, w, h, fontMetrics, mouseX, mouseY);
+            for (SuperCanvasComponent comp : components) {
+                comp.render(g, w, h, fontMetrics, mouseX, mouseY);
+            }
+            if (painter != null) {
+                painter.feed();
+            } else {
+                String navail = "Panel Not Started";
+                g.setColor(Color.BLACK);
+                g.drawString(navail, w / 2 - fontMetrics.stringWidth(navail) / 2, h / 2 - fontMetrics.getHeight() / 2);
+            }
+        } catch (Throwable thr) {
+            Logger.severe("Exception while handling paint event", thr);
         }
     }
 
@@ -177,9 +182,10 @@ public final class SuperCanvasPanel extends JPanel {
         relActiveX = component.getDragRelX(x);
         relActiveY = component.getDragRelY(y);
     }
-    
+
     /**
-     * Called to notify components that enter has been pressed, for example to finish text input.
+     * Called to notify components that enter has been pressed, for example to
+     * finish text input.
      */
     public void pressedEnter() {
         for (ListIterator<SuperCanvasComponent> it = components.listIterator(components.size()); it.hasPrevious();) {
@@ -269,128 +275,160 @@ public final class SuperCanvasPanel extends JPanel {
 
         @Override
         public void mousePressed(MouseEvent e) {
-            dragBtn = e.getButton();
-            if (e.getButton() == MouseEvent.BUTTON3) {
-                for (ListIterator<SuperCanvasComponent> it = components.listIterator(components.size()); it.hasPrevious();) {
-                    SuperCanvasComponent comp = it.previous();
-                    if (comp.contains(e.getX(), e.getY())) {
-                        if (comp.onInteract(e.getX(), e.getY())) {
-                            break;
+            try {
+                dragBtn = e.getButton();
+                if (e.getButton() == MouseEvent.BUTTON3) {
+                    for (ListIterator<SuperCanvasComponent> it = components.listIterator(components.size()); it.hasPrevious();) {
+                        SuperCanvasComponent comp = it.previous();
+                        if (comp.contains(e.getX(), e.getY())) {
+                            if (comp.onInteract(e.getX(), e.getY())) {
+                                break;
+                            }
+                        }
+                    }
+                } else {
+                    for (ListIterator<SuperCanvasComponent> it = components.listIterator(components.size()); it.hasPrevious();) {
+                        SuperCanvasComponent comp = it.previous();
+                        if (comp.contains(e.getX(), e.getY())) {
+                            if (comp.onSelect(e.getX(), e.getY())) {
+                                raise(comp);
+                                break;
+                            }
                         }
                     }
                 }
-            } else {
-                for (ListIterator<SuperCanvasComponent> it = components.listIterator(components.size()); it.hasPrevious();) {
-                    SuperCanvasComponent comp = it.previous();
-                    if (comp.contains(e.getX(), e.getY())) {
-                        if (comp.onSelect(e.getX(), e.getY())) {
-                            raise(comp);
-                            break;
-                        }
-                    }
-                }
+            } catch (Throwable thr) {
+                Logger.severe("Exception while handling key press", thr);
             }
         }
 
         @Override
         public void mouseReleased(MouseEvent e) {
-            if (activeEntity != null) {
-                for (ListIterator<SuperCanvasComponent> it = components.listIterator(components.size()); it.hasPrevious();) {
-                    SuperCanvasComponent comp = it.previous();
-                    if (comp != activeEntity && comp.contains(e.getX(), e.getY())) {
-                        if (activeEntity.canDrop() && comp.onReceiveDrop(e.getX(), e.getY(), activeEntity)) {
-                            break;
+            try {
+                if (activeEntity != null) {
+                    for (ListIterator<SuperCanvasComponent> it = components.listIterator(components.size()); it.hasPrevious();) {
+                        SuperCanvasComponent comp = it.previous();
+                        if (comp != activeEntity && comp.contains(e.getX(), e.getY())) {
+                            if (activeEntity.canDrop() && comp.onReceiveDrop(e.getX(), e.getY(), activeEntity)) {
+                                break;
+                            }
                         }
                     }
+                    activeEntity = null;
                 }
-                activeEntity = null;
+            } catch (Throwable thr) {
+                Logger.severe("Exception while handling key press", thr);
             }
         }
 
         @Override
         public void mouseWheelMoved(MouseWheelEvent e) {
-            for (ListIterator<SuperCanvasComponent> it = components.listIterator(components.size()); it.hasPrevious();) {
-                SuperCanvasComponent comp = it.previous();
-                if (comp.contains(e.getX(), e.getY())) {
-                    if (comp.onScroll(e.getX(), e.getY(), e.getWheelRotation())) {
-                        break;
+            try {
+                for (ListIterator<SuperCanvasComponent> it = components.listIterator(components.size()); it.hasPrevious();) {
+                    SuperCanvasComponent comp = it.previous();
+                    if (comp.contains(e.getX(), e.getY())) {
+                        if (comp.onScroll(e.getX(), e.getY(), e.getWheelRotation())) {
+                            break;
+                        }
                     }
                 }
+                repaint();
+            } catch (Throwable thr) {
+                Logger.severe("Exception while handling key press", thr);
             }
-            repaint();
         }
 
         @Override
         public void mouseDragged(MouseEvent e) {
-            mouseX = e.getX();
-            mouseY = e.getY();
-            if (dragBtn == MouseEvent.BUTTON3) {
-                dragToInteract();
-            } else if (activeEntity != null) {
-                dragToMove(e);
-            } else {
-                dragToSelect(e);
+            try {
+                mouseX = e.getX();
+                mouseY = e.getY();
+                if (dragBtn == MouseEvent.BUTTON3) {
+                    dragToInteract();
+                } else if (activeEntity != null) {
+                    dragToMove(e);
+                } else {
+                    dragToSelect(e);
+                }
+                repaint();
+            } catch (Throwable thr) {
+                Logger.severe("Exception while handling key press", thr);
             }
-            repaint();
         }
 
         private void dragToSelect(MouseEvent e) {
-            for (ListIterator<SuperCanvasComponent> it = components.listIterator(components.size()); it.hasPrevious();) {
-                SuperCanvasComponent comp = it.previous();
-                if (comp.wantsDragSelect() && comp.contains(e.getX(), e.getY())) {
-                    if (comp.onSelect(e.getX(), e.getY())) {
-                        break;
+            try {
+                for (ListIterator<SuperCanvasComponent> it = components.listIterator(components.size()); it.hasPrevious();) {
+                    SuperCanvasComponent comp = it.previous();
+                    if (comp.wantsDragSelect() && comp.contains(e.getX(), e.getY())) {
+                        if (comp.onSelect(e.getX(), e.getY())) {
+                            break;
+                        }
                     }
                 }
+            } catch (Throwable thr) {
+                Logger.severe("Exception while handling key press", thr);
             }
         }
 
         private void dragToMove(MouseEvent e) {
-            int gx = e.getX(), gy = e.getY();
-            if (gx < 5) {
-                gx = 5;
-            } else if (gx > getWidth() - 5) {
-                gx = getWidth() - 5;
+            try {
+                int gx = e.getX(), gy = e.getY();
+                if (gx < 5) {
+                    gx = 5;
+                } else if (gx > getWidth() - 5) {
+                    gx = getWidth() - 5;
+                }
+                if (gy < 5) {
+                    gy = 5;
+                } else if (gy > getHeight() - 5) {
+                    gy = getHeight() - 5;
+                }
+                activeEntity.moveForDrag(relActiveX + gx, relActiveY + gy);
+            } catch (Throwable thr) {
+                Logger.severe("Exception while handling key press", thr);
             }
-            if (gy < 5) {
-                gy = 5;
-            } else if (gy > getHeight() - 5) {
-                gy = getHeight() - 5;
-            }
-            activeEntity.moveForDrag(relActiveX + gx, relActiveY + gy);
         }
 
         private void dragToInteract() {
-            for (ListIterator<SuperCanvasComponent> it = components.listIterator(components.size()); it.hasPrevious();) {
-                SuperCanvasComponent comp = it.previous();
-                if (comp.contains(mouseX, mouseY)) {
-                    if (comp.onInteract(mouseX, mouseY)) {
-                        break;
+            try {
+                for (ListIterator<SuperCanvasComponent> it = components.listIterator(components.size()); it.hasPrevious();) {
+                    SuperCanvasComponent comp = it.previous();
+                    if (comp.contains(mouseX, mouseY)) {
+                        if (comp.canDragInteract() && comp.onInteract(mouseX, mouseY)) {
+                            break;
+                        }
                     }
                 }
+            } catch (Throwable thr) {
+                Logger.severe("Exception while handling key press", thr);
             }
         }
 
         @Override
         public void mouseMoved(MouseEvent e) {
-            boolean mod = false;
-            mouseX = e.getX();
-            mouseY = e.getY();
-            for (SuperCanvasComponent cmp : components) {
-                if (cmp.contains(e.getX(), e.getY())) {
-                    if (mouseOver.add(cmp)) {
-                        mod |= cmp.onMouseEnter(e.getX(), e.getY());
+            try {
+                boolean mod = false;
+                mouseX = e.getX();
+                mouseY = e.getY();
+                for (SuperCanvasComponent cmp : components) {
+                    if (cmp.contains(e.getX(), e.getY())) {
+                        if (mouseOver.add(cmp)) {
+                            mod |= cmp.onMouseEnter(e.getX(), e.getY());
+                        } else {
+                            mod |= cmp.onMouseMove(e.getX(), e.getY());
+                        }
                     } else {
-                        mod |= cmp.onMouseMove(e.getX(), e.getY());
-                    }
-                } else {
-                    if (mouseOver.remove(cmp)) {
-                        mod |= cmp.onMouseExit(e.getX(), e.getY());
+                        if (mouseOver.remove(cmp)) {
+                            mod |= cmp.onMouseExit(e.getX(), e.getY());
+                        }
                     }
                 }
-            }
-            if (mod) {
-                repaint();
+                if (mod) {
+                    repaint();
+                }
+            } catch (Throwable thr) {
+                Logger.severe("Exception while handling key press", thr);
             }
         }
     }

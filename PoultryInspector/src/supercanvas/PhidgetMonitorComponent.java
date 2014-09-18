@@ -20,7 +20,9 @@ package supercanvas;
 
 import ccre.channel.EventOutput;
 import intelligence.monitor.IPhidgetMonitor;
+import intelligence.monitor.PhidgetMonitor;
 import intelligence.monitor.VirtualPhidgetMonitor;
+
 import java.awt.Color;
 import java.awt.FontMetrics;
 import java.awt.GradientPaint;
@@ -35,6 +37,22 @@ import java.io.Serializable;
  * @author skeggsc
  */
 public class PhidgetMonitorComponent extends DraggableBoxComponent {
+    
+    public static class VirtualPhidget extends PhidgetMonitorComponent {
+        private static final long serialVersionUID = -3640780784824672778L;
+
+        public VirtualPhidget(int cx, int cy) {
+            super(cx, cy, true);
+        }
+    }
+
+    public static class PhysicalPhidget extends PhidgetMonitorComponent {
+        private static final long serialVersionUID = 1440999334054971431L;
+
+        public PhysicalPhidget(int cx, int cy) {
+            super(cx, cy, false);
+        }
+    }
 
     private static final long serialVersionUID = -8989662604456982035L;
     private final IPhidgetMonitor monitor;
@@ -47,10 +65,14 @@ public class PhidgetMonitorComponent extends DraggableBoxComponent {
      * @param cx the X-coordinate.
      * @param cy the Y-coordinate.
      */
-    public PhidgetMonitorComponent(int cx, int cy) {
+    private PhidgetMonitorComponent(int cx, int cy, boolean isVirtual) {
         super(cx, cy);
         this.label = "VirtualPhidget";
-        this.monitor = new VirtualPhidgetMonitor(new SerializableUnsharer());
+        if (isVirtual) {
+            this.monitor = new VirtualPhidgetMonitor(new SerializableUnsharer());
+        } else {
+            this.monitor = new PhidgetMonitor();
+        }
     }
 
     @Override

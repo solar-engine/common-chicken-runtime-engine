@@ -50,6 +50,7 @@ import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.Gyro;
 import edu.wpi.first.wpilibj.IterativeRobot;
 import edu.wpi.first.wpilibj.Jaguar;
+import edu.wpi.first.wpilibj.PowerDistributionPanel;
 import edu.wpi.first.wpilibj.Relay;
 import edu.wpi.first.wpilibj.Servo;
 import edu.wpi.first.wpilibj.Solenoid;
@@ -58,8 +59,8 @@ import edu.wpi.first.wpilibj.Talon;
 import edu.wpi.first.wpilibj.Victor;
 
 /**
- * The Squawk implementation of the IgneousLauncher interface. Do not use this!
- * This should only be referenced from the MANIFEST.MF file.
+ * The RoboRIO implementation of the IgneousLauncher interface. Do not use this!
+ * This should only be referenced from the build script.
  *
  * @see IgneousLauncher
  * @author skeggsc
@@ -558,5 +559,27 @@ public final class IgneousLauncherImpl extends IterativeRobot implements Igneous
                 return getPCMCompressor().getCompressorCurrent();
             }
         };
+    }
+    
+    public FloatInputPoll getPDPChannelCurrent(final int channel) {
+        final PowerDistributionPanel panel = new PowerDistributionPanel();
+        return new FloatInputPoll() {
+            public float get() {
+                return (float) panel.getCurrent(channel);
+            }
+        };
+    }
+    
+    public FloatInputPoll getPDPVoltage() {
+        final PowerDistributionPanel panel = new PowerDistributionPanel();
+        return new FloatInputPoll() {
+            public float get() {
+                return (float) panel.getVoltage();
+            }
+        };
+    }
+    
+    public boolean isRoboRIO() {
+        return true;
     }
 }

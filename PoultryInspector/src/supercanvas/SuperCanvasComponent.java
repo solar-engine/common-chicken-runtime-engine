@@ -242,4 +242,11 @@ public abstract class SuperCanvasComponent implements Serializable {
      */
     public void onPressedEnter() {
     }
+
+    /**
+     * @return if dragging should be sent as a large number of interactions.
+     */
+    public boolean canDragInteract() {
+        return true;
+    }
 }

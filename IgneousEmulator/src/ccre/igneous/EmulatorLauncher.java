@@ -390,4 +390,19 @@ public final class EmulatorLauncher implements IgneousLauncher {
 	public FloatInputPoll getPCMCompressorCurrent() {
 		throw new RuntimeException("PCM not supported under cRIO emulator.");
 	}
+
+	@Override
+	public FloatInputPoll getPDPChannelCurrent(int channel) {
+		throw new RuntimeException("PDP not supported under cRIO emulator.");
+	}
+
+	@Override
+	public FloatInputPoll getPDPVoltage() {
+		throw new RuntimeException("PDP not supported under cRIO emulator.");
+	}
+
+	@Override
+	public boolean isRoboRIO() {
+		return false;
+	}
 }

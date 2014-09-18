@@ -1,19 +1,31 @@
 package org.team1540.geminiapollo;
 
-import ccre.channel.*;
-import ccre.cluck.Cluck;
-import ccre.cluck.rpc.RemoteProcedure;
-import ccre.ctrl.BooleanMixing;
-import ccre.ctrl.FloatMixing;
-import ccre.ctrl.Mixing;
-import ccre.holders.*;
-import ccre.igneous.Igneous;
-import ccre.instinct.*;
-import ccre.log.Logger;
-import ccre.saver.*;
-import ccre.util.*;
 import java.io.ByteArrayOutputStream;
 import java.io.UnsupportedEncodingException;
+
+import ccre.channel.BooleanInputPoll;
+import ccre.channel.BooleanOutput;
+import ccre.channel.BooleanStatus;
+import ccre.channel.EventInput;
+import ccre.channel.EventOutput;
+import ccre.channel.EventStatus;
+import ccre.channel.FloatInputPoll;
+import ccre.channel.FloatOutput;
+import ccre.channel.FloatStatus;
+import ccre.cluck.Cluck;
+import ccre.cluck.rpc.RemoteProcedure;
+import ccre.ctrl.FloatMixing;
+import ccre.holders.StringHolder;
+import ccre.holders.TuningContext;
+import ccre.igneous.Igneous;
+import ccre.instinct.AutonomousModeOverException;
+import ccre.instinct.InstinctModule;
+import ccre.log.Logger;
+import ccre.saver.StorageProvider;
+import ccre.saver.StorageSegment;
+import ccre.util.CArrayUtils;
+import ccre.util.CList;
+import ccre.util.Utils;
 
 public class AutonomousController extends InstinctModule {
 
@@ -28,7 +40,7 @@ public class AutonomousController extends InstinctModule {
     // Tuned constants are below near the autonomous modes.
     private final StringHolder option = new StringHolder("double");
     private final String[] options = {"none", "forward", "hotcheck", "double"};
-    private final CList optionList = CArrayUtils.asList(options);
+    private final CList<String> optionList = CArrayUtils.asList(options);
     private final BooleanStatus winchGotten = new BooleanStatus();
 
     protected void autonomousMain() throws AutonomousModeOverException, InterruptedException {

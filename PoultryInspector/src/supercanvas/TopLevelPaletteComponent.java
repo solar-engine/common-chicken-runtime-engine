@@ -33,7 +33,7 @@ public class TopLevelPaletteComponent extends PaletteComponent<Iterable<PaletteE
     private static final Iterable<PaletteEntry> topLevel;
 
     static {
-        topLevel = Arrays.<PaletteEntry> asList(new AllocationPaletteEntry(LoggingComponent.class), new AllocationPaletteEntry(PhidgetMonitorComponent.class), new AllocationPaletteEntry(NetworkPaletteComponent.class), new AllocationPaletteEntry(ListPaletteComponent.class), new AllocationPaletteEntry(FolderComponent.class), new AllocationPaletteEntry(TrashComponent.class));
+        topLevel = Arrays.<PaletteEntry> asList(new AllocationPaletteEntry(LoggingComponent.class), new AllocationPaletteEntry(PhidgetMonitorComponent.VirtualPhidget.class), new AllocationPaletteEntry(PhidgetMonitorComponent.PhysicalPhidget.class), new AllocationPaletteEntry(NetworkPaletteComponent.class), new AllocationPaletteEntry(ListPaletteComponent.class), new AllocationPaletteEntry(FolderComponent.class), new AllocationPaletteEntry(TrashComponent.class));
     }
 
     /**

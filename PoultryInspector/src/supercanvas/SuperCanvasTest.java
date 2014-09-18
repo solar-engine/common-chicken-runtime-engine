@@ -18,12 +18,13 @@
  */
 package supercanvas;
 
-import ccre.log.FileLogger;
-import ccre.log.NetworkAutologger;
-import ccre.net.CountingNetworkProvider;
-import intelligence.IPProvider;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+
+import ccre.log.FileLogger;
+import ccre.log.Logger;
+import ccre.log.NetworkAutologger;
+import ccre.net.CountingNetworkProvider;
 
 /**
  * A test launcher for the SuperCanvas system. This will be superceded, or at
@@ -44,21 +45,25 @@ public class SuperCanvasTest extends javax.swing.JFrame {
         this.addKeyListener(new KeyAdapter() {
             @Override
             public void keyPressed(KeyEvent e) {
-                if (canvas.editing != null) {
-                    char c = e.getKeyChar();
-                    if (c >= 32) {
-                        canvas.editing.append(c);
-                    } else {
-                        switch (e.getKeyCode()) {
-                        case KeyEvent.VK_ESCAPE: canvas.editing.setLength(0); break;
-                        case KeyEvent.VK_BACK_SPACE: canvas.editing.setLength(Math.max(0, canvas.editing.length() - 1)); break;
-                        case KeyEvent.VK_ENTER: canvas.pressedEnter(); break;
+                try {
+                    if (canvas.editing != null) {
+                        char c = e.getKeyChar();
+                        if (c >= 32 && c <= 126) {
+                            canvas.editing.append(c);
+                        } else {
+                            switch (e.getKeyCode()) {
+                            case KeyEvent.VK_ESCAPE: canvas.editing.setLength(0); break;
+                            case KeyEvent.VK_BACK_SPACE: canvas.editing.setLength(Math.max(0, canvas.editing.length() - 1)); break;
+                            case KeyEvent.VK_ENTER: canvas.pressedEnter(); break;
+                            }
+                        }
+                    } else if (e.getKeyCode() == KeyEvent.VK_SHIFT) {
+                        if (!canvas.removeAll(TopLevelPaletteComponent.class)) {
+                            canvas.add(new TopLevelPaletteComponent(200, 200));
                         }
                     }
-                } else if (e.getKeyCode() == KeyEvent.VK_SHIFT) {
-                    if (!canvas.removeAll(TopLevelPaletteComponent.class)) {
-                        canvas.add(new TopLevelPaletteComponent(200, 200));
-                    }
+                } catch (Throwable thr) {
+                    Logger.severe("Exception while handling key press", thr);
                 }
             }
         });
@@ -86,11 +91,7 @@ public class SuperCanvasTest extends javax.swing.JFrame {
         canvas.add(new NetworkProfilerComponent());
         //canvas.add(lpc);
         canvas.add(new SaveLoadComponent(0, 0));
-        canvas.add(new PhidgetMonitorComponent(100, 100/*
-                                                        * , new
-                                                        * VirtualPhidgetMonitor
-                                                        * (), "Virtual Phidget"
-                                                        */));
+        canvas.add(new PhidgetMonitorComponent.VirtualPhidget(100, 100));
         canvas.start();
     }
 
@@ -123,7 +124,7 @@ public class SuperCanvasTest extends javax.swing.JFrame {
      * @param args the command line arguments
      */
     public static void main(String args[]) {
-        System.setProperty("sun.io.serialization.extendedDebugInfo", "true");
+        //System.setProperty("sun.io.serialization.extendedDebugInfo", "true");
         CountingNetworkProvider.register();
         NetworkAutologger.register();
         FileLogger.register();

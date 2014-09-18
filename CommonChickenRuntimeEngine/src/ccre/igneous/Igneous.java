@@ -416,6 +416,30 @@ public class Igneous {
     public static FloatInputPoll getPCMCompressorCurrent() {
         return launcher.getPCMCompressorCurrent();
     }
+    
+    /**
+     * Reads the current draw of the specified PDP channel.
+     * @param channel the channel to monitor
+     * @return the current being used by the specified channel.
+     */
+    public static FloatInputPoll getPDPChannelCurrent(int channel) {
+        return launcher.getPDPChannelCurrent(channel);
+    }
+    
+    /**
+     * Reads the voltage of the PDP.
+     * @return the voltage being measured by the PDP.
+     */
+    public static FloatInputPoll getPDPVoltage() {
+        return launcher.getPDPVoltage();
+    }
+    
+    /**
+     * Checks if this platform is a RoboRIO.
+     */
+    public static boolean isRoboRIO() {
+        return launcher.isRoboRIO();
+    }
 
     /**
      * Activate the compressor on the given pressure switch input and compressor

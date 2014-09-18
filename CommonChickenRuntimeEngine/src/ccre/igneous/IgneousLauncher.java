@@ -308,4 +308,19 @@ public interface IgneousLauncher {
      * @return the current draw of the PCM compressor.
      */
     public FloatInputPoll getPCMCompressorCurrent();
+    
+    /**
+     * @return the current draw of the specified PDP channel.
+     */
+    public FloatInputPoll getPDPChannelCurrent(int channel);
+    
+    /**
+     * @return the voltage measured at the PDP.
+     */
+    public FloatInputPoll getPDPVoltage();
+    
+    /**
+     * @return if this system is a RoboRIO.
+     */
+    public boolean isRoboRIO();
 }

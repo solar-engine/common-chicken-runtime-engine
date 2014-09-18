@@ -7,7 +7,6 @@ import ccre.ctrl.EventMixing;
 import ccre.ctrl.ExpirationTimer;
 import ccre.ctrl.FloatMixing;
 import ccre.ctrl.IJoystick;
-import ccre.ctrl.Mixing;
 import ccre.holders.TuningContext;
 import ccre.phidget.PhidgetReader;
 
@@ -26,19 +25,15 @@ public class ControlInterface {
     }
 
     public EventInput getRearmCatapult() {
-        return EventMixing.combine(joystick2.getButtonSource(1),
-                BooleanMixing.whenBooleanBecomes(PhidgetReader.getDigitalInput(2), true, globalPeriodic));
+        return EventMixing.combine(joystick2.getButtonSource(1), BooleanMixing.whenBooleanBecomes(PhidgetReader.getDigitalInput(2), true, globalPeriodic));
     }
 
     public EventInput getFireButton(BooleanInputPoll isKidMode) {
-        return EventMixing.combine(new EventInput[]{
-            BooleanMixing.whenBooleanBecomes(PhidgetReader.getDigitalInput(1), true),
-            EventMixing.filterEvent(isKidMode, false, joystick1.getButtonSource(6)),
-            joystick2.getButtonSource(2)});
+        return EventMixing.combine(new EventInput[] { BooleanMixing.whenBooleanBecomes(PhidgetReader.getDigitalInput(1), true), EventMixing.filterEvent(isKidMode, false, joystick1.getButtonSource(6)), joystick2.getButtonSource(2) });
     }
 
     public EventInput getArmRaise() {
-        return EventMixing.combine(new EventInput[]{robotDisabled, joystick2.getButtonSource(5), BooleanMixing.whenBooleanBecomes(PhidgetReader.getDigitalInput(5), true)});
+        return EventMixing.combine(new EventInput[] { robotDisabled, joystick2.getButtonSource(5), BooleanMixing.whenBooleanBecomes(PhidgetReader.getDigitalInput(5), true) });
     }
 
     public EventInput getArmHold() {
@@ -46,7 +41,7 @@ public class ControlInterface {
     }
 
     public EventInput getArmLower() {
-        return EventMixing.combine(new EventInput[]{forceArmLower, joystick2.getButtonSource(6), BooleanMixing.whenBooleanBecomes(PhidgetReader.getDigitalInput(0), true)});
+        return EventMixing.combine(new EventInput[] { forceArmLower, joystick2.getButtonSource(6), BooleanMixing.whenBooleanBecomes(PhidgetReader.getDigitalInput(0), true) });
     }
 
     public BooleanInputPoll rollerIn() {
@@ -121,7 +116,13 @@ public class ControlInterface {
     }
 
     public FloatInputPoll getForwardDriveAxis() {
-        return driveDeadzone.wrap(FloatMixing.negate(joystick1.getAxisChannel(3)));
+        final FloatInputPoll plus = joystick1.getAxisChannel(3), minus = joystick1.getAxisChannel(4);
+        return driveDeadzone.wrap(FloatMixing.negate(new FloatInputPoll() {
+            @Override
+            public float get() {
+                return plus.get() + minus.get();
+            }
+        }));
     }
 
     public EventInput getShiftHighButton() {

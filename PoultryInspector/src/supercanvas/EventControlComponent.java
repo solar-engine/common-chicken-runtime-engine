@@ -77,6 +77,11 @@ public class EventControlComponent extends BaseChannelComponent implements Event
     }
 
     @Override
+    public boolean canDragInteract() {
+        return false;
+    }
+
+    @Override
     public boolean onInteract(int x, int y) {
         stat.event();
         countStart = System.currentTimeMillis();

@@ -61,8 +61,8 @@ public class PaletteComponent<T extends Iterable<? extends PaletteEntry>> extend
         g.setPaint(new GradientPaint(centerX + 20, centerY - halfHeight, Color.LIGHT_GRAY, centerX - 20, centerY + halfHeight, Color.LIGHT_GRAY.darker()));
         g.fillRoundRect(centerX - halfWidth + 1, centerY - halfHeight + 1, halfWidth * 2 - 2, halfHeight * 2 - 2, 10, 10);
         Shape clip = g.getClip();
-        g.setClip(new Rectangle(centerX - halfWidth + 5, centerY - halfHeight + 5, halfWidth * 2 - 10, halfHeight * 2 - 10));
-        int entryCount = drawPaletteEntries(mouseX, mouseY, centerX - halfWidth + 16, centerY - halfHeight + 26 - scroll, g, fontMetrics);
+        g.setClip(new Rectangle(centerX - halfWidth + 5, centerY - halfHeight + 24, halfWidth * 2 - 10, halfHeight * 2 - 36));
+        int entryCount = drawPaletteEntries(mouseX, mouseY, centerX - halfWidth + 16, centerY - halfHeight + 36 - scroll, g, fontMetrics);
         g.setClip(clip);
         drawScrollbar(entryCount, fontMetrics, g);
     }
@@ -116,8 +116,11 @@ public class PaletteComponent<T extends Iterable<? extends PaletteEntry>> extend
 
     @Override
     public boolean onInteract(int x, int y) {
+        if (y < centerY - halfHeight + 24) {
+            return false;
+        }
         int xPos = centerX - halfWidth + 16;
-        int yPos = centerY - halfHeight + 26 - scroll;
+        int yPos = centerY - halfHeight + 36 - scroll;
         for (PaletteEntry ent : entries) {
             if (x >= xPos - 5 && x <= xPos + halfWidth * 2 - 28 && y >= yPos - yshift && y < yPos - yshift + rowHeight) {
                 onInteract(ent);
@@ -140,13 +143,13 @@ public class PaletteComponent<T extends Iterable<? extends PaletteEntry>> extend
     @Override
     public boolean onSelect(int x, int y) {
         int xPos = centerX - halfWidth + 16;
-        int yPos = centerY - halfHeight + 26 - scroll;
+        int yPos = centerY - halfHeight + 36 - scroll;
         isScrolling = false;
         for (PaletteEntry ent : entries) {
             if (x < xPos - 5) {
                 isScrolling = true;
                 break;
-            } else if (x <= xPos + halfWidth * 2 - 28 && y >= yPos - yshift && y < yPos - yshift + rowHeight) {
+            } else if (y >= centerY - halfHeight + 24 && x <= xPos + halfWidth * 2 - 28 && y >= yPos - yshift && y < yPos - yshift + rowHeight) {
                 SuperCanvasComponent nent = ent.fetch(x, y);
                 getPanel().add(nent);
                 getPanel().startDrag(nent, x, y);

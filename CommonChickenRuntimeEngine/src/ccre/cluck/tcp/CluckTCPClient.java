@@ -24,9 +24,11 @@ import ccre.concurrency.ReporterThread;
 import ccre.log.Logger;
 import ccre.net.ClientSocket;
 import ccre.net.Network;
+
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.net.UnknownHostException;
 
 /**
  * A self-maintaining handler for connecting to a specified remote address.
@@ -145,7 +147,7 @@ public class CluckTCPClient extends ReporterThread {
                 String postfix = "";
                 closeActiveConnectionIfAny();
                 try {
-                    tryConnection();
+                    postfix = tryConnection();
                 } catch (Throwable ex) {
                     Logger.severe("Uncaught exception in network handler!", ex);
                 }
@@ -179,6 +181,8 @@ public class CluckTCPClient extends ReporterThread {
             CluckLink deny = CluckProtocol.handleSend(dout, linkName, node);
             node.notifyNetworkModified(); // Only send here, not on server.
             CluckProtocol.handleRecv(din, linkName, node, deny);
+        } catch (UnknownHostException ex) {
+            return " (" + ex.getMessage() + ")";
         } catch (IOException ex) {
             if ("Remote server not available.".equals(ex.getMessage()) || "Timed out while connecting.".equals(ex.getMessage())) {
                 return " (" + ex.getMessage() + ")";

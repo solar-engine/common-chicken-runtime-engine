@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<project name="Build Jar">
+    <target name="build-jar">
+    	<jar destfile="PoultryInspector.jar" update="false">
+    		<manifest>
+    			<attribute name="Main-Class" value="supercanvas.SuperCanvasTest"/>
+    		</manifest>
+			<fileset dir="bin" includes="**/*.class"/>
+			<fileset dir="../CommonChickenRuntimeEngine/bin" includes="**/*.class"/>
+    		<zipgroupfileset includes="*.jar" dir="lib" />
+		</jar>
+    </target>
+</project>

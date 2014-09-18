@@ -35,7 +35,7 @@ public class RobotMain extends IgneousCore {
         BooleanInputPoll unsafeToCollect, disableSystemsForRearm;
         { // ==== SHOOTER CODE ====
             FloatOutput winchMotor = testing.testPublish("winch", makeTalonMotor(6, MOTOR_REVERSE, 1000f));
-            BooleanOutput winchSolenoid = testing.testPublish("sol-winch-3", makeSolenoid(3));
+            BooleanOutput winchSolenoid = testing.testPublish("sol-winch-4", makeSolenoid(4));
             FloatInputPoll winchCurrent = makeAnalogInput(1, 8);
             Cluck.publish("Winch Current", FloatMixing.createDispatch(winchCurrent, globalPeriodic));
             EventInput fireWhen = EventMixing.combine(autonomous.getWhenToFire(), ui.getFireButton(isKidMode));
@@ -59,9 +59,9 @@ public class RobotMain extends IgneousCore {
             ui.showFiring(shooter.winchDisengaged);
         }
         { // ==== ARM CODE ====
-            BooleanOutput armMainSolenoid = testing.testPublish("sol-arm-2", makeSolenoid(2));
-            BooleanOutput armLockSolenoid = testing.testPublish("sol-lock-8", makeSolenoid(8));
-            BooleanOutput collectionSolenoids = BooleanMixing.combine(BooleanMixing.invert(testing.testPublish("sol-fingers-5", makeSolenoid(5))), testing.testPublish("sol-float-6", makeSolenoid(6)));
+            BooleanOutput armMainSolenoid = testing.testPublish("sol-arm-6", makeSolenoid(6));
+            BooleanOutput armLockSolenoid = testing.testPublish("sol-lock-1", makeSolenoid(1));
+            BooleanOutput collectionSolenoids = BooleanMixing.combine(BooleanMixing.invert(testing.testPublish("sol-fingers-5", makeSolenoid(5))), testing.testPublish("sol-float-0", makeSolenoid(0)));
             collectionSolenoids.set(false);
             FloatOutput collectorMotor = testing.testPublish("collectorMotor", makeTalonMotor(7, MOTOR_REVERSE, 0.1f));
             // Teleoperated
@@ -80,10 +80,10 @@ public class RobotMain extends IgneousCore {
             //autonomous.putKinectTrigger(KinectControl.main(globalPeriodic, getKinectJoystick(false), getKinectJoystick(true)));
         }
         { // ==== DRIVING ====
-            FloatOutput leftDrive1 = makeTalonMotor(2, MOTOR_FORWARD, 0.1f), rightDrive1 = makeTalonMotor(4, MOTOR_REVERSE, 0.1f);
-            FloatOutput leftDrive2 = makeTalonMotor(3, MOTOR_FORWARD, 0.1f), rightDrive2 = makeTalonMotor(5, MOTOR_REVERSE, 0.1f);
+            FloatOutput leftDrive1 = makeTalonMotor(2, MOTOR_REVERSE, 0.1f), rightDrive1 = makeTalonMotor(4, MOTOR_FORWARD, 0.1f);
+            FloatOutput leftDrive2 = makeTalonMotor(3, MOTOR_REVERSE, 0.1f), rightDrive2 = makeTalonMotor(5, MOTOR_FORWARD, 0.1f);
             FloatOutput leftDrive = FloatMixing.combine(leftDrive1, leftDrive2), rightDrive = FloatMixing.combine(rightDrive1, rightDrive2);
-            BooleanOutput shiftSolenoid = testing.testPublish("sol-shift-1", makeSolenoid(1));
+            BooleanOutput shiftSolenoid = testing.testPublish("sol-shift-7", makeSolenoid(7));
             testing.addDriveMotors(leftDrive1, leftDrive2, leftDrive, rightDrive1, rightDrive2, rightDrive);
             // Reset
             FloatMixing.setWhen(startDisabled, FloatMixing.combine(leftDrive, rightDrive), 0);
@@ -119,7 +119,7 @@ public class RobotMain extends IgneousCore {
     private void setupCompressorAndDisplay(FloatInputPoll winch, final BooleanInputPoll disableCompressor) {
         final BooleanInputPoll pressureSwitch = makeDigitalInput(1);
         final FloatStatus override = new FloatStatus();
-        final FloatInputPoll pressureSensor = makeAnalogInput(2, 8);
+        final FloatInputPoll pressureSensor = makeAnalogInput(0, 8);
         Cluck.publish("Compressor Override", override);
         Cluck.publish("Compressor Sensor", BooleanMixing.createDispatch(pressureSwitch, globalPeriodic));
         Cluck.publish("Pressure Sensor", FloatMixing.createDispatch(pressureSensor, globalPeriodic));

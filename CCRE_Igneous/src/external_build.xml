@@ -43,7 +43,7 @@
     <jar destfile="${dist.jar}" update="false">
       <manifest>
     	<attribute name="Main-Class" value="edu.wpi.first.wpilibj.RobotBase"/>
-    	<attribute name="Robot-Class" value="ccre.igneous.IgneousLauncherImpl"/>
+    	<attribute name="Robot-Class" value="ccre.igneous.RawIOIgneousLauncherImpl"/>
     	<attribute name="CCRE-Main" value="${igneous.main}"/>
     	<attribute name="Class-Path" value="."/>
       </manifest>

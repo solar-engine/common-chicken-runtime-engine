@@ -99,8 +99,8 @@ public class NetworkProfilerComponent extends SuperCanvasComponent {
                         E = (char) ((prefix % 10) + '0');
                         A = (char) ((suffix / 10) + '0');
                         M = (char) ((suffix % 10) + '0');
+                        break;
                     }
-                    break;
                 } catch (NumberFormatException e) {
                     // Do nothing.
                 }

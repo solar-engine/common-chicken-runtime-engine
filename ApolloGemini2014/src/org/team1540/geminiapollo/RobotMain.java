@@ -9,6 +9,7 @@ import ccre.ctrl.FloatMixing;
 import ccre.ctrl.Mixing;
 import ccre.ctrl.Ticker;
 import ccre.holders.TuningContext;
+import ccre.igneous.Igneous;
 import ccre.igneous.IgneousCore;
 import ccre.log.Logger;
 
@@ -36,7 +37,7 @@ public class RobotMain extends IgneousCore {
         { // ==== SHOOTER CODE ====
             FloatOutput winchMotor = testing.testPublish("winch", makeTalonMotor(6, MOTOR_REVERSE, 1000f));
             BooleanOutput winchSolenoid = testing.testPublish("sol-winch-4", makeSolenoid(4));
-            FloatInputPoll winchCurrent = makeAnalogInput(1, 8);
+            FloatInputPoll winchCurrent = Igneous.getPDPChannelCurrent(12); //makeAnalogInput(1, 8);
             Cluck.publish("Winch Current", FloatMixing.createDispatch(winchCurrent, globalPeriodic));
             EventInput fireWhen = EventMixing.combine(autonomous.getWhenToFire(), ui.getFireButton(isKidMode));
             // Global
@@ -126,7 +127,7 @@ public class RobotMain extends IgneousCore {
         final TuningContext tuner = new TuningContext(Cluck.getNode(), "PressureTuner");
         tuner.publishSavingEvent("Pressure");
         final FloatInputPoll zeroP = tuner.getFloat("LowPressure", 0.494f);
-        final FloatInputPoll oneP = tuner.getFloat("HighPressure", 2.9f);
+        final FloatInputPoll oneP = tuner.getFloat("HighPressure", 2.7f);
         final FloatInputPoll percentPressure = new FloatInputPoll() {
             public float get() {
                 return 100 * ControlInterface.normalize(zeroP.get(), oneP.get(), pressureSensor.get());

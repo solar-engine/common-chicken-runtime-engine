@@ -21,18 +21,24 @@ public class Shooter {
     public final BooleanStatus shouldUseCurrent = new BooleanStatus();
 
     private final FloatInput winchSpeed = tuner.getFloat("Winch Speed", 1f);
-    private final FloatInput drawBack = tuner.getFloat("Draw Back", 605);
+    private final FloatInput drawBack = tuner.getFloat("Draw Back", 650);
     private final FloatInput drawBackExtra = tuner.getFloat("Extra Draw Back in Auto", 0);
     private final FloatInput drawBackCurrent = tuner.getFloat("Draw Back Current", 50);
     private final FloatInput rearmTimeout = tuner.getFloat("Winch Rearm Timeout", 5f);
     private final FloatInput ampThreshold = tuner.getFloat("Amp Threshold", 5f);
 
     public final FloatInputPoll activeAmps = new FloatInputPoll() {
+        private Float tare = null;
+        
         public float get() {
             if (sensor == null) {
                 return -100; // TODO: Remove this later.
             }
-            float o = (sensor.get() - 0.60f) / 0.04f;
+            float o = sensor.get(); // (sensor.get() - 0.60f) / 0.04f;
+            if (tare == null) {
+                tare = o;
+            }
+            o -= tare;
             return o >= ampThreshold.get() ? o : 0;
         }
     };

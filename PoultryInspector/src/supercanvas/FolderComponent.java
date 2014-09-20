@@ -41,7 +41,7 @@ public class FolderComponent extends DraggableBoxComponent {
      * @param cy The Y-coordinate.
      */
     public FolderComponent(int cx, int cy) {
-        super(cx, cy);
+        super(cx, cy, true);
     }
 
     @Override

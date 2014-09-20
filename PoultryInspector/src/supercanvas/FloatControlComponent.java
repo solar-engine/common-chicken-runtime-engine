@@ -125,4 +125,9 @@ public class FloatControlComponent extends BaseChannelComponent implements Float
     public float get() {
         return stat.get();
     }
+
+    @Override
+    public boolean canDragInteract() {
+        return true;
+    }
 }

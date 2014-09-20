@@ -49,6 +49,7 @@ public class SaveLoadComponent extends SuperCanvasComponent {
      * @param y the Y-coordinate.
      */
     public SaveLoadComponent(int x, int y) {
+        super(true);
         this.x = x;
         this.y = y;
     }

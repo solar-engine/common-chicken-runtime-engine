@@ -44,12 +44,26 @@ public abstract class DraggableBoxComponent extends SuperCanvasComponent {
     protected int halfHeight = 20;
 
     /**
-     * Construct a new DraggableBoxComponent with the specified position.
+     * Construct a new DraggableBoxComponent with the specified position. This
+     * will be visible in both EDIT mode and OPERATE mode
      *
      * @param cx The X-coordinate.
      * @param cy The Y-coordinate.
      */
     public DraggableBoxComponent(int cx, int cy) {
+        centerX = cx;
+        centerY = cy;
+    }
+
+    /**
+     * Construct a new DraggableBoxComponent with the specified position.
+     *
+     * @param cx The X-coordinate.
+     * @param cy The Y-coordinate.
+     * @param hideInOperateMode if this should be invisible during OPERATE mode.
+     */
+    public DraggableBoxComponent(int cx, int cy, boolean hideInOperateMode) {
+        super(hideInOperateMode);
         centerX = cx;
         centerY = cy;
     }

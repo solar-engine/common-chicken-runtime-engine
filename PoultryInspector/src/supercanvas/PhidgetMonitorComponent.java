@@ -66,8 +66,8 @@ public class PhidgetMonitorComponent extends DraggableBoxComponent {
      * @param cy the Y-coordinate.
      */
     private PhidgetMonitorComponent(int cx, int cy, boolean isVirtual) {
-        super(cx, cy);
-        this.label = "VirtualPhidget";
+        super(cx, cy, true);
+        this.label = isVirtual ? "VirtualPhidget" : "PhysicalPhidget";
         if (isVirtual) {
             this.monitor = new VirtualPhidgetMonitor(new SerializableUnsharer());
         } else {

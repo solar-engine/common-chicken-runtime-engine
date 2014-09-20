@@ -32,7 +32,30 @@ public abstract class SuperCanvasComponent implements Serializable {
 
     private static final long serialVersionUID = -8154707099757626085L;
 
+    /**
+     * If true, don't show this component in operate mode.
+     */
+    public final boolean hideInOperateMode;
+
     private transient SuperCanvasPanel panel;
+
+    /**
+     * Create a new SuperCanvasComponent. This will be visible whether the
+     * canvas is in EDIT mode or OPERATE mode.
+     */
+    public SuperCanvasComponent() {
+        hideInOperateMode = false;
+    }
+
+    /**
+     * Create a new SuperCanvasComponent.
+     * 
+     * @param hideInOperateMode if the component should be hidden when the
+     * canvas is in OPERATE mode.
+     */
+    public SuperCanvasComponent(boolean hideInOperateMode) {
+        this.hideInOperateMode = hideInOperateMode;
+    }
 
     /**
      * Called to render this component.
@@ -247,6 +270,6 @@ public abstract class SuperCanvasComponent implements Serializable {
      * @return if dragging should be sent as a large number of interactions.
      */
     public boolean canDragInteract() {
-        return true;
+        return false;
     }
 }

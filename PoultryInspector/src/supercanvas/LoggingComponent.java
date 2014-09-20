@@ -196,10 +196,12 @@ public class LoggingComponent extends DraggableBoxComponent {
         g.setPaint(new GradientPaint(centerX + 20, centerY - halfHeight, Color.WHITE, centerX - 20, centerY + halfHeight, Color.WHITE.darker()));
         g.fillRoundRect(centerX - halfWidth + 1, centerY - halfHeight + 1, halfWidth * 2 - 2, halfHeight * 2 - 2, 10, 10);
         g.setColor(Color.BLACK);
-        g.drawLine(centerX - halfWidth + 6, centerY - halfHeight + 10, centerX - halfWidth + 10, centerY - halfHeight + 6);
-        g.drawLine(centerX + halfWidth - 6, centerY - halfHeight + 10, centerX + halfWidth - 10, centerY - halfHeight + 6);
-        g.drawLine(centerX - halfWidth + 6, centerY + halfHeight - 10, centerX - halfWidth + 10, centerY + halfHeight - 6);
-        g.drawLine(centerX + halfWidth - 6, centerY + halfHeight - 10, centerX + halfWidth - 10, centerY + halfHeight - 6);
+        if (getPanel().editmode) {
+            g.drawLine(centerX - halfWidth + 6, centerY - halfHeight + 10, centerX - halfWidth + 10, centerY - halfHeight + 6);
+            g.drawLine(centerX + halfWidth - 6, centerY - halfHeight + 10, centerX + halfWidth - 10, centerY - halfHeight + 6);
+            g.drawLine(centerX - halfWidth + 6, centerY + halfHeight - 10, centerX - halfWidth + 10, centerY + halfHeight - 6);
+            g.drawLine(centerX + halfWidth - 6, centerY + halfHeight - 10, centerX + halfWidth - 10, centerY + halfHeight - 6);
+        }
     }
 
     private void drawScrollbar(int lineCount, FontMetrics fontMetrics, Graphics2D g) {
@@ -276,7 +278,10 @@ public class LoggingComponent extends DraggableBoxComponent {
 
     @Override
     public boolean onInteract(int x, int y) {
-        if (isClearing) {
+        if (x < centerX) {
+            resizeState = ResizeState.SCROLL;
+            getPanel().startDrag(this, x, y);
+        } else if (isClearing) {
             if (x < clearingThreshold) {
                 lines.clear();
             }
@@ -284,7 +289,7 @@ public class LoggingComponent extends DraggableBoxComponent {
         } else {
             isClearing = true;
         }
-        return false;
+        return true;
     }
 
     @Override

@@ -40,7 +40,7 @@ public class TrashComponent extends DraggableBoxComponent {
      * @param cy the Y coordinate.
      */
     public TrashComponent(int cx, int cy) {
-        super(cx, cy);
+        super(cx, cy, true);
     }
 
     @Override

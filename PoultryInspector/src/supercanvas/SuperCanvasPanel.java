@@ -74,10 +74,6 @@ public final class SuperCanvasPanel extends JPanel {
      */
     private transient int mouseX, mouseY;
     /**
-     * The mouse button pressed while dragging a component.
-     */
-    private transient int dragBtn;
-    /**
      * An expiration timer to repaint the pane when appropriate.
      */
     private transient ExpirationTimer painter;
@@ -85,6 +81,10 @@ public final class SuperCanvasPanel extends JPanel {
      * The current string being edited, if any.
      */
     public StringBuilder editing = null;
+    /**
+     * Is this canvas currently in edit mode.
+     */
+    public boolean editmode = true;
 
     /**
      * Add the specified component to this panel.
@@ -153,7 +153,9 @@ public final class SuperCanvasPanel extends JPanel {
             FontMetrics fontMetrics = g.getFontMetrics();
             renderBackground(g, w, h, fontMetrics, mouseX, mouseY);
             for (SuperCanvasComponent comp : components) {
-                comp.render(g, w, h, fontMetrics, mouseX, mouseY);
+                if (editmode || !comp.hideInOperateMode) {
+                    comp.render(g, w, h, fontMetrics, mouseX, mouseY);
+                }
             }
             if (painter != null) {
                 painter.feed();
@@ -189,18 +191,19 @@ public final class SuperCanvasPanel extends JPanel {
      */
     public void pressedEnter() {
         for (ListIterator<SuperCanvasComponent> it = components.listIterator(components.size()); it.hasPrevious();) {
-            it.previous().onPressedEnter();
+            SuperCanvasComponent comp = it.previous();
+            if (editmode || !comp.hideInOperateMode) {
+                comp.onPressedEnter();
+            }
         }
     }
 
     private void renderBackground(Graphics2D g, int w, int h, FontMetrics fontMetrics, int mouseX, int mouseY) {
-        /*
-         * float[] gf = {0, 1}; Color[] gc = {Color.ORANGE, Color.RED};
-         * g.setPaint(new RadialGradientPaint(w / 3f, h / 3f, (w + h) / 2f, gf,
-         * gc));
-         */
-        g.setPaint(new GradientPaint(0, h, Color.ORANGE, w, 0, Color.RED));
-        //g.setColor(Color.WHITE);
+        if (editmode) {
+            g.setPaint(new GradientPaint(0, h, Color.BLACK, w, 0, Color.DARK_GRAY));
+        } else {
+            g.setPaint(new GradientPaint(0, h, Color.ORANGE, w, 0, Color.RED));
+        }
         g.fillRect(0, 0, w, h);
     }
 
@@ -276,23 +279,26 @@ public final class SuperCanvasPanel extends JPanel {
         @Override
         public void mousePressed(MouseEvent e) {
             try {
-                dragBtn = e.getButton();
-                if (e.getButton() == MouseEvent.BUTTON3) {
+                if (!editmode) {
                     for (ListIterator<SuperCanvasComponent> it = components.listIterator(components.size()); it.hasPrevious();) {
                         SuperCanvasComponent comp = it.previous();
-                        if (comp.contains(e.getX(), e.getY())) {
-                            if (comp.onInteract(e.getX(), e.getY())) {
-                                break;
+                        if (editmode || !comp.hideInOperateMode) {
+                            if (comp.contains(e.getX(), e.getY())) {
+                                if (comp.onInteract(e.getX(), e.getY())) {
+                                    break;
+                                }
                             }
                         }
                     }
                 } else {
                     for (ListIterator<SuperCanvasComponent> it = components.listIterator(components.size()); it.hasPrevious();) {
                         SuperCanvasComponent comp = it.previous();
-                        if (comp.contains(e.getX(), e.getY())) {
-                            if (comp.onSelect(e.getX(), e.getY())) {
-                                raise(comp);
-                                break;
+                        if (editmode || !comp.hideInOperateMode) {
+                            if (comp.contains(e.getX(), e.getY())) {
+                                if (comp.onSelect(e.getX(), e.getY())) {
+                                    raise(comp);
+                                    break;
+                                }
                             }
                         }
                     }
@@ -308,9 +314,11 @@ public final class SuperCanvasPanel extends JPanel {
                 if (activeEntity != null) {
                     for (ListIterator<SuperCanvasComponent> it = components.listIterator(components.size()); it.hasPrevious();) {
                         SuperCanvasComponent comp = it.previous();
-                        if (comp != activeEntity && comp.contains(e.getX(), e.getY())) {
-                            if (activeEntity.canDrop() && comp.onReceiveDrop(e.getX(), e.getY(), activeEntity)) {
-                                break;
+                        if (editmode || !comp.hideInOperateMode) {
+                            if (comp != activeEntity && comp.contains(e.getX(), e.getY())) {
+                                if (activeEntity.canDrop() && comp.onReceiveDrop(e.getX(), e.getY(), activeEntity)) {
+                                    break;
+                                }
                             }
                         }
                     }
@@ -326,9 +334,11 @@ public final class SuperCanvasPanel extends JPanel {
             try {
                 for (ListIterator<SuperCanvasComponent> it = components.listIterator(components.size()); it.hasPrevious();) {
                     SuperCanvasComponent comp = it.previous();
-                    if (comp.contains(e.getX(), e.getY())) {
-                        if (comp.onScroll(e.getX(), e.getY(), e.getWheelRotation())) {
-                            break;
+                    if (editmode || !comp.hideInOperateMode) {
+                        if (comp.contains(e.getX(), e.getY())) {
+                            if (comp.onScroll(e.getX(), e.getY(), e.getWheelRotation())) {
+                                break;
+                            }
                         }
                     }
                 }
@@ -343,10 +353,10 @@ public final class SuperCanvasPanel extends JPanel {
             try {
                 mouseX = e.getX();
                 mouseY = e.getY();
-                if (dragBtn == MouseEvent.BUTTON3) {
-                    dragToInteract();
-                } else if (activeEntity != null) {
+                if (activeEntity != null) {
                     dragToMove(e);
+                } else if (!editmode) {
+                    dragToInteract();
                 } else {
                     dragToSelect(e);
                 }
@@ -360,9 +370,11 @@ public final class SuperCanvasPanel extends JPanel {
             try {
                 for (ListIterator<SuperCanvasComponent> it = components.listIterator(components.size()); it.hasPrevious();) {
                     SuperCanvasComponent comp = it.previous();
-                    if (comp.wantsDragSelect() && comp.contains(e.getX(), e.getY())) {
-                        if (comp.onSelect(e.getX(), e.getY())) {
-                            break;
+                    if (editmode || !comp.hideInOperateMode) {
+                        if (comp.wantsDragSelect() && comp.contains(e.getX(), e.getY())) {
+                            if (comp.onSelect(e.getX(), e.getY())) {
+                                break;
+                            }
                         }
                     }
                 }
@@ -394,9 +406,11 @@ public final class SuperCanvasPanel extends JPanel {
             try {
                 for (ListIterator<SuperCanvasComponent> it = components.listIterator(components.size()); it.hasPrevious();) {
                     SuperCanvasComponent comp = it.previous();
-                    if (comp.contains(mouseX, mouseY)) {
-                        if (comp.canDragInteract() && comp.onInteract(mouseX, mouseY)) {
-                            break;
+                    if (editmode || !comp.hideInOperateMode) {
+                        if (comp.contains(mouseX, mouseY)) {
+                            if (comp.canDragInteract() && comp.onInteract(mouseX, mouseY)) {
+                                break;
+                            }
                         }
                     }
                 }
@@ -411,16 +425,18 @@ public final class SuperCanvasPanel extends JPanel {
                 boolean mod = false;
                 mouseX = e.getX();
                 mouseY = e.getY();
-                for (SuperCanvasComponent cmp : components) {
-                    if (cmp.contains(e.getX(), e.getY())) {
-                        if (mouseOver.add(cmp)) {
-                            mod |= cmp.onMouseEnter(e.getX(), e.getY());
+                for (SuperCanvasComponent comp : components) {
+                    if (editmode || !comp.hideInOperateMode) {
+                        if (comp.contains(e.getX(), e.getY())) {
+                            if (mouseOver.add(comp)) {
+                                mod |= comp.onMouseEnter(e.getX(), e.getY());
+                            } else {
+                                mod |= comp.onMouseMove(e.getX(), e.getY());
+                            }
                         } else {
-                            mod |= cmp.onMouseMove(e.getX(), e.getY());
-                        }
-                    } else {
-                        if (mouseOver.remove(cmp)) {
-                            mod |= cmp.onMouseExit(e.getX(), e.getY());
+                            if (mouseOver.remove(comp)) {
+                                mod |= comp.onMouseExit(e.getX(), e.getY());
+                            }
                         }
                     }
                 }

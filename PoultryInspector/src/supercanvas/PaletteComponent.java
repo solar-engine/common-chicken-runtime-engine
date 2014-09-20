@@ -51,7 +51,7 @@ public class PaletteComponent<T extends Iterable<? extends PaletteEntry>> extend
      * @param entries The iterable of entries to include on the list.
      */
     public PaletteComponent(int cx, int cy, T entries) {
-        super(cx, cy);
+        super(cx, cy, true);
         this.entries = entries;
     }
 

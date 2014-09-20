@@ -214,7 +214,7 @@ public class TestUtils extends BaseTest {
             // Correct!
         }
         asList.set(1, 100);
-        assertIntsEqual(asList.get(1).intValue(), 100, "Bad set operation!");
+        assertIntsEqual(asList.get(1), 100, "Bad set operation!");
         assertObjectEqual(asList.toString(), "[10, 100, 30, 40]", "Bad toString!");
         // CArrayUtils.castToGeneric not tested here, because it's really hard to test and only exists to counter compiler warnings.
         // CArrayUtils.copyOf

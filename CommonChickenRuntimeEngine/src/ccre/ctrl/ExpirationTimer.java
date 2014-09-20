@@ -23,7 +23,6 @@ import ccre.channel.EventInput;
 import ccre.channel.EventOutput;
 import ccre.channel.EventStatus;
 import ccre.concurrency.ReporterThread;
-import ccre.log.LogLevel;
 import ccre.log.Logger;
 import ccre.util.CArrayList;
 
@@ -37,7 +36,7 @@ import ccre.util.CArrayList;
  *
  * @author skeggsc
  */
-public final class ExpirationTimer {
+public final class ExpirationTimer { // TODO: Allow tunable scheduling.
 
     /**
      * The list of tasks, sorted in order with the first task (shortest delay)
@@ -221,7 +220,7 @@ public final class ExpirationTimer {
             try {
                 t.cnsm.event();
             } catch (Throwable thr) {
-                Logger.log(LogLevel.SEVERE, "Exception in ExpirationTimer dispatch!", thr);
+                Logger.severe("Exception in ExpirationTimer dispatch!", thr);
                 // TODO: Detachment error handling.
             }
         }

@@ -23,7 +23,6 @@ import ccre.channel.BooleanOutput;
 import ccre.channel.EventOutput;
 import ccre.concurrency.ConcurrentDispatchArray;
 import ccre.concurrency.ReporterThread;
-import ccre.log.LogLevel;
 import ccre.log.Logger;
 
 /**
@@ -58,7 +57,7 @@ public class PauseTimer implements BooleanInput, EventOutput {
                 try {
                     setEndAt(0);
                 } catch (Throwable thr) {
-                    Logger.log(LogLevel.SEVERE, "Exception in PauseTimer main loop!", thr);
+                    Logger.severe("Exception in PauseTimer main loop!", thr);
                 }
             }
         }
@@ -83,8 +82,8 @@ public class PauseTimer implements BooleanInput, EventOutput {
 
     private void setEndAt(long endAt) {
         long old;
-        boolean disabling = endAt == 0;
-        if (!disabling && !main.isAlive()) {
+        boolean enabling = endAt != 0;
+        if (enabling && !main.isAlive()) {
             main.start();
         }
         synchronized (lock) {
@@ -93,10 +92,11 @@ public class PauseTimer implements BooleanInput, EventOutput {
             lock.notifyAll();
         }
         boolean disabled = old == 0;
-        if (disabling != disabled) {
-            for (BooleanOutput c : consumers) {
-                c.set(!disabling);
-            }
+        if (disabled == !enabling) {
+            return;
+        }
+        for (BooleanOutput c : consumers) {
+            c.set(enabling);
         }
     }
 
@@ -106,5 +106,34 @@ public class PauseTimer implements BooleanInput, EventOutput {
 
     public void unsend(BooleanOutput output) {
         consumers.remove(output);
+    }
+
+    /**
+     * When this timer stops running, trigger the specified EventOutput.
+     *
+     * @param trigger The EventOutput to trigger.
+     */
+    public void triggerAtEnd(EventOutput trigger) {
+        send(BooleanMixing.triggerWhenBooleanChanges(trigger, null));
+    }
+
+    /**
+     * When this timer starts running, trigger the specified EventOutput.
+     *
+     * @param trigger The EventOutput to trigger.
+     */
+    public void triggerAtStart(EventOutput trigger) {
+        send(BooleanMixing.triggerWhenBooleanChanges(null, trigger));
+    }
+
+    /**
+     * When this timer starts or stops running, trigger the specified
+     * EventOutputs.
+     *
+     * @param start The EventOutput to trigger when the timer starts.
+     * @param end The EventOutput to trigger when the timer ends.
+     */
+    public void triggerAtChanges(EventOutput start, EventOutput end) {
+        send(BooleanMixing.triggerWhenBooleanChanges(end, start));
     }
 }

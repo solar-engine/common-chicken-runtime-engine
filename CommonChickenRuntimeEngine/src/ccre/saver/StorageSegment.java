@@ -22,7 +22,6 @@ import ccre.channel.EventOutput;
 import ccre.channel.FloatOutput;
 import ccre.channel.FloatStatus;
 import ccre.holders.StringHolder;
-import ccre.log.LogLevel;
 import ccre.log.Logger;
 
 /**
@@ -120,7 +119,6 @@ public abstract class StorageSegment {
      * @param holder the holder to save.
      */
     public void attachFloatHolder(String name, final FloatStatus holder) {
-        // TODO: Fix this up to remove the default field, when it won't break the robot code.
         final String key = "float_holder_" + name, default_key = "float_holder_default_" + name;
         final float originalValue = holder.get();
         String vraw = getStringForKey(key);
@@ -136,7 +134,7 @@ public abstract class StorageSegment {
                 }
                 // Otherwise, the default has changed from the holder, and therefore we want the updated value from the holder
             } catch (NumberFormatException ex) {
-                Logger.log(LogLevel.WARNING, "Invalid float value: '" + vraw + "'!", ex);
+                Logger.warning("Invalid float value: '" + vraw + "'!", ex);
             }
         }
         holder.send(new SegmentFloatSaver(key, default_key, originalValue));

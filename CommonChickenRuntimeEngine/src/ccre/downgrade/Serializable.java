@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 Colby Skeggs, Gregor Peach (Added Folders)
+ * Copyright 2014 Colby Skeggs
  * 
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  * 
@@ -16,22 +16,15 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with the CCRE.  If not, see <http://www.gnu.org/licenses/>.
  */
-package intelligence;
-
-import ccre.cluck.CluckNode;
+package ccre.downgrade;
 
 /**
- * An interface implemented both by the real and fake PhidgetMonitors.
+ * This is the same as java.io.Serializable. Don't use this. It is used when
+ * Retrotranslator downgrades the code to 1.3, because 1.3 doesn't have
+ * Serializable.
  *
+ * @see java.io.Serializable
  * @author skeggsc
  */
-public interface IPhidgetMonitor {
-
-    public void share();
-
-    public void connectionUp();
-
-    public void connectionDown();
-
-    public void displayClosing();
+public interface Serializable {
 }

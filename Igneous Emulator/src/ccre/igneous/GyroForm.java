@@ -18,9 +18,9 @@
  */
 package ccre.igneous;
 
-import ccre.channel.FloatInputPoll;
-import ccre.channel.EventOutput;
 import ccre.channel.EventInput;
+import ccre.channel.EventOutput;
+import ccre.channel.FloatInputPoll;
 import java.awt.EventQueue;
 
 /**
@@ -33,6 +33,9 @@ public class GyroForm extends javax.swing.JFrame implements FloatInputPoll {
 
     /**
      * Creates new form ExtendedForm
+     *
+     * @param title the name of the gyro.
+     * @param resetWhen when to reset the gyro's current value.
      */
     public GyroForm(final String title, EventInput resetWhen) {
         initComponents();

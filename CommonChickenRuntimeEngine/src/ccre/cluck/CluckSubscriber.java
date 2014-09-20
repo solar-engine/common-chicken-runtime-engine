@@ -100,14 +100,32 @@ public abstract class CluckSubscriber implements CluckLink {
      * @return If this message should be handled as the given remote type.
      */
     protected boolean requireRMT(String source, byte[] data, byte rmt) {
+        return requireRMT(source, data, rmt, 1);
+    }
+
+    /**
+     * A handler for a common operation - ensure the message is not null, reply
+     * to the message if it's a PING message, ensure that the remote type of the
+     * message is correct, ensure that the length is okay, and then return true
+     * if all checks succeed.
+     *
+     * @param source The source address.
+     * @param data The message contents.
+     * @param rmt The remote type of this subscriber.
+     * @param minLength The minimum length of the remote.
+     * @return If this message should be handled as the given remote type.
+     */
+    protected boolean requireRMT(String source, byte[] data, byte rmt, int minLength) {
         if (data.length == 0) {
             Logger.warning("Received null message from " + source);
+        } else if (data.length < minLength) {
+            Logger.warning("Received too-short message from " + source);
         } else if (data[0] == CluckNode.RMT_PING && data.length == 1) {
             node.transmit(source, linkName, new byte[]{CluckNode.RMT_PING, rmt});
         } else if (data[0] == CluckNode.RMT_NEGATIVE_ACK) { // Discard messages saying that the link is closed.
             // Discard.
         } else if (data[0] != rmt) {
-            Logger.warning("Received wrong RMT: " + data[0] + " from " + source + " (expected " + rmt + ") addressed to " + linkName);
+            Logger.warning("Received wrong RMT: " + CluckNode.rmtToString(data[0]) + " from " + source + " (expected " + CluckNode.rmtToString(rmt) + ") addressed to " + linkName);
         } else {
             return true;
         }

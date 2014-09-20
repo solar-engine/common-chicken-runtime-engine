@@ -24,8 +24,6 @@ import ccre.channel.EventOutput;
 import ccre.channel.FloatInputPoll;
 import ccre.concurrency.ReporterThread;
 import ccre.ctrl.FloatMixing;
-import ccre.ctrl.Mixing;
-import ccre.log.LogLevel;
 import ccre.log.Logger;
 
 /**
@@ -88,7 +86,7 @@ public abstract class InstinctModule implements EventOutput {
     private void instinctBody() {
         while (true) {
             isRunning = false;
-            while (!shouldBeRunning.get()) { // TODO: Is it an issue to have this in here instead of further out?
+            while (!shouldBeRunning.get()) {
                 try {
                     waitCycle();
                 } catch (InterruptedException ex) {
@@ -112,7 +110,7 @@ public abstract class InstinctModule implements EventOutput {
                     continue;
                 }
             } catch (Throwable t) {
-                Logger.log(LogLevel.SEVERE, "Exception thrown during Autonomous mode!", t);
+                Logger.severe("Exception thrown during Autonomous mode!", t);
             }
             isRunning = false;
             isEndWaiting = true;

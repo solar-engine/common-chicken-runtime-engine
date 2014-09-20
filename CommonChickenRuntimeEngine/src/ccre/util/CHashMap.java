@@ -18,18 +18,19 @@
  */
 package ccre.util;
 
+import java.util.ConcurrentModificationException;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
 /**
- * A basic hash map. Does not yet support removal of keys. Iterate over this to
- * iterate over all the keys.
+ * A basic hash map. Iterate over this to iterate over all the keys. Does not
+ * support null keys, but does support null values.
  *
  * @author skeggsc
  * @param <K> the key type.
  * @param <V> the value type.
  */
-public class CHashMap<K, V> implements Iterable<K> {
+public final class CHashMap<K, V> implements Iterable<K> {
 
     /**
      * The current hash nodes of the map.
@@ -39,6 +40,10 @@ public class CHashMap<K, V> implements Iterable<K> {
      * The number of elements in the map.
      */
     private int size;
+    /**
+     * The number of structural modifications made to the CHashMap.
+     */
+    private transient volatile int modcount = 0;
 
     /**
      * Create a new CHashMap with a given initial array size.
@@ -59,38 +64,21 @@ public class CHashMap<K, V> implements Iterable<K> {
     }
 
     /**
+     * Iterate over all the keys of this CHashMap, but handle concurrent
+     * modifications graciously by not having guarantees about which version of
+     * the map will be returned.
+     *
+     * @return the iterator
+     */
+    public Iterator<K> looseIterator() {
+        return new CHashMapIterator(map, false);
+    }
+
+    /**
      * Iterate over all the keys of this CHashMap.
      */
-    public Iterator<K> iterator() { // TODO: Add tracking for modcounts here!
-        final Node<K, V>[] localMap = this.map;
-        return new Iterator<K>() {
-            private int index = 0;
-            private Node<K, V> next = null;
-
-            public boolean hasNext() {
-                while (next == null) {
-                    if (index >= localMap.length) {
-                        return false;
-                    }
-                    next = localMap[index++];
-                }
-                return true;
-            }
-
-            public K next() {
-                if (!hasNext()) {
-                    throw new NoSuchElementException();
-                }
-                K out = next.key;
-                next = next.next;
-                return out;
-            }
-
-            @Override
-            public void remove() {
-                throw new UnsupportedOperationException();
-            }
-        };
+    public Iterator<K> iterator() {
+        return new CHashMapIterator(map, true);
     }
 
     /**
@@ -145,6 +133,7 @@ public class CHashMap<K, V> implements Iterable<K> {
         int h = hash(key);
         map[h] = new Node<K, V>(key, value, map[h]);
         size++;
+        modcount++;
         return null;
     }
 
@@ -190,6 +179,7 @@ public class CHashMap<K, V> implements Iterable<K> {
             map[i] = null;
         }
         size = 0;
+        modcount++;
     }
 
     /**
@@ -226,6 +216,8 @@ public class CHashMap<K, V> implements Iterable<K> {
                 } else {
                     map[hash(key)] = n.next;
                 }
+                size--;
+                modcount++;
                 return n.value;
             }
             previous = n;
@@ -244,6 +236,56 @@ public class CHashMap<K, V> implements Iterable<K> {
             this.key = key;
             this.value = val;
             this.next = next;
+        }
+    }
+
+    private class CHashMapIterator implements Iterator<K> {
+
+        private final boolean checkConcurrentModification;
+        private final Node<K, V>[] localMap;
+        private int index = 0;
+        private Node<K, V> next = null;
+        private int expectedModcount = modcount;
+        private K keyToRemove = null;
+
+        CHashMapIterator(Node<K, V>[] localMap, boolean checkConcurrentModification) {
+            this.localMap = localMap;
+            this.checkConcurrentModification = checkConcurrentModification;
+        }
+
+        public boolean hasNext() {
+            if (checkConcurrentModification && modcount != expectedModcount) {
+                throw new ConcurrentModificationException();
+            }
+            while (next == null) {
+                if (index >= localMap.length) {
+                    return false;
+                }
+                next = localMap[index++];
+            }
+            return true;
+        }
+
+        public K next() {
+            if (!hasNext()) {
+                throw new NoSuchElementException();
+            }
+            K out = next.key;
+            next = next.next;
+            keyToRemove = out;
+            return out;
+        }
+
+        @Override
+        public void remove() {
+            if (keyToRemove == null) {
+                throw new IllegalStateException("Cannot remove nothing!");
+            }
+            if (checkConcurrentModification && modcount != expectedModcount) {
+                throw new ConcurrentModificationException();
+            }
+            CHashMap.this.remove(keyToRemove);
+            expectedModcount++;
         }
     }
 }

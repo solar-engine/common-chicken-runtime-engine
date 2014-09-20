@@ -412,7 +412,7 @@ class MixingImpls {
     static class FindRateCycledImpl implements FloatInputPoll {
 
         private final FloatInputPoll input;
-        float lastValue;
+        private float lastValue;
 
         FindRateCycledImpl(FloatInputPoll input) {
             this.input = input;

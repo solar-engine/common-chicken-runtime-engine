@@ -20,7 +20,6 @@ package ccre.testing;
 
 import ccre.channel.FloatFilter;
 import ccre.ctrl.FloatMixing;
-import ccre.ctrl.Mixing;
 
 /**
  * Tests the Mixing class, a tiny amount.

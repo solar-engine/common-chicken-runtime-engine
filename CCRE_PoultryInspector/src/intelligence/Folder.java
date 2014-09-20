@@ -20,6 +20,12 @@ package intelligence;
 
 import ccre.log.Logger;
 import ccre.util.CArrayList;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.ArrayList;
 
 /**
  * A folder displayed on the intelligence panel.
@@ -28,16 +34,62 @@ import ccre.util.CArrayList;
  */
 public final class Folder extends Remote {
 
-    protected boolean open = false, hascontents = false;
-    protected final CArrayList<Remote> contents = new CArrayList<Remote>();
-    protected int place;
-    protected final String ID;
-    protected final String REGEX;
+    /**
+     * Loads the list of folders from the configuration file.
+     *
+     * @return the current list of folders.
+     */
+    public static Folder[] setupFolders() {
+        ArrayList<Folder> folderList = new ArrayList<Folder>(10);
+        try {
+            File folder = new File(".").getAbsoluteFile();
+            File target = null;
+            while (folder != null && folder.exists()) {
+                target = new File(folder, "poultry-settings.txt");
+                if (target.exists() && target.canRead()) {
+                    break;
+                }
+                target = null;
+                folder = folder.getParentFile();
+            }
+            if (target == null) {
+                throw new FileNotFoundException("Could not find folders.");
+            }
+            BufferedReader fin = new BufferedReader(new FileReader(target));
+            try {
+                while (true) {
+                    String line = fin.readLine();
+                    if (line == null) {
+                        break;
+                    }
+                    if (line.trim().isEmpty()) {
+                        continue;
+                    }
+                    String[] pts = line.split("=", 2);
+                    if (pts.length == 1) {
+                        throw new IOException("Bad line: no =.");
+                    }
+                    folderList.add(new Folder(pts[0].trim(), pts[1].trim()));
+                }
+            } finally {
+                fin.close();
+            }
+        } catch (IOException ex) {
+            Logger.warning("Could not set up folder list!", ex);
+        }
+        return folderList.toArray(new Folder[folderList.size()]);
+    }
 
-    public Folder(String ID, String regex) {
+    boolean open = false, hascontents = false;
+    final CArrayList<Remote> contents = new CArrayList<Remote>();
+    int place;
+    private final String id;
+    private final String regex;
+
+    private Folder(String id, String regex) {
         super("", 0);
-        this.REGEX = regex;
-        this.ID = ID;
+        this.regex = regex;
+        this.id = id;
     }
 
     @Override
@@ -46,12 +98,18 @@ public final class Folder extends Remote {
         return null;
     }
 
-    public boolean isInside(Remote s) {
-        return s.path.matches(REGEX);
+    /**
+     * Check if the specified Remote is inside this Folder.
+     *
+     * @param r The remote to check.
+     * @return if the remote is within this folder.
+     */
+    public boolean isInside(Remote r) {
+        return r.path.matches(regex);
     }
 
     @Override
     public String toString() {
-        return (!hascontents ? "x " : open ? "- " : "+ ") + ID;
+        return (!hascontents ? "x " : open ? "- " : "+ ") + id;
     }
 }

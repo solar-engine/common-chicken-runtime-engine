@@ -29,6 +29,13 @@ import ccre.log.Logger;
  */
 public class ReporterThreadExample {
 
+    /**
+     * Run the same hello-world program with a ReporterThread and a normal
+     * Thread, to see the difference.
+     *
+     * @param args
+     * @throws InterruptedException
+     */
     public static void main(String[] args) throws InterruptedException {
         /*
          * The primary advantage of ReporterThread is that it's harder to break.

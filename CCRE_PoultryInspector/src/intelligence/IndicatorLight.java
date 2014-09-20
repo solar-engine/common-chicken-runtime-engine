@@ -34,10 +34,16 @@ public class IndicatorLight extends JComponent implements BooleanOutput {
 
     private boolean value;
 
+    /**
+     * @return the current value of the Indicator Light.
+     */
     public boolean getValue() {
         return value;
     }
 
+    /**
+     * @param value the new value of the Indicator Light.
+     */
     public void setValue(boolean value) {
         this.value = value;
         EventQueue.invokeLater(new Runnable() {
@@ -48,6 +54,7 @@ public class IndicatorLight extends JComponent implements BooleanOutput {
         });
     }
 
+    @Override
     public Dimension getPreferredSize() {
         if (isPreferredSizeSet()) {
             return super.getPreferredSize();
@@ -72,6 +79,7 @@ public class IndicatorLight extends JComponent implements BooleanOutput {
         g2.fillOval(x, y, w, h);
     }
 
+    @Override
     public void set(boolean b) {
         setValue(b);
     }

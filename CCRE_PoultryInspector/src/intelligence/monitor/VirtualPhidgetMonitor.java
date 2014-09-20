@@ -16,22 +16,26 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with the CCRE.  If not, see <http://www.gnu.org/licenses/>.
  */
-package intelligence;
+package intelligence.monitor;
 
 import ccre.channel.BooleanInput;
 import ccre.channel.BooleanStatus;
+import ccre.channel.EventOutput;
 import ccre.channel.FloatInput;
 import ccre.channel.FloatStatus;
 import ccre.cluck.Cluck;
 import ccre.ctrl.BooleanMixing;
+import ccre.log.Logger;
 import ccre.util.LineCollectorOutputStream;
-import static intelligence.PhidgetMonitor.ANALOG_COUNT;
-import static intelligence.PhidgetMonitor.INPUT_COUNT;
-import static intelligence.PhidgetMonitor.LCD_LINES;
-import static intelligence.PhidgetMonitor.OUTPUT_COUNT;
+import intelligence.IndicatorLight;
+import static intelligence.monitor.PhidgetMonitor.ANALOG_COUNT;
+import static intelligence.monitor.PhidgetMonitor.INPUT_COUNT;
+import static intelligence.monitor.PhidgetMonitor.LCD_LINES;
+import static intelligence.monitor.PhidgetMonitor.OUTPUT_COUNT;
 import java.awt.EventQueue;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.Serializable;
 import javax.swing.JSlider;
 import javax.swing.JTextField;
 import javax.swing.JToggleButton;
@@ -44,12 +48,26 @@ import javax.swing.event.ChangeListener;
  */
 public class VirtualPhidgetMonitor extends javax.swing.JFrame implements IPhidgetMonitor {
 
+    private final BooleanStatus attached = new BooleanStatus();
+    private final EventOutput wantClose;
+
     /**
      * Creates new form VirtualPhidgetDevice
      */
     public VirtualPhidgetMonitor() {
         initComponents();
-        setVisible(true);
+        this.wantClose = null;
+    }
+
+    /**
+     * Creates new form VirtualPhidgetDevice
+     *
+     * @param wantClose the event to notify when this monitor is trying to
+     * close.
+     */
+    public VirtualPhidgetMonitor(EventOutput wantClose) {
+        initComponents();
+        this.wantClose = wantClose;
     }
 
     /**
@@ -89,7 +107,12 @@ public class VirtualPhidgetMonitor extends javax.swing.JFrame implements IPhidge
         ana6 = new javax.swing.JSlider();
         ana7 = new javax.swing.JSlider();
 
-        setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setDefaultCloseOperation(javax.swing.WindowConstants.DO_NOTHING_ON_CLOSE);
+        addWindowListener(new java.awt.event.WindowAdapter() {
+            public void windowClosing(java.awt.event.WindowEvent evt) {
+                formWindowClosing(evt);
+            }
+        });
 
         lcdLine0.setColumns(20);
         lcdLine0.setFont(new java.awt.Font("Monospaced", 0, 12)); // NOI18N
@@ -182,22 +205,19 @@ public class VirtualPhidgetMonitor extends javax.swing.JFrame implements IPhidge
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                                 .addComponent(out6, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                .addComponent(out7, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                        .addGap(20, 20, 20))
-                    .addGroup(layout.createSequentialGroup()
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                            .addComponent(ana7, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
-                            .addComponent(ana6, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
-                            .addComponent(ana5, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
-                            .addComponent(ana4, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
-                            .addComponent(ana3, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
-                            .addComponent(ana2, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
-                            .addComponent(ana1, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
-                            .addComponent(ana0, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
-                            .addComponent(lcdLine1, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 150, Short.MAX_VALUE)
-                            .addComponent(lcdLine0, javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jPanel1, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                        .addGap(0, 0, 0)))
+                                .addComponent(out7, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                        .addComponent(ana7, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
+                        .addComponent(ana6, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
+                        .addComponent(ana5, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
+                        .addComponent(ana4, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
+                        .addComponent(ana3, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
+                        .addComponent(ana2, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
+                        .addComponent(ana1, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
+                        .addComponent(ana0, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
+                        .addComponent(lcdLine1, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 150, Short.MAX_VALUE)
+                        .addComponent(lcdLine0, javax.swing.GroupLayout.Alignment.LEADING)
+                        .addComponent(jPanel1, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
                 .addGap(0, 0, 0))
         );
         layout.setVerticalGroup(
@@ -241,7 +261,18 @@ public class VirtualPhidgetMonitor extends javax.swing.JFrame implements IPhidge
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
+
+    private void formWindowClosing(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowClosing
+        if (wantClose == null) {
+            System.exit(0);
+        } else {
+            wantClose.event();
+        }
+    }//GEN-LAST:event_formWindowClosing
+
+    @Override
     public void share() {
+        attached.set(true);
         IndicatorLight[] lights = new IndicatorLight[]{out0, out1, out2, out3, out4, out5, out6, out7};
         for (int i = 0; i < OUTPUT_COUNT; i++) {
             Cluck.publish("phidget-bo" + i, BooleanMixing.invert(lights[i])); // Invert because that's what happens with the real Phidget.
@@ -261,11 +292,14 @@ public class VirtualPhidgetMonitor extends javax.swing.JFrame implements IPhidge
                 }
             });
         }
-        Cluck.publish("phidget-attached", BooleanMixing.alwaysTrue);
+        Cluck.publish("phidget-attached", (BooleanInput) attached);
         JToggleButton[] btns = new JToggleButton[]{btn0, btn1, btn2, btn3, btn4, btn5, btn6, btn7};
         for (int i = 0; i < INPUT_COUNT; i++) {
             final BooleanStatus stat = new BooleanStatus();
             final JToggleButton btn = btns[i];
+            if (btn.getActionListeners().length != 0) {
+                Logger.warning("Bad listener count on unattached button!");
+            }
             btn.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
@@ -278,6 +312,9 @@ public class VirtualPhidgetMonitor extends javax.swing.JFrame implements IPhidge
         for (int i = 0; i < ANALOG_COUNT; i++) {
             final FloatStatus stat = new FloatStatus();
             final JSlider ana = anas[i];
+            if (ana.getChangeListeners().length != 0) {
+                Logger.warning("Bad listener count on unattached analog!");
+            }
             ana.addChangeListener(new ChangeListener() {
                 @Override
                 public void stateChanged(ChangeEvent e) {
@@ -286,6 +323,44 @@ public class VirtualPhidgetMonitor extends javax.swing.JFrame implements IPhidge
             });
             Cluck.publish("phidget-ai" + i, (FloatInput) stat);
         }
+        Cluck.getNode().notifyNetworkModified();
+        this.setVisible(true);
+    }
+
+    @Override
+    public void unshare() {
+        this.setVisible(false);
+        attached.set(false);
+        Cluck.getNode().removeLink("phidget-attached");
+        for (int i = 0; i < OUTPUT_COUNT; i++) {
+            Cluck.getNode().removeLink("phidget-bo" + i);
+        }
+        for (int i = 0; i < LCD_LINES; i++) {
+            Cluck.getNode().removeLink("phidget-lcd" + i);
+        }
+        JToggleButton[] btns = new JToggleButton[]{btn0, btn1, btn2, btn3, btn4, btn5, btn6, btn7};
+        for (int i = 0; i < INPUT_COUNT; i++) {
+            final JToggleButton btn = btns[i];
+            if (btn.getActionListeners().length != 1) {
+                Logger.warning("Bad listener count on unattached button!");
+            }
+            for (ActionListener listener : btn.getActionListeners()) {
+                btn.removeActionListener(listener);
+            }
+            Cluck.getNode().removeLink("phidget-bi" + i);
+        }
+        JSlider[] anas = new JSlider[]{ana0, ana1, ana2, ana3, ana4, ana5, ana6, ana7};
+        for (int i = 0; i < ANALOG_COUNT; i++) {
+            final JSlider ana = anas[i];
+            if (ana.getChangeListeners().length != 1) {
+                Logger.warning("Bad listener count on unattached button!");
+            }
+            for (ChangeListener listener : ana.getChangeListeners()) {
+                ana.removeChangeListener(listener);
+            }
+            Cluck.getNode().removeLink("phidget-ai" + i);
+        }
+        Cluck.getNode().notifyNetworkModified();
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
@@ -338,5 +413,28 @@ public class VirtualPhidgetMonitor extends javax.swing.JFrame implements IPhidge
     public void displayClosing() {
         lcdLine0.setText("Poultry Inspector is");
         lcdLine1.setText("     now closed.    ");
+    }
+
+    private Object writeReplace() {
+        return new SerializedMonitor(attached.get(), wantClose);
+    }
+
+    private static class SerializedMonitor implements Serializable {
+
+        private final boolean isAttached;
+        private final EventOutput wantClose;
+
+        private SerializedMonitor(boolean isAttached, EventOutput wantClose) {
+            this.isAttached = isAttached;
+            this.wantClose = wantClose;
+        }
+
+        private Object readResolve() {
+            VirtualPhidgetMonitor out = new VirtualPhidgetMonitor(wantClose);
+            if (isAttached) {
+                out.share();
+            }
+            return out;
+        }
     }
 }

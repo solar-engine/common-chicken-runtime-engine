@@ -18,6 +18,8 @@
  */
 package ccre.log;
 
+import java.io.Serializable;
+
 /**
  * Represents a Logging level. This represents how important/severe a logging
  * message is. The levels are, in order of descending severity: severe, warning,
@@ -25,7 +27,7 @@ package ccre.log;
  *
  * @author skeggsc
  */
-public class LogLevel {
+public class LogLevel implements Serializable {
 
     /**
      * A severe error. This usually means that something major didn't work, or
@@ -64,8 +66,8 @@ public class LogLevel {
      */
     public static final LogLevel FINEST = new LogLevel(-9, "FINEST");
 
-    private static final LogLevel[] levels = new LogLevel[] {FINEST, FINER, FINE, CONFIG, INFO, WARNING, SEVERE};
-    
+    private static final LogLevel[] levels = new LogLevel[]{FINEST, FINER, FINE, CONFIG, INFO, WARNING, SEVERE};
+
     /**
      * Get a LogLevel from its ID level. If it doesn't exist, a RuntimeException
      * is thrown. Should probably only be called on the result of toByte.
@@ -131,5 +133,9 @@ public class LogLevel {
     @Override
     public String toString() {
         return message;
+    }
+
+    private Object readResolve() {
+        return fromByte(id);
     }
 }

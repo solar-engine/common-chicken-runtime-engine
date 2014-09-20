@@ -21,7 +21,6 @@ package ccre.cluck.tcp;
 import ccre.cluck.CluckLink;
 import ccre.cluck.CluckNode;
 import ccre.concurrency.ReporterThread;
-import ccre.log.LogLevel;
 import ccre.log.Logger;
 import ccre.net.ClientSocket;
 import ccre.net.Network;
@@ -95,7 +94,7 @@ public class CluckTCPClient extends ReporterThread {
             try {
                 sock.close();
             } catch (IOException ex) {
-                Logger.log(LogLevel.WARNING, "IO Error while closing connection", ex);
+                Logger.warning("IO Error while closing connection", ex);
             }
             sock = null;
         }
@@ -119,7 +118,7 @@ public class CluckTCPClient extends ReporterThread {
             try {
                 sock.close();
             } catch (IOException ex) {
-                Logger.log(LogLevel.WARNING, "IO Error while closing connection", ex);
+                Logger.warning("IO Error while closing connection", ex);
             }
         }
     }
@@ -135,7 +134,7 @@ public class CluckTCPClient extends ReporterThread {
                 try {
                     tryConnection();
                 } catch (Throwable ex) {
-                    Logger.log(LogLevel.SEVERE, "Uncaught exception in network handler!", ex);
+                    Logger.severe("Uncaught exception in network handler!", ex);
                 }
                 pauseBeforeSubsequentCycle(start, postfix);
             }
@@ -169,7 +168,7 @@ public class CluckTCPClient extends ReporterThread {
             if ("Remote server not available.".equals(ex.getMessage()) || "Timed out while connecting.".equals(ex.getMessage())) {
                 return " (" + ex.getMessage() + ")";
             } else {
-                Logger.log(LogLevel.WARNING, "IO Error while handling connection", ex);
+                Logger.warning("IO Error while handling connection", ex);
             }
         }
         return "";

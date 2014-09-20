@@ -18,7 +18,6 @@
  */
 package ccre.cluck.rpc;
 
-import ccre.log.LogLevel;
 import ccre.log.Logger;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -92,7 +91,7 @@ public abstract class SimpleProcedure implements RemoteProcedure {
             out.write(invoke(in));
             out.close();
         } catch (IOException ex) {
-            Logger.log(LogLevel.WARNING, "IO Exception during response from SimpleProcedure!", ex);
+            Logger.warning("IO Exception during response from SimpleProcedure!", ex);
         }
     }
 

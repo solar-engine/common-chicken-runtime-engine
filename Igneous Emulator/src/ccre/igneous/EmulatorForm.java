@@ -20,10 +20,9 @@ package ccre.igneous;
 
 import ccre.channel.BooleanInputPoll;
 import ccre.channel.BooleanOutput;
+import ccre.channel.EventInput;
 import ccre.channel.FloatInputPoll;
 import ccre.channel.FloatOutput;
-import ccre.channel.EventInput;
-import ccre.log.LogLevel;
 import ccre.log.Logger;
 import java.awt.Color;
 import java.awt.Component;
@@ -51,16 +50,19 @@ public class EmulatorForm extends javax.swing.JFrame {
             UIManager.setLookAndFeel(UIManager.getCrossPlatformLookAndFeelClassName());
             Logger.info("Set look-and-feel!");
         } catch (ClassNotFoundException ex) {
-            Logger.log(LogLevel.WARNING, "Cannot use look-and-feel!", ex);
+            Logger.warning("Cannot use look-and-feel!", ex);
         } catch (InstantiationException ex) {
-            Logger.log(LogLevel.WARNING, "Cannot use look-and-feel!", ex);
+            Logger.warning("Cannot use look-and-feel!", ex);
         } catch (IllegalAccessException ex) {
-            Logger.log(LogLevel.WARNING, "Cannot use look-and-feel!", ex);
+            Logger.warning("Cannot use look-and-feel!", ex);
         } catch (UnsupportedLookAndFeelException ex) {
-            Logger.log(LogLevel.WARNING, "Cannot use look-and-feel!", ex);
+            Logger.warning("Cannot use look-and-feel!", ex);
         }
     }
 
+    /**
+     * Set up a new EmulatorForm.
+     */
     public EmulatorForm() {
         initComponents();
         motors = new JProgressBar[]{motor1, motor2, motor3, motor4, motor5, motor6, motor7, motor8, motor9, motor10};
@@ -1031,6 +1033,15 @@ public class EmulatorForm extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_btnEnableActionPerformed
 
+    /**
+     * Allocate an encoder.
+     *
+     * @param aChannel The A-channel.
+     * @param bChannel The B-channel.
+     * @param reverse If the direction should be reversed.
+     * @param resetWhen When to reset the encoder value, or null to never do so.
+     * @return a channel representing the current position of the encoder.
+     */
     @SuppressWarnings("unchecked")
     public FloatInputPoll makeEncoder(int aChannel, int bChannel, boolean reverse, EventInput resetWhen) {
         String name = "encoder::" + aChannel + "::" + bChannel;
@@ -1043,8 +1054,19 @@ public class EmulatorForm extends javax.swing.JFrame {
         return enc;
     }
 
+    /**
+     * Allocate a gyro.
+     *
+     * @param channel The channel for the Gyro.
+     * @param sensitivity The Gyro's sensitivity value.
+     * @param resetWhen When, if ever, to reset the Gyro's position.
+     * @return a FloatInputPoll representing the current angle of the Gyro.
+     */
     @SuppressWarnings("unchecked")
     public FloatInputPoll makeGyro(int channel, double sensitivity, EventInput resetWhen) {
+        if (channel != 1 && channel != 2) {
+            throw new RuntimeException("On a real robot, Gyros are only available on ports 1 and 2!");
+        }
         String name = "gyro::" + channel + "::" + sensitivity;
         availableExtendedSelection.addElement(name);
         GyroForm gyr = new GyroForm(name, resetWhen);
@@ -1052,6 +1074,15 @@ public class EmulatorForm extends javax.swing.JFrame {
         return gyr;
     }
 
+    /**
+     * Allocate an accelerometer.
+     *
+     * @param channel The channel for the accelerometer.
+     * @param sensitivity The accelerometer's sensitivity value.
+     * @param zeropoint The zeropoint of the accelerometer.
+     * @return a FloatInputPoll representing the current acceleration of the
+     * accelerometer.
+     */
     @SuppressWarnings("unchecked")
     public FloatInputPoll makeAccelerometerAxis(int channel, double sensitivity, double zeropoint) {
         String name = "accelerometer::" + channel + "::" + sensitivity + "::" + zeropoint;
@@ -1068,11 +1099,14 @@ public class EmulatorForm extends javax.swing.JFrame {
         }
         extended.get(s).setVisible(true);
     }//GEN-LAST:event_btnAddExtendedActionPerformed
-    private DefaultComboBoxModel availableExtendedSelection = new DefaultComboBoxModel();
-    private HashMap<String, Component> extended = new HashMap<String, Component>();
-    private JProgressBar[] motors;
-    private JLabel[] relayFwd, relayRev;
-    public EmuJoystick[] joysticks;
+    private final DefaultComboBoxModel availableExtendedSelection = new DefaultComboBoxModel();
+    private final HashMap<String, Component> extended = new HashMap<String, Component>(4);
+    private final JProgressBar[] motors;
+    private final JLabel[] relayFwd, relayRev;
+    /**
+     * The list of the six emulated joysticks available through this form.
+     */
+    public final EmuJoystick[] joysticks;
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JSlider analog1;
     private javax.swing.JSlider analog2;
@@ -1174,6 +1208,9 @@ public class EmulatorForm extends javax.swing.JFrame {
     private javax.swing.JLabel sol8;
     // End of variables declaration//GEN-END:variables
 
+    /**
+     * @return the current operating state.
+     */
     public CurrentState getOperatingState() {
         if (btnEnable.isSelected()) {
             if (radAuto.isSelected()) {
@@ -1191,22 +1228,55 @@ public class EmulatorForm extends javax.swing.JFrame {
         }
     }
 
+    /**
+     * Allocate a Jaguar.
+     *
+     * @param id the port to allocate the Jaguar on.
+     * @return an output that can control the Jaguar.
+     */
     public FloatOutput getJaguar(int id) {
         return getMotorColored(id, new Color(0xA10000), -1, 1);
     }
 
+    /**
+     * Allocate a Victor.
+     *
+     * @param id the port to allocate the Victor on.
+     * @return an output that can control the Victor.
+     */
     public FloatOutput getVictor(int id) {
         return getMotorColored(id, new Color(0x008282), -1, 1);
     }
 
+    /**
+     * Allocate a Talon.
+     *
+     * @param id the port to allocate the Talon on.
+     * @return an output that can control the Talon.
+     */
     public FloatOutput getTalon(int id) {
         return getMotorColored(id, new Color(0xA1A100), -1, 1);
     }
 
+    /**
+     * Allocate a Servo.
+     *
+     * @param id the port to allocate the Servo on.
+     * @param minInput the input that should be the minimum of the servo's
+     * range.
+     * @param maxInput the input that should be the maximum of the servo's
+     * range.
+     * @return an output that can control the Servo.
+     */
     public FloatOutput getServo(int id, float minInput, float maxInput) {
         return getMotorColored(id, new Color(0xFF0000), minInput, maxInput);
     }
 
+    /**
+     * Free the specified motor.
+     *
+     * @param port the motor ID to free.
+     */
     public void freeMotor(int port) {
         final JProgressBar bar = motors[port - 1];
         EventQueue.invokeLater(new Runnable() {
@@ -1232,13 +1302,20 @@ public class EmulatorForm extends javax.swing.JFrame {
                 EventQueue.invokeLater(new Runnable() {
                     @Override
                     public void run() {
-                        jpb.setValue(Math.round(((f - minInput) / (maxInput - minInput)) * (jpb.getMaximum() - jpb.getMinimum()) + jpb.getMinimum()));
+                        float resultRange = maxInput - minInput, rawRange = jpb.getMaximum() - jpb.getMinimum();
+                        jpb.setValue(Math.round((f - minInput) * rawRange / resultRange + jpb.getMinimum()));
                     }
                 });
             }
         };
     }
 
+    /**
+     * Allocate a Solenoid.
+     *
+     * @param id the port number of the solenoid.
+     * @return the output that controls this solenoid.
+     */
     public BooleanOutput getSolenoid(int id) {
         final JLabel lab;
         switch (id) {
@@ -1275,14 +1352,21 @@ public class EmulatorForm extends javax.swing.JFrame {
                 EventQueue.invokeLater(new Runnable() {
                     @Override
                     public void run() {
-                        lab.setForeground(bln ? ONCOLOR : Color.RED);
+                        lab.setForeground(bln ? ENABLED_COLOR : Color.RED);
                     }
                 });
             }
         };
     }
-    public static final Color ONCOLOR = new Color(0, 192, 0);
+    private static final Color ENABLED_COLOR = new Color(0, 192, 0);
 
+    /**
+     * Allocate an analog channel.
+     *
+     * @param id the port number for the analog channel.
+     * @return a FloatInputPoll representing the currently-read voltage on this
+     * port.
+     */
     public FloatInputPoll getAnalog(int id) {
         final FloatInputPoll base = getAnalogValue(id);
         return new FloatInputPoll() {
@@ -1293,6 +1377,13 @@ public class EmulatorForm extends javax.swing.JFrame {
         };
     }
 
+    /**
+     * Allocate an analog channel.
+     *
+     * @param id the port number for the analog channel.
+     * @return a FloatInputPoll representing the currently-read raw value on
+     * this port.
+     */
     public FloatInputPoll getAnalogValue(int id) {
         final JSlider sli;
         switch (id) {
@@ -1331,7 +1422,13 @@ public class EmulatorForm extends javax.swing.JFrame {
         };
     }
 
-    public JToggleButton getDigital(int id) {
+    /**
+     * Allocate a digital port.
+     *
+     * @param id the port on which to allocate the digital port.
+     * @return the JToggleButton representing this port.
+     */
+    private JToggleButton getDigital(int id) {
         switch (id) {
             case 1:
                 return digital1;
@@ -1366,6 +1463,12 @@ public class EmulatorForm extends javax.swing.JFrame {
         }
     }
 
+    /**
+     * Allocate a digital input.
+     *
+     * @param id the port on which to allocate the digital input.
+     * @return a BooleanInputPoll representing this input.
+     */
     public BooleanInputPoll getDigitalInput(int id) {
         final JToggleButton dig = getDigital(id);
         dig.setEnabled(true);
@@ -1377,11 +1480,22 @@ public class EmulatorForm extends javax.swing.JFrame {
         };
     }
 
+    /**
+     * Free a digital input.
+     *
+     * @param id the port number of the input to free.
+     */
     public void freeDigitalInput(int id) {
         getDigital(id).setEnabled(false);
         getDigital(id).setSelected(false);
     }
 
+    /**
+     * Allocate a digital output.
+     *
+     * @param id the port on which to allocate the digital output.
+     * @return a BooleanOutputPoll representing this output.
+     */
     public BooleanOutput getDigitalOutput(int id) {
         final JToggleButton dig = getDigital(id);
         return new BooleanOutput() {
@@ -1392,11 +1506,22 @@ public class EmulatorForm extends javax.swing.JFrame {
         };
     }
 
+    /**
+     * Free a digital output.
+     *
+     * @param id the port number of the output to free.
+     */
     public void freeDigitalOutput(int id) {
         getDigital(id).setSelected(false);
     }
 
-    public void sendDSUpdate(final String value, int line) {
+    /**
+     * Send text to the Driver Station LCD screen.
+     *
+     * @param text the text to send.
+     * @param line the line to write to.
+     */
+    public void sendDSUpdate(final String text, int line) {
         final JLabel tgt;
         switch (line) {
             case 1:
@@ -1423,13 +1548,18 @@ public class EmulatorForm extends javax.swing.JFrame {
         EventQueue.invokeLater(new Runnable() {
             @Override
             public void run() {
-                tgt.setText(value.length() > 21 ? value.substring(0, 21) : value);
+                tgt.setText(text.length() > 21 ? text.substring(0, 21) : text);
             }
         });
     }
 
-    public void setCompressor(boolean b) {
-        labCompressor.setText(b ? "ENABLED" : "DISABLED");
+    /**
+     * Set the compressor enable state to the specified boolean.
+     *
+     * @param compressorOn whether or not the compressor should be running.
+     */
+    public void setCompressor(boolean compressorOn) {
+        labCompressor.setText(compressorOn ? "ENABLED" : "DISABLED");
     }
 
     private BooleanOutput wrapRelayLabel(final JLabel lab) {
@@ -1441,15 +1571,33 @@ public class EmulatorForm extends javax.swing.JFrame {
         };
     }
 
+    /**
+     * Allocate the forward half of a relay.
+     *
+     * @param channel the relay number to allocate.
+     * @return the output representing this half of the relay.
+     */
     public BooleanOutput makeRelayForward(int channel) {
         return wrapRelayLabel(relayFwd[channel - 1]);
     }
 
+    /**
+     * Allocate the reverse half of a relay.
+     *
+     * @param channel the relay number to allocate.
+     * @return the output representing this half of the relay.
+     */
     public BooleanOutput makeRelayReverse(int channel) {
         return wrapRelayLabel(relayRev[channel - 1]);
     }
 
-    public void closeRelay(int id, boolean fwd) {
+    /**
+     * Free the specified relay.
+     *
+     * @param id the relay number to free.
+     * @param fwd should the forward channel be freed instead of the reverse channel.F
+     */
+    public void freeRelay(int id, boolean fwd) {
         (fwd ? relayFwd : relayRev)[id - 1].setForeground(Color.BLACK);
     }
 }

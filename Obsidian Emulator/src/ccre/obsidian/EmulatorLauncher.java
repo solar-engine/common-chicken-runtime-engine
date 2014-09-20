@@ -136,7 +136,7 @@ public class EmulatorLauncher extends ObsidianLauncher {
 
     @Override
     public void destroyPWMOutput(PWMPin chan) {
-        Logger.log(LogLevel.SEVERE, "nope.");
+        Logger.severe("nope.");
     }
 
     @Override

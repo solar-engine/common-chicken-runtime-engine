@@ -22,7 +22,6 @@ import ccre.cluck.tcp.StandaloneCluckServer;
 import ccre.rload.RLoadClient;
 import ccre.rload.RLoadServer;
 import ccre.testing.SuiteOfTests;
-import java.io.IOException;
 
 /**
  * The launcher for running utilities directly from the CCRE jar.

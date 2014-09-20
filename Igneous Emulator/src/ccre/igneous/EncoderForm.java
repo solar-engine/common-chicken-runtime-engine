@@ -18,9 +18,9 @@
  */
 package ccre.igneous;
 
-import ccre.channel.FloatInputPoll;
-import ccre.channel.EventOutput;
 import ccre.channel.EventInput;
+import ccre.channel.EventOutput;
+import ccre.channel.FloatInputPoll;
 import java.awt.EventQueue;
 
 /**
@@ -31,6 +31,12 @@ import java.awt.EventQueue;
 @SuppressWarnings("serial")
 public class EncoderForm extends javax.swing.JFrame implements FloatInputPoll {
 
+    /**
+     * Create a new form to represent an encoder.
+     *
+     * @param name the name of the encoder.
+     * @param resetWhen when to reset the encoder's current value.
+     */
     public EncoderForm(final String name, EventInput resetWhen) {
         initComponents();
         EventQueue.invokeLater(new Runnable() {

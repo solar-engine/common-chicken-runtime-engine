@@ -18,7 +18,6 @@
  */
 package ccre.saver;
 
-import ccre.log.LogLevel;
 import ccre.log.Logger;
 import java.io.IOException;
 import java.io.InputStream;
@@ -71,7 +70,7 @@ public abstract class StorageProvider {
                     return null;
                 }
             };
-            Logger.log(LogLevel.WARNING, "No throwable printing provider!", t);
+            Logger.warning("No throwable printing provider!", t);
         }
     }
 

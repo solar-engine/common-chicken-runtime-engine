@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 Colby Skeggs, Gregor Peach (Added Folders)
+ * Copyright 2014 Colby Skeggs.
  * 
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  * 
@@ -16,29 +16,33 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with the CCRE.  If not, see <http://www.gnu.org/licenses/>.
  */
-package intelligence;
+package ccre.downgrade;
+
+import java.io.IOException;
 
 /**
- * An IPhidgetMonitor that doesn't actually publish anything.
+ * This is the same as java.io.NotSerializableException. Don't use this. It is
+ * used when Retrotranslator downgrades the code to 1.3, because 1.3 doesn't
+ * have NotSerializableException.
  *
+ * @see java.lang.NotSerializableException
  * @author skeggsc
  */
-public class NonexistentPhidgetMonitor implements IPhidgetMonitor {
+@SuppressWarnings("serial")
+public class NotSerializableException extends IOException {
 
-    @Override
-    public void share() {
+    /**
+     * Creates a NotSerializableException with no message.
+     */
+    public NotSerializableException() {
     }
 
-    @Override
-    public void connectionUp() {
+    /**
+     * Creates an NotSerializableException with a specified message.
+     *
+     * @param message The specified message.
+     */
+    public NotSerializableException(String message) {
+        super(message);
     }
-
-    @Override
-    public void connectionDown() {
-    }
-
-    @Override
-    public void displayClosing() {
-    }
-
 }

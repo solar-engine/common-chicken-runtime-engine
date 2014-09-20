@@ -18,7 +18,6 @@
  */
 package ccre.workarounds;
 
-import ccre.log.LogLevel;
 import ccre.log.Logger;
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
@@ -75,7 +74,7 @@ public abstract class ThrowablePrinter {
                         pstr.println(thr);
                     }
                 };
-                Logger.log(LogLevel.WARNING, "No throwable printing provider!", ex2);
+                Logger.warning("No throwable printing provider!", ex2);
             }
         }
     }

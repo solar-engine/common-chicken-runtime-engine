@@ -41,8 +41,26 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.jar.JarFile;
 
-public class EmulatorLauncher implements IgneousLauncher {
+/**
+ * The main Launcher in the Emulator. This is the core of the emulator, and the
+ * place that Igneous code interfaces with.
+ *
+ * @author skeggsc
+ */
+public final class EmulatorLauncher implements IgneousLauncher {
 
+    /**
+     * Start the emulator.
+     *
+     * @param args a single-element array containing only the path to the main
+     * Jar file for the emulated program.
+     * @throws IOException
+     * @throws ClassNotFoundException
+     * @throws InstantiationException
+     * @throws NoSuchMethodException
+     * @throws IllegalAccessException
+     * @throws InvocationTargetException
+     */
     public static void main(String[] args) throws IOException, ClassNotFoundException, InstantiationException, NoSuchMethodException, IllegalAccessException, InvocationTargetException {
         if (args.length != 1) {
             System.err.println("Expected arguments: <Igneous-Jar>");
@@ -74,29 +92,29 @@ public class EmulatorLauncher implements IgneousLauncher {
     /**
      * The robot's core program.
      */
-    protected IgneousApplication core;
+    private IgneousApplication core;
     /**
      * A timer used to know when to call each periodic/during method.
      */
-    protected Timer periodicTimer = new Timer();
+    private final Timer periodicTimer = new Timer();
     /**
      * The last known operating state of the virtual robot.
      */
-    protected CurrentState lastState = CurrentState.DISABLED;
+    private CurrentState lastState = CurrentState.DISABLED;
 
-    protected final EmulatorForm emf;
+    private final EmulatorForm emf;
 
-    protected final EventStatus duringAutonomous = new EventStatus();
-    protected final EventStatus duringDisabled = new EventStatus();
-    protected final EventStatus duringTeleop = new EventStatus();
-    protected final EventStatus duringTesting = new EventStatus();
-    protected final EventStatus globalPeriodic = new EventStatus();
-    protected final EventStatus startedDisabled = new EventStatus();
-    protected final EventStatus startedAutonomous = new EventStatus();
-    protected final EventStatus startedTeleop = new EventStatus();
-    protected final EventStatus startedTesting = new EventStatus();
+    private final EventStatus duringAutonomous = new EventStatus();
+    private final EventStatus duringDisabled = new EventStatus();
+    private final EventStatus duringTeleop = new EventStatus();
+    private final EventStatus duringTesting = new EventStatus();
+    private final EventStatus globalPeriodic = new EventStatus();
+    private final EventStatus startedDisabled = new EventStatus();
+    private final EventStatus startedAutonomous = new EventStatus();
+    private final EventStatus startedTeleop = new EventStatus();
+    private final EventStatus startedTesting = new EventStatus();
 
-    public EmulatorLauncher(EmulatorForm emf) {
+    private EmulatorLauncher(EmulatorForm emf) {
         this.emf = emf;
     }
 
@@ -104,9 +122,12 @@ public class EmulatorLauncher implements IgneousLauncher {
      * Called to start the robot running.
      *
      * @param main The main program.
+     * @throws java.lang.InstantiationException
+     * @throws java.lang.IllegalAccessException
+     * @throws java.lang.reflect.InvocationTargetException
      */
     public void start(Constructor<? extends IgneousApplication> main) throws InstantiationException, IllegalAccessException, InvocationTargetException {
-        IgneousLauncherHolder.launcher = this;
+        IgneousLauncherHolder.setLauncher(this);
         for (EmuJoystick emu : emf.joysticks) {
             globalPeriodic.send(emu);
         }
@@ -125,7 +146,7 @@ public class EmulatorLauncher implements IgneousLauncher {
     /**
      * Called each ~20 ms to run the various periodic and during events.
      */
-    protected void updatePeriodic() {
+    private void updatePeriodic() {
         CurrentState curstate = emf.getOperatingState();
         if (curstate != this.lastState) {
             this.lastState = curstate;

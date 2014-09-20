@@ -18,10 +18,10 @@
  */
 package ccre.channel;
 
+import ccre.concurrency.ConcurrentDispatchArray;
 import ccre.ctrl.FloatMixing;
-import ccre.ctrl.Mixing;
-import ccre.util.CArrayList;
 import ccre.util.CArrayUtils;
+import java.io.Serializable;
 
 /**
  * A virtual node that is both a FloatOutput and a FloatInput. You can modify
@@ -33,7 +33,9 @@ import ccre.util.CArrayUtils;
  *
  * @author skeggsc
  */
-public class FloatStatus implements FloatOutput, FloatInput {
+public class FloatStatus implements FloatOutput, FloatInput, Serializable {
+
+    private static final long serialVersionUID = -579209218982597622L;
 
     /**
      * The current state of this FloatStatus. Do not directly modify this field.
@@ -53,7 +55,7 @@ public class FloatStatus implements FloatOutput, FloatInput {
      * @see #send(ccre.chan.FloatOutput)
      * @see #unsend(ccre.chan.FloatOutput)
      */
-    private CArrayList<FloatOutput> consumers = null;
+    private ConcurrentDispatchArray<FloatOutput> consumers = null;
 
     /**
      * Create a new FloatStatus with a value of zero.
@@ -80,7 +82,7 @@ public class FloatStatus implements FloatOutput, FloatInput {
      * @param target The FloatOutput to automatically update.
      */
     public FloatStatus(FloatOutput target) {
-        consumers = new CArrayList<FloatOutput>();
+        consumers = new ConcurrentDispatchArray<FloatOutput>();
         consumers.add(target);
         target.set(0);
     }
@@ -95,7 +97,7 @@ public class FloatStatus implements FloatOutput, FloatInput {
      * @param targets The FloatOutputs to automatically update.
      */
     public FloatStatus(FloatOutput... targets) {
-        consumers = new CArrayList<FloatOutput>(CArrayUtils.asList(targets));
+        consumers = new ConcurrentDispatchArray<FloatOutput>(CArrayUtils.asList(targets));
         for (FloatOutput t : targets) {
             t.set(0);
         }
@@ -104,6 +106,18 @@ public class FloatStatus implements FloatOutput, FloatInput {
     @Override
     public final synchronized float get() {
         return value;
+    }
+
+    /**
+     * Returns whether or not this has any targets that will get modified when
+     * the value changes If this returns false, the set() method will not notify
+     * anyone.
+     *
+     * @return whether or not the set() method would notify any targets.
+     * @see #set(float)
+     */
+    public boolean hasConsumers() {
+        return consumers != null && !consumers.isEmpty();
     }
 
     @Override
@@ -145,7 +159,7 @@ public class FloatStatus implements FloatOutput, FloatInput {
     @Override
     public synchronized void send(FloatOutput output) {
         if (consumers == null) {
-            consumers = new CArrayList<FloatOutput>();
+            consumers = new ConcurrentDispatchArray<FloatOutput>();
         }
         consumers.add(output);
         output.set(value);

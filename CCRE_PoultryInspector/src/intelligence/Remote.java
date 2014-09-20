@@ -20,7 +20,15 @@ package intelligence;
 
 import ccre.cluck.Cluck;
 import ccre.cluck.CluckNode;
-import static ccre.cluck.CluckNode.*;
+import static ccre.cluck.CluckNode.RMT_BOOLOUTP;
+import static ccre.cluck.CluckNode.RMT_BOOLPROD;
+import static ccre.cluck.CluckNode.RMT_EVENTINPUT;
+import static ccre.cluck.CluckNode.RMT_EVENTOUTP;
+import static ccre.cluck.CluckNode.RMT_FLOATOUTP;
+import static ccre.cluck.CluckNode.RMT_FLOATPROD;
+import static ccre.cluck.CluckNode.RMT_INVOKE;
+import static ccre.cluck.CluckNode.RMT_LOGTARGET;
+import static ccre.cluck.CluckNode.RMT_OUTSTREAM;
 import ccre.log.LogLevel;
 import ccre.log.Logger;
 import java.awt.Color;
@@ -73,32 +81,6 @@ public class Remote implements Comparable<Remote> {
     @Override
     public String toString() {
         return (inFolder ? "  " : "") + path + " : " + CluckNode.rmtToString(type);
-    }
-
-    /**
-     * Get the color of the remote type.
-     *
-     * @return The color.
-     */
-    public Color getColor() {
-        switch (type) {
-            case RMT_EVENTOUTP:
-            case RMT_EVENTINPUT:
-                return Color.MAGENTA;
-            case RMT_LOGTARGET:
-                return Color.RED;
-            case RMT_BOOLPROD:
-            case RMT_BOOLOUTP:
-                return Color.YELLOW;
-            case RMT_FLOATPROD:
-            case RMT_FLOATOUTP:
-                return Color.ORANGE;
-            case RMT_OUTSTREAM:
-            case RMT_INVOKE:
-                return Color.CYAN;
-            default:
-                return Color.WHITE;
-        }
     }
 
     /**

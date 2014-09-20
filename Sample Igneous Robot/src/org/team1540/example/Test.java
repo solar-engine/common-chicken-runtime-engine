@@ -18,16 +18,27 @@
  */
 package org.team1540.example;
 
-import ccre.channel.*;
+import ccre.channel.BooleanStatus;
+import ccre.channel.FloatInputPoll;
+import ccre.channel.FloatOutput;
 import ccre.ctrl.DriverImpls;
 import ccre.igneous.Igneous;
 import ccre.igneous.IgneousCore;
 import ccre.instinct.AutonomousModeOverException;
 import ccre.instinct.InstinctModule;
-import ccre.log.LogLevel;
 
+/**
+ * A slightly-more-complex Test program. This handles driving, shifting, the
+ * compressor, and autonomous.
+ *
+ * @author skeggsc
+ */
 public class Test extends IgneousCore {
 
+    /**
+     * Set up the test robot. This includes tank drive, high gear/low gear, a
+     * compressor, and a simple autonomous.
+     */
     public void setupRobot() {
         // Driving
         FloatInputPoll leftAxis = joystick1.getAxisChannel(2);
@@ -36,7 +47,6 @@ public class Test extends IgneousCore {
         final FloatOutput rightOut = makeTalonMotor(1, MOTOR_REVERSE, 0.1f);
         DriverImpls.createSynchTankDriver(duringTele, leftAxis, rightAxis, leftOut, rightOut);
         // Shifting
-        //BooleanOutput o = Mixing.select(makeServo(1, 0, 180), 45, 135);
         BooleanStatus shifter = new BooleanStatus(makeSolenoid(2));
         shifter.setFalseWhen(startTele);
         shifter.setTrueWhen(joystick1.getButtonSource(3));

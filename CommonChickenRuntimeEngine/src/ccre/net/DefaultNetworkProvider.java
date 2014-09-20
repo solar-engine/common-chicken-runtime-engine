@@ -18,7 +18,6 @@
  */
 package ccre.net;
 
-import ccre.log.LogLevel;
 import ccre.log.Logger;
 import ccre.util.CArrayList;
 import ccre.util.CArrayUtils;
@@ -71,7 +70,7 @@ class DefaultNetworkProvider implements NetworkProvider {
         try {
             enm = NetworkInterface.getNetworkInterfaces();
         } catch (SocketException ex) {
-            Logger.log(LogLevel.SEVERE, "Could not enumerate IP addresses!", ex);
+            Logger.severe("Could not enumerate IP addresses!", ex);
             return CArrayUtils.getEmptyList();
         }
         if (enm == null) {

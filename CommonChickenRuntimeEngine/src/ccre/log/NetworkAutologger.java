@@ -18,6 +18,8 @@
  */
 package ccre.log;
 
+import ccre.channel.EventLogger;
+import ccre.channel.EventOutput;
 import ccre.cluck.Cluck;
 import ccre.cluck.CluckNode;
 import ccre.cluck.CluckPublisher;
@@ -25,6 +27,7 @@ import ccre.cluck.CluckRemoteListener;
 import ccre.cluck.CluckSubscriber;
 import ccre.concurrency.CollapsingWorkerThread;
 import ccre.concurrency.ConcurrentDispatchArray;
+import ccre.ctrl.EventMixing;
 import ccre.util.CHashMap;
 import ccre.util.UniqueIds;
 
@@ -44,7 +47,7 @@ public final class NetworkAutologger implements LoggingTarget, CluckRemoteListen
         public void log(LogLevel level, String message, Throwable throwable) {
             Logger.log(level, "[NET] " + message, throwable);
         }
-        
+
         public void log(LogLevel level, String message, String extended) {
             Logger.logExt(level, "[NET] " + message, extended);
         }
@@ -87,39 +90,26 @@ public final class NetworkAutologger implements LoggingTarget, CluckRemoteListen
         this.node = node;
         CluckPublisher.publish(node, localpath, localLoggingTarget);
     }
-    
+
     /**
      * Start the Autologger - it will now start sending out logged messages.
      */
     public void start() {
-        final CollapsingWorkerThread autologger = new CollapsingWorkerThread("network-autologger") {
-            @Override
-            protected void doWork() throws Throwable {
+        final EventOutput searcher = CluckPublisher.setupSearching(node, this);
+        searcher.event();
+        node.subscribeToStructureNotifications("netwatch-" + hereID, new EventOutput() {
+            public void event() {
                 Logger.fine("[LOCAL] Rechecking logging...");
-                node.cycleSearchRemotes("auto-checker-" + hereID);
+                searcher.event();
             }
-        };
-        node.startSearchRemotes("auto-checker-" + hereID, this);
-        //autologger.start(); // TODO: Check if it's really safe to comment this out.
-        new CluckSubscriber(node) {
-            @Override
-            protected void receive(String source, byte[] data) {
-            }
-
-            @Override
-            protected void receiveBroadcast(String source, byte[] data) { // TODO: This is a common operation. Abstract it out?
-                if (data.length == 1 && data[0] == CluckNode.RMT_NOTIFY) {
-                    autologger.trigger();
-                }
-            }
-        }.attach("netwatch-" + hereID);
+        });
     }
 
     public void log(LogLevel level, String message, Throwable throwable) {
         if (message.startsWith("[NET] ")) { // From the network, so don't broadcast.
             return;
         }
-        if (message.startsWith("[LOCAL] ")) { // Should not be sent over the network.
+        if (message.startsWith("[LOCAL] ")) { // Local messages should not be sent over the network.
             return;
         }
         for (String cur : remotes) {

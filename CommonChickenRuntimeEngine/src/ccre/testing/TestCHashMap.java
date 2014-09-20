@@ -34,7 +34,7 @@ public class TestCHashMap extends BaseTest {
     }
 
     @Override
-    protected void runTest() throws TestingException {
+    protected void runTest() throws TestingException { // TODO: Test modcounts and iterator removal.
         CHashMap<String, String> alpha = new CHashMap<String, String>();
         assertObjectEqual(alpha.get("never"), null, "Bad nonexistent element!");
         assertFalse(alpha.containsKey("never"), "Bad contains!");

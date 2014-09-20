@@ -18,7 +18,6 @@
  */
 package ccre.testing;
 
-import ccre.log.LogLevel;
 import ccre.log.Logger;
 
 /**
@@ -50,7 +49,8 @@ public abstract class BaseTest {
      * test.
      *
      * @return true if the test succeeded and false if it failed.
-     * @throws java.lang.InterruptedException If the test is interrupted while it runs.
+     * @throws java.lang.InterruptedException If the test is interrupted while
+     * it runs.
      */
     public final boolean test() throws InterruptedException {
         return test(true);
@@ -62,7 +62,8 @@ public abstract class BaseTest {
      *
      * @param verbose should status messages be logged?
      * @return true if the test succeeded and false if it failed.
-     * @throws java.lang.InterruptedException If the test is interrupted while it runs.
+     * @throws java.lang.InterruptedException If the test is interrupted while
+     * it runs.
      */
     public final synchronized boolean test(boolean verbose) throws InterruptedException { // Synchronized so that only one instance of the test will be running.
         if (verbose) {
@@ -77,13 +78,13 @@ public abstract class BaseTest {
                 intr = ex; // Can't throw here because of outer Throwable catch.
             } catch (TestingException ex) {
                 if (verbose) {
-                    Logger.log(LogLevel.WARNING, "Failed test: " + getName(), ex);
+                    Logger.warning("Failed test: " + getName(), ex);
                 }
                 failed = true;
             }
         } catch (Throwable t) {
             if (verbose) {
-                Logger.log(LogLevel.WARNING, "Exception during test: " + getName(), t);
+                Logger.warning("Exception during test: " + getName(), t);
             }
             failed = true;
         }

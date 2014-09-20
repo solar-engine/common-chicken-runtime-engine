@@ -45,10 +45,6 @@ public final class Cluck {
      */
     private static final CluckNode node = new CluckNode();
     /**
-     * The current CluckTCPServer.
-     */
-    private static CluckTCPServer server;
-    /**
      * The current CluckTCPClient.
      */
     private static CluckTCPClient client;
@@ -63,15 +59,6 @@ public final class Cluck {
     }
 
     /**
-     * Get the current global CluckTCPServer.
-     *
-     * @return The global CluckTCPServer.
-     */
-    public static synchronized CluckTCPServer getServer() {
-        return server;
-    }
-
-    /**
      * Get the current global CluckTCPClient.
      *
      * @return The global CluckTCPClient.
@@ -82,13 +69,13 @@ public final class Cluck {
 
     /**
      * Set up a server on the default port.
+     *
+     * @return the server that was set up.
      */
-    public static synchronized void setupServer() { // TODO: Is this needed?
-        if (server != null) {
-            throw new IllegalStateException("Server already set up!");
-        }
-        server = new CluckTCPServer(node);
+    public static synchronized CluckTCPServer setupServer() {
+        CluckTCPServer server = new CluckTCPServer(node);
         server.start();
+        return server;
     }
 
     /**

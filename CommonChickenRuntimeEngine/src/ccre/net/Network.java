@@ -18,7 +18,6 @@
  */
 package ccre.net;
 
-import ccre.log.LogLevel;
 import ccre.log.Logger;
 import ccre.util.CCollection;
 import java.io.IOException;
@@ -56,13 +55,13 @@ public class Network {
             try {
                 prov = (NetworkProvider) Class.forName("ccre.net.DefaultNetworkProvider").newInstance();
             } catch (InstantiationException ex) {
-                Logger.log(LogLevel.WARNING, "Cannot start network provider!", ex);
+                Logger.warning("Cannot start network provider!", ex);
                 throw new RuntimeException("Cannot load the default network provider. It was probably (purposefully) ignored during the build process.");
             } catch (IllegalAccessException ex) {
-                Logger.log(LogLevel.WARNING, "Cannot start network provider!", ex);
+                Logger.warning("Cannot start network provider!", ex);
                 throw new RuntimeException("Cannot load the default network provider. It was probably (purposefully) ignored during the build process.");
             } catch (ClassNotFoundException ex) {
-                Logger.log(LogLevel.WARNING, "Cannot start network provider!", ex);
+                Logger.warning("Cannot start network provider!", ex);
                 throw new RuntimeException("Cannot load the default network provider. It was probably (purposefully) ignored during the build process.");
             }
         }
@@ -89,7 +88,8 @@ public class Network {
      *
      * @param rawAddress the IP address to connect to, with an option port
      * specifier.
-     * @param default_port the default port to connect to if there is no port specifier.
+     * @param default_port the default port to connect to if there is no port
+     * specifier.
      * @return the ClientSocket that represents the connection.
      * @throws java.io.IOException if an IO error occurs or the port specifier
      * is invalid.

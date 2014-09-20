@@ -18,16 +18,42 @@
  */
 package ccre.igneous;
 
-import ccre.channel.*;
+import ccre.channel.BooleanInputPoll;
+import ccre.channel.BooleanOutput;
+import ccre.channel.EventInput;
+import ccre.channel.EventOutput;
+import ccre.channel.EventStatus;
+import ccre.channel.FloatInputPoll;
+import ccre.channel.FloatOutput;
 import ccre.cluck.Cluck;
 import ccre.cluck.tcp.CluckTCPServer;
-import ccre.ctrl.*;
-import ccre.log.*;
+import ccre.ctrl.BooleanMixing;
+import ccre.ctrl.IJoystick;
+import ccre.ctrl.Ticker;
+import ccre.log.BootLogger;
+import ccre.log.FileLogger;
+import ccre.log.Logger;
+import ccre.log.NetworkAutologger;
 import ccre.net.IgneousNetworkProvider;
 import ccre.saver.IgneousStorageProvider;
 import ccre.workarounds.IgneousThrowablePrinter;
 import com.sun.squawk.VM;
-import edu.wpi.first.wpilibj.*;
+import edu.wpi.first.wpilibj.Accelerometer;
+import edu.wpi.first.wpilibj.AnalogChannel;
+import edu.wpi.first.wpilibj.DigitalInput;
+import edu.wpi.first.wpilibj.DigitalOutput;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStationLCD;
+import edu.wpi.first.wpilibj.Encoder;
+import edu.wpi.first.wpilibj.Gyro;
+import edu.wpi.first.wpilibj.IterativeRobot;
+import edu.wpi.first.wpilibj.Jaguar;
+import edu.wpi.first.wpilibj.Relay;
+import edu.wpi.first.wpilibj.Servo;
+import edu.wpi.first.wpilibj.Solenoid;
+import edu.wpi.first.wpilibj.SpeedController;
+import edu.wpi.first.wpilibj.Talon;
+import edu.wpi.first.wpilibj.Victor;
 
 /**
  * The Squawk implementation of the IgneousLauncher interface. Do not use this!
@@ -36,7 +62,58 @@ import edu.wpi.first.wpilibj.*;
  * @see IgneousLauncher
  * @author skeggsc
  */
-class IgneousLauncherImpl extends IterativeRobot implements IgneousLauncher {
+final class IgneousLauncherImpl extends IterativeRobot implements IgneousLauncher {
+
+    /**
+     * Produced during every state where the driver station is attached.
+     */
+    private final EventStatus globalPeriodic = new EventStatus();
+
+    /**
+     * Produced when the robot enters autonomous mode.
+     */
+    private final EventStatus startedAutonomous = new EventStatus();
+
+    /**
+     * Produced during autonomous mode.
+     */
+    private final EventStatus duringAutonomous = new EventStatus();
+
+    /**
+     * The number of recent code failures - used to determine when to get
+     * annoyed and start detaching broken code modules.
+     */
+    private int countFails = 0;
+
+    /**
+     * Produced when the robot enters disabled mode.
+     */
+    private final EventStatus startDisabled = new EventStatus();
+
+    /**
+     * Produced while the robot is disabled.
+     */
+    private final EventStatus duringDisabled = new EventStatus();
+
+    /**
+     * Produced when the robot enters teleop mode.
+     */
+    private final EventStatus startedTeleop = new EventStatus();
+
+    /**
+     * Produced during teleop mode.
+     */
+    private final EventStatus duringTeleop = new EventStatus();
+
+    /**
+     * Produced when the robot enters testing mode.
+     */
+    private final EventStatus startedTesting = new EventStatus();
+
+    /**
+     * Produced during testing mode.
+     */
+    private final EventStatus duringTesting = new EventStatus();
 
     IgneousLauncherImpl() {
         IgneousNetworkProvider.register();
@@ -46,51 +123,43 @@ class IgneousLauncherImpl extends IterativeRobot implements IgneousLauncher {
         BootLogger.register();
         FileLogger.register();
     }
-    /**
-     * Produced during every state where the driver station is attached.
-     */
-    protected EventStatus globalPeriodic = new EventStatus();
 
-    public final void robotInit() {
-        IgneousLauncherHolder.launcher = this;
+    public void robotInit() {
+        IgneousLauncherHolder.setLauncher(this);
         //CluckGlobals.setupServer() - No longer helpful on the robot because this port is now used by default.
         new CluckTCPServer(Cluck.getNode(), 443).start();
         try {
-            String name = VM.getManifestProperty("Igneous-Main");
-            if (name == null) {
-                throw new RuntimeException("Could not find MANIFEST-specified launchee!");
-            }
-            ((IgneousApplication) Class.forName(name).newInstance()).setupRobot();
+            setupMain();
+        } catch (RuntimeException ex) {
+            Logger.severe("Critical Code Failure in Robot Init", ex);
+            throw ex;
+        } catch (Error err) {
+            Logger.severe("Critical Code Failure in Robot Init", err);
+            throw err;
         } catch (Throwable thr) {
-            Logger.log(LogLevel.SEVERE, "Critical Code Failure in Robot Init", thr);
-            if (thr instanceof RuntimeException) {
-                throw (RuntimeException) thr;
-            } else if (thr instanceof Error) {
-                throw (Error) thr;
-            }
+            Logger.severe("Critical Code Failure in Robot Init", thr);
             throw new RuntimeException("Critical Code Failure: " + thr.getMessage());
         }
     }
-    /**
-     * Produced when the robot enters autonomous mode.
-     */
-    protected EventStatus startedAutonomous = new EventStatus();
 
-    public final void autonomousInit() {
+    private void setupMain() throws Throwable {
+        String name = VM.getManifestProperty("Igneous-Main");
+        if (name == null) {
+            throw new RuntimeException("Could not find MANIFEST-specified launchee!");
+        }
+        ((IgneousApplication) Class.forName(name).newInstance()).setupRobot();
+    }
+
+    public void autonomousInit() {
         try {
             Logger.fine(DriverStation.getInstance().isFMSAttached() ? "Began autonomous on FMS" : "Began autonomous mode");
             startedAutonomous.produce();
         } catch (Throwable thr) {
-            Logger.log(LogLevel.SEVERE, "Critical Code Failure in Autonomous Init", thr);
+            Logger.severe("Critical Code Failure in Autonomous Init", thr);
         }
     }
-    /**
-     * Produced during autonomous mode.
-     */
-    protected EventStatus duringAutonomous = new EventStatus();
-    private int countFails = 0;
 
-    public final void autonomousPeriodic() {
+    public void autonomousPeriodic() {
         try {
             if (countFails >= 50) {
                 countFails--;
@@ -108,29 +177,21 @@ class IgneousLauncherImpl extends IterativeRobot implements IgneousLauncher {
                 }
             }
         } catch (Throwable thr) {
-            Logger.log(LogLevel.SEVERE, "Critical Code Failure in Autonomous Periodic", thr);
+            Logger.severe("Critical Code Failure in Autonomous Periodic", thr);
             countFails += 10;
         }
     }
-    /**
-     * Produced when the robot enters disabled mode.
-     */
-    protected EventStatus startDisabled = new EventStatus();
 
-    public final void disabledInit() {
+    public void disabledInit() {
         try {
             Logger.fine(DriverStation.getInstance().isFMSAttached() ? "Began disabled on FMS" : "Began disabled mode");
             startDisabled.produce();
         } catch (Throwable thr) {
-            Logger.log(LogLevel.SEVERE, "Critical Code Failure in Disabled Init", thr);
+            Logger.severe("Critical Code Failure in Disabled Init", thr);
         }
     }
-    /**
-     * Produced while the robot is disabled.
-     */
-    protected EventStatus duringDisabled = new EventStatus();
 
-    public final void disabledPeriodic() {
+    public void disabledPeriodic() {
         try {
             if (countFails >= 50) {
                 countFails--;
@@ -148,29 +209,21 @@ class IgneousLauncherImpl extends IterativeRobot implements IgneousLauncher {
                 }
             }
         } catch (Throwable thr) {
-            Logger.log(LogLevel.SEVERE, "Critical Code Failure in Disabled Periodic", thr);
+            Logger.severe("Critical Code Failure in Disabled Periodic", thr);
             countFails += 10;
         }
     }
-    /**
-     * Produced when the robot enters teleop mode.
-     */
-    protected EventStatus startedTeleop = new EventStatus();
 
-    public final void teleopInit() {
+    public void teleopInit() {
         try {
             Logger.fine(DriverStation.getInstance().isFMSAttached() ? "Began teleop on FMS" : "Began teleop mode");
             startedTeleop.produce();
         } catch (Throwable thr) {
-            Logger.log(LogLevel.SEVERE, "Critical Code Failure in Teleop Init", thr);
+            Logger.severe("Critical Code Failure in Teleop Init", thr);
         }
     }
-    /**
-     * Produced during teleop mode.
-     */
-    protected EventStatus duringTeleop = new EventStatus();
 
-    public final void teleopPeriodic() {
+    public void teleopPeriodic() {
         try {
             if (countFails >= 50) {
                 countFails--;
@@ -188,29 +241,21 @@ class IgneousLauncherImpl extends IterativeRobot implements IgneousLauncher {
                 }
             }
         } catch (Throwable thr) {
-            Logger.log(LogLevel.SEVERE, "Critical Code Failure in Teleop Periodic", thr);
+            Logger.severe("Critical Code Failure in Teleop Periodic", thr);
             countFails += 10;
         }
     }
-    /**
-     * Produced when the robot enters testing mode.
-     */
-    protected EventStatus startedTesting = new EventStatus();
 
-    public final void testInit() {
+    public void testInit() {
         try {
             Logger.fine(DriverStation.getInstance().isFMSAttached() ? "Began testing on FMS (?????)" : "Began testing mode");
             startedTesting.produce();
         } catch (Throwable thr) {
-            Logger.log(LogLevel.SEVERE, "Critical Code Failure in Testing Init", thr);
+            Logger.severe("Critical Code Failure in Testing Init", thr);
         }
     }
-    /**
-     * Produced during testing mode.
-     */
-    protected EventStatus duringTesting = new EventStatus();
 
-    public final void testPeriodic() {
+    public void testPeriodic() {
         try {
             if (countFails >= 50) {
                 countFails--;
@@ -228,13 +273,13 @@ class IgneousLauncherImpl extends IterativeRobot implements IgneousLauncher {
                 }
             }
         } catch (Throwable thr) {
-            Logger.log(LogLevel.SEVERE, "Critical Code Failure in Testing Periodic", thr);
+            Logger.severe("Critical Code Failure in Testing Periodic", thr);
             countFails += 10;
         }
     }
 
     public IJoystick getKinectJoystick(boolean isRightStick) {
-        return new CJoystick(isRightStick ? 6 : 5, globalPeriodic);
+        return new CJoystick(isRightStick ? 6 : 5).attach(globalPeriodic);
     }
 
     public BooleanOutput makeSolenoid(int id) {
@@ -257,7 +302,7 @@ class IgneousLauncherImpl extends IterativeRobot implements IgneousLauncher {
 
     public FloatInputPoll getBatteryVoltage() {
         return new FloatInputPoll() {
-            DriverStation d = DriverStation.getInstance();
+            private final DriverStation d = DriverStation.getInstance();
 
             public float get() {
                 return (float) d.getBatteryVoltage();
@@ -280,7 +325,7 @@ class IgneousLauncherImpl extends IterativeRobot implements IgneousLauncher {
         chan.setAverageBits(averageBits);
         return new FloatInputPoll() {
             public float get() {
-                return (float) chan.getAverageValue();
+                return chan.getAverageValue();
             }
         };
     }
@@ -428,7 +473,7 @@ class IgneousLauncherImpl extends IterativeRobot implements IgneousLauncher {
     }
 
     public IJoystick getJoystick(int id) {
-        return new CJoystick(id, globalPeriodic);
+        return new CJoystick(id).attach(globalPeriodic);
     }
 
     public FloatOutput makeMotor(int id, int type) {

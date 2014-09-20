@@ -27,5 +27,8 @@ package ccre.igneous;
  */
 public interface IgneousApplication {
 
+    /**
+     * Set up the robot. This is called exactly once by the CCRE runtime.
+     */
     public void setupRobot();
 }

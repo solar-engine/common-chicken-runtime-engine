@@ -28,7 +28,6 @@ import ccre.ctrl.FloatMixing;
 import ccre.ctrl.IJoystick;
 import ccre.ctrl.Ticker;
 import ccre.instinct.InstinctModule;
-import ccre.log.Logger;
 
 /**
  * The main class to access Igneous channels.
@@ -49,13 +48,8 @@ public class Igneous {
     /**
      * The IgneousLauncher providing access to the robot.
      */
-    public static final IgneousLauncher launcher = IgneousLauncherHolder.launcher;
+    public static final IgneousLauncher launcher = IgneousLauncherHolder.getLauncher();
 
-    static {
-        if (launcher == null) {
-            throw new RuntimeException("No Igneous launcher! Are you on an Igneous platform? There should be a registered launcher before ccre.igneous.Igneous is initialized, or this error will occur.");
-        }
-    }
     /**
      * Joystick 1 on the Driver Station.
      */
@@ -503,6 +497,20 @@ public class Igneous {
         return launcher.makeAccelerometerAxis(port, sensitivity, zeropoint);
     }
 
+    /**
+     * Register the specified InstinctModule as an autonomous mode. Note that
+     * registering multiple autonomous modes probably won't work properly.
+     *
+     * @param module the InstinctModule to register.
+     */
+    public static void registerAutonomous(InstinctModule module) {
+        module.updateWhen(globalPeriodic);
+        module.setShouldBeRunning(BooleanMixing.andBooleans(BooleanMixing.invert(getIsDisabled()), getIsAutonomous()));
+    }
+
+    Igneous() {
+    }
+
     private static class DSFloatReadout implements FloatOutput {
 
         private final String prefix;
@@ -531,10 +539,5 @@ public class Igneous {
         public void set(boolean f) {
             sendDSUpdate(prefix + f, line);
         }
-    }
-
-    public static void registerAutonomous(InstinctModule module) {
-        module.updateWhen(globalPeriodic);
-        module.setShouldBeRunning(BooleanMixing.andBooleans(BooleanMixing.invert(getIsDisabled()), getIsAutonomous()));
     }
 }

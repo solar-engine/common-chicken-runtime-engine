@@ -19,7 +19,6 @@
 package ccre.rload;
 
 import ccre.concurrency.ReporterThread;
-import ccre.log.LogLevel;
 import ccre.log.Logger;
 import ccre.net.ClientSocket;
 import ccre.net.Network;
@@ -136,7 +135,7 @@ public class RLoadServer extends ReporterThread {
             }
             Logger.info("Created watcher file.");
         } catch (IOException ex) {
-            Logger.log(LogLevel.SEVERE, "Error during client file transfer!", ex);
+            Logger.severe("Error during client file transfer!", ex);
         }
     }
 }

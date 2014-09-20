@@ -22,7 +22,6 @@ import ccre.channel.EventInput;
 import ccre.channel.EventOutput;
 import ccre.channel.EventStatus;
 import ccre.concurrency.ReporterThread;
-import ccre.log.LogLevel;
 import ccre.log.Logger;
 
 /**
@@ -72,8 +71,8 @@ public final class Ticker implements EventInput {
     }
 
     /**
-     * Adds an EventOutput to listen for the periodically fired events
-     * produced by this EventInput.
+     * Adds an EventOutput to listen for the periodically fired events produced
+     * by this EventInput.
      *
      * @param ec The EventOutput to add.
      */
@@ -88,8 +87,8 @@ public final class Ticker implements EventInput {
     }
 
     /**
-     * Removes the specified EventOutput, so that its eventFired method will
-     * no longer be called by this EventInput.
+     * Removes the specified EventOutput, so that its eventFired method will no
+     * longer be called by this EventInput.
      *
      * @param ec The EventOutput to remove.
      */
@@ -153,7 +152,7 @@ public final class Ticker implements EventInput {
                     }
                 }
             } catch (Throwable thr) {
-                Logger.log(LogLevel.SEVERE, "Exception in Ticker main loop!", thr);
+                Logger.severe("Exception in Ticker main loop!", thr);
                 countFails += 10;
             }
         }

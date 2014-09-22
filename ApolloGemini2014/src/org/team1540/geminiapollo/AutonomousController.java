@@ -105,7 +105,8 @@ public class AutonomousController extends InstinctModule {
             Logger.fine("Skip Arm");
         }
         Logger.fine("Arrived");
-        alignArm.event();
+        //alignArm.event();
+        lowerArm.event();
         float timeoutTime = currentTime.get() + hotcheckTimeoutAfter.get();
         BooleanInputPoll timedout = FloatMixing.floatIsAtLeast(currentTime, timeoutTime);
         if (waitUntilOneOf(new BooleanInputPoll[]{kinectTrigger, timedout}) != 0) {

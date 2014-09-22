@@ -72,7 +72,7 @@ public class SuperCanvasTest extends javax.swing.JFrame {
         canvas.add(new LoggingComponent(300, 300));
         canvas.add(new TrashComponent(200, 200));
         canvas.add(new NetworkPaletteComponent(400, 200));
-        canvas.add(new NetworkProfilerComponent());
+        canvas.add(new CluckNetworkingComponent());
         canvas.add(new EditModeComponent());
         //canvas.add(lpc);
         canvas.add(new SaveLoadComponent(0, 0));

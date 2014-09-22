@@ -35,13 +35,13 @@ import java.awt.Graphics2D;
  *
  * @author skeggsc
  */
-public class NetworkProfilerComponent extends SuperCanvasComponent {
+public class CluckNetworkingComponent extends SuperCanvasComponent {
 
     private static final long serialVersionUID = 8969267415884377303L;
     
     private final StringBuilder address = new StringBuilder("roboRIO-$T$E$A$M.local:1540");
     private boolean expanded = false;
-    private CluckTCPClient client;
+    private transient CluckTCPClient client;
 
     @Override
     public void render(Graphics2D g, int screenWidth, int screenHeight, FontMetrics fontMetrics, int mouseX, int mouseY) {

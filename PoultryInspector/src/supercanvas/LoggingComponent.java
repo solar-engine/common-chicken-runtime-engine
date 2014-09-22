@@ -278,14 +278,14 @@ public class LoggingComponent extends DraggableBoxComponent {
 
     @Override
     public boolean onInteract(int x, int y) {
-        if (x < centerX) {
-            resizeState = ResizeState.SCROLL;
-            getPanel().startDrag(this, x, y);
-        } else if (isClearing) {
+        if (isClearing) {
             if (x < clearingThreshold) {
                 lines.clear();
             }
             isClearing = false;
+        } else if (x < centerX) {
+            resizeState = ResizeState.SCROLL;
+            getPanel().startDrag(this, x, y);
         } else {
             isClearing = true;
         }

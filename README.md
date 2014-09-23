@@ -7,6 +7,8 @@ CCRE BRANCHES:
 * stable: A known-working version of the codebase. You shouldn't use this unless you really need a consistent version of the code.
 * ccre2015: The version currently being upgraded for the 2015 control system. Not useful right now unless you're a Beta team.
 
+You may wish to consider pointing yourself at specific release tags instead of branches if you wish to have stability. Click on tags, and find the highest-numbered version not marked as a prerelease.
+
 **Go [here](https://bitbucket.org/col6y/common-chicken-runtime-engine/wiki) to see the main documentation.**
 
 The old documentation can be found in DOCUMENTATION.MD under the SOURCE tab, but **you probably don't want this.**

@@ -142,6 +142,7 @@ public class CluckNetworkingComponent extends SuperCanvasComponent {
         } else if (getPanel().editing == address) {
             getPanel().editing = null;
         }
+        getPanel().raise(this);
         return true;
     }
 }

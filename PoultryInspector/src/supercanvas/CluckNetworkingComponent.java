@@ -125,7 +125,7 @@ public class CluckNetworkingComponent extends SuperCanvasComponent {
         if (expanded) {
             return x >= getPanel().getWidth() - 200 && y <= 100;
         } else {
-            return x >= getPanel().getWidth() - 200 && y <= 20;
+            return x >= getPanel().getWidth() - 50 && y <= 20;
         }
     }
 

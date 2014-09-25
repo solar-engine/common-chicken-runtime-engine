@@ -113,11 +113,16 @@ public class PaletteComponent<T extends Iterable<? extends PaletteEntry>> extend
             halfHeight = 200;
         }
     }
+    
+    protected boolean onInteractWithTitleBar() {
+        // Do nothing by default.
+        return false;
+    }
 
     @Override
     public boolean onInteract(int x, int y) {
         if (y < centerY - halfHeight + 24) {
-            return false;
+            return onInteractWithTitleBar();
         }
         int xPos = centerX - halfWidth + 16;
         int yPos = centerY - halfHeight + 36 - scroll;

@@ -114,6 +114,11 @@ public class NetworkPaletteComponent extends PaletteComponent<Collection<Network
         start();
     }
 
+    protected boolean onInteractWithTitleBar() {
+        researcher.event();
+        return true;
+    }
+
     private void start() {
         this.researcher = new PauseTimer(500);
         final EventOutput searcher = CluckPublisher.setupSearching(Cluck.getNode(), new CluckRemoteListener() {

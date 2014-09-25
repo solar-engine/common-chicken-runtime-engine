@@ -271,7 +271,7 @@ public class LoggingComponent extends DraggableBoxComponent {
         display = "Clear";
         g.setColor(Color.RED);
         g.drawString(display, centerX - halfWidth / 2 - fontMetrics.stringWidth(display) / 2, centerY);
-        display = "Preserve";
+        display = "Keep";
         g.setColor(Color.GREEN.darker());
         g.drawString(display, centerX + halfWidth / 2 - fontMetrics.stringWidth(display) / 2, centerY);
     }

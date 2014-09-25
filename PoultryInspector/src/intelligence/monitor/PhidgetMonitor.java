@@ -171,8 +171,10 @@ public class PhidgetMonitor implements IPhidgetMonitor, AttachListener, DetachLi
         try {
             lcd.openAny();
             ifa.openAny();
-            lcd.setBacklight(true);
-            lcd.setContrast(100);
+            if (lcd.isAttached()) {
+                lcd.setBacklight(true);
+                lcd.setContrast(100);
+            }
         } catch (PhidgetException ex) {
             Logger.severe("Could not initialize Phidget!", ex);
         }
@@ -189,6 +191,7 @@ public class PhidgetMonitor implements IPhidgetMonitor, AttachListener, DetachLi
         for (int i = 0; i < ANALOG_COUNT; i++) {
             Cluck.publish("phidget-ai" + i, (FloatInput) analogs[i]);
         }
+        Cluck.getNode().notifyNetworkModified();
     }
 
     @Override
@@ -215,6 +218,7 @@ public class PhidgetMonitor implements IPhidgetMonitor, AttachListener, DetachLi
         for (int i = 0; i < ANALOG_COUNT; i++) {
             Cluck.getNode().removeLink("phidget-ai" + i);
         }
+        Cluck.getNode().notifyNetworkModified();
     }
 
     @Override

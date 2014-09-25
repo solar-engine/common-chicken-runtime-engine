@@ -46,25 +46,17 @@ public class VirtualPhidgetMonitor extends javax.swing.JFrame implements IPhidge
 
     private static final long serialVersionUID = -7676442704909536104L;
     private final BooleanStatus attached = new BooleanStatus();
-    private final EventOutput wantClose;
+    private EventOutput wantClose;
 
     /**
      * Creates new form VirtualPhidgetDevice
      */
     public VirtualPhidgetMonitor() {
         initComponents();
-        this.wantClose = null;
     }
-
-    /**
-     * Creates new form VirtualPhidgetDevice
-     *
-     * @param wantClose the event to notify when this monitor is trying to
-     * close.
-     */
-    public VirtualPhidgetMonitor(EventOutput wantClose) {
-        initComponents();
-        this.wantClose = wantClose;
+    
+    public void setCloseEvent(EventOutput wantClose) {
+        this.wantClose = wantClose; 
     }
 
     /**
@@ -323,7 +315,8 @@ public class VirtualPhidgetMonitor extends javax.swing.JFrame implements IPhidge
         }
 
         private Object readResolve() {
-            VirtualPhidgetMonitor out = new VirtualPhidgetMonitor(wantClose);
+            VirtualPhidgetMonitor out = new VirtualPhidgetMonitor();
+            out.setCloseEvent(wantClose);
             if (isAttached) {
                 out.share();
             }

@@ -29,33 +29,37 @@ import java.awt.GradientPaint;
 import java.awt.Graphics2D;
 import java.awt.Shape;
 import java.awt.geom.RoundRectangle2D;
-import java.io.Serializable;
 
 /**
  * A component that represents a Phidget Monitor.
  *
  * @author skeggsc
  */
-public class PhidgetMonitorComponent extends DraggableBoxComponent {
+public class PhidgetMonitorComponent<M extends IPhidgetMonitor> extends DraggableBoxComponent {
     
-    public static class VirtualPhidget extends PhidgetMonitorComponent {
+    public static class VirtualPhidget extends PhidgetMonitorComponent<VirtualPhidgetMonitor> implements EventOutput {
         private static final long serialVersionUID = -3640780784824672778L;
 
         public VirtualPhidget(int cx, int cy) {
-            super(cx, cy, true);
+            super(cx, cy, "VirtualPhidget", new VirtualPhidgetMonitor());
+            monitor.setCloseEvent(this);
+        }
+        @Override
+        public void event() {
+            getPanel().remove(this);
         }
     }
 
-    public static class PhysicalPhidget extends PhidgetMonitorComponent {
+    public static class PhysicalPhidget extends PhidgetMonitorComponent<PhidgetMonitor> {
         private static final long serialVersionUID = 1440999334054971431L;
 
         public PhysicalPhidget(int cx, int cy) {
-            super(cx, cy, false);
+            super(cx, cy, "PhysicalPhidget", new PhidgetMonitor());
         }
     }
 
     private static final long serialVersionUID = -8989662604456982035L;
-    private final IPhidgetMonitor monitor;
+    protected final M monitor;
     private final String label;
     private boolean shared = false;
 
@@ -64,15 +68,12 @@ public class PhidgetMonitorComponent extends DraggableBoxComponent {
      *
      * @param cx the X-coordinate.
      * @param cy the Y-coordinate.
+     * @param monitor the monitor to display.
      */
-    private PhidgetMonitorComponent(int cx, int cy, boolean isVirtual) {
+    private PhidgetMonitorComponent(int cx, int cy, String label, M monitor) {
         super(cx, cy, true);
-        this.label = isVirtual ? "VirtualPhidget" : "PhysicalPhidget";
-        if (isVirtual) {
-            this.monitor = new VirtualPhidgetMonitor(new SerializableUnsharer());
-        } else {
-            this.monitor = new PhidgetMonitor();
-        }
+        this.label = label;
+        this.monitor = monitor;
     }
 
     @Override
@@ -109,15 +110,4 @@ public class PhidgetMonitorComponent extends DraggableBoxComponent {
             shared = hasPanel;
         }
     }
-
-    private class SerializableUnsharer implements EventOutput, Serializable {
-
-        private static final long serialVersionUID = 3550462781276699410L;
-
-        @Override
-        public void event() {
-            getPanel().remove(PhidgetMonitorComponent.this);
-        }
-    }
-
 }

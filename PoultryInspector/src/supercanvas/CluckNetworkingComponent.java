@@ -18,8 +18,10 @@
  */
 package supercanvas;
 
+import ccre.channel.EventOutput;
 import ccre.cluck.Cluck;
 import ccre.cluck.tcp.CluckTCPClient;
+import ccre.ctrl.Ticker;
 import ccre.net.CountingNetworkProvider;
 import ccre.net.Network;
 import ccre.util.CCollection;
@@ -38,10 +40,19 @@ import java.awt.Graphics2D;
 public class CluckNetworkingComponent extends SuperCanvasComponent {
 
     private static final long serialVersionUID = 8969267415884377303L;
-    
+
     private final StringBuilder address = new StringBuilder("roboRIO-$T$E$A$M.local:1540");
     private boolean expanded = false;
     private transient CluckTCPClient client;
+
+    public CluckNetworkingComponent() {
+        new Ticker(5000).send(new EventOutput() {
+            @Override
+            public void event() {
+                updateConnection();
+            }
+        });
+    }
 
     @Override
     public void render(Graphics2D g, int screenWidth, int screenHeight, FontMetrics fontMetrics, int mouseX, int mouseY) {
@@ -61,7 +72,7 @@ public class CluckNetworkingComponent extends SuperCanvasComponent {
     protected void onChangePanel(SuperCanvasPanel panel) {
         updateConnection();
     }
-    
+
     private synchronized void updateConnection() {
         if (getPanel() == null) {
             if (client != null) {
@@ -78,7 +89,7 @@ public class CluckNetworkingComponent extends SuperCanvasComponent {
             }
         }
     }
-    
+
     @Override
     public void onPressedEnter() {
         updateConnection();

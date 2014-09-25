@@ -279,7 +279,7 @@ public final class SuperCanvasPanel extends JPanel {
         @Override
         public void mousePressed(MouseEvent e) {
             try {
-                if (!editmode) {
+                if (!editmode ^ (e.getButton() == MouseEvent.BUTTON3)) {
                     for (ListIterator<SuperCanvasComponent> it = components.listIterator(components.size()); it.hasPrevious();) {
                         SuperCanvasComponent comp = it.previous();
                         if (editmode || !comp.hideInOperateMode) {

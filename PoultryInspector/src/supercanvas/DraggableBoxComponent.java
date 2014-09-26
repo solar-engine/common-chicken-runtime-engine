@@ -110,4 +110,13 @@ public abstract class DraggableBoxComponent extends SuperCanvasComponent {
             return true;
         }
     }
+
+    /**
+     * Check if this component is being dragged.
+     * 
+     * @return if this component is being dragged.
+     */
+    public boolean isBeingDragged() {
+        return getPanel().isBeingDragged(this);
+    }
 }

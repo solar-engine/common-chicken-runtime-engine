@@ -21,6 +21,8 @@ package supercanvas;
 import ccre.channel.FloatInput;
 import ccre.channel.FloatOutput;
 import ccre.channel.FloatStatus;
+import ccre.ctrl.FloatMixing;
+
 import java.awt.Color;
 import java.awt.FontMetrics;
 import java.awt.Graphics2D;
@@ -34,6 +36,8 @@ public class FloatControlComponent extends BaseChannelComponent implements Float
 
     private static final long serialVersionUID = 8379882900431074283L;
     private final FloatStatus stat = new FloatStatus();
+    private final FloatOutput rawOut;
+    private boolean hasSentInitial = false;
 
     /**
      * Create a new FloatControlComponent with a FloatOutput to control.
@@ -45,7 +49,7 @@ public class FloatControlComponent extends BaseChannelComponent implements Float
      */
     public FloatControlComponent(int cx, int cy, String name, FloatOutput out) {
         super(cx, cy, name);
-        stat.send(out);
+        rawOut = out;
     }
 
     /**
@@ -57,6 +61,7 @@ public class FloatControlComponent extends BaseChannelComponent implements Float
      */
     public FloatControlComponent(int cx, int cy, String name) {
         super(cx, cy, name);
+        rawOut = FloatMixing.ignoredFloatOutput;
     }
 
     @Override
@@ -79,19 +84,21 @@ public class FloatControlComponent extends BaseChannelComponent implements Float
         g.drawLine(centerX + halfWidth / 3, centerY + halfHeight / 2 - 1, centerX + halfWidth / 3, centerY + 10);
         g.drawLine(centerX - 3 * halfWidth / 6, centerY + halfHeight / 2 - 1, centerX - 3 * halfWidth / 6, centerY + 15);
         g.drawLine(centerX + 3 * halfWidth / 6, centerY + halfHeight / 2 - 1, centerX + 3 * halfWidth / 6, centerY + 15);
-        float value = this.stat.get();
-        int ptrCtr = centerX + (int) (halfWidth * 2 / 3 * value);
-        if (value < 0) {
-            g.setColor(value == -1 ? Color.RED : Color.RED.darker().darker());
-        } else if (value > 0) {
-            g.setColor(value == 1 ? Color.GREEN : Color.GREEN.darker().darker());
-        } else {
-            g.setColor(Color.ORANGE);
+        if (hasSentInitial) {
+            float value = this.stat.get();
+            int ptrCtr = centerX + (int) (halfWidth * 2 / 3 * value);
+            if (value < 0) {
+                g.setColor(value == -1 ? Color.RED : Color.RED.darker().darker());
+            } else if (value > 0) {
+                g.setColor(value == 1 ? Color.GREEN : Color.GREEN.darker().darker());
+            } else {
+                g.setColor(Color.ORANGE);
+            }
+            g.drawPolygon(new int[] { ptrCtr - 12, ptrCtr - 8, ptrCtr - 12 }, new int[] { centerY - 8, centerY - 4, centerY }, 3);
+            g.drawPolygon(new int[] { ptrCtr + 12, ptrCtr + 8, ptrCtr + 12 }, new int[] { centerY - 8, centerY - 4, centerY }, 3);
+            g.fillRect(ptrCtr - 5, centerY - halfHeight / 2 + 1, 11, halfHeight / 2 - 4);
+            g.fillPolygon(new int[] { ptrCtr - 5, ptrCtr, ptrCtr + 6 }, new int[] { centerY - 3, centerY + 3, centerY - 3 }, 3);
         }
-        g.drawPolygon(new int[] { ptrCtr - 12, ptrCtr - 8, ptrCtr - 12 }, new int[] { centerY - 8, centerY - 4, centerY }, 3);
-        g.drawPolygon(new int[] { ptrCtr + 12, ptrCtr + 8, ptrCtr + 12 }, new int[] { centerY - 8, centerY - 4, centerY }, 3);
-        g.fillRect(ptrCtr - 5, centerY - halfHeight / 2 + 1, 11, halfHeight / 2 - 4);
-        g.fillPolygon(new int[] { ptrCtr - 5, ptrCtr, ptrCtr + 6 }, new int[] { centerY - 3, centerY + 3, centerY - 3 }, 3);
     }
 
     @Override
@@ -101,12 +108,19 @@ public class FloatControlComponent extends BaseChannelComponent implements Float
 
     @Override
     public boolean onInteract(int x, int y) {
+        if (isBeingDragged()) {
+            return false;
+        }
         float value = Math.min(1, Math.max(-1, (x - centerX) / (float) (halfWidth * 2 / 3)));
         if (-0.1 < value && value < 0.1) {
             value = 0;
         }
-        if (value != stat.get()) {
+        if (value != stat.get() || !hasSentInitial) {
             stat.set(value);
+            if (!hasSentInitial) {
+                stat.send(rawOut);
+                hasSentInitial = true;
+            }
         }
         return true;
     }

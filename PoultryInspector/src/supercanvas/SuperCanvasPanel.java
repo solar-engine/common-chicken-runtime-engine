@@ -184,6 +184,15 @@ public final class SuperCanvasPanel extends JPanel {
         relActiveX = component.getDragRelX(x);
         relActiveY = component.getDragRelY(y);
     }
+    
+    /**
+     * Check if the given object is being dragged.
+     * 
+     * @return if the specified object is being dragged.
+     */
+    public boolean isBeingDragged(SuperCanvasComponent component) {
+        return activeEntity == component;
+    }
 
     /**
      * Called to notify components that enter has been pressed, for example to

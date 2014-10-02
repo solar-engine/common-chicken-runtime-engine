@@ -56,16 +56,16 @@ public class TrashComponent extends DraggableBoxComponent {
 
     @Override
     public void render(Graphics2D g, int screenWidth, int screenHeight, FontMetrics fontMetrics, int mouseX, int mouseY) {
+        Rendering.drawBody(Color.RED, g, this);
         // TODO: Improve graphics?
-        g.setColor(Color.GRAY);
-        g.fillRect(centerX - halfWidth, centerY - halfHeight * 2 / 3, halfWidth * 2, halfHeight * 4 / 3);
-        g.fillOval(centerX - halfWidth - 1, centerY + halfHeight / 3, halfWidth * 2, halfHeight * 2 / 3);
-        g.setColor(Color.RED);
-        g.drawLine(centerX - halfWidth / 4, centerY, centerX + halfWidth / 4, centerY + halfHeight / 2);
-        g.drawLine(centerX + halfWidth / 4, centerY, centerX - halfWidth / 4, centerY + halfHeight / 2);
-        g.setColor(Color.LIGHT_GRAY);
-        g.fillOval(centerX - halfWidth - 1, centerY - halfHeight, halfWidth * 2, halfHeight * 2 / 3);
-        //g.fillRoundRect(centerX - halfWidth, centerY - halfHeight, halfWidth * 2, halfHeight * 2, 10, 10);
+        //g.setColor(Color.GRAY);
+        //g.fillRect(centerX - halfWidth, centerY - halfHeight * 2 / 3, halfWidth * 2, halfHeight * 4 / 3);
+        //g.fillOval(centerX - halfWidth - 1, centerY + halfHeight / 3, halfWidth * 2, halfHeight * 2 / 3);
+        g.setColor(Color.BLACK);
+        g.drawLine(centerX - halfWidth / 2, centerY - halfHeight / 2, centerX + halfWidth / 2, centerY + halfHeight / 2);
+        g.drawLine(centerX + halfWidth / 2, centerY - halfHeight / 2, centerX - halfWidth / 2, centerY + halfHeight / 2);
+        //g.setColor(Color.LIGHT_GRAY);
+        //g.fillOval(centerX - halfWidth - 1, centerY - halfHeight, halfWidth * 2, halfHeight * 2 / 3);
     }
 
     @Override

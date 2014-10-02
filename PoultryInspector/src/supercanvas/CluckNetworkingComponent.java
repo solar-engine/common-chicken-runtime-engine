@@ -57,12 +57,11 @@ public class CluckNetworkingComponent extends SuperCanvasComponent {
     @Override
     public void render(Graphics2D g, int screenWidth, int screenHeight, FontMetrics fontMetrics, int mouseX, int mouseY) {
         if (expanded) {
-            g.setPaint(new GradientPaint(screenWidth - 200, 100, Color.LIGHT_GRAY, screenWidth, 0, Color.LIGHT_GRAY.darker()));
-            g.fillRoundRect(screenWidth - 200, 0, screenWidth, 100, 10, 10);
-            g.setColor(Color.RED);
+            Rendering.drawBody(Color.GRAY, g, screenWidth - 100, 50, 200, 100);
+            g.setColor(Color.WHITE);
             g.drawString(address.toString(), screenWidth - 190, 50);
         } else {
-            g.setColor(contains(mouseX, mouseY) ? Color.BLUE : Color.BLACK);
+            g.setColor(contains(mouseX, mouseY) ? Color.CYAN : Color.WHITE);
             String countReport = "~" + CountingNetworkProvider.getTotal() / 128 + "kbs";
             g.drawString(countReport, screenWidth - fontMetrics.stringWidth(countReport), fontMetrics.getAscent());
         }

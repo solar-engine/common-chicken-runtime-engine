@@ -193,8 +193,7 @@ public class LoggingComponent extends DraggableBoxComponent {
     }
 
     private void drawBackground(Graphics2D g) {
-        g.setPaint(new GradientPaint(centerX + 20, centerY - halfHeight, Color.WHITE, centerX - 20, centerY + halfHeight, Color.WHITE.darker()));
-        g.fillRoundRect(centerX - halfWidth + 1, centerY - halfHeight + 1, halfWidth * 2 - 2, halfHeight * 2 - 2, 10, 10);
+        Rendering.drawBody(Color.LIGHT_GRAY.brighter(), g, this);
         g.setColor(Color.BLACK);
         if (getPanel().editmode) {
             g.drawLine(centerX - halfWidth + 6, centerY - halfHeight + 10, centerX - halfWidth + 10, centerY - halfHeight + 6);
@@ -212,8 +211,9 @@ public class LoggingComponent extends DraggableBoxComponent {
         } else if (frac > 1) {
             frac = 1;
         }
-        g.setColor(scroll == 0 ? Color.GREEN : Color.BLACK);
-        g.fillOval(centerX - halfWidth + 4, centerY - halfHeight + 8 + (int) ((2 * halfHeight - 24) * frac), 8, 8);
+        //g.setColor(scroll == 0 ? Color.GREEN : Color.BLACK);
+        //g.fillOval(centerX - halfWidth + 4, centerY - halfHeight + 8 + (int) ((2 * halfHeight - 24) * frac), 8, 8);
+        Rendering.drawScrollbar(g, scroll != 0, centerX - halfWidth + 8, centerY - halfHeight + 12 + (int) ((2 * halfHeight - 24) * frac));
     }
 
     private synchronized int drawLoggedLines(Graphics2D g, FontMetrics fontMetrics, int initialYPos, int xPos, int rowHeight) {
@@ -252,10 +252,9 @@ public class LoggingComponent extends DraggableBoxComponent {
     }
 
     private void drawClearingOverlay(Graphics2D g, FontMetrics fontMetrics, int mouseX) {
-        g.setPaint(new GradientPaint(centerX + 20, centerY - halfHeight, Color.WHITE, centerX - 20, centerY + halfHeight, Color.WHITE.darker()));
         Composite composite = g.getComposite();
         g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_ATOP, 0.7f));
-        g.fillRoundRect(centerX - halfWidth + 1, centerY - halfHeight + 1, halfWidth * 2 - 2, halfHeight * 2 - 2, 10, 10);
+        Rendering.drawBody(Color.LIGHT_GRAY, g, this);
         g.setComposite(composite);
         String display = "Really clear?";
         int width = fontMetrics.stringWidth(display);

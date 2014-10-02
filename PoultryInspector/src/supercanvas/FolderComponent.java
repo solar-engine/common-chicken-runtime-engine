@@ -46,14 +46,10 @@ public class FolderComponent extends DraggableBoxComponent {
 
     @Override
     public void render(Graphics2D g, int screenWidth, int screenHeight, FontMetrics fontMetrics, int mouseX, int mouseY) {
-        // TODO: Upgrade the appearance of this component.
         this.halfWidth = 20;
         this.halfHeight = 20;
+        Rendering.drawBody(Color.YELLOW, g, this);
         String str = "[" + components.size() + "]";
-        g.setColor(Color.BLACK);
-        g.fillRect(centerX - halfWidth, centerY - halfHeight, halfWidth * 2, halfHeight * 2);
-        g.setColor(Color.YELLOW);
-        g.fillRect(centerX - halfWidth + 1, centerY - halfHeight + 1, halfWidth * 2 - 2, halfHeight * 2 - 2);
         g.setColor(Color.BLACK);
         g.drawString(str, centerX - fontMetrics.stringWidth(str) / 2, centerY);
     }

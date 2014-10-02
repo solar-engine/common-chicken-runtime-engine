@@ -209,9 +209,11 @@ public final class SuperCanvasPanel extends JPanel {
 
     private void renderBackground(Graphics2D g, int w, int h, FontMetrics fontMetrics, int mouseX, int mouseY) {
         if (editmode) {
-            g.setPaint(new GradientPaint(0, h, Color.BLACK, w, 0, Color.DARK_GRAY));
+            //g.setPaint(new GradientPaint(0, h, Color.BLACK, w, 0, Color.DARK_GRAY));
+            g.setColor(Color.BLACK);
         } else {
-            g.setPaint(new GradientPaint(0, h, Color.ORANGE, w, 0, Color.RED));
+            //g.setPaint(new GradientPaint(0, h, Color.ORANGE, w, 0, Color.RED));
+            g.setColor(Color.WHITE);
         }
         g.fillRect(0, 0, w, h);
     }

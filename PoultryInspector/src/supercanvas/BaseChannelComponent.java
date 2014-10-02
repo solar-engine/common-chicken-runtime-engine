@@ -22,6 +22,7 @@ import java.awt.Color;
 import java.awt.FontMetrics;
 import java.awt.GradientPaint;
 import java.awt.Graphics2D;
+import java.awt.Shape;
 import java.awt.geom.RoundRectangle2D;
 
 /**
@@ -54,8 +55,7 @@ public abstract class BaseChannelComponent extends DraggableBoxComponent {
     public final void render(Graphics2D g, int screenWidth, int screenHeight, FontMetrics fontMetrics, int mouseX, int mouseY) {
         halfWidth = Math.max(70, g.getFontMetrics().stringWidth(name) / 2);
         halfHeight = halfWidth * 2 / 3;
-        g.setPaint(new GradientPaint(centerX, centerY, Color.YELLOW, centerX + halfHeight, centerY - halfHeight, Color.ORANGE));
-        g.fill(new RoundRectangle2D.Float(centerX - halfWidth, centerY - halfHeight, halfWidth * 2, halfHeight * 2, 15, 15));
+        Rendering.drawBody(Color.YELLOW, g, this);
         g.setColor(Color.BLACK);
         g.drawString(name, centerX - halfWidth + 5, centerY - halfHeight + 1 + g.getFontMetrics().getAscent());
         channelRender(g, screenWidth, screenHeight, fontMetrics, mouseX, mouseY);

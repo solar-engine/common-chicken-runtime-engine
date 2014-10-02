@@ -53,12 +53,9 @@ public class FictionalComponent extends DraggableBoxComponent {
 
     @Override
     public void render(Graphics2D g, int screenWidth, int screenHeight, FontMetrics fontMetrics, int mouseX, int mouseY) {
-        halfWidth = Math.max(70, Math.max(fontMetrics.stringWidth(name) / 2, fontMetrics.stringWidth(tstr) / 2));
+        halfWidth = Math.max(30, Math.max(fontMetrics.stringWidth(name) / 2, fontMetrics.stringWidth(tstr) / 2)) + 5;
         halfHeight = fontMetrics.getHeight() + 1;
-        GradientPaint gp = new GradientPaint(centerX, centerY, Color.LIGHT_GRAY, centerX + halfHeight, centerY - halfHeight, Color.GRAY);
-        g.setPaint(gp);
-        Shape s = new RoundRectangle2D.Float(centerX - halfWidth, centerY - halfHeight, halfWidth * 2, halfHeight * 2, 15, 15);
-        g.fill(s);
+        Rendering.drawBody(Color.GRAY, g, this);
         g.setColor(Color.BLACK);
         g.drawString(name, centerX - halfWidth + 5, centerY - halfHeight + 1 + fontMetrics.getAscent());
         g.drawString(tstr, centerX - halfWidth + 5, centerY - halfHeight + 1 + fontMetrics.getAscent() + fontMetrics.getHeight());

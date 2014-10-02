@@ -58,8 +58,7 @@ public class PaletteComponent<T extends Iterable<? extends PaletteEntry>> extend
     @Override
     public void render(Graphics2D g, int screenWidth, int screenHeight, FontMetrics fontMetrics, int mouseX, int mouseY) {
         calculatePaletteSize(fontMetrics);
-        g.setPaint(new GradientPaint(centerX + 20, centerY - halfHeight, Color.LIGHT_GRAY, centerX - 20, centerY + halfHeight, Color.LIGHT_GRAY.darker()));
-        g.fillRoundRect(centerX - halfWidth + 1, centerY - halfHeight + 1, halfWidth * 2 - 2, halfHeight * 2 - 2, 10, 10);
+        Rendering.drawBody(Color.LIGHT_GRAY, g, this);
         Shape clip = g.getClip();
         g.setClip(new Rectangle(centerX - halfWidth + 5, centerY - halfHeight + 24, halfWidth * 2 - 10, halfHeight * 2 - 36));
         int entryCount = drawPaletteEntries(mouseX, mouseY, centerX - halfWidth + 16, centerY - halfHeight + 36 - scroll, g, fontMetrics);
@@ -95,7 +94,7 @@ public class PaletteComponent<T extends Iterable<? extends PaletteEntry>> extend
             frac = 1;
         }
         g.setColor(scroll == 0 ? Color.GREEN : Color.BLACK);
-        g.fillOval(centerX - halfWidth + 4, centerY - halfHeight + 8 + (int) ((2 * halfHeight - 24) * frac), 8, 8);
+        Rendering.drawScrollbar(g, scroll != 0, centerX - halfWidth + 8, centerY - halfHeight + 12 + (int) ((2 * halfHeight - 24) * frac));
     }
 
     private void calculatePaletteSize(FontMetrics fontMetrics) {

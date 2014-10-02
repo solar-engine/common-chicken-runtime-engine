@@ -80,10 +80,7 @@ public class PhidgetMonitorComponent<M extends IPhidgetMonitor> extends Draggabl
     public void render(Graphics2D g, int screenWidth, int screenHeight, FontMetrics fontMetrics, int mouseX, int mouseY) {
         halfWidth = Math.max(70, fontMetrics.stringWidth(label) / 2);
         halfHeight = fontMetrics.getHeight() / 2 + 1;
-        GradientPaint gp = new GradientPaint(centerX, centerY, Color.RED, centerX + halfHeight, centerY - halfHeight, Color.ORANGE);
-        g.setPaint(gp);
-        Shape s = new RoundRectangle2D.Float(centerX - halfWidth, centerY - halfHeight, halfWidth * 2, halfHeight * 2, 15, 15);
-        g.fill(s);
+        Rendering.drawBody(Color.RED, g, this);
         g.setColor(Color.BLACK);
         g.drawString(label, centerX - halfWidth + 5, centerY - halfHeight + 1 + fontMetrics.getAscent());
     }

@@ -10,7 +10,7 @@ public class EditModeComponent extends SuperCanvasComponent {
 
     @Override
     public void render(Graphics2D g, int screenWidth, int screenHeight, FontMetrics fontMetrics, int mouseX, int mouseY) {
-        g.setColor(Color.WHITE);
+        g.setColor(getPanel().editmode ? Color.WHITE : Color.BLACK);
         String countReport = getPanel().editmode ? "EDIT MODE" : "OPERATE MODE";
         g.drawString(countReport, 0, screenHeight - fontMetrics.getDescent());
     }

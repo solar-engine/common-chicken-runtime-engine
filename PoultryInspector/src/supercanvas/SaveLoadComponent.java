@@ -58,8 +58,7 @@ public class SaveLoadComponent extends SuperCanvasComponent {
     public void render(Graphics2D g, int screenWidth, int screenHeight, FontMetrics fontMetrics, int mouseX, int mouseY) {
         width = 4 + Math.max(fontMetrics.stringWidth("Save"), fontMetrics.stringWidth("Load"));
         height = 4 + fontMetrics.getHeight() * 2;
-        g.setPaint(new GradientPaint(x, y, Color.WHITE, x + width, y + height, Color.YELLOW));
-        g.fillRoundRect(x, y, width, height, 10, 10);
+        Rendering.drawBody(Color.YELLOW, g, x + width / 2, y + height / 2, width, height);
         g.setColor(Color.BLACK);
         g.drawString("Save", x + 2, y + 2 + fontMetrics.getAscent());
         btnBorder = y + fontMetrics.getHeight();

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <projectDescription>
-	<name>CCRE_Igneous</name>
+	<name>CCRE_Igneous_RoboRIO</name>
 	<comment></comment>
 	<projects>
 		<project>CommonChickenRuntimeEngine</project>

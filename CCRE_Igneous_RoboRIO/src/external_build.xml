@@ -9,7 +9,7 @@
   
   <property name="emulate.jar" value="${dist.dir}/EmulationTarget.jar"/>
   <property name="emulator.dir" value="../IgneousEmulator/bin"/>
-  <property name="classpath-new" value="${classpath}:../CCRE_Igneous/Igneous.jar"/>
+  <property name="classpath-new" value="${classpath}:../CCRE_Igneous_RoboRIO/Igneous.jar"/>
   
   <import file="${wpilib.ant.dir}/build.xml"/>
 
@@ -72,5 +72,7 @@
       </classpath>
     </java>
   </target>
+
+  <!-- <import file="../../CCRE_Igneous_cRIO/src/external_build_2014.xml"/> -->
 
 </project>

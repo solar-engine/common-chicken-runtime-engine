@@ -73,6 +73,6 @@
     </java>
   </target>
 
-  <!-- <import file="../../CCRE_Igneous_cRIO/src/external_build_2014.xml"/> -->
+  <import file="../../CCRE_Igneous_cRIO/src/external_build_2014.xml"/>
 
 </project>

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="src"/>
+	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/CommonChickenRuntimeEngine"/>
+	<classpathentry kind="lib" path="lib2014/networktables-crio.jar"/>
+	<classpathentry kind="lib" path="lib2014/squawk.jar"/>
+	<classpathentry kind="lib" path="lib2014/wpilibj.jar"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>

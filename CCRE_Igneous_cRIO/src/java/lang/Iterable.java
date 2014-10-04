@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 Colby Skeggs.
+ * Copyright 2013-2014 Colby Skeggs
  * 
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  * 
@@ -16,17 +16,23 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with the CCRE.  If not, see <http://www.gnu.org/licenses/>.
  */
-package ccre.downgrade;
+package java.lang;
+
+import java.util.Iterator;
 
 /**
- * This is a not-really-implemented implementation of
- * java.io.ObjectOutputStream. Don't use this. It is used when Retrotranslator
- * downgrades the code to 1.3, because 1.3 doesn't have ObjectOutputStream. It
- * doesn't have any functionality because serialization doesn't work like this
- * in 1.3.
+ * This a substitute for java.lang.Iterable for Squawk. Does nothing useful whatsoever except stuff can work.
  *
- * @see java.io.ObjectOutputStream
+ * @param <T> The type returned by the iterator.
+ * @see java.lang.Iterable
  * @author skeggsc
  */
-public class ObjectOutputStream {
+public interface Iterable<T> {
+
+    /**
+     * Returns an iterator over this object.
+     *
+     * @return The iterator.
+     */
+    public Iterator<T> iterator();
 }

@@ -2,19 +2,49 @@
 
 <project name="CCRE 2014 Build" default="run-2014">
 	<!-- Assumes that external_build.xml is including this. Don't use it otherwise! -->
+	<!-- Note that build.xml in the root of CCRE_Igneous_cRIO uses it for precompilation. -->
 
-	<fail unless="remoteaddress-2014" message="A remote address must be specified: add 'remoteaddress-2014=10.TE.AM.2' to main.properties. See SampleIgneousRobot for an example." />
+	<property name="ccre-root.dir" value="../.." />
 
 	<!-- TODO: Emulate for 2014 -->
-	<property name="lib-2014.dir" location="../CCRE_Igneous_cRIO/lib2014" />
-	<property name="igneous-2014.jar" location="../CCRE_Igneous_cRIO/Igneous.jar" />
-	<property name="squawk-2014.jar" location="${lib-2014.dir}/squawk.jar" />
+	<property name="lib-2014.dir" location="${ccre-root.dir}/CCRE_Igneous_cRIO/lib2014" />
+	<property name="unverif-2014.jar" location="${ccre-root.dir}/CCRE_Igneous_cRIO/Empty.jar" />
+	<property name="veriflib-2014.jar" location="${ccre-root.dir}/CCRE_Igneous_cRIO/Igneous.jar" />
 	<property name="build-2014.dir" location="./build-2014" />
 	<property name="classes-2014.dir" location="${build-2014.dir}/classes" />
+	<property name="downgrade-2014.dir" location="${build-2014.dir}/downgrade" />
 	<property name="suite-2014.dir" location="${build-2014.dir}/suite" />
-	<property name="suite-2014.name" location="image" />
+	<property name="suite-2014.local.dir" value="./build-2014/suite" /> 
+	<property name="suite-2014.name" value="image" />
 	<property name="preverify-2014.dir" location="${build-2014.dir}/preverify" />
 	<property name="app-2014.jar" location="${build-2014.dir}/app.jar" />
+
+	<property name="preverify-2014-excludes" value="java/lang/StringBuilder.class" />
+	<property name="preverify-2014-bypass" value="" />
+
+	<property file="${ccre-root.dir}/CCRE_Igneous_cRIO/src/backport.properties" />
+
+	<!-- <taskdef resource="net/jtools/classloadertask/antlib.xml" classpath="${lib-2014.dir}/ant-classloadertask.jar" /> -->
+	<classloader loader="system" classpath="${lib-2014.dir}/commons-net-1.4.1.jar" />
+	<classloader loader="system" classpath="${lib-2014.dir}/jakarta-oro-2.0.8.jar" />
+
+	<taskdef resource="com/sun/spot/sdk/tool/ftp/antlib.xml">
+		<classpath>
+			<pathelement location="${lib-2014.dir}/sdktoolftp.jar" />
+			<pathelement location="${lib-2014.dir}/commons-net-1.4.1.jar" />
+			<pathelement location="${lib-2014.dir}/jakarta-oro-2.0.8.jar" />
+		</classpath>
+	</taskdef>
+
+	<taskdef name="retrotranslator" classname="net.sf.retrotranslator.transformer.RetrotranslatorTask">
+		<classpath>
+			<fileset dir="${lib-2014.dir}/Retrotranslator-1.2.9-bin">
+				<include name="retrotranslator-transformer-1.2.9.jar" />
+				<include name="retrotranslator-runtime-1.2.9.jar" />
+				<include name="backport-util-concurrent-3.1.jar" />
+			</fileset>
+		</classpath>
+	</taskdef>
 
 	<target name="clean-2014">
 		<delete dir="${build-2014.dir}" />
@@ -23,16 +53,26 @@
 		<mkdir dir="${build-2014.dir}" />
 		<mkdir dir="${classes-2014.dir}" />
 
-		<javac sourcepath="" srcdir="${src.dir}" destdir="${classes-2014.dir}" includeAntRuntime="no" includeJavaRuntime="no" bootclasspath="${squawk-2014.jar}" classpath="${igneous-2014.jar}" target="1.2" source="1.3" debug="true" fork="yes">
+		<echo message="Compiling files with verified ${veriflib-2014.jar} and unverified ${unverif-2014.jar}" />
+		<javac sourcepath="" srcdir="${src.dir}" destdir="${classes-2014.dir}" includeAntRuntime="no" includeJavaRuntime="no" bootclasspath="${veriflib-2014.jar}" classpath="${unverif-2014.jar}" target="1.5" source="1.5" debug="true" fork="yes">
 			<compilerarg value="-Xlint:deprecation" />
 		</javac>
-
-		<unjar src="${igneous-2014.jar}" dest="${classes-2014.dir}" />
 	</target>
 
 	<target name="preverify-2014" depends="compile-2014">
 		<mkdir dir="${preverify-2014.dir}" />
-		<unjar src="${squawk-2014.jar}" dest="${preverify-2014.dir}" />
+		<mkdir dir="${downgrade-2014.dir}" />
+		<unjar src="${unverif-2014.jar}" dest="${classes-2014.dir}" />
+		<unjar src="${veriflib-2014.jar}" dest="${preverify-2014.dir}" />
+		<echo message="Backporting with properties: ${backport}" />
+		<move failonerror="false" file="${classes-2014.dir}/java/lang/${preverify-2014-bypass}" todir="${preverify-2014.dir}/java/lang" />
+		<delete failonerror="false" file="${preverify-2014.dir}/${preverify-2014-excludes}" />
+		<retrotranslator target="1.3" destdir="${downgrade-2014.dir}" smart="true" verify="true" failonwarning="true" backport="${backport}">
+			<fileset dir="${classes-2014.dir}" includes="**/*.class" />
+			<classpath>
+				<pathelement path="${veriflib-2014.jar}${path.separator}${classes-2014.dir}${path.separator}${preverify-2014.dir}" />
+			</classpath>
+		</retrotranslator>
 		<condition property="preverify-path" value="${lib-2014.dir}/windows_preverify.exe">
 			<or>
 				<os family="windows" arch="x86" />
@@ -59,13 +99,14 @@
 		</condition>
 		<fail unless="preverify-path">Could not find platform specific preverify. Unsupported OS: ${os.name} ${os.arch}</fail>
 		<chmod file="${preverify-path}" perm="+x" />
+		<echo message="Preverifying: ${downgrade-2014.dir}" />
 		<exec executable="${preverify-path}" failonerror="true">
-			<arg value="-verbose" />
+			<!-- <arg value="-verbose" /> -->
 			<arg value="-d" />
 			<arg value="${preverify-2014.dir}" />
 			<arg value="-classpath" />
-			<arg value="${squawk-2014.jar}${path.separator}${classes-2014.dir}${path.separator}${preverify-2014.dir}" />
-			<arg value="${classes-2014.dir}" />
+			<arg value="${veriflib-2014.jar}${path.separator}${downgrade-2014.dir}${path.separator}${preverify-2014.dir}" />
+			<arg value="${downgrade-2014.dir}" />
 		</exec>
 	</target>
 
@@ -83,18 +124,23 @@
 			<fileset dir="${preverify-2014.dir}">
 				<exclude name="**/*.java" />
 			</fileset>
-			<fileset dir="${resources-2014.dir}" excludes="CVS/** .svn" />
 		</jar>
 	</target>
 
 	<target name="suite-2014" depends="jar-2014">
 		<mkdir dir="${suite-2014.dir}" />
-		<java classpath="${lib-2014.dir}/romizer_classes.jar${path.separator}${squawk-2014.jar}${path.separator}${lib-2014.dir}/squawk_device_classes.jar${path.separator}${lib-2014.dir}/translator_classes.jar" classname="com.sun.squawk.Romizer" fork="true" failonerror="true">
+		<java classname="com.sun.squawk.Romizer" fork="true" failonerror="true">
+			<classpath>
+				<pathelement location="${lib-2014.dir}/romizer_classes.jar" />
+				<pathelement location="${lib-2014.dir}/squawk_for_romize.jar" />
+				<pathelement location="${lib-2014.dir}/squawk_device_classes.jar" />
+				<pathelement location="${lib-2014.dir}/translator_classes.jar" />
+			</classpath>
 			<jvmarg value="-XX:CompileCommand=exclude,com/sun/squawk/Method.getParameterTypes" />
 			<jvmarg value="-XX:CompileCommand=exclude,com/sun/squawk/SymbolParser.getSignatureTypeAt" />
 			<jvmarg value="-XX:CompileCommand=exclude,com/sun/squawk/SymbolParser.stripMethods" />
 			<jvmarg value="-Xmx256M" />
-			<arg value="-verbose" />
+			<!-- <arg value="-verbose" /> -->
 			<!-- Probably removable? -->
 			<arg value="-nobuildproperties" />
 			<arg value="-suitepath:${lib-2014.dir}/suites" />
@@ -116,7 +162,8 @@
 		<move verbose="false" file="${suite-2014.name}.suite.api" todir="${suite-2014.dir}" />
 	</target>
 
-	<target name="clear-logs-2014">
+	<target name="clear-logs-2014" depends="suite-2014">
+		<fail unless="remoteaddress-2014" message="A remote address must be specified: add 'remoteaddress-2014=10.TE.AM.2' to main.properties. See SampleIgneousRobot for an example." />
 		<tempfile property="log-2014.dir" prefix="robot-logs-" />
 		<echo message="Fetching and clearing logfiles from robot..." />
 		<ftp action="get" server="${remoteaddress-2014}" userid="root" password="" remotedir="/">
@@ -130,13 +177,13 @@
 			</fileset>
 		</ftp>
 	</target>
-	<target name="deploy-2014" depends="suite-2014,clear-logs-2014">
+	<target name="deploy-2014" depends="clear-logs-2014">
 		<echo>Checking cRIO configuration...</echo>
-		<frcupgrade remoteaddress="${remoteaddress-2014}" localotaserverfile="${sunspot.home}/cRIO/FRC_UserProgram.out" remoteotaserverfilepath="/ni-rt/system/FRC_JavaVM.out" localvmfile="${sunspot.home}/cRIO/squawk.out" remotevmfilepath="/ni-rt/system/squawk.out" localsuitefile="${sunspot.home}/cRIO/squawk.suite" remotesuitefilepath="/ni-rt/system/squawk.suite" remoteversionfilepath="/FRC_ImageVersion.ini" versionfailuremessage="Go to http://first.wpi.edu/FRC/frcjava.html to get latest software update">
+		<frcupgrade remoteaddress="${remoteaddress-2014}" localotaserverfile="${lib-2014.dir}/suites/FRC_UserProgram.out" remoteotaserverfilepath="/ni-rt/system/FRC_JavaVM.out" localvmfile="${lib-2014.dir}/suites/squawk.out" remotevmfilepath="/ni-rt/system/squawk.out" localsuitefile="${lib-2014.dir}/suites/squawk.suite" remotesuitefilepath="/ni-rt/system/squawk.suite" remoteversionfilepath="/FRC_ImageVersion.ini" versionfailuremessage="Go to http://first.wpi.edu/FRC/frcjava.html to get latest software update">
 			<version name="Name" value="FRC_2014_v52.zip;" />
 			<version name="Language" value='"Java;"' />
 		</frcupgrade>
-		<frcdeploy remoteaddress="${remoteaddress-2014}" localfile="${suite-2014.file}" remotefilepath="/ni-rt/system/robot.suite" />
+		<frcdeploy remoteaddress="${remoteaddress-2014}" localfile="${suite-2014.local.dir}/${suite-2014.name}.suite" remotefilepath="/ni-rt/system/robot.suite" />
 	</target>
 
 	<target name="run-2014">

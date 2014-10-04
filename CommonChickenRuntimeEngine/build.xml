@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <project name="Build Jar">
     <target name="build-jar">
+    	<delete file="CCRE.jar" />
     	<jar destfile="CCRE.jar" update="false">
 			<fileset dir="bin" includes="**/*.class"/>
 		</jar>

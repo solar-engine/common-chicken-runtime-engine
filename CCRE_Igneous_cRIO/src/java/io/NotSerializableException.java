@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2014 Colby Skeggs
+ * Copyright 2014 Colby Skeggs.
  * 
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  * 
@@ -16,23 +16,30 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with the CCRE.  If not, see <http://www.gnu.org/licenses/>.
  */
-package ccre.downgrade;
+package java.io;
+
+import java.io.IOException;
 
 /**
- * This is the same as java.lang.Iterable. Don't use this. It is used when
- * Retrotranslator downgrades the code to 1.3, because 1.3 doesn't have
- * Iterable.
+ * This a substitute for java.io.NotSerializableException for Squawk. Does nothing useful whatsoever except stuff can compile.
  *
- * @param <T> The type returned by the iterator.
- * @see java.lang.Iterable
+ * @see java.io.NotSerializableException
  * @author skeggsc
  */
-public interface Iterable<T> {
+public class NotSerializableException extends IOException {
 
     /**
-     * Returns an iterator over this object.
-     *
-     * @return The iterator.
+     * Creates a NotSerializableException with no message.
      */
-    public Iterator<T> iterator();
+    public NotSerializableException() {
+    }
+
+    /**
+     * Creates an NotSerializableException with a specified message.
+     *
+     * @param message The specified message.
+     */
+    public NotSerializableException(String message) {
+        super(message);
+    }
 }

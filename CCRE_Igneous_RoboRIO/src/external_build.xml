@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <project name="CCRE Build" default="deploy">
+	
+  <property name="ccre-root.dir" value=".." />
   
   <property file="${user.home}/wpilib/wpilib.properties"/>
   <property file="build.properties"/>

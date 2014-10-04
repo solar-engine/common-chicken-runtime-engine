@@ -16,28 +16,17 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with the CCRE.  If not, see <http://www.gnu.org/licenses/>.
  */
-package ccre.downgrade;
-
-import java.io.IOException;
+package java.io;
 
 /**
- * This is a not-really-implemented implementation of java.io.ObjectInputStream.
- * Don't use this. It is used when Retrotranslator downgrades the code to 1.3,
- * because 1.3 doesn't have ObjectInputStream. It doesn't have any functionality
- * because serialization doesn't work like this in 1.3.
+ * This is a not-really-implemented implementation of
+ * java.io.ObjectOutputStream. Don't use this. It is used when Retrotranslator
+ * downgrades the code to 1.3, because 1.3 doesn't have ObjectOutputStream. It
+ * doesn't have any functionality because serialization doesn't work like this
+ * in 1.3.
  *
- * @see java.io.ObjectInputStream
+ * @see java.io.ObjectOutputStream
  * @author skeggsc
  */
-public class ObjectInputStream {
-
-    /**
-     * A faked method for the downgrade version of ObjectInputStream.
-     *
-     * @throws IOException (faked)
-     * @throws ClassNotFoundException (faked)
-     */
-    public void defaultReadObject() throws IOException, ClassNotFoundException {
-        throw new RuntimeException("ObjectInputStreams are unusable when downgraded!");
-    }
+public class ObjectOutputStream {
 }

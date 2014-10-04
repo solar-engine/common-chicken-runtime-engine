@@ -16,33 +16,30 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with the CCRE.  If not, see <http://www.gnu.org/licenses/>.
  */
-package ccre.downgrade;
+package java.util;
 
 import java.io.IOException;
 
 /**
- * This is the same as java.io.NotSerializableException. Don't use this. It is
- * used when Retrotranslator downgrades the code to 1.3, because 1.3 doesn't
- * have NotSerializableException.
+ * This a substitute for java.util.ConcurrentModificationException for Squawk. Does nothing useful whatsoever except stuff can compile.
  *
- * @see java.io.NotSerializableException
+ * @see java.util.ConcurrentModificationException
  * @author skeggsc
  */
-@SuppressWarnings("serial")
-public class NotSerializableException extends IOException {
+public class ConcurrentModificationException extends IOException {
 
     /**
-     * Creates a NotSerializableException with no message.
+     * Creates a ConcurrentModificationException with no message.
      */
-    public NotSerializableException() {
+    public ConcurrentModificationException() {
     }
 
     /**
-     * Creates an NotSerializableException with a specified message.
+     * Creates an ConcurrentModificationException with a specified message.
      *
      * @param message The specified message.
      */
-    public NotSerializableException(String message) {
+    public ConcurrentModificationException(String message) {
         super(message);
     }
 }

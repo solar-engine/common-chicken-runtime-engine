@@ -16,14 +16,14 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with the CCRE.  If not, see <http://www.gnu.org/licenses/>.
  */
-package ccre.downgrade;
+package java.util;
 
 import java.util.NoSuchElementException;
 
+import ccre.downgrade.UnsupportedOperationException;
+
 /**
- * This is the same as java.util.Iterator. Don't use this. It is used when
- * Retrotranslator downgrades the code to 1.3, because 1.3 doesn't have
- * Iterator.
+ * This a substitute for java.util.Iterator for Squawk. Does nothing useful whatsoever except stuff can work.
  *
  * @param <E> The type returned by the iterator.
  * @see java.util.Iterator

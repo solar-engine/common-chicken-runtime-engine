@@ -1,11 +1,40 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<project name="Build Jar">
-    <target name="build-jar">
-    	<jar destfile="Igneous.jar" update="false">
-			<fileset dir="bin" includes="**/*.class"/>
-			<fileset dir="../CommonChickenRuntimeEngine/bin" includes="**/*.class"/>
-    		<zipgroupfileset dir="lib2014" includes="wpilibj.jar"/>
-    		<zipgroupfileset dir="lib2014" includes="networktables-crio.jar"/>
+<project name="Build Jar" default="build-jar">
+
+	<property name="ccre-root.dir" value=".." />
+	<property name="src.dir" value="src" />
+	<property name="preverify-2014-excludes" value="none" />
+	<property name="preverify-2014-bypass" value="StringBuilder.class" />
+	<property name="unverif-2014.jar" location="Library_Prebuild.jar" />
+	<property name="veriflib-2014.jar" location="lib2014/squawk.jar" />
+
+	<target name="prebuild-jar">
+		<delete file="Empty.jar" />
+		<jar destfile="Empty.jar" update="false" />
+		
+		<delete file="Library_Prebuild.jar" />
+		<jar destfile="Library_Prebuild.jar" update="false">
+			<!-- <fileset dir="bin" includes="**/*.class" /> -->
+			<fileset dir="../CommonChickenRuntimeEngine/bin" includes="**/*.class">
+				<exclude name="**/ccre/net/DefaultNetworkProvider*" />
+				<exclude name="**/ccre/saver/DefaultStorageProvider*" />
+				<exclude name="**/ccre/rload/*" />
+				<exclude name="**/ccre/launcher/*" />
+				<exclude name="**/ccre/workarounds/DefaultThrowablePrinter**" />
+			</fileset>
+			<zipgroupfileset dir="lib2014" includes="wpilibj.jar" />
+			<zipgroupfileset dir="lib2014" includes="networktables-crio.jar" />
 		</jar>
-    </target>
+	</target>
+
+	<import file="src/external_build_2014.xml" />
+
+	<target name="build-jar" depends="prebuild-jar,preverify-2014">
+		<delete file="Igneous.jar" />
+		<jar destfile="Igneous.jar" update="false">
+			<fileset dir="${preverify-2014.dir}">
+				<exclude name="**/*.java" />
+			</fileset>
+		</jar>
+	</target>
 </project>

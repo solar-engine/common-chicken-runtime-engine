@@ -7,6 +7,9 @@
 	<property name="preverify-2014-bypass" value="StringBuilder.class" />
 	<property name="unverif-2014.jar" location="Library_Prebuild.jar" />
 	<property name="veriflib-2014.jar" location="lib2014/squawk.jar" />
+	<property name="build-2014.path" location="${unverif-2014.jar}${path.separator}${veriflib-2014.jar}" />
+	
+	<taskdef resource="net/jtools/classloadertask/antlib.xml" classpath="${lib-2014.dir}/ant-classloadertask.jar" />
 
 	<target name="prebuild-jar">
 		<delete file="Empty.jar" />
@@ -35,6 +38,19 @@
 			<fileset dir="${preverify-2014.dir}">
 				<exclude name="**/*.java" />
 			</fileset>
+		</jar>
+		<delete file="Library_Postbuild.jar" />
+		<jar destfile="Library_Postbuild.jar" update="false">
+			<fileset dir="build-2014/classes" includes="**/*.class" />
+			<fileset dir="../CommonChickenRuntimeEngine/bin" includes="**/*.class">
+				<exclude name="**/ccre/net/DefaultNetworkProvider*" />
+				<exclude name="**/ccre/saver/DefaultStorageProvider*" />
+				<exclude name="**/ccre/rload/*" />
+				<exclude name="**/ccre/launcher/*" />
+				<exclude name="**/ccre/workarounds/DefaultThrowablePrinter**" />
+			</fileset>
+			<zipgroupfileset dir="lib2014" includes="wpilibj.jar" />
+			<zipgroupfileset dir="lib2014" includes="networktables-crio.jar" />
 		</jar>
 	</target>
 </project>

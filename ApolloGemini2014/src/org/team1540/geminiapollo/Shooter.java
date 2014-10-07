@@ -4,6 +4,7 @@ import ccre.channel.*;
 import ccre.cluck.Cluck;
 import ccre.ctrl.*;
 import ccre.holders.TuningContext;
+import ccre.igneous.Igneous;
 import ccre.log.*;
 
 public class Shooter {
@@ -34,11 +35,16 @@ public class Shooter {
             if (sensor == null) {
                 return -100; // TODO: Remove this later.
             }
-            float o = sensor.get(); // (sensor.get() - 0.60f) / 0.04f;
-            if (tare == null) {
-                tare = o;
+            float o;
+            if (Igneous.isRoboRIO()) {
+                o = sensor.get();
+                if (tare == null) {
+                    tare = o;
+                }
+                o -= tare;
+            } else {
+                o = (sensor.get() - 0.60f) / 0.04f;
             }
-            o -= tare;
             return o >= ampThreshold.get() ? o : 0;
         }
     };

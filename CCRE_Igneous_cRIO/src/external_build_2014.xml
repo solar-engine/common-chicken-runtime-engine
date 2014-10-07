@@ -10,14 +10,16 @@
 	<property name="lib-2014.dir" location="${ccre-root.dir}/CCRE_Igneous_cRIO/lib2014" />
 	<property name="unverif-2014.jar" location="${ccre-root.dir}/CCRE_Igneous_cRIO/Empty.jar" />
 	<property name="veriflib-2014.jar" location="${ccre-root.dir}/CCRE_Igneous_cRIO/Igneous.jar" />
+	<property name="build-2014.path" location="${ccre-root.dir}/CCRE_Igneous_cRIO/Library_Postbuild.jar" />
 	<property name="build-2014.dir" location="./build-2014" />
 	<property name="classes-2014.dir" location="${build-2014.dir}/classes" />
 	<property name="downgrade-2014.dir" location="${build-2014.dir}/downgrade" />
 	<property name="suite-2014.dir" location="${build-2014.dir}/suite" />
-	<property name="suite-2014.local.dir" value="./build-2014/suite" /> 
+	<property name="suite-2014.local.dir" value="./build-2014/suite" />
 	<property name="suite-2014.name" value="image" />
 	<property name="preverify-2014.dir" location="${build-2014.dir}/preverify" />
 	<property name="app-2014.jar" location="${build-2014.dir}/app.jar" />
+	<property name="squawk-2014.jar" location="${lib-2014.dir}/squawk.jar" />
 
 	<property name="preverify-2014-excludes" value="java/lang/StringBuilder.class" />
 	<property name="preverify-2014-bypass" value="" />
@@ -53,8 +55,11 @@
 		<mkdir dir="${build-2014.dir}" />
 		<mkdir dir="${classes-2014.dir}" />
 
-		<echo message="Compiling files with verified ${veriflib-2014.jar} and unverified ${unverif-2014.jar}" />
-		<javac sourcepath="" srcdir="${src.dir}" destdir="${classes-2014.dir}" includeAntRuntime="no" includeJavaRuntime="no" bootclasspath="${veriflib-2014.jar}" classpath="${unverif-2014.jar}" target="1.5" source="1.5" debug="true" fork="yes">
+		<echo message="Compiling files with classpath ${build-2014.path}" />
+		<javac sourcepath="" srcdir="${src.dir}" destdir="${classes-2014.dir}" includeAntRuntime="no" includeJavaRuntime="no" target="1.5" source="1.5" debug="true" fork="yes">
+			
+			<bootclasspath path="" />
+			<classpath path="${squawk-2014.jar}${path.separator}${build-2014.path}" />
 			<compilerarg value="-Xlint:deprecation" />
 		</javac>
 	</target>

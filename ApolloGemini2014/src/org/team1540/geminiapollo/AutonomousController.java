@@ -40,7 +40,7 @@ public class AutonomousController extends InstinctModule {
     // Tuned constants are below near the autonomous modes.
     private final StringHolder option = new StringHolder("double");
     private final String[] options = {"none", "forward", "hotcheck", "double"};
-    private final CList<String> optionList = CArrayUtils.asList(options);
+    private final CList optionList = CArrayUtils.asList(options);
     private final BooleanStatus winchGotten = new BooleanStatus();
 
     protected void autonomousMain() throws AutonomousModeOverException, InterruptedException {
@@ -105,8 +105,7 @@ public class AutonomousController extends InstinctModule {
             Logger.fine("Skip Arm");
         }
         Logger.fine("Arrived");
-        //alignArm.event();
-        lowerArm.event();
+        alignArm.event();
         float timeoutTime = currentTime.get() + hotcheckTimeoutAfter.get();
         BooleanInputPoll timedout = FloatMixing.floatIsAtLeast(currentTime, timeoutTime);
         if (waitUntilOneOf(new BooleanInputPoll[]{kinectTrigger, timedout}) != 0) {

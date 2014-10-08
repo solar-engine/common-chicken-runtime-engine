@@ -1,15 +1,19 @@
 package supercanvas;
 
 import java.awt.*;
+import java.awt.geom.Rectangle2D;
 import java.awt.geom.RoundRectangle2D;
 
 public class Rendering {
     public static void drawBody(Color bg, Graphics2D g, int centerX, int centerY, int width, int height) {
         g.setColor(bg);
-        Shape s = new RoundRectangle2D.Float(centerX - width / 2, centerY - height / 2, width, height, 15, 15);
+        Shape s = new Rectangle2D.Float(centerX - width / 2, centerY - height / 2, width, height);
         g.fill(s);
         g.setColor(Color.BLACK);
+        Stroke stroke = g.getStroke();
+        //g.setStroke(new BasicStroke(1.5f));
         g.draw(s);
+        g.setStroke(stroke);
     }
     
     public static void drawBody(Color bg, Graphics2D g, DraggableBoxComponent component) {

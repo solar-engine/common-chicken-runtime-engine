@@ -18,12 +18,14 @@
  */
 package intelligence.monitor;
 
+import java.io.Serializable;
+
 /**
  * An interface implemented both by the real and fake PhidgetMonitors.
  *
  * @author skeggsc
  */
-public interface IPhidgetMonitor {
+public interface IPhidgetMonitor extends Serializable {
 
     /**
      * Share all the inputs and outputs and the current attachment state over

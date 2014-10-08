@@ -27,6 +27,7 @@ import ccre.channel.FloatStatus;
 import ccre.cluck.Cluck;
 import ccre.holders.StringHolder;
 import ccre.log.Logger;
+
 import com.phidgets.InterfaceKitPhidget;
 import com.phidgets.Phidget;
 import com.phidgets.PhidgetException;
@@ -41,6 +42,8 @@ import com.phidgets.event.InputChangeEvent;
 import com.phidgets.event.InputChangeListener;
 import com.phidgets.event.SensorChangeEvent;
 import com.phidgets.event.SensorChangeListener;
+
+import java.io.Serializable;
 import java.util.Arrays;
 
 /**
@@ -52,6 +55,7 @@ import java.util.Arrays;
  */
 public class PhidgetMonitor implements IPhidgetMonitor, AttachListener, DetachListener, ErrorListener, InputChangeListener, SensorChangeListener {
 
+    private static final long serialVersionUID = -8665410515221749926L;
     /**
      * The number of binary outputs to expect on the phidget interface.
      */
@@ -112,6 +116,10 @@ public class PhidgetMonitor implements IPhidgetMonitor, AttachListener, DetachLi
      * The analog inputs that the Phidget provides.
      */
     private final FloatStatus[] analogs = new FloatStatus[ANALOG_COUNT];
+    /**
+     * Are the channels from this currently shared over Cluck?
+     */
+    private boolean isShared = false;
 
     /**
      * Create a new PhidgetMonitor.
@@ -160,6 +168,7 @@ public class PhidgetMonitor implements IPhidgetMonitor, AttachListener, DetachLi
 
     @Override
     public void share() {
+        isShared = true;
         lcd.addAttachListener(this);
         lcd.addDetachListener(this);
         lcd.addErrorListener(this);
@@ -196,6 +205,7 @@ public class PhidgetMonitor implements IPhidgetMonitor, AttachListener, DetachLi
 
     @Override
     public void unshare() {
+        isShared = false;
         lcd.removeAttachListener(this);
         lcd.removeDetachListener(this);
         lcd.removeErrorListener(this);
@@ -383,5 +393,27 @@ public class PhidgetMonitor implements IPhidgetMonitor, AttachListener, DetachLi
     @Override
     public void error(ErrorEvent ae) {
         Logger.severe("Phidget Reported Error: " + ae);
+    }
+
+    private Object writeReplace() {
+        return new SerializedMonitor(isShared);
+    }
+
+    private static class SerializedMonitor implements Serializable {
+
+        private static final long serialVersionUID = -6097101016789921164L;
+        private boolean isShared;
+
+        private SerializedMonitor(boolean isShared) {
+            this.isShared = isShared;
+        }
+
+        private Object readResolve() {
+            PhidgetMonitor out = new PhidgetMonitor();
+            if (isShared) {
+                out.share();
+            }
+            return out;
+        }
     }
 }

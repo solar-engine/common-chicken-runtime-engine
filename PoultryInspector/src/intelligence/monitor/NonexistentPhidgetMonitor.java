@@ -25,6 +25,8 @@ package intelligence.monitor;
  */
 public class NonexistentPhidgetMonitor implements IPhidgetMonitor {
 
+    private static final long serialVersionUID = -4203403857863877908L;
+
     @Override
     public void share() {
     }

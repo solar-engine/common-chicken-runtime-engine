@@ -20,10 +20,7 @@ package supercanvas;
 
 import java.awt.Color;
 import java.awt.FontMetrics;
-import java.awt.GradientPaint;
 import java.awt.Graphics2D;
-import java.awt.Shape;
-import java.awt.geom.RoundRectangle2D;
 
 /**
  * A base component of channel components, such as float, boolean, and event

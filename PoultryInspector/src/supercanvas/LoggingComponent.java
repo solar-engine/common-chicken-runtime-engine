@@ -18,16 +18,10 @@
  */
 package supercanvas;
 
-import ccre.log.LogLevel;
-import ccre.log.Logger;
-import ccre.log.LoggingTarget;
-import ccre.util.LineCollectorOutputStream;
-import ccre.workarounds.ThrowablePrinter;
 import java.awt.AlphaComposite;
 import java.awt.Color;
 import java.awt.Composite;
 import java.awt.FontMetrics;
-import java.awt.GradientPaint;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.awt.Shape;
@@ -36,6 +30,12 @@ import java.io.ObjectInputStream;
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.List;
+
+import ccre.log.LogLevel;
+import ccre.log.Logger;
+import ccre.log.LoggingTarget;
+import ccre.util.LineCollectorOutputStream;
+import ccre.workarounds.ThrowablePrinter;
 
 /**
  * A component that displays a scrollable log of recentCCRE logging messages.
@@ -61,7 +61,7 @@ public class LoggingComponent extends DraggableBoxComponent {
      */
     public LoggingComponent(int cx, int cy) {
         super(cx, cy);
-        halfWidth = 210;
+        halfWidth = 300;
         halfHeight = 95;
         setupLines();
     }

@@ -18,12 +18,13 @@
  */
 package supercanvas;
 
-import ccre.channel.EventInput;
-import ccre.channel.EventOutput;
-import ccre.channel.EventStatus;
 import java.awt.Color;
 import java.awt.FontMetrics;
 import java.awt.Graphics2D;
+
+import ccre.channel.EventInput;
+import ccre.channel.EventOutput;
+import ccre.channel.EventStatus;
 
 /**
  * A component allowing interaction with events.

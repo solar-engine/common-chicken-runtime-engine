@@ -18,10 +18,8 @@
  */
 package supercanvas;
 
-import ccre.log.Logger;
 import java.awt.Color;
 import java.awt.FontMetrics;
-import java.awt.GradientPaint;
 import java.awt.Graphics2D;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -29,6 +27,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+
+import ccre.log.Logger;
 
 /**
  * A component that always displays in a fixed position, allowing for saving and

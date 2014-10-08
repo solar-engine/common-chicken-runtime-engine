@@ -18,8 +18,9 @@
  */
 package supercanvas;
 
-import ccre.cluck.CluckNode;
 import java.io.Serializable;
+
+import ccre.cluck.CluckNode;
 
 /**
  * An element of a NetworkPaletteComponent.

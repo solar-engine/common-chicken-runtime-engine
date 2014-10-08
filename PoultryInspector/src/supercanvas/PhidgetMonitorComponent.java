@@ -18,17 +18,15 @@
  */
 package supercanvas;
 
-import ccre.channel.EventOutput;
 import intelligence.monitor.IPhidgetMonitor;
 import intelligence.monitor.PhidgetMonitor;
 import intelligence.monitor.VirtualPhidgetMonitor;
 
 import java.awt.Color;
 import java.awt.FontMetrics;
-import java.awt.GradientPaint;
 import java.awt.Graphics2D;
-import java.awt.Shape;
-import java.awt.geom.RoundRectangle2D;
+
+import ccre.channel.EventOutput;
 
 /**
  * A component that represents a Phidget Monitor.

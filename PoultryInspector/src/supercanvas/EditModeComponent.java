@@ -17,7 +17,7 @@ public class EditModeComponent extends SuperCanvasComponent {
 
     @Override
     public boolean contains(int x, int y) {
-        return x < 200 && y >= getPanel().getHeight() - 20;
+        return x < 100 && y >= getPanel().getHeight() - 20;
     }
 
     @Override

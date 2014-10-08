@@ -18,6 +18,12 @@
  */
 package supercanvas;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.TreeSet;
+
 import ccre.channel.BooleanInput;
 import ccre.channel.BooleanOutput;
 import ccre.channel.EventInput;
@@ -32,11 +38,6 @@ import ccre.ctrl.PauseTimer;
 import ccre.log.LogLevel;
 import ccre.log.Logger;
 import ccre.util.UniqueIds;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.TreeSet;
 
 /**
  * A palette that contains all the visible objects on the network.

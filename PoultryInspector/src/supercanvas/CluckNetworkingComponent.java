@@ -18,6 +18,10 @@
  */
 package supercanvas;
 
+import java.awt.Color;
+import java.awt.FontMetrics;
+import java.awt.Graphics2D;
+
 import ccre.channel.EventOutput;
 import ccre.cluck.Cluck;
 import ccre.cluck.tcp.CluckTCPClient;
@@ -25,11 +29,6 @@ import ccre.ctrl.Ticker;
 import ccre.net.CountingNetworkProvider;
 import ccre.net.Network;
 import ccre.util.CCollection;
-
-import java.awt.Color;
-import java.awt.FontMetrics;
-import java.awt.GradientPaint;
-import java.awt.Graphics2D;
 
 /**
  * A component that displays the current results from the

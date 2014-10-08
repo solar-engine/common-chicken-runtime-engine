@@ -18,10 +18,11 @@
  */
 package supercanvas;
 
-import ccre.log.Logger;
 import java.awt.Color;
 import java.awt.FontMetrics;
 import java.awt.Graphics2D;
+
+import ccre.log.Logger;
 
 /**
  * A trash can - (almost?) anything can be dragged here to delete it from the
@@ -70,7 +71,8 @@ public class TrashComponent extends DraggableBoxComponent {
 
     @Override
     public boolean onInteract(int x, int y) {
-        return false;
+        getPanel().remove(this);
+        return true;
     }
 
     @Override

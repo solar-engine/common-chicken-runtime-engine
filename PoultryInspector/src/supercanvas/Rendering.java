@@ -1,8 +1,11 @@
 package supercanvas;
 
-import java.awt.*;
+import java.awt.Color;
+import java.awt.Graphics2D;
+import java.awt.Rectangle;
+import java.awt.Shape;
+import java.awt.Stroke;
 import java.awt.geom.Rectangle2D;
-import java.awt.geom.RoundRectangle2D;
 
 public class Rendering {
     public static void drawBody(Color bg, Graphics2D g, int centerX, int centerY, int width, int height) {

@@ -18,14 +18,14 @@
  */
 package supercanvas;
 
+import java.awt.Color;
+import java.awt.FontMetrics;
+import java.awt.Graphics2D;
+
 import ccre.channel.FloatInput;
 import ccre.channel.FloatOutput;
 import ccre.channel.FloatStatus;
 import ccre.ctrl.FloatMixing;
-
-import java.awt.Color;
-import java.awt.FontMetrics;
-import java.awt.Graphics2D;
 
 /**
  * A component allowing interaction with floats.

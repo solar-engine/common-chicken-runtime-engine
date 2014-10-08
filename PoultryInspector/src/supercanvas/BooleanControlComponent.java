@@ -18,13 +18,14 @@
  */
 package supercanvas;
 
-import ccre.channel.BooleanInput;
-import ccre.channel.BooleanOutput;
-import ccre.channel.BooleanStatus;
 import java.awt.Color;
 import java.awt.FontMetrics;
 import java.awt.Graphics2D;
 import java.awt.geom.AffineTransform;
+
+import ccre.channel.BooleanInput;
+import ccre.channel.BooleanOutput;
+import ccre.channel.BooleanStatus;
 
 /**
  * A component allowing interaction with booleans.

@@ -18,15 +18,10 @@
  */
 package supercanvas;
 
-import ccre.channel.EventOutput;
-import ccre.cluck.Cluck;
-import ccre.ctrl.ExpirationTimer;
-import ccre.log.Logger;
 import intelligence.Rendering;
 
 import java.awt.Color;
 import java.awt.FontMetrics;
-import java.awt.GradientPaint;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.event.MouseAdapter;
@@ -42,6 +37,11 @@ import java.util.LinkedList;
 import java.util.ListIterator;
 
 import javax.swing.JPanel;
+
+import ccre.channel.EventOutput;
+import ccre.cluck.Cluck;
+import ccre.ctrl.ExpirationTimer;
+import ccre.log.Logger;
 
 /**
  * A base display panel used in tree-and-canvas panels. "SuperCanvas" means that
@@ -184,7 +184,7 @@ public final class SuperCanvasPanel extends JPanel {
         relActiveX = component.getDragRelX(x);
         relActiveY = component.getDragRelY(y);
     }
-    
+
     /**
      * Check if the given object is being dragged.
      * 
@@ -255,6 +255,21 @@ public final class SuperCanvasPanel extends JPanel {
         }
         Cluck.getNode().notifyNetworkModified();
         repaint();
+    }
+
+    /**
+     * Check if any components of the specified component type.
+     * 
+     * @param componentType the type of component to find.
+     * @return if any components were found.
+     */
+    public boolean containsAny(Class<? extends SuperCanvasComponent> componentType) {
+        for (SuperCanvasComponent comp : components) {
+            if (componentType.isAssignableFrom(comp.getClass())) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**

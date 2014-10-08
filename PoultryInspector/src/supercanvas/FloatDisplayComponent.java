@@ -18,11 +18,12 @@
  */
 package supercanvas;
 
-import ccre.channel.FloatInput;
-import ccre.channel.FloatOutput;
 import java.awt.Color;
 import java.awt.FontMetrics;
 import java.awt.Graphics2D;
+
+import ccre.channel.FloatInput;
+import ccre.channel.FloatOutput;
 
 /**
  * A component allowing display of floats.

@@ -143,7 +143,7 @@ public class AutonomousController extends InstinctModule {
         }
         Logger.info("Collect On");
         collect.set(1f);
-        alignArm.event();
+        lowerArm.event();
         waitForTime((long) (1000L * doubleArmMoveTime.get() + 0.5f) / 2);
         Logger.info("Collect Off");
         collect.set(0f);
@@ -168,7 +168,7 @@ public class AutonomousController extends InstinctModule {
         Logger.fine("Rearmed!");
         collect.set(1f);
         waitForTime(doubleCollectTime);
-        alignArm.event();
+        lowerArm.event();
         collectSols.set(false);
         collect.set(0);
         Logger.fine("Collected.");

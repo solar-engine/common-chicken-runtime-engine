@@ -102,8 +102,10 @@ public class RobotMain extends IgneousCore {
         }
         { // ==== DRIVING ====
             int baseport = isRoboRIO() ? 2 : 1;
-            FloatOutput leftDrive1 = makeTalonMotor(baseport, MOTOR_REVERSE, 0.1f), rightDrive1 = makeTalonMotor(baseport + 2, MOTOR_FORWARD, 0.1f);
-            FloatOutput leftDrive2 = makeTalonMotor(baseport + 1, MOTOR_REVERSE, 0.1f), rightDrive2 = makeTalonMotor(baseport + 3, MOTOR_FORWARD, 0.1f);
+            boolean left_dir = isRoboRIO() ? MOTOR_REVERSE : MOTOR_FORWARD;
+            boolean right_dir = isRoboRIO() ? MOTOR_FORWARD : MOTOR_REVERSE;
+            FloatOutput leftDrive1 = makeTalonMotor(baseport, left_dir, 0.1f), rightDrive1 = makeTalonMotor(baseport + 2, right_dir, 0.1f);
+            FloatOutput leftDrive2 = makeTalonMotor(baseport + 1, left_dir, 0.1f), rightDrive2 = makeTalonMotor(baseport + 3, right_dir, 0.1f);
             FloatOutput leftDrive = FloatMixing.combine(leftDrive1, leftDrive2), rightDrive = FloatMixing.combine(rightDrive1, rightDrive2);
             BooleanOutput shiftSolenoid = isRoboRIO() ? testing.testPublish("sol-shift-7", makeSolenoid(7)) : testing.testPublish("sol-shift-1", makeSolenoid(1));
             testing.addDriveMotors(leftDrive1, leftDrive2, leftDrive, rightDrive1, rightDrive2, rightDrive);

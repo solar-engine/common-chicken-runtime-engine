@@ -1,80 +1,77 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<project name="CCRE Build" default="deploy">
-	
-  <property name="ccre-root.dir" value=".." />
-  
-  <property file="${user.home}/wpilib/wpilib.properties"/>
-  <property file="build.properties"/>
-  <property file="${user.home}/wpilib/java/${version}/ant/build.properties"/>
-  <property file="src/main.properties"/>
-  
-  <property name="emulate.jar" value="${dist.dir}/EmulationTarget.jar"/>
-  <property name="emulator.dir" value="../IgneousEmulator/bin"/>
-  <property name="classpath-new" value="${classpath}:../CCRE_Igneous_RoboRIO/Igneous.jar"/>
-  
-  <import file="${wpilib.ant.dir}/build.xml"/>
+<project name="CCRE Build">
 
-  <target name="compile" description="Compile the source code.">
-    <mkdir dir="${build.dir}"/>
-    <echo>[athena-compile] Compiling ${src.dir} with classpath=${classpath-new} to ${build.dir}</echo>
+	<property name="ccre-root.dir" value=".." />
 
-    <javac srcdir="${src.dir}"
-     destdir="${build.dir}"
-     includeAntRuntime="no"
-     includeJavaRuntime="no"
-     classpath="${classpath-new}"
-     target="1.7"
-     source="1.7"
-     debug="true">
-    </javac>
-  </target>
-  
-  <target name="jar" depends="compile">
-    <echo>[athena-jar] Making jar ${dist.jar}.</echo>
-    <mkdir dir="${dist.dir}" />
-    <mkdir dir="${build.jars}" />
+	<property file="${user.home}/wpilib/wpilib.properties" />
+	<property file="build.properties" />
+	<property file="${user.home}/wpilib/java/${version}/ant/build.properties" />
+	<property file="src/main.properties" />
 
-    <echo>[athena-jar] Copying jars from ${classpath-new} to ${build.jars}.</echo>
-    <copy todir="${build.jars}" flatten="true">
-      <path>
-        <pathelement path="${classpath-new}"/>
-      </path>
-    </copy>
+	<property name="emulate.jar" value="${dist.dir}/EmulationTarget.jar" />
+	<property name="emulator.dir" value="../IgneousEmulator/bin" />
+	<property name="classpath-new" value="${classpath}:../CCRE_Igneous_RoboRIO/Igneous.jar" />
 
-    <jar destfile="${dist.jar}" update="false">
-      <manifest>
-    	<attribute name="Main-Class" value="edu.wpi.first.wpilibj.RobotBase"/>
-    	<attribute name="Robot-Class" value="ccre.igneous.RawIOIgneousLauncherImpl"/>
-    	<attribute name="CCRE-Main" value="${igneous.main}"/>
-    	<attribute name="Class-Path" value="."/>
-      </manifest>
+	<!-- Used iff wpilib 2015 is not installed.  -->
+	<property name="src.dir" value="src" />
+	<property name="wpilib.ant.dir" value="ant_imposter" />
 
-      <fileset dir="${build.dir}" includes="**/*.class"/>
+	<import file="${wpilib.ant.dir}/build.xml" />
 
-      <zipgroupfileset dir="${build.jars}">
-        <include name="**/*.jar" />
-      </zipgroupfileset>
-    </jar>
+	<target name="compile" description="Compile the source code.">
+		<mkdir dir="${build.dir}" />
+		<echo>[athena-compile] Compiling ${src.dir} with classpath=${classpath-new} to ${build.dir}</echo>
 
-    <jar destfile="${emulate.jar}" update="false">
-        <manifest>
-        	<attribute name="Igneous-Main" value="${igneous.main}"/>
-        </manifest>
+		<javac srcdir="${src.dir}" destdir="${build.dir}" includeAntRuntime="no" includeJavaRuntime="no" classpath="${classpath-new}" target="1.7" source="1.7" debug="true">
+		</javac>
+	</target>
 
-      <fileset dir="${build.dir}" includes="**/*.class"/>
-    </jar>
-  </target>
-	
-  <target name="emulate" depends="jar">
-    <java jar="../IgneousEmulator/Emulator.jar" fork="true">
-      <arg value="${emulate.jar}"/>
-      <classpath>
-      	<fileset dir="${emulator.dir}" includes="**/*.class" />
-      </classpath>
-    </java>
-  </target>
+	<target name="jar" depends="compile">
+		<echo>[athena-jar] Making jar ${dist.jar}.</echo>
+		<mkdir dir="${dist.dir}" />
+		<mkdir dir="${build.jars}" />
 
-  <import file="../../CCRE_Igneous_cRIO/src/external_build_2014.xml"/>
+		<echo>[athena-jar] Copying jars from ${classpath-new} to ${build.jars}.</echo>
+		<copy todir="${build.jars}" flatten="true">
+			<path>
+				<pathelement path="${classpath-new}" />
+			</path>
+		</copy>
+
+		<jar destfile="${dist.jar}" update="false">
+			<manifest>
+				<attribute name="Main-Class" value="edu.wpi.first.wpilibj.RobotBase" />
+				<attribute name="Robot-Class" value="ccre.igneous.RawIOIgneousLauncherImpl" />
+				<attribute name="CCRE-Main" value="${igneous.main}" />
+				<attribute name="Class-Path" value="." />
+			</manifest>
+
+			<fileset dir="${build.dir}" includes="**/*.class" />
+
+			<zipgroupfileset dir="${build.jars}">
+				<include name="**/*.jar" />
+			</zipgroupfileset>
+		</jar>
+
+		<jar destfile="${emulate.jar}" update="false">
+			<manifest>
+				<attribute name="Igneous-Main" value="${igneous.main}" />
+			</manifest>
+
+			<fileset dir="${build.dir}" includes="**/*.class" />
+		</jar>
+	</target>
+
+	<target name="emulate" depends="jar">
+		<java jar="../IgneousEmulator/Emulator.jar" fork="true">
+			<arg value="${emulate.jar}" />
+			<classpath>
+				<fileset dir="${emulator.dir}" includes="**/*.class" />
+			</classpath>
+		</java>
+	</target>
+
+	<import file="../../CCRE_Igneous_cRIO/src/external_build_2014.xml" />
 
 </project>

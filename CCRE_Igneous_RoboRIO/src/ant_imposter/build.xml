@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project name="Imposter WPILib Build">
+
+	<taskdef resource="net/jtools/classloadertask/antlib.xml" classpath="${ccre-root.dir}/CCRE_Igneous_cRIO/lib2014/ant-classloadertask.jar" />
+	
+	<target name="deploy">
+		<echo message="${user.home}/wpilib/wpilib.properties does not exist." />
+		<echo message="WPILib plugins must not be installed!" />
+		<fail message="WPILib 2015 plugins are required to deploy to the RoboRIO." />
+	</target>
+
+</project>

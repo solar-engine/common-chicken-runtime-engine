@@ -1,5 +1,13 @@
-This is the Common Chicken Runtime Engine core, Poultry Inspector, and Igneous system.
-It will hopefully form the basis for all of Team 1540's robotics-related java programming.
+This is the Common Chicken Runtime Engine and all of its associated components.
+It forms the basis for all of Team 1540's robotics-related java programming.
+
+CCRE BRANCHES:
+
+* master: The main codebase. Almost always ready for use.
+* stable: A known-working version of the codebase. You shouldn't use this unless you really need a consistent version of the code.
+* ccre2015: The version currently being upgraded for the 2015 control system. Not useful right now unless you're a Beta team.
+
+You may wish to consider pointing yourself at specific release tags instead of branches if you wish to have stability. Click on tags, and find the highest-numbered version not marked as a prerelease.
 
 **Go [here](https://bitbucket.org/col6y/common-chicken-runtime-engine/wiki) to see the main documentation.**
 

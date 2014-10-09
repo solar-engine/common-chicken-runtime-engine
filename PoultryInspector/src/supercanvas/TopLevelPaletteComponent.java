@@ -19,7 +19,9 @@
 package supercanvas;
 
 import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 
 /**
  * A top-level palette, which means that it contains important components that
@@ -33,7 +35,16 @@ public class TopLevelPaletteComponent extends PaletteComponent<Iterable<PaletteE
     private static final Iterable<PaletteEntry> topLevel;
 
     static {
-        topLevel = Arrays.<PaletteEntry> asList(new AllocationPaletteEntry(LoggingComponent.class), new AllocationPaletteEntry(PhidgetMonitorComponent.VirtualPhidget.class), new AllocationPaletteEntry(PhidgetMonitorComponent.PhysicalPhidget.class), new AllocationPaletteEntry(NetworkPaletteComponent.class), new AllocationPaletteEntry(ListPaletteComponent.class), new AllocationPaletteEntry(FolderComponent.class), new AllocationPaletteEntry(TrashComponent.class));
+        ArrayList<PaletteEntry> local = new ArrayList<PaletteEntry>();
+        local.add(new AllocationPaletteEntry(LoggingComponent.class));
+        local.add(new AllocationPaletteEntry(PhidgetMonitorComponent.VirtualPhidget.class));
+        local.add(new AllocationPaletteEntry(PhidgetMonitorComponent.PhysicalPhidget.class));
+        local.add(new AllocationPaletteEntry(NetworkPaletteComponent.class));
+        local.add(new AllocationPaletteEntry(ListPaletteComponent.class));
+        local.add(new AllocationPaletteEntry(FolderComponent.class));
+        local.add(new AllocationPaletteEntry(TrashComponent.class));
+        local.add(new AllocationPaletteEntry(TextComponent.class));
+        topLevel = Collections.unmodifiableCollection(local);
     }
 
     /**

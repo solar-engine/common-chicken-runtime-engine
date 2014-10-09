@@ -18,8 +18,6 @@
  */
 package supercanvas;
 
-import intelligence.Rendering;
-
 import java.awt.Color;
 import java.awt.FontMetrics;
 import java.awt.Graphics;
@@ -154,6 +152,7 @@ public final class SuperCanvasPanel extends JPanel {
             renderBackground(g, w, h, fontMetrics, mouseX, mouseY);
             for (SuperCanvasComponent comp : components) {
                 if (editmode || !comp.hideInOperateMode) {
+                    g.setFont(Rendering.console);
                     comp.render(g, w, h, fontMetrics, mouseX, mouseY);
                 }
             }

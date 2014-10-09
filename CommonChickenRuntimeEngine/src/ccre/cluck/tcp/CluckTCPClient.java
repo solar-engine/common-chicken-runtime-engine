@@ -68,6 +68,23 @@ public class CluckTCPClient extends ReporterThread {
      * Should this client continue running?
      */
     private volatile boolean isRunning = true;
+    /**
+     * Is this connection currently reconnecting?
+     */
+    private volatile boolean isReconnecting = false;
+    /**
+     * Reconnect deadline: we should be reconnecting again by this time,
+     * hopefully.
+     */
+    private volatile long reconnectDeadline = 0;
+    /**
+     * Is this connection currently established?
+     */
+    private volatile boolean isEstablished = false;
+    /**
+     * Should this component log anything during normal operation?
+     */
+    private boolean logDuringNormalOperation = true;
 
     /**
      * Create a new CluckTCPClient connecting to the specified remote on the
@@ -97,15 +114,23 @@ public class CluckTCPClient extends ReporterThread {
         this.remote = remote;
         closeActiveConnectionIfAny();
     }
-    
+
     /**
      * Get the remote address.
+     * 
      * @return the remote address.
      */
     public String getRemote() {
         return remote;
     }
-    
+
+    /**
+     * Set whether or not this component should log during normal operation.
+     */
+    public void setLogDuringNormalOperation(boolean logDuringNormalOperation) {
+        this.logDuringNormalOperation = logDuringNormalOperation;
+    }
+
     /**
      * End the active connection and don't reconnect.
      */
@@ -142,7 +167,9 @@ public class CluckTCPClient extends ReporterThread {
         try {
             while (isRunning) {
                 long start = System.currentTimeMillis();
-                Logger.fine("Connecting to " + remote + " at " + start);
+                if (logDuringNormalOperation) {
+                    Logger.fine("Connecting to " + remote + " at " + start);
+                }
                 String postfix = "";
                 closeActiveConnectionIfAny();
                 try {
@@ -153,6 +180,8 @@ public class CluckTCPClient extends ReporterThread {
                 pauseBeforeSubsequentCycle(start, postfix);
             }
         } finally {
+            isReconnecting = false;
+            isEstablished = false;
             if (sock != null) {
                 sock.close();
             }
@@ -160,10 +189,11 @@ public class CluckTCPClient extends ReporterThread {
     }
 
     private void pauseBeforeSubsequentCycle(long start, String postfix) throws InterruptedException {
+        reconnectDeadline = reconnectDelayMillis + start;
         long spent = System.currentTimeMillis() - start;
         long remaining = reconnectDelayMillis - spent;
         if (remaining > 0) {
-            if (remaining > 500) {
+            if (remaining > 500 && logDuringNormalOperation) {
                 Logger.fine("Waiting " + remaining + " milliseconds before reconnecting." + postfix);
             }
             Thread.sleep(remaining);
@@ -172,15 +202,21 @@ public class CluckTCPClient extends ReporterThread {
 
     private String tryConnection() {
         try {
+            isReconnecting = true;
             sock = Network.connectDynPort(remote, DEFAULT_PORT);
             DataInputStream din = sock.openDataInputStream();
             DataOutputStream dout = sock.openDataOutputStream();
+            isEstablished = true;
             CluckProtocol.handleHeader(din, dout, remoteNameHint);
             Logger.fine("Connected to " + remote + " at " + System.currentTimeMillis());
             CluckLink deny = CluckProtocol.handleSend(dout, linkName, node);
             node.notifyNetworkModified(); // Only send here, not on server.
+            isReconnecting = false;
             CluckProtocol.handleRecv(din, linkName, node, deny);
+            isEstablished = false;
         } catch (IOException ex) {
+            isReconnecting = false;
+            isEstablished = false;
             if ("Remote server not available.".equals(ex.getMessage()) || "Timed out while connecting.".equals(ex.getMessage()) || "java.net.UnknownHostException".equals(ex.getClass().getName())) {
                 return " (" + ex.getMessage() + ")";
             } else {
@@ -188,5 +224,29 @@ public class CluckTCPClient extends ReporterThread {
             }
         }
         return "";
+    }
+
+    /**
+     * @return if this connection is currently reconnecting
+     */
+    public boolean isReconnecting() {
+        return isReconnecting;
+    }
+
+    /**
+     * Get the reconnect deadline - only really useful if isReconnecting() and
+     * isEstablished() both return false.
+     * 
+     * @return the reconnect deadline: by when we should be reconnecting again.
+     */
+    public long getReconnectDeadline() {
+        return reconnectDeadline;
+    }
+
+    /**
+     * @return if this connection is currently established
+     */
+    public boolean isEstablished() {
+        return isEstablished;
     }
 }

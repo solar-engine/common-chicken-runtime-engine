@@ -60,8 +60,30 @@ public class CluckNetworkingComponent extends SuperCanvasComponent {
             g.setColor(Color.WHITE);
             g.drawString(address.toString(), screenWidth - 190, 50);
         } else {
-            g.setColor(contains(mouseX, mouseY) ? Color.CYAN : Color.WHITE);
+            if (getPanel().editmode) {
+                g.setColor(contains(mouseX, mouseY) ? Color.CYAN : Color.WHITE);
+            } else {
+                g.setColor(contains(mouseX, mouseY) ? Color.GREEN : Color.BLACK);
+            }
             String countReport = "~" + CountingNetworkProvider.getTotal() / 128 + "kbs";
+            if (client == null) {
+                countReport = "(not ready) " + countReport;
+            } else if (client.isReconnecting()) {
+                if (client.isEstablished()) {
+                    countReport = "(establishing...) " + countReport;
+                } else {
+                    countReport = "(connecting to " + client.getRemote() + "...) " + countReport;
+                }
+            } else if (client.isEstablished()) {
+                countReport = "(active) " + countReport;
+            } else {
+                float pause_remain = (int) ((client.getReconnectDeadline() - System.currentTimeMillis()) / 100f) / 10f;
+                if (pause_remain <= 0) {
+                    countReport = "(about to reconnect) " + countReport;
+                } else {
+                    countReport = "(pausing for " + pause_remain + "s) " + countReport;
+                }
+            }
             g.drawString(countReport, screenWidth - fontMetrics.stringWidth(countReport), fontMetrics.getAscent());
         }
     }
@@ -72,18 +94,19 @@ public class CluckNetworkingComponent extends SuperCanvasComponent {
     }
 
     private synchronized void updateConnection() {
-        if (getPanel() == null) {
+        String remote = calculateRemote();
+        if (getPanel() == null || remote == null) {
             if (client != null) {
                 client.terminate();
                 client = null;
             }
         } else if (client == null) {
-            client = new CluckTCPClient(calculateRemote(), Cluck.getNode(), "robot", "phidget");
+            client = new CluckTCPClient(remote, Cluck.getNode(), "robot", "phidget");
+            client.setLogDuringNormalOperation(false);
             client.start();
         } else {
-            String calc = calculateRemote();
-            if (!client.getRemote().equals(calc)) {
-                client.setRemote(calc);
+            if (!client.getRemote().equals(remote)) {
+                client.setRemote(remote);
             }
         }
     }
@@ -98,7 +121,6 @@ public class CluckNetworkingComponent extends SuperCanvasComponent {
         CCollection<String> addresses = Network.listIPv4Addresses();
         for (String addr : addresses) {
             String[] spt = addr.split("[.]");
-            //Logger.fine("Found: " + addr);
             if (spt.length == 4 && spt[0].equals("10")) {
                 try {
                     int prefix = Integer.parseInt(spt[1]);
@@ -115,6 +137,9 @@ public class CluckNetworkingComponent extends SuperCanvasComponent {
                 }
             }
         }
+        if (address.toString().contains("$T") && T == '?') {
+            return null;
+        }
         return address.toString().replace("$T", Character.toString(T)).replace("$E", Character.toString(E)).replace("$A", Character.toString(A)).replace("$M", Character.toString(M));
     }
 
@@ -123,7 +148,7 @@ public class CluckNetworkingComponent extends SuperCanvasComponent {
         if (expanded) {
             return x >= getPanel().getWidth() - 200 && y <= 100;
         } else {
-            return x >= getPanel().getWidth() - 50 && y <= 20;
+            return x >= getPanel().getWidth() - 100 && y <= 18;
         }
     }
 

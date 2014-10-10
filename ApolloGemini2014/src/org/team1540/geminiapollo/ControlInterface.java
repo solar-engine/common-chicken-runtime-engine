@@ -119,7 +119,7 @@ public class ControlInterface {
         final FloatInputPoll plus = joystick1.getAxisChannel(3), minus = joystick1.getAxisChannel(4);
         return driveDeadzone.wrap(FloatMixing.negate(new FloatInputPoll() {
             public float get() {
-                return plus.get() + minus.get();
+                return plus.get() - minus.get();
             }
         }));
     }

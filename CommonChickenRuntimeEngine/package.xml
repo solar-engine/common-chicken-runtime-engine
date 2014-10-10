@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<project default="build-package">
+	<target name="build-package">
+		<exec executable="git" outputproperty="git-desc" failonerror="true">
+			<arg value="describe" />
+			<arg value="--dirty" />
+		</exec>
+		<property name="package.zip" location="./dist/${git-desc}.zip" />
+		<echo message="Building ${package.zip}" />
+		<exec executable="git" failonerror="true" dir="..">
+			<arg value="archive" />
+			<arg value="--output=${package.zip}" />
+			<arg value="--prefix=${git-desc}/" />
+			<arg value="HEAD" />
+		</exec>
+		<length file="${package.zip}" property="package.zip.bytes" />
+		<script language="javascript">
+			<![CDATA[project.setNewProperty("package.zip.kb", Math.round(project.getProperty("package.zip.bytes") / 1024));]]>
+		</script>
+		<echo message="Output size is ${package.zip.kb} kilobytes." />
+	</target>
+</project>

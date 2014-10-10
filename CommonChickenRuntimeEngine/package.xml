@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <project default="build-package">
+	<property name="scratch-dir" value="" />
 	<target name="build-package">
 		<exec executable="git" outputproperty="git-desc" failonerror="true">
 			<arg value="describe" />
@@ -7,12 +8,26 @@
 		</exec>
 		<property name="package.zip" location="./dist/${git-desc}.zip" />
 		<echo message="Building ${package.zip}" />
-		<exec executable="git" failonerror="true" dir="..">
+		<!-- <exec executable="git" failonerror="true" dir="..">
 			<arg value="archive" />
-			<arg value="--output=${package.zip}" />
-			<arg value="--prefix=${git-desc}/" />
+			<arg value="- -output=${package.zip}" />
+			<arg value="- -prefix=${git-desc}/" />
 			<arg value="HEAD" />
+		</exec> -->
+		<!-- <tempfile property="git.dir" destDir="${java.io.tmpdir}" prefix="ccre-package-"/> -->
+		<property name="git.dir" value="${java.io.tmpdir}/ccre-package-dir" />
+		<delete dir="${git.dir}" />
+		<mkdir dir="${git.dir}" />
+		<property name="git.src.dir" location=".." />
+		<property name="git.src.url" value="file://${git.src.dir}" />
+		<echo message="Locally cloning from ${git.src.dir}" />
+		<exec executable="git" dir="${git.dir}" failonerror="true">
+			<arg value="clone" />
+			<arg value="${git.src.url}" />
+			<arg value="ccre-clone" />
 		</exec>
+		<zip basedir="${git.dir}/ccre-clone" file="${package.zip}" defaultexcludes="false" />
+		<delete dir="${git.dir}" />
 		<length file="${package.zip}" property="package.zip.bytes" />
 		<script language="javascript">
 			<![CDATA[project.setNewProperty("package.zip.kb", Math.round(project.getProperty("package.zip.bytes") / 1024));]]>

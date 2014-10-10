@@ -8,13 +8,13 @@
 	<property name="unverif-2014.jar" location="Library_Prebuild.jar" />
 	<property name="veriflib-2014.jar" location="lib2014/squawk.jar" />
 	<property name="build-2014.path" location="${unverif-2014.jar}${path.separator}${veriflib-2014.jar}" />
-	
-	<taskdef resource="net/jtools/classloadertask/antlib.xml" classpath="${lib-2014.dir}/ant-classloadertask.jar" />
+
+	<taskdef resource="net/jtools/classloadertask/antlib.xml" classpath="${ccre-root.dir}/CCRE_Igneous_cRIO/lib2014/ant-classloadertask.jar" />
 
 	<target name="prebuild-jar">
 		<delete file="Empty.jar" />
 		<jar destfile="Empty.jar" update="false" />
-		
+
 		<delete file="Library_Prebuild.jar" />
 		<jar destfile="Library_Prebuild.jar" update="false">
 			<!-- <fileset dir="bin" includes="**/*.class" /> -->

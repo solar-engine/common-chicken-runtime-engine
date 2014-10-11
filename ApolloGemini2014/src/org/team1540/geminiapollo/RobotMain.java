@@ -30,7 +30,7 @@ public class RobotMain extends IgneousCore {
         testing = new TestMode(getIsTest());
         AutonomousController autonomous = new AutonomousController();
 
-        BooleanStatus isKidMode = new BooleanStatus(true);
+        BooleanStatus isKidMode = new BooleanStatus();
         Cluck.publish("Kid Mode", isKidMode);
 
         FloatInputPoll voltage = getBatteryVoltage();

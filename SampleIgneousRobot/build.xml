@@ -2,6 +2,16 @@
 
 <project name="FRC Deployment" default="deploy">
 
-  <import file="../CCRE_Igneous_RoboRIO/src/external_build.xml"/>
+	<!-- If this line fails, make sure that the ANT is set to run in the same JRE as the workspace. -->
+	<eclipse.convertPath resourcePath="/CCRE_Igneous_cRIO" property="root.dir" />
 
-</project> 
+	<property name="compute-ccre-root.dir" location="${root.dir}${file.separator}.." />
+	<propertyfile file="local-cache.properties">
+		<entry key="ccre-root.dir" value="${compute-ccre-root.dir}" />
+	</propertyfile>
+	
+	<property file="local-cache.properties" />
+
+	<import file="${ccre-root.dir}/CCRE_Igneous_RoboRIO/src/external_build.xml" />
+
+</project>

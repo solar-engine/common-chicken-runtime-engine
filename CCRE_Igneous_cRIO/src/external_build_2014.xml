@@ -6,7 +6,6 @@
 
 	<property name="ccre-root.dir" value="../.." />
 
-	<!-- TODO: Emulate for 2014 -->
 	<property name="lib-2014.dir" location="${ccre-root.dir}/CCRE_Igneous_cRIO/lib2014" />
 	<property name="unverif-2014.jar" location="${ccre-root.dir}/CCRE_Igneous_cRIO/Empty.jar" />
 	<property name="veriflib-2014.jar" location="${ccre-root.dir}/CCRE_Igneous_cRIO/Igneous.jar" />
@@ -19,6 +18,8 @@
 	<property name="suite-2014.name" value="image" />
 	<property name="preverify-2014.dir" location="${build-2014.dir}/preverify" />
 	<property name="app-2014.jar" location="${build-2014.dir}/app.jar" />
+	<property name="emulatee-2014.jar" location="${build-2014.dir}/emulatee.jar" />
+	<property name="emulator-2014.dir" value="${ccre-root.dir}/IgneousEmulator/bin" />
 	<property name="squawk-2014.jar" location="${lib-2014.dir}/squawk.jar" />
 
 	<property name="preverify-2014-excludes" value="java/lang/StringBuilder.class" />
@@ -130,6 +131,13 @@
 				<exclude name="**/*.java" />
 			</fileset>
 		</jar>
+		<jar destfile="${emulatee-2014.jar}" update="false">
+			<manifest>
+				<attribute name="Igneous-Main" value="${igneous.main}" />
+			</manifest>
+
+			<fileset dir="${preverify-2014.dir}" includes="**/*.class" />
+		</jar>
 	</target>
 
 	<target name="suite-2014" depends="jar-2014">
@@ -193,5 +201,14 @@
 
 	<target name="run-2014">
 		<frcrun remoteaddress="${remoteaddress-2014}" />
+	</target>
+
+	<target name="emulate-2014" depends="jar-2014">
+		<java jar="../IgneousEmulator/Emulator.jar" fork="true">
+			<arg value="${emulatee-2014.jar}" />
+			<classpath>
+				<fileset dir="${emulator-2014.dir}" includes="**/*.class" />
+			</classpath>
+		</java>
 	</target>
 </project>

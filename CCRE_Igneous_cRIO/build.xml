@@ -2,6 +2,7 @@
 <project name="Build Jar" default="build-jar">
 
 	<property name="ccre-root.dir" value=".." />
+	<property name="project.dir" value="." />
 	<property name="src.dir" value="src" />
 	<property name="preverify-2014-excludes" value="none" />
 	<property name="preverify-2014-bypass" value="StringBuilder.class" />

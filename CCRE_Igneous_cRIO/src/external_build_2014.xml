@@ -5,7 +5,7 @@
 	<!-- Note that build.xml in the root of CCRE_Igneous_cRIO uses it for precompilation. -->
 
 	<fail unless="ccre-root.dir" message="ccre-root.dir must be set!" />
-	<fail unless="project.dir" message="ccre-root.dir must be set!" />
+	<fail unless="project.dir" message="project.dir must be set!" />
 
 	<property name="lib-2014.dir" location="${ccre-root.dir}/CCRE_Igneous_cRIO/lib2014" />
 	<property name="unverif-2014.jar" location="${ccre-root.dir}/CCRE_Igneous_cRIO/Empty.jar" />

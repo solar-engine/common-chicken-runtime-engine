@@ -5,7 +5,7 @@
 	<stringAttribute key="org.eclipse.debug.core.ATTR_REFRESH_SCOPE"
 		value="${workspace}" />
 	<listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_PATHS">
-		<listEntry value="/CCRE_Igneous_RoboRIO/src/external_build.xml" />
+		<listEntry value="/CCRE_Igneous_cRIO/src/external_build.xml" />
 	</listAttribute>
 	<listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_TYPES">
 		<listEntry value="1" />
@@ -31,7 +31,7 @@
 		key="org.eclipse.ui.externaltools.ATTR_LAUNCH_CONFIGURATION_BUILD_SCOPE"
 		value="${project}" />
 	<stringAttribute key="org.eclipse.ui.externaltools.ATTR_LOCATION"
-		value="${workspace_loc:/CCRE_Igneous_RoboRIO/src/external_build.xml}" />
+		value="${workspace_loc:/CCRE_Igneous_cRIO/src/external_build.xml}" />
 	<booleanAttribute key="org.eclipse.ui.externaltools.ATTR_SHOW_CONSOLE"
 		value="true" />
 	<stringAttribute key="process_factory_id"

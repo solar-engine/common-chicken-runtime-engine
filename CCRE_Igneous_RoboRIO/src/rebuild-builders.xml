@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project name="FRC Deployment" default="generate-all">
+
+	<!-- Specified in the builder configuration for this ANT builder. -->
+	<eclipse.convertPath filesystempath="${rebuilder-target}" property="rebuilder.dir" />
+
+	<target name="generate-by-template">
+		<script language="javascript">
+			<![CDATA[
+			// Strip off the slash.
+			project.setNewProperty("rebuilder.name", project.getProperty("rebuilder.dir").substr(1));
+			]]>
+		</script>
+		<property name="target.file" value="${rebuilder-target}/launches/${rebuilder.name} ${outer-name}.launch" />
+		<copy verbose="false" file="invocation-template.xml" tofile="${target.file}" overwrite="true" />
+		<replace file="${target.file}" token="PROJECT_ROOT" value="${rebuilder.name}" />
+		<replace file="${target.file}" token="LAUNCH_ANT_TARGETS" value="${targets}" />
+	</target>
+
+	<target name="generate-all">
+		<echo message="Rebuilding targets..." />
+		<delete dir="${rebuilder-target}/launches" />
+		<antcall target="generate-by-template">
+			<param name="outer-name" value="Deploy" />
+			<param name="targets" value="deploy" />
+		</antcall>
+		<antcall target="generate-by-template">
+			<param name="outer-name" value="Deploy2014" />
+			<param name="targets" value="deploy-2014,run-2014" />
+		</antcall>
+		<antcall target="generate-by-template">
+			<param name="outer-name" value="Emulate" />
+			<param name="targets" value="emulate" />
+		</antcall>
+		<antcall target="generate-by-template">
+			<param name="outer-name" value="Emulate2014" />
+			<param name="targets" value="emulate-2014" />
+		</antcall>
+	</target>
+
+</project>

@@ -2,7 +2,8 @@
 
 <project name="CCRE Build">
 
-	<property name="ccre-root.dir" value=".." />
+	<eclipse.convertPath resourcePath="/CCRE_Igneous_cRIO" property="ccre-nonroot.dir" />
+	<property name="ccre-root.dir" location="${ccre-nonroot.dir}/.." />
 
 	<property file="${user.home}/wpilib/wpilib.properties" />
 	<property file="build.properties" />

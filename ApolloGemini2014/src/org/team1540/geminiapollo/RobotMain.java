@@ -25,6 +25,7 @@ public class RobotMain extends IgneousCore {
         if (isRoboRIO()) {
             new CluckTCPServer(Cluck.getNode(), 443).start();
             new CluckTCPServer(Cluck.getNode(), 1540).start();
+            new CluckTCPServer(Cluck.getNode(), 1180).start();
         }
         new CluckTCPServer(Cluck.getNode(), 1180).start();
         testing = new TestMode(getIsTest());

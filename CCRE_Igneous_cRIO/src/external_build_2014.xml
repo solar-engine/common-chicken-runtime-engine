@@ -4,17 +4,18 @@
 	<!-- Assumes that external_build.xml is including this. Don't use it otherwise! -->
 	<!-- Note that build.xml in the root of CCRE_Igneous_cRIO uses it for precompilation. -->
 
-	<property name="ccre-root.dir" value="../.." />
+	<fail unless="ccre-root.dir" message="ccre-root.dir must be set!" />
+	<fail unless="project.dir" message="ccre-root.dir must be set!" />
 
 	<property name="lib-2014.dir" location="${ccre-root.dir}/CCRE_Igneous_cRIO/lib2014" />
 	<property name="unverif-2014.jar" location="${ccre-root.dir}/CCRE_Igneous_cRIO/Empty.jar" />
 	<property name="veriflib-2014.jar" location="${ccre-root.dir}/CCRE_Igneous_cRIO/Igneous.jar" />
 	<property name="build-2014.path" location="${ccre-root.dir}/CCRE_Igneous_cRIO/Library_Postbuild.jar" />
-	<property name="build-2014.dir" location="./build-2014" />
+	<property name="build-2014.dir" location="${project.dir}/build-2014" />
 	<property name="classes-2014.dir" location="${build-2014.dir}/classes" />
 	<property name="downgrade-2014.dir" location="${build-2014.dir}/downgrade" />
 	<property name="suite-2014.dir" location="${build-2014.dir}/suite" />
-	<property name="suite-2014.local.dir" value="./build-2014/suite" />
+	<property name="suite-2014.local.dir" value="${build-2014.dir}/suite" />
 	<property name="suite-2014.name" value="image" />
 	<property name="preverify-2014.dir" location="${build-2014.dir}/preverify" />
 	<property name="app-2014.jar" location="${build-2014.dir}/app.jar" />
@@ -204,7 +205,8 @@
 	</target>
 
 	<target name="emulate-2014" depends="jar-2014">
-		<java jar="../IgneousEmulator/Emulator.jar" fork="true">
+		<mkdir dir="${project.dir}/emulation-crio"/>
+		<java jar="${ccre-root.dir}/IgneousEmulator/Emulator.jar" fork="true" dir="${project.dir}/emulation-crio">
 			<arg value="${emulatee-2014.jar}" />
 			<classpath>
 				<fileset dir="${emulator-2014.dir}" includes="**/*.class" />

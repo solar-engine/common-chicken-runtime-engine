@@ -3,16 +3,20 @@
 <project name="CCRE Build">
 
 	<eclipse.convertPath resourcePath="/CCRE_Igneous_cRIO" property="ccre-nonroot.dir" />
+	<eclipse.convertPath resourcePath="${project-root}" property="project.dir" />
 	<property name="ccre-root.dir" location="${ccre-nonroot.dir}/.." />
-
+	<property name="src.dir" value="${project.dir}/src" />
+	<property name="build.dir" value="${project.dir}/build" />
+	<property name="dist.dir" value="${project.dir}/dist" />
+	
 	<property file="${user.home}/wpilib/wpilib.properties" />
-	<property file="build.properties" />
+	<property file="${project.dir}/build.properties" />
 	<property file="${user.home}/wpilib/java/${version}/ant/build.properties" />
-	<property file="src/main.properties" />
+	<property file="${src.dir}/main.properties" />
 
 	<property name="emulate.jar" value="${dist.dir}/EmulationTarget.jar" />
 	<property name="emulator.dir" value="${ccre-root.dir}/IgneousEmulator/bin" />
-	<property name="classpath-new" value="${classpath}${path.separator}../CCRE_Igneous_RoboRIO/Igneous.jar" />
+	<property name="classpath-new" value="${classpath}${path.separator}${ccre-root.dir}/CCRE_Igneous_RoboRIO/Igneous.jar" />
 
 	<!-- Used iff wpilib 2015 is not installed. -->
 	<property name="src.dir" value="src" />
@@ -65,7 +69,8 @@
 	</target>
 
 	<target name="emulate" depends="jar">
-		<java jar="../IgneousEmulator/Emulator.jar" fork="true">
+		<mkdir dir="${project.dir}/emulation-roborio"/>
+		<java jar="${ccre-root.dir}/IgneousEmulator/Emulator.jar" fork="true" dir="${project.dir}/emulation-roborio">
 			<arg value="${emulate.jar}" />
 			<classpath>
 				<fileset dir="${emulator.dir}" includes="**/*.class" />

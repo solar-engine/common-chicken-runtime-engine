@@ -2,6 +2,8 @@
 <launchConfiguration type="org.eclipse.ant.AntLaunchConfigurationType">
 	<booleanAttribute key="org.eclipse.ant.ui.DEFAULT_VM_INSTALL"
 		value="false" />
+	<stringAttribute key="org.eclipse.debug.core.ATTR_REFRESH_SCOPE"
+		value="${workspace}" />
 	<listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_PATHS">
 		<listEntry value="/CCRE_Igneous_RoboRIO/src/external_build.xml" />
 	</listAttribute>
@@ -19,13 +21,17 @@
 		value="PROJECT_ROOT" />
 	<stringAttribute key="org.eclipse.jdt.launching.SOURCE_PATH_PROVIDER"
 		value="org.eclipse.ant.ui.AntClasspathProvider" />
+	<mapAttribute key="org.eclipse.ui.externaltools.ATTR_ANT_PROPERTIES">
+		<mapEntry key="eclipse.running" value="true" />
+		<mapEntry key="project-root" value="/PROJECT_ROOT" />
+	</mapAttribute>
 	<stringAttribute key="org.eclipse.ui.externaltools.ATTR_ANT_TARGETS"
 		value="LAUNCH_ANT_TARGETS" />
 	<stringAttribute
 		key="org.eclipse.ui.externaltools.ATTR_LAUNCH_CONFIGURATION_BUILD_SCOPE"
 		value="${project}" />
 	<stringAttribute key="org.eclipse.ui.externaltools.ATTR_LOCATION"
-		value="${workspace_loc:PROJECT_ROOT/build.xml}" />
+		value="${workspace_loc:/CCRE_Igneous_RoboRIO/src/external_build.xml}" />
 	<booleanAttribute key="org.eclipse.ui.externaltools.ATTR_SHOW_CONSOLE"
 		value="true" />
 	<stringAttribute key="process_factory_id"

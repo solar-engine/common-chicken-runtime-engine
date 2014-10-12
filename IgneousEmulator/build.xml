@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<project name="Build Jar">
+<project name="Build Jar" default="build-jar">
     <target name="build-jar">
     	<jar destfile="Emulator.jar" update="false">
     		<manifest>

@@ -25,6 +25,9 @@
 		<mapEntry key="eclipse.running" value="true" />
 		<mapEntry key="project-root" value="/PROJECT_ROOT" />
 	</mapAttribute>
+	<booleanAttribute
+		key="org.eclipse.ui.externaltools.ATTR_INCLUDE_REFERENCED_PROJECTS"
+		value="false" />
 	<stringAttribute key="org.eclipse.ui.externaltools.ATTR_ANT_TARGETS"
 		value="LAUNCH_ANT_TARGETS" />
 	<stringAttribute

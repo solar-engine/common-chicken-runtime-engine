@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 Colby Skeggs
+ * Copyright 2013-2014 Colby Skeggs
  * 
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  * 
@@ -26,7 +26,7 @@ import ccre.channel.EventStatus;
  *
  * @author skeggsc
  */
-public final class TestEvent extends BaseTest implements EventOutput {
+public final class TestEventStatus extends BaseTest implements EventOutput {
 
     private int eventCalled = -42;
 

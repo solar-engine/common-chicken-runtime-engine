@@ -58,7 +58,7 @@ public class SuiteOfTests {
                 // MultipleSourceBooleanController - Needed!
         new TestTicker(),
                 // ccre.event
-        new TestEvent(),
+        new TestEventStatus(),
                 // EventLogger - Needed!
 
                 // ccre.holders - Needed!

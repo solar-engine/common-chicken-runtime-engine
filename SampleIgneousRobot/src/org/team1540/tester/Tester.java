@@ -21,7 +21,7 @@ public class Tester implements IgneousApplication {
      */
     public void setupRobot() {
         int base = Igneous.isRoboRIO() ? 0 : 1;
-        for (int i = base; i < 20 + base; i++) {
+        for (int i = base; i < (Igneous.isRoboRIO() ? 20 : 10) + base; i++) {
             Cluck.publish("talon-" + i, Igneous.makeTalonMotor(i, false, 0.1f));
         }
         for (int i = base; i < 8 + base; i++) {

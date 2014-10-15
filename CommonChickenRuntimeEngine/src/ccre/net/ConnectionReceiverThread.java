@@ -56,7 +56,18 @@ public abstract class ConnectionReceiverThread extends ReporterThread {
     @Override
     protected final void threadBody() throws IOException {
         Logger.fine("About to listen on " + port);
-        ServerSocket sock = Network.bind(port);
+        ServerSocket sock;
+        try {
+            sock = Network.bind(port);
+        } catch (IOException e) {
+            if (e.getClass().getName().equals("java.net.BindException")) {
+                Logger.warning("Failed to bind to port 80.");
+                return;
+            } else {
+                throw e;
+            }
+        }
+        
         while (true) {
             final ClientSocket conn = sock.accept();
             new ReporterThread(thrName + "-client") {
@@ -70,6 +81,7 @@ public abstract class ConnectionReceiverThread extends ReporterThread {
                 }
             }.start();
         }
+
     }
 
     /**

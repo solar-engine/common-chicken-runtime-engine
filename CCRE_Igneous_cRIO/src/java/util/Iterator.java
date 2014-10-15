@@ -20,8 +20,6 @@ package java.util;
 
 import java.util.NoSuchElementException;
 
-import ccre.downgrade.UnsupportedOperationException;
-
 /**
  * This a substitute for java.util.Iterator for Squawk. Does nothing useful whatsoever except stuff can work.
  *

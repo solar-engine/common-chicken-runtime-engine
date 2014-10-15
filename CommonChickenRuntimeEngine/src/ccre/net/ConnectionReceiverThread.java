@@ -73,7 +73,7 @@ public abstract class ConnectionReceiverThread extends ReporterThread {
     }
 
     /**
-     * Handle a client. This is ran in a new thread, so you don't need to worry
+     * Handle a client. This is run in a new thread, so you don't need to worry
      * about holding up other threads or accidentally terminating all
      * connections if an error occurs. The connection will be closed
      * automatically once this method returns or throws an error.

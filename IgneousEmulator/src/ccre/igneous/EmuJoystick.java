@@ -164,4 +164,14 @@ public final class EmuJoystick implements IJoystick, EventOutput {
             }
         };
     }
+
+	@Override
+	public FloatInput getXAxisSource() {
+		return getAxisSource(1);
+	}
+
+	@Override
+	public FloatInput getYAxisSource() {
+		return getAxisSource(2);
+	}
 }

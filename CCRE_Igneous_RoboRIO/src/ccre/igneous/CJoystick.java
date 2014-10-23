@@ -162,4 +162,13 @@ final class CJoystick implements EventOutput, IJoystick {
             fpb.set((float) joy.getRawAxis(i));
         }
     }
+    
+	public FloatInput getXAxisSource() {
+		return getAxisSource(1);
+	}
+
+	public FloatInput getYAxisSource() {
+		return getAxisSource(2);
+	}
+
 }

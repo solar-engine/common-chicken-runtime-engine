@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2014 Colby Skeggs
+ * Copyright 2013-2014 Colby Skeggs, Alexander Mackworth
  * 
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  * 
@@ -77,4 +77,18 @@ public interface IJoystick {
      * @return the FloatInputPoll representing the status of the Y axis.
      */
     public FloatInputPoll getYChannel();
+    
+    /**
+     * Get a FloatInput for the X axis.
+     * 
+     * @return the FloatInput representing the axis.
+     */
+    public FloatInput getXAxisSource();
+    
+    /**
+     * Get a FloatInput for the Y axis.
+     * 
+     * @return the FloatInput representing the axis.
+     */
+    public FloatInput getYAxisSource();
 }

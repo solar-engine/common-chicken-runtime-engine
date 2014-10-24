@@ -58,14 +58,10 @@ public class DriverImpls {
     /**
      * Run tank drive on the given two FloatInputProducers and FloatOutputs.
      *
-     * @param leftIn
-     *            the left control axis.
-     * @param rightIn
-     *            the right control axis.
-     * @param leftOut
-     *            the left motor.
-     * @param rightOut
-     *            the right motor.
+     * @param leftIn the left control axis.
+     * @param rightIn the right control axis.
+     * @param leftOut the left motor.
+     * @param rightOut the right motor.
      * @see DriverImpls
      */
     public static void createAsynchTankDriver(FloatInput leftIn, FloatInput rightIn, FloatOutput leftOut, FloatOutput rightOut) {
@@ -77,14 +73,10 @@ public class DriverImpls {
      * When the returned EventOutput is fired, run tank drive on the given two
      * FloatInputPolls and FloatOutputs.
      *
-     * @param leftIn
-     *            the left control axis.
-     * @param rightIn
-     *            the right control axis.
-     * @param leftOut
-     *            the left motor.
-     * @param rightOut
-     *            the right motor.
+     * @param leftIn the left control axis.
+     * @param rightIn the right control axis.
+     * @param leftOut the left motor.
+     * @param rightOut the right motor.
      * @return the EventOutput that will update the motors.
      * @see DriverImpls
      */
@@ -101,16 +93,11 @@ public class DriverImpls {
      * When the specified EventInput is fired, run tank drive on the given two
      * FloatInputPolls and FloatOutputs.
      *
-     * @param source
-     *            when to update the motors.
-     * @param leftIn
-     *            the left control axis.
-     * @param rightIn
-     *            the right control axis.
-     * @param leftOut
-     *            the left motor.
-     * @param rightOut
-     *            the right motor.
+     * @param source when to update the motors.
+     * @param leftIn the left control axis.
+     * @param rightIn the right control axis.
+     * @param leftOut the left motor.
+     * @param rightOut the right motor.
      * @see DriverImpls
      */
     public static void createSynchTankDriver(EventInput source, FloatInputPoll leftIn, FloatInputPoll rightIn, FloatOutput leftOut, FloatOutput rightOut) {
@@ -121,16 +108,11 @@ public class DriverImpls {
      * When the returned EventOutput is fired, run extended tank drive on the
      * given three FloatInputPolls and FloatOutputs.
      *
-     * @param leftIn
-     *            the left control axis.
-     * @param rightIn
-     *            the right control axis.
-     * @param allIn
-     *            the forward control axis. will be added to both outputs.
-     * @param leftOut
-     *            the left motor.
-     * @param rightOut
-     *            the right motor.
+     * @param leftIn the left control axis.
+     * @param rightIn the right control axis.
+     * @param allIn the forward control axis. will be added to both outputs.
+     * @param leftOut the left motor.
+     * @param rightOut the right motor.
      * @return the EventOutput that will update the motors.
      * @see DriverImpls
      */
@@ -148,18 +130,12 @@ public class DriverImpls {
      * When the specified EventInput is fired, run extended tank drive on the
      * given three FloatInputPolls and FloatOutputs.
      *
-     * @param source
-     *            when to update the motors.
-     * @param leftIn
-     *            the left control axis.
-     * @param rightIn
-     *            the right control axis.
-     * @param allIn
-     *            the forward control axis. will be added to both outputs.
-     * @param leftOut
-     *            the left motor.
-     * @param rightOut
-     *            the right motor.
+     * @param source when to update the motors.
+     * @param leftIn the left control axis.
+     * @param rightIn the right control axis.
+     * @param allIn the forward control axis. will be added to both outputs.
+     * @param leftOut the left motor.
+     * @param rightOut the right motor.
      * @see DriverImpls
      */
     public static void createExtendedSynchTankDriver(EventInput source, FloatInputPoll leftIn, FloatInputPoll rightIn, FloatInputPoll allIn, FloatOutput leftOut, FloatOutput rightOut) {
@@ -170,14 +146,10 @@ public class DriverImpls {
      * Run single joystick drive on the given two FloatInputProducers and
      * FloatOutputs.
      *
-     * @param joystickXAxis
-     *            the joystick's x-axis.
-     * @param joystickYAxis
-     *            the joystick's y-axis.
-     * @param leftOut
-     *            the left motor.
-     * @param rightOut
-     *            the right motor.
+     * @param joystickXAxis the joystick's x-axis.
+     * @param joystickYAxis the joystick's y-axis.
+     * @param leftOut the left motor.
+     * @param rightOut the right motor.
      * @see DriverImpls
      */
     public static void createAsynchSingleJoystickDriver(final FloatInput joystickXAxis, final FloatInput joystickYAxis, final FloatOutput leftOut, final FloatOutput rightOut) {
@@ -202,14 +174,10 @@ public class DriverImpls {
      * When the returned EventInput is fired, run single joystick drive on the
      * given two FloatInputPolls and FloatOutputs.
      * 
-     * @param joystickXAxis
-     *            the joystick's x-axis.
-     * @param joystickYAxis
-     *            the joystick's y-axis.
-     * @param leftOut
-     *            the left motor.
-     * @param rightOut
-     *            the right motor.
+     * @param joystickXAxis the joystick's x-axis.
+     * @param joystickYAxis the joystick's y-axis.
+     * @param leftOut the left motor.
+     * @param rightOut the right motor.
      * @return the EventOutput that will update the motors.
      * @see DriverImpls
      */
@@ -228,16 +196,11 @@ public class DriverImpls {
      * When the specified EventInput is fired, run single joystick drive on the
      * given two FloatInputPolls and FloatOutputs.
      * 
-     * @param source
-     *            when to update the motors.
-     * @param joystickXAxis
-     *            the joystick's x-axis.
-     * @param joystickYAxis
-     *            the joystick's y-axis.
-     * @param leftOut
-     *            the left motor.
-     * @param rightOut
-     *            the right motor.
+     * @param source when to update the motors.
+     * @param joystickXAxis the joystick's x-axis.
+     * @param joystickYAxis the joystick's y-axis.
+     * @param leftOut the left motor.
+     * @param rightOut the right motor.
      * @see DriverImpls
      */
     public static void createSynchSingleJoystickDriver(EventInput source, final FloatInputPoll joystickXAxis, final FloatInputPoll joystickYAxis, FloatOutput leftOut, FloatOutput rightOut) {

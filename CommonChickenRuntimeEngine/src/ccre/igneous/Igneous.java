@@ -114,7 +114,7 @@ public class Igneous {
      * joystick1...joystick4.
      *
      * @param isRightArm If the right arm joystick should be used instead of the
-     *            left. (6 instead of 5 if you're used to the old system.)
+     * left. (6 instead of 5 if you're used to the old system.)
      * @return the IJoystick.
      */
     public static final IJoystick getKinectJoystick(boolean isRightArm) {
@@ -133,7 +133,7 @@ public class Igneous {
      *
      * @param id the motor port ID, from 1 to 10, inclusive.
      * @param negate MOTOR_FORWARD if the motor direction should be unmodified,
-     *            MOTOR_REVERSE if the motor direction should be reversed.
+     * MOTOR_REVERSE if the motor direction should be reversed.
      * @param ramping the ramping rate.
      * @return the output that will output to the specified motor.
      * @see #MOTOR_FORWARD
@@ -156,7 +156,7 @@ public class Igneous {
      *
      * @param id the motor port ID, from 1 to 10, inclusive.
      * @param negate MOTOR_FORWARD if the motor direction should be unmodified,
-     *            MOTOR_REVERSE if the motor direction should be reversed.
+     * MOTOR_REVERSE if the motor direction should be reversed.
      * @param ramping the ramping rate.
      * @return the output that will output to the specified motor.
      * @see #MOTOR_FORWARD
@@ -179,7 +179,7 @@ public class Igneous {
      *
      * @param id the motor port ID, from 1 to 10, inclusive.
      * @param negate MOTOR_FORWARD if the motor direction should be unmodified,
-     *            MOTOR_REVERSE if the motor direction should be reversed.
+     * MOTOR_REVERSE if the motor direction should be reversed.
      * @param ramping the ramping rate.
      * @return the output that will output to the specified motor.
      * @see #MOTOR_FORWARD
@@ -260,9 +260,9 @@ public class Igneous {
      *
      * @param id the port number.
      * @param minInput the value on the output that should correspond to the
-     *            servo's minimum position.
+     * servo's minimum position.
      * @param maxInput the value on the output that should correspond to the
-     *            servo's maximum position.
+     * servo's maximum position.
      * @return the FloatOutput that controls the servo.
      */
     public static FloatOutput makeServo(int id, float minInput, float maxInput) {
@@ -274,7 +274,7 @@ public class Igneous {
      * station's LCD.
      *
      * @param prefix the prefix, or label, of the output. this is prepended to
-     *            the value.
+     * the value.
      * @param line the line to display the value on, from 1 to 6.
      * @return the output that will write to the LCD.
      */
@@ -287,7 +287,7 @@ public class Igneous {
      * station's LCD.
      *
      * @param prefix the prefix, or label, of the output. this is prepended to
-     *            the value.
+     * the value.
      * @param line the line to display the value on, from 1 to 6.
      * @return the output that will write to the LCD.
      */
@@ -300,7 +300,7 @@ public class Igneous {
      * station's LCD, whenever the specified event is triggered.
      *
      * @param prefix the prefix, or label, of the output. this is prepended to
-     *            the value.
+     * the value.
      * @param line the line to display the value on, from 1 to 6.
      * @param value the value to display.
      * @param when when to update the output.
@@ -314,7 +314,7 @@ public class Igneous {
      * station's LCD, whenever the specified event is triggered.
      *
      * @param prefix the prefix, or label, of the output. this is prepended to
-     *            the value.
+     * the value.
      * @param line the line to display the value on, from 1 to 6.
      * @param value the value to display.
      * @param when when to update the output.
@@ -377,7 +377,7 @@ public class Igneous {
      * compressor relay channel.
      *
      * @param pressureSwitchChannel the channel of the pressure switch digital
-     *            input.
+     * input.
      * @param compressorRelayChannel the channel of the compressor's relay.
      */
     public static void useCompressor(int pressureSwitchChannel, int compressorRelayChannel) {
@@ -468,7 +468,7 @@ public class Igneous {
      * @param bChannel The beta-channel for the encoder.
      * @param reverse Should the result of the encoder be negated?
      * @param resetWhen If provided, the Encoder's value will be reset when this
-     *            event is produced.
+     * event is produced.
      * @return the Encoder, reporting encoder ticks.
      */
     public static FloatInputPoll makeEncoder(int aChannel, int bChannel, boolean reverse, EventInput resetWhen) {
@@ -520,9 +520,9 @@ public class Igneous {
      *
      * @param port The Gyro port number.
      * @param sensitivity The sensitivity of the Gyro. This is the number of
-     *            volts/degree/second sensitivity of the gyro and is used in
-     *            calculations to allow the code to work with multiple gyros.
-     *            0.007 is a good default value.
+     * volts/degree/second sensitivity of the gyro and is used in calculations
+     * to allow the code to work with multiple gyros. 0.007 is a good default
+     * value.
      * @param evt When to reset the Gyro.
      * @return The reference to the Gyro's current value.
      */
@@ -538,9 +538,9 @@ public class Igneous {
      *
      * @param port The Gyro port number.
      * @param sensitivity The sensitivity of the Gyro. This is the number of
-     *            volts/degree/second sensitivity of the gyro and is used in
-     *            calculations to allow the code to work with multiple gyros.
-     *            0.007 is a good default value.
+     * volts/degree/second sensitivity of the gyro and is used in calculations
+     * to allow the code to work with multiple gyros. 0.007 is a good default
+     * value.
      * @return The reference to the Gyro's current value.
      */
     public static FloatInputPoll makeGyro(int port, double sensitivity) {
@@ -553,9 +553,9 @@ public class Igneous {
      *
      * @param port The port number to attach to.
      * @param sensitivity The sensitivity of the accelerometer. This varies per
-     *            model.
+     * model.
      * @param zeropoint The voltage that corresponds to 0 G. This also varies by
-     *            model.
+     * model.
      * @return The reference to the axis on the Accelerometer.
      */
     public static FloatInputPoll makeAccelerometerAxis(int port, double sensitivity, double zeropoint) {

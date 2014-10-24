@@ -95,7 +95,7 @@ public class CluckTCPClient extends ReporterThread {
      * @param node The shared node.
      * @param linkName The link name.
      * @param remoteNameHint The hint for what the other end should call this
-     *            link.
+     * link.
      */
     public CluckTCPClient(String remote, CluckNode node, String linkName, String remoteNameHint) {
         super("cluckcli-" + remote);

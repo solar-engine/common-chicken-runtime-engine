@@ -82,14 +82,10 @@ public final class ExpirationTimer { // TODO: Allow tunable scheduling.
      * Schedule a BooleanOutput to be set to a specified value at a specific
      * delay.
      *
-     * @param delay
-     *            the delay (in milliseconds) to trigger at.
-     * @param out
-     *            the BooleanOutput to modify.
-     * @param value
-     *            the value to modify it to.
-     * @throws IllegalStateException
-     *             if the timer is already running.
+     * @param delay the delay (in milliseconds) to trigger at.
+     * @param out the BooleanOutput to modify.
+     * @param value the value to modify it to.
+     * @throws IllegalStateException if the timer is already running.
      */
     public void scheduleSet(long delay, BooleanOutput out, boolean value) throws IllegalStateException {
         schedule(delay, BooleanMixing.getSetEvent(out, value));
@@ -98,12 +94,9 @@ public final class ExpirationTimer { // TODO: Allow tunable scheduling.
     /**
      * Schedule a BooleanOutput to be set to true at a specific delay.
      *
-     * @param delay
-     *            the delay (in milliseconds) to trigger at.
-     * @param out
-     *            the BooleanOutput to modify.
-     * @throws IllegalStateException
-     *             if the timer is already running.
+     * @param delay the delay (in milliseconds) to trigger at.
+     * @param out the BooleanOutput to modify.
+     * @throws IllegalStateException if the timer is already running.
      */
     public void scheduleEnable(long delay, BooleanOutput out) throws IllegalStateException {
         scheduleSet(delay, out, true);
@@ -112,12 +105,9 @@ public final class ExpirationTimer { // TODO: Allow tunable scheduling.
     /**
      * Schedule a BooleanOutput to be set to false at a specific delay.
      *
-     * @param delay
-     *            the delay (in milliseconds) to trigger at.
-     * @param out
-     *            the BooleanOutput to modify.
-     * @throws IllegalStateException
-     *             if the timer is already running.
+     * @param delay the delay (in milliseconds) to trigger at.
+     * @param out the BooleanOutput to modify.
+     * @throws IllegalStateException if the timer is already running.
      */
     public void scheduleDisable(long delay, BooleanOutput out) throws IllegalStateException {
         scheduleSet(delay, out, false);
@@ -128,16 +118,11 @@ public final class ExpirationTimer { // TODO: Allow tunable scheduling.
      * specified range of times, and then set to the inversion of the value
      * afterwards.
      *
-     * @param start
-     *            the beginning of the period.
-     * @param stop
-     *            the end of the period.
-     * @param out
-     *            the BooleanOutput to modify.
-     * @param setToDuring
-     *            the value to set to during the period.
-     * @throws IllegalStateException
-     *             if the timer is already running.
+     * @param start the beginning of the period.
+     * @param stop the end of the period.
+     * @param out the BooleanOutput to modify.
+     * @param setToDuring the value to set to during the period.
+     * @throws IllegalStateException if the timer is already running.
      */
     public void scheduleBooleanPeriod(long start, long stop, BooleanOutput out, boolean setToDuring) throws IllegalStateException {
         scheduleSet(start, out, setToDuring);
@@ -149,17 +134,12 @@ public final class ExpirationTimer { // TODO: Allow tunable scheduling.
      * course of the timer's execution. The output will be set to the specified
      * boolean at the start, and then toggled at each specified time after that.
      *
-     * @param control
-     *            the BooleanOutput to modify.
-     * @param beginWith
-     *            the boolean to begin with.
-     * @param beginAt
-     *            when to begin.
-     * @param additionalToggles
-     *            when each subsequent toggle should occur. (each element should
-     *            be larger than the previous, but this is not checked.)
-     * @throws IllegalStateException
-     *             if the timer is already running.
+     * @param control the BooleanOutput to modify.
+     * @param beginWith the boolean to begin with.
+     * @param beginAt when to begin.
+     * @param additionalToggles when each subsequent toggle should occur. (each
+     * element should be larger than the previous, but this is not checked.)
+     * @throws IllegalStateException if the timer is already running.
      */
     public void scheduleToggleSequence(BooleanOutput control, boolean beginWith, long beginAt, long... additionalToggles) throws IllegalStateException {
         scheduleSet(beginAt, control, beginWith);
@@ -173,12 +153,9 @@ public final class ExpirationTimer { // TODO: Allow tunable scheduling.
     /**
      * Schedule an EventOutput to be triggered at a specific delay.
      *
-     * @param delay
-     *            the delay (in milliseconds) to trigger at.
-     * @param cnsm
-     *            the event to fire.
-     * @throws IllegalStateException
-     *             if the timer is already running.
+     * @param delay the delay (in milliseconds) to trigger at.
+     * @param cnsm the event to fire.
+     * @throws IllegalStateException if the timer is already running.
      */
     public synchronized void schedule(long delay, EventOutput cnsm) throws IllegalStateException {
         if (isStarted) {
@@ -196,11 +173,9 @@ public final class ExpirationTimer { // TODO: Allow tunable scheduling.
     /**
      * Return an event that will be triggered at the specified delay.
      *
-     * @param delay
-     *            the delay (in milliseconds) to trigger at.
+     * @param delay the delay (in milliseconds) to trigger at.
      * @return the event that will be fired.
-     * @throws IllegalStateException
-     *             if the timer is already running.
+     * @throws IllegalStateException if the timer is already running.
      */
     public EventInput schedule(long delay) throws IllegalStateException {
         EventStatus evt = new EventStatus();
@@ -211,8 +186,7 @@ public final class ExpirationTimer { // TODO: Allow tunable scheduling.
     /**
      * Start the timer running.
      *
-     * @throws IllegalStateException
-     *             if the timer was already running.
+     * @throws IllegalStateException if the timer was already running.
      */
     public synchronized void start() throws IllegalStateException {
         if (isStarted) {
@@ -273,8 +247,7 @@ public final class ExpirationTimer { // TODO: Allow tunable scheduling.
      * Reset the timer. This will act as if the timer had just been started, in
      * terms of which events are fired when.
      *
-     * @throws IllegalStateException
-     *             if the timer was not started.
+     * @throws IllegalStateException if the timer was not started.
      */
     public synchronized void feed() throws IllegalStateException {
         if (!isStarted) {
@@ -288,8 +261,7 @@ public final class ExpirationTimer { // TODO: Allow tunable scheduling.
      * Stop the timer. This will prevent the timer from running until start is
      * called again.
      *
-     * @throws IllegalStateException
-     *             if the timer was not started.
+     * @throws IllegalStateException if the timer was not started.
      */
     public synchronized void stop() throws IllegalStateException {
         if (!isStarted) {
@@ -377,8 +349,7 @@ public final class ExpirationTimer { // TODO: Allow tunable scheduling.
      * When the specified event occurs, start the timer. See getStartEvent() for
      * details.
      *
-     * @param src
-     *            When to start the timer.
+     * @param src When to start the timer.
      * @see #getStartEvent()
      */
     public void startWhen(EventInput src) {
@@ -389,8 +360,7 @@ public final class ExpirationTimer { // TODO: Allow tunable scheduling.
      * When the specified event occurs, feed the timer. See getFeedEvent() for
      * details.
      *
-     * @param src
-     *            When to feed the timer.
+     * @param src When to feed the timer.
      * @see #getFeedEvent()
      */
     public void feedWhen(EventInput src) {
@@ -401,8 +371,7 @@ public final class ExpirationTimer { // TODO: Allow tunable scheduling.
      * When the specified event occurs, start or feed the timer. See
      * getStartOrFeedEvent() for details.
      *
-     * @param src
-     *            When to start or feed the timer.
+     * @param src When to start or feed the timer.
      * @see #getStartOrFeedEvent()
      */
     public void startOrFeedWhen(EventInput src) {
@@ -413,8 +382,7 @@ public final class ExpirationTimer { // TODO: Allow tunable scheduling.
      * When the specified event occurs, stop the timer. See getStopEvent() for
      * details.
      *
-     * @param src
-     *            When to stop the timer.
+     * @param src When to stop the timer.
      * @see #getStopEvent()
      */
     public void stopWhen(EventInput src) {
@@ -484,10 +452,8 @@ public final class ExpirationTimer { // TODO: Allow tunable scheduling.
         /**
          * Create a new task.
          *
-         * @param delay
-         *            The delay after which the task is fired.
-         * @param cnsm
-         *            The EventOutput fired by this Task.
+         * @param delay The delay after which the task is fired.
+         * @param cnsm The EventOutput fired by this Task.
          */
         Task(long delay, EventOutput cnsm) {
             this.delay = delay;

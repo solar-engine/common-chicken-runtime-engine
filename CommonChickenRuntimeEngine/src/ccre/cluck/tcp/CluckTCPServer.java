@@ -64,15 +64,23 @@ public class CluckTCPServer extends ConnectionReceiverThread {
     protected void handleClient(ClientSocket conn) {
         try {
             DataInputStream din = conn.openDataInputStream();
-            DataOutputStream dout = conn.openDataOutputStream();
-            String linkName = CluckProtocol.handleHeader(din, dout, null);
-            if (linkName == null) {
-                linkName = UniqueIds.global.nextHexId("tcpserv");
+            try {
+                DataOutputStream dout = conn.openDataOutputStream();
+                try {
+                    String linkName = CluckProtocol.handleHeader(din, dout, null);
+                    if (linkName == null) {
+                        linkName = UniqueIds.global.nextHexId("tcpserv");
+                    }
+                    Logger.fine("Client connected at " + System.currentTimeMillis() + " named " + linkName);
+                    CluckLink deny = CluckProtocol.handleSend(dout, linkName, node);
+                    CluckProtocol.handleRecv(din, linkName, node, deny);
+                    // node.notifyNetworkModified(); - sent by client, not needed here.
+                } finally {
+                    dout.close();
+                }
+            } finally {
+                din.close();
             }
-            Logger.fine("Client connected at " + System.currentTimeMillis() + " named " + linkName);
-            CluckLink deny = CluckProtocol.handleSend(dout, linkName, node);
-            CluckProtocol.handleRecv(din, linkName, node, deny);
-            // node.notifyNetworkModified(); - sent by client, not needed here.
         } catch (IOException ex) {
             Logger.warning("Bad IO in " + Thread.currentThread() + ": " + ex);
         }

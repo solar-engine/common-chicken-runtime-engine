@@ -5,7 +5,6 @@ ccre.cluck.rpc
 ccre.cluck.tcp
 ccre.concurrency
 ccre.ctrl
-ccre.downgrade
 ccre.holders
 ccre.igneous
 ccre.instinct

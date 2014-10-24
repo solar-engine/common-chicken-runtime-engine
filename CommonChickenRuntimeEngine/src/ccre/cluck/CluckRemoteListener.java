@@ -21,10 +21,8 @@ package ccre.cluck;
 /**
  * A listener that is told about objects on the network as they are discovered.
  *
- * @see CluckNode#startSearchRemotes(java.lang.String,
- * ccre.cluck.CluckRemoteListener) (deprecated)
  * @see CluckPublisher#setupSearching(ccre.cluck.CluckNode,
- * ccre.cluck.CluckRemoteListener) (new version)
+ * ccre.cluck.CluckRemoteListener)
  * @author skeggsc
  */
 public interface CluckRemoteListener {

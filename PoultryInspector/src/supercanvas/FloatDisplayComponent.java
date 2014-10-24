@@ -77,7 +77,7 @@ public class FloatDisplayComponent extends BaseChannelComponent implements Float
         g.drawLine(centerX - 3 * halfWidth / 6, centerY + halfHeight / 2 - 1, centerX - 3 * halfWidth / 6, centerY + 15);
         g.drawLine(centerX + 3 * halfWidth / 6, centerY + halfHeight / 2 - 1, centerX + 3 * halfWidth / 6, centerY + 15);
         if (value != 0) {
-            String strv = Float.toString(value);
+            String strv = String.format("%.3f", value);
             g.drawString(strv, value > 0 ? centerX - fontMetrics.stringWidth(strv) - 10 : centerX + 10, centerY - halfHeight / 2 + fontMetrics.getHeight());
         }
         int ptrCtr = centerX + (int) (halfWidth * 2 / 3 * value);

@@ -32,6 +32,7 @@ import ccre.channel.EventOutput;
  * A component that represents a Phidget Monitor.
  *
  * @author skeggsc
+ * @param <M> The subtype of IPhidgetMonitor that this contains
  */
 public class PhidgetMonitorComponent<M extends IPhidgetMonitor> extends DraggableBoxComponent {
     

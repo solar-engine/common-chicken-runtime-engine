@@ -32,10 +32,12 @@ import static intelligence.monitor.PhidgetMonitor.ANALOG_COUNT;
 import static intelligence.monitor.PhidgetMonitor.INPUT_COUNT;
 import static intelligence.monitor.PhidgetMonitor.LCD_LINES;
 import static intelligence.monitor.PhidgetMonitor.OUTPUT_COUNT;
+
 import java.awt.EventQueue;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.Serializable;
+
 import javax.swing.JSlider;
 import javax.swing.JTextField;
 import javax.swing.JToggleButton;
@@ -163,7 +165,8 @@ public class VirtualPhidgetMonitor extends javax.swing.JFrame implements IPhidge
         JTextField[] lcd = new JTextField[] { lcdLine0, lcdLine1 };
         for (int i = 0; i < LCD_LINES; i++) {
             final JTextField lcdl = lcd[i];
-            Cluck.publish("phidget-lcd" + i, new LineCollectorOutputStream() {
+            @SuppressWarnings("resource")
+            LineCollectorOutputStream collector = new LineCollectorOutputStream() {
                 @Override
                 protected void collect(final String str) {
                     EventQueue.invokeLater(new Runnable() {
@@ -173,7 +176,8 @@ public class VirtualPhidgetMonitor extends javax.swing.JFrame implements IPhidge
                         }
                     });
                 }
-            });
+            };
+            Cluck.publish("phidget-lcd" + i, collector);
         }
         Cluck.publish("phidget-attached", (BooleanInput) attached);
         JToggleButton[] btns = new JToggleButton[] { btn0, btn1, btn2, btn3, btn4, btn5, btn6, btn7 };

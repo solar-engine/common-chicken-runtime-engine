@@ -72,6 +72,9 @@ public class PauseTimer implements BooleanInput, EventOutput {
         this.timeout = timeout;
     }
 
+    /**
+     * Start the timer running.
+     */
     public void event() {
         setEndAt(System.currentTimeMillis() + timeout);
     }

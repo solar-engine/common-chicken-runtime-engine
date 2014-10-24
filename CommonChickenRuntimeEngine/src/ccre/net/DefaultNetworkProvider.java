@@ -22,6 +22,7 @@ import ccre.log.Logger;
 import ccre.util.CArrayList;
 import ccre.util.CArrayUtils;
 import ccre.util.CCollection;
+
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -61,6 +62,7 @@ class DefaultNetworkProvider implements NetworkProvider {
         return "NetFull";
     }
 
+    @SuppressWarnings("resource")
     public ServerSocket openServer(int port) throws IOException {
         return new ServerSocketImpl(new java.net.ServerSocket(port));
     }

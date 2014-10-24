@@ -210,6 +210,7 @@ public class DriverImpls {
      *            the left motor.
      * @param rightOut
      *            the right motor.
+     * @return the EventOutput that will update the motors.
      * @see DriverImpls
      */
     public static EventOutput createSingleJoystickDriveEvent(final FloatInputPoll joystickXAxis, final FloatInputPoll joystickYAxis, final FloatOutput leftOut, final FloatOutput rightOut) {

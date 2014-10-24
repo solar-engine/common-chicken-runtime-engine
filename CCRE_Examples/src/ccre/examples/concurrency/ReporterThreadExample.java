@@ -33,8 +33,8 @@ public class ReporterThreadExample {
      * Run the same hello-world program with a ReporterThread and a normal
      * Thread, to see the difference.
      *
-     * @param args
-     * @throws InterruptedException
+     * @param args The program arguments, not used.
+     * @throws InterruptedException if a timeout occurs.
      */
     public static void main(String[] args) throws InterruptedException {
         /*

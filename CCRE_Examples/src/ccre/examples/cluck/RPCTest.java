@@ -35,8 +35,8 @@ public class RPCTest {
      * Run the basic example of the RPC mechanisms: connect two nodes and make
      * an RPC call through them.
      *
-     * @param args
-     * @throws InterruptedException
+     * @param args The program arguments, not used.
+     * @throws InterruptedException if a timeout occurs.
      */
     public static void main(String[] args) throws InterruptedException {
         CluckNode clientNode = new CluckNode();

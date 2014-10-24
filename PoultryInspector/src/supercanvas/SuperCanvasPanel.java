@@ -187,6 +187,8 @@ public final class SuperCanvasPanel extends JPanel {
     /**
      * Check if the given object is being dragged.
      * 
+     * @param component the component to check for dragging.
+     * 
      * @return if the specified object is being dragged.
      */
     public boolean isBeingDragged(SuperCanvasComponent component) {
@@ -208,10 +210,12 @@ public final class SuperCanvasPanel extends JPanel {
 
     private void renderBackground(Graphics2D g, int w, int h, FontMetrics fontMetrics, int mouseX, int mouseY) {
         if (editmode) {
-            //g.setPaint(new GradientPaint(0, h, Color.BLACK, w, 0, Color.DARK_GRAY));
+            // g.setPaint(new GradientPaint(0, h, Color.BLACK, w, 0,
+            // Color.DARK_GRAY));
             g.setColor(Color.BLACK);
         } else {
-            //g.setPaint(new GradientPaint(0, h, Color.ORANGE, w, 0, Color.RED));
+            // g.setPaint(new GradientPaint(0, h, Color.ORANGE, w, 0,
+            // Color.RED));
             g.setColor(Color.WHITE);
         }
         g.fillRect(0, 0, w, h);
@@ -234,7 +238,7 @@ public final class SuperCanvasPanel extends JPanel {
      * @param in the stream to read from.
      * @throws IOException if the contents cannot be loaded.
      * @throws java.lang.ClassNotFoundException if the contents cannot be
-     * loaded.
+     *             loaded.
      */
     @SuppressWarnings("unchecked")
     public void load(ObjectInputStream in) throws IOException, ClassNotFoundException {

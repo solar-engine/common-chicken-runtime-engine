@@ -59,7 +59,7 @@ public interface IgneousLauncher {
      * Get an IJoystick for the specified Kinect virtual joystick.
      *
      * @param isRightArm If the right arm joystick should be used instead of the
-     * left. (6 instead of 5 if you're used to the old system.)
+     *            left. (6 instead of 5 if you're used to the old system.)
      * @return the IJoystick.
      */
     public IJoystick getKinectJoystick(boolean isRightArm);
@@ -126,9 +126,9 @@ public interface IgneousLauncher {
      *
      * @param id the port number.
      * @param minInput the value on the output that should correspond to the
-     * servo's minimum position.
+     *            servo's minimum position.
      * @param maxInput the value on the output that should correspond to the
-     * servo's maximum position.
+     *            servo's maximum position.
      * @return the FloatOutput that controls the servo.
      */
     public FloatOutput makeServo(int id, float minInput, float maxInput);
@@ -181,7 +181,7 @@ public interface IgneousLauncher {
      * @param bChannel The beta-channel for the encoder.
      * @param reverse Should the result of the encoder be negated?
      * @param resetWhen If provided, the Encoder's value will be reset when this
-     * event is produced.
+     *            event is produced.
      * @return the Encoder, reporting encoder ticks.
      */
     public FloatInputPoll makeEncoder(int aChannel, int bChannel, boolean reverse, EventInput resetWhen);
@@ -214,9 +214,9 @@ public interface IgneousLauncher {
      *
      * @param port The Gyro port number.
      * @param sensitivity The sensitivity of the Gyro. This is the number of
-     * volts/degree/second sensitivity of the gyro and is used in calculations
-     * to allow the code to work with multiple gyros. 0.007 is a good default
-     * value.
+     *            volts/degree/second sensitivity of the gyro and is used in
+     *            calculations to allow the code to work with multiple gyros.
+     *            0.007 is a good default value.
      * @param evt When to reset the Gyro.
      * @return The reference to the Gyro's current value.
      */
@@ -228,9 +228,9 @@ public interface IgneousLauncher {
      *
      * @param port The port number to attach to.
      * @param sensitivity The sensitivity of the accelerometer. This varies per
-     * model.
+     *            model.
      * @param zeropoint The voltage that corresponds to 0 G. This also varies by
-     * model.
+     *            model.
      * @return The reference to the axis on the Accelerometer.
      */
     public FloatInputPoll makeAccelerometerAxis(int port, double sensitivity, double zeropoint);
@@ -245,7 +245,7 @@ public interface IgneousLauncher {
 
     /**
      * @return an event that is produced during every mode if the driver station
-     * is attached.
+     *         is attached.
      */
     public EventInput getGlobalPeriodic();
 
@@ -290,7 +290,8 @@ public interface IgneousLauncher {
     public EventInput getDuringDisabled();
 
     /**
-     * @return an output that enables and disabled the PCM compressor's closed-loop control.
+     * @return an output that enables and disabled the PCM compressor's
+     *         closed-loop control.
      */
     public BooleanOutput usePCMCompressor();
 
@@ -298,29 +299,30 @@ public interface IgneousLauncher {
      * @return the status of the PCM pressure switch.
      */
     public BooleanInputPoll getPCMPressureSwitch();
-    
+
     /**
      * @return the status of the PCM compressor enable.
      */
     public BooleanInputPoll getPCMCompressorRunning();
-    
+
     /**
      * @return the current draw of the PCM compressor.
      */
     public FloatInputPoll getPCMCompressorCurrent();
-    
+
     /**
+     * @param channel the channel to monitor.
      * @return the current draw of the specified PDP channel.
      */
     public FloatInputPoll getPDPChannelCurrent(int channel);
-    
+
     /**
      * @return the voltage measured at the PDP.
      */
     public FloatInputPoll getPDPVoltage();
-    
+
     /**
-     * @return if this system is a RoboRIO.
+     * @return if this system is a roboRIO.
      */
     public boolean isRoboRIO();
 }

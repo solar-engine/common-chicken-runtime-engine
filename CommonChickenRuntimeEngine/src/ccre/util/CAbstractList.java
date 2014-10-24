@@ -54,7 +54,6 @@ public abstract class CAbstractList<T> implements CList<T> {
      * has been modified.
      *
      * @return the modcount.
-     * @see #modCount
      */
     public int getModCount() {
         return modCount;

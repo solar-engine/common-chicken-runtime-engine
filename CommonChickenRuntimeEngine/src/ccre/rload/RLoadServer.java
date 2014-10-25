@@ -102,29 +102,37 @@ public class RLoadServer extends ReporterThread {
     private void handleClient(ClientSocket clis) {
         try {
             DataInputStream din = clis.openDataInputStream();
-            DataOutputStream dout = clis.openDataOutputStream();
-            dout.writeLong(~MAGIC_HEADER);
-            if (din.readLong() != MAGIC_HEADER) {
-                throw new IOException("Invalid magic number!");
-            }
-            int length = din.readInt();
-            if (length < 0 || length > 1024 * 1024) {
-                throw new IOException("Length out of bounds! (up to 1 MB)");
-            }
-            byte[] buf = new byte[length];
-            din.readFully(buf);
-            int checksum = din.readInt();
-            if (checksum != checksum(buf)) {
-                throw new IOException("Invalid checksum - error while sending! Please retry.");
-            }
-            FileOutputStream fout = new FileOutputStream(this.output);
             try {
-                fout.write(buf);
+                DataOutputStream dout = clis.openDataOutputStream();
+                try {
+                    dout.writeLong(~MAGIC_HEADER);
+                    if (din.readLong() != MAGIC_HEADER) {
+                        throw new IOException("Invalid magic number!");
+                    }
+                    int length = din.readInt();
+                    if (length < 0 || length > 1024 * 1024) {
+                        throw new IOException("Length out of bounds! (up to 1 MB)");
+                    }
+                    byte[] buf = new byte[length];
+                    din.readFully(buf);
+                    int checksum = din.readInt();
+                    if (checksum != checksum(buf)) {
+                        throw new IOException("Invalid checksum - error while sending! Please retry.");
+                    }
+                    FileOutputStream fout = new FileOutputStream(this.output);
+                    try {
+                        fout.write(buf);
+                    } finally {
+                        fout.close();
+                    }
+                    dout.writeInt((int) ((MAGIC_HEADER >> 32) ^ MAGIC_HEADER));
+                    Logger.info("Finished upload of " + String.format("%.1f", length / 1024.0) + " KB!");
+                } finally {
+                    dout.close();
+                }
             } finally {
-                fout.close();
+                din.close();
             }
-            dout.writeInt((int) ((MAGIC_HEADER >> 32) ^ MAGIC_HEADER));
-            Logger.info("Finished upload of " + String.format("%.1f", length / 1024.0) + " KB!");
             if (watcher) {
                 FileOutputStream watchout = new FileOutputStream("remote-watcher");
                 try {

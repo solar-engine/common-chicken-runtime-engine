@@ -64,27 +64,35 @@ public class RLoadClient {
         ClientSocket server = Network.connect(remote, 11540);
         try {
             DataInputStream din = server.openDataInputStream();
-            DataOutputStream dout = server.openDataOutputStream();
-            dout.writeLong(RLoadServer.MAGIC_HEADER);
-            if (din.readLong() != ~RLoadServer.MAGIC_HEADER) {
-                throw new IOException("Invalid magic number!");
-            }
-            byte[] data = new byte[(int) len];
-            DataInputStream fin = new DataInputStream(new FileInputStream(target));
             try {
-                fin.readFully(data);
-                if (fin.read() != -1) {
-                    throw new IOException("Did not reach EOF at appropriate time.");
+                DataOutputStream dout = server.openDataOutputStream();
+                try {
+                    dout.writeLong(RLoadServer.MAGIC_HEADER);
+                    if (din.readLong() != ~RLoadServer.MAGIC_HEADER) {
+                        throw new IOException("Invalid magic number!");
+                    }
+                    byte[] data = new byte[(int) len];
+                    DataInputStream fin = new DataInputStream(new FileInputStream(target));
+                    try {
+                        fin.readFully(data);
+                        if (fin.read() != -1) {
+                            throw new IOException("Did not reach EOF at appropriate time.");
+                        }
+                    } finally {
+                        fin.close();
+                    }
+                    dout.writeInt((int) len);
+                    dout.write(data);
+                    dout.writeInt(RLoadServer.checksum(data));
+                    int expected = (int) ((RLoadServer.MAGIC_HEADER >> 32) ^ RLoadServer.MAGIC_HEADER);
+                    if (din.readInt() != expected) {
+                        throw new IOException("Failed to transmit!");
+                    }
+                } finally {
+                    dout.close();
                 }
             } finally {
-                fin.close();
-            }
-            dout.writeInt((int) len);
-            dout.write(data);
-            dout.writeInt(RLoadServer.checksum(data));
-            int expected = (int) ((RLoadServer.MAGIC_HEADER >> 32) ^ RLoadServer.MAGIC_HEADER);
-            if (din.readInt() != expected) {
-                throw new IOException("Failed to transmit!");
+                din.close();
             }
         } finally {
             server.close();

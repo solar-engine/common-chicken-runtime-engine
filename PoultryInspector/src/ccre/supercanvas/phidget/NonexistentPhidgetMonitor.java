@@ -1,8 +1,5 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?>
-
-<!--
 /*
- * Copyright 2014 Colby Skeggs
+ * Copyright 2014 Colby Skeggs, Gregor Peach (Added Folders)
  * 
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  * 
@@ -19,17 +16,35 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with the CCRE.  If not, see <http://www.gnu.org/licenses/>.
  */
--->
+package ccre.supercanvas.phidget;
 
-<project name="Build Jar" default="build-jar">
-	<target name="build-jar">
-		<jar destfile="PoultryInspector.jar" update="false">
-			<manifest>
-				<attribute name="Main-Class" value="ccre.supercanvas.SuperCanvasMain" />
-			</manifest>
-			<fileset dir="bin" includes="**/*.class" />
-			<fileset dir="../CommonChickenRuntimeEngine/bin" includes="**/*.class" />
-			<zipgroupfileset includes="*.jar" dir="lib" />
-		</jar>
-	</target>
-</project>
+/**
+ * An IPhidgetMonitor that doesn't actually publish anything.
+ *
+ * @author skeggsc
+ */
+public class NonexistentPhidgetMonitor implements IPhidgetMonitor {
+
+    private static final long serialVersionUID = -4203403857863877908L;
+
+    @Override
+    public void share() {
+    }
+
+    @Override
+    public void unshare() {
+    }
+
+    @Override
+    public void connectionUp() {
+    }
+
+    @Override
+    public void connectionDown() {
+    }
+
+    @Override
+    public void displayClosing() {
+    }
+
+}

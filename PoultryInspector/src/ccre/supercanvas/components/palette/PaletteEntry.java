@@ -1,8 +1,5 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?>
-
-<!--
 /*
- * Copyright 2014 Colby Skeggs
+ * Copyright 2014 Colby Skeggs.
  * 
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  * 
@@ -19,17 +16,30 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with the CCRE.  If not, see <http://www.gnu.org/licenses/>.
  */
--->
+package ccre.supercanvas.components.palette;
 
-<project name="Build Jar" default="build-jar">
-	<target name="build-jar">
-		<jar destfile="PoultryInspector.jar" update="false">
-			<manifest>
-				<attribute name="Main-Class" value="ccre.supercanvas.SuperCanvasMain" />
-			</manifest>
-			<fileset dir="bin" includes="**/*.class" />
-			<fileset dir="../CommonChickenRuntimeEngine/bin" includes="**/*.class" />
-			<zipgroupfileset includes="*.jar" dir="lib" />
-		</jar>
-	</target>
-</project>
+import java.io.Serializable;
+
+import ccre.supercanvas.SuperCanvasComponent;
+
+/**
+ * An Entry in a PaletteComponent.
+ *
+ * @author skeggsc
+ */
+public interface PaletteEntry extends Serializable {
+
+    /**
+     * @return the displayed name of this component.
+     */
+    public String getName();
+
+    /**
+     * Allocate or fetch a new component instance of this entry.
+     *
+     * @param x The X coordinate.
+     * @param y The Y coordinate.
+     * @return the new instance.
+     */
+    public SuperCanvasComponent fetch(int x, int y);
+}

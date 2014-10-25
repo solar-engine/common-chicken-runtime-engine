@@ -136,11 +136,10 @@ public class Utils {
      */
     @SuppressWarnings("unchecked")
     public static <T> T dynamicCast(Object o, Class<T> clazz) throws ClassCastException {
-        if (clazz.isInstance(o)) {
-            return (T) o;
-        } else {
+        if (!clazz.isInstance(o)) {
             throw new ClassCastException("Cannot cast to " + clazz + "!");
         }
+        return (T) o;
     }
 
     /**

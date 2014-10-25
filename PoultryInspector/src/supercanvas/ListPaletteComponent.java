@@ -80,7 +80,7 @@ public class ListPaletteComponent extends PaletteComponent<Collection<PaletteEnt
         @Override
         public SuperCanvasComponent fetch(int x, int y) {
             entries.remove(this);
-            component.moveForDrag(x, y);
+            component.moveForDrag(x + relX, y + relY);
             return component;
         }
     }

@@ -280,6 +280,7 @@ public class CluckNode implements Serializable {
      * @see #cycleSearchRemotes(java.lang.String)
      * @deprecated Use CluckPublisher.setupSearching instead.
      */
+    @Deprecated
     public void startSearchRemotes(String localRecvName, final CluckRemoteListener listener) {
         new CluckSubscriber(this) {
             @Override
@@ -305,6 +306,7 @@ public class CluckNode implements Serializable {
      * ccre.cluck.CluckRemoteListener)
      * @deprecated Use CluckPublisher.setupSearching instead.
      */
+    @Deprecated
     public void cycleSearchRemotes(String localRecv) {
         transmit("*", localRecv, new byte[] { RMT_PING });
     }
@@ -320,6 +322,7 @@ public class CluckNode implements Serializable {
      * searching for remotes.
      * @deprecated Use CluckPublisher.setupSearching instead.
      */
+    @Deprecated
     public String[] searchRemotes(final Integer remoteType, int timeout) throws InterruptedException {
         final CArrayList<String> discovered = new CArrayList<String>();
         String localRecv = UniqueIds.global.nextHexId("rsch");

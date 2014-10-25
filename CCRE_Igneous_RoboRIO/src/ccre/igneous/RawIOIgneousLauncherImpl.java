@@ -134,6 +134,7 @@ public final class RawIOIgneousLauncherImpl extends RobotBase implements Igneous
         }
     }
 
+    @Override
     public void startCompetition() {
         IgneousLauncherHolder.setLauncher(this);
         new CluckTCPServer(Cluck.getNode(), 443).start();

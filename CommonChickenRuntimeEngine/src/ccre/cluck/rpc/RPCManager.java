@@ -24,6 +24,7 @@ import ccre.log.Logger;
 import ccre.util.CArrayList;
 import ccre.util.CHashMap;
 import ccre.util.UniqueIds;
+
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -60,6 +61,7 @@ public final class RPCManager {
                 Logger.warning("Message to RPC endpoint!");
             }
 
+            @SuppressWarnings("resource")
             @Override
             protected void handleOther(String dest, String source, byte[] data) {
                 if (requireRMT(source, data, CluckNode.RMT_INVOKE_REPLY)) {

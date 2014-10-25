@@ -135,12 +135,12 @@ public class FloatStatus implements FloatOutput, FloatInput, Serializable {
      * Get an EventOutput that, when fired, will set the state to the given
      * float.
      *
-     * @param value the value to set the state to.
+     * @param newValue the value to set the state to.
      * @return the fire-able EventOutput.
      * @see #setWhen(float, ccre.channel.EventInput)
      */
-    public final EventOutput getSetEvent(float value) {
-        return FloatMixing.getSetEvent(this, value);
+    public final EventOutput getSetEvent(float newValue) {
+        return FloatMixing.getSetEvent(this, newValue);
     }
 
     /**

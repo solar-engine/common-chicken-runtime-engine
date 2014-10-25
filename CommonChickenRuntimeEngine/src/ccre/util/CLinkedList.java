@@ -76,7 +76,7 @@ public class CLinkedList<T> extends CAbstractList<T> {
     @Override
     public Iterator<T> iterator() {
         final int modCount = getModCount();
-        return new LinkedListIterator(this.sentinel, modCount);
+        return new LinkedListIterator(modCount);
     }
 
     void decrementSize() {
@@ -290,13 +290,11 @@ public class CLinkedList<T> extends CAbstractList<T> {
 
     private class LinkedListIterator implements Iterator<T> {
 
-        private final Node<T> sentinel;
         private Node<T> current;
         private int locmod;
         private boolean canRemove = false;
 
-        LinkedListIterator(Node<T> sentinel, int lastmod) {
-            this.sentinel = sentinel;
+        LinkedListIterator(int lastmod) {
             current = sentinel.next;
             this.locmod = lastmod;
         }

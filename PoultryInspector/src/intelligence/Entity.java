@@ -141,6 +141,7 @@ public final class Entity {
             if (currentValue == null) {
                 break;
             }
+            //$FALL-THROUGH$
         case RMT_FLOATPROD:
             float c = (Float) currentValue;
             g.setColor(Rendering.blend(Rendering.floatColorCalculate(c, col), col, count / 500.0f));

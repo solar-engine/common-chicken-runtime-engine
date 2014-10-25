@@ -66,13 +66,13 @@ public class SaveLoadComponent extends SuperCanvasComponent {
     }
 
     @Override
-    public boolean contains(int x, int y) {
-        return x >= this.x && x < this.x + width && y >= this.y && y < this.y + height;
+    public boolean contains(int tx, int ty) {
+        return tx >= this.x && tx < this.x + width && ty >= this.y && ty < this.y + height;
     }
 
     @Override
-    public boolean onInteract(int x, int y) {
-        if (y < btnBorder) {
+    public boolean onInteract(int tx, int ty) {
+        if (ty < btnBorder) {
             Logger.info("Saving...");
             try {
                 saveLayout();
@@ -93,49 +93,21 @@ public class SaveLoadComponent extends SuperCanvasComponent {
     }
 
     private void saveLayout() throws IOException, FileNotFoundException {
-        FileOutputStream fout = new FileOutputStream("saved-panel.ser");
-        ObjectOutputStream out;
-        try {
-            out = new ObjectOutputStream(fout);
-        } catch (IOException thr) {
-            try {
-                fout.close();
-            } catch (IOException ex) {
-                thr.addSuppressed(ex);
-            }
-            throw thr;
-        }
-        try {
+        try (ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream("saved-panel.ser"))) {
             getPanel().save(out);
-        } finally {
-            out.close();
         }
         Logger.info("Saved!");
     }
 
     private void loadLayout() throws ClassNotFoundException, IOException, FileNotFoundException {
-        FileInputStream fin = new FileInputStream("saved-panel.ser");
-        ObjectInputStream in;
-        try {
-            in = new ObjectInputStream(fin);
-        } catch (IOException thr) {
-            try {
-                fin.close();
-            } catch (IOException ex) {
-                thr.addSuppressed(ex);
-            }
-            throw thr;
-        }
-        try {
+        try (ObjectInputStream in = new ObjectInputStream(new FileInputStream("saved-panel.ser"))) {
             getPanel().load(in);
-        } finally {
-            in.close();
         }
         Logger.info("Loaded!");
     }
 
     @Override
-    public boolean onSelect(int x, int y) {
-        return onInteract(x, y);
+    public boolean onSelect(int tx, int ty) {
+        return onInteract(tx, ty);
     }
 }

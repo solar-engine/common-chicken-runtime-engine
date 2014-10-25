@@ -139,11 +139,11 @@ public class CluckPublisher {
      *
      * @param node The node to publish on.
      * @param name The name for the EventInput.
-     * @param source The EventInput.
+     * @param input The EventInput.
      */
-    public static void publish(final CluckNode node, final String name, EventInput source) {
+    public static void publish(final CluckNode node, final String name, EventInput input) {
         final ConcurrentDispatchArray<String> remotes = new ConcurrentDispatchArray<String>();
-        source.send(new EventOutput() {
+        input.send(new EventOutput() {
             public void event() {
                 for (String remote : remotes) {
                     node.transmit(remote, name, new byte[] { RMT_EVENTINPUTRESP });

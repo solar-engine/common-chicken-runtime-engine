@@ -35,8 +35,10 @@ import ccre.ctrl.ExpirationTimer;
 import ccre.ctrl.FloatMixing;
 import ccre.ctrl.Mixing;
 import ccre.ctrl.MultipleSourceBooleanController;
+import ccre.igneous.Igneous;
 import ccre.igneous.IgneousCore;
 import ccre.phidget.PhidgetReader;
+
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -159,7 +161,7 @@ public class Inferno extends IgneousCore {
 
         final BooleanOutput leftLEDs = BooleanMixing.combine(backArmLED, topArmLED, frontArmLED);
         final BooleanOutput rightLEDs = BooleanMixing.combine(dropSuctionLED, leftSuctionLED, rightSuctionLED);
-        final BooleanInputPoll isDisabled = this.getIsDisabled(), isAuto = this.getIsAutonomous();
+        final BooleanInputPoll isDisabled = Igneous.getIsDisabled(), isAuto = Igneous.getIsAutonomous();
         new Timer().schedule(new TimerTask() {
             private int frame = 0;
 

@@ -20,7 +20,6 @@ package supercanvas;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 
 /**
@@ -35,7 +34,7 @@ public class TopLevelPaletteComponent extends PaletteComponent<Iterable<PaletteE
     private static final Iterable<PaletteEntry> topLevel;
 
     static {
-        ArrayList<PaletteEntry> local = new ArrayList<PaletteEntry>();
+        ArrayList<PaletteEntry> local = new ArrayList<>();
         local.add(new AllocationPaletteEntry(LoggingComponent.class));
         local.add(new AllocationPaletteEntry(PhidgetMonitorComponent.VirtualPhidget.class));
         local.add(new AllocationPaletteEntry(PhidgetMonitorComponent.PhysicalPhidget.class));

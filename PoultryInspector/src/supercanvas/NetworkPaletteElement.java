@@ -18,8 +18,6 @@
  */
 package supercanvas;
 
-import java.io.Serializable;
-
 import ccre.cluck.CluckNode;
 
 /**
@@ -27,7 +25,7 @@ import ccre.cluck.CluckNode;
  *
  * @author skeggsc
  */
-class NetworkPaletteElement implements PaletteEntry, Serializable, Comparable<NetworkPaletteElement> {
+class NetworkPaletteElement implements PaletteEntry, Comparable<NetworkPaletteElement> {
 
     private static final long serialVersionUID = 4574977118418297829L;
     final String name;

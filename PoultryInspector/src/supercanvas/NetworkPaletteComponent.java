@@ -115,6 +115,7 @@ public class NetworkPaletteComponent extends PaletteComponent<Collection<Network
         start();
     }
 
+    @Override
     protected boolean onInteractWithTitleBar() {
         researcher.event();
         return true;
@@ -140,6 +141,7 @@ public class NetworkPaletteComponent extends PaletteComponent<Collection<Network
             }
         });
         researcher.triggerAtEnd(new EventOutput() {
+            @Override
             public void event() {
                 entries.clear();
                 searcher.event();

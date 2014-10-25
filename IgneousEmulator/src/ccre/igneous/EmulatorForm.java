@@ -464,6 +464,7 @@ public class EmulatorForm extends javax.swing.JFrame {
 
         btnAddExtended.setText("Add Extended");
         btnAddExtended.addActionListener(new java.awt.event.ActionListener() {
+            @Override
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 btnAddExtendedActionPerformed(evt);
             }
@@ -512,6 +513,7 @@ public class EmulatorForm extends javax.swing.JFrame {
 
         btnEnable.setText("Enable");
         btnEnable.addActionListener(new java.awt.event.ActionListener() {
+            @Override
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 btnEnableActionPerformed(evt);
             }

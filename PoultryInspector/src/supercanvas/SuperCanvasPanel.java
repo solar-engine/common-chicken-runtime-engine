@@ -57,11 +57,11 @@ public final class SuperCanvasPanel extends JPanel {
     /**
      * The currently visible list of components.
      */
-    private final LinkedList<SuperCanvasComponent> components = new LinkedList<SuperCanvasComponent>();
+    private final LinkedList<SuperCanvasComponent> components = new LinkedList<>();
     /**
      * The components currently being hovered over by the mouse.
      */
-    private transient final LinkedHashSet<SuperCanvasComponent> mouseOver = new LinkedHashSet<SuperCanvasComponent>(4);
+    private transient final LinkedHashSet<SuperCanvasComponent> mouseOver = new LinkedHashSet<>(4);
     /**
      * The relative position between the cursor and the currently held
      * component.
@@ -149,7 +149,7 @@ public final class SuperCanvasPanel extends JPanel {
             int h = getHeight();
             g.setFont(Rendering.console);
             FontMetrics fontMetrics = g.getFontMetrics();
-            renderBackground(g, w, h, fontMetrics, mouseX, mouseY);
+            renderBackground(g, w, h, fontMetrics);
             for (SuperCanvasComponent comp : components) {
                 if (editmode || !comp.hideInOperateMode) {
                     g.setFont(Rendering.console);
@@ -208,7 +208,7 @@ public final class SuperCanvasPanel extends JPanel {
         }
     }
 
-    private void renderBackground(Graphics2D g, int w, int h, FontMetrics fontMetrics, int mouseX, int mouseY) {
+    private void renderBackground(Graphics2D g, int w, int h, FontMetrics fontMetrics) {
         if (editmode) {
             g.setColor(Color.BLACK);
         } else {

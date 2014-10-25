@@ -227,10 +227,9 @@ public abstract class SuperCanvasComponent implements Serializable {
     /**
      * Called when the current panel changes.
      *
-     * @param panel the new panel.
+     * @param newPanel the new panel.
      */
-    protected void onChangePanel(SuperCanvasPanel panel) {
-        assert panel == getPanel(); // Here to solve a FindBugs warning.
+    protected void onChangePanel(SuperCanvasPanel newPanel) {
     }
 
     /**

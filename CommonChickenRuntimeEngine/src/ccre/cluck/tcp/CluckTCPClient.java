@@ -226,9 +226,8 @@ public class CluckTCPClient extends ReporterThread {
         } catch (IOException ex) {
             if ("Remote server not available.".equals(ex.getMessage()) || "Timed out while connecting.".equals(ex.getMessage()) || "java.net.UnknownHostException".equals(ex.getClass().getName())) {
                 return " (" + ex.getMessage() + ")";
-            } else {
-                Logger.warning("IO Error while handling connection", ex);
             }
+            Logger.warning("IO Error while handling connection", ex);
         } finally {
             isReconnecting = false;
             isEstablished = false;

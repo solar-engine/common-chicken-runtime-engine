@@ -170,6 +170,7 @@ public class PoultryInspectorFrame extends javax.swing.JFrame {
         setDefaultCloseOperation(javax.swing.WindowConstants.DO_NOTHING_ON_CLOSE);
         setTitle("Poultry Inspector");
         addWindowListener(new java.awt.event.WindowAdapter() {
+            @Override
             public void windowClosing(java.awt.event.WindowEvent evt) {
                 formWindowClosing(evt);
             }
@@ -191,6 +192,7 @@ public class PoultryInspectorFrame extends javax.swing.JFrame {
 
         btnClear.setText("Clear");
         btnClear.addActionListener(new java.awt.event.ActionListener() {
+            @Override
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 btnClearActionPerformed(evt);
             }
@@ -198,6 +200,7 @@ public class PoultryInspectorFrame extends javax.swing.JFrame {
 
         btnRefresh.setText("Refresh");
         btnRefresh.addActionListener(new java.awt.event.ActionListener() {
+            @Override
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 btnRefreshActionPerformed(evt);
             }
@@ -205,6 +208,7 @@ public class PoultryInspectorFrame extends javax.swing.JFrame {
 
         btnReconnect.setText("Reconnect");
         btnReconnect.addActionListener(new java.awt.event.ActionListener() {
+            @Override
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 btnReconnectActionPerformed(evt);
             }
@@ -215,6 +219,7 @@ public class PoultryInspectorFrame extends javax.swing.JFrame {
 
         btnSetAddress.setText("Set Address");
         btnSetAddress.addActionListener(new java.awt.event.ActionListener() {
+            @Override
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 btnSetAddressActionPerformed(evt);
             }

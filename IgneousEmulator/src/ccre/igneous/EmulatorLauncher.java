@@ -73,7 +73,7 @@ public final class EmulatorLauncher implements IgneousLauncher {
         JarFile igneousJar = new JarFile(jarFile);
         String mainClass;
         try {
-        	System.out.println("Here: " + new HashMap<Object, Object>(igneousJar.getManifest().getMainAttributes()));
+            System.out.println("Here: " + new HashMap<Object, Object>(igneousJar.getManifest().getMainAttributes()));
             mainClass = igneousJar.getManifest().getMainAttributes().getValue("Igneous-Main");
         } finally {
             igneousJar.close();
@@ -84,7 +84,8 @@ public final class EmulatorLauncher implements IgneousLauncher {
         NetworkAutologger.register();
         BootLogger.register();
         FileLogger.register();
-        URLClassLoader classLoader = new URLClassLoader(new URL[]{jarFile.toURI().toURL()}, EmulatorLauncher.class.getClassLoader());
+        @SuppressWarnings("resource")
+        URLClassLoader classLoader = new URLClassLoader(new URL[] { jarFile.toURI().toURL() }, EmulatorLauncher.class.getClassLoader());
         Class<? extends IgneousApplication> asSubclass = classLoader.loadClass(mainClass).asSubclass(IgneousApplication.class);
         EmulatorForm emf = new EmulatorForm();
         EmulatorLauncher main = new EmulatorLauncher(emf);
@@ -154,33 +155,33 @@ public final class EmulatorLauncher implements IgneousLauncher {
         if (curstate != this.lastState) {
             this.lastState = curstate;
             switch (curstate) {
-                case DISABLED:
-                    this.startedDisabled.produce();
-                    break;
-                case AUTONOMOUS:
-                    this.startedAutonomous.produce();
-                    break;
-                case TELEOPERATED:
-                    this.startedTeleop.produce();
-                    break;
-                case TESTING:
-                    this.startedTesting.produce();
-                    break;
+            case DISABLED:
+                this.startedDisabled.produce();
+                break;
+            case AUTONOMOUS:
+                this.startedAutonomous.produce();
+                break;
+            case TELEOPERATED:
+                this.startedTeleop.produce();
+                break;
+            case TESTING:
+                this.startedTesting.produce();
+                break;
             }
         }
         switch (curstate) {
-            case DISABLED:
-                this.duringDisabled.produce();
-                break;
-            case TELEOPERATED:
-                this.duringTeleop.produce();
-                break;
-            case AUTONOMOUS:
-                this.duringAutonomous.produce();
-                break;
-            case TESTING:
-                this.duringTesting.produce();
-                break;
+        case DISABLED:
+            this.duringDisabled.produce();
+            break;
+        case TELEOPERATED:
+            this.duringTeleop.produce();
+            break;
+        case AUTONOMOUS:
+            this.duringAutonomous.produce();
+            break;
+        case TESTING:
+            this.duringTesting.produce();
+            break;
         }
         this.globalPeriodic.produce();
     }
@@ -193,14 +194,14 @@ public final class EmulatorLauncher implements IgneousLauncher {
     @Override
     public FloatOutput makeMotor(int id, int type) {
         switch (type) {
-            case JAGUAR:
-                return emf.getJaguar(id);
-            case VICTOR:
-                return emf.getVictor(id);
-            case TALON:
-                return emf.getTalon(id);
-            default:
-                throw new IllegalArgumentException("Invalid motor type: " + type);
+        case JAGUAR:
+            return emf.getJaguar(id);
+        case VICTOR:
+            return emf.getVictor(id);
+        case TALON:
+            return emf.getTalon(id);
+        default:
+            throw new IllegalArgumentException("Invalid motor type: " + type);
         }
     }
 
@@ -371,38 +372,38 @@ public final class EmulatorLauncher implements IgneousLauncher {
         return duringDisabled;
     }
 
-	@Override
-	public BooleanOutput usePCMCompressor() {
-		throw new RuntimeException("PCM not supported under cRIO emulator.");
-	}
+    @Override
+    public BooleanOutput usePCMCompressor() {
+        throw new RuntimeException("PCM not supported under cRIO emulator.");
+    }
 
-	@Override
-	public BooleanInputPoll getPCMPressureSwitch() {
-		throw new RuntimeException("PCM not supported under cRIO emulator.");
-	}
+    @Override
+    public BooleanInputPoll getPCMPressureSwitch() {
+        throw new RuntimeException("PCM not supported under cRIO emulator.");
+    }
 
-	@Override
-	public BooleanInputPoll getPCMCompressorRunning() {
-		throw new RuntimeException("PCM not supported under cRIO emulator.");
-	}
+    @Override
+    public BooleanInputPoll getPCMCompressorRunning() {
+        throw new RuntimeException("PCM not supported under cRIO emulator.");
+    }
 
-	@Override
-	public FloatInputPoll getPCMCompressorCurrent() {
-		throw new RuntimeException("PCM not supported under cRIO emulator.");
-	}
+    @Override
+    public FloatInputPoll getPCMCompressorCurrent() {
+        throw new RuntimeException("PCM not supported under cRIO emulator.");
+    }
 
-	@Override
-	public FloatInputPoll getPDPChannelCurrent(int channel) {
-		throw new RuntimeException("PDP not supported under cRIO emulator.");
-	}
+    @Override
+    public FloatInputPoll getPDPChannelCurrent(int channel) {
+        throw new RuntimeException("PDP not supported under cRIO emulator.");
+    }
 
-	@Override
-	public FloatInputPoll getPDPVoltage() {
-		throw new RuntimeException("PDP not supported under cRIO emulator.");
-	}
+    @Override
+    public FloatInputPoll getPDPVoltage() {
+        throw new RuntimeException("PDP not supported under cRIO emulator.");
+    }
 
-	@Override
-	public boolean isRoboRIO() {
-		return false;
-	}
+    @Override
+    public boolean isRoboRIO() {
+        return false;
+    }
 }

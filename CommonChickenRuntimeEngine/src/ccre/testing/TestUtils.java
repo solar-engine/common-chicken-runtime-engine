@@ -51,19 +51,11 @@ public class TestUtils extends BaseTest {
             }
             float there = Utils.currentTimeSeconds.get();
             float dt = Math.abs(there - here - (99 / 1000f));
-            if (dt < 0.002) {
+            if (dt >= 0.002) {
+                Logger.warning("Failed timing test: " + here + " to " + there + " is " + (there - here) + " and expected " + (100 / 1000f));
+            } else {
                 success = true;
                 break;
-            } else {
-                Logger.warning("Failed timing test: " + here + " to " + there + " is " + (there - here) + " and expected " + (100 / 1000f));
-                /*
-                 * Map<Thread, StackTraceElement[]> allStackTraces =
-                 * Thread.getAllStackTraces(); for (Map.Entry<Thread,
-                 * StackTraceElement[]> elem : allStackTraces.entrySet()) {
-                 * Throwable tmp = new Throwable("Trace for " + elem.getKey());
-                 * tmp.setStackTrace(elem.getValue()); Logger.log(LogLevel.INFO,
-                 * "Traces", tmp); }
-                 */
             }
         }
         assertTrue(success, "Five timing check attempts failed!");

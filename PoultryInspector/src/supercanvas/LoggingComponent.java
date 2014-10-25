@@ -68,7 +68,7 @@ public class LoggingComponent extends DraggableBoxComponent {
 
     private void setupLines() {
         resizeState = ResizeState.TRANSLATE;
-        lines = new ArrayList<String>(100);
+        lines = new ArrayList<>(100);
         this.pstr = new PrintStream(new LineCollectorOutputStream() {
             @Override
             protected void collect(String param) {
@@ -295,26 +295,25 @@ public class LoggingComponent extends DraggableBoxComponent {
     public boolean onSelect(int x, int y) {
         if (containsForInteract(x, y)) {
             return onInteract(x, y);
-        } else {
-            resizeState = ResizeState.TRANSLATE;
-            if (x >= centerX + halfWidth - 10) {
-                if (y >= centerY + halfHeight - 10) {
-                    resizeState = ResizeState.CORNER_BR;
-                } else if (y <= centerY - halfHeight + 10) {
-                    resizeState = ResizeState.CORNER_UR;
-                }
-            } else if (x <= centerX - halfWidth + 10) {
-                if (y >= centerY + halfHeight - 10) {
-                    resizeState = ResizeState.CORNER_BL;
-                } else if (y <= centerY - halfHeight + 10) {
-                    resizeState = ResizeState.CORNER_UL;
-                } else {
-                    resizeState = ResizeState.SCROLL;
-                }
-            }
-            getPanel().startDrag(this, x, y);
-            return true;
         }
+        resizeState = ResizeState.TRANSLATE;
+        if (x >= centerX + halfWidth - 10) {
+            if (y >= centerY + halfHeight - 10) {
+                resizeState = ResizeState.CORNER_BR;
+            } else if (y <= centerY - halfHeight + 10) {
+                resizeState = ResizeState.CORNER_UR;
+            }
+        } else if (x <= centerX - halfWidth + 10) {
+            if (y >= centerY + halfHeight - 10) {
+                resizeState = ResizeState.CORNER_BL;
+            } else if (y <= centerY - halfHeight + 10) {
+                resizeState = ResizeState.CORNER_UL;
+            } else {
+                resizeState = ResizeState.SCROLL;
+            }
+        }
+        getPanel().startDrag(this, x, y);
+        return true;
     }
 
     @Override

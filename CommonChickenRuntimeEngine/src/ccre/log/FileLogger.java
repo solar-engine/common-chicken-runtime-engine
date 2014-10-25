@@ -18,17 +18,16 @@
  */
 package ccre.log;
 
-import ccre.channel.EventOutput;
-import ccre.ctrl.Ticker;
-import ccre.saver.StorageProvider;
-import ccre.workarounds.ThrowablePrinter;
-
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintStream;
 import java.util.Date;
+
+import ccre.channel.EventOutput;
+import ccre.ctrl.Ticker;
+import ccre.saver.StorageProvider;
+import ccre.workarounds.ThrowablePrinter;
 
 /**
  * A logging tool that stores logging message in a file on the current computer

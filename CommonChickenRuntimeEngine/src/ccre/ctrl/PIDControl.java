@@ -221,10 +221,10 @@ public class PIDControl implements FloatInput, EventOutput {
     /**
      * Update the PID controller on the specified event's occurrence.
      * 
-     * @param input the event to trigger the controller with.
+     * @param when the event to trigger the controller with.
      */
-    public void updateWhen(EventInput input) {
-        input.send(this);
+    public void updateWhen(EventInput when) {
+        when.send(this);
     }
 
     /**
@@ -262,12 +262,12 @@ public class PIDControl implements FloatInput, EventOutput {
         output.set(valueOut);
     }
 
-    public void send(FloatOutput output) {
-        this.output.send(output);
+    public void send(FloatOutput to) {
+        output.send(to);
     }
 
-    public void unsend(FloatOutput output) {
-        this.output.unsend(output);
+    public void unsend(FloatOutput to) {
+        output.unsend(to);
     }
 
     public float get() {

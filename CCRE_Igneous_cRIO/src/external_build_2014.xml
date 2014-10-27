@@ -86,6 +86,16 @@
 			<compilerarg value="-Xlint:deprecation" />
 		</javac>
 	</target>
+	
+	<target name="jar-emulate-2014" depends="compile-2014">
+		<jar destfile="${emulatee-2014.jar}" update="false">
+			<manifest>
+				<attribute name="Igneous-Main" value="${igneous.main}" />
+			</manifest>
+	
+			<fileset dir="${classes-2014.dir}" includes="**/*.class" />
+		</jar>
+	</target>
 
 	<target name="preverify-2014" depends="compile-2014">
 		<mkdir dir="${preverify-2014.dir}" />
@@ -101,6 +111,7 @@
 				<pathelement path="${veriflib-2014.jar}${path.separator}${classes-2014.dir}${path.separator}${preverify-2014.dir}" />
 			</classpath>
 		</retrotranslator>
+		<delete dir="${classes-2014.dir}" />
 		<condition property="preverify-path" value="${lib-2014.dir}/windows_preverify.exe">
 			<or>
 				<os family="windows" arch="x86" />
@@ -136,6 +147,7 @@
 			<arg value="${veriflib-2014.jar}${path.separator}${downgrade-2014.dir}${path.separator}${preverify-2014.dir}" />
 			<arg value="${downgrade-2014.dir}" />
 		</exec>
+		<delete dir="${downgrade-2014.dir}" />
 	</target>
 
 	<target name="jar-2014" depends="preverify-2014">
@@ -153,13 +165,7 @@
 				<exclude name="**/*.java" />
 			</fileset>
 		</jar>
-		<jar destfile="${emulatee-2014.jar}" update="false">
-			<manifest>
-				<attribute name="Igneous-Main" value="${igneous.main}" />
-			</manifest>
-
-			<fileset dir="${preverify-2014.dir}" includes="**/*.class" />
-		</jar>
+		<delete dir="${preverify-2014.dir}" />
 	</target>
 
 	<target name="suite-2014" depends="jar-2014">
@@ -225,8 +231,9 @@
 		<frcrun remoteaddress="${remoteaddress-2014}" />
 	</target>
 
-	<target name="emulate-2014" depends="jar-2014">
+	<target name="emulate-2014" depends="jar-emulate-2014">
 		<mkdir dir="${project.dir}/emulation-crio" />
+		<echo message="Make sure to close the window when done!" />
 		<java jar="${ccre-root.dir}/IgneousEmulator/Emulator.jar" fork="true" dir="${project.dir}/emulation-crio">
 			<arg value="${emulatee-2014.jar}" />
 			<classpath>

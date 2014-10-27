@@ -81,12 +81,12 @@ public final class EmulatorLauncher implements IgneousLauncher {
         if (mainClass == null) {
             throw new RuntimeException("Could not find MANIFEST-specified launchee!");
         }
-        NetworkAutologger.register();
-        BootLogger.register();
-        FileLogger.register();
         @SuppressWarnings("resource")
         URLClassLoader classLoader = new URLClassLoader(new URL[] { jarFile.toURI().toURL() }, EmulatorLauncher.class.getClassLoader());
         Class<? extends IgneousApplication> asSubclass = classLoader.loadClass(mainClass).asSubclass(IgneousApplication.class);
+        NetworkAutologger.register();
+        BootLogger.register();
+        FileLogger.register();
         EmulatorForm emf = new EmulatorForm();
         EmulatorLauncher main = new EmulatorLauncher(emf);
         emf.setVisible(true);

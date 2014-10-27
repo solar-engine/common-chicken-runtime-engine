@@ -54,14 +54,8 @@
 	</target>
 
 	<import file="src/external_build_2014.xml" />
-
-	<target name="build-jar" depends="prebuild-jar,preverify-2014">
-		<delete file="Igneous.jar" />
-		<jar destfile="Igneous.jar" update="false">
-			<fileset dir="${preverify-2014.dir}">
-				<exclude name="**/*.java" />
-			</fileset>
-		</jar>
+	
+	<target name="build-part" depends="prebuild-jar,compile-2014">
 		<delete file="Library_Postbuild.jar" />
 		<jar destfile="Library_Postbuild.jar" update="false">
 			<fileset dir="build-2014/classes" includes="**/*.class" />
@@ -74,6 +68,15 @@
 			</fileset>
 			<zipgroupfileset dir="lib2014" includes="wpilibj.jar" />
 			<zipgroupfileset dir="lib2014" includes="networktables-crio.jar" />
+		</jar>
+	</target>
+
+	<target name="build-jar" depends="build-part,preverify-2014">
+		<delete file="Igneous.jar" />
+		<jar destfile="Igneous.jar" update="false">
+			<fileset dir="${preverify-2014.dir}">
+				<exclude name="**/*.java" />
+			</fileset>
 		</jar>
 	</target>
 </project>

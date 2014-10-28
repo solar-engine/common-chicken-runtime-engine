@@ -43,21 +43,26 @@
 		<echo message="Rebuilding targets..." />
 		<delete dir="${rebuilder-target}/launches" />
 		<antcall target="generate-by-template">
-			<param name="outer-name" value="Deploy" />
+			<param name="outer-name" value="Deploy for RoboRIO" />
 			<param name="targets" value="deploy" />
 		</antcall>
 		<antcall target="generate-by-template">
-			<param name="outer-name" value="Deploy2014" />
+			<param name="outer-name" value="Deploy for cRIO" />
 			<param name="targets" value="deploy-2014,run-2014" />
 		</antcall>
-		<antcall target="generate-by-template">
-			<param name="outer-name" value="Emulate" />
+		<!-- <antcall target="generate-by-template">
+			<param name="outer-name" value="Emulate for RoboRIO" />
 			<param name="targets" value="emulate" />
-		</antcall>
+		</antcall> -->
 		<antcall target="generate-by-template">
-			<param name="outer-name" value="Emulate2014" />
+			<param name="outer-name" value="Emulate for cRIO" />
 			<param name="targets" value="emulate-2014" />
 		</antcall>
+		<antcall target="generate-by-template">
+			<param name="outer-name" value="Take cRIO Logs" />
+			<param name="targets" value="clear-logs-2014" />
+		</antcall>
+		
 	</target>
 
 </project>

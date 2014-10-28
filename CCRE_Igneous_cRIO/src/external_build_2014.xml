@@ -203,7 +203,7 @@
 		<move verbose="false" file="${suite-2014.name}.suite.api" todir="${suite-2014.dir}" />
 	</target>
 
-	<target name="clear-logs-2014" depends="suite-2014">
+	<target name="clear-logs-2014">
 		<fail unless="remoteaddress-2014" message="A remote address must be specified: add 'remoteaddress-2014=10.TE.AM.2' to main.properties. See SampleIgneousRobot for an example." />
 		<tempfile property="log-2014.dir" prefix="robot-logs-" />
 		<echo message="Fetching and clearing logfiles from robot..." />
@@ -218,7 +218,7 @@
 			</fileset>
 		</ftp>
 	</target>
-	<target name="deploy-2014" depends="clear-logs-2014">
+	<target name="deploy-2014" depends="suite-2014,clear-logs-2014">
 		<echo>Checking cRIO configuration...</echo>
 		<frcupgrade remoteaddress="${remoteaddress-2014}" localotaserverfile="${lib-2014.dir}/suites/FRC_UserProgram.out" remoteotaserverfilepath="/ni-rt/system/FRC_JavaVM.out" localvmfile="${lib-2014.dir}/suites/squawk.out" remotevmfilepath="/ni-rt/system/squawk.out" localsuitefile="${lib-2014.dir}/suites/squawk.suite" remotesuitefilepath="/ni-rt/system/squawk.suite" remoteversionfilepath="/FRC_ImageVersion.ini" versionfailuremessage="Go to http://first.wpi.edu/FRC/frcjava.html to get latest software update">
 			<version name="Name" value="FRC_2014_v52.zip;" />

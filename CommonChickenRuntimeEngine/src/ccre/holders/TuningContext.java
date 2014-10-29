@@ -20,11 +20,13 @@ package ccre.holders;
 
 import ccre.channel.EventOutput;
 import ccre.channel.FloatStatus;
+import ccre.cluck.Cluck;
 import ccre.cluck.CluckNode;
 import ccre.cluck.CluckPublisher;
 import ccre.log.Logger;
 import ccre.saver.StorageProvider;
 import ccre.saver.StorageSegment;
+import ccre.util.UniqueIds;
 
 /**
  * A TuningContext represents a context in which variables can be saved and
@@ -64,6 +66,26 @@ public final class TuningContext { // TODO: Support booleans for tuning.
     public TuningContext(CluckNode enc, StorageSegment seg) {
         this.enc = enc;
         this.seg = seg;
+    }
+
+    /**
+     * Create a new TuningContext from the global CluckNode and name of storage
+     * (used to find the StorageSegment)
+     *
+     * @param storageName the storage name to save values to.
+     */
+    public TuningContext(String storageName) {
+        this(Cluck.getNode(), StorageProvider.openStorage(storageName));
+    }
+
+    /**
+     * Create a new TuningContext from the global CluckNode and a specified
+     * StorageSegment.
+     *
+     * @param seg the segment to save values to.
+     */
+    public TuningContext(StorageSegment seg) {
+        this(Cluck.getNode(), seg);
     }
 
     /**
@@ -114,5 +136,18 @@ public final class TuningContext { // TODO: Support booleans for tuning.
     public TuningContext publishSavingEvent(String name) {
         CluckPublisher.publish(enc, "Save Tuning for " + name, getFlushEvent());
         return this;
+    }
+
+    /**
+     * Publish an EventOutput that can be used to save the tuning variables on
+     * this context. The name will be "Save Tuning for " followed by the name of
+     * the StorageSegment that this context uses. If no name is available,
+     * "anonymous-N" will be used instead, where N is an arbitrary number.
+     * 
+     * @return This TuningContext. Returned for method chaining purposes.
+     */
+    public TuningContext publishSavingEvent() {
+        String name = seg.getName();
+        return publishSavingEvent(name == null ? UniqueIds.global.nextHexId("anonymous") : name);
     }
 }

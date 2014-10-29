@@ -109,6 +109,9 @@ public abstract class StorageProvider {
      * @return the StorageSegment that has been opened.
      */
     public static StorageSegment openStorage(String name) {
+        if (name == null) {
+            throw new NullPointerException("Storage names cannot be null");
+        }
         for (char c : name.toCharArray()) {
             if (!(Character.isUpperCase(c) || Character.isLowerCase(c) || Character.isDigit(c) || c == '$' || c == '_')) {
                 throw new IllegalArgumentException("Storage names must only contain 'a-zA-Z0-9$_'");

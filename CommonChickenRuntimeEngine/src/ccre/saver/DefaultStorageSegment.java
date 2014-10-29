@@ -21,6 +21,7 @@ package ccre.saver;
 import ccre.log.Logger;
 import ccre.util.CHashMap;
 import ccre.util.UniqueIds;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -37,6 +38,9 @@ final class DefaultStorageSegment extends StorageSegment {
     private boolean modified = false;
 
     DefaultStorageSegment(String name) {
+        if (name == null) {
+            throw new NullPointerException();
+        }
         this.name = name;
         try {
             InputStream target = StorageProvider.openInput("ccre_storage_" + name);
@@ -109,5 +113,10 @@ final class DefaultStorageSegment extends StorageSegment {
     @Override
     public void close() {
         flush();
+    }
+
+    @Override
+    public String getName() {
+        return name;
     }
 }

@@ -18,7 +18,6 @@
  */
 package org.team1540.pidtest;
 
-import ccre.cluck.Cluck;
 import ccre.ctrl.PIDControl;
 import ccre.holders.TuningContext;
 import ccre.igneous.Igneous;
@@ -36,7 +35,7 @@ public class PIDTest implements IgneousApplication {
      * message.
      */
     public void setupRobot() {
-        TuningContext context = new TuningContext(Cluck.getNode(), "pid_control");
+        TuningContext context = new TuningContext("pid_control").publishSavingEvent();
         PIDControl controller = new PIDControl(Igneous.joystick1.getYChannel(),
                 context.getFloat("P", 1), context.getFloat("I", 0), context.getFloat("D", 0));
         controller.send(Igneous.makeTalonMotor(1, false, 0));

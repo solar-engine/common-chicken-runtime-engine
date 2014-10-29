@@ -62,6 +62,13 @@ public abstract class StorageSegment {
      * afterwards.
      */
     public abstract void close();
+    
+    /**
+     * Get the name of this segment, if available.
+     * 
+     * @return the segment's name, or null if none exists.
+     */
+    public abstract String getName();
 
     /**
      * Attach a StringHolder to this storage segment. This will restore data if

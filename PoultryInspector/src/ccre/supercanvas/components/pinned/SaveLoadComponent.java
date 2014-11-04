@@ -30,7 +30,6 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 
 import javax.swing.JFileChooser;
-import javax.swing.JOptionPane;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
 import ccre.log.Logger;
@@ -115,8 +114,11 @@ public class SaveLoadComponent extends SuperCanvasComponent {
             if (!file.getName().contains(".") && chooser.getFileFilter() instanceof FileNameExtensionFilter) {
                 file = new File(file.getParentFile(), file.getName() + "." + ((FileNameExtensionFilter) chooser.getFileFilter()).getExtensions()[0]);
             }
-            try (ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(file))) {
+            ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(file));
+            try {
                 getPanel().save(out);
+            } finally {
+                out.close();
             }
             Logger.info("Saved as " + file + ".");
         } else {
@@ -127,8 +129,11 @@ public class SaveLoadComponent extends SuperCanvasComponent {
     private void loadLayout() throws ClassNotFoundException, IOException, FileNotFoundException {
         int retval = getChooser().showOpenDialog(getPanel());
         if (retval == JFileChooser.APPROVE_OPTION) {
-            try (ObjectInputStream in = new ObjectInputStream(new FileInputStream(chooser.getSelectedFile()))) {
+            ObjectInputStream in = new ObjectInputStream(new FileInputStream(chooser.getSelectedFile()));
+            try {
                 getPanel().load(in);
+            } finally {
+                in.close();
             }
             Logger.info("Loaded from " + chooser.getSelectedFile() + ".");
         } else {

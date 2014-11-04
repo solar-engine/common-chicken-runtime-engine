@@ -19,6 +19,7 @@
 package miscellaneous;
 
 import java.util.HashMap;
+
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.LineUnavailableException;
@@ -34,7 +35,7 @@ import javax.sound.sampled.SourceDataLine;
  */
 public class Beeper {
 
-    private static final HashMap<String, BeepType> lookups = new HashMap<>(16);
+    private static final HashMap<String, BeepType> lookups = new HashMap<String, BeepType>(16);
     private static BeepType current = null;
     private static final Object cursync = new Object();
 

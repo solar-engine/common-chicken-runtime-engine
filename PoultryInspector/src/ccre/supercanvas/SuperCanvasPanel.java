@@ -57,11 +57,11 @@ public final class SuperCanvasPanel extends JPanel {
     /**
      * The currently visible list of components.
      */
-    private final LinkedList<SuperCanvasComponent> components = new LinkedList<>();
+    private final LinkedList<SuperCanvasComponent> components = new LinkedList<SuperCanvasComponent>();
     /**
      * The components currently being hovered over by the mouse.
      */
-    private transient final LinkedHashSet<SuperCanvasComponent> mouseOver = new LinkedHashSet<>(4);
+    private transient final LinkedHashSet<SuperCanvasComponent> mouseOver = new LinkedHashSet<SuperCanvasComponent>(4);
     /**
      * The relative position between the cursor and the currently held
      * component.

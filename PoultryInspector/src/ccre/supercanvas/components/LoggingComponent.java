@@ -70,7 +70,7 @@ public class LoggingComponent extends DraggableBoxComponent {
 
     private void setupLines() {
         resizeState = ResizeState.TRANSLATE;
-        lines = new ArrayList<>(100);
+        lines = new ArrayList<String>(100);
         this.pstr = new PrintStream(new LineCollectorOutputStream() {
             @Override
             protected void collect(String param) {
@@ -220,7 +220,7 @@ public class LoggingComponent extends DraggableBoxComponent {
 
     private synchronized int drawLoggedLines(Graphics2D g, FontMetrics fontMetrics, int initialYPos, int xPos, int rowHeight) {
         int yPos = initialYPos;
-        ArrayList<String> temp = new ArrayList<>(lines.size() + lines.size() >> 1);
+        ArrayList<String> temp = new ArrayList<String>(lines.size() + lines.size() >> 1);
         int lineCount = 0;
         for (int i = lines.size() - 1; i >= 0; i--) {
             g.setColor(Color.BLACK);

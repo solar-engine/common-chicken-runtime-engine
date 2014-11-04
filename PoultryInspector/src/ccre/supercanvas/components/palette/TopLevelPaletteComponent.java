@@ -41,7 +41,7 @@ public class TopLevelPaletteComponent extends PaletteComponent<Iterable<PaletteE
     private static final Iterable<PaletteEntry> topLevel;
 
     static {
-        ArrayList<PaletteEntry> local = new ArrayList<>();
+        ArrayList<PaletteEntry> local = new ArrayList<PaletteEntry>();
         local.add(new AllocationPaletteEntry(LoggingComponent.class));
         local.add(new AllocationPaletteEntry(PhidgetMonitorComponent.VirtualPhidget.class));
         local.add(new AllocationPaletteEntry(PhidgetMonitorComponent.PhysicalPhidget.class));

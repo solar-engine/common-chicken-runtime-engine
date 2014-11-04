@@ -36,7 +36,7 @@ import ccre.supercanvas.SuperCanvasComponent;
 public class FolderComponent extends DraggableBoxComponent {
 
     private static final long serialVersionUID = -4289225098349876909L;
-    private final ArrayList<Element> components = new ArrayList<>(5);
+    private final ArrayList<Element> components = new ArrayList<Element>(5);
 
     /**
      * Create a new FolderComponent.

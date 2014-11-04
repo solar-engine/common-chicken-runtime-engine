@@ -44,6 +44,10 @@ public class Igneous {
      * Signifies that the motor should be outputted after negating the value.
      */
     public static final boolean MOTOR_REVERSE = true;
+    /**
+     * Signifies that no ramping should be applied to this motor.
+     */
+    public static final float NO_RAMPING = 0.0f;
 
     /**
      * The IgneousLauncher providing access to the robot.

@@ -35,7 +35,6 @@ public class Presentation09 implements IgneousApplication {
     }
 
     protected void do_something_often_only_in_teleoperated_mode() {
-        // TODO Auto-generated method stub
 
     }
 }

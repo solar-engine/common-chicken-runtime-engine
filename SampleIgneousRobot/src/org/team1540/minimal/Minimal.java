@@ -18,10 +18,8 @@
  */
 package org.team1540.minimal;
 
-import ccre.channel.EventLogger;
-import ccre.igneous.Igneous;
 import ccre.igneous.IgneousApplication;
-import ccre.log.LogLevel;
+import ccre.log.Logger;
 
 /**
  * A very simple example program.
@@ -35,10 +33,6 @@ public class Minimal implements IgneousApplication {
      * message.
      */
     public void setupRobot() {
-        EventLogger.log(Igneous.startAuto, LogLevel.WARNING, "Entered Autonomous Mode!");
-        EventLogger.log(Igneous.startTele, LogLevel.WARNING, "Entered Teleoperated Mode!");
-        EventLogger.log(Igneous.startTest, LogLevel.WARNING, "Entered Testing Mode!");
-        EventLogger.log(Igneous.startDisabled, LogLevel.WARNING, "Entered Disabled Mode!");
-        System.out.println("I live!");
+        Logger.info("I live: " + Math.atan2(7, 0));
     }
 }

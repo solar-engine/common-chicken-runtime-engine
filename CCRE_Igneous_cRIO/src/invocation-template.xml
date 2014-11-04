@@ -17,13 +17,18 @@
 		value="false" />
 	<stringAttribute key="org.eclipse.jdt.launching.CLASSPATH_PROVIDER"
 		value="org.eclipse.ant.ui.AntClasspathProvider" />
+	<stringAttribute key="org.eclipse.jdt.launching.JRE_CONTAINER"
+		value="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.6" />
+	<stringAttribute key="org.eclipse.jdt.launching.MAIN_TYPE"
+		value="org.eclipse.ant.internal.launching.remote.InternalAntRunner" />
 	<stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR"
 		value="PROJECT_ROOT" />
 	<stringAttribute key="org.eclipse.jdt.launching.SOURCE_PATH_PROVIDER"
 		value="org.eclipse.ant.ui.AntClasspathProvider" />
 	<mapAttribute key="org.eclipse.ui.externaltools.ATTR_ANT_PROPERTIES">
 		<mapEntry key="eclipse.running" value="true" />
-		<mapEntry key="project-root" value="/PROJECT_ROOT" />
+		<mapEntry key="project.dir" value="${resource_loc:/PROJECT_ROOT}" />
+		<mapEntry key="ccre-nonroot.dir" value="${resource_loc:/CCRE_Igneous_cRIO}" />
 	</mapAttribute>
 	<booleanAttribute
 		key="org.eclipse.ui.externaltools.ATTR_INCLUDE_REFERENCED_PROJECTS"

@@ -298,6 +298,9 @@ public final class RawIOIgneousLauncherImpl extends RobotBase implements Igneous
     }
 
     public IJoystick getJoystick(int id) {
+        if (id < 1 || id > 4) {
+            throw new IllegalArgumentException("Joystick " + id + " is not a valid joystick number.");
+        }
         return new CJoystick(id).attach(globalPeriodic);
     }
 

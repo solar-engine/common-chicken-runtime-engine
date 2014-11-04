@@ -67,8 +67,10 @@ final class CJoystick implements EventOutput, IJoystick {
     CJoystick(int joystick) {
         if (joystick == 5 || joystick == 6) {
             throw new IllegalArgumentException("Kinect Joysticks are not supported by the RoboRIO.");
+        } else if (joystick < 1 || joystick > 4) {
+            throw new IllegalArgumentException("Joystick " + joystick + " is not a valid joystick number.");
         } else {
-            joy = new Joystick(joystick);
+            joy = new Joystick(joystick - 1);
         }
     }
 

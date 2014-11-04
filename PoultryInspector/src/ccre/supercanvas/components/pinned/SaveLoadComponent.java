@@ -21,12 +21,17 @@ package ccre.supercanvas.components.pinned;
 import java.awt.Color;
 import java.awt.FontMetrics;
 import java.awt.Graphics2D;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+
+import javax.swing.JFileChooser;
+import javax.swing.JOptionPane;
+import javax.swing.filechooser.FileNameExtensionFilter;
 
 import ccre.log.Logger;
 import ccre.supercanvas.Rendering;
@@ -43,6 +48,7 @@ public class SaveLoadComponent extends SuperCanvasComponent {
     private static final long serialVersionUID = -8609998417324680908L;
     private final int x, y;
     private int width = 10, height = 10, btnBorder = 5;
+    private transient JFileChooser chooser;
 
     /**
      * Create a new SaveLoadComponent.
@@ -94,18 +100,40 @@ public class SaveLoadComponent extends SuperCanvasComponent {
         return true;
     }
 
-    private void saveLayout() throws IOException, FileNotFoundException {
-        try (ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream("saved-panel.ser"))) {
-            getPanel().save(out);
+    private JFileChooser getChooser() {
+        if (chooser == null) {
+            chooser = new JFileChooser(".");
+            chooser.setFileFilter(new FileNameExtensionFilter("Saved Layout", "ser"));
         }
-        Logger.info("Saved!");
+        return chooser;
+    }
+
+    private void saveLayout() throws IOException, FileNotFoundException {
+        int retval = getChooser().showSaveDialog(getPanel());
+        if (retval == JFileChooser.APPROVE_OPTION) {
+            File file = chooser.getSelectedFile();
+            if (!file.getName().contains(".") && chooser.getFileFilter() instanceof FileNameExtensionFilter) {
+                file = new File(file.getParentFile(), file.getName() + "." + ((FileNameExtensionFilter) chooser.getFileFilter()).getExtensions()[0]);
+            }
+            try (ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(file))) {
+                getPanel().save(out);
+            }
+            Logger.info("Saved as " + file + ".");
+        } else {
+            Logger.info("Cancelled by user.");
+        }
     }
 
     private void loadLayout() throws ClassNotFoundException, IOException, FileNotFoundException {
-        try (ObjectInputStream in = new ObjectInputStream(new FileInputStream("saved-panel.ser"))) {
-            getPanel().load(in);
+        int retval = getChooser().showOpenDialog(getPanel());
+        if (retval == JFileChooser.APPROVE_OPTION) {
+            try (ObjectInputStream in = new ObjectInputStream(new FileInputStream(chooser.getSelectedFile()))) {
+                getPanel().load(in);
+            }
+            Logger.info("Loaded from " + chooser.getSelectedFile() + ".");
+        } else {
+            Logger.info("Cancelled by user.");
         }
-        Logger.info("Loaded!");
     }
 
     @Override

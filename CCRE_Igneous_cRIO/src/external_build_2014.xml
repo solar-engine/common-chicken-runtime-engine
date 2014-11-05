@@ -205,7 +205,7 @@
 
 	<target name="clear-logs-2014">
 		<fail unless="remoteaddress-2014" message="A remote address must be specified: add 'remoteaddress-2014=10.TE.AM.2' to main.properties. See SampleIgneousRobot for an example." />
-		<tempfile property="log-2014.dir" prefix="robot-logs-" />
+		<tempfile property="log-2014.dir" destdir="${project.dir}" prefix="robot-logs-" />
 		<echo message="Fetching and clearing logfiles from robot..." />
 		<ftp action="get" server="${remoteaddress-2014}" userid="root" password="" remotedir="/">
 			<fileset dir="${log-2014.dir}">

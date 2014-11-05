@@ -1,4 +1,4 @@
-package org.team1540.geminiapollo;
+package org.team1540.apollogemini;
 
 import java.io.ByteArrayOutputStream;
 import java.io.UnsupportedEncodingException;

@@ -1,4 +1,4 @@
-package org.team1540.geminiapollo;
+package org.team1540.apollogemini;
 
 import ccre.cluck.Cluck;
 import ccre.channel.*;

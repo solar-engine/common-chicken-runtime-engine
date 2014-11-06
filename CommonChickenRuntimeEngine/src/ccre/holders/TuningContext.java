@@ -124,7 +124,7 @@ public final class TuningContext { // TODO: Support booleans for tuning.
      */
     public void flush() {
         seg.flush();
-        Logger.info("Flushed storage segment.");
+        Logger.info("Flushed storage segment " + seg.getName());
     }
 
     /**

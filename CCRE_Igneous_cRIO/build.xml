@@ -78,5 +78,6 @@
 				<exclude name="**/*.java" />
 			</fileset>
 		</jar>
+		<delete dir="${preverify-2014.dir}" />
 	</target>
 </project>

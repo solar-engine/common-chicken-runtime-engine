@@ -99,9 +99,11 @@
 
 	<target name="preverify-2014" depends="compile-2014">
 		<mkdir dir="${preverify-2014.dir}" />
-		<mkdir dir="${downgrade-2014.dir}" />
-		<unjar src="${unverif-2014.jar}" dest="${classes-2014.dir}" />
-		<unjar src="${veriflib-2014.jar}" dest="${preverify-2014.dir}" />
+		<parallel>
+			<mkdir dir="${downgrade-2014.dir}" />
+			<unjar src="${unverif-2014.jar}" dest="${classes-2014.dir}" />
+			<unjar src="${veriflib-2014.jar}" dest="${preverify-2014.dir}" />
+		</parallel>
 		<echo message="Backporting with properties: ${backport}" />
 		<move failonerror="false" file="${classes-2014.dir}/java/lang/${preverify-2014-bypass}" todir="${preverify-2014.dir}/java/lang" />
 		<delete failonerror="false" file="${preverify-2014.dir}/${preverify-2014-excludes}" />

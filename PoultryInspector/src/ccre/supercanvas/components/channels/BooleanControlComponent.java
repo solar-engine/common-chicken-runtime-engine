@@ -26,6 +26,7 @@ import java.awt.geom.AffineTransform;
 import ccre.channel.BooleanInput;
 import ccre.channel.BooleanOutput;
 import ccre.channel.BooleanStatus;
+import ccre.ctrl.BooleanMixing;
 import ccre.supercanvas.BaseChannelComponent;
 
 /**
@@ -37,6 +38,8 @@ public class BooleanControlComponent extends BaseChannelComponent implements Boo
 
     private static final long serialVersionUID = 3529467636546288860L;
     private final BooleanStatus pressed = new BooleanStatus();
+    private final BooleanOutput rawOut;
+    private boolean hasSentInitial = false;
 
     /**
      * Create a new BooleanControlComponent with a BooleanOutput to control.
@@ -48,7 +51,7 @@ public class BooleanControlComponent extends BaseChannelComponent implements Boo
      */
     public BooleanControlComponent(int cx, int cy, String name, BooleanOutput out) {
         super(cx, cy, name);
-        pressed.send(out);
+        rawOut = out;
     }
 
     /**
@@ -60,6 +63,7 @@ public class BooleanControlComponent extends BaseChannelComponent implements Boo
      */
     public BooleanControlComponent(int cx, int cy, String name) {
         super(cx, cy, name);
+        rawOut = BooleanMixing.ignoredBooleanOutput;
     }
 
     @Override
@@ -96,6 +100,10 @@ public class BooleanControlComponent extends BaseChannelComponent implements Boo
     @Override
     public boolean onInteract(int x, int y) {
         pressed.set(!pressed.get());
+        if (!hasSentInitial) {
+            pressed.send(rawOut);
+            hasSentInitial = true;
+        }
         return true;
     }
 

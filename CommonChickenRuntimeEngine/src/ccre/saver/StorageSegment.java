@@ -18,6 +18,8 @@
  */
 package ccre.saver;
 
+import ccre.channel.BooleanOutput;
+import ccre.channel.BooleanStatus;
 import ccre.channel.EventOutput;
 import ccre.channel.FloatOutput;
 import ccre.channel.FloatStatus;
@@ -25,8 +27,8 @@ import ccre.holders.StringHolder;
 import ccre.log.Logger;
 
 /**
- * A storage segment - a place to store various pieces of data. One of these can
- * be obtained using StorageProvider.
+ * A storage segment - a place to store various pieces of data. A StorageSegment
+ * can be obtained using StorageProvider.
  *
  * @see StorageProvider
  * @author skeggsc
@@ -62,7 +64,7 @@ public abstract class StorageSegment {
      * afterwards.
      */
     public abstract void close();
-    
+
     /**
      * Get the name of this segment, if available.
      * 
@@ -113,7 +115,7 @@ public abstract class StorageSegment {
     /**
      * Attach a FloatHolder to this storage segment. This will restore data if
      * it has been stored as modified in the segment. This will save the data of
-     * the float holder as it updates, although you may need to call flush() to
+     * the float holder as it updates, although you will need to call flush() to
      * ensure that the data is saved.
      *
      * This will only overwrite the current value of the FloatHolder if the data
@@ -147,6 +149,42 @@ public abstract class StorageSegment {
         holder.send(new SegmentFloatSaver(key, default_key, originalValue));
     }
 
+    /**
+     * Attach a BooleanHolder to this storage segment. This will restore data if
+     * it has been stored as modified in the segment. This will save the data of
+     * the boolean holder as it updates, although you will need to call flush()
+     * to ensure that the data is saved.
+     *
+     * This will only overwrite the current value of the BooleanHolder if the
+     * data was saved when the BooleanHolder had the same default (value when
+     * this method is called). This means that you can modify the contents using
+     * either the StorageSegment or by changing the BooleanHolder's original
+     * value.
+     *
+     * @param name the name to save the holder under.
+     * @param holder the holder to save.
+     */
+    public void attachBooleanHolder(String name, final BooleanStatus holder) {
+        final String key = "boolean_holder_" + name, default_key = "boolean_holder_default_" + name;
+        final boolean originalValue = holder.get();
+        String vraw = getStringForKey(key);
+        if (vraw != null) {
+            try {
+                boolean value = Boolean.parseBoolean(vraw);
+                String draw = getStringForKey(default_key);
+                // If the default is the same as the holder's default, then load the value
+                if (draw == null || Boolean.parseBoolean(draw) == originalValue) {
+                    Logger.config("Loaded config for " + name + ": def:" + draw + " old:" + originalValue + " new:" + value);
+                    holder.set(value);
+                }
+                // Otherwise, the default has changed from the holder, and therefore we want the updated value from the holder
+            } catch (NumberFormatException ex) {
+                Logger.warning("Invalid boolean value: '" + vraw + "'!", ex);
+            }
+        }
+        holder.send(new SegmentBooleanSaver(key, default_key, originalValue));
+    }
+
     private class SegmentFloatSaver implements FloatOutput {
 
         private final String key, default_key;
@@ -161,6 +199,23 @@ public abstract class StorageSegment {
         public void set(float value) {
             setStringForKey(key, Float.toString(value));
             setStringForKey(default_key, Float.toString(originalValue));
+        }
+    }
+
+    private class SegmentBooleanSaver implements BooleanOutput {
+
+        private final String key, default_key;
+        private final boolean originalValue;
+
+        SegmentBooleanSaver(String key, String dkey, boolean originalValue) {
+            this.key = key;
+            this.default_key = dkey;
+            this.originalValue = originalValue;
+        }
+
+        public void set(boolean value) {
+            setStringForKey(key, Boolean.toString(value));
+            setStringForKey(default_key, Boolean.toString(originalValue));
         }
     }
 }

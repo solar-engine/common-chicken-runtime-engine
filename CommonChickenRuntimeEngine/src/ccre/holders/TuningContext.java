@@ -18,6 +18,7 @@
  */
 package ccre.holders;
 
+import ccre.channel.BooleanStatus;
 import ccre.channel.EventOutput;
 import ccre.channel.FloatStatus;
 import ccre.cluck.Cluck;
@@ -99,6 +100,21 @@ public final class TuningContext { // TODO: Support booleans for tuning.
     public FloatStatus getFloat(String name, float default_) {
         FloatStatus out = new FloatStatus(default_);
         seg.attachFloatHolder(name, out);
+        CluckPublisher.publish(enc, name, out);
+        return out;
+    }
+
+    /**
+     * Get a BooleanStatus with the specified name and default value. This will be
+     * tunable over the network and saved on the cRIO once flush() is called.
+     *
+     * @param name the name of the tunable value.
+     * @param default_ the default value.
+     * @return the BooleanStatus representing the current value.
+     */
+    public BooleanStatus getBoolean(String name, boolean default_) {
+        BooleanStatus out = new BooleanStatus(default_);
+        seg.attachBooleanHolder(name, out);
         CluckPublisher.publish(enc, name, out);
         return out;
     }

@@ -145,7 +145,9 @@ public class Igneous {
      */
     public static FloatOutput makeJaguarMotor(int id, boolean negate, float ramping) {
         FloatOutput motor = launcher.makeMotor(id, IgneousLauncher.JAGUAR);
-        return FloatMixing.addRamping(ramping, constantPeriodic, negate ? FloatMixing.negate(motor) : motor);
+        FloatOutput ramped = FloatMixing.addRamping(ramping, constantPeriodic, negate ? FloatMixing.negate(motor) : motor);
+        FloatMixing.setWhen(startDisabled, ramped, 0.0f); 
+        return ramped;
     }
 
     /**
@@ -168,7 +170,9 @@ public class Igneous {
      */
     public static FloatOutput makeVictorMotor(int id, boolean negate, float ramping) {
         FloatOutput motor = launcher.makeMotor(id, IgneousLauncher.VICTOR);
-        return FloatMixing.addRamping(ramping, constantPeriodic, negate ? FloatMixing.negate(motor) : motor);
+        FloatOutput ramped = FloatMixing.addRamping(ramping, constantPeriodic, negate ? FloatMixing.negate(motor) : motor);
+        FloatMixing.setWhen(startDisabled, ramped, 0.0f); 
+        return ramped;
     }
 
     /**
@@ -191,7 +195,9 @@ public class Igneous {
      */
     public static FloatOutput makeTalonMotor(int id, boolean negate, float ramping) {
         FloatOutput motor = launcher.makeMotor(id, IgneousLauncher.TALON);
-        return FloatMixing.addRamping(ramping, constantPeriodic, negate ? FloatMixing.negate(motor) : motor);
+        FloatOutput ramped = FloatMixing.addRamping(ramping, constantPeriodic, negate ? FloatMixing.negate(motor) : motor);
+        FloatMixing.setWhen(startDisabled, ramped, 0.0f); 
+        return ramped;
     }
 
     /**

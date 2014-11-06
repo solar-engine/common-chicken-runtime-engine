@@ -32,4 +32,11 @@
 			<zipgroupfileset includes="*.jar" dir="lib" />
 		</jar>
 	</target>
+	<target name="build-release-jar" depends="build-jar">
+		<exec executable="git" outputproperty="git-desc" failonerror="true">
+			<arg value="describe" />
+			<arg value="--dirty" />
+		</exec>
+		<copy file="PoultryInspector.jar" tofile="PoultryInspector-${git-desc}.jar" />
+	</target>
 </project>

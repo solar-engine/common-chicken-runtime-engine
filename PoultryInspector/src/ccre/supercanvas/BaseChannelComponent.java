@@ -50,8 +50,8 @@ public abstract class BaseChannelComponent extends DraggableBoxComponent {
 
     @Override
     public final void render(Graphics2D g, int screenWidth, int screenHeight, FontMetrics fontMetrics, int mouseX, int mouseY) {
-        halfWidth = Math.max(70, g.getFontMetrics().stringWidth(name) / 2);
-        halfHeight = halfWidth * 2 / 3;
+        halfWidth = Math.max(70, g.getFontMetrics().stringWidth(name) / 2 + 5);
+        halfHeight = 46;
         if (getPanel().editmode) {
             Rendering.drawBody(Color.YELLOW, g, this);
             g.setColor(Color.BLACK);

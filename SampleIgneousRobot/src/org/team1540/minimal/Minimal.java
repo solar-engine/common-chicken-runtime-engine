@@ -33,6 +33,6 @@ public class Minimal implements IgneousApplication {
      * message.
      */
     public void setupRobot() {
-        Logger.info("I live: " + Math.atan2(7, 0));
+        Logger.info("I live!");
     }
 }

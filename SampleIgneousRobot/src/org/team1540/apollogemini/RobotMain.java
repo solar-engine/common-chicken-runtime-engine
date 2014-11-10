@@ -48,7 +48,7 @@ public class RobotMain extends IgneousCore {
                 winchSolenoid = testing.testPublish("sol-winch-4", makeSolenoid(4));
                 winchCurrent = Igneous.getPDPChannelCurrent(12);
             } else {
-                winchMotor = testing.testPublish("winch", makeTalonMotor(5, MOTOR_REVERSE, 1000f));
+                winchMotor = testing.testPublish("winch", makeVictorMotor(5, MOTOR_REVERSE, 1000f));
                 winchSolenoid = testing.testPublish("sol-winch-3", makeSolenoid(3));
                 winchCurrent = makeAnalogInput(1, 8);
             }
@@ -80,7 +80,7 @@ public class RobotMain extends IgneousCore {
             } else {
                 armMainSolenoid = testing.testPublish("sol-arm-2", makeSolenoid(2));
                 armLockSolenoid = testing.testPublish("sol-lock-8", makeSolenoid(8));
-                collectorMotor = testing.testPublish("collectorMotor", makeTalonMotor(6, MOTOR_REVERSE, 0.1f));
+                collectorMotor = testing.testPublish("collectorMotor", makeVictorMotor(6, MOTOR_REVERSE, 0.1f));
             }
             BooleanOutput collectionSolenoids = BooleanMixing.combine(BooleanMixing.invert(testing.testPublish("sol-fingers-5", makeSolenoid(5))), isRoboRIO() ? testing.testPublish("sol-float-0", makeSolenoid(0)) : testing.testPublish("sol-float-6", makeSolenoid(6)));
             collectionSolenoids.set(false);
@@ -102,11 +102,18 @@ public class RobotMain extends IgneousCore {
             }
         }
         { // ==== DRIVING ====
-            int baseport = isRoboRIO() ? 2 : 1;
-            boolean left_dir = isRoboRIO() ? MOTOR_REVERSE : MOTOR_FORWARD;
-            boolean right_dir = isRoboRIO() ? MOTOR_FORWARD : MOTOR_REVERSE;
-            FloatOutput leftDrive1 = makeTalonMotor(baseport, left_dir, 0.1f), rightDrive1 = makeTalonMotor(baseport + 2, right_dir, 0.1f);
-            FloatOutput leftDrive2 = makeTalonMotor(baseport + 1, left_dir, 0.1f), rightDrive2 = makeTalonMotor(baseport + 3, right_dir, 0.1f);
+            FloatOutput leftDrive1, leftDrive2, rightDrive1, rightDrive2;
+            if (isRoboRIO()) {
+                leftDrive1 = makeTalonMotor(2, MOTOR_REVERSE, 0.1f);
+                leftDrive2 = makeTalonMotor(3, MOTOR_REVERSE, 0.1f);
+                rightDrive1 = makeTalonMotor(4, MOTOR_FORWARD, 0.1f);
+                rightDrive2 = makeTalonMotor(5, MOTOR_FORWARD, 0.1f);
+            } else {
+                leftDrive1 = makeVictorMotor(1, MOTOR_FORWARD, 0.1f);
+                leftDrive2 = makeVictorMotor(2, MOTOR_FORWARD, 0.1f);
+                rightDrive1 = makeVictorMotor(3, MOTOR_REVERSE, 0.1f);
+                rightDrive2 = makeVictorMotor(4, MOTOR_REVERSE, 0.1f);
+            }
             FloatOutput leftDrive = FloatMixing.combine(leftDrive1, leftDrive2), rightDrive = FloatMixing.combine(rightDrive1, rightDrive2);
             BooleanOutput shiftSolenoid = isRoboRIO() ? testing.testPublish("sol-shift-7", makeSolenoid(7)) : testing.testPublish("sol-shift-1", makeSolenoid(1));
             testing.addDriveMotors(leftDrive1, leftDrive2, leftDrive, rightDrive1, rightDrive2, rightDrive);

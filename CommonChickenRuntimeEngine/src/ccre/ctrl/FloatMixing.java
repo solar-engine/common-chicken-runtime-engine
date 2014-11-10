@@ -26,6 +26,7 @@ import ccre.channel.FloatInput;
 import ccre.channel.FloatInputPoll;
 import ccre.channel.FloatOutput;
 import ccre.channel.FloatStatus;
+import ccre.util.Utils;
 
 /**
  * FloatMixing is a class that provides a wide variety of useful static methods
@@ -63,8 +64,12 @@ public class FloatMixing {
      * @param value the value to write.
      * @return the event to write the value.
      */
-    public static EventOutput getSetEvent(FloatOutput output, float value) {
-        return new MixingImpls.GSEF(output, value);
+    public static EventOutput getSetEvent(final FloatOutput output, final float value) {
+        return new EventOutput() {
+            public void event() {
+                output.set(value);
+            }
+        };
     }
 
     /**
@@ -76,7 +81,11 @@ public class FloatMixing {
      * @return an input that represents the value being at least the minimum.
      */
     public static BooleanInputPoll floatIsAtLeast(final FloatInputPoll base, final float minimum) {
-        return new MixingImpls.FIAL(base, minimum);
+        return new BooleanInputPoll() {
+            public boolean get() {
+                return base.get() >= minimum;
+            }
+        };
     }
 
     /**
@@ -88,8 +97,22 @@ public class FloatMixing {
      * if you want no upper bound.
      * @return The filter representing the specified limit.
      */
-    public static FloatFilter limit(float minimum, float maximum) {
-        return new MixingImpls.LimitImpl(minimum, maximum);
+    public static FloatFilter limit(final float minimum, final float maximum) {
+        if (maximum < minimum) {
+            throw new IllegalArgumentException("Maximum is smaller than minimum!");
+        }
+        return new FloatFilter() {
+            @Override
+            public float filter(float input) {
+                if (input < minimum) {
+                    return minimum;
+                } else if (input > maximum) {
+                    return maximum;
+                } else {
+                    return input;
+                }
+            }
+        };
     }
 
     /**
@@ -139,7 +162,12 @@ public class FloatMixing {
      * @return an input that represents the value being outside the range
      */
     public static BooleanInputPoll floatIsOutsideRange(final FloatInputPoll base, final float minimum, final float maximum) {
-        return new MixingImpls.FIOR(base, minimum, maximum);
+        return new BooleanInputPoll() {
+            public boolean get() {
+                float val = base.get();
+                return val < minimum || val > maximum;
+            }
+        };
     }
 
     /**
@@ -151,7 +179,11 @@ public class FloatMixing {
      * @return the EventOutput that pumps the value
      */
     public static EventOutput pumpEvent(final FloatInputPoll in, final FloatOutput out) {
-        return new MixingImpls.PumpEventImplF(out, in);
+        return new EventOutput() {
+            public void event() {
+                out.set(in.get());
+            }
+        };
     }
 
     /**
@@ -180,7 +212,7 @@ public class FloatMixing {
      * @param source The source to wrap
      * @return The wrapped input.
      */
-    public static FloatInputPoll addRamping(final float limit, EventInput updateWhen, final FloatInputPoll source) {
+    public static FloatInputPoll addRamping(final float limit, EventInput updateWhen, final FloatInputPoll source) { // TODO: Should this return a FloatInput?
         FloatStatus temp = new FloatStatus();
         updateWhen.send(createRamper(limit, source, temp));
         return temp;
@@ -230,7 +262,14 @@ public class FloatMixing {
      * @return The EventOutput that updates the ramping system.
      */
     public static EventOutput createRamper(final float limit, final FloatInputPoll from, final FloatOutput target) {
-        return new MixingImpls.RampingImpl(from, limit, target);
+        return new EventOutput() {
+            private float last = from.get();
+
+            public void event() {
+                last = Utils.updateRamping(last, from.get(), limit);
+                target.set(last);
+            }
+        };
     }
 
     /**
@@ -243,7 +282,12 @@ public class FloatMixing {
      * @return an input that represents the value being in range
      */
     public static BooleanInputPoll floatIsInRange(final FloatInputPoll base, final float minimum, final float maximum) {
-        return new MixingImpls.FIIR(base, minimum, maximum);
+        return new BooleanInputPoll() {
+            public boolean get() {
+                float val = base.get();
+                return val >= minimum && val <= maximum;
+            }
+        };
     }
 
     /**
@@ -252,8 +296,19 @@ public class FloatMixing {
      * @param value the value to always have.
      * @return the FloatInput representing that value.
      */
-    public static FloatInput always(float value) {
-        return new MixingImpls.Always(value);
+    public static FloatInput always(final float value) {
+        return new FloatInput() {
+            public float get() {
+                return value;
+            }
+
+            public void send(FloatOutput consum) {
+                consum.set(value);
+            }
+
+            public void unsend(FloatOutput consum) {
+            }
+        };
     }
 
     /**
@@ -292,7 +347,11 @@ public class FloatMixing {
      * @return an input that represents the value being at most the maximum.
      */
     public static BooleanInputPoll floatIsAtMost(final FloatInputPoll base, final float maximum) {
-        return new MixingImpls.FIAM(base, maximum);
+        return new BooleanInputPoll() {
+            public boolean get() {
+                return base.get() <= maximum;
+            }
+        };
     }
 
     /**
@@ -304,7 +363,12 @@ public class FloatMixing {
      * @see ccre.util.Utils#deadzone(float, float)
      */
     public static FloatFilter deadzone(final float deadzone) {
-        return new MixingImpls.DeadzoneImpl(deadzone);
+        return new FloatFilter() {
+            @Override
+            public float filter(float input) {
+                return Utils.deadzone(input, deadzone);
+            }
+        };
     }
 
     /**
@@ -373,7 +437,16 @@ public class FloatMixing {
      * @return The FloatInputPoll representing the rate.
      */
     public static FloatInputPoll findRate(final FloatInputPoll input) {
-        return new MixingImpls.FindRateImpl(input);
+        return new FloatInputPoll() {
+            private float lastValue = input.get();
+
+            public synchronized float get() {
+                float next = input.get();
+                float out = next - lastValue;
+                lastValue = next;
+                return out;
+            }
+        };
     }
 
     /**
@@ -389,8 +462,22 @@ public class FloatMixing {
      * from the last update of this.
      * @return The FloatInputPoll representing the rate.
      */
-    public static FloatInputPoll findRate(final FloatInputPoll input, EventInput updateWhen) {
-        return new MixingImpls.FindRateCycledImpl(input).start(updateWhen);
+    public static FloatInputPoll findRate(final FloatInputPoll input, final EventInput updateWhen) {
+        return new FloatInputPoll() {
+            private float lastValue = input.get();
+
+            {
+                updateWhen.send(new EventOutput() {
+                    public void event() {
+                        lastValue = input.get();
+                    }
+                });
+            }
+
+            public synchronized float get() {
+                return input.get() - lastValue;
+            }
+        };
     }
 
     /**
@@ -410,9 +497,13 @@ public class FloatMixing {
      * @param one the value of base that turns into 1.0.
      * @return the scaled value.
      */
-    public static FloatInputPoll normalizeFloat(FloatInputPoll base, float zero, float one) {
-        float range = one - zero;
-        return new MixingImpls.NFI(base, zero, range);
+    public static FloatInputPoll normalizeFloat(final FloatInputPoll base, final float zero, float one) {
+        final float range = one - zero;
+        return new FloatInputPoll() {
+            public float get() {
+                return (base.get() - zero) / range;
+            }
+        };
     }
 
     private FloatMixing() {

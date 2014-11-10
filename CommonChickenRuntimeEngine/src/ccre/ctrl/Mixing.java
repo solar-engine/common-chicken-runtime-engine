@@ -24,13 +24,7 @@ import ccre.channel.BooleanOutput;
 import ccre.channel.FloatInput;
 import ccre.channel.FloatInputPoll;
 import ccre.channel.FloatOutput;
-import ccre.ctrl.MixingImpls.BCF;
-import ccre.ctrl.MixingImpls.BCF2;
-import ccre.ctrl.MixingImpls.BSF;
-import ccre.ctrl.MixingImpls.BSF2;
-import ccre.ctrl.MixingImpls.BooleanSelectFloatImpl;
-import ccre.ctrl.MixingImpls.QuadSelectImpl;
-import ccre.ctrl.MixingImpls.QuadSelectImpl2;
+import ccre.util.CArrayList;
 
 /**
  * Mixing is a class that provides a wide variety of useful static methods to
@@ -60,7 +54,11 @@ public class Mixing {
      * @return the BooleanOutput that will now control the provided FloatOutput.
      */
     public static BooleanOutput select(final FloatOutput controlled, final float off, final float on) {
-        return new BSF(controlled, off, on);
+        return new BooleanOutput() {
+            public void set(boolean value) {
+                controlled.set(value ? on : off);
+            }
+        };
     }
 
     /**
@@ -73,10 +71,8 @@ public class Mixing {
      * @return the FloatInput calculated from the selector's value and the two
      * floats.
      */
-    public static FloatInput select(BooleanInput selector, float off, float on) {
-        BCF out = new BCF(selector.get(), off, on);
-        selector.send(out);
-        return out;
+    public static FloatInput select(final BooleanInput selector, final float off, final float on) {
+        return select(selector, selector.get(), off, on);
     }
 
     /**
@@ -91,10 +87,42 @@ public class Mixing {
      * @return the FloatInput calculated from the selector's value and the two
      * floats.
      */
-    public static FloatInput select(BooleanInput selector, boolean default_, float off, float on) {
-        BCF out = new BCF(default_, off, on);
-        selector.send(out);
-        return out;
+    public static FloatInput select(final BooleanInput selector, final boolean default_, final float off, final float on) {
+        return new FloatInput() {
+            private float cur = default_ ? on : off;
+            private CArrayList<FloatOutput> consumers = null;
+
+            {
+                selector.send(new BooleanOutput() {
+                    public void set(boolean value) {
+                        cur = value ? on : off;
+                        if (consumers != null) {
+                            for (FloatOutput out : consumers) {
+                                out.set(cur);
+                            }
+                        }
+                    }
+                });
+            }
+            
+            public float get() {
+                return cur;
+            }
+
+            public void send(FloatOutput consum) {
+                if (consumers == null) {
+                    consumers = new CArrayList<FloatOutput>();
+                }
+                consumers.add(consum);
+                consum.set(cur);
+            }
+
+            public void unsend(FloatOutput consum) {
+                if (consumers != null) {
+                    consumers.remove(consum);
+                }
+            }
+        };
     }
 
     /**
@@ -107,8 +135,12 @@ public class Mixing {
      * @return the FloatInputPoll calculated from the selector's value and the
      * two floats.
      */
-    public static FloatInputPoll select(BooleanInputPoll selector, float off, float on) {
-        return new BSF2(selector, off, on);
+    public static FloatInputPoll select(final BooleanInputPoll selector, final float off, final float on) {
+        return new FloatInputPoll() {
+            public float get() {
+                return selector.get() ? on : off;
+            }
+        };
     }
 
     /**
@@ -147,9 +179,7 @@ public class Mixing {
      * of the two arguments.
      */
     public static FloatInput select(BooleanInput selector, FloatInputPoll off, FloatInputPoll on) {
-        BCF2 out = new BCF2(selector.get(), off, on);
-        selector.send(out);
-        return out;
+        return select(selector, selector.get(), off, on);
     }
 
     /**
@@ -166,10 +196,42 @@ public class Mixing {
      * @return the value selected based on the selector's value and the statuses
      * of the two arguments.
      */
-    public static FloatInput select(BooleanInput selector, boolean default_, FloatInputPoll off, FloatInputPoll on) {
-        BCF2 out = new BCF2(default_, off, on);
-        selector.send(out);
-        return out;
+    public static FloatInput select(final BooleanInput selector, final boolean default_, final FloatInputPoll off, final FloatInputPoll on) {
+        return new FloatInput() { // TODO: Can we vary a FloatInputPoll to read from instead of varying an active value thereof?
+            private float cur = default_ ? on.get() : off.get();
+            private CArrayList<FloatOutput> consumers = null;
+
+            {
+                selector.send(new BooleanOutput() {
+                    public void set(boolean value) {
+                        cur = value ? on.get() : off.get();
+                        if (consumers != null) {
+                            for (FloatOutput out : consumers) {
+                                out.set(cur);
+                            }
+                        }
+                    }
+                });
+            }
+            
+            public float get() {
+                return cur;
+            }
+
+            public void send(FloatOutput consum) {
+                if (consumers == null) {
+                    consumers = new CArrayList<FloatOutput>();
+                }
+                consumers.add(consum);
+                consum.set(cur);
+            }
+
+            public void unsend(FloatOutput consum) {
+                if (consumers != null) {
+                    consumers.remove(consum);
+                }
+            }
+        };
     }
 
     /**
@@ -183,7 +245,11 @@ public class Mixing {
      * of the two arguments.
      */
     public static FloatInputPoll select(final BooleanInputPoll selector, final FloatInputPoll off, final FloatInputPoll on) {
-        return new BooleanSelectFloatImpl(selector, on, off);
+        return new FloatInputPoll() {
+            public float get() {
+                return selector.get() ? on.get() : off.get();
+            }
+        };
     }
 
     /**
@@ -201,7 +267,11 @@ public class Mixing {
      * @return The FloatInputPoll representing the current value.
      */
     public static FloatInputPoll quadSelect(final BooleanInputPoll alpha, final BooleanInputPoll beta, final float ff, final float ft, final float tf, final float tt) {
-        return new QuadSelectImpl(alpha, beta, tt, tf, ft, ff);
+        return new FloatInputPoll() {
+            public float get() {
+                return alpha.get() ? (beta.get() ? tt : tf) : (beta.get() ? ft : ff);
+            }
+        };
     }
 
     /**
@@ -219,7 +289,11 @@ public class Mixing {
      * @return The FloatInputPoll representing the current value.
      */
     public static FloatInputPoll quadSelect(final BooleanInputPoll alpha, final BooleanInputPoll beta, final FloatInputPoll ff, final FloatInputPoll ft, final FloatInputPoll tf, final FloatInputPoll tt) {
-        return new QuadSelectImpl2(alpha, beta, tt, tf, ft, ff);
+        return new FloatInputPoll() {
+            public float get() {
+                return (alpha.get() ? (beta.get() ? tt : tf) : (beta.get() ? ft : ff)).get();
+            }
+        };
     }
 
     private Mixing() {

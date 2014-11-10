@@ -197,7 +197,11 @@ public class BooleanMixing {
      * not both.
      */
     public static BooleanInputPoll xorBooleans(final BooleanInputPoll a, final BooleanInputPoll b) {
-        return new MixingImpls.XorBooleansImpl(a, b);
+        return new BooleanInputPoll() {
+            public boolean get() {
+                return a.get() ^ b.get();
+            }
+        };
     }
 
     /**
@@ -209,7 +213,11 @@ public class BooleanMixing {
      * @return the input representing if either of the given inputs is true.
      */
     public static BooleanInputPoll orBooleans(final BooleanInputPoll a, final BooleanInputPoll b) {
-        return new MixingImpls.OrBooleansImpl2(a, b);
+        return new BooleanInputPoll() {
+            public boolean get() {
+                return a.get() || b.get();
+            }
+        };
     }
 
     /**
@@ -219,7 +227,16 @@ public class BooleanMixing {
      * @return the input representing if any given input is true.
      */
     public static BooleanInputPoll orBooleans(final BooleanInputPoll... vals) {
-        return new MixingImpls.OrBooleansImpl(vals);
+        return new BooleanInputPoll() {
+            public boolean get() {
+                for (BooleanInputPoll val : vals) {
+                    if (val.get()) {
+                        return true;
+                    }
+                }
+                return false;
+            }
+        };
     }
 
     /**
@@ -244,9 +261,20 @@ public class BooleanMixing {
      * @param target the target value to trigger the event.
      * @return the EventInput that is fired when the input becomes the target.
      */
-    public static EventInput whenBooleanBecomes(BooleanInput input, boolean target) {
+    public static EventInput whenBooleanBecomes(BooleanInput input, final boolean target) {
         final EventStatus out = new EventStatus();
-        input.send(new MixingImpls.WBBI(target, out));
+        input.send(new BooleanOutput() {
+            private boolean last; // TODO: Initialize this to the current value of input?
+            public void set(boolean value) {
+                if (value == last) {
+                    return;
+                }
+                last = value;
+                if (value == target) {
+                    out.produce();
+                }
+            }
+        });
         return out;
     }
 
@@ -270,8 +298,12 @@ public class BooleanMixing {
      * @param value the value to write.
      * @return the event to write the value.
      */
-    public static EventOutput getSetEvent(BooleanOutput output, boolean value) {
-        return new MixingImpls.GSEB(output, value);
+    public static EventOutput getSetEvent(final BooleanOutput output, final boolean value) {
+        return new EventOutput() {
+            public void event() {
+                output.set(value);
+            }
+        };
     }
 
     /**
@@ -283,7 +315,11 @@ public class BooleanMixing {
      * @return the EventOutput that pumps the value
      */
     public static EventOutput pumpEvent(final BooleanInputPoll in, final BooleanOutput out) {
-        return new MixingImpls.PumpEventImplB(out, in);
+        return new EventOutput() {
+            public void event() {
+                out.set(in.get());
+            }
+        };
     }
 
     /**
@@ -310,7 +346,11 @@ public class BooleanMixing {
      * @return the input representing if both given inputs are true.
      */
     public static BooleanInputPoll andBooleans(final BooleanInputPoll a, final BooleanInputPoll b) {
-        return new MixingImpls.AndBooleansImpl2(a, b);
+        return new BooleanInputPoll() {
+            public boolean get() {
+                return a.get() && b.get();
+            }
+        };
     }
 
     /**
@@ -321,7 +361,16 @@ public class BooleanMixing {
      * @return the input representing if all given inputs are true.
      */
     public static BooleanInputPoll andBooleans(final BooleanInputPoll... vals) {
-        return new MixingImpls.AndBooleansImpl(vals);
+        return new BooleanInputPoll() {
+            public boolean get() {
+                for (BooleanInputPoll val : vals) {
+                    if (!val.get()) {
+                        return false;
+                    }
+                }
+                return true;
+            }
+        };
     }
 
     /**

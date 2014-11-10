@@ -126,8 +126,18 @@ public class EventMixing {
      * @param minMillis The minimum event delay.
      * @return The debounced version of the event consumer.
      */
-    public static EventOutput debounce(EventOutput orig, int minMillis) {
-        return new MixingImpls.DebounceImpl(orig, minMillis);
+    public static EventOutput debounce(final EventOutput orig, final int minMillis) {
+        return new EventOutput() {
+            private long nextFire = 0;
+            public void event() { // TODO: Should this be synchronized?
+                long now = System.currentTimeMillis();
+                if (now < nextFire) {
+                    return; // Ignore event.
+                }
+                nextFire = now + minMillis;
+                orig.event();
+            }
+        };
     }
 
     /**
@@ -142,7 +152,7 @@ public class EventMixing {
      */
     public static EventInput debounce(EventInput orig, int minMillis) {
         EventStatus e = new EventStatus();
-        orig.send(new MixingImpls.DebounceImpl(e, minMillis));
+        orig.send(debounce((EventOutput) e, minMillis));
         return e;
     }
 
@@ -150,27 +160,39 @@ public class EventMixing {
      * When the returned EventOutput is fired and the specified BooleanInputPoll
      * is the specified requirement, fire the passed EventOutput.
      *
-     * @param input the input to test.
+     * @param shouldAllow the input to test.
      * @param requirement the value to require.
      * @param target the target to fire.
      * @return when to check if the target should be fired.
      */
-    public static EventOutput filterEvent(BooleanInputPoll input, boolean requirement, EventOutput target) {
-        return new MixingImpls.FEC(input, requirement, target);
+    public static EventOutput filterEvent(final BooleanInputPoll shouldAllow, final boolean requirement, final EventOutput target) {
+        return new EventOutput() {
+            public void event() {
+                if (shouldAllow.get() == requirement) {
+                    target.event();
+                }
+            }
+        };
     }
 
     /**
      * Return an EventInput that is fired when the specified EventInput is fired
      * and the specified BooleanInputPoll is the specified requirement.
      *
-     * @param input the input to test.
+     * @param shouldAllow the input to test.
      * @param requirement the value to require.
      * @param when when to check if the target should be fired.
      * @return the target to fire.
      */
-    public static EventInput filterEvent(BooleanInputPoll input, boolean requirement, EventInput when) {
+    public static EventInput filterEvent(final BooleanInputPoll shouldAllow, final boolean requirement, EventInput when) {
         final EventStatus out = new EventStatus();
-        when.send(new MixingImpls.FES(input, requirement, out));
+        when.send(new EventOutput() {
+            public void event() {
+                if (shouldAllow.get() == requirement) {
+                    out.produce();
+                }
+            }
+        });
         return out;
     }
 

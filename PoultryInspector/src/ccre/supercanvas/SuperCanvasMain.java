@@ -95,7 +95,7 @@ public class SuperCanvasMain extends JFrame {
                 }
             }
         });
-        canvas.add(new LoggingComponent(300, 300));
+        canvas.add(new LoggingComponent(312, 300));
         canvas.add(new CluckNetworkingComponent());
         canvas.add(new EditModeComponent());
         canvas.add(new StartComponent());

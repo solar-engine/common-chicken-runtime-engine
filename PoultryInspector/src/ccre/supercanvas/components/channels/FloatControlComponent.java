@@ -33,7 +33,11 @@ import ccre.supercanvas.BaseChannelComponent;
  *
  * @author skeggsc
  */
-public class FloatControlComponent extends BaseChannelComponent implements FloatInput {
+public class FloatControlComponent extends BaseChannelComponent<FloatControlComponent.View> implements FloatInput {
+
+    public static enum View {
+        CONFIGURATION, HORIZONTAL_POINTER
+    }
 
     private static final long serialVersionUID = 8379882900431074283L;
     private final FloatStatus stat = new FloatStatus();
@@ -118,7 +122,7 @@ public class FloatControlComponent extends BaseChannelComponent implements Float
         }
         if (value != stat.get() || !hasSentInitial) {
             stat.set(value);
-            if (!hasSentInitial) {
+            if (!hasSentInitial && rawOut != null) {
                 stat.send(rawOut);
                 hasSentInitial = true;
             }
@@ -144,5 +148,10 @@ public class FloatControlComponent extends BaseChannelComponent implements Float
     @Override
     public boolean canDragInteract() {
         return true;
+    }
+
+    @Override
+    protected void setDefaultView() {
+        activeView = View.HORIZONTAL_POINTER;
     }
 }

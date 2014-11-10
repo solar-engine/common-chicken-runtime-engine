@@ -18,9 +18,11 @@
  */
 package ccre.supercanvas.components.channels;
 
+import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.FontMetrics;
 import java.awt.Graphics2D;
+import java.awt.Stroke;
 import java.awt.geom.AffineTransform;
 
 import ccre.channel.BooleanInput;
@@ -34,7 +36,11 @@ import ccre.supercanvas.BaseChannelComponent;
  *
  * @author skeggsc
  */
-public class BooleanControlComponent extends BaseChannelComponent implements BooleanInput {
+public class BooleanControlComponent extends BaseChannelComponent<BooleanControlComponent.View> implements BooleanInput {
+
+    public static enum View {
+        CONFIGURATION, RED_GREEN_SWITCH, LINEAR_ON_OFF
+    }
 
     private static final long serialVersionUID = 3529467636546288860L;
     private final BooleanStatus pressed = new BooleanStatus();
@@ -68,43 +74,87 @@ public class BooleanControlComponent extends BaseChannelComponent implements Boo
 
     @Override
     protected boolean containsForInteract(int x, int y) {
-        return x >= centerX - 30 && x <= centerX + 30 && y >= centerY - 20 && y <= centerY + 30;
+        switch (activeView) {
+        case RED_GREEN_SWITCH:
+            return x >= centerX - 40 && x <= centerX + 30 && y >= centerY - 20 && y <= centerY + 30;
+        case LINEAR_ON_OFF:
+            return x >= centerX - halfWidth + 5 && x <= centerX + halfWidth - 5 && y >= centerY - 15 && y <= centerY + 15;
+        default:
+            return false;
+        }
     }
 
     @Override
     public void channelRender(Graphics2D g, int screenWidth, int screenHeight, FontMetrics fontMetrics, int mouseX, int mouseY) {
-        AffineTransform origO = g.getTransform();
         boolean isPressed = this.pressed.get();
-        {
-            g.setColor(isPressed ? Color.GREEN.darker() : Color.RED.darker());
-            AffineTransform orig = g.getTransform();
-            g.rotate(isPressed ? 10 : -10, centerX + (isPressed ? 3 : -3), centerY + 10);
-            g.fillRect(centerX - 5, centerY + 5, 10, 45);
-            g.setTransform(orig);
-            g.setColor(Color.GRAY.darker().darker());
-            g.fillRect(centerX - 20, centerY + 10, 40, 20);
-        }
-        g.translate(-5, 2);
-        {
+        switch (activeView) {
+        case RED_GREEN_SWITCH:
+            AffineTransform origO = g.getTransform();
+            {
+                g.setColor(isPressed ? Color.GREEN.darker() : Color.RED.darker());
+                AffineTransform orig = g.getTransform();
+                g.rotate(isPressed ? 10 : -10, centerX + (isPressed ? 3 : -3), centerY + 10);
+                g.fillRect(centerX - 5, centerY + 5, 10, 45);
+                g.setTransform(orig);
+                g.setColor(Color.GRAY.darker().darker());
+                g.fillRect(centerX - 20, centerY + 10, 40, 20);
+            }
+            g.translate(-5, 2);
+            {
+                g.setColor(isPressed ? Color.GREEN : Color.RED);
+                AffineTransform orig = g.getTransform();
+                g.rotate(isPressed ? 10 : -10, centerX + (isPressed ? 3 : -3), centerY + 10);
+                g.fillRect(centerX - 5, centerY + 5, 10, 45);
+                g.setTransform(orig);
+                g.setColor(Color.GRAY.darker());
+                g.fillRect(centerX - 20, centerY + 10, 40, 20);
+            }
+            g.setTransform(origO);
+            break;
+        case LINEAR_ON_OFF:
+            g.setColor(Color.LIGHT_GRAY);
+            g.fillRoundRect(centerX - halfWidth + 10, centerY - 20, halfWidth * 2 - 20, 40, 20, 20);
+            g.setColor(Color.BLACK);
+            g.drawRoundRect(centerX - halfWidth + 10, centerY - 20, halfWidth * 2 - 20, 40, 20, 20);
             g.setColor(isPressed ? Color.GREEN : Color.RED);
-            AffineTransform orig = g.getTransform();
-            g.rotate(isPressed ? 10 : -10, centerX + (isPressed ? 3 : -3), centerY + 10);
-            g.fillRect(centerX - 5, centerY + 5, 10, 45);
-            g.setTransform(orig);
-            g.setColor(Color.GRAY.darker());
-            g.fillRect(centerX - 20, centerY + 10, 40, 20);
+            g.fillRoundRect(centerX - halfWidth + (isPressed ? halfWidth + 5 : 15), centerY - 15, halfWidth - 20, 30, 20, 20);
+            g.setColor(Color.BLACK);
+            g.drawRoundRect(centerX - halfWidth + (isPressed ? halfWidth + 5 : 15), centerY - 15, halfWidth - 20, 30, 20, 20);
+            Stroke oldStroke = g.getStroke();
+            g.setStroke(new BasicStroke(3, BasicStroke.CAP_SQUARE, BasicStroke.JOIN_ROUND));
+            g.setColor(isPressed ? Color.BLACK : Color.GRAY);
+            g.drawLine(centerX + halfWidth / 2 - 5, centerY - 5, centerX + halfWidth / 2 - 5, centerY + 5);
+            g.setColor(!isPressed ? Color.BLACK : Color.GRAY);
+            g.drawOval(centerX - halfWidth / 2, centerY - 5, 10, 10);
+            g.setStroke(oldStroke);
+            break;
+        case CONFIGURATION: // never called
         }
-        g.setTransform(origO);
     }
 
     @Override
     public boolean onInteract(int x, int y) {
-        pressed.set(!pressed.get());
-        if (!hasSentInitial) {
-            pressed.send(rawOut);
-            hasSentInitial = true;
+        if (!containsForInteract(x, y)) {
+            return false;
         }
-        return true;
+        switch (activeView) {
+        case RED_GREEN_SWITCH:
+            pressed.set(!pressed.get());
+            if (!hasSentInitial && rawOut != null) {
+                pressed.send(rawOut);
+                hasSentInitial = true;
+            }
+            return true;
+        case LINEAR_ON_OFF:
+            if (x < centerX - 5) {
+                pressed.set(false);
+            } else if (x > centerX + 5) {
+                pressed.set(true);
+            }
+            return true;
+        default:
+            return false;
+        }
     }
 
     @Override
@@ -120,5 +170,10 @@ public class BooleanControlComponent extends BaseChannelComponent implements Boo
     @Override
     public boolean get() {
         return pressed.get();
+    }
+
+    @Override
+    protected void setDefaultView() {
+        activeView = View.RED_GREEN_SWITCH;
     }
 }

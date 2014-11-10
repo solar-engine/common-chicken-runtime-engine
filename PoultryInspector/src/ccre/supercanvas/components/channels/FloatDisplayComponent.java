@@ -32,7 +32,11 @@ import ccre.supercanvas.SuperCanvasPanel;
  *
  * @author skeggsc
  */
-public class FloatDisplayComponent extends BaseChannelComponent implements FloatOutput {
+public class FloatDisplayComponent extends BaseChannelComponent<FloatDisplayComponent.View> implements FloatOutput {
+
+    public static enum View {
+        CONFIGURATION, HORIZONTAL_POINTER
+    }
 
     private static final long serialVersionUID = 4027452153991095626L;
     private float value;
@@ -117,5 +121,10 @@ public class FloatDisplayComponent extends BaseChannelComponent implements Float
     @Override
     public void set(float value) {
         this.value = value;
+    }
+
+    @Override
+    protected void setDefaultView() {
+        activeView = View.HORIZONTAL_POINTER;
     }
 }

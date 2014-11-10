@@ -33,7 +33,11 @@ import ccre.supercanvas.SuperCanvasPanel;
  *
  * @author skeggsc
  */
-public class EventDisplayComponent extends BaseChannelComponent implements EventOutput {
+public class EventDisplayComponent extends BaseChannelComponent<EventDisplayComponent.View> implements EventOutput {
+
+    public static enum View {
+        CONFIGURATION, FLASHING_LIGHT
+    }
 
     private static final long serialVersionUID = 7298197110274322991L;
     private transient long countStart;
@@ -93,5 +97,10 @@ public class EventDisplayComponent extends BaseChannelComponent implements Event
     @Override
     public void event() {
         countStart = System.currentTimeMillis();
+    }
+
+    @Override
+    protected void setDefaultView() {
+        activeView = View.FLASHING_LIGHT;
     }
 }

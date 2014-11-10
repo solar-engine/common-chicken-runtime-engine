@@ -32,7 +32,11 @@ import ccre.supercanvas.SuperCanvasPanel;
  *
  * @author skeggsc
  */
-public class BooleanDisplayComponent extends BaseChannelComponent implements BooleanOutput {
+public class BooleanDisplayComponent extends BaseChannelComponent<BooleanDisplayComponent.View> implements BooleanOutput {
+
+    public static enum View {
+        CONFIGURATION, RED_GREEN_LIGHT, TEXTUAL
+    }
 
     private static final long serialVersionUID = -5453098172677583207L;
     private boolean pressed;
@@ -65,9 +69,21 @@ public class BooleanDisplayComponent extends BaseChannelComponent implements Boo
 
     @Override
     public void channelRender(Graphics2D g, int screenWidth, int screenHeight, FontMetrics fontMetrics, int mouseX, int mouseY) {
-        g.setColor(pressed ? Color.GREEN : Color.RED);
-        int rad = Math.min(halfWidth / 3, halfHeight / 3);
-        g.fillOval(centerX - rad, centerY - rad, rad * 2, rad * 2);
+        switch (activeView) {
+        case RED_GREEN_LIGHT:
+            g.setColor(pressed ? Color.GREEN : Color.RED);
+            int rad = Math.min(halfWidth / 3, halfHeight / 3);
+            g.fillOval(centerX - rad, centerY - rad, rad * 2, rad * 2);
+            g.setColor(Color.BLACK);
+            g.drawOval(centerX - rad, centerY - rad, rad * 2, rad * 2);
+            break;
+        case TEXTUAL:
+            g.setColor(Color.BLACK);
+            String text = pressed ? "TRUE" : "FALSE";
+            g.drawString(text, centerX - g.getFontMetrics().stringWidth(text) / 2, centerY + g.getFontMetrics().getAscent() / 2);
+            break;
+        case CONFIGURATION: // never called
+        }
     }
 
     @Override
@@ -91,5 +107,10 @@ public class BooleanDisplayComponent extends BaseChannelComponent implements Boo
     @Override
     public void set(boolean value) {
         pressed = value;
+    }
+
+    @Override
+    protected void setDefaultView() {
+        activeView = View.RED_GREEN_LIGHT;
     }
 }

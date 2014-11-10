@@ -32,7 +32,11 @@ import ccre.supercanvas.BaseChannelComponent;
  *
  * @author skeggsc
  */
-public class EventControlComponent extends BaseChannelComponent implements EventInput {
+public class EventControlComponent extends BaseChannelComponent<EventControlComponent.View> implements EventInput {
+
+    public static enum View {
+        CONFIGURATION, ISOMETRIC_BUTTON
+    }
 
     private static final long serialVersionUID = 5604099540525088534L;
     private transient long countStart;
@@ -93,5 +97,10 @@ public class EventControlComponent extends BaseChannelComponent implements Event
     @Override
     public void unsend(EventOutput listener) {
         stat.unsend(listener);
+    }
+
+    @Override
+    protected void setDefaultView() {
+        activeView = View.ISOMETRIC_BUTTON;
     }
 }

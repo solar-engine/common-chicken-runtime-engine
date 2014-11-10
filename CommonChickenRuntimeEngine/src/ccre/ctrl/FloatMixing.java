@@ -21,6 +21,7 @@ package ccre.ctrl;
 import ccre.channel.BooleanInputPoll;
 import ccre.channel.EventInput;
 import ccre.channel.EventOutput;
+import ccre.channel.EventStatus;
 import ccre.channel.FloatFilter;
 import ccre.channel.FloatInput;
 import ccre.channel.FloatInputPoll;
@@ -39,6 +40,42 @@ import ccre.util.Utils;
  */
 public class FloatMixing {
 
+    /**
+     * An operation representing summation, aka addition.
+     */
+    public static final FloatOperation sum = new FloatOperation() {
+        @Override
+        public float of(float augend, float addend) {
+            return augend + addend;
+        }
+    };
+    /**
+     * An operation representing a difference, aka subtracting.
+     */
+    public static final FloatOperation difference = new FloatOperation() {
+        @Override
+        public float of(float minend, float subtrahend) {
+            return minend - subtrahend;
+        }
+    };
+    /**
+     * An operation representing a product, aka multiplication.
+     */
+    public static final FloatOperation product = new FloatOperation() {
+        @Override
+        public float of(float multiplicand, float multiplier) {
+            return multiplicand * multiplier;
+        }
+    };
+    /**
+     * An operation representing a quotient, aka division.
+     */
+    public static final FloatOperation quotient = new FloatOperation() {
+        @Override
+        public float of(float dividend, float divisor) {
+            return dividend / divisor;
+        }
+    };
     /**
      * A FloatFilter that negates a value.
      */
@@ -502,6 +539,45 @@ public class FloatMixing {
         return new FloatInputPoll() {
             public float get() {
                 return (base.get() - zero) / range;
+            }
+        };
+    }
+
+    /**
+     * Get an EventInput that updates whenever the input changes.
+     * 
+     * @param input the input to track.
+     * @return an input for when the given input changes.
+     */
+    public static EventInput onUpdate(FloatInput input) {
+        EventStatus status = new EventStatus();
+        onUpdate(input, status);
+        return status;
+    }
+
+    /**
+     * Fire an EventOutput whenever the specified input changes.
+     * 
+     * @param input the input to track
+     * @param output the output to fire
+     */
+    public static void onUpdate(FloatInput input, EventOutput output) {
+        input.send(onUpdate(output));
+    }
+
+    /**
+     * Return a FloatOutput that will fire an EventOutput whenever it changes.
+     * 
+     * @param output the output to fire.
+     * @return the output to track.
+     */
+    private static FloatOutput onUpdate(final EventOutput output) {
+        return new FloatOutput() {
+            private float last = Float.NaN;
+            public void set(float out) {
+                if (out != last) {
+                    output.event();
+                }
             }
         };
     }

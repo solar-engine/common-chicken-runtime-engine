@@ -26,6 +26,7 @@ import ccre.channel.EventInput;
 import ccre.channel.EventOutput;
 import ccre.channel.EventStatus;
 import ccre.supercanvas.BaseChannelComponent;
+import ccre.supercanvas.Rendering;
 
 /**
  * A component allowing interaction with events.
@@ -35,7 +36,7 @@ import ccre.supercanvas.BaseChannelComponent;
 public class EventControlComponent extends BaseChannelComponent<EventControlComponent.View> implements EventInput {
 
     public static enum View {
-        CONFIGURATION, ISOMETRIC_BUTTON
+        CONFIGURATION, ISOMETRIC_BUTTON, SQUARE_BUTTON, TEXTUAL
     }
 
     private static final long serialVersionUID = 5604099540525088534L;
@@ -66,20 +67,52 @@ public class EventControlComponent extends BaseChannelComponent<EventControlComp
         super(cx, cy, name);
     }
 
+    private transient int clickWidth;
+    
     @Override
     protected boolean containsForInteract(int x, int y) {
-        return x >= centerX - halfWidth / 3 - 10 && x <= centerX + halfWidth / 3 + 10 && y >= centerY - halfHeight / 3 - 10 && y <= centerY + halfHeight / 3 + 20;
+        switch (activeView) {
+        case ISOMETRIC_BUTTON:
+            return x >= centerX - halfWidth / 3 - 10 && x <= centerX + halfWidth / 3 + 10 && y >= centerY - halfHeight / 3 - 10 && y <= centerY + halfHeight / 3 + 20;
+        case SQUARE_BUTTON:
+            int rad = Math.min(halfWidth / 2, halfHeight / 2);
+            return x >= centerX - rad && x <= centerX + rad && y >= centerY - rad - 10 && y <= centerY + rad;
+        case TEXTUAL:
+            return x >= centerX - clickWidth / 2 && x <= centerX + clickWidth / 2 && y >= centerY - 10 && y <= centerY + 20;
+        default:
+            return false;
+        }
     }
 
     @Override
     public void channelRender(Graphics2D g, int screenWidth, int screenHeight, FontMetrics fontMetrics, int mouseX, int mouseY) {
         long count = (System.currentTimeMillis() - countStart);
-        g.setColor(Color.ORANGE.darker());
-        int rel = count < 200 ? 3 : 10;
-        g.fillOval(centerX - halfWidth / 3, 10 + centerY - halfHeight / 3, 2 * halfWidth / 3, 2 * halfHeight / 3);
-        g.fillRect(centerX - halfWidth / 3 + 1, 10 + centerY - rel, 2 * halfWidth / 3 - 1, rel);
-        g.setColor(count < 200 ? Color.GREEN : Color.RED);
-        g.fillOval(centerX - halfWidth / 3, 10 + centerY - halfHeight / 3 - rel, 2 * halfWidth / 3, 2 * halfHeight / 3);
+        switch (activeView) {
+        case ISOMETRIC_BUTTON:
+            g.setColor(Color.ORANGE.darker());
+            int rel = count < 200 ? 3 : 10;
+            g.fillOval(centerX - halfWidth / 3, 10 + centerY - halfHeight / 3, 2 * halfWidth / 3, 2 * halfHeight / 3);
+            g.fillRect(centerX - halfWidth / 3 + 1, 10 + centerY - rel, 2 * halfWidth / 3 - 1, rel);
+            g.setColor(count < 200 ? Color.GREEN : Color.RED);
+            g.fillOval(centerX - halfWidth / 3, 10 + centerY - halfHeight / 3 - rel, 2 * halfWidth / 3, 2 * halfHeight / 3);
+            break;
+        case SQUARE_BUTTON:
+            int rad = Math.min(halfWidth / 2, halfHeight / 2);
+            g.setColor(Color.BLACK);
+            g.fillRect(centerX - rad, centerY - rad, rad * 2, rad * 2);
+            int trad = Math.round(rad * (1 - Math.min(1, Math.max(count / 500.0f, 0))));
+            g.setColor(Rendering.blend(Color.GREEN, Color.BLACK, count / 500.0f));
+            g.fillRect(centerX - trad, centerY - trad, trad * 2, trad * 2);
+            break;
+        case TEXTUAL:
+            g.setFont(Rendering.labels);
+            g.setColor(Color.BLACK);
+            String text = count < 500 ? "CLICKED" : "CLICK";
+            clickWidth = g.getFontMetrics().stringWidth(text);
+            g.drawString(text, centerX - g.getFontMetrics().stringWidth(text) / 2, centerY + g.getFontMetrics().getAscent() / 2);
+            break;
+        case CONFIGURATION: // never called
+        }
     }
 
     @Override

@@ -36,7 +36,7 @@ import ccre.supercanvas.SuperCanvasPanel;
 public class EventDisplayComponent extends BaseChannelComponent<EventDisplayComponent.View> implements EventOutput {
 
     public static enum View {
-        CONFIGURATION, FLASHING_LIGHT
+        CONFIGURATION, FLASHING_LIGHT, TIME_COUNTER, TEXTUAL
     }
 
     private static final long serialVersionUID = 7298197110274322991L;
@@ -71,9 +71,31 @@ public class EventDisplayComponent extends BaseChannelComponent<EventDisplayComp
     @Override
     public void channelRender(Graphics2D g, int screenWidth, int screenHeight, FontMetrics fontMetrics, int mouseX, int mouseY) {
         long count = (System.currentTimeMillis() - countStart);
-        g.setColor(Rendering.blend(Color.green, Color.orange, count / 500.0f));
-        int rad = Math.min(halfWidth / 3, halfHeight / 3);
-        g.fillOval(centerX - rad, centerY - rad, rad * 2, rad * 2);
+        switch (activeView) {
+        case FLASHING_LIGHT:
+            int rad = Math.min(halfWidth / 3, halfHeight / 3);
+            int trad = Math.round(rad * (1 - Math.min(1, Math.max(count / 500.0f, 0))));
+            g.setColor(Color.BLACK);
+            g.fillOval(centerX - rad, centerY - rad, rad * 2, rad * 2);
+            g.setColor(Rendering.blend(Color.GREEN, Color.BLACK, count / 500.0f));
+            g.fillOval(centerX - trad, centerY - trad, trad * 2, trad * 2);
+            g.setColor(Color.BLACK);
+            g.drawOval(centerX - rad, centerY - rad, rad * 2, rad * 2);
+            break;
+        case TIME_COUNTER:
+            g.setFont(Rendering.labels);
+            g.setColor(Color.BLACK);
+            String text = countStart == 0 ? "NEVER" : String.format("%2.1fs", count / 1000.0);
+            g.drawString(text, centerX - g.getFontMetrics().stringWidth(text) / 2, centerY + g.getFontMetrics().getAscent() / 2);
+            break;
+        case TEXTUAL:
+            g.setFont(Rendering.labels);
+            g.setColor(Color.BLACK);
+            text = count < 500 ? "YES" : "NO";
+            g.drawString(text, centerX - g.getFontMetrics().stringWidth(text) / 2, centerY + g.getFontMetrics().getAscent() / 2);
+            break;
+        case CONFIGURATION: // never called
+        }
     }
 
     @Override

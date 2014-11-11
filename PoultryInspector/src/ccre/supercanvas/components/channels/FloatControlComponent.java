@@ -20,13 +20,16 @@ package ccre.supercanvas.components.channels;
 
 import java.awt.Color;
 import java.awt.FontMetrics;
+import java.awt.Graphics;
 import java.awt.Graphics2D;
 
 import ccre.channel.FloatInput;
 import ccre.channel.FloatOutput;
 import ccre.channel.FloatStatus;
 import ccre.ctrl.FloatMixing;
+import ccre.log.Logger;
 import ccre.supercanvas.BaseChannelComponent;
+import ccre.supercanvas.Rendering;
 
 /**
  * A component allowing interaction with floats.
@@ -36,13 +39,14 @@ import ccre.supercanvas.BaseChannelComponent;
 public class FloatControlComponent extends BaseChannelComponent<FloatControlComponent.View> implements FloatInput {
 
     public static enum View {
-        CONFIGURATION, HORIZONTAL_POINTER
+        CONFIGURATION, HORIZONTAL_POINTER, TICKER, TEXTUAL
     }
 
     private static final long serialVersionUID = 8379882900431074283L;
     private final FloatStatus stat = new FloatStatus();
     private final FloatOutput rawOut;
     private boolean hasSentInitial = false;
+    private StringBuilder activeBuffer;
 
     /**
      * Create a new FloatControlComponent with a FloatOutput to control.
@@ -71,44 +75,136 @@ public class FloatControlComponent extends BaseChannelComponent<FloatControlComp
 
     @Override
     protected boolean containsForInteract(int x, int y) {
-        return x >= centerX - halfWidth + 10 && x <= centerX + halfWidth - 10 && y >= centerY - halfHeight / 2 && y <= centerY + halfHeight / 2;
+        switch (activeView) {
+        case HORIZONTAL_POINTER:
+            return x >= centerX - halfWidth + 10 && x <= centerX + halfWidth - 10 && y >= centerY - halfHeight / 2 && y <= centerY + halfHeight / 2;
+        case TEXTUAL:
+            return y >= centerY - 5 && y <= centerY + 10;
+        case TICKER:
+            for (int i=0; i<6; i++) {
+                if (mouseInBox(i, x, y)) {
+                    return true;
+                }
+            }
+            return false;
+        default:
+            return false;
+        }
     }
 
     @Override
     public void channelRender(Graphics2D g, int screenWidth, int screenHeight, FontMetrics fontMetrics, int mouseX, int mouseY) {
-        g.setColor(Color.WHITE);
-        g.fillRect(centerX - halfWidth + 10, centerY - halfHeight / 2, 2 * halfWidth - 19, halfHeight);
-        g.setColor(Color.BLACK);
-        g.drawRect(centerX - halfWidth + 10, centerY - halfHeight / 2, 2 * halfWidth - 20, halfHeight - 1);
-        g.drawLine(centerX, centerY + halfHeight / 2 - 1, centerX, centerY + 5);
-        g.drawLine(centerX + halfWidth * 2 / 3, centerY + halfHeight / 2 - 1, centerX + halfWidth * 2 / 3, centerY + 5);
-        g.drawLine(centerX - halfWidth * 2 / 3, centerY + halfHeight / 2 - 1, centerX - halfWidth * 2 / 3, centerY + 5);
-        g.drawLine(centerX - halfWidth / 6, centerY + halfHeight / 2 - 1, centerX - halfWidth / 6, centerY + 15);
-        g.drawLine(centerX + halfWidth / 6, centerY + halfHeight / 2 - 1, centerX + halfWidth / 6, centerY + 15);
-        g.drawLine(centerX - halfWidth / 3, centerY + halfHeight / 2 - 1, centerX - halfWidth / 3, centerY + 10);
-        g.drawLine(centerX + halfWidth / 3, centerY + halfHeight / 2 - 1, centerX + halfWidth / 3, centerY + 10);
-        g.drawLine(centerX - 3 * halfWidth / 6, centerY + halfHeight / 2 - 1, centerX - 3 * halfWidth / 6, centerY + 15);
-        g.drawLine(centerX + 3 * halfWidth / 6, centerY + halfHeight / 2 - 1, centerX + 3 * halfWidth / 6, centerY + 15);
-        if (hasSentInitial) {
-            float value = this.stat.get();
-            int ptrCtr = centerX + (int) (halfWidth * 2 / 3 * value);
-            if (value < 0) {
-                g.setColor(value == -1 ? Color.RED : Color.RED.darker().darker());
-            } else if (value > 0) {
-                g.setColor(value == 1 ? Color.GREEN : Color.GREEN.darker().darker());
-            } else {
-                g.setColor(Color.ORANGE);
+        if (activeView != View.TEXTUAL) {
+            if (getPanel().editing == activeBuffer) {
+                getPanel().editing = null;
             }
-            g.drawPolygon(new int[] { ptrCtr - 12, ptrCtr - 8, ptrCtr - 12 }, new int[] { centerY - 8, centerY - 4, centerY }, 3);
-            g.drawPolygon(new int[] { ptrCtr + 12, ptrCtr + 8, ptrCtr + 12 }, new int[] { centerY - 8, centerY - 4, centerY }, 3);
-            g.fillRect(ptrCtr - 5, centerY - halfHeight / 2 + 1, 11, halfHeight / 2 - 4);
-            g.fillPolygon(new int[] { ptrCtr - 5, ptrCtr, ptrCtr + 6 }, new int[] { centerY - 3, centerY + 3, centerY - 3 }, 3);
+            activeBuffer = null;
         }
+        switch (activeView) {
+        case HORIZONTAL_POINTER:
+            g.setColor(Color.WHITE);
+            g.fillRect(centerX - halfWidth + 10, centerY - halfHeight / 2, 2 * halfWidth - 19, halfHeight);
+            g.setColor(Color.BLACK);
+            g.drawRect(centerX - halfWidth + 10, centerY - halfHeight / 2, 2 * halfWidth - 20, halfHeight - 1);
+            g.drawLine(centerX, centerY + halfHeight / 2 - 1, centerX, centerY + 5);
+            g.drawLine(centerX + halfWidth * 2 / 3, centerY + halfHeight / 2 - 1, centerX + halfWidth * 2 / 3, centerY + 5);
+            g.drawLine(centerX - halfWidth * 2 / 3, centerY + halfHeight / 2 - 1, centerX - halfWidth * 2 / 3, centerY + 5);
+            g.drawLine(centerX - halfWidth / 6, centerY + halfHeight / 2 - 1, centerX - halfWidth / 6, centerY + 15);
+            g.drawLine(centerX + halfWidth / 6, centerY + halfHeight / 2 - 1, centerX + halfWidth / 6, centerY + 15);
+            g.drawLine(centerX - halfWidth / 3, centerY + halfHeight / 2 - 1, centerX - halfWidth / 3, centerY + 10);
+            g.drawLine(centerX + halfWidth / 3, centerY + halfHeight / 2 - 1, centerX + halfWidth / 3, centerY + 10);
+            g.drawLine(centerX - 3 * halfWidth / 6, centerY + halfHeight / 2 - 1, centerX - 3 * halfWidth / 6, centerY + 15);
+            g.drawLine(centerX + 3 * halfWidth / 6, centerY + halfHeight / 2 - 1, centerX + 3 * halfWidth / 6, centerY + 15);
+            if (hasSentInitial) {
+                float value = this.stat.get();
+                int ptrCtr = centerX + (int) (halfWidth * 2 / 3 * value);
+                if (value < 0) {
+                    g.setColor(value == -1 ? Color.RED : Color.RED.darker().darker());
+                } else if (value > 0) {
+                    g.setColor(value == 1 ? Color.GREEN : Color.GREEN.darker().darker());
+                } else {
+                    g.setColor(Color.ORANGE);
+                }
+                g.drawPolygon(new int[] { ptrCtr - 12, ptrCtr - 8, ptrCtr - 12 }, new int[] { centerY - 8, centerY - 4, centerY }, 3);
+                g.drawPolygon(new int[] { ptrCtr + 12, ptrCtr + 8, ptrCtr + 12 }, new int[] { centerY - 8, centerY - 4, centerY }, 3);
+                g.fillRect(ptrCtr - 5, centerY - halfHeight / 2 + 1, 11, halfHeight / 2 - 4);
+                g.fillPolygon(new int[] { ptrCtr - 5, ptrCtr, ptrCtr + 6 }, new int[] { centerY - 3, centerY + 3, centerY - 3 }, 3);
+            }
+            break;
+        case TICKER:
+            g.setColor(Color.BLACK);
+            g.setFont(Rendering.labels);
+            fontMetrics = g.getFontMetrics();
+            String text = hasSentInitial ? String.format("%.2f", this.stat.get()) : "????";
+            g.drawString(text, centerX - fontMetrics.stringWidth(text) / 2, centerY + fontMetrics.getDescent());
+            paintBox(g, fontMetrics, mouseX, mouseY, true, 0);
+            paintBox(g, fontMetrics, mouseX, mouseY, true, 1);
+            paintBox(g, fontMetrics, mouseX, mouseY, true, 2);
+            paintBox(g, fontMetrics, mouseX, mouseY, false, 0);
+            paintBox(g, fontMetrics, mouseX, mouseY, false, 1);
+            paintBox(g, fontMetrics, mouseX, mouseY, false, 2);
+            break;
+        case TEXTUAL:
+            g.setFont(Rendering.labels);
+            String default_ = hasSentInitial ? Float.toString(this.stat.get()) : "?";
+            if (activeBuffer == null) {
+                activeBuffer = new StringBuilder(default_);
+            }
+            if (getPanel().editing != activeBuffer && !activeBuffer.toString().equals(default_)) {
+                activeBuffer.setLength(0);
+                activeBuffer.append(default_);
+            }
+            g.setColor(getPanel().editing == activeBuffer ? Color.RED : Color.BLACK);
+            if (g.getFontMetrics().stringWidth(activeBuffer.toString()) > 2 * halfWidth) {
+                g.setFont(Rendering.console);
+            }
+            g.drawString(activeBuffer.toString(), centerX - g.getFontMetrics().stringWidth(activeBuffer.toString()) / 2, centerY + 5);
+            break;
+        case CONFIGURATION: // never called
+        }
+    }
+
+    private int[] boundingBoxes;
+
+    private boolean mouseInBox(int boxId, int mouseX, int mouseY) {
+        return boundingBoxes[boxId * 4 + 0] <= mouseX && mouseX < boundingBoxes[boxId * 4 + 1] &&
+                boundingBoxes[boxId * 4 + 2] <= mouseY && mouseY < boundingBoxes[boxId * 4 + 3];
+    }
+
+    private void paintBox(Graphics g, FontMetrics fontMetrics, int mouseX, int mouseY, boolean isRight, int rowId) {
+        int left = isRight ? centerX + halfWidth - fontMetrics.stringWidth("+") : centerX - halfWidth;
+        int right = left + fontMetrics.stringWidth(isRight ? "+" : "-");
+        int bottom = centerY + rowId * (fontMetrics.getHeight()) / 2 + (getPanel().editmode ? 0 : -10);
+        int top = bottom - fontMetrics.getHeight() / 2;
+
+        if (boundingBoxes == null) {
+            boundingBoxes = new int[6 * 4];
+        }
+        
+        int boxIndex = rowId + (isRight ? 3 : 0);
+        boundingBoxes[4 * boxIndex + 0] = left;
+        boundingBoxes[4 * boxIndex + 1] = right;
+        boundingBoxes[4 * boxIndex + 2] = top;
+        boundingBoxes[4 * boxIndex + 3] = bottom;
+        g.setColor(mouseInBox(boxIndex, mouseX, mouseY) ? Color.BLACK : Color.GRAY);
+        g.drawString(isRight ? "+" : "-", left, bottom);
     }
 
     @Override
     public boolean wantsDragSelect() {
         return true;
+    }
+    
+    @Override
+    public void onPressedEnter() {
+        if (activeView == View.TEXTUAL && getPanel().editing == activeBuffer) {
+            try {
+                stat.set(Float.parseFloat(activeBuffer.toString()));
+                getPanel().editing = null;
+            } catch (NumberFormatException ex) {
+                Logger.warning("Could not parse number '" + activeBuffer + "'.");
+            }
+        }
     }
 
     @Override
@@ -116,9 +212,33 @@ public class FloatControlComponent extends BaseChannelComponent<FloatControlComp
         if (isBeingDragged()) {
             return false;
         }
-        float value = Math.min(1, Math.max(-1, (x - centerX) / (float) (halfWidth * 2 / 3)));
-        if (-0.1 < value && value < 0.1) {
-            value = 0;
+        float value;
+        switch (activeView) {
+        case HORIZONTAL_POINTER:
+            value = Math.min(1, Math.max(-1, (x - centerX) / (float) (halfWidth * 2 / 3)));
+            if (-0.1 < value && value < 0.1) {
+                value = 0;
+            }
+            break;
+        case TEXTUAL:
+            getPanel().editing = (getPanel().editing == activeBuffer) ? null : activeBuffer;
+            return true;
+        case TICKER:
+            value = stat.get();
+            for (int i=0; i<6; i++) {
+                if (mouseInBox(i, x, y)) {
+                    if (i < 3) {
+                        value -= 0.1 * Math.pow(10, -1+i);
+                    } else {
+                        value += 0.1 * Math.pow(10, -4+i);
+                    }
+                    break;
+                }
+            }
+            value = Math.round(value * 100) / 100f;
+            break;
+        default:
+            return false;
         }
         if (value != stat.get() || !hasSentInitial) {
             stat.set(value);

@@ -30,6 +30,7 @@ import ccre.channel.BooleanOutput;
 import ccre.channel.BooleanStatus;
 import ccre.ctrl.BooleanMixing;
 import ccre.supercanvas.BaseChannelComponent;
+import ccre.supercanvas.Rendering;
 
 /**
  * A component allowing interaction with booleans.
@@ -39,7 +40,7 @@ import ccre.supercanvas.BaseChannelComponent;
 public class BooleanControlComponent extends BaseChannelComponent<BooleanControlComponent.View> implements BooleanInput {
 
     public static enum View {
-        CONFIGURATION, RED_GREEN_SWITCH, LINEAR_ON_OFF
+        CONFIGURATION, RED_GREEN_SWITCH, LINEAR_ON_OFF, TEXTUAL
     }
 
     private static final long serialVersionUID = 3529467636546288860L;
@@ -79,6 +80,8 @@ public class BooleanControlComponent extends BaseChannelComponent<BooleanControl
             return x >= centerX - 40 && x <= centerX + 30 && y >= centerY - 20 && y <= centerY + 30;
         case LINEAR_ON_OFF:
             return x >= centerX - halfWidth + 5 && x <= centerX + halfWidth - 5 && y >= centerY - 15 && y <= centerY + 15;
+        case TEXTUAL:
+            return x >= centerX - 50 && x <= centerX + 50 && y >= centerY - 10 && y <= centerY + 20;
         default:
             return false;
         }
@@ -128,6 +131,16 @@ public class BooleanControlComponent extends BaseChannelComponent<BooleanControl
             g.drawOval(centerX - halfWidth / 2, centerY - 5, 10, 10);
             g.setStroke(oldStroke);
             break;
+        case TEXTUAL:
+            g.setFont(Rendering.labels);
+            if (getPanel().editmode) {
+                g.setColor(Color.BLACK);
+            } else {
+                g.setColor(isPressed ? Color.GREEN : Color.RED);
+            }
+            String text = isPressed ? "TRUE" : "FALSE";
+            g.drawString(text, centerX - g.getFontMetrics().stringWidth(text) / 2, centerY + g.getFontMetrics().getAscent() / 2);
+            break;
         case CONFIGURATION: // never called
         }
     }
@@ -139,22 +152,24 @@ public class BooleanControlComponent extends BaseChannelComponent<BooleanControl
         }
         switch (activeView) {
         case RED_GREEN_SWITCH:
+        case TEXTUAL:
             pressed.set(!pressed.get());
-            if (!hasSentInitial && rawOut != null) {
-                pressed.send(rawOut);
-                hasSentInitial = true;
-            }
-            return true;
+            break;
         case LINEAR_ON_OFF:
             if (x < centerX - 5) {
                 pressed.set(false);
             } else if (x > centerX + 5) {
                 pressed.set(true);
             }
-            return true;
+            break;
         default:
             return false;
         }
+        if (!hasSentInitial && rawOut != null) {
+            pressed.send(rawOut);
+            hasSentInitial = true;
+        }
+        return true;
     }
 
     @Override

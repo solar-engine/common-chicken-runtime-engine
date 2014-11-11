@@ -21,6 +21,8 @@ package ccre.supercanvas.components.channels;
 import java.awt.Color;
 import java.awt.FontMetrics;
 import java.awt.Graphics2D;
+import java.awt.Rectangle;
+import java.awt.Shape;
 
 import ccre.channel.FloatInput;
 import ccre.channel.FloatOutput;
@@ -87,7 +89,7 @@ public class FloatDisplayComponent extends BaseChannelComponent<FloatDisplayComp
             g.drawString(strv, value > 0 ? centerX - fontMetrics.stringWidth(strv) - 10 : centerX + 10, centerY - halfHeight / 2 + fontMetrics.getHeight());
         }
         int ptrCtr = centerX + (int) (halfWidth * 2 / 3 * value);
-        if (Math.abs(value) <= 1.1) {
+        if (Math.abs(value) <= 1) {
             if (value < 0) {
                 g.setColor(value == -1 ? Color.RED : Color.RED.darker().darker());
             } else if (value > 0) {
@@ -96,8 +98,11 @@ public class FloatDisplayComponent extends BaseChannelComponent<FloatDisplayComp
                 g.setColor(Color.ORANGE);
             }
         }
+        Shape c = g.getClip();
+        g.setClip(new Rectangle(centerX - halfWidth + 10, centerY - halfHeight / 2, halfWidth * 2 - 20, halfHeight));
         g.fillRect(ptrCtr - 5, centerY - halfHeight / 2 + 1, 11, halfHeight / 2 - 4);
         g.fillPolygon(new int[] { ptrCtr - 5, ptrCtr, ptrCtr + 6 }, new int[] { centerY - 3, centerY + 3, centerY - 3 }, 3);
+        g.setClip(c);
     }
 
     @Override

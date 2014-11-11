@@ -25,6 +25,7 @@ import java.awt.Graphics2D;
 import ccre.channel.BooleanInput;
 import ccre.channel.BooleanOutput;
 import ccre.supercanvas.BaseChannelComponent;
+import ccre.supercanvas.Rendering;
 import ccre.supercanvas.SuperCanvasPanel;
 
 /**
@@ -35,7 +36,7 @@ import ccre.supercanvas.SuperCanvasPanel;
 public class BooleanDisplayComponent extends BaseChannelComponent<BooleanDisplayComponent.View> implements BooleanOutput {
 
     public static enum View {
-        CONFIGURATION, RED_GREEN_LIGHT, TEXTUAL
+        CONFIGURATION, RED_GREEN_LIGHT, WARNING_LIGHT, TEXTUAL
     }
 
     private static final long serialVersionUID = -5453098172677583207L;
@@ -71,14 +72,26 @@ public class BooleanDisplayComponent extends BaseChannelComponent<BooleanDisplay
     public void channelRender(Graphics2D g, int screenWidth, int screenHeight, FontMetrics fontMetrics, int mouseX, int mouseY) {
         switch (activeView) {
         case RED_GREEN_LIGHT:
+            int rad1 = Math.min(halfWidth / 3, halfHeight / 3);
             g.setColor(pressed ? Color.GREEN : Color.RED);
-            int rad = Math.min(halfWidth / 3, halfHeight / 3);
-            g.fillOval(centerX - rad, centerY - rad, rad * 2, rad * 2);
+            g.fillOval(centerX - rad1, centerY - rad1, rad1 * 2, rad1 * 2);
             g.setColor(Color.BLACK);
-            g.drawOval(centerX - rad, centerY - rad, rad * 2, rad * 2);
+            g.drawOval(centerX - rad1, centerY - rad1, rad1 * 2, rad1 * 2);
+            break;
+        case WARNING_LIGHT:
+            int rad2 = Math.min(halfWidth / 2, halfHeight / 2);
+            g.setColor(Color.BLACK);
+            g.fillOval(centerX - rad2 - 2, centerY - rad2 - 2, rad2 * 2 + 4, rad2 * 2 + 4);
+            g.setColor(pressed ? (System.currentTimeMillis() / 100) % 2 == 0 ? Color.RED : Color.BLACK : Color.GRAY);
+            g.fillOval(centerX - rad2, centerY - rad2, rad2 * 2, rad2 * 2);
             break;
         case TEXTUAL:
-            g.setColor(Color.BLACK);
+            g.setFont(Rendering.labels);
+            if (getPanel().editmode) {
+                g.setColor(Color.BLACK);
+            } else {
+                g.setColor(pressed ? Color.GREEN : Color.RED);
+            }
             String text = pressed ? "TRUE" : "FALSE";
             g.drawString(text, centerX - g.getFontMetrics().stringWidth(text) / 2, centerY + g.getFontMetrics().getAscent() / 2);
             break;

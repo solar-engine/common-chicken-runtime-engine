@@ -22,6 +22,7 @@ import java.awt.Color;
 import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.RenderingHints;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseWheelEvent;
@@ -145,6 +146,7 @@ public final class SuperCanvasPanel extends JPanel {
     public void paint(Graphics go) {
         try {
             Graphics2D g = (Graphics2D) go;
+            g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_LCD_HRGB);
             int w = getWidth();
             int h = getHeight();
             g.setFont(Rendering.console);

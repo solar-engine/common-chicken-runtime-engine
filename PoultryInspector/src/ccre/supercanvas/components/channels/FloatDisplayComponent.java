@@ -123,7 +123,6 @@ public class FloatDisplayComponent extends BaseChannelComponent<FloatDisplayComp
             g.translate(centerX, centerY - halfHeight + 20 + rad);
             AffineTransform baseT = g.getTransform();
             int eachSpoke = 14;
-            g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_LCD_HRGB);
             for (int i=-10 * eachSpoke; i<=10 * eachSpoke; i += eachSpoke) {
                 g.setTransform(baseT);
                 g.rotate(Math.toRadians(i));

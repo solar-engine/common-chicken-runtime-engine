@@ -44,6 +44,7 @@ public class FloatControlComponent extends BaseChannelComponent<FloatControlComp
 
     private static final long serialVersionUID = 8379882900431074283L;
     private final FloatStatus stat = new FloatStatus();
+    private final FloatInput alternateSource;
     private final FloatOutput rawOut;
     private boolean hasSentInitial = false;
     private StringBuilder activeBuffer;
@@ -57,8 +58,23 @@ public class FloatControlComponent extends BaseChannelComponent<FloatControlComp
      * @param out the FloatOutput to control.
      */
     public FloatControlComponent(int cx, int cy, String name, FloatOutput out) {
+        this(cx, cy, name, null, out);
+    }
+
+    /**
+     * Create a new FloatControlComponent, with an input channel to represent
+     * the actual value as returned by the remote.
+     * 
+     * @param cx the X coordinate.
+     * @param cy the Y coordinate.
+     * @param name the name of the output.
+     * @param inp the FloatInput to monitor.
+     * @param out the FloatOutput to control.
+     */
+    public FloatControlComponent(int cx, int cy, String name, FloatInput inp, FloatOutput out) {
         super(cx, cy, name);
         rawOut = out;
+        alternateSource = inp;
     }
 
     /**
@@ -69,8 +85,7 @@ public class FloatControlComponent extends BaseChannelComponent<FloatControlComp
      * @param name the name of the output.
      */
     public FloatControlComponent(int cx, int cy, String name) {
-        super(cx, cy, name);
-        rawOut = FloatMixing.ignoredFloatOutput;
+        this(cx, cy, name, FloatMixing.ignoredFloatOutput);
     }
 
     @Override
@@ -81,7 +96,7 @@ public class FloatControlComponent extends BaseChannelComponent<FloatControlComp
         case TEXTUAL:
             return y >= centerY - 5 && y <= centerY + 10;
         case TICKER:
-            for (int i=0; i<6; i++) {
+            for (int i = 0; i < 6; i++) {
                 if (mouseInBox(i, x, y)) {
                     return true;
                 }
@@ -100,6 +115,7 @@ public class FloatControlComponent extends BaseChannelComponent<FloatControlComp
             }
             activeBuffer = null;
         }
+        boolean hasValue = alternateSource != null || this.hasSentInitial;
         switch (activeView) {
         case HORIZONTAL_POINTER:
             g.setColor(Color.WHITE);
@@ -115,8 +131,8 @@ public class FloatControlComponent extends BaseChannelComponent<FloatControlComp
             g.drawLine(centerX + halfWidth / 3, centerY + halfHeight / 2 - 1, centerX + halfWidth / 3, centerY + 10);
             g.drawLine(centerX - 3 * halfWidth / 6, centerY + halfHeight / 2 - 1, centerX - 3 * halfWidth / 6, centerY + 15);
             g.drawLine(centerX + 3 * halfWidth / 6, centerY + halfHeight / 2 - 1, centerX + 3 * halfWidth / 6, centerY + 15);
-            if (hasSentInitial) {
-                float value = this.stat.get();
+            if (hasValue) {
+                float value = getDele();
                 int ptrCtr = centerX + (int) (halfWidth * 2 / 3 * value);
                 if (value < 0) {
                     g.setColor(value == -1 ? Color.RED : Color.RED.darker().darker());
@@ -135,7 +151,7 @@ public class FloatControlComponent extends BaseChannelComponent<FloatControlComp
             g.setColor(Color.BLACK);
             g.setFont(Rendering.labels);
             fontMetrics = g.getFontMetrics();
-            String text = hasSentInitial ? String.format("%.2f", this.stat.get()) : "????";
+            String text = hasValue ? String.format("%.2f", getDele()) : "????";
             g.drawString(text, centerX - fontMetrics.stringWidth(text) / 2, centerY + fontMetrics.getDescent());
             paintBox(g, fontMetrics, mouseX, mouseY, true, 0);
             paintBox(g, fontMetrics, mouseX, mouseY, true, 1);
@@ -146,7 +162,7 @@ public class FloatControlComponent extends BaseChannelComponent<FloatControlComp
             break;
         case TEXTUAL:
             g.setFont(Rendering.labels);
-            String default_ = hasSentInitial ? Float.toString(this.stat.get()) : "?";
+            String default_ = hasValue ? Float.toString(getDele()) : "?";
             if (activeBuffer == null) {
                 activeBuffer = new StringBuilder(default_);
             }
@@ -180,7 +196,7 @@ public class FloatControlComponent extends BaseChannelComponent<FloatControlComp
         if (boundingBoxes == null) {
             boundingBoxes = new int[6 * 4];
         }
-        
+
         int boxIndex = rowId + (isRight ? 3 : 0);
         boundingBoxes[4 * boxIndex + 0] = left;
         boundingBoxes[4 * boxIndex + 1] = right;
@@ -194,15 +210,30 @@ public class FloatControlComponent extends BaseChannelComponent<FloatControlComp
     public boolean wantsDragSelect() {
         return true;
     }
-    
+
     @Override
     public void onPressedEnter() {
         if (activeView == View.TEXTUAL && getPanel().editing == activeBuffer) {
             try {
-                stat.set(Float.parseFloat(activeBuffer.toString()));
+                setDele(Float.parseFloat(activeBuffer.toString()));
                 getPanel().editing = null;
             } catch (NumberFormatException ex) {
                 Logger.warning("Could not parse number '" + activeBuffer + "'.");
+            }
+        }
+    }
+    
+    private float getDele() {
+        // Checks null in case unserialized from old version
+        return alternateSource == null ? stat.get() : alternateSource.get();
+    }
+
+    private void setDele(float value) {
+        if (value != getDele() || !hasSentInitial) {
+            stat.set(value);
+            if (!hasSentInitial && rawOut != null) {
+                stat.send(rawOut);
+                hasSentInitial = true;
             }
         }
     }
@@ -224,13 +255,13 @@ public class FloatControlComponent extends BaseChannelComponent<FloatControlComp
             getPanel().editing = (getPanel().editing == activeBuffer) ? null : activeBuffer;
             return true;
         case TICKER:
-            value = stat.get();
-            for (int i=0; i<6; i++) {
+            value = getDele();
+            for (int i = 0; i < 6; i++) {
                 if (mouseInBox(i, x, y)) {
                     if (i < 3) {
-                        value -= 0.1 * Math.pow(10, -1+i);
+                        value -= 0.1 * Math.pow(10, -1 + i);
                     } else {
-                        value += 0.1 * Math.pow(10, -4+i);
+                        value += 0.1 * Math.pow(10, -4 + i);
                     }
                     break;
                 }
@@ -240,13 +271,7 @@ public class FloatControlComponent extends BaseChannelComponent<FloatControlComp
         default:
             return false;
         }
-        if (value != stat.get() || !hasSentInitial) {
-            stat.set(value);
-            if (!hasSentInitial && rawOut != null) {
-                stat.send(rawOut);
-                hasSentInitial = true;
-            }
-        }
+        setDele(value);
         return true;
     }
 

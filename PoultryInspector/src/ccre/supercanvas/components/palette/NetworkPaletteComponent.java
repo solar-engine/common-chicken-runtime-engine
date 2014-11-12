@@ -53,6 +53,8 @@ import ccre.util.UniqueIds;
  */
 public class NetworkPaletteComponent extends PaletteComponent<Collection<NetworkPaletteElement>> {
 
+    public static final int F_RMT_EVENTS = -1, F_RMT_FLOATS = -2,
+            F_RMT_BOOLEANS = -3;
     private static final long serialVersionUID = -2162354007005983283L;
 
     static SuperCanvasComponent createComponent(String name, Object target, int type, int x, int y) {
@@ -69,6 +71,12 @@ public class NetworkPaletteComponent extends PaletteComponent<Collection<Network
             return new FloatControlComponent(x, y, name, (FloatOutput) target);
         case CluckNode.RMT_FLOATPROD:
             return new FloatDisplayComponent(x, y, name, (FloatInput) target);
+        case F_RMT_EVENTS:
+            return new EventControlComponent(x, y, name, (EventInput) ((Object[]) target)[0], (EventOutput) ((Object[]) target)[1]);
+        case F_RMT_FLOATS:
+            return new FloatControlComponent(x, y, name, (FloatInput) ((Object[]) target)[0], (FloatOutput) ((Object[]) target)[1]);
+        case F_RMT_BOOLEANS:
+            return new BooleanControlComponent(x, y, name, (BooleanInput) ((Object[]) target)[0], (BooleanOutput) ((Object[]) target)[1]);
         case CluckNode.RMT_INVOKE: // TODO: These three.
         case CluckNode.RMT_LOGTARGET:
         case CluckNode.RMT_OUTSTREAM:
@@ -136,7 +144,7 @@ public class NetworkPaletteComponent extends PaletteComponent<Collection<Network
                 for (NetworkPaletteElement e : entries) {
                     if (e.getName().equals(remote)) {
                         if (e.getType() != remoteType) {
-                            Logger.warning("Mismatched remote type in search@");
+                            Logger.warning("Mismatched remote type in search!");
                         }
                         return;
                     }
@@ -144,6 +152,62 @@ public class NetworkPaletteComponent extends PaletteComponent<Collection<Network
                 Object sub = subscribeByType(remote, remoteType);
                 if (sub != null) {
                     entries.add(new NetworkPaletteElement(remote, sub, remoteType));
+                }
+                String pairName, base;
+                int expect, type;
+                boolean isExpectInput;
+                if (remote.endsWith(".input")) {
+                    isExpectInput = false;
+                    base = remote.substring(0, remote.length() - 6);
+                    pairName = base + ".output";
+                    switch (remoteType) {
+                    case CluckNode.RMT_BOOLPROD:
+                        expect = CluckNode.RMT_BOOLOUTP;
+                        type = F_RMT_BOOLEANS;
+                        break;
+                    case CluckNode.RMT_FLOATPROD:
+                        expect = CluckNode.RMT_FLOATOUTP;
+                        type = F_RMT_FLOATS;
+                        break;
+                    case CluckNode.RMT_EVENTINPUT:
+                        expect = CluckNode.RMT_EVENTOUTP;
+                        type = F_RMT_EVENTS;
+                        break;
+                    default:
+                        return;
+                    }
+                } else if (remote.endsWith(".output")) {
+                    isExpectInput = true;
+                    base = remote.substring(0, remote.length() - 7);
+                    pairName = base + ".input";
+                    switch (remoteType) {
+                    case CluckNode.RMT_BOOLOUTP:
+                        expect = CluckNode.RMT_BOOLPROD;
+                        type = F_RMT_BOOLEANS;
+                        break;
+                    case CluckNode.RMT_FLOATOUTP:
+                        expect = CluckNode.RMT_FLOATPROD;
+                        type = F_RMT_FLOATS;
+                        break;
+                    case CluckNode.RMT_EVENTOUTP:
+                        expect = CluckNode.RMT_EVENTINPUT;
+                        type = F_RMT_EVENTS;
+                        break;
+                    default:
+                        return;
+                    }
+                } else {
+                    return;
+                }
+                Object pair = null;
+                for (NetworkPaletteElement e : entries) {
+                    if (pairName.equals(e.getName()) && e.type == expect) {
+                        pair = e.target;
+                    }
+                }
+                if (pair != null) {
+                    Object[] send = isExpectInput ? new Object[] {pair, sub} : new Object[] {sub, pair};
+                    entries.add(new NetworkPaletteElement(base, send, type));
                 }
             }
         });

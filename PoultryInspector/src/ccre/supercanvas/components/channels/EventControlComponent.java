@@ -52,8 +52,7 @@ public class EventControlComponent extends BaseChannelComponent<EventControlComp
      * @param out the EventOutput to control.
      */
     public EventControlComponent(int cx, int cy, String name, EventOutput out) {
-        this(cx, cy, name);
-        stat.send(out);
+        this(cx, cy, name, null, out);
     }
 
     /**
@@ -64,11 +63,33 @@ public class EventControlComponent extends BaseChannelComponent<EventControlComp
      * @param name the name of the output.
      */
     public EventControlComponent(int cx, int cy, String name) {
+        this(cx, cy, name, null);
+    }
+
+    /**
+     * Create a new EventControlComponent, with an input channel to represent
+     * the actual value as returned by the remote.
+     * 
+     * @param cx the X coordinate.
+     * @param cy the Y coordinate.
+     * @param name the name of the output.
+     * @param inp the EventInput to control.
+     * @param out the EventOutput to control.
+     */
+    public EventControlComponent(int cx, int cy, String name, EventInput inp, EventOutput out) {
         super(cx, cy, name);
+        if (out != null) {
+            stat.send(out);
+        }
+        (inp != null ? inp : stat).send(new EventOutput() {
+            public void event() {
+                countStart = System.currentTimeMillis();
+            }
+        });
     }
 
     private transient int clickWidth;
-    
+
     @Override
     protected boolean containsForInteract(int x, int y) {
         switch (activeView) {
@@ -118,7 +139,6 @@ public class EventControlComponent extends BaseChannelComponent<EventControlComp
     @Override
     public boolean onInteract(int x, int y) {
         stat.event();
-        countStart = System.currentTimeMillis();
         return true;
     }
 

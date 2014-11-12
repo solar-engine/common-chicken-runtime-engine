@@ -45,6 +45,7 @@ public class BooleanControlComponent extends BaseChannelComponent<BooleanControl
 
     private static final long serialVersionUID = 3529467636546288860L;
     private final BooleanStatus pressed = new BooleanStatus();
+    private final BooleanInput alternateSource;
     private final BooleanOutput rawOut;
     private boolean hasSentInitial = false;
 
@@ -57,8 +58,7 @@ public class BooleanControlComponent extends BaseChannelComponent<BooleanControl
      * @param out the BooleanOutput to control.
      */
     public BooleanControlComponent(int cx, int cy, String name, BooleanOutput out) {
-        super(cx, cy, name);
-        rawOut = out;
+        this(cx, cy, name, null, out);
     }
 
     /**
@@ -69,8 +69,23 @@ public class BooleanControlComponent extends BaseChannelComponent<BooleanControl
      * @param name the name of the output.
      */
     public BooleanControlComponent(int cx, int cy, String name) {
+        this(cx, cy, name, BooleanMixing.ignoredBooleanOutput);
+    }
+
+    /**
+     * Create a new BooleanControlComponent, with an input channel to represent
+     * the actual value as returned by the remote.
+     * 
+     * @param cx the X coordinate.
+     * @param cy the Y coordinate.
+     * @param name the name of the output.
+     * @param inp the BooleanInput to control.
+     * @param out the BooleanOutput to control.
+     */
+    public BooleanControlComponent(int cx, int cy, String name, BooleanInput inp, BooleanOutput out) {
         super(cx, cy, name);
-        rawOut = BooleanMixing.ignoredBooleanOutput;
+        rawOut = out;
+        alternateSource = inp;
     }
 
     @Override
@@ -86,10 +101,14 @@ public class BooleanControlComponent extends BaseChannelComponent<BooleanControl
             return false;
         }
     }
+    
+    private boolean getDele() {
+        return this.alternateSource != null ? this.alternateSource.get() : this.pressed.get();
+    }
 
     @Override
     public void channelRender(Graphics2D g, int screenWidth, int screenHeight, FontMetrics fontMetrics, int mouseX, int mouseY) {
-        boolean isPressed = this.pressed.get();
+        boolean isPressed = getDele();
         switch (activeView) {
         case RED_GREEN_SWITCH:
             AffineTransform origO = g.getTransform();
@@ -153,7 +172,7 @@ public class BooleanControlComponent extends BaseChannelComponent<BooleanControl
         switch (activeView) {
         case RED_GREEN_SWITCH:
         case TEXTUAL:
-            pressed.set(!pressed.get());
+            pressed.set(!getDele());
             break;
         case LINEAR_ON_OFF:
             if (x < centerX - 5) {

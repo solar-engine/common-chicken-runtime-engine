@@ -35,8 +35,10 @@
 	<property file="${src.dir}/main.properties" />
 
 	<property name="emulate.jar" value="${dist.dir}/EmulationTarget.jar" />
-	<property name="emulator.dir" value="${ccre-root.dir}/IgneousEmulator/bin" />
-	<property name="classpath-new" value="${classpath}${path.separator}${ccre-root.dir}/CCRE_Igneous_RoboRIO/Igneous.jar" />
+	<property name="emulator.dir"
+	          value="${ccre-root.dir}/IgneousEmulator/bin" />
+	<property name="classpath-new"
+	          value="${classpath}${path.separator}${ccre-root.dir}/CCRE_Igneous_RoboRIO/Igneous.jar" />
 
 	<!-- Used iff wpilib 2015 is not installed. -->
 	<property name="src.dir" value="src" />
@@ -46,9 +48,17 @@
 
 	<target name="compile" description="Compile the source code.">
 		<mkdir dir="${build.dir}" />
-		<echo>[athena-compile] Compiling ${src.dir} with classpath=${classpath-new} to ${build.dir}</echo>
+		<echo>[athena-compile] Compiling ${src.dir} with classpath=${classpath-new} to ${build.dir} with version ${ant.java.version}</echo>
 
-		<javac srcdir="${src.dir}" destdir="${build.dir}" includeAntRuntime="no" includeJavaRuntime="no" classpath="${classpath-new}" target="1.7" source="1.7" debug="true">
+		<javac srcdir="${src.dir}"
+		       destdir="${build.dir}"
+		       includeAntRuntime="no"
+		       includeJavaRuntime="no"
+		       classpath="${classpath-new}"
+		       target="${ant.java.version}"
+		       source="${ant.java.version}"
+		       compiler="javac${ant.java.version}"
+		       debug="true">
 		</javac>
 	</target>
 
@@ -66,8 +76,10 @@
 
 		<jar destfile="${dist.jar}" update="false">
 			<manifest>
-				<attribute name="Main-Class" value="edu.wpi.first.wpilibj.RobotBase" />
-				<attribute name="Robot-Class" value="ccre.igneous.RawIOIgneousLauncherImpl" />
+				<attribute name="Main-Class"
+				           value="edu.wpi.first.wpilibj.RobotBase" />
+				<attribute name="Robot-Class"
+				           value="ccre.igneous.RawIOIgneousLauncherImpl" />
 				<attribute name="CCRE-Main" value="${igneous.main}" />
 				<attribute name="Class-Path" value="." />
 			</manifest>
@@ -90,7 +102,9 @@
 
 	<target name="emulate" depends="jar">
 		<mkdir dir="${project.dir}/emulation-roborio" />
-		<java jar="${ccre-root.dir}/IgneousEmulator/Emulator.jar" fork="true" dir="${project.dir}/emulation-roborio">
+		<java jar="${ccre-root.dir}/IgneousEmulator/Emulator.jar"
+		      fork="true"
+		      dir="${project.dir}/emulation-roborio">
 			<arg value="${emulate.jar}" />
 			<classpath>
 				<fileset dir="${emulator.dir}" includes="**/*.class" />

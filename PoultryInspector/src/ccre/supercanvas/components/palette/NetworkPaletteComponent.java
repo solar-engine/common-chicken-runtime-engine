@@ -20,6 +20,7 @@ package ccre.supercanvas.components.palette;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
+import java.io.OutputStream;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.TreeSet;
@@ -44,6 +45,7 @@ import ccre.supercanvas.components.channels.EventControlComponent;
 import ccre.supercanvas.components.channels.EventDisplayComponent;
 import ccre.supercanvas.components.channels.FloatControlComponent;
 import ccre.supercanvas.components.channels.FloatDisplayComponent;
+import ccre.supercanvas.components.channels.OutputStreamControlComponent;
 import ccre.util.UniqueIds;
 
 /**
@@ -77,9 +79,10 @@ public class NetworkPaletteComponent extends PaletteComponent<Collection<Network
             return new FloatControlComponent(x, y, name, (FloatInput) ((Object[]) target)[0], (FloatOutput) ((Object[]) target)[1]);
         case F_RMT_BOOLEANS:
             return new BooleanControlComponent(x, y, name, (BooleanInput) ((Object[]) target)[0], (BooleanOutput) ((Object[]) target)[1]);
-        case CluckNode.RMT_INVOKE: // TODO: These three.
-        case CluckNode.RMT_LOGTARGET:
         case CluckNode.RMT_OUTSTREAM:
+            return new OutputStreamControlComponent(x, y, name, (OutputStream) target);
+        case CluckNode.RMT_INVOKE: // TODO: These two.
+        case CluckNode.RMT_LOGTARGET:
         default:
             Logger.warning("Could not display RMT of " + CluckNode.rmtToString(type));
             return null;

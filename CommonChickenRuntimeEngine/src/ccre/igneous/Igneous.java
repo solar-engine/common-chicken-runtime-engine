@@ -146,7 +146,7 @@ public class Igneous {
     public static FloatOutput makeJaguarMotor(int id, boolean negate, float ramping) {
         FloatOutput motor = launcher.makeMotor(id, IgneousLauncher.JAGUAR);
         FloatOutput ramped = FloatMixing.addRamping(ramping, constantPeriodic, negate ? FloatMixing.negate(motor) : motor);
-        FloatMixing.setWhen(startDisabled, ramped, 0.0f); 
+        FloatMixing.setWhen(startDisabled, ramped, 0.0f);
         return ramped;
     }
 
@@ -171,7 +171,7 @@ public class Igneous {
     public static FloatOutput makeVictorMotor(int id, boolean negate, float ramping) {
         FloatOutput motor = launcher.makeMotor(id, IgneousLauncher.VICTOR);
         FloatOutput ramped = FloatMixing.addRamping(ramping, constantPeriodic, negate ? FloatMixing.negate(motor) : motor);
-        FloatMixing.setWhen(startDisabled, ramped, 0.0f); 
+        FloatMixing.setWhen(startDisabled, ramped, 0.0f);
         return ramped;
     }
 
@@ -196,7 +196,7 @@ public class Igneous {
     public static FloatOutput makeTalonMotor(int id, boolean negate, float ramping) {
         FloatOutput motor = launcher.makeMotor(id, IgneousLauncher.TALON);
         FloatOutput ramped = FloatMixing.addRamping(ramping, constantPeriodic, negate ? FloatMixing.negate(motor) : motor);
-        FloatMixing.setWhen(startDisabled, ramped, 0.0f); 
+        FloatMixing.setWhen(startDisabled, ramped, 0.0f);
         return ramped;
     }
 
@@ -228,6 +228,16 @@ public class Igneous {
      */
     public static FloatInputPoll getBatteryVoltage() {
         return launcher.getBatteryVoltage();
+    }
+
+    /**
+     * Create a reference to an analog input on the specified port.
+     *
+     * @param id the port number.
+     * @return the analog input, reporting in voltage.
+     */
+    public static FloatInputPoll makeAnalogInput(int id) {
+        return launcher.makeAnalogInput(id);
     }
 
     /**

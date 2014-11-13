@@ -211,6 +211,10 @@ public final class EmulatorLauncher implements IgneousLauncher {
         out.set(false);
         return out;
     }
+    
+    public FloatInputPoll makeAnalogInput(int id) {
+        return emf.getAnalog(id);
+    }
 
     @Override
     public FloatInputPoll makeAnalogInput(int id, int averageBits) {

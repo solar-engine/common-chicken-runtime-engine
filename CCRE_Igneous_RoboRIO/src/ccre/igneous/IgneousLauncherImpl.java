@@ -323,6 +323,15 @@ public final class IgneousLauncherImpl extends IterativeRobot implements Igneous
             }
         };
     }
+    
+    public FloatInputPoll makeAnalogInput(int id) {
+        final AnalogInput chan = new AnalogInput(id);
+        return new FloatInputPoll() {
+            public float get() {
+                return (float) chan.getAverageVoltage();
+            }
+        };
+    }
 
     public FloatInputPoll makeAnalogInput(int id, int averageBits) {
         final AnalogInput chan = new AnalogInput(id);

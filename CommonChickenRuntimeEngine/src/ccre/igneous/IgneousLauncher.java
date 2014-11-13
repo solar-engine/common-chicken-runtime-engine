@@ -94,6 +94,15 @@ public interface IgneousLauncher {
 
     /**
      * Create a reference to an analog input on the specified port with the
+     * default number of average bits.
+     *
+     * @param id the port number.
+     * @return the analog input, reporting in voltage.
+     */
+    public FloatInputPoll makeAnalogInput(int id);
+    
+    /**
+     * Create a reference to an analog input on the specified port with the
      * specified number of average bits.
      *
      * @param id the port number.

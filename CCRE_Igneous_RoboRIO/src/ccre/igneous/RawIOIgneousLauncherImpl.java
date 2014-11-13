@@ -222,6 +222,11 @@ public final class RawIOIgneousLauncherImpl extends RobotBase implements Igneous
         return () -> (float) DriverStation.getInstance().getBatteryVoltage();
     }
 
+    public FloatInputPoll makeAnalogInput(int id) {
+        final AnalogInput chan = new AnalogInput(id);
+        return () -> (float) chan.getAverageVoltage();
+    }
+
     public FloatInputPoll makeAnalogInput(int id, int averageBits) {
         final AnalogInput chan = new AnalogInput(id);
         chan.setAverageBits(averageBits);

@@ -159,7 +159,7 @@ final class CJoystick implements EventOutput, IJoystick {
             if (fpb == null) {
                 continue;
             }
-            fpb.set((float) joy.getRawAxis(i + 1));
+            fpb.set((float) joy.getRawAxis(i));
         }
     }
 }

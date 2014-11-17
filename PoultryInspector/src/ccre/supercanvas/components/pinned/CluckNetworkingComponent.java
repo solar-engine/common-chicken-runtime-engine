@@ -43,7 +43,16 @@ public class CluckNetworkingComponent extends SuperCanvasComponent {
 
     private static final long serialVersionUID = 8969267415884377303L;
 
-    private final StringBuilder address = new StringBuilder("roboRIO-$T$E$A$M.local:1540");
+    private static final String[] optionNames = new String[] {
+            "cRIO (default)", "roboRIO (default)", "Local (default)",
+            "cRIO (non-FMS)", "cRIO (deprecated)",
+            "Local (alternate 1)", "Local (alternate 2)" };
+    private static final String[] optionAddrs = new String[] {
+            "10.$T$E.$A$M.2:443", "roboRIO-$T$E$A$M.local:1540", "127.0.0.1:1540",
+            "10.$T$E.$A$M.2:1540", "10.$T$E.$A$M.2:80",
+            "127.0.0.1:80", "127.0.0.1:443" };
+
+    private final StringBuilder address = new StringBuilder(optionAddrs[0]);
     private boolean expanded = false;
     private transient CluckTCPClient client;
 
@@ -56,38 +65,65 @@ public class CluckNetworkingComponent extends SuperCanvasComponent {
         });
     }
 
+    private int firstMenuEntry = 0, menuEntryDelta = 1;
+
     @Override
     public void render(Graphics2D g, int screenWidth, int screenHeight, FontMetrics fontMetrics, int mouseX, int mouseY) {
         if (expanded) {
-            Rendering.drawBody(Color.GRAY, g, screenWidth - 100, 50, 200, 100);
-            g.setColor(Color.WHITE);
-            g.drawString(address.toString(), screenWidth - 190, 50);
+            String raddr = address.toString();
+            if (System.currentTimeMillis() % 1000 < 500 && getPanel().editing == address) {
+                raddr += "|";
+            }
+            String[] lines = new String[3 + optionNames.length];
+            // Three header lines:
+            lines[0] = "Type or select from list";
+            lines[1] = raddr;
+            lines[2] = getStatusMessage();
+
+            System.arraycopy(optionNames, 0, lines, 3, optionNames.length);
+            menuEntryDelta = fontMetrics.getHeight();
+            int height = menuEntryDelta * lines.length + 10;
+            Rendering.drawBody(Color.GRAY, g, screenWidth - 100, height / 2, 200, height);
+            for (int i = 0; i < lines.length; i++) {
+                if (i >= 3 && mouseX >= screenWidth - 200 && mouseY >= menuEntryDelta * i && mouseY < menuEntryDelta * (i + 1)) {
+                    g.setColor(Color.CYAN);
+                } else if (i >= 3 && optionAddrs[i - 3].equals(address.toString())) {
+                    g.setColor(Color.GREEN);
+                } else {
+                    g.setColor(Color.WHITE);
+                }
+                g.drawString(lines[i], screenWidth - 195, fontMetrics.getAscent() + fontMetrics.getHeight() * i);
+            }
+            firstMenuEntry = menuEntryDelta * 3; // after the three header lines
         } else {
             if (getPanel().editmode) {
                 g.setColor(contains(mouseX, mouseY) ? Color.CYAN : Color.WHITE);
             } else {
                 g.setColor(contains(mouseX, mouseY) ? Color.GREEN : Color.BLACK);
             }
-            String countReport = "~" + CountingNetworkProvider.getTotal() / 128 + "kbs";
-            if (client == null) {
-                countReport = "(not ready) " + countReport;
-            } else if (client.isReconnecting()) {
-                if (client.isEstablished()) {
-                    countReport = "(establishing...) " + countReport;
-                } else {
-                    countReport = "(connecting to " + client.getRemote() + "...) " + countReport;
-                }
-            } else if (client.isEstablished()) {
-                countReport = "(active) " + countReport;
-            } else {
-                float pause_remain = (int) ((client.getReconnectDeadline() - System.currentTimeMillis()) / 100f) / 10f;
-                if (pause_remain <= 0) {
-                    countReport = "(about to reconnect) " + countReport;
-                } else {
-                    countReport = "(pausing for " + pause_remain + "s) " + countReport;
-                }
-            }
+            String countReport = "(" + getStatusMessage() + ") ~" + CountingNetworkProvider.getTotal() / 128 + "kbs";
             g.drawString(countReport, screenWidth - fontMetrics.stringWidth(countReport), fontMetrics.getAscent());
+        }
+    }
+
+    private String getStatusMessage() {
+        if (client == null) {
+            return "not ready";
+        } else if (client.isReconnecting()) {
+            if (client.isEstablished()) {
+                return "establishing...";
+            } else {
+                return "connecting to " + client.getRemote() + "...";
+            }
+        } else if (client.isEstablished()) {
+            return "active";
+        } else {
+            float pause_remain = (int) ((client.getReconnectDeadline() - System.currentTimeMillis()) / 100f) / 10f;
+            if (pause_remain <= 0) {
+                return "about to reconnect";
+            } else {
+                return "pausing for " + pause_remain + "s";
+            }
         }
     }
 
@@ -149,7 +185,7 @@ public class CluckNetworkingComponent extends SuperCanvasComponent {
     @Override
     public boolean contains(int x, int y) {
         if (expanded) {
-            return x >= getPanel().getWidth() - 200 && y <= 100;
+            return x >= getPanel().getWidth() - 200 && y <= (firstMenuEntry + menuEntryDelta * optionAddrs.length);
         } else {
             return x >= getPanel().getWidth() - 100 && y <= 18;
         }
@@ -162,6 +198,15 @@ public class CluckNetworkingComponent extends SuperCanvasComponent {
 
     @Override
     public boolean onSelect(int x, int y) {
+        if (y >= firstMenuEntry && expanded) {
+            int menuId = (y - firstMenuEntry) / menuEntryDelta;
+            if (menuId >= 0 && menuId < optionAddrs.length) {
+                address.setLength(0);
+                address.append(optionAddrs[menuId]);
+                updateConnection();
+                return true;
+            }
+        }
         expanded = !expanded;
         if (expanded) {
             getPanel().editing = address;

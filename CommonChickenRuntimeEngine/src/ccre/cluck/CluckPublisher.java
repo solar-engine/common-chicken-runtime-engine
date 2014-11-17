@@ -415,11 +415,13 @@ public class CluckPublisher {
      *
      * @param node The node to publish on.
      * @param name The name for the FloatStatus.
-     * @param tune The FloatStatus.
+     * @param stat The FloatStatus.
      */
-    public static void publish(final CluckNode node, final String name, final FloatStatus tune) {
-        publish(node, name + ".input", (FloatInput) tune);
-        publish(node, name + ".output", (FloatOutput) tune);
+    public static void publish(final CluckNode node, final String name, final FloatStatus stat) {
+        FloatInput statInput = stat;
+        FloatOutput statOutput = stat;
+        publish(node, name + ".input", statInput);
+        publish(node, name + ".output", statOutput);
     }
 
     /**
@@ -432,8 +434,26 @@ public class CluckPublisher {
      * @param stat The BooleanStatus to publish.
      */
     public static void publish(final CluckNode node, final String name, BooleanStatus stat) {
-        publish(node, name + ".input", (BooleanInput) stat);
-        publish(node, name + ".output", (BooleanOutput) stat);
+        BooleanInput statInput = stat;
+        BooleanOutput statOutput = stat;
+        publish(node, name + ".input", statInput);
+        publish(node, name + ".output", statOutput);
+    }
+
+    /**
+     * Publish an EventStatus on the network.
+     *
+     * No corresponding subscribe is provided yet.
+     *
+     * @param node The node to publish on.
+     * @param name The name for the EventStatus.
+     * @param stat The EventStatus to publish.
+     */
+    public static void publish(final CluckNode node, final String name, EventStatus stat) {
+        EventInput statInput = stat;
+        EventOutput statOutput = stat;
+        publish(node, name + ".input", statInput);
+        publish(node, name + ".output", statOutput);
     }
 
     /**

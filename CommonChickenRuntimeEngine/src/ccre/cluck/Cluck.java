@@ -23,6 +23,7 @@ import ccre.channel.BooleanOutput;
 import ccre.channel.BooleanStatus;
 import ccre.channel.EventInput;
 import ccre.channel.EventOutput;
+import ccre.channel.EventStatus;
 import ccre.channel.FloatInput;
 import ccre.channel.FloatOutput;
 import ccre.channel.FloatStatus;
@@ -30,6 +31,7 @@ import ccre.cluck.tcp.CluckTCPClient;
 import ccre.cluck.tcp.CluckTCPServer;
 import ccre.log.LogLevel;
 import ccre.log.LoggingTarget;
+
 import java.io.OutputStream;
 
 /**
@@ -252,10 +254,10 @@ public final class Cluck {
      * No corresponding subscribe is provided yet.
      *
      * @param name The name for the FloatStatus.
-     * @param tune The FloatStatus.
+     * @param stat The FloatStatus.
      */
-    public static void publish(final String name, final FloatStatus tune) {
-        CluckPublisher.publish(node, name, tune);
+    public static void publish(final String name, final FloatStatus stat) {
+        CluckPublisher.publish(node, name, stat);
     }
 
     /**
@@ -267,6 +269,18 @@ public final class Cluck {
      * @param stat The BooleanStatus to publish.
      */
     public static void publish(final String name, BooleanStatus stat) {
+        CluckPublisher.publish(node, name, stat);
+    }
+
+    /**
+     * Publish an EventStatus on the network.
+     *
+     * No corresponding subscribe is provided yet.
+     *
+     * @param name The name for the EventStatus.
+     * @param stat The EventStatus to publish.
+     */
+    public static void publish(final String name, EventStatus stat) {
         CluckPublisher.publish(node, name, stat);
     }
 

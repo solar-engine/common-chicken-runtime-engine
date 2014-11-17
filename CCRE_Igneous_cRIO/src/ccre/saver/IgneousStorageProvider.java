@@ -64,6 +64,7 @@ public class IgneousStorageProvider extends StorageProvider {
     
     protected InputStream openInputFile_Custom(String name) throws IOException {
         // TODO: Make this implementation be used - but it needs to be tested before being put into production!
+        // TODO: Actually throw IOException if file found but could not be opened?
         int fd = LibC.INSTANCE.open(name, LibC.O_RDONLY, 0);
         if (fd == -1) {
             return null;

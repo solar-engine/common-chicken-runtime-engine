@@ -171,6 +171,19 @@ public class DriverImpls {
     }
 
     /**
+     * Run single joystick drive on the given two FloatInputProducers and
+     * FloatOutputs.
+     *
+     * @param joystick the joystick.
+     * @param leftOut the left motor.
+     * @param rightOut the right motor.
+     * @see DriverImpls
+     */
+    public static void createAsynchSingleJoystickDriver(final IJoystick joystick, final FloatOutput leftOut, final FloatOutput rightOut) {
+        createAsynchSingleJoystickDriver(joystick.getXAxisSource(), joystick.getYAxisSource(), leftOut, rightOut);
+    }
+
+    /**
      * When the returned EventInput is fired, run single joystick drive on the
      * given two FloatInputPolls and FloatOutputs.
      * 
@@ -191,6 +204,20 @@ public class DriverImpls {
             }
         };
     }
+    
+    /**
+     * When the returned EventInput is fired, run single joystick drive on the
+     * given joystick and two FloatOutputs.
+     * 
+     * @param joystick the joystick.
+     * @param leftOut the left motor.
+     * @param rightOut the right motor.
+     * @return the EventOutput that will update the motors.
+     * @see DriverImpls
+     */
+    public static EventOutput createSingleJoystickDriveEvent(IJoystick joystick, FloatOutput leftOut, FloatOutput rightOut) {
+        return createSingleJoystickDriveEvent(joystick.getXChannel(), joystick.getYChannel(), leftOut, rightOut);
+    }
 
     /**
      * When the specified EventInput is fired, run single joystick drive on the
@@ -205,6 +232,20 @@ public class DriverImpls {
      */
     public static void createSynchSingleJoystickDriver(EventInput source, final FloatInputPoll joystickXAxis, final FloatInputPoll joystickYAxis, FloatOutput leftOut, FloatOutput rightOut) {
         source.send(createSingleJoystickDriveEvent(joystickXAxis, joystickYAxis, leftOut, rightOut));
+    }
+
+    /**
+     * When the specified EventInput is fired, run single joystick drive on the
+     * given joystick and two FloatOutputs.
+     * 
+     * @param source when to update the motors.
+     * @param joystick the joystick.
+     * @param leftOut the left motor.
+     * @param rightOut the right motor.
+     * @see DriverImpls
+     */
+    public static void createSynchSingleJoystickDriver(EventInput source, final IJoystick joystick, FloatOutput leftOut, FloatOutput rightOut) {
+        createSynchSingleJoystickDriver(source, joystick.getXChannel(), joystick.getYChannel(), leftOut, rightOut);
     }
 
     private DriverImpls() {

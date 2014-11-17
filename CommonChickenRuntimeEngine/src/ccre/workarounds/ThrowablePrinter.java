@@ -19,6 +19,7 @@
 package ccre.workarounds;
 
 import ccre.log.Logger;
+
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 
@@ -28,6 +29,8 @@ import java.io.PrintStream;
  * This is only needed because Squawk doesn't have a
  * Throwable.printStackTrace(PrintStream) method, so a different provider is
  * needed for Squawk.
+ * 
+ * Also provides {@link #getMethodCaller()} because that's a similar idea.
  *
  * @author skeggsc
  */
@@ -73,6 +76,11 @@ public abstract class ThrowablePrinter {
                     public void send(Throwable thr, PrintStream pstr) {
                         pstr.println(thr);
                     }
+
+                    @Override
+                    public CallerInfo findMethodCaller(int index) {
+                        return null;
+                    }
                 };
                 Logger.warning("No throwable printing provider!", ex2);
             }
@@ -101,7 +109,7 @@ public abstract class ThrowablePrinter {
      * originally.
      *
      * @param thr the throwable to print.
-     * @return the String version of the throwable, including the trackback.
+     * @return the String version of the throwable, including the traceback.
      */
     public static String toStringThrowable(Throwable thr) {
         if (thr == null) {
@@ -111,6 +119,39 @@ public abstract class ThrowablePrinter {
         printThrowable(thr, new PrintStream(out));
         return out.toString();
     }
+
+    /**
+     * Get diagnostic information for someone in the call stack of this method,
+     * at a given index.
+     * 
+     * Index 0 is the caller of this method; 1 is the caller of that method,
+     * etc.
+     * 
+     * This should contain, at the very least, the class, but should also
+     * contain the method, source file, and line number if possible.
+     * 
+     * @param index which frame to report.
+     * @return a CallerInfo for the specified caller, or null.
+     */
+    public static CallerInfo getMethodCaller(int index) {
+        initProvider();
+        return provider.findMethodCaller(index + 1);
+    }
+
+    /**
+     * Get diagnostic information for someone in the call stack of this method,
+     * at a given index.
+     * 
+     * Index 0 is the caller of this method; 1 is the caller of that method,
+     * etc.
+     * 
+     * This should contain, at the very least, the class, but should also
+     * contain the method, source file, and line number if possible.
+     * 
+     * @param index which frame to report.
+     * @return a CallerInfo for the specified caller, or null.
+     */
+    public abstract CallerInfo findMethodCaller(int index);
 
     /**
      * Send the specified Throwable to the specified PrintStream.

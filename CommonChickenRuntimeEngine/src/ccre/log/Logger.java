@@ -19,6 +19,8 @@
 package ccre.log;
 
 import ccre.util.CArrayList;
+import ccre.workarounds.CallerInfo;
+import ccre.workarounds.ThrowablePrinter;
 
 /**
  * A class containing easy global methods for logging, as well as holding the
@@ -32,6 +34,27 @@ public class Logger {
      * The logging targets to write logs to.
      */
     public static final CArrayList<LoggingTarget> targets = new CArrayList<LoggingTarget>();
+    private static boolean includeLineNumbers = true;
+
+    /**
+     * Set whether or not filenames and line numbers should be prefixed to
+     * logging messages, when available.
+     * 
+     * @param shouldInclude if this debugging info should be included.
+     */
+    public static void setShouldIncludeLineNumbers(boolean shouldInclude) {
+        includeLineNumbers = shouldInclude;
+    }
+
+    /**
+     * Get whether or not filenames and line numbers are prefixed to logging
+     * messages, when available.
+     * 
+     * @return shouldInclude if this debugging info is included.
+     */
+    public static boolean getShouldIncludeLineNumbers() {
+        return includeLineNumbers;
+    }
 
     static {
         targets.add(new StandardStreamLogger());
@@ -63,9 +86,14 @@ public class Logger {
      * @param thr the Throwable to log
      */
     public static void log(LogLevel level, String message, Throwable thr) {
+        logInternal(level, message, thr);
+    }
+
+    private static void logInternal(LogLevel level, String message, Throwable thr) {
         if (level == null || message == null) {
             throw new NullPointerException();
         }
+        message = prependCallerInfo(3, message);
         for (LoggingTarget lt : targets) {
             lt.log(level, message, thr);
         }
@@ -82,9 +110,24 @@ public class Logger {
         if (level == null || message == null) {
             throw new NullPointerException();
         }
+        message = prependCallerInfo(1, message);
         for (LoggingTarget lt : targets) {
             lt.log(level, message, extended);
         }
+    }
+
+    private static String prependCallerInfo(int index, String message) {
+        if (includeLineNumbers && !message.startsWith("(") && !message.startsWith("[")) {
+            CallerInfo caller = ThrowablePrinter.getMethodCaller(index + 1);
+            if (caller != null && caller.getFileName() != null) {
+                if (caller.getLineNum() > 0) {
+                    return "(" + caller.getFileName() + ":" + caller.getLineNum() + ") " + message;
+                } else {
+                    return "(" + caller.getFileName() + ") " + message;
+                }
+            }
+        }
+        return message;
     }
 
     /**
@@ -94,7 +137,7 @@ public class Logger {
      * @param message the message to log.
      */
     public static void log(LogLevel level, String message) {
-        log(level, message, null);
+        logInternal(level, message, null);
     }
 
     /**
@@ -167,7 +210,7 @@ public class Logger {
      * @param thr The exception to include in the log.
      */
     public static void severe(String message, Throwable thr) {
-        log(LogLevel.SEVERE, message, thr);
+        logInternal(LogLevel.SEVERE, message, thr);
     }
 
     /**
@@ -177,7 +220,7 @@ public class Logger {
      * @param thr The exception to include in the log.
      */
     public static void warning(String message, Throwable thr) {
-        log(LogLevel.WARNING, message, thr);
+        logInternal(LogLevel.WARNING, message, thr);
     }
 
     /**
@@ -187,7 +230,7 @@ public class Logger {
      * @param thr The exception to include in the log.
      */
     public static void info(String message, Throwable thr) {
-        log(LogLevel.INFO, message, thr);
+        logInternal(LogLevel.INFO, message, thr);
     }
 
     /**
@@ -197,7 +240,7 @@ public class Logger {
      * @param thr The exception to include in the log.
      */
     public static void config(String message, Throwable thr) {
-        log(LogLevel.CONFIG, message, thr);
+        logInternal(LogLevel.CONFIG, message, thr);
     }
 
     /**
@@ -207,7 +250,7 @@ public class Logger {
      * @param thr The exception to include in the log.
      */
     public static void fine(String message, Throwable thr) {
-        log(LogLevel.FINE, message, thr);
+        logInternal(LogLevel.FINE, message, thr);
     }
 
     /**
@@ -217,7 +260,7 @@ public class Logger {
      * @param thr The exception to include in the log.
      */
     public static void finer(String message, Throwable thr) {
-        log(LogLevel.FINER, message, thr);
+        logInternal(LogLevel.FINER, message, thr);
     }
 
     /**
@@ -227,7 +270,7 @@ public class Logger {
      * @param thr The exception to include in the log.
      */
     public static void finest(String message, Throwable thr) {
-        log(LogLevel.FINEST, message, thr);
+        logInternal(LogLevel.FINEST, message, thr);
     }
 
     private Logger() {

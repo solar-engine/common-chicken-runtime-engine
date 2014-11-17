@@ -103,10 +103,10 @@ public final class NetworkAutologger implements LoggingTarget, CluckRemoteListen
     }
 
     public void log(LogLevel level, String message, Throwable throwable) {
-        if (message.startsWith("[NET] ")) { // From the network, so don't broadcast.
+        if (message.contains("[NET]")) { // From the network, so don't broadcast.
             return;
         }
-        if (message.startsWith("[LOCAL] ")) { // Local messages should not be sent over the network.
+        if (message.contains("[LOCAL]")) { // Local messages should not be sent over the network.
             return;
         }
         for (String cur : remotes) {
@@ -118,10 +118,10 @@ public final class NetworkAutologger implements LoggingTarget, CluckRemoteListen
     }
 
     public void log(LogLevel level, String message, String extended) {
-        if (message.startsWith("[NET] ")) { // From the network, so don't broadcast.
+        if (message.contains("[NET]")) { // From the network, so don't broadcast.
             return;
         }
-        if (message.startsWith("[LOCAL] ")) { // Should not be sent over the network.
+        if (message.contains("[LOCAL]")) { // Should not be sent over the network.
             return;
         }
         for (String cur : remotes) {

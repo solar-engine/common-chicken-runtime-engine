@@ -19,10 +19,15 @@
 package ccre.workarounds;
 
 import ccre.log.Logger;
+
 import com.sun.squawk.ExecutionPoint;
 import com.sun.squawk.GC;
+import com.sun.squawk.Klass;
+import com.sun.squawk.Method;
 import com.sun.squawk.NativeUnsafe;
+import com.sun.squawk.VM;
 import com.sun.squawk.vm.FieldOffsets;
+
 import java.io.PrintStream;
 
 /**
@@ -77,6 +82,41 @@ public class IgneousThrowablePrinter extends ThrowablePrinter {
                     pstr.println();
                 }
             }
+        }
+    }
+
+    @Override
+    public CallerInfo findMethodCaller(int index) {
+        int targetIndex = index + 1;
+        int reqLength = targetIndex + 1;
+        ExecutionPoint[] stack = VM.reifyCurrentStack(reqLength);
+        if (stack.length < reqLength || stack[targetIndex] == null) {
+            return null;
+        } else {
+            ExecutionPoint target = stack[targetIndex];
+            Klass k = target.getKlass();
+            String kName = k.getName();
+            Method m = target.getMethod();
+            String mName;
+            if (m == null) {
+                int mtId;
+                if ((mtId = k.getMethodIndex(target.mp, true)) >= 0) {
+                    mName = "static #" + mtId;
+                } else if ((mtId = k.getMethodIndex(target.mp, false)) >= 0) {
+                    mName = "virtual #" + mtId;
+                } else {
+                    mName = "unknown at " + target.mp;
+                }
+            } else {
+                mName = m.getName();
+            }
+            String sourceFileName = k.getSourceFileName();
+            if (sourceFileName == null) {
+                sourceFileName = "<UNKNOWN>";
+            }
+            int[] lnTab = m == null ? null : m.getLineNumberTable();
+            int lineNo = lnTab == null ? -1 : Method.getLineNumber(lnTab, target.bci.toPrimitive());
+            return new CallerInfo(kName, mName, sourceFileName, lineNo);
         }
     }
 }

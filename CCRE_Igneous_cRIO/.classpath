@@ -3,7 +3,7 @@
 	<classpathentry kind="src" path="src"/>
 	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/CommonChickenRuntimeEngine"/>
 	<classpathentry kind="lib" path="lib2014/networktables-crio.jar"/>
-	<classpathentry kind="lib" path="lib2014/squawk.jar"/>
+	<classpathentry kind="lib" path="lib2014/squawk.jar" sourcepath="lib2014/squawk_source_unofficial.zip"/>
 	<classpathentry kind="lib" path="lib2014/wpilibj.jar" sourcepath="lib2014/wpilibj.src.zip"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

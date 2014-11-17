@@ -259,7 +259,10 @@ public class Igneous {
      * @param id the port number.
      * @param averageBits the number of averaging bits.
      * @return the analog input, reporting in uncalibrated units.
+     * @deprecated makeAnalogInput should be used directly because it gives more
+     * useful volts instead of a raw value.
      */
+    @Deprecated
     public static FloatInputPoll makeAnalogInput_ValueBased(int id, int averageBits) {
         return launcher.makeAnalogInput_ValuedBased(id, averageBits);
     }

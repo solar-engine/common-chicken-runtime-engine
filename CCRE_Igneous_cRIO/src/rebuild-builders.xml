@@ -51,6 +51,10 @@
 			<param name="targets" value="deploy" />
 		</antcall>
 		<antcall target="generate-by-template">
+			<param name="outer-name" value="Deploy and Debug for roboRIO" />
+			<param name="targets" value="debug-deploy" />
+		</antcall>
+		<antcall target="generate-by-template">
 			<param name="outer-name" value="Deploy for cRIO" />
 			<param name="targets" value="deploy-2014,run-2014" />
 		</antcall>

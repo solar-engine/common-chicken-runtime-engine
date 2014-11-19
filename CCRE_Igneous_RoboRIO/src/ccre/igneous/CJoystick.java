@@ -91,7 +91,7 @@ final class CJoystick implements EventOutput, IJoystick {
     public FloatInputPoll getAxisChannel(final int axis) {
         return new FloatInputPoll() {
             public float get() {
-                return (float) joy.getRawAxis(axis);
+                return (float) joy.getRawAxis(axis - 1);
             }
         };
     }
@@ -134,7 +134,7 @@ final class CJoystick implements EventOutput, IJoystick {
         FloatStatus fpb = axes[axis - 1];
         if (fpb == null) {
             fpb = new FloatStatus();
-            fpb.set((float) joy.getRawAxis(axis));
+            fpb.set((float) joy.getRawAxis(axis - 1));
             axes[axis - 1] = fpb;
         }
         return fpb;

@@ -18,6 +18,7 @@
  */
 package ccre.ctrl;
 
+import ccre.channel.BooleanInput;
 import ccre.channel.BooleanInputPoll;
 import ccre.channel.EventInput;
 import ccre.channel.EventOutput;
@@ -43,7 +44,7 @@ public class FloatMixing {
     /**
      * An operation representing summation, aka addition.
      */
-    public static final FloatOperation sum = new FloatOperation() {
+    public static final FloatOperation addition = new FloatOperation() {
         @Override
         public float of(float augend, float addend) {
             return augend + addend;
@@ -52,7 +53,7 @@ public class FloatMixing {
     /**
      * An operation representing a difference, aka subtracting.
      */
-    public static final FloatOperation difference = new FloatOperation() {
+    public static final FloatOperation subtraction = new FloatOperation() {
         @Override
         public float of(float minend, float subtrahend) {
             return minend - subtrahend;
@@ -61,7 +62,7 @@ public class FloatMixing {
     /**
      * An operation representing a product, aka multiplication.
      */
-    public static final FloatOperation product = new FloatOperation() {
+    public static final FloatOperation multiplication = new FloatOperation() {
         @Override
         public float of(float multiplicand, float multiplier) {
             return multiplicand * multiplier;
@@ -70,7 +71,7 @@ public class FloatMixing {
     /**
      * An operation representing a quotient, aka division.
      */
-    public static final FloatOperation quotient = new FloatOperation() {
+    public static final FloatOperation division = new FloatOperation() {
         @Override
         public float of(float dividend, float divisor) {
             return dividend / divisor;
@@ -123,6 +124,102 @@ public class FloatMixing {
                 return base.get() >= minimum;
             }
         };
+    }
+
+    /**
+     * Return a BooleanInputPoll that is true when the specified float input is
+     * at least the specified minimum value.
+     *
+     * @param base the value to test
+     * @param minimum the minimum value
+     * @return an input that represents the value being at least the minimum.
+     */
+    public static BooleanInputPoll floatIsAtLeast(final FloatInputPoll base, final FloatInputPoll minimum) {
+        return new BooleanInputPoll() {
+            public boolean get() {
+                return base.get() >= minimum.get();
+            }
+        };
+    }
+
+    /**
+     * Return a BooleanInput that is true when the specified float input is at
+     * least the specified minimum value.
+     *
+     * @param base the value to test
+     * @param minimum the minimum value
+     * @return an input that represents the value being at least the minimum.
+     */
+    public static BooleanInput floatIsAtLeast(FloatInput base, float minimum) {
+        return BooleanMixing.createDispatch(floatIsAtLeast((FloatInputPoll) base, minimum), FloatMixing.onUpdate(base));
+    }
+
+    /**
+     * Return a BooleanInput that is true when the specified float input is at
+     * least the specified minimum value.
+     *
+     * @param base the value to test
+     * @param minimum the minimum value
+     * @return an input that represents the value being at least the minimum.
+     */
+    public static BooleanInput floatIsAtLeast(FloatInput base, FloatInputPoll minimum) {
+        return BooleanMixing.createDispatch(floatIsAtLeast((FloatInputPoll) base, minimum), FloatMixing.onUpdate(base));
+    }
+
+    /**
+     * Return a BooleanInputPoll that is true when the specified float input is
+     * at most the specified maximum value.
+     *
+     * @param base the value to test
+     * @param maximum the maximum value
+     * @return an input that represents the value being at most the maximum.
+     */
+    public static BooleanInputPoll floatIsAtMost(final FloatInputPoll base, final float maximum) {
+        return new BooleanInputPoll() {
+            public boolean get() {
+                return base.get() <= maximum;
+            }
+        };
+    }
+
+    /**
+     * Return a BooleanInputPoll that is true when the specified float input is
+     * at most the specified maximum value.
+     *
+     * @param base the value to test
+     * @param maximum the maximum value
+     * @return an input that represents the value being at most the maximum.
+     */
+    public static BooleanInputPoll floatIsAtMost(final FloatInputPoll base, final FloatInputPoll maximum) {
+        return new BooleanInputPoll() {
+            public boolean get() {
+                return base.get() <= maximum.get();
+            }
+        };
+    }
+
+    /**
+     * Return a BooleanInput that is true when the specified float input is at
+     * most the specified maximum value.
+     *
+     * @param base the value to test
+     * @param maximum the maximum value
+     * @return an input that represents the value being at most the maximum.
+     */
+    public static BooleanInput floatIsAtMost(final FloatInput base, final float maximum) {
+        return BooleanMixing.createDispatch(floatIsAtMost((FloatInputPoll) base, maximum), FloatMixing.onUpdate(base));
+    }
+
+    /**
+     * Return a BooleanInput that is true when the specified float input is at
+     * most the specified maximum value.
+     *
+     * @param base the value to test
+     * @param maximum the maximum value
+     * @return an input that represents the value being at most the maximum.
+     */
+    public static BooleanInput floatIsAtMost(final FloatInput base, final FloatInputPoll maximum) {
+        return BooleanMixing.createDispatch(floatIsAtMost((FloatInputPoll) base, maximum), FloatMixing.onUpdate(base));
     }
 
     /**
@@ -376,22 +473,6 @@ public class FloatMixing {
     }
 
     /**
-     * Return a BooleanInputPoll that is true when the specified float input is
-     * at most the specified maximum value.
-     *
-     * @param base the value to test
-     * @param maximum the maximum value
-     * @return an input that represents the value being at most the maximum.
-     */
-    public static BooleanInputPoll floatIsAtMost(final FloatInputPoll base, final float maximum) {
-        return new BooleanInputPoll() {
-            public boolean get() {
-                return base.get() <= maximum;
-            }
-        };
-    }
-
-    /**
      * Return a Filter that applies the specified-size deadzone as defined in
      * Utils.deadzone.
      *
@@ -527,7 +608,7 @@ public class FloatMixing {
      * range of zero to one.
      *
      * The scaling is equivalent to:
-     * <code>(base.readValue() - zero) / (one - zero)</code>
+     * <code>(base.get() - zero) / (one - zero)</code>
      *
      * @param base the value to scale.
      * @param zero the value of base that turns into 0.0.
@@ -539,6 +620,32 @@ public class FloatMixing {
         return new FloatInputPoll() {
             public float get() {
                 return (base.get() - zero) / range;
+            }
+        };
+    }
+
+    /**
+     * Returns a scaled version of the specified input, such that when the value
+     * from the specified input is the value in the one parameter, the output is
+     * 1.0, and when the value from the specified input is the value in the zero
+     * parameter, the output is 0.0. The value is linearly scaled, for example:
+     * a value of ((zero + one) / 2) will create an output of 0.5. There is no
+     * capping - the output can be any number, including a number out of the
+     * range of zero to one.
+     *
+     * The scaling is equivalent to:
+     * <code>(base.get() - zero.get()) / (one.get() - zero.get())</code>
+     *
+     * @param base the value to scale.
+     * @param zero the value of base that turns into 0.0.
+     * @param one the value of base that turns into 1.0.
+     * @return the scaled value.
+     */
+    public static FloatInputPoll normalizeFloat(final FloatInputPoll base, final FloatInputPoll zero, final FloatInputPoll one) {
+        return new FloatInputPoll() {
+            public float get() {
+                float zeroN = zero.get();
+                return (base.get() - zeroN) / (one.get() - zeroN);
             }
         };
     }
@@ -574,6 +681,7 @@ public class FloatMixing {
     private static FloatOutput onUpdate(final EventOutput output) {
         return new FloatOutput() {
             private float last = Float.NaN;
+
             public void set(float out) {
                 if (out != last) {
                     output.event();

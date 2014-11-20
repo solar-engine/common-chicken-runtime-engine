@@ -120,7 +120,7 @@ public final class MultipleSourceBooleanController implements BooleanInput, Even
     /**
      * Update the output from the current state.
      */
-    private void update() {
+    private synchronized void update() {
         boolean valOut;
         if (isAnd) {
             if (bcur.contains(Boolean.FALSE)) {

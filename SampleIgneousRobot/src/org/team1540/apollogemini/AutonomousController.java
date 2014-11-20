@@ -84,7 +84,7 @@ public class AutonomousController extends InstinctModule {
     private final FloatStatus hotcheckPostFireMove = tune.getFloat("autom-hotcheck-postfire-move", 0);
     private final FloatStatus hotcheckCollectorSpeed = tune.getFloat("autom-hotcheck-collector", 0.5f);
     private final FloatStatus hotcheckPreFirePause = tune.getFloat("autom-hotcheck-prefire-pause", 1);
-    private final FloatStatus hotcheckArmMoveTime = tune.getFloat("autom-hotcheck-armmove-time", 0);//.6f);
+    private final FloatStatus hotcheckArmMoveTime = tune.getFloat("autom-hotcheck-armmove-time", .6f);
 
     private void autoHotcheck() throws AutonomousModeOverException, InterruptedException {
         FloatInputPoll currentTime = Utils.currentTimeSeconds;
@@ -188,9 +188,6 @@ public class AutonomousController extends InstinctModule {
     }
     
     // *** Framework ***
-    private void waitForTime(FloatInputPoll fin) throws InterruptedException, AutonomousModeOverException {
-        waitForTime((long) (1000L * fin.get() + 0.5f));
-    }
 
     public AutonomousController() {
         final EventOutput reportAutonomous = new EventOutput() {

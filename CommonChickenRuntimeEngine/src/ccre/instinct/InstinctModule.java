@@ -287,7 +287,7 @@ public abstract class InstinctModule implements EventOutput {
     /**
      * Wait for the specified amount of time.
      *
-     * @param milliseconds The amount of time to wait for.
+     * @param milliseconds The amount of time to wait for, in milliseconds.
      * @throws AutonomousModeOverException If the autonomous mode has ended.
      * @throws InterruptedException Possibly also if autonomous mode has ended.
      */
@@ -306,6 +306,17 @@ public abstract class InstinctModule implements EventOutput {
             }
             throw ex;
         }
+    }
+
+    /**
+     * Wait for the specified amount of time, fetched from a FloatInputPoll specified in seconds.
+     *
+     * @param seconds The amount of time to wait for, in seconds.
+     * @throws AutonomousModeOverException If the autonomous mode has ended.
+     * @throws InterruptedException Possibly also if autonomous mode has ended.
+     */
+    protected void waitForTime(FloatInputPoll seconds) throws InterruptedException, AutonomousModeOverException {
+        waitForTime((long) (1000 * seconds.get() + 0.5f));
     }
 
     /**

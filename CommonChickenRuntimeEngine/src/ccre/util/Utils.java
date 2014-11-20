@@ -37,15 +37,31 @@ public class Utils {
      * <code>System.currentTimeMillis() / 1000.0f - N</code> where N is some
      * point since when the program was started.
      *
-     * @see java.lang.System#currentTimeMillis()
+     * @see #getCurrentTimeSeconds() has the same value.
      */
     public static final FloatInputPoll currentTimeSeconds = new FloatInputPoll() {
-        private final long base = System.currentTimeMillis();
 
         public float get() {
-            return (System.currentTimeMillis() - base) / 1000.0f;
+            return getCurrentTimeSeconds();
         }
     };
+
+    private static final long baseMeasurementTime = System.currentTimeMillis();
+
+    /**
+     * Get the current time in seconds since a constant but arbitrary point in
+     * the past. The value is equivalent to
+     * <code>System.currentTimeMillis() / 1000.0f - N</code> where N is some
+     * point since when the program was started.
+     * 
+     * @return the current time in seconds.
+     *
+     * @see java.lang.System#currentTimeMillis()
+     * @see #currentTimeSeconds has the same value.
+     */
+    public static float getCurrentTimeSeconds() {
+        return (System.currentTimeMillis() - baseMeasurementTime) / 1000.0f;
+    }
 
     /**
      * Calculate a value with a deadzone. If the value is within the specified

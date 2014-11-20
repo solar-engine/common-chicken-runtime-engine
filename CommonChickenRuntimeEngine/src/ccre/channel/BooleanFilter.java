@@ -43,6 +43,9 @@ public abstract class BooleanFilter {
      * @return the filtered input.
      */
     public BooleanInput wrap(BooleanInput input) {
+        if (input == null) {
+            throw new NullPointerException();
+        }
         BooleanStatus out = new BooleanStatus(filter(input.get()));
         input.send(wrap((BooleanOutput) out));
         return out;
@@ -56,6 +59,9 @@ public abstract class BooleanFilter {
      * @return the filtered input.
      */
     public BooleanInputPoll wrap(final BooleanInputPoll input) {
+        if (input == null) {
+            throw new NullPointerException();
+        }
         return new BooleanInputPoll() {
             public boolean get() {
                 return filter(input.get());
@@ -71,6 +77,9 @@ public abstract class BooleanFilter {
      * @return the output to write values to in order to filter them.
      */
     public BooleanOutput wrap(final BooleanOutput output) {
+        if (output == null) {
+            throw new NullPointerException();
+        }
         return new BooleanOutput() {
             public void set(boolean value) {
                 output.set(filter(value));

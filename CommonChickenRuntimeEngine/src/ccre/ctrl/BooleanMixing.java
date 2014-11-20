@@ -221,6 +221,20 @@ public class BooleanMixing {
     }
 
     /**
+     * Return a BooleanInput that is true when either specified input is true.
+     *
+     * @param a the first input.
+     * @param b the second input.
+     * @return the input representing if either of the given inputs is true.
+     */
+    public static BooleanInput orBooleans(final BooleanInput a, final BooleanInput b) {
+        MultipleSourceBooleanController out = new MultipleSourceBooleanController(MultipleSourceBooleanController.OR);
+        out.addInput(a);
+        out.addInput(b);
+        return out;
+    }
+
+    /**
      * Return a BooleanInputPoll that is true when any specified input is true.
      *
      * @param vals the inputs to check.
@@ -237,6 +251,20 @@ public class BooleanMixing {
                 return false;
             }
         };
+    }
+
+    /**
+     * Return a BooleanInput that is true when any specified input is true.
+     *
+     * @param vals the inputs to check.
+     * @return the input representing if any given input is true.
+     */
+    public static BooleanInput orBooleans(final BooleanInput... vals) {
+        MultipleSourceBooleanController out = new MultipleSourceBooleanController(MultipleSourceBooleanController.OR);
+        for (BooleanInput i : vals) {
+            out.addInput(i);
+        }
+        return out;
     }
 
     /**
@@ -265,6 +293,7 @@ public class BooleanMixing {
         final EventStatus out = new EventStatus();
         input.send(new BooleanOutput() {
             private boolean last; // TODO: Initialize this to the current value of input?
+
             public void set(boolean value) {
                 if (value == last) {
                     return;
@@ -276,6 +305,26 @@ public class BooleanMixing {
             }
         });
         return out;
+    }
+
+    /**
+     * Returns an EventInput that fires when the input becomes true.
+     *
+     * @param input the value to monitor.
+     * @return the EventInput that is fired when the input changes to true.
+     */
+    public static EventInput onPress(BooleanInput input) {
+        return whenBooleanBecomes(input, true);
+    }
+
+    /**
+     * Returns an EventInput that fires when the input becomes false.
+     *
+     * @param input the value to monitor.
+     * @return the EventInput that is fired when the input changes to false.
+     */
+    public static EventInput onRelease(BooleanInput input) {
+        return whenBooleanBecomes(input, false);
     }
 
     /**
@@ -354,6 +403,20 @@ public class BooleanMixing {
     }
 
     /**
+     * Return a BooleanInput that is true when both specified inputs are true.
+     *
+     * @param a the first input.
+     * @param b the second input.
+     * @return the input representing if both given inputs are true.
+     */
+    public static BooleanInput andBooleans(final BooleanInput a, final BooleanInput b) {
+        MultipleSourceBooleanController out = new MultipleSourceBooleanController(MultipleSourceBooleanController.AND);
+        out.addInput(a);
+        out.addInput(b);
+        return out;
+    }
+
+    /**
      * Return a BooleanInputPoll that is true when all specified inputs are
      * true.
      *
@@ -371,6 +434,20 @@ public class BooleanMixing {
                 return true;
             }
         };
+    }
+
+    /**
+     * Return a BooleanInput that is true when all specified inputs are true.
+     *
+     * @param vals the inputs to check.
+     * @return the input representing if all given inputs are true.
+     */
+    public static BooleanInput andBooleans(final BooleanInput... vals) {
+        MultipleSourceBooleanController out = new MultipleSourceBooleanController(MultipleSourceBooleanController.AND);
+        for (BooleanInput i : vals) {
+            out.addInput(i);
+        }
+        return out;
     }
 
     /**

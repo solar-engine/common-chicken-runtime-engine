@@ -27,6 +27,7 @@ import ccre.channel.EventOutput;
 import ccre.channel.EventStatus;
 import ccre.supercanvas.BaseChannelComponent;
 import ccre.supercanvas.Rendering;
+import ccre.supercanvas.SuperCanvasPanel;
 
 /**
  * A component allowing interaction with events.
@@ -41,6 +42,7 @@ public class EventControlComponent extends BaseChannelComponent<EventControlComp
 
     private static final long serialVersionUID = 5604099540525088534L;
     private transient long countStart;
+    private final EventInput alternateSource;
     private final EventStatus stat = new EventStatus();
 
     /**
@@ -81,6 +83,7 @@ public class EventControlComponent extends BaseChannelComponent<EventControlComp
         if (out != null) {
             stat.send(out);
         }
+        alternateSource = inp;
         (inp != null ? inp : stat).send(new EventOutput() {
             public void event() {
                 countStart = System.currentTimeMillis();
@@ -155,5 +158,25 @@ public class EventControlComponent extends BaseChannelComponent<EventControlComp
     @Override
     protected void setDefaultView() {
         activeView = View.ISOMETRIC_BUTTON;
+    }
+
+    private final EventOutput fakeOut = new EventOutput() {
+        public void event() {
+            // Do nothing. This is just so that we can make the remote end send us data by subscribing.
+        }
+    };
+    private boolean isFakeSubscribed = false;
+
+    @Override
+    protected void onChangePanel(SuperCanvasPanel panel) {
+        boolean hasPanel = panel != null;
+        if (alternateSource != null && hasPanel != isFakeSubscribed) {
+            if (hasPanel) {
+                alternateSource.send(fakeOut);
+            } else {
+                alternateSource.unsend(fakeOut);
+            }
+            isFakeSubscribed = hasPanel;
+        }
     }
 }

@@ -31,6 +31,7 @@ import ccre.channel.BooleanStatus;
 import ccre.ctrl.BooleanMixing;
 import ccre.supercanvas.BaseChannelComponent;
 import ccre.supercanvas.Rendering;
+import ccre.supercanvas.SuperCanvasPanel;
 
 /**
  * A component allowing interaction with booleans.
@@ -209,5 +210,26 @@ public class BooleanControlComponent extends BaseChannelComponent<BooleanControl
     @Override
     protected void setDefaultView() {
         activeView = View.RED_GREEN_SWITCH;
+    }
+
+
+    private final BooleanOutput fakeOut = new BooleanOutput() {
+        public void set(boolean b) {
+            // Do nothing. This is just so that we can make the remote end send us data by subscribing.
+        }
+    };
+    private boolean isFakeSubscribed = false;
+
+    @Override
+    protected void onChangePanel(SuperCanvasPanel panel) {
+        boolean hasPanel = panel != null;
+        if (alternateSource != null && hasPanel != isFakeSubscribed) {
+            if (hasPanel) {
+                alternateSource.send(fakeOut);
+            } else {
+                alternateSource.unsend(fakeOut);
+            }
+            isFakeSubscribed = hasPanel;
+        }
     }
 }

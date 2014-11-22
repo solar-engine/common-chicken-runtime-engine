@@ -30,6 +30,7 @@ import ccre.ctrl.FloatMixing;
 import ccre.log.Logger;
 import ccre.supercanvas.BaseChannelComponent;
 import ccre.supercanvas.Rendering;
+import ccre.supercanvas.SuperCanvasPanel;
 
 /**
  * A component allowing interaction with floats.
@@ -222,7 +223,7 @@ public class FloatControlComponent extends BaseChannelComponent<FloatControlComp
             }
         }
     }
-    
+
     private float getDele() {
         // Checks null in case unserialized from old version
         return alternateSource == null ? stat.get() : alternateSource.get();
@@ -298,5 +299,25 @@ public class FloatControlComponent extends BaseChannelComponent<FloatControlComp
     @Override
     protected void setDefaultView() {
         activeView = View.HORIZONTAL_POINTER;
+    }
+
+    private final FloatOutput fakeOut = new FloatOutput() {
+        public void set(float f) {
+            // Do nothing. This is just so that we can make the remote end send us data by subscribing.
+        }
+    };
+    private boolean isFakeSubscribed = false;
+
+    @Override
+    protected void onChangePanel(SuperCanvasPanel panel) {
+        boolean hasPanel = panel != null;
+        if (alternateSource != null && hasPanel != isFakeSubscribed) {
+            if (hasPanel) {
+                alternateSource.send(fakeOut);
+            } else {
+                alternateSource.unsend(fakeOut);
+            }
+            isFakeSubscribed = hasPanel;
+        }
     }
 }

@@ -22,6 +22,7 @@ import java.awt.Color;
 import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.io.Serializable;
 
 import ccre.channel.FloatInput;
 import ccre.channel.FloatOutput;
@@ -301,11 +302,7 @@ public class FloatControlComponent extends BaseChannelComponent<FloatControlComp
         activeView = View.HORIZONTAL_POINTER;
     }
 
-    private final FloatOutput fakeOut = new FloatOutput() {
-        public void set(float f) {
-            // Do nothing. This is just so that we can make the remote end send us data by subscribing.
-        }
-    };
+    private final FloatOutput fakeOut = new FakeFloatOutput();
     private boolean isFakeSubscribed = false;
 
     @Override
@@ -318,6 +315,14 @@ public class FloatControlComponent extends BaseChannelComponent<FloatControlComp
                 alternateSource.unsend(fakeOut);
             }
             isFakeSubscribed = hasPanel;
+        }
+    }
+
+    private final class FakeFloatOutput implements FloatOutput, Serializable {
+        private static final long serialVersionUID = 8588017785288111886L;
+
+        public void set(float f) {
+            // Do nothing. This is just so that we can make the remote end send us data by subscribing.
         }
     }
 }

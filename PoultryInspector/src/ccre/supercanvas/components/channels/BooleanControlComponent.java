@@ -24,6 +24,7 @@ import java.awt.FontMetrics;
 import java.awt.Graphics2D;
 import java.awt.Stroke;
 import java.awt.geom.AffineTransform;
+import java.io.Serializable;
 
 import ccre.channel.BooleanInput;
 import ccre.channel.BooleanOutput;
@@ -102,7 +103,7 @@ public class BooleanControlComponent extends BaseChannelComponent<BooleanControl
             return false;
         }
     }
-    
+
     private boolean getDele() {
         return this.alternateSource != null ? this.alternateSource.get() : this.pressed.get();
     }
@@ -212,12 +213,7 @@ public class BooleanControlComponent extends BaseChannelComponent<BooleanControl
         activeView = View.RED_GREEN_SWITCH;
     }
 
-
-    private final BooleanOutput fakeOut = new BooleanOutput() {
-        public void set(boolean b) {
-            // Do nothing. This is just so that we can make the remote end send us data by subscribing.
-        }
-    };
+    private final BooleanOutput fakeOut = new FakeBooleanOutput();
     private boolean isFakeSubscribed = false;
 
     @Override
@@ -230,6 +226,14 @@ public class BooleanControlComponent extends BaseChannelComponent<BooleanControl
                 alternateSource.unsend(fakeOut);
             }
             isFakeSubscribed = hasPanel;
+        }
+    }
+
+    private final class FakeBooleanOutput implements BooleanOutput, Serializable {
+        private static final long serialVersionUID = -5025143910878910655L;
+
+        public void set(boolean b) {
+            // Do nothing. This is just so that we can make the remote end send us data by subscribing.
         }
     }
 }

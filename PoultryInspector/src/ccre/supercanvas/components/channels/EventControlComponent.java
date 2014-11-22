@@ -21,6 +21,7 @@ package ccre.supercanvas.components.channels;
 import java.awt.Color;
 import java.awt.FontMetrics;
 import java.awt.Graphics2D;
+import java.io.Serializable;
 
 import ccre.channel.EventInput;
 import ccre.channel.EventOutput;
@@ -84,11 +85,7 @@ public class EventControlComponent extends BaseChannelComponent<EventControlComp
             stat.send(out);
         }
         alternateSource = inp;
-        (inp != null ? inp : stat).send(new EventOutput() {
-            public void event() {
-                countStart = System.currentTimeMillis();
-            }
-        });
+        (inp != null ? inp : stat).send(new CountNotifier());
     }
 
     private transient int clickWidth;
@@ -160,11 +157,7 @@ public class EventControlComponent extends BaseChannelComponent<EventControlComp
         activeView = View.ISOMETRIC_BUTTON;
     }
 
-    private final EventOutput fakeOut = new EventOutput() {
-        public void event() {
-            // Do nothing. This is just so that we can make the remote end send us data by subscribing.
-        }
-    };
+    private final EventOutput fakeOut = new FakeEventOutput();
     private boolean isFakeSubscribed = false;
 
     @Override
@@ -177,6 +170,20 @@ public class EventControlComponent extends BaseChannelComponent<EventControlComp
                 alternateSource.unsend(fakeOut);
             }
             isFakeSubscribed = hasPanel;
+        }
+    }
+
+    private final class FakeEventOutput implements EventOutput, Serializable {
+        private static final long serialVersionUID = 1493349644760515921L;
+
+        public void event() {
+            // Do nothing. This is just so that we can make the remote end send us data by subscribing.
+        }
+    }
+
+    private final class CountNotifier implements EventOutput, Serializable {
+        public void event() {
+            countStart = System.currentTimeMillis();
         }
     }
 }

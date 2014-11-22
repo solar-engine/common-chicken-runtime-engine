@@ -96,7 +96,8 @@ public class IgneousThrowablePrinter extends ThrowablePrinter {
             ExecutionPoint target = stack[targetIndex];
             Klass k = target.getKlass();
             String kName = k.getName();
-            Method m = target.getMethod();
+            // TODO: Make this actually get the method. 'getMethod' is apparently compiled out, so we can't access it!
+            Method m = null; //target.getMethod();
             String mName;
             if (m == null) {
                 int mtId;

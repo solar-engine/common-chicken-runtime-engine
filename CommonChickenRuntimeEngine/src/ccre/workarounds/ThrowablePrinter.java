@@ -30,7 +30,7 @@ import java.io.PrintStream;
  * Throwable.printStackTrace(PrintStream) method, so a different provider is
  * needed for Squawk.
  * 
- * Also provides {@link #getMethodCaller()} because that's a similar idea.
+ * Also provides {@link #getMethodCaller(int)} because that's a similar idea.
  *
  * @author skeggsc
  */

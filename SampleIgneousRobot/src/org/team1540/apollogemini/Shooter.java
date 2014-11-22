@@ -64,12 +64,12 @@ public class Shooter {
     public Shooter(EventInput resetModule, EventInput periodic, EventInput constantPeriodic, final BooleanInputPoll isArmNotInTheWay, final FloatInputPoll batteryLevel) {
         this.periodic = periodic;
         this.constantPeriodic = constantPeriodic;
+        this.batteryLevel = batteryLevel;
         constantPeriodic.send(updateTotal); // TODO Move this after the shooter is registered.
         winchDisengaged.setFalseWhen(resetModule);
         rearming.setFalseWhen(resetModule);
         tuner.publishSavingEvent("Shooter");
         this.isArmInTheWay = BooleanMixing.invert(isArmNotInTheWay);
-        this.batteryLevel = batteryLevel;
         Cluck.publish("Constant", constantPeriodic);
         Cluck.publish("ActiveAmps", FloatMixing.createDispatch(activeAmps, constantPeriodic));
         Cluck.publish("ActiveWatts", FloatMixing.createDispatch(activeWatts, constantPeriodic));

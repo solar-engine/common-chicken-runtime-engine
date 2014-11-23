@@ -94,7 +94,7 @@ public class EventControlComponent extends BaseChannelComponent<EventControlComp
     protected boolean containsForInteract(int x, int y) {
         switch (activeView) {
         case ISOMETRIC_BUTTON:
-            return x >= centerX - halfWidth / 3 - 10 && x <= centerX + halfWidth / 3 + 10 && y >= centerY - halfHeight / 3 - 10 && y <= centerY + halfHeight / 3 + 20;
+            return x >= centerX - halfHeight / 2 - 10 && x <= centerX + halfHeight / 2 + 10 && y >= centerY - halfHeight / 3 - 10 && y <= centerY + halfHeight / 3 + 20;
         case SQUARE_BUTTON:
             int rad = Math.min(halfWidth / 2, halfHeight / 2);
             return x >= centerX - rad && x <= centerX + rad && y >= centerY - rad - 10 && y <= centerY + rad;
@@ -112,10 +112,10 @@ public class EventControlComponent extends BaseChannelComponent<EventControlComp
         case ISOMETRIC_BUTTON:
             g.setColor(Color.ORANGE.darker());
             int rel = count < 200 ? 3 : 10;
-            g.fillOval(centerX - halfWidth / 3, 10 + centerY - halfHeight / 3, 2 * halfWidth / 3, 2 * halfHeight / 3);
-            g.fillRect(centerX - halfWidth / 3 + 1, 10 + centerY - rel, 2 * halfWidth / 3 - 1, rel);
+            g.fillOval(centerX - halfHeight / 2, 10 + centerY - halfHeight / 3, halfHeight, 2 * halfHeight / 3);
+            g.fillRect(centerX - halfHeight / 2 + 1, 10 + centerY - rel, halfHeight - 1, rel);
             g.setColor(count < 200 ? Color.GREEN : Color.RED);
-            g.fillOval(centerX - halfWidth / 3, 10 + centerY - halfHeight / 3 - rel, 2 * halfWidth / 3, 2 * halfHeight / 3);
+            g.fillOval(centerX - halfHeight / 2, 10 + centerY - halfHeight / 3 - rel, halfHeight, 2 * halfHeight / 3);
             break;
         case SQUARE_BUTTON:
             int rad = Math.min(halfWidth / 2, halfHeight / 2);

@@ -76,6 +76,10 @@ public class CountingNetworkProvider extends DefaultNetworkProvider {
             this.base = base;
         }
 
+        public boolean setSocketTimeout(int millis) throws IOException {
+            return base.setSocketTimeout(millis);
+        }
+
         @Override
         public InputStream openInputStream() throws IOException {
             return new CountingInputStream(base.openInputStream());

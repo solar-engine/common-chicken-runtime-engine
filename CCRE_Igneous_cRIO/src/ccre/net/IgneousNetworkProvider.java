@@ -76,7 +76,7 @@ public class IgneousNetworkProvider implements NetworkProvider {
     // Faked - there's no obvious way to get this info, so it's assumed based on the team number.
     public CCollection<String> listIPv4Addresses() {
         int team = DriverStation.getInstance().getTeamNumber();
-        return CArrayUtils.asList(new String[]{"127.0.0.1", "10." + (team / 100) + "." + (team % 100) + "." + 2});
+        return CArrayUtils.asList(new String[] { "127.0.0.1", "10." + (team / 100) + "." + (team % 100) + "." + 2 });
     }
 
     public String getPlatformType() {
@@ -89,6 +89,11 @@ public class IgneousNetworkProvider implements NetworkProvider {
 
         IgneousClientSocket(StreamConnection conn) {
             this.conn = conn;
+        }
+
+        public boolean setSocketTimeout(int millis) throws IOException {
+            // TODO: Find a way to timeout sockets.
+            return false;
         }
 
         public InputStream openInputStream() throws IOException {
@@ -127,5 +132,10 @@ public class IgneousNetworkProvider implements NetworkProvider {
         public void close() throws IOException {
             conn.close();
         }
+    }
+
+    public boolean isTimeoutException(IOException ex) {
+        // TODO: Add this when we add timeouts to Igneous.
+        return false;
     }
 }

@@ -33,6 +33,7 @@ import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.Socket;
 import java.net.SocketException;
+import java.net.SocketTimeoutException;
 import java.util.Arrays;
 import java.util.Enumeration;
 
@@ -106,6 +107,11 @@ class DefaultNetworkProvider implements NetworkProvider {
             sock = s;
         }
 
+        public boolean setSocketTimeout(int millis) throws IOException {
+            sock.setSoTimeout(millis);
+            return true;
+        }
+
         public InputStream openInputStream() throws IOException {
             return sock.getInputStream();
         }
@@ -145,5 +151,9 @@ class DefaultNetworkProvider implements NetworkProvider {
         public void close() throws IOException {
             sock.close();
         }
+    }
+
+    public boolean isTimeoutException(IOException ex) {
+        return ex instanceof SocketTimeoutException;
     }
 }

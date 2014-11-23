@@ -32,6 +32,16 @@ import java.io.OutputStream;
 public interface ClientSocket {
 
     /**
+     * Set the blocking operation timeout on this socket in milliseconds to
+     * wait, or zero to wait forever.
+     *
+     * @param millis how long to wait before throwing an IOException.
+     * @return if the timeout has been set.
+     * @throws IOException if an IO error occurs.
+     */
+    public boolean setSocketTimeout(int millis) throws IOException;
+
+    /**
      * Open an InputStream that reads from this socket.
      *
      * @return the InputStream that reads from the socket.

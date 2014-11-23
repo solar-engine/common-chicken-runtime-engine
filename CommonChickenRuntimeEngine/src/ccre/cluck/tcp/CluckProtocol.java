@@ -22,7 +22,10 @@ import ccre.cluck.CluckLink;
 import ccre.cluck.CluckNode;
 import ccre.concurrency.ReporterThread;
 import ccre.log.Logger;
+import ccre.net.ClientSocket;
+import ccre.net.Network;
 import ccre.util.CLinkedList;
+
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -35,8 +38,15 @@ import java.util.Random;
  */
 public class CluckProtocol {
 
+    private static final int TIMEOUT_PERIOD = 600; // milliseconds
+    private static final int KEEPALIVE_INTERVAL = 200; // milliseconds, should always be noticeably less than TIMEOUT_PERIOD
+
+    public static void setTimeoutOnSocket(ClientSocket sock) throws IOException {
+        sock.setSocketTimeout(TIMEOUT_PERIOD);
+    }
+
     /**
-     * Start a Cluck connection. Must be ran from both ends of the connection.
+     * Start a Cluck connection. Must be run from both ends of the connection.
      *
      * @param din The connection's input.
      * @param dout The connection's output.
@@ -91,26 +101,41 @@ public class CluckProtocol {
      */
     protected static void handleRecv(DataInputStream din, String linkName, CluckNode node, CluckLink denyLink) throws IOException {
         try {
+            boolean expectKeepAlives = false;
+            long lastReceive = System.currentTimeMillis();
             while (true) {
-                String dest = readNullableString(din);
-                String source = readNullableString(din);
-                byte[] data = new byte[din.readInt()];
-                long checksumBase = din.readLong();
-                din.readFully(data);
-                if (din.readLong() != checksum(data, checksumBase)) {
-                    throw new IOException("Checksums did not match!");
-                }
-                source = prependLink(linkName, source);
-                long start = System.currentTimeMillis();
-                node.transmit(dest, source, data, denyLink);
-                long endAt = System.currentTimeMillis();
-                if (endAt - start > 1000) {
-                    Logger.warning("[LOCAL] Took a long time to process: " + dest + " <- " + source + " of " + (endAt - start) + " ms");
+                try {
+                    String dest = readNullableString(din);
+                    String source = readNullableString(din);
+                    byte[] data = new byte[din.readInt()];
+                    long checksumBase = din.readLong();
+                    din.readFully(data);
+                    if (din.readLong() != checksum(data, checksumBase)) {
+                        throw new IOException("Checksums did not match!");
+                    }
+                    if (!expectKeepAlives && "KEEPALIVE".equals(dest) && source == null && data.length >= 2 && data[0] == CluckNode.RMT_NEGATIVE_ACK && data[1] == 0x6D) {
+                        expectKeepAlives = true;
+                        Logger.info("Detected KEEPALIVE message. Expecting future keepalives on " + linkName + ".");
+                    }
+                    source = prependLink(linkName, source);
+                    long start = System.currentTimeMillis();
+                    node.transmit(dest, source, data, denyLink);
+                    long endAt = System.currentTimeMillis();
+                    if (endAt - start > 1000) {
+                        Logger.warning("[LOCAL] Took a long time to process: " + dest + " <- " + source + " of " + (endAt - start) + " ms");
+                    }
+                    lastReceive = System.currentTimeMillis();
+                } catch (IOException ex) {
+                    if ((expectKeepAlives && System.currentTimeMillis() - lastReceive > TIMEOUT_PERIOD) || !Network.isTimeoutException(ex)) {
+                        throw ex;
+                    }
                 }
             }
         } catch (IOException ex) {
             if (ex.getClass().getName().equals("java.net.SocketException") && ex.getMessage().equals("Connection reset")) {
                 Logger.fine("Link receiving disconnected: " + linkName);
+            } else if (Network.isTimeoutException(ex)) {
+                Logger.fine("Link timed out: " + linkName);
             } else {
                 throw ex;
             }
@@ -230,12 +255,18 @@ public class CluckProtocol {
         protected void threadBody() throws InterruptedException {
             try {
                 while (true) {
+                    long nextKeepAlive = System.currentTimeMillis() + KEEPALIVE_INTERVAL;
                     SendableEntry ent;
                     synchronized (queue) {
-                        while (queue.isEmpty()) {
-                            queue.wait();
+                        while (queue.isEmpty() && System.currentTimeMillis() < nextKeepAlive) {
+                            queue.wait(200);
                         }
-                        ent = queue.removeFirst();
+                        if (queue.isEmpty()) {
+                            // Send a "keep-alive" message. RMT_NEGATIVE_ACK will never be complained about, so it works.
+                            ent = new SendableEntry(null, "KEEPALIVE", new byte[] { CluckNode.RMT_NEGATIVE_ACK, 0x6D });
+                        } else {
+                            ent = queue.removeFirst();
+                        }
                     }
                     String source = ent.src, dest = ent.dst;
                     byte[] data = ent.data;

@@ -213,6 +213,7 @@ public class CluckTCPClient extends ReporterThread {
                 try {
                     CluckProtocol.handleHeader(din, dout, remoteNameHint);
                     Logger.fine("Connected to " + remote + " at " + System.currentTimeMillis());
+                    CluckProtocol.setTimeoutOnSocket(sock);
                     CluckLink deny = CluckProtocol.handleSend(dout, linkName, node);
                     node.notifyNetworkModified(); // Only send here, not on server.
                     isReconnecting = false;

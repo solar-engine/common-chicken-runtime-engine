@@ -143,4 +143,15 @@ public class Network {
     private Network() {
     }
 
+    /**
+     * Checks if the specified exception was thrown due to a timeout while
+     * reading from a socket.
+     *
+     * @param ex the IO exception to check
+     * @return if the exception was thrown due to a timeout.
+     */
+    public static boolean isTimeoutException(IOException ex) {
+        return getProvider().isTimeoutException(ex);
+    }
+
 }

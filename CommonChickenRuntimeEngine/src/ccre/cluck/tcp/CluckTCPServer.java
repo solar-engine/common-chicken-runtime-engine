@@ -24,6 +24,7 @@ import ccre.log.Logger;
 import ccre.net.ClientSocket;
 import ccre.net.ConnectionReceiverThread;
 import ccre.util.UniqueIds;
+
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -72,6 +73,7 @@ public class CluckTCPServer extends ConnectionReceiverThread {
                         linkName = UniqueIds.global.nextHexId("tcpserv");
                     }
                     Logger.fine("Client connected at " + System.currentTimeMillis() + " named " + linkName);
+                    CluckProtocol.setTimeoutOnSocket(conn);
                     CluckLink deny = CluckProtocol.handleSend(dout, linkName, node);
                     CluckProtocol.handleRecv(din, linkName, node, deny);
                     // node.notifyNetworkModified(); - sent by client, not needed here.

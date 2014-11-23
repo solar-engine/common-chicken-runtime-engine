@@ -61,4 +61,13 @@ public interface NetworkProvider {
      */
     public String getPlatformType();
 
+    /**
+     * Checks if the specified exception was thrown due to a timeout while
+     * reading from a socket.
+     *
+     * @param ex the IO exception to check
+     * @return if the exception was thrown due to a timeout.
+     */
+    public boolean isTimeoutException(IOException ex);
+
 }

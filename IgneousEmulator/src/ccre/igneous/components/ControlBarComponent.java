@@ -56,7 +56,7 @@ public class ControlBarComponent extends DeviceComponent implements FloatInput {
     public void onMouseMove(int x, int y) {
         if (dragging) {
             Rectangle rect = hitzone.getBounds();
-            value = 2 * ((x - rect.x) / (float) rect.width - 0.5f);
+            value = Math.min(1, Math.max(-1, 2 * ((x - rect.x) / (float) rect.width - 0.5f)));
             repaint();
             for (FloatOutput o : listeners) {
                 o.set(value);

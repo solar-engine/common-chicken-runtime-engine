@@ -331,7 +331,7 @@ public final class SuperCanvasPanel extends JPanel {
                     }
                 }
             } catch (Throwable thr) {
-                Logger.severe("Exception while handling key press", thr);
+                Logger.severe("Exception while handling mouse press", thr);
             }
         }
 
@@ -352,7 +352,7 @@ public final class SuperCanvasPanel extends JPanel {
                     activeEntity = null;
                 }
             } catch (Throwable thr) {
-                Logger.severe("Exception while handling key press", thr);
+                Logger.severe("Exception while handling mouse release", thr);
             }
         }
 
@@ -371,7 +371,7 @@ public final class SuperCanvasPanel extends JPanel {
                 }
                 repaint();
             } catch (Throwable thr) {
-                Logger.severe("Exception while handling key press", thr);
+                Logger.severe("Exception while handling mouse wheel", thr);
             }
         }
 
@@ -389,60 +389,48 @@ public final class SuperCanvasPanel extends JPanel {
                 }
                 repaint();
             } catch (Throwable thr) {
-                Logger.severe("Exception while handling key press", thr);
+                Logger.severe("Exception while handling mouse drag", thr);
             }
         }
 
         private void dragToSelect(MouseEvent e) {
-            try {
-                for (ListIterator<SuperCanvasComponent> it = components.listIterator(components.size()); it.hasPrevious();) {
-                    SuperCanvasComponent comp = it.previous();
-                    if (editmode || !comp.hideInOperateMode) {
-                        if (comp.wantsDragSelect() && comp.contains(e.getX(), e.getY())) {
-                            if (comp.onSelect(e.getX(), e.getY())) {
-                                break;
-                            }
+            for (ListIterator<SuperCanvasComponent> it = components.listIterator(components.size()); it.hasPrevious();) {
+                SuperCanvasComponent comp = it.previous();
+                if (editmode || !comp.hideInOperateMode) {
+                    if (comp.wantsDragSelect() && comp.contains(e.getX(), e.getY())) {
+                        if (comp.onSelect(e.getX(), e.getY())) {
+                            break;
                         }
                     }
                 }
-            } catch (Throwable thr) {
-                Logger.severe("Exception while handling key press", thr);
             }
         }
 
         private void dragToMove(MouseEvent e) {
-            try {
-                int gx = e.getX(), gy = e.getY();
-                if (gx < 5) {
-                    gx = 5;
-                } else if (gx > getWidth() - 5) {
-                    gx = getWidth() - 5;
-                }
-                if (gy < 5) {
-                    gy = 5;
-                } else if (gy > getHeight() - 5) {
-                    gy = getHeight() - 5;
-                }
-                activeEntity.moveForDrag(relActiveX + gx, relActiveY + gy);
-            } catch (Throwable thr) {
-                Logger.severe("Exception while handling key press", thr);
+            int gx = e.getX(), gy = e.getY();
+            if (gx < 5) {
+                gx = 5;
+            } else if (gx > getWidth() - 5) {
+                gx = getWidth() - 5;
             }
+            if (gy < 5) {
+                gy = 5;
+            } else if (gy > getHeight() - 5) {
+                gy = getHeight() - 5;
+            }
+            activeEntity.moveForDrag(relActiveX + gx, relActiveY + gy);
         }
 
         private void dragToInteract() {
-            try {
-                for (ListIterator<SuperCanvasComponent> it = components.listIterator(components.size()); it.hasPrevious();) {
-                    SuperCanvasComponent comp = it.previous();
-                    if (editmode || !comp.hideInOperateMode) {
-                        if (comp.contains(mouseX, mouseY)) {
-                            if (comp.canDragInteract() && comp.onInteract(mouseX, mouseY)) {
-                                break;
-                            }
+            for (ListIterator<SuperCanvasComponent> it = components.listIterator(components.size()); it.hasPrevious();) {
+                SuperCanvasComponent comp = it.previous();
+                if (editmode || !comp.hideInOperateMode) {
+                    if (comp.contains(mouseX, mouseY)) {
+                        if (comp.canDragInteract() && comp.onInteract(mouseX, mouseY)) {
+                            break;
                         }
                     }
                 }
-            } catch (Throwable thr) {
-                Logger.severe("Exception while handling key press", thr);
             }
         }
 
@@ -471,7 +459,7 @@ public final class SuperCanvasPanel extends JPanel {
                     repaint();
                 }
             } catch (Throwable thr) {
-                Logger.severe("Exception while handling key press", thr);
+                Logger.severe("Exception while handling mouse move", thr);
             }
         }
     }

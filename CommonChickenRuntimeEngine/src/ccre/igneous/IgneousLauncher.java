@@ -226,10 +226,10 @@ public interface IgneousLauncher {
      * volts/degree/second sensitivity of the gyro and is used in calculations
      * to allow the code to work with multiple gyros. 0.007 is a good default
      * value.
-     * @param evt When to reset the Gyro.
+     * @param resetWhen When to reset the Gyro.
      * @return The reference to the Gyro's current value.
      */
-    public FloatInputPoll makeGyro(int port, double sensitivity, EventInput evt);
+    public FloatInputPoll makeGyro(int port, double sensitivity, EventInput resetWhen);
 
     /**
      * Create a reference to a Accelerometer Axis on the specified port, with

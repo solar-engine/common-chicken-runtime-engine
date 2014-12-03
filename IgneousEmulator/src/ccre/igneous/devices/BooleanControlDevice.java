@@ -1,6 +1,8 @@
 package ccre.igneous.devices;
 
 import ccre.channel.BooleanInputPoll;
+import ccre.channel.EventInput;
+import ccre.channel.EventStatus;
 import ccre.igneous.Device;
 import ccre.igneous.components.BooleanTextComponent;
 import ccre.igneous.components.SpacingComponent;
@@ -8,7 +10,16 @@ import ccre.igneous.components.TextComponent;
 
 public class BooleanControlDevice extends Device implements BooleanInputPoll {
 
-    private final BooleanTextComponent actuated = new BooleanTextComponent("DEACTIVE", "ACTIVE").setEditable(true);
+    private final EventStatus pressEvent = new EventStatus();
+    private final BooleanTextComponent actuated = new BooleanTextComponent("INACTIVE", "ACTIVE") {
+        public void onPress(int x, int y) {
+            boolean wasDown = get();
+            super.onPress(x, y);
+            if (!wasDown && get()) {
+                pressEvent.produce();
+            }
+        }
+    }.setEditable(true);
 
     public BooleanControlDevice(String label) {
         add(new SpacingComponent(20));
@@ -18,5 +29,9 @@ public class BooleanControlDevice extends Device implements BooleanInputPoll {
 
     public boolean get() {
         return actuated.get();
+    }
+
+    public EventInput whenPressed() {
+        return pressEvent;
     }
 }

@@ -23,11 +23,10 @@ import ccre.log.Logger;
 
 public class DeviceBasedLauncher implements IgneousLauncher {
 
-    private DeviceListPanel panel;
+    public final DeviceListPanel panel = new DeviceListPanel();
     private final boolean isRoboRIO;
 
-    public DeviceBasedLauncher(DeviceListPanel panel) {
-        this.panel = panel;
+    public DeviceBasedLauncher() {
         this.isRoboRIO = false; // TODO: Full support for roboRIO.
     }
 
@@ -41,7 +40,7 @@ public class DeviceBasedLauncher implements IgneousLauncher {
             throw new IllegalArgumentException("Joystick index out-of-range: " + id);
         }
         if (joysticks[id - 1] == null) {
-            joysticks[id - 1] = panel.add(new JoystickDevice(id));
+            joysticks[id - 1] = new JoystickDevice(id, panel);
         }
         return joysticks[id - 1];
     }
@@ -51,12 +50,12 @@ public class DeviceBasedLauncher implements IgneousLauncher {
     public IJoystick getKinectJoystick(boolean isRightArm) {
         if (isRightArm) {
             if (rightKinect == null) {
-                rightKinect = new JoystickDevice("Kinect Right Arm");
+                rightKinect = new JoystickDevice("Kinect Right Arm", panel).addToMaster();
             }
             return rightKinect;
         } else {
             if (leftKinect == null) {
-                leftKinect = new JoystickDevice("Kinect Left Arm");
+                leftKinect = new JoystickDevice("Kinect Left Arm", panel).addToMaster();
             }
             return leftKinect;
         }

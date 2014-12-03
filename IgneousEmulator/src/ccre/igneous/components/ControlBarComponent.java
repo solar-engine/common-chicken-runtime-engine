@@ -14,6 +14,7 @@ public class ControlBarComponent extends DeviceComponent implements FloatInput {
 
     private float value = 0.0f;
     private boolean dragging = false;
+    private int maxWidth = 0; // zero means no maximum
     private final ConcurrentDispatchArray<FloatOutput> listeners = new ConcurrentDispatchArray<FloatOutput>();
 
     @Override
@@ -23,6 +24,10 @@ public class ControlBarComponent extends DeviceComponent implements FloatInput {
         int endX = width - 5;
         int endY = height - 5;
         int barWidth = endX - startX;
+        if (maxWidth != 0 && barWidth > maxWidth) {
+            barWidth = maxWidth;
+            endX = startX + maxWidth;
+        }
         int barHeight = endY - startY;
         int originX = startX + barWidth / 2;
         g.setColor(Color.WHITE);
@@ -35,7 +40,12 @@ public class ControlBarComponent extends DeviceComponent implements FloatInput {
             g.fillRect(originX, startY, actualLimitX, barHeight);
         }
         hitzone = new Rectangle(startX, startY, endX - startX, endY - startY);
-        return width;
+        return endX + 5;
+    }
+    
+    public ControlBarComponent setMaxWidth(int width) {
+        this.maxWidth = width;
+        return this;
     }
 
     public void onPress(int x, int y) {

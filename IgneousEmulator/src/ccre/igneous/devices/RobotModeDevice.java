@@ -1,6 +1,7 @@
 package ccre.igneous.devices;
 
 import ccre.channel.BooleanInputPoll;
+import ccre.ctrl.BooleanMixing;
 import ccre.igneous.Device;
 import ccre.igneous.components.BooleanTextComponent;
 import ccre.igneous.components.SpacingComponent;
@@ -60,7 +61,7 @@ public class RobotModeDevice extends Device {
     }
 
     public BooleanInputPoll getIsMode(final RobotMode mode) {
-        return mode == RobotMode.DISABLED ? enabled : new BooleanInputPoll() {
+        return mode == RobotMode.DISABLED ? BooleanMixing.invert((BooleanInputPoll) enabled) : new BooleanInputPoll() {
             public boolean get() {
                 return selectedMode == mode;
             }

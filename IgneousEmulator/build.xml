@@ -25,7 +25,7 @@
     <target name="build-jar">
     	<jar destfile="Emulator.jar" update="false">
     		<manifest>
-    			<attribute name="Main-Class" value="ccre.igneous.EmulatorLauncher"/>
+    			<attribute name="Main-Class" value="ccre.igneous.DeviceListMain"/>
     		</manifest>
 			<fileset dir="bin" includes="**/*.class"/>
 			<fileset dir="../CommonChickenRuntimeEngine/bin" includes="**/*.class"/>

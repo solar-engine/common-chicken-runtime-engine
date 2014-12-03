@@ -20,25 +20,16 @@ package ccre.igneous;
 
 import java.io.File;
 import java.io.IOException;
-import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.HashMap;
-import java.util.Timer;
-import java.util.TimerTask;
 import java.util.jar.JarFile;
 
 import javax.swing.JFrame;
 
-import ccre.channel.EventStatus;
 import ccre.cluck.Cluck;
 import ccre.cluck.tcp.CluckTCPServer;
-import ccre.igneous.IgneousApplication;
-import ccre.igneous.IgneousLauncherHolder;
-import ccre.igneous.devices.FloatViewDevice;
-import ccre.igneous.devices.JoystickDevice;
-import ccre.igneous.devices.RobotModeDevice;
 import ccre.log.BootLogger;
 import ccre.log.FileLogger;
 import ccre.log.NetworkAutologger;
@@ -85,9 +76,9 @@ public class DeviceListMain {
         Class<? extends IgneousApplication> asSubclass = classLoader.loadClass(mainClass).asSubclass(IgneousApplication.class);
         final JFrame main = new JFrame("CCRE DeviceList-Based Emulator");
         main.setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
-        DeviceListPanel canvas = new DeviceListPanel();
-        main.setContentPane(canvas);
-        main.setSize(640, 480);
+        DeviceBasedLauncher launcher = new DeviceBasedLauncher();
+        main.setContentPane(launcher.panel);
+        main.setSize(1024, 768);
         java.awt.EventQueue.invokeLater(new Runnable() {
             @Override
             public void run() {
@@ -97,9 +88,10 @@ public class DeviceListMain {
         NetworkAutologger.register();
         BootLogger.register();
         FileLogger.register();
-        IgneousLauncherHolder.setLauncher(new DeviceBasedLauncher(canvas));
+        IgneousLauncherHolder.setLauncher(launcher);
         Cluck.setupServer();
         new CluckTCPServer(Cluck.getNode(), 1540).start();
         asSubclass.getConstructor().newInstance().setupRobot();
+        launcher.panel.start();
     }
 }

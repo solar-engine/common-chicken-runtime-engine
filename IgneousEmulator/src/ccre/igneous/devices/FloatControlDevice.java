@@ -9,7 +9,7 @@ import ccre.igneous.components.TextComponent;
 
 public class FloatControlDevice extends Device implements FloatInput {
 
-    private final ControlBarComponent value = new ControlBarComponent();
+    private final ControlBarComponent value = new ControlBarComponent().setMaxWidth(200);
 
     public FloatControlDevice(String label) {
         add(new SpacingComponent(20));

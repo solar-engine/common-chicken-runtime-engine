@@ -3,10 +3,10 @@ package ccre.igneous;
 import java.awt.Color;
 import java.awt.FontMetrics;
 import java.awt.Graphics2D;
-import java.util.ArrayList;
+import ccre.concurrency.ConcurrentDispatchArray;
 
 public class DeviceGroup extends Device {
-    private final ArrayList<Device> devices = new ArrayList<Device>();
+    private final ConcurrentDispatchArray<Device> devices = new ConcurrentDispatchArray<Device>();
 
     public synchronized void add(Device device) {
         devices.add(device);

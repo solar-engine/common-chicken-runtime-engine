@@ -48,8 +48,8 @@ public class DriveCode {
 
         FloatInputPoll speedScale = Mixing.select(actuallyDisable, Mixing.select(ApolloGemini.isKidMode, 1.0f, 0.5f), FloatMixing.always(0.0f));
         
-        DriverImpls.createSynchTankDriver(Igneous.duringTele,
-                UserInterface.getLeftAxis(), UserInterface.getRightAxis(),
+        DriverImpls.createExtendedSynchTankDriver(Igneous.duringTele,
+                UserInterface.getLeftAxis(), UserInterface.getRightAxis(), UserInterface.getForwardAxis(),
                 FloatMixing.multiplication.of(leftDrive, speedScale), FloatMixing.multiplication.of(rightDrive, speedScale));
 
         final BooleanStatus isHighGear = new BooleanStatus(shiftSolenoidHigh);

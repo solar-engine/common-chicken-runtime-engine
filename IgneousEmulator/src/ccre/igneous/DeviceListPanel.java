@@ -132,7 +132,6 @@ public final class DeviceListPanel extends JPanel {
 
     @Override
     public void paint(Graphics go) {
-        long start = System.nanoTime();
         try {
             boolean splitColumns = shouldColumnsSplit();
             Graphics2D g = (Graphics2D) go;
@@ -219,8 +218,6 @@ public final class DeviceListPanel extends JPanel {
         } catch (Throwable thr) {
             Logger.severe("Exception while handling paint event", thr);
         }
-        long end = System.nanoTime();
-        System.out.println("Millis: " + (end - start) / 1000000f);
     }
 
     private boolean shouldColumnsSplit() {

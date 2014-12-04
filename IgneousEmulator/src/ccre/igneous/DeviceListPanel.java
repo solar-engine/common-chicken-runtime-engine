@@ -33,6 +33,7 @@ import java.util.LinkedList;
 import javax.swing.JPanel;
 
 import ccre.channel.EventOutput;
+import ccre.concurrency.ConcurrentDispatchArray;
 import ccre.ctrl.ExpirationTimer;
 import ccre.log.Logger;
 
@@ -55,7 +56,7 @@ public final class DeviceListPanel extends JPanel {
     /**
      * The currently visible list of devices.
      */
-    private final LinkedList<Device> devices = new LinkedList<Device>();
+    private final ConcurrentDispatchArray<Device> devices = new ConcurrentDispatchArray<Device>();
     /**
      * The most recent position of the mouse.
      */
@@ -69,7 +70,8 @@ public final class DeviceListPanel extends JPanel {
      */
     private transient ExpirationTimer painter;
     /**
-     * The relative position of the currently-dragged scrollbar, or null if not dragging.
+     * The relative position of the currently-dragged scrollbar, or null if not
+     * dragging.
      */
     private transient Float dragPosition;
 
@@ -119,6 +121,7 @@ public final class DeviceListPanel extends JPanel {
     @Override
     public void paint(Graphics go) {
         try {
+            boolean splitColumns = getWidth() > 1400;
             Graphics2D g = (Graphics2D) go;
             g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_LCD_HRGB);
             int w = getWidth() - SCROLLBAR_WIDTH;
@@ -130,21 +133,48 @@ public final class DeviceListPanel extends JPanel {
             for (Device comp : devices) {
                 totalHeight += comp.getHeight();
             }
-            this.scrollMax = totalHeight;
-            scrollPos = Math.max(Math.min(scrollPos, totalHeight - h), 0);
+            int devicesInFirstColumn = 0;
+            if (splitColumns) {
+                int runningHeight = 0;
+                for (Device comp : devices) {
+                    runningHeight += comp.getHeight();
+                    devicesInFirstColumn++;
+                    if (runningHeight > totalHeight / 2) {
+                        break;
+                    }
+                }
+                int maxColumnDevices = devicesInFirstColumn;
+                int columnA = 0, columnB = 0;
+                for (Device comp : devices) {
+                    if (maxColumnDevices-- <= 0) {
+                        columnB += comp.getHeight();
+                    } else {
+                        columnA += comp.getHeight();
+                    }
+                }
+                this.scrollMax = Math.max(columnA, columnB);
+            } else {
+                this.scrollMax = totalHeight;
+            }
+            scrollPos = Math.max(Math.min(scrollPos, scrollMax - h), 0);
             renderScrollbar(g, w, SCROLLBAR_WIDTH);
-            int yPosition = -scrollPos;
+            int yPosition = -scrollPos, xPosition = 0;
+            int maxColumnDevices = devicesInFirstColumn;
             for (Device comp : devices) {
+                if (splitColumns && maxColumnDevices-- == 0) {
+                    yPosition = -scrollPos; // new column, reset y position.
+                    xPosition = w / 2;
+                }
                 int deviceHeight = comp.getHeight();
                 int bottom = yPosition + deviceHeight;
                 if (yPosition >= -deviceHeight && bottom <= h + deviceHeight) {
                     g.setFont(Rendering.labels);
-                    g.translate(0, yPosition);
+                    g.translate(xPosition, yPosition);
                     Shape clip = g.getClip();
                     g.setClip(new Rectangle(0, 0, w, deviceHeight));
-                    comp.render(g, w, deviceHeight, fontMetrics, mouseX, mouseY - yPosition);
+                    comp.render(g, splitColumns ? w / 2 : w, deviceHeight, fontMetrics, mouseX - xPosition, mouseY - yPosition);
                     g.setClip(clip);
-                    g.translate(0, -yPosition);
+                    g.translate(-xPosition, -yPosition);
                 }
                 yPosition = bottom;
             }
@@ -159,15 +189,15 @@ public final class DeviceListPanel extends JPanel {
             Logger.severe("Exception while handling paint event", thr);
         }
     }
-    
+
     private int scrollbarRange() {
         return getHeight() - SCROLLBAR_PADDING * 2;
     }
-    
+
     private float positionToScrollbarPosition(float y) {
         return SCROLLBAR_PADDING + scrollbarRange() * y / scrollMax;
     }
-    
+
     private float scrollbarPositionToPosition(float y) {
         return (y - SCROLLBAR_PADDING) * scrollMax / scrollbarRange();
     }
@@ -185,7 +215,7 @@ public final class DeviceListPanel extends JPanel {
         g.setColor(Color.GRAY);
         g.drawRect(x + SCROLLBAR_PADDING, position, width - SCROLLBAR_PADDING * 2 - 1, scrollbarHeight - 1);
     }
-    
+
     private void renderBackground(Graphics2D g, int w, int h, FontMetrics fontMetrics) {
         g.setColor(Color.WHITE);
         g.fillRect(0, 0, w, h);
@@ -218,7 +248,7 @@ public final class DeviceListPanel extends JPanel {
                 Logger.severe("Exception while handling mouse press", thr);
             }
         }
-        
+
         private void updateDragLocation(int newY) {
             scrollPos = Math.round(scrollbarPositionToPosition(newY) - dragPosition);
             repaint();
@@ -278,7 +308,7 @@ public final class DeviceListPanel extends JPanel {
                 int oldYPosition = scrollPos + oldMouseY;
                 for (Device dev : devices) {
                     int deviceHeight = dev.getHeight();
-                    
+
                     boolean isIn = yPosition >= 0 && yPosition < deviceHeight && isInSelectionArea;
                     boolean wasIn = oldYPosition >= 0 && oldYPosition < deviceHeight && wasInSelectionArea;
                     //System.out.println("DEVICE " + dev + ": " + isIn + " / " + wasIn);
@@ -291,7 +321,7 @@ public final class DeviceListPanel extends JPanel {
                     } else if (wasIn) {
                         dev.onMouseExit(e.getX(), yPosition);
                     }
-                    
+
                     yPosition -= deviceHeight;
                     oldYPosition -= deviceHeight;
                 }

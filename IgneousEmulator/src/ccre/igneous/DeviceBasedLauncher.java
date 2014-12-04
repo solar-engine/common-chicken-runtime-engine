@@ -25,24 +25,40 @@ public class DeviceBasedLauncher implements IgneousLauncher {
 
     public final DeviceListPanel panel = new DeviceListPanel();
     private final boolean isRoboRIO;
+    private final int baseIndex;
 
-    public DeviceBasedLauncher() {
-        this.isRoboRIO = false; // TODO: Full support for roboRIO.
+    public DeviceBasedLauncher(boolean isRoboRIO) {
+        this.isRoboRIO = isRoboRIO;
+        baseIndex = isRoboRIO ? 0 : 1;
+        joysticks = new IJoystick[isRoboRIO ? 6 : 4];
+        motors = new FloatOutput[isRoboRIO ? 20 : 10];
+        solenoids = new BooleanOutput[8];
+        digitalOutputs = new BooleanOutput[isRoboRIO ? 26 : 14];
+        digitalInputs = new BooleanInputPoll[digitalOutputs.length];
+        analogInputs = new FloatInputPoll[isRoboRIO ? 8 : 14];
+        servos = new FloatOutput[motors.length];
+        relaysFwd = new BooleanOutput[isRoboRIO ? 4 : 8];
+        relaysRev = new BooleanOutput[relaysFwd.length];
+    }
+    
+    private int checkRange(String name, int id, Object[] target) {
+        if (id < baseIndex || id >= target.length + baseIndex) {
+            throw new IllegalArgumentException(name + " index out-of-range: " + id);
+        }
+        return id - baseIndex;
     }
 
     private final RobotModeDevice mode = panel.add(new RobotModeDevice());
     private EventInput masterPeriodic = new Ticker(20);
 
-    private IJoystick[] joysticks = new IJoystick[4];
+    private IJoystick[] joysticks;
 
     public IJoystick getJoystick(int id) {
-        if (id < 1 || id > joysticks.length) {
-            throw new IllegalArgumentException("Joystick index out-of-range: " + id);
+        int index = checkRange("Joystick", id, joysticks);
+        if (joysticks[index] == null) {
+            joysticks[index] = new JoystickDevice(id, panel);
         }
-        if (joysticks[id - 1] == null) {
-            joysticks[id - 1] = new JoystickDevice(id, panel);
-        }
-        return joysticks[id - 1];
+        return joysticks[index];
     }
 
     private IJoystick rightKinect, leftKinect;
@@ -61,13 +77,11 @@ public class DeviceBasedLauncher implements IgneousLauncher {
         }
     }
 
-    private FloatOutput[] motors = new FloatOutput[10];
+    private FloatOutput[] motors;
 
     public FloatOutput makeMotor(int id, int type) {
-        if (id < 1 || id > motors.length) {
-            throw new IllegalArgumentException("Motor index out-of-range: " + id);
-        }
-        if (motors[id - 1] == null) {
+        int index = checkRange("Motor", id, motors);
+        if (motors[index] == null) {
             String typename;
             switch (type) {
             case IgneousLauncher.JAGUAR:
@@ -83,57 +97,49 @@ public class DeviceBasedLauncher implements IgneousLauncher {
                 typename = "Unknown (%" + type + ")";
                 break;
             }
-            motors[id - 1] = panel.add(new FloatViewDevice(typename + " " + id));
+            motors[index] = panel.add(new FloatViewDevice(typename + " " + id));
         }
-        return motors[id - 1];
+        return motors[index];
     }
 
-    private BooleanOutput[] solenoids = new BooleanOutput[8];
+    private BooleanOutput[] solenoids;
 
     public BooleanOutput makeSolenoid(int id) {
-        if (id < 1 || id > solenoids.length) {
-            throw new IllegalArgumentException("Solenoid index out-of-range: " + id);
+        int index = checkRange("Solenoid", id, solenoids);
+        if (solenoids[index] == null) {
+            solenoids[index] = panel.add(new BooleanViewDevice("Solenoid " + id));
         }
-        if (solenoids[id - 1] == null) {
-            solenoids[id - 1] = panel.add(new BooleanViewDevice("Solenoid " + id));
-        }
-        return solenoids[id - 1];
+        return solenoids[index];
     }
 
-    private BooleanOutput[] digitalOutputs = new BooleanOutput[14];
+    private BooleanOutput[] digitalOutputs;
 
     public BooleanOutput makeDigitalOutput(int id) {
-        if (id < 1 || id > digitalOutputs.length) {
-            throw new IllegalArgumentException("Digital Output index out-of-range: " + id);
+        int index = checkRange("Digital Output", id, digitalOutputs);
+        if (digitalOutputs[index] == null) {
+            digitalOutputs[index] = panel.add(new BooleanViewDevice("Digital Output " + id));
         }
-        if (digitalOutputs[id - 1] == null) {
-            digitalOutputs[id - 1] = panel.add(new BooleanViewDevice("Digital Output " + id));
-        }
-        return digitalOutputs[id - 1];
+        return digitalOutputs[index];
     }
 
-    private BooleanInputPoll[] digitalInputs = new BooleanInputPoll[14];
+    private BooleanInputPoll[] digitalInputs;
 
     public BooleanInputPoll makeDigitalInput(int id) {
-        if (id < 1 || id > digitalInputs.length) {
-            throw new IllegalArgumentException("Digital Input index out-of-range: " + id);
+        int index = checkRange("Digital Input", id, digitalInputs);
+        if (digitalInputs[index] == null) {
+            digitalInputs[index] = panel.add(new BooleanControlDevice("Digital Input " + id));
         }
-        if (digitalInputs[id - 1] == null) {
-            digitalInputs[id - 1] = panel.add(new BooleanControlDevice("Digital Input " + id));
-        }
-        return digitalInputs[id - 1];
+        return digitalInputs[index];
     }
 
-    private FloatInputPoll[] analogInputs = new FloatInputPoll[14];
+    private FloatInputPoll[] analogInputs;
 
     public FloatInputPoll makeAnalogInput(int id) {
-        if (id < 1 || id > analogInputs.length) {
-            throw new IllegalArgumentException("Analog Input index out-of-range: " + id);
+        int index = checkRange("Analog Input", id, analogInputs);
+        if (analogInputs[index] == null) {
+            analogInputs[index] = panel.add(new FloatControlDevice("Analog Input " + id));
         }
-        if (analogInputs[id - 1] == null) {
-            analogInputs[id - 1] = panel.add(new FloatControlDevice("Analog Input " + id));
-        }
-        return analogInputs[id - 1];
+        return analogInputs[index];
     }
 
     public FloatInputPoll makeAnalogInput(int id, int averageBits) {
@@ -145,21 +151,22 @@ public class DeviceBasedLauncher implements IgneousLauncher {
         return FloatMixing.addition.of(FloatMixing.multiplication.of(makeAnalogInput(id), 2048), 2048);
     }
 
-    private FloatOutput[] servos = new FloatOutput[motors.length];
+    private FloatOutput[] servos;
 
     public FloatOutput makeServo(int id, float minInput, float maxInput) {
-        if (id < 1 || id > servos.length) {
-            throw new IllegalArgumentException("Servo index out-of-range: " + id);
+        int index = checkRange("Servo", id, servos);
+        if (servos[index] == null) {
+            servos[index] = panel.add(new FloatViewDevice("Servo " + id, minInput, maxInput));
         }
-        if (servos[id - 1] == null) {
-            servos[id - 1] = panel.add(new FloatViewDevice("Servo " + id, minInput, maxInput));
-        }
-        return servos[id - 1];
+        return servos[index];
     }
 
     private DSLCDDevice dslcd;
 
     public void sendDSUpdate(String value, int lineid) {
+        if (isRoboRIO()) {
+            throw new IllegalStateException("DS LCD does not exist on roboRIO.");
+        }
         if (dslcd == null) {
             dslcd = new DSLCDDevice();
         }
@@ -187,28 +194,24 @@ public class DeviceBasedLauncher implements IgneousLauncher {
         return panel.add(new SpinDevice("Encoder " + aChannel + ":" + bChannel + (reverse ? " (REVERSED)" : ""), resetWhen));
     }
 
-    private BooleanOutput[] relaysFwd = new BooleanOutput[8];
+    private BooleanOutput[] relaysFwd;
 
     public BooleanOutput makeRelayForwardOutput(int channel) {
-        if (channel < 1 || channel > relaysFwd.length) {
-            throw new IllegalArgumentException("Relay index out-of-bounds: " + channel);
+        int index = checkRange("Relay", channel, relaysFwd);
+        if (relaysFwd[index] == null) {
+            relaysFwd[index] = panel.add(new BooleanViewDevice("Forward Relay " + channel));
         }
-        if (relaysFwd[channel - 1] == null) {
-            relaysFwd[channel - 1] = panel.add(new BooleanViewDevice("Forward Relay " + channel));
-        }
-        return relaysFwd[channel - 1];
+        return relaysFwd[index];
     }
 
-    private BooleanOutput[] relaysRev = new BooleanOutput[8];
+    private BooleanOutput[] relaysRev;
 
     public BooleanOutput makeRelayReverseOutput(int channel) {
-        if (channel < 1 || channel > relaysRev.length) {
-            throw new IllegalArgumentException("Relay index out-of-bounds: " + channel);
+        int index = checkRange("Relay", channel, relaysRev);
+        if (relaysRev[index] == null) {
+            relaysRev[index] = panel.add(new BooleanViewDevice("Reverse Relay " + channel));
         }
-        if (relaysRev[channel - 1] == null) {
-            relaysRev[channel - 1] = panel.add(new BooleanViewDevice("Reverse Relay " + channel));
-        }
-        return relaysRev[channel - 1];
+        return relaysRev[index];
     }
 
     public FloatInputPoll makeGyro(int port, double sensitivity, EventInput resetWhen) {
@@ -275,6 +278,7 @@ public class DeviceBasedLauncher implements IgneousLauncher {
         }
         if (pcmCompressor == null) {
             pcmCompressor = panel.add(new BooleanViewDevice("PCM Compressor Closed-Loop Control"));
+            pcmCompressor.set(true);
         }
         return pcmCompressor;
     }

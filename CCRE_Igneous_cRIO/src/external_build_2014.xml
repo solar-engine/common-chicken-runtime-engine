@@ -238,6 +238,7 @@
 		<echo message="Make sure to close the window when done!" />
 		<java jar="${ccre-root.dir}/IgneousEmulator/Emulator.jar" fork="true" dir="${project.dir}/emulation-crio">
 			<arg value="${emulatee-2014.jar}" />
+			<arg value="cRIO" />
 			<classpath>
 				<fileset dir="${emulator-2014.dir}" includes="**/*.class" />
 			</classpath>

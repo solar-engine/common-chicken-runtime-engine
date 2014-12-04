@@ -23,6 +23,7 @@ import java.awt.Font;
 
 public class Rendering {
     public static final Font console = new Font("Monospaced", Font.PLAIN, 11);
+    public static final Font error = new Font("Monospaced", Font.PLAIN, 20);
     public static final Font labels = new Font("Monospaced", Font.BOLD, 30);
 
     /**

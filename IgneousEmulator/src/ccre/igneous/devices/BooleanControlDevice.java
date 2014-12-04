@@ -17,6 +17,7 @@ public class BooleanControlDevice extends Device implements BooleanInputPoll {
             super.onPress(x, y);
             if (!wasDown && get()) {
                 pressEvent.produce();
+                repaint();
             }
         }
     }.setEditable(true);

@@ -32,6 +32,7 @@ import ccre.cluck.Cluck;
 import ccre.cluck.tcp.CluckTCPServer;
 import ccre.log.BootLogger;
 import ccre.log.FileLogger;
+import ccre.log.Logger;
 import ccre.log.NetworkAutologger;
 
 /**
@@ -54,11 +55,13 @@ public class DeviceListMain {
      * @throws InvocationTargetException if a reflection error occurs
      */
     public static void main(String[] args) throws IOException, ClassNotFoundException, InstantiationException, NoSuchMethodException, IllegalAccessException, InvocationTargetException {
-        if (args.length != 1) {
-            System.err.println("Expected arguments: <Igneous-Jar>");
+        if (args.length != 2 || !("roboRIO".equals(args[1]) || "cRIO".equals(args[1]))) {
+            System.err.println("Expected arguments: <Igneous-Jar> (roboRIO|cRIO)");
             System.exit(-1);
             return;
         }
+        boolean isRoboRIO = "roboRIO".equals(args[1]);
+        Logger.info("Setting up emulator for platform: " + (isRoboRIO ? "roboRIO" : "cRIO"));
         File jarFile = new File(args[0]);
         JarFile igneousJar = new JarFile(jarFile);
         String mainClass;
@@ -74,9 +77,9 @@ public class DeviceListMain {
         @SuppressWarnings("resource")
         URLClassLoader classLoader = new URLClassLoader(new URL[] { jarFile.toURI().toURL() }, DeviceListMain.class.getClassLoader());
         Class<? extends IgneousApplication> asSubclass = classLoader.loadClass(mainClass).asSubclass(IgneousApplication.class);
-        final JFrame main = new JFrame("CCRE DeviceList-Based Emulator");
+        final JFrame main = new JFrame("CCRE DeviceList-Based Emulator for " + (isRoboRIO ? "roboRIO" : "cRIO"));
         main.setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
-        DeviceBasedLauncher launcher = new DeviceBasedLauncher();
+        DeviceBasedLauncher launcher = new DeviceBasedLauncher(isRoboRIO);
         main.setContentPane(launcher.panel);
         main.setSize(1024, 768);
         java.awt.EventQueue.invokeLater(new Runnable() {
@@ -91,7 +94,11 @@ public class DeviceListMain {
         IgneousLauncherHolder.setLauncher(launcher);
         Cluck.setupServer();
         new CluckTCPServer(Cluck.getNode(), 1540).start();
-        asSubclass.getConstructor().newInstance().setupRobot();
-        launcher.panel.start();
+        try {
+            asSubclass.getConstructor().newInstance().setupRobot();
+            launcher.panel.start();
+        } catch (Throwable thr) {
+            launcher.panel.setErrorDisplay(thr);
+        }
     }
 }

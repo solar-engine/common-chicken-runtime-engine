@@ -28,7 +28,6 @@ import java.awt.Shape;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseWheelEvent;
-import java.util.LinkedList;
 
 import javax.swing.JPanel;
 
@@ -36,6 +35,7 @@ import ccre.channel.EventOutput;
 import ccre.concurrency.ConcurrentDispatchArray;
 import ccre.ctrl.ExpirationTimer;
 import ccre.log.Logger;
+import ccre.workarounds.ThrowablePrinter;
 
 /**
  * A base display panel used in device tree panels.
@@ -78,6 +78,14 @@ public final class DeviceListPanel extends JPanel {
      * The number of devices that appear in the first column.
      */
     private transient int devicesInFirstColumn;
+    /**
+     * The lines of the currently-displayed error message.
+     */
+    private transient String[] errorMessageLines = {};
+
+    public void setErrorDisplay(Throwable thr) {
+        errorMessageLines = thr == null ? new String[0] : ThrowablePrinter.toStringThrowable(thr).split("\n");
+    }
 
     /**
      * Add the specified device to this panel.
@@ -124,6 +132,7 @@ public final class DeviceListPanel extends JPanel {
 
     @Override
     public void paint(Graphics go) {
+        long start = System.nanoTime();
         try {
             boolean splitColumns = shouldColumnsSplit();
             Graphics2D g = (Graphics2D) go;
@@ -176,7 +185,7 @@ public final class DeviceListPanel extends JPanel {
                     g.setFont(Rendering.labels);
                     g.translate(xPosition, yPosition);
                     Shape clip = g.getClip();
-                    g.setClip(new Rectangle(0, 0, w, deviceHeight));
+                    g.setClip(new Rectangle(0, 0, splitColumns ? w / 2 : w, deviceHeight));
                     comp.render(g, splitColumns ? w / 2 : w, deviceHeight, fontMetrics, mouseX - xPosition, mouseY - yPosition);
                     g.setClip(clip);
                     g.translate(-xPosition, -yPosition);
@@ -185,14 +194,33 @@ public final class DeviceListPanel extends JPanel {
             }
             if (painter != null) {
                 painter.feed();
-            } else {
-                String navail = "Panel Not Started";
+            }
+            if (painter == null || errorMessageLines.length != 0) {
+                g.setFont(Rendering.error);
+                String[] lines = errorMessageLines.length != 0 ? errorMessageLines : new String[] {"Panel Not Started"};
                 g.setColor(Color.BLACK);
-                g.drawString(navail, w / 2 - fontMetrics.stringWidth(navail) / 2, h / 2 - fontMetrics.getHeight() / 2);
+                int textHeight = g.getFontMetrics().getHeight() * lines.length;
+                int textWidth = 0;
+                for (String line : lines) {
+                    textWidth = Math.max(textWidth, g.getFontMetrics().stringWidth(line));
+                }
+                int boxTop = h / 2 - textHeight / 2;
+                int yline = boxTop + g.getFontMetrics().getAscent();
+                g.setColor(Color.BLACK);
+                g.fillRect(w / 2 - textWidth / 2 - 8, boxTop - 8, textWidth + 16, textHeight + 16);
+                g.setColor(Color.WHITE);
+                g.fillRect(w / 2 - textWidth / 2 - 4, boxTop - 4, textWidth + 8, textHeight + 8);
+                g.setColor(Color.BLACK);
+                for (String line : lines) {
+                    g.drawString(line, w / 2 - textWidth / 2, yline);
+                    yline += g.getFontMetrics().getHeight();
+                }
             }
         } catch (Throwable thr) {
             Logger.severe("Exception while handling paint event", thr);
         }
+        long end = System.nanoTime();
+        System.out.println("Millis: " + (end - start) / 1000000f);
     }
 
     private boolean shouldColumnsSplit() {

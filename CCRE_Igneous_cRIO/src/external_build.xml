@@ -102,10 +102,9 @@
 
 	<target name="emulate" depends="jar">
 		<mkdir dir="${project.dir}/emulation-roborio" />
-		<java jar="${ccre-root.dir}/IgneousEmulator/Emulator.jar"
-		      fork="true"
-		      dir="${project.dir}/emulation-roborio">
+		<java jar="${ccre-root.dir}/IgneousEmulator/Emulator.jar" fork="true" dir="${project.dir}/emulation-roborio">
 			<arg value="${emulate.jar}" />
+			<arg value="roboRIO" />
 			<classpath>
 				<fileset dir="${emulator.dir}" includes="**/*.class" />
 			</classpath>

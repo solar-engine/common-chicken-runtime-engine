@@ -41,6 +41,7 @@ public class BooleanTextComponent extends TextComponent implements BooleanOutput
     public void onPress(int x, int y) {
         if (editable) {
             set(!get());
+            repaint();
         }
     }
 }

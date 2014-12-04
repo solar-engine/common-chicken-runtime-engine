@@ -74,6 +74,10 @@ public final class DeviceListPanel extends JPanel {
      * dragging.
      */
     private transient Float dragPosition;
+    /**
+     * The number of devices that appear in the first column.
+     */
+    private transient int devicesInFirstColumn;
 
     /**
      * Add the specified device to this panel.
@@ -121,7 +125,7 @@ public final class DeviceListPanel extends JPanel {
     @Override
     public void paint(Graphics go) {
         try {
-            boolean splitColumns = getWidth() > 1400;
+            boolean splitColumns = shouldColumnsSplit();
             Graphics2D g = (Graphics2D) go;
             g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_LCD_HRGB);
             int w = getWidth() - SCROLLBAR_WIDTH;
@@ -133,17 +137,17 @@ public final class DeviceListPanel extends JPanel {
             for (Device comp : devices) {
                 totalHeight += comp.getHeight();
             }
-            int devicesInFirstColumn = 0;
+            int calcDevicesInFirstColumn = 0;
             if (splitColumns) {
                 int runningHeight = 0;
                 for (Device comp : devices) {
                     runningHeight += comp.getHeight();
-                    devicesInFirstColumn++;
+                    calcDevicesInFirstColumn++;
                     if (runningHeight > totalHeight / 2) {
                         break;
                     }
                 }
-                int maxColumnDevices = devicesInFirstColumn;
+                int maxColumnDevices = calcDevicesInFirstColumn;
                 int columnA = 0, columnB = 0;
                 for (Device comp : devices) {
                     if (maxColumnDevices-- <= 0) {
@@ -156,10 +160,11 @@ public final class DeviceListPanel extends JPanel {
             } else {
                 this.scrollMax = totalHeight;
             }
+            this.devicesInFirstColumn = calcDevicesInFirstColumn;
             scrollPos = Math.max(Math.min(scrollPos, scrollMax - h), 0);
             renderScrollbar(g, w, SCROLLBAR_WIDTH);
             int yPosition = -scrollPos, xPosition = 0;
-            int maxColumnDevices = devicesInFirstColumn;
+            int maxColumnDevices = calcDevicesInFirstColumn;
             for (Device comp : devices) {
                 if (splitColumns && maxColumnDevices-- == 0) {
                     yPosition = -scrollPos; // new column, reset y position.
@@ -188,6 +193,10 @@ public final class DeviceListPanel extends JPanel {
         } catch (Throwable thr) {
             Logger.severe("Exception while handling paint event", thr);
         }
+    }
+
+    private boolean shouldColumnsSplit() {
+        return getWidth() > 1400;
     }
 
     private int scrollbarRange() {
@@ -236,10 +245,17 @@ public final class DeviceListPanel extends JPanel {
                     return;
                 }
                 int yPosition = scrollPos + e.getY();
-                for (Device comp : devices) {
-                    int deviceHeight = comp.getHeight();
+                int columnWidth = (getWidth() - SCROLLBAR_WIDTH) / 2;
+                boolean inSecondColumn = shouldColumnsSplit() && e.getX() > columnWidth;
+                int xPosition = inSecondColumn ? e.getX() - columnWidth : e.getX();
+                int devicesRemainingToSkip = inSecondColumn ? devicesInFirstColumn : 0;
+                for (Device dev : devices) {
+                    if (devicesRemainingToSkip-- > 0) {
+                        continue;
+                    }
+                    int deviceHeight = dev.getHeight();
                     if (yPosition >= 0 && yPosition < deviceHeight) {
-                        comp.onPress(e.getX(), yPosition);
+                        dev.onPress(xPosition, yPosition);
                         repaint();
                     }
                     yPosition -= deviceHeight;
@@ -263,10 +279,17 @@ public final class DeviceListPanel extends JPanel {
                     return;
                 }
                 int yPosition = scrollPos + e.getY();
+                int columnWidth = (getWidth() - SCROLLBAR_WIDTH) / 2;
+                boolean inSecondColumn = shouldColumnsSplit() && e.getX() > columnWidth;
+                int xPosition = inSecondColumn ? e.getX() - columnWidth : e.getX();
+                int devicesRemainingToSkip = inSecondColumn ? devicesInFirstColumn : 0;
                 for (Device dev : devices) {
+                    if (devicesRemainingToSkip-- > 0) {
+                        continue;
+                    }
                     int deviceHeight = dev.getHeight();
                     if (yPosition >= 0 && yPosition < deviceHeight) {
-                        dev.onRelease(e.getX(), yPosition);
+                        dev.onRelease(xPosition, yPosition);
                         repaint();
                     }
                     yPosition -= deviceHeight;
@@ -298,28 +321,35 @@ public final class DeviceListPanel extends JPanel {
                 int oldMouseY = mouseY;
                 mouseX = e.getX();
                 mouseY = e.getY();
-                boolean wasInSelectionArea = oldMouseX < getWidth() - SCROLLBAR_WIDTH;
-                boolean isInSelectionArea = mouseX < getWidth() - SCROLLBAR_WIDTH;
+                int columnWidth = (getWidth() - SCROLLBAR_WIDTH) / 2;
+                boolean inSecondColumn = shouldColumnsSplit() && e.getX() > columnWidth;
+                int oldXPosition = inSecondColumn ? oldMouseX - columnWidth : oldMouseX;
+                int xPosition = inSecondColumn ? mouseX - columnWidth : mouseX;
+                boolean wasInSelectionArea = oldXPosition >= 0 && oldXPosition < columnWidth;
+                boolean isInSelectionArea = xPosition >= 0 && xPosition < columnWidth;
                 if (dragPosition != null) {
                     updateDragLocation(e.getY());
                     return;
                 }
                 int yPosition = scrollPos + mouseY;
                 int oldYPosition = scrollPos + oldMouseY;
+                int devicesRemainingToSkip = inSecondColumn ? devicesInFirstColumn : 0;
                 for (Device dev : devices) {
+                    if (devicesRemainingToSkip-- > 0) {
+                        continue;
+                    }
                     int deviceHeight = dev.getHeight();
 
                     boolean isIn = yPosition >= 0 && yPosition < deviceHeight && isInSelectionArea;
                     boolean wasIn = oldYPosition >= 0 && oldYPosition < deviceHeight && wasInSelectionArea;
-                    //System.out.println("DEVICE " + dev + ": " + isIn + " / " + wasIn);
                     if (isIn) {
                         if (wasIn) {
-                            dev.onMouseMove(e.getX(), yPosition);
+                            dev.onMouseMove(xPosition, yPosition);
                         } else {
-                            dev.onMouseEnter(e.getX(), yPosition);
+                            dev.onMouseEnter(xPosition, yPosition);
                         }
                     } else if (wasIn) {
-                        dev.onMouseExit(e.getX(), yPosition);
+                        dev.onMouseExit(xPosition, yPosition);
                     }
 
                     yPosition -= deviceHeight;

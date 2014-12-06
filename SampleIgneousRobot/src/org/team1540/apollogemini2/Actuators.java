@@ -74,6 +74,9 @@ public class Actuators {
             protected void autonomousMain() throws AutonomousModeOverException, InterruptedException {
                 int current_state = STATE_UP;
                 while (true) {
+                    hasPressedUp.set(false);
+                    hasPressedDown.set(false);
+                    hasPressedAlign.set(false);
                     isSafeToShootStatus.set(current_state != STATE_UP);
                     switch (current_state) {
                     case STATE_UP:

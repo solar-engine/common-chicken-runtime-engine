@@ -221,9 +221,14 @@ public class DeviceBasedLauncher implements IgneousLauncher {
     public FloatInputPoll makeAccelerometerAxis(int port, double sensitivity, double zeropoint) {
         return panel.add(new SpinDevice("Accelerometer " + port + " (Sensitivity " + sensitivity + ", Zero-Point " + zeropoint + ")", null));
     }
+    
+    private FloatInputPoll batteryLevel;
 
     public FloatInputPoll getBatteryVoltage() {
-        return FloatMixing.addition.of(6.5f, FloatMixing.multiplication.of(3, panel.add(new FloatControlDevice("Battery Level (6.5V-12.5V)"))));
+        if (batteryLevel == null) {
+            batteryLevel = FloatMixing.addition.of(6.5f, FloatMixing.multiplication.of(3, panel.add(new FloatControlDevice("Battery Level (6.5V-12.5V)"))));
+        }
+        return batteryLevel;
     }
 
     public EventInput getGlobalPeriodic() {

@@ -137,7 +137,7 @@ public class DeviceBasedLauncher implements IgneousLauncher {
     public FloatInputPoll makeAnalogInput(int id) {
         int index = checkRange("Analog Input", id, analogInputs);
         if (analogInputs[index] == null) {
-            analogInputs[index] = panel.add(new FloatControlDevice("Analog Input " + id));
+            analogInputs[index] = FloatMixing.multiplication.of(2.5f, FloatMixing.addition.of(1, panel.add(new FloatControlDevice("Analog Input " + id))));
         }
         return analogInputs[index];
     }
@@ -226,7 +226,7 @@ public class DeviceBasedLauncher implements IgneousLauncher {
 
     public FloatInputPoll getBatteryVoltage() {
         if (batteryLevel == null) {
-            batteryLevel = FloatMixing.addition.of(6.5f, FloatMixing.multiplication.of(3, panel.add(new FloatControlDevice("Battery Level (6.5V-12.5V)"))));
+            batteryLevel = FloatMixing.addition.of(9.5f, FloatMixing.multiplication.of(3, panel.add(new FloatControlDevice("Battery Level (6.5V-12.5V)"))));
         }
         return batteryLevel;
     }

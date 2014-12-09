@@ -78,6 +78,7 @@ public class ControlBarComponent extends DeviceComponent implements FloatInput {
 
     public void send(FloatOutput output) {
         listeners.add(output);
+        output.set(value);
     }
 
     public void unsend(FloatOutput output) {

@@ -141,38 +141,10 @@ public final class DeviceListPanel extends JPanel {
             g.setFont(Rendering.labels);
             FontMetrics fontMetrics = g.getFontMetrics();
             renderBackground(g, w, h, fontMetrics);
-            int totalHeight = 0;
-            for (Device comp : devices) {
-                totalHeight += comp.getHeight();
-            }
-            int calcDevicesInFirstColumn = 0;
-            if (splitColumns) {
-                int runningHeight = 0;
-                for (Device comp : devices) {
-                    runningHeight += comp.getHeight();
-                    calcDevicesInFirstColumn++;
-                    if (runningHeight > totalHeight / 2) {
-                        break;
-                    }
-                }
-                int maxColumnDevices = calcDevicesInFirstColumn;
-                int columnA = 0, columnB = 0;
-                for (Device comp : devices) {
-                    if (maxColumnDevices-- <= 0) {
-                        columnB += comp.getHeight();
-                    } else {
-                        columnA += comp.getHeight();
-                    }
-                }
-                this.scrollMax = Math.max(columnA, columnB);
-            } else {
-                this.scrollMax = totalHeight;
-            }
-            this.devicesInFirstColumn = calcDevicesInFirstColumn;
+            int maxColumnDevices = calculateDevicesInFirstColumn();
             scrollPos = Math.max(Math.min(scrollPos, scrollMax - h), 0);
             renderScrollbar(g, w, SCROLLBAR_WIDTH);
             int yPosition = -scrollPos, xPosition = 0;
-            int maxColumnDevices = calcDevicesInFirstColumn;
             for (Device comp : devices) {
                 if (splitColumns && maxColumnDevices-- == 0) {
                     yPosition = -scrollPos; // new column, reset y position.
@@ -218,6 +190,35 @@ public final class DeviceListPanel extends JPanel {
         } catch (Throwable thr) {
             Logger.severe("Exception while handling paint event", thr);
         }
+    }
+
+    private int calculateDevicesInFirstColumn() {
+        int totalHeight = 0;
+        for (Device comp : devices) {
+            totalHeight += comp.getHeight();
+        }
+        int calcDevicesInFirstColumn = 0;
+        if (shouldColumnsSplit()) {
+            int columnA = 0, columnB = totalHeight, lastScore = Math.abs(columnB - columnA); // Closer together is better, is lower score.
+            for (Device comp : devices) {
+                int deviceHeight = comp.getHeight();
+                columnB -= deviceHeight;
+                columnA += deviceHeight;
+                int newscore = Math.abs(columnB - columnA);
+                if (newscore > lastScore) { // it's worse, so cancel.
+                    columnB += deviceHeight;
+                    columnA -= deviceHeight;
+                    break;
+                }
+                lastScore = newscore;
+                calcDevicesInFirstColumn++;
+            }
+            this.scrollMax = Math.max(columnA, columnB);
+        } else {
+            this.scrollMax = totalHeight;
+        }
+        this.devicesInFirstColumn = calcDevicesInFirstColumn;
+        return calcDevicesInFirstColumn;
     }
 
     private boolean shouldColumnsSplit() {
@@ -346,7 +347,7 @@ public final class DeviceListPanel extends JPanel {
                 int oldMouseY = mouseY;
                 mouseX = e.getX();
                 mouseY = e.getY();
-                int columnWidth = (getWidth() - SCROLLBAR_WIDTH) / 2;
+                int columnWidth = shouldColumnsSplit() ? (getWidth() - SCROLLBAR_WIDTH) / 2 : getWidth() - SCROLLBAR_WIDTH;
                 boolean inSecondColumn = shouldColumnsSplit() && e.getX() > columnWidth;
                 int oldXPosition = inSecondColumn ? oldMouseX - columnWidth : oldMouseX;
                 int xPosition = inSecondColumn ? mouseX - columnWidth : mouseX;

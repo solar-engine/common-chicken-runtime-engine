@@ -15,11 +15,12 @@ import ccre.log.Logger;
 
 public class CompressorHandler {
     private static final TuningContext pressureTuningContext = new TuningContext("PressureTuner").publishSavingEvent();
-
+ 
     private static FloatInputPoll getPercentPressure(FloatInputPoll pressureSensorVolts) {
-        return FloatMixing.normalizeFloat(pressureSensorVolts,
-                pressureTuningContext.getFloat("HighPressure", Igneous.isRoboRIO() ? 2.7f : 2.9f),
-                pressureTuningContext.getFloat("LowPressure", 0.494f));
+        return FloatMixing.multiplication.of(100,
+                FloatMixing.normalizeFloat(pressureSensorVolts,
+                        pressureTuningContext.getFloat("LowPressure", 0.494f),
+                        pressureTuningContext.getFloat("HighPressure", Igneous.isRoboRIO() ? 2.7f : 2.9f)));
     }
 
     public static void setup() {
@@ -31,6 +32,7 @@ public class CompressorHandler {
         Cluck.publish("Compressor Pressure Switch", BooleanMixing.createDispatch(pressureSwitch, Igneous.globalPeriodic));
         Cluck.publish("Compressor Pressure Sensor", FloatMixing.createDispatch(pressureSensorVolts, Igneous.globalPeriodic));
         final FloatInputPoll percentPressure = getPercentPressure(pressureSensorVolts);
+        Cluck.publish("Compressor Pressure Percent", FloatMixing.createDispatch(percentPressure, Igneous.globalPeriodic));
         setupPressureLogger(percentPressure);
         ReadoutDisplay.showPressure(percentPressure, pressureSwitch);
         if (Igneous.isRoboRIO()) {
@@ -44,6 +46,7 @@ public class CompressorHandler {
     private static void setupPressureLogger(final FloatInputPoll percentPressure) {
         EventOutput report = new EventOutput() {
             private float last;
+
             public void event() {
                 float cur = percentPressure.get();
                 if (Math.abs(last - cur) > 0.05) {

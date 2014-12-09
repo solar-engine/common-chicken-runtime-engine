@@ -137,6 +137,10 @@ public class Actuators {
                     }
                 }
             }
+            
+            protected String getTypeName() {
+                return "actuator control loop";
+            }
         }.updateWhen(Igneous.globalPeriodic);
         final BooleanInputPoll switchRollersIn = UserInterface.getRollersInSwitch();
         BooleanInputPoll switchRollersOut = UserInterface.getRollersOutSwitch();
@@ -144,7 +148,7 @@ public class Actuators {
         FloatInputPoll forwardCollectorSpeed = actuatorTuningContext.getFloat("forward-collector-speed", 1.0f);
         FloatInputPoll reverseCollectorSpeed = actuatorTuningContext.getFloat("reverse-collector-speed", -1.0f);
         
-        FloatInputPoll collectorSpeedFromArm = Mixing.select(runCollectorWhileArmMoves, reverseCollectorSpeed, FloatMixing.always(0f));
+        FloatInputPoll collectorSpeedFromArm = Mixing.select(runCollectorWhileArmMoves, FloatMixing.always(0f), reverseCollectorSpeed);
         
         FloatMixing.pumpWhen(Igneous.duringTele, Mixing.quadSelect(switchRollersIn, switchRollersOut,
                 collectorSpeedFromArm, reverseCollectorSpeed,

@@ -1,6 +1,9 @@
 package org.team1540.apollogemini2;
 
 import ccre.channel.*;
+import ccre.ctrl.BooleanMixing;
+import ccre.ctrl.FloatMixing;
+import ccre.ctrl.Ticker;
 import ccre.igneous.Igneous;
 import ccre.log.Logger;
 import ccre.phidget.PhidgetReader;
@@ -91,14 +94,37 @@ public class ReadoutDisplay {
             line.println(message);
         }
     }
-
-    public static void showPressure(FloatInputPoll percentPressure, BooleanInputPoll pressureSwitch) {
-        // TODO Auto-generated method stub
-        
+    
+    private static FloatInputPoll percentPressure = FloatMixing.always(-10);
+    private static BooleanInputPoll pressureSwitch = BooleanMixing.alwaysFalse;
+    private static FloatInputPoll winchJoules = FloatMixing.always(-42);
+    
+    private static final EventOutput update = new EventOutput() {
+        public void event() {
+            Integer pressure = Math.round(percentPressure.get());
+            boolean atPressure = pressureSwitch.get();
+            String pressureMessage = pressure <= -10 ? "????" : Integer.toString(pressure) + "%";
+            while (pressureMessage.length() < 4) {
+                pressureMessage = " " + pressureMessage;
+            }
+            pressureMessage = "AIR " + (atPressure ? "<" : " ") + pressureMessage + (atPressure ? ">" : " ");
+            PhidgetReader.getLCDLine(1).println(pressureMessage + " WNCH " + Float.toString(winchJoules.get()));
+        }
+    };
+    
+    public static void setupReadout() {
+        new Ticker(2000).send(update);
     }
 
-    public static void showWinchStatus(FloatInput wattageaccumulator) {
-        // TODO Auto-generated method stub
-        
+    public static void showPressure(FloatInputPoll percent, BooleanInputPoll fullPressure) {
+        ReadoutDisplay.percentPressure = percent;
+        ReadoutDisplay.pressureSwitch = fullPressure;
+        BooleanMixing.whenBooleanChanges(fullPressure, Igneous.globalPeriodic).send(update);
+        FloatMixing.whenFloatChanges(percent, 0.5f, Igneous.globalPeriodic).send(update);
+    }
+
+    public static void showWinchStatus(FloatInput joules) {
+        winchJoules = joules;
+        FloatMixing.whenFloatChanges(joules, 0.5f).send(update);
     }
 }

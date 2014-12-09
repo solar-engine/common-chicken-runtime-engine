@@ -31,6 +31,9 @@ public class ApolloGemini implements IgneousApplication {
         Actuators.setup();
         DriveCode.setup();
         ReadoutDisplay.setupErrors();
+        ReadoutDisplay.setupReadout();
+        CompressorHandler.setup();
+        Shooter.setup();
         if (Igneous.isRoboRIO()) {
             AutonomousFramework.setHotZoneTrigger(BooleanMixing.alwaysFalse);
         } else {

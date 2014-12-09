@@ -26,14 +26,14 @@ public class Shooter {
     public static final BooleanStatus winchDisengaged = new BooleanStatus();
     public static final BooleanStatus rearming = new BooleanStatus();
 
-    private static final FloatStatus wattageAccumulator = new FloatStatus();
+    private static final FloatStatus joules = new FloatStatus();
 
     private static final FloatInput drawBack = shooterTuningContext.getFloat("Draw Back", 650);
     private static final FloatInput winchSpeedSetting = shooterTuningContext.getFloat("Winch Speed", 1f);
     private static final FloatInput rearmTimeout = shooterTuningContext.getFloat("Winch Rearm Timeout", 5f);
 
     private static final BooleanInputPoll isArmInTheWay = BooleanMixing.invert(Actuators.isSafeToShoot);
-    private static final BooleanInput winchPastThreshold = FloatMixing.floatIsAtLeast(wattageAccumulator, drawBack);
+    private static final BooleanInput winchPastThreshold = FloatMixing.floatIsAtLeast(joules, drawBack);
 
     private static final FloatOutput winchMotor;
     private static final FloatInputPoll winchCurrent;
@@ -51,7 +51,7 @@ public class Shooter {
         }
     }
 
-    private static final FloatInput activeAmps = FloatMixing.createDispatch(new FloatInputPoll() {
+    private static final FloatInput amps = FloatMixing.createDispatch(new FloatInputPoll() {
         private final float tare = winchCurrent.get();
 
         private final FloatInput ampThreshold = shooterTuningContext.getFloat("Amp Threshold", 5f);
@@ -67,16 +67,16 @@ public class Shooter {
         }
     }, Igneous.constantPeriodic);
 
-    private static final FloatInput activeWatts = FloatMixing.multiplication.of(activeAmps, Igneous.getBatteryVoltage());
+    private static final FloatInput watts = FloatMixing.multiplication.of(amps, Igneous.getBatteryVoltage());
 
     static {
         // Update wattage total
-        activeWatts.send(new FloatOutput() {
+        Igneous.constantPeriodic.send(new EventOutput() {
             private long lastReadingAt = System.currentTimeMillis();
 
-            public void set(float value) {
+            public void event() {
                 long now = System.currentTimeMillis();
-                wattageAccumulator.set(wattageAccumulator.get() + activeWatts.get() * (now - lastReadingAt) / 1000f);
+                joules.set(joules.get() + watts.get() * (now - lastReadingAt) / 1000f);
                 lastReadingAt = now;
             }
         });
@@ -98,9 +98,9 @@ public class Shooter {
 
         rearming.send(Mixing.select(winchMotor, FloatMixing.always(0), winchSpeedSetting));
 
-        Cluck.publish("ActiveAmps", activeAmps);
-        Cluck.publish("ActiveWatts", activeWatts);
-        Cluck.publish("TotalWatts", wattageAccumulator);
+        Cluck.publish("ActiveAmps", amps);
+        Cluck.publish("ActiveWatts", watts);
+        Cluck.publish("TotalWatts", joules);
 
         EventInput rearmEvent = UserInterface.getRearmCatapult();
 
@@ -140,8 +140,12 @@ public class Shooter {
                 } else if (winchDisengaged.get()) {
                     ReadoutDisplay.displayAndLogError(3, "Winch not armed.", 2000);
                 } else if (isArmInTheWay.get()) {
-                    ReadoutDisplay.displayAndLogError(4, "Autolowering arm.", 1000);
-                    fireAfterLower.startOrFeed();
+                    if (!fireAfterLower.isRunning()) { // We don't want to be trapped in an infinite loop if the arm doesn't lower.
+                        ReadoutDisplay.displayAndLogError(4, "Autolowering arm.", 1000);
+                        fireAfterLower.start();
+                    } else {
+                        ReadoutDisplay.displayAndLogError(4, "Autolower failed.", 1000);
+                    }
                 } else {
                     realFire.event();
                 }
@@ -165,7 +169,7 @@ public class Shooter {
                     winchDisengaged.set(false);
                     ReadoutDisplay.displayAndLogError(1, "Started rearming.", 500);
                     rearming.set(true);
-                    wattageAccumulator.set(0);
+                    joules.set(0);
                 }
             }
         });
@@ -179,7 +183,7 @@ public class Shooter {
             }
         });
 
-        ReadoutDisplay.showWinchStatus(wattageAccumulator);
+        ReadoutDisplay.showWinchStatus(joules);
         UserInterface.showFiring(winchDisengaged);
     }
 

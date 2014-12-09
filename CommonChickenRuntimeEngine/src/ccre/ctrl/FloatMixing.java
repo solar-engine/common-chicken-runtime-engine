@@ -455,7 +455,7 @@ public class FloatMixing {
      * @return the dispatchable input.
      */
     public static FloatInput createDispatch(FloatInputPoll input, EventInput trigger) {
-        FloatStatus fstat = new FloatStatus();
+        FloatStatus fstat = new FloatStatus(input.get());
         FloatMixing.pumpWhen(trigger, input, fstat);
         return fstat;
     }
@@ -599,6 +599,49 @@ public class FloatMixing {
     }
 
     /**
+     * When the input has changed by more than a certain value, the returned
+     * EventInput fires. (This is checked when checkTrigger is fired.)
+     * 
+     * This maximum delta can be over any period of time - the delta is
+     * calculated relative to the value the last time the event fired.
+     * 
+     * @param input the input to track.
+     * @param delta the value by which the input must change to produce an
+     * output.
+     * @param checkTrigger when to recheck the input.
+     * @return the EventInput that fires when the input changes enough.
+     */
+    public static EventInput whenFloatChanges(final FloatInputPoll input, final float delta, EventInput checkTrigger) {
+        return whenFloatChanges(createDispatch(input, checkTrigger), delta);
+    }
+
+    /**
+     * When the input has changed by more than a certain value, the returned
+     * EventInput fires.
+     * 
+     * This maximum delta can be over any period of time - the delta is
+     * calculated relative to the value the last time the event fired.
+     * 
+     * @param input the input to track.
+     * @param delta the value by which the input must change to produce an
+     * output.
+     * @return the EventInput that fires when the input changes enough.
+     */
+    public static EventInput whenFloatChanges(final FloatInput input, final float delta) {
+        final EventStatus out = new EventStatus();
+        input.send(new FloatOutput() {
+            float last = input.get();
+
+            public void set(float value) {
+                if (Math.abs(last - value) > delta) {
+                    out.produce();
+                }
+            }
+        });
+        return out;
+    }
+
+    /**
      * Returns a scaled version of the specified input, such that when the value
      * from the specified input is the value in the one parameter, the output is
      * 1.0, and when the value from the specified input is the value in the zero
@@ -678,7 +721,7 @@ public class FloatMixing {
      * @param output the output to fire.
      * @return the output to track.
      */
-    private static FloatOutput onUpdate(final EventOutput output) {
+    public static FloatOutput onUpdate(final EventOutput output) {
         return new FloatOutput() {
             private float last = Float.NaN;
 

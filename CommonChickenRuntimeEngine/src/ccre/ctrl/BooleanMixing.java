@@ -268,6 +268,40 @@ public class BooleanMixing {
     }
 
     /**
+     * When the checkTrigger event is fired, check if the boolean has changed.
+     * If it has, the returned EventInput is fired.
+     * 
+     * @param input the value to monitor.
+     * @param checkTrigger when to check for changes.
+     * @return the EventInput that fires when the input changes.
+     */
+    public static EventInput whenBooleanChanges(BooleanInputPoll input, EventInput checkTrigger) {
+        return whenBooleanChanges(createDispatch(input, checkTrigger));
+    }
+    
+    /**
+     * When the BooleanInput changes, the returned EventInput is fired.
+     * 
+     * @param input the value to monitor.
+     * @return the EventInput that fires when the input changes.
+     */
+    public static EventInput whenBooleanChanges(final BooleanInput input) {
+        final EventStatus out = new EventStatus();
+        input.send(new BooleanOutput() {
+            private boolean last = input.get();
+
+            public void set(boolean value) {
+                if (value == last) {
+                    return;
+                }
+                last = value;
+                out.produce();
+            }
+        });
+        return out;
+    }
+
+    /**
      * When the checkTrigger event is fired, check if the specified input has
      * changed to the target value since the last check. If it has, then the
      * returned EventInput is fired.

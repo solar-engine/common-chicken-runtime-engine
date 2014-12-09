@@ -27,8 +27,9 @@
 
 	<target name="deploy">
 		<echo message="${user.home}/wpilib/wpilib.properties does not exist." />
-		<echo message="WPILib plugins must not be installed!" />
-		<fail message="WPILib 2015 plugins are required to deploy to the RoboRIO." />
+		<echo message="Either the WPILib roboRIO plugins are not installed, or you haven't set your team number!" />
+		<echo message="Try to create a WPILib project. If it works, try this again. If it doesn't, you have a different problem." />
+		<fail message="WPILib 2015 plugins, with team number set, are required to deploy to the RoboRIO." />
 	</target>
 
 </project>

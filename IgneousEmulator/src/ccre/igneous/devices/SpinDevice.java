@@ -27,10 +27,11 @@ public class SpinDevice extends Device implements FloatInputPoll {
         if (resetWhen != null) {
             resetWhen.send(new EventOutput() {
                 public void event() {
-                    ticks = 0;
+                    setTicks(0);
                 }
             });
         }
+        add(isVelocityMode);
         add(new TextComponent("-") {
             public void onPress(int x, int y) {
                 pressButton(-10);
@@ -59,11 +60,11 @@ public class SpinDevice extends Device implements FloatInputPoll {
                 partials += velocity;
                 while (partials >= 10) {
                     partials -= 10;
-                    ticks++;
+                    setTicks(ticks + 1);
                 }
                 while (partials <= -10) {
                     partials += 10;
-                    ticks--;
+                    setTicks(ticks - 1);
                 }
             }
         });
@@ -73,11 +74,16 @@ public class SpinDevice extends Device implements FloatInputPoll {
         if (isVelocityMode.get()) {
             velocity += i;
         } else {
-            ticks += i;
+            setTicks(ticks + i);
         }
     }
 
     public float get() {
         return ticks;
+    }
+
+    private void setTicks(int ticks) {
+        this.ticks = ticks;
+        positionView.setLabel(String.valueOf(ticks));
     }
 }

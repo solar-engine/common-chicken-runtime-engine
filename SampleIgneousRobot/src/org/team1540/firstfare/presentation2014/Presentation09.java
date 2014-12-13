@@ -1,3 +1,7 @@
+/**
+ * This file is free and unencumbered software released into the public domain.
+ * See the README.txt file.
+ */
 package org.team1540.firstfare.presentation2014;
 
 import ccre.channel.EventInput;

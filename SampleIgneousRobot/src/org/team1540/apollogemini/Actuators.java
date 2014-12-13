@@ -1,3 +1,21 @@
+/*
+ * Copyright 2014 Colby Skeggs, Connor Hansen, Gregor Peach
+ * 
+ * This file is part of the ApolloGemini2014 project.
+ * 
+ * ApolloGemini2014 is free software: you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser General Public License as published by the
+ * Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
+ * 
+ * ApolloGemini2014 is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License
+ * for more details.
+ * 
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with ApolloGemini2014.  If not, see <http://www.gnu.org/licenses/>.
+ */
 package org.team1540.apollogemini;
 
 import ccre.channel.*;
@@ -62,7 +80,7 @@ public class Actuators {
                         armMain.set(false);
                         isArmLower.set(true);
                         isArmRaise.set(false);
-                        if (waitUntilOneOf(new BooleanInputPoll[]{pressedDown, pressedAlign}) == 0) {
+                        if (waitUntilOneOf(new BooleanInputPoll[] { pressedDown, pressedAlign }) == 0) {
                             next = STATE_DOWN;
                         } else {
                             isArmLower.set(true);
@@ -77,7 +95,7 @@ public class Actuators {
                         armMain.set(true);
                         isArmLower.set(false);
                         isArmRaise.set(true);
-                        if (waitUntilOneOf(new BooleanInputPoll[]{pressedUp, pressedAlign}) == 0) {
+                        if (waitUntilOneOf(new BooleanInputPoll[] { pressedUp, pressedAlign }) == 0) {
                             next = STATE_UP;
                         } else {
                             next = STATE_ALIGN;
@@ -88,7 +106,7 @@ public class Actuators {
                         armMain.set(false);
                         isArmLower.set(false);
                         isArmRaise.set(false);
-                        if (waitUntilOneOf(new BooleanInputPoll[]{pressedDown, pressedUp}) == 0) {
+                        if (waitUntilOneOf(new BooleanInputPoll[] { pressedDown, pressedUp }) == 0) {
                             next = STATE_DOWN;
                         } else {
                             isSafeToShoot.set(false);

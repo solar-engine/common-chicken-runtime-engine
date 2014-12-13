@@ -21,6 +21,8 @@ package ccre.holders;
 import ccre.channel.EventInput;
 import ccre.channel.EventOutput;
 import ccre.channel.EventStatus;
+import ccre.util.LineCollectorOutputStream;
+
 import java.io.IOException;
 import java.io.OutputStream;
 
@@ -135,18 +137,10 @@ public class StringHolder { // TODO: This is legacy code! There's always a bette
      * @return the output stream that modifies the state of this.
      */
     public OutputStream getOutput() {
-        return new OutputStream() { // TODO: See if I should use LineCollectorOutputStream.
-            private final StringBuilder sb = new StringBuilder(30);
-
+        return new LineCollectorOutputStream() {
             @Override
-            public synchronized void write(int b) throws IOException {
-                if (b == '\n') {
-                    String ts = sb.toString();
-                    sb.setLength(0);
-                    set(ts);
-                    return;
-                }
-                sb.append((char) b);
+            protected void collect(String param) {
+                set(param);
             }
         };
     }

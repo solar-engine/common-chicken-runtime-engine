@@ -323,10 +323,10 @@ public class BooleanMixing {
      * @param target the target value to trigger the event.
      * @return the EventInput that is fired when the input becomes the target.
      */
-    public static EventInput whenBooleanBecomes(BooleanInput input, final boolean target) {
+    public static EventInput whenBooleanBecomes(final BooleanInput input, final boolean target) {
         final EventStatus out = new EventStatus();
         input.send(new BooleanOutput() {
-            private boolean last; // TODO: Initialize this to the current value of input?
+            private boolean last = input.get();
 
             public void set(boolean value) {
                 if (value == last) {

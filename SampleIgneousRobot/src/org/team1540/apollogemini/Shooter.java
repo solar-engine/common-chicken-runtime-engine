@@ -33,7 +33,7 @@ public class Shooter {
         
         public float get() {
             if (sensor == null) {
-                return -100; // TODO: Remove this later.
+                return -100; // Hacky solution. Fixed in rewrite.
             }
             float o;
             if (Igneous.isRoboRIO()) {
@@ -65,7 +65,7 @@ public class Shooter {
         this.periodic = periodic;
         this.constantPeriodic = constantPeriodic;
         this.batteryLevel = batteryLevel;
-        constantPeriodic.send(updateTotal); // TODO Move this after the shooter is registered.
+        constantPeriodic.send(updateTotal);
         winchDisengaged.setFalseWhen(resetModule);
         rearming.setFalseWhen(resetModule);
         tuner.publishSavingEvent("Shooter");

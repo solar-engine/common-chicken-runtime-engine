@@ -35,7 +35,7 @@ import ccre.util.UniqueIds;
  *
  * @author skeggsc
  */
-public final class TuningContext { // TODO: Support booleans for tuning.
+public final class TuningContext {
 
     /**
      * The node to publish the value to.

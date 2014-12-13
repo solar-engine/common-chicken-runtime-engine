@@ -266,7 +266,7 @@ public final class RawIOIgneousLauncherImpl extends RobotBase implements Igneous
 
     public void useCustomCompressor(BooleanInputPoll shouldDisable, int compressorRelayChannel) {
         BooleanOutput relay = makeRelayForwardOutput(compressorRelayChannel);
-        BooleanMixing.pumpWhen(new Ticker(500), BooleanMixing.invert(shouldDisable), relay); // TODO: Test this code.
+        BooleanMixing.pumpWhen(new Ticker(500), BooleanMixing.invert(shouldDisable), relay);
     }
 
     public FloatInputPoll makeEncoder(int aChannel, int bChannel, boolean reverse, EventInput resetWhen) {

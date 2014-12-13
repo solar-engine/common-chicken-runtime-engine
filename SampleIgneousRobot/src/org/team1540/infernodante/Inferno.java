@@ -144,7 +144,7 @@ public class Inferno extends IgneousCore {
     }
 
     private void createArmDropper() {
-        BooleanInput isCorralSwitchUp = PhidgetReader.getDigitalInput(0); // TODO: Make this default to true!
+        BooleanInput isCorralSwitchUp = PhidgetReader.getDigitalInput(0); // Optimally this would default to true.
         FloatOutput armServo = makeServo(7, 0, 170);
         BooleanOutput armDrop = makeSolenoid(3);
         ExpirationTimer delayServoClose = new ExpirationTimer();

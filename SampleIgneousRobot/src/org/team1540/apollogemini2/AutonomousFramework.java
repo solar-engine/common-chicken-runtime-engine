@@ -37,8 +37,7 @@ public abstract class AutonomousFramework extends InstinctModule {
     private static EventOutput armDown, armUp, armAlign;
     private static BooleanInput hotZoneActive;
     private static FloatOutput bothDriveMotors;
-    private static final EventStatus shooterFire = new EventStatus(),
-            shooterRearm = new EventStatus();
+    private static final EventStatus shooterFire = new EventStatus(), shooterRearm = new EventStatus();
     private static final BooleanStatus waitingForRearm = new BooleanStatus();
 
     public static void addArmActuators(FloatOutput collector, BooleanOutput fingers) {

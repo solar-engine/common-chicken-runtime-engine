@@ -346,7 +346,7 @@ public class FloatMixing {
      * @param source The source to wrap
      * @return The wrapped input.
      */
-    public static FloatInputPoll addRamping(final float limit, EventInput updateWhen, final FloatInputPoll source) { // TODO: Should this return a FloatInput?
+    public static FloatInput addRamping(final float limit, EventInput updateWhen, final FloatInputPoll source) {
         FloatStatus temp = new FloatStatus();
         updateWhen.send(createRamper(limit, source, temp));
         return temp;

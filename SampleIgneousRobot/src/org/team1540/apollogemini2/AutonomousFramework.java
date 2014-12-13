@@ -80,14 +80,14 @@ public abstract class AutonomousFramework extends InstinctModule {
         };
         reportAutonomous.event();
         tuningSegment.attachStringHolder("autonomous-mode", option);
-        Cluck.publish("autom-check", reportAutonomous);
-        Cluck.publish("autom-next", new EventOutput() {
+        Cluck.publish("Autonomous Mode Check", reportAutonomous);
+        Cluck.publish("Autonomous Mode Next", new EventOutput() {
             public void event() {
                 option.set(options[(optionList.indexOf(option.get()) + 1) % options.length]);
                 reportAutonomous.event();
             }
         });
-        Cluck.publish("autom-prev", new EventOutput() {
+        Cluck.publish("Autonomous Mode Previous", new EventOutput() {
             public void event() {
                 option.set(options[(optionList.indexOf(option.get()) - 1 + options.length) % options.length]);
                 reportAutonomous.event();

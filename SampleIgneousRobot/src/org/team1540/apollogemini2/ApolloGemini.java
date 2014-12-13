@@ -20,14 +20,13 @@ public class ApolloGemini implements IgneousApplication {
 
     public void setupRobot() {
         if (Igneous.isRoboRIO()) {
-            new CluckTCPServer(Cluck.getNode(), 443).start();
-            new CluckTCPServer(Cluck.getNode(), 1540).start();
+            Cluck.setupServer(443);
+            Cluck.setupServer(1540);
         }
-        new CluckTCPServer(Cluck.getNode(), 1180).start();
+        Cluck.setupServer(1180);
 
         displayBatteryLevel();
 
-        // TODO: Go through and normalize cluck channel names
         Actuators.setup();
         DriveCode.setup();
         ReadoutDisplay.setupErrors();

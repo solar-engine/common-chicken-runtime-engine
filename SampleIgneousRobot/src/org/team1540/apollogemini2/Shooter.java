@@ -85,8 +85,8 @@ public class Shooter {
     // shouldUseCurrent = false
 
     public static void setup() {
-        Cluck.publish("testing-winch-motor", winchMotor);
-        Cluck.publish("testing-solenoid-winch", winchSolenoidDisengage);
+        Cluck.publish("Winch Motor", winchMotor);
+        Cluck.publish("Winch Solenoid", winchSolenoidDisengage);
         Cluck.publish("Winch Current", FloatMixing.createDispatch(winchCurrent, Igneous.globalPeriodic));
         EventInput fireWhen = EventMixing.combine(AutonomousFramework.getWhenToFire(), UserInterface.getFireButton());
 
@@ -98,9 +98,9 @@ public class Shooter {
 
         rearming.send(Mixing.select(winchMotor, FloatMixing.always(0), winchSpeedSetting));
 
-        Cluck.publish("ActiveAmps", amps);
-        Cluck.publish("ActiveWatts", watts);
-        Cluck.publish("TotalWatts", joules);
+        Cluck.publish("Winch Amps", amps);
+        Cluck.publish("Winch Watts", watts);
+        Cluck.publish("Winch Joules", joules);
 
         EventInput rearmEvent = UserInterface.getRearmCatapult();
 
@@ -129,7 +129,7 @@ public class Shooter {
                 winchDisengaged.set(true);
             }
         };
-        Cluck.publish("Force Fire", realFire);
+        Cluck.publish("Winch Force Fire", realFire);
         final ExpirationTimer fireAfterLower = new ExpirationTimer();
 
         EventOutput guardedFire = new EventOutput() {

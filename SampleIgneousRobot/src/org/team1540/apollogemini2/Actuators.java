@@ -156,9 +156,9 @@ public class Actuators {
                 armCollectorMotor);
         BooleanMixing.pumpWhen(Igneous.duringTele, BooleanMixing.orBooleans(switchRollersIn, switchRollersOut), armFingerSolenoids);
 
-        Cluck.publish("arm-main-solenoid", armMainSolenoid);
-        Cluck.publish("arm-lock-solenoid", armLockSolenoid);
-        Cluck.publish("arm-collector-motor", armCollectorMotor);
-        Cluck.publish("arm-finger-solenoids", armFingerSolenoids);
+        Cluck.publish("Arm Main Solenoid", armMainSolenoid);
+        Cluck.publish("Arm Lock Solenoid", armLockSolenoid);
+        Cluck.publish("Arm Collector Motor", armCollectorMotor);
+        Cluck.publish("Arm Finger Solenoids", armFingerSolenoids);
     }
 }

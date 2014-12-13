@@ -81,6 +81,18 @@ public final class Cluck {
     }
 
     /**
+     * Set up a server on the specified port.
+     * 
+     * @param port the port number to listen on
+     * @return the server that was set up.
+     */
+    public static synchronized CluckTCPServer setupServer(int port) {
+        CluckTCPServer server = new CluckTCPServer(node, port);
+        server.start();
+        return server;
+    }
+
+    /**
      * Set up a client pointing at the specified remote address, with the
      * specified name for this link and hint for what the remote end should call
      * this link.

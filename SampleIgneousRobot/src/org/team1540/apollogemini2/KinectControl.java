@@ -8,13 +8,13 @@ import ccre.ctrl.IJoystick;
 
 public class KinectControl {
 
-    public static BooleanInput main(EventInput globalPeriodic, IJoystick disp1, IJoystick disp2) {
-        Cluck.publish("kinect-axis-1-2", disp1.getAxisSource(2));
-        Cluck.publish("kinect-axis-2-2", disp2.getAxisSource(2));
+    public static BooleanInput main(EventInput globalPeriodic, IJoystick left, IJoystick right) {
+        Cluck.publish("Kinect Axis Left Arm", left.getAxisSource(2));
+        Cluck.publish("Kinect Axis Right Arm", right.getAxisSource(2));
         BooleanInput pressed = BooleanMixing.andBooleans(
-                FloatMixing.floatIsAtMost(disp1.getAxisSource(2), -0.1f),
-                FloatMixing.floatIsAtMost(disp2.getAxisSource(2), -0.1f));
-        Cluck.publish("kinect-causing-activation", pressed);
+                FloatMixing.floatIsAtMost(left.getAxisSource(2), -0.1f),
+                FloatMixing.floatIsAtMost(right.getAxisSource(2), -0.1f));
+        Cluck.publish("Kinect Activation", pressed);
         return pressed;
     }
 }

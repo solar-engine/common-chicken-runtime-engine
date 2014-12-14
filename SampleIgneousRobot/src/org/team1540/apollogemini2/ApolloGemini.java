@@ -24,8 +24,10 @@ import ccre.cluck.Cluck;
 import ccre.cluck.tcp.CluckTCPServer;
 import ccre.ctrl.BooleanMixing;
 import ccre.ctrl.FloatMixing;
+import ccre.holders.TuningContext;
 import ccre.igneous.Igneous;
 import ccre.igneous.IgneousApplication;
+import ccre.instinct.InstinctMultiModule;
 
 public class ApolloGemini implements IgneousApplication {
 
@@ -52,14 +54,22 @@ public class ApolloGemini implements IgneousApplication {
         CompressorHandler.setup();
         Shooter.setup();
         if (Igneous.isRoboRIO()) {
-            AutonomousFramework.setHotZoneTrigger(BooleanMixing.alwaysFalse);
+            AutonomousModeBase.setHotZoneTrigger(BooleanMixing.alwaysFalse);
         } else {
-            AutonomousFramework.setHotZoneTrigger(KinectControl.main(
+            AutonomousModeBase.setHotZoneTrigger(KinectControl.main(
                     Igneous.globalPeriodic,
                     Igneous.getKinectJoystick(false),
                     Igneous.getKinectJoystick(true)));
         }
-        AutonomousFramework.setup(); // Should go last because it needs help from everything else.
+        
+        // Autonomous goes last because it needs channels from everything else.
+        
+        InstinctMultiModule modes = new InstinctMultiModule(new TuningContext("autonomous"));
+        modes.addMode(new AutonomousModeForward());
+        modes.addMode(new AutonomousModeHotcheck());
+        modes.addMode(new AutonomousModeDouble());
+        Igneous.registerAutonomous(modes);
+        modes.loadSettings(modes.addNullMode("none", "I'm a sitting chicken!"));
     }
 
     private void displayBatteryLevel() {

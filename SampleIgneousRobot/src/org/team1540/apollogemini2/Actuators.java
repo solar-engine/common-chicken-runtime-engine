@@ -68,7 +68,7 @@ public class Actuators {
                 BooleanMixing.andBooleans(
                         BooleanMixing.orBooleans(Igneous.getIsTeleop(), Igneous.getIsAutonomous()),
                         BooleanMixing.invert(Igneous.getIsDisabled()));
-        AutonomousFramework.addArmActuators(armCollectorMotor, armFingerSolenoids);
+        AutonomousModeBase.addArmActuators(armCollectorMotor, armFingerSolenoids);
         final PauseTimer runCollectorsWhileArmAligns = new PauseTimer(1000);
         final PauseTimer runCollectorsWhileArmLowers = new PauseTimer(500);
         final BooleanInputPoll runCollectorWhileArmMoves = BooleanMixing.orBooleans(runCollectorsWhileArmAligns, runCollectorsWhileArmLowers);
@@ -81,7 +81,7 @@ public class Actuators {
                 hasPressedDown.setTrueWhen(armLowerForShooter);
                 hasPressedDown.setTrueWhen(UserInterface.getArmLower());
                 hasPressedAlign.setTrueWhen(UserInterface.getArmAlign());
-                AutonomousFramework.addArmPositions(hasPressedDown.getSetTrueEvent(), hasPressedUp.getSetTrueEvent(), hasPressedAlign.getSetTrueEvent());
+                AutonomousModeBase.addArmPositions(hasPressedDown.getSetTrueEvent(), hasPressedUp.getSetTrueEvent(), hasPressedAlign.getSetTrueEvent());
             }
             final BooleanOutput armDownLight = UserInterface.getArmDownLight(),
                     armUpLight = UserInterface.getArmUpLight();

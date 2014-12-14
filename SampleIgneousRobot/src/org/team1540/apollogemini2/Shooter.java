@@ -106,7 +106,7 @@ public class Shooter {
         Cluck.publish("Winch Motor", winchMotor);
         Cluck.publish("Winch Solenoid", winchSolenoidDisengage);
         Cluck.publish("Winch Current", FloatMixing.createDispatch(winchCurrent, Igneous.globalPeriodic));
-        EventInput fireWhen = EventMixing.combine(AutonomousFramework.getWhenToFire(), UserInterface.getFireButton());
+        EventInput fireWhen = EventMixing.combine(AutonomousModeBase.getWhenToFire(), UserInterface.getFireButton());
 
         winchDisengaged.setFalseWhen(Igneous.startDisabled);
         rearming.setFalseWhen(Igneous.startDisabled);
@@ -176,7 +176,7 @@ public class Shooter {
 
         fireWhen.send(guardedFire);
 
-        EventMixing.combine(AutonomousFramework.getWhenToRearm(), rearmEvent).send(new EventOutput() {
+        EventMixing.combine(AutonomousModeBase.getWhenToRearm(), rearmEvent).send(new EventOutput() {
             public void event() {
                 if (rearming.get()) {
                     rearming.set(false);
@@ -196,7 +196,7 @@ public class Shooter {
                 if (rearming.get() && winchPastThreshold.get()) {
                     rearming.set(false);
                     ReadoutDisplay.displayAndLogError(2, "Hit current limit.", 1000);
-                    AutonomousFramework.notifyRearmFinished();
+                    AutonomousModeBase.notifyRearmFinished();
                 }
             }
         });

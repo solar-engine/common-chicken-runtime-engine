@@ -57,7 +57,7 @@ public class DriveCode {
         Cluck.publish("Drive Motor Right 2", rightDrive2);
 
         setupDriveCode(leftDrive, rightDrive, shiftSolenoidHigh);
-        AutonomousFramework.addDriveMotors(leftDrive, rightDrive);
+        AutonomousModeBase.addDriveMotors(leftDrive, rightDrive);
     }
 
     private static void setupDriveCode(FloatOutput leftDrive, FloatOutput rightDrive, BooleanOutput shiftSolenoidHigh) {

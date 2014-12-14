@@ -38,13 +38,13 @@ import ccre.util.UniqueIds;
 public final class TuningContext {
 
     /**
-     * The node to publish the value to.
+     * The node to publish the values to.
      */
-    private final CluckNode enc;
+    private final CluckNode node;
     /**
-     * The segment to store the value in.
+     * The segment to store the values in.
      */
-    private final StorageSegment seg;
+    private final StorageSegment segment;
 
     /**
      * Create a new TuningContext from a specified CluckNode and name of storage
@@ -65,8 +65,8 @@ public final class TuningContext {
      * @param seg the segment to save values to.
      */
     public TuningContext(CluckNode enc, StorageSegment seg) {
-        this.enc = enc;
-        this.seg = seg;
+        this.node = enc;
+        this.segment = seg;
     }
 
     /**
@@ -90,6 +90,24 @@ public final class TuningContext {
     }
 
     /**
+     * Get the attached Cluck node.
+     * 
+     * @return the CluckNode behind this TuningContext.
+     */
+    public CluckNode getNode() {
+        return node;
+    }
+
+    /**
+     * Get the attached storage segment.
+     * 
+     * @return the storage segment behind this TuningContext.
+     */
+    public StorageSegment getSegment() {
+        return segment;
+    }
+
+    /**
      * Get a FloatStatus with the specified name and default value. This will be
      * tunable over the network and saved on the cRIO once flush() is called.
      *
@@ -99,14 +117,14 @@ public final class TuningContext {
      */
     public FloatStatus getFloat(String name, float default_) {
         FloatStatus out = new FloatStatus(default_);
-        seg.attachFloatHolder(name, out);
-        CluckPublisher.publish(enc, name, out);
+        segment.attachFloatHolder(name, out);
+        CluckPublisher.publish(node, name, out);
         return out;
     }
 
     /**
-     * Get a BooleanStatus with the specified name and default value. This will be
-     * tunable over the network and saved on the cRIO once flush() is called.
+     * Get a BooleanStatus with the specified name and default value. This will
+     * be tunable over the network and saved on the cRIO once flush() is called.
      *
      * @param name the name of the tunable value.
      * @param default_ the default value.
@@ -114,8 +132,8 @@ public final class TuningContext {
      */
     public BooleanStatus getBoolean(String name, boolean default_) {
         BooleanStatus out = new BooleanStatus(default_);
-        seg.attachBooleanHolder(name, out);
-        CluckPublisher.publish(enc, name, out);
+        segment.attachBooleanHolder(name, out);
+        CluckPublisher.publish(node, name, out);
         return out;
     }
 
@@ -123,8 +141,8 @@ public final class TuningContext {
      * Flush the StorageSegment - save the current value.
      */
     public void flush() {
-        seg.flush();
-        Logger.info("Flushed storage segment " + seg.getName());
+        segment.flush();
+        Logger.info("Flushed storage segment " + segment.getName());
     }
 
     /**
@@ -150,7 +168,7 @@ public final class TuningContext {
      * @return This TuningContext. Returned for method chaining purposes.
      */
     public TuningContext publishSavingEvent(String name) {
-        CluckPublisher.publish(enc, "Save Tuning for " + name, getFlushEvent());
+        CluckPublisher.publish(node, "Save Tuning for " + name, getFlushEvent());
         return this;
     }
 
@@ -163,7 +181,7 @@ public final class TuningContext {
      * @return This TuningContext. Returned for method chaining purposes.
      */
     public TuningContext publishSavingEvent() {
-        String name = seg.getName();
+        String name = segment.getName();
         return publishSavingEvent(name == null ? UniqueIds.global.nextHexId("anonymous") : name);
     }
 }

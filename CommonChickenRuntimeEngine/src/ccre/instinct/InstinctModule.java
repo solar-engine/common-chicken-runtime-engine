@@ -21,9 +21,7 @@ package ccre.instinct;
 import ccre.channel.BooleanInputPoll;
 import ccre.channel.EventInput;
 import ccre.channel.EventOutput;
-import ccre.channel.FloatInputPoll;
 import ccre.concurrency.ReporterThread;
-import ccre.ctrl.FloatMixing;
 import ccre.log.Logger;
 
 /**
@@ -31,12 +29,12 @@ import ccre.log.Logger;
  *
  * @author skeggsc
  */
-public abstract class InstinctModule implements EventOutput {
+public abstract class InstinctModule extends InstinctBaseModule implements EventOutput {
 
     /**
      * If the instinct module should currently be running.
      */
-    private BooleanInputPoll shouldBeRunning;
+    BooleanInputPoll shouldBeRunning;
     /**
      * If this module is currently running.
      */
@@ -50,7 +48,7 @@ public abstract class InstinctModule implements EventOutput {
      * The object used to coordinate when the instinct module should resume
      * execution.
      */
-    private final Object autosynch = new Object();
+    final Object autosynch = new Object();
 
     /**
      * The main thread for code running in this Instinct Module.
@@ -76,8 +74,10 @@ public abstract class InstinctModule implements EventOutput {
     }
 
     /**
-     * Create a new InstinctModule that needs to be registered with an
-     * InstinctRegistrar before it can run.
+     * Create a new InstinctModule that needs to be registered before it will be
+     * useful.
+     * 
+     * @see ccre.igneous.Igneous#registerAutonomous(InstinctModule)
      */
     public InstinctModule() {
         this.shouldBeRunning = null;
@@ -158,12 +158,21 @@ public abstract class InstinctModule implements EventOutput {
         src.send(this);
     }
 
-    /**
-     * Wait until the next time that this module is updated.
-     */
-    private void waitCycle() throws InterruptedException {
+    void waitCycle() throws InterruptedException {
         synchronized (autosynch) {
             autosynch.wait();
+        }
+    }
+
+    void notifyCycle() {
+        synchronized (autosynch) {
+            autosynch.notifyAll();
+        }
+    }
+
+    void ensureShouldBeRunning() throws AutonomousModeOverException {
+        if (!shouldBeRunning.get()) {
+            throw new AutonomousModeOverException();
         }
     }
 
@@ -175,157 +184,10 @@ public abstract class InstinctModule implements EventOutput {
             if (!main.isAlive()) {
                 main.start();
             }
-            synchronized (autosynch) {
-                autosynch.notifyAll();
-            }
+            notifyCycle();
         } else if (isRunning) {
-            synchronized (autosynch) {
-                autosynch.notifyAll();
-            }
+            notifyCycle();
             main.interrupt();
         }
     }
-
-    /**
-     * Wait until the specified BooleanInputPoll becomes true before returning.
-     *
-     * @param waitFor The condition to wait until.
-     * @throws AutonomousModeOverException If the autonomous mode has ended.
-     * @throws InterruptedException Possibly also if autonomous mode has ended.
-     */
-    protected void waitUntil(BooleanInputPoll waitFor) throws AutonomousModeOverException, InterruptedException {
-        while (true) {
-            if (!shouldBeRunning.get()) {
-                throw new AutonomousModeOverException();
-            }
-            if (waitFor.get()) {
-                return;
-            }
-            waitCycle();
-        }
-    }
-
-    /**
-     * Wait until the specified EventInput is produced before returning.
-     *
-     * @param source The event to wait for.
-     * @throws AutonomousModeOverException If the autonomous mode has ended.
-     * @throws InterruptedException Possibly also if autonomous mode has ended.
-     */
-    protected void waitForEvent(EventInput source) throws AutonomousModeOverException, InterruptedException {
-        final boolean[] b = new boolean[1];
-        final Object localAutosynch = autosynch;
-        EventOutput c = new EventOutput() {
-            public void event() {
-                b[0] = true;
-                synchronized (localAutosynch) {
-                    localAutosynch.notifyAll();
-                }
-            }
-        };
-        source.send(c);
-        try {
-            while (!b[0]) {
-                if (!shouldBeRunning.get()) {
-                    throw new AutonomousModeOverException();
-                }
-                waitCycle();
-            }
-        } finally {
-            source.unsend(c);
-        }
-    }
-
-    /**
-     * Wait for one of the specified conditions to become true before returning.
-     *
-     * @param waitFor The conditions to check.
-     * @return The index of the first condition that became true.
-     * @throws AutonomousModeOverException If the autonomous mode has ended.
-     * @throws InterruptedException Possibly also if autonomous mode has ended.
-     */
-    protected int waitUntilOneOf(BooleanInputPoll... waitFor) throws AutonomousModeOverException, InterruptedException {
-        while (true) {
-            if (!shouldBeRunning.get()) {
-                throw new AutonomousModeOverException();
-            }
-            for (int i = 0; i < waitFor.length; i++) {
-                if (waitFor[i].get()) {
-                    return i;
-                }
-            }
-            waitCycle();
-        }
-    }
-
-    /**
-     * Wait until the specified FloatInputPoll reaches or rises above the
-     * specified minimum.
-     *
-     * @param waitFor The value to monitor.
-     * @param minimum The threshold to wait for the value to reach.
-     * @throws AutonomousModeOverException If the autonomous mode has ended.
-     * @throws InterruptedException Possibly also if autonomous mode has ended.
-     */
-    protected void waitUntilAtLeast(FloatInputPoll waitFor, float minimum) throws AutonomousModeOverException, InterruptedException {
-        waitUntil(FloatMixing.floatIsAtLeast(waitFor, minimum));
-    }
-
-    /**
-     * Wait until the specified FloatInputPoll reaches or falls below the
-     * specified maximum.
-     *
-     * @param waitFor The value to monitor.
-     * @param maximum The threshold to wait for the value to reach.
-     * @throws AutonomousModeOverException If the autonomous mode has ended.
-     * @throws InterruptedException Possibly also if autonomous mode has ended.
-     */
-    protected void waitUntilAtMost(FloatInputPoll waitFor, float maximum) throws AutonomousModeOverException, InterruptedException {
-        waitUntil(FloatMixing.floatIsAtMost(waitFor, maximum));
-    }
-
-    /**
-     * Wait for the specified amount of time.
-     *
-     * @param milliseconds The amount of time to wait for, in milliseconds.
-     * @throws AutonomousModeOverException If the autonomous mode has ended.
-     * @throws InterruptedException Possibly also if autonomous mode has ended.
-     */
-    protected void waitForTime(long milliseconds) throws InterruptedException, AutonomousModeOverException {
-        if (milliseconds < 0) {
-            Logger.warning("Negative wait in Instinct: " + milliseconds);
-            return;
-        } else if (milliseconds == 0) {
-            return; // Do nothing.
-        }
-        try {
-            Thread.sleep(milliseconds);
-        } catch (InterruptedException ex) {
-            if (!shouldBeRunning.get()) {
-                throw new AutonomousModeOverException();
-            }
-            throw ex;
-        }
-    }
-
-    /**
-     * Wait for the specified amount of time, fetched from a FloatInputPoll specified in seconds.
-     *
-     * @param seconds The amount of time to wait for, in seconds.
-     * @throws AutonomousModeOverException If the autonomous mode has ended.
-     * @throws InterruptedException Possibly also if autonomous mode has ended.
-     */
-    protected void waitForTime(FloatInputPoll seconds) throws InterruptedException, AutonomousModeOverException {
-        waitForTime((long) (1000 * seconds.get() + 0.5f));
-    }
-
-    /**
-     * The location for the main code of this InstinctModule.
-     *
-     * @throws AutonomousModeOverException Propagate this up here when thrown by
-     * any waiting method.
-     * @throws InterruptedException Propagate this up here when thrown by any
-     * waiting method.
-     */
-    protected abstract void autonomousMain() throws AutonomousModeOverException, InterruptedException;
 }

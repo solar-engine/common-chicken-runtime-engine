@@ -91,4 +91,8 @@ public class TextComponent extends DraggableBoxComponent {
         }
         return true;
     }
+    
+    public String toString() {
+        return "Text Component [" + contents + "]";
+    }
 }

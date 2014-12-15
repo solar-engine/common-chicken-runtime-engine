@@ -64,12 +64,13 @@ public class ApolloGemini implements IgneousApplication {
         
         // Autonomous goes last because it needs channels from everything else.
         
-        InstinctMultiModule modes = new InstinctMultiModule(new TuningContext("autonomous"));
+        InstinctMultiModule modes = new InstinctMultiModule(new TuningContext("autonomous").publishSavingEvent());
         modes.addMode(new AutonomousModeForward());
         modes.addMode(new AutonomousModeHotcheck());
         modes.addMode(new AutonomousModeDouble());
         Igneous.registerAutonomous(modes);
         modes.loadSettings(modes.addNullMode("none", "I'm a sitting chicken!"));
+        modes.publishDefaultControls(true, true);
     }
 
     private void displayBatteryLevel() {

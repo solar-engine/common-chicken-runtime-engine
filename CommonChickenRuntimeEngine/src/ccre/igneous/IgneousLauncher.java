@@ -23,6 +23,7 @@ import ccre.channel.BooleanOutput;
 import ccre.channel.EventInput;
 import ccre.channel.FloatInputPoll;
 import ccre.channel.FloatOutput;
+import ccre.ctrl.ExtendedMotor;
 import ccre.ctrl.IJoystick;
 
 /**
@@ -77,6 +78,14 @@ public interface IgneousLauncher {
     public FloatOutput makeMotor(int id, int type);
 
     /**
+     * Create a reference to a CAN Jaguar.
+     * 
+     * @param deviceNumber the Jaguar's CAN device number.
+     * @return the ExtendedMotor for the Jaguar.
+     */
+    public ExtendedMotor makeCANJaguar(int deviceNumber);
+
+    /**
      * Create a reference to a solenoid on the specified port.
      *
      * @param id the port of the solenoid.
@@ -100,7 +109,7 @@ public interface IgneousLauncher {
      * @return the analog input, reporting in voltage.
      */
     public FloatInputPoll makeAnalogInput(int id);
-    
+
     /**
      * Create a reference to an analog input on the specified port with the
      * specified number of average bits.

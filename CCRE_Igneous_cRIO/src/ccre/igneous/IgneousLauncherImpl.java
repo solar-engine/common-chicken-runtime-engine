@@ -28,6 +28,7 @@ import ccre.channel.FloatOutput;
 import ccre.cluck.Cluck;
 import ccre.cluck.tcp.CluckTCPServer;
 import ccre.ctrl.BooleanMixing;
+import ccre.ctrl.ExtendedMotor;
 import ccre.ctrl.IJoystick;
 import ccre.ctrl.Ticker;
 import ccre.log.BootLogger;
@@ -507,6 +508,10 @@ final class IgneousLauncherImpl extends IterativeRobot implements IgneousLaunche
                 spc.set(f);
             }
         };
+    }
+    
+    public ExtendedMotor makeCANJaguar(int deviceNumber) {
+        return new ExtendedJaguar(deviceNumber);
     }
 
     public EventInput getGlobalPeriodic() {

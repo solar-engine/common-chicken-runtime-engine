@@ -33,6 +33,8 @@ import ccre.channel.FloatOutput;
 import ccre.cluck.Cluck;
 import ccre.cluck.tcp.CluckTCPServer;
 import ccre.ctrl.BooleanMixing;
+import ccre.ctrl.ExtendedMotor;
+import ccre.ctrl.ExtendedMotorFailureException;
 import ccre.ctrl.IJoystick;
 import ccre.ctrl.Ticker;
 import ccre.log.BootLogger;
@@ -323,7 +325,7 @@ public final class IgneousLauncherImpl extends IterativeRobot implements Igneous
             }
         };
     }
-    
+
     public FloatInputPoll makeAnalogInput(int id) {
         final AnalogInput chan = new AnalogInput(id);
         return new FloatInputPoll() {
@@ -494,6 +496,10 @@ public final class IgneousLauncherImpl extends IterativeRobot implements Igneous
         };
     }
 
+    public ExtendedMotor makeCANJaguar(int deviceNumber)throws ExtendedMotorFailureException {
+        return new ExtendedJaguar(deviceNumber);
+    }
+
     public EventInput getGlobalPeriodic() {
         return globalPeriodic;
     }
@@ -569,7 +575,7 @@ public final class IgneousLauncherImpl extends IterativeRobot implements Igneous
             }
         };
     }
-    
+
     public FloatInputPoll getPDPChannelCurrent(final int channel) {
         final PowerDistributionPanel panel = new PowerDistributionPanel();
         return new FloatInputPoll() {
@@ -578,7 +584,7 @@ public final class IgneousLauncherImpl extends IterativeRobot implements Igneous
             }
         };
     }
-    
+
     public FloatInputPoll getPDPVoltage() {
         final PowerDistributionPanel panel = new PowerDistributionPanel();
         return new FloatInputPoll() {
@@ -587,7 +593,7 @@ public final class IgneousLauncherImpl extends IterativeRobot implements Igneous
             }
         };
     }
-    
+
     public boolean isRoboRIO() {
         return true;
     }

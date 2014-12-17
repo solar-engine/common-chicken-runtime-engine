@@ -32,6 +32,8 @@ import ccre.channel.FloatOutput;
 import ccre.cluck.Cluck;
 import ccre.cluck.tcp.CluckTCPServer;
 import ccre.ctrl.BooleanMixing;
+import ccre.ctrl.ExtendedMotor;
+import ccre.ctrl.ExtendedMotorFailureException;
 import ccre.ctrl.IJoystick;
 import ccre.ctrl.Ticker;
 import ccre.log.BootLogger;
@@ -321,6 +323,10 @@ public final class RawIOIgneousLauncherImpl extends RobotBase implements Igneous
         default:
             throw new IllegalArgumentException("Unknown type: " + type);
         }
+    }
+
+    public ExtendedMotor makeCANJaguar(int deviceNumber)throws ExtendedMotorFailureException {
+        return new ExtendedJaguar(deviceNumber);
     }
 
     public EventInput getGlobalPeriodic() {

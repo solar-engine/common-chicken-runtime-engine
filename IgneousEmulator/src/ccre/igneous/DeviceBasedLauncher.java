@@ -25,6 +25,8 @@ import ccre.channel.FloatInputPoll;
 import ccre.channel.FloatOutput;
 import ccre.ctrl.BooleanMixing;
 import ccre.ctrl.EventMixing;
+import ccre.ctrl.ExtendedMotor;
+import ccre.ctrl.ExtendedMotorFailureException;
 import ccre.ctrl.FloatMixing;
 import ccre.ctrl.IJoystick;
 import ccre.ctrl.Ticker;
@@ -118,6 +120,10 @@ public class DeviceBasedLauncher implements IgneousLauncher {
             motors[index] = panel.add(new FloatViewDevice(typename + " " + id));
         }
         return motors[index];
+    }
+    
+    public ExtendedMotor makeCANJaguar(int deviceNumber) throws ExtendedMotorFailureException {
+        throw new ExtendedMotorFailureException("CAN devices not emulated currently.");
     }
 
     private BooleanOutput[] solenoids;

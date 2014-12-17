@@ -24,6 +24,8 @@ import ccre.channel.EventInput;
 import ccre.channel.FloatInputPoll;
 import ccre.channel.FloatOutput;
 import ccre.ctrl.BooleanMixing;
+import ccre.ctrl.ExtendedMotor;
+import ccre.ctrl.ExtendedMotorFailureException;
 import ccre.ctrl.FloatMixing;
 import ccre.ctrl.IJoystick;
 import ccre.ctrl.Ticker;
@@ -126,8 +128,8 @@ public class Igneous {
     }
 
     /**
-     * Create a reference to a Jaguar speed controller on the specified ID and
-     * motor reversal, with a specified ramping rate.
+     * Create a reference to a Jaguar speed controller on the specified PWM port
+     * and motor reversal, with a specified ramping rate.
      *
      * If the ramping rate is zero, then no ramping is applied. Don't use this
      * if you don't know what you're doing! Otherwise, the ramping rate is the
@@ -151,8 +153,8 @@ public class Igneous {
     }
 
     /**
-     * Create a reference to a Victor speed controller on the specified ID and
-     * motor reversal, with a specified ramping rate.
+     * Create a reference to a Victor speed controller on the specified PWM port
+     * and motor reversal, with a specified ramping rate.
      *
      * If the ramping rate is zero, then no ramping is applied. Don't use this
      * if you don't know what you're doing! Otherwise, the ramping rate is the
@@ -176,8 +178,8 @@ public class Igneous {
     }
 
     /**
-     * Create a reference to a Talon speed controller on the specified ID and
-     * motor reversal, with a specified ramping rate.
+     * Create a reference to a Talon speed controller on the specified PWM port
+     * and motor reversal, with a specified ramping rate.
      *
      * If the ramping rate is zero, then no ramping is applied. Don't use this
      * if you don't know what you're doing! Otherwise, the ramping rate is the
@@ -198,6 +200,23 @@ public class Igneous {
         FloatOutput ramped = FloatMixing.addRamping(ramping, constantPeriodic, negate ? FloatMixing.negate(motor) : motor);
         FloatMixing.setWhen(startDisabled, ramped, 0.0f);
         return ramped;
+    }
+
+    /**
+     * **** WARNING ****: THIS API IS NOT YET FINALIZED. Future changes may
+     * break your code!
+     * 
+     * Create a reference to a CAN Jaguar speed controller with the specified
+     * CAN device number. This may, of course, fail, if the Jaguar cannot be
+     * found.
+     * 
+     * @param deviceNumber the device number to connect to.
+     * @return the ExtendedMotor representing this output.
+     * @throws ExtendedMotorFailureException if the CAN Jaguar cannot be
+     * allocated for whatever reason.
+     */
+    public static ExtendedMotor makeCANJaguar(int deviceNumber) throws ExtendedMotorFailureException {
+        return launcher.makeCANJaguar(deviceNumber);
     }
 
     /**

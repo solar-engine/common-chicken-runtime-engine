@@ -30,6 +30,7 @@ import ccre.ctrl.FloatMixing;
 import ccre.ctrl.IJoystick;
 import ccre.ctrl.Ticker;
 import ccre.instinct.InstinctModule;
+import ccre.log.Logger;
 
 /**
  * The main class to access Igneous channels.
@@ -216,6 +217,7 @@ public class Igneous {
      * allocated for whatever reason.
      */
     public static ExtendedMotor makeCANJaguar(int deviceNumber) throws ExtendedMotorFailureException {
+        Logger.warning("The CCRE CAN functionality is NOT yet complete and is UNTESTED! Use with your own risk.");
         return launcher.makeCANJaguar(deviceNumber);
     }
 

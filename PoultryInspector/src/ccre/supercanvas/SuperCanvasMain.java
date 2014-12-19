@@ -78,6 +78,7 @@ public class SuperCanvasMain extends JFrame {
                             case KeyEvent.VK_BACK_SPACE:
                                 canvas.editing.setLength(Math.max(0, canvas.editing.length() - 1));
                                 break;
+                            case KeyEvent.VK_END:
                             case KeyEvent.VK_ENTER:
                                 canvas.pressedEnter();
                                 break;

@@ -64,7 +64,7 @@ public class PhysicalPhidgetComponent extends DraggableBoxComponent {
 
     @Override
     public String toString() {
-        return "Phidget Monitor";
+        return "Physical Phidget Monitor";
     }
 
     @Override

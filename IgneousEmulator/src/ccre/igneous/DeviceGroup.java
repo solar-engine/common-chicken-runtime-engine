@@ -26,8 +26,9 @@ import ccre.concurrency.ConcurrentDispatchArray;
 public class DeviceGroup extends Device {
     private final ConcurrentDispatchArray<Device> devices = new ConcurrentDispatchArray<Device>();
 
-    public synchronized void add(Device device) {
+    public synchronized <D extends Device> D add(D device) {
         devices.add(device);
+        return device;
     }
 
     @Override

@@ -7,7 +7,7 @@ import ccre.ctrl.ExtendedMotor;
 import ccre.ctrl.ExtendedMotorFailureException;
 import edu.wpi.first.wpilibj.CANJaguar;
 
-public class ExtendedJaguar implements ExtendedMotor, FloatOutput {
+public class ExtendedJaguar extends ExtendedMotor implements FloatOutput {
 
     private final CANJaguar jaguar;
     private Boolean enableMode = null; // null until something cares. This means that it's not enabled, but could be automatically.

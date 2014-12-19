@@ -33,6 +33,7 @@ import ccre.ctrl.Ticker;
 import ccre.igneous.IgneousLauncher;
 import ccre.igneous.devices.BooleanControlDevice;
 import ccre.igneous.devices.BooleanViewDevice;
+import ccre.igneous.devices.CANJaguarDevice;
 import ccre.igneous.devices.DSLCDDevice;
 import ccre.igneous.devices.FloatControlDevice;
 import ccre.igneous.devices.FloatViewDevice;
@@ -123,7 +124,7 @@ public class DeviceBasedLauncher implements IgneousLauncher {
     }
     
     public ExtendedMotor makeCANJaguar(int deviceNumber) throws ExtendedMotorFailureException {
-        throw new ExtendedMotorFailureException("CAN devices not emulated currently.");
+        return new CANJaguarDevice(deviceNumber, panel).addToMaster().getMotor();
     }
 
     private BooleanOutput[] solenoids;

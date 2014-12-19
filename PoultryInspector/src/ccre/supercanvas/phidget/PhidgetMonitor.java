@@ -53,7 +53,7 @@ import java.util.Arrays;
  *
  * @author skeggsc
  */
-public class PhidgetMonitor implements IPhidgetMonitor, AttachListener, DetachListener, ErrorListener, InputChangeListener, SensorChangeListener {
+public class PhidgetMonitor implements Serializable, AttachListener, DetachListener, ErrorListener, InputChangeListener, SensorChangeListener {
 
     private static final long serialVersionUID = -8665410515221749926L;
     /**
@@ -166,7 +166,6 @@ public class PhidgetMonitor implements IPhidgetMonitor, AttachListener, DetachLi
         }
     }
 
-    @Override
     public void share() {
         isShared = true;
         lcd.addAttachListener(this);
@@ -203,7 +202,6 @@ public class PhidgetMonitor implements IPhidgetMonitor, AttachListener, DetachLi
         Cluck.getNode().notifyNetworkModified();
     }
 
-    @Override
     public void unshare() {
         isShared = false;
         lcd.removeAttachListener(this);
@@ -229,32 +227,6 @@ public class PhidgetMonitor implements IPhidgetMonitor, AttachListener, DetachLi
             Cluck.getNode().removeLink("phidget-ai" + i);
         }
         Cluck.getNode().notifyNetworkModified();
-    }
-
-    @Override
-    public void displayClosing() {
-        try {
-            lcd.setDisplayString(0, "Poultry Inspector is");
-            lcd.setDisplayString(1, "     now closed.    ");
-        } catch (PhidgetException ex) {
-            Logger.severe("Cannot update string output to Phidget: " + ex);
-        }
-    }
-
-    @Override
-    public void connectionDown() {
-        lines[0].set("  Connection lost.  ");
-        lines[1].set("       Sorry.       ");
-    }
-
-    @Override
-    public void connectionUp() {
-        if ("  Connection lost.  ".equals(lines[0].get())) {
-            lines[0].set("  .  .  .  .  .  .  ");
-        }
-        if ("       Sorry.       ".equals(lines[1].get())) {
-            lines[1].set("  .  .  .  .  .  .  ");
-        }
     }
 
     private void updateStringOutput(int line) {

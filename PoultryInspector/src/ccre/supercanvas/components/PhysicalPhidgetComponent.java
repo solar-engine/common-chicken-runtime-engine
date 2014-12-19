@@ -22,68 +22,39 @@ import java.awt.Color;
 import java.awt.FontMetrics;
 import java.awt.Graphics2D;
 
-import ccre.channel.EventOutput;
 import ccre.supercanvas.DraggableBoxComponent;
 import ccre.supercanvas.Rendering;
 import ccre.supercanvas.SuperCanvasPanel;
-import ccre.supercanvas.phidget.IPhidgetMonitor;
 import ccre.supercanvas.phidget.PhidgetMonitor;
-import ccre.supercanvas.phidget.VirtualPhidgetMonitor;
 
 /**
  * A component that represents a Phidget Monitor.
  *
  * @author skeggsc
- * @param <M> The subtype of IPhidgetMonitor that this contains
  */
-public class PhidgetMonitorComponent<M extends IPhidgetMonitor> extends DraggableBoxComponent {
-    
-    public static class VirtualPhidget extends PhidgetMonitorComponent<VirtualPhidgetMonitor> implements EventOutput {
-        private static final long serialVersionUID = -3640780784824672778L;
-
-        public VirtualPhidget(int cx, int cy) {
-            super(cx, cy, "VirtualPhidget", new VirtualPhidgetMonitor());
-            monitor.setCloseEvent(this);
-        }
-        @Override
-        public void event() {
-            getPanel().remove(this);
-        }
-    }
-
-    public static class PhysicalPhidget extends PhidgetMonitorComponent<PhidgetMonitor> {
-        private static final long serialVersionUID = 1440999334054971431L;
-
-        public PhysicalPhidget(int cx, int cy) {
-            super(cx, cy, "PhysicalPhidget", new PhidgetMonitor());
-        }
-    }
+public class PhysicalPhidgetComponent extends DraggableBoxComponent {
 
     private static final long serialVersionUID = -8989662604456982035L;
-    protected final M monitor;
-    private final String label;
+    private final PhidgetMonitor monitor = new PhidgetMonitor();
     private boolean shared = false;
 
     /**
-     * Create a new PhidgetMonitorComponent with a VirtualPhidgetMonitor.
+     * Create a new PhidgetMonitorComponent.
      *
      * @param cx the X-coordinate.
      * @param cy the Y-coordinate.
-     * @param monitor the monitor to display.
      */
-    private PhidgetMonitorComponent(int cx, int cy, String label, M monitor) {
+    public PhysicalPhidgetComponent(int cx, int cy) {
         super(cx, cy, true);
-        this.label = label;
-        this.monitor = monitor;
     }
 
     @Override
     public void render(Graphics2D g, int screenWidth, int screenHeight, FontMetrics fontMetrics, int mouseX, int mouseY) {
-        halfWidth = Math.max(70, fontMetrics.stringWidth(label) / 2);
+        halfWidth = 70;
         halfHeight = fontMetrics.getHeight() / 2 + 1;
         Rendering.drawBody(Color.RED, g, this);
         g.setColor(Color.BLACK);
-        g.drawString(label, centerX - halfWidth + 5, centerY - halfHeight + 1 + fontMetrics.getAscent());
+        g.drawString("PhysicalPhidget", centerX - halfWidth + 5, centerY - halfHeight + 1 + fontMetrics.getAscent());
     }
 
     @Override
@@ -93,7 +64,7 @@ public class PhidgetMonitorComponent<M extends IPhidgetMonitor> extends Draggabl
 
     @Override
     public String toString() {
-        return "Phidget Monitor: " + label;
+        return "Phidget Monitor";
     }
 
     @Override

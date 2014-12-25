@@ -10,13 +10,11 @@ public class ConfigTree<T> {
         this.value = value;
         this.branches = branches;
     }
-    
-    public ConfigTree()
-    
+        
     public String description() {
         String desc = name + ": " + value;
         
-        if (branches.length > 0){
+        if (branches != null && branches.length > 0){
             desc += "\nSubnodes: [\n";
             for (int i = 0; i < branches.length; i++) {
                 desc += branches[i].description() + "\n";

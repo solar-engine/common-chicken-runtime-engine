@@ -92,8 +92,7 @@ public class IgneousNetworkProvider implements NetworkProvider {
         }
 
         public boolean setSocketTimeout(int millis) throws IOException {
-            // TODO: Find a way to timeout sockets.
-            return false;
+            return false; // Not implemented.
         }
 
         public InputStream openInputStream() throws IOException {
@@ -135,7 +134,6 @@ public class IgneousNetworkProvider implements NetworkProvider {
     }
 
     public boolean isTimeoutException(IOException ex) {
-        // TODO: Add this when we add timeouts to Igneous.
-        return false;
+        return false; // Not implemented.
     }
 }

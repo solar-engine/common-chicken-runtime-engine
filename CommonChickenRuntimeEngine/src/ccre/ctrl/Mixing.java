@@ -104,7 +104,7 @@ public class Mixing {
                     }
                 });
             }
-            
+
             public float get() {
                 return cur;
             }
@@ -187,7 +187,8 @@ public class Mixing {
      * on the BooleanInputProducer's value.
      *
      * Warning: changes to the FloatInputPoll parameters will not modify the
-     * output until the BooleanInputProducer changes!
+     * output until the BooleanInput changes! However, this is likely to be
+     * fixed in the future.
      *
      * @param selector the selector to choose an input using.
      * @param default_ the value to default the selector to before it changes.
@@ -197,7 +198,7 @@ public class Mixing {
      * of the two arguments.
      */
     public static FloatInput select(final BooleanInput selector, final boolean default_, final FloatInputPoll off, final FloatInputPoll on) {
-        return new FloatInput() { // TODO: Can we vary a FloatInputPoll to read from instead of varying an active value thereof?
+        return new FloatInput() { // Can we vary a FloatInputPoll to read from instead of varying an active value thereof?
             private float cur = default_ ? on.get() : off.get();
             private CArrayList<FloatOutput> consumers = null;
 
@@ -213,7 +214,7 @@ public class Mixing {
                     }
                 });
             }
-            
+
             public float get() {
                 return cur;
             }

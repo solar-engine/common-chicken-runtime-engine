@@ -118,7 +118,7 @@ public class CluckPublisher {
 
             @Override
             protected void receiveBroadcast(String source, byte[] data) {
-                defaultBroadcastHandle(source, data, RMT_EVENTOUTP); // TODO: Can I make these anonymous classes simpler?
+                defaultBroadcastHandle(source, data, RMT_EVENTOUTP);
             }
         }.attach(name);
     }
@@ -735,7 +735,7 @@ public class CluckPublisher {
         }
     }
 
-    private static class SubscribedEventInput extends EventStatus { // TODO: Links not removed on unload!
+    private static class SubscribedEventInput extends EventStatus {
 
         private static final long serialVersionUID = -4051785233205840392L;
 

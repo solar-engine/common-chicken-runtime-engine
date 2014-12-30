@@ -93,7 +93,7 @@ public final class RawIOIgneousLauncherImpl extends RobotBase implements Igneous
         FileLogger.register();
     }
 
-    public enum Mode { // TODO: Remove static stuff.
+    public enum Mode {
         DISABLED("disabled"), AUTONOMOUS("autonomous"), TELEOP("teleop"), TEST("test");
 
         private Mode(String name) {

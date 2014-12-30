@@ -37,7 +37,7 @@ import ccre.util.CArrayList;
  *
  * @author skeggsc
  */
-public final class ExpirationTimer { // TODO: Allow tunable scheduling.
+public final class ExpirationTimer {
 
     /**
      * The list of tasks, sorted in order with the first task (shortest delay)

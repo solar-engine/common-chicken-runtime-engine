@@ -13,7 +13,7 @@ public class ConfigTree {
         this.nodes = new CArrayList<ConfigTreeNode<?>>();
     }
     
-    public ConfigTree(String name, ConfigTree[] branches, ConfigTreeNode<?>[] values) {
+    protected ConfigTree(String name, ConfigTree[] branches, ConfigTreeNode<?>[] values) {
         this.name = name;
         this.branches = new CArrayList<ConfigTree>(branches);
         this.nodes = new CArrayList<ConfigTreeNode<?>>(values);

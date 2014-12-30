@@ -1,6 +1,5 @@
 package ccre.config;
 
-import ccre.log.Logger;
 import ccre.util.CArrayList;
 
 public class ConfigTree {
@@ -102,6 +101,11 @@ public class ConfigTree {
         
     }
     
+    public Boolean getBool(String path) {
+        ConfigTreeBoolNode node = (ConfigTreeBoolNode) this.getNode(path);
+        return node.value;
+    }
+
     public Boolean getBoolean(String path, boolean default_) {
         String[] pathComponents = path.split("/");
         String lastComponent = pathComponents[pathComponents.length - 1];

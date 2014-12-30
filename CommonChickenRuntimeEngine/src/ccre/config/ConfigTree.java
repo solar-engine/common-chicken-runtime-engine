@@ -23,47 +23,23 @@ public class ConfigTree {
         return getNode(path, null);
     }
 
-    private ConfigTreeNode<?> getNodeRecursive(CArrayList<String> pathComponents, ConfigTreeNode<?> default_) {
-        String firstPathComponent = pathComponents.get(0);
-
-        if (pathComponents.size() == 1) {
-            ConfigTreeNode<?> currentNode = null;
-            for (ConfigTreeNode<?> node : nodes) {
-                if (node.name.equals(pathComponents.get(0))) {
-                    currentNode = node;
-                    break;
-                }
-            }
-            if (currentNode == null) {
-                if (default_ != null) {
-                    nodes.add(default_);
-                }
-                return default_;
-            }
-            return currentNode;
-        }
-
-        ConfigTree nextBranch = null;
-        for (ConfigTree branch : branches) {
-            if (branch.name.equals(firstPathComponent)) {
-                nextBranch = branch;
+    public ConfigTreeNode<?> getNode(String path, ConfigTreeNode<?> default_) {
+        String[] pathComponents = path.split("/");
+        ConfigTree parent = this.getNodeParent(path);
+        ConfigTreeNode<?> currentNode = null;
+        for (ConfigTreeNode<?> node : parent.nodes) {
+            if (node.name.equals(pathComponents[0])) {
+                currentNode = node;
                 break;
             }
         }
-
-        if (nextBranch == null) {
-            nextBranch = this.getSubtree(firstPathComponent);
+        if (currentNode == null) {
+            if (default_ != null) {
+                parent.nodes.add(default_);
+            }
+            return default_;
         }
-
-        pathComponents.remove(0);
-        return nextBranch.getNodeRecursive(pathComponents, default_);
-    }
-
-    public ConfigTreeNode<?> getNode(String path, ConfigTreeNode<?> default_) {
-        String[] pathComponents = path.split("/");
-        CArrayList<String> pathComponentsArray = new CArrayList<String>(pathComponents);
-
-        return this.getNodeRecursive(pathComponentsArray, default_);
+        return currentNode;
     }
 
     private ConfigTree getNodeParent(String path) {
@@ -154,49 +130,25 @@ public class ConfigTree {
 
     public ConfigTree getSubtree(String path, ConfigTree default_) {
         String[] pathComponents = path.split("/");
-        CArrayList<String> pathComponentsArray = new CArrayList<String>(pathComponents);
-        return this.getSubtreeRecursive(pathComponentsArray, default_);
-    }
-
-    private ConfigTree getSubtreeRecursive(CArrayList<String> pathComponents, ConfigTree default_) {
-        String firstPathComponent = pathComponents.get(0);
-
-        if (pathComponents.size() == 1) {
-
-            ConfigTree currentBranch = null;
-            for (ConfigTree branch : branches) {
-                if (branch.name == firstPathComponent) {
-                    currentBranch = branch;
-                }
-            }
-
-            if (currentBranch == null) {
-                if (default_ != null) {
-                    branches.add(default_);
-                    return default_;
-                } else {
-                    ConfigTree tempConfigTree = new ConfigTree(firstPathComponent);
-                    branches.add(tempConfigTree);
-                    return tempConfigTree;
-                }
-            }
-            return currentBranch;
-        }
-
-        ConfigTree nextBranch = null;
-        for (ConfigTree branch : branches) {
-            if (branch.name == firstPathComponent) {
-                nextBranch = branch;
-                break;
+        ConfigTree parent = this.getNodeParent(path);
+        ConfigTree currentBranch = null;
+        for (ConfigTree branch : parent.branches) {
+            if (branch.name == pathComponents[0]) {
+                currentBranch = branch;
             }
         }
 
-        if (nextBranch == null) {
-            nextBranch = this.getSubtree(firstPathComponent);
+        if (currentBranch == null) {
+            if (default_ != null) {
+                parent.branches.add(default_);
+                return default_;
+            } else {
+                ConfigTree tempConfigTree = new ConfigTree(pathComponents[0]);
+                parent.branches.add(tempConfigTree);
+                return tempConfigTree;
+            }
         }
-
-        pathComponents.remove(0);
-        return nextBranch.getSubtreeRecursive(pathComponents, default_);
+        return currentBranch;
 
     }
 

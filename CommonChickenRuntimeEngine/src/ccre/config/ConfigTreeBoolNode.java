@@ -8,7 +8,7 @@ public class ConfigTreeBoolNode extends ConfigTreeNode<Boolean> {
         this.value = false;
     }
     
-    public ConfigTreeBoolNode(String name, Boolean value) {
+    public ConfigTreeBoolNode(String name, boolean value) {
         this.name = name;
         this.value = value;
     }

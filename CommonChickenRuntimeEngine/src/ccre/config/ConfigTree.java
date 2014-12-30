@@ -19,6 +19,7 @@ public class ConfigTree {
         this.nodes = new CArrayList<ConfigTreeNode<?>>(values);
     }
     
+    
     public ConfigTreeNode<?> getNode(String path) {
         return getNode(path, null);   
     }
@@ -66,10 +67,33 @@ public class ConfigTree {
         return this.getNodeRecursive(pathComponentsArray, default_);
     }
     
+    private ConfigTree getNodeParent(String path) {
+        CArrayList<String> parentPathComponents = new CArrayList<String>(path.split("/"));
+        parentPathComponents.remove(parentPathComponents.size() - 1);
+        
+        ConfigTree currentBranch = this;
+        for (String pathComponent: parentPathComponents) {
+            for (ConfigTree branch: currentBranch.branches) {
+                if (branch.name.equals(pathComponent)) {
+                    currentBranch = branch;
+                    break;
+                }
+            }
+        }
+        
+        return currentBranch;
+    }
+
     public ConfigTreeNode<?> setNode(String path, ConfigTreeNode<?> node) {
-        ConfigTreeNode<?> currentNode = this.getNode(path, node);
-        currentNode = node;
-        return currentNode;
+        ConfigTreeNode<?> currentNode = this.getNode(path);
+        if (currentNode == null) {
+            return this.getNode(path, node);
+        } else {
+            ConfigTree parent = this.getNodeParent(path);
+            int index = parent.nodes.indexOf(currentNode);
+            parent.nodes.set(index, node);
+            return node;
+        }
     }
     
     // Get float.

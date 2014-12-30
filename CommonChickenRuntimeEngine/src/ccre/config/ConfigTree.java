@@ -4,15 +4,16 @@ import ccre.log.Logger;
 import ccre.util.CArrayList;
 
 public class ConfigTree {
-    public String name;
-    public CArrayList<ConfigTree> branches;
-    public CArrayList<ConfigTreeNode<?>> nodes;
+    private final String name;
+    private final CArrayList<ConfigTree> branches;
+    private final CArrayList<ConfigTreeNode<?>> nodes;
     
     public ConfigTree(String name) {
         this.name = name;
         this.branches = new CArrayList<ConfigTree>();
         this.nodes = new CArrayList<ConfigTreeNode<?>>();
     }
+    
     public ConfigTree(String name, ConfigTree[] branches, ConfigTreeNode<?>[] values) {
         this.name = name;
         this.branches = new CArrayList<ConfigTree>(branches);
@@ -29,7 +30,7 @@ public class ConfigTree {
         if (pathComponents.size() == 1) {            
             ConfigTreeNode<?> currentNode = null;
             for (ConfigTreeNode<?> node: nodes) {
-                if (node.name == pathComponents.get(0)) {
+                if (node.name.equals(pathComponents.get(0))) {
                     currentNode = node;
                     break;
                 }
@@ -45,7 +46,7 @@ public class ConfigTree {
         
         ConfigTree nextBranch = null;
         for (ConfigTree branch: branches) {
-            if (branch.name == firstPathComponent) {
+            if (branch.name.equals(firstPathComponent)) {
                 nextBranch = branch;
                 break;
             }
@@ -56,9 +57,6 @@ public class ConfigTree {
         }
         
         pathComponents.remove(0);
-        Logger.fine(pathComponents.toString());
-        Logger.fine(" " + default_);
-        Logger.fine(" " + nextBranch);
         return nextBranch.getNodeRecursive(pathComponents, default_);
     }
     

@@ -198,17 +198,18 @@ public class Mixing {
      * of the two arguments.
      */
     public static FloatInput select(final BooleanInput selector, final boolean default_, final FloatInputPoll off, final FloatInputPoll on) {
-        return new FloatInput() { // Can we vary a FloatInputPoll to read from instead of varying an active value thereof?
-            private float cur = default_ ? on.get() : off.get();
+        return new FloatInput() {
+            private FloatInputPoll cur = default_ ? on : off;
             private CArrayList<FloatOutput> consumers = null;
 
             {
                 selector.send(new BooleanOutput() {
                     public void set(boolean value) {
-                        cur = value ? on.get() : off.get();
+                        cur = value ? on : off;
                         if (consumers != null) {
+                            float val = cur.get();
                             for (FloatOutput out : consumers) {
-                                out.set(cur);
+                                out.set(val);
                             }
                         }
                     }
@@ -216,7 +217,7 @@ public class Mixing {
             }
 
             public float get() {
-                return cur;
+                return cur.get();
             }
 
             public void send(FloatOutput consum) {
@@ -224,7 +225,7 @@ public class Mixing {
                     consumers = new CArrayList<FloatOutput>();
                 }
                 consumers.add(consum);
-                consum.set(cur);
+                consum.set(get());
             }
 
             public void unsend(FloatOutput consum) {

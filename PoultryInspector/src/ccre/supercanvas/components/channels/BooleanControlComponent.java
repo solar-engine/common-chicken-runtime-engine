@@ -41,7 +41,7 @@ import ccre.supercanvas.SuperCanvasPanel;
  */
 public class BooleanControlComponent extends BaseChannelComponent<BooleanControlComponent.View> implements BooleanInput {
 
-    public static enum View {
+    static enum View {
         CONFIGURATION, RED_GREEN_SWITCH, LINEAR_ON_OFF, TEXTUAL
     }
 

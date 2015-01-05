@@ -41,6 +41,11 @@ import ccre.supercanvas.components.pinned.StartComponent;
  */
 public class SuperCanvasMain extends JFrame {
 
+    /**
+     * The main method of the Poultry Inspector.
+     * 
+     * @param args the unused program arguments.
+     */
     public static void main(String args[]) {
         //System.setProperty("sun.io.serialization.extendedDebugInfo", "true");
         CountingNetworkProvider.register();
@@ -58,7 +63,7 @@ public class SuperCanvasMain extends JFrame {
 
     private final SuperCanvasPanel canvas = new SuperCanvasPanel();
 
-    public SuperCanvasMain() {
+    private SuperCanvasMain() {
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         this.setContentPane(canvas);
         this.setSize(640, 480);

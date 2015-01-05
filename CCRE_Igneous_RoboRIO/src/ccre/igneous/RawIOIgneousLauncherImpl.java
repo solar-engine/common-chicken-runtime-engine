@@ -84,6 +84,9 @@ public final class RawIOIgneousLauncherImpl extends RobotBase implements Igneous
     
     private Mode activeMode;
 
+    /**
+     * Create and initialize a new RawIOIgneousLauncherImpl.
+     */
     public RawIOIgneousLauncherImpl() {
         File rootDir = new File("/home/lvuser/ccre-storage");
         rootDir.mkdirs();
@@ -93,7 +96,7 @@ public final class RawIOIgneousLauncherImpl extends RobotBase implements Igneous
         FileLogger.register();
     }
 
-    public enum Mode {
+    private enum Mode {
         DISABLED("disabled"), AUTONOMOUS("autonomous"), TELEOP("teleop"), TEST("test");
 
         private Mode(String name) {

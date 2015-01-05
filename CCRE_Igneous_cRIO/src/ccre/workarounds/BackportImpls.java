@@ -18,11 +18,31 @@
  */
 package ccre.workarounds;
 
+/**
+ * Methods used for miscellaneous added methods on builtin classes during cRIO
+ * backporting.
+ * 
+ * @author skeggsc
+ */
 public class BackportImpls {
+    /**
+     * Convert a boolean to a string, as either "true" or "false".
+     * 
+     * @param b the boolean to convert.
+     * @return "true" or "false" depending on b.
+     */
     public static String java_lang_Boolean_toString(boolean b) {
         return b ? "true" : "false";
     }
-    
+
+    /**
+     * Convert a string to a boolean. str is interpreted as true iff the value
+     * is "true", ignoring case: so, "TRUE", "trUE", "tRuE", and "true" will all
+     * be true.
+     * 
+     * @param str the string to parse.
+     * @return the boolean version.
+     */
     public static boolean java_lang_Boolean_parseBoolean(String str) {
         return "true".equalsIgnoreCase(str);
     }

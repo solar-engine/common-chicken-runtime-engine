@@ -18,7 +18,15 @@
  */
 package java.lang;
 
-public final class StringBuilder { // Just a stub. Will be deleted later.
+/**
+ * Used during compilation, but then removed completely. This lets the
+ * second-stage compilation (once StringBuilder has be translated to
+ * StringBuffer) to compile properly.
+ * 
+ * @author skeggsc
+ */
+@SuppressWarnings("javadoc")
+public final class StringBuilder { // Just a stub. Will be deleted later in the build process.
 
     public StringBuilder() {
         throw new Error("Stub class.");

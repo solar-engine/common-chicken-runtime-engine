@@ -41,7 +41,7 @@ import ccre.supercanvas.SuperCanvasPanel;
  */
 public class FloatDisplayComponent extends BaseChannelComponent<FloatDisplayComponent.View> implements FloatOutput {
 
-    public static enum View {
+    static enum View {
         CONFIGURATION, HORIZONTAL_POINTER, DIAL, TEXTUAL
     }
 

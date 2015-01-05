@@ -18,16 +18,28 @@
  */
 package ccre.igneous.devices;
 
+import ccre.channel.BooleanInputPoll;
 import ccre.channel.BooleanOutput;
 import ccre.igneous.Device;
 import ccre.igneous.components.BooleanTextComponent;
 import ccre.igneous.components.SpacingComponent;
 import ccre.igneous.components.TextComponent;
 
-public class BooleanViewDevice extends Device implements BooleanOutput {
+/**
+ * A device representing some sort of boolean readout, such as a Solenoid or
+ * digital output.
+ * 
+ * @author skeggsc
+ */
+public class BooleanViewDevice extends Device implements BooleanOutput, BooleanInputPoll {
 
     private final BooleanTextComponent actuated = new BooleanTextComponent("DEACTUATED", "ACTUATED");
 
+    /**
+     * Create a new BooleanViewDevice with a label to describe the device.
+     * 
+     * @param label how to describe the device.
+     */
     public BooleanViewDevice(String label) {
         add(new SpacingComponent(20));
         add(new TextComponent(label));

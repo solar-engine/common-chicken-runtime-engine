@@ -23,23 +23,50 @@ import java.awt.Color;
 import ccre.channel.BooleanInputPoll;
 import ccre.channel.BooleanOutput;
 
+/**
+ * A textual display component that displays one of two strings based on whether
+ * the value is on or off. This can be optionally editable by the user by
+ * clicking it - this is disabled by default.
+ * 
+ * @author skeggsc
+ */
 public class BooleanTextComponent extends TextComponent implements BooleanOutput, BooleanInputPoll {
 
     private final String off, on;
     private boolean state = false;
     private boolean editable = false;
 
+    /**
+     * Create a new BooleanTextComponent with off and on as its strings for
+     * being boolean TRUE or boolean FALSE.
+     * 
+     * @param off the label to display when FALSE
+     * @param on the label to display when TRUE
+     */
     public BooleanTextComponent(String off, String on) {
-        super(off, new String[] {off, on});
+        super(off, new String[] { off, on });
         this.off = off;
         this.on = on;
         setColor(Color.RED.darker());
     }
-    
-    public BooleanTextComponent(String string) {
-        this(string, string);
+
+    /**
+     * Create a new BooleanTextComponent that only displays label, regardless of
+     * boolean state.
+     * 
+     * @param label the label to always display
+     */
+    public BooleanTextComponent(String label) {
+        this(label, label);
     }
 
+    /**
+     * Sets whether the component is editable by the user by clicking on this
+     * component.
+     * 
+     * @param editable if the component should be editable.
+     * @return this component, for method chaining.
+     */
     public BooleanTextComponent setEditable(boolean editable) {
         this.editable = editable;
         return this;

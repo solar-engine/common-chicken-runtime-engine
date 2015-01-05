@@ -42,12 +42,27 @@ import ccre.igneous.devices.RobotModeDevice;
 import ccre.igneous.devices.SpinDevice;
 import ccre.log.Logger;
 
+/**
+ * The IgneousLauncher provided to an emulated Igneous robot, for cRIO or
+ * roboRIO.
+ * 
+ * @author skeggsc
+ */
 public class DeviceBasedLauncher implements IgneousLauncher {
 
+    /**
+     * The DeviceListPanel used for all the virtual devices.
+     */
     public final DeviceListPanel panel = new DeviceListPanel();
     private final boolean isRoboRIO;
     private final int baseIndex;
 
+    /**
+     * Create a new DeviceBasedLauncher for either the cRIO or roboRIO.
+     * 
+     * @param isRoboRIO specifies if the emulated robot should have a roboRIO
+     * instead of a cRIO.
+     */
     public DeviceBasedLauncher(boolean isRoboRIO) {
         this.isRoboRIO = isRoboRIO;
         baseIndex = isRoboRIO ? 0 : 1;
@@ -61,7 +76,7 @@ public class DeviceBasedLauncher implements IgneousLauncher {
         relaysFwd = new BooleanOutput[isRoboRIO ? 4 : 8];
         relaysRev = new BooleanOutput[relaysFwd.length];
     }
-    
+
     private int checkRange(String name, int id, Object[] target) {
         if (id < baseIndex || id >= target.length + baseIndex) {
             throw new IllegalArgumentException(name + " index out-of-range: " + id);
@@ -122,7 +137,7 @@ public class DeviceBasedLauncher implements IgneousLauncher {
         }
         return motors[index];
     }
-    
+
     public ExtendedMotor makeCANJaguar(int deviceNumber) throws ExtendedMotorFailureException {
         return new CANJaguarDevice(deviceNumber, panel).addToMaster().getMotor();
     }
@@ -246,7 +261,7 @@ public class DeviceBasedLauncher implements IgneousLauncher {
     public FloatInputPoll makeAccelerometerAxis(int port, double sensitivity, double zeropoint) {
         return panel.add(new SpinDevice("Accelerometer " + port + " (Sensitivity " + sensitivity + ", Zero-Point " + zeropoint + ")", null));
     }
-    
+
     private FloatInputPoll batteryLevel;
 
     public FloatInputPoll getBatteryVoltage() {

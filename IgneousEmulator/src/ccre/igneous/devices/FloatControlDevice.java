@@ -25,10 +25,20 @@ import ccre.igneous.components.ControlBarComponent;
 import ccre.igneous.components.SpacingComponent;
 import ccre.igneous.components.TextComponent;
 
+/**
+ * A device allowing control of a floating-point number.
+ * 
+ * @author skeggsc
+ */
 public class FloatControlDevice extends Device implements FloatInput {
 
     private final ControlBarComponent value = new ControlBarComponent().setMaxWidth(200);
 
+    /**
+     * Create a new FloatControlComponent with a label to describe this device.
+     * 
+     * @param label how to describe this device.
+     */
     public FloatControlDevice(String label) {
         add(new SpacingComponent(20));
         add(new TextComponent(label));

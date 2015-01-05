@@ -37,7 +37,7 @@ import ccre.supercanvas.SuperCanvasPanel;
  */
 public class EventControlComponent extends BaseChannelComponent<EventControlComponent.View> implements EventInput {
 
-    public static enum View {
+    static enum View {
         CONFIGURATION, ISOMETRIC_BUTTON, SQUARE_BUTTON, TEXTUAL
     }
 

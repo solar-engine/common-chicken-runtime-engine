@@ -22,22 +22,38 @@ import ccre.igneous.Device;
 import ccre.igneous.components.SpacingComponent;
 import ccre.igneous.components.TextComponent;
 
+/**
+ * A device to display modifiable text.
+ * 
+ * @author skeggsc
+ */
 public class TextualDisplayDevice extends Device {
 
     private final int height;
     private final TextComponent text;
 
+    /**
+     * Create a new TextualDisplayDevice with an initial string and specified
+     * height.
+     * 
+     * @param string the initial string to display.
+     * @param height the wanted height of the device.
+     */
     public TextualDisplayDevice(String string, int height) {
         this.height = height;
         add(new SpacingComponent(20));
         text = new TextComponent(string);
         add(text);
     }
-    
+
+    /**
+     * Change the displayed text.
+     * @param str the new text to display.
+     */
     public void set(String str) {
         text.setLabel(str);
     }
-    
+
     public int getHeight() {
         return height;
     }

@@ -35,7 +35,7 @@ import ccre.util.CCollection;
 
 /**
  * A component that displays the current results from the
- * CountingNetworkProvider.
+ * CountingNetworkProvider and allows control of the remote IP address.
  *
  * @author skeggsc
  */
@@ -56,6 +56,9 @@ public class CluckNetworkingComponent extends SuperCanvasComponent {
     private boolean expanded = false;
     private transient CluckTCPClient client;
 
+    /**
+     * Create a new CluckNetworkingComponent.
+     */
     public CluckNetworkingComponent() {
         new Ticker(5000).send(new EventOutput() {
             @Override

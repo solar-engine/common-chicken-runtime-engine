@@ -29,6 +29,12 @@ import ccre.ctrl.ExtendedMotorFailureException;
 import ccre.igneous.DeviceGroup;
 import ccre.igneous.DeviceListPanel;
 
+/**
+ * A virtual CANJaguar, which will contain any statuses, diagnostics, or outputs
+ * requested by the application.
+ * 
+ * @author skeggsc
+ */
 public class CANJaguarDevice extends DeviceGroup {
 
     private BooleanViewDevice enabled;
@@ -39,15 +45,41 @@ public class CANJaguarDevice extends DeviceGroup {
     private TextualDisplayDevice pidStatus;
     private boolean wasAddedToMaster = false;
 
+    /**
+     * Creates a new CANJaguarDevice described as name with a specified
+     * DeviceListPanel to contain this device.
+     * 
+     * Make sure to call addToMaster - don't add this directly.
+     * 
+     * @param name how to describe the CANJaguarDevice.
+     * @param master the panel that contains this.
+     * @see #addToMaster()
+     */
     public CANJaguarDevice(String name, DeviceListPanel master) {
         add(new HeadingDevice(name));
         this.master = master;
     }
 
+    /**
+     * Creates a new CANJaguarDevice described as a CAN Jaguar of the given ID
+     * with a specified DeviceListPanel to contain this device.
+     * 
+     * Make sure to call addToMaster - don't add this directly.
+     * 
+     * @param id the CAN bus ID of the device.
+     * @param master the panel that contains this.
+     * @see #addToMaster()
+     */
     public CANJaguarDevice(int id, DeviceListPanel master) {
         this("CAN Jaguar " + id, master);
     }
 
+    /**
+     * Add this device to its master panel, or do nothing if this has already
+     * been done.
+     * 
+     * @return this CANJaguarDevice, for method chaining purposes.
+     */
     public synchronized CANJaguarDevice addToMaster() {
         if (!wasAddedToMaster) {
             wasAddedToMaster = true;
@@ -56,6 +88,11 @@ public class CANJaguarDevice extends DeviceGroup {
         return this;
     }
 
+    /**
+     * Gets the ExtendedMotor interface to pass to the emulated program.
+     * 
+     * @return the ExtendedMotor of this CANJaguar.
+     */
     public ExtendedMotor getMotor() {
         return value;
     }

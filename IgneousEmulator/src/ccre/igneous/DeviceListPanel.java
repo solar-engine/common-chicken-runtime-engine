@@ -83,6 +83,11 @@ public final class DeviceListPanel extends JPanel {
      */
     private transient String[] errorMessageLines = {};
 
+    /**
+     * Set the error message currently being displayed.
+     * 
+     * @param thr the Throwable to be displayed, or null to display nothing.
+     */
     public void setErrorDisplay(Throwable thr) {
         errorMessageLines = thr == null ? new String[0] : ThrowablePrinter.toStringThrowable(thr).split("\n");
     }
@@ -168,7 +173,7 @@ public final class DeviceListPanel extends JPanel {
             }
             if (painter == null || errorMessageLines.length != 0) {
                 g.setFont(Rendering.error);
-                String[] lines = errorMessageLines.length != 0 ? errorMessageLines : new String[] {"Panel Not Started"};
+                String[] lines = errorMessageLines.length != 0 ? errorMessageLines : new String[] { "Panel Not Started" };
                 g.setColor(Color.BLACK);
                 int textHeight = g.getFontMetrics().getHeight() * lines.length;
                 int textWidth = 0;

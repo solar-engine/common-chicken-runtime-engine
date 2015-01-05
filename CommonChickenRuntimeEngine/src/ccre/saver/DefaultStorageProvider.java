@@ -37,14 +37,25 @@ public class DefaultStorageProvider extends StorageProvider {
 
     private final File basedir;
     
+    /**
+     * Create a new StorageProvider backed by the filesystem in the current working directory.
+     */
     public DefaultStorageProvider() {
         basedir = new File(".");
     }
-    
+
+    /**
+     * Create a new StorageProvider backed by the filesystem in basedir.
+     * @param basedir the directory to store CCRE data in.
+     */
     public DefaultStorageProvider(File basedir) {
         this.basedir = basedir;
     }
-    
+
+    /**
+     * Register a new StorageProvider backed by the filesystem in basedir.
+     * @param basedir the directory to store CCRE data in.
+     */
     public static void register(File basedir) {
         StorageProvider.setProvider(new DefaultStorageProvider(basedir));
     }

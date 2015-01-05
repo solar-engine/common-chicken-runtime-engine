@@ -23,9 +23,20 @@ import java.awt.FontMetrics;
 import java.awt.Graphics2D;
 import ccre.concurrency.ConcurrentDispatchArray;
 
+/**
+ * A set of related devices grouped into one larger device for display purposes.
+ * 
+ * @author skeggsc
+ */
 public class DeviceGroup extends Device {
     private final ConcurrentDispatchArray<Device> devices = new ConcurrentDispatchArray<Device>();
 
+    /**
+     * Add a device to this group.
+     * 
+     * @param device the device to add.
+     * @return the device that was just added, for method chaining.
+     */
     public synchronized <D extends Device> D add(D device) {
         devices.add(device);
         return device;

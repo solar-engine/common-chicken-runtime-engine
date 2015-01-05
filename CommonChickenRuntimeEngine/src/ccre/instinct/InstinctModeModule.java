@@ -12,18 +12,31 @@ import ccre.holders.TuningContext;
  */
 public abstract class InstinctModeModule extends InstinctBaseModule {
 
+    /**
+     * The name of the mode, as specified during creation.
+     */
     public final String modeName;
     private InstinctMultiModule parent;
 
+    /**
+     * Create a new InstinctModeModule with a given mode name.
+     * 
+     * @param modeName the name of this mode, used during selection and saving.
+     */
     public InstinctModeModule(String modeName) {
         if (modeName == null) {
             throw new NullPointerException("modeName is null");
         }
         this.modeName = modeName;
     }
-    
+
+    /**
+     * Load any needed settings from a TuningContext.
+     * 
+     * @param context the tuning context to load from.
+     */
     public abstract void loadSettings(TuningContext context);
-    
+
     void setParent(InstinctMultiModule parent) {
         if (parent == null) {
             throw new NullPointerException();
@@ -33,7 +46,7 @@ public abstract class InstinctModeModule extends InstinctBaseModule {
         }
         this.parent = parent;
     }
-    
+
     @Override
     void waitCycle() throws InterruptedException {
         parent.waitCycle();
@@ -54,6 +67,7 @@ public abstract class InstinctModeModule extends InstinctBaseModule {
 
     /**
      * Get the mode name of this mode.
+     * 
      * @return the mode's name.
      */
     public final String getModeName() {

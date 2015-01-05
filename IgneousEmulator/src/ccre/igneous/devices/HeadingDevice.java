@@ -22,10 +22,20 @@ import ccre.igneous.Device;
 import ccre.igneous.components.SpacingComponent;
 import ccre.igneous.components.TextComponent;
 
+/**
+ * A device simply used before a list of other devices to give a title.
+ * 
+ * @author skeggsc
+ */
 public class HeadingDevice extends Device {
 
-    public HeadingDevice(String string) {
+    /**
+     * Create a new HeadingDevice with a fixed title.
+     * 
+     * @param title the title to display.
+     */
+    public HeadingDevice(String title) {
         add(new SpacingComponent(30));
-        add(new TextComponent(string));
+        add(new TextComponent(title));
     }
 }

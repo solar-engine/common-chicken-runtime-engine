@@ -24,6 +24,12 @@ import java.awt.Graphics2D;
 
 import ccre.supercanvas.SuperCanvasComponent;
 
+/**
+ * A component to switch the Poultry Inspector between Edit Mode and Operate
+ * Mode.
+ * 
+ * @author skeggsc
+ */
 public class EditModeComponent extends SuperCanvasComponent {
 
     private static final long serialVersionUID = -9102993613096088676L;

@@ -40,7 +40,7 @@ import ccre.supercanvas.SuperCanvasPanel;
  */
 public class FloatControlComponent extends BaseChannelComponent<FloatControlComponent.View> implements FloatInput {
 
-    public static enum View {
+    static enum View {
         CONFIGURATION, HORIZONTAL_POINTER, TICKER, TEXTUAL
     }
 

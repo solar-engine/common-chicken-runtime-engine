@@ -28,6 +28,12 @@ import ccre.log.Logger;
 import ccre.supercanvas.DraggableBoxComponent;
 import ccre.supercanvas.Rendering;
 
+/**
+ * A component allowing for writing to an output stream, in either textual or
+ * binary mode.
+ * 
+ * @author skeggsc
+ */
 public class OutputStreamControlComponent extends DraggableBoxComponent {
 
     private static final long serialVersionUID = 800737743696942747L;
@@ -37,7 +43,8 @@ public class OutputStreamControlComponent extends DraggableBoxComponent {
     private boolean inBinaryMode = false;
 
     /**
-     * Create a new OutputStreamControlComponent with an OutputStream to write to.
+     * Create a new OutputStreamControlComponent with an OutputStream to write
+     * to.
      *
      * @param cx the X coordinate.
      * @param cy the Y coordinate.
@@ -49,7 +56,7 @@ public class OutputStreamControlComponent extends DraggableBoxComponent {
         this.name = name;
         this.out = out;
     }
-    
+
     private void setHalfWidth(int halfWidth) { // TODO: Clean this up.
         int delta = halfWidth - this.halfWidth;
         if (delta < 0 && halfWidth > getPanel().getWidth() / 4) {
@@ -81,7 +88,7 @@ public class OutputStreamControlComponent extends DraggableBoxComponent {
         g.setFont(Rendering.console);
         g.drawString(name, centerX - halfWidth + 5, centerY + 5 - yh / 2);
     }
-    
+
     private int decodeHexDigit(char c) {
         if (c >= '0' && c <= '9') {
             return c - '0';
@@ -93,10 +100,10 @@ public class OutputStreamControlComponent extends DraggableBoxComponent {
             return -1;
         }
     }
-    
+
     private void checkContents(boolean allowSpaces) { // Returns the number of hex digits found.
         if (inBinaryMode) {
-            for (int i=0; i<contents.length(); i++) {
+            for (int i = 0; i < contents.length(); i++) {
                 char c = contents.charAt(i);
                 if (decodeHexDigit(c) == -1 && !(c == ' ' && allowSpaces)) {
                     contents.deleteCharAt(i--);
@@ -104,12 +111,12 @@ public class OutputStreamControlComponent extends DraggableBoxComponent {
             }
         }
     }
-    
+
     private byte[] decodeHex() {
         checkContents(false);
         byte[] decoded = new byte[contents.length() / 2];
-        for (int i=0; i<decoded.length; i++) {
-            int a = decodeHexDigit(contents.charAt(i*2)), b = decodeHexDigit(contents.charAt(i*2+1));
+        for (int i = 0; i < decoded.length; i++) {
+            int a = decodeHexDigit(contents.charAt(i * 2)), b = decodeHexDigit(contents.charAt(i * 2 + 1));
             if (a == -1 || b == -1) {
                 Logger.warning("Undiscovered bad hex digit in sendable.");
             } else {

@@ -40,6 +40,11 @@ import ccre.supercanvas.Rendering;
 import ccre.supercanvas.SuperCanvasPanel;
 import ccre.util.LineCollectorOutputStream;
 
+/**
+ * A SuperCanvas-based component to display a virtual Phidget.
+ * 
+ * @author skeggsc
+ */
 public class CanvasPhidgetComponent extends DraggableBoxComponent {
 
     private static final long serialVersionUID = -4281545286901323041L;
@@ -51,6 +56,12 @@ public class CanvasPhidgetComponent extends DraggableBoxComponent {
     private final int[] componentXs = new int[16], componentYs = new int[16];
     private int boxWidth, boxHeight, barWidth, barHeight;
 
+    /**
+     * Create a new CanvasPhidgetComponent at the given location.
+     * 
+     * @param cx the X position.
+     * @param cy the Y position.
+     */
     public CanvasPhidgetComponent(int cx, int cy) {
         super(cx, cy);
         for (int i = 0; i < lcdLines.length; i++) {
@@ -188,7 +199,7 @@ public class CanvasPhidgetComponent extends DraggableBoxComponent {
         }
         return true;
     }
-    
+
     @Override
     public boolean canDragInteract() {
         return true;

@@ -26,10 +26,30 @@ import java.awt.Shape;
 import java.awt.Stroke;
 import java.awt.geom.Rectangle2D;
 
+/**
+ * Some common rendering utilities for the Poultry Inspector.
+ * 
+ * @author skeggsc
+ */
 public class Rendering {
+    /**
+     * Console text, small and monospaced.
+     */
     public static final Font console = new Font("Monospaced", Font.PLAIN, 11);
+    /**
+     * Label text, large-ish and monospaced.
+     */
     public static final Font labels = new Font("Monospaced", Font.BOLD, 30);
 
+    /**
+     * Render the main body of a standard component.
+     * @param bg the background color.
+     * @param g the graphics to draw on.
+     * @param centerX the center X position.
+     * @param centerY the center Y position.
+     * @param width the width of the box.
+     * @param height the height of the box.
+     */
     public static void drawBody(Color bg, Graphics2D g, int centerX, int centerY, int width, int height) {
         g.setColor(bg);
         Shape s = new Rectangle2D.Float(centerX - width / 2, centerY - height / 2, width, height);
@@ -41,10 +61,24 @@ public class Rendering {
         g.setStroke(stroke);
     }
 
+    /**
+     * A convenience function to render a DraggableBoxComponent as if drawBody had been called.
+     * @param bg the background color.
+     * @param g the graphics to draw on.
+     * @param component the component to render
+     * @see #drawBody(Color, Graphics2D, int, int, int, int)
+     */
     public static void drawBody(Color bg, Graphics2D g, DraggableBoxComponent component) {
         drawBody(bg, g, component.centerX, component.centerY, component.halfWidth * 2, component.halfHeight * 2);
     }
 
+    /**
+     * Draw a scrollbar nub.
+     * @param g the graphics to draw on.
+     * @param active if the scrollbar is "active" (away from the starting location)
+     * @param x the center X position.
+     * @param y the center Y position.
+     */
     public static void drawScrollbar(Graphics2D g, boolean active, int x, int y) {
         g.setColor(active ? Color.BLUE : Color.GREEN);
         Shape s = new Rectangle(x - 3, y - 3, 6, 6);

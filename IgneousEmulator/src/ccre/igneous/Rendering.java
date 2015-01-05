@@ -21,9 +21,23 @@ package ccre.igneous;
 import java.awt.Color;
 import java.awt.Font;
 
+/**
+ * Utilities used for rendering.
+ * 
+ * @author skeggsc
+ */
 public class Rendering {
+    /**
+     * The console font. Small and monospaced.
+     */
     public static final Font console = new Font("Monospaced", Font.PLAIN, 11);
+    /**
+     * The error font. Mid-size and monospaced.
+     */
     public static final Font error = new Font("Monospaced", Font.PLAIN, 20);
+    /**
+     * The label font. Reasonably large and monospaced.
+     */
     public static final Font labels = new Font("Monospaced", Font.BOLD, 30);
 
     /**

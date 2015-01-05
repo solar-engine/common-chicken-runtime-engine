@@ -25,27 +25,59 @@ import java.awt.Rectangle;
 
 import ccre.igneous.DeviceComponent;
 
+/**
+ * A component displaying a string of text. The text can be changed dynamically.
+ * The label will have white text by default.
+ * 
+ * @author skeggsc
+ */
 public class TextComponent extends DeviceComponent {
-    
+
     private String label;
     private final String[] widthcalc;
     private Color color = Color.WHITE;
 
+    /**
+     * Create a new TextComponent with a simple string.
+     * 
+     * The label will never shrink to smaller than this string.
+     * 
+     * @param label the text to display by default.
+     */
     public TextComponent(String label) {
         this.label = label;
-        widthcalc = new String[] {label};
+        widthcalc = new String[] { label };
     }
 
+    /**
+     * Create a new TextComponent with a string and a set of known alternatives.
+     * 
+     * The label will never shrink to smaller than any of the alternatives.
+     * 
+     * @param label the text to display by default.
+     * @param widthcalc the strings (which should include label) that will be a
+     * lower bound on the text component's width.
+     */
     public TextComponent(String label, String[] widthcalc) {
         this.label = label;
         this.widthcalc = widthcalc;
     }
-    
+
+    /**
+     * Change the color of the text to the given color.
+     * 
+     * @param newColor the new color to display the text as.
+     */
     public void setColor(Color newColor) {
         color = newColor;
         repaint();
     }
-    
+
+    /**
+     * Change the displayed string to the given color.
+     * 
+     * @param newLabel the new text to display.
+     */
     public void setLabel(String newLabel) {
         label = newLabel;
         repaint();

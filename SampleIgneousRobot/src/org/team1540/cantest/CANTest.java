@@ -8,10 +8,15 @@ import ccre.cluck.Cluck;
 import ccre.igneous.Igneous;
 import ccre.igneous.IgneousApplication;
 
+/**
+ * A simple test program that will allow testing control of a CAN Jaguar.
+ * 
+ * @author skeggsc
+ */
 public class CANTest implements IgneousApplication {
 
     // WARNING: This has never actually been tested on a real robot.
-    
+
     public void setupRobot() {
         ExtendedMotor motor = Igneous.makeCANJaguar(0);
         Igneous.joystick1.getAxisSource(2).send(motor.asMode(OutputControlMode.VOLTAGE_FIXED));

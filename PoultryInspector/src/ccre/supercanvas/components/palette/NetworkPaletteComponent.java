@@ -55,8 +55,18 @@ import ccre.util.UniqueIds;
  */
 public class NetworkPaletteComponent extends PaletteComponent<Collection<NetworkPaletteElement>> {
 
-    public static final int F_RMT_EVENTS = -1, F_RMT_FLOATS = -2,
-            F_RMT_BOOLEANS = -3;
+    /**
+     * Fake RMT number used for merged event channels.
+     */
+    public static final int F_RMT_EVENTS = -1;
+    /**
+     * Fake RMT number used for merged float channels.
+     */
+    public static final int F_RMT_FLOATS = -2;
+    /**
+     * Fake RMT number used for merged boolean channels.
+     */
+    public static final int F_RMT_BOOLEANS = -3;
     private static final long serialVersionUID = -2162354007005983283L;
 
     static SuperCanvasComponent createComponent(String name, Object target, int type, int x, int y) {
@@ -209,7 +219,7 @@ public class NetworkPaletteComponent extends PaletteComponent<Collection<Network
                     }
                 }
                 if (pair != null) {
-                    Object[] send = isExpectInput ? new Object[] {pair, sub} : new Object[] {sub, pair};
+                    Object[] send = isExpectInput ? new Object[] { pair, sub } : new Object[] { sub, pair };
                     entries.add(new NetworkPaletteElement(base, send, type));
                 }
             }

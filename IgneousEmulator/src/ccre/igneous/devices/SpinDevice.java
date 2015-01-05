@@ -27,8 +27,15 @@ import ccre.igneous.components.BooleanTextComponent;
 import ccre.igneous.components.SpacingComponent;
 import ccre.igneous.components.TextComponent;
 
+/**
+ * A device allowing for input of tick-based increasing or decreasing values,
+ * such as a gyro or encoder. This has a mode for position, and a mode for
+ * velocity, so that both can be tested.
+ * 
+ * @author skeggsc
+ */
 public class SpinDevice extends Device implements FloatInputPoll {
-    
+
     private int ticks = 0;
     private int velocity = 0;
     private BooleanTextComponent isVelocityMode = new BooleanTextComponent("POSITION", "VELOCITY") {
@@ -39,6 +46,14 @@ public class SpinDevice extends Device implements FloatInputPoll {
     }.setEditable(true);
     private TextComponent positionView = new TextComponent("0");
 
+    /**
+     * Create a new SpinDevice with a given name and an optional event for when
+     * to reset the value of the device to zero.
+     * 
+     * @param title how to describe the device.
+     * @param resetWhen when to reset the value of the device, or null if this
+     * isn't needed.
+     */
     public SpinDevice(String title, EventInput resetWhen) {
         add(new SpacingComponent(20));
         add(new TextComponent(title));
@@ -71,9 +86,10 @@ public class SpinDevice extends Device implements FloatInputPoll {
                 pressButton(5);
             }
         });
-        
+
         new Ticker(100).send(new EventOutput() {
             private int partials = 0;
+
             public void event() {
                 partials += velocity;
                 while (partials >= 10) {

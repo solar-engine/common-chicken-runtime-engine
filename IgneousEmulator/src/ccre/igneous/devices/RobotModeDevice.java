@@ -25,11 +25,43 @@ import ccre.igneous.components.BooleanTextComponent;
 import ccre.igneous.components.SpacingComponent;
 import ccre.igneous.components.TextComponent;
 
+/**
+ * A device allowing for changing the virtual robot's mode and
+ * enabling/disabling it.
+ * 
+ * @author skeggsc
+ */
 public class RobotModeDevice extends Device {
 
+    /**
+     * An enum of the possible modes.
+     * 
+     * @author skeggsc
+     */
     public static enum RobotMode {
-        DISABLED(null), AUTONOMOUS("AUTO"), TELEOPERATED("TELE"), TESTING("TEST");
+        /**
+         * The DISABLED mode. Has a null selection name.
+         */
+        DISABLED(null),
+        /**
+         * The AUTONOMOUS mode. The selection name is AUTO.
+         */
+        AUTONOMOUS("AUTO"),
+        /**
+         * The TELEOPERATED mode. The selection name is TELE.
+         */
+        TELEOPERATED("TELE"),
+        /**
+         * The TESTING mode. The selection name is TEST.
+         */
+        TESTING("TEST");
 
+        /**
+         * The selection name, used for displaying a short name for the current
+         * selection.
+         * 
+         * This is either null, "AUTO", "TELE", or "TEST".
+         */
         public final String selectionName;
 
         private RobotMode(String name) {
@@ -68,6 +100,9 @@ public class RobotModeDevice extends Device {
         testLight.set(mode == RobotMode.TESTING);
     }
 
+    /**
+     * Create a new RobotModeDevice.
+     */
     public RobotModeDevice() {
         add(new SpacingComponent(20));
         add(new TextComponent("Mode"));
@@ -78,6 +113,13 @@ public class RobotModeDevice extends Device {
         add(testLight);
     }
 
+    /**
+     * Return a BooleanInputPoll representing if the robot is in the specified
+     * mode.
+     * 
+     * @param mode the mode to monitor.
+     * @return the channel representing if the robot is in that mode.
+     */
     public BooleanInputPoll getIsMode(final RobotMode mode) {
         return mode == RobotMode.DISABLED ? BooleanMixing.invert((BooleanInputPoll) enabled) : new BooleanInputPoll() {
             public boolean get() {

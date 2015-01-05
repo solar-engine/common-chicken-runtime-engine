@@ -23,10 +23,21 @@ import java.awt.Graphics2D;
 
 import ccre.igneous.DeviceComponent;
 
+/**
+ * A component of empty space. Doesn't do anything but shift subsequent
+ * components over.
+ * 
+ * @author skeggsc
+ */
 public class SpacingComponent extends DeviceComponent {
 
     private final int spacing;
-    
+
+    /**
+     * Create a new SpacingComponent with a certain amount of spacing.
+     * 
+     * @param spacing the amount of spacing, in pixels.
+     */
     public SpacingComponent(int spacing) {
         this.spacing = spacing;
     }

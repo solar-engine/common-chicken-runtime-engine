@@ -25,10 +25,19 @@ import java.awt.Graphics2D;
 import ccre.supercanvas.SuperCanvasComponent;
 import ccre.supercanvas.components.palette.TopLevelPaletteComponent;
 
+/**
+ * The "Start-Menu"-like component to allow opening and closing the top-level
+ * palette.
+ * 
+ * @author skeggsc
+ */
 public class StartComponent extends SuperCanvasComponent {
 
     private static final long serialVersionUID = 5841953202431409373L;
-    
+
+    /**
+     * Create a new StartComponent.
+     */
     public StartComponent() {
         super(true);
     }

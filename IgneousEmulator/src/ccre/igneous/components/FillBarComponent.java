@@ -25,6 +25,11 @@ import java.awt.Graphics2D;
 import ccre.channel.FloatOutput;
 import ccre.igneous.DeviceComponent;
 
+/**
+ * A bar that can be modified to display a floating-point value
+ * 
+ * @author skeggsc
+ */
 public class FillBarComponent extends DeviceComponent implements FloatOutput {
 
     private float value = 0.0f;

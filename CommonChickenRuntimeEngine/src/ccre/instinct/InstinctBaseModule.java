@@ -32,10 +32,6 @@ import ccre.log.Logger;
  */
 public abstract class InstinctBaseModule {
 
-    public InstinctBaseModule() {
-        super();
-    }
-
     /**
      * Wait until the specified BooleanInputPoll becomes true before returning.
      *

@@ -23,27 +23,43 @@ import java.awt.FontMetrics;
 import java.awt.Graphics2D;
 import java.util.ArrayList;
 
+/**
+ * An emulator device - something displayed on the emulator screen to view or
+ * control part of the emulated robot's environment.
+ * 
+ * @author skeggsc
+ */
 public class Device {
-    
+
     private DeviceListPanel parent;
     private final ArrayList<DeviceComponent> components = new ArrayList<DeviceComponent>();
-    
+
     void setParent(DeviceListPanel parent) {
         this.parent = parent;
     }
-    
+
     protected void add(DeviceComponent component) {
         component.setDevice(this);
         components.add(component);
         this.repaint();
     }
-    
+
     protected void repaint() {
         if (parent != null) {
             parent.repaint();
         }
     }
 
+    /**
+     * Render the device.
+     * 
+     * @param g the graphics object to draw with.
+     * @param width the width to draw in.
+     * @param height the height to draw in.
+     * @param fontMetrics the FontMetrics of the originally-set font.
+     * @param mouseX the mouse position X, relative to the component.
+     * @param mouseY the mouse position Y, relative to the component.
+     */
     public void render(Graphics2D g, int width, int height, FontMetrics fontMetrics, int mouseX, int mouseY) {
         g.setColor(getBackgroundColor());
         g.fillRect(0, 0, width, height);
@@ -59,34 +75,71 @@ public class Device {
         return Color.GRAY;
     }
 
+    /**
+     * Provide the height of space to reserve for the component. This may change
+     * occasionally, but should generally remain constant between two adjacent
+     * calls.
+     * 
+     * @return the height, in pixels.
+     */
     public int getHeight() {
         return 50;
     }
 
+    /**
+     * Called when the device is pressed by the mouse.
+     * 
+     * @param x the relative mouse position X.
+     * @param y the relative mouse position Y.
+     */
     public void onPress(int x, int y) {
         for (DeviceComponent component : components) {
             component.checkPress(x, y);
         }
     }
 
+    /**
+     * Called when the device is released by the mouse.
+     * 
+     * @param x the relative mouse position X.
+     * @param y the relative mouse position Y.
+     */
     public void onRelease(int x, int y) {
         for (DeviceComponent component : components) {
             component.onRelease(x, y);
         }
     }
 
+    /**
+     * Called when the mouse moves above the device.
+     * 
+     * @param x the relative mouse position X.
+     * @param y the relative mouse position Y.
+     */
     public void onMouseMove(int x, int y) {
         for (DeviceComponent component : components) {
             component.onMouseMove(x, y);
         }
     }
 
+    /**
+     * Called when the mouse enters the device's area.
+     * 
+     * @param x the relative mouse position X.
+     * @param y the relative mouse position Y.
+     */
     public void onMouseEnter(int x, int y) {
         for (DeviceComponent component : components) {
             component.onMouseEnter(x, y);
         }
     }
 
+    /**
+     * Called when the mouse exits the device's area.
+     * 
+     * @param x the relative mouse position X.
+     * @param y the relative mouse position Y.
+     */
     public void onMouseExit(int x, int y) {
         for (DeviceComponent component : components) {
             component.onMouseExit(x, y);

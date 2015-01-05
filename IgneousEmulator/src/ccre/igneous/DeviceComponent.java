@@ -22,6 +22,12 @@ import java.awt.FontMetrics;
 import java.awt.Graphics2D;
 import java.awt.Shape;
 
+/**
+ * A component in a Device. These exist so that devices can be rebuilt from the
+ * various common components that make them up.
+ * 
+ * @author skeggsc
+ */
 public abstract class DeviceComponent {
 
     private Device parent;
@@ -37,8 +43,29 @@ public abstract class DeviceComponent {
         }
     }
 
+    /**
+     * Render the component in the device, given a specified shift for layout.
+     * 
+     * @param g the graphics to render on.
+     * @param width the width of the device.
+     * @param height the height of the device.
+     * @param fontMetrics the FontMetrics of the original font.
+     * @param mouseX the mouse position X relative to the device.
+     * @param mouseY the mouse position Y relative to the device.
+     * @param lastShift the shift for layout - usually where to start drawing in
+     * the X-axis.
+     * @return the new shift for layout - usually where the next component
+     * should start drawing in the X-axis.
+     */
     public abstract int render(Graphics2D g, int width, int height, FontMetrics fontMetrics, int mouseX, int mouseY, int lastShift);
 
+    /**
+     * Checks if the given position is over this component and handles a press
+     * event if it is.
+     * 
+     * @param x the X position relative to the device.
+     * @param y the Y position relative to the device.
+     */
     public void checkPress(int x, int y) {
         if (hitzone != null && hitzone.contains(x, y)) {
             onPress(x, y);
@@ -49,18 +76,42 @@ public abstract class DeviceComponent {
         // Do nothing by default.
     }
 
+    /**
+     * Called when the mouse moves within the device.
+     * 
+     * @param x the new mouse X.
+     * @param y the new mouse Y.
+     */
     public void onMouseMove(int x, int y) {
         // Do nothing by default.
     }
 
+    /**
+     * Called when the mouse enters the device.
+     * 
+     * @param x the new mouse X.
+     * @param y the new mouse Y.
+     */
     public void onMouseEnter(int x, int y) {
         // Do nothing by default.
     }
 
+    /**
+     * Called when the mouse exits the device.
+     * 
+     * @param x the new mouse X.
+     * @param y the new mouse Y.
+     */
     public void onMouseExit(int x, int y) {
         // Do nothing by default.
     }
 
+    /**
+     * Called when the mouse is released within the device.
+     * 
+     * @param x the new mouse X.
+     * @param y the new mouse Y.
+     */
     public void onRelease(int x, int y) {
         // Do nothing by default.
     }

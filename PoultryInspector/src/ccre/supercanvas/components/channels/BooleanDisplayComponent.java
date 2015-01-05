@@ -35,7 +35,7 @@ import ccre.supercanvas.SuperCanvasPanel;
  */
 public class BooleanDisplayComponent extends BaseChannelComponent<BooleanDisplayComponent.View> implements BooleanOutput {
 
-    public static enum View {
+    static enum View {
         CONFIGURATION, RED_GREEN_LIGHT, WARNING_LIGHT, TEXTUAL
     }
 

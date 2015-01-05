@@ -41,6 +41,12 @@ public class CluckProtocol {
     private static final int TIMEOUT_PERIOD = 600; // milliseconds
     private static final int KEEPALIVE_INTERVAL = 200; // milliseconds, should always be noticeably less than TIMEOUT_PERIOD
 
+    /**
+     * Sets the appropriate timeout on sock, for disconnection reporting.
+     * 
+     * @param sock the socket to modify.
+     * @throws IOException if the timeout cannot be set.
+     */
     public static void setTimeoutOnSocket(ClientSocket sock) throws IOException {
         sock.setSocketTimeout(TIMEOUT_PERIOD);
     }

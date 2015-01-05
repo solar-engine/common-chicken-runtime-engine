@@ -26,6 +26,12 @@ import ccre.ctrl.IJoystick;
 import ccre.igneous.DeviceGroup;
 import ccre.igneous.DeviceListPanel;
 
+/**
+ * A device representing a Joystick. This will have buttons and axes added
+ * dynamically as needed.
+ * 
+ * @author skeggsc
+ */
 public class JoystickDevice extends DeviceGroup implements IJoystick {
 
     private FloatControlDevice[] axes = new FloatControlDevice[6];
@@ -34,15 +40,40 @@ public class JoystickDevice extends DeviceGroup implements IJoystick {
     private boolean wasAddedToMaster = false;
     private final DeviceListPanel master;
 
+    /**
+     * Create a new JoystickDevice with a name and a panel to contain this
+     * Joystick.
+     * 
+     * Make sure to call addToMaster instead of calling add directly.
+     * 
+     * @param name the name of this device.
+     * @param master the panel that will contain this device.
+     * @see #addToMaster()
+     */
     public JoystickDevice(String name, DeviceListPanel master) {
         add(new HeadingDevice(name));
         this.master = master;
     }
 
+    /**
+     * Create a new JoystickDevice with a Joystick port number and a panel to
+     * contain this Joystick.
+     * 
+     * Make sure to call addToMaster instead of calling add directly.
+     * 
+     * @param id the port number of this device.
+     * @param master the panel that will contain this device.
+     * @see #addToMaster()
+     */
     public JoystickDevice(int id, DeviceListPanel master) {
         this("Joystick " + id, master);
     }
-    
+
+    /**
+     * Add this Joystick to the device panel, if it hasn't been already added.
+     * 
+     * @return this device, for method chaining.
+     */
     public synchronized JoystickDevice addToMaster() {
         if (!wasAddedToMaster) {
             wasAddedToMaster = true;

@@ -26,6 +26,12 @@ import ccre.igneous.components.BooleanTextComponent;
 import ccre.igneous.components.SpacingComponent;
 import ccre.igneous.components.TextComponent;
 
+/**
+ * A device representing some sort of boolean that can be modified, such as a
+ * Joystick button or digital input.
+ *
+ * @author skeggsc
+ */
 public class BooleanControlDevice extends Device implements BooleanInputPoll {
 
     private final EventStatus pressEvent = new EventStatus();
@@ -40,6 +46,11 @@ public class BooleanControlDevice extends Device implements BooleanInputPoll {
         }
     }.setEditable(true);
 
+    /**
+     * Create a new BooleanControlDevice with label as the displayed name.
+     * 
+     * @param label what to call the label.
+     */
     public BooleanControlDevice(String label) {
         add(new SpacingComponent(20));
         add(new TextComponent(label));
@@ -50,6 +61,11 @@ public class BooleanControlDevice extends Device implements BooleanInputPoll {
         return actuated.get();
     }
 
+    /**
+     * Returns an event representing when the BooleanControlDevice is pressed.
+     * 
+     * @return an EventInput of when this is pressed.
+     */
     public EventInput whenPressed() {
         return pressEvent;
     }

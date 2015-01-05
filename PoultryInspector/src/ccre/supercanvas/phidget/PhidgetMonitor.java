@@ -166,6 +166,9 @@ public class PhidgetMonitor implements Serializable, AttachListener, DetachListe
         }
     }
 
+    /**
+     * Share the contents of the phidget. Be careful - no error checking if you use this wrong.
+     */
     public void share() {
         isShared = true;
         lcd.addAttachListener(this);
@@ -202,6 +205,9 @@ public class PhidgetMonitor implements Serializable, AttachListener, DetachListe
         Cluck.getNode().notifyNetworkModified();
     }
 
+    /**
+     * Unshare the contents of the phidget. Be careful - no error checking if you use this wrong.
+     */
     public void unshare() {
         isShared = false;
         lcd.removeAttachListener(this);

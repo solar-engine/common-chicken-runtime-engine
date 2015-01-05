@@ -20,10 +20,18 @@ package ccre.igneous.devices;
 
 import ccre.igneous.DeviceGroup;
 
+/**
+ * A device representing the DriverStationLCD on the driver station.
+ * 
+ * @author skeggsc
+ */
 public class DSLCDDevice extends DeviceGroup {
 
     private TextualDisplayDevice[] lines = new TextualDisplayDevice[6];
 
+    /**
+     * Create a new DSLCDDevice.
+     */
     public DSLCDDevice() {
         add(new HeadingDevice("Driver Station LCD"));
         for (int i = 0; i < lines.length; i++) {
@@ -31,6 +39,12 @@ public class DSLCDDevice extends DeviceGroup {
         }
     }
 
+    /**
+     * Modify a line of the DS LCD. Valid lines are from 1 to 6.
+     * 
+     * @param lineid the line to modify.
+     * @param value the new contents of the line - up to twenty characters.
+     */
     public void update(int lineid, String value) {
         if (lineid < 1 || lineid > lines.length) {
             throw new IllegalArgumentException("Invalid DS LCD line: " + lineid);

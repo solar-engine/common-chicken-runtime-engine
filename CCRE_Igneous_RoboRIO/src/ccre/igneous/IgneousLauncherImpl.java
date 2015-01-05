@@ -125,6 +125,9 @@ public final class IgneousLauncherImpl extends IterativeRobot implements Igneous
      */
     private Compressor pcmCompressor;
 
+    /**
+     * Create and initialize a new IgneousLauncherImpl.
+     */
     public IgneousLauncherImpl() {
         File rootDir = new File("/home/lvuser/ccre-storage");
         rootDir.mkdirs();

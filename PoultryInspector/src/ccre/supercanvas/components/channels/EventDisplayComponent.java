@@ -35,7 +35,7 @@ import ccre.supercanvas.SuperCanvasPanel;
  */
 public class EventDisplayComponent extends BaseChannelComponent<EventDisplayComponent.View> implements EventOutput {
 
-    public static enum View {
+    static enum View {
         CONFIGURATION, FLASHING_LIGHT, TIME_COUNTER, TEXTUAL
     }
 

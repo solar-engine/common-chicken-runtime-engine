@@ -28,6 +28,11 @@ import ccre.channel.FloatOutput;
 import ccre.concurrency.ConcurrentDispatchArray;
 import ccre.igneous.DeviceComponent;
 
+/**
+ * A bar that can be dragged around to modify a floating-point value
+ * 
+ * @author skeggsc
+ */
 public class ControlBarComponent extends DeviceComponent implements FloatInput {
 
     private float value = 0.0f;
@@ -60,7 +65,14 @@ public class ControlBarComponent extends DeviceComponent implements FloatInput {
         hitzone = new Rectangle(startX, startY, endX - startX, endY - startY);
         return endX + 5;
     }
-    
+
+    /**
+     * Set the maximum width for this component to take up, in pixels. Zero
+     * means no maximum, which is the default.
+     * 
+     * @param width the new maximum width.
+     * @return this ControlBarComponent, for method chaining.
+     */
     public ControlBarComponent setMaxWidth(int width) {
         this.maxWidth = width;
         return this;

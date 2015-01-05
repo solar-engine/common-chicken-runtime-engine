@@ -24,15 +24,34 @@ import ccre.igneous.components.FillBarComponent;
 import ccre.igneous.components.SpacingComponent;
 import ccre.igneous.components.TextComponent;
 
+/**
+ * A device to view the value of a floating-point number.
+ * 
+ * @author skeggsc
+ */
 public class FloatViewDevice extends Device implements FloatOutput {
 
     private final FillBarComponent value = new FillBarComponent();
     private final float minInput, maxInput;
 
+    /**
+     * Create a new FloatViewDevice with a label where the minimum value is -1.0
+     * and the maximum value is 1.0.
+     * 
+     * @param label the name of this device.
+     */
     public FloatViewDevice(String label) {
         this(label, -1, 1);
     }
 
+    /**
+     * Create a new FloatViewDevice with a label and a given minimum and maximum
+     * value.
+     * 
+     * @param label the name of this device.
+     * @param minInput the minimum displayed value.
+     * @param maxInput the maximum displayed value.
+     */
     public FloatViewDevice(String label, float minInput, float maxInput) {
         add(new SpacingComponent(20));
         add(new TextComponent(label));

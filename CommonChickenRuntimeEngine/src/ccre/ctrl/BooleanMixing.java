@@ -415,7 +415,7 @@ public class BooleanMixing {
      * @return the dispatchable input.
      */
     public static BooleanInput createDispatch(BooleanInputPoll input, EventInput trigger) {
-        BooleanStatus bstat = new BooleanStatus();
+        BooleanStatus bstat = new BooleanStatus(input.get());
         BooleanMixing.pumpWhen(trigger, input, bstat);
         return bstat;
     }

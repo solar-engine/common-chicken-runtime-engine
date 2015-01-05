@@ -18,9 +18,10 @@
  */
 package ccre.concurrency;
 
+import java.io.InterruptedIOException;
+
 import ccre.log.Logger;
 import ccre.util.UniqueIds;
-import java.io.InterruptedIOException;
 
 /**
  * A nice wrapper for the builtin Thread. Provides a system to prevent execution

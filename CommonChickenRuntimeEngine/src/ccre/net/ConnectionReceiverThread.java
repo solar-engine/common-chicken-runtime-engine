@@ -18,10 +18,10 @@
  */
 package ccre.net;
 
+import java.io.IOException;
+
 import ccre.concurrency.ReporterThread;
 import ccre.log.Logger;
-
-import java.io.IOException;
 
 /**
  * A simple thread to allow easy writing of servers without creating a custom
@@ -66,7 +66,7 @@ public abstract class ConnectionReceiverThread extends ReporterThread {
             }
             throw e;
         }
-        
+
         while (true) {
             final ClientSocket conn = sock.accept();
             new ReporterThread(thrName + "-client") {

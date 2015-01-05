@@ -105,7 +105,7 @@ public abstract class BaseChannelComponent<View extends Enum<View>> extends Drag
             channelRender(g, screenWidth, screenHeight, fontMetrics, mouseX, mouseY);
         }
     }
-    
+
     /*
      * Set the view to the default view.
      */
@@ -114,7 +114,7 @@ public abstract class BaseChannelComponent<View extends Enum<View>> extends Drag
     @Override
     public boolean onSelect(int x, int y) {
         if (activeView.name().equals(CONFIGURATION_ENUM_NAME)) {
-            for (int i=0; i<viewPositions.length - 1; i++) {
+            for (int i = 0; i < viewPositions.length - 1; i++) {
                 if (x >= centerX - halfWidth && x <= centerX + halfWidth && y >= viewPositions[i] && y < viewPositions[i + 1]) {
                     activeView = activeView.getDeclaringClass().getEnumConstants()[i];
                     return true;

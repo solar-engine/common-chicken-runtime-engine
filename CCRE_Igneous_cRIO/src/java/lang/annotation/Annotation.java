@@ -19,7 +19,8 @@
 package java.lang.annotation;
 
 /**
- * This a substitute for java.lang.Annotation for Squawk. Does nothing useful whatsoever except stuff can work.
+ * This a substitute for java.lang.Annotation for Squawk. Does nothing useful
+ * whatsoever except stuff can work.
  *
  * @see java.lang.annotation.Annotation
  * @author skeggsc

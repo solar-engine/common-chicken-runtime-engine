@@ -18,17 +18,18 @@
  */
 package ccre.cluck;
 
+import java.io.IOException;
+import java.io.NotSerializableException;
+import java.io.ObjectOutputStream;
+import java.io.Serializable;
+import java.util.Iterator;
+
 import ccre.channel.EventOutput;
 import ccre.cluck.rpc.RPCManager;
 import ccre.log.Logger;
 import ccre.util.CArrayList;
 import ccre.util.CHashMap;
 import ccre.util.UniqueIds;
-import java.io.IOException;
-import java.io.NotSerializableException;
-import java.io.ObjectOutputStream;
-import java.io.Serializable;
-import java.util.Iterator;
 
 /**
  * A CluckNode is the core hub of the Cluck networking system on a device. It

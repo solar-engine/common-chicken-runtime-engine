@@ -18,16 +18,16 @@
  */
 package ccre.cluck.rpc;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
+
 import ccre.cluck.CluckNode;
 import ccre.cluck.CluckSubscriber;
 import ccre.log.Logger;
 import ccre.util.CArrayList;
 import ccre.util.CHashMap;
 import ccre.util.UniqueIds;
-
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
 
 /**
  * A manager for the RPC subsystem in Cluck.

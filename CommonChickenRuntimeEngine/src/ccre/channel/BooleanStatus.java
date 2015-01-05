@@ -18,9 +18,10 @@
  */
 package ccre.channel;
 
+import java.io.Serializable;
+
 import ccre.concurrency.ConcurrentDispatchArray;
 import ccre.util.CArrayUtils;
-import java.io.Serializable;
 
 /**
  * A virtual node that is both a BooleanOutput and a BooleanInput. You can

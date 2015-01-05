@@ -129,6 +129,7 @@ public class EventMixing {
     public static EventOutput debounce(final EventOutput orig, final int minMillis) {
         return new EventOutput() {
             private long nextFire = 0;
+
             public synchronized void event() {
                 long now = System.currentTimeMillis();
                 if (now < nextFire) {

@@ -19,7 +19,8 @@
 package java.io;
 
 /**
- * This a substitute for java.io.Serializable for Squawk. Does nothing useful whatsoever except stuff can compile.
+ * This a substitute for java.io.Serializable for Squawk. Does nothing useful
+ * whatsoever except stuff can compile.
  *
  * @see java.io.Serializable
  * @author skeggsc

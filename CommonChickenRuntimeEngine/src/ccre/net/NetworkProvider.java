@@ -18,8 +18,9 @@
  */
 package ccre.net;
 
-import ccre.util.CCollection;
 import java.io.IOException;
+
+import ccre.util.CCollection;
 
 /**
  * A Network provider, which provides access to the basic networking

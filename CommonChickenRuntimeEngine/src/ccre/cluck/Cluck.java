@@ -18,6 +18,8 @@
  */
 package ccre.cluck;
 
+import java.io.OutputStream;
+
 import ccre.channel.BooleanInput;
 import ccre.channel.BooleanOutput;
 import ccre.channel.BooleanStatus;
@@ -31,8 +33,6 @@ import ccre.cluck.tcp.CluckTCPClient;
 import ccre.cluck.tcp.CluckTCPServer;
 import ccre.log.LogLevel;
 import ccre.log.LoggingTarget;
-
-import java.io.OutputStream;
 
 /**
  * A storage location for the current CluckNode, CluckTCPServer, and

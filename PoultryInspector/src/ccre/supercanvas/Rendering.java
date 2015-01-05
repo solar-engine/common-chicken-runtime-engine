@@ -43,6 +43,7 @@ public class Rendering {
 
     /**
      * Render the main body of a standard component.
+     * 
      * @param bg the background color.
      * @param g the graphics to draw on.
      * @param centerX the center X position.
@@ -62,7 +63,9 @@ public class Rendering {
     }
 
     /**
-     * A convenience function to render a DraggableBoxComponent as if drawBody had been called.
+     * A convenience function to render a DraggableBoxComponent as if drawBody
+     * had been called.
+     * 
      * @param bg the background color.
      * @param g the graphics to draw on.
      * @param component the component to render
@@ -74,8 +77,10 @@ public class Rendering {
 
     /**
      * Draw a scrollbar nub.
+     * 
      * @param g the graphics to draw on.
-     * @param active if the scrollbar is "active" (away from the starting location)
+     * @param active if the scrollbar is "active" (away from the starting
+     * location)
      * @param x the center X position.
      * @param y the center Y position.
      */

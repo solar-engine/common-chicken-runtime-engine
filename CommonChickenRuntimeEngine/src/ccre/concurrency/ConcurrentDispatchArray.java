@@ -18,11 +18,12 @@
  */
 package ccre.concurrency;
 
-import ccre.util.CArrayUtils;
-import ccre.util.CCollection;
 import java.io.Serializable;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
+
+import ccre.util.CArrayUtils;
+import ccre.util.CCollection;
 
 /**
  * A concurrent collection that allows concurrent iteration and removal without

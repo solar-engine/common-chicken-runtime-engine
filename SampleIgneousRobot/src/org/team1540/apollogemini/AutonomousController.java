@@ -54,10 +54,11 @@ public class AutonomousController extends InstinctModule {
     private BooleanOutput collectSols, useCurrent;
     private BooleanInputPoll kinectTrigger;
     private EventOutput lowerArm, raiseArm, alignArm;
-    private final EventStatus fireWhenEvent = new EventStatus(), rearmWhenEvent = new EventStatus();
+    private final EventStatus fireWhenEvent = new EventStatus(),
+            rearmWhenEvent = new EventStatus();
     // Tuned constants are below near the autonomous modes.
     private final StringHolder option = new StringHolder("double");
-    private final String[] options = {"none", "forward", "hotcheck", "double"};
+    private final String[] options = { "none", "forward", "hotcheck", "double" };
     private final CList<String> optionList = CArrayUtils.asList(options);
     private final BooleanStatus winchGotten = new BooleanStatus();
 
@@ -126,7 +127,7 @@ public class AutonomousController extends InstinctModule {
         alignArm.event();
         float timeoutTime = currentTime.get() + hotcheckTimeoutAfter.get();
         BooleanInputPoll timedout = FloatMixing.floatIsAtLeast(currentTime, timeoutTime);
-        if (waitUntilOneOf(new BooleanInputPoll[]{kinectTrigger, timedout}) != 0) {
+        if (waitUntilOneOf(new BooleanInputPoll[] { kinectTrigger, timedout }) != 0) {
             Logger.warning("Cancelled HotZone wait after " + hotcheckTimeoutAfter.get() + " secs: " + currentTime.get() + "," + timeoutTime);
         }
         Logger.fine("Found hotzone");
@@ -204,7 +205,7 @@ public class AutonomousController extends InstinctModule {
         raiseArm.event();
         Logger.fine("Double completed.");
     }
-    
+
     // *** Framework ***
 
     public AutonomousController() {

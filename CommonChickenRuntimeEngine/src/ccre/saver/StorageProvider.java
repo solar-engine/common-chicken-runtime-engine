@@ -18,10 +18,11 @@
  */
 package ccre.saver;
 
-import ccre.log.Logger;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+
+import ccre.log.Logger;
 
 /**
  * The holder for the current storage provider, and the superclass for any

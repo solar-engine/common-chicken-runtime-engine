@@ -115,7 +115,7 @@ public class PaletteComponent<T extends Iterable<? extends PaletteEntry>> extend
             halfHeight = 200;
         }
     }
-    
+
     protected boolean onInteractWithTitleBar() {
         // Do nothing by default.
         return false;

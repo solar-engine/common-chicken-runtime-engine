@@ -18,10 +18,11 @@
  */
 package ccre.channel;
 
+import java.io.Serializable;
+
 import ccre.concurrency.ConcurrentDispatchArray;
 import ccre.ctrl.FloatMixing;
 import ccre.util.CArrayUtils;
-import java.io.Serializable;
 
 /**
  * A virtual node that is both a FloatOutput and a FloatInput. You can modify

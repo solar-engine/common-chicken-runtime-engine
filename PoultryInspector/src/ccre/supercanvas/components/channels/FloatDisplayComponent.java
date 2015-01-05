@@ -122,18 +122,18 @@ public class FloatDisplayComponent extends BaseChannelComponent<FloatDisplayComp
             g.translate(centerX, centerY - halfHeight + 20 + rad);
             AffineTransform baseT = g.getTransform();
             int eachSpoke = 14;
-            for (int i=-10 * eachSpoke; i<=10 * eachSpoke; i += eachSpoke) {
+            for (int i = -10 * eachSpoke; i <= 10 * eachSpoke; i += eachSpoke) {
                 g.setTransform(baseT);
                 g.rotate(Math.toRadians(i));
-                g.translate(0, 1-rad);
+                g.translate(0, 1 - rad);
                 if (i % (eachSpoke * 5) == 0) {
-                    g.drawLine(0, 0, 0, rad/3);
+                    g.drawLine(0, 0, 0, rad / 3);
                     g.translate(0, rad / 3f);
                     g.rotate(Math.toRadians(i > 0 ? -90 : 90));
                     String str = Float.toString(i / (10f * eachSpoke));
                     g.drawString(str, i > 0 ? -g.getFontMetrics().stringWidth(str) : 0, g.getFontMetrics().getDescent());
                 } else {
-                    g.drawLine(0, 0, 0, rad/6);
+                    g.drawLine(0, 0, 0, rad / 6);
                 }
             }
             g.setTransform(baseT);
@@ -145,7 +145,7 @@ public class FloatDisplayComponent extends BaseChannelComponent<FloatDisplayComp
             g.rotate(Math.toRadians(angle));
             Stroke origS = g.getStroke();
             g.setStroke(new BasicStroke(6, BasicStroke.CAP_ROUND, BasicStroke.CAP_SQUARE));
-            g.drawLine(0, -rad/2, 0, 0);
+            g.drawLine(0, -rad / 2, 0, 0);
             g.setStroke(origS);
             g.setTransform(origT);
             break;

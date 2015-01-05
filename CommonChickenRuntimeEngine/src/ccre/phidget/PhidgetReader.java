@@ -18,13 +18,14 @@
  */
 package ccre.phidget;
 
+import java.io.PrintStream;
+
 import ccre.channel.BooleanInput;
 import ccre.channel.BooleanOutput;
 import ccre.channel.FloatInput;
 import ccre.cluck.Cluck;
 import ccre.ctrl.BooleanMixing;
 import ccre.ctrl.FloatMixing;
-import java.io.PrintStream;
 
 /**
  * A system to read data over the network about the Phidget system, and provide

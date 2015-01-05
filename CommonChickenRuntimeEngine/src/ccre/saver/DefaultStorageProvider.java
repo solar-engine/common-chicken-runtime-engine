@@ -36,9 +36,10 @@ import java.io.OutputStream;
 public class DefaultStorageProvider extends StorageProvider {
 
     private final File basedir;
-    
+
     /**
-     * Create a new StorageProvider backed by the filesystem in the current working directory.
+     * Create a new StorageProvider backed by the filesystem in the current
+     * working directory.
      */
     public DefaultStorageProvider() {
         basedir = new File(".");
@@ -46,6 +47,7 @@ public class DefaultStorageProvider extends StorageProvider {
 
     /**
      * Create a new StorageProvider backed by the filesystem in basedir.
+     * 
      * @param basedir the directory to store CCRE data in.
      */
     public DefaultStorageProvider(File basedir) {
@@ -54,12 +56,13 @@ public class DefaultStorageProvider extends StorageProvider {
 
     /**
      * Register a new StorageProvider backed by the filesystem in basedir.
+     * 
      * @param basedir the directory to store CCRE data in.
      */
     public static void register(File basedir) {
         StorageProvider.setProvider(new DefaultStorageProvider(basedir));
     }
-    
+
     @Override
     protected OutputStream openOutputFile(String name) throws IOException {
         return new FileOutputStream(new File(basedir, name));

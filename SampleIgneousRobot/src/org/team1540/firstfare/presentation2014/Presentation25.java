@@ -4,11 +4,8 @@
  */
 package org.team1540.firstfare.presentation2014;
 
-import ccre.channel.BooleanInputPoll;
 import ccre.channel.BooleanStatus;
-import ccre.channel.FloatInput;
 import ccre.channel.FloatOutput;
-import ccre.ctrl.BooleanMixing;
 import ccre.ctrl.DriverImpls;
 import ccre.ctrl.FloatMixing;
 import ccre.ctrl.IJoystick;

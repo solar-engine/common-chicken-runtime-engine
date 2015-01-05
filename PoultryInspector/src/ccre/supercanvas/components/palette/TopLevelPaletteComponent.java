@@ -23,9 +23,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 
 import ccre.supercanvas.SuperCanvasComponent;
+import ccre.supercanvas.components.CanvasPhidgetComponent;
 import ccre.supercanvas.components.FolderComponent;
 import ccre.supercanvas.components.LoggingComponent;
-import ccre.supercanvas.components.CanvasPhidgetComponent;
 import ccre.supercanvas.components.PhysicalPhidgetComponent;
 import ccre.supercanvas.components.TextComponent;
 import ccre.supercanvas.components.TrashComponent;

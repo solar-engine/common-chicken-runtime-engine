@@ -48,6 +48,7 @@ public class TextualDisplayDevice extends Device {
 
     /**
      * Change the displayed text.
+     * 
      * @param str the new text to display.
      */
     public void set(String str) {

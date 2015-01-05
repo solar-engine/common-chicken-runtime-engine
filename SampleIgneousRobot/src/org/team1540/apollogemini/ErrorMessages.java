@@ -18,10 +18,11 @@
  */
 package org.team1540.apollogemini;
 
-import ccre.channel.*;
-import ccre.phidget.PhidgetReader;
-
 import java.io.PrintStream;
+
+import ccre.channel.EventInput;
+import ccre.channel.EventOutput;
+import ccre.phidget.PhidgetReader;
 
 public class ErrorMessages {
 

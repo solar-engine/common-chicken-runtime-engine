@@ -21,7 +21,8 @@ package java.lang;
 import java.io.IOException;
 
 /**
- * This a substitute for java.lang.UnsupportedOperationException for Squawk. Does nothing useful whatsoever except stuff can compile.
+ * This a substitute for java.lang.UnsupportedOperationException for Squawk.
+ * Does nothing useful whatsoever except stuff can compile.
  *
  * @see java.lang.UnsupportedOperationException
  * @author skeggsc

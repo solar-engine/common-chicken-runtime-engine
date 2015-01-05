@@ -18,13 +18,12 @@
  */
 package ccre.holders;
 
+import java.io.OutputStream;
+
 import ccre.channel.EventInput;
 import ccre.channel.EventOutput;
 import ccre.channel.EventStatus;
 import ccre.util.LineCollectorOutputStream;
-
-import java.io.IOException;
-import java.io.OutputStream;
 
 /**
  * A holder for a String value. Has methods to modify the state, and subscribe

@@ -18,8 +18,9 @@
  */
 package ccre.testing;
 
-import ccre.concurrency.ConcurrentDispatchArray;
 import java.util.Iterator;
+
+import ccre.concurrency.ConcurrentDispatchArray;
 
 /**
  * A test that tests some parts of the ConcurrentDispatchArray class.

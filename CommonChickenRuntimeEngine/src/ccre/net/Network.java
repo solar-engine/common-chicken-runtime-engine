@@ -18,9 +18,10 @@
  */
 package ccre.net;
 
+import java.io.IOException;
+
 import ccre.log.Logger;
 import ccre.util.CCollection;
-import java.io.IOException;
 
 /**
  * The global Network handler. This contains a location to store the current

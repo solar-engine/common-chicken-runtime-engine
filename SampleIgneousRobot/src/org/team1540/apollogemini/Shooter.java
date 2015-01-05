@@ -18,12 +18,26 @@
  */
 package org.team1540.apollogemini;
 
-import ccre.channel.*;
+import ccre.channel.BooleanInputPoll;
+import ccre.channel.BooleanOutput;
+import ccre.channel.BooleanStatus;
+import ccre.channel.EventInput;
+import ccre.channel.EventLogger;
+import ccre.channel.EventOutput;
+import ccre.channel.FloatInput;
+import ccre.channel.FloatInputPoll;
+import ccre.channel.FloatOutput;
+import ccre.channel.FloatStatus;
 import ccre.cluck.Cluck;
-import ccre.ctrl.*;
+import ccre.ctrl.BooleanMixing;
+import ccre.ctrl.EventMixing;
+import ccre.ctrl.ExpirationTimer;
+import ccre.ctrl.FloatMixing;
+import ccre.ctrl.Mixing;
 import ccre.holders.TuningContext;
 import ccre.igneous.Igneous;
-import ccre.log.*;
+import ccre.log.LogLevel;
+import ccre.log.Logger;
 
 public class Shooter {
 
@@ -48,7 +62,7 @@ public class Shooter {
 
     public final FloatInputPoll activeAmps = new FloatInputPoll() {
         private Float tare = null;
-        
+
         public float get() {
             if (sensor == null) {
                 return -100; // Hacky solution. Fixed in rewrite.

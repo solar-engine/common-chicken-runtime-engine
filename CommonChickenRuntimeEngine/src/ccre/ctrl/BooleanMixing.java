@@ -278,7 +278,7 @@ public class BooleanMixing {
     public static EventInput whenBooleanChanges(BooleanInputPoll input, EventInput checkTrigger) {
         return whenBooleanChanges(createDispatch(input, checkTrigger));
     }
-    
+
     /**
      * When the BooleanInput changes, the returned EventInput is fired.
      * 

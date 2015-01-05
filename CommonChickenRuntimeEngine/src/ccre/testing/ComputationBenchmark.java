@@ -18,8 +18,9 @@
  */
 package ccre.testing;
 
-import ccre.log.Logger;
 import java.util.Random;
+
+import ccre.log.Logger;
 
 /**
  * A system to test the speed of a set of computations.

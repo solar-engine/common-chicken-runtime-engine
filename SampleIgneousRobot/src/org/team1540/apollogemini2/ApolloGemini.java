@@ -21,7 +21,6 @@ package org.team1540.apollogemini2;
 import ccre.channel.BooleanInput;
 import ccre.channel.BooleanStatus;
 import ccre.cluck.Cluck;
-import ccre.cluck.tcp.CluckTCPServer;
 import ccre.ctrl.BooleanMixing;
 import ccre.ctrl.FloatMixing;
 import ccre.holders.TuningContext;
@@ -61,9 +60,9 @@ public class ApolloGemini implements IgneousApplication {
                     Igneous.getKinectJoystick(false),
                     Igneous.getKinectJoystick(true)));
         }
-        
+
         // Autonomous goes last because it needs channels from everything else.
-        
+
         InstinctMultiModule modes = new InstinctMultiModule(new TuningContext("autonomous").publishSavingEvent());
         modes.addMode(new AutonomousModeForward());
         modes.addMode(new AutonomousModeHotcheck());

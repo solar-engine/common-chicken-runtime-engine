@@ -33,7 +33,7 @@ import ccre.log.Logger;
 
 public class CompressorHandler {
     private static final TuningContext pressureTuningContext = new TuningContext("PressureTuner").publishSavingEvent();
- 
+
     private static FloatInputPoll getPercentPressure(FloatInputPoll pressureSensorVolts) {
         return FloatMixing.multiplication.of(100,
                 FloatMixing.normalizeFloat(pressureSensorVolts,

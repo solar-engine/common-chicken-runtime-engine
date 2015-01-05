@@ -18,8 +18,9 @@
  */
 package ccre.log;
 
-import ccre.workarounds.ThrowablePrinter;
 import java.io.PrintStream;
+
+import ccre.workarounds.ThrowablePrinter;
 
 /**
  * A logging target that will write all messages to the specified PrintStream.

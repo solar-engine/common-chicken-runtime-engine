@@ -21,7 +21,8 @@ package java.lang;
 import java.util.Iterator;
 
 /**
- * This a substitute for java.lang.Iterable for Squawk. Does nothing useful whatsoever except stuff can work.
+ * This a substitute for java.lang.Iterable for Squawk. Does nothing useful
+ * whatsoever except stuff can work.
  *
  * @param <T> The type returned by the iterator.
  * @see java.lang.Iterable

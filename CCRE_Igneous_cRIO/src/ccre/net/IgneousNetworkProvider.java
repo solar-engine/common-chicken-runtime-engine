@@ -18,19 +18,21 @@
  */
 package ccre.net;
 
-import ccre.log.Logger;
-import ccre.util.CArrayUtils;
-import ccre.util.CCollection;
-import edu.wpi.first.wpilibj.DriverStation;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+
 import javax.microedition.io.Connector;
 import javax.microedition.io.ServerSocketConnection;
 import javax.microedition.io.SocketConnection;
 import javax.microedition.io.StreamConnection;
+
+import ccre.log.Logger;
+import ccre.util.CArrayUtils;
+import ccre.util.CCollection;
+import edu.wpi.first.wpilibj.DriverStation;
 
 /**
  * A network provider that works on Squawk and the FRC robot. This is because

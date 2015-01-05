@@ -18,10 +18,10 @@
  */
 package java.util;
 
-import java.util.NoSuchElementException;
 
 /**
- * This a substitute for java.util.Iterator for Squawk. Does nothing useful whatsoever except stuff can work.
+ * This a substitute for java.util.Iterator for Squawk. Does nothing useful
+ * whatsoever except stuff can work.
  *
  * @param <E> The type returned by the iterator.
  * @see java.util.Iterator

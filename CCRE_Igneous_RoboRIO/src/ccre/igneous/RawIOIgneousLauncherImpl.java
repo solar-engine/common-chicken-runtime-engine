@@ -81,7 +81,7 @@ public final class RawIOIgneousLauncherImpl extends RobotBase implements Igneous
      * Initialized by usePCMCompressor if needed.
      */
     private Compressor pcmCompressor;
-    
+
     private Mode activeMode;
 
     /**
@@ -103,7 +103,8 @@ public final class RawIOIgneousLauncherImpl extends RobotBase implements Igneous
             this.name = name;
         }
 
-        private final EventStatus start = new EventStatus(), during = new EventStatus();
+        private final EventStatus start = new EventStatus(),
+                during = new EventStatus();
         public final String name;
 
         private void start() {
@@ -114,7 +115,7 @@ public final class RawIOIgneousLauncherImpl extends RobotBase implements Igneous
                 Logger.severe("Critical Code Failure in " + name + " init", thr);
             }
         }
-        
+
         private void periodic() {
             try {
                 if (countFails >= 50) {
@@ -156,7 +157,7 @@ public final class RawIOIgneousLauncherImpl extends RobotBase implements Igneous
             Logger.severe("Critical Code Failure in Robot Init", thr);
             throw new RuntimeException("Critical Code Failure", thr);
         }
-        
+
         activeMode = null;
 
         while (true) {
@@ -328,7 +329,7 @@ public final class RawIOIgneousLauncherImpl extends RobotBase implements Igneous
         }
     }
 
-    public ExtendedMotor makeCANJaguar(int deviceNumber)throws ExtendedMotorFailureException {
+    public ExtendedMotor makeCANJaguar(int deviceNumber) throws ExtendedMotorFailureException {
         return new ExtendedJaguar(deviceNumber);
     }
 
@@ -391,17 +392,17 @@ public final class RawIOIgneousLauncherImpl extends RobotBase implements Igneous
     public FloatInputPoll getPCMCompressorCurrent() {
         return getPCMCompressor()::getCompressorCurrent;
     }
-    
+
     public FloatInputPoll getPDPChannelCurrent(final int channel) {
         final PowerDistributionPanel panel = new PowerDistributionPanel();
         return () -> (float) panel.getCurrent(channel);
     }
-    
+
     public FloatInputPoll getPDPVoltage() {
         final PowerDistributionPanel panel = new PowerDistributionPanel();
         return () -> (float) panel.getVoltage();
     }
-    
+
     public boolean isRoboRIO() {
         return true;
     }

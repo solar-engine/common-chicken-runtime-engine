@@ -18,6 +18,8 @@
  */
 package ccre.workarounds;
 
+import java.io.PrintStream;
+
 import ccre.log.Logger;
 
 import com.sun.squawk.ExecutionPoint;
@@ -27,8 +29,6 @@ import com.sun.squawk.Method;
 import com.sun.squawk.NativeUnsafe;
 import com.sun.squawk.VM;
 import com.sun.squawk.vm.FieldOffsets;
-
-import java.io.PrintStream;
 
 /**
  * A throwable printer that works on Squawk and the FRC robot. This is because

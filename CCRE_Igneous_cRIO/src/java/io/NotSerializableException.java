@@ -18,10 +18,10 @@
  */
 package java.io;
 
-import java.io.IOException;
 
 /**
- * This a substitute for java.io.NotSerializableException for Squawk. Does nothing useful whatsoever except stuff can compile.
+ * This a substitute for java.io.NotSerializableException for Squawk. Does
+ * nothing useful whatsoever except stuff can compile.
  *
  * @see java.io.NotSerializableException
  * @author skeggsc

@@ -18,13 +18,14 @@
  */
 package ccre.rload;
 
-import ccre.net.ClientSocket;
-import ccre.net.Network;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+
+import ccre.net.ClientSocket;
+import ccre.net.Network;
 
 /**
  * A client for the RLoad system primarily used by Obsidian projects.

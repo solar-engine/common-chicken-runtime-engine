@@ -18,10 +18,11 @@
  */
 package ccre.cluck.rpc;
 
-import ccre.log.Logger;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+
+import ccre.log.Logger;
 
 /**
  * A simple implementation of RemoteProcedure that takes care of returning

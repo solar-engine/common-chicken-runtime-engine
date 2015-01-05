@@ -38,7 +38,8 @@ public class CallerInfo {
      * @param className the name of the class, required.
      * @param methodName the name of the method, optional.
      * @param fileName the name of the file, optional.
-     * @param lineNum the line number, optional. (Set to a negative number for unspecified.)
+     * @param lineNum the line number, optional. (Set to a negative number for
+     * unspecified.)
      */
     public CallerInfo(String className, String methodName, String fileName, int lineNum) {
         if (className == null) {
@@ -77,7 +78,7 @@ public class CallerInfo {
     public int getLineNum() {
         return lineNum;
     }
-    
+
     public String toString() {
         return className + "." + methodName + "(" + getFileName() + ":" + lineNum + ")";
     }

@@ -164,11 +164,11 @@ final class CJoystick implements EventOutput, IJoystick {
         }
     }
 
-	public FloatInput getXAxisSource() {
-		return getAxisSource(1);
-	}
+    public FloatInput getXAxisSource() {
+        return getAxisSource(1);
+    }
 
-	public FloatInput getYAxisSource() {
-		return getAxisSource(2);
-	}
+    public FloatInput getYAxisSource() {
+        return getAxisSource(2);
+    }
 }

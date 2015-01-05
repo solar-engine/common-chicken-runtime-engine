@@ -18,6 +18,9 @@
  */
 package org.team1540.infernodante;
 
+import java.util.Timer;
+import java.util.TimerTask;
+
 import ccre.channel.BooleanInput;
 import ccre.channel.BooleanInputPoll;
 import ccre.channel.BooleanOutput;
@@ -38,9 +41,6 @@ import ccre.ctrl.MultipleSourceBooleanController;
 import ccre.igneous.Igneous;
 import ccre.igneous.IgneousCore;
 import ccre.phidget.PhidgetReader;
-
-import java.util.Timer;
-import java.util.TimerTask;
 
 // Please note that this is not the best example of an Igneous program.
 // A better example would be our 2014 code.

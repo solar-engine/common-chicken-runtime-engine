@@ -204,7 +204,7 @@ public class DriverImpls {
             }
         };
     }
-    
+
     /**
      * When the returned EventInput is fired, run single joystick drive on the
      * given joystick and two FloatOutputs.

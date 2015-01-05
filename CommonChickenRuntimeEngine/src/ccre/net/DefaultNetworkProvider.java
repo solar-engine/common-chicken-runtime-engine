@@ -18,11 +18,6 @@
  */
 package ccre.net;
 
-import ccre.log.Logger;
-import ccre.util.CArrayList;
-import ccre.util.CArrayUtils;
-import ccre.util.CCollection;
-
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -36,6 +31,11 @@ import java.net.SocketException;
 import java.net.SocketTimeoutException;
 import java.util.Arrays;
 import java.util.Enumeration;
+
+import ccre.log.Logger;
+import ccre.util.CArrayList;
+import ccre.util.CArrayUtils;
+import ccre.util.CCollection;
 
 /**
  * The default network provider. This is chosen by default if no other provider

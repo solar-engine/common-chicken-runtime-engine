@@ -18,7 +18,6 @@
  */
 package ccre.supercanvas;
 
-
 /**
  * A simple draggable SuperCanvasComponent.
  *

@@ -29,11 +29,8 @@ import ccre.channel.FloatInputPoll;
 import ccre.channel.FloatOutput;
 import ccre.ctrl.BooleanMixing;
 import ccre.ctrl.FloatMixing;
-import ccre.holders.TuningContext;
-import ccre.igneous.Igneous;
 import ccre.instinct.AutonomousModeOverException;
 import ccre.instinct.InstinctModeModule;
-import ccre.instinct.InstinctMultiModule;
 import ccre.log.Logger;
 
 public abstract class AutonomousModeBase extends InstinctModeModule {

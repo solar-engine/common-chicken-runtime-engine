@@ -40,25 +40,25 @@ public class SuiteOfTests {
     public static void main(String[] args) throws InterruptedException {
         BaseTest[] tests = new BaseTest[] {
                 // ccre.chan
-        new TestBooleanStatus(), new TestFloatStatus(),
+                new TestBooleanStatus(), new TestFloatStatus(),
                 // ccre.cluck - Tests needed!
 
                 // ccre.concurrency
                 // CollapsingWorkerThread - Needed!
                 // ConcurrentDispatchArray - Needed to improve!
-        new TestConcurrentDispatchArray(), new TestReporterThread(),
+                new TestConcurrentDispatchArray(), new TestReporterThread(),
                 // ReporterThread - Needed!
 
                 // ccre.ctrl
                 // DriverImpls - Needed!
                 // ExpirationTimer - Needed!
                 // Mixing - Needed to be fleshed out a lot!
-        new TestMixing(),
+                new TestMixing(),
                 // ModeDispatcher - Needed!
                 // MultipleSourceBooleanController - Needed!
-        new TestTicker(),
+                new TestTicker(),
                 // ccre.event
-        new TestEventStatus(),
+                new TestEventStatus(),
                 // EventLogger - Needed!
 
                 // ccre.holders - Needed!
@@ -79,13 +79,13 @@ public class SuiteOfTests {
                 // ccre.saver - Needed!
 
                 // ccre.testing - DONE
-        new TestTests(),
+                new TestTests(),
                 // ccre.utils - DONE
-        new TestAllocationPool(),
+                new TestAllocationPool(),
                 // CAbstractList - Included in CArrayList and CLinkedList tests
-        new TestCArrayList(), new TestCHashMap(), new TestCLinkedList(),
+                new TestCArrayList(), new TestCHashMap(), new TestCLinkedList(),
                 // Heap - Not needed because it's a commented-out unfinished class.
-        new TestUtils(), // Tests both Utils and CArrayUtils
+                new TestUtils(), // Tests both Utils and CArrayUtils
         // ccre.workarounds - Needed!
         };
         int count = 0;

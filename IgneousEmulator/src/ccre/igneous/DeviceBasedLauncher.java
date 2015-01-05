@@ -30,7 +30,6 @@ import ccre.ctrl.ExtendedMotorFailureException;
 import ccre.ctrl.FloatMixing;
 import ccre.ctrl.IJoystick;
 import ccre.ctrl.Ticker;
-import ccre.igneous.IgneousLauncher;
 import ccre.igneous.devices.BooleanControlDevice;
 import ccre.igneous.devices.BooleanViewDevice;
 import ccre.igneous.devices.CANJaguarDevice;

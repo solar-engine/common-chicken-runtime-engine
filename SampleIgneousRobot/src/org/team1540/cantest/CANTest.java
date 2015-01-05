@@ -1,10 +1,10 @@
 package org.team1540.cantest;
 
+import ccre.cluck.Cluck;
 import ccre.ctrl.BooleanMixing;
 import ccre.ctrl.ExtendedMotor;
 import ccre.ctrl.ExtendedMotor.DiagnosticType;
 import ccre.ctrl.ExtendedMotor.OutputControlMode;
-import ccre.cluck.Cluck;
 import ccre.igneous.Igneous;
 import ccre.igneous.IgneousApplication;
 

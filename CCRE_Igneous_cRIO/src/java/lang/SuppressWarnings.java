@@ -1,7 +1,8 @@
 package java.lang;
 
 /**
- * This a substitute for java.lang.SuppressWarnings for Squawk. Does nothing useful whatsoever except stuff can work.
+ * This a substitute for java.lang.SuppressWarnings for Squawk. Does nothing
+ * useful whatsoever except stuff can work.
  *
  * @see java.lang.Override
  * @author skeggsc

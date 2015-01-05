@@ -18,6 +18,11 @@
  */
 package ccre.cluck.tcp;
 
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.util.Random;
+
 import ccre.cluck.CluckLink;
 import ccre.cluck.CluckNode;
 import ccre.concurrency.ReporterThread;
@@ -25,11 +30,6 @@ import ccre.log.Logger;
 import ccre.net.ClientSocket;
 import ccre.net.Network;
 import ccre.util.CLinkedList;
-
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.IOException;
-import java.util.Random;
 
 /**
  * A static utility class for handling various encodings of Cluck packets.

@@ -18,8 +18,9 @@
  */
 package ccre.testing;
 
-import ccre.util.CHashMap;
 import java.util.Random;
+
+import ccre.util.CHashMap;
 
 /**
  * A test that tests the CHashMap class.

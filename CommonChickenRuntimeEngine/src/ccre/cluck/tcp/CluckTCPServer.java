@@ -18,16 +18,16 @@
  */
 package ccre.cluck.tcp;
 
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
+
 import ccre.cluck.CluckLink;
 import ccre.cluck.CluckNode;
 import ccre.log.Logger;
 import ccre.net.ClientSocket;
 import ccre.net.ConnectionReceiverThread;
 import ccre.util.UniqueIds;
-
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.IOException;
 
 /**
  * A server-side handler for Cluck TCP connections.

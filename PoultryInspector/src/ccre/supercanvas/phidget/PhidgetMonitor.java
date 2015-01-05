@@ -18,6 +18,9 @@
  */
 package ccre.supercanvas.phidget;
 
+import java.io.Serializable;
+import java.util.Arrays;
+
 import ccre.channel.BooleanInput;
 import ccre.channel.BooleanOutput;
 import ccre.channel.BooleanStatus;
@@ -42,9 +45,6 @@ import com.phidgets.event.InputChangeEvent;
 import com.phidgets.event.InputChangeListener;
 import com.phidgets.event.SensorChangeEvent;
 import com.phidgets.event.SensorChangeListener;
-
-import java.io.Serializable;
-import java.util.Arrays;
 
 /**
  * The interface to the Phidget system. Currently, this has hardcoded constants
@@ -167,7 +167,8 @@ public class PhidgetMonitor implements Serializable, AttachListener, DetachListe
     }
 
     /**
-     * Share the contents of the phidget. Be careful - no error checking if you use this wrong.
+     * Share the contents of the phidget. Be careful - no error checking if you
+     * use this wrong.
      */
     public void share() {
         isShared = true;
@@ -206,7 +207,8 @@ public class PhidgetMonitor implements Serializable, AttachListener, DetachListe
     }
 
     /**
-     * Unshare the contents of the phidget. Be careful - no error checking if you use this wrong.
+     * Unshare the contents of the phidget. Be careful - no error checking if
+     * you use this wrong.
      */
     public void unshare() {
         isShared = false;

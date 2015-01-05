@@ -18,10 +18,10 @@
  */
 package ccre.workarounds;
 
-import ccre.log.Logger;
-
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
+
+import ccre.log.Logger;
 
 /**
  * A provider that can print out a Throwable to a given PrintStream.

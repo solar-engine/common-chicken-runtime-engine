@@ -18,10 +18,11 @@
  */
 package ccre.testing;
 
-import ccre.util.CArrayUtils;
-import ccre.util.CList;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
+
+import ccre.util.CArrayUtils;
+import ccre.util.CList;
 
 /**
  * A base class for testing the various kinds of lists in the CCRE.

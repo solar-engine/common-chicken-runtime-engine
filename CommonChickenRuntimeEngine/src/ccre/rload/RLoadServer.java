@@ -18,16 +18,17 @@
  */
 package ccre.rload;
 
-import ccre.concurrency.ReporterThread;
-import ccre.log.Logger;
-import ccre.net.ClientSocket;
-import ccre.net.Network;
-import ccre.net.ServerSocket;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+
+import ccre.concurrency.ReporterThread;
+import ccre.log.Logger;
+import ccre.net.ClientSocket;
+import ccre.net.Network;
+import ccre.net.ServerSocket;
 
 /**
  * A server for the RLoad system primarily used by Obsidian projects.

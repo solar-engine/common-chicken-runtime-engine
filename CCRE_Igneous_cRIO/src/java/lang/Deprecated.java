@@ -19,7 +19,8 @@
 package java.lang;
 
 /**
- * This a substitute for java.lang.Deprecated for Squawk. Does nothing useful whatsoever except stuff can work.
+ * This a substitute for java.lang.Deprecated for Squawk. Does nothing useful
+ * whatsoever except stuff can work.
  *
  * @see java.lang.Deprecated
  * @author skeggsc

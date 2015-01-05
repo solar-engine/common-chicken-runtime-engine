@@ -18,14 +18,17 @@
  */
 package ccre.saver;
 
-import ccre.log.Logger;
-import com.sun.squawk.microedition.io.FileConnection;
-import com.sun.squawk.platform.posix.LibCUtil;
-import com.sun.squawk.platform.posix.natives.LibC;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+
 import javax.microedition.io.Connector;
+
+import ccre.log.Logger;
+
+import com.sun.squawk.microedition.io.FileConnection;
+import com.sun.squawk.platform.posix.LibCUtil;
+import com.sun.squawk.platform.posix.natives.LibC;
 
 /**
  * A storage provider that works on Squawk and the FRC robot. This is because
@@ -61,7 +64,7 @@ public class IgneousStorageProvider extends StorageProvider {
         FileConnection fc = (FileConnection) Connector.open("file:///" + name, Connector.READ);
         return fc.exists() ? fc.openInputStream() : null;
     }
-    
+
     protected InputStream openInputFile_Custom(String name) throws IOException {
         // Testing needed before being put into production!
         // Should actually throw IOException if file found but could not be opened.
@@ -164,7 +167,7 @@ public class IgneousStorageProvider extends StorageProvider {
         }
 
         public void write(int b) throws IOException {
-            write(new byte[]{(byte) b});
+            write(new byte[] { (byte) b });
         }
 
         public synchronized void write(byte[] b, int off, int len) throws IOException {

@@ -21,7 +21,8 @@ package java.util;
 import java.io.IOException;
 
 /**
- * This a substitute for java.util.ConcurrentModificationException for Squawk. Does nothing useful whatsoever except stuff can compile.
+ * This a substitute for java.util.ConcurrentModificationException for Squawk.
+ * Does nothing useful whatsoever except stuff can compile.
  *
  * @see java.util.ConcurrentModificationException
  * @author skeggsc

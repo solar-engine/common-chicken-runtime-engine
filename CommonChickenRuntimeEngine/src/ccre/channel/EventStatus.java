@@ -18,11 +18,12 @@
  */
 package ccre.channel;
 
+import java.io.Serializable;
+import java.util.Iterator;
+
 import ccre.concurrency.ConcurrentDispatchArray;
 import ccre.log.Logger;
 import ccre.util.CArrayUtils;
-import java.io.Serializable;
-import java.util.Iterator;
 
 /**
  * An implementation of an EventInput. This can be fired using the .produce()

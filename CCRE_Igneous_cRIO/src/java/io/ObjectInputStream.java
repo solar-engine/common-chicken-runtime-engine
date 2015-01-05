@@ -18,7 +18,6 @@
  */
 package java.io;
 
-import java.io.IOException;
 
 /**
  * This is a not-really-implemented implementation of java.io.ObjectInputStream.

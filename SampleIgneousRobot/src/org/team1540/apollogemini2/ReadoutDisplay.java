@@ -18,15 +18,18 @@
  */
 package org.team1540.apollogemini2;
 
-import ccre.channel.*;
+import java.io.PrintStream;
+
+import ccre.channel.BooleanInputPoll;
+import ccre.channel.EventOutput;
+import ccre.channel.FloatInput;
+import ccre.channel.FloatInputPoll;
 import ccre.ctrl.BooleanMixing;
 import ccre.ctrl.FloatMixing;
 import ccre.ctrl.Ticker;
 import ccre.igneous.Igneous;
 import ccre.log.Logger;
 import ccre.phidget.PhidgetReader;
-
-import java.io.PrintStream;
 
 public class ReadoutDisplay {
 
@@ -112,11 +115,11 @@ public class ReadoutDisplay {
             line.println(message);
         }
     }
-    
+
     private static FloatInputPoll percentPressure = FloatMixing.always(-10);
     private static BooleanInputPoll pressureSwitch = BooleanMixing.alwaysFalse;
     private static FloatInputPoll winchJoules = FloatMixing.always(-42);
-    
+
     private static final EventOutput update = new EventOutput() {
         public void event() {
             Integer pressure = Math.round(percentPressure.get());
@@ -129,7 +132,7 @@ public class ReadoutDisplay {
             PhidgetReader.getLCDLine(1).println(pressureMessage + " WNCH " + Float.toString(winchJoules.get()));
         }
     };
-    
+
     public static void setupReadout() {
         new Ticker(2000).send(update);
     }

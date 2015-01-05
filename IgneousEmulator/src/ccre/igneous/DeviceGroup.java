@@ -21,6 +21,7 @@ package ccre.igneous;
 import java.awt.Color;
 import java.awt.FontMetrics;
 import java.awt.Graphics2D;
+
 import ccre.concurrency.ConcurrentDispatchArray;
 
 /**

@@ -18,7 +18,8 @@
  */
 package org.team1540.apollogemini;
 
-import ccre.channel.*;
+import ccre.channel.BooleanInputPoll;
+import ccre.channel.EventInput;
 import ccre.cluck.Cluck;
 import ccre.ctrl.BooleanMixing;
 import ccre.ctrl.FloatMixing;

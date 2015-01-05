@@ -499,7 +499,7 @@ public final class IgneousLauncherImpl extends IterativeRobot implements Igneous
         };
     }
 
-    public ExtendedMotor makeCANJaguar(int deviceNumber)throws ExtendedMotorFailureException {
+    public ExtendedMotor makeCANJaguar(int deviceNumber) throws ExtendedMotorFailureException {
         return new ExtendedJaguar(deviceNumber);
     }
 

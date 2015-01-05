@@ -174,7 +174,7 @@ public abstract class InstinctBaseModule {
      * Cause a fake cycle - resume any threads waiting in waitCycle().
      */
     abstract void notifyCycle();
-    
+
     /**
      * Make sure that the autonomous mode should still be running.
      * 

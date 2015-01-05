@@ -364,26 +364,26 @@ final class IgneousLauncherImpl extends IterativeRobot implements IgneousLaunche
     public void sendDSUpdate(String value, int lineid) {
         final DriverStationLCD.Line line;
         switch (lineid) {
-            case 1:
-                line = DriverStationLCD.Line.kUser1;
-                break;
-            case 2:
-                line = DriverStationLCD.Line.kUser2;
-                break;
-            case 3:
-                line = DriverStationLCD.Line.kUser3;
-                break;
-            case 4:
-                line = DriverStationLCD.Line.kUser4;
-                break;
-            case 5:
-                line = DriverStationLCD.Line.kUser5;
-                break;
-            case 6:
-                line = DriverStationLCD.Line.kUser6;
-                break;
-            default:
-                throw new IllegalArgumentException("Bad line number (expected 1-6): " + lineid);
+        case 1:
+            line = DriverStationLCD.Line.kUser1;
+            break;
+        case 2:
+            line = DriverStationLCD.Line.kUser2;
+            break;
+        case 3:
+            line = DriverStationLCD.Line.kUser3;
+            break;
+        case 4:
+            line = DriverStationLCD.Line.kUser4;
+            break;
+        case 5:
+            line = DriverStationLCD.Line.kUser5;
+            break;
+        case 6:
+            line = DriverStationLCD.Line.kUser6;
+            break;
+        default:
+            throw new IllegalArgumentException("Bad line number (expected 1-6): " + lineid);
         }
         DriverStationLCD dslcd = DriverStationLCD.getInstance();
         dslcd.println(line, 1, "                    ");
@@ -491,17 +491,17 @@ final class IgneousLauncherImpl extends IterativeRobot implements IgneousLaunche
     public FloatOutput makeMotor(int id, int type) {
         final SpeedController spc;
         switch (type) {
-            case JAGUAR:
-                spc = new Jaguar(id);
-                break;
-            case VICTOR:
-                spc = new Victor(id);
-                break;
-            case TALON:
-                spc = new Talon(id);
-                break;
-            default:
-                throw new IllegalArgumentException("Unknown type: " + type);
+        case JAGUAR:
+            spc = new Jaguar(id);
+            break;
+        case VICTOR:
+            spc = new Victor(id);
+            break;
+        case TALON:
+            spc = new Talon(id);
+            break;
+        default:
+            throw new IllegalArgumentException("Unknown type: " + type);
         }
         return new FloatOutput() {
             public void set(float f) {
@@ -509,7 +509,7 @@ final class IgneousLauncherImpl extends IterativeRobot implements IgneousLaunche
             }
         };
     }
-    
+
     public ExtendedMotor makeCANJaguar(int deviceNumber) {
         return new ExtendedJaguar(deviceNumber);
     }

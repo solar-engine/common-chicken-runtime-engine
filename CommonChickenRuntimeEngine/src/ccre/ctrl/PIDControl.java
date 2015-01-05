@@ -70,7 +70,7 @@ public class PIDControl implements FloatInput, EventOutput {
      * @param i the integral constant.
      * @param d the derivative constant.
      * @return the PID controller, which is also an input representing the
-     *         current value.
+     * current value.
      */
     public static PIDControl createFixedPID(EventInput trigger, FloatInputPoll input, FloatInputPoll setpoint, float p, float i, float d) {
         PIDControl ctrl = new PIDControl(input, setpoint,

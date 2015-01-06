@@ -363,7 +363,7 @@ public class DeviceBasedLauncher implements IgneousLauncher {
     }
 
     public FloatInputPoll getPDPVoltage() {
-        return FloatMixing.addition.of(6.5f, FloatMixing.multiplication.of(3, panel.add(new FloatControlDevice("PDP Voltage (6.5V-12.5V)"))));
+        return FloatMixing.addition.of(9.5f, FloatMixing.multiplication.of(3, panel.add(new FloatControlDevice("PDP Voltage (6.5V-12.5V)"))));
     }
 
     public boolean isRoboRIO() {

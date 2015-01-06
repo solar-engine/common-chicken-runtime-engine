@@ -46,4 +46,16 @@ public class BackportImpls {
     public static boolean java_lang_Boolean_parseBoolean(String str) {
         return "true".equalsIgnoreCase(str);
     }
+
+    /**
+     * Fall-back implementation of initCause. Doesn't actually do anything.
+     * 
+     * @param athis the "this" throwable.
+     * @param thr the throwable.
+     * @return the "this" throwable.
+     */
+    public static Throwable java_lang_Throwable_initCause(Throwable athis, Throwable thr) {
+        // Do nothing.
+        return athis;
+    }
 }

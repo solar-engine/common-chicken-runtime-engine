@@ -45,11 +45,11 @@ public class CluckNetworkingComponent extends SuperCanvasComponent {
 
     private static final String[] optionNames = new String[] {
             "cRIO (default)", "roboRIO (default)", "Local (default)",
-            "cRIO (non-FMS)", "cRIO (deprecated)",
+            "roboRIO (USB)", "cRIO (non-FMS)", "cRIO (deprecated)",
             "Local (alternate 1)", "Local (alternate 2)" };
     private static final String[] optionAddrs = new String[] {
             "10.$T$E.$A$M.2:443", "roboRIO-$T$E$A$M.local:1540", "127.0.0.1:1540",
-            "10.$T$E.$A$M.2:1540", "10.$T$E.$A$M.2:80",
+            "177.22.11.2:1540", "10.$T$E.$A$M.2:1540", "10.$T$E.$A$M.2:80",
             "127.0.0.1:80", "127.0.0.1:443" };
 
     private final StringBuilder address = new StringBuilder(optionAddrs[0]);

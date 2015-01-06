@@ -18,6 +18,7 @@
  */
 package org.team1540.tester;
 
+import ccre.channel.FloatOutput;
 import ccre.cluck.Cluck;
 import ccre.ctrl.FloatMixing;
 import ccre.igneous.Igneous;
@@ -39,8 +40,20 @@ public class Tester implements IgneousApplication {
      */
     public void setupRobot() {
         int base = Igneous.isRoboRIO() ? 0 : 1;
+        final FloatOutput[] outs = new FloatOutput[Igneous.isRoboRIO() ? 20 : 10];
         for (int i = base; i < (Igneous.isRoboRIO() ? 20 : 10) + base; i++) {
-            Cluck.publish("talon-" + i, Igneous.makeTalonMotor(i, false, 0.1f));
+            Cluck.publish("talon-" + i, outs[i - base] = Igneous.makeTalonMotor(i, false, 0.1f));
+        }
+        Cluck.publish("talon-all", new FloatOutput() {
+            public void set(float value) {
+                for (FloatOutput out : outs) {
+                    out.set(value);
+                }
+            }
+        });
+        for (int i = base; i < (Igneous.isRoboRIO() ? 4 : 8) + base; i++) {
+            Cluck.publish("relay-" + i + "-fwd", Igneous.makeForwardRelay(i));
+            Cluck.publish("relay-" + i + "-rev", Igneous.makeReverseRelay(i));
         }
         for (int i = base; i < 8 + base; i++) {
             Cluck.publish("solenoid-" + i, Igneous.makeSolenoid(i));

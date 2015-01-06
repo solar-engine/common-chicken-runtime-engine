@@ -139,9 +139,10 @@ public final class IgneousLauncherImpl extends IterativeRobot implements Igneous
 
     public void robotInit() {
         IgneousLauncherHolder.setLauncher(this);
-        //CluckGlobals.setupServer() - No longer helpful on the robot because this port is now used by default.
-        new CluckTCPServer(Cluck.getNode(), 443).start();
-        new CluckTCPServer(Cluck.getNode(), 1540).start();
+        Cluck.setupServer(1540); // Cluck de-facto off-FMS port.
+        Cluck.setupServer(1735); // SmartDashboard port, since it's unused with the CCRE
+        Cluck.setupServer(5800); // First team-use port.
+        Cluck.setupServer(5805); // Another team-use port.
         try {
             setupMain();
         } catch (RuntimeException ex) {

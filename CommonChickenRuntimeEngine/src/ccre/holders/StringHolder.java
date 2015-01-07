@@ -31,7 +31,7 @@ import ccre.util.LineCollectorOutputStream;
  *
  * @author skeggsc
  */
-public class StringHolder { // TODO: This is legacy code! There's always a better way.
+public class StringHolder {
 
     /**
      * The current value.

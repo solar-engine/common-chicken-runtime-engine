@@ -30,7 +30,7 @@ import ccre.log.Logger;
  */
 public class SuiteOfTests {
 
-    // TODO: This package needs more tests!
+    // Trello #131: This package needs more tests!
     /**
      * Run all the tests.
      *

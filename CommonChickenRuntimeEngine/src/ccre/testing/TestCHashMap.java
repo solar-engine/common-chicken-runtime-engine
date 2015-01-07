@@ -35,7 +35,7 @@ public class TestCHashMap extends BaseTest {
     }
 
     @Override
-    protected void runTest() throws TestingException { // TODO: Test modcounts and iterator removal.
+    protected void runTest() throws TestingException { // Github #19: Test modcounts and iterator removal.
         CHashMap<String, String> alpha = new CHashMap<String, String>();
         assertObjectEqual(alpha.get("never"), null, "Bad nonexistent element!");
         assertFalse(alpha.containsKey("never"), "Bad contains!");
@@ -83,7 +83,7 @@ public class TestCHashMap extends BaseTest {
         String[] keys = new String[10];
         String[] values = new String[keys.length];
         Random r = new Random();
-        // TODO: Make this nicer?
+
         for (int i = 0; i < keys.length; i++) {
             String want;
             do {

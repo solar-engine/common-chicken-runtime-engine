@@ -64,10 +64,10 @@ public class Enum<E extends Enum<E>> implements Serializable, Comparable<E> {
         return ordinal - ((Enum<E>) o).ordinal;
     }
 
-    // TODO: Implement getDeclaringClass
+    // Trello #130: Implement getDeclaringClass
     // public final Class<E> getDeclaringClass()
 
-    // TODO: Implement valueOf
+    // Trello #130: Implement valueOf
     // Note: should be Class<T>
     public static <T extends Enum<T>> T valueOf(Class enumType, String name) {
         throw new Error("Enum.valueOf not yet implemented on the cRIO.");

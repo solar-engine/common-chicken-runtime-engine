@@ -91,7 +91,7 @@ public class NetworkPaletteComponent extends PaletteComponent<Collection<Network
             return new BooleanControlComponent(x, y, name, (BooleanInput) ((Object[]) target)[0], (BooleanOutput) ((Object[]) target)[1]);
         case CluckNode.RMT_OUTSTREAM:
             return new OutputStreamControlComponent(x, y, name, (OutputStream) target);
-        case CluckNode.RMT_INVOKE: // TODO: These two.
+        case CluckNode.RMT_INVOKE: // Trello #134: These two.
         case CluckNode.RMT_LOGTARGET:
         default:
             Logger.warning("Could not display RMT of " + CluckNode.rmtToString(type));
@@ -114,9 +114,9 @@ public class NetworkPaletteComponent extends PaletteComponent<Collection<Network
         case CluckNode.RMT_FLOATPROD:
             return Cluck.subscribeFI(path, false);
         case CluckNode.RMT_INVOKE:
-            return Cluck.getNode().getRPCManager().subscribe(path, 500); // TODO: Is this a good amount of time?
+            return Cluck.getNode().getRPCManager().subscribe(path, 500); // Is this a good amount of time?
         case CluckNode.RMT_LOGTARGET:
-            return Cluck.subscribeLT(path, LogLevel.FINEST); // TODO: Is this a good level?
+            return Cluck.subscribeLT(path, LogLevel.FINEST); // Is this a good level?
         case CluckNode.RMT_OUTSTREAM:
             return Cluck.subscribeOS(path);
         default:

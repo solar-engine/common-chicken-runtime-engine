@@ -31,16 +31,21 @@
 	<property name="unverif-2014.jar" location="Library_Prebuild.jar" />
 	<property name="veriflib-2014.jar" location="lib2014/squawk.jar" />
 	<property name="build-2014.path" location="${unverif-2014.jar}${path.separator}${veriflib-2014.jar}" />
+	<property name="found-2014-lib" value="true" />
 
 	<taskdef resource="net/jtools/classloadertask/antlib.xml" classpath="${ccre-root.dir}/CCRE_Igneous_cRIO/lib2014/ant-classloadertask.jar" />
 
-	<target name="prebuild-jar">
+	<target name="clean">
 		<delete file="Empty.jar" />
+		<delete file="Igneous.jar" />
+		<delete file="Library_Postbuild.jar" />
+		<delete file="Library_Prebuild.jar" />
+	</target>
+	
+	<target name="prebuild-jar" depends="clean">
 		<jar destfile="Empty.jar" update="false" />
 
-		<delete file="Library_Prebuild.jar" />
 		<jar destfile="Library_Prebuild.jar" update="false">
-			<!-- <fileset dir="bin" includes="**/*.class" /> -->
 			<fileset dir="../CommonChickenRuntimeEngine/bin" includes="**/*.class">
 				<exclude name="**/ccre/net/DefaultNetworkProvider*" />
 				<exclude name="**/ccre/saver/DefaultStorageProvider*" />
@@ -56,7 +61,6 @@
 	<import file="src/external_build_2014.xml" />
 	
 	<target name="build-part" depends="prebuild-jar,compile-2014">
-		<delete file="Library_Postbuild.jar" />
 		<jar destfile="Library_Postbuild.jar" update="false">
 			<fileset dir="build-2014/classes" includes="**/*.class" />
 			<fileset dir="../CommonChickenRuntimeEngine/bin" includes="**/*.class">
@@ -72,7 +76,6 @@
 	</target>
 
 	<target name="build-jar" depends="build-part,preverify-2014">
-		<delete file="Igneous.jar" />
 		<jar destfile="Igneous.jar" update="false">
 			<fileset dir="${preverify-2014.dir}">
 				<exclude name="**/*.java" />

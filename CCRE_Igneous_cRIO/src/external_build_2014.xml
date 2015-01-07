@@ -48,6 +48,10 @@
 	<property name="preverify-2014-bypass" value="" />
 
 	<property file="${ccre-root.dir}/CCRE_Igneous_cRIO/src/backport.properties" />
+	
+	<available file="${ccre-root.dir}/CCRE_Igneous_cRIO/Library_Postbuild.jar" property="found-2014-lib"></available>
+	
+	<fail unless="found-2014-lib" message="cRIO libraries not compiled! Did you run Build All yet?" />
 
 	<!-- <taskdef resource="net/jtools/classloadertask/antlib.xml" classpath="${lib-2014.dir}/ant-classloadertask.jar" /> -->
 	<classloader loader="system" classpath="${lib-2014.dir}/commons-net-1.4.1.jar" />

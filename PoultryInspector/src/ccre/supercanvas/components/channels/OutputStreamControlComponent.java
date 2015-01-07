@@ -57,17 +57,17 @@ public class OutputStreamControlComponent extends DraggableBoxComponent {
         this.out = out;
     }
 
-    private void setHalfWidth(int halfWidth) { // TODO: Clean this up.
-        int delta = halfWidth - this.halfWidth;
-        if (delta < 0 && halfWidth > getPanel().getWidth() / 4) {
-            halfWidth = Math.max(halfWidth, getPanel().getWidth() / 4);
-            delta = halfWidth - this.halfWidth;
-            this.halfWidth = halfWidth;
-            this.centerX += delta;
-        } else if (delta > 0) {
-            this.halfWidth = halfWidth;
-            this.centerX += delta;
+    private void setHalfWidth(int halfWidth) {
+        int min = getPanel().getWidth() / 4;
+        if (halfWidth < this.halfWidth) {
+            if (this.halfWidth > min) {
+                halfWidth = Math.max(halfWidth, min);
+            } else {
+                return;
+            }
         }
+        this.centerX += halfWidth - this.halfWidth;
+        this.halfWidth = halfWidth;
     }
 
     @Override
@@ -76,7 +76,7 @@ public class OutputStreamControlComponent extends DraggableBoxComponent {
         g.setFont(Rendering.labels);
         checkContents(true);
         String render = (inBinaryMode ? "0x" : "> ") + contents.toString();
-        setHalfWidth(5 + g.getFontMetrics().stringWidth(render) / 2);
+        setHalfWidth(5 + Math.max(g.getFontMetrics().stringWidth(render) / 2, g.getFontMetrics(Rendering.console).stringWidth(name)));
         this.halfHeight = g.getFontMetrics().getHeight() / 2 + conHeight / 2;
         if (getPanel().editing == contents || getPanel().editmode) {
             Rendering.drawBody(getPanel().editing == contents ? Color.GREEN : Color.YELLOW, g, this);

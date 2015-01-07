@@ -61,7 +61,7 @@ public abstract class ConnectionReceiverThread extends ReporterThread {
             sock = Network.bind(port);
         } catch (IOException e) {
             if (e.getClass().getName().equals("java.net.BindException")) {
-                Logger.warning("Failed to bind to port 80.");
+                Logger.warning("Failed to bind to port " + port + ".");
                 return;
             }
             throw e;

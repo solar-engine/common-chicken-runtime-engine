@@ -30,7 +30,6 @@ import ccre.channel.EventStatus;
 import ccre.channel.FloatInputPoll;
 import ccre.channel.FloatOutput;
 import ccre.cluck.Cluck;
-import ccre.cluck.tcp.CluckTCPServer;
 import ccre.ctrl.BooleanMixing;
 import ccre.ctrl.ExtendedMotor;
 import ccre.ctrl.ExtendedMotorFailureException;
@@ -83,6 +82,18 @@ public final class RawIOIgneousLauncherImpl extends RobotBase implements Igneous
     private Compressor pcmCompressor;
 
     private Mode activeMode;
+    
+    private final EventStatus[] startEvents, duringEvents;
+    
+    {
+        int count = Mode.values().length;
+        startEvents = new EventStatus[count];
+        duringEvents = new EventStatus[count];
+        for (int i=0; i<count; i++) {
+            startEvents[i] = new EventStatus();
+            duringEvents[i] = new EventStatus();
+        }
+    }
 
     /**
      * Create and initialize a new RawIOIgneousLauncherImpl.
@@ -103,31 +114,37 @@ public final class RawIOIgneousLauncherImpl extends RobotBase implements Igneous
             this.name = name;
         }
 
-        private final EventStatus start = new EventStatus(),
-                during = new EventStatus();
         public final String name;
 
-        private void start() {
+        private EventStatus getStart(RawIOIgneousLauncherImpl launcher) {
+            return launcher.startEvents[ordinal()];
+        }
+
+        private EventStatus getDuring(RawIOIgneousLauncherImpl launcher) {
+            return launcher.startEvents[ordinal()];
+        }
+
+        private void start(RawIOIgneousLauncherImpl launcher) {
             try {
                 Logger.fine("Began " + name + (DriverStation.getInstance().isFMSAttached() ? " on FMS" : " mode"));
-                start.produce();
+                getStart(launcher).produce();
             } catch (Throwable thr) {
                 Logger.severe("Critical Code Failure in " + name + " init", thr);
             }
         }
 
-        private void periodic() {
+        private void periodic(RawIOIgneousLauncherImpl launcher) {
             try {
                 if (countFails >= 50) {
                     countFails--;
-                    if (during.produceWithFailureRecovery()) {
+                    if (getDuring(launcher).produceWithFailureRecovery()) {
                         countFails = 0;
                     }
                     if (globalPeriodic.produceWithFailureRecovery()) {
                         countFails = 0;
                     }
                 } else {
-                    during.produce();
+                    getDuring(launcher).produce();
                     globalPeriodic.produce();
                     if (countFails > 0) {
                         countFails--;
@@ -166,7 +183,7 @@ public final class RawIOIgneousLauncherImpl extends RobotBase implements Igneous
             Mode newmode = calcMode();
             if (newmode != activeMode) {
                 activeMode = newmode;
-                activeMode.start();
+                activeMode.start(this);
             }
             if (m_ds.isNewControlData()) {
                 switch (activeMode) {
@@ -183,7 +200,7 @@ public final class RawIOIgneousLauncherImpl extends RobotBase implements Igneous
                     FRCNetworkCommunicationsLibrary.FRCNetworkCommunicationObserveUserProgramTest();
                     break;
                 }
-                activeMode.periodic();
+                activeMode.periodic(this);
             }
             m_ds.waitForData();
         }
@@ -340,35 +357,35 @@ public final class RawIOIgneousLauncherImpl extends RobotBase implements Igneous
     }
 
     public EventInput getStartAuto() {
-        return Mode.AUTONOMOUS.start;
+        return Mode.AUTONOMOUS.getStart(this);
     }
 
     public EventInput getDuringAuto() {
-        return Mode.AUTONOMOUS.during;
+        return Mode.AUTONOMOUS.getDuring(this);
     }
 
     public EventInput getStartTele() {
-        return Mode.TELEOP.start;
+        return Mode.TELEOP.getStart(this);
     }
 
     public EventInput getDuringTele() {
-        return Mode.TELEOP.during;
+        return Mode.TELEOP.getDuring(this);
     }
 
     public EventInput getStartTest() {
-        return Mode.TEST.start;
+        return Mode.TEST.getStart(this);
     }
 
     public EventInput getDuringTest() {
-        return Mode.TEST.during;
+        return Mode.TEST.getDuring(this);
     }
 
     public EventInput getStartDisabled() {
-        return Mode.DISABLED.start;
+        return Mode.DISABLED.getStart(this);
     }
 
     public EventInput getDuringDisabled() {
-        return Mode.DISABLED.during;
+        return Mode.DISABLED.getDuring(this);
     }
 
     private synchronized Compressor getPCMCompressor() {

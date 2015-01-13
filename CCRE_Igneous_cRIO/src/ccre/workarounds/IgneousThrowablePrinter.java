@@ -24,6 +24,7 @@ import ccre.log.Logger;
 
 import com.sun.squawk.ExecutionPoint;
 import com.sun.squawk.GC;
+import com.sun.squawk.InternalsProxy;
 import com.sun.squawk.Klass;
 import com.sun.squawk.Method;
 import com.sun.squawk.NativeUnsafe;
@@ -96,8 +97,7 @@ public class IgneousThrowablePrinter extends ThrowablePrinter {
             ExecutionPoint target = stack[targetIndex];
             Klass k = target.getKlass();
             String kName = k.getName();
-            // We need to make this actually get the method. 'getMethod' is apparently compiled out, so we can't access it!
-            Method m = null; //target.getMethod();
+            Method m = InternalsProxy.getMethod(target);
             String mName;
             if (m == null) {
                 int mtId;

@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2014 Colby Skeggs
+ * Copyright 2013-2015 Colby Skeggs
  * 
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  * 
@@ -108,17 +108,10 @@ public class CluckPublisher {
      * @param consumer The EventOutput.
      */
     public static void publish(final CluckNode node, String name, final EventOutput consumer) {
-        new CluckSubscriber(node) {
+        new CluckRMTSubscriber(node, RMT_EVENTOUTP) {
             @Override
-            protected void receive(String source, byte[] data) {
-                if (requireRMT(source, data, RMT_EVENTOUTP)) {
-                    consumer.event();
-                }
-            }
-
-            @Override
-            protected void receiveBroadcast(String source, byte[] data) {
-                defaultBroadcastHandle(source, data, RMT_EVENTOUTP);
+            protected void receiveValid(String source, byte[] data) {
+                consumer.event();
             }
         }.attach(name);
     }
@@ -192,25 +185,18 @@ public class CluckPublisher {
      * @param lt The LoggingTarget.
      */
     public static void publish(final CluckNode node, String name, final LoggingTarget lt) {
-        new CluckSubscriber(node) {
+        new CluckRMTSubscriber(node, RMT_LOGTARGET, 10) {
             @Override
-            protected void receive(String source, byte[] data) {
-                if (requireRMT(source, data, RMT_LOGTARGET, 10)) {
-                    int len1 = Utils.bytesToInt(data, 2);
-                    int len2 = Utils.bytesToInt(data, 6);
-                    if (len1 + len2 + 10 != data.length) {
-                        Logger.warning("Bad data length to Logging Target!");
-                        return;
-                    }
-                    String message = new String(data, 10, len1);
-                    String extended = len2 == 0 ? null : new String(data, 10 + len1, len2);
-                    lt.log(LogLevel.fromByte(data[1]), message, extended);
+            protected void receiveValid(String source, byte[] data) {
+                int len1 = Utils.bytesToInt(data, 2);
+                int len2 = Utils.bytesToInt(data, 6);
+                if (len1 + len2 + 10 != data.length) {
+                    Logger.warning("Bad data length to Logging Target!");
+                    return;
                 }
-            }
-
-            @Override
-            protected void receiveBroadcast(String source, byte[] data) {
-                defaultBroadcastHandle(source, data, RMT_LOGTARGET);
+                String message = new String(data, 10, len1);
+                String extended = len2 == 0 ? null : new String(data, 10 + len1, len2);
+                lt.log(LogLevel.fromByte(data[1]), message, extended);
             }
         }.attach(name);
     }
@@ -291,17 +277,10 @@ public class CluckPublisher {
      * @param output The BooleanOutput.
      */
     public static void publish(final CluckNode node, String name, final BooleanOutput output) {
-        new CluckSubscriber(node) {
+        new CluckRMTSubscriber(node, RMT_BOOLOUTP, 2) {
             @Override
-            protected void receive(String source, byte[] data) {
-                if (requireRMT(source, data, RMT_BOOLOUTP, 2)) {
-                    output.set(data[1] != 0);
-                }
-            }
-
-            @Override
-            protected void receiveBroadcast(String source, byte[] data) {
-                defaultBroadcastHandle(source, data, RMT_BOOLOUTP);
+            protected void receiveValid(String source, byte[] data) {
+                output.set(data[1] != 0);
             }
         }.attach(name);
     }
@@ -382,17 +361,10 @@ public class CluckPublisher {
      * @param out The FloatOutput.
      */
     public static void publish(final CluckNode node, String name, final FloatOutput out) {
-        new CluckSubscriber(node) {
+        new CluckRMTSubscriber(node, RMT_FLOATOUTP, 5) {
             @Override
-            protected void receive(String source, byte[] data) {
-                if (requireRMT(source, data, RMT_FLOATOUTP, 5)) {
-                    out.set(Utils.bytesToFloat(data, 1));
-                }
-            }
-
-            @Override
-            protected void receiveBroadcast(String source, byte[] data) {
-                defaultBroadcastHandle(source, data, RMT_FLOATOUTP);
+            protected void receiveValid(String source, byte[] data) {
+                out.set(Utils.bytesToFloat(data, 1));
             }
         }.attach(name);
     }
@@ -464,21 +436,16 @@ public class CluckPublisher {
      * @param out The OutputStream.
      */
     public static void publish(final CluckNode node, String name, final OutputStream out) {
-        new CluckSubscriber(node) {
+        new CluckRMTSubscriber(node, RMT_OUTSTREAM) {
             @Override
-            protected void receive(String source, byte[] data) {
-                if (requireRMT(source, data, RMT_OUTSTREAM) && data.length > 1) {
+            protected void receiveValid(String source, byte[] data) {
+                if (data.length > 1) {
                     try {
                         out.write(data, 1, data.length - 1);
                     } catch (IOException ex) {
                         Logger.warning("IO Exception during network transfer!", ex);
                     }
                 }
-            }
-
-            @Override
-            protected void receiveBroadcast(String source, byte[] data) {
-                defaultBroadcastHandle(source, data, RMT_OUTSTREAM);
             }
         }.attach(name);
     }
@@ -606,24 +573,22 @@ public class CluckPublisher {
         }
     }
 
-    private static class FloatInputReceiver extends CluckSubscriber {
+    private static class FloatInputReceiver extends CluckRMTSubscriber {
 
         private final SubscribedFloatInput result;
         private final String path;
         private final String linkName;
 
         FloatInputReceiver(CluckNode node, SubscribedFloatInput result, String path) {
-            super(node);
+            super(node, RMT_FLOATPRODRESP, 5);
             this.result = result;
             this.path = path;
             this.linkName = result.getLinkName();
         }
 
         @Override
-        protected void receive(String src, byte[] data) {
-            if (requireRMT(src, data, RMT_FLOATPRODRESP, 5)) {
-                result.set(Utils.bytesToFloat(data, 1));
-            }
+        protected void receiveValid(String src, byte[] data) {
+            result.set(Utils.bytesToFloat(data, 1));
         }
 
         @Override
@@ -701,24 +666,22 @@ public class CluckPublisher {
         }
     }
 
-    private static class BooleanInputReceiver extends CluckSubscriber {
+    private static class BooleanInputReceiver extends CluckRMTSubscriber {
 
         private final SubscribedBooleanInput result;
         private final String path;
         private final String linkName;
 
         BooleanInputReceiver(CluckNode node, SubscribedBooleanInput result, String path) {
-            super(node);
+            super(node, RMT_BOOLPRODRESP, 2);
             this.result = result;
             this.path = path;
             this.linkName = result.getLinkName();
         }
 
         @Override
-        protected void receive(String src, byte[] data) {
-            if (requireRMT(src, data, RMT_BOOLPRODRESP, 2)) {
-                result.set(data[1] != 0);
-            }
+        protected void receiveValid(String src, byte[] data) {
+            result.set(data[1] != 0);
         }
 
         @Override
@@ -790,24 +753,22 @@ public class CluckPublisher {
         }
     }
 
-    private static class EventInputReceiver extends CluckSubscriber {
+    private static class EventInputReceiver extends CluckRMTSubscriber {
 
         private final SubscribedEventInput result;
         private final String path;
         private final String linkName;
 
         EventInputReceiver(CluckNode node, SubscribedEventInput result, String path) {
-            super(node);
+            super(node, RMT_EVENTINPUTRESP);
             this.result = result;
             this.path = path;
             this.linkName = result.getLinkName();
         }
 
         @Override
-        protected void receive(String src, byte[] data) {
-            if (requireRMT(src, data, RMT_EVENTINPUTRESP)) {
-                result.produce();
-            }
+        protected void receiveValid(String src, byte[] data) {
+            result.produce();
         }
 
         @Override

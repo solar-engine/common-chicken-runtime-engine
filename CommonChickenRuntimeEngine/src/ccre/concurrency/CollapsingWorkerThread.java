@@ -132,7 +132,16 @@ public abstract class CollapsingWorkerThread extends ReporterThread implements E
         }
         return runningStatus;
     }
-
+    
+    /**
+     * Checks if the CollapsingWorkerThread's work is currently running.
+     * 
+     * @return if the thread's work is in progress.
+     */
+    public boolean isDoingWork() {
+        return getRunningStatus().get();
+    }
+    
     @Override
     protected final void threadBody() throws InterruptedException {
         while (true) {

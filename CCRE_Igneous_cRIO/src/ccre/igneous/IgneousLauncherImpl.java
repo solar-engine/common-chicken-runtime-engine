@@ -18,6 +18,8 @@
  */
 package ccre.igneous;
 
+import java.io.IOException;
+
 import ccre.channel.BooleanInputPoll;
 import ccre.channel.BooleanOutput;
 import ccre.channel.EventInput;
@@ -25,6 +27,7 @@ import ccre.channel.EventOutput;
 import ccre.channel.EventStatus;
 import ccre.channel.FloatInputPoll;
 import ccre.channel.FloatOutput;
+import ccre.channel.SerialIO;
 import ccre.cluck.Cluck;
 import ccre.cluck.tcp.CluckTCPServer;
 import ccre.ctrl.BooleanMixing;
@@ -52,11 +55,13 @@ import edu.wpi.first.wpilibj.Gyro;
 import edu.wpi.first.wpilibj.IterativeRobot;
 import edu.wpi.first.wpilibj.Jaguar;
 import edu.wpi.first.wpilibj.Relay;
+import edu.wpi.first.wpilibj.SerialPort;
 import edu.wpi.first.wpilibj.Servo;
 import edu.wpi.first.wpilibj.Solenoid;
 import edu.wpi.first.wpilibj.SpeedController;
 import edu.wpi.first.wpilibj.Talon;
 import edu.wpi.first.wpilibj.Victor;
+import edu.wpi.first.wpilibj.visa.VisaException;
 
 /**
  * The Squawk implementation of the IgneousLauncher interface. Do not use this!
@@ -576,5 +581,93 @@ final class IgneousLauncherImpl extends IterativeRobot implements IgneousLaunche
 
     public boolean isRoboRIO() {
         return false;
+    }
+
+    public SerialIO makeRS232_Onboard(int baudRate, final String deviceName) {
+        final SerialPort sp;
+        try {
+            sp = new SerialPort(baudRate);
+            sp.disableTermination();
+        } catch (VisaException e) {
+            throw new RuntimeException("Could not open Serial Port: " + deviceName);
+        }
+        return new SerialIO() {
+            public void setTermination(Character end) throws IOException {
+                try {
+                    if (end == null) {
+                        sp.disableTermination();
+                    } else {
+                        sp.enableTermination(end);
+                    }
+                } catch (VisaException e) {
+                    throw new IOException("Visa Exception: " + e.getMessage() + " on " + deviceName);
+                }
+            }
+
+            public byte[] readBlocking(int max) throws IOException {
+                try {
+                    return sp.read(max);
+                } catch (VisaException e) {
+                    throw new IOException("Visa Exception: " + e.getMessage() + " on " + deviceName);
+                }
+            }
+
+            public byte[] readNonblocking(int max) throws IOException {
+                try {
+                    return sp.read(Math.min(sp.getBytesReceived(), max));
+                } catch (VisaException e) {
+                    throw new IOException("Visa Exception: " + e.getMessage() + " on " + deviceName);
+                }
+            }
+
+            public void flush() throws IOException {
+                try {
+                    sp.flush();
+                } catch (VisaException e) {
+                    throw new IOException("Visa Exception: " + e.getMessage() + " on " + deviceName);
+                }
+            }
+
+            public void setFlushOnWrite(boolean flushOnWrite) throws IOException {
+                try {
+                    sp.setWriteBufferMode(flushOnWrite ? SerialPort.WriteBufferMode.kFlushOnAccess : SerialPort.WriteBufferMode.kFlushWhenFull);
+                } catch (VisaException e) {
+                    throw new IOException("Visa Exception: " + e.getMessage() + " on " + deviceName);
+                }
+            }
+
+            public void writeFully(byte[] bytes) throws IOException {
+                int remaining = bytes.length;
+                while (true) {
+                    int done;
+                    try {
+                        done = sp.write(bytes, remaining);
+                    } catch (VisaException e) {
+                        throw new IOException("Visa Exception: " + e.getMessage() + " on " + deviceName);
+                    }
+                    if (done >= remaining) {
+                        break;
+                    }
+                    remaining -= done;
+                    System.arraycopy(bytes, done, bytes, 0, remaining);
+                }
+            }
+
+            public int writePartial(byte[] bytes) throws IOException {
+                try {
+                    return sp.write(bytes, bytes.length);
+                } catch (VisaException e) {
+                    throw new IOException("Visa Exception: " + e.getMessage() + " on " + deviceName);
+                }
+            }
+        };
+    }
+
+    public SerialIO makeRS232_MXP(int baudRate, String deviceName) {
+        throw new RuntimeException("MXP not supported on cRIO.");
+    }
+
+    public SerialIO makeRS232_USB(int baudRate, String deviceName) {
+        throw new RuntimeException("USB Serial I/O not supported on cRIO.");
     }
 }

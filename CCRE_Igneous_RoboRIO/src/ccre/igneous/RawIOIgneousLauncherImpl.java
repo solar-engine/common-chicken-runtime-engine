@@ -29,6 +29,7 @@ import ccre.channel.EventInput;
 import ccre.channel.EventStatus;
 import ccre.channel.FloatInputPoll;
 import ccre.channel.FloatOutput;
+import ccre.channel.SerialIO;
 import ccre.cluck.Cluck;
 import ccre.ctrl.BooleanMixing;
 import ccre.ctrl.ExtendedMotor;
@@ -52,6 +53,7 @@ import edu.wpi.first.wpilibj.Jaguar;
 import edu.wpi.first.wpilibj.PowerDistributionPanel;
 import edu.wpi.first.wpilibj.Relay;
 import edu.wpi.first.wpilibj.RobotBase;
+import edu.wpi.first.wpilibj.SerialPort;
 import edu.wpi.first.wpilibj.Servo;
 import edu.wpi.first.wpilibj.Solenoid;
 import edu.wpi.first.wpilibj.Talon;
@@ -82,14 +84,14 @@ public final class RawIOIgneousLauncherImpl extends RobotBase implements Igneous
     private Compressor pcmCompressor;
 
     private Mode activeMode;
-    
+
     private final EventStatus[] startEvents, duringEvents;
-    
+
     {
         int count = Mode.values().length;
         startEvents = new EventStatus[count];
         duringEvents = new EventStatus[count];
-        for (int i=0; i<count; i++) {
+        for (int i = 0; i < count; i++) {
             startEvents[i] = new EventStatus();
             duringEvents[i] = new EventStatus();
         }
@@ -424,5 +426,65 @@ public final class RawIOIgneousLauncherImpl extends RobotBase implements Igneous
 
     public boolean isRoboRIO() {
         return true;
+    }
+
+    public SerialIO makeRS232_Onboard(int baudRate, String deviceName) {
+        return makeRS232(baudRate, SerialPort.Port.kOnboard);
+    }
+
+    public SerialIO makeRS232_MXP(int baudRate, String deviceName) {
+        return makeRS232(baudRate, SerialPort.Port.kMXP);
+    }
+
+    public SerialIO makeRS232_USB(int baudRate, String deviceName) {
+        return makeRS232(baudRate, SerialPort.Port.kUSB);
+    }
+
+    private SerialIO makeRS232(int baudRate, SerialPort.Port port) {
+        SerialPort sp = new SerialPort(baudRate, port);
+        sp.setReadBufferSize(1);
+        sp.setWriteBufferSize(1);
+        sp.disableTermination();
+        return new SerialIO() {
+            public void setTermination(Character end) {
+                if (end == null) {
+                    sp.disableTermination();
+                } else {
+                    sp.enableTermination(end);
+                }
+            }
+
+            public byte[] readBlocking(int max) {
+                return sp.read(max);
+            }
+
+            public byte[] readNonblocking(int max) {
+                return sp.read(Math.min(sp.getBytesReceived(), max));
+            }
+
+            public void flush() {
+                sp.flush();
+            }
+
+            public void setFlushOnWrite(boolean flushOnWrite) {
+                sp.setWriteBufferMode(flushOnWrite ? SerialPort.WriteBufferMode.kFlushOnAccess : SerialPort.WriteBufferMode.kFlushWhenFull);
+            }
+
+            public void writeFully(byte[] bytes) {
+                int remaining = bytes.length;
+                while (true) {
+                    int done = sp.write(bytes, remaining);
+                    if (done >= remaining) {
+                        break;
+                    }
+                    remaining -= done;
+                    System.arraycopy(bytes, done, bytes, 0, remaining);
+                }
+            }
+
+            public int writePartial(byte[] bytes) {
+                return sp.write(bytes, bytes.length);
+            }
+        };
     }
 }

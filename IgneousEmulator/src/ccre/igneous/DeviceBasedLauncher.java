@@ -23,12 +23,15 @@ import ccre.channel.BooleanOutput;
 import ccre.channel.EventInput;
 import ccre.channel.FloatInputPoll;
 import ccre.channel.FloatOutput;
+import ccre.channel.SerialIO;
 import ccre.ctrl.BooleanMixing;
+import ccre.ctrl.DisconnectedSerialIO;
 import ccre.ctrl.EventMixing;
 import ccre.ctrl.ExtendedMotor;
 import ccre.ctrl.ExtendedMotorFailureException;
 import ccre.ctrl.FloatMixing;
 import ccre.ctrl.IJoystick;
+import ccre.ctrl.LoopbackSerialIO;
 import ccre.ctrl.Ticker;
 import ccre.igneous.devices.BooleanControlDevice;
 import ccre.igneous.devices.BooleanViewDevice;
@@ -36,6 +39,7 @@ import ccre.igneous.devices.CANJaguarDevice;
 import ccre.igneous.devices.DSLCDDevice;
 import ccre.igneous.devices.FloatControlDevice;
 import ccre.igneous.devices.FloatViewDevice;
+import ccre.igneous.devices.HeadingDevice;
 import ccre.igneous.devices.JoystickDevice;
 import ccre.igneous.devices.RobotModeDevice;
 import ccre.igneous.devices.SpinDevice;
@@ -368,5 +372,28 @@ public class DeviceBasedLauncher implements IgneousLauncher {
 
     public boolean isRoboRIO() {
         return isRoboRIO;
+    }
+
+    public SerialIO makeRS232_Onboard(int baudRate, String deviceName) {
+        return makeRS232("RS232 Onboard: " + baudRate, deviceName);
+    }
+
+    public SerialIO makeRS232_MXP(int baudRate, String deviceName) {
+        return makeRS232("RS232 MXP: " + baudRate, deviceName);
+    }
+
+    public SerialIO makeRS232_USB(int baudRate, String deviceName) {
+        return makeRS232("RS232 USB: " + baudRate, deviceName);
+    }
+
+    private SerialIO makeRS232(String display, String deviceName) {
+        if ("loopback".equals(deviceName)) {
+            panel.add(new HeadingDevice(display + ": Loopback"));
+            return new LoopbackSerialIO();
+        } else {
+            panel.add(new HeadingDevice(display + ": Disconnected"));
+            Logger.warning("Unrecognized serial device name '" + deviceName + "' on " + display + " - not emulating anything.");
+            return new DisconnectedSerialIO(); 
+        }
     }
 }

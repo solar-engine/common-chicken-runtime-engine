@@ -23,6 +23,7 @@ import ccre.channel.BooleanOutput;
 import ccre.channel.EventInput;
 import ccre.channel.FloatInputPoll;
 import ccre.channel.FloatOutput;
+import ccre.channel.SerialIO;
 import ccre.ctrl.ExtendedMotor;
 import ccre.ctrl.IJoystick;
 
@@ -343,4 +344,28 @@ public interface IgneousLauncher {
      * @return if this system is a roboRIO.
      */
     public boolean isRoboRIO();
+
+    /**
+     * @param baudRate the baud rate of the port.
+     * @param deviceName the name of the device the serial port is connected to
+     * (used for debugging and the emulator.)
+     * @return a SerialIO interface to the port.
+     */
+    public SerialIO makeRS232_Onboard(int baudRate, String deviceName);
+
+    /**
+     * @param baudRate the baud rate of the port.
+     * @param deviceName the name of the device the serial port is connected to
+     * (used for debugging and the emulator.)
+     * @return a SerialIO interface to the port.
+     */
+    public SerialIO makeRS232_MXP(int baudRate, String deviceName);
+
+    /**
+     * @param baudRate the baud rate of the port.
+     * @param deviceName the name of the device the serial port is connected to
+     * (used for debugging and the emulator.)
+     * @return a SerialIO interface to the port.
+     */
+    public SerialIO makeRS232_USB(int baudRate, String deviceName);
 }

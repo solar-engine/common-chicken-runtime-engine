@@ -103,7 +103,7 @@ public class ByteFiddling {
     public static String toHex(byte[] bytes, int from, int to) {
         char[] out = new char[2 * (to - from)];
         for (int i = from; i < to; i++) {
-            out[i * 2] = hex[bytes[i] >> 4];
+            out[i * 2] = hex[(bytes[i] >> 4) & 0xF];
             out[i * 2 + 1] = hex[bytes[i] & 0xF];
         }
         return new String(out);

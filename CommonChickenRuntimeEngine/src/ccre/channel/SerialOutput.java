@@ -28,7 +28,9 @@ public interface SerialOutput {
     
     public void setFlushOnWrite(boolean flushOnWrite) throws IOException;
     
-    public void writeFully(byte[] bytes) throws IOException;
+    public void writeFully(byte[] bytes, int from, int to) throws IOException;
     
-    public int writePartial(byte[] bytes) throws IOException;
+    public int writePartial(byte[] bytes, int from, int to) throws IOException;
+    
+    public void close() throws IOException;
 }

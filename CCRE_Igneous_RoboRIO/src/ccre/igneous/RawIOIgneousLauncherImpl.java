@@ -19,6 +19,7 @@
 package ccre.igneous;
 
 import java.io.File;
+import java.io.IOException;
 import java.net.URL;
 import java.util.Enumeration;
 import java.util.jar.Manifest;
@@ -446,7 +447,12 @@ public final class RawIOIgneousLauncherImpl extends RobotBase implements Igneous
         sp.setWriteBufferSize(1);
         sp.disableTermination();
         return new SerialIO() {
-            public void setTermination(Character end) {
+            private boolean closed;
+
+            public void setTermination(Character end) throws IOException {
+                if (closed) {
+                    throw new IOException("SerialIO closed.");
+                }
                 if (end == null) {
                     sp.disableTermination();
                 } else {
@@ -454,36 +460,92 @@ public final class RawIOIgneousLauncherImpl extends RobotBase implements Igneous
                 }
             }
 
-            public byte[] readBlocking(int max) {
-                return sp.read(max);
+            public byte[] readBlocking(int max) throws IOException {
+                if (closed) {
+                    throw new IOException("SerialIO closed.");
+                }
+                if (max <= 0) {
+                    return new byte[0];
+                }
+                int ready = sp.getBytesReceived();
+                if (ready <= 0) {
+                    byte[] gotten = sp.read(1);
+                    while (gotten.length == 0) {
+                        gotten = sp.read(1); // block for minimal amount of time if any data has been received
+                    }
+                    ready = sp.getBytesReceived();
+                    if (max == 1 || ready <= 0) {
+                        return gotten;
+                    }
+                    byte[] rest = sp.read(Math.min(ready, max));
+                    byte[] out = new byte[rest.length + 1];
+                    out[0] = gotten[0];
+                    System.arraycopy(rest, 0, out, 1, rest.length);
+                    return out;
+                } else {
+                    return sp.read(Math.min(ready, max));
+                }
             }
 
-            public byte[] readNonblocking(int max) {
-                return sp.read(Math.min(sp.getBytesReceived(), max));
+            public byte[] readNonblocking(int max) throws IOException {
+                if (closed) {
+                    throw new IOException("SerialIO closed.");
+                }
+                int count = Math.min(sp.getBytesReceived(), max);
+                return count <= 0 ? new byte[0] : sp.read(count);
             }
 
-            public void flush() {
+            public void flush() throws IOException {
+                if (closed) {
+                    throw new IOException("SerialIO closed.");
+                }
                 sp.flush();
             }
 
-            public void setFlushOnWrite(boolean flushOnWrite) {
+            public void setFlushOnWrite(boolean flushOnWrite) throws IOException {
+                if (closed) {
+                    throw new IOException("SerialIO closed.");
+                }
                 sp.setWriteBufferMode(flushOnWrite ? SerialPort.WriteBufferMode.kFlushOnAccess : SerialPort.WriteBufferMode.kFlushWhenFull);
             }
 
-            public void writeFully(byte[] bytes) {
-                int remaining = bytes.length;
+            public void writeFully(byte[] bytes, int from, int to) throws IOException {
+                if (closed) {
+                    throw new IOException("SerialIO closed.");
+                }
+                if (from != 0) {
+                    System.arraycopy(bytes, from, bytes, 0, to - from);
+                }
+                int remaining = to - from;
                 while (true) {
                     int done = sp.write(bytes, remaining);
                     if (done >= remaining) {
                         break;
+                    }
+                    if (closed) {
+                        throw new IOException("SerialIO closed.");
                     }
                     remaining -= done;
                     System.arraycopy(bytes, done, bytes, 0, remaining);
                 }
             }
 
-            public int writePartial(byte[] bytes) {
-                return sp.write(bytes, bytes.length);
+            public int writePartial(byte[] bytes, int from, int to) throws IOException {
+                if (closed) {
+                    throw new IOException("SerialIO closed.");
+                }
+                if (from != 0) {
+                    System.arraycopy(bytes, from, bytes, 0, to - from);
+                }
+                return sp.write(bytes, to - from);
+            }
+
+            public void close() throws IOException {
+                if (!closed) {
+                    closed = true;
+                    flush();
+                    sp.free();
+                }
             }
         };
     }

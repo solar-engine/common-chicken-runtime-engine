@@ -23,6 +23,7 @@ import ccre.channel.BooleanOutput;
 import ccre.channel.EventInput;
 import ccre.channel.FloatInputPoll;
 import ccre.channel.FloatOutput;
+import ccre.channel.SerialIO;
 import ccre.ctrl.BooleanMixing;
 import ccre.ctrl.ExtendedMotor;
 import ccre.ctrl.ExtendedMotorFailureException;
@@ -615,6 +616,42 @@ public class Igneous {
     public static void registerAutonomous(InstinctModule module) {
         module.updateWhen(globalPeriodic);
         module.setShouldBeRunning(BooleanMixing.andBooleans(BooleanMixing.invert(getIsDisabled()), getIsAutonomous()));
+    }
+
+    /**
+     * Open the onboard serial port of the robot.
+     * 
+     * @param baudRate the baud rate of the port.
+     * @param deviceName the name of the device the serial port is connected to
+     * (used for debugging and the emulator.)
+     * @return a SerialIO interface to the port.
+     */
+    public static SerialIO makeRS232_Onboard(int baudRate, String deviceName) {
+        return launcher.makeRS232_Onboard(baudRate, deviceName);
+    }
+
+    /**
+     * Open the roboRIO's MXP-based serial port.
+     * 
+     * @param baudRate the baud rate of the port.
+     * @param deviceName the name of the device the serial port is connected to
+     * (used for debugging and the emulator.)
+     * @return a SerialIO interface to the port.
+     */
+    public static SerialIO makeRS232_MXP(int baudRate, String deviceName) {
+        return launcher.makeRS232_MXP(baudRate, deviceName);
+    }
+
+    /**
+     * Open a USB-attached serial port on the roboRIO.
+     * 
+     * @param baudRate the baud rate of the port.
+     * @param deviceName the name of the device the serial port is connected to
+     * (used for debugging and the emulator.)
+     * @return a SerialIO interface to the port.
+     */
+    public static SerialIO makeRS232_USB(int baudRate, String deviceName) {
+        return launcher.makeRS232_USB(baudRate, deviceName);
     }
 
     Igneous() {

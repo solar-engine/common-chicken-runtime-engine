@@ -31,6 +31,7 @@ public class LoopbackSerialIO implements SerialIO {
     private int readingIndex;
     private final ByteBuffer writing = ByteBuffer.allocate(1024);
     private boolean flushOnWrite = true;
+    private boolean closed = false;
 
     public void setTermination(Character end) throws IOException {
         termination = end;
@@ -51,11 +52,14 @@ public class LoopbackSerialIO implements SerialIO {
         if (reading == null) {
             readingIndex = 0;
             try {
-                reading = canBlock ? source.take() : source.poll();
+                reading = canBlock && !closed ? source.take() : source.poll();
             } catch (InterruptedException e) {
                 throw new InterruptedIOException("interrupted during blocking LoopbackSerialIO read.");
             }
             if (reading == null) {
+                if (closed) {
+                    throw new IOException("LoopbackSerialIO closed.");
+                }
                 return new byte[0];
             }
         }
@@ -71,6 +75,9 @@ public class LoopbackSerialIO implements SerialIO {
     }
 
     public synchronized void flush() throws IOException {
+        if (closed) {
+            throw new IOException("LoopbackSerialIO closed.");
+        }
         if (writing.position() > 0) {
             byte[] toQueue = new byte[writing.position()];
             writing.get(toQueue);
@@ -87,36 +94,44 @@ public class LoopbackSerialIO implements SerialIO {
         this.flushOnWrite = flushOnWrite;
     }
 
-    public void writeFully(byte[] bytes) throws IOException {
-        write(bytes, false);
+    public void writeFully(byte[] bytes, int from, int to) throws IOException {
+        write(bytes, from, to, false);
     }
     
-    private int write(byte[] bytes, boolean partial) throws IOException {
-        if (bytes.length == 0) {
+    private int write(byte[] bytes, int from, int to, boolean partial) throws IOException {
+        if (closed) {
+            throw new IOException("LoopbackSerialIO closed.");
+        }
+        if (to <= from) {
             return 0;
         }
-        int offset = 0;
-        while (writing.remaining() < bytes.length - offset) {
+        int offset = from;
+        while (writing.remaining() < to - offset) {
             if (writing.hasRemaining()) {
                 int count = writing.remaining();
                 writing.put(bytes, offset, count);
                 offset += count;
             }
             flush();
-            if (partial && offset > 0) {
+            if (partial && offset > from) {
                 return offset;
             }
         }
-        if (offset < bytes.length) {
-            writing.put(bytes, offset, bytes.length - offset);
+        if (offset < to) {
+            writing.put(bytes, offset, to - offset);
         }
         if (flushOnWrite || !writing.hasRemaining()) {
             flush();
         }
-        return bytes.length;
+        return to - from;
     }
 
-    public int writePartial(byte[] bytes) throws IOException {
-        return write(bytes, true);
+    public int writePartial(byte[] bytes, int from, int to) throws IOException {
+        return write(bytes, from, to, true);
+    }
+    
+    public void close() throws IOException {
+        flush();
+        closed = true;
     }
 }

@@ -592,7 +592,12 @@ final class IgneousLauncherImpl extends IterativeRobot implements IgneousLaunche
             throw new RuntimeException("Could not open Serial Port: " + deviceName);
         }
         return new SerialIO() {
+            private boolean closed;
+
             public void setTermination(Character end) throws IOException {
+                if (closed) {
+                    throw new IOException("SerialIO closed.");
+                }
                 try {
                     if (end == null) {
                         sp.disableTermination();
@@ -605,22 +610,52 @@ final class IgneousLauncherImpl extends IterativeRobot implements IgneousLaunche
             }
 
             public byte[] readBlocking(int max) throws IOException {
+                if (closed) {
+                    throw new IOException("SerialIO closed.");
+                }
+                if (max <= 0) {
+                    return new byte[0];
+                }
                 try {
-                    return sp.read(max);
+                    int ready = sp.getBytesReceived();
+                    if (ready <= 0) {
+                        byte[] gotten = sp.read(1);
+                        while (gotten.length == 0) {
+                            gotten = sp.read(1); // block for minimal amount of time if any data has been received
+                        }
+                        ready = sp.getBytesReceived();
+                        if (max == 1 || ready <= 0) {
+                            return gotten;
+                        }
+                        byte[] rest = sp.read(Math.min(ready, max));
+                        byte[] out = new byte[rest.length + 1];
+                        out[0] = gotten[0];
+                        System.arraycopy(rest, 0, out, 1, rest.length);
+                        return out;
+                    } else {
+                        return sp.read(Math.min(ready, max));
+                    }
                 } catch (VisaException e) {
                     throw new IOException("Visa Exception: " + e.getMessage() + " on " + deviceName);
                 }
             }
 
             public byte[] readNonblocking(int max) throws IOException {
+                if (closed) {
+                    throw new IOException("SerialIO closed.");
+                }
                 try {
-                    return sp.read(Math.min(sp.getBytesReceived(), max));
+                    int count = Math.min(sp.getBytesReceived(), max);
+                    return count <= 0 ? new byte[0] : sp.read(count);
                 } catch (VisaException e) {
                     throw new IOException("Visa Exception: " + e.getMessage() + " on " + deviceName);
                 }
             }
 
             public void flush() throws IOException {
+                if (closed) {
+                    throw new IOException("SerialIO closed.");
+                }
                 try {
                     sp.flush();
                 } catch (VisaException e) {
@@ -629,6 +664,9 @@ final class IgneousLauncherImpl extends IterativeRobot implements IgneousLaunche
             }
 
             public void setFlushOnWrite(boolean flushOnWrite) throws IOException {
+                if (closed) {
+                    throw new IOException("SerialIO closed.");
+                }
                 try {
                     sp.setWriteBufferMode(flushOnWrite ? SerialPort.WriteBufferMode.kFlushOnAccess : SerialPort.WriteBufferMode.kFlushWhenFull);
                 } catch (VisaException e) {
@@ -636,14 +674,23 @@ final class IgneousLauncherImpl extends IterativeRobot implements IgneousLaunche
                 }
             }
 
-            public void writeFully(byte[] bytes) throws IOException {
-                int remaining = bytes.length;
+            public void writeFully(byte[] bytes, int from, int to) throws IOException {
+                if (closed) {
+                    throw new IOException("SerialIO closed.");
+                }
+                if (from != 0) {
+                    System.arraycopy(bytes, from, bytes, 0, to - from);
+                }
+                int remaining = to - from;
                 while (true) {
                     int done;
                     try {
                         done = sp.write(bytes, remaining);
                     } catch (VisaException e) {
                         throw new IOException("Visa Exception: " + e.getMessage() + " on " + deviceName);
+                    }
+                    if (closed) {
+                        throw new IOException("SerialIO closed.");
                     }
                     if (done >= remaining) {
                         break;
@@ -653,11 +700,25 @@ final class IgneousLauncherImpl extends IterativeRobot implements IgneousLaunche
                 }
             }
 
-            public int writePartial(byte[] bytes) throws IOException {
+            public int writePartial(byte[] bytes, int from, int to) throws IOException {
+                if (closed) {
+                    throw new IOException("SerialIO closed.");
+                }
                 try {
-                    return sp.write(bytes, bytes.length);
+                    if (from != 0) {
+                        System.arraycopy(bytes, from, bytes, 0, to - from);
+                    }
+                    return sp.write(bytes, to - from);
                 } catch (VisaException e) {
                     throw new IOException("Visa Exception: " + e.getMessage() + " on " + deviceName);
+                }
+            }
+
+            public void close() throws IOException {
+                if (!closed) {
+                    closed = true;
+                    flush();
+                    sp.free();
                 }
             }
         };

@@ -21,12 +21,14 @@ package ccre.channel;
 import java.io.IOException;
 
 public interface SerialInput {
-    
+
     // Warning: this interface subject to change.
-    
+
     public void setTermination(Character end) throws IOException;
-    
+
     public byte[] readBlocking(int max) throws IOException;
-    
+
     public byte[] readNonblocking(int max) throws IOException;
+
+    public void close() throws IOException;
 }

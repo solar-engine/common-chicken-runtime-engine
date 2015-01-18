@@ -1,8 +1,10 @@
 package ccre.drivers.chrobotics;
 
 import java.io.IOException;
+import java.util.Arrays;
 
 import ccre.channel.SerialIO;
+import ccre.channel.SerialInput;
 import ccre.drivers.ByteFiddling;
 import ccre.drivers.NMEA;
 import ccre.log.Logger;
@@ -30,9 +32,51 @@ public class InternalUM7LT { // default rate: 115200 baud.
             raw_gyro_x, raw_gyro_y, raw_gyro_z,
             raw_accl_x, raw_accl_y, raw_accl_z,
             raw_magn_x, raw_magn_y, raw_magn_z;
+    private final SerialIO rs232;
+    private final Object rs232lock = new Object();
 
     public InternalUM7LT(SerialIO rs232) {
+        this.rs232 = rs232;
+    }
+    
+    public void writeSettings(int quaternion_rate, int euler_rate, int position_rate, int velocity_rate, int health_rate_step) throws IOException {
+        int com_settings = (5 << 28); // just set the baud rate to default.
+        int com_rates1 = 0;
+        int com_rates2 = 0;
+        int com_rates3 = 0;
+        int com_rates4 = 0;
+        int com_rates5 = ((quaternion_rate & 0xFF) << 24) | ((euler_rate & 0xFF) << 16) | ((position_rate & 0xFF) << 8) | (velocity_rate & 0xFF);
+        int com_rates6 = (health_rate_step & 0xF) << 16;
+        int com_rates7 = 0;
+        doBatchWriteOperation((byte) 0x00, new int[] {com_settings, com_rates1, com_rates2, com_rates3, com_rates4, com_rates5, com_rates6, com_rates7});
+    }
 
+    public void handleRS232Input(int count) throws IOException {
+        byte[] activeBuffer = new byte[4096];
+        int from = 0, to = 0;
+        while (count-- > 0) {
+            int consumed = handlePacket(activeBuffer, from, to);
+            if (consumed == 0) { // need more data
+                if (from != 0 && to >= activeBuffer.length - 64) { // nearing the end, or at the end - shift earlier.
+                    System.arraycopy(activeBuffer, from, activeBuffer, 0, to - from);
+                    to -= from;
+                    from = 0;
+                }
+                if (activeBuffer.length == to) {
+                    // still no matched packet...?
+                    Logger.warning("RS232 input buffer overflow, somehow? Resetting buffer.");
+                    from = to = 0;
+                }
+                byte[] gotten = rs232.readBlocking(activeBuffer.length - to);
+                System.arraycopy(gotten, 0, activeBuffer, to, gotten.length);
+                to += gotten.length;
+            } else {
+                from += consumed;
+                if (from == to) {
+                    from = to = 0;
+                }
+            }
+        }
     }
 
     // Returns the number of consumed bytes, or zero if packet needs more data to be valid.
@@ -50,7 +94,7 @@ public class InternalUM7LT { // default rate: 115200 baud.
                     return 0;
                 }
             } else if (bytes[from] == 's' && bytes[from + 1] == 'n' && bytes[from + 2] == 'p') {
-                return handleBinary(bytes, from + 3, to);
+                return handleBinary(bytes, from, to);
             } else {
                 throw new IOException("Invalid packet that starts with bytes " + ByteFiddling.toHex(bytes, from, Math.min(to, from + 8)));
             }
@@ -67,13 +111,13 @@ public class InternalUM7LT { // default rate: 115200 baud.
             return to - from; // everything's bad. skip it all.
         }
     }
-    
+
     // Returns the number of consumed bytes, or zero if packet needs more data to be valid.
     private int handleBinary(byte[] bin, int from, int to) throws IOException {
-        if (to - from < 4) {
+        if (to - from < 7) {
             return 0;
         }
-        // Note: the 'snp' part of the header has already been fixed.
+        from += 3; // 'snp' has already been checked
         byte packet_type = bin[from];
         byte address = bin[from + 1];
         boolean has_data = (packet_type & 0x80) != 0;
@@ -81,27 +125,39 @@ public class InternalUM7LT { // default rate: 115200 baud.
         int batch_length = is_batch ? (packet_type & 0x3C) >> 2 : -1;
         boolean is_hidden = (packet_type & 0x2) != 0;
         boolean is_command_failed = (packet_type & 0x1) != 0;
-        
-        return (Integer) null;
+        int data_count = has_data ? (is_batch ? batch_length : 1) : 0;
+        if (to - from < 7 + data_count * 4) {
+            return 0;
+        }
+        checkChecksum(bin, from - 3, from + 4 + data_count * 4); // -3 for snp
+        int[] data = new int[data_count];
+        for (int i = 0; i < data_count; i++) {
+            data[i] = ((bin[from + 2 + 4 * i + 0] & 0xFF) << 24) |
+                    ((bin[from + 2 + 4 * i + 1] & 0xFF) << 16) |
+                    ((bin[from + 2 + 4 * i + 2] & 0xFF) << 8) |
+                    ((bin[from + 2 + 4 * i + 3] & 0xFF));
+        }
+        Logger.finest("BINARY " + Integer.toHexString(address & 0xFF) + " " + Arrays.toString(data) + " [" + is_hidden + ":" + is_command_failed + "]");
+        return 2 + 4 * data_count + 2 + 3; // two for checksum, three for the 'snp' that was stripped out. 
     }
-    
-    private byte[] encodeReadOperation(byte address) {
-        return addChecksum(new byte[] {'s', 'n', 'p', 0x00, address, 0, 0});
+
+    public void doReadOperation(byte address) throws IOException {
+        sendWithChecksum(new byte[] { 's', 'n', 'p', 0x00, address, 0, 0 });
     }
-    
-    private byte[] encodeBatchReadOperation(byte address, int count) {
+
+    public void doBatchReadOperation(byte address, int count) throws IOException {
         if (count < 1 || count > 15) {
             // don't allow zero - why would we?
             throw new IllegalArgumentException("Bad count in encodeBatchReadOperation: must be in [1, 15]");
         }
-        return addChecksum(new byte[] {'s', 'n', 'p', (byte) (0x40 | (count << 2)), address, 0, 0});
+        sendWithChecksum(new byte[] { 's', 'n', 'p', (byte) (0x40 | (count << 2)), address, 0, 0 });
     }
-    
-    private byte[] encodeWriteOperation(byte address, int value) {
-        return addChecksum(new byte[] {'s', 'n', 'p', (byte) 0x80, address, (byte) (value >> 24), (byte) (value >> 16), (byte) (value >> 8), (byte) value, 0, 0});
+
+    public void doWriteOperation(byte address, int value) throws IOException {
+        sendWithChecksum(new byte[] { 's', 'n', 'p', (byte) 0x80, address, (byte) (value >> 24), (byte) (value >> 16), (byte) (value >> 8), (byte) value, 0, 0 });
     }
-    
-    private byte[] encodeBatchWriteOperation(byte address, int[] values) {
+
+    public void doBatchWriteOperation(byte address, int[] values) throws IOException {
         if (values.length < 1 || values.length > 15) {
             // don't allow zero - why would we?
             throw new IllegalArgumentException("Bad length in encodeBatchWriteOperation: must be in [1, 15]");
@@ -110,7 +166,7 @@ public class InternalUM7LT { // default rate: 115200 baud.
         out[0] = 's';
         out[1] = 'n';
         out[2] = 'p';
-        out[3] = (byte) 0x80;
+        out[3] = (byte) (0xC0 | (values.length << 2));
         out[4] = address;
         int ptr = 5;
         for (int value : values) {
@@ -119,22 +175,41 @@ public class InternalUM7LT { // default rate: 115200 baud.
             out[ptr++] = (byte) (value >> 8);
             out[ptr++] = (byte) value;
         }
-        return addChecksum(out); // the last two unset bytes are checksum bytes.
+        sendWithChecksum(out); // the last two unset bytes are checksum bytes.
     }
-    
-    private byte[] addChecksum(byte[] data) {
-        int total = 0;
-        for (int i=0; i<data.length - 2; i++) {
-            total += data[i];
+
+    private void sendWithChecksum(byte[] data) throws IOException {
+        synchronized (rs232lock) {
+            rs232.writeFully(addChecksum(data), 0, data.length);
         }
+    }
+
+    private int checksumTotal(byte[] data, int from, int to) {
+        int total = 0;
+        for (int i = from; i < to; i++) {
+            total += data[i] & 0xFF;
+        }
+        return total;
+    }
+
+    private byte[] addChecksum(byte[] data) {
+        int total = checksumTotal(data, 0, data.length - 2);
         data[data.length - 2] = (byte) (total >> 8);
         data[data.length - 1] = (byte) total;
         return data;
     }
 
+    private void checkChecksum(byte[] data, int from, int to) throws IOException {
+        int total = checksumTotal(data, from, to - 2);
+        if (data[to - 2] != (byte) (total >> 8) || data[to - 1] != (byte) total) {
+            throw new IOException("Binary checksum mismatch: got " + Arrays.toString(Arrays.copyOfRange(data, from, to)));
+        }
+    }
+
     private void handleNMEA(byte[] nmea, int from, int to) throws IOException {
         byte[][] fields = NMEA.parse(nmea, from, to);
         byte[] title = fields[0];
+        Logger.finest("NMEA received: " + title);
         // $PCHRH,time,sats_used,sats_in_view,HDOP,mode,COM,accel,gyro,mag,GPS,res,res,res,*checksum<CR><LN>
         if (ByteFiddling.streq(title, "PCHRH") && fields.length == 15) {
             Double dbl = ByteFiddling.parseDouble(fields[1]);

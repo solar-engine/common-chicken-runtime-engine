@@ -7,39 +7,63 @@ import ccre.channel.SerialIO;
 import ccre.log.Logger;
 
 public class DisconnectedSerialIO implements SerialIO {
+    
+    private boolean closed = false;
 
     public void setTermination(Character end) throws IOException {
         // don't care.
     }
 
-    public byte[] readBlocking(int max) throws IOException {
+    public synchronized byte[] readBlocking(int max) throws IOException {
         Logger.warning("Blocking read from DisconnectedSerialIO!");
-        while (true) {
+        while (!closed) {
             try {
-                Thread.sleep(10000);
+                this.wait();
             } catch (InterruptedException e) {
                 throw new InterruptedIOException("interrupted in DisconnectedSerialIO blocking read");
             }
         }
+        throw new IOException("DisconnectedSerialIO closed.");
     }
 
     public byte[] readNonblocking(int max) throws IOException {
+        if (closed) {
+            throw new IOException("DisconnectedSerialIO closed.");
+        }
         return new byte[0];
     }
 
     public void flush() throws IOException {
+        if (closed) {
+            throw new IOException("DisconnectedSerialIO closed.");
+        }
         // do nothing.
+    }
+
+    public synchronized void close() throws IOException {
+        // do nothing.
+        closed = true;
+        this.notifyAll();
     }
 
     public void setFlushOnWrite(boolean flushOnWrite) throws IOException {
+        if (closed) {
+            throw new IOException("DisconnectedSerialIO closed.");
+        }
         // don't care.
     }
 
-    public void writeFully(byte[] bytes) throws IOException {
+    public void writeFully(byte[] bytes, int from, int to) throws IOException {
+        if (closed) {
+            throw new IOException("DisconnectedSerialIO closed.");
+        }
         // do nothing.
     }
 
-    public int writePartial(byte[] bytes) throws IOException {
-        return bytes.length;
+    public int writePartial(byte[] bytes, int from, int to) throws IOException {
+        if (closed) {
+            throw new IOException("DisconnectedSerialIO closed.");
+        }
+        return to - from;
     }
 }

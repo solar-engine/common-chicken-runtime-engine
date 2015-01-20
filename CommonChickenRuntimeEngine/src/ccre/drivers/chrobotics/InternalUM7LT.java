@@ -174,11 +174,8 @@ public class InternalUM7LT { // default rate: 115200 baud.
         return 2 + 4 * data_count + 2 + 3; // two for checksum, three for the 'snp' that was stripped out. 
     }
     
-    public void zeroGyros(boolean aggressive) throws IOException {
+    public void zeroGyros() throws IOException {
         doReadOperation((byte) 0xAD);
-        if (aggressive) {
-            doBatchWriteOperation((byte) 0x70, new int[] {0, 0, 0, 0, Float.floatToIntBits(10f)});
-        }
     }
 
     public void doReadOperation(byte address) throws IOException {

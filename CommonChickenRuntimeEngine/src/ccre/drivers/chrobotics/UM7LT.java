@@ -136,10 +136,10 @@ public class UM7LT {
             }
         }.start();
     }
-    
+
     private final BooleanStatus zeroingStatus = new BooleanStatus();
     public final BooleanInput isZeroing = zeroingStatus;
-    
+
     public final EventOutput zeroGyro = new EventOutput() {
         public void event() {
             try {
@@ -149,19 +149,10 @@ public class UM7LT {
             }
         }
     };
-    public final EventOutput zeroGyroAggressive = new EventOutput() {
-        public void event() {
-            try {
-                zeroGyro(true);
-            } catch (IOException e) {
-                Logger.warning("Could not initiate gyro zeroing", e);
-            }
-        }
-    };
-    
-    public void zeroGyro(boolean aggressive) throws IOException {
+
+    public void zeroGyro() throws IOException {
         zeroingStatus.set(true);
-        internal.zeroGyros(aggressive);
+        internal.zeroGyros();
     }
 
     private int getHealth() {

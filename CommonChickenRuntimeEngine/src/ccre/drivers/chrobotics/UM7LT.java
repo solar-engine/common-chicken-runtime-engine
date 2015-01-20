@@ -143,7 +143,7 @@ public class UM7LT {
     public final EventOutput zeroGyro = new EventOutput() {
         public void event() {
             try {
-                zeroGyro(false);
+                zeroGyro();
             } catch (IOException e) {
                 Logger.warning("Could not initiate gyro zeroing", e);
             }

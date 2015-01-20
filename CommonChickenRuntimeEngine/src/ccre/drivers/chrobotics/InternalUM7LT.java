@@ -10,6 +10,7 @@ import ccre.concurrency.CollapsingWorkerThread;
 import ccre.drivers.ByteFiddling;
 import ccre.drivers.NMEA;
 import ccre.log.Logger;
+import ccre.util.CArrayUtils;
 import ccre.util.Utils;
 
 /**
@@ -163,8 +164,12 @@ public class InternalUM7LT { // default rate: 115200 baud.
             onUpdate.event();
         } else if (address == (byte) 0xAA) {
             Logger.info("UM7LT firmware revision: " + new String(new char[] { (char) ((data[0] >> 24) & 0xFF), (char) ((data[0] >> 16) & 0xFF), (char) ((data[0] >> 8) & 0xFF), (char) (data[0] & 0xFF) }));
+        } else if (address == (byte) 0xAD) {
+            Logger.config("UM7LT gyro calibrating...");
+        } else if (address == (byte) 0xC) {
+            Logger.config("UM7LT gyro calibration updated.");
         } else if (address != 0) {
-            Logger.finest("UNHANDLED BINARY MESSAGE " + Integer.toHexString(address & 0xFF) + " " + Arrays.toString(data) + " [" + is_hidden + ":" + is_command_failed + "]");
+            Logger.finest("UNHANDLED BINARY MESSAGE " + Integer.toHexString(address & 0xFF) + " " + CArrayUtils.asList(data) + " [" + is_hidden + ":" + is_command_failed + "]");
         }
         return 2 + 4 * data_count + 2 + 3; // two for checksum, three for the 'snp' that was stripped out. 
     }
@@ -237,7 +242,7 @@ public class InternalUM7LT { // default rate: 115200 baud.
     private void checkChecksum(byte[] data, int from, int to) throws IOException {
         int total = checksumTotal(data, from, to - 2);
         if (data[to - 2] != (byte) (total >> 8) || data[to - 1] != (byte) total) {
-            throw new IOException("Binary checksum mismatch: got " + Arrays.toString(Arrays.copyOfRange(data, from, to)));
+            throw new IOException("Binary checksum mismatch: got " + ByteFiddling.toHex(data, from, to));
         }
     }
 

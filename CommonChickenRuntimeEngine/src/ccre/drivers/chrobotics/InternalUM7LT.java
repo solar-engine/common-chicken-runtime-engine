@@ -3,8 +3,10 @@ package ccre.drivers.chrobotics;
 import java.io.IOException;
 import java.util.Arrays;
 
+import ccre.channel.EventOutput;
 import ccre.channel.SerialIO;
 import ccre.channel.SerialInput;
+import ccre.concurrency.CollapsingWorkerThread;
 import ccre.drivers.ByteFiddling;
 import ccre.drivers.NMEA;
 import ccre.log.Logger;
@@ -18,27 +20,30 @@ import ccre.util.Utils;
  * @see ccre.drivers.chrobotics.UM7LT
  */
 public class InternalUM7LT { // default rate: 115200 baud.
-    public long um_time_ms = -1;
-    public Integer um_sats_used, um_sats_in_view, um_hdop; // hdop: horizontal dilution of position, from GPS
-    public boolean um_quaternions, um_fault_overflow, um_fault_accl,
-            um_fault_gyro, um_fault_mag, um_fault_gps;
-    public Double gps_pn, gps_pe, gps_alt_rel, gps_heading;
-    public Double gps_vn, gps_ve;
-    public Double gps_latitude, gps_longitude, gps_altitude;
-    public Double dir_roll, dir_pitch, dir_yaw;
-    public Double dir_roll_rate, dir_pitch_rate, dir_yaw_rate;
-    public Double quat_a, quat_b, quat_c, quat_d;
-    public Double
-            raw_gyro_x, raw_gyro_y, raw_gyro_z,
-            raw_accl_x, raw_accl_y, raw_accl_z,
-            raw_magn_x, raw_magn_y, raw_magn_z;
     private final SerialIO rs232;
     private final Object rs232lock = new Object();
+    public static final int DREG_BASE = 0x55;
+    public static final int DREG_LAST = 0x88;
+    public static final int DREG_HEALTH = 0x55;
+    public static final int DREG_EULER_PHI_THETA = 0x70;
+    public static final int DREG_EULER_PSI = 0x71;
+    public static final int DREG_EULER_PHI_THETA_DOT = 0x72;
+    public static final int DREG_EULER_PSI_DOT = 0x73;
+    public static final int DREG_EULER_TIME = 0x74;
+    public static final float EULER_CONVERSION_DIVISOR = 91.02222f;
+    public static final float EULER_RATE_CONVERSION_DIVISOR = 16.0f;
+    public int[] dregs = new int[DREG_LAST - DREG_BASE];
+    public int[] dregsUpdateAt = new int[DREG_LAST - DREG_BASE];
+    public int lastUpdateId = 0;
+    public final Object notify = new Object();
+    public long lastUpdateTime = System.currentTimeMillis();
+    private final EventOutput onUpdate;
 
-    public InternalUM7LT(SerialIO rs232) {
+    public InternalUM7LT(SerialIO rs232, EventOutput onUpdate) {
         this.rs232 = rs232;
+        this.onUpdate = onUpdate;
     }
-    
+
     public void writeSettings(int quaternion_rate, int euler_rate, int position_rate, int velocity_rate, int health_rate_step) throws IOException {
         int com_settings = (5 << 28); // just set the baud rate to default.
         int com_rates1 = 0;
@@ -48,7 +53,7 @@ public class InternalUM7LT { // default rate: 115200 baud.
         int com_rates5 = ((quaternion_rate & 0xFF) << 24) | ((euler_rate & 0xFF) << 16) | ((position_rate & 0xFF) << 8) | (velocity_rate & 0xFF);
         int com_rates6 = (health_rate_step & 0xF) << 16;
         int com_rates7 = 0;
-        doBatchWriteOperation((byte) 0x00, new int[] {com_settings, com_rates1, com_rates2, com_rates3, com_rates4, com_rates5, com_rates6, com_rates7});
+        doBatchWriteOperation((byte) 0x00, new int[] { com_settings, com_rates1, com_rates2, com_rates3, com_rates4, com_rates5, com_rates6, com_rates7 });
     }
 
     public void handleRS232Input(int count) throws IOException {
@@ -81,6 +86,7 @@ public class InternalUM7LT { // default rate: 115200 baud.
 
     // Returns the number of consumed bytes, or zero if packet needs more data to be valid.
     public int handlePacket(byte[] bytes, int from, int to) {
+        // TODO: Check bounds on To.
         if (to - from < 6) { // no way for any valid packets to be ready
             return 0;
         }
@@ -101,13 +107,16 @@ public class InternalUM7LT { // default rate: 115200 baud.
         } catch (IOException ex) {
             Logger.warning("UM7 message handling failed - attempting to reset state", ex);
         }
-        int possibleStartNMEA = ByteFiddling.indexOf(bytes, from, to, (byte) '$');
-        int possibleStartBinary = ByteFiddling.indexOf(bytes, from, to, (byte) 's');
+        int possibleStartNMEA = ByteFiddling.indexOf(bytes, from + 1, to, (byte) '$');
+        int possibleStartBinary = ByteFiddling.indexOf(bytes, from + 1, to, (byte) 's');
         if (possibleStartBinary != -1 && (possibleStartNMEA == -1 || possibleStartBinary < possibleStartNMEA)) {
+            Logger.fine("Skipping " + (possibleStartBinary - from) + " bytes to Binary.");
             return possibleStartBinary - from; // skip until the start
         } else if (possibleStartNMEA != -1) {
+            Logger.fine("Skipping " + (possibleStartNMEA - from) + " bytes to NMEA.");
             return possibleStartNMEA - from; // skip until the start
         } else {
+            Logger.fine("Skipping " + (to - from) + " bytes to end.");
             return to - from; // everything's bad. skip it all.
         }
     }
@@ -137,8 +146,34 @@ public class InternalUM7LT { // default rate: 115200 baud.
                     ((bin[from + 2 + 4 * i + 2] & 0xFF) << 8) |
                     ((bin[from + 2 + 4 * i + 3] & 0xFF));
         }
-        Logger.finest("BINARY " + Integer.toHexString(address & 0xFF) + " " + Arrays.toString(data) + " [" + is_hidden + ":" + is_command_failed + "]");
+        if (address + data_count - 1 >= DREG_BASE && address < DREG_LAST) {
+            synchronized (notify) {
+                int nextUpdateId = lastUpdateId + 1;
+                for (int i = 0; i < data_count; i++) {
+                    int regid = address + i - DREG_BASE;
+                    if (regid >= 0 && regid < DREG_LAST - DREG_BASE) {
+                        dregs[regid] = data[i];
+                        dregsUpdateAt[regid] = nextUpdateId;
+                    }
+                }
+                lastUpdateId = nextUpdateId;
+                lastUpdateTime = System.currentTimeMillis();
+                notify.notifyAll();
+            }
+            onUpdate.event();
+        } else if (address == (byte) 0xAA) {
+            Logger.info("UM7LT firmware revision: " + new String(new char[] { (char) ((data[0] >> 24) & 0xFF), (char) ((data[0] >> 16) & 0xFF), (char) ((data[0] >> 8) & 0xFF), (char) (data[0] & 0xFF) }));
+        } else if (address != 0) {
+            Logger.finest("UNHANDLED BINARY MESSAGE " + Integer.toHexString(address & 0xFF) + " " + Arrays.toString(data) + " [" + is_hidden + ":" + is_command_failed + "]");
+        }
         return 2 + 4 * data_count + 2 + 3; // two for checksum, three for the 'snp' that was stripped out. 
+    }
+    
+    public void zeroGyros(boolean aggressive) throws IOException {
+        doReadOperation((byte) 0xAD);
+        if (aggressive) {
+            doBatchWriteOperation((byte) 0x70, new int[] {0, 0, 0, 0, Float.floatToIntBits(10f)});
+        }
     }
 
     public void doReadOperation(byte address) throws IOException {
@@ -207,124 +242,7 @@ public class InternalUM7LT { // default rate: 115200 baud.
     }
 
     private void handleNMEA(byte[] nmea, int from, int to) throws IOException {
-        byte[][] fields = NMEA.parse(nmea, from, to);
-        byte[] title = fields[0];
-        Logger.finest("NMEA received: " + title);
-        // $PCHRH,time,sats_used,sats_in_view,HDOP,mode,COM,accel,gyro,mag,GPS,res,res,res,*checksum<CR><LN>
-        if (ByteFiddling.streq(title, "PCHRH") && fields.length == 15) {
-            Double dbl = ByteFiddling.parseDouble(fields[1]);
-            if (dbl == null) {
-                throw new IOException("Malformed field #1 of PCHRH.");
-            }
-            um_time_ms = Math.round(dbl * 1000);
-            um_sats_used = ByteFiddling.parseInt(fields[2]);
-            um_sats_in_view = ByteFiddling.parseInt(fields[3]);
-            um_hdop = ByteFiddling.parseInt(fields[4]);
-            um_quaternions = parseBoolean(fields[5], 5);
-            um_fault_overflow = parseBoolean(fields[6], 6);
-            um_fault_accl = parseBoolean(fields[7], 7);
-            um_fault_gyro = parseBoolean(fields[8], 8);
-            um_fault_mag = parseBoolean(fields[9], 9);
-            um_fault_gps = parseBoolean(fields[10], 10);
-            // reserved: fields[11], fields[12], fields[13]
-            // field 14 is checksum, already checked by NEMA.parse.
-        } else if (ByteFiddling.streq(title, "PCHRP") && fields.length == 10) {
-            Double dbl = ByteFiddling.parseDouble(fields[1]);
-            if (dbl == null) {
-                throw new IOException("Malformed field #1 of PCHRP.");
-            }
-            um_time_ms = Math.round(dbl * 1000);
-            gps_pn = ByteFiddling.parseDouble(fields[2]);
-            gps_pe = ByteFiddling.parseDouble(fields[3]);
-            gps_alt_rel = ByteFiddling.parseDouble(fields[4]);
-            dir_roll = ByteFiddling.parseDouble(fields[5]);
-            dir_pitch = ByteFiddling.parseDouble(fields[6]);
-            dir_yaw = ByteFiddling.parseDouble(fields[7]);
-            gps_heading = ByteFiddling.parseDouble(fields[8]);
-            // field 9 is checksum, already checked by NEMA.parse.
-        } else if (ByteFiddling.streq(title, "PCHRA") && fields.length == 7) {
-            Double dbl = ByteFiddling.parseDouble(fields[1]);
-            if (dbl == null) {
-                throw new IOException("Malformed field #1 of PCHRA.");
-            }
-            um_time_ms = Math.round(dbl * 1000);
-            dir_roll = ByteFiddling.parseDouble(fields[2]);
-            dir_pitch = ByteFiddling.parseDouble(fields[3]);
-            dir_yaw = ByteFiddling.parseDouble(fields[4]);
-            gps_heading = ByteFiddling.parseDouble(fields[5]);
-            // field 6 is checksum, already checked by NEMA.parse.
-        } else if (ByteFiddling.streq(title, "PCHRS") && fields.length == 7) {
-            Integer sensorID = ByteFiddling.parseInt(fields[1]);
-            if (sensorID == null) {
-                throw new IOException("Malformed field #1 of PCHRS.");
-            }
-            Double dbl = ByteFiddling.parseDouble(fields[2]);
-            if (dbl == null) {
-                throw new IOException("Malformed field #2 of PCHRS.");
-            }
-            um_time_ms = Math.round(dbl * 1000);
-            switch (sensorID) {
-            case 0:
-                raw_gyro_x = ByteFiddling.parseDouble(fields[3]);
-                raw_gyro_y = ByteFiddling.parseDouble(fields[4]);
-                raw_gyro_z = ByteFiddling.parseDouble(fields[5]);
-                break;
-            case 1:
-                raw_accl_x = ByteFiddling.parseDouble(fields[3]);
-                raw_accl_y = ByteFiddling.parseDouble(fields[4]);
-                raw_accl_z = ByteFiddling.parseDouble(fields[5]);
-                break;
-            case 2:
-                raw_magn_x = ByteFiddling.parseDouble(fields[3]);
-                raw_magn_y = ByteFiddling.parseDouble(fields[4]);
-                raw_magn_z = ByteFiddling.parseDouble(fields[5]);
-                break;
-            default:
-                throw new IOException("Invalid sensorID in field #1 of PCHRS.");
-            }
-            // field 6 is checksum, already checked by NEMA.parse.
-        } else if (ByteFiddling.streq(title, "PCHRR") && fields.length == 10) {
-            Double dbl = ByteFiddling.parseDouble(fields[1]);
-            if (dbl == null) {
-                throw new IOException("Malformed field #1 of PCHRR.");
-            }
-            um_time_ms = Math.round(dbl * 1000);
-            gps_vn = ByteFiddling.parseDouble(fields[2]);
-            gps_ve = ByteFiddling.parseDouble(fields[3]);
-            // not vu because it's always zero on the UM7.
-            dir_roll_rate = ByteFiddling.parseDouble(fields[5]);
-            dir_pitch_rate = ByteFiddling.parseDouble(fields[6]);
-            dir_yaw_rate = ByteFiddling.parseDouble(fields[7]);
-            gps_heading = ByteFiddling.parseDouble(fields[8]);
-            // field 9 is checksum, already checked by NEMA.parse.
-        } else if (ByteFiddling.streq(title, "PCHRG") && fields.length == 10) {
-            Double dbl = ByteFiddling.parseDouble(fields[1]);
-            if (dbl == null) {
-                throw new IOException("Malformed field #1 of PCHRG.");
-            }
-            um_time_ms = Math.round(dbl * 1000);
-            gps_latitude = ByteFiddling.parseDouble(fields[2]);
-            gps_longitude = ByteFiddling.parseDouble(fields[3]);
-            gps_altitude = ByteFiddling.parseDouble(fields[4]);
-            dir_roll = ByteFiddling.parseDouble(fields[5]);
-            dir_pitch = ByteFiddling.parseDouble(fields[6]);
-            dir_yaw = ByteFiddling.parseDouble(fields[7]);
-            gps_heading = ByteFiddling.parseDouble(fields[8]);
-            // field 9 is checksum, already checked by NEMA.parse.
-        } else if (ByteFiddling.streq(title, "PCHRQ") && fields.length == 7) {
-            Double dbl = ByteFiddling.parseDouble(fields[1]);
-            if (dbl == null) {
-                throw new IOException("Malformed field #1 of PCHRG.");
-            }
-            um_time_ms = Math.round(dbl * 1000);
-            quat_a = ByteFiddling.parseDouble(fields[2]);
-            quat_b = ByteFiddling.parseDouble(fields[3]);
-            quat_c = ByteFiddling.parseDouble(fields[4]);
-            quat_d = ByteFiddling.parseDouble(fields[5]);
-            // field 6 is checksum, already checked by NEMA.parse.
-        } else {
-            throw new IOException("Unrecognized NMEA packet: " + ByteFiddling.parseASCII(title) + " with field count " + fields.length);
-        }
+        Logger.finest("UM7LT NMEA received: " + ByteFiddling.parseASCII(nmea, from, to));
     }
 
     private boolean parseBoolean(byte[] bs, int field) throws IOException {
@@ -333,5 +251,11 @@ public class InternalUM7LT { // default rate: 115200 baud.
             throw new IOException("Malformed field # " + field + " of PCHRH.");
         }
         return bl != 0;
+    }
+
+    public void dumpSerialData() throws IOException {
+        while (this.rs232.readNonblocking(1024).length > 0) {
+            Logger.finest("dumping...");
+        }
     }
 }

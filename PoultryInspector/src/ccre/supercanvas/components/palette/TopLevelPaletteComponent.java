@@ -24,6 +24,7 @@ import java.util.Collections;
 
 import ccre.supercanvas.SuperCanvasComponent;
 import ccre.supercanvas.components.CanvasPhidgetComponent;
+import ccre.supercanvas.components.CluckUnitTestComponent;
 import ccre.supercanvas.components.FolderComponent;
 import ccre.supercanvas.components.LoggingComponent;
 import ccre.supercanvas.components.PhysicalPhidgetComponent;
@@ -51,6 +52,7 @@ public class TopLevelPaletteComponent extends PaletteComponent<Iterable<PaletteE
         local.add(new AllocationPaletteEntry(FolderComponent.class));
         local.add(new AllocationPaletteEntry(TrashComponent.class));
         local.add(new AllocationPaletteEntry(TextComponent.class));
+        local.add(new AllocationPaletteEntry(CluckUnitTestComponent.class));
         topLevel = Collections.unmodifiableCollection(local);
     }
 

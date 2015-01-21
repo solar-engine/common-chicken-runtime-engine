@@ -21,6 +21,7 @@ package ccre.supercanvas.components;
 import java.awt.Color;
 import java.awt.FontMetrics;
 import java.awt.Graphics2D;
+import java.io.IOException;
 import java.io.OutputStream;
 
 import ccre.channel.BooleanInput;
@@ -36,6 +37,7 @@ import ccre.log.Logger;
 import ccre.log.LoggingTarget;
 import ccre.supercanvas.DraggableBoxComponent;
 import ccre.supercanvas.Rendering;
+import ccre.util.LineCollectorOutputStream;
 
 /**
  * A SuperCanvas-based component to allow unit-testing the Cluck implementation.
@@ -45,10 +47,8 @@ import ccre.supercanvas.Rendering;
  */
 public class CluckUnitTestComponent extends DraggableBoxComponent {
 
-    private static final Color bodyColor = new Color(102, 2, 60);
-    
-    private final CollapsingWorkerThread tester = new CollapsingWorkerThread("Cluck-Unit-Tester", true) {
-        
+    private final class CluckUnitTesterWorker extends CollapsingWorkerThread {
+        public static final int MAX_CTR = 19;
         BooleanOutput bo = Cluck.subscribeBO("robot/utest-bo0");
         BooleanInput bi = Cluck.subscribeBI("robot/utest-bi0", false);
         EventOutput eo = Cluck.subscribeEO("robot/utest-eo0");
@@ -57,9 +57,7 @@ public class CluckUnitTestComponent extends DraggableBoxComponent {
         FloatInput fi = Cluck.subscribeFI("robot/utest-fi0", false);
         LoggingTarget lt = Cluck.subscribeLT("robot/utest-lt0", LogLevel.FINEST);
         OutputStream os = Cluck.subscribeOS("robot/utest-os0");
-        
         private int ctr;
-        
         {
             bi.send(new BooleanOutput() {
                 public void set(boolean b) {
@@ -76,23 +74,147 @@ public class CluckUnitTestComponent extends DraggableBoxComponent {
                     ctr++;
                 }
             });
+            Cluck.publish("utest-lt1", new LoggingTarget() {
+                public void log(LogLevel level, String message, String extended) {
+                    // TODO: Do more with other possible logging messages (with throwables or extended)
+                    if (level == LogLevel.FINER && message.equals(testMessage0) && extended == null) {
+                        ctr++;
+                    } else {
+                        Logger.warning("Wrong log data sent!");
+                        success = false;
+                    }
+                }
+
+                public void log(LogLevel level, String message, Throwable throwable) {
+                    Logger.warning("Wrong log event called!");
+                    success = false;
+                }
+            });
+            Cluck.publish("utest-os1", new LineCollectorOutputStream() {
+                @Override
+                protected void collect(String param) {
+                    if (param.equals("THIS IS THE CCRE TALKING.\0 send properly. DO IT.")) {
+                        ctr++;
+                    } else {
+                        Logger.warning("Wrong test data sent!");
+                        success = false;
+                    }
+                }
+            });
         }
-        
-        private void checkSetBoolean(boolean b) throws InterruptedException {
+        private static final String testMessage0 = "{}{}{}[][][]()()() TESTING 1234567890____!";
+        private boolean success = false;
+
+        private CluckUnitTesterWorker(String name, boolean shouldIgnoreWhileRunning) {
+            super(name, shouldIgnoreWhileRunning);
+        }
+
+        private void checkSendLog() throws InterruptedException {
             int start = ctr;
-            bo.set(b);
-            this.wait(2000);
+            lt.log(LogLevel.FINER, testMessage0, (Throwable) null);
+            this.wait(200);
             if (ctr != start + 1) {
-                
+                Logger.warning("Unit testing failed - send log failed.");
+                success = false;
             }
         }
-        
-        @Override
-        protected void doWork() throws Throwable {
-            Logger.info("Starting test...");
-            ctr = 0;
+
+        private void checkSendData() throws InterruptedException, IOException {
+            int start = ctr;
+            os.write("THIS IS THE CCRE TALKING.\0 send properly. DO IT.\n".getBytes());
+            this.wait(200);
+            if (ctr != start + 1) {
+                Logger.warning("Unit testing failed - send data failed.");
+                success = false;
+            }
         }
-    };
+
+        private void checkSetBoolean(boolean b, boolean expect) throws InterruptedException {
+            int start = ctr;
+            bo.set(b);
+            this.wait(200);
+            if (ctr != start + (expect ? 1 : 0)) {
+                Logger.warning("Unit testing failed - boolean event count wrong.");
+                success = false;
+            }
+            if (bi.get() != b) {
+                Logger.warning("Unit testing failed - boolean value wrong.");
+                success = false;
+            }
+        }
+
+        private void checkSetFloat(float f, boolean expect) throws InterruptedException {
+            int start = ctr;
+            fo.set(f);
+            this.wait(200);
+            if (ctr != start + (expect ? 1 : 0)) {
+                Logger.warning("Unit testing failed - float event count wrong.");
+                success = false;
+            }
+            if (fi.get() != f) {
+                Logger.warning("Unit testing failed - float value wrong.");
+                success = false;
+            }
+        }
+
+        private void checkSetEvent() throws InterruptedException {
+            int start = ctr;
+            eo.event();
+            this.wait(200);
+            if (ctr != start + 1) {
+                Logger.warning("Unit testing failed - event count wrong.");
+                success = false;
+            }
+        }
+
+        @Override
+        protected synchronized void doWork() throws Throwable {
+            Logger.info("Starting test...");
+            bo.set(false);
+            fo.set(0.3f);
+            this.wait(200);
+            ctr = 0;
+            success = true;
+            checkSetBoolean(false, false);
+            checkSetBoolean(false, false);
+            checkSetBoolean(true, true);
+            checkSetBoolean(true, false);
+            checkSetFloat(0.0f, true);
+            checkSetFloat(0.0f, false);
+            checkSetEvent();
+            checkSetFloat(1.0f, true);
+            checkSetFloat(2.3f, true);
+            checkSendData();
+            checkSetFloat(1.0f, true);
+            checkSetBoolean(false, true);
+            checkSetEvent();
+            checkSetBoolean(true, true);
+            checkSetBoolean(false, true);
+            checkSendLog();
+            checkSetBoolean(true, true);
+            checkSetFloat(0.0f, true);
+            //checkSetFloat(Float.NaN, true);
+            checkSetEvent();
+            checkSetFloat(7.2f, true);
+            checkSetFloat(Float.NEGATIVE_INFINITY, true);
+            checkSetFloat(Float.NEGATIVE_INFINITY, false);
+            checkSetFloat(0.0f, true);
+            checkSetFloat(-6.2f, true);
+            if (ctr != MAX_CTR) {
+                success = false;
+                Logger.warning("Unit testing failed: wrong number of overall message events!");
+            }
+            if (success) {
+                Logger.info("Unit tests completed successfully!");
+            } else {
+                Logger.warning("Unit tests failed.");
+            }
+        }
+    }
+
+    private static final Color bodyColor = new Color(202, 4, 120);
+
+    private final CluckUnitTesterWorker tester = new CluckUnitTesterWorker("Cluck-Unit-Tester", true);
 
     /**
      * Create a new CluckUnitTestComponent at the given location.
@@ -103,15 +225,15 @@ public class CluckUnitTestComponent extends DraggableBoxComponent {
     public CluckUnitTestComponent(int cx, int cy) {
         super(cx, cy);
         halfWidth = 80;
-        halfHeight = 80;
+        halfHeight = 20;
     }
 
     @Override
     public void render(Graphics2D g, int screenWidth, int screenHeight, FontMetrics fontMetrics, int mouseX, int mouseY) {
         Rendering.drawBody(bodyColor, g, this);
         g.setColor(Color.BLACK);
-        int baseY = centerY - halfHeight + fontMetrics.getAscent();
-        String str = tester.isDoingWork() ? "Testing..." : "Ready";
+        int baseY = centerY - halfHeight / 2 + fontMetrics.getAscent();
+        String str = tester.isDoingWork() ? "Testing: " + tester.ctr + "/" + CluckUnitTesterWorker.MAX_CTR : "Ready";
         g.drawString(str, centerX - g.getFontMetrics().stringWidth(str) / 2, baseY);
     }
 

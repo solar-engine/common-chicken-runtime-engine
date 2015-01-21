@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2014 Colby Skeggs
+ * Copyright 2013-2015 Colby Skeggs
  * 
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  * 
@@ -146,6 +146,32 @@ public class CLinkedList<T> extends CAbstractList<T> {
         T prev = n.o;
         n.o = thing;
         return prev;
+    }
+
+    /**
+     * Sets the elements of this linked list to be the given array. The array
+     * must be the same size as this list, and the elements must all be
+     * instances of T.
+     * 
+     * @param inputs the data to load.
+     */
+    @SuppressWarnings("unchecked")
+    public void setAll(Object[] inputs) {
+        if (inputs.length != size) {
+            throw new IllegalArgumentException("Wrong number of arguments to CLinkedList setAll!");
+        }
+        Node<T> n = sentinel;
+        for (Object input : inputs) {
+            n = n.next;
+            if (n == sentinel) {
+                throw new ConcurrentModificationException();
+            }
+            n.o = (T) input;
+        }
+        if (n.next != sentinel) {
+            throw new ConcurrentModificationException();
+        }
+        notifyModified();
     }
 
     @Override

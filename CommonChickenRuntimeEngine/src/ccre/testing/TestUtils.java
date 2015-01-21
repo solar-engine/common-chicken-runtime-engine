@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2014 Colby Skeggs
+ * Copyright 2013-2015 Colby Skeggs
  * 
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  * 
@@ -19,10 +19,12 @@
 package ccre.testing;
 
 import java.util.Iterator;
+import java.util.Random;
 
 import ccre.log.Logger;
 import ccre.util.CArrayList;
 import ccre.util.CArrayUtils;
+import ccre.util.CLinkedList;
 import ccre.util.CList;
 import ccre.util.Utils;
 
@@ -224,5 +226,44 @@ public class TestUtils extends BaseTest {
         }
         assertObjectEqual(arr3[3], null, "Bad copyOf!");
         assertObjectEqual(arr3[4], null, "Bad copyOf!");
+        // CArrayUtils.sort (lists)
+        CLinkedList<Integer> list = new CLinkedList<Integer>(CArrayUtils.asList(7, 2, 9123, 19124, 123, 52, 1, -162, 0, 0, 0, 12, 80));
+        int size = list.size();
+        CArrayUtils.sort(list);
+        assertIntsEqual(size, list.size(), "Bad size!");
+        for (int index = 1; index < size; index++) {
+            assertTrue(list.get(index - 1) <= list.get(index), "List not sorted!");
+        }
+        assertTrue(list.contains(19124) && list.contains(0) && list.contains(7), "List removed elements during sorting!");
+        list.clear();
+        Random r = new Random();
+        for (int j = 0; j < 1000; j++) {
+            list.add(r.nextInt(1000));
+        }
+        size = list.size();
+        CArrayUtils.sort(list);
+        assertIntsEqual(size, list.size(), "Bad size!");
+        for (int index = 1; index < size; index++) {
+            assertTrue(list.get(index - 1) <= list.get(index), "List not sorted!");
+        }
+        // CArrayUtils.sort (arrays)
+        Integer[] array = new Integer[] { 7, 2, 9123, 19124, 123, 52, 1, -162, 0, 0, 0, 12, 80 };
+        CArrayUtils.sort(array);
+        for (int index = 1; index < array.length; index++) {
+            assertTrue(array[index - 1] <= array[index], "List not sorted!");
+        }
+        assertIntsEqual(array[0], -162, "Bad first element!");
+        assertIntsEqual(array[1], 0, "Bad second element!");
+        assertIntsEqual(array[2], 0, "Bad third element!");
+        assertIntsEqual(array[3], 0, "Bad fourth element!");
+        assertIntsEqual(array[4], 1, "Bad fifth element!");
+        array = new Integer[1000];
+        for (int j = 0; j < array.length; j++) {
+            array[j] = r.nextInt(1000);
+        }
+        CArrayUtils.sort(array);
+        for (int index = 1; index < array.length; index++) {
+            assertTrue(array[index - 1] <= array[index], "List not sorted!");
+        }
     }
 }

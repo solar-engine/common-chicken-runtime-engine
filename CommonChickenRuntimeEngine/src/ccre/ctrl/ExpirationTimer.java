@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2014 Colby Skeggs
+ * Copyright 2013-2015 Colby Skeggs
  * 
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  * 
@@ -23,9 +23,11 @@ import ccre.channel.BooleanOutput;
 import ccre.channel.EventInput;
 import ccre.channel.EventOutput;
 import ccre.channel.EventStatus;
+import ccre.channel.FloatInputPoll;
 import ccre.concurrency.ReporterThread;
 import ccre.log.Logger;
 import ccre.util.CArrayList;
+import ccre.util.CArrayUtils;
 
 /**
  * An ExpirationTimer acts sort of like an alarm clock. You can schedule a
@@ -161,11 +163,19 @@ public final class ExpirationTimer {
         if (isStarted) {
             throw new IllegalStateException("Timer is running!");
         }
-        for (int i = 0; i < tasks.size(); i++) {
-            if (tasks.get(i).delay > delay) {
-                tasks.add(i, new Task(delay, cnsm));
-                return;
-            }
+        tasks.add(new Task(delay, cnsm));
+    }
+
+    /**
+     * Schedule an EventOutput to be triggered at a dynamic delay.
+     *
+     * @param delay the dynamic delay (in seconds) to trigger at.
+     * @param cnsm the event to fire.
+     * @throws IllegalStateException if the timer is already running.
+     */
+    public synchronized void schedule(FloatInputPoll delay, EventOutput cnsm) throws IllegalStateException {
+        if (isStarted) {
+            throw new IllegalStateException("Timer is running!");
         }
         tasks.add(new Task(delay, cnsm));
     }
@@ -178,6 +188,19 @@ public final class ExpirationTimer {
      * @throws IllegalStateException if the timer is already running.
      */
     public EventInput schedule(long delay) throws IllegalStateException {
+        EventStatus evt = new EventStatus();
+        schedule(delay, evt);
+        return evt;
+    }
+
+    /**
+     * Return an event that will be triggered at a dynamic delay.
+     *
+     * @param delay the dynamic delay (in second) to trigger at.
+     * @return the event that will be fired.
+     * @throws IllegalStateException if the timer is already running.
+     */
+    public EventInput schedule(FloatInputPoll delay) throws IllegalStateException {
         EventStatus evt = new EventStatus();
         schedule(delay, evt);
         return evt;
@@ -210,6 +233,13 @@ public final class ExpirationTimer {
         }
     }
 
+    private synchronized void recalculateTasks() {
+        for (Task t : tasks) {
+            t.recalculate();
+        }
+        CArrayUtils.sort(tasks);
+    }
+
     private synchronized void runTasks() throws InterruptedException {
         long startAt = startedAt;
         for (Task t : tasks) {
@@ -233,6 +263,7 @@ public final class ExpirationTimer {
                 while (!isStarted) {
                     wait();
                 }
+                recalculateTasks();
                 runTasks();
                 while (isStarted) { // Once finished, wait to stop before
                                     // restarting.
@@ -438,26 +469,54 @@ public final class ExpirationTimer {
     /**
      * A task that is scheduled for a specific delay after the timer starts.
      */
-    private static class Task {
+    private static class Task implements Comparable<Task> {
 
         /**
          * The delay before the event is fired.
          */
-        public final long delay;
+        public long delay;
         /**
          * The event to fire.
          */
         public final EventOutput cnsm;
+        /**
+         * The source of tuning for the delay.
+         */
+        public final FloatInputPoll tuning;
 
         /**
-         * Create a new task.
+         * Create a new task with a hard-coded delay.
          *
-         * @param delay The delay after which the task is fired.
+         * @param delay The delay after which the task is fired, in
+         * milliseconds.
          * @param cnsm The EventOutput fired by this Task.
          */
         Task(long delay, EventOutput cnsm) {
             this.delay = delay;
             this.cnsm = cnsm;
+            this.tuning = null;
+        }
+
+        /**
+         * Create a new task with a tunable delay.
+         *
+         * @param delay The delay after which the task is fired, in seconds.
+         * @param cnsm The EventOutput fired by this Task.
+         */
+        Task(FloatInputPoll delay, EventOutput cnsm) {
+            this.cnsm = cnsm;
+            this.tuning = delay;
+            recalculate();
+        }
+
+        public void recalculate() {
+            if (tuning != null) {
+                this.delay = (long) (tuning.get() * 1000);
+            }
+        }
+
+        public int compareTo(Task o) {
+            return Long.compare(delay, o.delay);
         }
     }
 }

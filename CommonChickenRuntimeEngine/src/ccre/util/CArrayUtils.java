@@ -18,6 +18,9 @@
  */
 package ccre.util;
 
+import java.util.Arrays;
+import java.util.ConcurrentModificationException;
+
 /**
  * A set of useful array-related utilites.
  *
@@ -154,5 +157,27 @@ public class CArrayUtils {
                 return -1;
             }
         }
+    }
+
+    public static <T extends Comparable<T>> void sort(CList<T> list) {
+        Object[] elements = new Object[list.size()];
+        if (list.fillArray(elements) != 0) {
+            throw new ConcurrentModificationException();
+        }
+        Arrays.sort(elements);
+        if (list instanceof CLinkedList) {
+            ((CLinkedList<T>) list).setAll(elements);
+        } else {
+            for (int i=0; i<elements.length; i++) {
+                list.set(i, (T) elements[i]);
+            }
+        }
+        if (elements.length != list.size()) {
+            throw new ConcurrentModificationException();
+        }
+    }
+
+    public static <T extends Comparable<T>> void sort(T[] list) {
+        Arrays.sort(list);
     }
 }

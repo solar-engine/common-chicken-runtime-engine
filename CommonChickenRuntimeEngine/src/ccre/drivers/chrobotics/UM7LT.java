@@ -20,7 +20,6 @@ package ccre.drivers.chrobotics;
 
 import java.io.IOException;
 
-import ccre.channel.BooleanInput;
 import ccre.channel.BooleanStatus;
 import ccre.channel.EventInput;
 import ccre.channel.EventOutput;
@@ -56,7 +55,10 @@ public class UM7LT {
      * available.
      */
     public final EventInput onHealthUpdate = healthUpdateStatus;
-    public final BooleanStatus autoreportFaults = new BooleanStatus();
+    /**
+     * Whether or not faults should be automatically logged.
+     */
+    public final BooleanStatus autoreportFaults = new BooleanStatus(true);
 
     private final CollapsingWorkerThread worker = new CollapsingWorkerThread("UM7LT-dispatcher") {
 
@@ -171,9 +173,9 @@ public class UM7LT {
         }.start();
     }
 
-    private final BooleanStatus zeroingStatus = new BooleanStatus();
-    public final BooleanInput isZeroing = zeroingStatus;
-
+    /**
+     * Start zeroing the Gyro.
+     */
     public final EventOutput zeroGyro = new EventOutput() {
         public void event() {
             try {
@@ -190,7 +192,6 @@ public class UM7LT {
      * @throws IOException if the command could not be sent.
      */
     public void zeroGyro() throws IOException {
-        zeroingStatus.set(true);
         internal.zeroGyros();
     }
 

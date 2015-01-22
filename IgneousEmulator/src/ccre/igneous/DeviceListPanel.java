@@ -168,7 +168,7 @@ public final class DeviceListPanel extends JPanel {
                 }
                 yPosition = bottom;
             }
-            if (painter != null) {
+            if (painter != null && painter.isRunning()) {
                 painter.feed();
             }
             if (painter == null || errorMessageLines.length != 0) {

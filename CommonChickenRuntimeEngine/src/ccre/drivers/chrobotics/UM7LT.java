@@ -45,8 +45,16 @@ public class UM7LT {
     private final InternalUM7LT internal;
 
     private final EventStatus eulerUpdateStatus = new EventStatus();
+    /**
+     * An event that fires whenever new data for the Euler angles becomes
+     * available.
+     */
     public final EventInput onEulerUpdate = eulerUpdateStatus;
     private final EventStatus healthUpdateStatus = new EventStatus();
+    /**
+     * An event that fires whenever new data for the Health sensor becomes
+     * available.
+     */
     public final EventInput onHealthUpdate = healthUpdateStatus;
     public final BooleanStatus autoreportFaults = new BooleanStatus();
 
@@ -85,6 +93,11 @@ public class UM7LT {
         }
     };
 
+    /**
+     * Connect to the UM7LT on the specified port. Make sure to call start()!
+     * 
+     * @param rs232 the rs232 port to talk over.
+     */
     public UM7LT(SerialIO rs232) {
         internal = new InternalUM7LT(rs232, worker);
 
@@ -135,6 +148,9 @@ public class UM7LT {
 
     private boolean started = false;
 
+    /**
+     * Start the main loop to handle tho UM7LT.
+     */
     public void start() {
         synchronized (this) {
             if (started) {
@@ -168,6 +184,11 @@ public class UM7LT {
         }
     };
 
+    /**
+     * Start zeroing the Gyro.
+     * 
+     * @throws IOException if the command could not be sent.
+     */
     public void zeroGyro() throws IOException {
         zeroingStatus.set(true);
         internal.zeroGyros();
@@ -177,16 +198,55 @@ public class UM7LT {
         return internal.dregs[InternalUM7LT.DREG_HEALTH - InternalUM7LT.DREG_BASE];
     }
 
+    /**
+     * Check if the sensor is currently experiencing any faults.
+     * 
+     * @return if the sensor is reporting any faults.
+     */
     public boolean hasFault() {
         return (getHealth() & 0x13E) != 0;
     }
 
+    /**
+     * A structure of the faults that the UM7 can have. Just some data.
+     * 
+     * @see UM7LT#getFaults(Faults)
+     * 
+     * @author skeggsc
+     */
     public static final class Faults {
-        public boolean comm_overflow, magnetometer_distorted,
-                accelerometer_distorted, accelerometer_failed, gyro_failed,
-                magnetometer_failed;
+        /**
+         * If the communications line got overloaded.
+         */
+        public boolean comm_overflow;
+        /**
+         * If the magnetometer is experiencing distortion.
+         */
+        public boolean magnetometer_distorted;
+        /**
+         * If the accelerometer is experiencing distortion.
+         */
+        public boolean accelerometer_distorted;
+        /**
+         * If the accelerometer has failed.
+         */
+        public boolean accelerometer_failed;
+        /**
+         * If the gyro has failed.
+         */
+        public boolean gyro_failed;
+        /**
+         * If the magnetometer has failed.
+         */
+        public boolean magnetometer_failed;
     }
 
+    /**
+     * Fetches the current statuses of faults and fills a fault structure with
+     * the status.
+     * 
+     * @param faults the fault structure to update.
+     */
     public void getFaults(UM7LT.Faults faults) {
         int reg = getHealth();
         faults.comm_overflow = (reg & 0x100) != 0;
@@ -197,12 +257,35 @@ public class UM7LT {
         faults.magnetometer_failed = (reg & 0x2) != 0;
     }
 
-    // These return numbers in degrees.
-    public final FloatInput roll, pitch, yaw;
+    /**
+     * The current roll rotation, in degrees.
+     */
+    public final FloatInput roll;
+    /**
+     * The current pitch rotation, in degrees.
+     */
+    public final FloatInput pitch;
+    /**
+     * The current yaw rotation, in degrees.
+     */
+    public final FloatInput yaw;
 
-    // These return numbers in degrees per second.
-    public final FloatInput rollRate, pitchRate, yawRate;
+    /**
+     * The current roll rate, in degrees per second.
+     */
+    public final FloatInput rollRate;
+    /**
+     * The current pitch rate, in degrees per second.
+     */
+    public final FloatInput pitchRate;
+    /**
+     * The current yaw rate, in degrees per second.
+     */
+    public final FloatInput yawRate;
 
-    // This returns a time in seconds. (?)
+    /**
+     * The current time reported by the UM7LT for the measurement of the Euler
+     * rotations.
+     */
     public final FloatInput eulerTime;
 }

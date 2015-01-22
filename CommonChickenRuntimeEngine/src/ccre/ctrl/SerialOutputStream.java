@@ -23,16 +23,27 @@ import java.io.OutputStream;
 
 import ccre.channel.SerialOutput;
 
+/**
+ * Wraps a SerialOutput in an OutputStream so that it can be used with
+ * infrastructure designed for OutputStreams.
+ * 
+ * @author skeggsc
+ */
 public class SerialOutputStream extends OutputStream {
     private final SerialOutput output;
 
+    /**
+     * Create a new SerialOutputStream wrapping the output.
+     * 
+     * @param output the output to wrap.
+     */
     public SerialOutputStream(SerialOutput output) {
         this.output = output;
     }
 
     @Override
     public void write(int b) throws IOException {
-        output.writeFully(new byte[] {(byte) b}, 0, 1);
+        output.writeFully(new byte[] { (byte) b }, 0, 1);
     }
 
     public void write(byte b[], int off, int len) throws IOException {

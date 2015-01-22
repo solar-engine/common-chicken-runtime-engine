@@ -18,6 +18,13 @@
  */
 package ccre.channel;
 
+/**
+ * A combination of a SerialInput and a SerialOutput, as commonly seen in a
+ * standard RS232 port, for example.
+ * 
+ * WARNING: THIS INTERFACE IS SUBJECT TO NON-BACKWARDS-COMPATIBLE CHANGE.
+ * 
+ * @author skeggsc
+ */
 public interface SerialIO extends SerialInput, SerialOutput {
-    // Warning: this interface subject to change.
 }

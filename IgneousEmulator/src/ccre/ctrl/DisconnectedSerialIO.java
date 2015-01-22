@@ -24,8 +24,14 @@ import java.io.InterruptedIOException;
 import ccre.channel.SerialIO;
 import ccre.log.Logger;
 
+/**
+ * An emulation of a completely disconnected serial port. Nothing comes in, and
+ * everything going out is ignored.
+ * 
+ * @author skeggsc
+ */
 public class DisconnectedSerialIO implements SerialIO {
-    
+
     private boolean closed = false;
 
     public void setTermination(Character end) throws IOException {

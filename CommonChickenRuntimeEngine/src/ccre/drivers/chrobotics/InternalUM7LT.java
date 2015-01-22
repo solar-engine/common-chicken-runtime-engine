@@ -19,21 +19,20 @@
 package ccre.drivers.chrobotics;
 
 import java.io.IOException;
-import java.util.Arrays;
 
 import ccre.channel.EventOutput;
 import ccre.channel.SerialIO;
-import ccre.channel.SerialInput;
-import ccre.concurrency.CollapsingWorkerThread;
 import ccre.drivers.ByteFiddling;
 import ccre.drivers.NMEA;
 import ccre.log.Logger;
 import ccre.util.CArrayUtils;
-import ccre.util.Utils;
 
 /**
  * The low-level interface to the UM7-LT orientation sensor from CH Robotics,
  * via RS232.
+ * 
+ * This is not complete. If you need more functionality, you may need to modify
+ * this class.
  * 
  * @author skeggsc
  * @see ccre.drivers.chrobotics.UM7LT
@@ -41,28 +40,117 @@ import ccre.util.Utils;
 public class InternalUM7LT { // default rate: 115200 baud.
     private final SerialIO rs232;
     private final Object rs232lock = new Object();
+    /**
+     * The first register that is tracked by the dregs cache.
+     * 
+     * @see #dregs
+     */
     public static final int DREG_BASE = 0x55;
+    /**
+     * The last register that is tracked by the dregs cache.
+     * 
+     * @see #dregs
+     */
     public static final int DREG_LAST = 0x88;
+    /**
+     * The ID of the Health register.
+     */
     public static final int DREG_HEALTH = 0x55;
+    /**
+     * The ID of the Euler Phi Theta register.
+     */
     public static final int DREG_EULER_PHI_THETA = 0x70;
+    /**
+     * The ID of the Euler Psi register.
+     */
     public static final int DREG_EULER_PSI = 0x71;
+    /**
+     * The ID of the Euler Phi Theta Dot register.
+     */
     public static final int DREG_EULER_PHI_THETA_DOT = 0x72;
+    /**
+     * The ID of the Euler Psi Dot register.
+     */
     public static final int DREG_EULER_PSI_DOT = 0x73;
+    /**
+     * The ID of the Euler Time register.
+     */
     public static final int DREG_EULER_TIME = 0x74;
+    /**
+     * The conversion divisor to convert from the signed shorts in the Euler
+     * rotation registers to angles in degrees.
+     */
     public static final float EULER_CONVERSION_DIVISOR = 91.02222f;
+    /**
+     * The conversion divisor to convert from the signed shorts in the Euler
+     * rotation rate registers to angular velocities in degrees per second.
+     */
     public static final float EULER_RATE_CONVERSION_DIVISOR = 16.0f;
+    /**
+     * The register cache for data coming from the UM7LT.
+     * 
+     * @see #dregsUpdateAt
+     */
     public int[] dregs = new int[DREG_LAST - DREG_BASE];
+    /**
+     * The last time that the corresponding entry in the register cache was
+     * updated. This is an update ID.
+     * 
+     * @see #dregs
+     * @see #lastUpdateId
+     */
     public int[] dregsUpdateAt = new int[DREG_LAST - DREG_BASE];
+    /**
+     * The last update ID - the pseudo-clock used for tracking register cache
+     * updates.
+     * 
+     * @see #dregs
+     * @see #dregsUpdateAt
+     * @see #lastUpdateTime
+     */
     public int lastUpdateId = 0;
-    public final Object notify = new Object();
+    /**
+     * The last time that any cached registers were updated. Updated exactly
+     * when lastUpdateId is updated.
+     * 
+     * @see #lastUpdateId
+     */
     public long lastUpdateTime = System.currentTimeMillis();
     private final EventOutput onUpdate;
 
+    /**
+     * Create a new internal handler for the UM7LT that runs on a rs232 port and
+     * fires onUpdate whenever the cached registers update.
+     * 
+     * @param rs232 the RS232 port connected to the UM7LT.
+     * @param onUpdate the output to update when the cached registers update.
+     */
     public InternalUM7LT(SerialIO rs232, EventOutput onUpdate) {
+        if (onUpdate == null || rs232 == null) {
+            throw new NullPointerException();
+        }
         this.rs232 = rs232;
         this.onUpdate = onUpdate;
     }
 
+    /**
+     * Write settings for the update rates of some of the currently-supported
+     * rates. Not everything is currently supported! This may need extension if
+     * you want to do more with the UM7LT.
+     * 
+     * @param quaternion_rate how often to update the quaternion registers.
+     * (Specified in 0-255 Hz)
+     * @param euler_rate how often to update the Euler angle registers.
+     * (Specified in 0-255 Hz)
+     * @param position_rate how often to update the position registers.
+     * (Specified in 0-255 Hz)
+     * @param velocity_rate how often to update the velocity registers.
+     * (Specified in 0-255 Hz)
+     * @param health_rate_step how often to update the health register.
+     * (Specification is not in Hertz. See the UM7LT manual.)
+     * @throws IOException if the setting cannot be written due to an IO
+     * Exception during communication.
+     */
     public void writeSettings(int quaternion_rate, int euler_rate, int position_rate, int velocity_rate, int health_rate_step) throws IOException {
         int com_settings = (5 << 28); // just set the baud rate to default.
         int com_rates1 = 0;
@@ -75,6 +163,12 @@ public class InternalUM7LT { // default rate: 115200 baud.
         doBatchWriteOperation((byte) 0x00, new int[] { com_settings, com_rates1, com_rates2, com_rates3, com_rates4, com_rates5, com_rates6, com_rates7 });
     }
 
+    /**
+     * Handle up to the specified number of packets from the RS232 input.
+     * 
+     * @param count the maximum number of packets to handle before returning.
+     * @throws IOException if an IO Exception occurs during processing.
+     */
     public void handleRS232Input(int count) throws IOException {
         byte[] activeBuffer = new byte[4096];
         int from = 0, to = 0;
@@ -104,7 +198,7 @@ public class InternalUM7LT { // default rate: 115200 baud.
     }
 
     // Returns the number of consumed bytes, or zero if packet needs more data to be valid.
-    public int handlePacket(byte[] bytes, int from, int to) {
+    private int handlePacket(byte[] bytes, int from, int to) {
         // TODO: Check bounds on To.
         if (to - from < 6) { // no way for any valid packets to be ready
             return 0;
@@ -191,15 +285,35 @@ public class InternalUM7LT { // default rate: 115200 baud.
         }
         return 2 + 4 * data_count + 2 + 3; // two for checksum, three for the 'snp' that was stripped out. 
     }
-    
+
+    /**
+     * Command the UM7LT to zero the Gyroscope.
+     * 
+     * @throws IOException if the command could not be sent.
+     */
     public void zeroGyros() throws IOException {
         doReadOperation((byte) 0xAD);
     }
 
+    /**
+     * Command the UM7LT to read and report a certain register.
+     * 
+     * @param address the register address to read.
+     * 
+     * @throws IOException if the command could not be sent.
+     */
     public void doReadOperation(byte address) throws IOException {
         sendWithChecksum(new byte[] { 's', 'n', 'p', 0x00, address, 0, 0 });
     }
 
+    /**
+     * Command the UM7LT to read and report a series of registers.
+     * 
+     * @param address the register address to start reading at.
+     * @param count the number of registers to read.
+     * 
+     * @throws IOException if the command could not be sent.
+     */
     public void doBatchReadOperation(byte address, int count) throws IOException {
         if (count < 1 || count > 15) {
             // don't allow zero - why would we?
@@ -208,10 +322,26 @@ public class InternalUM7LT { // default rate: 115200 baud.
         sendWithChecksum(new byte[] { 's', 'n', 'p', (byte) (0x40 | (count << 2)), address, 0, 0 });
     }
 
+    /**
+     * Command the UM7LT to modify a certain register.
+     * 
+     * @param address the register address to read.
+     * @param value the new value to contain.
+     * 
+     * @throws IOException if the command could not be sent.
+     */
     public void doWriteOperation(byte address, int value) throws IOException {
         sendWithChecksum(new byte[] { 's', 'n', 'p', (byte) 0x80, address, (byte) (value >> 24), (byte) (value >> 16), (byte) (value >> 8), (byte) value, 0, 0 });
     }
 
+    /**
+     * Command the UM7LT to modify a series of registers.
+     * 
+     * @param address the register address to start writing at.
+     * @param values the array of values to write, starting at the address.
+     * 
+     * @throws IOException if the command could not be sent.
+     */
     public void doBatchWriteOperation(byte address, int[] values) throws IOException {
         if (values.length < 1 || values.length > 15) {
             // don't allow zero - why would we?

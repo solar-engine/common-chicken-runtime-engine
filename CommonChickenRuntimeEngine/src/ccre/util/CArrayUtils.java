@@ -159,6 +159,14 @@ public class CArrayUtils {
         }
     }
 
+    /**
+     * Sorts the given list. This is equivalent to dumping the list to an array,
+     * running Arrays.sort on it, and then putting the elements back into the
+     * list.
+     * 
+     * @param list the list to sort.
+     */
+    @SuppressWarnings("unchecked")
     public static <T extends Comparable<T>> void sort(CList<T> list) {
         Object[] elements = new Object[list.size()];
         if (list.fillArray(elements) != 0) {
@@ -168,7 +176,7 @@ public class CArrayUtils {
         if (list instanceof CLinkedList) {
             ((CLinkedList<T>) list).setAll(elements);
         } else {
-            for (int i=0; i<elements.length; i++) {
+            for (int i = 0; i < elements.length; i++) {
                 list.set(i, (T) elements[i]);
             }
         }
@@ -177,6 +185,11 @@ public class CArrayUtils {
         }
     }
 
+    /**
+     * Sorts the given array. Equivalent to Arrays.sort.
+     * 
+     * @param list the array to sort.
+     */
     public static <T extends Comparable<T>> void sort(T[] list) {
         Arrays.sort(list);
     }

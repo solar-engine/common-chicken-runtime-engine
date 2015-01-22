@@ -18,8 +18,23 @@
  */
 package ccre.drivers;
 
+/**
+ * A collection of useful byte-level fiddling utilities.
+ * 
+ * @author skeggsc
+ */
 public class ByteFiddling {
 
+    /**
+     * Find the first index of the byte b in the byte range, or -1 if it cannot
+     * be found in that range.
+     * 
+     * @param bytes the byte array.
+     * @param from the start of the range.
+     * @param to the end of the range.
+     * @param b the byte to look for.
+     * @return the index, or -1 if not found.
+     */
     public static int indexOf(byte[] bytes, int from, int to, byte b) {
         for (int i = from; i < to; i++) {
             if (bytes[i] == b) {
@@ -29,16 +44,38 @@ public class ByteFiddling {
         return -1;
     }
 
+    /**
+     * Extracts a subsequence of the bytes.
+     * 
+     * @param bytes the byte array to copy from.
+     * @param from the start of the range.
+     * @param to the end of the range.
+     * @return the bytes from the range.
+     */
     public static byte[] sub(byte[] bytes, int from, int to) {
         byte[] out = new byte[to - from];
         System.arraycopy(bytes, from, out, 0, to - from);
         return out;
     }
 
+    /**
+     * Parse the ASCII characters in the byte array into an integer.
+     * 
+     * @param bytes the characters to parse.
+     * @return the integer, or null if it cannot be parsed.
+     */
     public static Integer parseInt(byte[] bytes) {
         return parseInt(bytes, 0, bytes.length);
     }
 
+    /**
+     * Parse the ASCII characters in the byte section into an integer.
+     * 
+     * @param bytes the byte array to parse.
+     * @param from the start of the byte section.
+     * @param to the end of the byte section.
+     * @return the integer, or null if it cannot be parsed.
+     */
     public static Integer parseInt(byte[] bytes, int from, int to) {
         if (to <= from) {
             return null;
@@ -61,6 +98,13 @@ public class ByteFiddling {
         return neg ? -num : num;
     }
 
+    /**
+     * Counts the number of occurrences of the byte b in the byte array.
+     * 
+     * @param bytes the byte array to search.
+     * @param b the byte to look for.
+     * @return the number of instances of the byte.
+     */
     public static int count(byte[] bytes, byte b) {
         int count = 0;
         for (int i = 0; i < bytes.length; i++) {
@@ -71,6 +115,18 @@ public class ByteFiddling {
         return count;
     }
 
+    /**
+     * Split the byte section into multiple byte arrays with b as the delimiter.
+     * 
+     * Will always return 1 + n byte arrays, where n is the number of instances
+     * of the byte in the byte section.
+     * 
+     * @param bytes the byte array to search.
+     * @param from the start of the byte section.
+     * @param to the end of the byte section.
+     * @param b the byte to split on.
+     * @return the byte arrays.
+     */
     public static byte[][] split(byte[] bytes, int from, int to, byte b) {
         byte[][] out = new byte[count(bytes, b) + 1][];
         for (int i = 0; i < out.length; i++) {
@@ -81,6 +137,14 @@ public class ByteFiddling {
         return out;
     }
 
+    /**
+     * Checks if the byte array (interpreted as ASCII) is the same as the given
+     * string.
+     * 
+     * @param a the byte array to compare.
+     * @param b the string to compare.
+     * @return if the sequences contain the same character data.
+     */
     public static boolean streq(byte[] a, String b) {
         int len = a.length;
         if (len != b.length()) {
@@ -94,10 +158,24 @@ public class ByteFiddling {
         return true;
     }
 
+    /**
+     * Parse the ASCII characters in the byte array into a double.
+     * 
+     * @param bytes the byte array to parse.
+     * @return the double, or null if it cannot be parsed.
+     */
     public static Double parseDouble(byte[] bytes) {
         return parseDouble(bytes, 0, bytes.length);
     }
 
+    /**
+     * Parse the ASCII characters in the byte section into a double.
+     * 
+     * @param bytes the byte array to parse.
+     * @param from the start of the byte section.
+     * @param to the end of the byte section.
+     * @return the double, or null if it cannot be parsed.
+     */
     public static Double parseDouble(byte[] bytes, int from, int to) {
         try {
             return Double.parseDouble(parseASCII(bytes, from, to));
@@ -106,10 +184,24 @@ public class ByteFiddling {
         }
     }
 
+    /**
+     * Parse the ASCII characters in the byte array into a string.
+     * 
+     * @param bytes the byte array to parse.
+     * @return the string.
+     */
     public static String parseASCII(byte[] bytes) {
         return parseASCII(bytes, 0, bytes.length);
     }
 
+    /**
+     * Parse the ASCII characters in the byte section into a string.
+     * 
+     * @param bytes the byte array to parse.
+     * @param from the start of the byte section.
+     * @param to the end of the byte section.
+     * @return the string.
+     */
     public static String parseASCII(byte[] bytes, int from, int to) {
         char[] conv = new char[to - from];
         for (int i = from, j = 0; i < to; i++, j++) {
@@ -118,6 +210,14 @@ public class ByteFiddling {
         return new String(conv);
     }
 
+    /**
+     * Encode the byte section into a hexadecimal string.
+     * 
+     * @param bytes the byte array to encode.
+     * @param from the start of the byte section.
+     * @param to the end of the byte section.
+     * @return the hexadecimal version.
+     */
     public static String toHex(byte[] bytes, int from, int to) {
         char[] out = new char[2 * (to - from)];
         for (int i = from; i < to; i++) {

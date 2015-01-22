@@ -24,25 +24,44 @@ import java.nio.ByteBuffer;
 import java.util.Arrays;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.LinkedBlockingQueue;
 
 import ccre.channel.SerialIO;
+import ccre.drivers.ByteFiddling;
 
+/**
+ * An emulated serial port that simply sends all data back to itself.
+ * 
+ * @author skeggsc
+ */
 public class LoopbackSerialIO implements SerialIO {
-    
+
+    /**
+     * Create a new connection that reads and writes from the specified queues.
+     * 
+     * @param source the input for data to this port.
+     * @param target the output of data from this port.
+     */
     public LoopbackSerialIO(BlockingQueue<byte[]> source, BlockingQueue<byte[]> target) {
         this.source = source;
         this.target = target;
     }
 
+    /**
+     * Create a new connection that reads and writes from the specified queue.
+     * 
+     * @param data the queue for both reading and writing data.
+     */
     public LoopbackSerialIO(BlockingQueue<byte[]> data) {
         this.source = this.target = data;
     }
-    
+
+    /**
+     * Create a new loopback connection for serial messages.
+     */
     public LoopbackSerialIO() {
         this(new ArrayBlockingQueue<byte[]>(16));
     }
-    
+
     private Character termination = null;
     private final BlockingQueue<byte[]> source, target;
     private byte[] reading;
@@ -62,7 +81,7 @@ public class LoopbackSerialIO implements SerialIO {
     public byte[] readNonblocking(int max) throws IOException {
         return read(max, false);
     }
-    
+
     private synchronized byte[] read(int max, boolean canBlock) throws IOException {
         if (reading != null && readingIndex >= reading.length) {
             reading = null;
@@ -115,7 +134,7 @@ public class LoopbackSerialIO implements SerialIO {
     public void writeFully(byte[] bytes, int from, int to) throws IOException {
         write(bytes, from, to, false);
     }
-    
+
     private int write(byte[] bytes, int from, int to, boolean partial) throws IOException {
         if (closed) {
             throw new IOException("LoopbackSerialIO closed.");
@@ -147,7 +166,7 @@ public class LoopbackSerialIO implements SerialIO {
     public int writePartial(byte[] bytes, int from, int to) throws IOException {
         return write(bytes, from, to, true);
     }
-    
+
     public void close() throws IOException {
         flush();
         closed = true;

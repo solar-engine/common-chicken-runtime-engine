@@ -260,19 +260,16 @@ public class InternalUM7LT { // default rate: 115200 baud.
                     ((bin[from + 2 + 4 * i + 3] & 0xFF));
         }
         if (address + data_count - 1 >= DREG_BASE && address < DREG_LAST) {
-            synchronized (notify) {
-                int nextUpdateId = lastUpdateId + 1;
-                for (int i = 0; i < data_count; i++) {
-                    int regid = address + i - DREG_BASE;
-                    if (regid >= 0 && regid < DREG_LAST - DREG_BASE) {
-                        dregs[regid] = data[i];
-                        dregsUpdateAt[regid] = nextUpdateId;
-                    }
+            int nextUpdateId = lastUpdateId + 1;
+            for (int i = 0; i < data_count; i++) {
+                int regid = address + i - DREG_BASE;
+                if (regid >= 0 && regid < DREG_LAST - DREG_BASE) {
+                    dregs[regid] = data[i];
+                    dregsUpdateAt[regid] = nextUpdateId;
                 }
-                lastUpdateId = nextUpdateId;
-                lastUpdateTime = System.currentTimeMillis();
-                notify.notifyAll();
             }
+            lastUpdateId = nextUpdateId;
+            lastUpdateTime = System.currentTimeMillis();
             onUpdate.event();
         } else if (address == (byte) 0xAA) {
             Logger.info("UM7LT firmware revision: " + new String(new char[] { (char) ((data[0] >> 24) & 0xFF), (char) ((data[0] >> 16) & 0xFF), (char) ((data[0] >> 8) & 0xFF), (char) (data[0] & 0xFF) }));
@@ -391,18 +388,16 @@ public class InternalUM7LT { // default rate: 115200 baud.
         }
     }
 
-    private void handleNMEA(byte[] nmea, int from, int to) throws IOException {
+    private void handleNMEA(byte[] nmea, int from, int to) {
         Logger.finest("UM7LT NMEA received: " + ByteFiddling.parseASCII(nmea, from, to));
     }
 
-    private boolean parseBoolean(byte[] bs, int field) throws IOException {
-        Integer bl = ByteFiddling.parseInt(bs);
-        if (bl == null || (bl & ~1) != 0) {
-            throw new IOException("Malformed field # " + field + " of PCHRH.");
-        }
-        return bl != 0;
-    }
-
+    /**
+     * Dump serial data until the buffer is emptied, at least temporarily.
+     * 
+     * @throws IOException if a communication error occurs while dumping serial
+     * data.
+     */
     public void dumpSerialData() throws IOException {
         while (this.rs232.readNonblocking(1024).length > 0) {
             Logger.finest("dumping...");

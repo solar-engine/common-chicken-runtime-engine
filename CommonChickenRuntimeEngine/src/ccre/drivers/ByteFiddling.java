@@ -106,8 +106,21 @@ public class ByteFiddling {
      * @return the number of instances of the byte.
      */
     public static int count(byte[] bytes, byte b) {
+        return count(bytes, 0, bytes.length, b);
+    }
+
+    /**
+     * Counts the number of occurrences of the byte b in the byte section.
+     * 
+     * @param bytes the byte array to search.
+     * @param from the start of the byte section.
+     * @param to the end of the byte section.
+     * @param b the byte to look for.
+     * @return the number of instances of the byte.
+     */
+    public static int count(byte[] bytes, int from, int to, byte b) {
         int count = 0;
-        for (int i = 0; i < bytes.length; i++) {
+        for (int i = from; i < to; i++) {
             if (bytes[i] == b) {
                 count++;
             }
@@ -226,6 +239,6 @@ public class ByteFiddling {
         }
         return new String(out);
     }
-    
-    private static final char[] hex = new char[] {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'};
+
+    private static final char[] hex = new char[] { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F' };
 }

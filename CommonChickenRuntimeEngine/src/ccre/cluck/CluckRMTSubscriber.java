@@ -41,7 +41,8 @@ public abstract class CluckRMTSubscriber extends CluckSubscriber {
     }
 
     /**
-     * Create a new CluckRMTSubscriber attached to node with rmt as the RMT and a minimum length.
+     * Create a new CluckRMTSubscriber attached to node with rmt as the RMT and
+     * a minimum length.
      * 
      * @param node the node to attach to.
      * @param rmt the RMT number to handle.

@@ -393,7 +393,7 @@ public class DeviceBasedLauncher implements IgneousLauncher {
         } else {
             panel.add(new HeadingDevice(display + ": Disconnected"));
             Logger.warning("Unrecognized serial device name '" + deviceName + "' on " + display + " - not emulating anything.");
-            return new DisconnectedSerialIO(); 
+            return new DisconnectedSerialIO();
         }
     }
 }

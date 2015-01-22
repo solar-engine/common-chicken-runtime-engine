@@ -18,7 +18,6 @@
  */
 package java.io;
 
-
 /**
  * This a substitute for java.io.NotSerializableException for Squawk. Does
  * nothing useful whatsoever except stuff can compile.

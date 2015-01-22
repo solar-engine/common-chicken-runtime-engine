@@ -32,7 +32,8 @@ import ccre.igneous.IgneousApplication;
 import ccre.log.LogLevel;
 
 /**
- * A deployable robot used for Cluck autotesting. Works with the associated PoultryInspector component.
+ * A deployable robot used for Cluck autotesting. Works with the associated
+ * PoultryInspector component.
  * 
  * @author skeggsc
  */

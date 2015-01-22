@@ -84,7 +84,7 @@ public class BackportImpls {
     public static void java_util_Arrays_sort(Object[] o) {
         Arrays.sort(o, comparableComparer);
     }
-    
+
     private static final Comparer comparableComparer = new Comparer() {
         @SuppressWarnings("unchecked")
         public int compare(Object o1, Object o2) {

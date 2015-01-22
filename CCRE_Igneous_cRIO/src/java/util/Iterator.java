@@ -18,7 +18,6 @@
  */
 package java.util;
 
-
 /**
  * This a substitute for java.util.Iterator for Squawk. Does nothing useful
  * whatsoever except stuff can work.

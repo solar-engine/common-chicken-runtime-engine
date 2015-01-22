@@ -18,7 +18,6 @@
  */
 package java.io;
 
-
 /**
  * This is a not-really-implemented implementation of java.io.ObjectInputStream.
  * Don't use this. It is used when Retrotranslator downgrades the code to 1.3,

@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2014 Colby Skeggs
+ * Copyright 2013-2015 Colby Skeggs
  * 
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  * 
@@ -41,7 +41,7 @@ public class Beeper {
 
     static {
         for (BeepType bt : BeepType.values()) {
-            lookups.put(bt.name(), bt);
+            lookups.put(bt.name().toUpperCase(), bt);
         }
     }
 
@@ -69,13 +69,32 @@ public class Beeper {
         t.start();
     }
 
+    /**
+     * Test one of the Beep Types: ALARM, ANNOY, LOW, FASTALARM, SIREN, OOPS,
+     * AIMED, CORRAL.
+     * 
+     * The type should be passed as an argument.
+     * 
+     * @param args contains the beep type to play.
+     * @throws InterruptedException if the main thread gets interrupted while
+     * waiting for the effect to complete.
+     */
     public static void main(String[] args) throws InterruptedException {
-        beep(BeepType.LOW); //ALARM, ANNOY, LOW, FASTALARM, SIREN, OOPS, AIMED, CORRAL;
+        beep(args.length == 0 ? "corral" : args[0]); //ALARM, ANNOY, LOW, FASTALARM, SIREN, OOPS, AIMED, CORRAL;
         Thread.sleep(5000);
     }
 
+    /**
+     * Start playing the named beep type.
+     * 
+     * Possible types: ALARM, ANNOY, LOW, FASTALARM, SIREN, OOPS, AIMED, CORRAL.
+     * 
+     * If an invalid type is specified, play OOPS.
+     * 
+     * @param name the type of beep to play.
+     */
     public static void beep(String name) {
-        BeepType bt = lookups.get(name);
+        BeepType bt = lookups.get(name.toUpperCase());
         if (bt == null) {
             bt = BeepType.OOPS;
         }
@@ -85,36 +104,82 @@ public class Beeper {
         }
     }
 
+    /**
+     * Start playing the specified beep type.
+     * 
+     * @param bt the beep type to play.
+     * @see BeepType
+     */
     public static void beep(BeepType bt) {
         System.out.println("Beeping: " + bt);
         try {
             AudioFormat format = new AudioFormat(bt.rate(), 8, 1, false, true);
             SourceDataLine line = AudioSystem.getSourceDataLine(format);
-            line.open(format);
-            line.start();
-            long time = 0;
-            while (true) {
-                byte[] more = new byte[1024];
-                int i = 0;
-                try {
-                    for (; i < more.length; i++) {
-                        more[i] = bt.generateOne(time++);
+            try {
+                line.open(format);
+                line.start();
+                long time = 0;
+                while (true) {
+                    byte[] more = new byte[1024];
+                    int i = 0;
+                    try {
+                        for (; i < more.length; i++) {
+                            more[i] = bt.generateOne(time++);
+                        }
+                    } catch (CompletedException ex) {
+                        line.write(more, 0, i);
+                        break;
                     }
-                } catch (CompletedException ex) {
                     line.write(more, 0, i);
-                    break;
                 }
-                line.write(more, 0, i);
+                line.drain();
+            } finally {
+                line.close();
             }
-            line.drain();
         } catch (LineUnavailableException ex) {
             ex.printStackTrace();
         }
     }
 
+    /**
+     * The types of beeps that this generator can generate.
+     * 
+     * @author skeggsc
+     */
     public static enum BeepType {
 
-        ALARM, ANNOY, LOW, FASTALARM, SIREN, OOPS, AIMED, CORRAL;
+        /**
+         * Repetitive warning beeps.
+         */
+        ALARM,
+        /**
+         * A repetitive annoying sound.
+         */
+        ANNOY,
+        /**
+         * A sequence of ascending tones.
+         */
+        LOW,
+        /**
+         * A repeated fast alarm noise.
+         */
+        FASTALARM,
+        /**
+         * An approximate siren noise.
+         */
+        SIREN,
+        /**
+         * A high-pitched beep.
+         */
+        OOPS,
+        /**
+         * Two short beeps, like a lock-on effect.
+         */
+        AIMED,
+        /**
+         * A single beep, like a notification.
+         */
+        CORRAL;
 
         private byte generateOne(long l) throws CompletedException {
             long max;

@@ -101,11 +101,18 @@ public class LoopbackSerialIO implements SerialIO {
             }
         }
         byte[] out;
-        if (readingIndex == 0 && reading.length <= max) {
+        if (readingIndex == 0 && reading.length <= max && termination == null) {
             out = reading;
             reading = null;
         } else {
-            out = Arrays.copyOfRange(reading, readingIndex, Math.min(max, reading.length));
+            int actuallyReadable = reading.length;
+            if (termination != null) {
+                int pos = ByteFiddling.indexOf(reading, readingIndex, reading.length, (byte) termination.charValue());
+                if (pos != -1) {
+                    actuallyReadable = pos;
+                }
+            }
+            out = Arrays.copyOfRange(reading, readingIndex, Math.min(max, actuallyReadable));
             readingIndex += out.length;
         }
         return out;

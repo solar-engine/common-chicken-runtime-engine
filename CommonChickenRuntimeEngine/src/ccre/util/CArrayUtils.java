@@ -193,4 +193,13 @@ public class CArrayUtils {
     public static <T extends Comparable<T>> void sort(T[] list) {
         Arrays.sort(list);
     }
+
+    /**
+     * Sorts the given array. Equivalent to Arrays.sort.
+     * 
+     * @param list the array to sort.
+     */
+    public static void sort(Integer[] list) {
+        Arrays.sort(list);
+    }
 }

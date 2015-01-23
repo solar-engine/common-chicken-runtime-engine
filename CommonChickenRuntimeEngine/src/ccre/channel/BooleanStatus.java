@@ -21,6 +21,7 @@ package ccre.channel;
 import java.io.Serializable;
 
 import ccre.concurrency.ConcurrentDispatchArray;
+import ccre.ctrl.BooleanMixing;
 import ccre.util.CArrayUtils;
 
 /**
@@ -240,5 +241,45 @@ public class BooleanStatus implements BooleanOutput, BooleanInput, Serializable 
                 consumers = null;
             }
         }
+    }
+
+    /**
+     * Returns a version of this status as an output. This is equivalent to
+     * upcasting to BooleanOutput.
+     * 
+     * @return this status, as an output.
+     */
+    public BooleanOutput asOutput() {
+        return this;
+    }
+
+    /**
+     * Returns a version of this status as an input. This is equivalent to
+     * upcasting to BooleanInput.
+     * 
+     * @return this status, as an input.
+     */
+    public BooleanInput asInput() {
+        return this;
+    }
+
+    /**
+     * Returns an inverted version of this status as an output. This is
+     * equivalent to using BooleanMixing.invert.
+     * 
+     * @return this status, inverted, as an output.
+     */
+    public BooleanOutput asInvertedOutput() {
+        return BooleanMixing.invert((BooleanOutput) this);
+    }
+
+    /**
+     * Returns an inverted version of this status as an input. This is
+     * equivalent to using BooleanMixing.invert.
+     * 
+     * @return this status, inverted, as an input.
+     */
+    public BooleanInput asInvertedInput() {
+        return BooleanMixing.invert((BooleanInput) this);
     }
 }

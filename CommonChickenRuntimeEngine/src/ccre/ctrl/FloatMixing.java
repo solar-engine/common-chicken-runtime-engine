@@ -473,6 +473,36 @@ public class FloatMixing {
     }
 
     /**
+     * When check is fired, and shouldSet is true, set the output to value.
+     * 
+     * This is intended to be used with a frequent event as check, to
+     * effectively hold the output at a specific value.
+     * 
+     * @param check when to update the value.
+     * @param shouldSet whether or not the output should be held.
+     * @param output the output to hold.
+     * @param value the value to hold it at.
+     */
+    public static void setWhile(EventInput check, BooleanInputPoll shouldSet, FloatOutput output, float value) {
+        setWhen(EventMixing.filterEvent(shouldSet, true, check), output, value);
+    }
+
+    /**
+     * When check is fired, and shouldSet is false, set the output to value.
+     * 
+     * This is intended to be used with a frequent event as check, to
+     * effectively hold the output at a specific value.
+     * 
+     * @param check when to update the value.
+     * @param shouldSet whether or not the output should NOT be held.
+     * @param output the output to hold.
+     * @param value the value to hold it at.
+     */
+    public static void setWhileNot(EventInput check, BooleanInputPoll shouldSet, FloatOutput output, float value) {
+        setWhen(EventMixing.filterEvent(shouldSet, false, check), output, value);
+    }
+
+    /**
      * Return a Filter that applies the specified-size deadzone as defined in
      * Utils.deadzone.
      *

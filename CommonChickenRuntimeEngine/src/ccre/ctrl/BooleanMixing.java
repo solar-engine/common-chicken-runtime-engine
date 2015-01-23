@@ -496,6 +496,61 @@ public class BooleanMixing {
         when.send(getSetEvent(out, value));
     }
 
+    /**
+     * When check is fired, and shouldSet is true, set the output to value.
+     * 
+     * This is intended to be used with a frequent event as check, to
+     * effectively hold the output at a specific value.
+     * 
+     * @param check when to update the value.
+     * @param shouldSet whether or not the output should be held.
+     * @param output the output to hold.
+     * @param value the value to hold it at.
+     */
+    public static void setWhile(EventInput check, BooleanInputPoll shouldSet, BooleanOutput output, boolean value) {
+        setWhen(EventMixing.filterEvent(shouldSet, true, check), output, value);
+    }
+
+    /**
+     * When check is fired, and shouldSet is false, set the output to value.
+     * 
+     * This is intended to be used with a frequent event as check, to
+     * effectively hold the output at a specific value.
+     * 
+     * @param check when to update the value.
+     * @param shouldSet whether or not the output should NOT be held.
+     * @param output the output to hold.
+     * @param value the value to hold it at.
+     */
+    public static void setWhileNot(EventInput check, BooleanInputPoll shouldSet, BooleanOutput output, boolean value) {
+        setWhen(EventMixing.filterEvent(shouldSet, false, check), output, value);
+    }
+
+    /**
+     * Each time the returned output is fired, the output will be set to an
+     * alternating value.
+     * 
+     * NOTE: This in no way reads the current state of the output! It just keeps
+     * track internally. Using it in conjunction with anything else to modify
+     * the output is likely to not work properly.
+     * 
+     * The first time the event is fired, the output will be set to true. The
+     * second time, false. The third time, true. Etcetera.
+     * 
+     * @param out the output to modify.
+     * @return when to toggle the output.
+     */
+    public static EventOutput toggleEvent(final BooleanOutput out) {
+        return new EventOutput() {
+            private boolean value = false;
+
+            public void event() {
+                value = !value;
+                out.set(value);
+            }
+        };
+    }
+
     private BooleanMixing() {
     }
 }

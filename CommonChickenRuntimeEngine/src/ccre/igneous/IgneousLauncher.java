@@ -87,6 +87,14 @@ public interface IgneousLauncher {
     public ExtendedMotor makeCANJaguar(int deviceNumber);
 
     /**
+     * Create a reference to a CAN Talon.
+     * 
+     * @param deviceNumber the Talon's CAN device number.
+     * @return the ExtendedMotor for the Talon.
+     */
+    public ExtendedMotor makeCANTalon(int deviceNumber);
+
+    /**
      * Create a reference to a solenoid on the specified port.
      *
      * @param id the port of the solenoid.

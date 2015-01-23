@@ -223,6 +223,25 @@ public class Igneous {
     }
 
     /**
+     * **** WARNING ****: THIS API IS NOT YET FINALIZED. Future changes may
+     * break your code!
+     * 
+     * Create a reference to a CAN Talon speed controller with the specified CAN
+     * device number. This may, of course, fail, if the Talon cannot be found.
+     * 
+     * This is not supported on the cRIO!
+     * 
+     * @param deviceNumber the device number to connect to.
+     * @return the ExtendedMotor representing this output.
+     * @throws ExtendedMotorFailureException if the CAN Talon cannot be
+     * allocated for whatever reason.
+     */
+    public static ExtendedMotor makeCANTalon(int deviceNumber) throws ExtendedMotorFailureException {
+        Logger.warning("The CCRE CAN functionality is NOT yet complete and is UNTESTED! Use with your own risk.");
+        return launcher.makeCANTalon(deviceNumber);
+    }
+
+    /**
      * Create a reference to a solenoid on the specified port.
      *
      * @param id the port of the solenoid.

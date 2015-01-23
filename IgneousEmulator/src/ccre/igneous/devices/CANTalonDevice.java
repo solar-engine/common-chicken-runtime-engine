@@ -30,12 +30,12 @@ import ccre.igneous.DeviceGroup;
 import ccre.igneous.DeviceListPanel;
 
 /**
- * A virtual CANJaguar, which will contain any statuses, diagnostics, or outputs
+ * A virtual CANTalon, which will contain any statuses, diagnostics, or outputs
  * requested by the application.
  * 
  * @author skeggsc
  */
-public class CANJaguarDevice extends DeviceGroup {
+public class CANTalonDevice extends DeviceGroup {
 
     private BooleanViewDevice enabled;
     private final HashMap<ExtendedMotor.StatusType, FloatControlDevice> statusDevices = new HashMap<ExtendedMotor.StatusType, FloatControlDevice>();
@@ -46,22 +46,22 @@ public class CANJaguarDevice extends DeviceGroup {
     private boolean wasAddedToMaster = false;
 
     /**
-     * Creates a new CANJaguarDevice described as name with a specified
+     * Creates a new CANTalonDevice described as name with a specified
      * DeviceListPanel to contain this device.
      * 
      * Make sure to call addToMaster - don't add this directly.
      * 
-     * @param name how to describe the CANJaguarDevice.
+     * @param name how to describe the CANTalonDevice.
      * @param master the panel that contains this.
      * @see #addToMaster()
      */
-    public CANJaguarDevice(String name, DeviceListPanel master) {
+    public CANTalonDevice(String name, DeviceListPanel master) {
         add(new HeadingDevice(name));
         this.master = master;
     }
 
     /**
-     * Creates a new CANJaguarDevice described as a CAN Jaguar of the given ID
+     * Creates a new CANTalonDevice described as a CAN Talon of the given ID
      * with a specified DeviceListPanel to contain this device.
      * 
      * Make sure to call addToMaster - don't add this directly.
@@ -70,17 +70,17 @@ public class CANJaguarDevice extends DeviceGroup {
      * @param master the panel that contains this.
      * @see #addToMaster()
      */
-    public CANJaguarDevice(int id, DeviceListPanel master) {
-        this("CAN Jaguar " + id, master);
+    public CANTalonDevice(int id, DeviceListPanel master) {
+        this("CAN Talon " + id, master);
     }
 
     /**
      * Add this device to its master panel, or do nothing if this has already
      * been done.
      * 
-     * @return this CANJaguarDevice, for method chaining purposes.
+     * @return this CANTalonDevice, for method chaining purposes.
      */
-    public synchronized CANJaguarDevice addToMaster() {
+    public synchronized CANTalonDevice addToMaster() {
         if (!wasAddedToMaster) {
             wasAddedToMaster = true;
             master.add(this);
@@ -91,7 +91,7 @@ public class CANJaguarDevice extends DeviceGroup {
     /**
      * Gets the ExtendedMotor interface to pass to the emulated program.
      * 
-     * @return the ExtendedMotor of this CANJaguar.
+     * @return the ExtendedMotor of this CANTalon.
      */
     public ExtendedMotor getMotor() {
         return value;
@@ -136,16 +136,10 @@ public class CANJaguarDevice extends DeviceGroup {
 
         public Object getDiagnostics(DiagnosticType type) {
             switch (type) {
-            case ANY_FAULT:
             case BUS_VOLTAGE_FAULT:
-            case CURRENT_FAULT:
-            case GATE_DRIVER_FAULT:
+            case ANY_FAULT:
             case TEMPERATURE_FAULT:
                 return getDiagnosticChannel(type).get();
-            case GENERIC_FAULT_MASK:
-            case CAN_JAGUAR_FAULTS:
-                return (getDiagnosticChannel(DiagnosticType.CURRENT_FAULT).get() ? 1 : 0) | (getDiagnosticChannel(DiagnosticType.TEMPERATURE_FAULT).get() ? 2 : 0) |
-                        (getDiagnosticChannel(DiagnosticType.BUS_VOLTAGE_FAULT).get() ? 4 : 0) | (getDiagnosticChannel(DiagnosticType.GATE_DRIVER_FAULT).get() ? 8 : 0);
             default:
                 return null;
             }

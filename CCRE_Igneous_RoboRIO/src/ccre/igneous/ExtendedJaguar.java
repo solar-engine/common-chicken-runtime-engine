@@ -101,7 +101,7 @@ public class ExtendedJaguar extends ExtendedMotor implements FloatOutput {
     public FloatOutput asMode(OutputControlMode mode) throws ExtendedMotorFailureException {
         try {
             switch (mode) {
-            case CURRENT_FIXED_PID:
+            case CURRENT_FIXED:
                 jaguar.setCurrentMode(1, 0, 0);
                 return this;
             case VOLTAGE_FIXED:
@@ -178,6 +178,8 @@ public class ExtendedJaguar extends ExtendedMotor implements FloatOutput {
                 return (jaguar.getFaults() & CANJaguar.kGateDriverFault) != 0;
             case TEMPERATURE_FAULT:
                 return (jaguar.getFaults() & CANJaguar.kTemperatureFault) != 0;
+            case ANY_FAULT:
+                return jaguar.getFaults() != 0;
             default:
                 return null;
             }

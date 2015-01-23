@@ -519,6 +519,10 @@ final class IgneousLauncherImpl extends IterativeRobot implements IgneousLaunche
         return new ExtendedJaguar(deviceNumber);
     }
 
+    public ExtendedMotor makeCANTalon(int deviceNumber) {
+        throw new RuntimeException("CAN Talons not supported on the cRIO!");
+    }
+
     public EventInput getGlobalPeriodic() {
         return globalPeriodic;
     }

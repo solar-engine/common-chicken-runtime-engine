@@ -23,63 +23,67 @@ import ccre.channel.FloatInputPoll;
 import ccre.channel.FloatOutput;
 import ccre.ctrl.ExtendedMotor;
 import ccre.ctrl.ExtendedMotorFailureException;
-import edu.wpi.first.wpilibj.CANJaguar;
+import edu.wpi.first.wpilibj.CANTalon;
 
 /**
- * A CANJaguar ExtendedMotor interface for the cRIO.
+ * A CANTalon ExtendedMotor interface for the roboRIO.
  * 
  * @author skeggsc
  */
-public class ExtendedJaguar extends ExtendedMotor implements FloatOutput {
+public class ExtendedTalon extends ExtendedMotor implements FloatOutput {
 
-    private final CANJaguar jaguar;
+    private final CANTalon talon;
     private Boolean enableMode = null; // null until something cares. This means that it's not enabled, but could be automatically.
 
     /**
-     * Allocate a CANJaguar given the CAN bus ID.
+     * Allocate a CANTalon given the CAN bus ID.
      * 
      * @param deviceNumber the CAN bus ID.
-     * @throws ExtendedMotorFailureException if the CAN Jaguar cannot be
+     * @throws ExtendedMotorFailureException if the CAN Talon cannot be
      * allocated.
      */
-    public ExtendedJaguar(int deviceNumber) throws ExtendedMotorFailureException {
+    public ExtendedTalon(int deviceNumber) throws ExtendedMotorFailureException {
         try {
-            jaguar = new CANJaguar(deviceNumber);
-            jaguar.changeControlMode(CANJaguar.ControlMode.kPercentVbus);
-        } catch (Exception e) {
-            throw new ExtendedMotorFailureException("WPILib CANJaguar Failure: Create", e);
+            talon = new CANTalon(deviceNumber);
+            talon.changeControlMode(CANTalon.ControlMode.PercentVbus);
+        } catch (RuntimeException ex) {
+            throw new ExtendedMotorFailureException("WPILib CANTalon Failure: Create", ex);
         }
     }
 
+    @Override
     public void set(float value) throws ExtendedMotorFailureException {
         if (enableMode == null) {
             enable();
         }
         try {
-            jaguar.setX(value);
-        } catch (Exception ex) {
-            throw new ExtendedMotorFailureException("WPILib CANJaguar Failure: Set", ex);
+            talon.set(value);
+        } catch (RuntimeException ex) {
+            throw new ExtendedMotorFailureException("WPILib CANTalon Failure: Set", ex);
         }
     }
 
+    @Override
     public void enable() throws ExtendedMotorFailureException {
         try {
-            jaguar.enableControl();
-        } catch (Exception ex) {
-            throw new ExtendedMotorFailureException("WPILib CANJaguar Failure: Enable", ex);
+            talon.enableControl();
+        } catch (RuntimeException ex) {
+            throw new ExtendedMotorFailureException("WPILib CANTalon Failure: Enable", ex);
         }
         enableMode = true;
     }
 
+    @Override
     public void disable() throws ExtendedMotorFailureException {
         try {
-            jaguar.disableControl();
-        } catch (Exception ex) {
-            throw new ExtendedMotorFailureException("WPILib CANJaguar Failure: Disable", ex);
+            talon.disableControl();
+        } catch (RuntimeException ex) {
+            throw new ExtendedMotorFailureException("WPILib CANTalon Failure: Disable", ex);
         }
         enableMode = false;
     }
 
+    @Override
     public BooleanOutput asEnable() throws ExtendedMotorFailureException {
         return new BooleanOutput() {
             public void set(boolean value) {
@@ -98,32 +102,35 @@ public class ExtendedJaguar extends ExtendedMotor implements FloatOutput {
         try {
             switch (mode) {
             case CURRENT_FIXED:
-                jaguar.changeControlMode(CANJaguar.ControlMode.kCurrent);
+                talon.changeControlMode(CANTalon.ControlMode.Current);
                 return this;
             case VOLTAGE_FIXED:
-                jaguar.changeControlMode(CANJaguar.ControlMode.kVoltage);
+                talon.changeControlMode(CANTalon.ControlMode.Voltage);
                 return this;
             case GENERIC_FRACTIONAL:
             case VOLTAGE_FRACTIONAL:
-                jaguar.changeControlMode(CANJaguar.ControlMode.kVoltage);
+                talon.changeControlMode(CANTalon.ControlMode.PercentVbus);
                 return this;
+                // TODO: Support more modes.
             default:
                 return null;
             }
-        } catch (Exception ex) {
-            throw new ExtendedMotorFailureException("WPILib CANJaguar Failure: Set Mode", ex);
+        } catch (RuntimeException ex) {
+            throw new ExtendedMotorFailureException("WPILib CANTalon Failure: Set Mode", ex);
         }
     }
 
+    @Override
     public boolean hasInternalPID() {
         return true;
     }
 
+    @Override
     public void setInternalPID(float P, float I, float D) throws ExtendedMotorFailureException {
         try {
-            jaguar.setPID(P, I, D);
-        } catch (Exception ex) {
-            throw new ExtendedMotorFailureException("WPILib CANJaguar Failure: Set PID", ex);
+            talon.setPID(P, I, D);
+        } catch (RuntimeException ex) {
+            throw new ExtendedMotorFailureException("WPILib CANTalon Failure: Set PID", ex);
         }
     }
 
@@ -138,16 +145,17 @@ public class ExtendedJaguar extends ExtendedMotor implements FloatOutput {
                     try {
                         switch (type) {
                         case BUS_VOLTAGE:
-                            return (float) jaguar.getBusVoltage();
+                            return (float) talon.getBusVoltage();
                         case OUTPUT_VOLTAGE:
-                            return (float) jaguar.getOutputVoltage();
+                            return (float) talon.getOutputVoltage();
                         case OUTPUT_CURRENT:
-                            return (float) jaguar.getOutputCurrent();
+                            return (float) talon.getOutputCurrent();
                         case TEMPERATURE:
-                            return (float) jaguar.getTemperature();
+                            return (float) talon.getTemp();
+                        // TODO: Provide the rest of the options.
                         }
-                    } catch (Exception ex) {
-                        throw new ExtendedMotorFailureException("WPILib CANJaguar Failure: Status", ex);
+                    } catch (RuntimeException ex) {
+                        throw new ExtendedMotorFailureException("WPILib CANTalon Failure: Status", ex);
                     }
                     throw new ExtendedMotorFailureException("Invalid internal asStatus setting: " + type);
                 }
@@ -157,26 +165,20 @@ public class ExtendedJaguar extends ExtendedMotor implements FloatOutput {
         }
     }
 
+    @Override
     public Object getDiagnostics(ExtendedMotor.DiagnosticType type) {
         try {
             switch (type) {
-            case CAN_JAGUAR_FAULTS:
-            case GENERIC_FAULT_MASK:
-                return (long) jaguar.getFaults();
-            case BUS_VOLTAGE_FAULT:
-                return (jaguar.getFaults() & CANJaguar.Faults.kBusVoltageFault.value) != 0;
-            case CURRENT_FAULT:
-                return (jaguar.getFaults() & CANJaguar.Faults.kCurrentFault.value) != 0;
-            case GATE_DRIVER_FAULT:
-                return (jaguar.getFaults() & CANJaguar.Faults.kGateDriverFault.value) != 0;
-            case TEMPERATURE_FAULT:
-                return (jaguar.getFaults() & CANJaguar.Faults.kTemperatureFault.value) != 0;
             case ANY_FAULT:
-                return jaguar.getFaults() != 0;
+                return talon.getFaultHardwareFailure() != 0 || talon.getFaultOverTemp() != 0 || talon.getFaultUnderVoltage() != 0;
+            case BUS_VOLTAGE_FAULT:
+                return talon.getFaultUnderVoltage() != 0;
+            case TEMPERATURE_FAULT:
+                return talon.getFaultOverTemp() != 0;
             default:
                 return null;
             }
-        } catch (Exception ex) {
+        } catch (RuntimeException ex) {
             return null;
         }
     }

@@ -354,6 +354,10 @@ public final class RawIOIgneousLauncherImpl extends RobotBase implements Igneous
         return new ExtendedJaguar(deviceNumber);
     }
 
+    public ExtendedMotor makeCANTalon(int deviceNumber) throws ExtendedMotorFailureException {
+        return new ExtendedTalon(deviceNumber);
+    }
+
     public EventInput getGlobalPeriodic() {
         return globalPeriodic;
     }

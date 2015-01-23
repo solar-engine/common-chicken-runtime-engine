@@ -64,6 +64,10 @@ public abstract class ExtendedMotor {
 
         // Boolean-based:
         /**
+         * If any fault is occurring.
+         */
+        ANY_FAULT(true),
+        /**
          * A boolean fault based on current.
          */
         CURRENT_FAULT(true),
@@ -114,10 +118,10 @@ public abstract class ExtendedMotor {
          */
         VOLTAGE_FIXED,
         /**
-         * A current-based fixed output, with PID settings required. This takes
-         * a current to attempt to produce. This will require tuning PID values.
+         * A current-based fixed output. This takes a current to attempt to
+         * produce.
          */
-        CURRENT_FIXED_PID
+        CURRENT_FIXED
     }
 
     /**
@@ -139,7 +143,7 @@ public abstract class ExtendedMotor {
          */
         OUTPUT_CURRENT,
         /**
-         * Provides the present controller temperature.
+         * Provides the present controller temperature, in degrees Celsius.
          */
         TEMPERATURE
     }

@@ -36,6 +36,7 @@ import ccre.ctrl.Ticker;
 import ccre.igneous.devices.BooleanControlDevice;
 import ccre.igneous.devices.BooleanViewDevice;
 import ccre.igneous.devices.CANJaguarDevice;
+import ccre.igneous.devices.CANTalonDevice;
 import ccre.igneous.devices.DSLCDDevice;
 import ccre.igneous.devices.FloatControlDevice;
 import ccre.igneous.devices.FloatViewDevice;
@@ -143,6 +144,13 @@ public class DeviceBasedLauncher implements IgneousLauncher {
 
     public ExtendedMotor makeCANJaguar(int deviceNumber) throws ExtendedMotorFailureException {
         return new CANJaguarDevice(deviceNumber, panel).addToMaster().getMotor();
+    }
+
+    public ExtendedMotor makeCANTalon(int deviceNumber) throws ExtendedMotorFailureException {
+        if (!isRoboRIO()) {
+            throw new IllegalArgumentException("Cannot use a CANTalon on a cRIO!");
+        }
+        return new CANTalonDevice(deviceNumber, panel).addToMaster().getMotor();
     }
 
     private BooleanOutput[] solenoids;

@@ -68,7 +68,6 @@ import edu.wpi.first.wpilibj.communication.FRCNetworkCommunicationsLibrary;
  * @see IgneousLauncher
  * @author skeggsc
  */
-// Note that this class uses STATIC variables in some cases! Don't instantiate it yourself.
 public final class RawIOIgneousLauncherImpl extends RobotBase implements IgneousLauncher {
 
     private static final EventStatus globalPeriodic = new EventStatus();

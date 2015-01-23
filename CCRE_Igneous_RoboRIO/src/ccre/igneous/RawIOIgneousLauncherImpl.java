@@ -230,7 +230,9 @@ public final class RawIOIgneousLauncherImpl extends RobotBase implements Igneous
         if (name == null) {
             throw new RuntimeException("Could not find MANIFEST-specified launchee!");
         }
+        Logger.info("Starting application: " + name);
         ((IgneousApplication) Class.forName(name).newInstance()).setupRobot();
+        Logger.info("Hello, " + name + "!");
     }
 
     public IJoystick getKinectJoystick(boolean isRightStick) {

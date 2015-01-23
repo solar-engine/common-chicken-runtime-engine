@@ -66,7 +66,6 @@ public class DeviceListMain {
         JarFile igneousJar = new JarFile(jarFile);
         String mainClass;
         try {
-            System.out.println("Here: " + new HashMap<Object, Object>(igneousJar.getManifest().getMainAttributes()));
             mainClass = igneousJar.getManifest().getMainAttributes().getValue("Igneous-Main");
         } finally {
             igneousJar.close();
@@ -95,7 +94,9 @@ public class DeviceListMain {
         Cluck.setupServer();
         new CluckTCPServer(Cluck.getNode(), 1540).start();
         try {
+            Logger.info("Starting application: " + mainClass);
             asSubclass.getConstructor().newInstance().setupRobot();
+            Logger.info("Hello, " + mainClass + "!");
             launcher.panel.start();
         } catch (Throwable thr) {
             launcher.panel.setErrorDisplay(thr);

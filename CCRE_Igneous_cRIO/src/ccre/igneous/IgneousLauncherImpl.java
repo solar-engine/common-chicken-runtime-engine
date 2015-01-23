@@ -155,7 +155,9 @@ final class IgneousLauncherImpl extends IterativeRobot implements IgneousLaunche
         if (name == null) {
             throw new RuntimeException("Could not find MANIFEST-specified launchee!");
         }
+        Logger.info("Starting application: " + name);
         ((IgneousApplication) Class.forName(name).newInstance()).setupRobot();
+        Logger.info("Hello, " + name + "!");
     }
 
     public void autonomousInit() {

@@ -180,7 +180,7 @@ public class DeviceBasedLauncher implements IgneousLauncher {
     public FloatInputPoll makeAnalogInput(int id) {
         int index = checkRange("Analog Input", id, analogInputs);
         if (analogInputs[index] == null) {
-            analogInputs[index] = FloatMixing.multiplication.of(2.5f, FloatMixing.addition.of(1, panel.add(new FloatControlDevice("Analog Input " + id))));
+            analogInputs[index] = panel.add(new FloatControlDevice("Analog Input " + id, 0.0f, 5.0f, 1.0f, 0.0f));
         }
         return analogInputs[index];
     }
@@ -269,7 +269,7 @@ public class DeviceBasedLauncher implements IgneousLauncher {
 
     public FloatInputPoll getBatteryVoltage() {
         if (batteryLevel == null) {
-            batteryLevel = FloatMixing.addition.of(9.5f, FloatMixing.multiplication.of(3, panel.add(new FloatControlDevice("Battery Level (6.5V-12.5V)"))));
+            batteryLevel = panel.add(new FloatControlDevice("Battery Level (6.5V-12.5V)", 6.5f, 12.5f, 9.5f, 6.5f));
         }
         return batteryLevel;
     }
@@ -359,7 +359,7 @@ public class DeviceBasedLauncher implements IgneousLauncher {
     }
 
     private FloatInputPoll getAmperage(String label) {
-        return FloatMixing.multiplication.of(10, FloatMixing.addition.of(1.0f, panel.add(new FloatControlDevice(label + " Current (0A-20A)"))));
+        return panel.add(new FloatControlDevice(label + " Current (0A-20A)", 0, 20, 0.5f, 0.0f));
     }
 
     public FloatInputPoll getPDPChannelCurrent(int channel) {
@@ -367,7 +367,7 @@ public class DeviceBasedLauncher implements IgneousLauncher {
     }
 
     public FloatInputPoll getPDPVoltage() {
-        return FloatMixing.addition.of(9.5f, FloatMixing.multiplication.of(3, panel.add(new FloatControlDevice("PDP Voltage (6.5V-12.5V)"))));
+        return panel.add(new FloatControlDevice("PDP Voltage (6.5V-12.5V)", 6.5f, 12.5f, 9.5f, 6.5f));
     }
 
     public boolean isRoboRIO() {

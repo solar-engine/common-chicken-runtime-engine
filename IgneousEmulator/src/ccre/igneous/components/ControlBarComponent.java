@@ -39,6 +39,22 @@ public class ControlBarComponent extends DeviceComponent implements FloatInput {
     private boolean dragging = false;
     private int maxWidth = 0; // zero means no maximum
     private final ConcurrentDispatchArray<FloatOutput> listeners = new ConcurrentDispatchArray<FloatOutput>();
+    private final float min, max, originValue;
+
+    /**
+     * Create a ControlBarComponent with a certain minimum and maximum.
+     * 
+     * @param min the value at the far left.
+     * @param max the value at the far right.
+     * @param defaultValue the default value.
+     * @param originValue the origin value.
+     */
+    public ControlBarComponent(float min, float max, float defaultValue, float originValue) {
+        this.max = max;
+        this.min = min;
+        this.value = defaultValue;
+        this.originValue = originValue;
+    }
 
     @Override
     public int render(Graphics2D g, int width, int height, FontMetrics fontMetrics, int mouseX, int mouseY, int lastShift) {
@@ -52,11 +68,11 @@ public class ControlBarComponent extends DeviceComponent implements FloatInput {
             endX = startX + maxWidth;
         }
         int barHeight = endY - startY;
-        int originX = startX + barWidth / 2;
+        int originX = Math.round(startX + barWidth * (originValue - min) / (max - min));
         g.setColor(Color.WHITE);
         g.drawRect(startX - 1, startY - 1, barWidth + 1, barHeight + 1);
         g.setColor(Color.RED);
-        int actualLimitX = Math.round((barWidth / 2) * Math.min(1, Math.max(-1, value)));
+        int actualLimitX = Math.round(startX + barWidth * (value - min) / (max - min)) - originX;
         if (actualLimitX < 0) {
             g.fillRect(originX + actualLimitX, startY, -actualLimitX, barHeight);
         } else {
@@ -86,7 +102,10 @@ public class ControlBarComponent extends DeviceComponent implements FloatInput {
     public void onMouseMove(int x, int y) {
         if (dragging) {
             Rectangle rect = hitzone.getBounds();
-            value = Math.min(1, Math.max(-1, 2 * ((x - rect.x) / (float) rect.width - 0.5f)));
+            // value == ((x - startX) / barWidth) * (max - min) + min
+            // (value - min) / (max - min) == (x - startX) / barWidth
+            // startX + barWidth * (value - min) / (max - min) == x
+            value = Math.min(1, Math.max(0, ((x - rect.x) / (float) rect.width))) * (max - min) + min;
             repaint();
             for (FloatOutput o : listeners) {
                 o.set(value);

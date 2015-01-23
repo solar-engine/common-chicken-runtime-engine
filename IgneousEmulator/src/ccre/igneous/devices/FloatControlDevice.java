@@ -32,7 +32,7 @@ import ccre.igneous.components.TextComponent;
  */
 public class FloatControlDevice extends Device implements FloatInput {
 
-    private final ControlBarComponent value = new ControlBarComponent().setMaxWidth(200);
+    private final ControlBarComponent value;
 
     /**
      * Create a new FloatControlComponent with a label to describe this device.
@@ -40,9 +40,23 @@ public class FloatControlDevice extends Device implements FloatInput {
      * @param label how to describe this device.
      */
     public FloatControlDevice(String label) {
+        this(label, -1.0f, 1.0f, 0.0f, 0.0f);
+    }
+
+    /**
+     * Create a new FloatControlComponent with a label to describe this device
+     * and specified minima, maxima, default, and origin.
+     * 
+     * @param label how to describe this device.
+     * @param min the minimum value (at the left of the slider)
+     * @param max the maximum value (at the right of the slider)
+     * @param defaultValue the default value
+     * @param originValue the origin point
+     */
+    public FloatControlDevice(String label, float min, float max, float defaultValue, float originValue) {
         add(new SpacingComponent(20));
         add(new TextComponent(label));
-        add(value);
+        add(value = new ControlBarComponent(min, max, defaultValue, originValue).setMaxWidth(200));
     }
 
     public float get() {

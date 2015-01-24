@@ -21,35 +21,39 @@
  */
  -->
 
-<project name="Example" default="run-tests" xmlns:jacoco="antlib:org.jacoco.ant">
+<project name="Example" default="run-tests">
+	<!-- You must first extract Cobertura-2.0.3 so that the Cobertura-2.0.3 directory shows up in the repository root -->
 
-	<taskdef uri="antlib:org.jacoco.ant" resource="org/jacoco/ant/antlib.xml">
-		<classpath path="../JaCoCo-0.7.3/jacocoant.jar" />
-	</taskdef>
+	<property name="cobertura.dir"
+	          value="${basedir}${file.separator}..${file.separator}Cobertura-2.0.3" />
+	<path id="cobertura.classpath">
+		<fileset dir="${cobertura.dir}">
+			<include name="cobertura-2.0.3.jar" />
+			<include name="lib${file.separator}**${file.separator}*.jar" />
+		</fileset>
+	</path>
+	<taskdef classpathref="cobertura.classpath" resource="tasks.properties" />
+
+	<property name="instrumented.dir" value="cobertura-instrumented" />
 
 	<target name="run-tests">
-		<delete dir="coverage-report" />
-		<delete file="jacoco.exec" />
-		<jacoco:coverage>
-			<java classname="ccre.testing.SuiteOfTests" fork="true">
-				<classpath>
-					<pathelement location="./bin" />
-				</classpath>
-			</java>
-		</jacoco:coverage>
-		<jacoco:report>
-			<executiondata>
-				<file file="jacoco.exec" />
-			</executiondata>
-			<structure name="CCRE Core">
-				<classfiles>
-					<fileset dir="bin" />
-				</classfiles>
-				<sourcefiles encoding="UTF-8">
-					<fileset dir="src" />
-				</sourcefiles>
-			</structure>
-			<html destdir="coverage-report" />
-		</jacoco:report>
+		<delete file="cobertura.ser" />
+		<delete dir="${instrumented.dir}" />
+		<cobertura-instrument todir="${instrumented.dir}">
+			<fileset dir="bin">
+				<include name="**/*.class" />
+				<exclude name="ccre/testing/*.class" />
+			</fileset>
+		</cobertura-instrument>
+		<java classname="ccre.testing.SuiteOfTests" fork="true">
+			<sysproperty key="net.sourceforge.cobertura.datafile"
+			             file="${basedir}/cobertura.ser" />
+			<classpath>
+				<pathelement location="${instrumented.dir}" />
+				<pathelement location="./bin" />
+				<path refid="cobertura.classpath" />
+			</classpath>
+		</java>
+		<cobertura-report format="html" destdir="coverage" srcdir="src" />
 	</target>
 </project>

@@ -37,12 +37,13 @@ public class TestReporterThread extends BaseTest {
         final boolean[] wr = new boolean[1];
         ReporterThread tr = new TestThread("TestRT", wr);
         assertFalse(wr[0], "Expected no execution of the subthread!");
+        boolean hadException = false;
         try {
             tr.run();
-            assertFail("Should have thrown an exception!");
         } catch (IllegalStateException e) {
-            // Correct!
+            hadException = true;
         }
+        assertTrue(hadException, "Should have thrown an exception!");
         assertFalse(wr[0], "Expected no execution of the subthread!");
         assertTrue(tr.getName().startsWith("TestRT-"), "Expected the name to start with the specified prefix!");
         tr.start();
@@ -53,7 +54,7 @@ public class TestReporterThread extends BaseTest {
 
     private class TestThread extends ReporterThread {
 
-        private final boolean[] wr;
+        private boolean[] wr;
 
         TestThread(String name, boolean[] wr) {
             super(name);
@@ -62,16 +63,14 @@ public class TestReporterThread extends BaseTest {
 
         @Override
         protected void threadBody() throws Throwable {
-            if (wr[0]) {
-                throw new IllegalStateException("Should not be ran multiple times!");
-            }
             wr[0] = true;
+            boolean hadException = false;
             try {
                 this.run();
-                throw new RuntimeException("Self-run should have thrown an Exception!");
             } catch (IllegalStateException e) {
-                // Correct!
+                hadException = true;
             }
+            assertTrue(hadException, "Self-run should have thrown an Exception!");
         }
     }
 }

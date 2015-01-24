@@ -48,18 +48,23 @@ public abstract class BaseTestList extends BaseTest {
         assertIntsEqual(a.size(), 1, "Bad size!");
         // add, indexed
         a.add(0, "Beta");
+        
+        boolean exception = false;
         try {
             a.add(-1, "Test");
-            assertFail("Should have thrown IndexOutOfBoundsException!");
         } catch (IndexOutOfBoundsException e) {
-            // Correct!
+            exception = true;
         }
+        assertTrue(exception, "Should have thrown IndexOutOfBoundsException!");
+        
+        exception = false;
         try {
             a.add(3, "Test");
-            assertFail("Should have thrown IndexOutOfBoundsException!");
         } catch (IndexOutOfBoundsException e) {
-            // Correct!
+            exception = true;
         }
+        assertTrue(exception, "Should have thrown IndexOutOfBoundsException!");
+        
         assertFalse(a.isEmpty(), "Bad isEmpty!");
         assertIntsEqual(a.size(), 2, "Bad size!");
         // addAll
@@ -68,18 +73,23 @@ public abstract class BaseTestList extends BaseTest {
         assertIntsEqual(a.size(), 5, "Bad size!");
         // addAll, indexed
         a.addAll(3, CArrayUtils.asList("40", "40", "40"));
+        
+        exception = false;
         try {
             a.addAll(-1, CArrayUtils.asList("40", "40"));
-            assertFail("Should have thrown IndexOutOfBoundsException!");
         } catch (IndexOutOfBoundsException e) {
-            // Correct!
+            exception = true;
         }
+        assertTrue(exception, "Should have thrown IndexOutOfBoundsException!");
+        
+        exception = false;
         try {
             a.addAll(9, CArrayUtils.asList("40", "40"));
-            assertFail("Should have thrown IndexOutOfBoundsException!");
         } catch (IndexOutOfBoundsException e) {
-            // Correct!
+            exception = true;
         }
+        assertTrue(exception, "Should have thrown IndexOutOfBoundsException!");
+        
         // get
         assertObjectEqual(a.get(0), "Beta", "Bad element!");
         assertObjectEqual(a.get(1), "Alpha", "Bad element!");
@@ -89,18 +99,23 @@ public abstract class BaseTestList extends BaseTest {
         assertObjectEqual(a.get(5), "40", "Bad element!");
         assertObjectEqual(a.get(6), "20", "Bad element!");
         assertObjectEqual(a.get(7), "30", "Bad element!");
+        
+        exception = false;
         try {
             a.get(-1);
-            assertFail("IndexOutOfBoundsException not thrown!");
         } catch (IndexOutOfBoundsException e) {
-            // Correct!
+            exception = true;
         }
+        assertTrue(exception, "Should have thrown IndexOutOfBoundsException!");
+        
+        exception = false;
         try {
             a.get(8);
-            assertFail("IndexOutOfBoundsException not thrown!");
         } catch (IndexOutOfBoundsException e) {
-            // Correct!
+            exception = true;
         }
+        assertTrue(exception, "Should have thrown IndexOutOfBoundsException!");
+        
         // indexOf
         assertIntsEqual(a.indexOf("Beta"), 0, "Bad index!");
         assertIntsEqual(a.indexOf("Alpha"), 1, "Bad index!");
@@ -131,12 +146,15 @@ public abstract class BaseTestList extends BaseTest {
         assertTrue(itr.hasNext(), "Bad result from iterator!");
         assertObjectEqual(itr.next(), "30", "Bad element from iterator!");
         assertFalse(itr.hasNext(), "Bad result from iterator!");
+        
+        exception = false;
         try {
             itr.next();
-            assertFail("Should have thrown NoSuchElementException!");
         } catch (NoSuchElementException e) {
-            // Correct!
+            exception = true;
         }
+        assertTrue(exception, "Should have thrown IndexOutOfBoundsException!");
+        
         // remove, indexed
         assertObjectEqual(a.remove(1), "Alpha", "Bad remove result!");
         assertObjectEqual(a.get(0), "Beta", "Bad element!");

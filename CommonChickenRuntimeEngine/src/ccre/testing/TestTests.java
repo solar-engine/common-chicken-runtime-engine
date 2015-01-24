@@ -18,6 +18,8 @@
  */
 package ccre.testing;
 
+import ccre.log.Logger;
+
 /**
  * A test that tests that tests work correctly! This is, as you can tell, very
  * important!
@@ -33,16 +35,22 @@ public final class TestTests extends BaseTest {
 
     @Override
     protected void runTest() throws TestingException, InterruptedException {
-        boolean out = new SucceedTest().test(false);
-        assertTrue(out, "Meta-testing failed!");
-        if (out != true) {
-            throw new RuntimeException("Meta-testing failed!");
+        Logger.info("Beginning meta-tests...");
+        for (BaseTest t : new BaseTest[] {new SucceedTest(), new FailTest1(), new FailTest2(), new FailTest3(), new FailTest4(), new FailTest5(), new ExceptionTest()}) {
+            boolean out = t.test(false);
+            if (t.getName().startsWith("Virtual Failure")) {
+                assertFalse(out, "Meta-testing failed!");
+            } else {
+                assertTrue(out, "Meta-testing failed!");
+            }
         }
-        out = new FailTest().test(false);
-        assertFalse(out, "Meta-testing failed!");
-        if (out != false) {
-            throw new RuntimeException("Meta-testing failed!");
+        boolean threwException = false;
+        try {
+            new InterruptedTest().test(false);
+        } catch (InterruptedException ex) {
+            threwException = true;
         }
+        assertTrue(threwException, "Meta-testing failed!");
     }
 
     private static final class SucceedTest extends BaseTest {
@@ -58,17 +66,94 @@ public final class TestTests extends BaseTest {
         }
     }
 
-    private static final class FailTest extends BaseTest {
+    private static final class FailTest1 extends BaseTest {
 
         @Override
         public String getName() {
-            return "Virtual Failure Test";
+            return "Virtual Failure Test 1";
         }
 
         @Override
         protected void runTest() throws TestingException {
             assertTrue(false, "Great! That's correct.");
-            throw new RuntimeException("Nope! Testing failed!");
+        }
+    }
+
+    private static final class FailTest2 extends BaseTest {
+
+        @Override
+        public String getName() {
+            return "Virtual Failure Test 2";
+        }
+
+        @Override
+        protected void runTest() throws TestingException {
+            assertFalse(true, "Great! That's correct.");
+        }
+    }
+
+    private static final class FailTest3 extends BaseTest {
+
+        @Override
+        public String getName() {
+            return "Virtual Failure Test 3";
+        }
+
+        @Override
+        protected void runTest() throws TestingException {
+            assertIntsEqual(0, 17, "Great! That's correct.");
+        }
+    }
+
+    private static final class FailTest4 extends BaseTest {
+
+        @Override
+        public String getName() {
+            return "Virtual Failure Test 4";
+        }
+
+        @Override
+        protected void runTest() throws TestingException {
+            assertIdentityEqual(new String("TEST"), "TEST", "Great! That's correct.");
+        }
+    }
+
+    private static final class FailTest5 extends BaseTest {
+
+        @Override
+        public String getName() {
+            return "Virtual Failure Test 5";
+        }
+
+        @Override
+        protected void runTest() throws TestingException {
+            assertObjectEqual("TEST2", "TEST", "Great! That's correct.");
+        }
+    }
+
+    private static final class InterruptedTest extends BaseTest {
+
+        @Override
+        public String getName() {
+            return "Virtual Interrupted Test";
+        }
+
+        @Override
+        protected void runTest() throws TestingException, InterruptedException {
+            throw new InterruptedException();
+        }
+    }
+
+    private static final class ExceptionTest extends BaseTest {
+
+        @Override
+        public String getName() {
+            return "Virtual Failure: Exception Test";
+        }
+
+        @Override
+        protected void runTest() throws TestingException, InterruptedException {
+            throw new RuntimeException("This should fail like this. I think.");
         }
     }
 }

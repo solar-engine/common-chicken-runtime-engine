@@ -28,13 +28,6 @@ package ccre.testing;
 public class TestingException extends Exception {
 
     /**
-     * Creates a TestingException with no message.
-     */
-    public TestingException() {
-        super();
-    }
-
-    /**
      * Creates an TestingException with a specified message.
      *
      * @param message The specified message.

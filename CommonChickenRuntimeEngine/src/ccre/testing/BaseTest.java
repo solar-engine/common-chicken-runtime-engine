@@ -117,7 +117,7 @@ public abstract class BaseTest {
      */
     protected void assertTrue(boolean bool, String message) throws TestingException {
         if (!bool) {
-            throw new TestingException(message);
+            assertFail(message);
         }
     }
 
@@ -131,7 +131,7 @@ public abstract class BaseTest {
      */
     protected void assertFalse(boolean bool, String message) throws TestingException {
         if (bool) {
-            throw new TestingException(message);
+            assertFail(message);
         }
     }
 

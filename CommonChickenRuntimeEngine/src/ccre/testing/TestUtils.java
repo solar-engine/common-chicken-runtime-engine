@@ -46,16 +46,12 @@ public class TestUtils extends BaseTest {
         boolean success = false;
         for (int i = 0; i < 5; i++) {
             float here = Utils.currentTimeSeconds.get();
-            try {
-                Thread.sleep(99); // 99 because it causes Java SE to make the request more accurate...
-            } catch (InterruptedException ex) {
-                assertFail("Interrupted during timing test.");
-                throw ex;
-            }
+            Thread.sleep(99); // 99 because it causes Java SE to make the request more accurate...
             float there = Utils.currentTimeSeconds.get();
             float dt = Math.abs(there - here - (99 / 1000f));
             if (dt >= 0.002) {
-                Logger.warning("Failed timing test: " + here + " to " + there + " is " + (there - here) + " and expected " + (100 / 1000f));
+                //Logger.warning("Failed timing test: " + here + " to " + there + " is " + (there - here) + " and expected " + (100 / 1000f));
+                Logger.warning("Failed timing attempt...");
             } else {
                 success = true;
                 break;
@@ -84,82 +80,96 @@ public class TestUtils extends BaseTest {
         // CArrayUtils.EMPTY_LIST, CArrayUtils.getEmptyList()
         CList<Object> c = CArrayUtils.getEmptyList();
         assertObjectEqual(CArrayUtils.EMPTY_LIST, c, "Expected getEmptyList() to be the same as EMPTY_LIST!");
+        boolean exception = false;
         try {
             c.add(10);
-            assertFail("Should have errored!");
         } catch (UnsupportedOperationException u) {
-            // Correct!
+            exception = true;
         }
+        assertTrue(exception, "Should have errored!");
+
+        exception = false;
         try {
             c.add(0, 10);
-            assertFail("Should have errored!");
         } catch (UnsupportedOperationException u) {
-            // Correct!
+            exception = true;
         }
+        assertTrue(exception, "Should have errored!");
+
+        exception = false;
         try {
             c.addAll(new CArrayList<String>(new String[] { "Test", "Exactly!" }));
-            assertFail("Should have errored!");
         } catch (UnsupportedOperationException u) {
-            // Correct!
+            exception = true;
         }
+        assertTrue(exception, "Should have errored!");
+
+        exception = false;
         try {
             c.addAll(0, new CArrayList<String>(new String[] { "Test", "Exactly!" }));
-            assertFail("Should have errored!");
         } catch (UnsupportedOperationException u) {
-            // Correct!
+            exception = true;
         }
+        assertTrue(exception, "Should have errored!");
+
         assertFalse(c.contains(3), "Should not contain anything!");
         assertTrue(c.containsAll(new CArrayList<Object>()), "Should contain nothing!");
         assertFalse(c.containsAll(new CArrayList<Object>(new Object[] { null })), "Should not contain anything!");
         assertIntsEqual(c.fillArray(new Object[0]), 0, "Should be empty!");
+
+        exception = false;
         try {
             c.get(0);
-            assertFail("Should have errored!");
         } catch (IndexOutOfBoundsException u) {
-            // Correct!
+            exception = true;
         }
+        assertTrue(exception, "Should have errored!");
+
         assertIntsEqual(c.indexOf(2), -1, "Should not contain anything!");
         assertTrue(c.isEmpty(), "Should be empty!");
         assertFalse(c.iterator().hasNext(), "Should be empty!");
         assertIntsEqual(c.lastIndexOf(2), -1, "Should not contain anything!");
-        try {
-            assertFalse(c.remove("Hi"), "Should not contain anything!");
-        } catch (UnsupportedOperationException u) {
-            // Potentially correct.
-        }
+
+        assertFalse(c.remove("Hi"), "Should not contain anything!");
+
+        exception = false;
         try {
             c.remove(2);
-            assertFail("Should have errored!");
-        } catch (IndexOutOfBoundsException e) {
-            // Correct!
         } catch (UnsupportedOperationException e) {
-            // Also correct!
+            exception = true;
         }
+        assertTrue(exception, "Should have errored!");
+
+        exception = false;
         try {
             c.set(0, null);
-            assertFail("Should have errored!");
         } catch (IndexOutOfBoundsException e) {
-            // Correct!
-        } catch (UnsupportedOperationException e) {
-            // Also correct!
+            exception = true;
         }
+        assertTrue(exception, "Should have errored!");
+
         assertIntsEqual(c.size(), 0, "Should be empty!");
         assertIntsEqual(c.toArray().length, 0, "Should be empty!");
         assertObjectEqual(c.toString(), "[]", "Bad toString!");
         // CArrayUtils.asList
         CList<Integer> asList = CArrayUtils.asList(10, 20, 30, 40);
+
+        exception = false;
         try {
             asList.add(10);
-            assertFail("Should have errored!");
         } catch (UnsupportedOperationException e) {
-            // Correct!
+            exception = true;
         }
+        assertTrue(exception, "Should have errored!");
+
+        exception = false;
         try {
             asList.clear();
-            assertFail("Should have errored!");
         } catch (UnsupportedOperationException e) {
-            // Correct!
+            exception = true;
         }
+        assertTrue(exception, "Should have errored!");
+
         assertTrue(asList.contains(30), "Should contain element!");
         assertFalse(asList.contains(35), "Should not contain element!");
         Integer[] test = new Integer[4];
@@ -177,26 +187,34 @@ public class TestUtils extends BaseTest {
         assertIntsEqual(asList.get(1), 20, "Bad contents!");
         assertIntsEqual(asList.get(2), 30, "Bad contents!");
         assertIntsEqual(asList.get(3), 40, "Bad contents!");
+
+        exception = false;
         try {
             asList.get(-1);
-            assertFail("Should have errored!");
         } catch (IndexOutOfBoundsException o) {
-            // Correct!
+            exception = true;
         }
+        assertTrue(exception, "Should have errored!");
+
+        exception = false;
         try {
             asList.get(4);
-            assertFail("Should have errored!");
         } catch (IndexOutOfBoundsException o) {
-            // Correct!
+            exception = true;
         }
+        assertTrue(exception, "Should have errored!");
+
         assertIntsEqual(asList.indexOf(30), 2, "Bad index!");
         assertIntsEqual(asList.lastIndexOf(40), 3, "Bad index!");
+
+        exception = false;
         try {
             asList.remove(Integer.valueOf(10));
-            assertFail("Should have errored!");
         } catch (UnsupportedOperationException o) {
-            // Correct!
+            exception = true;
         }
+        assertTrue(exception, "Should have errored!");
+
         assertFalse(asList.isEmpty(), "Should not be empty!");
         Iterator<Integer> itr = asList.iterator();
         int i = 0;
@@ -204,12 +222,15 @@ public class TestUtils extends BaseTest {
             assertObjectEqual(itr.next(), asList.get(i++), "Bad iterator result!");
         }
         assertIntsEqual(i, asList.size(), "Bad iterator count!");
+
+        exception = false;
         try {
             asList.remove(0);
-            assertFail("Should have errored!");
         } catch (UnsupportedOperationException o) {
-            // Correct!
+            exception = true;
         }
+        assertTrue(exception, "Should have errored!");
+
         asList.set(1, 100);
         assertIntsEqual(asList.get(1), 100, "Bad set operation!");
         assertObjectEqual(asList.toString(), "[10, 100, 30, 40]", "Bad toString!");
@@ -234,7 +255,7 @@ public class TestUtils extends BaseTest {
         for (int index = 1; index < size; index++) {
             assertTrue(list.get(index - 1) <= list.get(index), "List not sorted!");
         }
-        assertTrue(list.contains(19124) && list.contains(0) && list.contains(7), "List removed elements during sorting!");
+        assertTrue(list.contains(19124) & list.contains(0) & list.contains(7), "List removed elements during sorting!");
         list.clear();
         Random r = new Random();
         for (int j = 0; j < 1000; j++) {

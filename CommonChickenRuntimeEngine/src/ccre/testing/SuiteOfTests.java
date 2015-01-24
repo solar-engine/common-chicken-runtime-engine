@@ -48,6 +48,7 @@ public class SuiteOfTests {
                 new TestConcurrentDispatchArray(), new TestReporterThread(),
 
                 // ccre.ctrl
+                new TestExpirationTimer(),
                 new TestStateMachine(),
                 new TestMixing(),
                 new TestTicker(),

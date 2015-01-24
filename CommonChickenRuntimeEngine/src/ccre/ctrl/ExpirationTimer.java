@@ -79,6 +79,10 @@ public final class ExpirationTimer {
      * The cached value for getStopEvent()
      */
     private EventOutput stopEvt;
+    /**
+     * Whether or not this thread has been told to terminate.
+     */
+    private boolean terminated = false;
 
     /**
      * Schedule a BooleanOutput to be set to a specified value at a specific
@@ -245,6 +249,9 @@ public final class ExpirationTimer {
         for (Task t : tasks) {
             long rel = startAt + t.delay - System.currentTimeMillis();
             while (rel > 0) {
+                if (terminated) {
+                    return;
+                }
                 wait(rel);
                 rel = startAt + t.delay - System.currentTimeMillis();
             }
@@ -258,15 +265,15 @@ public final class ExpirationTimer {
     }
 
     private synchronized void body() {
-        while (true) {
+        while (!terminated) {
             try {
                 while (!isStarted) {
+                    Logger.finest("Waiting...");
                     wait();
                 }
                 recalculateTasks();
                 runTasks();
-                while (isStarted) { // Once finished, wait to stop before
-                                    // restarting.
+                while (isStarted) { // Once finished, wait to stop before restarting.
                     wait();
                 }
             } catch (InterruptedException ex) {
@@ -518,5 +525,13 @@ public final class ExpirationTimer {
         public int compareTo(Task o) {
             return Long.compare(delay, o.delay);
         }
+    }
+
+    /**
+     * End the ExpirationTimer's thread as soon as possible.
+     */
+    public void terminate() {
+        terminated = true;
+        main.interrupt();
     }
 }

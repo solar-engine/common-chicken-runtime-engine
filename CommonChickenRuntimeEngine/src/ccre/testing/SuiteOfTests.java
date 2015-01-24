@@ -41,25 +41,19 @@ public class SuiteOfTests {
         BaseTest[] tests = new BaseTest[] {
                 // ccre.chan
                 new TestBooleanStatus(), new TestFloatStatus(),
+
                 // ccre.cluck - Tests needed!
 
                 // ccre.concurrency
-                // CollapsingWorkerThread - Needed!
-                // ConcurrentDispatchArray - Needed to improve!
                 new TestConcurrentDispatchArray(), new TestReporterThread(),
-                // ReporterThread - Needed!
 
                 // ccre.ctrl
-                // DriverImpls - Needed!
-                // ExpirationTimer - Needed!
-                // Mixing - Needed to be fleshed out a lot!
+                new TestStateMachine(),
                 new TestMixing(),
-                // ModeDispatcher - Needed!
-                // MultipleSourceBooleanController - Needed!
                 new TestTicker(),
+
                 // ccre.event
                 new TestEventStatus(),
-                // EventLogger - Needed!
 
                 // ccre.holders - Needed!
 
@@ -72,21 +66,23 @@ public class SuiteOfTests {
                 // ccre.net - Needed!
 
                 // ccre.phidget
-                // PhidgetReader - Needed!
 
                 // ccre.rload - Do I need this?
 
                 // ccre.saver - Needed!
 
-                // ccre.testing - DONE
+                // ccre.testing
                 new TestTests(),
-                // ccre.utils - DONE
+
+                // ccre.workarounds - Needed!
+
+                // ccre.utils
                 new TestAllocationPool(),
+
                 // CAbstractList - Included in CArrayList and CLinkedList tests
                 new TestCArrayList(), new TestCHashMap(), new TestCLinkedList(),
-                // Heap - Not needed because it's a commented-out unfinished class.
+
                 new TestUtils(), // Tests both Utils and CArrayUtils
-        // ccre.workarounds - Needed!
         };
         int count = 0;
         for (BaseTest bt : tests) {

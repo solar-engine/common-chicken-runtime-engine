@@ -106,8 +106,11 @@ public class StateMachine {
         return stateNames[currentState];
     }
     
-    public String getStateName(int i) {
-        return stateNames[i];
+    public String getStateName(int state) {
+        if (state < 0 || state >= numberOfStates) {
+            throw new IllegalArgumentException("Invalid state ID: " + state);
+        }
+        return stateNames[state];
     }
     
     public boolean isState(String state) {
@@ -123,6 +126,9 @@ public class StateMachine {
     }
     
     public BooleanInputPoll getIsState(final int state) {
+        if (state < 0 || state >= numberOfStates) {
+            throw new IllegalArgumentException("Invalid state ID: " + state);
+        }
         return new BooleanInputPoll() {
             public boolean get() {
                 return currentState == state;

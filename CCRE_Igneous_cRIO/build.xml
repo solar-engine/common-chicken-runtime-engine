@@ -30,10 +30,12 @@
 	<property name="preverify-2014-bypass" value="StringBuilder.class" />
 	<property name="unverif-2014.jar" location="Library_Prebuild.jar" />
 	<property name="veriflib-2014.jar" location="lib2014/squawk.jar" />
-	<property name="build-2014.path" location="${unverif-2014.jar}${path.separator}${veriflib-2014.jar}" />
+	<property name="build-2014.path"
+	          location="${unverif-2014.jar}${path.separator}${veriflib-2014.jar}" />
 	<property name="found-2014-lib" value="true" />
 
-	<taskdef resource="net/jtools/classloadertask/antlib.xml" classpath="${ccre-root.dir}/CCRE_Igneous_cRIO/lib2014/ant-classloadertask.jar" />
+	<taskdef resource="net/jtools/classloadertask/antlib.xml"
+	         classpath="${ccre-root.dir}/CCRE_Igneous_cRIO/lib2014/ant-classloadertask.jar" />
 
 	<target name="clean">
 		<delete file="Empty.jar" />
@@ -41,17 +43,20 @@
 		<delete file="Library_Postbuild.jar" />
 		<delete file="Library_Prebuild.jar" />
 	</target>
-	
+
 	<target name="prebuild-jar" depends="clean">
 		<jar destfile="Empty.jar" update="false" />
 
 		<jar destfile="Library_Prebuild.jar" update="false">
-			<fileset dir="../CommonChickenRuntimeEngine/bin" includes="**/*.class">
+			<fileset dir="../CommonChickenRuntimeEngine/bin"
+			         includes="**/*.class">
+				<!-- duplicated above -->
 				<exclude name="**/ccre/net/DefaultNetworkProvider*" />
 				<exclude name="**/ccre/saver/DefaultStorageProvider*" />
 				<exclude name="**/ccre/rload/*" />
 				<exclude name="**/ccre/launcher/*" />
 				<exclude name="**/ccre/workarounds/DefaultThrowablePrinter**" />
+				<exclude name="**/ccre/testing/*" />
 			</fileset>
 			<zipgroupfileset dir="lib2014" includes="wpilibj.jar" />
 			<zipgroupfileset dir="lib2014" includes="networktables-crio.jar" />
@@ -59,16 +64,19 @@
 	</target>
 
 	<import file="src/external_build_2014.xml" />
-	
+
 	<target name="build-part" depends="prebuild-jar,compile-2014">
 		<jar destfile="Library_Postbuild.jar" update="false">
 			<fileset dir="build-2014/classes" includes="**/*.class" />
-			<fileset dir="../CommonChickenRuntimeEngine/bin" includes="**/*.class">
+			<fileset dir="../CommonChickenRuntimeEngine/bin"
+			         includes="**/*.class">
+				<!-- duplicated above -->
 				<exclude name="**/ccre/net/DefaultNetworkProvider*" />
 				<exclude name="**/ccre/saver/DefaultStorageProvider*" />
 				<exclude name="**/ccre/rload/*" />
 				<exclude name="**/ccre/launcher/*" />
 				<exclude name="**/ccre/workarounds/DefaultThrowablePrinter**" />
+				<exclude name="**/ccre/testing/*" />
 			</fileset>
 			<zipgroupfileset dir="lib2014" includes="wpilibj.jar" />
 			<zipgroupfileset dir="lib2014" includes="networktables-crio.jar" />

@@ -292,8 +292,9 @@ final class IgneousLauncherImpl extends IterativeRobot implements IgneousLaunche
         return new CJoystick(isRightStick ? 6 : 5).attach(globalPeriodic);
     }
 
-    public BooleanOutput makeSolenoid(int id) {
-        final Solenoid sol = new Solenoid(id);
+    // Module 1: default module. Module 2: alternate module.
+    public BooleanOutput makeSolenoid(int module, int id) {
+        final Solenoid sol = new Solenoid(module, id);
         return new BooleanOutput() {
             public void set(boolean bln) {
                 sol.set(bln);

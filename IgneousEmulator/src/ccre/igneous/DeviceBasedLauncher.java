@@ -155,10 +155,10 @@ public class DeviceBasedLauncher implements IgneousLauncher {
 
     private BooleanOutput[] solenoids;
 
-    public BooleanOutput makeSolenoid(int id) {
+    public BooleanOutput makeSolenoid(int module, int id) {
         int index = checkRange("Solenoid", id, solenoids);
         if (solenoids[index] == null) {
-            solenoids[index] = panel.add(new BooleanViewDevice("Solenoid " + id));
+            solenoids[index] = panel.add(new BooleanViewDevice("Solenoid " + module + ":" + id));
         }
         return solenoids[index];
     }

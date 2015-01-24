@@ -95,12 +95,15 @@ public interface IgneousLauncher {
     public ExtendedMotor makeCANTalon(int deviceNumber);
 
     /**
-     * Create a reference to a solenoid on the specified port.
-     *
+     * Create a reference to a solenoid on the specified port and module.
+     * 
+     * Module #0 should be interpreted as the default module.
+     * 
+     * @param module the solenoid module (PCM on roboRIO)
      * @param id the port of the solenoid.
      * @return the output that will control the solenoid.
      */
-    public BooleanOutput makeSolenoid(int id);
+    public BooleanOutput makeSolenoid(int module, int id);
 
     /**
      * Create a reference to a digital output on the specified port.

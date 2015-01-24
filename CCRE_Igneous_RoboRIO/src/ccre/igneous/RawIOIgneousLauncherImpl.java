@@ -239,8 +239,8 @@ public final class RawIOIgneousLauncherImpl extends RobotBase implements Igneous
         return new CJoystick(isRightStick ? 6 : 5).attach(globalPeriodic);
     }
 
-    public BooleanOutput makeSolenoid(int id) {
-        return new Solenoid(id)::set;
+    public BooleanOutput makeSolenoid(int module, int id) {
+        return new Solenoid(module, id)::set;
     }
 
     public BooleanOutput makeDigitalOutput(int id) {

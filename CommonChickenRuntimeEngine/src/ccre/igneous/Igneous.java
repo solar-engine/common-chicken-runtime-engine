@@ -242,13 +242,25 @@ public class Igneous {
     }
 
     /**
-     * Create a reference to a solenoid on the specified port.
+     * Create a reference to a solenoid on the specified port and the default
+     * module.
      *
      * @param id the port of the solenoid.
      * @return the output that will control the solenoid.
      */
     public static BooleanOutput makeSolenoid(int id) {
-        return launcher.makeSolenoid(id);
+        return launcher.makeSolenoid(launcher.isRoboRIO() ? 0 : 1, id);
+    }
+
+    /**
+     * Create a reference to a solenoid on the specified port and module.
+     * 
+     * @param module the module of the solenoid (PCM on roboRIO)
+     * @param id the port of the solenoid.
+     * @return the output that will control the solenoid.
+     */
+    public static BooleanOutput makeSolenoid(int module, int id) {
+        return launcher.makeSolenoid(module, id);
     }
 
     /**

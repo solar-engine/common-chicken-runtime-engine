@@ -249,9 +249,6 @@ public final class ExpirationTimer {
         for (Task t : tasks) {
             long rel = startAt + t.delay - System.currentTimeMillis();
             while (rel > 0) {
-                if (terminated) {
-                    return;
-                }
                 wait(rel);
                 rel = startAt + t.delay - System.currentTimeMillis();
             }
@@ -268,7 +265,6 @@ public final class ExpirationTimer {
         while (!terminated) {
             try {
                 while (!isStarted) {
-                    Logger.finest("Waiting...");
                     wait();
                 }
                 recalculateTasks();
@@ -292,6 +288,7 @@ public final class ExpirationTimer {
             throw new IllegalStateException("Timer is not running!");
         }
         startedAt = System.currentTimeMillis();
+        notifyAll();
         main.interrupt();
     }
 
@@ -306,6 +303,7 @@ public final class ExpirationTimer {
             throw new IllegalStateException("Timer is not running!");
         }
         isStarted = false;
+        notifyAll();
         main.interrupt();
     }
 
@@ -530,8 +528,11 @@ public final class ExpirationTimer {
     /**
      * End the ExpirationTimer's thread as soon as possible.
      */
-    public void terminate() {
+    public synchronized void terminate() {
         terminated = true;
+        if (isRunning()) {
+            stop();
+        }
         main.interrupt();
     }
 }

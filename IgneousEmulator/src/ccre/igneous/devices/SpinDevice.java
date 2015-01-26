@@ -67,7 +67,12 @@ public class SpinDevice extends Device implements FloatInputPoll {
         add(isVelocityMode);
         add(new TextComponent("-") {
             public void onPress(int x, int y) {
-                pressButton(-10);
+                pressButton(-15);
+            }
+        });
+        add(new TextComponent("-") {
+            public void onPress(int x, int y) {
+                pressButton(-5);
             }
         });
         add(new TextComponent("-") {
@@ -84,6 +89,11 @@ public class SpinDevice extends Device implements FloatInputPoll {
         add(new TextComponent("+") {
             public void onPress(int x, int y) {
                 pressButton(5);
+            }
+        });
+        add(new TextComponent("+") {
+            public void onPress(int x, int y) {
+                pressButton(15);
             }
         });
 

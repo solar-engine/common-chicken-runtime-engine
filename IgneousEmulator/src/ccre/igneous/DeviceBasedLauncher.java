@@ -72,7 +72,7 @@ public class DeviceBasedLauncher implements IgneousLauncher {
         baseIndex = isRoboRIO ? 0 : 1;
         joysticks = new IJoystick[isRoboRIO ? 6 : 4];
         motors = new FloatOutput[isRoboRIO ? 20 : 10];
-        solenoids = new BooleanOutput[8];
+        solenoids = new BooleanOutput[isRoboRIO ? 64 : 2][8];
         digitalOutputs = new BooleanOutput[isRoboRIO ? 26 : 14];
         digitalInputs = new BooleanInputPoll[digitalOutputs.length];
         analogInputs = new FloatInputPoll[isRoboRIO ? 8 : 14];
@@ -153,14 +153,15 @@ public class DeviceBasedLauncher implements IgneousLauncher {
         return new CANTalonDevice(deviceNumber, panel).addToMaster().getMotor();
     }
 
-    private BooleanOutput[] solenoids;
+    private BooleanOutput[][] solenoids;
 
     public BooleanOutput makeSolenoid(int module, int id) {
-        int index = checkRange("Solenoid", id, solenoids);
-        if (solenoids[index] == null) {
-            solenoids[index] = panel.add(new BooleanViewDevice("Solenoid " + module + ":" + id));
+        int moduleIndex = checkRange("Solenoid Module", module, solenoids);
+        int index = checkRange("Solenoid", id, solenoids[moduleIndex]);
+        if (solenoids[moduleIndex][index] == null) {
+            solenoids[moduleIndex][index] = panel.add(new BooleanViewDevice("Solenoid " + module + ":" + id));
         }
-        return solenoids[index];
+        return solenoids[moduleIndex][index];
     }
 
     private BooleanOutput[] digitalOutputs;

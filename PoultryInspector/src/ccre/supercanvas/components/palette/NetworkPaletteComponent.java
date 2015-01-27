@@ -38,6 +38,7 @@ import ccre.cluck.CluckRemoteListener;
 import ccre.ctrl.PauseTimer;
 import ccre.log.LogLevel;
 import ccre.log.Logger;
+import ccre.rconf.RConfable;
 import ccre.supercanvas.SuperCanvasComponent;
 import ccre.supercanvas.components.channels.BooleanControlComponent;
 import ccre.supercanvas.components.channels.BooleanDisplayComponent;
@@ -46,6 +47,7 @@ import ccre.supercanvas.components.channels.EventDisplayComponent;
 import ccre.supercanvas.components.channels.FloatControlComponent;
 import ccre.supercanvas.components.channels.FloatDisplayComponent;
 import ccre.supercanvas.components.channels.OutputStreamControlComponent;
+import ccre.supercanvas.components.channels.RConfComponent;
 import ccre.util.UniqueIds;
 
 /**
@@ -67,6 +69,10 @@ public class NetworkPaletteComponent extends PaletteComponent<Collection<Network
      * Fake RMT number used for merged boolean channels.
      */
     public static final int F_RMT_BOOLEANS = -3;
+    /**
+     * Fake RMT number used for detected rconf endpoints.
+     */
+    public static final int F_RMT_RCONF = -4;
     private static final long serialVersionUID = -2162354007005983283L;
 
     static SuperCanvasComponent createComponent(String name, Object target, int type, int x, int y) {
@@ -89,6 +95,8 @@ public class NetworkPaletteComponent extends PaletteComponent<Collection<Network
             return new FloatControlComponent(x, y, name, (FloatInput) ((Object[]) target)[0], (FloatOutput) ((Object[]) target)[1]);
         case F_RMT_BOOLEANS:
             return new BooleanControlComponent(x, y, name, (BooleanInput) ((Object[]) target)[0], (BooleanOutput) ((Object[]) target)[1]);
+        case F_RMT_RCONF:
+            return new RConfComponent(x, y, name, (RConfable) target);
         case CluckNode.RMT_OUTSTREAM:
             return new OutputStreamControlComponent(x, y, name, (OutputStream) target);
         case CluckNode.RMT_INVOKE: // Trello #134: These two.
@@ -210,6 +218,16 @@ public class NetworkPaletteComponent extends PaletteComponent<Collection<Network
                         return;
                     }
                 } else {
+                    if ((remote.endsWith("-rpcq") || remote.endsWith("-rpcs")) && remoteType == CluckNode.RMT_INVOKE) {
+                        base = remote.substring(0, remote.length() - 5);
+                        pairName = base + (remote.endsWith("s") ? "-rpcq" : "-rpcs");
+                        for (NetworkPaletteElement e : entries) {
+                            if (pairName.equals(e.getName()) && e.type == CluckNode.RMT_INVOKE) {
+                                entries.add(new NetworkPaletteElement(base, Cluck.subscribeRConf(base, 500), F_RMT_RCONF));
+                                break;
+                            }
+                        }
+                    }
                     return;
                 }
                 Object pair = null;

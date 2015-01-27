@@ -39,6 +39,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.OutputStream;
 import java.io.Serializable;
+import java.util.ArrayList;
 
 import ccre.channel.BooleanInput;
 import ccre.channel.BooleanOutput;
@@ -49,10 +50,15 @@ import ccre.channel.EventStatus;
 import ccre.channel.FloatInput;
 import ccre.channel.FloatOutput;
 import ccre.channel.FloatStatus;
+import ccre.cluck.rpc.RemoteProcedure;
+import ccre.cluck.rpc.SimpleProcedure;
 import ccre.concurrency.ConcurrentDispatchArray;
 import ccre.log.LogLevel;
 import ccre.log.Logger;
 import ccre.log.LoggingTarget;
+import ccre.rconf.RConf;
+import ccre.rconf.RConfable;
+import ccre.rconf.RConf.Entry;
 import ccre.util.UniqueIds;
 import ccre.util.Utils;
 import ccre.workarounds.ThrowablePrinter;
@@ -459,6 +465,119 @@ public class CluckPublisher {
      */
     public static OutputStream subscribeOS(final CluckNode node, final String path) {
         return new SubscribedObjectStream(node, path);
+    }
+
+    public static void publishRConf(CluckNode node, String name, final RConfable device) {
+        node.getRPCManager().publish(name + "-rpcq", new RemoteProcedure() {
+            public void invoke(byte[] in, OutputStream out) {
+                try {
+                    RConf.Entry[] data;
+                    try {
+                        data = device.queryRConf();
+                    } catch (InterruptedException e1) {
+                        Thread.currentThread().interrupt();
+                        return;
+                    }
+                    short count = (short) data.length;
+                    if (count != data.length) {
+                        Logger.warning("Too many fields in RConf query response!");
+                        count = Short.MAX_VALUE;
+                    }
+                    try {
+                        out.write(new byte[] { (byte) (count >> 8), (byte) count });
+                        for (int i = 0; i < count; i++) {
+                            byte[] line = data[i].encode();
+                            int len = line.length;
+                            out.write(new byte[] { (byte) (len >> 24), (byte) (len >> 16), (byte) (len >> 8), (byte) len });
+                            out.write(line);
+                        }
+                    } catch (IOException e) {
+                        Logger.warning("IOException during response to RConf query!", e);
+                    }
+                } finally {
+                    try {
+                        out.close();
+                    } catch (IOException e) {
+                        Logger.warning("IOException during RConf close!", e);
+                    }
+                }
+            }
+        });
+        node.getRPCManager().publish(name + "-rpcs", new RemoteProcedure() {
+            public void invoke(byte[] in, OutputStream out) {
+                try {
+                    if (in.length < 2) {
+                        Logger.warning("Invalid message to RConf signal node!");
+                        return;
+                    }
+                    byte[] data = new byte[in.length - 2];
+                    System.arraycopy(in, 2, data, 0, data.length);
+                    try {
+                        device.signalRConf(((in[0] & 0xFF) << 8) | (in[1] & 0xFF), data);
+                    } catch (InterruptedException e1) {
+                        Thread.currentThread().interrupt();
+                    }
+                } finally {
+                    try {
+                        out.close();
+                    } catch (IOException e) {
+                        Logger.warning("IOException during response to RConf signal!", e);
+                    }
+                }
+            }
+        });
+    }
+
+    public static RConfable subscribeRConf(CluckNode node, String path, final int timeout) {
+        final RemoteProcedure query = node.getRPCManager().subscribe(path + "-rpcq", timeout);
+        final RemoteProcedure signal = node.getRPCManager().subscribe(path + "-rpcs", timeout);
+        return new RConfable() {
+            public void signalRConf(int field, byte[] data) throws InterruptedException {
+                byte[] ndata = new byte[data.length + 2];
+                if (field != (field & 0xFFFF)) {
+                    Logger.warning("Out of range field in RConf query response!");
+                    return;
+                }
+                ndata[0] = (byte) (field >> 8);
+                ndata[1] = (byte) field;
+                System.arraycopy(data, 0, ndata, 2, data.length);
+                SimpleProcedure.invoke(signal, ndata, timeout);
+            }
+
+            public Entry[] queryRConf() throws InterruptedException {
+                byte[] data = SimpleProcedure.invoke(query, new byte[0], timeout);
+                if (data == SimpleProcedure.TIMED_OUT) {
+                    return null;
+                }
+                if (data.length < 2) {
+                    Logger.warning("Too-short (1) RConf query response!");
+                    return null;
+                }
+                Entry[] out = new Entry[((data[0] & 0xFF) << 8) | (data[1] & 0xFF)];
+                int ptr = 2;
+                for (int i = 0; i < out.length; i++) {
+                    if (data.length - ptr < 4) {
+                        Logger.warning("Too-short (2) RConf query response!");
+                        return null;
+                    }
+                    int len = ((data[ptr] & 0xFF) << 24) | ((data[ptr + 1] & 0xFF) << 16) | ((data[ptr + 2] & 0xFF) << 8) | (data[ptr + 3] & 0xFF);
+                    byte[] part = new byte[len];
+                    ptr += 4;
+                    if (data.length - ptr < part.length) {
+                        Logger.warning("Too-short (3) RConf query response!");
+                        return null;
+                    }
+                    System.arraycopy(data, ptr, part, 0, part.length);
+                    ptr += part.length;
+                    out[i] = RConf.fixed(part);
+                }
+                if (ptr != data.length) {
+                    Logger.warning("Too-long RConf query response!");
+                    return null;
+                }
+                return out;
+            }
+        };
     }
 
     private CluckPublisher() {

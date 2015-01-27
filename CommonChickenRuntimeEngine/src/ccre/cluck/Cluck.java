@@ -33,6 +33,7 @@ import ccre.cluck.tcp.CluckTCPClient;
 import ccre.cluck.tcp.CluckTCPServer;
 import ccre.log.LogLevel;
 import ccre.log.LoggingTarget;
+import ccre.rconf.RConfable;
 
 /**
  * A storage location for the current CluckNode, CluckTCPServer, and
@@ -246,8 +247,12 @@ public final class Cluck {
      * @param name The name for the FloatOutput.
      * @param out The FloatOutput.
      */
-    public static void publish(String name, final FloatOutput out) {
+    public static void publish(String name, FloatOutput out) {
         CluckPublisher.publish(node, name, out);
+    }
+
+    public static void publishRConf(String name, RConfable device) {
+        CluckPublisher.publishRConf(node, name, device);
     }
 
     /**
@@ -314,6 +319,10 @@ public final class Cluck {
      */
     public static OutputStream subscribeOS(final String path) {
         return CluckPublisher.subscribeOS(node, path);
+    }
+
+    public static RConfable subscribeRConf(String path, int timeout) {
+        return CluckPublisher.subscribeRConf(node, path, timeout);
     }
 
     private Cluck() {

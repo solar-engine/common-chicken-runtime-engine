@@ -22,6 +22,9 @@ import java.io.Serializable;
 
 import ccre.concurrency.ConcurrentDispatchArray;
 import ccre.ctrl.FloatMixing;
+import ccre.rconf.RConf;
+import ccre.rconf.RConf.Entry;
+import ccre.rconf.RConfable;
 import ccre.util.CArrayUtils;
 
 /**
@@ -34,7 +37,7 @@ import ccre.util.CArrayUtils;
  *
  * @author skeggsc
  */
-public class FloatStatus implements FloatOutput, FloatInput, Serializable {
+public class FloatStatus implements FloatOutput, FloatInput, RConfable, Serializable {
 
     private static final long serialVersionUID = -579209218982597622L;
 
@@ -168,6 +171,20 @@ public class FloatStatus implements FloatOutput, FloatInput, Serializable {
             if (consumers.remove(output) && consumers.isEmpty()) {
                 consumers = null;
             }
+        }
+    }
+
+    public Entry[] queryRConf() {
+        return new Entry[] {RConf.fieldFloat(this), RConf.fieldInteger(consumers == null ? 0 : consumers.size())};
+    }
+
+    public void signalRConf(int field, byte[] data) {
+        switch (field) {
+        case 0: // change value
+            if (data.length >= 4) {
+                set(RConf.bytesToFloat(data));
+            }
+            break;
         }
     }
 }

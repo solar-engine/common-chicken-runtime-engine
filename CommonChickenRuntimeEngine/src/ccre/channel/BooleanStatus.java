@@ -22,6 +22,9 @@ import java.io.Serializable;
 
 import ccre.concurrency.ConcurrentDispatchArray;
 import ccre.ctrl.BooleanMixing;
+import ccre.rconf.RConf.Entry;
+import ccre.rconf.RConf;
+import ccre.rconf.RConfable;
 import ccre.util.CArrayUtils;
 
 /**
@@ -31,7 +34,7 @@ import ccre.util.CArrayUtils;
  *
  * @author skeggsc
  */
-public class BooleanStatus implements BooleanOutput, BooleanInput, Serializable {
+public class BooleanStatus implements BooleanOutput, BooleanInput, RConfable, Serializable {
 
     private static final long serialVersionUID = 2573411070442038676L;
 
@@ -281,5 +284,22 @@ public class BooleanStatus implements BooleanOutput, BooleanInput, Serializable 
      */
     public BooleanInput asInvertedInput() {
         return BooleanMixing.invert((BooleanInput) this);
+    }
+
+    public Entry[] queryRConf() {
+        return new Entry[] {RConf.fieldBoolean(this), RConf.button("toggle"), RConf.fieldInteger(consumers == null ? 0 : consumers.size())};
+    }
+
+    public void signalRConf(int field, byte[] data) {
+        switch (field) {
+        case 0: // change value
+            if (data.length > 0) {
+                set(data[0] != 0);
+            }
+            break;
+        case 1: // toggle
+            set(!get());
+            break;
+        }
     }
 }

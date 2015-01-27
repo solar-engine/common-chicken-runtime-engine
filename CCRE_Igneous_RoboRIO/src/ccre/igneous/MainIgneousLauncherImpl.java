@@ -62,13 +62,13 @@ import edu.wpi.first.wpilibj.Victor;
 import edu.wpi.first.wpilibj.communication.FRCNetworkCommunicationsLibrary;
 
 /**
- * The ADVANCED RoboRIO implementation of the IgneousLauncher interface. Do not
- * use this! This should only be referenced from the build script.
+ * The RoboRIO implementation of the IgneousLauncher interface. Do not use this!
+ * This should only be referenced from the build script.
  *
  * @see IgneousLauncher
  * @author skeggsc
  */
-public final class RawIOIgneousLauncherImpl extends RobotBase implements IgneousLauncher {
+public final class MainIgneousLauncherImpl extends RobotBase implements IgneousLauncher {
 
     private static final EventStatus globalPeriodic = new EventStatus();
 
@@ -100,7 +100,7 @@ public final class RawIOIgneousLauncherImpl extends RobotBase implements Igneous
     /**
      * Create and initialize a new RawIOIgneousLauncherImpl.
      */
-    public RawIOIgneousLauncherImpl() {
+    public MainIgneousLauncherImpl() {
         File rootDir = new File("/home/lvuser/ccre-storage");
         rootDir.mkdirs();
         DefaultStorageProvider.register(rootDir);
@@ -118,15 +118,15 @@ public final class RawIOIgneousLauncherImpl extends RobotBase implements Igneous
 
         public final String name;
 
-        private EventStatus getStart(RawIOIgneousLauncherImpl launcher) {
+        private EventStatus getStart(MainIgneousLauncherImpl launcher) {
             return launcher.startEvents[ordinal()];
         }
 
-        private EventStatus getDuring(RawIOIgneousLauncherImpl launcher) {
+        private EventStatus getDuring(MainIgneousLauncherImpl launcher) {
             return launcher.startEvents[ordinal()];
         }
 
-        private void start(RawIOIgneousLauncherImpl launcher) {
+        private void start(MainIgneousLauncherImpl launcher) {
             try {
                 Logger.fine("Began " + name + (DriverStation.getInstance().isFMSAttached() ? " on FMS" : " mode"));
                 getStart(launcher).produce();
@@ -135,7 +135,7 @@ public final class RawIOIgneousLauncherImpl extends RobotBase implements Igneous
             }
         }
 
-        private void periodic(RawIOIgneousLauncherImpl launcher) {
+        private void periodic(MainIgneousLauncherImpl launcher) {
             try {
                 if (countFails >= 50) {
                     countFails--;
@@ -221,7 +221,7 @@ public final class RawIOIgneousLauncherImpl extends RobotBase implements Igneous
     }
 
     private void setupMain() throws Throwable {
-        Enumeration<URL> resources = RawIOIgneousLauncherImpl.class.getClassLoader().getResources("META-INF/MANIFEST.MF");
+        Enumeration<URL> resources = MainIgneousLauncherImpl.class.getClassLoader().getResources("META-INF/MANIFEST.MF");
         String name = null;
         while (resources != null && resources.hasMoreElements()) {
             Manifest manifest = new Manifest(resources.nextElement().openStream());

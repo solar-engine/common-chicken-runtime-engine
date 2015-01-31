@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 Colby Skeggs
+ * Copyright 2014-2015 Colby Skeggs
  * 
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  * 
@@ -24,14 +24,14 @@ package ccre.igneous;
  *
  * @author skeggsc
  */
-class IgneousLauncherHolder {
+public class IgneousLauncherHolder {
 
     private static IgneousLauncher launcher;
 
     /**
      * @return the launcher
      */
-    static IgneousLauncher getLauncher() {
+    public static IgneousLauncher getLauncher() {
         if (launcher == null) {
             throw new RuntimeException("No Igneous launcher! Are you on an Igneous platform? There should be a registered launcher before ccre.igneous.Igneous is initialized, or this error will occur.");
         }
@@ -41,7 +41,7 @@ class IgneousLauncherHolder {
     /**
      * @param aLauncher the launcher to set
      */
-    static void setLauncher(IgneousLauncher aLauncher) {
+    public static void setLauncher(IgneousLauncher aLauncher) {
         launcher = aLauncher;
     }
 

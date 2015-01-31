@@ -633,7 +633,9 @@ public class Igneous {
      * @param zeropoint The voltage that corresponds to 0 G. This also varies by
      * model.
      * @return The reference to the axis on the Accelerometer.
+     * @deprecated This is literally a subtraction and a division.
      */
+    @Deprecated
     public static FloatInputPoll makeAccelerometerAxis(int port, double sensitivity, double zeropoint) {
         return launcher.makeAccelerometerAxis(port, sensitivity, zeropoint);
     }

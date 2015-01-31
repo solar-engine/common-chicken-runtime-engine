@@ -139,7 +139,10 @@ public interface IgneousLauncher {
      * @param id the port number.
      * @param averageBits the number of averaging bits.
      * @return the analog input, reporting in uncalibrated units.
+     * @deprecated makeAnalogInput should be used directly because it gives more
+     * useful volts instead of a raw value.
      */
+    @Deprecated
     public FloatInputPoll makeAnalogInput_ValuedBased(int id, int averageBits);
 
     /**
@@ -262,7 +265,9 @@ public interface IgneousLauncher {
      * @param zeropoint The voltage that corresponds to 0 G. This also varies by
      * model.
      * @return The reference to the axis on the Accelerometer.
+     * @deprecated This is literally a subtraction and a division.
      */
+    @Deprecated
     public FloatInputPoll makeAccelerometerAxis(int port, double sensitivity, double zeropoint);
 
     /**

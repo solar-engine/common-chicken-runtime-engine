@@ -60,6 +60,9 @@ import edu.wpi.first.wpilibj.Solenoid;
 import edu.wpi.first.wpilibj.Talon;
 import edu.wpi.first.wpilibj.Victor;
 import edu.wpi.first.wpilibj.communication.FRCNetworkCommunicationsLibrary;
+import edu.wpi.first.wpilibj.communication.UsageReporting;
+import edu.wpi.first.wpilibj.communication.FRCNetworkCommunicationsLibrary.tInstances;
+import edu.wpi.first.wpilibj.communication.FRCNetworkCommunicationsLibrary.tResourceType;
 
 /**
  * The RoboRIO implementation of the IgneousLauncher interface. Do not use this!
@@ -101,6 +104,7 @@ public final class MainIgneousLauncherImpl extends RobotBase implements IgneousL
      * Create and initialize a new RawIOIgneousLauncherImpl.
      */
     public MainIgneousLauncherImpl() {
+        UsageReporting.report(tResourceType.kResourceType_Language, tInstances.kLanguage_Java, 0, "With the CCRE: the CommonChickenRuntimeEngine");
         File rootDir = new File("/home/lvuser/ccre-storage");
         rootDir.mkdirs();
         DefaultStorageProvider.register(rootDir);

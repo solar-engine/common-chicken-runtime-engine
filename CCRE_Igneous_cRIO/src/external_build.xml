@@ -73,11 +73,13 @@
 				<pathelement path="${classpath-new}" />
 			</path>
 		</copy>
+		
+		<property name="boot-class" value="edu.wpi.first.wpilibj.RobotBase" />
 
 		<jar destfile="${dist.jar}" update="false">
 			<manifest>
 				<attribute name="Main-Class"
-				           value="edu.wpi.first.wpilibj.RobotBase" />
+				           value="${boot-class}" />
 				<attribute name="Robot-Class"
 				           value="ccre.igneous.MainIgneousLauncherImpl" />
 				<attribute name="CCRE-Main" value="${igneous.main}" />

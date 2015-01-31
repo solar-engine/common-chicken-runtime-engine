@@ -241,4 +241,12 @@ public class ByteFiddling {
     }
 
     private static final char[] hex = new char[] { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F' };
+
+    public static int asInt32LE(byte[] data, int from) {
+        return (data[from] & 0xFF) | ((data[from + 1] & 0xFF) << 8) | ((data[from + 2] & 0xFF) << 16) | ((data[from + 3] & 0xFF) << 24);
+    }
+
+    public static int asInt32BE(byte[] data, int from) {
+        return ((data[from] & 0xFF) << 24) | ((data[from + 1] & 0xFF) << 16) | ((data[from + 2] & 0xFF) << 8) | (data[from + 3] & 0xFF);
+    }
 }

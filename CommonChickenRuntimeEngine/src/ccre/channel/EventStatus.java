@@ -83,6 +83,15 @@ public class EventStatus implements EventInput, EventOutput, Serializable {
     }
 
     /**
+     * Returns the number of consumers.
+     * 
+     * @return the number of consumers.
+     */
+    public int countConsumers() {
+        return consumers.size();
+    }
+
+    /**
      * Produce this event - fire all listenering events.
      */
     public void produce() {

@@ -174,7 +174,7 @@ public abstract class ExtendedMotor {
      * @return a BooleanOutput controlling whether this controller is enabled.
      * @throws ExtendedMotorFailureException if the output cannot be acquired.
      */
-    public abstract BooleanOutput asEnable() throws ExtendedMotorFailureException;
+    public abstract BooleanOutput asEnable();
 
     /**
      * Opens the controller in the specified output mode. This may override any
@@ -183,9 +183,9 @@ public abstract class ExtendedMotor {
      * 
      * @param mode the mode to put the controller into.
      * @return the output representing the controller. The meaning is based on
-     * the mode.
-     * @throws ExtendedMotorFailureException if the output cannot be opened with
-     * this mode.
+     * the mode, or null if this mode is not allowed for this device.
+     * @throws ExtendedMotorFailureException if an error occurs while opening
+     * the output with this mode.
      */
     public abstract FloatOutput asMode(OutputControlMode mode) throws ExtendedMotorFailureException;
 
@@ -193,11 +193,10 @@ public abstract class ExtendedMotor {
      * Gets access to one of the status readouts from the ExtendedMotor.
      * 
      * @param type the type of status to get access to.
-     * @return the FloatInputPoll representing this status readout.
-     * @throws ExtendedMotorFailureException if the status readout cannot be
-     * acquired.
+     * @return the FloatInputPoll representing this status readout, or null if
+     * it cannot be acquired.
      */
-    public abstract FloatInputPoll asStatus(StatusType type) throws ExtendedMotorFailureException;
+    public abstract FloatInputPoll asStatus(StatusType type);
 
     /**
      * Gets the current diagnostic value from the ExtendedMotor. This is usually

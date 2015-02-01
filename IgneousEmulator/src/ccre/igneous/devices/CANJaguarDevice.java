@@ -113,21 +113,21 @@ public class CANJaguarDevice extends DeviceGroup {
             enabled.set(false);
         }
 
-        public BooleanOutput asEnable() throws ExtendedMotorFailureException {
+        public BooleanOutput asEnable() {
             if (enabled == null) {
                 enabled = add(new BooleanViewDevice("ENABLED"));
             }
             return enabled;
         }
 
-        public FloatOutput asMode(OutputControlMode mode) throws ExtendedMotorFailureException {
+        public FloatOutput asMode(OutputControlMode mode) {
             if (!outputDevices.containsKey(mode)) {
                 outputDevices.put(mode, add(new FloatViewDevice(mode.toString())));
             }
             return outputDevices.get(mode);
         }
 
-        public FloatInputPoll asStatus(StatusType type) throws ExtendedMotorFailureException {
+        public FloatInputPoll asStatus(StatusType type) {
             if (!statusDevices.containsKey(type)) {
                 statusDevices.put(type, add(new FloatControlDevice(type.toString())));
             }

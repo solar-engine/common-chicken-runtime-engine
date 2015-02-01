@@ -117,7 +117,7 @@ public class ExtendedJaguar extends ExtendedMotor implements FloatOutput {
         enableMode = false;
     }
 
-    public BooleanOutput asEnable() throws ExtendedMotorFailureException {
+    public BooleanOutput asEnable() {
         return new BooleanOutput() {
             public void set(boolean value) {
                 if (enableMode == null || enableMode.booleanValue() != value) {

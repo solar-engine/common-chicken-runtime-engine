@@ -79,6 +79,13 @@ public class ExtendedTalonDirect extends ExtendedMotor implements FloatOutput {
         }
     }
 
+    /**
+     * The same as set, but throws an error on failure instead of temporarily
+     * bypassing the motor.
+     * 
+     * @param value the value to set to.
+     * @throws ExtendedMotorFailureException if the value cannot be set.
+     */
     public void setUnsafe(float value) throws ExtendedMotorFailureException {
         if (enableMode == null) {
             enable();
@@ -111,7 +118,7 @@ public class ExtendedTalonDirect extends ExtendedMotor implements FloatOutput {
     }
 
     @Override
-    public BooleanOutput asEnable() throws ExtendedMotorFailureException {
+    public BooleanOutput asEnable() {
         return new BooleanOutput() {
             public void set(boolean value) {
                 if (enableMode == null || enableMode.booleanValue() != value) {

@@ -24,7 +24,7 @@ package ccre.ctrl;
  * 
  * @author skeggsc
  */
-public class ExtendedMotorFailureException extends RuntimeException {
+public class ExtendedMotorFailureException extends Exception {
 
     private static final long serialVersionUID = 8628319463301729456L;
     private final Throwable cause;

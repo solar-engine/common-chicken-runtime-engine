@@ -33,6 +33,7 @@ import ccre.channel.FloatOutput;
 import ccre.channel.SerialIO;
 import ccre.cluck.Cluck;
 import ccre.ctrl.BooleanMixing;
+import ccre.ctrl.CommunicationFailureExtendedMotor;
 import ccre.ctrl.ExtendedMotor;
 import ccre.ctrl.ExtendedMotorFailureException;
 import ccre.ctrl.IJoystick;
@@ -60,9 +61,9 @@ import edu.wpi.first.wpilibj.Solenoid;
 import edu.wpi.first.wpilibj.Talon;
 import edu.wpi.first.wpilibj.Victor;
 import edu.wpi.first.wpilibj.communication.FRCNetworkCommunicationsLibrary;
-import edu.wpi.first.wpilibj.communication.UsageReporting;
 import edu.wpi.first.wpilibj.communication.FRCNetworkCommunicationsLibrary.tInstances;
 import edu.wpi.first.wpilibj.communication.FRCNetworkCommunicationsLibrary.tResourceType;
+import edu.wpi.first.wpilibj.communication.UsageReporting;
 
 /**
  * The RoboRIO implementation of the IgneousLauncher interface. Do not use this!
@@ -356,12 +357,22 @@ public final class MainIgneousLauncherImpl extends RobotBase implements IgneousL
         }
     }
 
-    public ExtendedMotor makeCANJaguar(int deviceNumber) throws ExtendedMotorFailureException {
-        return new ExtendedJaguar(deviceNumber);
+    public ExtendedMotor makeCANJaguar(int deviceNumber) {
+        try {
+            return new ExtendedJaguar(deviceNumber);
+        } catch (ExtendedMotorFailureException e) {
+            Logger.severe("Could not connect to CAN Jaguar " + deviceNumber, e);
+            return new CommunicationFailureExtendedMotor("Could not connect to CAN Jaguar " + deviceNumber);
+        }
     }
 
-    public ExtendedMotor makeCANTalon(int deviceNumber) throws ExtendedMotorFailureException {
-        return new ExtendedTalon(deviceNumber);
+    public ExtendedMotor makeCANTalon(int deviceNumber) {
+        try {
+            return new ExtendedTalon(deviceNumber);
+        } catch (ExtendedMotorFailureException e) {
+            Logger.severe("Could not connect to CAN Talon " + deviceNumber, e);
+            return new CommunicationFailureExtendedMotor("Could not connect to CAN Talon " + deviceNumber);
+        }
     }
 
     public EventInput getGlobalPeriodic() {

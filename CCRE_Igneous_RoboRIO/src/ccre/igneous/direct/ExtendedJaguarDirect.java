@@ -80,6 +80,13 @@ public class ExtendedJaguarDirect extends ExtendedMotor implements FloatOutput {
         }
     }
 
+    /**
+     * The same as set, but throws an error on failure instead of temporarily
+     * bypassing the motor.
+     * 
+     * @param value the value to set to.
+     * @throws ExtendedMotorFailureException if the value cannot be set.
+     */
     public void setUnsafe(float value) throws ExtendedMotorFailureException {
         if (enableMode == null) {
             enable();
@@ -176,6 +183,7 @@ public class ExtendedJaguarDirect extends ExtendedMotor implements FloatOutput {
             return new FloatInputPoll() {
                 private boolean zeroed = false;
                 private long zeroUntil = 0;
+
                 public float get() {
                     if (zeroed) {
                         if (System.currentTimeMillis() > zeroUntil) {

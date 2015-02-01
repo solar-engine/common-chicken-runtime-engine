@@ -20,6 +20,7 @@ import edu.wpi.first.wpilibj.can.CANMessageNotFoundException;
  * 
  * @author Thomas Clark
  */
+@SuppressWarnings("javadoc")
 class CANJaguarMod {
 
     public static final int kMaxMessageDataSize = 8;

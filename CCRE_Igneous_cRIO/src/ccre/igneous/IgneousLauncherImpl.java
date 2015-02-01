@@ -31,7 +31,9 @@ import ccre.channel.SerialIO;
 import ccre.cluck.Cluck;
 import ccre.cluck.tcp.CluckTCPServer;
 import ccre.ctrl.BooleanMixing;
+import ccre.ctrl.CommunicationFailureExtendedMotor;
 import ccre.ctrl.ExtendedMotor;
+import ccre.ctrl.ExtendedMotorFailureException;
 import ccre.ctrl.IJoystick;
 import ccre.ctrl.Ticker;
 import ccre.log.BootLogger;
@@ -519,7 +521,12 @@ final class IgneousLauncherImpl extends IterativeRobot implements IgneousLaunche
     }
 
     public ExtendedMotor makeCANJaguar(int deviceNumber) {
-        return new ExtendedJaguar(deviceNumber);
+        try {
+            return new ExtendedJaguar(deviceNumber);
+        } catch (ExtendedMotorFailureException e) {
+            Logger.severe("Could not connect to CAN Jaguar " + deviceNumber, e);
+            return new CommunicationFailureExtendedMotor("Could not connect to CAN Jaguar " + deviceNumber);
+        }
     }
 
     public ExtendedMotor makeCANTalon(int deviceNumber) {

@@ -142,11 +142,11 @@ public class DeviceBasedLauncher implements IgneousLauncher {
         return motors[index];
     }
 
-    public ExtendedMotor makeCANJaguar(int deviceNumber) throws ExtendedMotorFailureException {
+    public ExtendedMotor makeCANJaguar(int deviceNumber) {
         return new CANJaguarDevice(deviceNumber, panel).addToMaster().getMotor();
     }
 
-    public ExtendedMotor makeCANTalon(int deviceNumber) throws ExtendedMotorFailureException {
+    public ExtendedMotor makeCANTalon(int deviceNumber) {
         if (!isRoboRIO()) {
             throw new IllegalArgumentException("Cannot use a CANTalon on a cRIO!");
         }

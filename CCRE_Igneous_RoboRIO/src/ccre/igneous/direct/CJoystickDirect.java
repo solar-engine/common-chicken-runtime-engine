@@ -39,21 +39,23 @@ public final class CJoystickDirect implements EventOutput, IJoystick {
      * The joystick reference that is read from.
      */
     private final int port;
+    
+    public static final int MAX_BUTTONS = 12;
 
     /**
      * Events to fire when the buttons are pressed.
      */
-    private final EventStatus[] buttons = new EventStatus[12];
+    private final EventStatus[] buttons = new EventStatus[MAX_BUTTONS];
     /**
      * The last known states of the buttons, used to calculate when to send
      * press events.
      */
-    private final boolean[] states = new boolean[12];
+    private final boolean[] states = new boolean[MAX_BUTTONS];
     /**
      * The objects behind the provided FloatInputs that represent the current
      * values of the joysticks.
      */
-    private final FloatStatus[] axes = new FloatStatus[6];
+    private final FloatStatus[] axes = new FloatStatus[DirectDriverStation.AXIS_NUM];
 
     /**
      * Create a new CJoystick for a specific joystick ID. It will be important
@@ -70,6 +72,7 @@ public final class CJoystickDirect implements EventOutput, IJoystick {
         } else {
             port = joystick - 1;
         }
+        DirectDriverStation.verifyPortNumber(port);
     }
 
     /**
@@ -116,12 +119,15 @@ public final class CJoystickDirect implements EventOutput, IJoystick {
         };
     }
 
-    public EventInput getButtonSource(int id) {
-        EventStatus cur = buttons[id - 1];
+    public EventInput getButtonSource(int button) {
+        if (button < 1) {
+            throw new IllegalArgumentException("Invalid button ID: " + button);
+        }
+        EventStatus cur = buttons[button - 1];
         if (cur == null) {
             cur = new EventStatus();
-            buttons[id - 1] = cur;
-            states[id - 1] = DirectDriverStation.getStickButton(port, (byte) id);
+            buttons[button - 1] = cur;
+            states[button - 1] = DirectDriverStation.getStickButton(port, button - 1);
         }
         return cur;
     }
@@ -137,12 +143,12 @@ public final class CJoystickDirect implements EventOutput, IJoystick {
     }
 
     public void event() {
-        for (int i = 0; i < 12; i++) {
+        for (int i = 0; i < MAX_BUTTONS; i++) {
             EventStatus e = buttons[i];
             if (e == null) {
                 continue;
             }
-            boolean state = DirectDriverStation.getStickButton(port, (byte) (i + 1));
+            boolean state = DirectDriverStation.getStickButton(port, i);
             if (state != states[i]) {
                 if (state && e.hasConsumers()) {
                     e.produce();
@@ -150,7 +156,7 @@ public final class CJoystickDirect implements EventOutput, IJoystick {
                 states[i] = state;
             }
         }
-        for (int i = 0; i < 6; i++) {
+        for (int i = 0; i < DirectDriverStation.AXIS_NUM; i++) {
             FloatStatus fpb = axes[i];
             if (fpb == null) {
                 continue;

@@ -50,7 +50,7 @@ class DirectSolenoid {
             throw new NullPointerException();
         }
         IntBuffer status = Common.allocateInt();
-        SolenoidJNI.setSolenoid(port, (byte) (value ? 1 : 0), status);
+        SolenoidJNI.setSolenoid(port, (byte) (value ? 1 : 0), status); // uhh... no errors...
         Common.check(status);
     }
 
@@ -59,7 +59,7 @@ class DirectSolenoid {
             throw new NullPointerException();
         }
         IntBuffer status = Common.allocateInt();
-        int value = SolenoidJNI.getPCMSolenoidBlackList(port, status);
+        int value = SolenoidJNI.getPCMSolenoidBlackList(port, status); // TODO: handle timeout errors
         Common.check(status);
         return (value & (1 << channel)) != 0;
     }

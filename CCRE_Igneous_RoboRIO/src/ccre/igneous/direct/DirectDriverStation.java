@@ -120,4 +120,10 @@ class DirectDriverStation {
             return (buttons[joy] & (1 << button)) != 0;
         }
     }
+
+    public static void verifyPortNumber(int joy) {
+        if (joy < 0 || joy >= JOYSTICK_NUM) {
+            throw new RuntimeException("Invalid joystick port: " + joy);
+        }
+    }
 }

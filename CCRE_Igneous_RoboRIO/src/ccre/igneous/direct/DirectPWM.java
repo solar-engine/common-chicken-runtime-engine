@@ -172,7 +172,7 @@ class DirectPWM {
             }
         }
         IntBuffer status = Common.allocateInt();
-        PWMJNI.setPWM(port, (short) rawValue, status);
+        PWMJNI.setPWM(port, (short) rawValue, status); // just FPGA errors
         Common.check(status);
     }
 }

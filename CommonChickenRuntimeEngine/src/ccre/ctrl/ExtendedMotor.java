@@ -82,7 +82,11 @@ public abstract class ExtendedMotor {
         /**
          * A boolean fault based on the gate driver.
          */
-        GATE_DRIVER_FAULT(true);
+        GATE_DRIVER_FAULT(true),
+        /**
+         * A boolean fault based on a communications failure
+         */
+        COMMS_FAULT(true);
 
         /**
          * Specifies if this type of fault is reported as a boolean.
@@ -221,7 +225,7 @@ public abstract class ExtendedMotor {
                 if (out instanceof Boolean) {
                     return (Boolean) out;
                 } else {
-                    throw new ExtendedMotorFailureException("Diagnostic type changed to not be a boolean anymore!");
+                    throw new RuntimeException("Diagnostic type changed to not be a boolean anymore!");
                 }
             }
         };

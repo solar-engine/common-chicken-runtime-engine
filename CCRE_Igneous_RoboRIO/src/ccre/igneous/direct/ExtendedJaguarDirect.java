@@ -23,6 +23,7 @@ import ccre.channel.FloatInputPoll;
 import ccre.channel.FloatOutput;
 import ccre.ctrl.ExtendedMotor;
 import ccre.ctrl.ExtendedMotorFailureException;
+import ccre.log.Logger;
 
 /**
  * A CANJaguar ExtendedMotor interface for the roboRIO.
@@ -33,6 +34,8 @@ public class ExtendedJaguarDirect extends ExtendedMotor implements FloatOutput {
 
     private final CANJaguarMod jaguar;
     private Boolean enableMode = null; // null until something cares. This means that it's not enabled, but could be automatically.
+    private boolean isBypassed = false;
+    private long bypassUntil = 0;
 
     /**
      * Allocate a CANJaguar given the CAN bus ID.
@@ -52,7 +55,32 @@ public class ExtendedJaguarDirect extends ExtendedMotor implements FloatOutput {
     }
 
     @Override
-    public void set(float value) throws ExtendedMotorFailureException {
+    public void set(float value) {
+        if (isBypassed) {
+            if (System.currentTimeMillis() > bypassUntil) {
+                isBypassed = false;
+            } else {
+                return;
+            }
+        } else if (enableMode != null && !enableMode) {
+            return;
+        }
+        try {
+            setUnsafe(value);
+        } catch (ExtendedMotorFailureException ex) {
+            isBypassed = true;
+            bypassUntil = System.currentTimeMillis() + 3000;
+            Logger.warning("Motor control failed: CAN Jaguar " + jaguar.m_deviceNumber + ": bypassing for three seconds.", ex);
+            try {
+                disable();
+            } catch (ExtendedMotorFailureException e) {
+                Logger.warning("Could not bypass CAN Jaguar: " + jaguar.m_deviceNumber, e);
+            }
+            enableMode = null; // automatically re-enableable.
+        }
+    }
+
+    public void setUnsafe(float value) throws ExtendedMotorFailureException {
         if (enableMode == null) {
             enable();
         }
@@ -65,6 +93,7 @@ public class ExtendedJaguarDirect extends ExtendedMotor implements FloatOutput {
 
     @Override
     public void enable() throws ExtendedMotorFailureException {
+        isBypassed = false;
         try {
             jaguar.enableControl();
         } catch (RuntimeException ex) {
@@ -75,6 +104,7 @@ public class ExtendedJaguarDirect extends ExtendedMotor implements FloatOutput {
 
     @Override
     public void disable() throws ExtendedMotorFailureException {
+        isBypassed = false;
         try {
             jaguar.disableControl();
         } catch (RuntimeException ex) {
@@ -88,10 +118,14 @@ public class ExtendedJaguarDirect extends ExtendedMotor implements FloatOutput {
         return new BooleanOutput() {
             public void set(boolean value) {
                 if (enableMode == null || enableMode.booleanValue() != value) {
-                    if (value) {
-                        enable();
-                    } else {
-                        disable();
+                    try {
+                        if (value) {
+                            enable();
+                        } else {
+                            disable();
+                        }
+                    } catch (ExtendedMotorFailureException ex) {
+                        Logger.warning("Motor control failed: CAN Jaguar " + jaguar.m_deviceNumber, ex);
                     }
                 }
             }
@@ -140,7 +174,16 @@ public class ExtendedJaguarDirect extends ExtendedMotor implements FloatOutput {
         case OUTPUT_VOLTAGE:
         case TEMPERATURE:
             return new FloatInputPoll() {
+                private boolean zeroed = false;
+                private long zeroUntil = 0;
                 public float get() {
+                    if (zeroed) {
+                        if (System.currentTimeMillis() > zeroUntil) {
+                            zeroed = false;
+                        } else {
+                            return (float) 0.0;
+                        }
+                    }
                     try {
                         switch (type) {
                         case BUS_VOLTAGE:
@@ -153,9 +196,12 @@ public class ExtendedJaguarDirect extends ExtendedMotor implements FloatOutput {
                             return (float) jaguar.getTemperature();
                         }
                     } catch (RuntimeException ex) {
-                        throw new ExtendedMotorFailureException("WPILib CANJaguar Failure: Status", ex);
+                        zeroed = true;
+                        zeroUntil = System.currentTimeMillis() + 3000;
+                        Logger.warning("WPILib CANJaguar Failure during status: temporarily zeroing value for three seconds.", ex);
+                        return (float) 0.0;
                     }
-                    throw new ExtendedMotorFailureException("Invalid internal asStatus setting: " + type);
+                    throw new RuntimeException("Invalid internal asStatus setting: " + type); // should never happen as long as the lists match.
                 }
             };
         default:
@@ -178,8 +224,10 @@ public class ExtendedJaguarDirect extends ExtendedMotor implements FloatOutput {
                 return (jaguar.getFaults() & CANJaguarMod.kGateDriverFault) != 0;
             case TEMPERATURE_FAULT:
                 return (jaguar.getFaults() & CANJaguarMod.kTemperatureFault) != 0;
+            case COMMS_FAULT:
+                return isBypassed;
             case ANY_FAULT:
-                return jaguar.getFaults() != 0;
+                return jaguar.getFaults() != 0 || isBypassed;
             default:
                 return null;
             }

@@ -39,6 +39,7 @@ import ccre.channel.FloatOutput;
 import ccre.channel.SerialIO;
 import ccre.cluck.Cluck;
 import ccre.ctrl.BooleanMixing;
+import ccre.ctrl.CommunicationFailureExtendedMotor;
 import ccre.ctrl.ExtendedMotor;
 import ccre.ctrl.ExtendedMotorFailureException;
 import ccre.ctrl.FloatMixing;
@@ -165,7 +166,7 @@ public final class DirectIgneousLauncherImpl implements IgneousLauncher {
      */
     private ByteBuffer pcmCompressor;
 
-    private Mode activeMode;
+    private Mode activeMode = Mode.DISABLED;
 
     private final EventStatus[] startEvents, duringEvents;
 
@@ -281,7 +282,7 @@ public final class DirectIgneousLauncherImpl implements IgneousLauncher {
 
     public BooleanOutput makeDigitalOutput(int id) {
         DirectDigital.init(id, false);
-        return value -> DirectDigital.get(id);
+        return value -> DirectDigital.set(id, value);
     }
 
     public FloatInputPoll makeAnalogInput(int id) {
@@ -308,6 +309,9 @@ public final class DirectIgneousLauncherImpl implements IgneousLauncher {
     }
 
     public FloatOutput makeServo(int id, final float minInput, float maxInput) {
+        if (minInput == maxInput) {
+            throw new IllegalArgumentException("Servos cannot have their extrema be the same!");
+        }
         DirectPWM.init(id, DirectPWM.TYPE_SERVO);
         return f -> DirectPWM.set(id, (f - minInput) / (maxInput - minInput));
     }
@@ -367,6 +371,9 @@ public final class DirectIgneousLauncherImpl implements IgneousLauncher {
 
     @Deprecated
     public FloatInputPoll makeAccelerometerAxis(int port, double sensitivity, double zeropoint) {
+        if (sensitivity == 0) {
+            throw new IllegalArgumentException("Accelerometer sensitivity cannot be zero!");
+        }
         return FloatMixing.division.of(FloatMixing.subtraction.of(makeAnalogInput(port), (float) zeropoint), (float) sensitivity);
     }
 
@@ -436,14 +443,17 @@ public final class DirectIgneousLauncherImpl implements IgneousLauncher {
     }
 
     public BooleanInputPoll getPCMPressureSwitch() {
+        getPCMCompressor();
         return () -> DirectCompressor.getPressureSwitch(getPCMCompressor());
     }
 
     public BooleanInputPoll getPCMCompressorRunning() {
+        getPCMCompressor();
         return () -> DirectCompressor.getCompressorRunning(getPCMCompressor());
     }
 
     public FloatInputPoll getPCMCompressorCurrent() {
+        getPCMCompressor();
         return () -> DirectCompressor.getCompressorCurrent(getPCMCompressor());
     }
 
@@ -482,19 +492,28 @@ public final class DirectIgneousLauncherImpl implements IgneousLauncher {
     }
 
     public FloatInputPoll getBatteryVoltage() {
+        DirectPower.init();
         return () -> DirectPower.getBatteryVoltage();
     }
 
-    public ExtendedMotor makeCANJaguar(int deviceNumber) throws ExtendedMotorFailureException {
+    public ExtendedMotor makeCANJaguar(int deviceNumber) {
         try {
             return new ExtendedJaguarDirect(deviceNumber);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
             throw new RuntimeException("Interrupted during CAN Jaguar initialization");
+        } catch (ExtendedMotorFailureException ex) {
+            Logger.severe("Could not connect to CAN Jaguar " + deviceNumber, ex);
+            return new CommunicationFailureExtendedMotor("Could not connect to CAN Jaguar " + deviceNumber);
         }
     }
 
-    public ExtendedMotor makeCANTalon(int deviceNumber) throws ExtendedMotorFailureException {
-        return new ExtendedTalonDirect(deviceNumber);
+    public ExtendedMotor makeCANTalon(int deviceNumber) {
+        try {
+            return new ExtendedTalonDirect(deviceNumber);
+        } catch (ExtendedMotorFailureException e) {
+            Logger.severe("Could not connect to CAN Talon " + deviceNumber, e);
+            return new CommunicationFailureExtendedMotor("Could not connect to CAN Talon " + deviceNumber);
+        }
     }
 }

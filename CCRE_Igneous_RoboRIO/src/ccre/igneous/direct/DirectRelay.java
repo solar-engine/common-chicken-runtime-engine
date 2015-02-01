@@ -48,13 +48,13 @@ class DirectRelay {
 
     public static void setForward(ByteBuffer port, boolean active) {
         IntBuffer status = Common.allocateInt();
-        RelayJNI.setRelayForward(port, (byte) (active ? 1 : 0), status);
+        RelayJNI.setRelayForward(port, (byte) (active ? 1 : 0), status); // just FPGA errors
         Common.check(status);
     }
 
     public static void setReverse(ByteBuffer port, boolean active) {
         IntBuffer status = Common.allocateInt();
-        RelayJNI.setRelayReverse(port, (byte) (active ? 1 : 0), status);
+        RelayJNI.setRelayReverse(port, (byte) (active ? 1 : 0), status); // just FPGA errors
         Common.check(status);
     }
 }

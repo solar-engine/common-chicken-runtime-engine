@@ -47,20 +47,20 @@ class DirectEncoder {
         EncoderJNI.freeEncoder(port, status);
         Common.check(status);
     }
-    
+
     public static void reset(ByteBuffer port) {
         IntBuffer status = Common.allocateInt();
-        EncoderJNI.resetEncoder(port, status);
+        EncoderJNI.resetEncoder(port, status); // just FPGA errors
         Common.check(status);
     }
-    
+
     public static int getRaw(ByteBuffer port) {
         IntBuffer status = Common.allocateInt();
-        int value = EncoderJNI.getEncoder(port, status);
+        int value = EncoderJNI.getEncoder(port, status); // just FPGA errors
         Common.check(status);
         return value;
     }
-    
+
     public static float get(ByteBuffer port) {
         return getRaw(port) / 4;
     }

@@ -71,7 +71,7 @@ class DirectDigital {
             throw new RuntimeException("Digital port not opened for writing: " + channel);
         }
         IntBuffer status = Common.allocateInt();
-        DIOJNI.setDIO(dig, (short) (value ? 1 : 0), status);
+        DIOJNI.setDIO(dig, (short) (value ? 1 : 0), status); // just FPGA errors
         Common.check(status);
     }
     
@@ -84,7 +84,7 @@ class DirectDigital {
             throw new RuntimeException("Digital port not opened for reading: " + channel);
         }
         IntBuffer status = Common.allocateInt();
-        boolean value = DIOJNI.getDIO(dig, status) != 0;
+        boolean value = DIOJNI.getDIO(dig, status) != 0; // just FPGA errors
         Common.check(status);
         return value;
     }

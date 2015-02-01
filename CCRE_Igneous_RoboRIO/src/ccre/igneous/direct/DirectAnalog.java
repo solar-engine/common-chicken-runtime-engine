@@ -56,7 +56,7 @@ class DirectAnalog {
         IntBuffer status = Common.allocateInt();
         AnalogJNI.initAccumulator(analog, status);
         Common.check(status);
-        
+
         AnalogJNI.setAccumulatorDeadband(analog, 0, status);
         Common.check(status);
 
@@ -73,14 +73,14 @@ class DirectAnalog {
     public static float getAverageVoltage(ByteBuffer channel) {
         IntBuffer status = Common.allocateInt();
         double out = AnalogJNI.getAnalogAverageVoltage(channel, status);
-        Common.check(status);
+        Common.check(status); // just FPGA and FRCComm-calibrate errors
         return (float) out;
     }
 
     public static int getAverageValue(ByteBuffer channel) {
         IntBuffer status = Common.allocateInt();
         int out = AnalogJNI.getAnalogAverageValue(channel, status);
-        Common.check(status);
+        Common.check(status); // just FPGA errors
         return out;
     }
 
@@ -92,20 +92,21 @@ class DirectAnalog {
 
     public static double getGlobalSampleRate() {
         IntBuffer status = Common.allocateInt();
-        double value = AnalogJNI.getAnalogSampleRate(status);
+        double value = AnalogJNI.getAnalogSampleRate(status); // only FPGA errors
         Common.check(status);
         return value;
     }
+
     public static void resetAccumulator(ByteBuffer analog) {
         IntBuffer status = Common.allocateInt();
-        AnalogJNI.resetAccumulator(analog, status);
-        Common.check(status);
+        AnalogJNI.resetAccumulator(analog, status); // FPGA errors or null accumulator, which should only be a concern if the port is not 0 or 1. Not an issue.
+        Common.check(status); // if this fails with a NULL_PARAMETER, that's because the channel is not an accumulator channel.
     }
 
     public static long readAccumulatorValue(ByteBuffer analog, IntBuffer directCount) {
         LongBuffer value = Common.allocateLong();
         IntBuffer status = Common.allocateInt();
-        AnalogJNI.getAccumulatorOutput(analog, value, directCount, status);
+        AnalogJNI.getAccumulatorOutput(analog, value, directCount, status); // FPGA errors, null accumulator, or null pointer. Not an issue.
         Common.check(status);
         return value.get(0);
     }
@@ -118,7 +119,7 @@ class DirectAnalog {
 
     public static long getLSBWeight(ByteBuffer gyro) {
         IntBuffer status = Common.allocateInt();
-        long value = AnalogJNI.getAnalogLSBWeight(gyro, status);
+        long value = AnalogJNI.getAnalogLSBWeight(gyro, status); // just FRCComm-calibrate errors
         Common.check(status);
         return value;
     }

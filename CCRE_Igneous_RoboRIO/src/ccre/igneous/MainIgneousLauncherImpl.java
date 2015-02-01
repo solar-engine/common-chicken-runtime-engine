@@ -267,6 +267,7 @@ public final class MainIgneousLauncherImpl extends RobotBase implements IgneousL
         return () -> (float) chan.getAverageVoltage();
     }
 
+    @Deprecated
     public FloatInputPoll makeAnalogInput_ValuedBased(int id, int averageBits) {
         final AnalogInput chan = new AnalogInput(id);
         chan.setAverageBits(averageBits);
@@ -330,6 +331,7 @@ public final class MainIgneousLauncherImpl extends RobotBase implements IgneousL
         return () -> (float) g.getAngle();
     }
 
+    @Deprecated
     public FloatInputPoll makeAccelerometerAxis(int port, double sensitivity, double zeropoint) {
         final AnalogAccelerometer a = new AnalogAccelerometer(port);
         a.setSensitivity(sensitivity);

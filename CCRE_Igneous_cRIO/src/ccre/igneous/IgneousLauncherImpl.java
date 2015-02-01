@@ -342,6 +342,7 @@ final class IgneousLauncherImpl extends IterativeRobot implements IgneousLaunche
         };
     }
 
+    @Deprecated
     public FloatInputPoll makeAnalogInput_ValuedBased(int id, int averageBits) {
         final AnalogChannel chan = new AnalogChannel(id);
         chan.setAverageBits(averageBits);
@@ -483,6 +484,7 @@ final class IgneousLauncherImpl extends IterativeRobot implements IgneousLaunche
         };
     }
 
+    @Deprecated
     public FloatInputPoll makeAccelerometerAxis(int port, double sensitivity, double zeropoint) {
         final Accelerometer a = new Accelerometer(port);
         a.setSensitivity(sensitivity);

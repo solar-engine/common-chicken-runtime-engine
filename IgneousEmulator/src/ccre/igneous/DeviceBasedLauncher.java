@@ -198,6 +198,7 @@ public class DeviceBasedLauncher implements IgneousLauncher {
         return makeAnalogInput(id);
     }
 
+    @Deprecated
     public FloatInputPoll makeAnalogInput_ValuedBased(int id, int averageBits) {
         Logger.warning("ValueBased analog inputs are deprecated.");
         return FloatMixing.addition.of(FloatMixing.multiplication.of(makeAnalogInput(id), 2048), 2048);
@@ -270,6 +271,7 @@ public class DeviceBasedLauncher implements IgneousLauncher {
         return panel.add(new SpinDevice("Gyro " + port + " (Sensitivity " + sensitivity + ")", resetWhen));
     }
 
+    @Deprecated
     public FloatInputPoll makeAccelerometerAxis(int port, double sensitivity, double zeropoint) {
         return panel.add(new SpinDevice("Accelerometer " + port + " (Sensitivity " + sensitivity + ", Zero-Point " + zeropoint + ")", null));
     }

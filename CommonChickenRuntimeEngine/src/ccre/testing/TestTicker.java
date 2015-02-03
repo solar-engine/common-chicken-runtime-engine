@@ -19,10 +19,13 @@
 package ccre.testing;
 
 import ccre.channel.EventOutput;
+import ccre.ctrl.EventMixing;
 import ccre.ctrl.Ticker;
+import ccre.log.Logger;
 
 /**
- *
+ * Tests the Ticker class.
+ * 
  * @author skeggsc
  */
 public class TestTicker extends BaseTest {
@@ -34,12 +37,19 @@ public class TestTicker extends BaseTest {
 
     @Override
     protected void runTest() throws TestingException, InterruptedException {
+        runCorrect();
+        runBroken();
+    }
+
+    private void runCorrect() throws TestingException, InterruptedException {
         final int[] cur = new int[1];
         EventOutput a = new EventOutput() {
             public void event() {
                 try {
                     Thread.sleep(15);
-                    cur[0]++;
+                    synchronized (cur) {
+                        cur[0]++;
+                    }
                 } catch (InterruptedException ex) {
                     // Ignore it.
                 }
@@ -50,22 +60,128 @@ public class TestTicker extends BaseTest {
             Ticker t = new Ticker(19, true);
             try {
                 t.send(a);
-                Thread.sleep(500);
-                assertTrue(24 <= cur[0] && cur[0] <= 26, "Bad Ticker count: " + cur[0]);
+                Thread.sleep(499);
+                synchronized (cur) {
+                    assertTrue(23 <= cur[0] && cur[0] <= 26, "Bad Ticker count: " + cur[0]);
+                }
             } finally {
                 t.terminate();
             }
         }
+        Thread.sleep(30);
         {
             cur[0] = 0;
             Ticker t = new Ticker(19, false);
             try {
                 t.send(a);
-                Thread.sleep(500);
-                assertTrue(13 <= cur[0] && cur[0] <= 14, "Bad Ticker count!");
+                t.unsend(a);
+                Thread.sleep(499);
+                synchronized (cur) {
+                    assertTrue(cur[0] == 0, "Bad Ticker count: " + cur[0]);
+                }
+                t.send(a);
+                Thread.sleep(499);
+                synchronized (cur) {
+                    assertTrue(13 <= cur[0] && cur[0] <= 15, "Bad Ticker count: " + cur[0]);
+                }
             } finally {
                 t.terminate();
             }
+        }
+        Thread.sleep(30);
+        {
+            cur[0] = 0;
+            Ticker t = new Ticker(19);
+            try {
+                t.send(a);
+                Thread.sleep(499);
+                synchronized (cur) {
+                    assertTrue(13 <= cur[0] && cur[0] <= 14, "Bad Ticker count!");
+                }
+            } finally {
+                t.terminate();
+            }
+            try {
+                t.send(EventMixing.ignored);
+                assertFail("Expected a failure!");
+            } catch (IllegalStateException exc) {
+                // Correct!
+            }
+        }
+    }
+
+    private void runBroken() throws TestingException, InterruptedException {
+        Ticker t = new Ticker(19);
+        try {
+            final int[] ctr = new int[1];
+            Logger.info("The following ticker main loop errors are purposeful.");
+            t.send(new EventOutput() {
+                public void event() {
+                    synchronized (ctr) {
+                        ctr[0]++;
+                    }
+                    throw new RuntimeException("Ticker purposeful failure.");
+                }
+            });
+            Thread.sleep(201);
+            synchronized (ctr) {
+                assertTrue(ctr[0] == 6, "Should not have counted that number: " + ctr[0]);
+                ctr[0] = 0;
+            }
+            Thread.sleep(120);
+            synchronized (ctr) {
+                assertTrue(ctr[0] == 0, "Should not have counted at all!");
+            }
+        } finally {
+            t.terminate();
+        }
+
+        t = new Ticker(19);
+        try {
+            final int[] ctr = new int[1];
+            Logger.info("The following ticker main loop errors are purposeful.");
+            t.send(new EventOutput() {
+                public void event() {
+                    synchronized (ctr) {
+                        ctr[0]++;
+                        if (ctr[0] < 6) { // stops right before it would get permanently detached.
+                            throw new RuntimeException("Ticker purposeful failure.");
+                        }
+                    }
+                }
+            });
+            Thread.sleep(251);
+            synchronized (ctr) {
+                assertTrue(ctr[0] >= 7, "Should not have counted that number: " + ctr[0]);
+                ctr[0] = 0;
+            }
+            Thread.sleep(120);
+            synchronized (ctr) {
+                assertTrue(ctr[0] > 0, "Should have counted some!");
+            }
+        } finally {
+            t.terminate();
+        }
+
+        t = new Ticker(19);
+        try {
+            final int[] ctr = new int[1];
+            Logger.info("The following ticker main loop errors are purposeful.");
+            t.send(new EventOutput() {
+                public void event() {
+                    synchronized (ctr) {
+                        if (ctr[0]++ == 3) {
+                            throw new RuntimeException("Ticker purposeful failure.");
+                        }
+                    }
+                }
+            });
+            Thread.sleep(249);
+            synchronized (ctr) {
+                assertTrue(ctr[0] >= 8, "Should have continued to count: " + ctr[0]);
+            }
+        } finally {
+            t.terminate();
         }
     }
 }

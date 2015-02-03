@@ -8,6 +8,11 @@ import ccre.ctrl.ExpirationTimer;
 import ccre.ctrl.FloatMixing;
 import ccre.util.Utils;
 
+/**
+ * Tests the ExpirationTimer class.
+ * 
+ * @author skeggsc
+ */
 public class TestExpirationTimer extends BaseTest {
     // Warning: there IS some amount of dependency in these tests on timing, and this may have issues with Java implementations.
     // Sometimes, they'll probably fail randomly.
@@ -107,14 +112,14 @@ public class TestExpirationTimer extends BaseTest {
             assertTrue(light3.get(), "Light 3 should still be on!");
 
             assertTrue(sequencer.isRunning(), "Should have continued running.");
-            
+
             EventStatus status = new EventStatus();
             sequencer.stopWhen(status);
-            
+
             assertTrue(sequencer.isRunning(), "Should have continued running.");
-            
+
             status.produce();
-            
+
             assertFalse(sequencer.isRunning(), "Should have stopped running.");
         } finally {
             sequencer.terminate();
@@ -204,7 +209,7 @@ public class TestExpirationTimer extends BaseTest {
             BooleanStatus light = new BooleanStatus();
             warningLight.scheduleEnable(100, light);
             warningLight.scheduleDisable(200, light);
-            
+
             warningLight.start();
             Thread.sleep(50);
             assertFalse(light.get(), "Light should be off!");
@@ -216,8 +221,8 @@ public class TestExpirationTimer extends BaseTest {
             warningLight.terminate();
         }
     }
-    
-    private void testBadUsage() throws TestingException, InterruptedException {
+
+    private void testBadUsage() throws TestingException {
         ExpirationTimer bad = new ExpirationTimer();
         try {
             EventStatus feeder = new EventStatus();
@@ -286,7 +291,7 @@ public class TestExpirationTimer extends BaseTest {
             bad.terminate();
         }
     }
-    
+
     private void testSelfStopper() throws TestingException, InterruptedException {
         ExpirationTimer selfStopper = new ExpirationTimer();
         try {

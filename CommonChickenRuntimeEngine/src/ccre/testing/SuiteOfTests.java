@@ -52,6 +52,7 @@ public class SuiteOfTests {
                 new TestStateMachine(),
                 new TestMixing(),
                 new TestTicker(),
+                new TestPauseTimer(),
 
                 // ccre.event
                 new TestEventStatus(),

@@ -10,6 +10,11 @@ import ccre.ctrl.EventMixing;
 import ccre.ctrl.StateMachine;
 import ccre.log.LogLevel;
 
+/**
+ * Tests the StateMachine class.
+ * 
+ * @author skeggsc
+ */
 public class TestStateMachine extends BaseTest {
 
     @Override

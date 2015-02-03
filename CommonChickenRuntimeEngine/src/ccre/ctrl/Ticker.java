@@ -35,6 +35,7 @@ public final class Ticker implements EventInput {
     private final EventStatus producer = new EventStatus();
     private final ReporterThread main;
     private boolean isKilled = false;
+    private final Object lock = new Object();
 
     /**
      * Create a new Ticker with the specified interval. The timer will start
@@ -102,7 +103,9 @@ public final class Ticker implements EventInput {
     public void terminate() {
         isKilled = true;
         producer.clearListeners();
-        main.interrupt();
+        synchronized (lock) {
+            lock.notifyAll();
+        }
     }
 
     private class MainTickerThread extends ReporterThread {
@@ -121,18 +124,28 @@ public final class Ticker implements EventInput {
         protected void threadBody() throws InterruptedException {
             if (fixedRate) {
                 long next = System.currentTimeMillis() + interval;
-                while (!isKilled) {
-                    long rem = next - System.currentTimeMillis();
-                    if (rem > 0) {
-                        Thread.sleep(rem);
-                        continue;
+                while (true) {
+                    synchronized (lock) {
+                        if (isKilled) {
+                            break;
+                        }
+                        long rem = next - System.currentTimeMillis();
+                        if (rem > 0) {
+                            lock.wait(rem);
+                            continue;
+                        }
                     }
                     cycle();
                     next += interval;
                 }
             } else {
                 while (!isKilled) {
-                    Thread.sleep(interval);
+                    long doneAt = System.currentTimeMillis() + interval;
+                    synchronized (lock) {
+                        while (!isKilled && System.currentTimeMillis() < doneAt) {
+                            lock.wait(interval);
+                        }
+                    }
                     cycle();
                 }
             }

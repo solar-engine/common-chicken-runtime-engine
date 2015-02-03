@@ -41,18 +41,24 @@ public class PauseTimer implements BooleanInput, EventOutput {
     private final long timeout;
     private final Object lock = new Object();
     private final ConcurrentDispatchArray<BooleanOutput> consumers = new ConcurrentDispatchArray<BooleanOutput>();
+    private boolean isRunning = true;
     private final ReporterThread main = new ReporterThread("PauseTimer") {
         @Override
         protected void threadBody() throws InterruptedException {
             while (true) {
                 synchronized (lock) {
-                    while (endAt == 0) {
+                    while (isRunning && endAt == 0) {
                         lock.wait();
+                    }
+                    if (!isRunning) {
+                        break;
                     }
                 }
                 long now;
                 while ((now = System.currentTimeMillis()) < endAt) {
-                    Thread.sleep(endAt - now);
+                    synchronized (lock) {
+                        lock.wait(endAt - now);
+                    }
                 }
                 try {
                     setEndAt(0);
@@ -70,6 +76,17 @@ public class PauseTimer implements BooleanInput, EventOutput {
      */
     public PauseTimer(long timeout) {
         this.timeout = timeout;
+    }
+
+    /**
+     * Terminate the timer and its thread. It will not function after this point - do not
+     * attempt to use it.
+     */
+    public void terminate() {
+        isRunning = false;
+        synchronized (lock) {
+            lock.notifyAll();
+        }
     }
 
     /**

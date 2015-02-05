@@ -203,37 +203,41 @@ public class CluckTCPClient extends ReporterThread {
     }
 
     private String tryConnection() {
+        String postfix = "";
         try {
-            isReconnecting = true;
-            sock = Network.connectDynPort(remote, DEFAULT_PORT);
-            DataInputStream din = sock.openDataInputStream();
             try {
-                DataOutputStream dout = sock.openDataOutputStream();
-                isEstablished = true;
+                isReconnecting = true;
+                sock = Network.connectDynPort(remote, DEFAULT_PORT);
+                DataInputStream din = sock.openDataInputStream();
                 try {
-                    CluckProtocol.handleHeader(din, dout, remoteNameHint);
-                    Logger.fine("Connected to " + remote + " at " + System.currentTimeMillis());
-                    CluckProtocol.setTimeoutOnSocket(sock);
-                    CluckLink deny = CluckProtocol.handleSend(dout, linkName, node);
-                    node.notifyNetworkModified(); // Only send here, not on server.
-                    isReconnecting = false;
-                    CluckProtocol.handleRecv(din, linkName, node, deny);
+                    DataOutputStream dout = sock.openDataOutputStream();
+                    isEstablished = true;
+                    try {
+                        CluckProtocol.handleHeader(din, dout, remoteNameHint);
+                        Logger.fine("Connected to " + remote + " at " + System.currentTimeMillis());
+                        CluckProtocol.setTimeoutOnSocket(sock);
+                        CluckLink deny = CluckProtocol.handleSend(dout, linkName, node);
+                        node.notifyNetworkModified(); // Only send here, not on server.
+                        isReconnecting = false;
+                        CluckProtocol.handleRecv(din, linkName, node, deny);
+                    } finally {
+                        dout.close();
+                    }
                 } finally {
-                    dout.close();
+                    din.close();
                 }
-            } finally {
-                din.close();
+            } catch (IOException ex) {
+                if ("Remote server not available.".equals(ex.getMessage()) || "Timed out while connecting.".equals(ex.getMessage()) || "java.net.UnknownHostException".equals(ex.getClass().getName())) {
+                    postfix = " (" + ex.getMessage() + ")";
+                } else {
+                    Logger.warning("IO Error while handling connection", ex);
+                }
             }
-        } catch (IOException ex) {
-            if ("Remote server not available.".equals(ex.getMessage()) || "Timed out while connecting.".equals(ex.getMessage()) || "java.net.UnknownHostException".equals(ex.getClass().getName())) {
-                return " (" + ex.getMessage() + ")";
-            }
-            Logger.warning("IO Error while handling connection", ex);
         } finally {
             isReconnecting = false;
             isEstablished = false;
         }
-        return "";
+        return postfix;
     }
 
     /**

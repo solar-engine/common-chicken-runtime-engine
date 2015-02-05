@@ -51,6 +51,8 @@ public class SuiteOfTests {
                 new TestExpirationTimer(),
                 new TestStateMachine(),
                 new TestMixing(),
+                new TestEventMixing(),
+                new TestBooleanMixing(),
                 new TestTicker(),
                 new TestPauseTimer(),
 

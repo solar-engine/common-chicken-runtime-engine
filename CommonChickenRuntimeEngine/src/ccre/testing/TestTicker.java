@@ -70,11 +70,16 @@ public class TestTicker extends BaseTest {
         }
         Thread.sleep(30);
         {
-            cur[0] = 0;
+            synchronized (cur) {
+                cur[0] = 0;
+            }
             Ticker t = new Ticker(19, false);
             try {
                 t.send(a);
                 t.unsend(a);
+                synchronized (cur) {
+                    assertTrue(cur[0] == 0, "Bad Ticker count: " + cur[0]);
+                }
                 Thread.sleep(499);
                 synchronized (cur) {
                     assertTrue(cur[0] == 0, "Bad Ticker count: " + cur[0]);

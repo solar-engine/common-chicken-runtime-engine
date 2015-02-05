@@ -22,7 +22,7 @@ import ccre.channel.FloatFilter;
 import ccre.ctrl.FloatMixing;
 
 /**
- * Tests the Mixing class, a tiny amount.
+ * Tests the Mixing class.
  *
  * @author skeggsc
  */
@@ -30,11 +30,11 @@ public class TestMixing extends BaseTest {
 
     @Override
     public String getName() {
-        return "Minimal Mixing Test";
+        return "Mixing Test";
     }
 
     @Override
-    protected void runTest() throws TestingException {
+    protected void runTest() throws TestingException, InterruptedException {
         // Added to as I need to test things, not fleshed out yet.
         FloatFilter limit1 = FloatMixing.limit(Float.NEGATIVE_INFINITY, 0);
         assertObjectEqual(limit1.filter(-10000), -10000f, "Bad limit!");

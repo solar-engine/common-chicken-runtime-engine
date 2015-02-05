@@ -42,21 +42,21 @@ public class TestExpirationTimer extends BaseTest {
             alarmClock.start();
             assertTrue(alarmClock.isRunning(), "Alarm clock should be running!");
 
-            Thread.sleep(150);
+            Thread.sleep(151);
             assertTrue(alarmClock.isRunning(), "Alarm clock should still be running!");
-            assertTrue(Math.abs(time.get() - expected) < 0.01f, "Alarm clock did not ring properly!");
+            assertTrue(Math.abs(time.get() - expected) < 0.01f, "Alarm clock did not ring properly: " + (time.get() - expected) * 1000 + "ms");
 
-            Thread.sleep(150);
+            Thread.sleep(151);
             assertTrue(alarmClock.isRunning(), "Alarm clock should still be running!");
-            assertTrue(Math.abs(time.get() - expected) < 0.01f, "Alarm clock did not ring properly!");
+            assertTrue(Math.abs(time.get() - expected) < 0.01f, "Alarm clock did not ring properly: " + (time.get() - expected) * 1000 + "ms");
 
             expected = Utils.getCurrentTimeSeconds() + 0.099f;
             alarmClock.feed();
             assertTrue(alarmClock.isRunning(), "Alarm clock should still be running!");
 
-            Thread.sleep(150);
+            Thread.sleep(151);
             assertTrue(alarmClock.isRunning(), "Alarm clock should still be running!");
-            assertTrue(Math.abs(time.get() - expected) < 0.01f, "Alarm clock did not ring properly!");
+            assertTrue(Math.abs(time.get() - expected) < 0.01f, "Alarm clock did not ring properly: " + (time.get() - expected) * 1000 + "ms");
 
             alarmClock.stop();
             assertFalse(alarmClock.isRunning(), "Alarm clock should have stopped!");
@@ -75,14 +75,14 @@ public class TestExpirationTimer extends BaseTest {
             sequencer.scheduleBooleanPeriod(99, 199, light2, true);
             sequencer.scheduleBooleanPeriod(99, 199, light3, false);
 
-            Thread.sleep(25);
+            Thread.sleep(75);
 
             assertFalse(light.get(), "Light should be off!");
             assertFalse(light2.get(), "Light 2 should be off!");
             assertTrue(light3.get(), "Light 3 should be on!");
             sequencer.start();
 
-            Thread.sleep(50);
+            Thread.sleep(75);
             assertTrue(light.get(), "Light should be on!");
             assertFalse(light2.get(), "Light 2 should be off!");
             assertTrue(light3.get(), "Light 3 should be on!");

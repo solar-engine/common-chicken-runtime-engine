@@ -39,7 +39,7 @@
 	<target name="run-tests">
 		<delete file="cobertura.ser" />
 		<delete dir="${instrumented.dir}" />
-		<cobertura-instrument todir="${instrumented.dir}">
+		<cobertura-instrument todir="${instrumented.dir}" ignoretrivial="true">
 			<fileset dir="bin">
 				<include name="**/*.class" />
 				<exclude name="ccre/testing/*.class" />
@@ -55,5 +55,14 @@
 			</classpath>
 		</java>
 		<cobertura-report format="html" destdir="coverage" srcdir="src" />
+
+		<property name="browser-target" location="coverage" />
+
+		<script language="javascript">
+			<![CDATA[
+		    location = "file:///"+project.getProperty("browser-target").toString().replaceAll("\\\\","/")+"/index.html";
+		    java.awt.Desktop.getDesktop().browse(java.net.URI.create(location));
+			]]>
+		</script>
 	</target>
 </project>

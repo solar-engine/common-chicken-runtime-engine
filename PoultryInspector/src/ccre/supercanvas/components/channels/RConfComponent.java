@@ -19,7 +19,6 @@
 package ccre.supercanvas.components.channels;
 
 import java.awt.Color;
-import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Graphics2D;
 
@@ -38,6 +37,8 @@ import ccre.supercanvas.Rendering;
  * @author skeggsc
  */
 public class RConfComponent extends DraggableBoxComponent {
+
+    private static final long serialVersionUID = 6222627208004874042L;
 
     private static final Color bodyColor = Color.ORANGE;
 
@@ -117,7 +118,7 @@ public class RConfComponent extends DraggableBoxComponent {
                     break;
                 }
             }
-            g.setFont(asTitle ? Rendering.labels : Rendering.console);
+            g.setFont(asTitle ? Rendering.midlabels : Rendering.console);
             String str = updater.isDoingWork() ? "loading..." : this.path;
             int hw = g.getFontMetrics().stringWidth(str) / 2;
             if (hw + 10 > halfWidth) {
@@ -137,8 +138,8 @@ public class RConfComponent extends DraggableBoxComponent {
             } else {
                 switch (data[0]) {
                 case RConf.F_TITLE:
-                    g.setFont(Rendering.labels);
-                    textShift = 20;
+                    g.setFont(Rendering.midlabels);
+                    textShift = 15;
                     String title = RConf.parseTextual(data);
                     str = title == null ? "<invalid:bad-title>" : title;
                     break;

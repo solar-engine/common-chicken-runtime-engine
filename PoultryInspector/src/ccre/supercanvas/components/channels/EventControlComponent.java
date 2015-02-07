@@ -26,6 +26,7 @@ import java.io.Serializable;
 import ccre.channel.EventInput;
 import ccre.channel.EventOutput;
 import ccre.channel.EventStatus;
+import ccre.rconf.RConf.Entry;
 import ccre.supercanvas.BaseChannelComponent;
 import ccre.supercanvas.Rendering;
 import ccre.supercanvas.SuperCanvasPanel;
@@ -38,7 +39,7 @@ import ccre.supercanvas.SuperCanvasPanel;
 public class EventControlComponent extends BaseChannelComponent<EventControlComponent.View> implements EventInput {
 
     static enum View {
-        CONFIGURATION, ISOMETRIC_BUTTON, SQUARE_BUTTON, TEXTUAL
+        ISOMETRIC_BUTTON, SQUARE_BUTTON, TEXTUAL
     }
 
     private static final long serialVersionUID = 5604099540525088534L;
@@ -132,7 +133,6 @@ public class EventControlComponent extends BaseChannelComponent<EventControlComp
             clickWidth = g.getFontMetrics().stringWidth(text);
             g.drawString(text, centerX - g.getFontMetrics().stringWidth(text) / 2, centerY + g.getFontMetrics().getAscent() / 2);
             break;
-        case CONFIGURATION: // never called
         }
     }
 
@@ -182,8 +182,18 @@ public class EventControlComponent extends BaseChannelComponent<EventControlComp
     }
 
     private final class CountNotifier implements EventOutput, Serializable {
+        private static final long serialVersionUID = 2028623211384850963L;
+
         public void event() {
             countStart = System.currentTimeMillis();
         }
+    }
+
+    public Entry[] queryRConf() throws InterruptedException {
+        return rconfBase();
+    }
+
+    public void signalRConf(int field, byte[] data) throws InterruptedException {
+        rconfBase(field, data);
     }
 }

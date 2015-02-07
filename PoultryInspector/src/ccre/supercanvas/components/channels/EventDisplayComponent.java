@@ -24,6 +24,7 @@ import java.awt.Graphics2D;
 
 import ccre.channel.EventInput;
 import ccre.channel.EventOutput;
+import ccre.rconf.RConf.Entry;
 import ccre.supercanvas.BaseChannelComponent;
 import ccre.supercanvas.Rendering;
 import ccre.supercanvas.SuperCanvasPanel;
@@ -36,7 +37,7 @@ import ccre.supercanvas.SuperCanvasPanel;
 public class EventDisplayComponent extends BaseChannelComponent<EventDisplayComponent.View> implements EventOutput {
 
     static enum View {
-        CONFIGURATION, FLASHING_LIGHT, TIME_COUNTER, TEXTUAL
+        FLASHING_LIGHT, TIME_COUNTER, TEXTUAL
     }
 
     private static final long serialVersionUID = 7298197110274322991L;
@@ -94,7 +95,6 @@ public class EventDisplayComponent extends BaseChannelComponent<EventDisplayComp
             text = count < 500 ? "YES" : "NO";
             g.drawString(text, centerX - g.getFontMetrics().stringWidth(text) / 2, centerY + g.getFontMetrics().getAscent() / 2);
             break;
-        case CONFIGURATION: // never called
         }
     }
 
@@ -124,5 +124,13 @@ public class EventDisplayComponent extends BaseChannelComponent<EventDisplayComp
     @Override
     protected void setDefaultView() {
         activeView = View.FLASHING_LIGHT;
+    }
+
+    public Entry[] queryRConf() throws InterruptedException {
+        return rconfBase();
+    }
+
+    public void signalRConf(int field, byte[] data) throws InterruptedException {
+        rconfBase(field, data);
     }
 }

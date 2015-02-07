@@ -30,6 +30,8 @@ import java.awt.geom.AffineTransform;
 import ccre.channel.FloatInput;
 import ccre.channel.FloatOutput;
 import ccre.log.Logger;
+import ccre.rconf.RConf;
+import ccre.rconf.RConf.Entry;
 import ccre.supercanvas.BaseChannelComponent;
 import ccre.supercanvas.Rendering;
 import ccre.supercanvas.SuperCanvasPanel;
@@ -42,11 +44,12 @@ import ccre.supercanvas.SuperCanvasPanel;
 public class FloatDisplayComponent extends BaseChannelComponent<FloatDisplayComponent.View> implements FloatOutput {
 
     static enum View {
-        CONFIGURATION, HORIZONTAL_POINTER, DIAL, TEXTUAL
+        HORIZONTAL_POINTER, DIAL, TEXTUAL
     }
 
     private static final long serialVersionUID = 4027452153991095626L;
     private float value;
+    private float minimum = -1.0f, maximum = 1.0f;
     private boolean subscribed;
     private final FloatInput inp;
 
@@ -95,7 +98,7 @@ public class FloatDisplayComponent extends BaseChannelComponent<FloatDisplayComp
                 String strv = String.format("%.3f", value);
                 g.drawString(strv, value > 0 ? centerX - fontMetrics.stringWidth(strv) - 10 : centerX + 10, centerY - halfHeight / 2 + fontMetrics.getHeight());
             }
-            int ptrCtr = centerX + (int) (halfWidth * 2 / 3 * value);
+            int ptrCtr = (int) (centerX + halfWidth * ((2 * (value - minimum) / (maximum - minimum)) - 1) * 2 / 3) + 1;
             if (Math.abs(value) <= 1) {
                 if (value < 0) {
                     g.setColor(value == -1 ? Color.RED : Color.RED.darker().darker());
@@ -130,14 +133,14 @@ public class FloatDisplayComponent extends BaseChannelComponent<FloatDisplayComp
                     g.drawLine(0, 0, 0, rad / 3);
                     g.translate(0, rad / 3f);
                     g.rotate(Math.toRadians(i > 0 ? -90 : 90));
-                    String str = Float.toString(i / (10f * eachSpoke));
+                    String str = Float.toString(((i / (10f * eachSpoke) + 1) / 2f) * (maximum - minimum) + minimum);
                     g.drawString(str, i > 0 ? -g.getFontMetrics().stringWidth(str) : 0, g.getFontMetrics().getDescent());
                 } else {
                     g.drawLine(0, 0, 0, rad / 6);
                 }
             }
             g.setTransform(baseT);
-            float angle = Math.max(-170, Math.min(value * 10 * eachSpoke, 170));
+            float angle = Math.max(-170, Math.min((((value - minimum) / (maximum - minimum)) * 2 - 1) * 10 * eachSpoke, 170));
             g.setColor(Color.BLUE);
             if (angle <= -170 || angle >= 170) {
                 g.setColor(Color.RED);
@@ -177,7 +180,6 @@ public class FloatDisplayComponent extends BaseChannelComponent<FloatDisplayComp
             }
             g.drawString(text, centerX - g.getFontMetrics().stringWidth(text) / 2, centerY + 5);
             break;
-        case CONFIGURATION: // never called
         }
     }
 
@@ -207,5 +209,20 @@ public class FloatDisplayComponent extends BaseChannelComponent<FloatDisplayComp
     @Override
     protected void setDefaultView() {
         activeView = View.HORIZONTAL_POINTER;
+    }
+
+    public Entry[] queryRConf() throws InterruptedException {
+        return rconfBase(RConf.string("minimum"), RConf.fieldFloat(minimum), RConf.string("maximum"), RConf.fieldFloat(maximum));
+    }
+
+    public void signalRConf(int field, byte[] data) throws InterruptedException {
+        switch (rconfBase(field, data)) {
+        case 1:
+            minimum = RConf.bytesToFloat(data);
+            break;
+        case 3:
+            maximum = RConf.bytesToFloat(data);
+            break;
+        }
     }
 }

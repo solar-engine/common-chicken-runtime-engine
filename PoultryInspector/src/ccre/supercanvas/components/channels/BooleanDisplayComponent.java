@@ -24,6 +24,7 @@ import java.awt.Graphics2D;
 
 import ccre.channel.BooleanInput;
 import ccre.channel.BooleanOutput;
+import ccre.rconf.RConf.Entry;
 import ccre.supercanvas.BaseChannelComponent;
 import ccre.supercanvas.Rendering;
 import ccre.supercanvas.SuperCanvasPanel;
@@ -36,7 +37,7 @@ import ccre.supercanvas.SuperCanvasPanel;
 public class BooleanDisplayComponent extends BaseChannelComponent<BooleanDisplayComponent.View> implements BooleanOutput {
 
     static enum View {
-        CONFIGURATION, RED_GREEN_LIGHT, WARNING_LIGHT, TEXTUAL
+        RED_GREEN_LIGHT, WARNING_LIGHT, TEXTUAL
     }
 
     private static final long serialVersionUID = -5453098172677583207L;
@@ -95,7 +96,6 @@ public class BooleanDisplayComponent extends BaseChannelComponent<BooleanDisplay
             String text = pressed ? "TRUE" : "FALSE";
             g.drawString(text, centerX - g.getFontMetrics().stringWidth(text) / 2, centerY + g.getFontMetrics().getAscent() / 2);
             break;
-        case CONFIGURATION: // never called
         }
     }
 
@@ -125,5 +125,13 @@ public class BooleanDisplayComponent extends BaseChannelComponent<BooleanDisplay
     @Override
     protected void setDefaultView() {
         activeView = View.RED_GREEN_LIGHT;
+    }
+
+    public Entry[] queryRConf() throws InterruptedException {
+        return rconfBase();
+    }
+
+    public void signalRConf(int field, byte[] data) throws InterruptedException {
+        rconfBase(field, data);
     }
 }

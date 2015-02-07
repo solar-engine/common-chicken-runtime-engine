@@ -37,6 +37,10 @@ public class Rendering {
      */
     public static final Font console = new Font("Monospaced", Font.PLAIN, 11);
     /**
+     * Mid-label text, medium and monospaced.
+     */
+    public static final Font midlabels = new Font("Monospaced", Font.BOLD, 20);
+    /**
      * Label text, large-ish and monospaced.
      */
     public static final Font labels = new Font("Monospaced", Font.BOLD, 30);

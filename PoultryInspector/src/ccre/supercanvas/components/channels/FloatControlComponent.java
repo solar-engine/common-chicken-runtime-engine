@@ -29,6 +29,7 @@ import ccre.channel.FloatOutput;
 import ccre.channel.FloatStatus;
 import ccre.ctrl.FloatMixing;
 import ccre.log.Logger;
+import ccre.rconf.RConf.Entry;
 import ccre.supercanvas.BaseChannelComponent;
 import ccre.supercanvas.Rendering;
 import ccre.supercanvas.SuperCanvasPanel;
@@ -41,7 +42,7 @@ import ccre.supercanvas.SuperCanvasPanel;
 public class FloatControlComponent extends BaseChannelComponent<FloatControlComponent.View> implements FloatInput {
 
     static enum View {
-        CONFIGURATION, HORIZONTAL_POINTER, TICKER, TEXTUAL
+        HORIZONTAL_POINTER, TICKER, TEXTUAL
     }
 
     private static final long serialVersionUID = 8379882900431074283L;
@@ -178,7 +179,6 @@ public class FloatControlComponent extends BaseChannelComponent<FloatControlComp
             }
             g.drawString(activeBuffer.toString(), centerX - g.getFontMetrics().stringWidth(activeBuffer.toString()) / 2, centerY + 5);
             break;
-        case CONFIGURATION: // never called
         }
     }
 
@@ -324,5 +324,13 @@ public class FloatControlComponent extends BaseChannelComponent<FloatControlComp
         public void set(float f) {
             // Do nothing. This is just so that we can make the remote end send us data by subscribing.
         }
+    }
+
+    public Entry[] queryRConf() throws InterruptedException {
+        return rconfBase();
+    }
+
+    public void signalRConf(int field, byte[] data) throws InterruptedException {
+        rconfBase(field, data);
     }
 }

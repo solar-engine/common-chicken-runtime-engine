@@ -30,6 +30,7 @@ import ccre.channel.BooleanInput;
 import ccre.channel.BooleanOutput;
 import ccre.channel.BooleanStatus;
 import ccre.ctrl.BooleanMixing;
+import ccre.rconf.RConf.Entry;
 import ccre.supercanvas.BaseChannelComponent;
 import ccre.supercanvas.Rendering;
 import ccre.supercanvas.SuperCanvasPanel;
@@ -42,7 +43,7 @@ import ccre.supercanvas.SuperCanvasPanel;
 public class BooleanControlComponent extends BaseChannelComponent<BooleanControlComponent.View> implements BooleanInput {
 
     static enum View {
-        CONFIGURATION, RED_GREEN_SWITCH, LINEAR_ON_OFF, TEXTUAL
+        RED_GREEN_SWITCH, LINEAR_ON_OFF, TEXTUAL
     }
 
     private static final long serialVersionUID = 3529467636546288860L;
@@ -162,7 +163,6 @@ public class BooleanControlComponent extends BaseChannelComponent<BooleanControl
             String text = isPressed ? "TRUE" : "FALSE";
             g.drawString(text, centerX - g.getFontMetrics().stringWidth(text) / 2, centerY + g.getFontMetrics().getAscent() / 2);
             break;
-        case CONFIGURATION: // never called
         }
     }
 
@@ -235,5 +235,13 @@ public class BooleanControlComponent extends BaseChannelComponent<BooleanControl
         public void set(boolean b) {
             // Do nothing. This is just so that we can make the remote end send us data by subscribing.
         }
+    }
+
+    public Entry[] queryRConf() throws InterruptedException {
+        return rconfBase();
+    }
+
+    public void signalRConf(int field, byte[] data) throws InterruptedException {
+        rconfBase(field, data);
     }
 }

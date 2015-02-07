@@ -24,6 +24,7 @@ import java.awt.Graphics2D;
 
 import ccre.channel.BooleanInput;
 import ccre.channel.BooleanOutput;
+import ccre.rconf.RConf;
 import ccre.rconf.RConf.Entry;
 import ccre.supercanvas.BaseChannelComponent;
 import ccre.supercanvas.Rendering;
@@ -43,6 +44,7 @@ public class BooleanDisplayComponent extends BaseChannelComponent<BooleanDisplay
     private static final long serialVersionUID = -5453098172677583207L;
     private boolean pressed;
     private boolean subscribed;
+    private boolean inverted = false;
     private final BooleanInput inp;
 
     /**
@@ -74,7 +76,7 @@ public class BooleanDisplayComponent extends BaseChannelComponent<BooleanDisplay
         switch (activeView) {
         case RED_GREEN_LIGHT:
             int rad1 = Math.min(halfWidth / 3, halfHeight / 3);
-            g.setColor(pressed ? Color.GREEN : Color.RED);
+            g.setColor(pressed ^ inverted ? Color.GREEN : Color.RED);
             g.fillOval(centerX - rad1, centerY - rad1, rad1 * 2, rad1 * 2);
             g.setColor(Color.BLACK);
             g.drawOval(centerX - rad1, centerY - rad1, rad1 * 2, rad1 * 2);
@@ -83,7 +85,7 @@ public class BooleanDisplayComponent extends BaseChannelComponent<BooleanDisplay
             int rad2 = Math.min(halfWidth / 2, halfHeight / 2);
             g.setColor(Color.BLACK);
             g.fillOval(centerX - rad2 - 2, centerY - rad2 - 2, rad2 * 2 + 4, rad2 * 2 + 4);
-            g.setColor(pressed ? (System.currentTimeMillis() / 100) % 2 == 0 ? Color.RED : Color.BLACK : Color.GRAY);
+            g.setColor(pressed ^ inverted ? (System.currentTimeMillis() / 100) % 2 == 0 ? Color.RED : Color.BLACK : Color.GRAY);
             g.fillOval(centerX - rad2, centerY - rad2, rad2 * 2, rad2 * 2);
             break;
         case TEXTUAL:
@@ -91,7 +93,7 @@ public class BooleanDisplayComponent extends BaseChannelComponent<BooleanDisplay
             if (getPanel().editmode) {
                 g.setColor(Color.BLACK);
             } else {
-                g.setColor(pressed ? Color.GREEN : Color.RED);
+                g.setColor(pressed ^ inverted ? Color.GREEN : Color.RED);
             }
             String text = pressed ? "TRUE" : "FALSE";
             g.drawString(text, centerX - g.getFontMetrics().stringWidth(text) / 2, centerY + g.getFontMetrics().getAscent() / 2);
@@ -128,10 +130,12 @@ public class BooleanDisplayComponent extends BaseChannelComponent<BooleanDisplay
     }
 
     public Entry[] queryRConf() throws InterruptedException {
-        return rconfBase();
+        return rconfBase(RConf.string("invert"), RConf.fieldBoolean(inverted));
     }
 
     public void signalRConf(int field, byte[] data) throws InterruptedException {
-        rconfBase(field, data);
+        if (rconfBase(field, data) == 1) {
+            inverted = data[0] != 0;
+        }
     }
 }

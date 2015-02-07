@@ -50,6 +50,23 @@ public abstract class InstinctBaseModule {
     }
 
     /**
+     * Wait until the specified BooleanInputPoll becomes false before returning.
+     *
+     * @param waitFor The condition to wait until false.
+     * @throws AutonomousModeOverException If the autonomous mode has ended.
+     * @throws InterruptedException Possibly also if autonomous mode has ended.
+     */
+    protected void waitUntilNot(BooleanInputPoll waitFor) throws AutonomousModeOverException, InterruptedException {
+        while (true) {
+            ensureShouldBeRunning();
+            if (!waitFor.get()) {
+                return;
+            }
+            waitCycle();
+        }
+    }
+
+    /**
      * Wait until the specified EventInput is produced before returning.
      *
      * @param source The event to wait for.

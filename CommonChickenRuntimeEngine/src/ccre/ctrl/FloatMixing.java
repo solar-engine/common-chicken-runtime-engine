@@ -305,6 +305,20 @@ public class FloatMixing {
     }
 
     /**
+     * Return a BooleanInput that is true when the specified float input is
+     * outside of the range of the specified minimum and maximum. It will be
+     * false at the minimum or maximum.
+     *
+     * @param base the value to test
+     * @param minimum the minimum value
+     * @param maximum the maximum value
+     * @return an input that represents the value being outside the range
+     */
+    public static BooleanInput floatIsOutsideRange(final FloatInput base, final float minimum, final float maximum) {
+        return BooleanMixing.createDispatch(floatIsOutsideRange((FloatInputPoll) base, minimum, maximum), FloatMixing.onUpdate(base));
+    }
+
+    /**
      * Returns an EventOutput that, when called, pumps the value from the
      * specified input to the specified output
      *
@@ -422,6 +436,19 @@ public class FloatMixing {
                 return val >= minimum && val <= maximum;
             }
         };
+    }
+
+    /**
+     * Return a BooleanInput that is true when the specified float input is in
+     * the range of the specified minimum and maximum, inclusive.
+     *
+     * @param base the value to test
+     * @param minimum the minimum value
+     * @param maximum the maximum value
+     * @return an input that represents the value being in range
+     */
+    public static BooleanInput floatIsInRange(final FloatInput base, final float minimum, final float maximum) {
+        return BooleanMixing.createDispatch(floatIsInRange((FloatInputPoll) base, minimum, maximum), FloatMixing.onUpdate(base));
     }
 
     /**
@@ -721,6 +748,51 @@ public class FloatMixing {
                 return (base.get() - zeroN) / (one.get() - zeroN);
             }
         };
+    }
+
+    /**
+     * Returns a scaled version of the specified input, such that when the value
+     * from the specified input is the value in the one parameter, the output is
+     * 1.0, and when the value from the specified input is the value in the zero
+     * parameter, the output is 0.0. The value is linearly scaled, for example:
+     * a value of ((zero + one) / 2) will create an output of 0.5. There is no
+     * capping - the output can be any number, including a number out of the
+     * range of zero to one.
+     *
+     * The scaling is equivalent to:
+     * <code>(base.get() - zero) / (one - zero)</code>
+     *
+     * @param base the value to scale.
+     * @param zero the value of base that turns into 0.0.
+     * @param one the value of base that turns into 1.0.
+     * @return the scaled value.
+     */
+    public static FloatInput normalizeFloat(final FloatInput base, final float zero, float one) {
+        return createDispatch(normalizeFloat((FloatInputPoll) base, zero, one), FloatMixing.onUpdate(base));
+    }
+
+    /**
+     * Returns a scaled version of the specified input, such that when the value
+     * from the specified input is the value in the one parameter, the output is
+     * 1.0, and when the value from the specified input is the value in the zero
+     * parameter, the output is 0.0. The value is linearly scaled, for example:
+     * a value of ((zero + one) / 2) will create an output of 0.5. There is no
+     * capping - the output can be any number, including a number out of the
+     * range of zero to one.
+     * 
+     * Note that this will only update when the value changes, not (necessarily)
+     * when the ranges change.
+     *
+     * The scaling is equivalent to:
+     * <code>(base.get() - zero.get()) / (one.get() - zero.get())</code>
+     *
+     * @param base the value to scale.
+     * @param zero the value of base that turns into 0.0.
+     * @param one the value of base that turns into 1.0.
+     * @return the scaled value.
+     */
+    public static FloatInput normalizeFloat(final FloatInput base, final FloatInputPoll zero, final FloatInputPoll one) {
+        return createDispatch(normalizeFloat((FloatInputPoll) base, zero, one), FloatMixing.onUpdate(base));
     }
 
     /**

@@ -87,6 +87,12 @@ public class BooleanDisplayComponent extends BaseChannelComponent<BooleanDisplay
             g.fillOval(centerX - rad2 - 2, centerY - rad2 - 2, rad2 * 2 + 4, rad2 * 2 + 4);
             g.setColor(pressed ^ inverted ? (System.currentTimeMillis() / 100) % 2 == 0 ? Color.RED : Color.BLACK : Color.GRAY);
             g.fillOval(centerX - rad2, centerY - rad2, rad2 * 2, rad2 * 2);
+            if ((pressed ^ inverted) && (System.currentTimeMillis() / 100) % 2 == 0) {
+                g.setColor(Color.WHITE);
+                int rad3 = rad2 / 4;
+                g.fillOval(centerX - rad3, centerY + rad3 * 3 / 2, rad3 * 2, rad3 * 2);
+                g.fillRect(centerX - rad3, centerY - rad2 + rad3, rad3 * 2, rad2 - rad3 / 2);
+            }
             break;
         case TEXTUAL:
             g.setFont(Rendering.labels);

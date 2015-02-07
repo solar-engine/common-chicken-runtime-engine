@@ -277,6 +277,24 @@ public class Mixing {
     }
 
     /**
+     * Returns a four-way select based on two BooleanInputs from four floats.
+     *
+     * @param alpha The first boolean.
+     * @param beta The second boolean.
+     * @param ff The value to use when both inputs are false.
+     * @param ft The value to use when the first is false and the second is
+     * true.
+     * @param tf The value to use when the first is true and the second is
+     * false.
+     * @param tt The value to use when both inputs are true.
+     * @return The FloatInput representing the current value.
+     */
+    public static FloatInput quadSelect(final BooleanInput alpha, final BooleanInput beta, final float ff, final float ft, final float tf, final float tt) {
+        return FloatMixing.createDispatch(quadSelect((BooleanInputPoll) alpha, (BooleanInputPoll) beta, ff, ft, tf, tt),
+                EventMixing.combine(BooleanMixing.whenBooleanChanges(alpha), BooleanMixing.whenBooleanChanges(alpha)));
+    }
+
+    /**
      * Returns a four-way select based on two BooleanInputPolls from four
      * FloatInputPolls.
      *
@@ -296,6 +314,25 @@ public class Mixing {
                 return (alpha.get() ? (beta.get() ? tt : tf) : (beta.get() ? ft : ff)).get();
             }
         };
+    }
+
+    /**
+     * Returns a four-way select based on two BooleanInputs from four
+     * FloatInputPolls.
+     *
+     * @param alpha The first boolean.
+     * @param beta The second boolean.
+     * @param ff The value to use when both inputs are false.
+     * @param ft The value to use when the first is false and the second is
+     * true.
+     * @param tf The value to use when the first is true and the second is
+     * false.
+     * @param tt The value to use when both inputs are true.
+     * @return The FloatInput representing the current value.
+     */
+    public static FloatInput quadSelect(final BooleanInput alpha, final BooleanInput beta, final FloatInputPoll ff, final FloatInputPoll ft, final FloatInputPoll tf, final FloatInputPoll tt) {
+        return FloatMixing.createDispatch(quadSelect((BooleanInputPoll) alpha, (BooleanInputPoll) beta, ff, ft, tf, tt),
+                EventMixing.combine(BooleanMixing.whenBooleanChanges(alpha), BooleanMixing.whenBooleanChanges(beta)));
     }
 
     private Mixing() {

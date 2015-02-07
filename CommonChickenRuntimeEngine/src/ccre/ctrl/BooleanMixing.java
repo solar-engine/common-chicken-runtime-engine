@@ -205,6 +205,19 @@ public class BooleanMixing {
     }
 
     /**
+     * Return a BooleanInput that is true when either specified input is true,
+     * but not both.
+     *
+     * @param a the first input.
+     * @param b the second input.
+     * @return the input representing if either of the given inputs is true, but
+     * not both.
+     */
+    public static BooleanInput xorBooleans(final BooleanInput a, final BooleanInput b) {
+        return createDispatch(xorBooleans((BooleanInputPoll) a, (BooleanInputPoll) b), EventMixing.combine(BooleanMixing.whenBooleanChanges(a), BooleanMixing.whenBooleanChanges(b)));
+    }
+
+    /**
      * Return a BooleanInputPoll that is true when either specified input is
      * true.
      *

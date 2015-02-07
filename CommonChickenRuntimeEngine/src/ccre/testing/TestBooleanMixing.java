@@ -170,15 +170,17 @@ public class TestBooleanMixing extends BaseTest {
         BooleanInputPoll xor = BooleanMixing.xorBooleans(a, b);
         BooleanInputPoll or = BooleanMixing.orBooleans((BooleanInputPoll) a, (BooleanInputPoll) b);
         BooleanInputPoll and = BooleanMixing.andBooleans((BooleanInputPoll) a, (BooleanInputPoll) b);
-        BooleanStatus orStat = new BooleanStatus(), andStat = new BooleanStatus();
+        BooleanStatus orStat = new BooleanStatus(), andStat = new BooleanStatus(), xorStat = new BooleanStatus();
         BooleanMixing.orBooleans(a, b).send(orStat);
         BooleanMixing.andBooleans(a, b).send(andStat);
+        BooleanMixing.xorBooleans(a, b).send(xorStat);
 
         a.set(false);
         b.set(false);
         assertFalse(xor.get(), "Bad xor");
         assertFalse(or.get(), "Bad or");
         assertFalse(and.get(), "Bad and");
+        assertFalse(xorStat.get(), "Bad xor");
         assertFalse(orStat.get(), "Bad or");
         assertFalse(andStat.get(), "Bad and");
 
@@ -187,6 +189,7 @@ public class TestBooleanMixing extends BaseTest {
         assertTrue(xor.get(), "Bad xor");
         assertTrue(or.get(), "Bad or");
         assertFalse(and.get(), "Bad and");
+        assertTrue(xorStat.get(), "Bad xor");
         assertTrue(orStat.get(), "Bad or");
         assertFalse(andStat.get(), "Bad and");
 
@@ -195,6 +198,7 @@ public class TestBooleanMixing extends BaseTest {
         assertTrue(xor.get(), "Bad xor");
         assertTrue(or.get(), "Bad or");
         assertFalse(and.get(), "Bad and");
+        assertTrue(xorStat.get(), "Bad xor");
         assertTrue(orStat.get(), "Bad or");
         assertFalse(andStat.get(), "Bad and");
 
@@ -203,6 +207,7 @@ public class TestBooleanMixing extends BaseTest {
         assertFalse(xor.get(), "Bad xor");
         assertTrue(or.get(), "Bad or");
         assertTrue(and.get(), "Bad and");
+        assertFalse(xorStat.get(), "Bad xor");
         assertTrue(orStat.get(), "Bad or");
         assertTrue(andStat.get(), "Bad and");
 
@@ -211,6 +216,7 @@ public class TestBooleanMixing extends BaseTest {
         assertFalse(xor.get(), "Bad xor");
         assertFalse(or.get(), "Bad or");
         assertFalse(and.get(), "Bad and");
+        assertFalse(xorStat.get(), "Bad xor");
         assertFalse(orStat.get(), "Bad or");
         assertFalse(andStat.get(), "Bad and");
     }

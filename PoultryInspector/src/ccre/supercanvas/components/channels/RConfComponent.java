@@ -38,6 +38,60 @@ import ccre.supercanvas.Rendering;
  */
 public class RConfComponent extends DraggableBoxComponent {
 
+    private final class UpdatingWorker extends CollapsingWorkerThread {
+        private UpdatingWorker() {
+            super("RConf-Updater");
+        }
+
+        @Override
+        protected void doWork() throws Throwable {
+            RConf.Entry[] out = device.queryRConf();
+            if (out == null) {
+                Logger.warning("Could not refresh RConf pane.");
+            } else {
+                entries = out;
+            }
+        }
+    }
+
+    private final class SignalingWorker extends CollapsingWorkerThread {
+        private SignalingWorker() {
+            super("RConf-Signaler");
+        }
+
+        private int signalField = -1;
+        private byte[] signalPayload;
+        private long lastSent = 0;
+
+        @Override
+        protected void doWork() throws Throwable {
+            int field;
+            byte[] payload;
+            synchronized (this) {
+                field = signalField;
+                payload = signalPayload;
+                signalPayload = null;
+            }
+            if (payload == null) {
+                return;
+            }
+            lastSignalSucceeded = device.signalRConf(field, payload);
+            showSignalSuccessUntil = System.currentTimeMillis() + SIGNAL_SUCCESS_FLASH_TIME;
+            getUpdater().trigger();
+        }
+
+        public synchronized void signal(int field, byte[] payload) {
+            lastSent = System.currentTimeMillis();
+            signalField = field;
+            signalPayload = payload;
+            trigger();
+        }
+
+        public boolean recentlySent(int field, int within) {
+            return signalField == field && System.currentTimeMillis() - lastSent < within;
+        }
+    }
+
     private static final long serialVersionUID = 6222627208004874042L;
 
     private static final Color bodyColor = Color.ORANGE;
@@ -49,45 +103,12 @@ public class RConfComponent extends DraggableBoxComponent {
 
     private final RConfable device;
 
-    private final Object signalLock = new Object();
-    private int signalField = -1;
-    private byte[] signalPayload;
-    private long lastSent = 0;
     private boolean lastSignalSucceeded = false;
     private long showSignalSuccessUntil = 0;
 
-    private final CollapsingWorkerThread signaler = new CollapsingWorkerThread("RConf-Signaler") {
+    private transient SignalingWorker signaler;
 
-        @Override
-        protected void doWork() throws Throwable {
-            int field;
-            byte[] payload;
-            synchronized (signalLock) {
-                field = signalField;
-                payload = signalPayload;
-                signalPayload = null;
-            }
-            if (payload == null) {
-                return;
-            }
-            lastSignalSucceeded = device.signalRConf(field, payload);
-            showSignalSuccessUntil = System.currentTimeMillis() + SIGNAL_SUCCESS_FLASH_TIME;
-            updater.trigger();
-        }
-    };
-
-    private final CollapsingWorkerThread updater = new CollapsingWorkerThread("RConf-Updater") {
-
-        @Override
-        protected void doWork() throws Throwable {
-            RConf.Entry[] out = device.queryRConf();
-            if (out == null) {
-                Logger.warning("Could not refresh RConf pane.");
-            } else {
-                entries = out;
-            }
-        }
-    };
+    private transient UpdatingWorker updater;
 
     private String path;
 
@@ -104,7 +125,7 @@ public class RConfComponent extends DraggableBoxComponent {
         super(cx, cy);
         this.path = path;
         this.device = device;
-        updater.trigger();
+        getUpdater().trigger();
         halfWidth = 100;
         halfHeight = 20;
     }
@@ -124,7 +145,7 @@ public class RConfComponent extends DraggableBoxComponent {
                 }
             }
             g.setFont(asTitle ? Rendering.midlabels : Rendering.console);
-            String str = updater.isDoingWork() ? "loading..." : this.path;
+            String str = getUpdater().isDoingWork() ? "loading..." : this.path;
             int hw = g.getFontMetrics().stringWidth(str) / 2;
             if (hw + 10 > halfWidth) {
                 halfWidth = hw + 10;
@@ -152,7 +173,7 @@ public class RConfComponent extends DraggableBoxComponent {
                 break;
             case RConf.F_BUTTON:
                 String label = e.parseTextual();
-                g.setColor(signalField == field && System.currentTimeMillis() - lastSent < 500 ? Color.GREEN : Color.RED);
+                g.setColor(signaler != null && signaler.recentlySent(field, 500) ? Color.GREEN : Color.RED);
                 int wlabel = g.getFontMetrics().stringWidth(label) + 20;
                 g.fillRect(centerX - wlabel / 2, curY + 1, wlabel, 18);
                 g.setColor(Color.BLACK);
@@ -177,7 +198,7 @@ public class RConfComponent extends DraggableBoxComponent {
     public boolean onInteract(int x, int y) {
         int relY = y - centerY + halfHeight - 5;
         if (relY < 20) {
-            updater.trigger();
+            getUpdater().trigger();
         } else {
             int field = 0;
             for (RConf.Entry e : entries) {
@@ -231,12 +252,10 @@ public class RConfComponent extends DraggableBoxComponent {
                         payload = new byte[0];
                     }
                     if (payload != null) {
-                        synchronized (signalLock) {
-                            lastSent = System.currentTimeMillis();
-                            signalField = field;
-                            signalPayload = payload;
-                            signaler.trigger();
+                        if (signaler == null) {
+                            signaler = new SignalingWorker();
                         }
+                        signaler.signal(field, payload);
                     }
                     break;
                 }
@@ -249,5 +268,12 @@ public class RConfComponent extends DraggableBoxComponent {
     @Override
     public String toString() {
         return "RConf Access";
+    }
+
+    private synchronized UpdatingWorker getUpdater() {
+        if (updater == null) {
+            updater = new UpdatingWorker();
+        }
+        return updater;
     }
 }

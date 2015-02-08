@@ -18,6 +18,8 @@
  */
 package ccre.rconf;
 
+import java.io.Serializable;
+
 /**
  * The RConf subsystem's utility class.
  * 
@@ -79,8 +81,9 @@ public class RConf {
      *
      * @author skeggsc
      */
-    public static final class Entry {
+    public static final class Entry implements Serializable {
 
+        private static final long serialVersionUID = -5212798086046991238L;
         /**
          * The type of this entry. See the static fields on RConf.
          */

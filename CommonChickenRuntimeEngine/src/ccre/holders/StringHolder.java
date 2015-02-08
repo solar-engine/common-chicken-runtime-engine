@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2014 Colby Skeggs
+ * Copyright 2013-2015 Colby Skeggs
  * 
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  * 
@@ -19,6 +19,7 @@
 package ccre.holders;
 
 import java.io.OutputStream;
+import java.io.Serializable;
 
 import ccre.channel.EventInput;
 import ccre.channel.EventOutput;
@@ -31,8 +32,9 @@ import ccre.util.LineCollectorOutputStream;
  *
  * @author skeggsc
  */
-public class StringHolder {
+public class StringHolder implements Serializable {
 
+    private static final long serialVersionUID = -7141109669601816028L;
     /**
      * The current value.
      */

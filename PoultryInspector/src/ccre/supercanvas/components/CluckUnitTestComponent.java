@@ -216,7 +216,7 @@ public class CluckUnitTestComponent extends DraggableBoxComponent {
 
     private static final Color bodyColor = new Color(202, 4, 120);
 
-    private final CluckUnitTesterWorker tester = new CluckUnitTesterWorker("Cluck-Unit-Tester", true);
+    private transient CluckUnitTesterWorker tester;
 
     /**
      * Create a new CluckUnitTestComponent at the given location.
@@ -232,6 +232,9 @@ public class CluckUnitTestComponent extends DraggableBoxComponent {
 
     @Override
     public void render(Graphics2D g, int screenWidth, int screenHeight, FontMetrics fontMetrics, int mouseX, int mouseY) {
+        if (tester == null) {
+            tester = new CluckUnitTesterWorker("Cluck-Unit-Tester", true);
+        }
         Rendering.drawBody(bodyColor, g, this);
         g.setColor(Color.BLACK);
         int baseY = centerY - halfHeight / 2 + fontMetrics.getAscent();
@@ -241,6 +244,9 @@ public class CluckUnitTestComponent extends DraggableBoxComponent {
 
     @Override
     public boolean onInteract(int x, int y) {
+        if (tester == null) {
+            tester = new CluckUnitTesterWorker("Cluck-Unit-Tester", true);
+        }
         tester.trigger();
         return true;
     }

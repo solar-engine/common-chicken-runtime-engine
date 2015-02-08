@@ -229,13 +229,7 @@ public class CluckPublisher {
      */
     public static void publish(final CluckNode node, final String name, final BooleanInput input) {
         final ConcurrentDispatchArray<String> remotes = new ConcurrentDispatchArray<String>();
-        input.send(new BooleanOutput() {
-            public void set(boolean value) {
-                for (String remote : remotes) {
-                    node.transmit(remote, name, new byte[] { RMT_BOOLPRODRESP, value ? (byte) 1 : 0 });
-                }
-            }
-        });
+        input.send(new BooleanInputPublishListener(name, remotes, node));
         new CluckSubscriber(node) {
             @Override
             protected void receive(String src, byte[] data) {
@@ -311,14 +305,7 @@ public class CluckPublisher {
      */
     public static void publish(final CluckNode node, final String name, final FloatInput input) {
         final ConcurrentDispatchArray<String> remotes = new ConcurrentDispatchArray<String>();
-        input.send(new FloatOutput() {
-            public void set(float value) {
-                for (String remote : remotes) {
-                    int iver = Float.floatToIntBits(value);
-                    node.transmit(remote, name, new byte[] { RMT_FLOATPRODRESP, (byte) (iver >> 24), (byte) (iver >> 16), (byte) (iver >> 8), (byte) iver });
-                }
-            }
-        });
+        input.send(new FloatInputPublishListener(remotes, name, node));
         new CluckSubscriber(node) {
             @Override
             protected void receive(String src, byte[] data) {
@@ -606,6 +593,45 @@ public class CluckPublisher {
     }
 
     private CluckPublisher() {
+    }
+
+    private static final class FloatInputPublishListener implements FloatOutput, Serializable {
+        private static final long serialVersionUID = 1432024738866192130L;
+        private final ConcurrentDispatchArray<String> remotes;
+        private final String name;
+        private final CluckNode node;
+
+        private FloatInputPublishListener(ConcurrentDispatchArray<String> remotes, String name, CluckNode node) {
+            this.remotes = remotes;
+            this.name = name;
+            this.node = node;
+        }
+
+        public void set(float value) {
+            for (String remote : remotes) {
+                int iver = Float.floatToIntBits(value);
+                node.transmit(remote, name, new byte[] { RMT_FLOATPRODRESP, (byte) (iver >> 24), (byte) (iver >> 16), (byte) (iver >> 8), (byte) iver });
+            }
+        }
+    }
+
+    private static final class BooleanInputPublishListener implements BooleanOutput, Serializable {
+        private static final long serialVersionUID = -7563622859541688219L;
+        private final String name;
+        private final ConcurrentDispatchArray<String> remotes;
+        private final CluckNode node;
+
+        private BooleanInputPublishListener(String name, ConcurrentDispatchArray<String> remotes, CluckNode node) {
+            this.name = name;
+            this.remotes = remotes;
+            this.node = node;
+        }
+
+        public void set(boolean value) {
+            for (String remote : remotes) {
+                node.transmit(remote, name, new byte[] { RMT_BOOLPRODRESP, value ? (byte) 1 : 0 });
+            }
+        }
     }
 
     private static class SubscribedLoggingTarget implements LoggingTarget, Serializable {

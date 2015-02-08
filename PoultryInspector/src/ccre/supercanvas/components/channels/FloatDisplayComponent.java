@@ -215,14 +215,18 @@ public class FloatDisplayComponent extends BaseChannelComponent<FloatDisplayComp
         return rconfBase(RConf.string("minimum"), RConf.fieldFloat(minimum), RConf.string("maximum"), RConf.fieldFloat(maximum));
     }
 
-    public void signalRConf(int field, byte[] data) throws InterruptedException {
+    public boolean signalRConf(int field, byte[] data) throws InterruptedException {
         switch (rconfBase(field, data)) {
         case 1:
             minimum = RConf.bytesToFloat(data);
-            break;
+            return true;
         case 3:
             maximum = RConf.bytesToFloat(data);
-            break;
+            return true;
+        case BASE_VALID:
+            return true;
+        default:
+            return false;
         }
     }
 }

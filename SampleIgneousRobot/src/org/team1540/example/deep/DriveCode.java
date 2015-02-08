@@ -20,39 +20,42 @@ public class DriveCode implements RConfable {
     private final FloatInputPoll rightAxis = Igneous.joystick1.getAxisChannel(5);
     private final FloatOutput leftOut = Igneous.makeTalonMotor(2, Igneous.MOTOR_FORWARD, 0.1f);
     private final FloatOutput rightOut = Igneous.makeTalonMotor(1, Igneous.MOTOR_REVERSE, 0.1f);
-    private final BooleanStatus allowToRun = new BooleanStatus(), forceEnabled = new BooleanStatus();
+    private final BooleanStatus allowToRun = new BooleanStatus(),
+            forceEnabled = new BooleanStatus();
     private final BooleanInputPoll shouldBeRunning = BooleanMixing.andBooleans(allowToRun, BooleanMixing.orBooleans(Igneous.getIsTeleop(), forceEnabled));
-    
+
     public DriveCode() {
         DriverImpls.createSynchTankDriver(EventMixing.filterEvent(shouldBeRunning, true, Igneous.globalPeriodic),
                 leftAxis, rightAxis, leftOut, rightOut);
     }
 
     public Entry[] queryRConf() throws InterruptedException {
-        return new Entry[] {RConf.title("Drive Code"),
+        return new Entry[] { RConf.title("Drive Code"),
                 RConf.string("Axes:"), RConf.fieldFloat(leftAxis.get()), RConf.fieldFloat(rightAxis.get()),
                 RConf.string("Allow To Run:"), RConf.fieldBoolean(allowToRun.get()),
-                RConf.string("Force To Run:"), RConf.fieldBoolean(forceEnabled.get())};
+                RConf.string("Force To Run:"), RConf.fieldBoolean(forceEnabled.get()) };
     }
 
-    public void signalRConf(int field, byte[] data) throws InterruptedException {
+    public boolean signalRConf(int field, byte[] data) throws InterruptedException {
         switch (field) {
         case 2:
             if (data.length >= 4) {
                 leftOut.set(RConf.bytesToFloat(data));
             }
-            break;
+            return true;
         case 3:
             if (data.length >= 4) {
                 rightOut.set(RConf.bytesToFloat(data));
             }
-            break;
+            return true;
         case 5:
             allowToRun.set(data.length > 0 && data[0] != 0);
-            break;
+            return true;
         case 7:
             forceEnabled.set(data.length > 0 && data[0] != 0);
-            break;
+            return true;
+        default:
+            return false;
         }
     }
 }

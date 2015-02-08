@@ -41,6 +41,9 @@ public class RConfComponent extends DraggableBoxComponent {
     private static final long serialVersionUID = 6222627208004874042L;
 
     private static final Color bodyColor = Color.ORANGE;
+    private static final Color successColor = Color.GREEN;
+    private static final Color failureColor = Color.RED;
+    private static final int SIGNAL_SUCCESS_FLASH_TIME = 500;
 
     private RConf.Entry[] entries = new RConf.Entry[0];
 
@@ -50,6 +53,8 @@ public class RConfComponent extends DraggableBoxComponent {
     private int signalField = -1;
     private byte[] signalPayload;
     private long lastSent = 0;
+    private boolean lastSignalSucceeded = false;
+    private long showSignalSuccessUntil = 0;
 
     private final CollapsingWorkerThread signaler = new CollapsingWorkerThread("RConf-Signaler") {
 
@@ -65,7 +70,8 @@ public class RConfComponent extends DraggableBoxComponent {
             if (payload == null) {
                 return;
             }
-            device.signalRConf(field, payload);
+            lastSignalSucceeded = device.signalRConf(field, payload);
+            showSignalSuccessUntil = System.currentTimeMillis() + SIGNAL_SUCCESS_FLASH_TIME;
             updater.trigger();
         }
     };
@@ -105,7 +111,7 @@ public class RConfComponent extends DraggableBoxComponent {
 
     @Override
     public void render(Graphics2D g, int screenWidth, int screenHeight, FontMetrics fontMetrics, int mouseX, int mouseY) {
-        Rendering.drawBody(bodyColor, g, this);
+        Rendering.drawBody(Rendering.blend(bodyColor, lastSignalSucceeded ? successColor : failureColor, (showSignalSuccessUntil - System.currentTimeMillis()) / (float) SIGNAL_SUCCESS_FLASH_TIME), g, this);
         halfHeight = 10 * (entries.length + 1) + 5;
         g.setColor(Color.BLACK);
         int curY = centerY - halfHeight + 5;
@@ -177,7 +183,7 @@ public class RConfComponent extends DraggableBoxComponent {
             for (RConf.Entry e : entries) {
                 relY -= 20;
                 if (relY < 20) {
-                    byte[] payload = new byte[0];
+                    byte[] payload = null;
                     switch (e.type) {
                     case RConf.F_BOOLEAN:
                         payload = new byte[] { (byte) (x < centerX ? 0 : 1) };
@@ -221,12 +227,16 @@ public class RConfComponent extends DraggableBoxComponent {
                     case RConf.F_CLUCK_REF:
                         Logger.info("TODO: Drag out the selected cluck component.");
                         break;
+                    default:
+                        payload = new byte[0];
                     }
-                    synchronized (signalLock) {
-                        lastSent = System.currentTimeMillis();
-                        signalField = field;
-                        signalPayload = payload;
-                        signaler.trigger();
+                    if (payload != null) {
+                        synchronized (signalLock) {
+                            lastSent = System.currentTimeMillis();
+                            signalField = field;
+                            signalPayload = payload;
+                            signaler.trigger();
+                        }
                     }
                     break;
                 }

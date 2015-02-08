@@ -241,7 +241,7 @@ public class BooleanControlComponent extends BaseChannelComponent<BooleanControl
         return rconfBase();
     }
 
-    public void signalRConf(int field, byte[] data) throws InterruptedException {
-        rconfBase(field, data);
+    public boolean signalRConf(int field, byte[] data) throws InterruptedException {
+        return rconfBase(field, data) == BASE_VALID;
     }
 }

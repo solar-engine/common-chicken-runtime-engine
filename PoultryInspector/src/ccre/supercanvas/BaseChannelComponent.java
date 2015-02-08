@@ -114,12 +114,23 @@ public abstract class BaseChannelComponent<View extends Enum<View>> extends Drag
     }
 
     /**
+     * @see #rconfBase(int, byte[])
+     */
+    protected static final int BASE_VALID = -1;
+    /**
+     * @see #rconfBase(int, byte[])
+     */
+    protected static final int BASE_INVALID = -2;
+
+    /**
      * A helper function for the channel implementations, so that they can just
      * specify their own RConf entries without having to worry about the default
      * ones.
      * 
      * If the given field is for a default entry, this function takes care of
-     * doing whatever it means, and returns a negative number.
+     * doing whatever it means, and returns a negative number: -1 (BASE_VALID)
+     * if the request was processed, or -2 (BASE_INVALID) if the request was
+     * invalid.
      * 
      * If not, it returns a value equal to the index in the user entries of the
      * interacted-with component.
@@ -132,8 +143,12 @@ public abstract class BaseChannelComponent<View extends Enum<View>> extends Drag
     protected int rconfBase(int field, byte[] data) {
         View[] cst = activeView.getDeclaringClass().getEnumConstants();
         field -= 1;
-        if (field >= 0 && field < cst.length) {
+        if (field < 0) {
+            return BASE_INVALID;
+        }
+        if (field < cst.length) {
             activeView = cst[field];
+            return BASE_VALID;
         }
         return field - cst.length;
     }

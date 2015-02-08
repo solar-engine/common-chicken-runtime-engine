@@ -139,9 +139,15 @@ public class BooleanDisplayComponent extends BaseChannelComponent<BooleanDisplay
         return rconfBase(RConf.string("invert"), RConf.fieldBoolean(inverted));
     }
 
-    public void signalRConf(int field, byte[] data) throws InterruptedException {
-        if (rconfBase(field, data) == 1) {
+    public boolean signalRConf(int field, byte[] data) throws InterruptedException {
+        switch (rconfBase(field, data)) {
+        case 1:
             inverted = data[0] != 0;
+            return true;
+        case BASE_VALID:
+            return true;
+        default:
+            return false;
         }
     }
 }

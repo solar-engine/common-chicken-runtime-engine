@@ -290,16 +290,17 @@ public class BooleanStatus implements BooleanOutput, BooleanInput, RConfable, Se
         return new Entry[] {RConf.fieldBoolean(get()), RConf.button("toggle"), RConf.fieldInteger(consumers == null ? 0 : consumers.size())};
     }
 
-    public void signalRConf(int field, byte[] data) {
+    public boolean signalRConf(int field, byte[] data) {
         switch (field) {
         case 0: // change value
             if (data.length > 0) {
                 set(data[0] != 0);
             }
-            break;
+            return true;
         case 1: // toggle
             set(!get());
-            break;
+            return true;
         }
+        return false;
     }
 }

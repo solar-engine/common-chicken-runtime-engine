@@ -519,7 +519,12 @@ public class CluckPublisher {
                     byte[] data = new byte[in.length - 2];
                     System.arraycopy(in, 2, data, 0, data.length);
                     try {
-                        device.signalRConf(((in[0] & 0xFF) << 8) | (in[1] & 0xFF), data);
+                        boolean success = device.signalRConf(((in[0] & 0xFF) << 8) | (in[1] & 0xFF), data);
+                        try {
+                            out.write(success ? (byte) 1 : (byte) 0);
+                        } catch (IOException e) {
+                            Logger.warning("IOException during response to RConf signal!", e);
+                        }
                     } catch (InterruptedException e1) {
                         Thread.currentThread().interrupt();
                     }
@@ -546,16 +551,22 @@ public class CluckPublisher {
         final RemoteProcedure query = node.getRPCManager().subscribe(path + "-rpcq", timeout);
         final RemoteProcedure signal = node.getRPCManager().subscribe(path + "-rpcs", timeout);
         return new RConfable() {
-            public void signalRConf(int field, byte[] data) throws InterruptedException {
+            public boolean signalRConf(int field, byte[] data) throws InterruptedException {
                 byte[] ndata = new byte[data.length + 2];
                 if (field != (field & 0xFFFF)) {
                     Logger.warning("Out of range field in RConf query response!");
-                    return;
+                    return false;
                 }
                 ndata[0] = (byte) (field >> 8);
                 ndata[1] = (byte) field;
                 System.arraycopy(data, 0, ndata, 2, data.length);
-                SimpleProcedure.invoke(signal, ndata, timeout);
+                byte[] result = SimpleProcedure.invoke(signal, ndata, timeout);
+                if (result == SimpleProcedure.TIMED_OUT) {
+                    return false;
+                } else if (result.length >= 1 && result[0] == 0) {
+                    return false;
+                }
+                return true;
             }
 
             public Entry[] queryRConf() throws InterruptedException {

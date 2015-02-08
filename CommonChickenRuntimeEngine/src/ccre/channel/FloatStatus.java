@@ -178,13 +178,15 @@ public class FloatStatus implements FloatOutput, FloatInput, RConfable, Serializ
         return new Entry[] {RConf.fieldFloat(get()), RConf.fieldInteger(consumers == null ? 0 : consumers.size())};
     }
 
-    public void signalRConf(int field, byte[] data) {
+    public boolean signalRConf(int field, byte[] data) {
         switch (field) {
         case 0: // change value
             if (data.length >= 4) {
                 set(RConf.bytesToFloat(data));
+                return true;
             }
-            break;
+            return false;
         }
+        return false;
     }
 }

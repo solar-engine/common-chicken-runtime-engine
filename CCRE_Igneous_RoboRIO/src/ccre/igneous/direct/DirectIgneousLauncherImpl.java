@@ -83,7 +83,7 @@ public final class DirectIgneousLauncherImpl implements IgneousLauncher {
             version.createNewFile();
             try (FileOutputStream output = new FileOutputStream(version)) {
                 // TODO: Include real version number
-                output.write("CCRE 2.5.0: 2015 Java 1.0.0".getBytes());
+                output.write("CCRE 2.6.0: 2015 Java 1.0.0".getBytes());
             }
         } catch (IOException ex) {
             Logger.warning("Could not write version file", ex);

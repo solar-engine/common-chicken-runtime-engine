@@ -19,6 +19,7 @@
 package ccre.igneous;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.URL;
 import java.util.Enumeration;
@@ -113,6 +114,20 @@ public final class MainIgneousLauncherImpl extends RobotBase implements IgneousL
         NetworkAutologger.register();
         BootLogger.register();
         FileLogger.register();
+
+        try {
+            File version = new File("/tmp/frc_versions/FRC_Lib_Version.ini");
+            if (version.exists()) {
+                version.delete();
+            }
+            version.createNewFile();
+            try (FileOutputStream output = new FileOutputStream(version)) {
+                // TODO: Include real version number
+                output.write("CCRE 2.6.0: 2015 Java 1.0.0".getBytes());
+            }
+        } catch (IOException ex) {
+            Logger.warning("Could not write version file", ex);
+        }
     }
 
     private enum Mode {

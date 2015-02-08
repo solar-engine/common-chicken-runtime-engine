@@ -45,6 +45,7 @@ import javax.imageio.ImageIO;
  * 
  * @author skeggsc
  */
+@SuppressWarnings("javadoc")
 public class Webcam extends Thread {
 
     private static GraphicsConfiguration graphicsConfiguration;

@@ -107,19 +107,31 @@
 		          destdir="${project.dir}"
 		          prefix="roboRIO-logs-" />
 
-		<basename file="${log.dir}" property="${log-name.file}" />
-
-		<echo>[ccre-log-fetch] Packaging old logs: ${log.dir}</echo>
+		<basename file="${log.dir}" property="log.file" />
+		
+		<sshexec host="${target}" username="${username}" password="${password}" trust="true" outputproperty="log.exists" command="echo ccre-storage/log-*" />
+		
+		<condition property="should-fetch-logs" value="set">
+			<not>
+				<equals trim="true" arg1="${log.exists}" arg2="ccre-storage/log-*" />
+			</not>
+		</condition>
+		
+		<antcall target="fetch-logs-real" />
+	</target>
+		
+	<target name="fetch-logs-real" if="should-fetch-logs">
+		<echo>[ccre-log-fetch] Packaging old logs: ${log.dir}: ${should-fetch-logs}: ${log.exists}</echo>
 		<sshexec host="${target}"
 		         username="${username}"
 		         password="${password}"
 		         trust="true"
-		         command="tar -czf logs-${log-name.file}.tgz ccre-storage/log-* &amp;&amp; mkdir /tmp/${log-name.file}/ &amp;&amp; mv ccre-storage/log-* /tmp/${log-name.file}/" />
+		         command="(! ls ccre-storage/log-*) || (tar -czf logs-${log.file}.tgz ccre-storage/log-* &amp;&amp; mkdir /tmp/${log.file}/ &amp;&amp; mv ccre-storage/log-* /tmp/${log.file}/)" />
 
 		<echo>[ccre-log-fetch] Retrieving old logs...</echo>
 
-		<scp file="${username}@${target}:logs-${log-name.file}.tgz"
-		     todir="${log.dir}"
+		<scp file="${username}@${target}:logs-${log.file}.tgz"
+		     todir="${project.dir}"
 		     password="${password}"
 		     trust="true" />
 	</target>

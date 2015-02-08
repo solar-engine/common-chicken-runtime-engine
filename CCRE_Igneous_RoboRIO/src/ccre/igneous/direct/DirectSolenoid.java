@@ -41,7 +41,7 @@ class DirectSolenoid {
             ports[module][channel] = SolenoidJNI.initializeSolenoidPort(SolenoidJNI.getPortWithModule((byte) module, (byte) channel), status);
             Common.check(status);
         }
-        
+
         return ports[module][channel];
     }
 

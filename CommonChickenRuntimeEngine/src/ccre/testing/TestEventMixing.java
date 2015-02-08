@@ -56,7 +56,7 @@ public class TestEventMixing extends BaseTest {
         };
         EventStatus input = new EventStatus();
         EventMixing.debounce((EventInput) input, 10).send(o);
-        
+
         assertTrue(count[0] == 0, "Bad counter");
         input.event();
         assertTrue(count[0] == 1, "Bad counter");

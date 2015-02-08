@@ -181,6 +181,7 @@ public class ExtendedJaguar extends ExtendedMotor implements FloatOutput {
             return new FloatInputPoll() {
                 private boolean zeroed = false;
                 private long zeroUntil = 0;
+
                 public float get() {
                     if (zeroed) {
                         if (System.currentTimeMillis() > zeroUntil) {

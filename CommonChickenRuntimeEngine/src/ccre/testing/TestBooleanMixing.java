@@ -337,7 +337,7 @@ public class TestBooleanMixing extends BaseTest {
             assertFalse(expecting[1], "Value not received.");
         }
     }
-    
+
     private void testSetWhile() throws TestingException {
         BooleanStatus b = new BooleanStatus(), shouldSet = new BooleanStatus(), shouldNotUnset = new BooleanStatus();
         EventStatus check = new EventStatus();
@@ -345,8 +345,8 @@ public class TestBooleanMixing extends BaseTest {
         BooleanMixing.setWhileNot(check, shouldNotUnset, b, false);
         EventOutput toggle = BooleanMixing.toggleEvent(b);
         boolean shouldBeNext = true;
-        
-        for (int i : new int[] {0, 0, 1, 2, 1, 1, 4, 2, 2, 0, 2, 0, 1, 0, 2, 1, 4, 0, 1, 4, 2, 0, 0, 1, 2, 4, 2, 1, 1, 4, 0, 4, 4}) {
+
+        for (int i : new int[] { 0, 0, 1, 2, 1, 1, 4, 2, 2, 0, 2, 0, 1, 0, 2, 1, 4, 0, 1, 4, 2, 0, 0, 1, 2, 4, 2, 1, 1, 4, 0, 4, 4 }) {
             boolean now = b.get();
             check.event();
             assertTrue(now == b.get(), "Should be unchanged.");

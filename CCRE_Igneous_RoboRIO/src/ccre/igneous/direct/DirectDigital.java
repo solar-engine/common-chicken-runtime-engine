@@ -51,7 +51,7 @@ class DirectDigital {
             throw new RuntimeException("Digital port allocated for I and O: " + channel);
         }
     }
-    
+
     public static synchronized void free(int channel) {
         ByteBuffer port = digitals[channel];
         if (port == null) {
@@ -74,7 +74,7 @@ class DirectDigital {
         DIOJNI.setDIO(dig, (short) (value ? 1 : 0), status); // just FPGA errors
         Common.check(status);
     }
-    
+
     public static boolean get(int channel) {
         ByteBuffer dig = digitals[channel];
         if (dig == null) {

@@ -25,7 +25,7 @@ import ccre.channel.SerialIO;
 final class SerialPortDirect implements SerialIO {
     private boolean closed;
     private final byte port;
-    
+
     SerialPortDirect(byte port, int baudRate) {
         this.port = port;
         DirectRS232.init(port, baudRate, 8, DirectRS232.PARITY_NONE, DirectRS232.STOP_ONE);

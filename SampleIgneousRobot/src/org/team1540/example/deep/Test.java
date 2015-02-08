@@ -27,6 +27,8 @@ import ccre.igneous.IgneousApplication;
  * This is like org.team1540.example.Test, but it has it dressed up with many of
  * the CCRE's features.
  *
+ * Not yet complete!
+ *
  * @author skeggsc
  */
 public class Test implements IgneousApplication {
@@ -46,7 +48,7 @@ public class Test implements IgneousApplication {
         // Compressor
         Igneous.useCompressor(1, 1);
         // Autonomous
-        /*Igneous.registerAutonomous(new InstinctModule() {
+        /* Igneous.registerAutonomous(new InstinctModule() {
             protected void autonomousMain() throws AutonomousModeOverException, InterruptedException {
                 leftOut.set(-1);
                 rightOut.set(-1);
@@ -54,6 +56,6 @@ public class Test implements IgneousApplication {
                 leftOut.set(0);
                 rightOut.set(0);
             }
-        });*/
+        }); */
     }
 }

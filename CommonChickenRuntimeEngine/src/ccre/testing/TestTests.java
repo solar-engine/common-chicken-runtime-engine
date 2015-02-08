@@ -36,7 +36,7 @@ public final class TestTests extends BaseTest {
     @Override
     protected void runTest() throws TestingException, InterruptedException {
         Logger.info("Beginning meta-tests...");
-        for (BaseTest t : new BaseTest[] {new SucceedTest(), new FailTest1(), new FailTest2(), new FailTest3(), new FailTest4(), new FailTest5(), new ExceptionTest()}) {
+        for (BaseTest t : new BaseTest[] { new SucceedTest(), new FailTest1(), new FailTest2(), new FailTest3(), new FailTest4(), new FailTest5(), new ExceptionTest() }) {
             boolean out = t.test(false);
             if (t.getName().startsWith("Virtual Failure")) {
                 assertFalse(out, "Meta-testing failed!");

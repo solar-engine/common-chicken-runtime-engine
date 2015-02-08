@@ -12,6 +12,7 @@ import edu.wpi.first.wpilibj.hal.CanTalonSRX;
 import edu.wpi.first.wpilibj.hal.SWIGTYPE_p_CTR_Code;
 import edu.wpi.first.wpilibj.hal.SWIGTYPE_p_double;
 import edu.wpi.first.wpilibj.hal.SWIGTYPE_p_int;
+
 @SuppressWarnings("javadoc")
 class CANTalonMod {
 

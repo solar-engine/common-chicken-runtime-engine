@@ -79,8 +79,8 @@ public class PauseTimer implements BooleanInput, EventOutput {
     }
 
     /**
-     * Terminate the timer and its thread. It will not function after this point - do not
-     * attempt to use it.
+     * Terminate the timer and its thread. It will not function after this point
+     * - do not attempt to use it.
      */
     public void terminate() {
         isRunning = false;

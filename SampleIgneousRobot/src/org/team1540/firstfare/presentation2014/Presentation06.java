@@ -10,7 +10,6 @@ import ccre.channel.FloatOutput;
 import ccre.igneous.Igneous;
 import ccre.igneous.IgneousApplication;
 
-
 @SuppressWarnings("unused")
 public class Presentation06 implements IgneousApplication {
 

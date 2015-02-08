@@ -69,6 +69,7 @@ import edu.wpi.first.wpilibj.communication.HALControlWord;
 public final class DirectIgneousLauncherImpl implements IgneousLauncher {
     /**
      * The entry point for the Direct robot implementation.
+     *
      * @param args the program arguments. ignored.
      */
     public static void main(String[] args) {
@@ -111,17 +112,17 @@ public final class DirectIgneousLauncherImpl implements IgneousLauncher {
             Logger.severe("Critical Code Failure in Robot Init", thr);
             return;
         }
-        
+
         DirectDriverStation.init();
-        
+
         FRCNetworkCommunicationsLibrary.FRCNetworkCommunicationObserveUserProgramStarting();
-        
+
         robot.mainloop();
     }
-    
+
     private void mainloop() {
         activeMode = null;
-        
+
         while (true) {
             HALControlWord controlWord = FRCNetworkCommunicationsLibrary.HALGetControlWord();
             Mode newmode = calcMode(controlWord);
@@ -186,7 +187,7 @@ public final class DirectIgneousLauncherImpl implements IgneousLauncher {
      */
     @SuppressWarnings("deprecation")
     public DirectIgneousLauncherImpl() {
-        FRCNetworkCommunicationsLibrary.FRCNetworkCommunicationUsageReportingReport((byte)tResourceType.kResourceType_Language, (byte) tInstances.kLanguage_Java, (byte) 0, "With the CCRE: the CommonChickenRuntimeEngine");
+        FRCNetworkCommunicationsLibrary.FRCNetworkCommunicationUsageReportingReport((byte) tResourceType.kResourceType_Language, (byte) tInstances.kLanguage_Java, (byte) 0, "With the CCRE: the CommonChickenRuntimeEngine");
         File rootDir = new File("/home/lvuser/ccre-storage");
         rootDir.mkdirs();
         DefaultStorageProvider.register(rootDir);

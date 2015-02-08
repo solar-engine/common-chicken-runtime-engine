@@ -16,6 +16,7 @@ import ccre.ctrl.BooleanMixing;
 import ccre.igneous.Igneous;
 import ccre.igneous.IgneousApplication;
 
+@SuppressWarnings("unused")
 public class Presentation03 implements IgneousApplication {
 
     public void setupRobot() {

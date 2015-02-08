@@ -4,14 +4,12 @@ import ccre.channel.BooleanInputPoll;
 import ccre.channel.BooleanStatus;
 import ccre.channel.FloatInputPoll;
 import ccre.channel.FloatOutput;
-import ccre.channel.FloatStatus;
-import ccre.cluck.Cluck;
 import ccre.ctrl.BooleanMixing;
 import ccre.ctrl.DriverImpls;
 import ccre.ctrl.EventMixing;
 import ccre.igneous.Igneous;
-import ccre.rconf.RConf.Entry;
 import ccre.rconf.RConf;
+import ccre.rconf.RConf.Entry;
 import ccre.rconf.RConfable;
 
 public class DriveCode implements RConfable {

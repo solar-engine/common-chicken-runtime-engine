@@ -20,11 +20,9 @@ package org.team1540.joysticks;
 
 import ccre.cluck.Cluck;
 import ccre.ctrl.BooleanMixing;
-import ccre.ctrl.IJoystick;
 import ccre.ctrl.IJoystickWithPOV;
 import ccre.igneous.Igneous;
 import ccre.igneous.IgneousApplication;
-import ccre.log.Logger;
 
 /**
  * An example program that just publishes all of the Joystick data.

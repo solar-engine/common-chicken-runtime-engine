@@ -14,6 +14,7 @@ import ccre.igneous.Igneous;
 import ccre.igneous.IgneousApplication;
 import ccre.log.LogLevel;
 
+@SuppressWarnings("unused")
 public class Presentation18 implements IgneousApplication {
 
     public void setupRobot() {

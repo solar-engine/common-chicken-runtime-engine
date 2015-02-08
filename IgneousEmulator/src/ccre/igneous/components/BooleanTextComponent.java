@@ -21,9 +21,7 @@ package ccre.igneous.components;
 import java.awt.Color;
 
 import ccre.channel.BooleanInput;
-import ccre.channel.BooleanInputPoll;
 import ccre.channel.BooleanOutput;
-import ccre.channel.FloatOutput;
 import ccre.concurrency.ConcurrentDispatchArray;
 
 /**

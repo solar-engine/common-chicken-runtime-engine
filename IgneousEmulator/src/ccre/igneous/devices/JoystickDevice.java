@@ -23,7 +23,6 @@ import ccre.channel.BooleanInputPoll;
 import ccre.channel.EventInput;
 import ccre.channel.FloatInput;
 import ccre.channel.FloatInputPoll;
-import ccre.ctrl.IJoystick;
 import ccre.ctrl.IJoystickWithPOV;
 import ccre.igneous.DeviceGroup;
 import ccre.igneous.DeviceListPanel;

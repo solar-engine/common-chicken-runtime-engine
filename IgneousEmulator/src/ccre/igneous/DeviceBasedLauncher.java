@@ -28,7 +28,6 @@ import ccre.ctrl.BooleanMixing;
 import ccre.ctrl.DisconnectedSerialIO;
 import ccre.ctrl.EventMixing;
 import ccre.ctrl.ExtendedMotor;
-import ccre.ctrl.ExtendedMotorFailureException;
 import ccre.ctrl.FloatMixing;
 import ccre.ctrl.IJoystick;
 import ccre.ctrl.IJoystickWithPOV;

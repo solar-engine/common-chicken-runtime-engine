@@ -7,7 +7,6 @@ import ccre.channel.BooleanStatus;
 import ccre.channel.EventOutput;
 import ccre.channel.EventStatus;
 import ccre.ctrl.BooleanMixing;
-import ccre.log.Logger;
 
 /**
  * Tests the BooleanMixing class.

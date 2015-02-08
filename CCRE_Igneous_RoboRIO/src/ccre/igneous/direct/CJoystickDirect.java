@@ -20,14 +20,8 @@ package ccre.igneous.direct;
 
 import ccre.channel.BooleanInputPoll;
 import ccre.channel.EventInput;
-import ccre.channel.EventOutput;
-import ccre.channel.EventStatus;
-import ccre.channel.FloatInput;
 import ccre.channel.FloatInputPoll;
-import ccre.channel.FloatStatus;
 import ccre.ctrl.AbstractJoystickWithPOV;
-import ccre.ctrl.IJoystick;
-import ccre.ctrl.IJoystickWithPOV;
 
 /**
  * An IJoystick implementation that allows reading from a joystick on the driver
@@ -40,11 +34,10 @@ public final class CJoystickDirect extends AbstractJoystickWithPOV {
     private final int port;
 
     /**
-     * Create a new CJoystick for a specific joystick ID. It will be important
-     * to call attach() to add a source to update this object.
+     * Create a new CJoystick for a specific joystick ID.
      *
      * @param joystick the joystick ID
-     * @see #attach(ccre.channel.EventInput)
+     * @param check when to update the input sources.
      */
     public CJoystickDirect(int joystick, EventInput check) {
         super(check);

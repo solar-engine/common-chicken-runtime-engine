@@ -47,6 +47,8 @@ import ccre.util.LineCollectorOutputStream;
  */
 public class CluckUnitTestComponent extends DraggableBoxComponent {
 
+    private static final long serialVersionUID = 4921789619177479709L;
+
     private final class CluckUnitTesterWorker extends CollapsingWorkerThread {
         public static final int MAX_CTR = 19;
         BooleanOutput bo = Cluck.subscribeBO("robot/utest-bo0");

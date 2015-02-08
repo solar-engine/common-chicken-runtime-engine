@@ -252,7 +252,7 @@ public class PIDControl implements FloatInput, EventOutput {
                 newTotal = maxIntegral.get();
             }
             integralTotal.set(newTotal);
-            float slope = 1000 /* milliseconds per second */* (error - previousInput) / (float) timeDelta;
+            float slope = 1000 /* milliseconds per second */* (error - previousInput) / timeDelta;
             float valueOut = error * P.get() + integralTotal.get() * I.get() + slope * D.get();
             previousInput = error;
             previousTime = time;

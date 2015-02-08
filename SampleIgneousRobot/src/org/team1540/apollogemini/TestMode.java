@@ -49,7 +49,7 @@ public class TestMode {
     }
 
     public BooleanInput testPublish(String s, BooleanInput b) {
-        Cluck.publish(testify(s), (BooleanInput) b);
+        Cluck.publish(testify(s), b);
         return b;
     }
 
@@ -72,7 +72,7 @@ public class TestMode {
     }
 
     public FloatInput testPublish(String s, FloatInput b) {
-        Cluck.publish(testify(s), (FloatInput) b);
+        Cluck.publish(testify(s), b);
         return b;
     }
 

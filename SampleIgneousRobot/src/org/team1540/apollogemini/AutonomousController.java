@@ -82,7 +82,7 @@ public class AutonomousController extends InstinctModule {
     }
 
     // *** Modes ***
-    private void autoNone() throws AutonomousModeOverException, InterruptedException {
+    private void autoNone() {
         bothDrive.set(0);
     }
 
@@ -254,8 +254,8 @@ public class AutonomousController extends InstinctModule {
         bothDrive = FloatMixing.combine(leftDrive, rightDrive);
     }
 
-    public void putKinectTrigger(BooleanInputPoll kinectTrigger) {
-        this.kinectTrigger = kinectTrigger;
+    public void putKinectTrigger(BooleanInputPoll kinectTriggerInput) {
+        this.kinectTrigger = kinectTriggerInput;
     }
 
     public EventInput getWhenToFire() {
@@ -266,10 +266,10 @@ public class AutonomousController extends InstinctModule {
         return rearmWhenEvent;
     }
 
-    public void putArm(EventOutput lowerArm, EventOutput raiseArm, EventOutput alignArm, FloatOutput collector, BooleanOutput collectorSolenoids) {
-        this.lowerArm = lowerArm;
-        this.raiseArm = raiseArm;
-        this.alignArm = alignArm;
+    public void putArm(EventOutput toLowerArm, EventOutput toRaiseArm, EventOutput toAlignArm, FloatOutput collector, BooleanOutput collectorSolenoids) {
+        this.lowerArm = toLowerArm;
+        this.raiseArm = toRaiseArm;
+        this.alignArm = toAlignArm;
         collect = collector;
         collectSols = collectorSolenoids;
     }

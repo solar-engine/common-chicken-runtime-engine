@@ -1997,8 +1997,6 @@ class CANJaguarMod {
      */
     protected void updatePeriodicStatus() {
         byte[] data = new byte[8];
-        int dataSize;
-
         // Check if a new bus voltage/output voltage/current/temperature message
         // has arrived and unpack the values into the cached member variables
         try {
@@ -2086,11 +2084,6 @@ class CANJaguarMod {
     private static final byte packINT16(byte[] buffer, short value) {
         swap16(value, buffer);
         return 2;
-    }
-
-    private static final byte packINT32(byte[] buffer, int value) {
-        swap32(value, buffer);
-        return 4;
     }
 
     /**

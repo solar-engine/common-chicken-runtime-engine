@@ -43,11 +43,9 @@ final class CJoystick extends AbstractJoystickWithPOV {
     private final GenericHID joy;
 
     /**
-     * Create a new CJoystick for a specific joystick ID. It will be important
-     * to call attach() to add a source to update this object.
+     * Create a new CJoystick for a specific joystick ID.
      *
      * @param joystick the joystick ID
-     * @see #attach(ccre.channel.EventInput)
      */
     CJoystick(int joystick, EventInput check) {
         super(check);

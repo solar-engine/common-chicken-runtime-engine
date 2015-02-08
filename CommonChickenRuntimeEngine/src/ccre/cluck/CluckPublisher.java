@@ -39,7 +39,6 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.OutputStream;
 import java.io.Serializable;
-import java.util.ArrayList;
 
 import ccre.channel.BooleanInput;
 import ccre.channel.BooleanOutput;
@@ -57,8 +56,8 @@ import ccre.log.LogLevel;
 import ccre.log.Logger;
 import ccre.log.LoggingTarget;
 import ccre.rconf.RConf;
-import ccre.rconf.RConfable;
 import ccre.rconf.RConf.Entry;
+import ccre.rconf.RConfable;
 import ccre.util.UniqueIds;
 import ccre.util.Utils;
 import ccre.workarounds.ThrowablePrinter;

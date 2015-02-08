@@ -109,7 +109,7 @@ public class Inferno extends IgneousCore {
     private void createArmButtonActions(BooleanStatus deactivateBrake) {
         // Check when the arm override mover is moved.
         BooleanInputPoll isArmOverride = FloatMixing.floatIsOutsideRange(PhidgetReader.getAnalogInput(5), -0.2f, 0.2f);
-        EventInput duringArmOverride = EventMixing.filterEvent(isArmOverride, true, (EventInput) duringTele);
+        EventInput duringArmOverride = EventMixing.filterEvent(isArmOverride, true, duringTele);
         // Check when one of the analog-dispatch buttons is activated.
         FloatInputPoll armSelectorValue = PhidgetReader.getAnalogInput(4);
         BooleanInputPoll isArmFront = FloatMixing.floatIsInRange(armSelectorValue, -0.26f, -0.24f); // Measured constants.
@@ -243,6 +243,7 @@ public class Inferno extends IgneousCore {
         climbControl.setFalseWhen(EventMixing.filterEvent(PhidgetReader.getDigitalInput(3), true, duringTele));
     }
 
+    @SuppressWarnings("deprecation")
     private void createPressureMonitoring() {
         final FloatInputPoll pressure = FloatMixing.normalizeFloat(makeAnalogInput_ValueBased(1, 14), 100, 587);
         globalPeriodic.send(new EventOutput() {

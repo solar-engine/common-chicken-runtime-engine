@@ -87,12 +87,12 @@ public final class CluckNullLink implements CluckLink {
     /**
      * Add this link to the attached CluckNode under the specified name.
      *
-     * @param linkName The link name to use.
+     * @param localLinkName The link name to use.
      * @return This link, for method chaining.
      */
-    public CluckNullLink name(String linkName) {
-        this.linkName = linkName;
-        node.addLink(this, linkName);
+    public CluckNullLink name(String localLinkName) {
+        this.linkName = localLinkName;
+        node.addLink(this, localLinkName);
         return this;
     }
 

@@ -9,6 +9,7 @@ import ccre.channel.EventOutput;
 import ccre.igneous.Igneous;
 import ccre.igneous.IgneousApplication;
 
+@SuppressWarnings("unused")
 public class Presentation09 implements IgneousApplication {
 
     public void setupRobot() {

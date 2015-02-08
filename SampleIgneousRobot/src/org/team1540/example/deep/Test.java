@@ -19,15 +19,9 @@
 package org.team1540.example.deep;
 
 import ccre.channel.BooleanStatus;
-import ccre.channel.FloatInputPoll;
-import ccre.channel.FloatOutput;
 import ccre.cluck.Cluck;
-import ccre.ctrl.DriverImpls;
 import ccre.igneous.Igneous;
 import ccre.igneous.IgneousApplication;
-import ccre.igneous.IgneousCore;
-import ccre.instinct.AutonomousModeOverException;
-import ccre.instinct.InstinctModule;
 
 /**
  * This is like org.team1540.example.Test, but it has it dressed up with many of

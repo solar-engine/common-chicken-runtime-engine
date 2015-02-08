@@ -13,6 +13,7 @@ import ccre.channel.FloatOutput;
 import ccre.cluck.Cluck;
 import ccre.igneous.IgneousApplication;
 
+@SuppressWarnings("unused")
 public class Presentation23 implements IgneousApplication {
 
     public void setupRobot() {

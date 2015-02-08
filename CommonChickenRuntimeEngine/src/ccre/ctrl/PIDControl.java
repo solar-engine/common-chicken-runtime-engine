@@ -232,34 +232,38 @@ public class PIDControl implements FloatInput, EventOutput {
      */
     public void event() {
         float error = input.get() - setpoint.get();
-        long time = System.currentTimeMillis();
-        long timeDelta = time - previousTime;
-        if (timeDelta < 0) {
-            throw new RuntimeException("Time just ran backwards!");
-        } else if (timeDelta == 0) { // Updating too fast. Ignore it.
-            return;
-        } else if (timeDelta / 1000f > maximumTimeDelta.get()) {
-            timeDelta = (long) (maximumTimeDelta.get() * 1000);
+        if (Float.isNaN(error) || Float.isInfinite(error)) {
+            output.set(Float.NaN);
+        } else {
+            long time = System.currentTimeMillis();
+            long timeDelta = time - previousTime;
+            if (timeDelta < 0) {
+                throw new RuntimeException("Time just ran backwards!");
+            } else if (timeDelta == 0) { // Updating too fast. Ignore it.
+                return;
+            } else if (timeDelta / 1000f > maximumTimeDelta.get()) {
+                timeDelta = (long) (maximumTimeDelta.get() * 1000);
+            }
+            float newTotal = integralTotal.get() + error * timeDelta / 1000f;
+            if (minIntegral != null && newTotal < minIntegral.get()) {
+                newTotal = minIntegral.get();
+            }
+            if (maxIntegral != null && newTotal > maxIntegral.get()) {
+                newTotal = maxIntegral.get();
+            }
+            integralTotal.set(newTotal);
+            float slope = 1000 /* milliseconds per second */* (error - previousInput) / (float) timeDelta;
+            float valueOut = error * P.get() + integralTotal.get() * I.get() + slope * D.get();
+            previousInput = error;
+            previousTime = time;
+            if (minOutput != null && valueOut < minOutput.get()) {
+                valueOut = minOutput.get();
+            }
+            if (maxOutput != null && valueOut > maxOutput.get()) {
+                valueOut = maxOutput.get();
+            }
+            output.set(valueOut);
         }
-        float newTotal = integralTotal.get() + error * timeDelta / 1000f;
-        if (minIntegral != null && newTotal < minIntegral.get()) {
-            newTotal = minIntegral.get();
-        }
-        if (maxIntegral != null && newTotal > maxIntegral.get()) {
-            newTotal = maxIntegral.get();
-        }
-        integralTotal.set(newTotal);
-        float slope = 1000 /* milliseconds per second */* (error - previousInput) / (float) timeDelta;
-        float valueOut = error * P.get() + integralTotal.get() * I.get() + slope * D.get();
-        previousInput = error;
-        previousTime = time;
-        if (minOutput != null && valueOut < minOutput.get()) {
-            valueOut = minOutput.get();
-        }
-        if (maxOutput != null && valueOut > maxOutput.get()) {
-            valueOut = maxOutput.get();
-        }
-        output.set(valueOut);
     }
 
     public void send(FloatOutput to) {

@@ -287,7 +287,7 @@ public class BooleanStatus implements BooleanOutput, BooleanInput, RConfable, Se
     }
 
     public Entry[] queryRConf() {
-        return new Entry[] {RConf.fieldBoolean(this), RConf.button("toggle"), RConf.fieldInteger(consumers == null ? 0 : consumers.size())};
+        return new Entry[] {RConf.fieldBoolean(get()), RConf.button("toggle"), RConf.fieldInteger(consumers == null ? 0 : consumers.size())};
     }
 
     public void signalRConf(int field, byte[] data) {

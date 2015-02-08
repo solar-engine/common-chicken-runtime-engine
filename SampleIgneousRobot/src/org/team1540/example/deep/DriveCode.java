@@ -30,9 +30,9 @@ public class DriveCode implements RConfable {
 
     public Entry[] queryRConf() throws InterruptedException {
         return new Entry[] {RConf.title("Drive Code"),
-                RConf.string("Axes:"), RConf.fieldFloat(leftAxis), RConf.fieldFloat(rightAxis),
-                RConf.string("Allow To Run:"), RConf.fieldBoolean(allowToRun),
-                RConf.string("Force To Run:"), RConf.fieldBoolean(forceEnabled)};
+                RConf.string("Axes:"), RConf.fieldFloat(leftAxis.get()), RConf.fieldFloat(rightAxis.get()),
+                RConf.string("Allow To Run:"), RConf.fieldBoolean(allowToRun.get()),
+                RConf.string("Force To Run:"), RConf.fieldBoolean(forceEnabled.get())};
     }
 
     public void signalRConf(int field, byte[] data) throws InterruptedException {

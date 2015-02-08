@@ -2,6 +2,7 @@ package ccre.rconf;
 
 import ccre.channel.BooleanInputPoll;
 import ccre.channel.FloatInputPoll;
+import ccre.rconf.RConf.Entry;
 
 /**
  * The RConf subsystem's utility class.
@@ -55,20 +56,27 @@ public class RConf {
      */
     public static final byte F_CLUCK_REF = 6;
 
-    public static interface Entry {
-        public byte[] encode();
+    public static final class Entry {
+        
+        public final byte type;
+        public final byte[] contents;
+
+        public Entry(byte type, byte... contents) {
+            this.type = type;
+            this.contents = contents;
+        }
     }
 
     public static String parseTextual(byte[] entry) {
-        return entry.length >= 1 ? new String(entry, 1, entry.length - 1) : null;
+        return new String(entry, 0, entry.length);
     }
 
     public static Boolean parseBoolean(byte[] entry) {
-        return entry.length >= 2 ? entry[1] != 0 : null;
+        return entry.length >= 1 ? entry[0] != 0 : null;
     }
 
     public static Integer parseInteger(byte[] entry) {
-        return entry.length >= 5 ? (((entry[1] & 0xFF) << 24) | ((entry[2] & 0xFF) << 16) | ((entry[3] & 0xFF) << 8) | (entry[4] & 0xFF)) : null;
+        return entry.length >= 4 ? (((entry[0] & 0xFF) << 24) | ((entry[1] & 0xFF) << 16) | ((entry[2] & 0xFF) << 8) | (entry[3] & 0xFF)) : null;
     }
 
     public static Float parseFloat(byte[] entry) {
@@ -77,94 +85,59 @@ public class RConf {
     }
 
     public static Entry title(String title) {
-        return fixed(F_TITLE, title.getBytes());
+        return new Entry(F_TITLE, title.getBytes());
     }
 
     public static Entry string(String data) {
-        return fixed(F_STRING, data.getBytes());
+        return new Entry(F_STRING, data.getBytes());
     }
 
     public static Entry button(String label) {
-        return fixed(F_BUTTON, label.getBytes());
+        return new Entry(F_BUTTON, label.getBytes());
     }
 
     public static Entry cluckRef(String ref) {
-        return fixed(F_CLUCK_REF, ref.getBytes());
+        return new Entry(F_CLUCK_REF, ref.getBytes());
     }
 
     public static Entry fieldInteger(int i) {
-        return fixed(integerAsBytesWithPrefix(F_INTEGER, i));
-    }
-
-    public static Entry fieldFloat(final FloatInputPoll b) {
-        return new Entry() {
-            public byte[] encode() {
-                return integerAsBytesWithPrefix(F_FLOAT, Float.floatToIntBits(b.get()));
-            }
-        };
+        return new Entry(F_INTEGER, integerAsBytes(i));
     }
 
     public static Entry fieldFloat(float b) {
-        return fixed(integerAsBytesWithPrefix(F_FLOAT, Float.floatToIntBits(b)));
+        return new Entry(F_FLOAT, integerAsBytes(Float.floatToIntBits(b)));
     }
 
-    private static byte[] integerAsBytesWithPrefix(byte prefix, int b) {
-        return new byte[] { prefix, (byte) (b >> 24), (byte) (b >> 16), (byte) (b >> 8), (byte) b };
-    }
-
-    public static Entry fieldBoolean(final BooleanInputPoll b) {
-        return new Entry() {
-            public byte[] encode() {
-                return new byte[] { F_BOOLEAN, b.get() ? (byte) 1 : (byte) 0 };
-            }
-        };
+    private static byte[] integerAsBytes(int b) {
+        return new byte[] { (byte) (b >> 24), (byte) (b >> 16), (byte) (b >> 8), (byte) b };
     }
 
     public static Entry fieldBoolean(boolean b) {
-        return fixed(F_BOOLEAN, b ? (byte) 1 : (byte) 0);
-    }
-
-    public static Entry fixed(byte type, byte[] data) {
-        byte[] out = new byte[data.length + 1];
-        System.arraycopy(data, 0, out, 1, data.length);
-        out[0] = type;
-        return fixed(out);
-    }
-
-    public static Entry fixed(final byte... data) {
-        return new Entry() {
-            public byte[] encode() {
-                return data;
-            }
-        };
+        return new Entry(F_BOOLEAN, b ? (byte) 1 : (byte) 0);
     }
 
     public static String toString(Entry e) {
-        byte[] data = e.encode();
-        if (data.length < 1) {
-            return "<invalid:too-short>";
-        }
-        switch (data[0]) {
+        switch (e.type) {
         case F_TITLE:
-            String title = parseTextual(data);
+            String title = parseTextual(e.contents);
             return title == null ? "<invalid:bad-title>" : "# " + title;
         case F_BOOLEAN:
-            Boolean b = parseBoolean(data);
+            Boolean b = parseBoolean(e.contents);
             return b == null ? "<invalid:bad-bool>" : b.toString();
         case F_INTEGER:
-            Integer i = parseInteger(data);
+            Integer i = parseInteger(e.contents);
             return i == null ? "<invalid:bad-int>" : i.toString();
         case F_FLOAT:
-            Float f = parseFloat(data);
+            Float f = parseFloat(e.contents);
             return f == null ? "<invalid:bad-float>" : f.toString();
         case F_STRING:
-            String text = parseTextual(data);
+            String text = parseTextual(e.contents);
             return text == null ? "<invalid:bad-str>" : text;
         case F_BUTTON:
-            String label = parseTextual(data);
+            String label = parseTextual(e.contents);
             return label == null ? "<invalid:bad-label>" : "[" + label + "]";
         case F_CLUCK_REF:
-            String ref = parseTextual(data);
+            String ref = parseTextual(e.contents);
             return ref == null ? "<invalid:bad-cluck>" : "@" + ref;
         default:
             return "<invalid:bad-type>";

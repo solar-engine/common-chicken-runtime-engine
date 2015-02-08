@@ -493,10 +493,9 @@ public class CluckPublisher {
                     try {
                         out.write(new byte[] { (byte) (count >> 8), (byte) count });
                         for (int i = 0; i < count; i++) {
-                            byte[] line = data[i].encode();
-                            int len = line.length;
-                            out.write(new byte[] { (byte) (len >> 24), (byte) (len >> 16), (byte) (len >> 8), (byte) len });
-                            out.write(line);
+                            int len = data[i].contents.length + 1; // plus one for the type
+                            out.write(new byte[] { (byte) (len >> 24), (byte) (len >> 16), (byte) (len >> 8), (byte) len, data[i].type });
+                            out.write(data[i].contents);
                         }
                     } catch (IOException e) {
                         Logger.warning("IOException during response to RConf query!", e);
@@ -576,15 +575,16 @@ public class CluckPublisher {
                         return null;
                     }
                     int len = ((data[ptr] & 0xFF) << 24) | ((data[ptr + 1] & 0xFF) << 16) | ((data[ptr + 2] & 0xFF) << 8) | (data[ptr + 3] & 0xFF);
-                    byte[] part = new byte[len];
-                    ptr += 4;
+                    byte type = data[ptr + 4];
+                    byte[] part = new byte[len - 1];
+                    ptr += 5;
                     if (data.length - ptr < part.length) {
                         Logger.warning("Too-short (3) RConf query response!");
                         return null;
                     }
                     System.arraycopy(data, ptr, part, 0, part.length);
                     ptr += part.length;
-                    out[i] = RConf.fixed(part);
+                    out[i] = new RConf.Entry(type, part);
                 }
                 if (ptr != data.length) {
                     Logger.warning("Too-long RConf query response!");

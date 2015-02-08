@@ -175,7 +175,7 @@ public class FloatStatus implements FloatOutput, FloatInput, RConfable, Serializ
     }
 
     public Entry[] queryRConf() {
-        return new Entry[] {RConf.fieldFloat(this), RConf.fieldInteger(consumers == null ? 0 : consumers.size())};
+        return new Entry[] {RConf.fieldFloat(get()), RConf.fieldInteger(consumers == null ? 0 : consumers.size())};
     }
 
     public void signalRConf(int field, byte[] data) {

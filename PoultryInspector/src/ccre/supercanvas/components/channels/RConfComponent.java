@@ -112,8 +112,7 @@ public class RConfComponent extends DraggableBoxComponent {
         {
             boolean asTitle = true;
             for (RConf.Entry e : entries) {
-                byte[] data = e.encode();
-                if (data.length >= 1 && data[0] == RConf.F_TITLE) {
+                if (e.type == RConf.F_TITLE) {
                     asTitle = false;
                     break;
                 }
@@ -132,50 +131,45 @@ public class RConfComponent extends DraggableBoxComponent {
             String str;
             int textShift = 15;
             g.setFont(Rendering.console);
-            byte[] data = e.encode();
-            if (data.length < 1) {
-                str = "<invalid:too-short>";
-            } else {
-                switch (data[0]) {
-                case RConf.F_TITLE:
-                    g.setFont(Rendering.midlabels);
-                    textShift = 15;
-                    String title = RConf.parseTextual(data);
-                    str = title == null ? "<invalid:bad-title>" : title;
-                    break;
-                case RConf.F_BOOLEAN:
-                    Boolean b = RConf.parseBoolean(data);
-                    str = b == null ? "<invalid:bad-bool>" : "FALSE <- [" + b.toString() + "] -> TRUE ";
-                    break;
-                case RConf.F_INTEGER:
-                    Integer i = RConf.parseInteger(data);
-                    str = i == null ? "<invalid:bad-int>" : i.toString();
-                    break;
-                case RConf.F_FLOAT:
-                    Float f = RConf.parseFloat(data);
-                    str = f == null ? "<invalid:bad-float>" : f.toString();
-                    break;
-                case RConf.F_STRING:
-                    String text = RConf.parseTextual(data);
-                    str = text == null ? "<invalid:bad-str>" : text;
-                    break;
-                case RConf.F_BUTTON:
-                    String label = RConf.parseTextual(data);
-                    g.setColor(signalField == field && System.currentTimeMillis() - lastSent < 500 ? Color.GREEN : Color.RED);
-                    int wlabel = g.getFontMetrics().stringWidth(label) + 20;
-                    g.fillRect(centerX - wlabel / 2, curY + 1, wlabel, 18);
-                    g.setColor(Color.BLACK);
-                    g.drawRect(centerX - wlabel / 2, curY + 1, wlabel, 18);
-                    str = label == null ? "<invalid:bad-label>" : label;
-                    break;
-                case RConf.F_CLUCK_REF:
-                    String ref = RConf.parseTextual(data);
-                    str = ref == null ? "<invalid:bad-cluck>" : "@" + ref;
-                    break;
-                default:
-                    str = "<invalid:bad-type>";
-                    break;
-                }
+            switch (e.type) {
+            case RConf.F_TITLE:
+                g.setFont(Rendering.midlabels);
+                textShift = 15;
+                String title = RConf.parseTextual(e.contents);
+                str = title == null ? "<invalid:bad-title>" : title;
+                break;
+            case RConf.F_BOOLEAN:
+                Boolean b = RConf.parseBoolean(e.contents);
+                str = b == null ? "<invalid:bad-bool>" : "FALSE <- [" + b.toString() + "] -> TRUE ";
+                break;
+            case RConf.F_INTEGER:
+                Integer i = RConf.parseInteger(e.contents);
+                str = i == null ? "<invalid:bad-int>" : i.toString();
+                break;
+            case RConf.F_FLOAT:
+                Float f = RConf.parseFloat(e.contents);
+                str = f == null ? "<invalid:bad-float>" : f.toString();
+                break;
+            case RConf.F_STRING:
+                String text = RConf.parseTextual(e.contents);
+                str = text == null ? "<invalid:bad-str>" : text;
+                break;
+            case RConf.F_BUTTON:
+                String label = RConf.parseTextual(e.contents);
+                g.setColor(signalField == field && System.currentTimeMillis() - lastSent < 500 ? Color.GREEN : Color.RED);
+                int wlabel = g.getFontMetrics().stringWidth(label) + 20;
+                g.fillRect(centerX - wlabel / 2, curY + 1, wlabel, 18);
+                g.setColor(Color.BLACK);
+                g.drawRect(centerX - wlabel / 2, curY + 1, wlabel, 18);
+                str = label == null ? "<invalid:bad-label>" : label;
+                break;
+            case RConf.F_CLUCK_REF:
+                String ref = RConf.parseTextual(e.contents);
+                str = ref == null ? "<invalid:bad-cluck>" : "@" + ref;
+                break;
+            default:
+                str = "<invalid:bad-type>";
+                break;
             }
             int hw = g.getFontMetrics().stringWidth(str) / 2;
             if (hw + 20 > halfWidth) {
@@ -198,52 +192,49 @@ public class RConfComponent extends DraggableBoxComponent {
                 relY -= 20;
                 if (relY < 20) {
                     byte[] payload = new byte[0];
-                    byte[] descriptor = e.encode();
-                    if (descriptor.length >= 1) {
-                        switch (descriptor[0]) {
-                        case RConf.F_BOOLEAN:
-                            payload = new byte[] {(byte) (x < centerX ? 0 : 1)};
-                            break;
-                        case RConf.F_INTEGER:
-                            Integer oldInt = RConf.parseInteger(descriptor);
-                            String asked = JOptionPane.showInputDialog("Enter integer", oldInt == null ? "0" : Integer.toString(oldInt));
-                            int newInt;
-                            if (asked == null) {
-                                break;
-                            }
-                            try {
-                                newInt = Integer.parseInt(asked);
-                            } catch (NumberFormatException ex) {
-                                break;
-                            }
-                            payload = new byte[] { (byte) (newInt >> 24), (byte) (newInt >> 16), (byte) (newInt >> 8), (byte) newInt }; 
-                            break;
-                        case RConf.F_FLOAT:
-                            Float oldFloat = RConf.parseFloat(descriptor);
-                            asked = JOptionPane.showInputDialog("Enter float", oldFloat == null ? "0" : Float.toString(oldFloat));
-                            float newFloat;
-                            if (asked == null) {
-                                break;
-                            }
-                            try {
-                                newFloat = Float.parseFloat(asked);
-                            } catch (NumberFormatException ex) {
-                                break;
-                            }
-                            int intBits = Float.floatToIntBits(newFloat);
-                            payload = new byte[] { (byte) (intBits >> 24), (byte) (intBits >> 16), (byte) (intBits >> 8), (byte) intBits }; 
-                            break;
-                        case RConf.F_STRING:
-                            String oldString = RConf.parseTextual(descriptor);
-                            asked = JOptionPane.showInputDialog("Enter string", oldString == null ? "" : oldString);
-                            if (asked != null) {
-                                payload = asked.getBytes();
-                            }
-                            break;
-                        case RConf.F_CLUCK_REF:
-                            Logger.info("TODO: Drag out the selected cluck component.");
+                    switch (e.type) {
+                    case RConf.F_BOOLEAN:
+                        payload = new byte[] { (byte) (x < centerX ? 0 : 1) };
+                        break;
+                    case RConf.F_INTEGER:
+                        Integer oldInt = RConf.parseInteger(e.contents);
+                        String asked = JOptionPane.showInputDialog("Enter integer", oldInt == null ? "0" : Integer.toString(oldInt));
+                        int newInt;
+                        if (asked == null) {
                             break;
                         }
+                        try {
+                            newInt = Integer.parseInt(asked);
+                        } catch (NumberFormatException ex) {
+                            break;
+                        }
+                        payload = new byte[] { (byte) (newInt >> 24), (byte) (newInt >> 16), (byte) (newInt >> 8), (byte) newInt };
+                        break;
+                    case RConf.F_FLOAT:
+                        Float oldFloat = RConf.parseFloat(e.contents);
+                        asked = JOptionPane.showInputDialog("Enter float", oldFloat == null ? "0" : Float.toString(oldFloat));
+                        float newFloat;
+                        if (asked == null) {
+                            break;
+                        }
+                        try {
+                            newFloat = Float.parseFloat(asked);
+                        } catch (NumberFormatException ex) {
+                            break;
+                        }
+                        int intBits = Float.floatToIntBits(newFloat);
+                        payload = new byte[] { (byte) (intBits >> 24), (byte) (intBits >> 16), (byte) (intBits >> 8), (byte) intBits };
+                        break;
+                    case RConf.F_STRING:
+                        String oldString = RConf.parseTextual(e.contents);
+                        asked = JOptionPane.showInputDialog("Enter string", oldString == null ? "" : oldString);
+                        if (asked != null) {
+                            payload = asked.getBytes();
+                        }
+                        break;
+                    case RConf.F_CLUCK_REF:
+                        Logger.info("TODO: Drag out the selected cluck component.");
+                        break;
                     }
                     synchronized (signalLock) {
                         lastSent = System.currentTimeMillis();

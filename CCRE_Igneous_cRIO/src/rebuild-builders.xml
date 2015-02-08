@@ -24,8 +24,9 @@
 <project name="FRC Deployment" default="generate-all">
 
 	<!-- Specified in the builder configuration for this ANT builder. -->
-	<eclipse.convertPath filesystempath="${rebuilder-target}" property="rebuilder.dir" />
-	
+	<eclipse.convertPath filesystempath="${rebuilder-target}"
+	                     property="rebuilder.dir" />
+
 	<condition property="should-generate">
 		<equals arg1="${rebuilder.dir}" arg2="/TemplateIgneousRobot" />
 	</condition>
@@ -37,10 +38,18 @@
 			project.setNewProperty("rebuilder.name", project.getProperty("rebuilder.dir").substr(1));
 			]]>
 		</script>
-		<property name="target.file" value="${rebuilder-target}/launches/${rebuilder.name} ${outer-name}.launch" />
-		<copy verbose="false" file="invocation-template.xml" tofile="${target.file}" overwrite="true" />
-		<replace file="${target.file}" token="PROJECT_ROOT" value="${rebuilder.name}" />
-		<replace file="${target.file}" token="LAUNCH_ANT_TARGETS" value="${targets}" />
+		<property name="target.file"
+		          value="${rebuilder-target}/launches/${rebuilder.name} ${outer-name}.launch" />
+		<copy verbose="false"
+		      file="invocation-template.xml"
+		      tofile="${target.file}"
+		      overwrite="true" />
+		<replace file="${target.file}"
+		         token="PROJECT_ROOT"
+		         value="${rebuilder.name}" />
+		<replace file="${target.file}"
+		         token="LAUNCH_ANT_TARGETS"
+		         value="${targets}" />
 	</target>
 
 	<target name="generate-all">
@@ -70,7 +79,10 @@
 			<param name="outer-name" value="Take cRIO Logs" />
 			<param name="targets" value="clear-logs-2014" />
 		</antcall>
-		
+		<antcall target="generate-by-template">
+			<param name="outer-name" value="Take roboRIO Logs" />
+			<param name="targets" value="fetch-logs" />
+		</antcall>
 	</target>
 
 </project>

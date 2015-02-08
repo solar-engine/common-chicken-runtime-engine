@@ -73,13 +73,12 @@
 				<pathelement path="${classpath-new}" />
 			</path>
 		</copy>
-		
+
 		<property name="boot-class" value="edu.wpi.first.wpilibj.RobotBase" />
 
 		<jar destfile="${dist.jar}" update="false">
 			<manifest>
-				<attribute name="Main-Class"
-				           value="${boot-class}" />
+				<attribute name="Main-Class" value="${boot-class}" />
 				<attribute name="Robot-Class"
 				           value="ccre.igneous.MainIgneousLauncherImpl" />
 				<attribute name="CCRE-Main" value="${igneous.main}" />
@@ -102,9 +101,67 @@
 		</jar>
 	</target>
 
+	<target name="fetch-logs" depends="get-target-ip">
+
+		<tempfile property="log.dir"
+		          destdir="${project.dir}"
+		          prefix="roboRIO-logs-" />
+
+		<basename file="${log.dir}" property="${log-name.file}" />
+
+		<echo>[ccre-log-fetch] Packaging old logs: ${log.dir}</echo>
+		<sshexec host="${target}"
+		         username="${username}"
+		         password="${password}"
+		         trust="true"
+		         command="tar -czf logs-${log-name.file}.tgz ccre-storage/log-* &amp;&amp; mkdir /tmp/${log-name.file}/ &amp;&amp; mv ccre-storage/log-* /tmp/${log-name.file}/" />
+
+		<echo>[ccre-log-fetch] Retrieving old logs...</echo>
+
+		<scp file="${username}@${target}:logs-${log-name.file}.tgz"
+		     todir="${log.dir}"
+		     password="${password}"
+		     trust="true" />
+	</target>
+
+	<target name="deploy"
+	        depends="clean,jar,get-target-ip,dependencies,fetch-logs"
+	        description="Deploy the jar and start the program running.">
+		<echo>[athena-deploy] Deploying CCRE-based code.</echo>
+		<scp file="${dist.jar}"
+		     todir="${username}@${target}:${deploy.dir}"
+		     password="${password}"
+		     trust="true" />
+
+		<sshexec host="${target}"
+		         username="admin"
+		         password="${password}"
+		         trust="true"
+		         failonerror="false"
+		         command="killall netconsole-host" />
+		<scp file="${wpilib.ant.dir}/netconsole-host"
+		     todir="admin@${target}:/usr/local/frc/bin"
+		     password="${password}"
+		     trust="true" />
+
+		<scp file="${wpilib.ant.dir}/robotCommand"
+		     todir="${username}@${target}:${command.dir}"
+		     password="${password}"
+		     trust="true" />
+
+		<echo>[athena-deploy] Starting program.</echo>
+		<sshexec host="${target}"
+		         username="${username}"
+		         password="${password}"
+		         trust="true"
+		         command="${deploy.kill.command};" />
+	</target>
+
 	<target name="emulate" depends="jar">
 		<mkdir dir="${project.dir}/emulation-roborio" />
-		<java jar="${ccre-root.dir}/IgneousEmulator/Emulator.jar" fork="true" dir="${project.dir}/emulation-roborio">
+		<java jar="${ccre-root.dir}/IgneousEmulator/Emulator.jar"
+		      fork="true"
+		      dir="${project.dir}/emulation-roborio">
 			<arg value="${emulate.jar}" />
 			<arg value="roboRIO" />
 			<classpath>

@@ -131,31 +131,21 @@ public class RConfComponent extends DraggableBoxComponent {
             String str;
             int textShift = 15;
             g.setFont(Rendering.console);
-            switch (e.type) {
-            case RConf.F_TITLE:
+            if (e.type == RConf.F_TITLE) {
                 g.setFont(Rendering.midlabels);
                 textShift = 15;
-                String title = RConf.parseTextual(e.contents);
+            }
+            switch (e.type) {
+            case RConf.F_TITLE:
+                String title = e.parseTextual();
                 str = title == null ? "<invalid:bad-title>" : title;
                 break;
             case RConf.F_BOOLEAN:
-                Boolean b = RConf.parseBoolean(e.contents);
+                Boolean b = e.parseBoolean();
                 str = b == null ? "<invalid:bad-bool>" : "FALSE <- [" + b.toString() + "] -> TRUE ";
                 break;
-            case RConf.F_INTEGER:
-                Integer i = RConf.parseInteger(e.contents);
-                str = i == null ? "<invalid:bad-int>" : i.toString();
-                break;
-            case RConf.F_FLOAT:
-                Float f = RConf.parseFloat(e.contents);
-                str = f == null ? "<invalid:bad-float>" : f.toString();
-                break;
-            case RConf.F_STRING:
-                String text = RConf.parseTextual(e.contents);
-                str = text == null ? "<invalid:bad-str>" : text;
-                break;
             case RConf.F_BUTTON:
-                String label = RConf.parseTextual(e.contents);
+                String label = e.parseTextual();
                 g.setColor(signalField == field && System.currentTimeMillis() - lastSent < 500 ? Color.GREEN : Color.RED);
                 int wlabel = g.getFontMetrics().stringWidth(label) + 20;
                 g.fillRect(centerX - wlabel / 2, curY + 1, wlabel, 18);
@@ -163,12 +153,8 @@ public class RConfComponent extends DraggableBoxComponent {
                 g.drawRect(centerX - wlabel / 2, curY + 1, wlabel, 18);
                 str = label == null ? "<invalid:bad-label>" : label;
                 break;
-            case RConf.F_CLUCK_REF:
-                String ref = RConf.parseTextual(e.contents);
-                str = ref == null ? "<invalid:bad-cluck>" : "@" + ref;
-                break;
             default:
-                str = "<invalid:bad-type>";
+                str = e.toString();
                 break;
             }
             int hw = g.getFontMetrics().stringWidth(str) / 2;
@@ -197,7 +183,7 @@ public class RConfComponent extends DraggableBoxComponent {
                         payload = new byte[] { (byte) (x < centerX ? 0 : 1) };
                         break;
                     case RConf.F_INTEGER:
-                        Integer oldInt = RConf.parseInteger(e.contents);
+                        Integer oldInt = e.parseInteger();
                         String asked = JOptionPane.showInputDialog("Enter integer", oldInt == null ? "0" : Integer.toString(oldInt));
                         int newInt;
                         if (asked == null) {
@@ -211,7 +197,7 @@ public class RConfComponent extends DraggableBoxComponent {
                         payload = new byte[] { (byte) (newInt >> 24), (byte) (newInt >> 16), (byte) (newInt >> 8), (byte) newInt };
                         break;
                     case RConf.F_FLOAT:
-                        Float oldFloat = RConf.parseFloat(e.contents);
+                        Float oldFloat = e.parseFloat();
                         asked = JOptionPane.showInputDialog("Enter float", oldFloat == null ? "0" : Float.toString(oldFloat));
                         float newFloat;
                         if (asked == null) {
@@ -226,7 +212,7 @@ public class RConfComponent extends DraggableBoxComponent {
                         payload = new byte[] { (byte) (intBits >> 24), (byte) (intBits >> 16), (byte) (intBits >> 8), (byte) intBits };
                         break;
                     case RConf.F_STRING:
-                        String oldString = RConf.parseTextual(e.contents);
+                        String oldString = e.parseTextual();
                         asked = JOptionPane.showInputDialog("Enter string", oldString == null ? "" : oldString);
                         if (asked != null) {
                             payload = asked.getBytes();

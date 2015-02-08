@@ -1,9 +1,5 @@
 package ccre.rconf;
 
-import ccre.channel.BooleanInputPoll;
-import ccre.channel.FloatInputPoll;
-import ccre.rconf.RConf.Entry;
-
 /**
  * The RConf subsystem's utility class.
  * 
@@ -56,94 +52,207 @@ public class RConf {
      */
     public static final byte F_CLUCK_REF = 6;
 
+    /**
+     * An entry as part of the result from querying an RConfable. Could be any
+     * of the types available statically on RConf - such as F_TITLE, F_BUTTON,
+     * F_INTEGER, or others.
+     *
+     * Contains a type and a byte array of the associated data.
+     *
+     * @author skeggsc
+     */
     public static final class Entry {
-        
+
+        /**
+         * The type of this entry. See the static fields on RConf.
+         */
         public final byte type;
+        /**
+         * The contents of this entry. The meaning depends on the type.
+         */
         public final byte[] contents;
 
+        /**
+         * Create a new RConf Entry with a type and some contents.
+         *
+         * @param type the type of the entry.
+         * @param contents the byte array contents of the entry.
+         */
         public Entry(byte type, byte... contents) {
             this.type = type;
             this.contents = contents;
         }
+
+        /**
+         * Parse the contents of this Entry as a textual value.
+         *
+         * @return the string representing the contents.
+         * @throws IllegalStateException if the type of this entry is not
+         * supposed to contain text.
+         */
+        public String parseTextual() throws IllegalStateException {
+            if (type != F_TITLE && type != F_STRING && type != F_BUTTON && type != F_CLUCK_REF) {
+                throw new IllegalStateException("Invalid type of Entry in parseTextual: " + type);
+            }
+            return new String(contents, 0, contents.length);
+        }
+
+        /**
+         * Parse the contents of this Entry as a boolean value.
+         *
+         * @return the boolean representing the contents, or null if invalid.
+         * @throws IllegalStateException if the type of this entry is not
+         * supposed to contain a boolean.
+         */
+        public Boolean parseBoolean() {
+            if (type != F_BOOLEAN) {
+                throw new IllegalStateException("Invalid type of Entry in parseBoolean: " + type);
+            }
+            return contents.length >= 1 ? contents[0] != 0 : null;
+        }
+
+        /**
+         * Parse the contents of this Entry as an integer value.
+         *
+         * @return the integer representing the contents, or null if invalid.
+         * @throws IllegalStateException if the type of this entry is not
+         * supposed to contain a integer.
+         */
+        public Integer parseInteger() {
+            if (type != F_INTEGER) {
+                throw new IllegalStateException("Invalid type of Entry in parseInteger: " + type);
+            }
+            return getAsInteger();
+        }
+
+        /**
+         * Parse the contents of this Entry as a float value.
+         *
+         * @return the float representing the contents, or null if invalid.
+         * @throws IllegalStateException if the type of this entry is not
+         * supposed to contain a float.
+         */
+        public Float parseFloat() {
+            if (type != F_FLOAT) {
+                throw new IllegalStateException("Invalid type of Entry in parseFloat: " + type);
+            }
+            return Float.intBitsToFloat(getAsInteger());
+        }
+
+        private Integer getAsInteger() {
+            return contents.length >= 4 ? (((contents[0] & 0xFF) << 24) | ((contents[1] & 0xFF) << 16) | ((contents[2] & 0xFF) << 8) | (contents[3] & 0xFF)) : null;
+        }
+
+        public String toString() {
+            switch (type) {
+            case F_TITLE:
+                String title = parseTextual();
+                return title == null ? "<invalid:bad-title>" : "# " + title;
+            case F_BOOLEAN:
+                Boolean b = parseBoolean();
+                return b == null ? "<invalid:bad-bool>" : b.toString();
+            case F_INTEGER:
+                Integer i = parseInteger();
+                return i == null ? "<invalid:bad-int>" : i.toString();
+            case F_FLOAT:
+                Float f = parseFloat();
+                return f == null ? "<invalid:bad-float>" : f.toString();
+            case F_STRING:
+                String text = parseTextual();
+                return text == null ? "<invalid:bad-str>" : text;
+            case F_BUTTON:
+                String label = parseTextual();
+                return label == null ? "<invalid:bad-label>" : "[" + label + "]";
+            case F_CLUCK_REF:
+                String ref = parseTextual();
+                return ref == null ? "<invalid:bad-cluck>" : "@" + ref;
+            default:
+                return "<invalid:bad-type>";
+            }
+        }
     }
 
-    public static String parseTextual(byte[] entry) {
-        return new String(entry, 0, entry.length);
-    }
-
-    public static Boolean parseBoolean(byte[] entry) {
-        return entry.length >= 1 ? entry[0] != 0 : null;
-    }
-
-    public static Integer parseInteger(byte[] entry) {
-        return entry.length >= 4 ? (((entry[0] & 0xFF) << 24) | ((entry[1] & 0xFF) << 16) | ((entry[2] & 0xFF) << 8) | (entry[3] & 0xFF)) : null;
-    }
-
-    public static Float parseFloat(byte[] entry) {
-        Integer i = parseInteger(entry);
-        return i == null ? null : Float.intBitsToFloat(i);
-    }
-
+    /**
+     * Create a new TITLE component with the given textual contents.
+     * 
+     * @param title the title information.
+     * @return the new RConf entry.
+     */
     public static Entry title(String title) {
         return new Entry(F_TITLE, title.getBytes());
     }
 
+    /**
+     * Create a new STRING component with the given textual contents.
+     * 
+     * @param data the textual information.
+     * @return the new RConf entry.
+     */
     public static Entry string(String data) {
         return new Entry(F_STRING, data.getBytes());
     }
 
+    /**
+     * Create a new BUTTON component with the given textual label.
+     * 
+     * @param label the button label.
+     * @return the new RConf entry.
+     */
     public static Entry button(String label) {
         return new Entry(F_BUTTON, label.getBytes());
     }
 
+    /**
+     * Create a new CLUCK REFERENCE component with the given Cluck path,
+     * relative to where the RConfable in which this is used will be published.
+     * 
+     * @param ref the relative path.
+     * @return the new RConf entry.
+     */
     public static Entry cluckRef(String ref) {
         return new Entry(F_CLUCK_REF, ref.getBytes());
     }
 
-    public static Entry fieldInteger(int i) {
-        return new Entry(F_INTEGER, integerAsBytes(i));
+    /**
+     * Create a new INTEGER component with the given integer content.
+     * 
+     * @param integer the integer content.
+     * @return the new RConf entry.
+     */
+    public static Entry fieldInteger(int integer) {
+        return new Entry(F_INTEGER, integerAsBytes(integer));
     }
 
-    public static Entry fieldFloat(float b) {
-        return new Entry(F_FLOAT, integerAsBytes(Float.floatToIntBits(b)));
+    /**
+     * Create a new FLOAT component with the given float content.
+     * 
+     * @param f the float content.
+     * @return the new RConf entry.
+     */
+    public static Entry fieldFloat(float f) {
+        return new Entry(F_FLOAT, integerAsBytes(Float.floatToIntBits(f)));
     }
 
     private static byte[] integerAsBytes(int b) {
         return new byte[] { (byte) (b >> 24), (byte) (b >> 16), (byte) (b >> 8), (byte) b };
     }
 
-    public static Entry fieldBoolean(boolean b) {
-        return new Entry(F_BOOLEAN, b ? (byte) 1 : (byte) 0);
+    /**
+     * Create a new BOOLEAN component with the given boolean value.
+     * 
+     * @param bool the boolean value.
+     * @return the new RConf entry.
+     */
+    public static Entry fieldBoolean(boolean bool) {
+        return new Entry(F_BOOLEAN, bool ? (byte) 1 : (byte) 0);
     }
 
-    public static String toString(Entry e) {
-        switch (e.type) {
-        case F_TITLE:
-            String title = parseTextual(e.contents);
-            return title == null ? "<invalid:bad-title>" : "# " + title;
-        case F_BOOLEAN:
-            Boolean b = parseBoolean(e.contents);
-            return b == null ? "<invalid:bad-bool>" : b.toString();
-        case F_INTEGER:
-            Integer i = parseInteger(e.contents);
-            return i == null ? "<invalid:bad-int>" : i.toString();
-        case F_FLOAT:
-            Float f = parseFloat(e.contents);
-            return f == null ? "<invalid:bad-float>" : f.toString();
-        case F_STRING:
-            String text = parseTextual(e.contents);
-            return text == null ? "<invalid:bad-str>" : text;
-        case F_BUTTON:
-            String label = parseTextual(e.contents);
-            return label == null ? "<invalid:bad-label>" : "[" + label + "]";
-        case F_CLUCK_REF:
-            String ref = parseTextual(e.contents);
-            return ref == null ? "<invalid:bad-cluck>" : "@" + ref;
-        default:
-            return "<invalid:bad-type>";
-        }
-    }
-
+    /**
+     * A helper method to convert bytes into a float.
+     * 
+     * @param data the four bytes of data to convert.
+     * @return the resulting float.
+     */
     public static float bytesToFloat(byte[] data) {
         return Float.intBitsToFloat(((data[0] & 0xFF) << 24) | ((data[1] & 0xFF) << 16) | ((data[2] & 0xFF) << 8) | (data[3] & 0xFF));
     }

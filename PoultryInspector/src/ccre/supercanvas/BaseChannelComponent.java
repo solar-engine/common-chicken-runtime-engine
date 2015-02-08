@@ -92,7 +92,17 @@ public abstract class BaseChannelComponent<View extends Enum<View>> extends Drag
         return super.onSelect(x, y);
     }
 
-    public Entry[] rconfBase(Entry... userEntries) throws InterruptedException {
+    /**
+     * A helper function for the channel implementations, so that they can just
+     * specify their own RConf entries without having to worry about the default
+     * ones that will be prepended.
+     * 
+     * Use as in <code>return rconfBase(... entries ...);</code>
+     * 
+     * @param userEntries the RConf entries from the subclass.
+     * @return the list of RConf entries.
+     */
+    protected Entry[] rconfBase(Entry... userEntries) {
         View[] cst = activeView.getDeclaringClass().getEnumConstants();
         Entry[] out = new Entry[userEntries.length + 1 + cst.length];
         out[0] = RConf.title(toString());
@@ -103,7 +113,23 @@ public abstract class BaseChannelComponent<View extends Enum<View>> extends Drag
         return out;
     }
 
-    public int rconfBase(int field, byte[] data) throws InterruptedException {
+    /**
+     * A helper function for the channel implementations, so that they can just
+     * specify their own RConf entries without having to worry about the default
+     * ones.
+     * 
+     * If the given field is for a default entry, this function takes care of
+     * doing whatever it means, and returns a negative number.
+     * 
+     * If not, it returns a value equal to the index in the user entries of the
+     * interacted-with component.
+     * 
+     * @param field the overall field number.
+     * @param data the data of the command.
+     * @return the index in the user entries array of the interacted-with field,
+     * or a negative number if before that.
+     */
+    protected int rconfBase(int field, byte[] data) {
         View[] cst = activeView.getDeclaringClass().getEnumConstants();
         field -= 1;
         if (field >= 0 && field < cst.length) {

@@ -172,7 +172,6 @@ public abstract class ExtendedMotor {
      * mode should be specified before enabling.
      * 
      * @return a BooleanOutput controlling whether this controller is enabled.
-     * @throws ExtendedMotorFailureException if the output cannot be acquired.
      */
     public abstract BooleanOutput asEnable();
 

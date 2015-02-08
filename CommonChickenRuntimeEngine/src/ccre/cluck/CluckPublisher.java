@@ -125,7 +125,7 @@ public class CluckPublisher {
     /**
      * Subscribe to an EventOutput from the network at the specified path.
      *
-     * @param node The node to publish on.
+     * @param node The node to subscribe from.
      * @param path The path to subscribe to.
      * @return the EventOutput.
      */
@@ -173,7 +173,7 @@ public class CluckPublisher {
     /**
      * Subscribe to an EventInput from the network at the specified path.
      *
-     * @param node The node to publish on.
+     * @param node The node to subscribe from.
      * @param path The path to subscribe to.
      * @return the EventInput.
      */
@@ -211,7 +211,7 @@ public class CluckPublisher {
      * Subscribe to a LoggingTarget from the network at the specified path, with
      * only sending data for at least a minimum logging level.
      *
-     * @param node The node to publish on.
+     * @param node The node to subscribe from.
      * @param path The path to subscribe to.
      * @param minimum The minimum logging level to send over the network.
      * @return the LoggingTarget.
@@ -262,7 +262,7 @@ public class CluckPublisher {
     /**
      * Subscribe to a BooleanInput from the network at the specified path.
      *
-     * @param node The node to publish on.
+     * @param node The node to subscribe from.
      * @param path The path to subscribe to.
      * @param subscribeByDefault Should this request the value from the remote
      * by default, as opposed to waiting until this is needed. If this is false,
@@ -294,7 +294,7 @@ public class CluckPublisher {
     /**
      * Subscribe to a BooleanOutput from the network at the specified path.
      *
-     * @param node The node to publish on.
+     * @param node The node to subscribe from.
      * @param path The path to subscribe to.
      * @return the BooleanOutput.
      */
@@ -346,7 +346,7 @@ public class CluckPublisher {
     /**
      * Subscribe to a FloatInput from the network at the specified path.
      *
-     * @param node The node to publish on.
+     * @param node The node to subscribe from.
      * @param path The path to subscribe to.
      * @param subscribeByDefault Should this request the value from the remote
      * by default, as opposed to waiting until this is needed. If this is false,
@@ -378,7 +378,7 @@ public class CluckPublisher {
     /**
      * Subscribe to a FloatOutput from the network at the specified path.
      *
-     * @param node The node to publish on.
+     * @param node The node to subscribe from.
      * @param path The path to subscribe to.
      * @return the FloatOutput.
      */
@@ -459,7 +459,7 @@ public class CluckPublisher {
     /**
      * Subscribe to an OutputStream from the network at the specified path.
      *
-     * @param node The node to publish on.
+     * @param node The node to subscribe from.
      * @param path The path to subscribe to.
      * @return the OutputStream.
      */
@@ -467,6 +467,13 @@ public class CluckPublisher {
         return new SubscribedObjectStream(node, path);
     }
 
+    /**
+     * Publish an RConfable device on the network.
+     * 
+     * @param node The node to publish on.
+     * @param name The name for the RConfable.
+     * @param device The RConfable.
+     */
     public static void publishRConf(CluckNode node, String name, final RConfable device) {
         node.getRPCManager().publish(name + "-rpcq", new RemoteProcedure() {
             public void invoke(byte[] in, OutputStream out) {
@@ -528,6 +535,14 @@ public class CluckPublisher {
         });
     }
 
+    /**
+     * Subscribe to an RConfable device from the network at the specified path.
+     * 
+     * @param node The node to subscribe from.
+     * @param path The path to subscribe to.
+     * @param timeout The maximum wait time for the RPC calls.
+     * @return the RConfable.
+     */
     public static RConfable subscribeRConf(CluckNode node, String path, final int timeout) {
         final RemoteProcedure query = node.getRPCManager().subscribe(path + "-rpcq", timeout);
         final RemoteProcedure signal = node.getRPCManager().subscribe(path + "-rpcs", timeout);

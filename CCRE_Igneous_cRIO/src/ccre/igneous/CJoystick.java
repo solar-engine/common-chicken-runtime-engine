@@ -21,7 +21,7 @@ package ccre.igneous;
 import ccre.channel.BooleanInputPoll;
 import ccre.channel.EventInput;
 import ccre.channel.FloatInputPoll;
-import ccre.ctrl.AbstractJoystick;
+import ccre.ctrl.AbstractJoystickWithPOV;
 import ccre.ctrl.BooleanMixing;
 import ccre.ctrl.FloatMixing;
 import ccre.log.Logger;
@@ -35,7 +35,7 @@ import edu.wpi.first.wpilibj.KinectStick;
  *
  * @author skeggsc
  */
-final class CJoystick extends AbstractJoystick {
+final class CJoystick extends AbstractJoystickWithPOV {
 
     /**
      * The joystick object that is read from.

@@ -24,7 +24,7 @@ import ccre.channel.FloatInput;
 import ccre.channel.FloatInputPoll;
 
 /**
- * A joystick that provides channels for all of its inputs.
+ * A joystick with axes and buttons.
  *
  * @author skeggsc
  */

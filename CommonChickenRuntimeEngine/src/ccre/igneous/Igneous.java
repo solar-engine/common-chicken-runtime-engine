@@ -215,8 +215,6 @@ public class Igneous {
      * 
      * @param deviceNumber the device number to connect to.
      * @return the ExtendedMotor representing this output.
-     * @throws ExtendedMotorFailureException if the CAN Jaguar cannot be
-     * allocated for whatever reason.
      */
     public static ExtendedMotor makeCANJaguar(int deviceNumber) {
         Logger.warning("The CCRE CAN functionality is NOT yet complete and is UNTESTED! Use with your own risk.");
@@ -234,8 +232,6 @@ public class Igneous {
      * 
      * @param deviceNumber the device number to connect to.
      * @return the ExtendedMotor representing this output.
-     * @throws ExtendedMotorFailureException if the CAN Talon cannot be
-     * allocated for whatever reason.
      */
     public static ExtendedMotor makeCANTalon(int deviceNumber) {
         Logger.warning("The CCRE CAN functionality is NOT yet complete and is UNTESTED! Use with your own risk.");

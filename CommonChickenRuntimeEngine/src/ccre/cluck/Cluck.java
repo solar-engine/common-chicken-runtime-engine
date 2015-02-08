@@ -251,6 +251,12 @@ public final class Cluck {
         CluckPublisher.publish(node, name, out);
     }
 
+    /**
+     * Publish an RConfable device on the network.
+     * 
+     * @param name The name for the RConfable.
+     * @param device The RConfable.
+     */
     public static void publishRConf(String name, RConfable device) {
         CluckPublisher.publishRConf(node, name, device);
     }
@@ -321,6 +327,13 @@ public final class Cluck {
         return CluckPublisher.subscribeOS(node, path);
     }
 
+    /**
+     * Subscribe to an RConfable device from the network at the specified path.
+     * 
+     * @param path The path to subscribe to.
+     * @param timeout The maximum wait time for the RPC calls.
+     * @return the RConfable.
+     */
     public static RConfable subscribeRConf(String path, int timeout) {
         return CluckPublisher.subscribeRConf(node, path, timeout);
     }

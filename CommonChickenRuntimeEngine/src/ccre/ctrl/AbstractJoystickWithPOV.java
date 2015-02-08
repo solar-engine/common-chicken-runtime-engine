@@ -5,11 +5,22 @@ import ccre.channel.EventInput;
 import ccre.channel.FloatInput;
 import ccre.channel.FloatInputPoll;
 
-public abstract class AbstractJoystick implements IJoystickWithPOV {
+/**
+ * An abstract class for easy implementation of IJoystickWithPOV based only on a
+ * set of polling implementations and a check event.
+ * 
+ * @author skeggsc
+ */
+public abstract class AbstractJoystickWithPOV implements IJoystickWithPOV {
 
     protected final EventInput check;
 
-    public AbstractJoystick(EventInput check) {
+    /**
+     * Create a new Joystick that updates on the specified event.
+     * 
+     * @param check when to update the Joystick's sources.
+     */
+    public AbstractJoystickWithPOV(EventInput check) {
         this.check = check;
     }
 

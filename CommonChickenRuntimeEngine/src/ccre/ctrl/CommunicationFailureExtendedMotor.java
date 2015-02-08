@@ -5,10 +5,25 @@ import ccre.channel.FloatInputPoll;
 import ccre.channel.FloatOutput;
 import ccre.log.Logger;
 
+/**
+ * A fake implementation of ExtendedMotor that is suitable for use when
+ * communications could not be established initially with the device.
+ * 
+ * This will provide lots of stubbed-out functionality and will log warning
+ * messages whenever it is interacted with.
+ * 
+ * @author skeggsc
+ */
 public class CommunicationFailureExtendedMotor extends ExtendedMotor implements FloatOutput {
 
     private final String message;
 
+    /**
+     * Create a new CommunicationFailureExtendedMotor with a message to include
+     * whenever the issue is reported.
+     * 
+     * @param message the message to include.
+     */
     public CommunicationFailureExtendedMotor(String message) {
         this.message = message;
     }
@@ -68,7 +83,7 @@ public class CommunicationFailureExtendedMotor extends ExtendedMotor implements 
     public void setInternalPID(float P, float I, float D) throws ExtendedMotorFailureException {
         Logger.warning("Tried to set PID on Extended Motor with failed comms: " + message);
     }
-    
+
     private long nextWarning = 0;
 
     public void set(float value) {

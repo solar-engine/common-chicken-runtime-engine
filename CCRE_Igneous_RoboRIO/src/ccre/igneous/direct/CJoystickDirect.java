@@ -25,7 +25,7 @@ import ccre.channel.EventStatus;
 import ccre.channel.FloatInput;
 import ccre.channel.FloatInputPoll;
 import ccre.channel.FloatStatus;
-import ccre.ctrl.AbstractJoystick;
+import ccre.ctrl.AbstractJoystickWithPOV;
 import ccre.ctrl.IJoystick;
 import ccre.ctrl.IJoystickWithPOV;
 
@@ -35,7 +35,7 @@ import ccre.ctrl.IJoystickWithPOV;
  *
  * @author skeggsc
  */
-public final class CJoystickDirect extends AbstractJoystick {
+public final class CJoystickDirect extends AbstractJoystickWithPOV {
 
     private final int port;
 

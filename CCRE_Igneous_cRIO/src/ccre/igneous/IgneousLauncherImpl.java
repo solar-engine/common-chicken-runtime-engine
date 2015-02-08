@@ -35,6 +35,7 @@ import ccre.ctrl.CommunicationFailureExtendedMotor;
 import ccre.ctrl.ExtendedMotor;
 import ccre.ctrl.ExtendedMotorFailureException;
 import ccre.ctrl.IJoystick;
+import ccre.ctrl.IJoystickWithPOV;
 import ccre.ctrl.Ticker;
 import ccre.log.BootLogger;
 import ccre.log.FileLogger;
@@ -291,7 +292,7 @@ final class IgneousLauncherImpl extends IterativeRobot implements IgneousLaunche
     }
 
     public IJoystick getKinectJoystick(boolean isRightStick) {
-        return new CJoystick(isRightStick ? 6 : 5).attach(globalPeriodic);
+        return new CJoystick(isRightStick ? 6 : 5, globalPeriodic);
     }
 
     // Module 1: default module. Module 2: alternate module.
@@ -496,8 +497,8 @@ final class IgneousLauncherImpl extends IterativeRobot implements IgneousLaunche
         };
     }
 
-    public IJoystick getJoystick(int id) {
-        return new CJoystick(id).attach(globalPeriodic);
+    public IJoystickWithPOV getJoystick(int id) {
+        return new CJoystick(id, globalPeriodic);
     }
 
     public FloatOutput makeMotor(int id, int type) {

@@ -44,6 +44,7 @@ import ccre.ctrl.ExtendedMotor;
 import ccre.ctrl.ExtendedMotorFailureException;
 import ccre.ctrl.FloatMixing;
 import ccre.ctrl.IJoystick;
+import ccre.ctrl.IJoystickWithPOV;
 import ccre.ctrl.Ticker;
 import ccre.igneous.IgneousApplication;
 import ccre.igneous.IgneousLauncher;
@@ -484,11 +485,11 @@ public final class DirectIgneousLauncherImpl implements IgneousLauncher {
         return new SerialPortDirect(DirectRS232.PORT_USB, baudRate);
     }
 
-    public IJoystick getJoystick(int id) {
+    public IJoystickWithPOV getJoystick(int id) {
         if (id < 1 || id > 4) {
             throw new IllegalArgumentException("Joystick " + id + " is not a valid joystick number.");
         }
-        return new CJoystickDirect(id).attach(globalPeriodic);
+        return new CJoystickDirect(id, globalPeriodic);
     }
 
     public FloatInputPoll getBatteryVoltage() {

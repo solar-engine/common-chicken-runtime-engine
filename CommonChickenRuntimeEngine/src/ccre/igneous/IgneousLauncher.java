@@ -26,6 +26,7 @@ import ccre.channel.FloatOutput;
 import ccre.channel.SerialIO;
 import ccre.ctrl.ExtendedMotor;
 import ccre.ctrl.IJoystick;
+import ccre.ctrl.IJoystickWithPOV;
 
 /**
  * This is a launcher for an Igneous application. The reason for this is so that
@@ -55,7 +56,7 @@ public interface IgneousLauncher {
      * @param id the Joystick number (1-4)
      * @return the associated joystick on the driver station.
      */
-    public IJoystick getJoystick(int id);
+    public IJoystickWithPOV getJoystick(int id);
 
     /**
      * Get an IJoystick for the specified Kinect virtual joystick.

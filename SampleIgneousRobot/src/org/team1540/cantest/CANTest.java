@@ -26,6 +26,7 @@ import ccre.ctrl.ExtendedMotor.DiagnosticType;
 import ccre.ctrl.ExtendedMotor.OutputControlMode;
 import ccre.igneous.Igneous;
 import ccre.igneous.IgneousApplication;
+import ccre.log.Logger;
 
 /**
  * A simple test program that will allow testing control of a CAN Jaguar.
@@ -44,7 +45,8 @@ public class CANTest implements IgneousApplication {
             motor.setInternalPID(1, 0.1f, 0.01f);
             Cluck.publish("CAN Jaguar Bus Fault", BooleanMixing.createDispatch(motor.getDiagnosticChannel(DiagnosticType.BUS_VOLTAGE_FAULT), Igneous.globalPeriodic));
         } catch (ExtendedMotorFailureException e) {
-            throw new RuntimeException(e);
+            Logger.severe("Failed to initialize", e);
+            throw new RuntimeException();
         }
     }
 }

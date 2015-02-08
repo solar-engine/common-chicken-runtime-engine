@@ -20,12 +20,11 @@ package ccre.igneous;
 
 import ccre.channel.BooleanInputPoll;
 import ccre.channel.EventInput;
-import ccre.channel.EventOutput;
-import ccre.channel.EventStatus;
-import ccre.channel.FloatInput;
 import ccre.channel.FloatInputPoll;
-import ccre.channel.FloatStatus;
-import ccre.ctrl.IJoystick;
+import ccre.ctrl.AbstractJoystick;
+import ccre.ctrl.BooleanMixing;
+import ccre.ctrl.FloatMixing;
+import ccre.log.Logger;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.KinectStick;
@@ -36,27 +35,12 @@ import edu.wpi.first.wpilibj.KinectStick;
  *
  * @author skeggsc
  */
-final class CJoystick implements EventOutput, IJoystick {
+final class CJoystick extends AbstractJoystick {
 
     /**
      * The joystick object that is read from.
      */
     private final GenericHID joy;
-
-    /**
-     * Events to fire when the buttons are pressed.
-     */
-    private final EventStatus[] buttons = new EventStatus[12];
-    /**
-     * The last known states of the buttons, used to calculate when to send
-     * press events.
-     */
-    private final boolean[] states = new boolean[12];
-    /**
-     * The objects behind the provided FloatInputs that represent the current
-     * values of the joysticks.
-     */
-    private final FloatStatus[] axes = new FloatStatus[6];
 
     /**
      * Create a new CJoystick for a specific joystick ID. It will be important
@@ -65,7 +49,8 @@ final class CJoystick implements EventOutput, IJoystick {
      * @param joystick the joystick ID
      * @see #attach(ccre.channel.EventInput)
      */
-    CJoystick(int joystick) {
+    CJoystick(int joystick, EventInput check) {
+        super(check);
         if (joystick == 5) {
             joy = new KinectStick(1);
         } else if (joystick == 6) {
@@ -75,40 +60,10 @@ final class CJoystick implements EventOutput, IJoystick {
         }
     }
 
-    /**
-     * Attach the specified event input to update this (if it's not null), and
-     * then return this object itself for the purpose of method chaining.
-     *
-     * @param input The input to update this with.
-     * @return this object.
-     */
-    public CJoystick attach(EventInput input) {
-        if (input != null) {
-            input.send(this);
-        }
-        return this;
-    }
-
     public FloatInputPoll getAxisChannel(final int axis) {
         return new FloatInputPoll() {
             public float get() {
                 return (float) joy.getRawAxis(axis);
-            }
-        };
-    }
-
-    public FloatInputPoll getXChannel() {
-        return new FloatInputPoll() {
-            public float get() {
-                return (float) joy.getX();
-            }
-        };
-    }
-
-    public FloatInputPoll getYChannel() {
-        return new FloatInputPoll() {
-            public float get() {
-                return (float) joy.getY();
             }
         };
     }
@@ -121,54 +76,13 @@ final class CJoystick implements EventOutput, IJoystick {
         };
     }
 
-    public EventInput getButtonSource(int id) {
-        EventStatus cur = buttons[id - 1];
-        if (cur == null) {
-            cur = new EventStatus();
-            buttons[id - 1] = cur;
-            states[id - 1] = joy.getRawButton(id);
-        }
-        return cur;
+    public BooleanInputPoll isPOVPressed(int id) {
+        Logger.warning("POVs not supported on the cRIO.");
+        return BooleanMixing.alwaysFalse;
     }
 
-    public FloatInput getAxisSource(int axis) {
-        FloatStatus fpb = axes[axis - 1];
-        if (fpb == null) {
-            fpb = new FloatStatus();
-            fpb.set((float) joy.getRawAxis(axis));
-            axes[axis - 1] = fpb;
-        }
-        return fpb;
-    }
-
-    public void event() {
-        for (int i = 0; i < 12; i++) {
-            EventStatus e = buttons[i];
-            if (e == null) {
-                continue;
-            }
-            boolean state = joy.getRawButton(i + 1);
-            if (state != states[i]) {
-                if (state && e.hasConsumers()) {
-                    e.produce();
-                }
-                states[i] = state;
-            }
-        }
-        for (int i = 0; i < 6; i++) {
-            FloatStatus fpb = axes[i];
-            if (fpb == null) {
-                continue;
-            }
-            fpb.set((float) joy.getRawAxis(i + 1));
-        }
-    }
-
-    public FloatInput getXAxisSource() {
-        return getAxisSource(1);
-    }
-
-    public FloatInput getYAxisSource() {
-        return getAxisSource(2);
+    public FloatInputPoll getPOVAngle(int id) {
+        Logger.warning("POVs not supported on the cRIO.");
+        return FloatMixing.always(0);
     }
 }

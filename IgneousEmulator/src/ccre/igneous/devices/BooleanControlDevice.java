@@ -18,7 +18,9 @@
  */
 package ccre.igneous.devices;
 
+import ccre.channel.BooleanInput;
 import ccre.channel.BooleanInputPoll;
+import ccre.channel.BooleanOutput;
 import ccre.channel.EventInput;
 import ccre.channel.EventStatus;
 import ccre.igneous.Device;
@@ -32,7 +34,7 @@ import ccre.igneous.components.TextComponent;
  *
  * @author skeggsc
  */
-public class BooleanControlDevice extends Device implements BooleanInputPoll {
+public class BooleanControlDevice extends Device implements BooleanInput {
 
     private final EventStatus pressEvent = new EventStatus();
     private final BooleanTextComponent actuated = new BooleanTextComponent("INACTIVE", "ACTIVE") {
@@ -59,6 +61,14 @@ public class BooleanControlDevice extends Device implements BooleanInputPoll {
 
     public boolean get() {
         return actuated.get();
+    }
+
+    public void send(BooleanOutput output) {
+        actuated.send(output);
+    }
+
+    public void unsend(BooleanOutput output) {
+        actuated.unsend(output);
     }
 
     /**

@@ -25,7 +25,9 @@ import ccre.channel.EventStatus;
 import ccre.channel.FloatInput;
 import ccre.channel.FloatInputPoll;
 import ccre.channel.FloatStatus;
+import ccre.ctrl.AbstractJoystick;
 import ccre.ctrl.IJoystick;
+import ccre.ctrl.IJoystickWithPOV;
 
 /**
  * An IJoystick implementation that allows reading from a joystick on the driver
@@ -33,29 +35,9 @@ import ccre.ctrl.IJoystick;
  *
  * @author skeggsc
  */
-public final class CJoystickDirect implements EventOutput, IJoystick {
+public final class CJoystickDirect extends AbstractJoystick {
 
-    /**
-     * The joystick reference that is read from.
-     */
     private final int port;
-    
-    public static final int MAX_BUTTONS = 12;
-
-    /**
-     * Events to fire when the buttons are pressed.
-     */
-    private final EventStatus[] buttons = new EventStatus[MAX_BUTTONS];
-    /**
-     * The last known states of the buttons, used to calculate when to send
-     * press events.
-     */
-    private final boolean[] states = new boolean[MAX_BUTTONS];
-    /**
-     * The objects behind the provided FloatInputs that represent the current
-     * values of the joysticks.
-     */
-    private final FloatStatus[] axes = new FloatStatus[DirectDriverStation.AXIS_NUM];
 
     /**
      * Create a new CJoystick for a specific joystick ID. It will be important
@@ -64,7 +46,8 @@ public final class CJoystickDirect implements EventOutput, IJoystick {
      * @param joystick the joystick ID
      * @see #attach(ccre.channel.EventInput)
      */
-    public CJoystickDirect(int joystick) {
+    public CJoystickDirect(int joystick, EventInput check) {
+        super(check);
         if (joystick == 5 || joystick == 6) {
             throw new IllegalArgumentException("Kinect Joysticks are not supported by the RoboRIO.");
         } else if (joystick < 1 || joystick > 4) {
@@ -75,102 +58,25 @@ public final class CJoystickDirect implements EventOutput, IJoystick {
         DirectDriverStation.verifyPortNumber(port);
     }
 
-    /**
-     * Attach the specified event input to update this (if it's not null), and
-     * then return this object itself for the purpose of method chaining.
-     *
-     * @param input The input to update this with.
-     * @return this object.
-     */
-    public CJoystickDirect attach(EventInput input) {
-        if (input != null) {
-            input.send(this);
-        }
-        return this;
-    }
-
     public FloatInputPoll getAxisChannel(final int axis) {
         if (axis < 1 || axis > DirectDriverStation.AXIS_NUM) {
             throw new IllegalArgumentException("Invalid axis: " + axis);
         }
-        return new FloatInputPoll() {
-            public float get() {
-                return DirectDriverStation.getStickAxis(port, axis - 1);
-            }
-        };
-    }
-
-    public FloatInputPoll getXChannel() {
-        return getAxisChannel(1);
-    }
-
-    public FloatInputPoll getYChannel() {
-        return getAxisChannel(2);
+        return () -> DirectDriverStation.getStickAxis(port, axis - 1);
     }
 
     public BooleanInputPoll getButtonChannel(final int button) {
         if (button < 1) {
             throw new IllegalArgumentException("Invalid button ID: " + button);
         }
-        return new BooleanInputPoll() {
-            public boolean get() {
-                return DirectDriverStation.getStickButton(port, button - 1);
-            }
-        };
+        return () -> DirectDriverStation.getStickButton(port, button - 1);
     }
 
-    public EventInput getButtonSource(int button) {
-        if (button < 1) {
-            throw new IllegalArgumentException("Invalid button ID: " + button);
-        }
-        EventStatus cur = buttons[button - 1];
-        if (cur == null) {
-            cur = new EventStatus();
-            buttons[button - 1] = cur;
-            states[button - 1] = DirectDriverStation.getStickButton(port, button - 1);
-        }
-        return cur;
+    public BooleanInputPoll isPOVPressed(int pov) {
+        return () -> DirectDriverStation.getStickPOV(port, pov - 1) != -1;
     }
 
-    public FloatInput getAxisSource(int axis) {
-        FloatStatus fpb = axes[axis - 1];
-        if (fpb == null) {
-            fpb = new FloatStatus();
-            fpb.set(DirectDriverStation.getStickAxis(port, axis - 1));
-            axes[axis - 1] = fpb;
-        }
-        return fpb;
+    public FloatInputPoll getPOVAngle(int pov) {
+        return () -> DirectDriverStation.getStickPOV(port, pov - 1);
     }
-
-    public void event() {
-        for (int i = 0; i < MAX_BUTTONS; i++) {
-            EventStatus e = buttons[i];
-            if (e == null) {
-                continue;
-            }
-            boolean state = DirectDriverStation.getStickButton(port, i);
-            if (state != states[i]) {
-                if (state && e.hasConsumers()) {
-                    e.produce();
-                }
-                states[i] = state;
-            }
-        }
-        for (int i = 0; i < DirectDriverStation.AXIS_NUM; i++) {
-            FloatStatus fpb = axes[i];
-            if (fpb == null) {
-                continue;
-            }
-            fpb.set(DirectDriverStation.getStickAxis(port, i));
-        }
-    }
-
-    public FloatInput getXAxisSource() {
-        return getAxisSource(1);
-    }
-
-    public FloatInput getYAxisSource() {
-        return getAxisSource(2);
-    }
-
 }

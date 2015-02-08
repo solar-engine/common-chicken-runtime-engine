@@ -20,8 +20,11 @@ package ccre.igneous.components;
 
 import java.awt.Color;
 
+import ccre.channel.BooleanInput;
 import ccre.channel.BooleanInputPoll;
 import ccre.channel.BooleanOutput;
+import ccre.channel.FloatOutput;
+import ccre.concurrency.ConcurrentDispatchArray;
 
 /**
  * A textual display component that displays one of two strings based on whether
@@ -30,9 +33,10 @@ import ccre.channel.BooleanOutput;
  * 
  * @author skeggsc
  */
-public class BooleanTextComponent extends TextComponent implements BooleanOutput, BooleanInputPoll {
+public class BooleanTextComponent extends TextComponent implements BooleanOutput, BooleanInput {
 
     private final String off, on;
+    private final ConcurrentDispatchArray<BooleanOutput> listeners = new ConcurrentDispatchArray<BooleanOutput>();
     private boolean state = false;
     private boolean editable = false;
 
@@ -76,10 +80,22 @@ public class BooleanTextComponent extends TextComponent implements BooleanOutput
         return state;
     }
 
+    public void send(BooleanOutput output) {
+        listeners.add(output);
+        output.set(state);
+    }
+
+    public void unsend(BooleanOutput output) {
+        listeners.remove(output);
+    }
+
     public void set(boolean value) {
         state = value;
         this.setLabel(value ? on : off);
         this.setColor(value ? Color.green : Color.RED.darker());
+        for (BooleanOutput out : listeners) {
+            out.set(value);
+        }
     }
 
     @Override

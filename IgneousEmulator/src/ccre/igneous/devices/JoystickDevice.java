@@ -18,11 +18,13 @@
  */
 package ccre.igneous.devices;
 
+import ccre.channel.BooleanInput;
 import ccre.channel.BooleanInputPoll;
 import ccre.channel.EventInput;
 import ccre.channel.FloatInput;
 import ccre.channel.FloatInputPoll;
 import ccre.ctrl.IJoystick;
+import ccre.ctrl.IJoystickWithPOV;
 import ccre.igneous.DeviceGroup;
 import ccre.igneous.DeviceListPanel;
 
@@ -32,13 +34,16 @@ import ccre.igneous.DeviceListPanel;
  * 
  * @author skeggsc
  */
-public class JoystickDevice extends DeviceGroup implements IJoystick {
+public class JoystickDevice extends DeviceGroup implements IJoystickWithPOV {
 
-    private FloatControlDevice[] axes = new FloatControlDevice[6];
-    private BooleanControlDevice[] buttons = new BooleanControlDevice[12];
+    private final FloatControlDevice[] axes = new FloatControlDevice[6];
+    private final BooleanControlDevice[] buttons = new BooleanControlDevice[12];
+    private final FloatControlDevice[] povs = new FloatControlDevice[10]; // 10 is arbitrary.
+    private final BooleanControlDevice[] povPresses = new BooleanControlDevice[povs.length];
 
     private boolean wasAddedToMaster = false;
     private final DeviceListPanel master;
+    private boolean isRoboRIO;
 
     /**
      * Create a new JoystickDevice with a name and a panel to contain this
@@ -47,10 +52,12 @@ public class JoystickDevice extends DeviceGroup implements IJoystick {
      * Make sure to call addToMaster instead of calling add directly.
      * 
      * @param name the name of this device.
+     * @param isRoboRIO if this is a Joystick on a roboRIO.
      * @param master the panel that will contain this device.
      * @see #addToMaster()
      */
-    public JoystickDevice(String name, DeviceListPanel master) {
+    public JoystickDevice(String name, boolean isRoboRIO, DeviceListPanel master) {
+        this.isRoboRIO = isRoboRIO;
         add(new HeadingDevice(name));
         this.master = master;
     }
@@ -62,11 +69,12 @@ public class JoystickDevice extends DeviceGroup implements IJoystick {
      * Make sure to call addToMaster instead of calling add directly.
      * 
      * @param id the port number of this device.
+     * @param isRoboRIO if this is a Joystick on a roboRIO.
      * @param master the panel that will contain this device.
      * @see #addToMaster()
      */
-    public JoystickDevice(int id, DeviceListPanel master) {
-        this("Joystick " + id, master);
+    public JoystickDevice(int id, boolean isRoboRIO, DeviceListPanel master) {
+        this("Joystick " + id, isRoboRIO, master);
     }
 
     /**
@@ -142,4 +150,41 @@ public class JoystickDevice extends DeviceGroup implements IJoystick {
         return getAxisSource(2);
     }
 
+    public BooleanInputPoll isPOVPressed(int id) {
+        return isPOVPressedSource(id);
+    }
+
+    public FloatInputPoll getPOVAngle(int id) {
+        return getPOVAngleSource(id);
+    }
+
+    public BooleanInput isPOVPressedSource(int id) {
+        if (!isRoboRIO) {
+            throw new RuntimeException("POVs can only be accessed from a roboRIO!");
+        }
+        if (id < 1 || id > povPresses.length) {
+            throw new IllegalArgumentException("Invalid POV number: " + id);
+        }
+        if (povPresses[id - 1] == null) {
+            povPresses[id - 1] = new BooleanControlDevice("POV " + id);
+            add(povPresses[id - 1]);
+            addToMaster();
+        }
+        return povPresses[id - 1];
+    }
+
+    public FloatInput getPOVAngleSource(int id) {
+        if (!isRoboRIO) {
+            throw new RuntimeException("POVs can only be accessed from a roboRIO!");
+        }
+        if (id < 1 || id > povs.length) {
+            throw new IllegalArgumentException("Invalid POV number: " + id);
+        }
+        if (povs[id - 1] == null) {
+            povs[id - 1] = new FloatControlDevice("POV " + id, 0, 360, 0, 0);
+            add(povs[id - 1]);
+            addToMaster();
+        }
+        return povs[id - 1];
+    }
 }

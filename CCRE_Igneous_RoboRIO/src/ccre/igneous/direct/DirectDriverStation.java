@@ -31,6 +31,7 @@ import edu.wpi.first.wpilibj.hal.HALUtil;
 class DirectDriverStation {
     public static final int JOYSTICK_NUM = 6;
     public static final int AXIS_NUM = FRCNetworkCommunicationsLibrary.kMaxJoystickAxes;
+    public static final int POV_NUM = FRCNetworkCommunicationsLibrary.kMaxJoystickPOVs;
 
     public static final int[] buttons = new int[JOYSTICK_NUM];
     public static final int[] buttonCounts = new int[JOYSTICK_NUM];
@@ -119,6 +120,20 @@ class DirectDriverStation {
         } else {
             return (buttons[joy] & (1 << button)) != 0;
         }
+    }
+
+    public static int getStickPOV(int joy, int pov) {
+        if (joy < 0 || joy >= JOYSTICK_NUM) {
+            throw new RuntimeException("Invalid joystick port: " + joy);
+        }
+        if (pov < 0 || pov >= POV_NUM) {
+            throw new RuntimeException("Invalid joystick POV: " + pov);
+        }
+        short[] jpovs = povs[joy];
+        if (jpovs == null || pov >= jpovs.length) {
+            return 0;
+        }
+        return jpovs[pov];
     }
 
     public static void verifyPortNumber(int joy) {

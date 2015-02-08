@@ -31,6 +31,7 @@ import ccre.ctrl.ExtendedMotor;
 import ccre.ctrl.ExtendedMotorFailureException;
 import ccre.ctrl.FloatMixing;
 import ccre.ctrl.IJoystick;
+import ccre.ctrl.IJoystickWithPOV;
 import ccre.ctrl.LoopbackSerialIO;
 import ccre.ctrl.Ticker;
 import ccre.igneous.devices.BooleanControlDevice;
@@ -70,7 +71,7 @@ public class DeviceBasedLauncher implements IgneousLauncher {
     public DeviceBasedLauncher(boolean isRoboRIO) {
         this.isRoboRIO = isRoboRIO;
         baseIndex = isRoboRIO ? 0 : 1;
-        joysticks = new IJoystick[isRoboRIO ? 6 : 4];
+        joysticks = new IJoystickWithPOV[isRoboRIO ? 6 : 4];
         motors = new FloatOutput[isRoboRIO ? 20 : 10];
         solenoids = new BooleanOutput[isRoboRIO ? 64 : 2][8];
         digitalOutputs = new BooleanOutput[isRoboRIO ? 26 : 14];
@@ -91,12 +92,12 @@ public class DeviceBasedLauncher implements IgneousLauncher {
     private final RobotModeDevice mode = panel.add(new RobotModeDevice());
     private EventInput masterPeriodic = new Ticker(20);
 
-    private IJoystick[] joysticks;
+    private IJoystickWithPOV[] joysticks;
 
-    public IJoystick getJoystick(int id) {
+    public IJoystickWithPOV getJoystick(int id) {
         int index = checkRange("Joystick", id, joysticks);
         if (joysticks[index] == null) {
-            joysticks[index] = new JoystickDevice(id, panel);
+            joysticks[index] = new JoystickDevice(id, isRoboRIO, panel);
         }
         return joysticks[index];
     }
@@ -106,12 +107,12 @@ public class DeviceBasedLauncher implements IgneousLauncher {
     public IJoystick getKinectJoystick(boolean isRightArm) {
         if (isRightArm) {
             if (rightKinect == null) {
-                rightKinect = new JoystickDevice("Kinect Right Arm", panel).addToMaster();
+                rightKinect = new JoystickDevice("Kinect Right Arm", isRoboRIO, panel).addToMaster();
             }
             return rightKinect;
         } else {
             if (leftKinect == null) {
-                leftKinect = new JoystickDevice("Kinect Left Arm", panel).addToMaster();
+                leftKinect = new JoystickDevice("Kinect Left Arm", isRoboRIO, panel).addToMaster();
             }
             return leftKinect;
         }

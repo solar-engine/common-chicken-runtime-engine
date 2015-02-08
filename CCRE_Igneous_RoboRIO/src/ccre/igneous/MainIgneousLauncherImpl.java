@@ -37,6 +37,7 @@ import ccre.ctrl.CommunicationFailureExtendedMotor;
 import ccre.ctrl.ExtendedMotor;
 import ccre.ctrl.ExtendedMotorFailureException;
 import ccre.ctrl.IJoystick;
+import ccre.ctrl.IJoystickWithPOV;
 import ccre.ctrl.Ticker;
 import ccre.log.BootLogger;
 import ccre.log.FileLogger;
@@ -241,7 +242,7 @@ public final class MainIgneousLauncherImpl extends RobotBase implements IgneousL
     }
 
     public IJoystick getKinectJoystick(boolean isRightStick) {
-        return new CJoystick(isRightStick ? 6 : 5).attach(globalPeriodic);
+        throw new IllegalArgumentException("Kinect Joysticks are not supported by the RoboRIO.");
     }
 
     public BooleanOutput makeSolenoid(int module, int id) {
@@ -339,11 +340,11 @@ public final class MainIgneousLauncherImpl extends RobotBase implements IgneousL
         return () -> (float) a.getAcceleration();
     }
 
-    public IJoystick getJoystick(int id) {
+    public IJoystickWithPOV getJoystick(int id) {
         if (id < 1 || id > 4) {
             throw new IllegalArgumentException("Joystick " + id + " is not a valid joystick number.");
         }
-        return new CJoystick(id).attach(globalPeriodic);
+        return new CJoystick(id, globalPeriodic);
     }
 
     public FloatOutput makeMotor(int id, int type) {

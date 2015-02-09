@@ -45,6 +45,7 @@ import ccre.log.FileLogger;
 import ccre.log.Logger;
 import ccre.log.NetworkAutologger;
 import ccre.saver.DefaultStorageProvider;
+import ccre.util.Version;
 import edu.wpi.first.wpilibj.AnalogAccelerometer;
 import edu.wpi.first.wpilibj.AnalogInput;
 import edu.wpi.first.wpilibj.Compressor;
@@ -115,19 +116,7 @@ public final class MainIgneousLauncherImpl extends RobotBase implements IgneousL
         BootLogger.register();
         FileLogger.register();
 
-        try {
-            File version = new File("/tmp/frc_versions/FRC_Lib_Version.ini");
-            if (version.exists()) {
-                version.delete();
-            }
-            version.createNewFile();
-            try (FileOutputStream output = new FileOutputStream(version)) {
-                // TODO: Include real version number
-                output.write("CCRE 2.6.0: 2015 Java 1.0.0".getBytes());
-            }
-        } catch (IOException ex) {
-            Logger.warning("Could not write version file", ex);
-        }
+        Logger.info("System running on " + Version.getVersion());
     }
 
     private enum Mode {
@@ -182,6 +171,19 @@ public final class MainIgneousLauncherImpl extends RobotBase implements IgneousL
 
     @Override
     public void startCompetition() {
+        try {
+            File version = new File("/tmp/frc_versions/FRC_Lib_Version.ini");
+            if (version.exists()) {
+                version.delete();
+            }
+            version.createNewFile();
+            try (FileOutputStream output = new FileOutputStream(version)) {
+                output.write(("CCRE " + Version.getShortVersion() + ": 2015 Java 1.0.0").getBytes());
+            }
+        } catch (IOException ex) {
+            Logger.warning("Could not write version file", ex);
+        }
+
         IgneousLauncherHolder.setLauncher(this);
         Cluck.setupServer(1540); // Cluck de-facto off-FMS port.
         Cluck.setupServer(1735); // SmartDashboard port, since it's unused with the CCRE

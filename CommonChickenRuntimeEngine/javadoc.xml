@@ -23,6 +23,6 @@
 
 <project default="javadoc">
     <target name="javadoc">
-        <javadoc access="public" author="true" classpath="." destdir="../Javadoc" nodeprecated="false" nodeprecatedlist="false" noindex="false" nonavbar="false" notree="false" packagenames="ccre.rload,ccre.channel,ccre.launcher,ccre.log,ccre.workarounds,ccre.cluck.rpc,ccre.concurrency,ccre.cluck.tcp,ccre.net,ccre.util,ccre.saver,ccre.ctrl,ccre.phidget,ccre.cluck.any,ccre.downgrade,ccre.holders,ccre.testing,ccre.cluck,ccre.igneous,ccre.instinct" source="1.5" sourcepath="src" splitindex="true" use="true" version="true"/>
+        <javadoc access="public" author="true" classpath="." destdir="../Javadoc" nodeprecated="false" nodeprecatedlist="false" noindex="false" nonavbar="false" notree="false" source="1.5" sourcepath="src" splitindex="true" use="true" version="true"/>
     </target>
 </project>

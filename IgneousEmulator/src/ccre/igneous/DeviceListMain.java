@@ -98,6 +98,7 @@ public class DeviceListMain {
             Logger.info("Hello, " + mainClass + "!");
             launcher.panel.start();
         } catch (Throwable thr) {
+            Logger.warning("Init failed", thr);
             launcher.panel.setErrorDisplay(thr);
         }
     }

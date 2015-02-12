@@ -23,9 +23,18 @@ import ccre.channel.BooleanInputPoll;
 import ccre.channel.EventInput;
 import ccre.channel.FloatInput;
 import ccre.channel.FloatInputPoll;
+import ccre.ctrl.CombinationJoystickWithPOV;
 import ccre.ctrl.IJoystickWithPOV;
+import ccre.ctrl.NullJoystick;
+import ccre.igneous.Device;
 import ccre.igneous.DeviceGroup;
 import ccre.igneous.DeviceListPanel;
+import ccre.igneous.JoystickHandler;
+import ccre.igneous.JoystickHandler.ExternalJoystickHolder;
+import ccre.igneous.components.BooleanTextComponent;
+import ccre.igneous.components.SpacingComponent;
+import ccre.igneous.components.TextComponent;
+import ccre.log.Logger;
 
 /**
  * A device representing a Joystick. This will have buttons and axes added
@@ -33,7 +42,34 @@ import ccre.igneous.DeviceListPanel;
  * 
  * @author skeggsc
  */
-public class JoystickDevice extends DeviceGroup implements IJoystickWithPOV {
+public class JoystickDevice extends DeviceGroup {
+
+    public class ExternalJoystickAttachDevice extends Device {
+        private final TextComponent status;
+
+        public ExternalJoystickAttachDevice(final JoystickHandler handler) {
+            add(new SpacingComponent(40));
+            add(new TextComponent("External Joystick:"));
+            add(status = new TextComponent("[UNATTACHED]", new String[] { "[UNATTACHED]", "[HOLD BUTTON FIRST]", "[ATTACHED]" }) {
+                @Override
+                protected void onPress(int x, int y) {
+                    if (joystickHolder.hasJoystick()) {
+                        joystickHolder.setJoystick(null);
+                        status.setLabel("[UNATTACHED]");
+                    } else {
+                        JoystickHandler.JoystickWrapper joy = handler.getActivelyPressedJoystick();
+                        if (joy == null) {
+                            status.setLabel("[UNATTACHED] Hold a Joystick button before clicking.");
+                        } else {
+                            Logger.info("Attaching joystick: " + joy);
+                            joystickHolder.setJoystick(joy);
+                            status.setLabel("[ATTACHED]: " + joy);
+                        }
+                    }
+                }
+            });
+        }
+    }
 
     private final FloatControlDevice[] axes = new FloatControlDevice[6];
     private final BooleanControlDevice[] buttons = new BooleanControlDevice[12];
@@ -43,6 +79,7 @@ public class JoystickDevice extends DeviceGroup implements IJoystickWithPOV {
     private boolean wasAddedToMaster = false;
     private final DeviceListPanel master;
     private boolean isRoboRIO;
+    private final ExternalJoystickHolder joystickHolder;
 
     /**
      * Create a new JoystickDevice with a name and a panel to contain this
@@ -55,10 +92,12 @@ public class JoystickDevice extends DeviceGroup implements IJoystickWithPOV {
      * @param master the panel that will contain this device.
      * @see #addToMaster()
      */
-    public JoystickDevice(String name, boolean isRoboRIO, DeviceListPanel master) {
+    public JoystickDevice(String name, boolean isRoboRIO, DeviceListPanel master, JoystickHandler handler) {
         this.isRoboRIO = isRoboRIO;
         add(new HeadingDevice(name));
+        add(new ExternalJoystickAttachDevice(handler));
         this.master = master;
+        joystickHolder = new ExternalJoystickHolder();
     }
 
     /**
@@ -72,8 +111,8 @@ public class JoystickDevice extends DeviceGroup implements IJoystickWithPOV {
      * @param master the panel that will contain this device.
      * @see #addToMaster()
      */
-    public JoystickDevice(int id, boolean isRoboRIO, DeviceListPanel master) {
-        this("Joystick " + id, isRoboRIO, master);
+    public JoystickDevice(int id, boolean isRoboRIO, DeviceListPanel master, JoystickHandler handler) {
+        this("Joystick " + id, isRoboRIO, master, handler);
     }
 
     /**
@@ -101,89 +140,93 @@ public class JoystickDevice extends DeviceGroup implements IJoystickWithPOV {
         return axes[id - 1];
     }
 
-    public EventInput getButtonSource(int id) {
-        if (id < 1 || id > buttons.length) {
-            throw new IllegalArgumentException("Invalid button number: " + id);
-        }
-        if (buttons[id - 1] == null) {
-            buttons[id - 1] = new BooleanControlDevice("Button " + id);
-            add(buttons[id - 1]);
-            addToMaster();
-        }
-        return buttons[id - 1].whenPressed();
-    }
+    public IJoystickWithPOV getJoystick(EventInput check) {
+        return new CombinationJoystickWithPOV(joystickHolder.getJoystick(check), new IJoystickWithPOV() {
+            public EventInput getButtonSource(int id) {
+                if (id < 1 || id > buttons.length) {
+                    throw new IllegalArgumentException("Invalid button number: " + id);
+                }
+                if (buttons[id - 1] == null) {
+                    buttons[id - 1] = new BooleanControlDevice("Button " + id);
+                    add(buttons[id - 1]);
+                    addToMaster();
+                }
+                return buttons[id - 1].whenPressed();
+            }
 
-    public FloatInput getAxisSource(int axis) {
-        return getAxis(axis);
-    }
+            public FloatInput getAxisSource(int axis) {
+                return getAxis(axis);
+            }
 
-    public FloatInputPoll getAxisChannel(int axis) {
-        return getAxis(axis);
-    }
+            public FloatInputPoll getAxisChannel(int axis) {
+                return getAxis(axis);
+            }
 
-    public BooleanInputPoll getButtonChannel(int id) {
-        if (id < 1 || id > buttons.length) {
-            throw new IllegalArgumentException("Invalid button number: " + id);
-        }
-        if (buttons[id - 1] == null) {
-            buttons[id - 1] = new BooleanControlDevice("Button " + id);
-            add(buttons[id - 1]);
-            addToMaster();
-        }
-        return buttons[id - 1];
-    }
+            public BooleanInputPoll getButtonChannel(int id) {
+                if (id < 1 || id > buttons.length) {
+                    throw new IllegalArgumentException("Invalid button number: " + id);
+                }
+                if (buttons[id - 1] == null) {
+                    buttons[id - 1] = new BooleanControlDevice("Button " + id);
+                    add(buttons[id - 1]);
+                    addToMaster();
+                }
+                return buttons[id - 1];
+            }
 
-    public FloatInputPoll getXChannel() {
-        return getAxisChannel(1);
-    }
+            public FloatInputPoll getXChannel() {
+                return getAxisChannel(1);
+            }
 
-    public FloatInputPoll getYChannel() {
-        return getAxisChannel(2);
-    }
+            public FloatInputPoll getYChannel() {
+                return getAxisChannel(2);
+            }
 
-    public FloatInput getXAxisSource() {
-        return getAxisSource(1);
-    }
+            public FloatInput getXAxisSource() {
+                return getAxisSource(1);
+            }
 
-    public FloatInput getYAxisSource() {
-        return getAxisSource(2);
-    }
+            public FloatInput getYAxisSource() {
+                return getAxisSource(2);
+            }
 
-    public BooleanInputPoll isPOVPressed(int id) {
-        return isPOVPressedSource(id);
-    }
+            public BooleanInputPoll isPOVPressed(int id) {
+                return isPOVPressedSource(id);
+            }
 
-    public FloatInputPoll getPOVAngle(int id) {
-        return getPOVAngleSource(id);
-    }
+            public FloatInputPoll getPOVAngle(int id) {
+                return getPOVAngleSource(id);
+            }
 
-    public BooleanInput isPOVPressedSource(int id) {
-        if (!isRoboRIO) {
-            throw new RuntimeException("POVs can only be accessed from a roboRIO!");
-        }
-        if (id < 1 || id > povPresses.length) {
-            throw new IllegalArgumentException("Invalid POV number: " + id);
-        }
-        if (povPresses[id - 1] == null) {
-            povPresses[id - 1] = new BooleanControlDevice("POV " + id);
-            add(povPresses[id - 1]);
-            addToMaster();
-        }
-        return povPresses[id - 1];
-    }
+            public BooleanInput isPOVPressedSource(int id) {
+                if (!isRoboRIO) {
+                    throw new RuntimeException("POVs can only be accessed from a roboRIO!");
+                }
+                if (id < 1 || id > povPresses.length) {
+                    throw new IllegalArgumentException("Invalid POV number: " + id);
+                }
+                if (povPresses[id - 1] == null) {
+                    povPresses[id - 1] = new BooleanControlDevice("POV " + id);
+                    add(povPresses[id - 1]);
+                    addToMaster();
+                }
+                return povPresses[id - 1];
+            }
 
-    public FloatInput getPOVAngleSource(int id) {
-        if (!isRoboRIO) {
-            throw new RuntimeException("POVs can only be accessed from a roboRIO!");
-        }
-        if (id < 1 || id > povs.length) {
-            throw new IllegalArgumentException("Invalid POV number: " + id);
-        }
-        if (povs[id - 1] == null) {
-            povs[id - 1] = new FloatControlDevice("POV " + id, 0, 360, 0, 0);
-            add(povs[id - 1]);
-            addToMaster();
-        }
-        return povs[id - 1];
+            public FloatInput getPOVAngleSource(int id) {
+                if (!isRoboRIO) {
+                    throw new RuntimeException("POVs can only be accessed from a roboRIO!");
+                }
+                if (id < 1 || id > povs.length) {
+                    throw new IllegalArgumentException("Invalid POV number: " + id);
+                }
+                if (povs[id - 1] == null) {
+                    povs[id - 1] = new FloatControlDevice("POV " + id, 0, 360, 0, 0);
+                    add(povs[id - 1]);
+                    addToMaster();
+                }
+                return povs[id - 1];
+            }
+        });
     }
 }

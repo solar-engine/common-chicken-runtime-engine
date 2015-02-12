@@ -35,8 +35,8 @@
 	<property file="${src.dir}/main.properties" />
 
 	<property name="emulate.jar" value="${dist.dir}/EmulationTarget.jar" />
-	<property name="emulator.dir"
-	          value="${ccre-root.dir}/IgneousEmulator/bin" />
+	<property name="emulator.jar"
+	          value="${ccre-root.dir}/IgneousEmulator/Emulator.jar" />
 	<property name="classpath-new"
 	          value="${classpath}${path.separator}${ccre-root.dir}/CCRE_Igneous_RoboRIO/Igneous.jar" />
 
@@ -177,7 +177,7 @@
 			<arg value="${emulate.jar}" />
 			<arg value="roboRIO" />
 			<classpath>
-				<fileset dir="${emulator.dir}" includes="**/*.class" />
+				<zipfileset file="${emulator.jar}" />
 			</classpath>
 		</java>
 	</target>

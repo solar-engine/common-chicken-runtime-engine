@@ -244,7 +244,7 @@
 			<arg value="${emulatee-2014.jar}" />
 			<arg value="cRIO" />
 			<classpath>
-				<fileset dir="${emulator-2014.dir}" includes="**/*.class" />
+				<zipfileset file="${emulator.jar}" />
 			</classpath>
 		</java>
 	</target>

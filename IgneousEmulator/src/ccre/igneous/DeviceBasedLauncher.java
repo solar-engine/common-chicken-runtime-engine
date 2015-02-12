@@ -60,6 +60,7 @@ public class DeviceBasedLauncher implements IgneousLauncher {
     public final DeviceListPanel panel = new DeviceListPanel();
     private final boolean isRoboRIO;
     private final int baseIndex;
+    private final JoystickHandler joyHandler = new JoystickHandler();
 
     /**
      * Create a new DeviceBasedLauncher for either the cRIO or roboRIO.
@@ -96,7 +97,7 @@ public class DeviceBasedLauncher implements IgneousLauncher {
     public IJoystickWithPOV getJoystick(int id) {
         int index = checkRange("Joystick", id, joysticks);
         if (joysticks[index] == null) {
-            joysticks[index] = new JoystickDevice(id, isRoboRIO, panel);
+            joysticks[index] = new JoystickDevice(id, isRoboRIO, panel, joyHandler).getJoystick(masterPeriodic);
         }
         return joysticks[index];
     }
@@ -106,12 +107,12 @@ public class DeviceBasedLauncher implements IgneousLauncher {
     public IJoystick getKinectJoystick(boolean isRightArm) {
         if (isRightArm) {
             if (rightKinect == null) {
-                rightKinect = new JoystickDevice("Kinect Right Arm", isRoboRIO, panel).addToMaster();
+                rightKinect = new JoystickDevice("Kinect Right Arm", isRoboRIO, panel, joyHandler).addToMaster().getJoystick(masterPeriodic);
             }
             return rightKinect;
         } else {
             if (leftKinect == null) {
-                leftKinect = new JoystickDevice("Kinect Left Arm", isRoboRIO, panel).addToMaster();
+                leftKinect = new JoystickDevice("Kinect Left Arm", isRoboRIO, panel, joyHandler).addToMaster().getJoystick(masterPeriodic);
             }
             return leftKinect;
         }

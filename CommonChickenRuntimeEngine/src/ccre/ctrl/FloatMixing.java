@@ -103,6 +103,7 @@ public class FloatMixing {
      * @return the event to write the value.
      */
     public static EventOutput getSetEvent(final FloatOutput output, final float value) {
+        Mixing.checkNull(output);
         return new EventOutput() {
             public void event() {
                 output.set(value);
@@ -119,6 +120,7 @@ public class FloatMixing {
      * @return an input that represents the value being at least the minimum.
      */
     public static BooleanInputPoll floatIsAtLeast(final FloatInputPoll base, final float minimum) {
+        Mixing.checkNull(base);
         return new BooleanInputPoll() {
             public boolean get() {
                 return base.get() >= minimum;
@@ -135,6 +137,7 @@ public class FloatMixing {
      * @return an input that represents the value being at least the minimum.
      */
     public static BooleanInputPoll floatIsAtLeast(final FloatInputPoll base, final FloatInputPoll minimum) {
+        Mixing.checkNull(base, minimum);
         return new BooleanInputPoll() {
             public boolean get() {
                 return base.get() >= minimum.get();
@@ -151,6 +154,7 @@ public class FloatMixing {
      * @return an input that represents the value being at least the minimum.
      */
     public static BooleanInput floatIsAtLeast(FloatInput base, float minimum) {
+        Mixing.checkNull(base);
         return BooleanMixing.createDispatch(floatIsAtLeast((FloatInputPoll) base, minimum), FloatMixing.onUpdate(base));
     }
 
@@ -163,6 +167,7 @@ public class FloatMixing {
      * @return an input that represents the value being at least the minimum.
      */
     public static BooleanInput floatIsAtLeast(FloatInput base, FloatInputPoll minimum) {
+        Mixing.checkNull(base, minimum);
         return BooleanMixing.createDispatch(floatIsAtLeast((FloatInputPoll) base, minimum), FloatMixing.onUpdate(base));
     }
 
@@ -175,6 +180,7 @@ public class FloatMixing {
      * @return an input that represents the value being at most the maximum.
      */
     public static BooleanInputPoll floatIsAtMost(final FloatInputPoll base, final float maximum) {
+        Mixing.checkNull(base);
         return new BooleanInputPoll() {
             public boolean get() {
                 return base.get() <= maximum;
@@ -191,6 +197,7 @@ public class FloatMixing {
      * @return an input that represents the value being at most the maximum.
      */
     public static BooleanInputPoll floatIsAtMost(final FloatInputPoll base, final FloatInputPoll maximum) {
+        Mixing.checkNull(base, maximum);
         return new BooleanInputPoll() {
             public boolean get() {
                 return base.get() <= maximum.get();
@@ -207,6 +214,7 @@ public class FloatMixing {
      * @return an input that represents the value being at most the maximum.
      */
     public static BooleanInput floatIsAtMost(final FloatInput base, final float maximum) {
+        Mixing.checkNull(base);
         return BooleanMixing.createDispatch(floatIsAtMost((FloatInputPoll) base, maximum), FloatMixing.onUpdate(base));
     }
 
@@ -219,6 +227,7 @@ public class FloatMixing {
      * @return an input that represents the value being at most the maximum.
      */
     public static BooleanInput floatIsAtMost(final FloatInput base, final FloatInputPoll maximum) {
+        Mixing.checkNull(base, maximum);
         return BooleanMixing.createDispatch(floatIsAtMost((FloatInputPoll) base, maximum), FloatMixing.onUpdate(base));
     }
 
@@ -258,6 +267,7 @@ public class FloatMixing {
      * @return the output that will write to both specified outputs.
      */
     public static FloatOutput combine(final FloatOutput a, final FloatOutput b) {
+        Mixing.checkNull(a, b);
         return new FloatOutput() {
             public void set(float value) {
                 a.set(value);
@@ -276,6 +286,7 @@ public class FloatMixing {
      * @return the output that will write to all specified outputs.
      */
     public static FloatOutput combine(final FloatOutput a, final FloatOutput b, final FloatOutput c) {
+        Mixing.checkNull(a, b, c);
         return new FloatOutput() {
             public void set(float value) {
                 a.set(value);
@@ -296,6 +307,7 @@ public class FloatMixing {
      * @return an input that represents the value being outside the range
      */
     public static BooleanInputPoll floatIsOutsideRange(final FloatInputPoll base, final float minimum, final float maximum) {
+        Mixing.checkNull(base);
         return new BooleanInputPoll() {
             public boolean get() {
                 float val = base.get();
@@ -315,6 +327,7 @@ public class FloatMixing {
      * @return an input that represents the value being outside the range
      */
     public static BooleanInput floatIsOutsideRange(final FloatInput base, final float minimum, final float maximum) {
+        Mixing.checkNull(base);
         return BooleanMixing.createDispatch(floatIsOutsideRange((FloatInputPoll) base, minimum, maximum), FloatMixing.onUpdate(base));
     }
 
@@ -327,6 +340,7 @@ public class FloatMixing {
      * @return the EventOutput that pumps the value
      */
     public static EventOutput pumpEvent(final FloatInputPoll in, final FloatOutput out) {
+        Mixing.checkNull(in, out);
         return new EventOutput() {
             public void event() {
                 out.set(in.get());
@@ -345,6 +359,7 @@ public class FloatMixing {
      * @return The wrapped output.
      */
     public static FloatOutput addRamping(final float limit, EventInput updateWhen, final FloatOutput target) {
+        Mixing.checkNull(updateWhen);
         FloatStatus temp = new FloatStatus();
         updateWhen.send(createRamper(limit, temp, target));
         return temp;
@@ -361,6 +376,7 @@ public class FloatMixing {
      * @return The wrapped input.
      */
     public static FloatInput addRamping(final float limit, EventInput updateWhen, final FloatInputPoll source) {
+        Mixing.checkNull(updateWhen, source);
         FloatStatus temp = new FloatStatus();
         updateWhen.send(createRamper(limit, source, temp));
         return temp;
@@ -410,6 +426,7 @@ public class FloatMixing {
      * @return The EventOutput that updates the ramping system.
      */
     public static EventOutput createRamper(final float limit, final FloatInputPoll from, final FloatOutput target) {
+        Mixing.checkNull(from, target);
         return new EventOutput() {
             private float last = from.get();
 
@@ -430,6 +447,7 @@ public class FloatMixing {
      * @return an input that represents the value being in range
      */
     public static BooleanInputPoll floatIsInRange(final FloatInputPoll base, final float minimum, final float maximum) {
+        Mixing.checkNull(base);
         return new BooleanInputPoll() {
             public boolean get() {
                 float val = base.get();
@@ -448,6 +466,7 @@ public class FloatMixing {
      * @return an input that represents the value being in range
      */
     public static BooleanInput floatIsInRange(final FloatInput base, final float minimum, final float maximum) {
+        Mixing.checkNull(base);
         return BooleanMixing.createDispatch(floatIsInRange((FloatInputPoll) base, minimum, maximum), FloatMixing.onUpdate(base));
     }
 
@@ -482,6 +501,7 @@ public class FloatMixing {
      * @return the dispatchable input.
      */
     public static FloatInput createDispatch(FloatInputPoll input, EventInput trigger) {
+        Mixing.checkNull(input, trigger);
         FloatStatus fstat = new FloatStatus(input.get());
         FloatMixing.pumpWhen(trigger, input, fstat);
         return fstat;
@@ -496,6 +516,7 @@ public class FloatMixing {
      * @param value the value to write.
      */
     public static void setWhen(EventInput when, FloatOutput out, float value) {
+        Mixing.checkNull(when, out);
         when.send(getSetEvent(out, value));
     }
 
@@ -511,6 +532,7 @@ public class FloatMixing {
      * @param value the value to hold it at.
      */
     public static void setWhile(EventInput check, BooleanInputPoll shouldSet, FloatOutput output, float value) {
+        Mixing.checkNull(check, shouldSet, output);
         setWhen(EventMixing.filterEvent(shouldSet, true, check), output, value);
     }
 
@@ -526,6 +548,7 @@ public class FloatMixing {
      * @param value the value to hold it at.
      */
     public static void setWhileNot(EventInput check, BooleanInputPoll shouldSet, FloatOutput output, float value) {
+        Mixing.checkNull(check, shouldSet, output);
         setWhen(EventMixing.filterEvent(shouldSet, false, check), output, value);
     }
 
@@ -597,6 +620,7 @@ public class FloatMixing {
      * @param out the output
      */
     public static void pumpWhen(EventInput trigger, final FloatInputPoll in, final FloatOutput out) {
+        Mixing.checkNull(trigger, in, out);
         trigger.send(pumpEvent(in, out));
     }
 
@@ -612,6 +636,7 @@ public class FloatMixing {
      * @return The FloatInputPoll representing the rate.
      */
     public static FloatInputPoll findRate(final FloatInputPoll input) {
+        Mixing.checkNull(input);
         return new FloatInputPoll() {
             private float lastValue = input.get();
 
@@ -638,6 +663,7 @@ public class FloatMixing {
      * @return The FloatInputPoll representing the rate.
      */
     public static FloatInputPoll findRate(final FloatInputPoll input, final EventInput updateWhen) {
+        Mixing.checkNull(input, updateWhen);
         return new FloatInputPoll() {
             private float lastValue = input.get();
 
@@ -669,6 +695,7 @@ public class FloatMixing {
      * @return the EventInput that fires when the input changes enough.
      */
     public static EventInput whenFloatChanges(final FloatInputPoll input, final float delta, EventInput checkTrigger) {
+        Mixing.checkNull(input, checkTrigger);
         return whenFloatChanges(createDispatch(input, checkTrigger), delta);
     }
 
@@ -685,6 +712,7 @@ public class FloatMixing {
      * @return the EventInput that fires when the input changes enough.
      */
     public static EventInput whenFloatChanges(final FloatInput input, final float delta) {
+        Mixing.checkNull(input);
         final EventStatus out = new EventStatus();
         input.send(new FloatOutput() {
             float last = input.get();
@@ -716,6 +744,7 @@ public class FloatMixing {
      * @return the scaled value.
      */
     public static FloatInputPoll normalizeFloat(final FloatInputPoll base, final float zero, float one) {
+        Mixing.checkNull(base);
         final float range = one - zero;
         return new FloatInputPoll() {
             public float get() {
@@ -742,6 +771,7 @@ public class FloatMixing {
      * @return the scaled value.
      */
     public static FloatInputPoll normalizeFloat(final FloatInputPoll base, final FloatInputPoll zero, final FloatInputPoll one) {
+        Mixing.checkNull(base, zero, one);
         return new FloatInputPoll() {
             public float get() {
                 float zeroN = zero.get();
@@ -768,6 +798,7 @@ public class FloatMixing {
      * @return the scaled value.
      */
     public static FloatInput normalizeFloat(final FloatInput base, final float zero, float one) {
+        Mixing.checkNull(base);
         return createDispatch(normalizeFloat((FloatInputPoll) base, zero, one), FloatMixing.onUpdate(base));
     }
 
@@ -792,6 +823,7 @@ public class FloatMixing {
      * @return the scaled value.
      */
     public static FloatInput normalizeFloat(final FloatInput base, final FloatInputPoll zero, final FloatInputPoll one) {
+        Mixing.checkNull(base, zero, one);
         return createDispatch(normalizeFloat((FloatInputPoll) base, zero, one), FloatMixing.onUpdate(base));
     }
 
@@ -802,6 +834,7 @@ public class FloatMixing {
      * @return an input for when the given input changes.
      */
     public static EventInput onUpdate(FloatInput input) {
+        Mixing.checkNull(input);
         EventStatus status = new EventStatus();
         onUpdate(input, status);
         return status;
@@ -814,6 +847,7 @@ public class FloatMixing {
      * @param output the output to fire
      */
     public static void onUpdate(FloatInput input, EventOutput output) {
+        Mixing.checkNull(input, output);
         input.send(onUpdate(output));
     }
 
@@ -824,6 +858,7 @@ public class FloatMixing {
      * @return the output to track.
      */
     public static FloatOutput onUpdate(final EventOutput output) {
+        Mixing.checkNull(output);
         return new FloatOutput() {
             private float last = Float.NaN;
 

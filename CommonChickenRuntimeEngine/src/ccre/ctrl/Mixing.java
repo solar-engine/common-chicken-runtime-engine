@@ -54,11 +54,20 @@ public class Mixing {
      * @return the BooleanOutput that will now control the provided FloatOutput.
      */
     public static BooleanOutput select(final FloatOutput controlled, final float off, final float on) {
+        checkNull(controlled);
         return new BooleanOutput() {
             public void set(boolean value) {
                 controlled.set(value ? on : off);
             }
         };
+    }
+
+    static void checkNull(Object... objs) {
+        for (Object obj : objs) {
+            if (obj == null) {
+                throw new NullPointerException();
+            }
+        }
     }
 
     /**
@@ -72,6 +81,7 @@ public class Mixing {
      * floats.
      */
     public static FloatInput select(final BooleanInput selector, final float off, final float on) {
+        checkNull(selector);
         return select(selector, selector.get(), off, on);
     }
 
@@ -88,6 +98,7 @@ public class Mixing {
      * floats.
      */
     public static FloatInput select(final BooleanInput selector, final boolean default_, final float off, final float on) {
+        checkNull(selector);
         return new FloatInput() {
             private float cur = default_ ? on : off;
             private CArrayList<FloatOutput> consumers = null;
@@ -136,6 +147,7 @@ public class Mixing {
      * two floats.
      */
     public static FloatInputPoll select(final BooleanInputPoll selector, final float off, final float on) {
+        checkNull(selector);
         return new FloatInputPoll() {
             public float get() {
                 return selector.get() ? on : off;
@@ -158,6 +170,7 @@ public class Mixing {
      * @return the BooleanOutput that will modify the specified target.
      */
     public static BooleanOutput select(final FloatOutput target, final FloatInputPoll off, final FloatInputPoll on) {
+        checkNull(target, off, on);
         return new BooleanOutput() {
             public void set(boolean value) {
                 target.set(value ? on.get() : off.get());
@@ -179,6 +192,7 @@ public class Mixing {
      * of the two arguments.
      */
     public static FloatInput select(BooleanInput selector, FloatInputPoll off, FloatInputPoll on) {
+        checkNull(selector, off, on);
         return select(selector, selector.get(), off, on);
     }
 
@@ -198,6 +212,7 @@ public class Mixing {
      * of the two arguments.
      */
     public static FloatInput select(final BooleanInput selector, final boolean default_, final FloatInputPoll off, final FloatInputPoll on) {
+        checkNull(selector, off, on);
         return new FloatInput() {
             private FloatInputPoll cur = default_ ? on : off;
             private CArrayList<FloatOutput> consumers = null;
@@ -247,6 +262,7 @@ public class Mixing {
      * of the two arguments.
      */
     public static FloatInputPoll select(final BooleanInputPoll selector, final FloatInputPoll off, final FloatInputPoll on) {
+        checkNull(selector, off, on);
         return new FloatInputPoll() {
             public float get() {
                 return selector.get() ? on.get() : off.get();
@@ -269,6 +285,7 @@ public class Mixing {
      * @return The FloatInputPoll representing the current value.
      */
     public static FloatInputPoll quadSelect(final BooleanInputPoll alpha, final BooleanInputPoll beta, final float ff, final float ft, final float tf, final float tt) {
+        checkNull(alpha, beta);
         return new FloatInputPoll() {
             public float get() {
                 return alpha.get() ? (beta.get() ? tt : tf) : (beta.get() ? ft : ff);
@@ -290,6 +307,7 @@ public class Mixing {
      * @return The FloatInput representing the current value.
      */
     public static FloatInput quadSelect(final BooleanInput alpha, final BooleanInput beta, final float ff, final float ft, final float tf, final float tt) {
+        checkNull(alpha, beta);
         return FloatMixing.createDispatch(quadSelect((BooleanInputPoll) alpha, (BooleanInputPoll) beta, ff, ft, tf, tt),
                 EventMixing.combine(BooleanMixing.whenBooleanChanges(alpha), BooleanMixing.whenBooleanChanges(alpha)));
     }
@@ -309,6 +327,7 @@ public class Mixing {
      * @return The FloatInputPoll representing the current value.
      */
     public static FloatInputPoll quadSelect(final BooleanInputPoll alpha, final BooleanInputPoll beta, final FloatInputPoll ff, final FloatInputPoll ft, final FloatInputPoll tf, final FloatInputPoll tt) {
+        checkNull(alpha, beta, ff, ft, tf, tt);
         return new FloatInputPoll() {
             public float get() {
                 return (alpha.get() ? (beta.get() ? tt : tf) : (beta.get() ? ft : ff)).get();
@@ -331,6 +350,7 @@ public class Mixing {
      * @return The FloatInput representing the current value.
      */
     public static FloatInput quadSelect(final BooleanInput alpha, final BooleanInput beta, final FloatInputPoll ff, final FloatInputPoll ft, final FloatInputPoll tf, final FloatInputPoll tt) {
+        checkNull(alpha, beta, ff, ft, tf, tt);
         return FloatMixing.createDispatch(quadSelect((BooleanInputPoll) alpha, (BooleanInputPoll) beta, ff, ft, tf, tt),
                 EventMixing.combine(BooleanMixing.whenBooleanChanges(alpha), BooleanMixing.whenBooleanChanges(beta)));
     }

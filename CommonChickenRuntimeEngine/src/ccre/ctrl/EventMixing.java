@@ -61,6 +61,7 @@ public class EventMixing {
      * @return the source that is fired by either of the original sources.
      */
     public static EventInput combine(EventInput a, EventInput b) {
+        Mixing.checkNull(a, b);
         EventStatus e = new EventStatus();
         a.send(e);
         b.send(e);
@@ -75,6 +76,7 @@ public class EventMixing {
      * @return the source that is fired by any of the original sources.
      */
     public static EventInput combine(EventInput... sources) {
+        Mixing.checkNull((Object[]) sources);
         EventStatus e = new EventStatus();
         for (EventInput es : sources) {
             es.send(e);
@@ -90,6 +92,7 @@ public class EventMixing {
      * @return the trigger for firing the arguments.
      */
     public static EventOutput combine(final EventOutput... events) {
+        Mixing.checkNull((Object[]) events);
         return new EventOutput() {
             public void event() {
                 for (EventOutput cnsm : events) {
@@ -108,6 +111,7 @@ public class EventMixing {
      * @return the trigger for firing the arguments.
      */
     public static EventOutput combine(final EventOutput a, final EventOutput b) {
+        Mixing.checkNull(a, b);
         return new EventOutput() {
             public void event() {
                 a.event();
@@ -127,6 +131,7 @@ public class EventMixing {
      * @return The debounced version of the event consumer.
      */
     public static EventOutput debounce(final EventOutput orig, final int minMillis) {
+        Mixing.checkNull(orig);
         return new EventOutput() {
             private long nextFire = 0;
 
@@ -152,6 +157,7 @@ public class EventMixing {
      * @return The debounced version of the event source.
      */
     public static EventInput debounce(EventInput orig, int minMillis) {
+        Mixing.checkNull(orig);
         EventStatus e = new EventStatus();
         orig.send(debounce((EventOutput) e, minMillis));
         return e;
@@ -167,6 +173,7 @@ public class EventMixing {
      * @return when to check if the target should be fired.
      */
     public static EventOutput filterEvent(final BooleanInputPoll shouldAllow, final boolean requirement, final EventOutput target) {
+        Mixing.checkNull(shouldAllow, target);
         return new EventOutput() {
             public void event() {
                 if (shouldAllow.get() == requirement) {

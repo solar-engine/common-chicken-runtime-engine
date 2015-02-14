@@ -96,6 +96,7 @@ public class BooleanMixing {
      * @return the output that can trigger the events.
      */
     public static BooleanOutput triggerWhenBooleanChanges(final EventOutput toFalse, final EventOutput toTrue) {
+        Mixing.checkNull(toFalse, toTrue);
         return new BooleanOutput() {
             private boolean last;
 
@@ -127,6 +128,7 @@ public class BooleanMixing {
      * @return the output that will write to both specified outputs.
      */
     public static BooleanOutput combine(final BooleanOutput a, final BooleanOutput b) {
+        Mixing.checkNull(a, b);
         return new BooleanOutput() {
             public void set(boolean value) {
                 a.set(value);
@@ -145,6 +147,7 @@ public class BooleanMixing {
      * @return the output that will write to all specified outputs.
      */
     public static BooleanOutput combine(final BooleanOutput a, final BooleanOutput b, final BooleanOutput c) {
+        Mixing.checkNull(a, b, c);
         return new BooleanOutput() {
             public void set(boolean value) {
                 a.set(value);
@@ -197,6 +200,7 @@ public class BooleanMixing {
      * not both.
      */
     public static BooleanInputPoll xorBooleans(final BooleanInputPoll a, final BooleanInputPoll b) {
+        Mixing.checkNull(a, b);
         return new BooleanInputPoll() {
             public boolean get() {
                 return a.get() ^ b.get();
@@ -213,7 +217,8 @@ public class BooleanMixing {
      * @return the input representing if either of the given inputs is true, but
      * not both.
      */
-    public static BooleanInput xorBooleans(final BooleanInput a, final BooleanInput b) {
+    public static BooleanInput xorBooleans(BooleanInput a, BooleanInput b) {
+        Mixing.checkNull(a, b);
         return createDispatch(xorBooleans((BooleanInputPoll) a, (BooleanInputPoll) b), EventMixing.combine(BooleanMixing.whenBooleanChanges(a), BooleanMixing.whenBooleanChanges(b)));
     }
 
@@ -226,6 +231,7 @@ public class BooleanMixing {
      * @return the input representing if either of the given inputs is true.
      */
     public static BooleanInputPoll orBooleans(final BooleanInputPoll a, final BooleanInputPoll b) {
+        Mixing.checkNull(a, b);
         return new BooleanInputPoll() {
             public boolean get() {
                 return a.get() || b.get();
@@ -241,6 +247,7 @@ public class BooleanMixing {
      * @return the input representing if either of the given inputs is true.
      */
     public static BooleanInput orBooleans(final BooleanInput a, final BooleanInput b) {
+        Mixing.checkNull(a, b);
         MultipleSourceBooleanController out = new MultipleSourceBooleanController(MultipleSourceBooleanController.OR);
         out.addInput(a);
         out.addInput(b);
@@ -254,6 +261,7 @@ public class BooleanMixing {
      * @return the input representing if any given input is true.
      */
     public static BooleanInputPoll orBooleans(final BooleanInputPoll... vals) {
+        Mixing.checkNull((Object[]) vals);
         return new BooleanInputPoll() {
             public boolean get() {
                 for (BooleanInputPoll val : vals) {
@@ -273,6 +281,7 @@ public class BooleanMixing {
      * @return the input representing if any given input is true.
      */
     public static BooleanInput orBooleans(final BooleanInput... vals) {
+        Mixing.checkNull((Object) vals);
         MultipleSourceBooleanController out = new MultipleSourceBooleanController(MultipleSourceBooleanController.OR);
         for (BooleanInput i : vals) {
             out.addInput(i);
@@ -289,6 +298,7 @@ public class BooleanMixing {
      * @return the EventInput that fires when the input changes.
      */
     public static EventInput whenBooleanChanges(BooleanInputPoll input, EventInput checkTrigger) {
+        Mixing.checkNull(input, checkTrigger);
         return whenBooleanChanges(createDispatch(input, checkTrigger));
     }
 
@@ -299,6 +309,7 @@ public class BooleanMixing {
      * @return the EventInput that fires when the input changes.
      */
     public static EventInput whenBooleanChanges(final BooleanInput input) {
+        Mixing.checkNull(input);
         final EventStatus out = new EventStatus();
         input.send(new BooleanOutput() {
             private boolean last = input.get();
@@ -325,6 +336,7 @@ public class BooleanMixing {
      * @return the EventInput that is fired when the input becomes the target.
      */
     public static EventInput whenBooleanBecomes(BooleanInputPoll input, boolean target, EventInput checkTrigger) {
+        Mixing.checkNull(input, checkTrigger);
         return whenBooleanBecomes(createDispatch(input, checkTrigger), target);
     }
 
@@ -337,6 +349,7 @@ public class BooleanMixing {
      * @return the EventInput that is fired when the input becomes the target.
      */
     public static EventInput whenBooleanBecomes(final BooleanInput input, final boolean target) {
+        Mixing.checkNull(input);
         final EventStatus out = new EventStatus();
         input.send(new BooleanOutput() {
             private boolean last = input.get();
@@ -361,6 +374,7 @@ public class BooleanMixing {
      * @return the EventInput that is fired when the input changes to true.
      */
     public static EventInput onPress(BooleanInput input) {
+        Mixing.checkNull(input);
         return whenBooleanBecomes(input, true);
     }
 
@@ -371,6 +385,7 @@ public class BooleanMixing {
      * @return the EventInput that is fired when the input changes to false.
      */
     public static EventInput onRelease(BooleanInput input) {
+        Mixing.checkNull(input);
         return whenBooleanBecomes(input, false);
     }
 
@@ -383,6 +398,7 @@ public class BooleanMixing {
      * @param out the output
      */
     public static void pumpWhen(EventInput trigger, final BooleanInputPoll in, final BooleanOutput out) {
+        Mixing.checkNull(trigger, in, out);
         trigger.send(pumpEvent(in, out));
     }
 
@@ -395,6 +411,7 @@ public class BooleanMixing {
      * @return the event to write the value.
      */
     public static EventOutput getSetEvent(final BooleanOutput output, final boolean value) {
+        Mixing.checkNull(output);
         return new EventOutput() {
             public void event() {
                 output.set(value);
@@ -411,6 +428,7 @@ public class BooleanMixing {
      * @return the EventOutput that pumps the value
      */
     public static EventOutput pumpEvent(final BooleanInputPoll in, final BooleanOutput out) {
+        Mixing.checkNull(in, out);
         return new EventOutput() {
             public void event() {
                 out.set(in.get());
@@ -428,6 +446,7 @@ public class BooleanMixing {
      * @return the dispatchable input.
      */
     public static BooleanInput createDispatch(BooleanInputPoll input, EventInput trigger) {
+        Mixing.checkNull(input, trigger);
         BooleanStatus bstat = new BooleanStatus(input.get());
         BooleanMixing.pumpWhen(trigger, input, bstat);
         return bstat;
@@ -442,6 +461,7 @@ public class BooleanMixing {
      * @return the input representing if both given inputs are true.
      */
     public static BooleanInputPoll andBooleans(final BooleanInputPoll a, final BooleanInputPoll b) {
+        Mixing.checkNull(a, b);
         return new BooleanInputPoll() {
             public boolean get() {
                 return a.get() && b.get();
@@ -457,6 +477,7 @@ public class BooleanMixing {
      * @return the input representing if both given inputs are true.
      */
     public static BooleanInput andBooleans(final BooleanInput a, final BooleanInput b) {
+        Mixing.checkNull(a, b);
         MultipleSourceBooleanController out = new MultipleSourceBooleanController(MultipleSourceBooleanController.AND);
         out.addInput(a);
         out.addInput(b);
@@ -471,6 +492,7 @@ public class BooleanMixing {
      * @return the input representing if all given inputs are true.
      */
     public static BooleanInputPoll andBooleans(final BooleanInputPoll... vals) {
+        Mixing.checkNull((Object[]) vals);
         return new BooleanInputPoll() {
             public boolean get() {
                 for (BooleanInputPoll val : vals) {
@@ -490,6 +512,7 @@ public class BooleanMixing {
      * @return the input representing if all given inputs are true.
      */
     public static BooleanInput andBooleans(final BooleanInput... vals) {
+        Mixing.checkNull((Object[]) vals);
         MultipleSourceBooleanController out = new MultipleSourceBooleanController(MultipleSourceBooleanController.AND);
         for (BooleanInput i : vals) {
             out.addInput(i);
@@ -506,6 +529,7 @@ public class BooleanMixing {
      * @param value the value to write.
      */
     public static void setWhen(EventInput when, BooleanOutput out, boolean value) {
+        Mixing.checkNull(when, out);
         when.send(getSetEvent(out, value));
     }
 
@@ -521,6 +545,7 @@ public class BooleanMixing {
      * @param value the value to hold it at.
      */
     public static void setWhile(EventInput check, BooleanInputPoll shouldSet, BooleanOutput output, boolean value) {
+        Mixing.checkNull(check, shouldSet, output);
         setWhen(EventMixing.filterEvent(shouldSet, true, check), output, value);
     }
 
@@ -536,6 +561,7 @@ public class BooleanMixing {
      * @param value the value to hold it at.
      */
     public static void setWhileNot(EventInput check, BooleanInputPoll shouldSet, BooleanOutput output, boolean value) {
+        Mixing.checkNull(check, shouldSet, output);
         setWhen(EventMixing.filterEvent(shouldSet, false, check), output, value);
     }
 
@@ -554,6 +580,7 @@ public class BooleanMixing {
      * @return when to toggle the output.
      */
     public static EventOutput toggleEvent(final BooleanOutput out) {
+        Mixing.checkNull(out);
         return new EventOutput() {
             private boolean value = false;
 

@@ -536,63 +536,76 @@ public class CluckPublisher {
     public static RConfable subscribeRConf(CluckNode node, String path, final int timeout) {
         final RemoteProcedure query = node.getRPCManager().subscribe(path + "-rpcq", timeout);
         final RemoteProcedure signal = node.getRPCManager().subscribe(path + "-rpcs", timeout);
-        return new RConfable() {
-            public boolean signalRConf(int field, byte[] data) throws InterruptedException {
-                byte[] ndata = new byte[data.length + 2];
-                if (field != (field & 0xFFFF)) {
-                    Logger.warning("Out of range field in RConf query response!");
-                    return false;
-                }
-                ndata[0] = (byte) (field >> 8);
-                ndata[1] = (byte) field;
-                System.arraycopy(data, 0, ndata, 2, data.length);
-                byte[] result = SimpleProcedure.invoke(signal, ndata, timeout);
-                if (result == SimpleProcedure.TIMED_OUT) {
-                    return false;
-                } else if (result.length >= 1 && result[0] == 0) {
-                    return false;
-                }
-                return true;
-            }
-
-            public Entry[] queryRConf() throws InterruptedException {
-                byte[] data = SimpleProcedure.invoke(query, new byte[0], timeout);
-                if (data == SimpleProcedure.TIMED_OUT) {
-                    return null;
-                }
-                if (data.length < 2) {
-                    Logger.warning("Too-short (1) RConf query response!");
-                    return null;
-                }
-                Entry[] out = new Entry[((data[0] & 0xFF) << 8) | (data[1] & 0xFF)];
-                int ptr = 2;
-                for (int i = 0; i < out.length; i++) {
-                    if (data.length - ptr < 4) {
-                        Logger.warning("Too-short (2) RConf query response!");
-                        return null;
-                    }
-                    int len = ((data[ptr] & 0xFF) << 24) | ((data[ptr + 1] & 0xFF) << 16) | ((data[ptr + 2] & 0xFF) << 8) | (data[ptr + 3] & 0xFF);
-                    byte type = data[ptr + 4];
-                    byte[] part = new byte[len - 1];
-                    ptr += 5;
-                    if (data.length - ptr < part.length) {
-                        Logger.warning("Too-short (3) RConf query response!");
-                        return null;
-                    }
-                    System.arraycopy(data, ptr, part, 0, part.length);
-                    ptr += part.length;
-                    out[i] = new RConf.Entry(type, part);
-                }
-                if (ptr != data.length) {
-                    Logger.warning("Too-long RConf query response!");
-                    return null;
-                }
-                return out;
-            }
-        };
+        return new SubscribedRConfable(query, timeout, signal);
     }
 
     private CluckPublisher() {
+    }
+
+    private static final class SubscribedRConfable implements RConfable, Serializable {
+        private static final long serialVersionUID = 6975429475672969797L;
+        private final RemoteProcedure query;
+        private final int timeout;
+        private final RemoteProcedure signal;
+
+        private SubscribedRConfable(RemoteProcedure query, int timeout, RemoteProcedure signal) {
+            this.query = query;
+            this.timeout = timeout;
+            this.signal = signal;
+        }
+
+        public boolean signalRConf(int field, byte[] data) throws InterruptedException {
+            byte[] ndata = new byte[data.length + 2];
+            if (field != (field & 0xFFFF)) {
+                Logger.warning("Out of range field in RConf query response!");
+                return false;
+            }
+            ndata[0] = (byte) (field >> 8);
+            ndata[1] = (byte) field;
+            System.arraycopy(data, 0, ndata, 2, data.length);
+            byte[] result = SimpleProcedure.invoke(signal, ndata, timeout);
+            if (result == SimpleProcedure.TIMED_OUT) {
+                return false;
+            } else if (result.length >= 1 && result[0] == 0) {
+                return false;
+            }
+            return true;
+        }
+
+        public Entry[] queryRConf() throws InterruptedException {
+            byte[] data = SimpleProcedure.invoke(query, new byte[0], timeout);
+            if (data == SimpleProcedure.TIMED_OUT) {
+                return null;
+            }
+            if (data.length < 2) {
+                Logger.warning("Too-short (1) RConf query response!");
+                return null;
+            }
+            Entry[] out = new Entry[((data[0] & 0xFF) << 8) | (data[1] & 0xFF)];
+            int ptr = 2;
+            for (int i = 0; i < out.length; i++) {
+                if (data.length - ptr < 4) {
+                    Logger.warning("Too-short (2) RConf query response!");
+                    return null;
+                }
+                int len = ((data[ptr] & 0xFF) << 24) | ((data[ptr + 1] & 0xFF) << 16) | ((data[ptr + 2] & 0xFF) << 8) | (data[ptr + 3] & 0xFF);
+                byte type = data[ptr + 4];
+                byte[] part = new byte[len - 1];
+                ptr += 5;
+                if (data.length - ptr < part.length) {
+                    Logger.warning("Too-short (3) RConf query response!");
+                    return null;
+                }
+                System.arraycopy(data, ptr, part, 0, part.length);
+                ptr += part.length;
+                out[i] = new RConf.Entry(type, part);
+            }
+            if (ptr != data.length) {
+                Logger.warning("Too-long RConf query response!");
+                return null;
+            }
+            return out;
+        }
     }
 
     private static final class FloatInputPublishListener implements FloatOutput, Serializable {
@@ -758,7 +771,11 @@ public class CluckPublisher {
 
         @Override
         protected void receiveValid(String src, byte[] data) {
-            result.set(Utils.bytesToFloat(data, 1));
+            if (!path.equals(src)) {
+                Logger.warning("Bad source to " + linkName + ": " + src + " instead of " + path);
+            } else {
+                result.set(Utils.bytesToFloat(data, 1));
+            }
         }
 
         @Override
@@ -851,7 +868,11 @@ public class CluckPublisher {
 
         @Override
         protected void receiveValid(String src, byte[] data) {
-            result.set(data[1] != 0);
+            if (!path.equals(src)) {
+                Logger.warning("Bad source to " + linkName + ": " + src + " instead of " + path);
+            } else {
+                result.set(data[1] != 0);
+            }
         }
 
         @Override
@@ -938,7 +959,11 @@ public class CluckPublisher {
 
         @Override
         protected void receiveValid(String src, byte[] data) {
-            result.produce();
+            if (!path.equals(src)) {
+                Logger.warning("Bad source to " + linkName + ": " + src + " instead of " + path);
+            } else {
+                result.produce();
+            }
         }
 
         @Override

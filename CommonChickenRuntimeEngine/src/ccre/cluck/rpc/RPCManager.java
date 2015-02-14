@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 Colby Skeggs
+ * Copyright 2014-2015 Colby Skeggs
  * 
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  * 
@@ -21,6 +21,7 @@ package ccre.cluck.rpc;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.io.Serializable;
 
 import ccre.cluck.CluckNode;
 import ccre.cluck.CluckSubscriber;
@@ -34,7 +35,7 @@ import ccre.util.UniqueIds;
  *
  * @author skeggsc
  */
-public final class RPCManager {
+public final class RPCManager implements Serializable {
 
     private final CluckNode node;
     /**
@@ -178,8 +179,9 @@ public final class RPCManager {
         node.transmit(path, localRPCBinding + "/" + localname, toSend);
     }
 
-    private class SubscribedProcedure implements RemoteProcedure {
+    private class SubscribedProcedure implements RemoteProcedure, Serializable {
 
+        private static final long serialVersionUID = 624324992717097477L;
         private final String path;
         private final int timeoutAfter;
 
@@ -195,6 +197,24 @@ public final class RPCManager {
             toSend[0] = CluckNode.RMT_INVOKE;
             System.arraycopy(in, 0, toSend, 1, in.length);
             putNewInvokeBinding(path, localname, timeoutAfter, out, toSend);
+        }
+    }
+
+    private Object writeReplace() {
+        return new SerializedRPCManager(this.node);
+    }
+
+    private static class SerializedRPCManager implements Serializable {
+
+        private static final long serialVersionUID = 8452028108928413549L;
+        private final CluckNode node;
+
+        public SerializedRPCManager(CluckNode node) {
+            this.node = node;
+        }
+
+        private Object readResolve() {
+            return node.getRPCManager();
         }
     }
 }

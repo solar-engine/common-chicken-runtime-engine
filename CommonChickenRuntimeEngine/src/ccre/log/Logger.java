@@ -18,6 +18,7 @@
  */
 package ccre.log;
 
+import ccre.concurrency.ConcurrentDispatchArray;
 import ccre.util.CArrayList;
 import ccre.workarounds.CallerInfo;
 import ccre.workarounds.ThrowablePrinter;
@@ -33,7 +34,7 @@ public class Logger {
     /**
      * The logging targets to write logs to.
      */
-    public static final CArrayList<LoggingTarget> targets = new CArrayList<LoggingTarget>();
+    public static final ConcurrentDispatchArray<LoggingTarget> targets = new ConcurrentDispatchArray<LoggingTarget>();
     private static boolean includeLineNumbers = true;
 
     /**

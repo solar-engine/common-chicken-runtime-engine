@@ -46,11 +46,11 @@ public class CluckNetworkingComponent extends SuperCanvasComponent {
     private static final String[] optionNames = new String[] {
             "roboRIO (default)", "cRIO (default)", "Local (default)",
             "roboRIO (USB)", "roboRIO (non-FMS)", "cRIO (non-FMS)", "cRIO (deprecated)",
-            "roboRIO (alternate 1)", "roboRIO (alternate 2)", "Local (alternate 1)", "Local (alternate 2)" };
+            "roboRIO (alternate 1)", "roboRIO (alternate 2)", "Local (alternate 1)", "Local (alternate 2)", "Don't Connect" };
     private static final String[] optionAddrs = new String[] {
             "roboRIO-$T$E$A$M.local:5800", "10.$T$E.$A$M.2:443", "127.0.0.1:1540",
             "172.22.11.2:1540", "roboRIO-$T$E$A$M.local:1540", "10.$T$E.$A$M.2:1540", "10.$T$E.$A$M.2:80",
-            "roboRIO-$T$E$A$M.local:5805", "roboRIO-$T$E$A$M.local:1735", "127.0.0.1:80", "127.0.0.1:443" };
+            "roboRIO-$T$E$A$M.local:5805", "roboRIO-$T$E$A$M.local:1735", "127.0.0.1:80", "127.0.0.1:443", ":" };
 
     private final StringBuilder address = new StringBuilder(optionAddrs[0]);
     private boolean expanded = false;
@@ -144,6 +144,7 @@ public class CluckNetworkingComponent extends SuperCanvasComponent {
             }
         } else if (client == null) {
             client = new CluckTCPClient(remote, Cluck.getNode(), "robot", "phidget");
+            client.setReconnectDelay(1000);
             client.setLogDuringNormalOperation(false);
             client.start();
         } else {
@@ -159,6 +160,9 @@ public class CluckNetworkingComponent extends SuperCanvasComponent {
     }
 
     private String calculateRemote() {
+        if (address.toString().equals(":")) { // don't connect
+            return null;
+        }
         char T = '?', E = '?', A = '?', M = '?';
         CCollection<String> addresses = Network.listIPv4Addresses();
         for (String addr : addresses) {

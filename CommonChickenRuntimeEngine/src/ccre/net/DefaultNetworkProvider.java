@@ -50,8 +50,10 @@ class DefaultNetworkProvider implements NetworkProvider {
     public ClientSocket openClient(String targetAddress, int port) throws IOException {
         try {
             Socket sock = new Socket();
-            sock.connect(new InetSocketAddress(targetAddress, port), 1000); // TODO: What timeout should be used?
+            sock.connect(new InetSocketAddress(targetAddress, port), 500); // TODO: What timeout should be used?
             return new ClientSocketImpl(sock);
+        } catch (SocketTimeoutException ex) {
+            throw new ConnectException("Timed out while connecting."); // Smaller traceback.
         } catch (ConnectException ctc) {
             if (ctc.getMessage().equals("Connection timed out: connect")) {
                 throw new ConnectException("Timed out while connecting."); // Smaller traceback.

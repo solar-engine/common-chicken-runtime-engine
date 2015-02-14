@@ -37,14 +37,14 @@ class DirectPDP {
 
     public static float getCurrent(int channel) {
         checkChannel(channel);
-        IntBuffer status = Common.allocateInt();
+        IntBuffer status = Common.getCheckBuffer();
         double current = PDPJNI.getPDPChannelCurrent((byte) channel, status); // errors are timeouts and invalid channel IDs. TODO: avoid timeout errors
         Common.check(status);
         return (float) current;
     }
 
     public static float getVoltage() {
-        IntBuffer status = Common.allocateInt();
+        IntBuffer status = Common.getCheckBuffer();
         double voltage = PDPJNI.getPDPVoltage(status); // errors are timeouts. TODO: avoid timeouts errors
         Common.check(status);
         return (float) voltage;

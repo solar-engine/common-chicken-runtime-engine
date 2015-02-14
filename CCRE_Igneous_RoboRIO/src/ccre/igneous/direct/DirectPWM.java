@@ -52,8 +52,7 @@ class DirectPWM {
             cdbMin = new double[] { 1.487, 1.454, 1.49, 0 },
             cmin = new double[] { 0.989, 0.697, 1.026, 0.6 };
 
-    private static synchronized void initConfig() {
-        IntBuffer status = Common.allocateInt();
+    private static synchronized void initConfig(IntBuffer status) {
         double loopTime = DIOJNI.getLoopTiming(status) / (kSystemClockTicksPerMicrosecond * 1e3);
         Common.check(status);
 
@@ -76,7 +75,7 @@ class DirectPWM {
         }
 
         if (pwms[channel] == null) {
-            IntBuffer status = Common.allocateInt();
+            IntBuffer status = Common.getCheckBuffer();
 
             ByteBuffer port = DIOJNI.initializeDigitalPort(JNIWrapper.getPort((byte) channel), status);
             Common.check(status);
@@ -90,10 +89,10 @@ class DirectPWM {
             Common.check(status);
 
             if (!isConfigInit) {
-                initConfig();
+                initConfig(status);
             }
 
-            configureScaling(port, type == TYPE_SERVO ? 4 : type == TYPE_VICTOR ? 2 : 1);
+            configureScaling(port, type == TYPE_SERVO ? 4 : type == TYPE_VICTOR ? 2 : 1, status);
 
             if (type != TYPE_SERVO) {
                 PWMJNI.latchPWMZero(port, status);
@@ -108,9 +107,7 @@ class DirectPWM {
         }
     }
 
-    private static void configureScaling(ByteBuffer port, int num) {
-        IntBuffer status = Common.allocateInt();
-
+    private static void configureScaling(ByteBuffer port, int num, IntBuffer status) {
         switch (num) {
         case 4: // more squelching
             PWMJNI.setPWMPeriodScale(port, 3, status);
@@ -138,7 +135,7 @@ class DirectPWM {
         }
         pwms[channel] = null;
 
-        IntBuffer status = Common.allocateInt();
+        IntBuffer status = Common.getCheckBuffer();
 
         PWMJNI.setPWM(port, (short) 0, status);
         Common.check(status);
@@ -171,7 +168,7 @@ class DirectPWM {
                 rawValue = (int) (value * ((double) (tdbMin[type] - tmin[type])) + tdbMin[type] + 0.5);
             }
         }
-        IntBuffer status = Common.allocateInt();
+        IntBuffer status = Common.getCheckBuffer();
         PWMJNI.setPWM(port, (short) rawValue, status); // just FPGA errors
         Common.check(status);
     }

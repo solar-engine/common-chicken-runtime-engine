@@ -40,7 +40,7 @@ class DirectDigital {
         }
 
         if (digitals[channel] == null) {
-            IntBuffer status = Common.allocateInt();
+            IntBuffer status = Common.getCheckBuffer();
             ByteBuffer port = DIOJNI.initializeDigitalPort(JNIWrapper.getPort((byte) channel), status);
             Common.check(status);
             DIOJNI.allocateDIO(port, (byte) (asInput ? 1 : 0), status);
@@ -57,7 +57,7 @@ class DirectDigital {
         if (port == null) {
             throw new RuntimeException("Unallocated digital port: " + channel);
         }
-        IntBuffer status = Common.allocateInt();
+        IntBuffer status = Common.getCheckBuffer();
         DIOJNI.freeDIO(port, status);
         Common.check(status);
     }
@@ -70,7 +70,7 @@ class DirectDigital {
         if (asInputs[channel]) {
             throw new RuntimeException("Digital port not opened for writing: " + channel);
         }
-        IntBuffer status = Common.allocateInt();
+        IntBuffer status = Common.getCheckBuffer();
         DIOJNI.setDIO(dig, (short) (value ? 1 : 0), status); // just FPGA errors
         Common.check(status);
     }
@@ -83,7 +83,7 @@ class DirectDigital {
         if (!asInputs[channel]) {
             throw new RuntimeException("Digital port not opened for reading: " + channel);
         }
-        IntBuffer status = Common.allocateInt();
+        IntBuffer status = Common.getCheckBuffer();
         boolean value = DIOJNI.getDIO(dig, status) != 0; // just FPGA errors
         Common.check(status);
         return value;

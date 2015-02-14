@@ -32,6 +32,17 @@ import edu.wpi.first.wpilibj.hal.HALUtil;
 
 class Common {
 
+    private static ThreadLocal<IntBuffer> directBuffer = new ThreadLocal<IntBuffer>() {
+        @Override
+        protected IntBuffer initialValue() {
+            return allocateInt();
+        }
+    };
+
+    public static IntBuffer getCheckBuffer() {
+        return directBuffer.get();
+    }
+
     public static IntBuffer allocateInt() {
         ByteBuffer status = ByteBuffer.allocateDirect(4);
         status.order(ByteOrder.LITTLE_ENDIAN);
@@ -54,5 +65,4 @@ class Common {
             Logger.warning("HAL Warning: " + message, new RuntimeException());
         }
     }
-
 }

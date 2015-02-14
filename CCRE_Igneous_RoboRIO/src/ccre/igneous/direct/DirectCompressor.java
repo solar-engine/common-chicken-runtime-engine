@@ -33,27 +33,27 @@ class DirectCompressor {
     }
 
     public static void setClosedLoop(ByteBuffer pcm, boolean on) {
-        IntBuffer status = Common.allocateInt();
+        IntBuffer status = Common.getCheckBuffer();
         CompressorJNI.setClosedLoopControl(pcm, on, status); // errors when not yet initialized, so should be fine since init will always be called.
         Common.check(status);
     }
 
     public static boolean getPressureSwitch(ByteBuffer pcm) {
-        IntBuffer status = Common.allocateInt();
+        IntBuffer status = Common.getCheckBuffer();
         boolean swt = CompressorJNI.getPressureSwitch(pcm, status); // TODO: errors if timed out
         Common.check(status);
         return swt;
     }
 
     public static boolean getCompressorRunning(ByteBuffer pcm) {
-        IntBuffer status = Common.allocateInt();
+        IntBuffer status = Common.getCheckBuffer();
         boolean on = CompressorJNI.getCompressor(pcm, status); // TODO: errors if timed out.
         Common.check(status);
         return on;
     }
 
     public static float getCompressorCurrent(ByteBuffer pcm) {
-        IntBuffer status = Common.allocateInt();
+        IntBuffer status = Common.getCheckBuffer();
         float current = CompressorJNI.getCompressorCurrent(pcm, status); // TODO: errors if timed out
         Common.check(status);
         return current;

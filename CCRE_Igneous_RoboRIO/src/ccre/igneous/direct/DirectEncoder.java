@@ -31,7 +31,7 @@ class DirectEncoder {
     public static ByteBuffer init(int channelA, int channelB, boolean reverse) {
         DirectDigital.init(channelA, true);
         DirectDigital.init(channelB, true);
-        IntBuffer status = Common.allocateInt();
+        IntBuffer status = Common.getCheckBuffer();
         IntBuffer indexS = Common.allocateInt();
         ByteBuffer encoder = EncoderJNI.initializeEncoder((byte) 0, channelA, (byte) 0, (byte) 0, channelB, (byte) 0, (byte) (reverse ? 1 : 0), indexS, status);
         Common.check(status);
@@ -43,19 +43,19 @@ class DirectEncoder {
         DirectDigital.free(channelA);
         DirectDigital.free(channelB);
 
-        IntBuffer status = Common.allocateInt();
+        IntBuffer status = Common.getCheckBuffer();
         EncoderJNI.freeEncoder(port, status);
         Common.check(status);
     }
 
     public static void reset(ByteBuffer port) {
-        IntBuffer status = Common.allocateInt();
+        IntBuffer status = Common.getCheckBuffer();
         EncoderJNI.resetEncoder(port, status); // just FPGA errors
         Common.check(status);
     }
 
     public static int getRaw(ByteBuffer port) {
-        IntBuffer status = Common.allocateInt();
+        IntBuffer status = Common.getCheckBuffer();
         int value = EncoderJNI.getEncoder(port, status); // just FPGA errors
         Common.check(status);
         return value;

@@ -36,7 +36,7 @@ class DirectRS232 {
     public static final byte FLUSH_ON_ACCESS = 1, FLUSH_WHEN_FULL = 2;
 
     public static void init(byte port, int baudRate, int dataBits, byte parity, byte stopBits) {
-        IntBuffer status = Common.allocateInt();
+        IntBuffer status = Common.getCheckBuffer();
         SerialPortJNI.serialInitializePort(port, status);
         Common.check(status);
         SerialPortJNI.serialSetBaudRate(port, baudRate, status);
@@ -65,7 +65,7 @@ class DirectRS232 {
     }
 
     public static void setTermination(byte port, Character end) {
-        IntBuffer status = Common.allocateInt();
+        IntBuffer status = Common.getCheckBuffer();
         if (end == null) {
             SerialPortJNI.serialDisableTermination(port, status);
         } else {
@@ -75,14 +75,14 @@ class DirectRS232 {
     }
 
     public static int getBytesReceived(byte port) {
-        IntBuffer status = Common.allocateInt();
+        IntBuffer status = Common.getCheckBuffer();
         int bytes = SerialPortJNI.serialGetBytesRecieved(port, status);
         Common.check(status);
         return bytes;
     }
 
     public static byte[] read(byte port, int len) {
-        IntBuffer status = Common.allocateInt();
+        IntBuffer status = Common.getCheckBuffer();
         ByteBuffer recv = ByteBuffer.allocateDirect(len);
         int actuallyReceived = SerialPortJNI.serialRead(port, recv, len, status);
         Common.check(status);
@@ -92,19 +92,19 @@ class DirectRS232 {
     }
 
     public static void flush(byte port) {
-        IntBuffer status = Common.allocateInt();
+        IntBuffer status = Common.getCheckBuffer();
         SerialPortJNI.serialFlush(port, status);
         Common.check(status);
     }
 
     public static void setWriteBufferMode(byte port, byte mode) {
-        IntBuffer status = Common.allocateInt();
+        IntBuffer status = Common.getCheckBuffer();
         SerialPortJNI.serialSetWriteMode(port, mode, status);
         Common.check(status);
     }
 
     public static int write(byte port, byte[] buffer, int count) {
-        IntBuffer status = Common.allocateInt();
+        IntBuffer status = Common.getCheckBuffer();
         ByteBuffer dataToSendBuffer = ByteBuffer.allocateDirect(count);
         dataToSendBuffer.put(buffer, 0, count);
         int actual = SerialPortJNI.serialWrite(port, dataToSendBuffer, count, status);
@@ -113,7 +113,7 @@ class DirectRS232 {
     }
 
     public static void close(byte port) {
-        IntBuffer status = Common.allocateInt();
+        IntBuffer status = Common.getCheckBuffer();
         SerialPortJNI.serialClose(port, status);
         Common.check(status);
     }

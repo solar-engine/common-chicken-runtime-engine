@@ -38,7 +38,7 @@ class DirectRelay {
             throw new RuntimeException("Invalid relay port number: " + channel);
         }
         if (relays[channel] == null) {
-            IntBuffer status = Common.allocateInt();
+            IntBuffer status = Common.getCheckBuffer();
             ByteBuffer port = DIOJNI.initializeDigitalPort(JNIWrapper.getPort((byte) channel), status);
             Common.check(status);
             relays[channel] = port;
@@ -47,13 +47,13 @@ class DirectRelay {
     }
 
     public static void setForward(ByteBuffer port, boolean active) {
-        IntBuffer status = Common.allocateInt();
+        IntBuffer status = Common.getCheckBuffer();
         RelayJNI.setRelayForward(port, (byte) (active ? 1 : 0), status); // just FPGA errors
         Common.check(status);
     }
 
     public static void setReverse(ByteBuffer port, boolean active) {
-        IntBuffer status = Common.allocateInt();
+        IntBuffer status = Common.getCheckBuffer();
         RelayJNI.setRelayReverse(port, (byte) (active ? 1 : 0), status); // just FPGA errors
         Common.check(status);
     }

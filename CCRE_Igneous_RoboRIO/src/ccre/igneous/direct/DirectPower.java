@@ -33,7 +33,7 @@ class DirectPower {
     }
 
     public static float getBatteryVoltage() {
-        IntBuffer status = Common.allocateInt();
+        IntBuffer status = Common.getCheckBuffer();
         float voltage = PowerJNI.getVinVoltage(status); // just FPGA errors - maybe FPGA startup errors, but that's handled by init().
         Common.check(status);
         return voltage;

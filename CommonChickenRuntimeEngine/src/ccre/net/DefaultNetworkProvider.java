@@ -25,6 +25,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.ConnectException;
 import java.net.InetAddress;
+import java.net.InetSocketAddress;
 import java.net.NetworkInterface;
 import java.net.Socket;
 import java.net.SocketException;
@@ -48,7 +49,9 @@ class DefaultNetworkProvider implements NetworkProvider {
 
     public ClientSocket openClient(String targetAddress, int port) throws IOException {
         try {
-            return new ClientSocketImpl(new Socket(targetAddress, port));
+            Socket sock = new Socket();
+            sock.connect(new InetSocketAddress(targetAddress, port), 1000); // TODO: What timeout should be used?
+            return new ClientSocketImpl(sock);
         } catch (ConnectException ctc) {
             if (ctc.getMessage().equals("Connection timed out: connect")) {
                 throw new ConnectException("Timed out while connecting."); // Smaller traceback.

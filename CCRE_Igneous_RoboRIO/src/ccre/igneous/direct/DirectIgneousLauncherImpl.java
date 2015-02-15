@@ -210,7 +210,7 @@ public final class DirectIgneousLauncherImpl implements IgneousLauncher {
         }
 
         private EventStatus getDuring(DirectIgneousLauncherImpl launcher) {
-            return launcher.startEvents[ordinal()];
+            return launcher.duringEvents[ordinal()];
         }
 
         private void start(DirectIgneousLauncherImpl launcher, boolean onFMS) {

@@ -40,7 +40,9 @@ class Common {
     };
 
     public static IntBuffer getCheckBuffer() {
-        return directBuffer.get();
+        IntBuffer out = directBuffer.get();
+        out.put(0, 0);
+        return out;
     }
 
     public static IntBuffer allocateInt() {

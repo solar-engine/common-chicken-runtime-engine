@@ -27,6 +27,7 @@ import ccre.cluck.Cluck;
 import ccre.cluck.tcp.CluckTCPClient;
 import ccre.ctrl.Ticker;
 import ccre.net.CountingNetworkProvider;
+import ccre.cluck.tcp.LoggingCluckTCPClient;
 import ccre.net.Network;
 import ccre.supercanvas.Rendering;
 import ccre.supercanvas.SuperCanvasComponent;
@@ -135,6 +136,8 @@ public class CluckNetworkingComponent extends SuperCanvasComponent {
         updateConnection();
     }
 
+    public static boolean useLoggingConnection = false;
+
     private synchronized void updateConnection() {
         String remote = calculateRemote();
         if (getPanel() == null || remote == null) {
@@ -143,7 +146,9 @@ public class CluckNetworkingComponent extends SuperCanvasComponent {
                 client = null;
             }
         } else if (client == null) {
-            client = new CluckTCPClient(remote, Cluck.getNode(), "robot", "phidget");
+            client = useLoggingConnection
+                    ? new LoggingCluckTCPClient(remote, Cluck.getNode(), "robot", "phidget")
+                    : new CluckTCPClient(remote, Cluck.getNode(), "robot", "phidget");
             client.setReconnectDelay(1000);
             client.setLogDuringNormalOperation(false);
             client.start();

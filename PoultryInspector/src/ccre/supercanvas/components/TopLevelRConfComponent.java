@@ -11,6 +11,7 @@ import ccre.rconf.RConf;
 import ccre.rconf.RConf.Entry;
 import ccre.rconf.RConfable;
 import ccre.supercanvas.components.channels.RConfComponent;
+import ccre.supercanvas.components.pinned.CluckNetworkingComponent;
 import ccre.util.CList;
 
 public class TopLevelRConfComponent extends RConfComponent {
@@ -54,7 +55,7 @@ public class TopLevelRConfComponent extends RConfComponent {
                 } else {
                     int len = Array.getLength(target);
                     addEntry(out, "length", len);
-                    for (int i=0; i<len; i++) {
+                    for (int i = 0; i < len; i++) {
                         addEntry(out, "[" + i + "]", Array.get(target, i));
                     }
                 }
@@ -138,7 +139,7 @@ public class TopLevelRConfComponent extends RConfComponent {
         private TopLevelRConfComponent master;
 
         public Entry[] queryRConf() throws InterruptedException {
-            return new Entry[] { RConf.title("Local Configuration"), RConf.button("Send Notify"), RConf.button("Inspect Root") };
+            return new Entry[] { RConf.title("Local Configuration"), RConf.button("Send Notify"), RConf.button("Inspect Root"), RConf.string("Use Deep Logging:"), RConf.fieldBoolean(CluckNetworkingComponent.useLoggingConnection) };
         }
 
         public boolean signalRConf(int field, byte[] data) throws InterruptedException {
@@ -146,13 +147,18 @@ public class TopLevelRConfComponent extends RConfComponent {
                 Logger.fine("Notifying...");
                 Cluck.getNode().notifyNetworkModified();
                 Logger.fine("Notified!");
+                return true;
             } else if (field == 2) {
                 addInspection(master, master.getPanel());
+                return true;
+            } else if (field == 4 && data.length > 0) {
+                CluckNetworkingComponent.useLoggingConnection = data[0] != 0;
+                return true;
             }
             return false;
         }
     }
-    
+
     public static void addInspection(TopLevelRConfComponent component, Object obj, Class<?> as, boolean possiblyAsList) {
         component.getPanel().add(new RConfComponent(component.getDragRelX(0), component.getDragRelY(0),
                 "0x" + Integer.toHexString(System.identityHashCode(obj)), new InspectionRConfable(component, obj, as, possiblyAsList)));

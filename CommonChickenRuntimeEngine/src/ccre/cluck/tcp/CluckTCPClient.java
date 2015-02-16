@@ -43,11 +43,11 @@ public class CluckTCPClient extends ReporterThread {
     /**
      * The CluckNode that this connection shares.
      */
-    private final CluckNode node;
+    protected final CluckNode node;
     /**
      * The link name for this connection.
      */
-    private final String linkName;
+    protected final String linkName;
     /**
      * The active remote socket.
      */
@@ -63,7 +63,7 @@ public class CluckTCPClient extends ReporterThread {
     /**
      * The hint for what the other end of the connection should call this link.
      */
-    private final String remoteNameHint;
+    protected final String remoteNameHint;
     /**
      * Should this client continue running?
      */
@@ -213,13 +213,9 @@ public class CluckTCPClient extends ReporterThread {
                     DataOutputStream dout = sock.openDataOutputStream();
                     isEstablished = true;
                     try {
-                        CluckProtocol.handleHeader(din, dout, remoteNameHint);
-                        Logger.fine("Connected to " + remote + " at " + System.currentTimeMillis());
-                        CluckProtocol.setTimeoutOnSocket(sock);
-                        CluckLink deny = CluckProtocol.handleSend(dout, linkName, node);
-                        node.notifyNetworkModified(); // Only send here, not on server.
+                        CluckLink deny = doStart(din, dout, sock);
                         isReconnecting = false;
-                        CluckProtocol.handleRecv(din, linkName, node, deny);
+                        doMain(din, dout, sock, deny);
                     } finally {
                         dout.close();
                     }
@@ -238,6 +234,19 @@ public class CluckTCPClient extends ReporterThread {
             isEstablished = false;
         }
         return postfix;
+    }
+
+    protected CluckLink doStart(DataInputStream din, DataOutputStream dout, ClientSocket sock) throws IOException {
+        CluckProtocol.handleHeader(din, dout, remoteNameHint);
+        Logger.fine("Connected to " + remote + " at " + System.currentTimeMillis());
+        CluckProtocol.setTimeoutOnSocket(sock);
+        CluckLink deny = CluckProtocol.handleSend(dout, linkName, node);
+        node.notifyNetworkModified(); // Only send here, not on server.
+        return deny;
+    }
+
+    protected void doMain(DataInputStream din, DataOutputStream dout, ClientSocket sock, CluckLink deny) throws IOException {
+        CluckProtocol.handleRecv(din, linkName, node, deny);
     }
 
     /**

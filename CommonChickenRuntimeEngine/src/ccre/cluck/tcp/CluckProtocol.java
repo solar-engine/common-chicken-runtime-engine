@@ -38,8 +38,8 @@ import ccre.util.CLinkedList;
  */
 public class CluckProtocol {
 
-    private static final int TIMEOUT_PERIOD = 600; // milliseconds
-    private static final int KEEPALIVE_INTERVAL = 200; // milliseconds, should always be noticeably less than TIMEOUT_PERIOD
+    public static final int TIMEOUT_PERIOD = 600; // milliseconds
+    public static final int KEEPALIVE_INTERVAL = 200; // milliseconds, should always be noticeably less than TIMEOUT_PERIOD
 
     /**
      * Sets the appropriate timeout on sock, for disconnection reporting.
@@ -148,12 +148,12 @@ public class CluckProtocol {
         }
     }
 
-    private static String readNullableString(DataInputStream din) throws IOException {
+    static String readNullableString(DataInputStream din) throws IOException {
         String out = din.readUTF();
         return out.isEmpty() ? null : out;
     }
 
-    private static String prependLink(String linkName, String source) {
+    static String prependLink(String linkName, String source) {
         return source == null ? linkName : linkName + "/" + source;
     }
 

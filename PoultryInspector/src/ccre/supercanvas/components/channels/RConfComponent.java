@@ -195,6 +195,27 @@ public class RConfComponent extends DraggableBoxComponent {
             curY += 20;
             field++;
         }
+        if (getPanel().editmode) {
+            g.setColor(new Color(255, 0, 0, 128));
+            g.fillOval(centerX + halfWidth - 10, centerY + halfHeight - 10, 8, 8);
+        }
+    }
+
+    @Override
+    public boolean onSelect(int x, int y) {
+        return checkDelete(x, y) || super.onSelect(x, y);
+    }
+
+    private boolean checkDelete(int x, int y) {
+        if (!getPanel().editmode || centerY + halfHeight - 10 > y || y > centerY + halfHeight - 2 || centerX + halfWidth - 10 > x || x > centerX + halfWidth - 2) {
+            return false;
+        }
+        if (this.onDelete(false)) {
+            getPanel().remove(this);
+        } else {
+            Logger.warning("Component deletion disallowed: " + this);
+        }
+        return true;
     }
 
     @Override
@@ -213,6 +234,9 @@ public class RConfComponent extends DraggableBoxComponent {
 
     @Override
     public boolean onInteract(int x, int y) {
+        if (checkDelete(x, y)) {
+            return true;
+        }
         int relY = y - centerY + halfHeight - 5;
         if (relY < 20) {
             getUpdater().trigger();

@@ -22,6 +22,7 @@ import java.awt.Color;
 import java.awt.FontMetrics;
 import java.awt.Graphics2D;
 
+import ccre.log.Logger;
 import ccre.rconf.RConf;
 import ccre.rconf.RConfable;
 import ccre.rconf.RConf.Entry;
@@ -72,6 +73,8 @@ public abstract class BaseChannelComponent<View extends Enum<View>> extends Drag
             g.drawString(name, centerX - halfWidth + 5, centerY - halfHeight + 1 + g.getFontMetrics().getAscent());
             g.setColor(new Color(128, 128, 128, 128));
             g.fillOval(centerX - halfWidth + 2, centerY + halfHeight - 10, 8, 8);
+            g.setColor(new Color(255, 0, 0, 128));
+            g.fillOval(centerX + halfWidth - 10, centerY + halfHeight - 10, 8, 8);
         }
         g.setColor(Color.BLACK);
         channelRender(g, screenWidth, screenHeight, fontMetrics, mouseX, mouseY);
@@ -84,10 +87,18 @@ public abstract class BaseChannelComponent<View extends Enum<View>> extends Drag
 
     @Override
     public boolean onSelect(int x, int y) {
-        if (getPanel().editmode && centerX - halfWidth + 2 <= x && x <= centerX - halfWidth + 10
-                && centerY + halfHeight - 10 <= y && y <= centerY + halfHeight - 2) {
-            getPanel().add(new RConfComponent(x, y, "display config", this));
-            return true;
+        if (getPanel().editmode && centerY + halfHeight - 10 <= y && y <= centerY + halfHeight - 2) {
+            if (centerX - halfWidth + 2 <= x && x <= centerX - halfWidth + 10) {
+                getPanel().add(new RConfComponent(x, y, "display config", this));
+                return true;
+            } else if (centerX + halfWidth - 10 <= x && x <= centerX + halfWidth - 2) {
+                if (this.onDelete(false)) {
+                    getPanel().remove(this);
+                } else {
+                    Logger.warning("Component deletion disallowed: " + this);
+                }
+                return true;
+            }
         }
         return super.onSelect(x, y);
     }

@@ -141,6 +141,7 @@ final class IgneousLauncherImpl extends IterativeRobot implements IgneousLaunche
         new CluckTCPServer(Cluck.getNode(), 443).start();
         try {
             setupMain();
+            Cluck.getNode().notifyNetworkModified();
         } catch (RuntimeException ex) {
             Logger.severe("Critical Code Failure in Robot Init", ex);
             throw ex;

@@ -191,6 +191,7 @@ public final class MainIgneousLauncherImpl extends RobotBase implements IgneousL
         Cluck.setupServer(5805); // Another team-use port.
         try {
             setupMain();
+            Cluck.getNode().notifyNetworkModified();
         } catch (RuntimeException ex) {
             Logger.severe("Critical Code Failure in Robot Init", ex);
             throw ex;

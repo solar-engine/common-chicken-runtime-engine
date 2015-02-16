@@ -108,6 +108,7 @@ public final class DirectIgneousLauncherImpl implements IgneousLauncher {
         Cluck.setupServer(5805); // Another team-use port.
         try {
             robot.setupMain();
+            Cluck.getNode().notifyNetworkModified();
         } catch (Throwable thr) {
             Logger.severe("Critical Code Failure in Robot Init", thr);
             return;

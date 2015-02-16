@@ -180,6 +180,9 @@ public class RConfComponent extends DraggableBoxComponent {
                 g.drawRect(centerX - wlabel / 2, curY + 1, wlabel, 18);
                 str = label == null ? "<invalid:bad-label>" : label;
                 break;
+            case RConf.F_AUTO_REFRESH:
+                field++;
+                continue;
             default:
                 str = e.toString();
                 break;

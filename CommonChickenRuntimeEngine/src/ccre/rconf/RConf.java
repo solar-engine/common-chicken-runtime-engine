@@ -71,6 +71,11 @@ public class RConf {
      * RConfable's publishing location.
      */
     public static final byte F_CLUCK_REF = 6;
+    /**
+     * The type of an AUTOREFERENCE reference. This strongly implies to the
+     * client that it should refresh every some number of milliseconds.
+     */
+    public static final byte F_AUTO_REFRESH = 7;
 
     /**
      * An entry as part of the result from querying an RConfable. Could be any
@@ -140,7 +145,7 @@ public class RConf {
          * supposed to contain a integer.
          */
         public Integer parseInteger() {
-            if (type != F_INTEGER) {
+            if (type != F_INTEGER && type != F_AUTO_REFRESH) {
                 throw new IllegalStateException("Invalid type of Entry in parseInteger: " + type);
             }
             return getAsInteger();
@@ -187,6 +192,9 @@ public class RConf {
             case F_CLUCK_REF:
                 String ref = parseTextual();
                 return ref == null ? "<invalid:bad-cluck>" : "@" + ref;
+            case F_AUTO_REFRESH:
+                Integer timeout = parseInteger();
+                return timeout == null ? "<invalid:bad-auto-refresh>" : "<meta:auto-refresh:" + timeout + ">";
             default:
                 return "<invalid:bad-type>";
             }
@@ -266,6 +274,16 @@ public class RConf {
      */
     public static Entry fieldBoolean(boolean bool) {
         return new Entry(F_BOOLEAN, bool ? (byte) 1 : (byte) 0);
+    }
+
+    /**
+     * Create a new AUTO_REFRESH component with the given boolean value.
+     *
+     * @param timeout the timeout, in milliseconds.
+     * @return the new RConf entry.
+     */
+    public static Entry autoRefresh(int timeout) {
+        return new Entry(F_AUTO_REFRESH, integerAsBytes(timeout));
     }
 
     /**

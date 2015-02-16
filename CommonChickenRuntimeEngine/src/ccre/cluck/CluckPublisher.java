@@ -688,7 +688,7 @@ public class CluckPublisher {
                 }
             } catch (Throwable thr) {
                 if (System.currentTimeMillis() - lastReportedRemoteLoggingError > 500) {
-                    Logger.severe("Error during remote log", thr);
+                    Logger.severe("[LOCAL] Error during remote log", thr);
                     lastReportedRemoteLoggingError = System.currentTimeMillis();
                 }
             }

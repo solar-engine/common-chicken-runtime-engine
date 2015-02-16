@@ -96,7 +96,6 @@ public class BooleanMixing {
      * @return the output that can trigger the events.
      */
     public static BooleanOutput triggerWhenBooleanChanges(final EventOutput toFalse, final EventOutput toTrue) {
-        Mixing.checkNull(toFalse, toTrue);
         return new BooleanOutput() {
             private boolean last;
 

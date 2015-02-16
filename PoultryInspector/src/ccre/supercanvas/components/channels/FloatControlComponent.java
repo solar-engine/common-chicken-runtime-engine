@@ -217,7 +217,7 @@ public class FloatControlComponent extends BaseChannelComponent<FloatControlComp
     public void onPressedEnter() {
         if (activeView == View.TEXTUAL && getPanel().editing == activeBuffer) {
             try {
-                setDele(Float.parseFloat(activeBuffer.toString()));
+                setDele(false, Float.parseFloat(activeBuffer.toString()));
                 getPanel().editing = null;
             } catch (NumberFormatException ex) {
                 Logger.warning("Could not parse number '" + activeBuffer + "'.");
@@ -230,8 +230,8 @@ public class FloatControlComponent extends BaseChannelComponent<FloatControlComp
         return alternateSource == null ? stat.get() : alternateSource.get();
     }
 
-    private void setDele(float value) {
-        if (value != getDele() || !hasSentInitial) {
+    private void setDele(boolean requireDifferent, float value) {
+        if (!(requireDifferent && value == getDele() && hasSentInitial)) {
             stat.set(value);
             if (!hasSentInitial && rawOut != null) {
                 stat.send(rawOut);
@@ -273,7 +273,7 @@ public class FloatControlComponent extends BaseChannelComponent<FloatControlComp
         default:
             return false;
         }
-        setDele(value);
+        setDele(true, value);
         return true;
     }
 

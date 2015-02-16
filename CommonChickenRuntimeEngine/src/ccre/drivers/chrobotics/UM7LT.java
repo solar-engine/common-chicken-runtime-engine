@@ -162,12 +162,19 @@ public class UM7LT {
         }
         new ReporterThread("UM7LT-io") {
             @Override
-            protected void threadBody() throws IOException {
-                internal.dumpSerialData();
-                internal.doReadOperation((byte) 0xAA);
+            protected void threadBody() throws InterruptedException {
                 while (true) {
-                    internal.writeSettings(0, 5, 0, 0, 1);
-                    internal.handleRS232Input(100);
+                    try {
+                        internal.dumpSerialData();
+                        internal.doReadOperation((byte) 0xAA);
+                        while (true) {
+                            internal.writeSettings(0, 5, 0, 0, 1);
+                            internal.handleRS232Input(100);
+                        }
+                    } catch (IOException ex) {
+                        Logger.severe("UM7LT thread failed. Resetting after ten seconds...", ex);
+                        Thread.sleep(10000);
+                    }
                 }
             }
         }.start();

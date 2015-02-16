@@ -18,6 +18,8 @@
  */
 package ccre.drivers;
 
+import ccre.log.Logger;
+
 /**
  * A collection of useful byte-level fiddling utilities.
  * 
@@ -232,10 +234,18 @@ public class ByteFiddling {
      * @return the hexadecimal version.
      */
     public static String toHex(byte[] bytes, int from, int to) {
+        if (to > bytes.length || to < from || from < 0) {
+            throw new ArrayIndexOutOfBoundsException("Bad toHex arguments: " + from + ";" + to);
+        }
         char[] out = new char[2 * (to - from)];
-        for (int i = from; i < to; i++) {
-            out[i * 2] = hex[(bytes[i] >> 4) & 0xF];
-            out[i * 2 + 1] = hex[bytes[i] & 0xF];
+        for (int i = from, j = 0; i < to; i++) {
+            try {
+                out[j++] = hex[(bytes[i] >> 4) & 0xF];
+                out[j++] = hex[bytes[i] & 0xF];
+            } catch (ArrayIndexOutOfBoundsException ex) {
+                Logger.warning("Offending indexes: " + j + "," + i + ": " + from + "," + to + "," + bytes.length + "," + out.length);
+                throw ex;
+            }
         }
         return new String(out);
     }

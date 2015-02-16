@@ -133,7 +133,7 @@ public final class MainIgneousLauncherImpl extends RobotBase implements IgneousL
         }
 
         private EventStatus getDuring(MainIgneousLauncherImpl launcher) {
-            return launcher.startEvents[ordinal()];
+            return launcher.duringEvents[ordinal()];
         }
 
         private void start(MainIgneousLauncherImpl launcher) {

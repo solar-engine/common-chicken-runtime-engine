@@ -101,7 +101,7 @@ public class RConfComponent extends DraggableBoxComponent {
 
     private RConf.Entry[] entries = new RConf.Entry[0];
 
-    private final RConfable device;
+    protected final RConfable device;
 
     private boolean lastSignalSucceeded = false;
     private long showSignalSuccessUntil = 0;

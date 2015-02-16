@@ -198,6 +198,20 @@ public class RConfComponent extends DraggableBoxComponent {
     }
 
     @Override
+    protected boolean containsForInteract(int x, int y) {
+        int relY = y - centerY + halfHeight - 5;
+        if (relY >= 20) {
+            for (RConf.Entry e : entries) {
+                relY -= 20;
+                if (relY < 20) {
+                    return e.type == RConf.F_BUTTON;
+                }
+            }
+        }
+        return false;
+    }
+
+    @Override
     public boolean onInteract(int x, int y) {
         int relY = y - centerY + halfHeight - 5;
         if (relY < 20) {

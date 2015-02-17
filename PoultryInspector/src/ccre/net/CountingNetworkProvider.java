@@ -25,6 +25,9 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.concurrent.atomic.AtomicLong;
 
+import ccre.channel.EventOutput;
+import ccre.ctrl.Ticker;
+
 /**
  * A network provider that counts the bytes being sent across the network.
  *
@@ -230,5 +233,21 @@ public class CountingNetworkProvider extends DefaultNetworkProvider {
         public void close() throws IOException {
             base.close();
         }
+    }
+
+    private static long lastTotal, lastDelta;
+
+    static {
+        new Ticker(1000).send(new EventOutput() {
+            public void event() {
+                long newTotal = getTotal();
+                lastDelta = newTotal - lastTotal;
+                lastTotal = newTotal;
+            }
+        });
+    }
+
+    public static long getRate() {
+        return lastDelta;
     }
 }

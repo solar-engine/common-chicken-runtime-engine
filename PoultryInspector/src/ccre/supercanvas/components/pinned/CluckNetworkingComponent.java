@@ -61,12 +61,7 @@ public class CluckNetworkingComponent extends SuperCanvasComponent {
      * Create a new CluckNetworkingComponent.
      */
     public CluckNetworkingComponent() {
-        new Ticker(5000).send(new EventOutput() {
-            @Override
-            public void event() {
-                updateConnection();
-            }
-        });
+
     }
 
     private int firstMenuEntry = 0, menuEntryDelta = 1;
@@ -105,7 +100,7 @@ public class CluckNetworkingComponent extends SuperCanvasComponent {
             } else {
                 g.setColor(contains(mouseX, mouseY) ? Color.GREEN : Color.BLACK);
             }
-            String countReport = "(" + getStatusMessage() + ") ~" + CountingNetworkProvider.getTotal() / 128 + "kbs";
+            String countReport = "(" + getStatusMessage() + ") ~" + CountingNetworkProvider.getRate() / 128 + "kbs/s";
             g.drawString(countReport, screenWidth - fontMetrics.stringWidth(countReport), fontMetrics.getAscent());
         }
     }

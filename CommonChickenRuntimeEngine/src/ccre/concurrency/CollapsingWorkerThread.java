@@ -57,6 +57,10 @@ public abstract class CollapsingWorkerThread extends ReporterThread implements E
      * A BooleanStatus that represents if work is currently running.
      */
     private BooleanStatus runningStatus;
+    /**
+     * Should this thread stop doing work now?
+     */
+    private boolean terminated = false;
 
     /**
      * Create a new CollapsingWorkerThread with the given name. Will ignore any
@@ -147,7 +151,13 @@ public abstract class CollapsingWorkerThread extends ReporterThread implements E
         while (true) {
             synchronized (lockObject) {
                 while (!needsToRun) {
+                    if (terminated) {
+                        return;
+                    }
                     lockObject.wait();
+                }
+                if (terminated) {
+                    return;
                 }
                 needsToRun = false;
             }
@@ -178,4 +188,15 @@ public abstract class CollapsingWorkerThread extends ReporterThread implements E
      * just the current execution of work.
      */
     protected abstract void doWork() throws Throwable;
+
+    /**
+     * Terminate this thread. Don't expect anything to happen after this point.
+     */
+    public void terminate() {
+        synchronized (lockObject) {
+            this.terminated = true;
+            lockObject.notifyAll();
+            this.interrupt();
+        }
+    }
 }

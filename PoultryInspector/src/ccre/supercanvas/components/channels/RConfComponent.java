@@ -21,15 +21,19 @@ package ccre.supercanvas.components.channels;
 import java.awt.Color;
 import java.awt.FontMetrics;
 import java.awt.Graphics2D;
+import java.util.Objects;
 
 import javax.swing.JOptionPane;
 
+import ccre.channel.EventOutput;
 import ccre.concurrency.CollapsingWorkerThread;
+import ccre.ctrl.Ticker;
 import ccre.log.Logger;
 import ccre.rconf.RConf;
 import ccre.rconf.RConfable;
 import ccre.supercanvas.DraggableBoxComponent;
 import ccre.supercanvas.Rendering;
+import ccre.supercanvas.SuperCanvasPanel;
 
 /**
  * A SuperCanvas-based component to allow interaction with RConf data.
@@ -100,17 +104,42 @@ public class RConfComponent extends DraggableBoxComponent {
     private static final int SIGNAL_SUCCESS_FLASH_TIME = 500;
 
     private RConf.Entry[] entries = new RConf.Entry[0];
-
     protected final RConfable device;
 
     private boolean lastSignalSucceeded = false;
     private long showSignalSuccessUntil = 0;
 
     private transient SignalingWorker signaler;
-
     private transient UpdatingWorker updater;
 
     private String path;
+
+    private Integer autoRefreshDelay = null;
+    private Ticker autoRefreshTicker = null;
+    private final EventOutput refreshEvent = new EventOutput() {
+        public void event() {
+            if (getPanel() == null) {
+                setAutoRefreshDelay(null);
+            } else {
+                getUpdater().trigger();
+            }
+        }
+    };
+
+    @Override
+    protected void onChangePanel(SuperCanvasPanel newPanel) {
+        if (newPanel == null) {
+            if (signaler != null) {
+                signaler.terminate();
+                signaler = null;
+            }
+            if (updater != null) {
+                updater.terminate();
+                updater = null;
+            }
+            setAutoRefreshDelay(null);
+        }
+    }
 
     /**
      * Create a new RConfComponent at the given location with a specified
@@ -128,6 +157,24 @@ public class RConfComponent extends DraggableBoxComponent {
         getUpdater().trigger();
         halfWidth = 100;
         halfHeight = 20;
+    }
+
+    private synchronized void setAutoRefreshDelay(Integer delay) {
+        if (delay != null && delay < 10) {
+            delay = 10;
+        }
+        if (Objects.equals(delay, autoRefreshDelay)) {
+            return;
+        }
+        autoRefreshDelay = delay;
+        if (autoRefreshTicker != null) {
+            autoRefreshTicker.terminate();
+            autoRefreshTicker = null;
+        }
+        if (delay != null) {
+            autoRefreshTicker = new Ticker(delay);
+            autoRefreshTicker.send(refreshEvent);
+        }
     }
 
     @Override
@@ -154,6 +201,7 @@ public class RConfComponent extends DraggableBoxComponent {
             curY += 20;
         }
         int field = 0;
+        Integer newAutoRefreshDelay = null; // don't refresh by default
         for (RConf.Entry e : entries) {
             String str;
             int textShift = 15;
@@ -182,6 +230,7 @@ public class RConfComponent extends DraggableBoxComponent {
                 break;
             case RConf.F_AUTO_REFRESH:
                 field++;
+                newAutoRefreshDelay = e.parseInteger();
                 continue;
             default:
                 str = e.toString();
@@ -195,6 +244,7 @@ public class RConfComponent extends DraggableBoxComponent {
             curY += 20;
             field++;
         }
+        setAutoRefreshDelay(newAutoRefreshDelay);
         if (getPanel().editmode) {
             g.setColor(new Color(255, 0, 0, 128));
             g.fillOval(centerX + halfWidth - 10, centerY + halfHeight - 10, 8, 8);

@@ -28,7 +28,6 @@ import java.io.Serializable;
 
 import ccre.channel.BooleanInput;
 import ccre.channel.BooleanOutput;
-import ccre.channel.BooleanStatus;
 import ccre.ctrl.BooleanMixing;
 import ccre.rconf.RConf.Entry;
 import ccre.supercanvas.BaseChannelComponent;
@@ -40,17 +39,17 @@ import ccre.supercanvas.SuperCanvasPanel;
  *
  * @author skeggsc
  */
-public class BooleanControlComponent extends BaseChannelComponent<BooleanControlComponent.View> implements BooleanInput {
+public class BooleanControlComponent extends BaseChannelComponent<BooleanControlComponent.View> {
+
+    private static final long serialVersionUID = -5140494090957643875L;
 
     static enum View {
         RED_GREEN_SWITCH, LINEAR_ON_OFF, TEXTUAL
     }
 
-    private static final long serialVersionUID = 3529467636546288860L;
-    private final BooleanStatus pressed = new BooleanStatus();
+    private boolean lastSentValue;
     private final BooleanInput alternateSource;
     private final BooleanOutput rawOut;
-    private boolean hasSentInitial = false;
 
     /**
      * Create a new BooleanControlComponent with a BooleanOutput to control.
@@ -106,7 +105,7 @@ public class BooleanControlComponent extends BaseChannelComponent<BooleanControl
     }
 
     private boolean getDele() {
-        return this.alternateSource != null ? this.alternateSource.get() : this.pressed.get();
+        return this.alternateSource != null ? this.alternateSource.get() : lastSentValue;
     }
 
     @Override
@@ -174,38 +173,24 @@ public class BooleanControlComponent extends BaseChannelComponent<BooleanControl
         switch (activeView) {
         case RED_GREEN_SWITCH:
         case TEXTUAL:
-            pressed.set(!getDele());
+            lastSentValue = !getDele();
             break;
         case LINEAR_ON_OFF:
             if (x < centerX - 5) {
-                pressed.set(false);
+                lastSentValue = false;
             } else if (x > centerX + 5) {
-                pressed.set(true);
+                lastSentValue = true;
+            } else {
+                return true;
             }
             break;
         default:
             return false;
         }
-        if (!hasSentInitial && rawOut != null) {
-            pressed.send(rawOut);
-            hasSentInitial = true;
+        if (rawOut != null) {
+            rawOut.set(lastSentValue);
         }
         return true;
-    }
-
-    @Override
-    public void send(BooleanOutput output) {
-        pressed.send(output);
-    }
-
-    @Override
-    public void unsend(BooleanOutput output) {
-        pressed.unsend(output);
-    }
-
-    @Override
-    public boolean get() {
-        return pressed.get();
     }
 
     @Override

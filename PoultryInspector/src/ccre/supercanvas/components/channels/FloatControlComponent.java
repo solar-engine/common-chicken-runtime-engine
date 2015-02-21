@@ -26,7 +26,6 @@ import java.io.Serializable;
 
 import ccre.channel.FloatInput;
 import ccre.channel.FloatOutput;
-import ccre.channel.FloatStatus;
 import ccre.ctrl.FloatMixing;
 import ccre.log.Logger;
 import ccre.rconf.RConf.Entry;
@@ -39,14 +38,15 @@ import ccre.supercanvas.SuperCanvasPanel;
  *
  * @author skeggsc
  */
-public class FloatControlComponent extends BaseChannelComponent<FloatControlComponent.View> implements FloatInput {
+public class FloatControlComponent extends BaseChannelComponent<FloatControlComponent.View> {
+
+    private static final long serialVersionUID = -5862659067200938010L;
 
     static enum View {
         HORIZONTAL_POINTER, TICKER, TEXTUAL
     }
 
-    private static final long serialVersionUID = 8379882900431074283L;
-    private final FloatStatus stat = new FloatStatus();
+    private float lastSentValue;
     private final FloatInput alternateSource;
     private final FloatOutput rawOut;
     private boolean hasSentInitial = false;
@@ -227,14 +227,14 @@ public class FloatControlComponent extends BaseChannelComponent<FloatControlComp
 
     private float getDele() {
         // Checks null in case unserialized from old version
-        return alternateSource == null ? stat.get() : alternateSource.get();
+        return alternateSource == null ? lastSentValue : alternateSource.get();
     }
 
     private void setDele(boolean requireDifferent, float value) {
         if (!(requireDifferent && value == getDele() && hasSentInitial)) {
-            stat.set(value);
-            if (!hasSentInitial && rawOut != null) {
-                stat.send(rawOut);
+            lastSentValue = value;
+            if (rawOut != null) {
+                rawOut.set(value);
                 hasSentInitial = true;
             }
         }
@@ -275,21 +275,6 @@ public class FloatControlComponent extends BaseChannelComponent<FloatControlComp
         }
         setDele(true, value);
         return true;
-    }
-
-    @Override
-    public void send(FloatOutput output) {
-        stat.send(output);
-    }
-
-    @Override
-    public void unsend(FloatOutput output) {
-        stat.unsend(output);
-    }
-
-    @Override
-    public float get() {
-        return stat.get();
     }
 
     @Override

@@ -252,4 +252,13 @@ public class NetworkPaletteComponent extends PaletteComponent<Collection<Network
         Cluck.getNode().subscribeToStructureNotifications(UniqueIds.global.nextHexId("notification-subscriber"), researcher);
         searcher.event();
     }
+
+    public SuperCanvasComponent getComponentFor(int x, int y, String ref) {
+        for (NetworkPaletteElement elem : entries) {
+            if (ref.equals(elem.getName())) {
+                return elem.fetch(x, y);
+            }
+        }
+        return null;
+    }
 }

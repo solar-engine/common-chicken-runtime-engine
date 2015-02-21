@@ -188,9 +188,9 @@ public final class SuperCanvasPanel extends JPanel {
 
     /**
      * Check if the given object is being dragged.
-     * 
+     *
      * @param component the component to check for dragging.
-     * 
+     *
      * @return if the specified object is being dragged.
      */
     public boolean isBeingDragged(SuperCanvasComponent component) {
@@ -260,7 +260,7 @@ public final class SuperCanvasPanel extends JPanel {
 
     /**
      * Check if any components of the specified component type.
-     * 
+     *
      * @param componentType the type of component to find.
      * @return if any components were found.
      */
@@ -271,6 +271,21 @@ public final class SuperCanvasPanel extends JPanel {
             }
         }
         return false;
+    }
+
+    /**
+     * Get the first of any components of the specified component type.
+     *
+     * @param componentType the type of component to find.
+     * @return the component, if found, otherwise null.
+     */
+    public <T extends SuperCanvasComponent>T getAny(Class<T> componentType) {
+        for (SuperCanvasComponent comp : components) {
+            if (componentType.isAssignableFrom(comp.getClass())) {
+                return componentType.cast(comp);
+            }
+        }
+        return null;
     }
 
     /**

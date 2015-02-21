@@ -33,7 +33,9 @@ import ccre.rconf.RConf;
 import ccre.rconf.RConfable;
 import ccre.supercanvas.DraggableBoxComponent;
 import ccre.supercanvas.Rendering;
+import ccre.supercanvas.SuperCanvasComponent;
 import ccre.supercanvas.SuperCanvasPanel;
+import ccre.supercanvas.components.palette.NetworkPaletteComponent;
 
 /**
  * A SuperCanvas-based component to allow interaction with RConf data.
@@ -275,7 +277,7 @@ public class RConfComponent extends DraggableBoxComponent {
             for (RConf.Entry e : entries) {
                 relY -= 20;
                 if (relY < 20) {
-                    return e.type == RConf.F_BUTTON;
+                    return e.type == RConf.F_BUTTON || e.type == RConf.F_CLUCK_REF;
                 }
             }
         }
@@ -337,7 +339,22 @@ public class RConfComponent extends DraggableBoxComponent {
                         }
                         break;
                     case RConf.F_CLUCK_REF:
-                        Logger.info("TODO: Drag out the selected cluck component.");
+                        String rawRef = e.parseTextual();
+                        if (rawRef != null) {
+                            NetworkPaletteComponent comp = getPanel().getAny(NetworkPaletteComponent.class);
+                            if (comp == null) {
+                                Logger.warning("A network palette must be available in order to drag out anything from RConf components!");
+                            } else {
+                                String ref = path.contains("/") ? path.substring(0, path.lastIndexOf('/') + 1) + rawRef : rawRef;
+                                SuperCanvasComponent nent = comp.getComponentFor(x, y, ref);
+                                if (nent == null) {
+                                    Logger.warning("No network entry could be found for reference: " + ref);
+                                } else {
+                                    getPanel().add(nent);
+                                    getPanel().startDrag(nent, x, y);
+                                }
+                            }
+                        }
                         break;
                     default:
                         payload = new byte[0];

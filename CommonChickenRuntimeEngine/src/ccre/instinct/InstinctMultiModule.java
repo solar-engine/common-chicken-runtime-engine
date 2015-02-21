@@ -23,6 +23,9 @@ import ccre.channel.EventOutput;
 import ccre.cluck.CluckPublisher;
 import ccre.holders.TuningContext;
 import ccre.log.Logger;
+import ccre.rconf.RConf.Entry;
+import ccre.rconf.RConf;
+import ccre.rconf.RConfable;
 import ccre.util.CArrayList;
 
 /**
@@ -167,6 +170,32 @@ public class InstinctMultiModule extends InstinctModule {
                 }
             });
         }
+    }
+
+    /**
+     * Publish an RConfComponent that shows the current autonomous mode and allows to change it.
+     */
+    public void publishRConfControls() {
+        CluckPublisher.publishRConf(context.getNode(), "Autonomous Mode Selector", new RConfable() {
+            public Entry[] queryRConf() throws InterruptedException {
+                Entry[] outs = new Entry[2 + modes.size()];
+                outs[0] = RConf.title("Select Autonomous Mode");
+                int i = 1;
+                for (InstinctModeModule m : modes) {
+                    outs[i++] = (m == mode) ? RConf.string(mode.getModeName()) : RConf.button(mode.getModeName());
+                }
+                outs[i] = RConf.autoRefresh(5000);
+                return outs;
+            }
+
+            public boolean signalRConf(int field, byte[] data) throws InterruptedException {
+                if (field >= 1 && field < modes.size()) {
+                    setActiveMode(modes.get(field - 1));
+                    return true;
+                }
+                return false;
+            }
+        });
     }
 
     /**

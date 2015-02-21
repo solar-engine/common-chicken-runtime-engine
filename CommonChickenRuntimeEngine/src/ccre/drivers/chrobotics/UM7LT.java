@@ -171,7 +171,7 @@ public class UM7LT {
                             internal.writeSettings(0, 5, 0, 0, 1);
                             internal.handleRS232Input(100);
                         }
-                    } catch (IOException ex) {
+                    } catch (Exception ex) {
                         Logger.severe("UM7LT thread failed. Resetting after ten seconds...", ex);
                         Thread.sleep(10000);
                     }

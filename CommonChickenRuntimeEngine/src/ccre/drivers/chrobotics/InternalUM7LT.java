@@ -117,6 +117,8 @@ public class InternalUM7LT { // default rate: 115200 baud.
      */
     public long lastUpdateTime = System.currentTimeMillis();
     private final EventOutput onUpdate;
+    private int correctBinaryPackets, correctNMEAPackets, incorrectPackets;
+    private static boolean treatNMEAAsErroneous = true;
 
     /**
      * Create a new internal handler for the UM7LT that runs on a rs232 port and
@@ -186,6 +188,9 @@ public class InternalUM7LT { // default rate: 115200 baud.
                     from = to = 0;
                 }
                 byte[] gotten = rs232.readBlocking(activeBuffer.length - to);
+                if (gotten.length > activeBuffer.length - to) {
+                    throw new RuntimeException("RS232 returned more data than expected: " + gotten.length + " > " + activeBuffer.length + " - " + to);
+                }
                 System.arraycopy(gotten, 0, activeBuffer, to, gotten.length);
                 to += gotten.length;
             } else {
@@ -204,15 +209,17 @@ public class InternalUM7LT { // default rate: 115200 baud.
             return 0;
         }
         try {
-            if (bytes[from] == '$') {
+            if (bytes[from] == '$' && !treatNMEAAsErroneous) {
                 int end = NMEA.getPacketEnd(bytes, from, to);
                 if (end != -1) {
+                    correctNMEAPackets++;
                     handleNMEA(bytes, from, end);
                     return end - from;
                 } else {
                     return 0;
                 }
             } else if (bytes[from] == 's' && bytes[from + 1] == 'n' && bytes[from + 2] == 'p') {
+                correctBinaryPackets++;
                 return handleBinary(bytes, from, to);
             } else {
                 throw new IOException("Invalid packet that starts with bytes " + ByteFiddling.toHex(bytes, from, Math.min(to, from + 8)));
@@ -220,16 +227,17 @@ public class InternalUM7LT { // default rate: 115200 baud.
         } catch (IOException ex) {
             Logger.warning("UM7 message handling failed - attempting to reset state", ex);
         }
+        incorrectPackets++;
         int possibleStartNMEA = ByteFiddling.indexOf(bytes, from + 1, to, (byte) '$');
         int possibleStartBinary = ByteFiddling.indexOf(bytes, from + 1, to, (byte) 's');
         if (possibleStartBinary != -1 && (possibleStartNMEA == -1 || possibleStartBinary < possibleStartNMEA)) {
             Logger.fine("Skipping " + (possibleStartBinary - from) + " bytes to Binary.");
             return possibleStartBinary - from; // skip until the start
-        } else if (possibleStartNMEA != -1) {
+        } else if (possibleStartNMEA != -1 && !treatNMEAAsErroneous) {
             Logger.fine("Skipping " + (possibleStartNMEA - from) + " bytes to NMEA.");
             return possibleStartNMEA - from; // skip until the start
         } else {
-            Logger.fine("Skipping " + (to - from) + " bytes to end.");
+            Logger.fine("Skipping " + (to - from) + " bytes to end (" + correctBinaryPackets + "/" + correctNMEAPackets + "/" + incorrectPackets + ")");
             return to - from; // everything's bad. skip it all.
         }
     }

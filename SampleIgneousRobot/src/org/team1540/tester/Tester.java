@@ -54,7 +54,6 @@ public class Tester implements IgneousApplication {
         for (int i = base; i < (Igneous.isRoboRIO() ? 4 : 8) + base; i++) {
             Cluck.publish("relay-" + i + "-fwd", Igneous.makeForwardRelay(i));
             Cluck.publish("relay-" + i + "-rev", Igneous.makeReverseRelay(i));
-            Cluck.publish("servo-" + i, Igneous.makeServo(i, -1, 1));
         }
         for (int i = base; i < 8 + base; i++) {
             Cluck.publish("solenoid-" + i, Igneous.makeSolenoid(i));

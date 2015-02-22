@@ -173,7 +173,8 @@ public class InstinctMultiModule extends InstinctModule {
     }
 
     /**
-     * Publish an RConfComponent that shows the current autonomous mode and allows to change it.
+     * Publish an RConfComponent that shows the current autonomous mode and
+     * allows to change it.
      */
     public void publishRConfControls() {
         CluckPublisher.publishRConf(context.getNode(), "Autonomous Mode Selector", new RConfable() {

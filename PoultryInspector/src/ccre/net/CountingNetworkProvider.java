@@ -74,7 +74,8 @@ public class CountingNetworkProvider extends DefaultNetworkProvider {
     }
 
     /**
-     * Calculates the number of bytes sent or received in a recent one-second interval.
+     * Calculates the number of bytes sent or received in a recent one-second
+     * interval.
      *
      * @return the rate of data transfer, in bytes per second.
      */

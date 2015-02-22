@@ -53,7 +53,8 @@ public class Igneous {
      */
     public static final float NO_RAMPING = 0.0f;
     /**
-     * The battery power channel. Reading this voltage is the only power channel that exists on the cRIO.
+     * The battery power channel. Reading this voltage is the only power channel
+     * that exists on the cRIO.
      */
     public static final int POWER_CHANNEL_BATTERY = 0;
     /**

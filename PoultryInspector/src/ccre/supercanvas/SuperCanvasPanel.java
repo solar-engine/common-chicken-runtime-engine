@@ -279,7 +279,7 @@ public final class SuperCanvasPanel extends JPanel {
      * @param componentType the type of component to find.
      * @return the component, if found, otherwise null.
      */
-    public <T extends SuperCanvasComponent>T getAny(Class<T> componentType) {
+    public <T extends SuperCanvasComponent> T getAny(Class<T> componentType) {
         for (SuperCanvasComponent comp : components) {
             if (componentType.isAssignableFrom(comp.getClass())) {
                 return componentType.cast(comp);

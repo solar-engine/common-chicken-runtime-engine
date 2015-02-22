@@ -49,6 +49,7 @@ import ccre.util.Version;
 import edu.wpi.first.wpilibj.AnalogAccelerometer;
 import edu.wpi.first.wpilibj.AnalogInput;
 import edu.wpi.first.wpilibj.Compressor;
+import edu.wpi.first.wpilibj.ControllerPower;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DigitalOutput;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -587,6 +588,67 @@ public final class MainIgneousLauncherImpl extends RobotBase implements IgneousL
                     flush();
                     sp.free();
                 }
+            }
+        };
+    }
+
+    public FloatInputPoll getChannelVoltage(int powerChannel) {
+        if (readChannelVoltage(powerChannel) == -1) {
+            Logger.warning("Unknown power channel: " + powerChannel);
+        }
+        return () -> readChannelVoltage(powerChannel);
+    }
+
+    private static float readChannelVoltage(int powerChannel) {
+        switch (powerChannel) {
+        case Igneous.POWER_CHANNEL_BATTERY:
+            return (float) ControllerPower.getInputVoltage();
+        case Igneous.POWER_CHANNEL_3V3:
+            return (float) ControllerPower.getVoltage3V3();
+        case Igneous.POWER_CHANNEL_5V:
+            return (float) ControllerPower.getVoltage5V();
+        case Igneous.POWER_CHANNEL_6V:
+            return (float) ControllerPower.getVoltage6V();
+        default:
+            return -1;
+        }
+    }
+
+    public FloatInputPoll getChannelCurrent(int powerChannel) {
+        if (readChannelCurrent(powerChannel) == -1) {
+            Logger.warning("Unknown power channel: " + powerChannel);
+        }
+        return () -> readChannelCurrent(powerChannel);
+    }
+
+    private float readChannelCurrent(int powerChannel) {
+        switch (powerChannel) {
+        case Igneous.POWER_CHANNEL_BATTERY:
+            return (float) ControllerPower.getInputCurrent();
+        case Igneous.POWER_CHANNEL_3V3:
+            return (float) ControllerPower.getCurrent3V3();
+        case Igneous.POWER_CHANNEL_5V:
+            return (float) ControllerPower.getCurrent5V();
+        case Igneous.POWER_CHANNEL_6V:
+            return (float) ControllerPower.getCurrent6V();
+        default:
+            return -1;
+        }
+    }
+
+    public BooleanInputPoll getChannelEnabled(int powerChannel) {
+        return () -> {
+            switch (powerChannel) {
+            case Igneous.POWER_CHANNEL_BATTERY:
+                return true;
+            case Igneous.POWER_CHANNEL_3V3:
+                return ControllerPower.getEnabled3V3();
+            case Igneous.POWER_CHANNEL_5V:
+                return ControllerPower.getEnabled5V();
+            case Igneous.POWER_CHANNEL_6V:
+                return ControllerPower.getEnabled6V();
+            default:
+                return false;
             }
         };
     }

@@ -34,6 +34,7 @@ import ccre.ctrl.BooleanMixing;
 import ccre.ctrl.CommunicationFailureExtendedMotor;
 import ccre.ctrl.ExtendedMotor;
 import ccre.ctrl.ExtendedMotorFailureException;
+import ccre.ctrl.FloatMixing;
 import ccre.ctrl.IJoystick;
 import ccre.ctrl.IJoystickWithPOV;
 import ccre.ctrl.Ticker;
@@ -748,5 +749,24 @@ final class IgneousLauncherImpl extends IterativeRobot implements IgneousLaunche
 
     public SerialIO makeRS232_USB(int baudRate, String deviceName) {
         throw new RuntimeException("USB Serial I/O not supported on cRIO.");
+    }
+
+    public FloatInputPoll getChannelVoltage(int powerChannel) {
+        if (powerChannel == Igneous.POWER_CHANNEL_BATTERY) {
+            return getBatteryVoltage();
+        } else {
+            Logger.warning("Voltage channels besides POWER_CHANNEL_BATTERY are not available on the cRIO!");
+            return FloatMixing.always(-1);
+        }
+    }
+
+    public FloatInputPoll getChannelCurrent(int powerChannel) {
+        Logger.warning("Current channels are not available on the cRIO!");
+        return FloatMixing.always(-1);
+    }
+
+    public BooleanInputPoll getChannelEnabled(int powerChannel) {
+        Logger.warning("Power channel statuses are not available on the cRIO!");
+        return powerChannel == Igneous.POWER_CHANNEL_BATTERY ? BooleanMixing.alwaysTrue : BooleanMixing.alwaysFalse;
     }
 }

@@ -54,6 +54,7 @@ public class Tester implements IgneousApplication {
         for (int i = base; i < (Igneous.isRoboRIO() ? 4 : 8) + base; i++) {
             Cluck.publish("relay-" + i + "-fwd", Igneous.makeForwardRelay(i));
             Cluck.publish("relay-" + i + "-rev", Igneous.makeReverseRelay(i));
+            Cluck.publish("servo-" + i, Igneous.makeServo(i, -1, 1));
         }
         for (int i = base; i < 8 + base; i++) {
             Cluck.publish("solenoid-" + i, Igneous.makeSolenoid(i));
@@ -61,7 +62,15 @@ public class Tester implements IgneousApplication {
         for (int i = base; i < 4 + base; i++) {
             Cluck.publish("analog-" + i, FloatMixing.createDispatch(Igneous.makeAnalogInput(i, 8), Igneous.globalPeriodic));
         }
+        Cluck.publish("input-voltage", FloatMixing.createDispatch(Igneous.getChannelVoltage(Igneous.POWER_CHANNEL_BATTERY), Igneous.globalPeriodic));
         if (Igneous.isRoboRIO()) {
+            Cluck.publish("input-current", FloatMixing.createDispatch(Igneous.getChannelCurrent(Igneous.POWER_CHANNEL_BATTERY), Igneous.globalPeriodic));
+            Cluck.publish("6v-voltage", FloatMixing.createDispatch(Igneous.getChannelVoltage(Igneous.POWER_CHANNEL_6V), Igneous.globalPeriodic));
+            Cluck.publish("6v-current", FloatMixing.createDispatch(Igneous.getChannelCurrent(Igneous.POWER_CHANNEL_6V), Igneous.globalPeriodic));
+            Cluck.publish("5v-voltage", FloatMixing.createDispatch(Igneous.getChannelVoltage(Igneous.POWER_CHANNEL_5V), Igneous.globalPeriodic));
+            Cluck.publish("5v-current", FloatMixing.createDispatch(Igneous.getChannelCurrent(Igneous.POWER_CHANNEL_5V), Igneous.globalPeriodic));
+            Cluck.publish("3.3v-voltage", FloatMixing.createDispatch(Igneous.getChannelVoltage(Igneous.POWER_CHANNEL_3V3), Igneous.globalPeriodic));
+            Cluck.publish("3.3v-current", FloatMixing.createDispatch(Igneous.getChannelCurrent(Igneous.POWER_CHANNEL_3V3), Igneous.globalPeriodic));
             for (int i = base; i < 16 + base; i++) {
                 Cluck.publish("current-" + i, FloatMixing.createDispatch(Igneous.getPDPChannelCurrent(i), Igneous.globalPeriodic));
             }

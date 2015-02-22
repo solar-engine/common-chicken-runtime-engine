@@ -519,4 +519,22 @@ public final class DirectIgneousLauncherImpl implements IgneousLauncher {
             return new CommunicationFailureExtendedMotor("Could not connect to CAN Talon " + deviceNumber);
         }
     }
+
+    public FloatInputPoll getChannelVoltage(int powerChannel) {
+        if (DirectPower.readChannelVoltage(powerChannel) == -1) {
+            Logger.warning("Unknown power channel: " + powerChannel);
+        }
+        return () -> DirectPower.readChannelVoltage(powerChannel);
+    }
+
+    public FloatInputPoll getChannelCurrent(int powerChannel) {
+        if (DirectPower.readChannelCurrent(powerChannel) == -1) {
+            Logger.warning("Unknown power channel: " + powerChannel);
+        }
+        return () -> DirectPower.readChannelCurrent(powerChannel);
+    }
+
+    public BooleanInputPoll getChannelEnabled(int powerChannel) {
+        return () -> DirectPower.readChannelEnabled(powerChannel);
+    }
 }

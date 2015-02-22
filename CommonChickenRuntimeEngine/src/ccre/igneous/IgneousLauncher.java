@@ -385,4 +385,22 @@ public interface IgneousLauncher {
      * @return a SerialIO interface to the port.
      */
     public SerialIO makeRS232_USB(int baudRate, String deviceName);
+
+    /**
+     * @param powerChannel the power channel to monitor.
+     * @return the active voltage of the channel.
+     */
+    public FloatInputPoll getChannelVoltage(int powerChannel);
+
+    /**
+     * @param powerChannel the power channel to monitor.
+     * @return the active current of the channel.
+     */
+    public FloatInputPoll getChannelCurrent(int powerChannel);
+
+    /**
+     * @param powerChannel the power channel to monitor.
+     * @return whether or not the channel is enabled.
+     */
+    public BooleanInputPoll getChannelEnabled(int powerChannel);
 }

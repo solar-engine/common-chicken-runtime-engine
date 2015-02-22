@@ -24,6 +24,7 @@ package ccre.igneous.direct;
 
 import java.nio.IntBuffer;
 
+import ccre.igneous.Igneous;
 import edu.wpi.first.wpilibj.hal.PowerJNI;
 
 class DirectPower {
@@ -37,5 +38,73 @@ class DirectPower {
         float voltage = PowerJNI.getVinVoltage(status); // just FPGA errors - maybe FPGA startup errors, but that's handled by init().
         Common.check(status);
         return voltage;
+    }
+
+    public static float readChannelVoltage(int powerChannel) {
+        IntBuffer status = Common.getCheckBuffer();
+        float voltage;
+        switch (powerChannel) {
+        case Igneous.POWER_CHANNEL_BATTERY:
+            voltage = PowerJNI.getVinVoltage(status);
+            break;
+        case Igneous.POWER_CHANNEL_3V3:
+            voltage = PowerJNI.getUserVoltage3V3(status);
+            break;
+        case Igneous.POWER_CHANNEL_5V:
+            voltage = PowerJNI.getUserVoltage5V(status);
+            break;
+        case Igneous.POWER_CHANNEL_6V:
+            voltage = PowerJNI.getUserVoltage6V(status);
+            break;
+        default:
+            return -1;
+        }
+        Common.check(status);
+        return voltage;
+    }
+
+    public static float readChannelCurrent(int powerChannel) {
+        IntBuffer status = Common.getCheckBuffer();
+        float current;
+        switch (powerChannel) {
+        case Igneous.POWER_CHANNEL_BATTERY:
+            current = PowerJNI.getVinCurrent(status);
+            break;
+        case Igneous.POWER_CHANNEL_3V3:
+            current = PowerJNI.getUserCurrent3V3(status);
+            break;
+        case Igneous.POWER_CHANNEL_5V:
+            current = PowerJNI.getUserCurrent5V(status);
+            break;
+        case Igneous.POWER_CHANNEL_6V:
+            current = PowerJNI.getUserCurrent6V(status);
+            break;
+        default:
+            return -1;
+        }
+        Common.check(status);
+        return current;
+    }
+
+    public static boolean readChannelEnabled(int powerChannel) {
+        IntBuffer status = Common.getCheckBuffer();
+        boolean enabled;
+        switch (powerChannel) {
+        case Igneous.POWER_CHANNEL_BATTERY:
+            return true;
+        case Igneous.POWER_CHANNEL_3V3:
+            enabled = PowerJNI.getUserActive3V3(status);
+            break;
+        case Igneous.POWER_CHANNEL_5V:
+            enabled = PowerJNI.getUserActive5V(status);
+            break;
+        case Igneous.POWER_CHANNEL_6V:
+            enabled = PowerJNI.getUserActive6V(status);
+            break;
+        default:
+            return false;
+        }
+        Common.check(status);
+        return enabled;
     }
 }

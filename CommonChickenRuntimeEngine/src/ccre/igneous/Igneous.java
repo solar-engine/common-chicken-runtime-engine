@@ -52,6 +52,22 @@ public class Igneous {
      * Signifies that no ramping should be applied to this motor.
      */
     public static final float NO_RAMPING = 0.0f;
+    /**
+     * The battery power channel. Reading this voltage is the only power channel that exists on the cRIO.
+     */
+    public static final int POWER_CHANNEL_BATTERY = 0;
+    /**
+     * The 3.3V rail power channel.
+     */
+    public static final int POWER_CHANNEL_3V3 = 1;
+    /**
+     * The 5V rail power channel.
+     */
+    public static final int POWER_CHANNEL_5V = 2;
+    /**
+     * The 6V rail power channel.
+     */
+    public static final int POWER_CHANNEL_6V = 3;
 
     /**
      * The IgneousLauncher providing access to the robot.
@@ -510,6 +526,36 @@ public class Igneous {
      */
     public static FloatInputPoll getPDPVoltage() {
         return launcher.getPDPVoltage();
+    }
+
+    /**
+     * Reads the voltage from a specified power reading channel.
+     * 
+     * @param powerChannel the power channel to read from.
+     * @return the voltage being measured.
+     */
+    public static FloatInputPoll getChannelVoltage(int powerChannel) {
+        return launcher.getChannelVoltage(powerChannel);
+    }
+
+    /**
+     * Reads the current from a specified power reading channel.
+     * 
+     * @param powerChannel the power channel to read from.
+     * @return the current being measured.
+     */
+    public static FloatInputPoll getChannelCurrent(int powerChannel) {
+        return launcher.getChannelCurrent(powerChannel);
+    }
+
+    /**
+     * Checks if the specified power reading channel is enabled.
+     * 
+     * @param powerChannel the power channel to read from.
+     * @return if the channel is enabled.
+     */
+    public static BooleanInputPoll getChannelEnabled(int powerChannel) {
+        return launcher.getChannelEnabled(powerChannel);
     }
 
     /**

@@ -281,7 +281,7 @@ public class DeviceBasedLauncher implements IgneousLauncher {
 
     public FloatInputPoll getBatteryVoltage() {
         if (batteryLevel == null) {
-            batteryLevel = panel.add(new FloatControlDevice("Battery Level (6.5V-12.5V)", 6.5f, 12.5f, 9.5f, 6.5f));
+            batteryLevel = panel.add(new FloatControlDevice("Battery Voltage (6.5V-12.5V)", 6.5f, 12.5f, 9.5f, 6.5f));
         }
         return batteryLevel;
     }
@@ -406,6 +406,73 @@ public class DeviceBasedLauncher implements IgneousLauncher {
             panel.add(new HeadingDevice(display + ": Disconnected"));
             Logger.warning("Unrecognized serial device name '" + deviceName + "' on " + display + " - not emulating anything.");
             return new DisconnectedSerialIO();
+        }
+    }
+
+    public FloatInputPoll getChannelVoltage(int powerChannel) {
+        if (!isRoboRIO()) {
+            if (powerChannel == Igneous.POWER_CHANNEL_BATTERY) {
+                return getBatteryVoltage();
+            } else {
+                Logger.warning("Voltage channels besides POWER_CHANNEL_BATTERY are not available on the cRIO!");
+                return FloatMixing.always(-1);
+            }
+        } else {
+            switch (powerChannel) {
+            case Igneous.POWER_CHANNEL_BATTERY:
+                return getBatteryVoltage();
+            case Igneous.POWER_CHANNEL_3V3:
+                return panel.add(new FloatControlDevice("Rail Voltage 3.3V (0V-4V)", 0.0f, 4.0f, 3.3f, 0.0f));
+            case Igneous.POWER_CHANNEL_5V:
+                return panel.add(new FloatControlDevice("Rail Voltage 5V (0V-6V)", 0.0f, 6.0f, 5.0f, 0.0f));
+            case Igneous.POWER_CHANNEL_6V:
+                return panel.add(new FloatControlDevice("Rail Voltage 6V (0V-7V)", 0.0f, 7.0f, 6.0f, 0.0f));
+            default:
+                Logger.warning("Unknown power channel: " + powerChannel);
+                return FloatMixing.always(-1);
+            }
+        }
+    }
+
+    public FloatInputPoll getChannelCurrent(int powerChannel) {
+        if (!isRoboRIO()) {
+            Logger.warning("Current channels are not available on the cRIO!");
+            return FloatMixing.always(-1);
+        } else {
+            switch (powerChannel) {
+            case Igneous.POWER_CHANNEL_BATTERY:
+                return panel.add(new FloatControlDevice("Battery Current (0-100A)", 0.0f, 100.0f, 5.0f, 0.0f));
+            case Igneous.POWER_CHANNEL_3V3:
+                return panel.add(new FloatControlDevice("Rail Current 3.3V (0-100A)", 0.0f, 100.0f, 5.0f, 0.0f));
+            case Igneous.POWER_CHANNEL_5V:
+                return panel.add(new FloatControlDevice("Rail Current 5V (0-100A)", 0.0f, 100.0f, 5.0f, 0.0f));
+            case Igneous.POWER_CHANNEL_6V:
+                return panel.add(new FloatControlDevice("Rail Current 6V (0-100A)", 0.0f, 100.0f, 5.0f, 0.0f));
+            default:
+                Logger.warning("Unknown power channel: " + powerChannel);
+                return FloatMixing.always(-1);
+            }
+        }
+    }
+
+    public BooleanInputPoll getChannelEnabled(int powerChannel) {
+        if (!isRoboRIO()) {
+            Logger.warning("Power channel statuses are not available on the cRIO!");
+            return powerChannel == Igneous.POWER_CHANNEL_BATTERY ? BooleanMixing.alwaysTrue : BooleanMixing.alwaysFalse;
+        } else {
+            switch (powerChannel) {
+            case Igneous.POWER_CHANNEL_BATTERY:
+                return BooleanMixing.alwaysTrue;
+            case Igneous.POWER_CHANNEL_3V3:
+                return panel.add(new BooleanControlDevice("Rail Enabled 3.3V"));
+            case Igneous.POWER_CHANNEL_5V:
+                return panel.add(new BooleanControlDevice("Rail Enabled 5V"));
+            case Igneous.POWER_CHANNEL_6V:
+                return panel.add(new BooleanControlDevice("Rail Enabled 6V"));
+            default:
+                Logger.warning("Unknown power channel: " + powerChannel);
+                return BooleanMixing.alwaysFalse;
+            }
         }
     }
 }

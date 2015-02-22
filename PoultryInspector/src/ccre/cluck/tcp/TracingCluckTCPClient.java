@@ -13,13 +13,13 @@ import ccre.log.Logger;
 import ccre.net.ClientSocket;
 import ccre.net.Network;
 
-public class LoggingCluckTCPClient extends CluckTCPClient {
+public class TracingCluckTCPClient extends CluckTCPClient {
 
-    public class LoggingLink implements CluckLink {
+    public class TracingLink implements CluckLink {
 
         private final CluckLink link;
 
-        public LoggingLink(CluckLink link) {
+        public TracingLink(CluckLink link) {
             this.link = link;
         }
 
@@ -35,7 +35,7 @@ public class LoggingCluckTCPClient extends CluckTCPClient {
         }
     }
 
-    public LoggingCluckTCPClient(String remote, CluckNode node, String linkName, String remoteNameHint) {
+    public TracingCluckTCPClient(String remote, CluckNode node, String linkName, String remoteNameHint) {
         super(remote, node, linkName, remoteNameHint);
     }
 
@@ -45,7 +45,7 @@ public class LoggingCluckTCPClient extends CluckTCPClient {
         Logger.fine("Connected to " + getRemote() + " at " + System.currentTimeMillis());
         CluckProtocol.setTimeoutOnSocket(sock);
         CluckLink link = CluckProtocol.handleSend(dout, linkName, node);
-        link = new LoggingLink(link);
+        link = new TracingLink(link);
         node.addOrReplaceLink(link, linkName);
         node.notifyNetworkModified(); // Only send here, not on server.
         return link;

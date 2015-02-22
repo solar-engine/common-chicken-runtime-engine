@@ -19,7 +19,6 @@
 package ccre.log;
 
 import ccre.concurrency.ConcurrentDispatchArray;
-import ccre.util.CArrayList;
 import ccre.workarounds.CallerInfo;
 import ccre.workarounds.ThrowablePrinter;
 

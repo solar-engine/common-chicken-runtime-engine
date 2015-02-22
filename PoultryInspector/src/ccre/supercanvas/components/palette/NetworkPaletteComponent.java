@@ -253,6 +253,16 @@ public class NetworkPaletteComponent extends PaletteComponent<Collection<Network
         searcher.event();
     }
 
+    /**
+     * Try to find the named Cluck reference and create a new component at the
+     * given position, if found.
+     *
+     * @param x the X-position of the new component.
+     * @param y the Y-position of the new component.
+     * @param ref the Cluck reference to search for.
+     * @return the new SuperCanvasComponent, or null if the reference cannot be
+     * found.
+     */
     public SuperCanvasComponent getComponentFor(int x, int y, String ref) {
         for (NetworkPaletteElement elem : entries) {
             if (ref.equals(elem.getName())) {

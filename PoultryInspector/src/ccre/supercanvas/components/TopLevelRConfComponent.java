@@ -3,7 +3,6 @@ package ccre.supercanvas.components;
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
-import java.util.List;
 
 import ccre.cluck.Cluck;
 import ccre.log.Logger;
@@ -12,10 +11,20 @@ import ccre.rconf.RConf.Entry;
 import ccre.rconf.RConfable;
 import ccre.supercanvas.components.channels.RConfComponent;
 import ccre.supercanvas.components.pinned.CluckNetworkingComponent;
-import ccre.util.CList;
 
+/**
+ * A RConfComponent that allows for some entire-PoultryInspector debugging
+ * tools.
+ *
+ * @author skeggsc
+ */
 public class TopLevelRConfComponent extends RConfComponent {
 
+    /**
+     * An RConfable that allows inspection of Java objects.
+     *
+     * @author skeggsc
+     */
     public static class InspectionRConfable implements RConfable {
 
         // transient so that we don't carry over anything.
@@ -24,7 +33,7 @@ public class TopLevelRConfComponent extends RConfComponent {
         private transient final boolean asList;
         private transient final TopLevelRConfComponent component;
 
-        public InspectionRConfable(TopLevelRConfComponent component, Object target, Class<?> as, boolean possiblyAsList) {
+        private InspectionRConfable(TopLevelRConfComponent component, Object target, Class<?> as, boolean possiblyAsList) {
             this.component = component;
             this.target = target;
             this.as = as;
@@ -89,7 +98,7 @@ public class TopLevelRConfComponent extends RConfComponent {
             if (field == 1) {
                 selected = target.getClass();
             } else if (field == 2 && as.getSuperclass() != null) {
-                addInspection(component, target, asList ? as : as.getSuperclass(), false);
+                component.addInspection(target, asList ? as : as.getSuperclass(), false);
                 return true;
             } else if (field >= 3) {
                 if (asList) {
@@ -113,7 +122,7 @@ public class TopLevelRConfComponent extends RConfComponent {
                 }
             }
             if (selected != null) {
-                addInspection(component, selected);
+                component.addInspection(selected);
                 return true;
             }
             return false;
@@ -149,7 +158,7 @@ public class TopLevelRConfComponent extends RConfComponent {
                 Logger.fine("Notified!");
                 return true;
             } else if (field == 2) {
-                addInspection(master, master.getPanel());
+                master.addInspection(master.getPanel());
                 return true;
             } else if (field == 4 && data.length > 0) {
                 CluckNetworkingComponent.useLoggingConnection = data[0] != 0;
@@ -159,24 +168,34 @@ public class TopLevelRConfComponent extends RConfComponent {
         }
     }
 
-    public static void addInspection(TopLevelRConfComponent component, Object obj, Class<?> as, boolean possiblyAsList) {
-        component.getPanel().add(new RConfComponent(component.getDragRelX(0), component.getDragRelY(0),
-                "0x" + Integer.toHexString(System.identityHashCode(obj)), new InspectionRConfable(component, obj, as, possiblyAsList)));
+    private void addInspection(Object obj, Class<?> as, boolean possiblyAsList) {
+        getPanel().add(new RConfComponent(getDragRelX(0), getDragRelY(0),
+                "0x" + Integer.toHexString(System.identityHashCode(obj)), new InspectionRConfable(this, obj, as, possiblyAsList)));
     }
 
-    public static void addInspection(TopLevelRConfComponent component, Object obj, Class<?> as) {
-        addInspection(component, obj, as, true);
+    private void addInspection(Object obj, Class<?> as) {
+        addInspection(obj, as, true);
     }
 
-    public static void addInspection(TopLevelRConfComponent component, Object obj) {
-        addInspection(component, obj, obj.getClass());
+    /**
+     * Add an inspection pane for the given object to the SuperCanvasPanel.
+     *
+     * @param obj the object to inspect.
+     */
+    public void addInspection(Object obj) {
+        addInspection(obj, obj.getClass());
     }
 
+    /**
+     * Create a new TopLevelRConfComponent at the specified location.
+     *
+     * @param cx the X coordinate.
+     * @param cy the Y coordinate.
+     */
     public TopLevelRConfComponent(int cx, int cy) {
         super(cx, cy, "Local Configuration", new TopLevelRConfable());
         ((TopLevelRConfable) device).master = this;
     }
 
     private static final long serialVersionUID = 3408977443946166053L;
-
 }

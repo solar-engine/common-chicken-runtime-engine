@@ -13,12 +13,29 @@ import ccre.log.Logger;
 import ccre.net.ClientSocket;
 import ccre.net.Network;
 
+/**
+ * A CluckTCPClient that traces all traffic that goes through it, for debugging
+ * purposes.
+ *
+ * @author skeggsc
+ */
 public class TracingCluckTCPClient extends CluckTCPClient {
 
-    public class TracingLink implements CluckLink {
+    /**
+     * A CluckLink that wraps another CluckLink and traces everything that gets
+     * sent through it.
+     *
+     * @author skeggsc
+     */
+    public static class TracingLink implements CluckLink {
 
         private final CluckLink link;
 
+        /**
+         * Create a new TracingLink to wrap an existing CluckLink.
+         *
+         * @param link the link to wrap.
+         */
         public TracingLink(CluckLink link) {
             this.link = link;
         }
@@ -35,6 +52,17 @@ public class TracingCluckTCPClient extends CluckTCPClient {
         }
     }
 
+    /**
+     * Create a new TracingCluckTCPClient connecting to the specified remote on
+     * the default port, sharing the specified CluckNode, with the specified
+     * link name and hint for what the other end should call this link.
+     *
+     * @param remote The remote address.
+     * @param node The shared node.
+     * @param linkName The link name.
+     * @param remoteNameHint The hint for what the other end should call this
+     * link.
+     */
     public TracingCluckTCPClient(String remote, CluckNode node, String linkName, String remoteNameHint) {
         super(remote, node, linkName, remoteNameHint);
     }

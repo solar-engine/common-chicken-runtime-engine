@@ -22,12 +22,10 @@ import java.awt.Color;
 import java.awt.FontMetrics;
 import java.awt.Graphics2D;
 
-import ccre.channel.EventOutput;
 import ccre.cluck.Cluck;
 import ccre.cluck.tcp.CluckTCPClient;
-import ccre.ctrl.Ticker;
+import ccre.cluck.tcp.TracingCluckTCPClient;
 import ccre.net.CountingNetworkProvider;
-import ccre.cluck.tcp.LoggingCluckTCPClient;
 import ccre.net.Network;
 import ccre.supercanvas.Rendering;
 import ccre.supercanvas.SuperCanvasComponent;
@@ -131,6 +129,9 @@ public class CluckNetworkingComponent extends SuperCanvasComponent {
         updateConnection();
     }
 
+    /**
+     * Should the Cluck connection log its traffic data?
+     */
     public static boolean useLoggingConnection = false;
 
     private synchronized void updateConnection() {
@@ -142,7 +143,7 @@ public class CluckNetworkingComponent extends SuperCanvasComponent {
             }
         } else if (client == null) {
             client = useLoggingConnection
-                    ? new LoggingCluckTCPClient(remote, Cluck.getNode(), "robot", "phidget")
+                    ? new TracingCluckTCPClient(remote, Cluck.getNode(), "robot", "phidget")
                     : new CluckTCPClient(remote, Cluck.getNode(), "robot", "phidget");
             client.setReconnectDelay(1000);
             client.setLogDuringNormalOperation(false);

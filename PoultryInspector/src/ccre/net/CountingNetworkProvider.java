@@ -61,6 +61,27 @@ public class CountingNetworkProvider extends DefaultNetworkProvider {
         return totalBytesReceived.get() + totalBytesSent.get();
     }
 
+    private static long lastTotal, lastDelta;
+
+    static {
+        new Ticker(1000).send(new EventOutput() {
+            public void event() {
+                long newTotal = getTotal();
+                lastDelta = newTotal - lastTotal;
+                lastTotal = newTotal;
+            }
+        });
+    }
+
+    /**
+     * Calculates the number of bytes sent or received in a recent one-second interval.
+     *
+     * @return the rate of data transfer, in bytes per second.
+     */
+    public static long getRate() {
+        return lastDelta;
+    }
+
     @Override
     public ClientSocket openClient(String targetAddress, int port) throws IOException {
         return new CountingClientSocket(super.openClient(targetAddress, port));
@@ -233,21 +254,5 @@ public class CountingNetworkProvider extends DefaultNetworkProvider {
         public void close() throws IOException {
             base.close();
         }
-    }
-
-    private static long lastTotal, lastDelta;
-
-    static {
-        new Ticker(1000).send(new EventOutput() {
-            public void event() {
-                long newTotal = getTotal();
-                lastDelta = newTotal - lastTotal;
-                lastTotal = newTotal;
-            }
-        });
-    }
-
-    public static long getRate() {
-        return lastDelta;
     }
 }

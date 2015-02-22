@@ -6,6 +6,11 @@ import ccre.channel.EventInput;
 import ccre.channel.FloatInput;
 import ccre.channel.FloatInputPoll;
 
+/**
+ * A Joystick that has nothing pressed and all axes as zero.
+ *
+ * @author skeggsc
+ */
 public class NullJoystick implements IJoystickWithPOV {
 
     public EventInput getButtonSource(int id) {
@@ -55,5 +60,4 @@ public class NullJoystick implements IJoystickWithPOV {
     public FloatInput getPOVAngleSource(int id) {
         return FloatMixing.always(0);
     }
-
 }

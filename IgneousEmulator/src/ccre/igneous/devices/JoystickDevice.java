@@ -25,13 +25,11 @@ import ccre.channel.FloatInput;
 import ccre.channel.FloatInputPoll;
 import ccre.ctrl.CombinationJoystickWithPOV;
 import ccre.ctrl.IJoystickWithPOV;
-import ccre.ctrl.NullJoystick;
 import ccre.igneous.Device;
 import ccre.igneous.DeviceGroup;
 import ccre.igneous.DeviceListPanel;
 import ccre.igneous.JoystickHandler;
 import ccre.igneous.JoystickHandler.ExternalJoystickHolder;
-import ccre.igneous.components.BooleanTextComponent;
 import ccre.igneous.components.SpacingComponent;
 import ccre.igneous.components.TextComponent;
 import ccre.log.Logger;
@@ -39,15 +37,15 @@ import ccre.log.Logger;
 /**
  * A device representing a Joystick. This will have buttons and axes added
  * dynamically as needed.
- * 
+ *
  * @author skeggsc
  */
 public class JoystickDevice extends DeviceGroup {
 
-    public class ExternalJoystickAttachDevice extends Device {
+    class ExternalJoystickAttachDevice extends Device {
         private final TextComponent status;
 
-        public ExternalJoystickAttachDevice(final JoystickHandler handler) {
+        ExternalJoystickAttachDevice(final JoystickHandler handler) {
             add(new SpacingComponent(40));
             add(new TextComponent("External Joystick:"));
             add(status = new TextComponent("[UNATTACHED]", new String[] { "[UNATTACHED]", "[HOLD BUTTON FIRST]", "[ATTACHED]" }) {
@@ -84,12 +82,14 @@ public class JoystickDevice extends DeviceGroup {
     /**
      * Create a new JoystickDevice with a name and a panel to contain this
      * Joystick.
-     * 
+     *
      * Make sure to call addToMaster instead of calling add directly.
-     * 
+     *
      * @param name the name of this device.
      * @param isRoboRIO if this is a Joystick on a roboRIO.
      * @param master the panel that will contain this device.
+     * @param handler the JoystickHandler to use for connecting external
+     * Joysticks.
      * @see #addToMaster()
      */
     public JoystickDevice(String name, boolean isRoboRIO, DeviceListPanel master, JoystickHandler handler) {
@@ -103,12 +103,14 @@ public class JoystickDevice extends DeviceGroup {
     /**
      * Create a new JoystickDevice with a Joystick port number and a panel to
      * contain this Joystick.
-     * 
+     *
      * Make sure to call addToMaster instead of calling add directly.
-     * 
+     *
      * @param id the port number of this device.
      * @param isRoboRIO if this is a Joystick on a roboRIO.
      * @param master the panel that will contain this device.
+     * @param handler the JoystickHandler to use for connecting external
+     * Joysticks.
      * @see #addToMaster()
      */
     public JoystickDevice(int id, boolean isRoboRIO, DeviceListPanel master, JoystickHandler handler) {
@@ -117,7 +119,7 @@ public class JoystickDevice extends DeviceGroup {
 
     /**
      * Add this Joystick to the device panel, if it hasn't been already added.
-     * 
+     *
      * @return this device, for method chaining.
      */
     public synchronized JoystickDevice addToMaster() {
@@ -140,6 +142,12 @@ public class JoystickDevice extends DeviceGroup {
         return axes[id - 1];
     }
 
+    /**
+     * Get the IJoystickWithPOV to access this Joystick.
+     *
+     * @param check when to update the Joystick's sources.
+     * @return the Joystick.
+     */
     public IJoystickWithPOV getJoystick(EventInput check) {
         return new CombinationJoystickWithPOV(joystickHolder.getJoystick(check), new IJoystickWithPOV() {
             public EventInput getButtonSource(int id) {

@@ -6,27 +6,25 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Properties;
 import java.util.WeakHashMap;
 
-import ccre.channel.BooleanInput;
+import net.java.games.input.Component;
+import net.java.games.input.Controller;
+import net.java.games.input.ControllerEnvironment;
 import ccre.channel.BooleanInputPoll;
 import ccre.channel.EventInput;
 import ccre.channel.EventOutput;
 import ccre.channel.FloatInputPoll;
 import ccre.ctrl.AbstractJoystickWithPOV;
-import ccre.ctrl.BooleanMixing;
-import ccre.ctrl.FloatMixing;
 import ccre.ctrl.IJoystickWithPOV;
-import ccre.igneous.JoystickHandler.JoystickWrapper;
 import ccre.log.Logger;
-import net.java.games.input.Component;
-import net.java.games.input.Controller;
-import net.java.games.input.ControllerEnvironment;
-import net.java.games.input.ControllerEvent;
-import net.java.games.input.ControllerListener;
 
+/**
+ * Uses JInput to allow the Emulator to work with physical joysticks.
+ *
+ * @author skeggsc
+ */
 public class JoystickHandler {
     static {
         File f;
@@ -78,18 +76,44 @@ public class JoystickHandler {
         ControllerEnvironment.getDefaultEnvironment().getControllers();
     }
 
+    /**
+     * A holder for physical Joysticks that translates the active Joystick into
+     * a single interface.
+     *
+     * @author skeggsc
+     */
     public static class ExternalJoystickHolder {
 
         private JoystickWrapper ctrl;
 
+        /**
+         * Check if a Joystick is currently associated.
+         *
+         * @return if any Joystick is associated.
+         */
         public boolean hasJoystick() {
             return ctrl != null;
         }
 
+        /**
+         * Associate a new Joystick.
+         *
+         * @param wrapper the Joystick to associate.
+         */
         public void setJoystick(JoystickWrapper wrapper) {
             this.ctrl = wrapper;
         }
 
+        /**
+         * Create an interface to allow access to the currently associated
+         * Joystick.
+         *
+         * This method does NOT need to be called again when the associated
+         * Joystick changes.
+         *
+         * @param check when to update the Joystick.
+         * @return the Joystick interface.
+         */
         public IJoystickWithPOV getJoystick(EventInput check) {
             check.send(new EventOutput() {
                 public void event() {
@@ -168,19 +192,24 @@ public class JoystickHandler {
 
     }
 
+    /**
+     * A wrapped physical Joystick that has organized buttons and axes.
+     *
+     * @author skeggsc
+     */
     public static class JoystickWrapper {
 
-        public final Controller ctrl;
+        private final Controller ctrl;
 
-        public final ArrayList<Component> buttons = new ArrayList<Component>();
-        public final ArrayList<Component> axes = new ArrayList<Component>();
-        Component pov;
+        private final ArrayList<Component> buttons = new ArrayList<Component>();
+        private final ArrayList<Component> axes = new ArrayList<Component>();
+        private Component pov;
 
-        public JoystickWrapper(Controller ctrl) {
+        private JoystickWrapper(Controller ctrl) {
             this.ctrl = ctrl;
         }
 
-        public boolean isXBox() {
+        private boolean isXBox() {
             return ctrl.getName().contains("XBOX 360 For Windows") && axes.size() == 5;
         }
 
@@ -188,7 +217,7 @@ public class JoystickHandler {
             return ctrl + " on " + ctrl.getPortType() + ":" + ctrl.getPortNumber();
         }
 
-        public void start() {
+        private void start() {
             Logger.info("Started: " + ctrl + ": " + ctrl.getType());
             axes.clear();
             buttons.clear();
@@ -239,6 +268,11 @@ public class JoystickHandler {
         return t == Controller.Type.MOUSE || t == Controller.Type.KEYBOARD || t == Controller.Type.UNKNOWN;
     }
 
+    /**
+     * Get a Joystick that currently has a button held down.
+     *
+     * @return the detected Joystick, or null if none are found.
+     */
     public JoystickWrapper getActivelyPressedJoystick() {
         for (Controller ctrl : ControllerEnvironment.getDefaultEnvironment().getControllers()) {
             if (isIgnored(ctrl)) {

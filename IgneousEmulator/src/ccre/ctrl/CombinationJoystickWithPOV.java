@@ -6,38 +6,42 @@ import ccre.channel.EventInput;
 import ccre.channel.FloatInput;
 import ccre.channel.FloatInputPoll;
 
+/**
+ * A combination of two Joysticks into a single virtual Joystick. Buttons are
+ * xor'd, and axes are summed. POV comes from one of the Joysticks - and the
+ * Alpha Joystick gets priority.
+ *
+ * @author skeggsc
+ */
 public class CombinationJoystickWithPOV implements IJoystickWithPOV {
 
-    private IJoystickWithPOV a;
-    private final IJoystickWithPOV b;
-    
-    public void setAlphaJoystick(IJoystickWithPOV alpha) {
-        a = alpha;
+    private final IJoystickWithPOV alpha, beta;
+
+    /**
+     * Combine two Joysticks into one.
+     *
+     * @param alpha the first Joystick. (Gets POV hat priority.)
+     * @param beta the second Joystick.
+     */
+    public CombinationJoystickWithPOV(IJoystickWithPOV alpha, IJoystickWithPOV beta) {
+        this.alpha = alpha;
+        this.beta = beta;
     }
 
-    public boolean hasAlphaJoystick() {
-        return a != null;
-    }
-
-    public CombinationJoystickWithPOV(IJoystickWithPOV a, IJoystickWithPOV b) {
-        this.a = a;
-        this.b = b;
-    }
-    
     public EventInput getButtonSource(int id) {
-        return EventMixing.combine(a.getButtonSource(id), b.getButtonSource(id));
+        return EventMixing.combine(alpha.getButtonSource(id), beta.getButtonSource(id));
     }
 
     public FloatInput getAxisSource(int axis) {
-        return FloatMixing.addition.of(a.getAxisSource(axis), b.getAxisSource(axis));
+        return FloatMixing.addition.of(alpha.getAxisSource(axis), beta.getAxisSource(axis));
     }
 
     public FloatInputPoll getAxisChannel(int axis) {
-        return FloatMixing.addition.of(a.getAxisChannel(axis), b.getAxisChannel(axis));
+        return FloatMixing.addition.of(alpha.getAxisChannel(axis), beta.getAxisChannel(axis));
     }
 
     public BooleanInputPoll getButtonChannel(int button) {
-        return BooleanMixing.xorBooleans(a.getButtonChannel(button), b.getButtonChannel(button));
+        return BooleanMixing.xorBooleans(alpha.getButtonChannel(button), beta.getButtonChannel(button));
     }
 
     public FloatInputPoll getXChannel() {
@@ -57,21 +61,21 @@ public class CombinationJoystickWithPOV implements IJoystickWithPOV {
     }
 
     public BooleanInputPoll isPOVPressed(int id) {
-        return BooleanMixing.orBooleans(a.isPOVPressed(id), b.isPOVPressed(id));
+        return BooleanMixing.orBooleans(alpha.isPOVPressed(id), beta.isPOVPressed(id));
     }
 
     public FloatInputPoll getPOVAngle(int id) {
-        return Mixing.select(a.isPOVPressed(id), b.getPOVAngle(id), a.getPOVAngle(id));
+        return Mixing.select(alpha.isPOVPressed(id), beta.getPOVAngle(id), alpha.getPOVAngle(id));
     }
 
     public BooleanInput isPOVPressedSource(int id) {
-        return BooleanMixing.orBooleans(a.isPOVPressedSource(id), b.isPOVPressedSource(id));
+        return BooleanMixing.orBooleans(alpha.isPOVPressedSource(id), beta.isPOVPressedSource(id));
     }
 
     public FloatInput getPOVAngleSource(int id) {
-        BooleanInput useA = a.isPOVPressedSource(id);
-        FloatInput aa = a.getPOVAngleSource(id);
-        FloatInput ba = b.getPOVAngleSource(id);
+        BooleanInput useA = alpha.isPOVPressedSource(id);
+        FloatInput aa = alpha.getPOVAngleSource(id);
+        FloatInput ba = beta.getPOVAngleSource(id);
         return FloatMixing.createDispatch(getPOVAngle(id), EventMixing.combine(FloatMixing.onUpdate(aa), FloatMixing.onUpdate(ba), BooleanMixing.whenBooleanChanges(useA)));
     }
 }

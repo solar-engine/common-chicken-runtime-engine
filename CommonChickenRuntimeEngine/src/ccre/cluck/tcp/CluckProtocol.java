@@ -38,8 +38,8 @@ import ccre.util.CLinkedList;
  */
 public class CluckProtocol {
 
-    public static final int TIMEOUT_PERIOD = 600; // milliseconds
-    public static final int KEEPALIVE_INTERVAL = 200; // milliseconds, should always be noticeably less than TIMEOUT_PERIOD
+    static final int TIMEOUT_PERIOD = 600; // milliseconds
+    static final int KEEPALIVE_INTERVAL = 200; // milliseconds, should always be noticeably less than TIMEOUT_PERIOD
 
     /**
      * Sets the appropriate timeout on sock, for disconnection reporting.

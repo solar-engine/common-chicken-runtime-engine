@@ -236,16 +236,16 @@ public class CluckTCPClient extends ReporterThread {
         return postfix;
     }
 
-    protected CluckLink doStart(DataInputStream din, DataOutputStream dout, ClientSocket sock) throws IOException {
+    protected CluckLink doStart(DataInputStream din, DataOutputStream dout, ClientSocket socket) throws IOException {
         CluckProtocol.handleHeader(din, dout, remoteNameHint);
         Logger.fine("Connected to " + remote + " at " + System.currentTimeMillis());
-        CluckProtocol.setTimeoutOnSocket(sock);
+        CluckProtocol.setTimeoutOnSocket(socket);
         CluckLink deny = CluckProtocol.handleSend(dout, linkName, node);
         node.notifyNetworkModified(); // Only send here, not on server.
         return deny;
     }
 
-    protected void doMain(DataInputStream din, DataOutputStream dout, ClientSocket sock, CluckLink deny) throws IOException {
+    protected void doMain(DataInputStream din, DataOutputStream dout, ClientSocket socket, CluckLink deny) throws IOException {
         CluckProtocol.handleRecv(din, linkName, node, deny);
     }
 

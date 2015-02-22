@@ -37,6 +37,7 @@ import ccre.util.UniqueIds;
  */
 public final class RPCManager implements Serializable {
 
+    private static final long serialVersionUID = -2530136013743162226L;
     private final CluckNode node;
     /**
      * The local end of the RPC binding. See the methods for publishing and

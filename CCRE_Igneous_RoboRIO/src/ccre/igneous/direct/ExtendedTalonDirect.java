@@ -1,18 +1,18 @@
 /*
  * Copyright 2014-2015 Colby Skeggs
- * 
+ *
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
- * 
+ *
  * The CCRE is free software: you can redistribute it and/or modify it under the
  * terms of the GNU Lesser General Public License as published by the Free
  * Software Foundation, either version 3 of the License, or (at your option) any
  * later version.
- * 
+ *
  * The CCRE is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
  * A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
  * details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public License
  * along with the CCRE.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -27,7 +27,7 @@ import ccre.log.Logger;
 
 /**
  * A CANTalon ExtendedMotor interface for the roboRIO.
- * 
+ *
  * @author skeggsc
  */
 public class ExtendedTalonDirect extends ExtendedMotor implements FloatOutput {
@@ -39,7 +39,7 @@ public class ExtendedTalonDirect extends ExtendedMotor implements FloatOutput {
 
     /**
      * Allocate a CANTalon given the CAN bus ID.
-     * 
+     *
      * @param deviceNumber the CAN bus ID.
      * @throws ExtendedMotorFailureException if the CAN Talon cannot be
      * allocated.
@@ -82,7 +82,7 @@ public class ExtendedTalonDirect extends ExtendedMotor implements FloatOutput {
     /**
      * The same as set, but throws an error on failure instead of temporarily
      * bypassing the motor.
-     * 
+     *
      * @param value the value to set to.
      * @throws ExtendedMotorFailureException if the value cannot be set.
      */

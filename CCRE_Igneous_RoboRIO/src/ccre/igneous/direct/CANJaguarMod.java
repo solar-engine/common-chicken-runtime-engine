@@ -17,7 +17,7 @@ import edu.wpi.first.wpilibj.can.CANMessageNotFoundException;
 
 /**
  * Texas Instruments Jaguar Speed Controller as a CAN device.
- * 
+ *
  * @author Thomas Clark
  */
 @SuppressWarnings("javadoc")
@@ -119,7 +119,7 @@ class CANJaguarMod {
         /**
          * Disables the soft position limits and only uses the limit switches to
          * limit rotation.
-         * 
+         *
          * @see CANJaguarMod#getForwardLimitOK()
          * @see CANJaguarMod#getReverseLimitOK()
          */
@@ -128,7 +128,7 @@ class CANJaguarMod {
          * Enables the soft position limits on the Jaguar. These will be used in
          * addition to the limit switches. This does not disable the behavior of
          * the limit switch input.
-         * 
+         *
          * @see CANJaguarMod#configSoftPositionLimits(double, double)
          */
         SoftPositionLimits((byte) 1);
@@ -1650,7 +1650,7 @@ class CANJaguarMod {
      *
      * Use {@link #configSoftPositionLimits(double, double)} or
      * {@link #disableSoftPositionLimits()} to set this automatically.
-     * 
+     *
      * @param mode The {@link LimitMode} to use to limit the rotation of the
      * device.
      * @see LimitMode#SwitchInputsOnly
@@ -1665,7 +1665,7 @@ class CANJaguarMod {
      *
      * Use {@link #configSoftPositionLimits(double, double)} to set this and the
      * {@link LimitMode} automatically.
-     * 
+     *
      * @param forwardLimitPosition The position that, if exceeded, will disable
      * the forward direction.
      */
@@ -1685,7 +1685,7 @@ class CANJaguarMod {
      *
      * Use {@link #configSoftPositionLimits(double, double)} to set this and the
      * {@link LimitMode} automatically.
-     * 
+     *
      * @param reverseLimitPosition The position that, if exceeded, will disable
      * the reverse direction.
      */
@@ -2088,7 +2088,7 @@ class CANJaguarMod {
 
     /**
      * Unpack 16-bit data from a buffer in little-endian byte order
-     * 
+     *
      * @param buffer The buffer to unpack from
      * @param offset The offset into he buffer to unpack
      * @return The data that was unpacked
@@ -2099,7 +2099,7 @@ class CANJaguarMod {
 
     /**
      * Unpack 32-bit data from a buffer in little-endian byte order
-     * 
+     *
      * @param buffer The buffer to unpack from
      * @param offset The offset into he buffer to unpack
      * @return The data that was unpacked

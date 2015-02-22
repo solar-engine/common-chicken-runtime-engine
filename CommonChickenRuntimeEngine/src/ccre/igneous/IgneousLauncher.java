@@ -1,18 +1,18 @@
 /*
  * Copyright 2013-2015 Colby Skeggs
- * 
+ *
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
- * 
+ *
  * The CCRE is free software: you can redistribute it and/or modify it under the
  * terms of the GNU Lesser General Public License as published by the Free
  * Software Foundation, either version 3 of the License, or (at your option) any
  * later version.
- * 
+ *
  * The CCRE is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
  * A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
  * details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public License
  * along with the CCRE.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -81,7 +81,7 @@ public interface IgneousLauncher {
 
     /**
      * Create a reference to a CAN Jaguar.
-     * 
+     *
      * @param deviceNumber the Jaguar's CAN device number.
      * @return the ExtendedMotor for the Jaguar.
      */
@@ -89,7 +89,7 @@ public interface IgneousLauncher {
 
     /**
      * Create a reference to a CAN Talon.
-     * 
+     *
      * @param deviceNumber the Talon's CAN device number.
      * @return the ExtendedMotor for the Talon.
      */
@@ -97,9 +97,9 @@ public interface IgneousLauncher {
 
     /**
      * Create a reference to a solenoid on the specified port and module.
-     * 
+     *
      * Module #0 should be interpreted as the default module.
-     * 
+     *
      * @param module the solenoid module (PCM on roboRIO)
      * @param id the port of the solenoid.
      * @return the output that will control the solenoid.

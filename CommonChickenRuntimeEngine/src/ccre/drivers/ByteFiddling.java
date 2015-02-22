@@ -1,18 +1,18 @@
 /*
  * Copyright 2015 Colby Skeggs
- * 
+ *
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
- * 
+ *
  * The CCRE is free software: you can redistribute it and/or modify it under the
  * terms of the GNU Lesser General Public License as published by the Free
  * Software Foundation, either version 3 of the License, or (at your option) any
  * later version.
- * 
+ *
  * The CCRE is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
  * A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
  * details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public License
  * along with the CCRE.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -22,7 +22,7 @@ import ccre.log.Logger;
 
 /**
  * A collection of useful byte-level fiddling utilities.
- * 
+ *
  * @author skeggsc
  */
 public class ByteFiddling {
@@ -30,7 +30,7 @@ public class ByteFiddling {
     /**
      * Find the first index of the byte b in the byte range, or -1 if it cannot
      * be found in that range.
-     * 
+     *
      * @param bytes the byte array.
      * @param from the start of the range.
      * @param to the end of the range.
@@ -48,7 +48,7 @@ public class ByteFiddling {
 
     /**
      * Extracts a subsequence of the bytes.
-     * 
+     *
      * @param bytes the byte array to copy from.
      * @param from the start of the range.
      * @param to the end of the range.
@@ -62,7 +62,7 @@ public class ByteFiddling {
 
     /**
      * Parse the ASCII characters in the byte array into an integer.
-     * 
+     *
      * @param bytes the characters to parse.
      * @return the integer, or null if it cannot be parsed.
      */
@@ -72,7 +72,7 @@ public class ByteFiddling {
 
     /**
      * Parse the ASCII characters in the byte section into an integer.
-     * 
+     *
      * @param bytes the byte array to parse.
      * @param from the start of the byte section.
      * @param to the end of the byte section.
@@ -102,7 +102,7 @@ public class ByteFiddling {
 
     /**
      * Counts the number of occurrences of the byte b in the byte array.
-     * 
+     *
      * @param bytes the byte array to search.
      * @param b the byte to look for.
      * @return the number of instances of the byte.
@@ -113,7 +113,7 @@ public class ByteFiddling {
 
     /**
      * Counts the number of occurrences of the byte b in the byte section.
-     * 
+     *
      * @param bytes the byte array to search.
      * @param from the start of the byte section.
      * @param to the end of the byte section.
@@ -132,10 +132,10 @@ public class ByteFiddling {
 
     /**
      * Split the byte section into multiple byte arrays with b as the delimiter.
-     * 
+     *
      * Will always return 1 + n byte arrays, where n is the number of instances
      * of the byte in the byte section.
-     * 
+     *
      * @param bytes the byte array to search.
      * @param from the start of the byte section.
      * @param to the end of the byte section.
@@ -155,7 +155,7 @@ public class ByteFiddling {
     /**
      * Checks if the byte array (interpreted as ASCII) is the same as the given
      * string.
-     * 
+     *
      * @param a the byte array to compare.
      * @param b the string to compare.
      * @return if the sequences contain the same character data.
@@ -175,7 +175,7 @@ public class ByteFiddling {
 
     /**
      * Parse the ASCII characters in the byte array into a double.
-     * 
+     *
      * @param bytes the byte array to parse.
      * @return the double, or null if it cannot be parsed.
      */
@@ -185,7 +185,7 @@ public class ByteFiddling {
 
     /**
      * Parse the ASCII characters in the byte section into a double.
-     * 
+     *
      * @param bytes the byte array to parse.
      * @param from the start of the byte section.
      * @param to the end of the byte section.
@@ -201,7 +201,7 @@ public class ByteFiddling {
 
     /**
      * Parse the ASCII characters in the byte array into a string.
-     * 
+     *
      * @param bytes the byte array to parse.
      * @return the string.
      */
@@ -211,7 +211,7 @@ public class ByteFiddling {
 
     /**
      * Parse the ASCII characters in the byte section into a string.
-     * 
+     *
      * @param bytes the byte array to parse.
      * @param from the start of the byte section.
      * @param to the end of the byte section.
@@ -227,7 +227,7 @@ public class ByteFiddling {
 
     /**
      * Encode the byte section into a hexadecimal string.
-     * 
+     *
      * @param bytes the byte array to encode.
      * @param from the start of the byte section.
      * @param to the end of the byte section.
@@ -254,7 +254,7 @@ public class ByteFiddling {
 
     /**
      * Converts four little-endian bytes from data into an integer.
-     * 
+     *
      * @param data the data to extract the bytes from
      * @param from the index of the first byte
      * @return the extracted integer.
@@ -265,7 +265,7 @@ public class ByteFiddling {
 
     /**
      * Converts four big-endian bytes from data into an integer.
-     * 
+     *
      * @param data the data to extract the bytes from
      * @param from the index of the first byte
      * @return the extracted integer.

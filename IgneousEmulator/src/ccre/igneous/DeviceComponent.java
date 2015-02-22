@@ -1,18 +1,18 @@
 /*
  * Copyright 2014-2015 Colby Skeggs
- * 
+ *
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
- * 
+ *
  * The CCRE is free software: you can redistribute it and/or modify it under the
  * terms of the GNU Lesser General Public License as published by the Free
  * Software Foundation, either version 3 of the License, or (at your option) any
  * later version.
- * 
+ *
  * The CCRE is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
  * A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
  * details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public License
  * along with the CCRE.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -25,7 +25,7 @@ import java.awt.Shape;
 /**
  * A component in a Device. These exist so that devices can be rebuilt from the
  * various common components that make them up.
- * 
+ *
  * @author skeggsc
  */
 public abstract class DeviceComponent {
@@ -45,7 +45,7 @@ public abstract class DeviceComponent {
 
     /**
      * Render the component in the device, given a specified shift for layout.
-     * 
+     *
      * @param g the graphics to render on.
      * @param width the width of the device.
      * @param height the height of the device.
@@ -62,7 +62,7 @@ public abstract class DeviceComponent {
     /**
      * Checks if the given position is over this component and handles a press
      * event if it is.
-     * 
+     *
      * @param x the X position relative to the device.
      * @param y the Y position relative to the device.
      */
@@ -78,7 +78,7 @@ public abstract class DeviceComponent {
 
     /**
      * Called when the mouse moves within the device.
-     * 
+     *
      * @param x the new mouse X.
      * @param y the new mouse Y.
      */
@@ -88,7 +88,7 @@ public abstract class DeviceComponent {
 
     /**
      * Called when the mouse enters the device.
-     * 
+     *
      * @param x the new mouse X.
      * @param y the new mouse Y.
      */
@@ -98,7 +98,7 @@ public abstract class DeviceComponent {
 
     /**
      * Called when the mouse exits the device.
-     * 
+     *
      * @param x the new mouse X.
      * @param y the new mouse Y.
      */
@@ -108,7 +108,7 @@ public abstract class DeviceComponent {
 
     /**
      * Called when the mouse is released within the device.
-     * 
+     *
      * @param x the new mouse X.
      * @param y the new mouse Y.
      */

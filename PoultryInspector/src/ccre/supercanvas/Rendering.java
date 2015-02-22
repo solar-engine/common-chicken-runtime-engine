@@ -1,18 +1,18 @@
 /*
  * Copyright 2014-2015 Colby Skeggs
- * 
+ *
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
- * 
+ *
  * The CCRE is free software: you can redistribute it and/or modify it under the
  * terms of the GNU Lesser General Public License as published by the Free
  * Software Foundation, either version 3 of the License, or (at your option) any
  * later version.
- * 
+ *
  * The CCRE is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
  * A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
  * details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public License
  * along with the CCRE.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -28,7 +28,7 @@ import java.awt.geom.Rectangle2D;
 
 /**
  * Some common rendering utilities for the Poultry Inspector.
- * 
+ *
  * @author skeggsc
  */
 public class Rendering {
@@ -47,7 +47,7 @@ public class Rendering {
 
     /**
      * Render the main body of a standard component.
-     * 
+     *
      * @param bg the background color.
      * @param g the graphics to draw on.
      * @param centerX the center X position.
@@ -69,7 +69,7 @@ public class Rendering {
     /**
      * A convenience function to render a DraggableBoxComponent as if drawBody
      * had been called.
-     * 
+     *
      * @param bg the background color.
      * @param g the graphics to draw on.
      * @param component the component to render
@@ -81,7 +81,7 @@ public class Rendering {
 
     /**
      * Draw a scrollbar nub.
-     * 
+     *
      * @param g the graphics to draw on.
      * @param active if the scrollbar is "active" (away from the starting
      * location)

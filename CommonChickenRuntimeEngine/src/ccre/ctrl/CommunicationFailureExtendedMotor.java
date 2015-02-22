@@ -1,18 +1,18 @@
 /*
  * Copyright 2015 Colby Skeggs
- * 
+ *
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
- * 
+ *
  * The CCRE is free software: you can redistribute it and/or modify it under the
  * terms of the GNU Lesser General Public License as published by the Free
  * Software Foundation, either version 3 of the License, or (at your option) any
  * later version.
- * 
+ *
  * The CCRE is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
  * A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
  * details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public License
  * along with the CCRE.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -26,10 +26,10 @@ import ccre.log.Logger;
 /**
  * A fake implementation of ExtendedMotor that is suitable for use when
  * communications could not be established initially with the device.
- * 
+ *
  * This will provide lots of stubbed-out functionality and will log warning
  * messages whenever it is interacted with.
- * 
+ *
  * @author skeggsc
  */
 public class CommunicationFailureExtendedMotor extends ExtendedMotor implements FloatOutput {
@@ -39,7 +39,7 @@ public class CommunicationFailureExtendedMotor extends ExtendedMotor implements 
     /**
      * Create a new CommunicationFailureExtendedMotor with a message to include
      * whenever the issue is reported.
-     * 
+     *
      * @param message the message to include.
      */
     public CommunicationFailureExtendedMotor(String message) {

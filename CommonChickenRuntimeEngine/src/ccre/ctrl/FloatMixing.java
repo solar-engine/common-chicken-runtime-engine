@@ -1,18 +1,18 @@
 /*
  * Copyright 2013-2015 Colby Skeggs
- * 
+ *
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
- * 
+ *
  * The CCRE is free software: you can redistribute it and/or modify it under the
  * terms of the GNU Lesser General Public License as published by the Free
  * Software Foundation, either version 3 of the License, or (at your option) any
  * later version.
- * 
+ *
  * The CCRE is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
  * A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
  * details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public License
  * along with the CCRE.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -522,10 +522,10 @@ public class FloatMixing {
 
     /**
      * When check is fired, and shouldSet is true, set the output to value.
-     * 
+     *
      * This is intended to be used with a frequent event as check, to
      * effectively hold the output at a specific value.
-     * 
+     *
      * @param check when to update the value.
      * @param shouldSet whether or not the output should be held.
      * @param output the output to hold.
@@ -538,10 +538,10 @@ public class FloatMixing {
 
     /**
      * When check is fired, and shouldSet is false, set the output to value.
-     * 
+     *
      * This is intended to be used with a frequent event as check, to
      * effectively hold the output at a specific value.
-     * 
+     *
      * @param check when to update the value.
      * @param shouldSet whether or not the output should NOT be held.
      * @param output the output to hold.
@@ -684,10 +684,10 @@ public class FloatMixing {
     /**
      * When the input has changed by more than a certain value, the returned
      * EventInput fires. (This is checked when checkTrigger is fired.)
-     * 
+     *
      * This maximum delta can be over any period of time - the delta is
      * calculated relative to the value the last time the event fired.
-     * 
+     *
      * @param input the input to track.
      * @param delta the value by which the input must change to produce an
      * output.
@@ -702,10 +702,10 @@ public class FloatMixing {
     /**
      * When the input has changed by more than a certain value, the returned
      * EventInput fires.
-     * 
+     *
      * This maximum delta can be over any period of time - the delta is
      * calculated relative to the value the last time the event fired.
-     * 
+     *
      * @param input the input to track.
      * @param delta the value by which the input must change to produce an
      * output.
@@ -810,7 +810,7 @@ public class FloatMixing {
      * a value of ((zero + one) / 2) will create an output of 0.5. There is no
      * capping - the output can be any number, including a number out of the
      * range of zero to one.
-     * 
+     *
      * Note that this will only update when the value changes, not (necessarily)
      * when the ranges change.
      *
@@ -829,7 +829,7 @@ public class FloatMixing {
 
     /**
      * Get an EventInput that updates whenever the input changes.
-     * 
+     *
      * @param input the input to track.
      * @return an input for when the given input changes.
      */
@@ -842,7 +842,7 @@ public class FloatMixing {
 
     /**
      * Fire an EventOutput whenever the specified input changes.
-     * 
+     *
      * @param input the input to track
      * @param output the output to fire
      */
@@ -853,7 +853,7 @@ public class FloatMixing {
 
     /**
      * Return a FloatOutput that will fire an EventOutput whenever it changes.
-     * 
+     *
      * @param output the output to fire.
      * @return the output to track.
      */

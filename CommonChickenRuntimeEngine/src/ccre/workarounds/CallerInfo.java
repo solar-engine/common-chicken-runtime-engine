@@ -1,18 +1,18 @@
 /*
  * Copyright 2014 Colby Skeggs
- * 
+ *
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
- * 
+ *
  * The CCRE is free software: you can redistribute it and/or modify it under the
  * terms of the GNU Lesser General Public License as published by the Free
  * Software Foundation, either version 3 of the License, or (at your option) any
  * later version.
- * 
+ *
  * The CCRE is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
  * A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
  * details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public License
  * along with the CCRE.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -21,7 +21,7 @@ package ccre.workarounds;
 /**
  * A class representing information about the caller of a method. This is
  * converted into by the appropriate local platform.
- * 
+ *
  * @author skeggsc
  */
 public class CallerInfo {
@@ -32,9 +32,9 @@ public class CallerInfo {
 
     /**
      * Create a new CallerInfo with the specified pieces of information.
-     * 
+     *
      * Only className is required - the rest can be set to null or -1.
-     * 
+     *
      * @param className the name of the class, required.
      * @param methodName the name of the method, optional.
      * @param fileName the name of the file, optional.

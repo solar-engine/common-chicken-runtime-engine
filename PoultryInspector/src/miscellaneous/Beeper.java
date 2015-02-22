@@ -1,18 +1,18 @@
 /*
  * Copyright 2013-2015 Colby Skeggs
- * 
+ *
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
- * 
+ *
  * The CCRE is free software: you can redistribute it and/or modify it under the
  * terms of the GNU Lesser General Public License as published by the Free
  * Software Foundation, either version 3 of the License, or (at your option) any
  * later version.
- * 
+ *
  * The CCRE is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
  * A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
  * details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public License
  * along with the CCRE.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -72,9 +72,9 @@ public class Beeper {
     /**
      * Test one of the Beep Types: ALARM, ANNOY, LOW, FASTALARM, SIREN, OOPS,
      * AIMED, CORRAL.
-     * 
+     *
      * The type should be passed as an argument.
-     * 
+     *
      * @param args contains the beep type to play.
      * @throws InterruptedException if the main thread gets interrupted while
      * waiting for the effect to complete.
@@ -86,11 +86,11 @@ public class Beeper {
 
     /**
      * Start playing the named beep type.
-     * 
+     *
      * Possible types: ALARM, ANNOY, LOW, FASTALARM, SIREN, OOPS, AIMED, CORRAL.
-     * 
+     *
      * If an invalid type is specified, play OOPS.
-     * 
+     *
      * @param name the type of beep to play.
      */
     public static void beep(String name) {
@@ -106,7 +106,7 @@ public class Beeper {
 
     /**
      * Start playing the specified beep type.
-     * 
+     *
      * @param bt the beep type to play.
      * @see BeepType
      */
@@ -143,7 +143,7 @@ public class Beeper {
 
     /**
      * The types of beeps that this generator can generate.
-     * 
+     *
      * @author skeggsc
      */
     public static enum BeepType {

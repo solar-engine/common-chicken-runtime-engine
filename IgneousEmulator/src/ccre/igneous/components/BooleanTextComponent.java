@@ -1,18 +1,18 @@
 /*
  * Copyright 2014-2015 Colby Skeggs
- * 
+ *
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
- * 
+ *
  * The CCRE is free software: you can redistribute it and/or modify it under the
  * terms of the GNU Lesser General Public License as published by the Free
  * Software Foundation, either version 3 of the License, or (at your option) any
  * later version.
- * 
+ *
  * The CCRE is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
  * A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
  * details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public License
  * along with the CCRE.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -28,7 +28,7 @@ import ccre.concurrency.ConcurrentDispatchArray;
  * A textual display component that displays one of two strings based on whether
  * the value is on or off. This can be optionally editable by the user by
  * clicking it - this is disabled by default.
- * 
+ *
  * @author skeggsc
  */
 public class BooleanTextComponent extends TextComponent implements BooleanOutput, BooleanInput {
@@ -41,7 +41,7 @@ public class BooleanTextComponent extends TextComponent implements BooleanOutput
     /**
      * Create a new BooleanTextComponent with off and on as its strings for
      * being boolean TRUE or boolean FALSE.
-     * 
+     *
      * @param off the label to display when FALSE
      * @param on the label to display when TRUE
      */
@@ -55,7 +55,7 @@ public class BooleanTextComponent extends TextComponent implements BooleanOutput
     /**
      * Create a new BooleanTextComponent that only displays label, regardless of
      * boolean state.
-     * 
+     *
      * @param label the label to always display
      */
     public BooleanTextComponent(String label) {
@@ -65,7 +65,7 @@ public class BooleanTextComponent extends TextComponent implements BooleanOutput
     /**
      * Sets whether the component is editable by the user by clicking on this
      * component.
-     * 
+     *
      * @param editable if the component should be editable.
      * @return this component, for method chaining.
      */

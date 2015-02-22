@@ -1,18 +1,18 @@
 /*
  * Copyright 2015 Colby Skeggs
- * 
+ *
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
- * 
+ *
  * The CCRE is free software: you can redistribute it and/or modify it under the
  * terms of the GNU Lesser General Public License as published by the Free
  * Software Foundation, either version 3 of the License, or (at your option) any
  * later version.
- * 
+ *
  * The CCRE is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
  * A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
  * details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public License
  * along with the CCRE.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -23,14 +23,14 @@ import java.io.IOException;
 /**
  * A parser for NMEA strings. Not currently tested - it was planned for use with
  * the UM7LT but wasn't eventually used.
- * 
+ *
  * @author skeggsc
  */
 public class NMEA {
 
     /**
      * Find the next end of a NMEA packet. (A CR-LN sequence.)
-     * 
+     *
      * @param bytes the byte array to search.
      * @param from the start of the section to search.
      * @param to the end of the section to search.
@@ -53,10 +53,10 @@ public class NMEA {
 
     /**
      * This parses out an NMEA packet into a series of sections.
-     * 
+     *
      * This is from the UM7LT. If this is wrong for another device, perhaps we
      * need multiple versions.
-     * 
+     *
      * @param nmea the NMEA string's byte array.
      * @param from the start of the byte section.
      * @param to the end of the byte section.

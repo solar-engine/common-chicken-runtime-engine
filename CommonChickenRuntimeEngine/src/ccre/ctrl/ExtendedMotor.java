@@ -1,18 +1,18 @@
 /*
  * Copyright 2014-2015 Colby Skeggs
- * 
+ *
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
- * 
+ *
  * The CCRE is free software: you can redistribute it and/or modify it under the
  * terms of the GNU Lesser General Public License as published by the Free
  * Software Foundation, either version 3 of the License, or (at your option) any
  * later version.
- * 
+ *
  * The CCRE is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
  * A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
  * details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public License
  * along with the CCRE.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -27,31 +27,31 @@ import ccre.channel.FloatOutput;
  * Sometimes there's more to control about a motor than just a power level, and
  * so FloatOutput is insufficient. That's where ExtendedMotor comes in. An
  * example of an ExtendedMotor would be a CAN Jaguar or CAN Talon.
- * 
+ *
  * An extended motor may have one or more Diagnostics (error reports, such as
  * faults), Statuses (state reports, such as voltage), and Control Modes
  * (methods of controlling an output, such as voltage-based or current-based.)
- * 
+ *
  * It may also be disabled and enabled.
- * 
+ *
  * It may also have an internal PID state.
- * 
+ *
  * @author skeggsc
  */
 public abstract class ExtendedMotor {
     /**
      * The different possible diagnostics for an ExtendedMotor to provide.
-     * 
+     *
      * Some of these are bitsets of fault conditions, and some are
      * boolean-reportable faults (on or off.)
-     * 
+     *
      * @author skeggsc
      */
     public static enum DiagnosticType {
         // Mask-based: (long)
         /**
          * A bitset of CAN Jaguar faults, reported raw.
-         * 
+         *
          * The CAN Jaguar supports CURRENT_FAULT, TEMPERATURE_FAULT,
          * BUS_VOLTAGE_FAULT, and GATE_DRIVER_FAULT.
          */
@@ -101,7 +101,7 @@ public abstract class ExtendedMotor {
     /**
      * The different possible output control modes for an ExtendedMotor to
      * provide.
-     * 
+     *
      * @author skeggsc
      */
     public static enum OutputControlMode {
@@ -130,7 +130,7 @@ public abstract class ExtendedMotor {
 
     /**
      * The different possible status types for an ExtendedMotor to provide.
-     * 
+     *
      * @author skeggsc
      */
     public static enum StatusType {
@@ -155,14 +155,14 @@ public abstract class ExtendedMotor {
     /**
      * Enables the output, if possible. A control mode should be specified
      * first.
-     * 
+     *
      * @throws ExtendedMotorFailureException if the output cannot be enabled.
      */
     public abstract void enable() throws ExtendedMotorFailureException;
 
     /**
      * Disables the output, if possible.
-     * 
+     *
      * @throws ExtendedMotorFailureException if the output cannot be disabled.
      */
     public abstract void disable() throws ExtendedMotorFailureException;
@@ -170,7 +170,7 @@ public abstract class ExtendedMotor {
     /**
      * Constructs a BooleanOutput to control the enablement status. A control
      * mode should be specified before enabling.
-     * 
+     *
      * @return a BooleanOutput controlling whether this controller is enabled.
      */
     public abstract BooleanOutput asEnable();
@@ -179,7 +179,7 @@ public abstract class ExtendedMotor {
      * Opens the controller in the specified output mode. This may override any
      * previous output modes, so don't use any previous results from this method
      * once it has been called.
-     * 
+     *
      * @param mode the mode to put the controller into.
      * @return the output representing the controller. The meaning is based on
      * the mode, or null if this mode is not allowed for this device.
@@ -190,7 +190,7 @@ public abstract class ExtendedMotor {
 
     /**
      * Gets access to one of the status readouts from the ExtendedMotor.
-     * 
+     *
      * @param type the type of status to get access to.
      * @return the FloatInputPoll representing this status readout, or null if
      * it cannot be acquired.
@@ -200,7 +200,7 @@ public abstract class ExtendedMotor {
     /**
      * Gets the current diagnostic value from the ExtendedMotor. This is usually
      * either an Integer or a Boolean based on the DiagnosticType.
-     * 
+     *
      * @param type the type of diagnostic to read.
      * @return the current diagnostic value.
      */
@@ -208,7 +208,7 @@ public abstract class ExtendedMotor {
 
     /**
      * Gets a channel representing a boolean diagnostic channel.
-     * 
+     *
      * @param type the type of diagnostic to monitor.
      * @return a channel representing the diagnostic state, or null if it cannot
      * be acquired.
@@ -232,10 +232,10 @@ public abstract class ExtendedMotor {
     /**
      * Checks if internal PID is included in this ExtendedMotor. This does not
      * necessarily mean that it is in use - the output mode must support PID.
-     * 
+     *
      * This may return either true or false if the current output mode does not
      * support PID but the ExtendedMotor does in other cases.
-     * 
+     *
      * @return if internal PID is included.
      */
     public abstract boolean hasInternalPID();
@@ -243,7 +243,7 @@ public abstract class ExtendedMotor {
     /**
      * Sets the internal PID tuning in this ExtendedMotor. Don't call this
      * unless hasInternalPID() returns true.
-     * 
+     *
      * @param P the proportional factor in the tuning.
      * @param I the integral factor in the tuning.
      * @param D the derivative factor in the tuning.

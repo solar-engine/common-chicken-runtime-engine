@@ -1,18 +1,18 @@
 /*
  * Copyright 2014-2015 Colby Skeggs.
- * 
+ *
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
- * 
+ *
  * The CCRE is free software: you can redistribute it and/or modify it under the
  * terms of the GNU Lesser General Public License as published by the Free
  * Software Foundation, either version 3 of the License, or (at your option) any
  * later version.
- * 
+ *
  * The CCRE is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
  * A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
  * details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public License
  * along with the CCRE.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -107,9 +107,9 @@ public abstract class BaseChannelComponent<View extends Enum<View>> extends Drag
      * A helper function for the channel implementations, so that they can just
      * specify their own RConf entries without having to worry about the default
      * ones that will be prepended.
-     * 
+     *
      * Use as in <code>return rconfBase(... entries ...);</code>
-     * 
+     *
      * @param userEntries the RConf entries from the subclass.
      * @return the list of RConf entries.
      */
@@ -137,15 +137,15 @@ public abstract class BaseChannelComponent<View extends Enum<View>> extends Drag
      * A helper function for the channel implementations, so that they can just
      * specify their own RConf entries without having to worry about the default
      * ones.
-     * 
+     *
      * If the given field is for a default entry, this function takes care of
      * doing whatever it means, and returns a negative number: -1 (BASE_VALID)
      * if the request was processed, or -2 (BASE_INVALID) if the request was
      * invalid.
-     * 
+     *
      * If not, it returns a value equal to the index in the user entries of the
      * interacted-with component.
-     * 
+     *
      * @param field the overall field number.
      * @param data the data of the command.
      * @return the index in the user entries array of the interacted-with field,

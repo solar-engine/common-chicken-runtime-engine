@@ -1,18 +1,18 @@
 /*
  * Copyright 2014-2015 Colby Skeggs.
- * 
+ *
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
- * 
+ *
  * The CCRE is free software: you can redistribute it and/or modify it under the
  * terms of the GNU Lesser General Public License as published by the Free
  * Software Foundation, either version 3 of the License, or (at your option) any
  * later version.
- * 
+ *
  * The CCRE is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
  * A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
  * details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public License
  * along with the CCRE.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -28,12 +28,12 @@ import ccre.channel.FloatStatus;
 /**
  * A generic PID Controller for use in CCRE applications. Supports online tuning
  * of various parameters.
- * 
+ *
  * This will attempt to move the input close to the setpoint by way of varying
  * the output according to the P, I, and D terms.
- * 
+ *
  * It also supports limiting of the output range and the current integral sum.
- * 
+ *
  * This is an EventOutput - when this is fired, it will update the current
  * value. This is also a FloatInput, representing the current output from the
  * PID controller.
@@ -62,7 +62,7 @@ public class PIDControl implements FloatInput, EventOutput {
     /**
      * Create a simple fixed PID controller. It's very much possible to have
      * more control - just instantiate the class directly.
-     * 
+     *
      * @param trigger when to update.
      * @param input the input to track.
      * @param setpoint the setpoint to attempt to move the input to.
@@ -82,10 +82,10 @@ public class PIDControl implements FloatInput, EventOutput {
     /**
      * Create a new PIDControl with the specified sources for its tuning, and no
      * setpoint.
-     * 
+     *
      * This is equivalent to using the error parameter as the input parameter
      * and a fixed setpoint of zero.
-     * 
+     *
      * @param error the error source for the PID controller.
      * @param P a source for the proportional term.
      * @param I a source for the integral term.
@@ -101,7 +101,7 @@ public class PIDControl implements FloatInput, EventOutput {
 
     /**
      * Create a new PIDControl with the specified sources for its tuning.
-     * 
+     *
      * @param input the input source for the PID controller.
      * @param setpoint the setpoint source for the PID controller.
      * @param P a source for the proportional term.
@@ -118,7 +118,7 @@ public class PIDControl implements FloatInput, EventOutput {
 
     /**
      * Restrict the PID output to the specified magnitude.
-     * 
+     *
      * @param maximumAbsolute the maximum absolute value.
      */
     public void setOutputBounds(float maximumAbsolute) {
@@ -127,7 +127,7 @@ public class PIDControl implements FloatInput, EventOutput {
 
     /**
      * Restrict the PID output to the specified magnitude.
-     * 
+     *
      * @param maximumAbsolute the maximum absolute value.
      */
     public void setOutputBounds(FloatInputPoll maximumAbsolute) {
@@ -136,7 +136,7 @@ public class PIDControl implements FloatInput, EventOutput {
 
     /**
      * Restrict the PID output to the specified lower and upper bounds.
-     * 
+     *
      * @param minimum the minimum value.
      * @param maximum the maximum value.
      */
@@ -146,7 +146,7 @@ public class PIDControl implements FloatInput, EventOutput {
 
     /**
      * Restrict the PID output to the specified lower and upper bounds.
-     * 
+     *
      * @param minimum the minimum value.
      * @param maximum the maximum value.
      */
@@ -157,7 +157,7 @@ public class PIDControl implements FloatInput, EventOutput {
 
     /**
      * Restrict the current integral sum to the specified magnitude.
-     * 
+     *
      * @param maximumAbsolute the maximum absolute value.
      */
     public void setIntegralBounds(float maximumAbsolute) {
@@ -166,7 +166,7 @@ public class PIDControl implements FloatInput, EventOutput {
 
     /**
      * Restrict the current integral sum to the specified magnitude.
-     * 
+     *
      * @param maximumAbsolute the maximum absolute value.
      */
     public void setIntegralBounds(FloatInputPoll maximumAbsolute) {
@@ -176,7 +176,7 @@ public class PIDControl implements FloatInput, EventOutput {
     /**
      * Restrict the current integral sum to the specified lower and upper
      * bounds.
-     * 
+     *
      * @param minimum the minimum value.
      * @param maximum the maximum value.
      */
@@ -187,7 +187,7 @@ public class PIDControl implements FloatInput, EventOutput {
     /**
      * Restrict the current integral sum to the specified lower and upper
      * bounds.
-     * 
+     *
      * @param minimum the minimum value.
      * @param maximum the maximum value.
      */
@@ -200,7 +200,7 @@ public class PIDControl implements FloatInput, EventOutput {
      * Set the maximum time delta: if two execution of the PIDControl differ by
      * more than the maximum time delta, the controller will pretend it only
      * differed by the maximum time delta.
-     * 
+     *
      * @param delta the new maximum time delta.
      */
     public void setMaximumTimeDelta(float delta) {
@@ -211,7 +211,7 @@ public class PIDControl implements FloatInput, EventOutput {
      * Set the maximum time delta: if two execution of the PIDControl differ by
      * more than the maximum time delta, the controller will pretend it only
      * differed by the maximum time delta.
-     * 
+     *
      * @param delta the new maximum time delta.
      */
     public void setMaximumTimeDelta(FloatInputPoll delta) {
@@ -220,7 +220,7 @@ public class PIDControl implements FloatInput, EventOutput {
 
     /**
      * Update the PID controller on the specified event's occurrence.
-     * 
+     *
      * @param when the event to trigger the controller with.
      */
     public void updateWhen(EventInput when) {

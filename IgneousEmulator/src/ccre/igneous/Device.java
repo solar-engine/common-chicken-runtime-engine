@@ -1,18 +1,18 @@
 /*
  * Copyright 2014-2015 Colby Skeggs
- * 
+ *
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
- * 
+ *
  * The CCRE is free software: you can redistribute it and/or modify it under the
  * terms of the GNU Lesser General Public License as published by the Free
  * Software Foundation, either version 3 of the License, or (at your option) any
  * later version.
- * 
+ *
  * The CCRE is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
  * A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
  * details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public License
  * along with the CCRE.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -26,7 +26,7 @@ import java.util.ArrayList;
 /**
  * An emulator device - something displayed on the emulator screen to view or
  * control part of the emulated robot's environment.
- * 
+ *
  * @author skeggsc
  */
 public class Device {
@@ -52,7 +52,7 @@ public class Device {
 
     /**
      * Render the device.
-     * 
+     *
      * @param g the graphics object to draw with.
      * @param width the width to draw in.
      * @param height the height to draw in.
@@ -79,7 +79,7 @@ public class Device {
      * Provide the height of space to reserve for the component. This may change
      * occasionally, but should generally remain constant between two adjacent
      * calls.
-     * 
+     *
      * @return the height, in pixels.
      */
     public int getHeight() {
@@ -88,7 +88,7 @@ public class Device {
 
     /**
      * Called when the device is pressed by the mouse.
-     * 
+     *
      * @param x the relative mouse position X.
      * @param y the relative mouse position Y.
      */
@@ -100,7 +100,7 @@ public class Device {
 
     /**
      * Called when the device is released by the mouse.
-     * 
+     *
      * @param x the relative mouse position X.
      * @param y the relative mouse position Y.
      */
@@ -112,7 +112,7 @@ public class Device {
 
     /**
      * Called when the mouse moves above the device.
-     * 
+     *
      * @param x the relative mouse position X.
      * @param y the relative mouse position Y.
      */
@@ -124,7 +124,7 @@ public class Device {
 
     /**
      * Called when the mouse enters the device's area.
-     * 
+     *
      * @param x the relative mouse position X.
      * @param y the relative mouse position Y.
      */
@@ -136,7 +136,7 @@ public class Device {
 
     /**
      * Called when the mouse exits the device's area.
-     * 
+     *
      * @param x the relative mouse position X.
      * @param y the relative mouse position Y.
      */

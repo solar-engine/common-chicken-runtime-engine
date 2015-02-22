@@ -293,7 +293,7 @@ class CANTalonMod {
     /**
      * Get the current analog in position, regardless of whether it is the
      * current feedback device.
-     * 
+     *
      * @return The ADC (0 - 1023) on analog pin of the Talon.
      */
     public int getAnalogInRaw() {
@@ -440,7 +440,7 @@ class CANTalonMod {
     /**
      * Fixup the m_controlMode so set() serializes the correct demand value.
      * Also fills the modeSelecet in the control frame to disabled.
-     * 
+     *
      * @param controlMode Control mode to ultimately enter once user calls
      * set().
      * @see #set

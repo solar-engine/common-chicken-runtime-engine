@@ -1,18 +1,18 @@
 /*
  * Copyright 2014-2015 Colby Skeggs
- * 
+ *
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
- * 
+ *
  * The CCRE is free software: you can redistribute it and/or modify it under the
  * terms of the GNU Lesser General Public License as published by the Free
  * Software Foundation, either version 3 of the License, or (at your option) any
  * later version.
- * 
+ *
  * The CCRE is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
  * A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
  * details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public License
  * along with the CCRE.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -31,7 +31,7 @@ import ccre.igneous.components.TextComponent;
  * A device allowing for input of tick-based increasing or decreasing values,
  * such as a gyro or encoder. This has a mode for position, and a mode for
  * velocity, so that both can be tested.
- * 
+ *
  * @author skeggsc
  */
 public class SpinDevice extends Device implements FloatInputPoll {
@@ -49,7 +49,7 @@ public class SpinDevice extends Device implements FloatInputPoll {
     /**
      * Create a new SpinDevice with a given name and an optional event for when
      * to reset the value of the device to zero.
-     * 
+     *
      * @param title how to describe the device.
      * @param resetWhen when to reset the value of the device, or null if this
      * isn't needed.

@@ -1,18 +1,18 @@
 /*
  * Copyright 2015 Colby Skeggs
- * 
+ *
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
- * 
+ *
  * The CCRE is free software: you can redistribute it and/or modify it under the
  * terms of the GNU Lesser General Public License as published by the Free
  * Software Foundation, either version 3 of the License, or (at your option) any
  * later version.
- * 
+ *
  * The CCRE is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
  * A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
  * details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public License
  * along with the CCRE.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -30,10 +30,10 @@ import ccre.util.CArrayUtils;
 /**
  * The low-level interface to the UM7-LT orientation sensor from CH Robotics,
  * via RS232.
- * 
+ *
  * This is not complete. If you need more functionality, you may need to modify
  * this class.
- * 
+ *
  * @author skeggsc
  * @see ccre.drivers.chrobotics.UM7LT
  */
@@ -42,13 +42,13 @@ public class InternalUM7LT { // default rate: 115200 baud.
     private final Object rs232lock = new Object();
     /**
      * The first register that is tracked by the dregs cache.
-     * 
+     *
      * @see #dregs
      */
     public static final int DREG_BASE = 0x55;
     /**
      * The last register that is tracked by the dregs cache.
-     * 
+     *
      * @see #dregs
      */
     public static final int DREG_LAST = 0x88;
@@ -88,14 +88,14 @@ public class InternalUM7LT { // default rate: 115200 baud.
     public static final float EULER_RATE_CONVERSION_DIVISOR = 16.0f;
     /**
      * The register cache for data coming from the UM7LT.
-     * 
+     *
      * @see #dregsUpdateAt
      */
     public int[] dregs = new int[DREG_LAST - DREG_BASE];
     /**
      * The last time that the corresponding entry in the register cache was
      * updated. This is an update ID.
-     * 
+     *
      * @see #dregs
      * @see #lastUpdateId
      */
@@ -103,7 +103,7 @@ public class InternalUM7LT { // default rate: 115200 baud.
     /**
      * The last update ID - the pseudo-clock used for tracking register cache
      * updates.
-     * 
+     *
      * @see #dregs
      * @see #dregsUpdateAt
      * @see #lastUpdateTime
@@ -112,7 +112,7 @@ public class InternalUM7LT { // default rate: 115200 baud.
     /**
      * The last time that any cached registers were updated. Updated exactly
      * when lastUpdateId is updated.
-     * 
+     *
      * @see #lastUpdateId
      */
     public long lastUpdateTime = System.currentTimeMillis();
@@ -123,7 +123,7 @@ public class InternalUM7LT { // default rate: 115200 baud.
     /**
      * Create a new internal handler for the UM7LT that runs on a rs232 port and
      * fires onUpdate whenever the cached registers update.
-     * 
+     *
      * @param rs232 the RS232 port connected to the UM7LT.
      * @param onUpdate the output to update when the cached registers update.
      */
@@ -139,7 +139,7 @@ public class InternalUM7LT { // default rate: 115200 baud.
      * Write settings for the update rates of some of the currently-supported
      * rates. Not everything is currently supported! This may need extension if
      * you want to do more with the UM7LT.
-     * 
+     *
      * @param quaternion_rate how often to update the quaternion registers.
      * (Specified in 0-255 Hz)
      * @param euler_rate how often to update the Euler angle registers.
@@ -167,7 +167,7 @@ public class InternalUM7LT { // default rate: 115200 baud.
 
     /**
      * Handle up to the specified number of packets from the RS232 input.
-     * 
+     *
      * @param count the maximum number of packets to handle before returning.
      * @throws IOException if an IO Exception occurs during processing.
      */
@@ -293,7 +293,7 @@ public class InternalUM7LT { // default rate: 115200 baud.
 
     /**
      * Command the UM7LT to zero the Gyroscope.
-     * 
+     *
      * @throws IOException if the command could not be sent.
      */
     public void zeroGyros() throws IOException {
@@ -302,9 +302,9 @@ public class InternalUM7LT { // default rate: 115200 baud.
 
     /**
      * Command the UM7LT to read and report a certain register.
-     * 
+     *
      * @param address the register address to read.
-     * 
+     *
      * @throws IOException if the command could not be sent.
      */
     public void doReadOperation(byte address) throws IOException {
@@ -313,10 +313,10 @@ public class InternalUM7LT { // default rate: 115200 baud.
 
     /**
      * Command the UM7LT to read and report a series of registers.
-     * 
+     *
      * @param address the register address to start reading at.
      * @param count the number of registers to read.
-     * 
+     *
      * @throws IOException if the command could not be sent.
      */
     public void doBatchReadOperation(byte address, int count) throws IOException {
@@ -329,10 +329,10 @@ public class InternalUM7LT { // default rate: 115200 baud.
 
     /**
      * Command the UM7LT to modify a certain register.
-     * 
+     *
      * @param address the register address to read.
      * @param value the new value to contain.
-     * 
+     *
      * @throws IOException if the command could not be sent.
      */
     public void doWriteOperation(byte address, int value) throws IOException {
@@ -341,10 +341,10 @@ public class InternalUM7LT { // default rate: 115200 baud.
 
     /**
      * Command the UM7LT to modify a series of registers.
-     * 
+     *
      * @param address the register address to start writing at.
      * @param values the array of values to write, starting at the address.
-     * 
+     *
      * @throws IOException if the command could not be sent.
      */
     public void doBatchWriteOperation(byte address, int[] values) throws IOException {
@@ -402,7 +402,7 @@ public class InternalUM7LT { // default rate: 115200 baud.
 
     /**
      * Dump serial data until the buffer is emptied, at least temporarily.
-     * 
+     *
      * @throws IOException if a communication error occurs while dumping serial
      * data.
      */

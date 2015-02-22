@@ -1,18 +1,18 @@
 /*
  * Copyright 2015 Colby Skeggs
- * 
+ *
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
- * 
+ *
  * The CCRE is free software: you can redistribute it and/or modify it under the
  * terms of the GNU Lesser General Public License as published by the Free
  * Software Foundation, either version 3 of the License, or (at your option) any
  * later version.
- * 
+ *
  * The CCRE is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
  * A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
  * details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public License
  * along with the CCRE.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -35,9 +35,9 @@ import ccre.log.Logger;
 /**
  * The high-level interface to the UM7-LT orientation sensor from CH Robotics,
  * via RS232.
- * 
+ *
  * http://www.chrobotics.com/shop/um7-lt-orientation-sensor
- * 
+ *
  * @author skeggsc
  */
 public class UM7LT {
@@ -97,7 +97,7 @@ public class UM7LT {
 
     /**
      * Connect to the UM7LT on the specified port. Make sure to call start()!
-     * 
+     *
      * @param rs232 the rs232 port to talk over.
      */
     public UM7LT(SerialIO rs232) {
@@ -195,7 +195,7 @@ public class UM7LT {
 
     /**
      * Start zeroing the Gyro.
-     * 
+     *
      * @throws IOException if the command could not be sent.
      */
     public void zeroGyro() throws IOException {
@@ -208,7 +208,7 @@ public class UM7LT {
 
     /**
      * Check if the sensor is currently experiencing any faults.
-     * 
+     *
      * @return if the sensor is reporting any faults.
      */
     public boolean hasFault() {
@@ -217,9 +217,9 @@ public class UM7LT {
 
     /**
      * A structure of the faults that the UM7 can have. Just some data.
-     * 
+     *
      * @see UM7LT#getFaults(Faults)
-     * 
+     *
      * @author skeggsc
      */
     public static final class Faults {
@@ -252,7 +252,7 @@ public class UM7LT {
     /**
      * Fetches the current statuses of faults and fills a fault structure with
      * the status.
-     * 
+     *
      * @param faults the fault structure to update.
      */
     public void getFaults(UM7LT.Faults faults) {

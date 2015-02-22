@@ -1,18 +1,18 @@
 /*
  * Copyright 2015 Colby Skeggs
- * 
+ *
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
- * 
+ *
  * The CCRE is free software: you can redistribute it and/or modify it under the
  * terms of the GNU Lesser General Public License as published by the Free
  * Software Foundation, either version 3 of the License, or (at your option) any
  * later version.
- * 
+ *
  * The CCRE is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
  * A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
  * details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public License
  * along with the CCRE.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -22,15 +22,15 @@ import java.io.Serializable;
 
 /**
  * The RConf subsystem's utility class.
- * 
+ *
  * The basic idea of RConf is best understood like a web browser or other client
  * - the client (usually the PoultryInspector) requests a snapshot of data from
  * an RConfable device, and then displays it to the user once received.
- * 
+ *
  * The user can then interact with certain components of the result in certain
  * ways, and this sends data back to the original RConfable. (The RConfable, of
  * course, doesn't have to do anything with this data.)
- * 
+ *
  * @author skeggsc
  */
 public class RConf {
@@ -203,7 +203,7 @@ public class RConf {
 
     /**
      * Create a new TITLE component with the given textual contents.
-     * 
+     *
      * @param title the title information.
      * @return the new RConf entry.
      */
@@ -213,7 +213,7 @@ public class RConf {
 
     /**
      * Create a new STRING component with the given textual contents.
-     * 
+     *
      * @param data the textual information.
      * @return the new RConf entry.
      */
@@ -223,7 +223,7 @@ public class RConf {
 
     /**
      * Create a new BUTTON component with the given textual label.
-     * 
+     *
      * @param label the button label.
      * @return the new RConf entry.
      */
@@ -234,7 +234,7 @@ public class RConf {
     /**
      * Create a new CLUCK REFERENCE component with the given Cluck path,
      * relative to where the RConfable in which this is used will be published.
-     * 
+     *
      * @param ref the relative path.
      * @return the new RConf entry.
      */
@@ -244,7 +244,7 @@ public class RConf {
 
     /**
      * Create a new INTEGER component with the given integer content.
-     * 
+     *
      * @param integer the integer content.
      * @return the new RConf entry.
      */
@@ -254,7 +254,7 @@ public class RConf {
 
     /**
      * Create a new FLOAT component with the given float content.
-     * 
+     *
      * @param f the float content.
      * @return the new RConf entry.
      */
@@ -268,7 +268,7 @@ public class RConf {
 
     /**
      * Create a new BOOLEAN component with the given boolean value.
-     * 
+     *
      * @param bool the boolean value.
      * @return the new RConf entry.
      */
@@ -288,7 +288,7 @@ public class RConf {
 
     /**
      * A helper method to convert bytes into a float.
-     * 
+     *
      * @param data the four bytes of data to convert.
      * @return the resulting float.
      */

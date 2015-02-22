@@ -1,18 +1,18 @@
 /*
  * Copyright 2013-2015 Colby Skeggs
- * 
+ *
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
- * 
+ *
  * The CCRE is free software: you can redistribute it and/or modify it under the
  * terms of the GNU Lesser General Public License as published by the Free
  * Software Foundation, either version 3 of the License, or (at your option) any
  * later version.
- * 
+ *
  * The CCRE is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
  * A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
  * details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public License
  * along with the CCRE.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -291,7 +291,7 @@ public class BooleanMixing {
     /**
      * When the checkTrigger event is fired, check if the boolean has changed.
      * If it has, the returned EventInput is fired.
-     * 
+     *
      * @param input the value to monitor.
      * @param checkTrigger when to check for changes.
      * @return the EventInput that fires when the input changes.
@@ -303,7 +303,7 @@ public class BooleanMixing {
 
     /**
      * When the BooleanInput changes, the returned EventInput is fired.
-     * 
+     *
      * @param input the value to monitor.
      * @return the EventInput that fires when the input changes.
      */
@@ -534,10 +534,10 @@ public class BooleanMixing {
 
     /**
      * When check is fired, and shouldSet is true, set the output to value.
-     * 
+     *
      * This is intended to be used with a frequent event as check, to
      * effectively hold the output at a specific value.
-     * 
+     *
      * @param check when to update the value.
      * @param shouldSet whether or not the output should be held.
      * @param output the output to hold.
@@ -550,10 +550,10 @@ public class BooleanMixing {
 
     /**
      * When check is fired, and shouldSet is false, set the output to value.
-     * 
+     *
      * This is intended to be used with a frequent event as check, to
      * effectively hold the output at a specific value.
-     * 
+     *
      * @param check when to update the value.
      * @param shouldSet whether or not the output should NOT be held.
      * @param output the output to hold.
@@ -567,14 +567,14 @@ public class BooleanMixing {
     /**
      * Each time the returned output is fired, the output will be set to an
      * alternating value.
-     * 
+     *
      * NOTE: This in no way reads the current state of the output! It just keeps
      * track internally. Using it in conjunction with anything else to modify
      * the output is likely to not work properly.
-     * 
+     *
      * The first time the event is fired, the output will be set to true. The
      * second time, false. The third time, true. Etcetera.
-     * 
+     *
      * @param out the output to modify.
      * @return when to toggle the output.
      */

@@ -1,18 +1,18 @@
 /*
  * Copyright 2013-2014 Colby Skeggs
- * 
+ *
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
- * 
+ *
  * The CCRE is free software: you can redistribute it and/or modify it under the
  * terms of the GNU Lesser General Public License as published by the Free
  * Software Foundation, either version 3 of the License, or (at your option) any
  * later version.
- * 
+ *
  * The CCRE is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
  * A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
  * details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public License
  * along with the CCRE.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -29,7 +29,7 @@ import ccre.log.Logger;
  * This is only needed because Squawk doesn't have a
  * Throwable.printStackTrace(PrintStream) method, so a different provider is
  * needed for Squawk.
- * 
+ *
  * Also provides {@link #getMethodCaller(int)} because that's a similar idea.
  *
  * @author skeggsc
@@ -123,13 +123,13 @@ public abstract class ThrowablePrinter {
     /**
      * Get diagnostic information for someone in the call stack of this method,
      * at a given index.
-     * 
+     *
      * Index 0 is the caller of this method; 1 is the caller of that method,
      * etc.
-     * 
+     *
      * This should contain, at the very least, the class, but should also
      * contain the method, source file, and line number if possible.
-     * 
+     *
      * @param index which frame to report.
      * @return a CallerInfo for the specified caller, or null.
      */
@@ -141,13 +141,13 @@ public abstract class ThrowablePrinter {
     /**
      * Get diagnostic information for someone in the call stack of this method,
      * at a given index.
-     * 
+     *
      * Index 0 is the caller of this method; 1 is the caller of that method,
      * etc.
-     * 
+     *
      * This should contain, at the very least, the class, but should also
      * contain the method, source file, and line number if possible.
-     * 
+     *
      * @param index which frame to report.
      * @return a CallerInfo for the specified caller, or null.
      */

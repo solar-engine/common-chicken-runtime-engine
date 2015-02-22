@@ -1,18 +1,18 @@
 /*
  * Copyright 2015 Colby Skeggs
- * 
+ *
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
- * 
+ *
  * The CCRE is free software: you can redistribute it and/or modify it under the
  * terms of the GNU Lesser General Public License as published by the Free
  * Software Foundation, either version 3 of the License, or (at your option) any
  * later version.
- * 
+ *
  * The CCRE is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
  * A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
  * details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public License
  * along with the CCRE.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -30,14 +30,14 @@ import ccre.drivers.ByteFiddling;
 
 /**
  * An emulated serial port that simply sends all data back to itself.
- * 
+ *
  * @author skeggsc
  */
 public class LoopbackSerialIO implements SerialIO {
 
     /**
      * Create a new connection that reads and writes from the specified queues.
-     * 
+     *
      * @param source the input for data to this port.
      * @param target the output of data from this port.
      */
@@ -48,7 +48,7 @@ public class LoopbackSerialIO implements SerialIO {
 
     /**
      * Create a new connection that reads and writes from the specified queue.
-     * 
+     *
      * @param data the queue for both reading and writing data.
      */
     public LoopbackSerialIO(BlockingQueue<byte[]> data) {

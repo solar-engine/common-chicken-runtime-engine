@@ -1,18 +1,18 @@
 /*
  * Copyright 2014-2015 Colby Skeggs
- * 
+ *
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
- * 
+ *
  * The CCRE is free software: you can redistribute it and/or modify it under the
  * terms of the GNU Lesser General Public License as published by the Free
  * Software Foundation, either version 3 of the License, or (at your option) any
  * later version.
- * 
+ *
  * The CCRE is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
  * A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
  * details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public License
  * along with the CCRE.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -224,11 +224,11 @@ public class Igneous {
     /**
      * **** WARNING ****: THIS API IS NOT YET FINALIZED. Future changes may
      * break your code!
-     * 
+     *
      * Create a reference to a CAN Jaguar speed controller with the specified
      * CAN device number. This may, of course, fail, if the Jaguar cannot be
      * found.
-     * 
+     *
      * @param deviceNumber the device number to connect to.
      * @return the ExtendedMotor representing this output.
      */
@@ -240,12 +240,12 @@ public class Igneous {
     /**
      * **** WARNING ****: THIS API IS NOT YET FINALIZED. Future changes may
      * break your code!
-     * 
+     *
      * Create a reference to a CAN Talon speed controller with the specified CAN
      * device number. This may, of course, fail, if the Talon cannot be found.
-     * 
+     *
      * This is not supported on the cRIO!
-     * 
+     *
      * @param deviceNumber the device number to connect to.
      * @return the ExtendedMotor representing this output.
      */
@@ -267,7 +267,7 @@ public class Igneous {
 
     /**
      * Create a reference to a solenoid on the specified port and module.
-     * 
+     *
      * @param module the module of the solenoid (PCM on roboRIO)
      * @param id the port of the solenoid.
      * @return the output that will control the solenoid.
@@ -476,7 +476,7 @@ public class Igneous {
     /**
      * Get control of the PCM-attached compressor. This makes sure that the PCM
      * compressor is running the closed loop control.
-     * 
+     *
      * @return a BooleanOutput that can turn closed loop control on and off.
      */
     public static BooleanOutput usePCMCompressor() {
@@ -485,7 +485,7 @@ public class Igneous {
 
     /**
      * Reads the current status of the PCM pressure switch.
-     * 
+     *
      * @return the pressure switch status.
      */
     public static BooleanInputPoll getPCMPressureSwitch() {
@@ -494,7 +494,7 @@ public class Igneous {
 
     /**
      * Reads the current status of the PCM compressor enable output.
-     * 
+     *
      * @return the compressor enable output.
      */
     public static BooleanInputPoll getPCMCompressorRunning() {
@@ -503,7 +503,7 @@ public class Igneous {
 
     /**
      * Reads the current draw of the PCM compressor.
-     * 
+     *
      * @return the current being used by the compressor.
      */
     public static FloatInputPoll getPCMCompressorCurrent() {
@@ -512,7 +512,7 @@ public class Igneous {
 
     /**
      * Reads the current draw of the specified PDP channel.
-     * 
+     *
      * @param channel the channel to monitor
      * @return the current being used by the specified channel.
      */
@@ -522,7 +522,7 @@ public class Igneous {
 
     /**
      * Reads the voltage of the PDP.
-     * 
+     *
      * @return the voltage being measured by the PDP.
      */
     public static FloatInputPoll getPDPVoltage() {
@@ -531,7 +531,7 @@ public class Igneous {
 
     /**
      * Reads the voltage from a specified power reading channel.
-     * 
+     *
      * @param powerChannel the power channel to read from.
      * @return the voltage being measured.
      */
@@ -541,7 +541,7 @@ public class Igneous {
 
     /**
      * Reads the current from a specified power reading channel.
-     * 
+     *
      * @param powerChannel the power channel to read from.
      * @return the current being measured.
      */
@@ -551,7 +551,7 @@ public class Igneous {
 
     /**
      * Checks if the specified power reading channel is enabled.
-     * 
+     *
      * @param powerChannel the power channel to read from.
      * @return if the channel is enabled.
      */
@@ -561,7 +561,7 @@ public class Igneous {
 
     /**
      * Checks if this platform is a roboRIO.
-     * 
+     *
      * @return if the platform is a roboRIO.
      */
     public static boolean isRoboRIO() {
@@ -696,7 +696,7 @@ public class Igneous {
 
     /**
      * Open the onboard serial port of the robot.
-     * 
+     *
      * @param baudRate the baud rate of the port.
      * @param deviceName the name of the device the serial port is connected to
      * (used for debugging and the emulator.)
@@ -708,7 +708,7 @@ public class Igneous {
 
     /**
      * Open the roboRIO's MXP-based serial port.
-     * 
+     *
      * @param baudRate the baud rate of the port.
      * @param deviceName the name of the device the serial port is connected to
      * (used for debugging and the emulator.)
@@ -720,7 +720,7 @@ public class Igneous {
 
     /**
      * Open a USB-attached serial port on the roboRIO.
-     * 
+     *
      * @param baudRate the baud rate of the port.
      * @param deviceName the name of the device the serial port is connected to
      * (used for debugging and the emulator.)

@@ -1,18 +1,18 @@
 /*
  * Copyright 2013-2015 Colby Skeggs
- * 
+ *
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
- * 
+ *
  * The CCRE is free software: you can redistribute it and/or modify it under the
  * terms of the GNU Lesser General Public License as published by the Free
  * Software Foundation, either version 3 of the License, or (at your option) any
  * later version.
- * 
+ *
  * The CCRE is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
  * A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
  * details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public License
  * along with the CCRE.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -117,7 +117,7 @@ public class CluckTCPClient extends ReporterThread {
 
     /**
      * Get the remote address.
-     * 
+     *
      * @return the remote address.
      */
     public String getRemote() {
@@ -126,7 +126,7 @@ public class CluckTCPClient extends ReporterThread {
 
     /**
      * Set whether or not this component should log during normal operation.
-     * 
+     *
      * @param logDuringNormalOperation if logging should occur normally.
      */
     public void setLogDuringNormalOperation(boolean logDuringNormalOperation) {
@@ -259,7 +259,7 @@ public class CluckTCPClient extends ReporterThread {
     /**
      * Get the reconnect deadline - only really useful if isReconnecting() and
      * isEstablished() both return false.
-     * 
+     *
      * @return the reconnect deadline: by when we should be reconnecting again.
      */
     public long getReconnectDeadline() {

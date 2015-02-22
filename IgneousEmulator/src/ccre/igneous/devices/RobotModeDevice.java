@@ -1,18 +1,18 @@
 /*
  * Copyright 2014-2015 Colby Skeggs
- * 
+ *
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
- * 
+ *
  * The CCRE is free software: you can redistribute it and/or modify it under the
  * terms of the GNU Lesser General Public License as published by the Free
  * Software Foundation, either version 3 of the License, or (at your option) any
  * later version.
- * 
+ *
  * The CCRE is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
  * A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
  * details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public License
  * along with the CCRE.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -28,14 +28,14 @@ import ccre.igneous.components.TextComponent;
 /**
  * A device allowing for changing the virtual robot's mode and
  * enabling/disabling it.
- * 
+ *
  * @author skeggsc
  */
 public class RobotModeDevice extends Device {
 
     /**
      * An enum of the possible modes.
-     * 
+     *
      * @author skeggsc
      */
     public static enum RobotMode {
@@ -59,7 +59,7 @@ public class RobotModeDevice extends Device {
         /**
          * The selection name, used for displaying a short name for the current
          * selection.
-         * 
+         *
          * This is either null, "AUTO", "TELE", or "TEST".
          */
         public final String selectionName;
@@ -116,7 +116,7 @@ public class RobotModeDevice extends Device {
     /**
      * Return a BooleanInputPoll representing if the robot is in the specified
      * mode.
-     * 
+     *
      * @param mode the mode to monitor.
      * @return the channel representing if the robot is in that mode.
      */

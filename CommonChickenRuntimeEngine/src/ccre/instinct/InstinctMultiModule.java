@@ -1,18 +1,18 @@
 /*
  * Copyright 2014 Colby Skeggs
- * 
+ *
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
- * 
+ *
  * The CCRE is free software: you can redistribute it and/or modify it under the
  * terms of the GNU Lesser General Public License as published by the Free
  * Software Foundation, either version 3 of the License, or (at your option) any
  * later version.
- * 
+ *
  * The CCRE is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
  * A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
  * details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public License
  * along with the CCRE.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -31,7 +31,7 @@ import ccre.util.CArrayList;
 /**
  * An easy way to have multiple autonomous modes. Simply register a series of
  * InstinctModeModules with this.
- * 
+ *
  * @author skeggsc
  */
 public class InstinctMultiModule extends InstinctModule {
@@ -53,7 +53,7 @@ public class InstinctMultiModule extends InstinctModule {
     /**
      * Create a new InstinctMultiModule with a BooleanInputPoll controlling when
      * this module should run.
-     * 
+     *
      * @param shouldBeRunning The input to control the running of this module.
      * @param context the TuningContext to use in this MultiModule.
      */
@@ -65,9 +65,9 @@ public class InstinctMultiModule extends InstinctModule {
     /**
      * Create a new InstinctModule that needs to be registered before it will be
      * useful.
-     * 
+     *
      * @param context the TuningContext to use in this MultiModule.
-     * 
+     *
      * @see ccre.igneous.Igneous#registerAutonomous(InstinctModule)
      */
     public InstinctMultiModule(TuningContext context) {
@@ -77,7 +77,7 @@ public class InstinctMultiModule extends InstinctModule {
 
     /**
      * Set the active mode to the given mode.
-     * 
+     *
      * @param mode the new active mode.
      * @throws IllegalArgumentException if the specified mode does not exist in
      * this MultiModule.
@@ -92,7 +92,7 @@ public class InstinctMultiModule extends InstinctModule {
 
     /**
      * Find the active mode.
-     * 
+     *
      * @return the active mode.
      */
     public InstinctModeModule getActiveMode() {
@@ -102,18 +102,18 @@ public class InstinctMultiModule extends InstinctModule {
     /**
      * Publish controls over Cluck to manipulate the current mode. These are a
      * set of buttons that view or change them mode.
-     * 
+     *
      * By default, only "Autonomous Mode Check" will be published, which will
      * log the current autonomous mode. This lets the driver know the current
      * mode.
-     * 
+     *
      * If showIndividualModes is true, then each mode registered so far will get
      * its own "Autonomous Mode: <mode>" button that will switch to that mode.
-     * 
+     *
      * If showCycleChooser is true, then "Autonomous Mode Next" and
      * "Autonomous Mode Previous" will be published, which will cycle through
      * the autonomous modes.
-     * 
+     *
      * @param showIndividualModes if the individual modes should have controls.
      * @param showCycleChooser if a cyclical selector should have controls.
      */
@@ -201,7 +201,7 @@ public class InstinctMultiModule extends InstinctModule {
 
     /**
      * Load the default mode setting and any settings in any of the modes.
-     * 
+     *
      * @param defaultMode the mode to default to if there is no valid saved
      * mode.
      */
@@ -232,7 +232,7 @@ public class InstinctMultiModule extends InstinctModule {
 
     /**
      * Add the specified mode to this MultiModule.
-     * 
+     *
      * @param newMode the mode to add.
      * @return the added mode.
      * @throws IllegalArgumentException if the mode's name is already used.
@@ -250,10 +250,10 @@ public class InstinctMultiModule extends InstinctModule {
 
     /**
      * Add a "null mode" to this MultiModule.
-     * 
+     *
      * The null mode will have the given name and will do nothing but log a
      * message when it runs. This could be "No mode selected" or something.
-     * 
+     *
      * @param name the null mode's name.
      * @param message the null mode's message.
      * @return the newly created mode.

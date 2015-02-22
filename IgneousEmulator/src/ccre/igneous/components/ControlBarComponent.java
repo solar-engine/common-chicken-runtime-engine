@@ -1,18 +1,18 @@
 /*
  * Copyright 2014-2015 Colby Skeggs
- * 
+ *
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
- * 
+ *
  * The CCRE is free software: you can redistribute it and/or modify it under the
  * terms of the GNU Lesser General Public License as published by the Free
  * Software Foundation, either version 3 of the License, or (at your option) any
  * later version.
- * 
+ *
  * The CCRE is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
  * A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
  * details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public License
  * along with the CCRE.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -30,7 +30,7 @@ import ccre.igneous.DeviceComponent;
 
 /**
  * A bar that can be dragged around to modify a floating-point value
- * 
+ *
  * @author skeggsc
  */
 public class ControlBarComponent extends DeviceComponent implements FloatInput {
@@ -43,7 +43,7 @@ public class ControlBarComponent extends DeviceComponent implements FloatInput {
 
     /**
      * Create a ControlBarComponent with a certain minimum and maximum.
-     * 
+     *
      * @param min the value at the far left.
      * @param max the value at the far right.
      * @param defaultValue the default value.
@@ -85,7 +85,7 @@ public class ControlBarComponent extends DeviceComponent implements FloatInput {
     /**
      * Set the maximum width for this component to take up, in pixels. Zero
      * means no maximum, which is the default.
-     * 
+     *
      * @param width the new maximum width.
      * @return this ControlBarComponent, for method chaining.
      */

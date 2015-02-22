@@ -1,18 +1,18 @@
 /*
  * Copyright 2015 Colby Skeggs
- * 
+ *
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
- * 
+ *
  * The CCRE is free software: you can redistribute it and/or modify it under the
  * terms of the GNU Lesser General Public License as published by the Free
  * Software Foundation, either version 3 of the License, or (at your option) any
  * later version.
- * 
+ *
  * The CCRE is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
  * A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
  * details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public License
  * along with the CCRE.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -32,11 +32,11 @@ import ccre.log.Logger;
  * A finite-state machine. This has a number of named, predefined states, which
  * can be switched between, and can affect the functionality of other parts of
  * the code.
- * 
+ *
  * Users can be notified when a state is exited or entered, and can switch
  * between states either regarding or disregarding the current state. They can
  * also, of course, determine the current state.
- * 
+ *
  * @author skeggsc
  */
 public class StateMachine {
@@ -52,7 +52,7 @@ public class StateMachine {
     /**
      * Create a new StateMachine with a named defaultState and a list of state
      * names. The names cannot be null or duplicates.
-     * 
+     *
      * @param defaultState the state to initially be in.
      * @param names the names of the states.
      */
@@ -66,7 +66,7 @@ public class StateMachine {
     /**
      * Create a new StateMachine with an indexed defaultState and a list of
      * state names.
-     * 
+     *
      * @param defaultState the state to initially be in, as an index in the list
      * of names.
      * @param names the names of the states.
@@ -103,7 +103,7 @@ public class StateMachine {
 
     /**
      * Set the state of this machine to the named state.
-     * 
+     *
      * @param state the state to change to.
      */
     public void setState(String state) {
@@ -112,7 +112,7 @@ public class StateMachine {
 
     /**
      * Set the state of this machine to the indexed state.
-     * 
+     *
      * @param state the state to change to, as an index in the list of state
      * names.
      */
@@ -130,7 +130,7 @@ public class StateMachine {
 
     /**
      * Change to the named state when the event occurs.
-     * 
+     *
      * @param state the state to change to.
      * @param when when to change state.
      */
@@ -140,7 +140,7 @@ public class StateMachine {
 
     /**
      * Change to the indexed state when the event occurs.
-     * 
+     *
      * @param state the state to change to, as an index in the list of state
      * names.
      * @param when when to change state.
@@ -151,7 +151,7 @@ public class StateMachine {
 
     /**
      * Get an event that will change the state to the named state.
-     * 
+     *
      * @param state the state to change to.
      * @return the event that changes state.
      */
@@ -161,7 +161,7 @@ public class StateMachine {
 
     /**
      * Get an event that will change the state to the indexed state.
-     * 
+     *
      * @param state the state to change to, as an index in the list of state
      * names.
      * @return the event that changes state.
@@ -184,7 +184,7 @@ public class StateMachine {
 
     /**
      * Get the current state.
-     * 
+     *
      * @return the index of the current state.
      */
     public int getState() {
@@ -193,7 +193,7 @@ public class StateMachine {
 
     /**
      * Get the name of the current state.
-     * 
+     *
      * @return the name of the current state.
      */
     public String getStateName() {
@@ -202,7 +202,7 @@ public class StateMachine {
 
     /**
      * Get the name of the indexed state.
-     * 
+     *
      * @param state the state to look up, as an index in the list of state
      * names.
      * @return the name of the indexed state.
@@ -216,7 +216,7 @@ public class StateMachine {
 
     /**
      * Check if the machine is in the named state.
-     * 
+     *
      * @param state the state to check.
      * @return if this machine is in that state.
      */
@@ -226,7 +226,7 @@ public class StateMachine {
 
     /**
      * Check if the machine is in the indexed state.
-     * 
+     *
      * @param state the state to check, as an index in the list of state names.
      * @return if this machine is in that state.
      */
@@ -236,7 +236,7 @@ public class StateMachine {
 
     /**
      * Return a channel representing if the machine is in the named state.
-     * 
+     *
      * @param state the state to check.
      * @return a channel for if this machine is in that state.
      */
@@ -246,7 +246,7 @@ public class StateMachine {
 
     /**
      * Return a channel representing if the machine is in the indexed state.
-     * 
+     *
      * @param state the state to check, as an index in the list of state names.
      * @return a channel for if this machine is in that state.
      */
@@ -263,7 +263,7 @@ public class StateMachine {
 
     /**
      * Return an input representing if the machine is in the named state.
-     * 
+     *
      * @param state the state to check.
      * @return an input for if this machine is in that state.
      */
@@ -273,7 +273,7 @@ public class StateMachine {
 
     /**
      * Return an input representing if the machine is in the indexed state.
-     * 
+     *
      * @param state the state to check, as an index in the list of state names.
      * @return an input for if this machine is in that state.
      */
@@ -284,7 +284,7 @@ public class StateMachine {
     /**
      * Return an event that moves the machine to the target state if it is in
      * the source state.
-     * 
+     *
      * @param fromState the source state.
      * @param toState the target state.
      * @return the event to conditionally change the machine's state.
@@ -296,7 +296,7 @@ public class StateMachine {
     /**
      * Return an event that moves the machine to the target state if it is in
      * the source state.
-     * 
+     *
      * @param fromState the source state, as an index in the list of state
      * names.
      * @param toState the target state, as an index in the list of state names.
@@ -309,7 +309,7 @@ public class StateMachine {
     /**
      * When the event occurs, move this machine to the target state if it is in
      * the source state.
-     * 
+     *
      * @param fromState the source state.
      * @param toState the target state.
      * @param when when to change state.
@@ -321,7 +321,7 @@ public class StateMachine {
     /**
      * When the event occurs, move this machine to the target state if it is in
      * the source state.
-     * 
+     *
      * @param fromState the source state, as an index in the list of state
      * names.
      * @param toState the target state, as an index in the list of state names.
@@ -334,9 +334,9 @@ public class StateMachine {
     /**
      * Whenever the state changes, log a message constructed from the prefix
      * concatenated with the name of the current state.
-     * 
+     *
      * No space is inserted automatically - include that in the prefix.
-     * 
+     *
      * @param level the logging level at which to log the message.
      * @param prefix the prefix of the message to log.
      */
@@ -350,7 +350,7 @@ public class StateMachine {
 
     /**
      * Get an event that will fire whenever a new state is entered.
-     * 
+     *
      * @return the event input.
      */
     public EventInput getStateEnterEvent() {
@@ -359,7 +359,7 @@ public class StateMachine {
 
     /**
      * Fire output whenever a new state is entered.
-     * 
+     *
      * @param output the event to fire.
      */
     public void onStateEnter(EventOutput output) {
@@ -368,7 +368,7 @@ public class StateMachine {
 
     /**
      * Get an event that will fire when the named state is entered.
-     * 
+     *
      * @param state the state to monitor.
      * @return the event input.
      */
@@ -378,7 +378,7 @@ public class StateMachine {
 
     /**
      * Get an event that will fire when the indexed state is entered.
-     * 
+     *
      * @param state the state to monitor, as an index in the list of state
      * names.
      * @return the event input.
@@ -391,7 +391,7 @@ public class StateMachine {
 
     /**
      * Fire output when the named state is entered.
-     * 
+     *
      * @param state the state to monitor.
      * @param output the event to fire.
      */
@@ -401,7 +401,7 @@ public class StateMachine {
 
     /**
      * Fire output when the indexed state is entered.
-     * 
+     *
      * @param state the state to monitor, as an index in the list of state
      * names.
      * @param output the event to fire.
@@ -412,7 +412,7 @@ public class StateMachine {
 
     /**
      * Set output to value when the named state is entered.
-     * 
+     *
      * @param state the state to monitor.
      * @param output the output to modify.
      * @param value the value to set the output to.
@@ -423,7 +423,7 @@ public class StateMachine {
 
     /**
      * Set output to value when the indexed state is entered.
-     * 
+     *
      * @param state the state to monitor, as an index in the list of state
      * names.
      * @param output the output to modify.
@@ -435,7 +435,7 @@ public class StateMachine {
 
     /**
      * Set output to true when the named state is entered.
-     * 
+     *
      * @param state the state to monitor.
      * @param output the output to modify.
      */
@@ -445,7 +445,7 @@ public class StateMachine {
 
     /**
      * Set output to true when the indexed state is entered.
-     * 
+     *
      * @param state the state to monitor, as an index in the list of state
      * names.
      * @param output the output to modify.
@@ -456,7 +456,7 @@ public class StateMachine {
 
     /**
      * Set output to false when the named state is entered.
-     * 
+     *
      * @param state the state to monitor.
      * @param output the output to modify.
      */
@@ -466,7 +466,7 @@ public class StateMachine {
 
     /**
      * Set output to false when the indexed state is entered.
-     * 
+     *
      * @param state the state to monitor, as an index in the list of state
      * names.
      * @param output the output to modify.
@@ -477,7 +477,7 @@ public class StateMachine {
 
     /**
      * Set output to value when the named state is entered.
-     * 
+     *
      * @param state the state to monitor.
      * @param output the output to modify.
      * @param value the value to set the output to.
@@ -488,7 +488,7 @@ public class StateMachine {
 
     /**
      * Set output to value when the indexed state is entered.
-     * 
+     *
      * @param state the state to monitor, as an index in the list of state
      * names.
      * @param output the output to modify.
@@ -501,7 +501,7 @@ public class StateMachine {
     /**
      * Get an event that will fire whenever a state is exited, and before the
      * next state is entered.
-     * 
+     *
      * @return the event input.
      */
     public EventInput getStateExitEvent() {
@@ -510,7 +510,7 @@ public class StateMachine {
 
     /**
      * Fire output whenever a state is exited.
-     * 
+     *
      * @param output the output to fire.
      */
     public void onStateExit(EventOutput output) {
@@ -519,7 +519,7 @@ public class StateMachine {
 
     /**
      * Get an event that will fire when the named state is exited.
-     * 
+     *
      * @param state the state to monitor.
      * @return the event input.
      */
@@ -529,7 +529,7 @@ public class StateMachine {
 
     /**
      * Get an event that will fire when the indexed state is exited.
-     * 
+     *
      * @param state the state to monitor, as an index in the list of state
      * names.
      * @return the event input.
@@ -542,7 +542,7 @@ public class StateMachine {
 
     /**
      * Fire output when the named state is exited.
-     * 
+     *
      * @param state the state to monitor.
      * @param output the event to fire.
      */
@@ -552,7 +552,7 @@ public class StateMachine {
 
     /**
      * Fire output when the indexed state is exited.
-     * 
+     *
      * @param state the state to monitor, as an index in the list of state
      * names.
      * @param output the event to fire.
@@ -563,7 +563,7 @@ public class StateMachine {
 
     /**
      * Set output to value when the named state is exited.
-     * 
+     *
      * @param state the state to monitor.
      * @param output the output to modify.
      * @param value the value to set the output to.
@@ -574,7 +574,7 @@ public class StateMachine {
 
     /**
      * Set output to value when the indexed state is exited.
-     * 
+     *
      * @param state the state to monitor, as an index in the list of state
      * names.
      * @param output the output to modify.
@@ -586,7 +586,7 @@ public class StateMachine {
 
     /**
      * Set output to true when the named state is exited.
-     * 
+     *
      * @param state the state to monitor.
      * @param output the output to modify.
      */
@@ -596,7 +596,7 @@ public class StateMachine {
 
     /**
      * Set output to true when the indexed state is exited.
-     * 
+     *
      * @param state the state to monitor, as an index in the list of state
      * names.
      * @param output the output to modify.
@@ -607,7 +607,7 @@ public class StateMachine {
 
     /**
      * Set output to false when the named state is exited.
-     * 
+     *
      * @param state the state to monitor.
      * @param output the output to modify.
      */
@@ -617,7 +617,7 @@ public class StateMachine {
 
     /**
      * Set output to false when the indexed state is exited.
-     * 
+     *
      * @param state the state to monitor, as an index in the list of state
      * names.
      * @param output the output to modify.
@@ -628,7 +628,7 @@ public class StateMachine {
 
     /**
      * Set output to value when the named state is exited.
-     * 
+     *
      * @param state the state to monitor.
      * @param output the output to modify.
      * @param value the value to set the output to.
@@ -639,7 +639,7 @@ public class StateMachine {
 
     /**
      * Set output to value when the indexed state is exited.
-     * 
+     *
      * @param state the state to monitor, as an index in the list of state
      * names.
      * @param output the output to modify.

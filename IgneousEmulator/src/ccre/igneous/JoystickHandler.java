@@ -181,7 +181,7 @@ public class JoystickHandler {
         }
 
         public boolean isXBox() {
-            return "XBOX 360 For Windows (Controller)".equals(ctrl.getName()) && axes.size() == 5;
+            return ctrl.getName().contains("XBOX 360 For Windows") && axes.size() == 5;
         }
 
         public String toString() {

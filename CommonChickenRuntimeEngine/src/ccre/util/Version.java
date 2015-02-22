@@ -53,7 +53,11 @@ public class Version {
                 Logger.warning("IOException while reading /version.properties", e);
                 return "unknown version: could not load";
             }
-            return versions.getProperty("ccre-version", "unknown version: no property ccre-version");
+            String version = versions.getProperty("ccre-version", "unknown version: no property ccre-version");
+            if (version.equals("UNKNOWN")) {
+                version = "unknown version: no property ccre-version";
+            }
+            return version;
         } finally {
             try {
                 props.close();

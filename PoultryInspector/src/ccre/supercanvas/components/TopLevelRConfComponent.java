@@ -18,6 +18,7 @@
  */
 package ccre.supercanvas.components;
 
+import java.io.Serializable;
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
@@ -43,7 +44,7 @@ public class TopLevelRConfComponent extends RConfComponent {
      *
      * @author skeggsc
      */
-    public static class InspectionRConfable implements RConfable {
+    public static class InspectionRConfable implements RConfable, Serializable {
 
         // transient so that we don't carry over anything.
         private transient final Object target;
@@ -161,7 +162,7 @@ public class TopLevelRConfComponent extends RConfComponent {
         }
     }
 
-    private static class TopLevelRConfable implements RConfable {
+    private static class TopLevelRConfable implements RConfable, Serializable {
 
         private TopLevelRConfComponent master;
 

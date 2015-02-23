@@ -20,9 +20,9 @@ package ccre.util;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Properties;
 
 import ccre.log.Logger;
+import ccre.saver.DefaultStorageSegment;
 
 /**
  * Utilities for accessing the version of the CCRE.
@@ -41,20 +41,20 @@ public class Version {
      * @return the long-form version.
      */
     public static String getVersion() {
-        Properties versions = new Properties();
+        CHashMap<String, String> versions = new CHashMap<String, String>();
         InputStream props = Version.class.getResourceAsStream("/version.properties");
         if (props == null) {
             return "unknown version: no version.properties";
         }
         try {
             try {
-                versions.load(props);
+                DefaultStorageSegment.loadProperties(props, false, versions);
             } catch (IOException e) {
                 Logger.warning("IOException while reading /version.properties", e);
                 return "unknown version: could not load";
             }
-            String version = versions.getProperty("ccre-version", "unknown version: no property ccre-version");
-            if (version.equals("UNKNOWN")) {
+            String version = versions.get("ccre-version");
+            if (version == null || version.equals("UNKNOWN")) {
                 version = "unknown version: no property ccre-version";
             }
             return version;

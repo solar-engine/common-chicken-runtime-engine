@@ -116,17 +116,8 @@ public class RConfComponent extends DraggableBoxComponent {
 
     private String path;
 
-    private Integer autoRefreshDelay = null;
-    private Ticker autoRefreshTicker = null;
-    private final EventOutput refreshEvent = new EventOutput() {
-        public void event() {
-            if (getPanel() == null) {
-                setAutoRefreshDelay(null);
-            } else {
-                getUpdater().trigger();
-            }
-        }
-    };
+    private transient Integer autoRefreshDelay = null;
+    private transient Ticker autoRefreshTicker = null;
 
     @Override
     protected void onChangePanel(SuperCanvasPanel newPanel) {
@@ -175,7 +166,15 @@ public class RConfComponent extends DraggableBoxComponent {
         }
         if (delay != null) {
             autoRefreshTicker = new Ticker(delay);
-            autoRefreshTicker.send(refreshEvent);
+            autoRefreshTicker.send(new EventOutput() {
+                public void event() {
+                    if (getPanel() == null) {
+                        setAutoRefreshDelay(null);
+                    } else {
+                        getUpdater().trigger();
+                    }
+                }
+            });
         }
     }
 

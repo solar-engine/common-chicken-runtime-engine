@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2014 Colby Skeggs
+ * Copyright 2013-2015 Colby Skeggs
  *
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  *
@@ -31,43 +31,63 @@ import ccre.util.UniqueIds;
 /**
  * A default StorageSegment implementation.
  */
-final class DefaultStorageSegment extends StorageSegment {
+public final class DefaultStorageSegment extends StorageSegment {
 
     private final CHashMap<String, String> data = new CHashMap<String, String>();
     private String name;
     private boolean modified = false;
+    private final StorageProvider provider;
 
-    DefaultStorageSegment(String name) {
+    /**
+     * Load a map from a properties-like file.
+     * 
+     * @param input the InputStream to read from.
+     * @param keepInvalidLines whether or not to save invalid lines under backup
+     * keys.
+     * @param target the map to put the loaded keys into.
+     * @throws IOException if reading from the input fails for some reason.
+     */
+    public static void loadProperties(InputStream input, boolean keepInvalidLines, CHashMap<String, String> target) throws IOException {
+        BufferedReader din = new BufferedReader(new InputStreamReader(input));
+        try {
+            while (true) {
+                String line = din.readLine();
+                if (line == null) {
+                    break;
+                }
+                int ind = line.indexOf('=');
+                if (ind == -1) { // Invalid or empty line.
+                    if (!line.isEmpty() && keepInvalidLines) {
+                        Logger.warning("Invalid line ignored in configuration: " + line + " - saving under backup key.");
+                        target.put(UniqueIds.global.nextHexId("unknown-" + System.currentTimeMillis() + "-" + line.hashCode()), line);
+                    }
+                    continue;
+                }
+                String key = line.substring(0, ind), value = line.substring(ind + 1);
+                target.put(key, value);
+            }
+        } finally {
+            din.close();
+        }
+    }
+
+    DefaultStorageSegment(String name, StorageProvider provider) {
+        this.provider = provider;
         if (name == null) {
             throw new NullPointerException();
         }
+        for (char c : name.toCharArray()) {
+            if (!(Character.isUpperCase(c) || Character.isLowerCase(c) || Character.isDigit(c) || c == '$' || c == '_')) {
+                throw new IllegalArgumentException("Storage names must only contain 'a-zA-Z0-9$_'");
+            }
+        }
         this.name = name;
         try {
-            InputStream target = StorageProvider.openInput("ccre_storage_" + name);
+            InputStream target = provider.openInputFile("ccre_storage_" + name);
             if (target == null) {
                 Logger.info("No data file for: " + name + " - assuming empty.");
             } else {
-                BufferedReader din = new BufferedReader(new InputStreamReader(target));
-                try {
-                    while (true) {
-                        String line = din.readLine();
-                        if (line == null) {
-                            break;
-                        }
-                        int ind = line.indexOf('=');
-                        if (ind == -1) { // Invalid or empty line.
-                            if (!line.isEmpty()) {
-                                Logger.warning("Invalid line ignored in configuration: " + line + " - saving under backup key.");
-                                data.put(UniqueIds.global.nextHexId("unknown-" + System.currentTimeMillis() + "-" + line.hashCode()), line);
-                            }
-                            continue;
-                        }
-                        String key = line.substring(0, ind), value = line.substring(ind + 1);
-                        data.put(key, value);
-                    }
-                } finally {
-                    din.close();
-                }
+                loadProperties(target, true, data);
             }
         } catch (IOException ex) {
             Logger.warning("Error reading storage: " + name, ex);
@@ -89,7 +109,7 @@ final class DefaultStorageSegment extends StorageSegment {
     public synchronized void flush() {
         if (modified) {
             try {
-                PrintStream pout = new PrintStream(StorageProvider.openOutput("ccre_storage_" + name));
+                PrintStream pout = new PrintStream(provider.openOutputFile("ccre_storage_" + name));
                 try {
                     for (String key : data) {
                         if (key.contains("=")) {

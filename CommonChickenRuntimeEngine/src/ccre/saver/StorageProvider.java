@@ -118,7 +118,8 @@ public abstract class StorageProvider {
                 throw new IllegalArgumentException("Storage names must only contain 'a-zA-Z0-9$_'");
             }
         }
-        return new DefaultStorageSegment(name);
+        initProvider();
+        return new DefaultStorageSegment(name, provider);
     }
 
     /**

@@ -183,14 +183,14 @@ public class InstinctMultiModule extends InstinctModule {
                 outs[0] = RConf.title("Select Autonomous Mode");
                 int i = 1;
                 for (InstinctModeModule m : modes) {
-                    outs[i++] = (m == mode) ? RConf.string(mode.getModeName()) : RConf.button(mode.getModeName());
+                    outs[i++] = (m == mode) ? RConf.string(m.getModeName()) : RConf.button(m.getModeName());
                 }
                 outs[i] = RConf.autoRefresh(5000);
                 return outs;
             }
 
             public boolean signalRConf(int field, byte[] data) throws InterruptedException {
-                if (field >= 1 && field < modes.size()) {
+                if (field >= 1 && field <= modes.size()) {
                     setActiveMode(modes.get(field - 1));
                     return true;
                 }

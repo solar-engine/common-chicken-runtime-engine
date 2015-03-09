@@ -149,7 +149,6 @@ public final class RPCManager implements Serializable {
                 }
             }
             for (String rmt : toRemove) {
-                Logger.warning("Timeout on RPC response for " + rmt);
                 timeouts.remove(rmt);
                 try {
                     bindings.remove(rmt).close();

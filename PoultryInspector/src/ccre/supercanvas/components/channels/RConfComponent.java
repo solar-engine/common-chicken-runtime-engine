@@ -53,10 +53,15 @@ public class RConfComponent extends DraggableBoxComponent {
         protected void doWork() throws Throwable {
             RConf.Entry[] out = device.queryRConf();
             if (out == null) {
-                Logger.warning("Could not refresh RConf pane.");
+                lastSignalSucceeded = false;
+                consecutiveUpdateFailures++;
+                setAutoRefreshDelay(autoRefreshDelay); // refresh it because the additional failures may have made it slower.
             } else {
+                lastSignalSucceeded = true;
                 entries = out;
+                consecutiveUpdateFailures = 0;
             }
+            showSignalSuccessUntil = System.currentTimeMillis() + SIGNAL_SUCCESS_FLASH_TIME;
         }
     }
 
@@ -111,6 +116,8 @@ public class RConfComponent extends DraggableBoxComponent {
     private boolean lastSignalSucceeded = false;
     private long showSignalSuccessUntil = 0;
 
+    private transient int consecutiveUpdateFailures = 0;
+
     private transient SignalingWorker signaler;
     private transient UpdatingWorker updater;
 
@@ -153,6 +160,9 @@ public class RConfComponent extends DraggableBoxComponent {
     }
 
     private synchronized void setAutoRefreshDelay(Integer delay) {
+        if (delay != null && delay < 10000) {
+            delay = (int) Math.min(Math.round(delay * Math.pow(2, consecutiveUpdateFailures / 5)), 10000);
+        }
         if (delay != null && delay < 10) {
             delay = 10;
         }

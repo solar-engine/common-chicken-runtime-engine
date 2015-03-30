@@ -50,8 +50,6 @@
 	<property file="${ccre-root.dir}/CCRE_Igneous_cRIO/src/backport.properties" />
 	
 	<available file="${ccre-root.dir}/CCRE_Igneous_cRIO/Library_Postbuild.jar" property="found-2014-lib"></available>
-	
-	<fail unless="found-2014-lib" message="cRIO libraries not compiled! Did you run Build All yet?" />
 
 	<!-- <taskdef resource="net/jtools/classloadertask/antlib.xml" classpath="${lib-2014.dir}/ant-classloadertask.jar" /> -->
 	<classloader loader="system" classpath="${lib-2014.dir}/commons-net-1.4.1.jar" />
@@ -76,9 +74,11 @@
 	</taskdef>
 
 	<target name="clean-2014">
+		<fail unless="found-2014-lib" message="cRIO libraries not compiled! Did you run Build All yet?" />
 		<delete dir="${build-2014.dir}" />
 	</target>
 	<target name="compile-2014" depends="clean-2014">
+		<fail unless="found-2014-lib" message="cRIO libraries not compiled! Did you run Build All yet?" />
 		<mkdir dir="${build-2014.dir}" />
 		<mkdir dir="${classes-2014.dir}" />
 

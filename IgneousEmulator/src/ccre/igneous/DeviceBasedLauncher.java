@@ -371,7 +371,7 @@ public class DeviceBasedLauncher implements IgneousLauncher {
     }
 
     private FloatInputPoll getAmperage(String label) {
-        return panel.add(new FloatControlDevice(label + " Current (0A-20A)", 0, 20, 0.5f, 0.0f));
+        return panel.add(new FloatControlDevice(label + " Current (0A-100A)", 0, 100, 0.5f, 0.0f));
     }
 
     public FloatInputPoll getPDPChannelCurrent(int channel) {

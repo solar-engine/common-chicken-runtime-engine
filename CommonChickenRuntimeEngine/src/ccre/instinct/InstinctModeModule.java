@@ -71,11 +71,6 @@ public abstract class InstinctModeModule extends InstinctBaseModule {
     }
 
     @Override
-    void notifyCycle() {
-        parent.notifyCycle();
-    }
-
-    @Override
     void ensureShouldBeRunning() throws AutonomousModeOverException {
         parent.ensureShouldBeRunning();
         if (this != parent.getActiveMode()) {

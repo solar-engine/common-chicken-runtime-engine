@@ -690,7 +690,6 @@ public class Igneous {
      * @param module the InstinctModule to register.
      */
     public static void registerAutonomous(InstinctModule module) {
-        module.updateWhen(globalPeriodic);
         module.setShouldBeRunning(BooleanMixing.andBooleans(BooleanMixing.invert(getIsDisabled()), getIsAutonomous()));
     }
 

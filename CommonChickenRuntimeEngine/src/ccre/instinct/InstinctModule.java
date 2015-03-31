@@ -34,21 +34,12 @@ public abstract class InstinctModule extends InstinctBaseModule implements Event
     /**
      * If the instinct module should currently be running.
      */
-    BooleanInputPoll shouldBeRunning;
+    private BooleanInputPoll shouldBeRunning;
     /**
-     * If this module is currently running.
+     * The amount of time between condition checks for most things that auto is
+     * waiting on. Must be positive. 20 milliseconds by default.
      */
-    private volatile boolean isRunning = false;
-    /**
-     * If this module has finished execution and is waiting for the signal to
-     * stop running before continuing.
-     */
-    private volatile boolean isEndWaiting = false;
-    /**
-     * The object used to coordinate when the instinct module should resume
-     * execution.
-     */
-    final Object autosynch = new Object();
+    private int autoCycleRate = 20;
 
     /**
      * The main thread for code running in this Instinct Module.
@@ -70,7 +61,7 @@ public abstract class InstinctModule extends InstinctBaseModule implements Event
         if (shouldBeRunning == null) {
             throw new NullPointerException();
         }
-        this.shouldBeRunning = shouldBeRunning;
+        setShouldBeRunning(shouldBeRunning);
     }
 
     /**
@@ -83,23 +74,45 @@ public abstract class InstinctModule extends InstinctBaseModule implements Event
         this.shouldBeRunning = null;
     }
 
+    /**
+     * Get the amount of time between condition checks for most things that auto
+     * is waiting on. Must be positive. 20 milliseconds by default.
+     * 
+     * @return the autoSynchTimeout
+     */
+    public int getAutoCycleRate() {
+        return autoCycleRate;
+    }
+
+    /**
+     * Set the amount of time between condition checks for most things that auto
+     * is waiting on. Must be positive. 20 milliseconds by default.
+     * 
+     * @param autoCycleRate the autoCycleRate to set
+     * @throws IllegalArgumentException if the specified timeout is not positive
+     */
+    public void setAutoCycleRate(int autoCycleRate) throws IllegalArgumentException {
+        if (autoCycleRate <= 0) {
+            throw new IllegalArgumentException("AutoSynchTimeout must be positive!");
+        }
+        this.autoCycleRate = autoCycleRate;
+    }
+
     private void instinctBody() {
         while (true) {
-            isRunning = false;
             while (!shouldBeRunning.get()) {
                 try {
                     waitCycle();
                 } catch (InterruptedException ex) {
                 }
             }
-            try {
-                // Get rid of any lingering interruptions.
+            try { // TODO: Is this needed any longer?
+                  // Get rid of any lingering interruptions.
                 waitCycle();
             } catch (InterruptedException ex) {
             }
             try {
                 try {
-                    isRunning = true;
                     Logger.info("Started " + getTypeName() + ".");
                     autonomousMain();
                     Logger.info("Completed " + getTypeName() + ".");
@@ -112,8 +125,6 @@ public abstract class InstinctModule extends InstinctBaseModule implements Event
             } catch (Throwable t) {
                 Logger.severe("Exception thrown during Autonomous mode!", t);
             }
-            isRunning = false;
-            isEndWaiting = true;
             while (shouldBeRunning.get()) {
                 try {
                     // Wait until no longer supposed to be running.
@@ -121,7 +132,6 @@ public abstract class InstinctModule extends InstinctBaseModule implements Event
                 } catch (InterruptedException ex) {
                 }
             }
-            isEndWaiting = false;
         }
     }
 
@@ -145,29 +155,30 @@ public abstract class InstinctModule extends InstinctBaseModule implements Event
         if (this.shouldBeRunning != null) {
             throw new IllegalStateException();
         }
+        if (when == null) {
+            throw new NullPointerException();
+        }
         shouldBeRunning = when;
+        if (!main.isAlive()) {
+            main.start();
+        }
     }
 
     /**
+     * This no longer needs to be called, and is ignored.
+     *
      * Sets this module to be updated (continue execution) when the specified
      * event is produced.
      *
      * @param src The event to wait for to continue execution.
      */
+    @Deprecated
     public void updateWhen(EventInput src) {
-        src.send(this);
+        Logger.severe("InstinctModule.updateWhen no longer needs to be called!");
     }
 
     void waitCycle() throws InterruptedException {
-        synchronized (autosynch) {
-            autosynch.wait();
-        }
-    }
-
-    void notifyCycle() {
-        synchronized (autosynch) {
-            autosynch.notifyAll();
-        }
+        Thread.sleep(autoCycleRate);
     }
 
     void ensureShouldBeRunning() throws AutonomousModeOverException {
@@ -176,18 +187,8 @@ public abstract class InstinctModule extends InstinctBaseModule implements Event
         }
     }
 
-    public final void event() {
-        if (shouldBeRunning == null) {
-            throw new RuntimeException("You need to have specified when the Insight module should be running!");
-        }
-        if (shouldBeRunning.get() || isEndWaiting) {
-            if (!main.isAlive()) {
-                main.start();
-            }
-            notifyCycle();
-        } else if (isRunning) {
-            notifyCycle();
-            main.interrupt();
-        }
+    @Deprecated
+    public void event() {
+        Logger.warning("You no longer need to call InstinctModule.event()! Stop doing it.");
     }
 }

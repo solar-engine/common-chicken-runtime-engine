@@ -26,7 +26,7 @@ import ccre.ctrl.FloatMixing;
 import ccre.log.Logger;
 
 /**
- * The base class for the different kinds of user-extendable Instinct modules.
+ * The base class for the different kinds of user-extendible Instinct modules.
  *
  * @author skeggsc
  */
@@ -77,15 +77,19 @@ public abstract class InstinctBaseModule {
         final boolean[] b = new boolean[1];
         EventOutput c = new EventOutput() {
             public void event() {
-                b[0] = true;
-                notifyCycle();
+                synchronized (b) {
+                    b[0] = true;
+                    b.notifyAll();
+                }
             }
         };
         source.send(c);
         try {
-            while (!b[0]) {
-                ensureShouldBeRunning();
-                waitCycle();
+            synchronized (b) {
+                while (!b[0]) {
+                    ensureShouldBeRunning();
+                    b.wait();
+                }
             }
         } finally {
             source.unsend(c);
@@ -183,14 +187,9 @@ public abstract class InstinctBaseModule {
     protected abstract void autonomousMain() throws AutonomousModeOverException, InterruptedException;
 
     /**
-     * Wait until the next time that this module is updated.
+     * Wait until the next time that this module should update.
      */
     abstract void waitCycle() throws InterruptedException;
-
-    /**
-     * Cause a fake cycle - resume any threads waiting in waitCycle().
-     */
-    abstract void notifyCycle();
 
     /**
      * Make sure that the autonomous mode should still be running.

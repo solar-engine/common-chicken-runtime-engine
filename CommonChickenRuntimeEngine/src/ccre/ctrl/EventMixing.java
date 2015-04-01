@@ -193,6 +193,7 @@ public class EventMixing {
      * @return the target to fire.
      */
     public static EventInput filterEvent(final BooleanInputPoll shouldAllow, final boolean requirement, EventInput when) {
+        Mixing.checkNull(shouldAllow, when);
         final EventStatus out = new EventStatus();
         when.send(new EventOutput() {
             public void event() {

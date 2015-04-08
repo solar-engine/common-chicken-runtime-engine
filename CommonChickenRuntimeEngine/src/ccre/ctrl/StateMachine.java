@@ -23,6 +23,7 @@ import ccre.channel.BooleanInputPoll;
 import ccre.channel.BooleanOutput;
 import ccre.channel.EventInput;
 import ccre.channel.EventOutput;
+import ccre.channel.EventOutputRecoverable;
 import ccre.channel.EventStatus;
 import ccre.channel.FloatOutput;
 import ccre.log.LogLevel;
@@ -170,7 +171,7 @@ public class StateMachine {
         if (state < 0 || state >= numberOfStates) {
             throw new IllegalArgumentException("Invalid state ID: " + state);
         }
-        return new EventOutput() {
+        return new EventOutputRecoverable() {
             public void event() {
                 if (state == currentState) {
                     return;
@@ -178,6 +179,16 @@ public class StateMachine {
                 onExit.produce();
                 currentState = state;
                 onEnter.produce();
+            }
+
+            public boolean eventWithRecovery() {
+                if (state == currentState) {
+                    return false;
+                }
+                boolean out = onExit.produceWithFailureRecovery();
+                currentState = state;
+                out |= onEnter.produceWithFailureRecovery();
+                return out;
             }
         };
     }

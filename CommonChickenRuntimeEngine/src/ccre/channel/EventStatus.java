@@ -31,7 +31,7 @@ import ccre.util.CArrayUtils;
  *
  * @author skeggsc
  */
-public class EventStatus implements EventInput, EventOutput, Serializable {
+public class EventStatus implements EventInput, EventOutputRecoverable, Serializable {
 
     private static final long serialVersionUID = 115846451690403376L;
 
@@ -116,6 +116,10 @@ public class EventStatus implements EventInput, EventOutput, Serializable {
         produce();
     }
 
+    public boolean eventWithRecovery() {
+        return produceWithFailureRecovery();
+    }
+
     /**
      * Same as produce, but if an exception is thrown, the event will be
      * DETACHED and reported as such!
@@ -128,9 +132,15 @@ public class EventStatus implements EventInput, EventOutput, Serializable {
         for (Iterator<EventOutput> it = consumers.iterator(); it.hasNext();) {
             EventOutput ec = it.next();
             try {
-                ec.event();
+                if (ec instanceof EventOutputRecoverable) {
+                    if (((EventOutputRecoverable) ec).eventWithRecovery()) {
+                        found = true;
+                    }
+                } else {
+                    ec.event();
+                }
             } catch (Throwable thr) {
-                Logger.severe("Event Subscribed Detached: " + ec, thr);
+                Logger.severe("Event Subscriber Detached: " + ec, thr);
                 it.remove();
                 found = true;
             }

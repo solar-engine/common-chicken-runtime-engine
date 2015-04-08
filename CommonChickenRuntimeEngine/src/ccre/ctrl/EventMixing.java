@@ -21,6 +21,7 @@ package ccre.ctrl;
 import ccre.channel.BooleanInputPoll;
 import ccre.channel.EventInput;
 import ccre.channel.EventOutput;
+import ccre.channel.EventOutputRecoverable;
 import ccre.channel.EventStatus;
 
 /**
@@ -174,11 +175,22 @@ public class EventMixing {
      */
     public static EventOutput filterEvent(final BooleanInputPoll shouldAllow, final boolean requirement, final EventOutput target) {
         Mixing.checkNull(shouldAllow, target);
-        return new EventOutput() {
+        return new EventOutputRecoverable() {
             public void event() {
                 if (shouldAllow.get() == requirement) {
                     target.event();
                 }
+            }
+
+            public boolean eventWithRecovery() {
+                if (shouldAllow.get() == requirement) {
+                    if (target instanceof EventOutputRecoverable) {
+                        return ((EventOutputRecoverable) target).eventWithRecovery();
+                    } else {
+                        target.event();
+                    }
+                }
+                return false;
             }
         };
     }
@@ -195,10 +207,18 @@ public class EventMixing {
     public static EventInput filterEvent(final BooleanInputPoll shouldAllow, final boolean requirement, EventInput when) {
         Mixing.checkNull(shouldAllow, when);
         final EventStatus out = new EventStatus();
-        when.send(new EventOutput() {
+        when.send(new EventOutputRecoverable() {
             public void event() {
                 if (shouldAllow.get() == requirement) {
                     out.produce();
+                }
+            }
+
+            public boolean eventWithRecovery() {
+                if (shouldAllow.get() == requirement) {
+                    return out.produceWithFailureRecovery();
+                } else {
+                    return false;
                 }
             }
         });

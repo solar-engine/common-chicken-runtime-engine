@@ -319,6 +319,10 @@ public final class MainIgneousLauncherImpl extends RobotBase implements IgneousL
         return () -> activeMode == Mode.TEST;
     }
 
+    public BooleanInputPoll getIsFMS() {
+        return DriverStation.getInstance()::isFMSAttached;
+    }
+
     public void useCustomCompressor(BooleanInputPoll shouldDisable, int compressorRelayChannel) {
         BooleanOutput relay = makeRelayForwardOutput(compressorRelayChannel);
         BooleanMixing.pumpWhen(new Ticker(500), BooleanMixing.invert(shouldDisable), relay);

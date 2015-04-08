@@ -239,6 +239,15 @@ public class DeviceBasedLauncher implements IgneousLauncher {
         return mode.getIsMode(RobotModeDevice.RobotMode.TESTING);
     }
 
+    private BooleanInputPoll isFMS;
+
+    public BooleanInputPoll getIsFMS() {
+        if (isFMS == null) {
+            isFMS = panel.add(new BooleanControlDevice("On FMS"));
+        }
+        return isFMS;
+    }
+
     public void useCustomCompressor(BooleanInputPoll shouldDisable, int compressorRelayChannel) {
         BooleanOutput relay = panel.add(new BooleanViewDevice("Compressor (Forward Relay " + compressorRelayChannel + ")"));
         BooleanMixing.pumpWhen(new Ticker(500), BooleanMixing.invert(shouldDisable), relay);

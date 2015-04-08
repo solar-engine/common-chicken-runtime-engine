@@ -430,6 +430,14 @@ final class IgneousLauncherImpl extends IterativeRobot implements IgneousLaunche
         };
     }
 
+    public BooleanInputPoll getIsFMS() {
+        return new BooleanInputPoll() {
+            public boolean get() {
+                return DriverStation.getInstance().isFMSAttached();
+            }
+        };
+    }
+
     public void useCustomCompressor(BooleanInputPoll shouldDisable, int compressorRelayChannel) {
         BooleanOutput relay = makeRelayForwardOutput(compressorRelayChannel);
         BooleanMixing.pumpWhen(new Ticker(500), BooleanMixing.invert(shouldDisable), relay);

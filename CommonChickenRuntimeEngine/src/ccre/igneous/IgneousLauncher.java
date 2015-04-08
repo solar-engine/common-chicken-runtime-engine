@@ -199,6 +199,14 @@ public interface IgneousLauncher {
     public BooleanInputPoll getIsTest();
 
     /**
+     * Get a boolean input that checks if the robot is currently connected to
+     * the FMS, as opposed to being off the playing field.
+     *
+     * @return the input.
+     */
+    public BooleanInputPoll getIsFMS();
+
+    /**
      * Activate the compressor on the given pressure switch input and compressor
      * relay channel.
      *

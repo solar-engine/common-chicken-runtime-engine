@@ -462,6 +462,16 @@ public class Igneous {
     }
 
     /**
+     * Get a boolean input that checks if the robot is currently connected to
+     * the FMS, as opposed to being off the playing field.
+     *
+     * @return the input.
+     */
+    public static BooleanInputPoll getIsFMS() {
+        return launcher.getIsFMS();
+    }
+
+    /**
      * Activate the compressor on the given pressure switch channel and
      * compressor relay channel.
      *

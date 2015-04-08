@@ -126,6 +126,7 @@ public final class DirectIgneousLauncherImpl implements IgneousLauncher {
 
         while (true) {
             HALControlWord controlWord = FRCNetworkCommunicationsLibrary.HALGetControlWord();
+            onFMS = controlWord.getFMSAttached();
             Mode newmode = calcMode(controlWord);
             if (newmode != activeMode) {
                 activeMode = newmode;
@@ -170,6 +171,8 @@ public final class DirectIgneousLauncherImpl implements IgneousLauncher {
     private ByteBuffer pcmCompressor;
 
     private Mode activeMode = Mode.DISABLED;
+
+    private boolean onFMS = false;
 
     private final EventStatus[] startEvents, duringEvents;
 
@@ -333,6 +336,10 @@ public final class DirectIgneousLauncherImpl implements IgneousLauncher {
 
     public BooleanInputPoll getIsTest() {
         return () -> activeMode == Mode.TEST;
+    }
+
+    public BooleanInputPoll getIsFMS() {
+        return () -> onFMS;
     }
 
     // TODO: Move this into Igneous?

@@ -156,11 +156,11 @@ public abstract class InstinctBaseModule {
         } else if (milliseconds == 0) {
             return; // Do nothing.
         }
+        ensureShouldBeRunning();
         try {
             Thread.sleep(milliseconds);
-        } catch (InterruptedException ex) {
+        } finally {
             ensureShouldBeRunning();
-            throw ex;
         }
     }
 

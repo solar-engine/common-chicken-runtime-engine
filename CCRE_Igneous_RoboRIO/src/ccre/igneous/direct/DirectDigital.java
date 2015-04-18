@@ -26,13 +26,25 @@ import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
 
 import edu.wpi.first.wpilibj.hal.DIOJNI;
+import edu.wpi.first.wpilibj.hal.InterruptJNI;
 import edu.wpi.first.wpilibj.hal.JNIWrapper;
 
 class DirectDigital {
-    public static final int DIGITAL_NUM = 26;
+    public static final int DIGITAL_NUM = 26, INTERRUPT_NUM = 8;
+
+    private static final byte WATCH_ASYNCHRONOUS = 0, WATCH_SYNCHRONOUS = 1;
+    private static final byte TRIGGER_DIGITAL = 0, TRIGGER_ANALOG = 1;
+
+    static {
+        IntBuffer status = Common.getCheckBuffer();
+        InterruptJNI.initializeInterruptJVM(status);
+        Common.check(status);
+    }
 
     private static final ByteBuffer[] digitals = new ByteBuffer[DIGITAL_NUM];
     private static final boolean[] asInputs = new boolean[DIGITAL_NUM];
+    private static final ByteBuffer[] interrupts = new ByteBuffer[INTERRUPT_NUM];
+    private static final Integer[] interruptMap = new Integer[DIGITAL_NUM];
 
     public static synchronized void init(int channel, boolean asInput) {
         if (channel < 0 || channel >= DIGITAL_NUM) {
@@ -87,5 +99,45 @@ class DirectDigital {
         boolean value = DIOJNI.getDIO(dig, status) != 0; // just FPGA errors
         Common.check(status);
         return value;
+    }
+
+    private static synchronized int allocateInterrupt() {
+        for (int i = 0; i < INTERRUPT_NUM; i++) {
+            if (interrupts[i] == null) {
+                IntBuffer status = Common.getCheckBuffer();
+                ByteBuffer intr = InterruptJNI.initializeInterrupts(i, WATCH_SYNCHRONOUS, status);
+                Common.check(status); // TODO: what if this fails? intr is leaked.
+                interrupts[i] = intr;
+                return i;
+            }
+        }
+        throw new RuntimeException("Ran out of interrupts! Consider using fewer interrupts in your code.");
+    }
+
+    public static synchronized void initInterruptsSynchronous(int id, boolean risingEdge, boolean fallingEdge) {
+        IntBuffer status = Common.getCheckBuffer();
+
+        if (interruptMap[id] == null) {
+            int intr = allocateInterrupt();
+
+            byte module_id = 0;
+            InterruptJNI.requestInterrupts(interrupts[intr], module_id, id, TRIGGER_DIGITAL, status);
+            Common.check(status);
+
+            interruptMap[id] = intr;
+        }
+
+        InterruptJNI.setInterruptUpSourceEdge(interrupts[interruptMap[id]], (byte) (risingEdge ? 1 : 0), (byte) (fallingEdge ? 1 : 0), status);
+        Common.check(status);
+    }
+
+    public static void waitForInterrupt(int id, float timeout, boolean ignorePrevious) {
+        if (interruptMap[id] == null) {
+            throw new RuntimeException("No interrupt allocated for digital input: " + id);
+        }
+        IntBuffer status = Common.getCheckBuffer();
+        // TODO: use return value
+        InterruptJNI.waitForInterrupt(interrupts[interruptMap[id]], timeout, ignorePrevious, status);
+        Common.check(status);
     }
 }

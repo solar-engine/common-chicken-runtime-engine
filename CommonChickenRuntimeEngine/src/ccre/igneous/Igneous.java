@@ -18,6 +18,7 @@
  */
 package ccre.igneous;
 
+import ccre.channel.BooleanInput;
 import ccre.channel.BooleanInputPoll;
 import ccre.channel.BooleanOutput;
 import ccre.channel.EventInput;
@@ -341,6 +342,19 @@ public class Igneous {
      */
     public static BooleanInputPoll makeDigitalInput(int id) {
         return launcher.makeDigitalInput(id);
+    }
+
+    /**
+     * Create a reference to a digital input on the specified port, as a
+     * BooleanInput (not a BooleanInputPoll) that updates by using FPGA
+     * interrupts or an equivalent. Warning: many systems have a limit on the
+     * maximum number of interrupts available - use sparingly!
+     *
+     * @param id the port number.
+     * @return the digital input.
+     */
+    public static BooleanInput makeDigitalInputByInterrupt(int id) {
+        return launcher.makeDigitalInputByInterrupt(id);
     }
 
     /**

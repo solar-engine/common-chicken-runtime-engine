@@ -18,6 +18,7 @@
  */
 package ccre.igneous;
 
+import ccre.channel.BooleanInput;
 import ccre.channel.BooleanInputPoll;
 import ccre.channel.BooleanOutput;
 import ccre.channel.EventInput;
@@ -75,7 +76,7 @@ public class DeviceBasedLauncher implements IgneousLauncher {
         motors = new FloatOutput[isRoboRIO ? 20 : 10];
         solenoids = new BooleanOutput[isRoboRIO ? 64 : 2][8];
         digitalOutputs = new BooleanOutput[isRoboRIO ? 26 : 14];
-        digitalInputs = new BooleanInputPoll[digitalOutputs.length];
+        digitalInputs = new BooleanInput[digitalOutputs.length];
         analogInputs = new FloatInputPoll[isRoboRIO ? 8 : 14];
         servos = new FloatOutput[motors.length];
         relaysFwd = new BooleanOutput[isRoboRIO ? 4 : 8];
@@ -175,12 +176,20 @@ public class DeviceBasedLauncher implements IgneousLauncher {
         return digitalOutputs[index];
     }
 
-    private BooleanInputPoll[] digitalInputs;
+    private BooleanInput[] digitalInputs;
 
     public BooleanInputPoll makeDigitalInput(int id) {
         int index = checkRange("Digital Input", id, digitalInputs);
         if (digitalInputs[index] == null) {
             digitalInputs[index] = panel.add(new BooleanControlDevice("Digital Input " + id));
+        }
+        return digitalInputs[index];
+    }
+
+    public BooleanInput makeDigitalInputByInterrupt(int id) {
+        int index = checkRange("Digital Input", id, digitalInputs);
+        if (digitalInputs[index] == null) {
+            digitalInputs[index] = panel.add(new BooleanControlDevice("Digital Input " + id + " (Interrupt)"));
         }
         return digitalInputs[index];
     }

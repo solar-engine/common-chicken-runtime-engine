@@ -30,14 +30,17 @@ import java.nio.ByteBuffer;
 import java.util.Enumeration;
 import java.util.jar.Manifest;
 
+import ccre.channel.BooleanInput;
 import ccre.channel.BooleanInputPoll;
 import ccre.channel.BooleanOutput;
+import ccre.channel.BooleanStatus;
 import ccre.channel.EventInput;
 import ccre.channel.EventStatus;
 import ccre.channel.FloatInputPoll;
 import ccre.channel.FloatOutput;
 import ccre.channel.SerialIO;
 import ccre.cluck.Cluck;
+import ccre.concurrency.ReporterThread;
 import ccre.ctrl.BooleanMixing;
 import ccre.ctrl.CommunicationFailureExtendedMotor;
 import ccre.ctrl.ExtendedMotor;
@@ -312,6 +315,22 @@ public final class DirectIgneousLauncherImpl implements IgneousLauncher {
     public BooleanInputPoll makeDigitalInput(int id) {
         DirectDigital.init(id, true);
         return () -> DirectDigital.get(id);
+    }
+
+    public BooleanInput makeDigitalInputByInterrupt(int id) {
+        DirectDigital.init(id, true);
+        DirectDigital.initInterruptsSynchronous(id, true, true);
+        BooleanStatus out = new BooleanStatus(DirectDigital.get(id));
+        new ReporterThread("Interrupt-Handler") {
+            @Override
+            protected void threadBody() {
+                while (true) {
+                    DirectDigital.waitForInterrupt(id, 10.0f, false);
+                    out.set(DirectDigital.get(id));
+                }
+            }
+        }.start();
+        return out;
     }
 
     public FloatOutput makeServo(int id, final float minInput, float maxInput) {

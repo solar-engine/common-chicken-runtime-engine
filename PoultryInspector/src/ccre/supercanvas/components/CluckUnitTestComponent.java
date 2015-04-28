@@ -232,13 +232,10 @@ public class CluckUnitTestComponent extends DraggableBoxComponent {
 
     @Override
     public void render(Graphics2D g, int screenWidth, int screenHeight, FontMetrics fontMetrics, int mouseX, int mouseY) {
-        if (tester == null) {
-            tester = new CluckUnitTesterWorker("Cluck-Unit-Tester", true);
-        }
         Rendering.drawBody(bodyColor, g, this);
         g.setColor(Color.BLACK);
         int baseY = centerY - halfHeight / 2 + fontMetrics.getAscent();
-        String str = tester.isDoingWork() ? "Testing: " + tester.ctr + "/" + CluckUnitTesterWorker.MAX_CTR : "Ready";
+        String str = tester != null && tester.isDoingWork() ? "Testing: " + tester.ctr + "/" + CluckUnitTesterWorker.MAX_CTR : "Ready";
         g.drawString(str, centerX - g.getFontMetrics().stringWidth(str) / 2, baseY);
     }
 

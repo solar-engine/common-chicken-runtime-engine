@@ -123,7 +123,7 @@ public class RobotModeDevice extends Device {
     public BooleanInputPoll getIsMode(final RobotMode mode) {
         return mode == RobotMode.DISABLED ? BooleanMixing.invert((BooleanInputPoll) enabled) : new BooleanInputPoll() {
             public boolean get() {
-                return selectedMode == mode;
+                return enabled.get() && selectedMode == mode;
             }
         };
     }

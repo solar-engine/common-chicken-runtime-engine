@@ -437,8 +437,8 @@ final class IgneousLauncherImpl extends IterativeRobot implements IgneousLaunche
     public BooleanInputPoll getIsAutonomous() {
         return new BooleanInputPoll() {
             public boolean get() {
-                DriverStation is = DriverStation.getInstance();
-                return is.isAutonomous() && !is.isTest();
+                DriverStation ds = DriverStation.getInstance();
+                return ds.isEnabled() && ds.isAutonomous() && !ds.isTest();
             }
         };
     }
@@ -446,7 +446,8 @@ final class IgneousLauncherImpl extends IterativeRobot implements IgneousLaunche
     public BooleanInputPoll getIsTest() {
         return new BooleanInputPoll() {
             public boolean get() {
-                return DriverStation.getInstance().isTest();
+                DriverStation ds = DriverStation.getInstance();
+                return ds.isEnabled() && ds.isTest();
             }
         };
     }

@@ -131,13 +131,14 @@ class DirectDigital {
         Common.check(status);
     }
 
-    public static void waitForInterrupt(int id, float timeout, boolean ignorePrevious) {
+    // returns if timed out
+    public static boolean waitForInterrupt(int id, float timeout, boolean ignorePrevious) {
         if (interruptMap[id] == null) {
             throw new RuntimeException("No interrupt allocated for digital input: " + id);
         }
         IntBuffer status = Common.getCheckBuffer();
-        // TODO: use return value
-        InterruptJNI.waitForInterrupt(interrupts[interruptMap[id]], timeout, ignorePrevious, status);
+        int irqs = InterruptJNI.waitForInterrupt(interrupts[interruptMap[id]], timeout, ignorePrevious, status);
         Common.check(status);
+        return irqs == 0;
     }
 }

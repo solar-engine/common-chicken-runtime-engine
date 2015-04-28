@@ -325,7 +325,8 @@ public final class DirectIgneousLauncherImpl implements IgneousLauncher {
             @Override
             protected void threadBody() {
                 while (true) {
-                    DirectDigital.waitForInterrupt(id, 10.0f, false);
+                    // TODO: use this return value for optimization
+                    boolean n = DirectDigital.waitForInterrupt(id, 10.0f, false);
                     out.set(DirectDigital.get(id));
                 }
             }

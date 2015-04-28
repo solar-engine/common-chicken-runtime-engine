@@ -60,6 +60,7 @@ public class TopLevelRConfComponent extends RConfComponent {
             this.asList = possiblyAsList && (as.isArray() || target instanceof Iterable);
         }
 
+        @SuppressWarnings("unused")
         public Entry[] queryRConf() throws InterruptedException {
             if (target == null) {
                 return new Entry[] { RConf.title("Deleted"), RConf.string("cannot save inspections") };
@@ -72,7 +73,7 @@ public class TopLevelRConfComponent extends RConfComponent {
                 addEntry(out, "as object", as);
                 if (target instanceof Iterable) {
                     int size = 0;
-                    for (@SuppressWarnings("unused") Object entry : ((Iterable<?>) target)) {
+                    for (Object entry : ((Iterable<?>) target)) {
                         size++;
                     }
                     addEntry(out, "size", size);

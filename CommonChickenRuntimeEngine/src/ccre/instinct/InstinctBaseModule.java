@@ -26,7 +26,7 @@ import ccre.ctrl.FloatMixing;
 import ccre.log.Logger;
 
 /**
- * The base class for the different kinds of user-extensible Instinct modules.
+ * The base class for the different kinds of user-extendable Instinct modules.
  *
  * @author skeggsc
  */

@@ -39,17 +39,17 @@ public class ReporterThreadExample {
     public static void main(String[] args) throws InterruptedException {
         /*
          * The primary advantage of ReporterThread is that it's harder to break.
-         *
+         * 
          * It requires a thread name always, which can make debugging easier,
          * and autoadds a unique ID so that the threads can be distinguished.
-         *
+         * 
          * If you call the run() method yourself, the thread will throw an
          * exception and not actually run the contents. This means that misuse
          * of a ReporterThread won't cause the code to be ran multiple times.
-         *
+         * 
          * The threadBody() method throws a Throwable, which means that you
          * don't need to write your own handling for all errors.
-         *
+         * 
          * The threadBody() method is also protected, meaning that no one else
          * will be able to call the body, unlike the run() method which must be
          * public by definition.

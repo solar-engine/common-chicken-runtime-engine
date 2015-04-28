@@ -129,7 +129,7 @@ public class Actuators {
                     }
                 }
             }
-        }.updateWhen(updateDuring);
+        };
     }
 
     public void createCollector(EventInput during, FloatOutput collectorMotor, BooleanOutput openFingers,

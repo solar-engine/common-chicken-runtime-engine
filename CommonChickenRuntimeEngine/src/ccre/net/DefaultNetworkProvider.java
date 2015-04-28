@@ -47,6 +47,7 @@ import ccre.util.CCollection;
  */
 class DefaultNetworkProvider implements NetworkProvider {
 
+    @SuppressWarnings("resource")
     public ClientSocket openClient(String targetAddress, int port) throws IOException {
         try {
             Socket sock = new Socket();

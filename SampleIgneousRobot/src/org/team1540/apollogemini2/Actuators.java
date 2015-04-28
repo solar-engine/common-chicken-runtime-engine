@@ -159,7 +159,7 @@ public class Actuators {
             protected String getTypeName() {
                 return "actuator control loop";
             }
-        }.updateWhen(Igneous.globalPeriodic);
+        };
         final BooleanInputPoll switchRollersIn = UserInterface.getRollersInSwitch();
         BooleanInputPoll switchRollersOut = UserInterface.getRollersOutSwitch();
 

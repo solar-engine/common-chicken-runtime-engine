@@ -46,6 +46,7 @@ public class TopLevelRConfComponent extends RConfComponent {
      */
     public static class InspectionRConfable implements RConfable, Serializable {
 
+        private static final long serialVersionUID = 9039257278527972486L;
         // transient so that we don't carry over anything.
         private transient final Object target;
         private transient final Class<?> as;
@@ -71,7 +72,7 @@ public class TopLevelRConfComponent extends RConfComponent {
                 addEntry(out, "as object", as);
                 if (target instanceof Iterable) {
                     int size = 0;
-                    for (Object entry : ((Iterable<?>) target)) {
+                    for (@SuppressWarnings("unused") Object entry : ((Iterable<?>) target)) {
                         size++;
                     }
                     addEntry(out, "size", size);
@@ -164,6 +165,7 @@ public class TopLevelRConfComponent extends RConfComponent {
 
     private static class TopLevelRConfable implements RConfable, Serializable {
 
+        private static final long serialVersionUID = 7564831796084759163L;
         private TopLevelRConfComponent master;
 
         public Entry[] queryRConf() throws InterruptedException {

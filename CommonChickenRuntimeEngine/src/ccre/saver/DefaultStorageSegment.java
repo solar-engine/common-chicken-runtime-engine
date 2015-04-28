@@ -87,7 +87,11 @@ public final class DefaultStorageSegment extends StorageSegment {
             if (target == null) {
                 Logger.info("No data file for: " + name + " - assuming empty.");
             } else {
-                loadProperties(target, true, data);
+                try {
+                    loadProperties(target, true, data);
+                } finally {
+                    target.close();
+                }
             }
         } catch (IOException ex) {
             Logger.warning("Error reading storage: " + name, ex);

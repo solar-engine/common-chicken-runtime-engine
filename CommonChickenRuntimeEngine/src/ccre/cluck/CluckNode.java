@@ -207,8 +207,16 @@ public class CluckNode implements Serializable {
             CluckLink link = links.get(direct);
             if (link == null) {
                 reportMissingLink(data, source, target, direct);
-            } else if (link.send(indirect, source, data) == false) {
-                links.remove(direct); // Remove it if the link says that it's done.
+            } else {
+                boolean shouldLive = true;
+                try {
+                    shouldLive = link.send(indirect, source, data);
+                } catch (Throwable ex) {
+                    Logger.severe("Error while dispatching to Cluck link " + target, ex);
+                }
+                if (shouldLive == false) {
+                    links.remove(direct); // Remove it if the link says that it's done.
+                }
             }
         }
     }

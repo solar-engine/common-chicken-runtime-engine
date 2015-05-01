@@ -304,6 +304,10 @@ public class RConfComponent extends DraggableBoxComponent {
         } else {
             int field = 0;
             for (RConf.Entry e : entries) {
+                if (e.type == RConf.F_AUTO_REFRESH) {
+                    field++;
+                    continue;
+                }
                 relY -= 20;
                 if (relY < 20) {
                     byte[] payload = null;
@@ -364,6 +368,8 @@ public class RConfComponent extends DraggableBoxComponent {
                                 }
                             }
                         }
+                        break;
+                    case RConf.F_AUTO_REFRESH:
                         break;
                     default:
                         payload = new byte[0];

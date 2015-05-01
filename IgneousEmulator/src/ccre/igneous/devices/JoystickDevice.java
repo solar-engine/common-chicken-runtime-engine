@@ -70,7 +70,7 @@ public class JoystickDevice extends DeviceGroup {
     }
 
     private final FloatControlDevice[] axes = new FloatControlDevice[6];
-    private final BooleanControlDevice[] buttons = new BooleanControlDevice[12];
+    private final BooleanControlDevice[] buttons = new BooleanControlDevice[14];
     private final FloatControlDevice[] povs = new FloatControlDevice[10]; // 10 is arbitrary.
     private final BooleanControlDevice[] povPresses = new BooleanControlDevice[povs.length];
 

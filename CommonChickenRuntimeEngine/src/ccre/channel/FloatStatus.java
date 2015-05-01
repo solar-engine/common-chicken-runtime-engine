@@ -174,6 +174,26 @@ public class FloatStatus implements FloatOutput, FloatInput, RConfable, Serializ
         }
     }
 
+    /**
+     * Returns a version of this status as an output. This is equivalent to
+     * upcasting to FloatOutput.
+     *
+     * @return this status, as an output.
+     */
+    public FloatOutput asOutput() {
+        return this;
+    }
+
+    /**
+     * Returns a version of this status as an input. This is equivalent to
+     * upcasting to FloatInput.
+     *
+     * @return this status, as an input.
+     */
+    public FloatInput asInput() {
+        return this;
+    }
+
     public Entry[] queryRConf() {
         return new Entry[] { RConf.fieldFloat(get()), RConf.fieldInteger(consumers == null ? 0 : consumers.size()) };
     }

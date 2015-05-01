@@ -89,6 +89,9 @@ public final class CHashMap<K, V> implements Iterable<K> {
      * @return the hash.
      */
     private int hash(Object tgt) {
+        if (tgt == null) {
+            throw new NullPointerException("Keys in CHashMap cannot be null!"); // TODO: Make this allowed?
+        }
         int x = tgt.hashCode();
         if (x < 0) {
             return (-x) % map.length;

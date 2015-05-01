@@ -204,4 +204,12 @@ public class CArrayUtils {
     public static void sort(Integer[] list) {
         Arrays.sort(list);
     }
+
+    public static <T> CArrayList<T> collectIterable(Iterable<T> elements) {
+        CArrayList<T> out = new CArrayList<T>();
+        for (T elem : elements) {
+            out.add(elem);
+        }
+        return out;
+    }
 }

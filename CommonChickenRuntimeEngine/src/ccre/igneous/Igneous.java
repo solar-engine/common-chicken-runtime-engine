@@ -31,6 +31,7 @@ import ccre.ctrl.FloatMixing;
 import ccre.ctrl.IJoystick;
 import ccre.ctrl.IJoystickWithPOV;
 import ccre.ctrl.Ticker;
+import ccre.ctrl.binding.ControlBindingDataSourceBuildable;
 import ccre.instinct.InstinctModule;
 import ccre.log.Logger;
 
@@ -784,5 +785,17 @@ public class Igneous {
         public void set(boolean f) {
             sendDSUpdate(prefix + f, line);
         }
+    }
+
+    public static ControlBindingDataSourceBuildable getControlBindingDataSource() {
+        return getControlBindingDataSource("Joystick 1", "Joystick 2", "Joystick 3", "Joystick 4");
+    }
+
+    public static ControlBindingDataSourceBuildable getControlBindingDataSource(String... names) {
+        ControlBindingDataSourceBuildable ds = new ControlBindingDataSourceBuildable(globalPeriodic);
+        for (int i = 0; i < names.length; i++) {
+            ds.addJoystick(names[i], launcher.getJoystick(i + 1), 12, 6);
+        }
+        return ds;
     }
 }

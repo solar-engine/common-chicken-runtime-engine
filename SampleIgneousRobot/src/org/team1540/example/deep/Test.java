@@ -22,7 +22,7 @@ import ccre.channel.BooleanStatus;
 import ccre.cluck.Cluck;
 import ccre.ctrl.BooleanMixing;
 import ccre.ctrl.binding.CluckControlBinder;
-import ccre.ctrl.binding.ControlBindingDataSinkBuildable;
+import ccre.ctrl.binding.ControlBindingCreator;
 import ccre.ctrl.binding.ControlBindingDataSource;
 import ccre.igneous.Igneous;
 import ccre.igneous.IgneousApplication;
@@ -38,7 +38,7 @@ import ccre.igneous.IgneousApplication;
 public class Test implements IgneousApplication {
 
     public static final ControlBindingDataSource source = Igneous.getControlBindingDataSource();
-    public static final ControlBindingDataSinkBuildable driveControls = CluckControlBinder.makeBuildable("Drive Code", Test.source);
+    public static final ControlBindingCreator driveControls = CluckControlBinder.makeCreator("Drive Code", Test.source);
 
     /**
      * Set up the test robot. This includes tank drive, high gear/low gear, a

@@ -31,6 +31,8 @@ import ccre.ctrl.FloatMixing;
 import ccre.ctrl.IJoystick;
 import ccre.ctrl.IJoystickWithPOV;
 import ccre.ctrl.Ticker;
+import ccre.ctrl.binding.CluckControlBinder;
+import ccre.ctrl.binding.ControlBindingCreator;
 import ccre.ctrl.binding.ControlBindingDataSourceBuildable;
 import ccre.instinct.InstinctModule;
 import ccre.log.Logger;
@@ -787,8 +789,27 @@ public class Igneous {
         }
     }
 
-    public static ControlBindingDataSourceBuildable getControlBindingDataSource() {
-        return getControlBindingDataSource("Joystick 1", "Joystick 2", "Joystick 3", "Joystick 4");
+    private static ControlBindingDataSourceBuildable builtControlSource;
+
+    public static synchronized ControlBindingDataSourceBuildable getControlBindingDataSource() {
+        if (builtControlSource == null) {
+            builtControlSource = getControlBindingDataSource("Joystick 1", "Joystick 2", "Joystick 3", "Joystick 4");
+        }
+        return builtControlSource;
+    }
+
+    public static ControlBindingCreator makeControlBindingCreator(String title, boolean bypassEmulation) {
+        if (!bypassEmulation) {
+            ControlBindingCreator out = launcher.tryMakeControlBindingCreator(title);
+            if (out != null) {
+                return out;
+            }
+        }
+        return CluckControlBinder.makeCreator(title, getControlBindingDataSource());
+    }
+
+    public static ControlBindingCreator makeControlBindingCreator(String title) {
+        return makeControlBindingCreator(title, false);
     }
 
     public static ControlBindingDataSourceBuildable getControlBindingDataSource(String... names) {

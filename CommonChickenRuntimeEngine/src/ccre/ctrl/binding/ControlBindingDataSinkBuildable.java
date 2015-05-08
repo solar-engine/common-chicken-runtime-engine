@@ -12,7 +12,7 @@ import ccre.util.CArrayList;
 import ccre.util.CArrayUtils;
 import ccre.util.CHashMap;
 
-public class ControlBindingDataSinkBuildable implements ControlBindingDataSink {
+public class ControlBindingDataSinkBuildable implements ControlBindingDataSink, ControlBindingCreator {
 
     private final CHashMap<String, BooleanOutput> booleans = new CHashMap<String, BooleanOutput>();
     private final CHashMap<String, FloatOutput> floats = new CHashMap<String, FloatOutput>();

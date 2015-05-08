@@ -49,6 +49,7 @@ import ccre.ctrl.FloatMixing;
 import ccre.ctrl.IJoystick;
 import ccre.ctrl.IJoystickWithPOV;
 import ccre.ctrl.Ticker;
+import ccre.ctrl.binding.ControlBindingCreator;
 import ccre.igneous.IgneousApplication;
 import ccre.igneous.IgneousLauncher;
 import ccre.igneous.IgneousLauncherHolder;
@@ -563,5 +564,9 @@ public final class DirectIgneousLauncherImpl implements IgneousLauncher {
 
     public BooleanInputPoll getChannelEnabled(int powerChannel) {
         return () -> DirectPower.readChannelEnabled(powerChannel);
+    }
+
+    public ControlBindingCreator tryMakeControlBindingCreator(String title) {
+        return null;
     }
 }

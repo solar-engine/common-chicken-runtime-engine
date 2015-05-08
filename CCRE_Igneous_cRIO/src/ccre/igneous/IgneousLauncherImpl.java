@@ -41,6 +41,7 @@ import ccre.ctrl.FloatMixing;
 import ccre.ctrl.IJoystick;
 import ccre.ctrl.IJoystickWithPOV;
 import ccre.ctrl.Ticker;
+import ccre.ctrl.binding.ControlBindingCreator;
 import ccre.log.BootLogger;
 import ccre.log.FileLogger;
 import ccre.log.Logger;
@@ -798,5 +799,9 @@ final class IgneousLauncherImpl extends IterativeRobot implements IgneousLaunche
     public BooleanInputPoll getChannelEnabled(int powerChannel) {
         Logger.warning("Power channel statuses are not available on the cRIO!");
         return powerChannel == Igneous.POWER_CHANNEL_BATTERY ? BooleanMixing.alwaysTrue : BooleanMixing.alwaysFalse;
+    }
+
+    public ControlBindingCreator tryMakeControlBindingCreator(String title) {
+        return null;
     }
 }

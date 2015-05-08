@@ -21,7 +21,7 @@ public class CluckControlBinder implements RConfable {
         this.sinkSet = sink;
     }
     
-    public static ControlBindingDataSinkBuildable makeBuildable(String title, ControlBindingDataSource source) {
+    public static ControlBindingCreator makeCreator(String title, ControlBindingDataSource source) {
         ControlBindingDataSinkBuildable sink = new ControlBindingDataSinkBuildable();
         new CluckControlBinder(title, source, sink).publish();
         return sink;

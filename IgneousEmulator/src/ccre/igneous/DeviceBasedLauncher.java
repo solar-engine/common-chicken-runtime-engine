@@ -22,6 +22,7 @@ import ccre.channel.BooleanInput;
 import ccre.channel.BooleanInputPoll;
 import ccre.channel.BooleanOutput;
 import ccre.channel.EventInput;
+import ccre.channel.FloatInput;
 import ccre.channel.FloatInputPoll;
 import ccre.channel.FloatOutput;
 import ccre.channel.SerialIO;
@@ -34,6 +35,7 @@ import ccre.ctrl.IJoystick;
 import ccre.ctrl.IJoystickWithPOV;
 import ccre.ctrl.LoopbackSerialIO;
 import ccre.ctrl.Ticker;
+import ccre.ctrl.binding.ControlBindingCreator;
 import ccre.igneous.devices.BooleanControlDevice;
 import ccre.igneous.devices.BooleanViewDevice;
 import ccre.igneous.devices.CANJaguarDevice;
@@ -513,5 +515,25 @@ public class DeviceBasedLauncher implements IgneousLauncher {
                 return BooleanMixing.alwaysFalse;
             }
         }
+    }
+
+    public ControlBindingCreator tryMakeControlBindingCreator(String title) {
+        return new ControlBindingCreator() {
+            public void addBoolean(String name, BooleanOutput output) {
+                addBoolean(name).send(output);
+            }
+
+            public BooleanInput addBoolean(String name) {
+                return panel.add(new BooleanControlDevice("Control: " + name));
+            }
+
+            public void addFloat(String name, FloatOutput output) {
+                addFloat(name).send(output);
+            }
+
+            public FloatInput addFloat(String name) {
+                return panel.add(new FloatControlDevice("Control: " + name));
+            }
+        };
     }
 }

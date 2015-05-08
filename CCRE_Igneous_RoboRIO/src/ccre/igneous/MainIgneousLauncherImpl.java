@@ -43,6 +43,7 @@ import ccre.ctrl.ExtendedMotorFailureException;
 import ccre.ctrl.IJoystick;
 import ccre.ctrl.IJoystickWithPOV;
 import ccre.ctrl.Ticker;
+import ccre.ctrl.binding.ControlBindingCreator;
 import ccre.log.BootLogger;
 import ccre.log.FileLogger;
 import ccre.log.Logger;
@@ -676,5 +677,9 @@ public final class MainIgneousLauncherImpl extends RobotBase implements IgneousL
                 return false;
             }
         };
+    }
+
+    public ControlBindingCreator tryMakeControlBindingCreator(String title) {
+        return null;
     }
 }

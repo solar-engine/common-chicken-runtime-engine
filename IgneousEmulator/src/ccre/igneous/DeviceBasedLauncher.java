@@ -44,6 +44,7 @@ import ccre.igneous.devices.FloatControlDevice;
 import ccre.igneous.devices.FloatViewDevice;
 import ccre.igneous.devices.HeadingDevice;
 import ccre.igneous.devices.JoystickDevice;
+import ccre.igneous.devices.LoggingDevice;
 import ccre.igneous.devices.RobotModeDevice;
 import ccre.igneous.devices.SpinDevice;
 import ccre.log.Logger;
@@ -82,6 +83,7 @@ public class DeviceBasedLauncher implements IgneousLauncher {
         servos = new FloatOutput[motors.length];
         relaysFwd = new BooleanOutput[isRoboRIO ? 4 : 8];
         relaysRev = new BooleanOutput[relaysFwd.length];
+        mode = panel.add(new RobotModeDevice());
         mode.getIsEnabled().send(new BooleanOutput() {
             @Override
             public void set(boolean enabled) {
@@ -92,6 +94,12 @@ public class DeviceBasedLauncher implements IgneousLauncher {
                 }
             }
         });
+        logger = panel.add(new LoggingDevice(100));
+        Logger.addTarget(logger);
+    }
+
+    public void clearLoggingPane() {
+        logger.clearLines();
     }
 
     private int checkRange(String name, int id, Object[] target) {
@@ -101,7 +109,8 @@ public class DeviceBasedLauncher implements IgneousLauncher {
         return id - baseIndex;
     }
 
-    private final RobotModeDevice mode = panel.add(new RobotModeDevice());
+    private final RobotModeDevice mode;
+    private final LoggingDevice logger;
     private EventInput masterPeriodic = new Ticker(20);
 
     private IJoystickWithPOV[] joysticks;

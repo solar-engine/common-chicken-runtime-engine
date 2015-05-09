@@ -28,7 +28,6 @@ import java.util.jar.JarFile;
 import javax.swing.JFrame;
 
 import ccre.cluck.Cluck;
-import ccre.cluck.tcp.CluckTCPServer;
 import ccre.log.BootLogger;
 import ccre.log.FileLogger;
 import ccre.log.Logger;
@@ -45,15 +44,16 @@ public class DeviceListMain {
      * Start the emulator.
      *
      * @param args a single-element array containing only the path to the main
-     * Jar file for the emulated program.
+     *            Jar file for the emulated program.
      * @throws IOException if the jar file cannot be properly accessed
      * @throws ClassNotFoundException if a reflection error occurs
      * @throws InstantiationException if a reflection error occurs
      * @throws NoSuchMethodException if a reflection error occurs
      * @throws IllegalAccessException if a reflection error occurs
      * @throws InvocationTargetException if a reflection error occurs
+     * @throws InterruptedException if the main thread is somehow interrupted.
      */
-    public static void main(String[] args) throws IOException, ClassNotFoundException, InstantiationException, NoSuchMethodException, IllegalAccessException, InvocationTargetException {
+    public static void main(String[] args) throws IOException, ClassNotFoundException, InstantiationException, NoSuchMethodException, IllegalAccessException, InvocationTargetException, InterruptedException {
         if (args.length != 2 || !("roboRIO".equals(args[1]) || "cRIO".equals(args[1]))) {
             System.err.println("Expected arguments: <Igneous-Jar> (roboRIO|cRIO)");
             System.exit(-1);
@@ -90,9 +90,14 @@ public class DeviceListMain {
         BootLogger.register();
         FileLogger.register();
         IgneousLauncherHolder.setLauncher(launcher);
-        Cluck.setupServer();
-        new CluckTCPServer(Cluck.getNode(), 1540).start();
+        if (!System.getProperty("os.name").toLowerCase().contains("linux") && !System.getProperty("os.name").toLowerCase().contains("mac os")) {
+            // Don't try to bind to port 80 on Mac or Linux - only sadness will ensue.
+            Cluck.setupServer();
+        }
+        Cluck.setupServer(1540);
+        Thread.sleep(500); // give a bit of time for network stuff to try to set itself up.
         try {
+            launcher.clearLoggingPane();
             Logger.info("Starting application: " + mainClass);
             asSubclass.getConstructor().newInstance().setupRobot();
             Logger.info("Hello, " + mainClass + "!");

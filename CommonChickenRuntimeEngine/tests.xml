@@ -22,13 +22,13 @@
  -->
 
 <project name="Example" default="run-tests">
-	<!-- You must first extract Cobertura-2.0.3 so that the Cobertura-2.0.3 directory shows up in the repository root -->
+	<!-- You must first extract cobertura-2.1.1 so that the cobertura-2.1.1 directory shows up in the repository root -->
 
 	<property name="cobertura.dir"
-	          value="${basedir}${file.separator}..${file.separator}Cobertura-2.0.3" />
+	          value="${basedir}${file.separator}..${file.separator}cobertura-2.1.1" />
 	<path id="cobertura.classpath">
 		<fileset dir="${cobertura.dir}">
-			<include name="cobertura-2.0.3.jar" />
+			<include name="cobertura-2.1.1.jar" />
 			<include name="lib${file.separator}**${file.separator}*.jar" />
 		</fileset>
 	</path>

@@ -22,6 +22,8 @@ import java.awt.Color;
 import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.Rectangle;
+import java.awt.Shape;
 import java.io.Serializable;
 
 import ccre.channel.FloatInput;
@@ -144,10 +146,13 @@ public class FloatControlComponent extends BaseChannelComponent<FloatControlComp
                 } else {
                     g.setColor(Color.ORANGE);
                 }
+                Shape c = g.getClip();
+                g.setClip(new Rectangle(centerX - halfWidth + 10, centerY - halfHeight / 2, halfWidth * 2 - 20, halfHeight));
                 g.drawPolygon(new int[] { ptrCtr - 12, ptrCtr - 8, ptrCtr - 12 }, new int[] { centerY - 8, centerY - 4, centerY }, 3);
                 g.drawPolygon(new int[] { ptrCtr + 12, ptrCtr + 8, ptrCtr + 12 }, new int[] { centerY - 8, centerY - 4, centerY }, 3);
                 g.fillRect(ptrCtr - 5, centerY - halfHeight / 2 + 1, 11, halfHeight / 2 - 4);
                 g.fillPolygon(new int[] { ptrCtr - 5, ptrCtr, ptrCtr + 6 }, new int[] { centerY - 3, centerY + 3, centerY - 3 }, 3);
+                g.setClip(c);
             }
             break;
         case TICKER:

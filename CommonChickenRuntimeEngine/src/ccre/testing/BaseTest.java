@@ -42,7 +42,7 @@ public abstract class BaseTest {
      * @throws java.lang.InterruptedException If the thread is interrupted
      * during the test.
      */
-    protected abstract void runTest() throws TestingException, InterruptedException;
+    protected abstract void runTest() throws Throwable;
 
     /**
      * Run this test verbosely. This will log various status messages during the

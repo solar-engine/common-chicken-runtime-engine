@@ -74,6 +74,7 @@ public class SuiteOfTests {
                 // ccre.rload - Do I need this?
 
                 // ccre.saver - Needed!
+                new TestFiles(),
 
                 // ccre.testing
                 new TestTests(),

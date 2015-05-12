@@ -31,9 +31,10 @@ import ccre.igneous.components.TextComponent;
  *
  * @author skeggsc
  */
-public class BooleanViewDevice extends Device implements BooleanOutput, BooleanInputPoll {
+public class BooleanViewDevice extends Device implements BooleanOutput, BooleanInputPoll, Disableable {
 
-    private final BooleanTextComponent actuated = new BooleanTextComponent("DEACTUATED", "ACTUATED");
+    private final BooleanTextComponent actuated;
+    private boolean savedValue = false, disabled = true;
 
     /**
      * Create a new BooleanViewDevice with a label to describe the device.
@@ -43,14 +44,28 @@ public class BooleanViewDevice extends Device implements BooleanOutput, BooleanI
     public BooleanViewDevice(String label) {
         add(new SpacingComponent(20));
         add(new TextComponent(label));
+        actuated = new BooleanTextComponent("DEACTUATED", "ACTUATED");
         add(actuated);
     }
 
     public void set(boolean value) {
-        actuated.set(value);
+        savedValue = value;
+        if (!disabled) {
+            actuated.set(value);
+        }
     }
 
     public boolean get() {
         return actuated.get();
+    }
+
+    @Override
+    public void notifyDisabled(boolean disabled) {
+        this.disabled = disabled;
+        if (disabled) {
+            actuated.set(false);
+        } else {
+            actuated.set(savedValue);
+        }
     }
 }

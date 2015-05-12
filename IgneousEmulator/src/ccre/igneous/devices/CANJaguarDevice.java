@@ -26,6 +26,7 @@ import ccre.channel.FloatInputPoll;
 import ccre.channel.FloatOutput;
 import ccre.ctrl.ExtendedMotor;
 import ccre.ctrl.ExtendedMotorFailureException;
+import ccre.igneous.Device;
 import ccre.igneous.DeviceGroup;
 import ccre.igneous.DeviceListPanel;
 
@@ -35,7 +36,7 @@ import ccre.igneous.DeviceListPanel;
  *
  * @author skeggsc
  */
-public class CANJaguarDevice extends DeviceGroup {
+public class CANJaguarDevice extends DeviceGroup implements Disableable {
 
     private BooleanViewDevice enabled;
     private final HashMap<ExtendedMotor.StatusType, FloatControlDevice> statusDevices = new HashMap<ExtendedMotor.StatusType, FloatControlDevice>();
@@ -173,4 +174,13 @@ public class CANJaguarDevice extends DeviceGroup {
             pidStatus.set("PID P=" + P + " I=" + I + " D=" + D);
         }
     };
+
+    @Override
+    public void notifyDisabled(boolean disabled) {
+        for (Device d : this) {
+            if (d instanceof Disableable) {
+                ((Disableable) d).notifyDisabled(disabled);
+            }
+        }
+    }
 }

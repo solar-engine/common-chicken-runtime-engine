@@ -28,6 +28,7 @@ import java.awt.Shape;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseWheelEvent;
+import java.util.Iterator;
 
 import javax.swing.JPanel;
 
@@ -42,7 +43,7 @@ import ccre.workarounds.ThrowablePrinter;
  *
  * @author skeggsc
  */
-public final class DeviceListPanel extends JPanel {
+public final class DeviceListPanel extends JPanel implements Iterable<Device> {
 
     private static final long serialVersionUID = 3194911460808795658L;
     /**
@@ -390,5 +391,10 @@ public final class DeviceListPanel extends JPanel {
                 Logger.severe("Exception while handling mouse move", thr);
             }
         }
+    }
+
+    @Override
+    public Iterator<Device> iterator() {
+        return devices.iterator();
     }
 }

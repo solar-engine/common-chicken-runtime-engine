@@ -18,6 +18,7 @@
  */
 package ccre.igneous.devices;
 
+import ccre.channel.BooleanInput;
 import ccre.channel.BooleanInputPoll;
 import ccre.ctrl.BooleanMixing;
 import ccre.igneous.Device;
@@ -126,5 +127,14 @@ public class RobotModeDevice extends Device {
                 return enabled.get() && selectedMode == mode;
             }
         };
+    }
+
+    /**
+     * Return a BooleanInput representing if the robot is enabled.
+     *
+     * @return the channel representing if the robot is enabled.
+     */
+    public BooleanInput getIsEnabled() {
+        return enabled;
     }
 }

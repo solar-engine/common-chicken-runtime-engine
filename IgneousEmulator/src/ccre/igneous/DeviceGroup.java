@@ -21,6 +21,7 @@ package ccre.igneous;
 import java.awt.Color;
 import java.awt.FontMetrics;
 import java.awt.Graphics2D;
+import java.util.Iterator;
 
 import ccre.concurrency.ConcurrentDispatchArray;
 
@@ -29,7 +30,7 @@ import ccre.concurrency.ConcurrentDispatchArray;
  *
  * @author skeggsc
  */
-public class DeviceGroup extends Device {
+public class DeviceGroup extends Device implements Iterable<Device> {
     private final ConcurrentDispatchArray<Device> devices = new ConcurrentDispatchArray<Device>();
 
     /**
@@ -41,6 +42,10 @@ public class DeviceGroup extends Device {
     public synchronized <D extends Device> D add(D device) {
         devices.add(device);
         return device;
+    }
+
+    public Iterator<Device> iterator() {
+        return devices.iterator();
     }
 
     @Override

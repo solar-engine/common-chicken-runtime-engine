@@ -29,10 +29,12 @@ import ccre.igneous.components.TextComponent;
  *
  * @author skeggsc
  */
-public class FloatViewDevice extends Device implements FloatOutput {
+public class FloatViewDevice extends Device implements FloatOutput, Disableable {
 
     private final FillBarComponent value = new FillBarComponent();
     private final float minInput, maxInput;
+    private float savedValue;
+    private boolean disabled = true;
 
     /**
      * Create a new FloatViewDevice with a label where the minimum value is -1.0
@@ -61,6 +63,20 @@ public class FloatViewDevice extends Device implements FloatOutput {
     }
 
     public void set(float value) {
-        this.value.set(2 * (value - minInput) / (maxInput - minInput) - 1);
+        float rvalue = 2 * (value - minInput) / (maxInput - minInput) - 1;
+        savedValue = rvalue;
+        if (!disabled) {
+            this.value.set(rvalue);
+        }
+    }
+
+    @Override
+    public void notifyDisabled(boolean disabled) {
+        this.disabled = disabled;
+        if (disabled) {
+            this.value.set(0);
+        } else {
+            this.value.set(savedValue);
+        }
     }
 }

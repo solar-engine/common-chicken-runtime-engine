@@ -39,6 +39,7 @@ import ccre.igneous.devices.BooleanViewDevice;
 import ccre.igneous.devices.CANJaguarDevice;
 import ccre.igneous.devices.CANTalonDevice;
 import ccre.igneous.devices.DSLCDDevice;
+import ccre.igneous.devices.Disableable;
 import ccre.igneous.devices.FloatControlDevice;
 import ccre.igneous.devices.FloatViewDevice;
 import ccre.igneous.devices.HeadingDevice;
@@ -81,6 +82,16 @@ public class DeviceBasedLauncher implements IgneousLauncher {
         servos = new FloatOutput[motors.length];
         relaysFwd = new BooleanOutput[isRoboRIO ? 4 : 8];
         relaysRev = new BooleanOutput[relaysFwd.length];
+        mode.getIsEnabled().send(new BooleanOutput() {
+            @Override
+            public void set(boolean enabled) {
+                for (Device d : panel) {
+                    if (d instanceof Disableable) {
+                        ((Disableable) d).notifyDisabled(!enabled);
+                    }
+                }
+            }
+        });
     }
 
     private int checkRange(String name, int id, Object[] target) {
@@ -171,6 +182,7 @@ public class DeviceBasedLauncher implements IgneousLauncher {
     public BooleanOutput makeDigitalOutput(int id) {
         int index = checkRange("Digital Output", id, digitalOutputs);
         if (digitalOutputs[index] == null) {
+            // TODO: Should this really be forced to disabled with other outputs?
             digitalOutputs[index] = panel.add(new BooleanViewDevice("Digital Output " + id));
         }
         return digitalOutputs[index];

@@ -51,7 +51,7 @@ public class TestFiles extends BaseTest {
         assertIntsEqual(input.read(data), 2, "hoped for at least two bytes from file");
         assertIntsEqual(data[0], ' ', "bad byte from file");
         assertIntsEqual(data[1], 'W', "bad byte from file");
-        
+
         // read a big chunk
         data = new byte[29];
         int index = 0;
@@ -64,7 +64,7 @@ public class TestFiles extends BaseTest {
         byte[] expected = "orld!\nABCDd\nHello, World (2)!".getBytes();
         assertIntsEqual(data.length, index, "should have finished reading");
         assertIntsEqual(index, expected.length, "should have finished reading");
-        for (int i=0; i<data.length; i++) {
+        for (int i = 0; i < data.length; i++) {
             assertIntsEqual(data[i], expected[i], "bad byte from file at " + i);
         }
         data = new byte[2];

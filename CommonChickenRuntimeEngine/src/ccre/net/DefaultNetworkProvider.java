@@ -47,7 +47,6 @@ import ccre.util.CCollection;
  */
 class DefaultNetworkProvider implements NetworkProvider {
 
-    @SuppressWarnings("resource")
     public ClientSocket openClient(String targetAddress, int port) throws IOException {
         try {
             Socket sock = new Socket();
@@ -69,7 +68,6 @@ class DefaultNetworkProvider implements NetworkProvider {
         return "NetFull";
     }
 
-    @SuppressWarnings("resource")
     public ServerSocket openServer(int port) throws IOException {
         return new ServerSocketImpl(new java.net.ServerSocket(port));
     }

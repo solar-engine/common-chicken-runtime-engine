@@ -1,11 +1,9 @@
 package ccre.testing;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-import ccre.saver.DefaultStorageProvider;
 import ccre.saver.StorageProvider;
 
 /**

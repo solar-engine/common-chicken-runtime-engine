@@ -63,7 +63,6 @@ public final class RPCManager implements Serializable {
                 Logger.warning("Message to RPC endpoint!");
             }
 
-            @SuppressWarnings("resource")
             @Override
             protected void handleOther(String dest, String source, byte[] data) {
                 if (requireRMT(source, data, CluckNode.RMT_INVOKE_REPLY)) {

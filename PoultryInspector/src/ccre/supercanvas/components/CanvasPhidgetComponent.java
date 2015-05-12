@@ -89,7 +89,6 @@ public class CanvasPhidgetComponent extends DraggableBoxComponent {
         }
         for (int i = 0; i < LCD_LINES; i++) {
             final int localI = i;
-            @SuppressWarnings("resource")
             LineCollectorOutputStream collector = new LineCollectorOutputStream() {
                 @Override
                 protected void collect(final String str) {

@@ -32,8 +32,8 @@ import edu.wpi.first.wpilibj.hal.JNIWrapper;
 class DirectDigital {
     public static final int DIGITAL_NUM = 26, INTERRUPT_NUM = 8;
 
-    private static final byte WATCH_ASYNCHRONOUS = 0, WATCH_SYNCHRONOUS = 1;
-    private static final byte TRIGGER_DIGITAL = 0, TRIGGER_ANALOG = 1;
+    static final byte WATCH_ASYNCHRONOUS = 0, WATCH_SYNCHRONOUS = 1;
+    static final byte TRIGGER_DIGITAL = 0, TRIGGER_ANALOG = 1;
 
     static {
         IntBuffer status = Common.getCheckBuffer();

@@ -21,6 +21,8 @@ package ccre.ctrl;
 import ccre.channel.BooleanInput;
 import ccre.channel.BooleanInputPoll;
 import ccre.channel.BooleanOutput;
+import ccre.channel.EventInput;
+import ccre.channel.EventOutput;
 import ccre.channel.FloatInput;
 import ccre.channel.FloatInputPoll;
 import ccre.channel.FloatOutput;
@@ -356,5 +358,23 @@ public class Mixing {
     }
 
     private Mixing() {
+    }
+
+    static BooleanOutput lazySend(final EventInput in, final EventOutput out) {
+        return new BooleanOutput() {
+            private boolean connected = false;
+
+            public void set(boolean value) {
+                if (connected == value) {
+                    return;
+                }
+                if (value) {
+                    in.send(out);
+                } else {
+                    in.unsend(out);
+                }
+                connected = value;
+            }
+        };
     }
 }

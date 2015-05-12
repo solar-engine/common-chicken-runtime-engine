@@ -41,6 +41,27 @@ public class EventStatus implements EventInput, EventOutputRecoverable, Serializ
     private final ConcurrentDispatchArray<EventOutput> consumers;
 
     /**
+     * A subscriber who cares about when we move between having consumers and
+     * not having consumers.
+     */
+    private BooleanOutput consumerSubscriber = null;
+
+    /**
+     * Ask to know when this EventStatus changes between having consumers and
+     * not having consumers.
+     *
+     * @param subscriber the subscriber to notify - true for having subscribers,
+     * false for not having subscribers.
+     */
+    public void subscribeToConsumers(BooleanOutput subscriber) {
+        if (consumerSubscriber != null) {
+            throw new IllegalStateException("Consumer subscriber already registered!");
+        }
+        consumerSubscriber = subscriber;
+        subscriber.set(hasConsumers());
+    }
+
+    /**
      * Create a new Event.
      */
     public EventStatus() {
@@ -92,7 +113,7 @@ public class EventStatus implements EventInput, EventOutputRecoverable, Serializ
     }
 
     /**
-     * Produce this event - fire all listenering events.
+     * Produce this event - fire all listening events.
      */
     public void produce() {
         for (EventOutput ec : consumers) {
@@ -103,12 +124,18 @@ public class EventStatus implements EventInput, EventOutputRecoverable, Serializ
     public void send(EventOutput client) {
         if (!consumers.contains(client)) {
             consumers.add(client);
+            if (consumers.size() == 1 && consumerSubscriber != null) {
+                consumerSubscriber.set(true);
+            }
         }
     }
 
     public void unsend(EventOutput client) throws IllegalStateException {
         if (!consumers.remove(client)) {
             throw new IllegalStateException("Listener not in event list: " + client);
+        }
+        if (consumers.isEmpty() && consumerSubscriber != null) {
+            consumerSubscriber.set(false);
         }
     }
 
@@ -144,6 +171,9 @@ public class EventStatus implements EventInput, EventOutputRecoverable, Serializ
                 it.remove();
                 found = true;
             }
+        }
+        if (found && consumers.isEmpty() && consumerSubscriber != null) {
+            consumerSubscriber.set(false);
         }
         return found;
     }

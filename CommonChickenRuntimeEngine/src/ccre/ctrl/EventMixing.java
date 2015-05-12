@@ -61,12 +61,19 @@ public class EventMixing {
      * @param b the second event source
      * @return the source that is fired by either of the original sources.
      */
-    public static EventInput combine(EventInput a, EventInput b) {
+    public static EventInput combine(final EventInput a, final EventInput b) {
         Mixing.checkNull(a, b);
-        EventStatus e = new EventStatus();
-        a.send(e);
-        b.send(e);
-        return e;
+        return new EventInput() {
+            public void send(EventOutput listener) {
+                a.send(listener);
+                b.send(listener);
+            }
+
+            public void unsend(EventOutput listener) {
+                a.unsend(listener);
+                b.unsend(listener);
+            }
+        };
     }
 
     /**
@@ -76,13 +83,21 @@ public class EventMixing {
      * @param sources the event sources
      * @return the source that is fired by any of the original sources.
      */
-    public static EventInput combine(EventInput... sources) {
+    public static EventInput combine(final EventInput... sources) {
         Mixing.checkNull((Object[]) sources);
-        EventStatus e = new EventStatus();
-        for (EventInput es : sources) {
-            es.send(e);
-        }
-        return e;
+        return new EventInput() {
+            public void send(EventOutput listener) {
+                for (EventInput es : sources) {
+                    es.send(listener);
+                }
+            }
+
+            public void unsend(EventOutput listener) {
+                for (EventInput es : sources) {
+                    es.unsend(listener);
+                }
+            }
+        };
     }
 
     /**
@@ -133,7 +148,7 @@ public class EventMixing {
      */
     public static EventOutput debounce(final EventOutput orig, final int minMillis) {
         Mixing.checkNull(orig);
-        return new EventOutput() {
+        return new EventOutputRecoverable() {
             private long nextFire = 0;
 
             public synchronized void event() {
@@ -143,6 +158,20 @@ public class EventMixing {
                 }
                 nextFire = now + minMillis;
                 orig.event();
+            }
+
+            public boolean eventWithRecovery() {
+                long now = System.currentTimeMillis();
+                if (now < nextFire) {
+                    return false; // Ignore event.
+                }
+                nextFire = now + minMillis;
+                if (orig instanceof EventOutputRecoverable) {
+                    return ((EventOutputRecoverable) orig).eventWithRecovery();
+                } else {
+                    orig.event();
+                    return false;
+                }
             }
         };
     }
@@ -160,7 +189,8 @@ public class EventMixing {
     public static EventInput debounce(EventInput orig, int minMillis) {
         Mixing.checkNull(orig);
         EventStatus e = new EventStatus();
-        orig.send(debounce((EventOutput) e, minMillis));
+        EventOutput debounced = debounce((EventOutput) e, minMillis);
+        e.subscribeToConsumers(Mixing.lazySend(orig, debounced));
         return e;
     }
 
@@ -206,22 +236,9 @@ public class EventMixing {
      */
     public static EventInput filterEvent(final BooleanInputPoll shouldAllow, final boolean requirement, EventInput when) {
         Mixing.checkNull(shouldAllow, when);
-        final EventStatus out = new EventStatus();
-        when.send(new EventOutputRecoverable() {
-            public void event() {
-                if (shouldAllow.get() == requirement) {
-                    out.produce();
-                }
-            }
-
-            public boolean eventWithRecovery() {
-                if (shouldAllow.get() == requirement) {
-                    return out.produceWithFailureRecovery();
-                } else {
-                    return false;
-                }
-            }
-        });
+        EventStatus out = new EventStatus();
+        EventOutput filtered = filterEvent(shouldAllow, requirement, (EventOutput) out);
+        out.subscribeToConsumers(Mixing.lazySend(when, filtered));
         return out;
     }
 

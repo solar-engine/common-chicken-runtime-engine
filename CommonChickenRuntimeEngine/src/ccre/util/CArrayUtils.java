@@ -164,6 +164,7 @@ public class CArrayUtils {
      * running Arrays.sort on it, and then putting the elements back into the
      * list.
      *
+     * @param <T> the type of the list elements.
      * @param list the list to sort.
      */
     @SuppressWarnings("unchecked")
@@ -188,6 +189,7 @@ public class CArrayUtils {
     /**
      * Sorts the given array. Equivalent to Arrays.sort.
      *
+     * @param <T> the type of the array elements.
      * @param list the array to sort.
      */
     public static <T extends Comparable<T>> void sort(T[] list) {

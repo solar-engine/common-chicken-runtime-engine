@@ -108,7 +108,8 @@ public class InstinctMultiModule extends InstinctModule {
      * mode.
      *
      * If showIndividualModes is true, then each mode registered so far will get
-     * its own "Autonomous Mode: <mode>" button that will switch to that mode.
+     * its own "Autonomous Mode: &lt;mode&gt;" button that will switch to that
+     * mode.
      *
      * If showCycleChooser is true, then "Autonomous Mode Next" and
      * "Autonomous Mode Previous" will be published, which will cycle through

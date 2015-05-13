@@ -256,7 +256,6 @@ public final class ExpirationTimer {
                 t.cnsm.event();
             } catch (Throwable thr) {
                 Logger.severe("Exception in ExpirationTimer dispatch!", thr);
-                // Github #18: Detachment error handling.
             }
         }
     }

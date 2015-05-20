@@ -165,7 +165,7 @@ public final class MultipleSourceBooleanController implements BooleanInput, Even
     }
 
     public synchronized void send(BooleanOutput output) {
-        consumers.add(output);
+        consumers.addIfNotFound(output);
         output.set(get());
     }
 

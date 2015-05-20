@@ -101,17 +101,12 @@ public class EventStatus implements EventInput, EventOutputRecoverable, Serializ
     }
 
     public void send(EventOutput client) {
-        if (consumers.addIfNotFound(client)) {
-            notifyConsumerChange(true);
-        }
+        consumers.addIfNotFound(client);
     }
 
     public void unsend(EventOutput client) throws IllegalStateException {
         if (!consumers.remove(client)) {
             throw new IllegalStateException("Listener not in event list: " + client);
-        }
-        if (consumers.isEmpty()) {
-            notifyConsumerChange(false);
         }
     }
 
@@ -148,14 +143,7 @@ public class EventStatus implements EventInput, EventOutputRecoverable, Serializ
                 found = true;
             }
         }
-        if (found && consumers.isEmpty()) {
-            notifyConsumerChange(false);
-        }
         return found;
-    }
-
-    protected void notifyConsumerChange(boolean increase) {
-        // do nothing by default.
     }
 
     /**

@@ -186,25 +186,11 @@ public class EventMixing {
      * @param minMillis The minimum event delay.
      * @return The debounced version of the event source.
      */
-    public static EventInput debounce(final EventInput orig, final int minMillis) {
+    public static EventInput debounce(EventInput orig, int minMillis) {
         Mixing.checkNull(orig);
-        return new EventStatus() {
-            private EventOutput debounced = debounce((EventOutput) this, minMillis);
-            private boolean wasSent = false;
-            
-            @Override
-            protected synchronized void notifyConsumerChange(boolean increase) {
-                if (increase == wasSent) {
-                    return;
-                }
-                wasSent = increase;
-                if (increase) {
-                    orig.send(debounced);
-                } else {
-                    orig.unsend(debounced);
-                }
-            }
-        };
+        EventStatus e = new EventStatus();
+        orig.send(debounce((EventOutput) e, minMillis));
+        return e;
     }
 
     /**
@@ -247,25 +233,25 @@ public class EventMixing {
      * @param when when to check if the target should be fired.
      * @return the target to fire.
      */
-    public static EventInput filterEvent(final BooleanInputPoll shouldAllow, final boolean requirement, final EventInput when) {
+    public static EventInput filterEvent(final BooleanInputPoll shouldAllow, final boolean requirement, EventInput when) {
         Mixing.checkNull(shouldAllow, when);
-        return new EventStatus() {
-            private EventOutput filtered = filterEvent(shouldAllow, requirement, (EventOutput) this);
-            private boolean wasSent = false;
-            
-            @Override
-            protected synchronized void notifyConsumerChange(boolean increase) {
-                if (increase == wasSent) {
-                    return;
-                }
-                wasSent = increase;
-                if (increase) {
-                    when.send(filtered);
-                } else {
-                    when.unsend(filtered);
+        final EventStatus out = new EventStatus();
+        when.send(new EventOutputRecoverable() {
+            public void event() {
+                if (shouldAllow.get() == requirement) {
+                    out.produce();
                 }
             }
-        };
+
+            public boolean eventWithRecovery() {
+                if (shouldAllow.get() == requirement) {
+                    return out.produceWithFailureRecovery();
+                } else {
+                    return false;
+                }
+            }
+        });
+        return out;
     }
 
     private EventMixing() {

@@ -236,23 +236,15 @@ public class BooleanStatus implements BooleanOutput, BooleanInput, RConfable, Se
         }
         if (consumers.addIfNotFound(output)) {
             output.set(value);
-            notifyConsumerChange(true);
         }
     }
 
     public synchronized void unsend(BooleanOutput output) {
         if (consumers != null) {
-            if (consumers.remove(output)) {
-                if (consumers.isEmpty()) {
-                    consumers = null;
-                    notifyConsumerChange(false);
-                }
+            if (consumers.remove(output) && consumers.isEmpty()) {
+                consumers = null;
             }
         }
-    }
-
-    protected void notifyConsumerChange(boolean increase) {
-        // do nothing by default.
     }
 
     /**

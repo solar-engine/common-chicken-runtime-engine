@@ -118,11 +118,19 @@ public class DeviceBasedLauncher implements IgneousLauncher {
     private IJoystickWithPOV[] joysticks;
 
     public IJoystickWithPOV getJoystick(int id) {
-        int index = checkRange("Joystick", id, joysticks);
-        if (joysticks[index] == null) {
-            joysticks[index] = new JoystickDevice(id, isRoboRIO, panel, joyHandler).getJoystick(masterPeriodic);
+        if (isRoboRIO()) {
+            if (id < 1 || id > joysticks.length) {
+                throw new IllegalArgumentException("Invalid Joystick #" + id + " (roboRIO supports 1-6)!");
+            }
+        } else {
+            if (id < 1 || id > joysticks.length) {
+                throw new IllegalArgumentException("Invalid Joystick #" + id + " (cRIO supports 1-4)!");
+            }
         }
-        return joysticks[index];
+        if (joysticks[id - 1] == null) {
+            joysticks[id - 1] = new JoystickDevice(id, isRoboRIO, panel, joyHandler).getJoystick(masterPeriodic);
+        }
+        return joysticks[id - 1];
     }
 
     private IJoystick rightKinect, leftKinect;

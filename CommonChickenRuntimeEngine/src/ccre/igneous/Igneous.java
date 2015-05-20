@@ -96,6 +96,14 @@ public class Igneous {
      */
     public static final IJoystickWithPOV joystick4 = launcher.getJoystick(4);
     /**
+     * Joystick 5 on the Driver Station. Not available on cRIO.
+     */
+    public static final IJoystickWithPOV joystick5 = launcher.getJoystick(5);
+    /**
+     * Joystick 6 on the Driver Station. Not available on cRIO.
+     */
+    public static final IJoystickWithPOV joystick6 = launcher.getJoystick(6);
+    /**
      * Produced during every mode if the driver station is attached.
      */
     public static final EventInput globalPeriodic = launcher.getGlobalPeriodic();

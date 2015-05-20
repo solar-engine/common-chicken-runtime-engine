@@ -516,7 +516,7 @@ public final class DirectIgneousLauncherImpl implements IgneousLauncher {
     }
 
     public IJoystickWithPOV getJoystick(int id) {
-        if (id < 1 || id > 4) {
+        if (id < 1 || id > 6) {
             throw new IllegalArgumentException("Joystick " + id + " is not a valid joystick number.");
         }
         return new CJoystickDirect(id, globalPeriodic);

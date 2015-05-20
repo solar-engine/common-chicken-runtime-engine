@@ -531,6 +531,12 @@ final class IgneousLauncherImpl extends IterativeRobot implements IgneousLaunche
     }
 
     public IJoystickWithPOV getJoystick(int id) {
+        if (id < 1 || id > 6) {
+            throw new IllegalArgumentException("cRIO only supports Joysticks 1-4!");
+        }
+        if (id == 5 || id == 6) {
+            return new FakeJoystick("The cRIO doesn't support Joystick #5 or #6!");
+        }
         return new CJoystick(id, globalPeriodic);
     }
 

@@ -22,6 +22,7 @@ import ccre.channel.BooleanInput;
 import ccre.channel.BooleanInputPoll;
 import ccre.channel.BooleanOutput;
 import ccre.channel.EventOutput;
+import ccre.concurrency.ConcurrentDispatchArray;
 import ccre.util.CArrayList;
 
 /**
@@ -59,7 +60,7 @@ public final class MultipleSourceBooleanController implements BooleanInput, Even
     /**
      * The list of consumers to be notified when the value changes.
      */
-    private final CArrayList<BooleanOutput> consumers = new CArrayList<BooleanOutput>();
+    private final ConcurrentDispatchArray<BooleanOutput> consumers = new ConcurrentDispatchArray<BooleanOutput>();
     /**
      * The current value of the result.
      */
@@ -163,12 +164,12 @@ public final class MultipleSourceBooleanController implements BooleanInput, Even
         return lastValue;
     }
 
-    public void send(BooleanOutput output) {
+    public synchronized void send(BooleanOutput output) {
         consumers.add(output);
         output.set(get());
     }
 
-    public void unsend(BooleanOutput output) {
+    public synchronized void unsend(BooleanOutput output) {
         consumers.remove(output);
     }
 

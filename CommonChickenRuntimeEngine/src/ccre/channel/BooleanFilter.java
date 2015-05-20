@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2014 Colby Skeggs
+ * Copyright 2013-2015 Colby Skeggs
  *
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  *
@@ -17,6 +17,8 @@
  * along with the CCRE.  If not, see <http://www.gnu.org/licenses/>.
  */
 package ccre.channel;
+
+import ccre.ctrl.Mixing;
 
 /**
  * A BooleanFilter is a wrapper that can be wrapped around any kind of Output,
@@ -42,13 +44,26 @@ public abstract class BooleanFilter {
      * @param input The input to filter.
      * @return the filtered input.
      */
-    public BooleanInput wrap(BooleanInput input) {
+    public BooleanInput wrap(final BooleanInput input) {
         if (input == null) {
             throw new NullPointerException();
         }
-        BooleanStatus out = new BooleanStatus(filter(input.get()));
-        input.send(wrap((BooleanOutput) out));
-        return out;
+        return new BooleanStatus(filter(input.get())) {
+            private BooleanOutput wrapped = wrap((BooleanOutput) this);
+            private boolean wasSent = false;
+            @Override
+            protected void notifyConsumerChange(boolean increase) {
+                if (increase == wasSent) {
+                    return;
+                }
+                wasSent = increase;
+                if (increase) {
+                    input.send(wrapped);
+                } else {
+                    input.unsend(wrapped);
+                }
+            }
+        };
     }
 
     /**

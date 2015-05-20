@@ -27,7 +27,6 @@ import ccre.channel.FloatInput;
 import ccre.channel.FloatInputPoll;
 import ccre.channel.FloatOutput;
 import ccre.channel.FloatStatus;
-import ccre.concurrency.ConcurrentDispatchArray;
 import ccre.util.CArrayList;
 
 /**
@@ -330,7 +329,31 @@ public class Mixing {
     private Mixing() {
     }
 
+    /**
+     * Internal API. Do not use.
+     */
     static BooleanOutput lazySend(final EventInput in, final EventOutput out) {
+        return new BooleanOutput() {
+            private boolean connected = false;
+
+            public void set(boolean value) {
+                if (connected == value) {
+                    return;
+                }
+                if (value) {
+                    in.send(out);
+                } else {
+                    in.unsend(out);
+                }
+                connected = value;
+            }
+        };
+    }
+
+    /**
+     * Internal API. Do not use.
+     */
+    public static BooleanOutput lazySend(final BooleanInput in, final BooleanOutput out) {
         return new BooleanOutput() {
             private boolean connected = false;
 

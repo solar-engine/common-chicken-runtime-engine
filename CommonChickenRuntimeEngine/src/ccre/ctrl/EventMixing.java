@@ -186,12 +186,25 @@ public class EventMixing {
      * @param minMillis The minimum event delay.
      * @return The debounced version of the event source.
      */
-    public static EventInput debounce(EventInput orig, int minMillis) {
+    public static EventInput debounce(final EventInput orig, final int minMillis) {
         Mixing.checkNull(orig);
-        EventStatus e = new EventStatus();
-        EventOutput debounced = debounce((EventOutput) e, minMillis);
-        e.subscribeToConsumers(Mixing.lazySend(orig, debounced));
-        return e;
+        return new EventStatus() {
+            private EventOutput debounced = debounce((EventOutput) this, minMillis);
+            private boolean wasSent = false;
+            
+            @Override
+            protected synchronized void notifyConsumerChange(boolean increase) {
+                if (increase == wasSent) {
+                    return;
+                }
+                wasSent = increase;
+                if (increase) {
+                    orig.send(debounced);
+                } else {
+                    orig.unsend(debounced);
+                }
+            }
+        };
     }
 
     /**
@@ -234,12 +247,25 @@ public class EventMixing {
      * @param when when to check if the target should be fired.
      * @return the target to fire.
      */
-    public static EventInput filterEvent(final BooleanInputPoll shouldAllow, final boolean requirement, EventInput when) {
+    public static EventInput filterEvent(final BooleanInputPoll shouldAllow, final boolean requirement, final EventInput when) {
         Mixing.checkNull(shouldAllow, when);
-        EventStatus out = new EventStatus();
-        EventOutput filtered = filterEvent(shouldAllow, requirement, (EventOutput) out);
-        out.subscribeToConsumers(Mixing.lazySend(when, filtered));
-        return out;
+        return new EventStatus() {
+            private EventOutput filtered = filterEvent(shouldAllow, requirement, (EventOutput) this);
+            private boolean wasSent = false;
+            
+            @Override
+            protected synchronized void notifyConsumerChange(boolean increase) {
+                if (increase == wasSent) {
+                    return;
+                }
+                wasSent = increase;
+                if (increase) {
+                    when.send(filtered);
+                } else {
+                    when.unsend(filtered);
+                }
+            }
+        };
     }
 
     private EventMixing() {

@@ -121,7 +121,8 @@ public class PauseTimer implements BooleanInput, EventOutput {
     }
 
     public void send(BooleanOutput output) {
-        consumers.add(output);
+        consumers.addIfNotFound(output);
+        output.set(get());
     }
 
     public void unsend(BooleanOutput output) {

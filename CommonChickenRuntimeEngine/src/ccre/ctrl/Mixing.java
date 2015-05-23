@@ -25,6 +25,7 @@ import ccre.channel.FloatInput;
 import ccre.channel.FloatInputPoll;
 import ccre.channel.FloatOutput;
 import ccre.channel.FloatStatus;
+import ccre.concurrency.ConcurrentDispatchArray;
 import ccre.util.CArrayList;
 
 /**
@@ -184,17 +185,15 @@ public class Mixing {
         checkNull(selector, off, on);
         return new FloatInput() {
             private FloatInputPoll cur = default_ ? on : off;
-            private CArrayList<FloatOutput> consumers = null;
+            private final ConcurrentDispatchArray<FloatOutput> consumers = new ConcurrentDispatchArray<FloatOutput>();
 
             {
                 selector.send(new BooleanOutput() {
                     public void set(boolean value) {
                         cur = value ? on : off;
-                        if (consumers != null) {
-                            float val = cur.get();
-                            for (FloatOutput out : consumers) {
-                                out.set(val);
-                            }
+                        float val = cur.get();
+                        for (FloatOutput out : consumers) {
+                            out.set(val);
                         }
                     }
                 });
@@ -205,17 +204,12 @@ public class Mixing {
             }
 
             public void send(FloatOutput consum) {
-                if (consumers == null) {
-                    consumers = new CArrayList<FloatOutput>();
-                }
-                consumers.add(consum);
+                consumers.addIfNotFound(consum);
                 consum.set(get());
             }
 
             public void unsend(FloatOutput consum) {
-                if (consumers != null) {
-                    consumers.remove(consum);
-                }
+                consumers.remove(consum);
             }
         };
     }

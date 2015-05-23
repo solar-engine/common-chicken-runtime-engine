@@ -38,13 +38,12 @@ public class EventStatus implements EventInput, EventOutputRecoverable, Serializ
     /**
      * The events to fire when this event is fired.
      */
-    private final ConcurrentDispatchArray<EventOutput> consumers;
+    private final ConcurrentDispatchArray<EventOutput> consumers = new ConcurrentDispatchArray<EventOutput>();
 
     /**
      * Create a new Event.
      */
     public EventStatus() {
-        consumers = new ConcurrentDispatchArray<EventOutput>();
     }
 
     /**
@@ -55,7 +54,6 @@ public class EventStatus implements EventInput, EventOutputRecoverable, Serializ
      * @see #send(ccre.channel.EventOutput)
      */
     public EventStatus(EventOutput event) {
-        consumers = new ConcurrentDispatchArray<EventOutput>();
         consumers.add(event);
     }
 
@@ -67,8 +65,7 @@ public class EventStatus implements EventInput, EventOutputRecoverable, Serializ
      * @see #send(ccre.channel.EventOutput)
      */
     public EventStatus(EventOutput... events) {
-        consumers = new ConcurrentDispatchArray<EventOutput>();
-        consumers.addAll(CArrayUtils.asList(events));
+        consumers.addAllIfNotFound(CArrayUtils.asList(events));
     }
 
     /**
@@ -105,9 +102,7 @@ public class EventStatus implements EventInput, EventOutputRecoverable, Serializ
     }
 
     public void unsend(EventOutput client) throws IllegalStateException {
-        if (!consumers.remove(client)) {
-            throw new IllegalStateException("Listener not in event list: " + client);
-        }
+        consumers.remove(client);
     }
 
     public void event() {

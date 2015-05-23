@@ -41,6 +41,9 @@ public interface FloatInput extends FloatInputPoll {
      * If available, the current value of the input will be written at this
      * time.
      *
+     * If the same listener is added multiple times, it has the same effect as
+     * if it was added once.
+     *
      * @param output The float output to notify when the value changes.
      * @see FloatOutput#set(float)
      * @see #unsend(ccre.channel.FloatOutput)
@@ -53,6 +56,11 @@ public interface FloatInput extends FloatInputPoll {
      *
      * By convention, most float inputs and outputs have states that range from
      * -1.0f to 1.0f.
+     *
+     * If the listener was not added previously (or had been removed), this call
+     * will do nothing.
+     *
+     * After this is called, a listener can be reregistered with send.
      *
      * @param output The output to unsubscribe.
      * @see #send(ccre.channel.FloatOutput)

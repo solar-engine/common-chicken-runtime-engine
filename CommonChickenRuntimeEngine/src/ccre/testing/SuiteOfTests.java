@@ -41,6 +41,7 @@ public class SuiteOfTests {
         BaseTest[] tests = new BaseTest[] {
                 // ccre.chan
                 new TestBooleanStatus(), new TestFloatStatus(),
+                new TestFilters(),
 
                 // ccre.cluck - Tests needed!
 

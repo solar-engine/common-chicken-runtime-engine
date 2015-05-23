@@ -83,7 +83,9 @@ public class EventStatus implements EventInput, EventOutputRecoverable, Serializ
      * Returns the number of consumers.
      *
      * @return the number of consumers.
+     * @deprecated this information does not need to be a public interface.
      */
+    @Deprecated
     public int countConsumers() {
         return consumers.size();
     }

@@ -60,11 +60,7 @@ public class PauseTimer implements BooleanInput, EventOutput {
                         lock.wait(endAt - now);
                     }
                 }
-                try {
-                    setEndAt(0);
-                } catch (Throwable thr) {
-                    Logger.severe("Exception in PauseTimer main loop!", thr);
-                }
+                setEndAt(0);
             }
         }
     };
@@ -116,7 +112,11 @@ public class PauseTimer implements BooleanInput, EventOutput {
             return;
         }
         for (BooleanOutput c : consumers) {
-            c.set(enabling);
+            try {
+                c.set(enabling);
+            } catch (Throwable thr) {
+                Logger.severe("Exception in PauseTimer dispatch!", thr);
+            }
         }
     }
 

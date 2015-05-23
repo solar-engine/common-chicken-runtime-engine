@@ -120,30 +120,51 @@ public class TestPauseTimer extends BaseTest {
     private void testAlternate() throws TestingException, InterruptedException {
         PauseTimer timer = new PauseTimer(299);
         try {
+            final boolean[] canOccur = new boolean[] { true, true };
+            // This test checks to make sure that throwing exceptions is handled gracefully.
             Logger.info("The following failure is purposeful.");
             BooleanOutput evil = new BooleanOutput() {
                 public void set(boolean value) {
-                    if (!value) {
-                        throw new RuntimeException("Purposeful failure.");
+                    if (canOccur[0]) {
+                        if (value) {
+                            throw new RuntimeException("Initial value is bad!");
+                        }
+                    } else {
+                        if (!value) {
+                            throw new RuntimeException("Purposeful failure.");
+                        }
                     }
                 }
             };
             timer.send(evil);
+            canOccur[0] = false;
             final boolean[] atAll = new boolean[1];
-            timer.send(new BooleanOutput() {
+            BooleanOutput checker = new BooleanOutput() {
                 public void set(boolean value) {
-                    if (!value) {
-                        atAll[0] = true;
+                    if (canOccur[1]) {
+                        if (value) {
+                            throw new RuntimeException("Initial value is bad!");
+                        }
+                    } else {
+                        if (!value) {
+                            if (atAll[0]) {
+                                throw new RuntimeException("Multiple cases of setting to zero!");
+                            }
+                            atAll[0] = true;
+                        }
                     }
                 }
-            });
+            };
+            timer.send(checker);
+            canOccur[1] = false;
             timer.event();
             assertTrue(timer.get(), "Should be on.");
             Thread.sleep(399);
             assertFalse(timer.get(), "Should be off.");
-            assertFalse(atAll[0], "Should not have occurred.");
+            assertTrue(atAll[0], "Should have occurred even with an erroneous throw!");
             // TODO: Should test logging as well.
             timer.unsend(evil);
+            timer.unsend(checker);
 
             // Now use it semi-normally.
             BooleanStatus temp = new BooleanStatus();

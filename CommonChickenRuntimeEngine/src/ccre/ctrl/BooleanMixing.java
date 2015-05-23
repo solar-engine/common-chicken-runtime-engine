@@ -42,10 +42,17 @@ public class BooleanMixing {
     /**
      * A BooleanOutput that goes nowhere. All data sent here is ignored.
      */
-    public static final BooleanOutput ignoredBooleanOutput = new BooleanOutput() {
+    public static final BooleanOutput ignored = new BooleanOutput() { // TODO: Rename to "ignored"
         public void set(boolean newValue) {
+            // Do nothing.
         }
     };
+    /**
+     * A BooleanOutput that goes nowhere. All data sent here is ignored.
+     * @deprecated renamed simply <code>BooleanMixing.ignored</code>.
+     */
+    @Deprecated
+    public static final BooleanOutput ignoredBooleanOutput = ignored;
     /**
      * A BooleanInput that is always false.
      */

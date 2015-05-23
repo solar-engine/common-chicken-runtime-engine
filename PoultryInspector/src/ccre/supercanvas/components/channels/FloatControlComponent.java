@@ -90,7 +90,7 @@ public class FloatControlComponent extends BaseChannelComponent<FloatControlComp
      * @param name the name of the output.
      */
     public FloatControlComponent(int cx, int cy, String name) {
-        this(cx, cy, name, FloatMixing.ignoredFloatOutput);
+        this(cx, cy, name, FloatMixing.ignored);
     }
 
     @Override

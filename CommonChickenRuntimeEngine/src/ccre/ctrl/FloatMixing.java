@@ -89,10 +89,16 @@ public class FloatMixing {
     /**
      * A FloatOutput that goes nowhere. All data sent here is ignored.
      */
-    public static final FloatOutput ignoredFloatOutput = new FloatOutput() {
+    public static final FloatOutput ignored = new FloatOutput() {
         public void set(float newValue) {
         }
     };
+    /**
+     * A FloatOutput that goes nowhere. All data sent here is ignored.
+     * @deprecated renamed to simply <code>FloatMixing.ignored</code>.
+     */
+    @Deprecated
+    public static final FloatOutput ignoredFloatOutput = ignored;
 
     /**
      * Returns an EventOutput that, when fired, writes the specified value to

@@ -52,8 +52,8 @@ public class TestBooleanMixing extends BaseTest {
 
     private void testIgnored() throws TestingException, InterruptedException {
         // Not much of any way to test these...
-        BooleanMixing.ignoredBooleanOutput.set(false);
-        BooleanMixing.ignoredBooleanOutput.set(true);
+        BooleanMixing.ignored.set(false);
+        BooleanMixing.ignored.set(true);
 
         assertFalse(BooleanMixing.alwaysFalse.get(), "False should be.");
         assertTrue(BooleanMixing.alwaysTrue.get(), "True should be.");

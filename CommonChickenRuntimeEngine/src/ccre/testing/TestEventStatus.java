@@ -20,7 +20,6 @@ package ccre.testing;
 
 import ccre.channel.EventOutput;
 import ccre.channel.EventStatus;
-import ccre.ctrl.BooleanMixing;
 import ccre.ctrl.EventMixing;
 
 /**

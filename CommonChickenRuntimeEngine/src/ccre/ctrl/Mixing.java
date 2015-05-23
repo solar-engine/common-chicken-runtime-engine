@@ -26,7 +26,6 @@ import ccre.channel.FloatInputPoll;
 import ccre.channel.FloatOutput;
 import ccre.channel.FloatStatus;
 import ccre.concurrency.ConcurrentDispatchArray;
-import ccre.util.CArrayList;
 
 /**
  * Mixing is a class that provides a wide variety of useful static methods to

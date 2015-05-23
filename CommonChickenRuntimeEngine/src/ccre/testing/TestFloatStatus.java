@@ -173,51 +173,51 @@ public class TestFloatStatus extends BaseTest {
     private void testConsumerTracking() throws TestingException {
         FloatStatus target = new FloatStatus();
         assertFalse(target.hasConsumers(), "Target should not have consumers initially!");
-        target.send(FloatMixing.ignoredFloatOutput);
+        target.send(FloatMixing.ignored);
         assertTrue(target.hasConsumers(), "Target should now have consumers!");
-        target.unsend(FloatMixing.ignoredFloatOutput);
+        target.unsend(FloatMixing.ignored);
         assertFalse(target.hasConsumers(), "Target should no longer have consumers!");
-        target.send(FloatMixing.ignoredFloatOutput);
+        target.send(FloatMixing.ignored);
         assertTrue(target.hasConsumers(), "Target should now have consumers!");
-        target.send(FloatMixing.ignoredFloatOutput);
+        target.send(FloatMixing.ignored);
         assertTrue(target.hasConsumers(), "Target should still have consumers!");
-        target.unsend(FloatMixing.ignoredFloatOutput);
+        target.unsend(FloatMixing.ignored);
         assertFalse(target.hasConsumers(), "Target should no longer have consumers!");
-        target.unsend(FloatMixing.ignoredFloatOutput); // should not fail
+        target.unsend(FloatMixing.ignored); // should not fail
         assertFalse(target.hasConsumers(), "Target should still not have consumers!");
 
-        target = new FloatStatus(FloatMixing.ignoredFloatOutput);
+        target = new FloatStatus(FloatMixing.ignored);
         assertTrue(target.hasConsumers(), "Target should have consumers initially!");
-        target.unsend(FloatMixing.ignoredFloatOutput);
+        target.unsend(FloatMixing.ignored);
         assertFalse(target.hasConsumers(), "Target should no longer have consumers!");
-        target.send(FloatMixing.ignoredFloatOutput);
+        target.send(FloatMixing.ignored);
         assertTrue(target.hasConsumers(), "Target should now have consumers!");
-        target.unsend(FloatMixing.ignoredFloatOutput);
+        target.unsend(FloatMixing.ignored);
         assertFalse(target.hasConsumers(), "Target should no longer have consumers!");
-        target.send(FloatMixing.ignoredFloatOutput);
+        target.send(FloatMixing.ignored);
         assertTrue(target.hasConsumers(), "Target should now have consumers!");
-        target.send(FloatMixing.ignoredFloatOutput);
+        target.send(FloatMixing.ignored);
         assertTrue(target.hasConsumers(), "Target should still have consumers!");
-        target.unsend(FloatMixing.ignoredFloatOutput);
+        target.unsend(FloatMixing.ignored);
         assertFalse(target.hasConsumers(), "Target should no longer have consumers!");
-        target.unsend(FloatMixing.ignoredFloatOutput); // should not fail
+        target.unsend(FloatMixing.ignored); // should not fail
         assertFalse(target.hasConsumers(), "Target should still not have consumers!");
 
-        target = new FloatStatus(FloatMixing.ignoredFloatOutput, FloatMixing.ignoredFloatOutput);
+        target = new FloatStatus(FloatMixing.ignored, FloatMixing.ignored);
         assertTrue(target.hasConsumers(), "Target should have consumers initially!");
-        target.unsend(FloatMixing.ignoredFloatOutput);
+        target.unsend(FloatMixing.ignored);
         assertFalse(target.hasConsumers(), "Target should no longer have consumers!");
-        target.send(FloatMixing.ignoredFloatOutput);
+        target.send(FloatMixing.ignored);
         assertTrue(target.hasConsumers(), "Target should now have consumers!");
-        target.unsend(FloatMixing.ignoredFloatOutput);
+        target.unsend(FloatMixing.ignored);
         assertFalse(target.hasConsumers(), "Target should no longer have consumers!");
-        target.send(FloatMixing.ignoredFloatOutput);
+        target.send(FloatMixing.ignored);
         assertTrue(target.hasConsumers(), "Target should now have consumers!");
-        target.send(FloatMixing.ignoredFloatOutput);
+        target.send(FloatMixing.ignored);
         assertTrue(target.hasConsumers(), "Target should still have consumers!");
-        target.unsend(FloatMixing.ignoredFloatOutput);
+        target.unsend(FloatMixing.ignored);
         assertFalse(target.hasConsumers(), "Target should no longer have consumers!");
-        target.unsend(FloatMixing.ignoredFloatOutput); // should not fail
+        target.unsend(FloatMixing.ignored); // should not fail
         assertFalse(target.hasConsumers(), "Target should still not have consumers!");
     }
 

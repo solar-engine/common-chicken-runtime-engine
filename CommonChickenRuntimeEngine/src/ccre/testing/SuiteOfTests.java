@@ -80,7 +80,8 @@ public class SuiteOfTests {
                 // ccre.testing
                 new TestTests(),
 
-                // ccre.workarounds - Needed!
+                // ccre.workarounds
+                new TestWorkarounds(),
 
                 // ccre.utils
                 new TestAllocationPool(),
@@ -99,6 +100,7 @@ public class SuiteOfTests {
         if (count < tests.length) {
             Logger.warning(count + "/" + tests.length + " tests succeeded.");
             Logger.warning("Read above to see which tests failed.");
+            System.exit(1);
         } else {
             Logger.info(count + "/" + tests.length + " tests succeeded.");
         }

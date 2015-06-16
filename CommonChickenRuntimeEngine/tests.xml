@@ -45,7 +45,7 @@
 				<exclude name="ccre/testing/*.class" />
 			</fileset>
 		</cobertura-instrument>
-		<java classname="ccre.testing.SuiteOfTests" fork="true">
+		<java classname="ccre.testing.SuiteOfTests" fork="true" failonerror="true">
 			<sysproperty key="net.sourceforge.cobertura.datafile"
 			             file="${basedir}/cobertura.ser" />
 			<classpath>
@@ -61,6 +61,7 @@
 		<script language="javascript">
 			<![CDATA[
 		    location = "file:///"+project.getProperty("browser-target").toString().replaceAll("\\\\","/")+"/index.html";
+		    java.lang.System.out.println(location);
 		    java.awt.Desktop.getDesktop().browse(java.net.URI.create(location));
 			]]>
 		</script>

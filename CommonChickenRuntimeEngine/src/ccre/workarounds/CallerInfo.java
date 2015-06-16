@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 Colby Skeggs
+ * Copyright 2014-2015 Colby Skeggs
  *
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  *
@@ -35,24 +35,25 @@ public class CallerInfo {
      *
      * Only className is required - the rest can be set to null or -1.
      *
-     * @param className the name of the class, required.
+     * @param className the name of the class, required. This will be normalized into dot-form.
      * @param methodName the name of the method, optional.
      * @param fileName the name of the file, optional.
      * @param lineNum the line number, optional. (Set to a negative number for
      * unspecified.)
+     * @throws IllegalArgumentException if className is null.
      */
     public CallerInfo(String className, String methodName, String fileName, int lineNum) {
         if (className == null) {
-            throw new NullPointerException();
+            throw new IllegalArgumentException();
         }
-        this.className = className;
+        this.className = className.replace('/', '.');
         this.methodName = methodName;
         this.fileName = fileName;
         this.lineNum = lineNum;
     }
 
     /**
-     * @return the name of the class.
+     * @return the name of the class, in dot-form.
      */
     public String getClassName() {
         return className;
@@ -79,6 +80,15 @@ public class CallerInfo {
         return lineNum;
     }
 
+    /**
+     * Describe the CallerInfo with a basic string.
+     *
+     * CallerInfo returns a string in the form of
+     * "[CLASSNAME].[METHODNAME]([FILENAME]:[LINENUM])", where each "[VAR]" is
+     * replaced with the corresponding value. CLASSNAME is in dot-form.
+     *
+     * @return the generated string.
+     */
     public String toString() {
         return className + "." + methodName + "(" + getFileName() + ":" + lineNum + ")";
     }

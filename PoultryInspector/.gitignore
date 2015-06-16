@@ -1,4 +1,5 @@
 /bin/
-/PoultryInspector.jar
+/PoultryInspector*.jar
 /saved-panel.ser
 /log-*
+/*.ser

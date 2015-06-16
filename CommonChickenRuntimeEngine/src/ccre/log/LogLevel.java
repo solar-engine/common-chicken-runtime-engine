@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2014 Colby Skeggs
+ * Copyright 2013-2015 Colby Skeggs
  *
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  *
@@ -139,5 +139,14 @@ public class LogLevel implements Serializable {
 
     private Object readResolve() {
         return fromByte(id);
+    }
+
+    public LogLevel next() {
+        for (int i = 0; i < levels.length - 1; i++) {
+            if (levels[i] == this) {
+                return levels[i + 1];
+            }
+        }
+        return levels[0];
     }
 }

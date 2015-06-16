@@ -24,34 +24,63 @@ import java.awt.Graphics2D;
 import java.io.IOException;
 import java.io.OutputStream;
 
+import ccre.cluck.rpc.RemoteProcedure;
 import ccre.log.Logger;
 import ccre.supercanvas.DraggableBoxComponent;
 import ccre.supercanvas.Rendering;
 
 /**
- * A component allowing for writing to an output stream, in either textual or
- * binary mode.
+ * A component allowing for invoking an arbitrary RPC target, in either textual
+ * or binary mode.
  *
  * @author skeggsc
  */
-public class OutputStreamControlComponent extends DraggableBoxComponent {
+public class RPCControlComponent extends DraggableBoxComponent {
 
     private static final long serialVersionUID = 800737743696942747L;
-    private final OutputStream out;
+    private final RemoteProcedure out;
     private final String name;
     private final StringBuilder contents = new StringBuilder();
+    private final StringBuilder received = new StringBuilder();
+    private boolean finished = false;
     private boolean inBinaryMode = false;
+    private final OutputStream receiverStream = new OutputStream() {
+        @Override
+        public synchronized void write(int arg0) throws IOException {
+            if (finished) {
+                finished = false;
+                received.setLength(0);
+            }
+            if (inBinaryMode) {
+                received.append(toHexDigit((arg0 >> 4) & 0xF)).append(toHexDigit(arg0 & 0xF));
+                received.append((((received.length() + 1) / 3) % 24 == 0) ? '\n' : ' ');
+            } else {
+                received.append((char) arg0);
+            }
+        }
+
+        private char toHexDigit(int i) {
+            return (char) (i >= 10 ? 'A' - 10 + i : '0' + i);
+        }
+
+        public synchronized void close() throws IOException {
+            if (finished) {
+                received.setLength(0);
+            } else {
+                finished = true;
+            }
+        };
+    };
 
     /**
-     * Create a new OutputStreamControlComponent with an OutputStream to write
-     * to.
+     * Create a new RPCControlComponent with a RemoteProcedure to invoke.
      *
      * @param cx the X coordinate.
      * @param cy the Y coordinate.
      * @param name the name of the input.
-     * @param out the OutputStream to write to.
+     * @param out the RemoteProcedure to invoke.
      */
-    public OutputStreamControlComponent(int cx, int cy, String name, OutputStream out) {
+    public RPCControlComponent(int cx, int cy, String name, RemoteProcedure out) {
         super(cx, cy);
         this.name = name;
         this.out = out;
@@ -76,17 +105,30 @@ public class OutputStreamControlComponent extends DraggableBoxComponent {
         g.setFont(Rendering.labels);
         checkContents(true);
         String render = (inBinaryMode ? "0x" : "> ") + contents.toString();
-        setHalfWidth(5 + Math.max(g.getFontMetrics().stringWidth(render) / 2, g.getFontMetrics(Rendering.console).stringWidth(name)));
-        this.halfHeight = g.getFontMetrics().getHeight() / 2 + conHeight / 2;
+        setHalfWidth(5 + Math.max(g.getFontMetrics().stringWidth(render) / 2,
+                Math.max(g.getFontMetrics(Rendering.console).stringWidth(name) / 2,
+                        g.getFontMetrics(Rendering.console).charWidth('W') * 36)));
+
+        int headerHeight = g.getFontMetrics().getHeight() / 2 + conHeight / 2;
+        String[] lines = received.toString().split("\n");
+        this.halfHeight = headerHeight + conHeight * lines.length / 2;
         if (getPanel().editing == contents || getPanel().editmode) {
             Rendering.drawBody(getPanel().editing == contents ? Color.GREEN : Color.YELLOW, g, this);
         }
+
         g.setColor(Color.BLACK);
-        g.drawString(render, centerX - halfWidth + 5, centerY + 5 + conHeight / 2);
+        g.drawString(render, centerX - halfWidth + 5, centerY - halfHeight + headerHeight + 5 + conHeight / 2);
+
         int yh = g.getFontMetrics().getHeight();
         g.setColor(Color.BLACK);
         g.setFont(Rendering.console);
-        g.drawString(name, centerX - halfWidth + 5, centerY + 5 - yh / 2);
+        g.drawString(name, centerX - halfWidth + 5, centerY - halfHeight + headerHeight + 5 - yh / 2);
+
+        int yc = centerY - halfHeight + headerHeight + 5 + yh / 2;
+        for (String line : lines) {
+            g.drawString(line, centerX - halfWidth + 5, yc);
+            yc += conHeight;
+        }
     }
 
     private int decodeHexDigit(char c) {
@@ -135,15 +177,10 @@ public class OutputStreamControlComponent extends DraggableBoxComponent {
                 inBinaryMode = !inBinaryMode;
                 return;
             }
-            try {
-                if (inBinaryMode) {
-                    out.write(decodeHex());
-                    out.flush();
-                } else {
-                    out.write((contents + "\n").getBytes());
-                }
-            } catch (IOException e) {
-                Logger.warning("Error while writing to OutputStream " + name, e);
+            if (inBinaryMode) {
+                out.invoke(decodeHex(), this.receiverStream);
+            } else {
+                out.invoke(contents.toString().getBytes(), this.receiverStream);
             }
             contents.setLength(0);
             getPanel().editing = null;

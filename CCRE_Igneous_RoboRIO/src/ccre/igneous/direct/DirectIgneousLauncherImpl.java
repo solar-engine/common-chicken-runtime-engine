@@ -180,6 +180,8 @@ public final class DirectIgneousLauncherImpl implements IgneousLauncher {
 
     private final EventStatus[] startEvents, duringEvents;
 
+    private final EventStatus onInitComplete = new EventStatus();
+
     {
         int count = Mode.values().length;
         startEvents = new EventStatus[count];
@@ -278,6 +280,7 @@ public final class DirectIgneousLauncherImpl implements IgneousLauncher {
         }
         Logger.info("Starting application: " + name);
         ((IgneousApplication) Class.forName(name).newInstance()).setupRobot();
+        onInitComplete.event();
         Logger.info("Hello, " + name + "!");
     }
 
@@ -568,5 +571,10 @@ public final class DirectIgneousLauncherImpl implements IgneousLauncher {
 
     public ControlBindingCreator tryMakeControlBindingCreator(String title) {
         return null;
+    }
+
+    @Override
+    public EventInput getOnInitComplete() {
+        return onInitComplete;
     }
 }

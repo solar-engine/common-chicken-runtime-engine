@@ -22,6 +22,7 @@ import ccre.channel.BooleanInput;
 import ccre.channel.BooleanInputPoll;
 import ccre.channel.BooleanOutput;
 import ccre.channel.EventInput;
+import ccre.channel.EventStatus;
 import ccre.channel.FloatInput;
 import ccre.channel.FloatInputPoll;
 import ccre.channel.FloatOutput;
@@ -66,15 +67,18 @@ public class DeviceBasedLauncher implements IgneousLauncher {
     private final boolean isRoboRIO;
     private final int baseIndex;
     private final JoystickHandler joyHandler = new JoystickHandler();
+    private final EventInput onInitComplete;
 
     /**
      * Create a new DeviceBasedLauncher for either the cRIO or roboRIO.
      *
      * @param isRoboRIO specifies if the emulated robot should have a roboRIO
      * instead of a cRIO.
+     * @param onInitComplete should be fired once the user program has initialized.
      */
-    public DeviceBasedLauncher(boolean isRoboRIO) {
+    public DeviceBasedLauncher(boolean isRoboRIO, EventInput onInitComplete) {
         this.isRoboRIO = isRoboRIO;
+        this.onInitComplete = onInitComplete;
         baseIndex = isRoboRIO ? 0 : 1;
         joysticks = new IJoystickWithPOV[isRoboRIO ? 6 : 4];
         motors = new FloatOutput[isRoboRIO ? 20 : 10];
@@ -543,5 +547,10 @@ public class DeviceBasedLauncher implements IgneousLauncher {
                 return panel.add(new FloatControlDevice("Control: " + name));
             }
         };
+    }
+
+    @Override
+    public EventInput getOnInitComplete() {
+        return onInitComplete;
     }
 }

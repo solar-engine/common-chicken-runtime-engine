@@ -426,4 +426,9 @@ public interface IgneousLauncher {
     public BooleanInputPoll getChannelEnabled(int powerChannel);
 
     public ControlBindingCreator tryMakeControlBindingCreator(String title);
+
+    /**
+     * @return an event that is fired once, right after the user program has finished its initialization
+     */
+    public EventInput getOnInitComplete();
 }

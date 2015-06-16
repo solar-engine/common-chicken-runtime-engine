@@ -86,6 +86,11 @@ final class IgneousLauncherImpl extends IterativeRobot implements IgneousLaunche
     private final EventStatus globalPeriodic = new EventStatus();
 
     /**
+     * Fired exactly once, after the user code has finished initialization.
+     */
+    private final EventStatus onInitComplete = new EventStatus();
+
+    /**
      * Produced when the robot enters autonomous mode.
      */
     private final EventStatus startedAutonomous = new EventStatus();
@@ -166,6 +171,7 @@ final class IgneousLauncherImpl extends IterativeRobot implements IgneousLaunche
         }
         Logger.info("Starting application: " + name);
         ((IgneousApplication) Class.forName(name).newInstance()).setupRobot();
+        onInitComplete.event();
         Logger.info("Hello, " + name + "!");
     }
 
@@ -809,5 +815,9 @@ final class IgneousLauncherImpl extends IterativeRobot implements IgneousLaunche
 
     public ControlBindingCreator tryMakeControlBindingCreator(String title) {
         return null;
+    }
+
+    public EventInput getOnInitComplete() {
+        return onInitComplete;
     }
 }

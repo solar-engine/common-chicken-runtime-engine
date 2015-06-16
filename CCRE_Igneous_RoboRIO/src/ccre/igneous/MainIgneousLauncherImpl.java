@@ -85,6 +85,11 @@ public final class MainIgneousLauncherImpl extends RobotBase implements IgneousL
     private static final EventStatus globalPeriodic = new EventStatus();
 
     /**
+     * Fired exactly once after the user code has been initialized.
+     */
+    private final EventStatus onInitComplete = new EventStatus();
+
+    /**
      * The number of recent code failures - used to determine when to get
      * annoyed and start detaching broken code modules.
      */
@@ -261,6 +266,7 @@ public final class MainIgneousLauncherImpl extends RobotBase implements IgneousL
         }
         Logger.info("Starting application: " + name);
         ((IgneousApplication) Class.forName(name).newInstance()).setupRobot();
+        onInitComplete.event();
         Logger.info("Hello, " + name + "!");
     }
 
@@ -681,5 +687,10 @@ public final class MainIgneousLauncherImpl extends RobotBase implements IgneousL
 
     public ControlBindingCreator tryMakeControlBindingCreator(String title) {
         return null;
+    }
+
+    @Override
+    public EventInput getOnInitComplete() {
+        return onInitComplete;
     }
 }

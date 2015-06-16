@@ -27,6 +27,7 @@ import java.util.jar.JarFile;
 
 import javax.swing.JFrame;
 
+import ccre.channel.EventStatus;
 import ccre.cluck.Cluck;
 import ccre.log.BootLogger;
 import ccre.log.FileLogger;
@@ -77,7 +78,8 @@ public class DeviceListMain {
         Class<? extends IgneousApplication> asSubclass = classLoader.loadClass(mainClass).asSubclass(IgneousApplication.class);
         final JFrame main = new JFrame("CCRE DeviceList-Based Emulator for " + (isRoboRIO ? "roboRIO" : "cRIO"));
         main.setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
-        DeviceBasedLauncher launcher = new DeviceBasedLauncher(isRoboRIO);
+        EventStatus onInit = new EventStatus();
+        DeviceBasedLauncher launcher = new DeviceBasedLauncher(isRoboRIO, onInit);
         main.setContentPane(launcher.panel);
         main.setSize(1024, 768);
         java.awt.EventQueue.invokeLater(new Runnable() {
@@ -100,6 +102,7 @@ public class DeviceListMain {
             launcher.clearLoggingPane();
             Logger.info("Starting application: " + mainClass);
             asSubclass.getConstructor().newInstance().setupRobot();
+            onInit.event();
             Logger.info("Hello, " + mainClass + "!");
             launcher.panel.start();
         } catch (Throwable thr) {

@@ -96,9 +96,7 @@ public abstract class StorageProvider {
     }
 
     /**
-     * Open a StorageSegment for the specified name. The name of a
-     * StorageSegment must contain only letters, numbers, currency symbols, and
-     * underscores.
+     * Open a StorageSegment for the specified name.
      *
      * @param name the name of the storage segment.
      * @return the StorageSegment that has been opened.
@@ -107,13 +105,19 @@ public abstract class StorageProvider {
         if (name == null) {
             throw new NullPointerException("Storage names cannot be null");
         }
-        for (char c : name.toCharArray()) {
-            if (!(Character.isUpperCase(c) || Character.isLowerCase(c) || Character.isDigit(c) || c == '$' || c == '_')) {
-                throw new IllegalArgumentException("Storage names must only contain 'a-zA-Z0-9$_'");
+        StringBuffer buf = new StringBuffer(name);
+        for (int i = buf.length() - 1; i >= 0; i--) {
+            char c = buf.charAt(i);
+            if (c == ' ') {
+                buf.setCharAt(i, '_');
+            } else if (!(Character.isUpperCase(c) || Character.isLowerCase(c) || Character.isDigit(c))) {
+                // escape any "weird" characters
+                buf.setCharAt(i, '$');
+                buf.insert(i + 1, (int) c);
             }
         }
         initProvider();
-        return new DefaultStorageSegment(name, provider);
+        return new DefaultStorageSegment(buf.toString(), provider);
     }
 
     /**

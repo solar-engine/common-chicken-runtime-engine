@@ -36,7 +36,7 @@ public class DriveCode implements RConfable {
     private final FloatInputPoll rightAxis = Test.driveControls.addFloat("Drive Axis Right");
     private final FloatOutput leftOut = Igneous.makeTalonMotor(2, Igneous.MOTOR_FORWARD, 0.1f);
     private final FloatOutput rightOut = Igneous.makeTalonMotor(1, Igneous.MOTOR_REVERSE, 0.1f);
-    private final BooleanStatus allowToRun = new BooleanStatus(),
+    private final BooleanStatus allowToRun = new BooleanStatus(true),
             forceEnabled = new BooleanStatus();
     private final BooleanInputPoll shouldBeRunning = BooleanMixing.andBooleans(allowToRun, BooleanMixing.orBooleans(Igneous.getIsTeleop(), forceEnabled));
 

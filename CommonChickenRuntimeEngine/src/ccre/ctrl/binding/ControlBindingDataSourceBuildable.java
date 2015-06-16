@@ -61,7 +61,6 @@ public class ControlBindingDataSourceBuildable implements ControlBindingDataSour
         if (booleans.containsKey(name)) {
             throw new IllegalArgumentException("Boolean source already registered: '" + name + "'");
         }
-        Logger.finest("Registered: " + name + ": " + buttonChannel);
         booleans.put(name, buttonChannel);
     }
 

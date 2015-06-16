@@ -813,7 +813,7 @@ public class Igneous {
                 return out;
             }
         }
-        return CluckControlBinder.makeCreator(title, getControlBindingDataSource());
+        return CluckControlBinder.makeCreator(title, getControlBindingDataSource(), launcher.getOnInitComplete());
     }
 
     public static ControlBindingCreator makeControlBindingCreator(String title) {

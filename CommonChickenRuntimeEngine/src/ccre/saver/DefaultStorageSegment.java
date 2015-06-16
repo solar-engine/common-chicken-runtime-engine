@@ -105,7 +105,11 @@ public final class DefaultStorageSegment extends StorageSegment {
 
     @Override
     public synchronized void setStringForKey(String key, String bytes) {
-        data.put(key, bytes);
+        if (bytes == null) {
+            data.remove(key);
+        } else {
+            data.put(key, bytes);
+        }
         modified = true;
     }
 
@@ -121,7 +125,9 @@ public final class DefaultStorageSegment extends StorageSegment {
                             data.put(UniqueIds.global.nextHexId("badkey-" + System.currentTimeMillis() + "-" + key.hashCode()), key);
                         } else {
                             String value = data.get(key);
-                            pout.println(key + "=" + value);
+                            if (value != null) {
+                                pout.println(key + "=" + value);
+                            }
                         }
                     }
                 } finally {

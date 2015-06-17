@@ -425,10 +425,16 @@ public interface IgneousLauncher {
      */
     public BooleanInputPoll getChannelEnabled(int powerChannel);
 
-    public ControlBindingCreator tryMakeControlBindingCreator(String title);
+    /**
+     * @param name the name of this control binding client.
+     * @return a ControlBindingCreator if there is special emulation available,
+     * but otherwise just return null.
+     */
+    public ControlBindingCreator tryMakeControlBindingCreator(String name);
 
     /**
-     * @return an event that is fired once, right after the user program has finished its initialization
+     * @return an event that is fired once, right after the user program has
+     * finished its initialization
      */
     public EventInput getOnInitComplete();
 }

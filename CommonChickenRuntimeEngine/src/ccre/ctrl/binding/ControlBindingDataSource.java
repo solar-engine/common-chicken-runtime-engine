@@ -21,12 +21,42 @@ package ccre.ctrl.binding;
 import ccre.channel.BooleanInput;
 import ccre.channel.FloatInput;
 
+/**
+ * A ControlBindingDataSource is an interface to a named set of boolean and
+ * float inputs, so that a user can configure which of these inputs controls
+ * what part of their robot. CluckControlBinder is usually used with one of
+ * these.
+ *
+ * @author skeggsc
+ */
 public interface ControlBindingDataSource {
+    /**
+     * Enumerate the boolean inputs that are available through this interface.
+     *
+     * @return an array of names of inputs.
+     */
     public String[] listBooleans();
 
+    /**
+     * Get access to a specific boolean input.
+     *
+     * @param name the input's name.
+     * @return the input.
+     */
     public BooleanInput getBoolean(String name);
 
+    /**
+     * Enumerate the float inputs that are available through this interface.
+     *
+     * @return an array of names of inputs.
+     */
     public String[] listFloats();
 
+    /**
+     * Get access to a specific float input.
+     *
+     * @param name the input's name.
+     * @return the input.
+     */
     public FloatInput getFloat(String name);
 }

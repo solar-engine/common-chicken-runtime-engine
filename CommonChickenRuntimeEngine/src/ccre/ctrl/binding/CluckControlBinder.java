@@ -29,29 +29,64 @@ import ccre.saver.StorageProvider;
 import ccre.saver.StorageSegment;
 import ccre.util.CHashMap;
 
+/**
+ * A CluckControlBinder connects together a ControlBindingDataSource (such as a
+ * set of Joysticks) to a ControlBindingDataSink (such as your program's
+ * controls.) It allows for configuration of the linkage over Cluck and allows
+ * for saving the control binding configuration.
+ *
+ * @author skeggsc
+ */
 public class CluckControlBinder implements RConfable {
     private final ControlBindingDataSource sourceSet;
     private final ControlBindingDataSink sinkSet;
     // From sink to source.
     private final CHashMap<String, String> boolLinkage = new CHashMap<String, String>();
     private final CHashMap<String, String> floatLinkage = new CHashMap<String, String>();
-    private final String title;
+    private final String name;
     private boolean dirty = false;
     private final StorageSegment storage;
 
-    public CluckControlBinder(String title, ControlBindingDataSource source, ControlBindingDataSink sink) {
-        this.title = title;
+    /**
+     * Create a new CluckControlBinder, published with the specified name, that
+     * binds together the provided source and sink.
+     *
+     * If anything is already available on the sink, this will also attempt to
+     * load the saved configuration.
+     *
+     * @param name the name of this binding, used for the StorageSegment name
+     * and the Cluck link.
+     * @param source the data source to bind.
+     * @param sink the data sink to bind.
+     */
+    public CluckControlBinder(String name, ControlBindingDataSource source, ControlBindingDataSink sink) {
+        this.name = name;
         this.sourceSet = source;
         this.sinkSet = sink;
-        storage = StorageProvider.openStorage("Control Bindings: " + title);
+        storage = StorageProvider.openStorage("Control Bindings: " + name);
         if (sink.listBooleans().length != 0 || sink.listFloats().length != 0) {
             load();
         }
     }
 
-    public static ControlBindingCreator makeCreator(String title, ControlBindingDataSource source, EventInput load) {
+    /**
+     * Provide a ControlBindingCreator for the given source, which is
+     * configurable over Cluck under the specified name.
+     *
+     * This will load any saved configuration when the load event is produced.
+     * This is recommended to be produced exactly once, at the end of
+     * initialization. The provided RConf interface includes buttons for saving
+     * and loading.
+     *
+     * @param name the name for the CluckControlBinder created as part of this.
+     * @param source the data source that controls can be assigned from.
+     * @param load when to load the configuration for this CluckControlBinder.
+     * @return the ControlBindingCreator that a program can use to provide its
+     * controls that it wants bound.
+     */
+    public static ControlBindingCreator makeCreator(String name, ControlBindingDataSource source, EventInput load) {
         ControlBindingDataSinkBuildable sink = new ControlBindingDataSinkBuildable();
-        final CluckControlBinder binder = new CluckControlBinder(title, source, sink);
+        final CluckControlBinder binder = new CluckControlBinder(name, source, sink);
         binder.publish();
         if (load == null) {
             throw new IllegalArgumentException("makeCreator expects a 'load' event because, otherwise, it doesn't actually know when to load the settings!");
@@ -65,10 +100,34 @@ public class CluckControlBinder implements RConfable {
         return sink;
     }
 
+    /**
+     * Publish the RConf interface for this binder under the name
+     * "[NAME] Control Bindings".
+     *
+     * For example, if the name of this CluckControlBinder were "Drive Code",
+     * the RConf interface would be available under
+     * "Drive Code Control Bindings".
+     *
+     * This is equivalent to <code>publish(name + " Control Bindings");</code>
+     *
+     * @see #publish(String)
+     */
     public void publish() {
-        publish(title + " Control Bindings");
+        publish(name + " Control Bindings");
     }
 
+    /**
+     * Publish the RConf interface for this binder under the specified link
+     * name.
+     *
+     * The RConf interface includes saving and loading buttons, along with
+     * buttons to bind any of the control sinks to the currently activated
+     * control source.
+     *
+     * See the published RConf interface for more details.
+     *
+     * @param name the link name for this RConf interface.
+     */
     public void publish(String name) {
         Cluck.publishRConf(name, this);
     }
@@ -77,7 +136,7 @@ public class CluckControlBinder implements RConfable {
         String[] boolSinks = sinkSet.listBooleans();
         String[] floatSinks = sinkSet.listFloats();
         Entry[] ents = new Entry[floatSinks.length + boolSinks.length + 6 + (floatSinks.length == 0 ? 0 : 1) + (boolSinks.length == 0 ? 0 : 1)];
-        ents[0] = RConf.title(title);
+        ents[0] = RConf.title(name);
         ents[1] = RConf.string("Click a binding while holding the new button or axis");
         ents[2] = RConf.string("Click without holding anything to clear");
         ents[3] = dirty ? RConf.button("Save Configuration") : RConf.string("Save Configuration");
@@ -198,7 +257,7 @@ public class CluckControlBinder implements RConfable {
     }
 
     private void load() {
-        Logger.config("Loading control bindings for " + this.title);
+        Logger.config("Loading control bindings for " + this.name);
         for (String boolSink : sinkSet.listBooleans()) {
             String source = storage.getStringForKey("z" + boolSink);
             if (source != null && sourceSet.getBoolean(source) == null) {
@@ -215,7 +274,7 @@ public class CluckControlBinder implements RConfable {
                 rebindFloat(floatSink, source);
             }
         }
-        Logger.config("Loaded " + (boolLinkage.size() + floatLinkage.size()) + " of " + (sinkSet.listBooleans().length + sinkSet.listFloats().length) + " control bindings for " + this.title);
+        Logger.config("Loaded " + (boolLinkage.size() + floatLinkage.size()) + " of " + (sinkSet.listBooleans().length + sinkSet.listFloats().length) + " control bindings for " + this.name);
         dirty = false;
     }
 

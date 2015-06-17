@@ -21,9 +21,7 @@ package org.team1540.example.deep;
 import ccre.channel.BooleanStatus;
 import ccre.cluck.Cluck;
 import ccre.ctrl.BooleanMixing;
-import ccre.ctrl.binding.CluckControlBinder;
 import ccre.ctrl.binding.ControlBindingCreator;
-import ccre.ctrl.binding.ControlBindingDataSource;
 import ccre.igneous.Igneous;
 import ccre.igneous.IgneousApplication;
 

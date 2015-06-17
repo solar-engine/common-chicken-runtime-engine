@@ -205,6 +205,12 @@ public class CArrayUtils {
         Arrays.sort(list);
     }
 
+    /**
+     * Collect everything yielded by an iterable into a CArrayList.
+     *
+     * @param elements the iterable to collect from.
+     * @return the resulting collection, as a CArrayList.
+     */
     public static <T> CArrayList<T> collectIterable(Iterable<T> elements) {
         CArrayList<T> out = new CArrayList<T>();
         for (T elem : elements) {

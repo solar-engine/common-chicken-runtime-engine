@@ -33,6 +33,7 @@ import ccre.ctrl.IJoystickWithPOV;
 import ccre.ctrl.Ticker;
 import ccre.ctrl.binding.CluckControlBinder;
 import ccre.ctrl.binding.ControlBindingCreator;
+import ccre.ctrl.binding.ControlBindingDataSource;
 import ccre.ctrl.binding.ControlBindingDataSourceBuildable;
 import ccre.instinct.InstinctModule;
 import ccre.log.Logger;
@@ -797,30 +798,83 @@ public class Igneous {
         }
     }
 
-    private static ControlBindingDataSourceBuildable builtControlSource;
+    private static ControlBindingDataSource builtControlSource;
 
-    public static synchronized ControlBindingDataSourceBuildable getControlBindingDataSource() {
+    /**
+     * Get a ControlBindingDataSource for the six Joysticks.
+     *
+     * If on a cRIO, only four Joysticks are available.
+     *
+     * @return the data source.
+     * @see #getControlBindingDataSource(String...) if you want to provide your
+     * own names, or use a different number of Joysticks.
+     * @see #makeControlBindingCreator(String) if you just want to bind
+     * controls.
+     */
+    public static synchronized ControlBindingDataSource getControlBindingDataSource() {
         if (builtControlSource == null) {
-            builtControlSource = getControlBindingDataSource("Joystick 1", "Joystick 2", "Joystick 3", "Joystick 4");
+            if (isRoboRIO()) {
+                builtControlSource = getControlBindingDataSource("Joystick 1", "Joystick 2", "Joystick 3", "Joystick 4", "Joystick 5", "Joystick 6");
+            } else {
+                builtControlSource = getControlBindingDataSource("Joystick 1", "Joystick 2", "Joystick 3", "Joystick 4");
+            }
         }
         return builtControlSource;
     }
 
-    public static ControlBindingCreator makeControlBindingCreator(String title, boolean bypassEmulation) {
+    /**
+     * Get a ControlBindingCreator that the user can bind, over Cluck, to any
+     * Joystick inputs.
+     *
+     * If you're running in the emulator, and bypassEmulation is false, then the
+     * Emulator will skip over including Joysticks at all and just show you your
+     * control bindings directly. Much easier to work with!
+     *
+     * @param name the name of the module that this creator is for. For example,
+     * "Drive Code".
+     * @param bypassEmulation if the emulator shouldn't try to emulate control
+     * bindings directly.
+     * @return the ControlBindingCreator that you can make your controls
+     * available over.
+     */
+    public static ControlBindingCreator makeControlBindingCreator(String name, boolean bypassEmulation) {
         if (!bypassEmulation) {
-            ControlBindingCreator out = launcher.tryMakeControlBindingCreator(title);
+            ControlBindingCreator out = launcher.tryMakeControlBindingCreator(name);
             if (out != null) {
                 return out;
             }
         }
-        return CluckControlBinder.makeCreator(title, getControlBindingDataSource(), launcher.getOnInitComplete());
+        return CluckControlBinder.makeCreator(name, getControlBindingDataSource(), launcher.getOnInitComplete());
     }
 
-    public static ControlBindingCreator makeControlBindingCreator(String title) {
-        return makeControlBindingCreator(title, false);
+    /**
+     * Get a ControlBindingCreator that the user can bind, over Cluck, to any
+     * Joystick inputs.
+     *
+     * If you're running in the emulator, then the Emulator will skip over
+     * including Joysticks at all and just show you your control bindings
+     * directly. Much easier to work with!
+     *
+     * @param name the name of the module that this creator is for. For example,
+     * "Drive Code".
+     * @return the ControlBindingCreator that you can make your controls
+     * available over.
+     * @see #makeControlBindingCreator(String, boolean) if you want to choose
+     * whether or not the emulator emulates control bindings directly.
+     */
+    public static ControlBindingCreator makeControlBindingCreator(String name) {
+        return makeControlBindingCreator(name, false);
     }
 
-    public static ControlBindingDataSourceBuildable getControlBindingDataSource(String... names) {
+    /**
+     * This is similar to {@link #getControlBindingDataSource()} but lets you
+     * give better names to your Joysticks. For example, you could say
+     * <code>Igneous.getControlBindingDataSource("Drive Joystick", "Copilot Joystick");</code>
+     *
+     * @param names the names of the Joysticks to attach to, in order.
+     * @return the generated control binding source.
+     */
+    public static ControlBindingDataSource getControlBindingDataSource(String... names) {
         ControlBindingDataSourceBuildable ds = new ControlBindingDataSourceBuildable(globalPeriodic);
         for (int i = 0; i < names.length; i++) {
             ds.addJoystick(names[i], launcher.getJoystick(i + 1), 12, 6);

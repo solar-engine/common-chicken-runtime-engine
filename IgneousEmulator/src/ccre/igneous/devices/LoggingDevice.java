@@ -49,7 +49,7 @@ public class LoggingDevice extends Device implements LoggingTarget {
     /**
      * Add a line to the displayed text.
      *
-     * @param str the additional text to display.
+     * @param line the additional text to display.
      */
     public void addLine(String line) {
         text.addLine(line);

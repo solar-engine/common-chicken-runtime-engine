@@ -22,7 +22,6 @@ import ccre.channel.BooleanInput;
 import ccre.channel.BooleanInputPoll;
 import ccre.channel.BooleanOutput;
 import ccre.channel.EventInput;
-import ccre.channel.EventStatus;
 import ccre.channel.FloatInput;
 import ccre.channel.FloatInputPoll;
 import ccre.channel.FloatOutput;
@@ -104,6 +103,9 @@ public class DeviceBasedLauncher implements IgneousLauncher {
         Logger.addTarget(logger);
     }
 
+    /**
+     * Clear out all the lines in the Emulator's logging pane.
+     */
     public void clearLoggingPane() {
         logger.clearLines();
     }

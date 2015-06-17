@@ -30,6 +30,22 @@ import ccre.util.CArrayList;
 import ccre.util.CArrayUtils;
 import ccre.util.CHashMap;
 
+/**
+ * A ControlBindingDataSinkBuildable allows a program to easily fill out a
+ * ControlBindingDataSink by way of a ControlBindingCreator.
+ *
+ * In other words...
+ *
+ * With a ControlBindingDataSinkBuildable, you can use the easier-to-use
+ * interface of a ControlBindingCreator to ask the user to control various parts
+ * of a module, and then you can give the ControlBindingDataSink to something
+ * like a CluckControlBinder so that it can be configured without special work
+ * on your part.
+ *
+ * But probably, you should just use the interfaces in Igneous.
+ *
+ * @author skeggsc
+ */
 public class ControlBindingDataSinkBuildable implements ControlBindingDataSink, ControlBindingCreator {
 
     private final CHashMap<String, BooleanOutput> booleans = new CHashMap<String, BooleanOutput>();

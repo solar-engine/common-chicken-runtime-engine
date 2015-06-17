@@ -28,35 +28,79 @@ import ccre.ctrl.BooleanMixing;
 import ccre.ctrl.FloatMixing;
 import ccre.ctrl.IJoystick;
 import ccre.ctrl.IJoystickWithPOV;
-import ccre.log.Logger;
 import ccre.util.CArrayList;
 import ccre.util.CArrayUtils;
 import ccre.util.CHashMap;
 
+/**
+ * A ControlBindingDataSourceBuildable is an easy way to define a
+ * ControlBindingDataSource.
+ *
+ * With this interface, you can add a set of inputs to the builder, and then all
+ * the inputs will be made available over the ControlBindingDataSource
+ * interface.
+ *
+ * @author skeggsc
+ */
 public class ControlBindingDataSourceBuildable implements ControlBindingDataSource {
     private final EventInput updateOn;
     private final CHashMap<String, BooleanInput> booleans = new CHashMap<String, BooleanInput>();
     private final CHashMap<String, FloatInput> floats = new CHashMap<String, FloatInput>();
 
+    /**
+     * Create a new ControlBindingDataSourceBuildable that updates when the
+     * specified event is produced.
+     *
+     * Since certain inputs will update when, and only when, updateOn is
+     * pressed, make sure that it always keeps firing.
+     *
+     * For example, you could use <code>Igneous.globalPeriodic</code>.
+     *
+     * @param updateOn when to update any InputPolls provided to this buildable.
+     */
     public ControlBindingDataSourceBuildable(EventInput updateOn) {
+        if (updateOn == null) {
+            throw new NullPointerException();
+        }
         this.updateOn = updateOn;
     }
 
+    /**
+     * Add inputs for all the buttons and axes of a Joystick.
+     *
+     * @param name a name for the Joystick.
+     * @param joy the Joystick.
+     * @param buttonCount how many buttons to include.
+     * @param axisCount how many axes to include.
+     */
     public void addJoystick(String name, IJoystick joy, int buttonCount, int axisCount) {
-        addJoystickButtons(name, joy, buttonCount);
-        addJoystickAxes(name, joy, axisCount);
-    }
-
-    public void addJoystickButtons(String name, IJoystick joy, int buttonCount) {
         for (int i = 1; i <= buttonCount; i++) {
             addButton(name + " BTN " + i, joy.getButtonChannel(i));
         }
+        for (int i = 1; i <= axisCount; i++) {
+            addAxis(name + " AXIS " + i, joy.getAxisSource(i));
+        }
     }
 
+    /**
+     * Add a BooleanInputPoll as a control input.
+     *
+     * The value will be polled whenever updateOn (from the constructor) is
+     * produced.
+     *
+     * @param name the name of the input.
+     * @param buttonChannel the BooleanInputPoll.
+     */
     public void addButton(String name, BooleanInputPoll buttonChannel) {
         addButton(name, BooleanMixing.createDispatch(buttonChannel, updateOn));
     }
 
+    /**
+     * Add a BooleanInputPoll as a control input.
+     *
+     * @param name the name of the input.
+     * @param buttonChannel the BooleanInputPoll.
+     */
     public void addButton(String name, BooleanInput buttonChannel) {
         if (booleans.containsKey(name)) {
             throw new IllegalArgumentException("Boolean source already registered: '" + name + "'");
@@ -64,18 +108,25 @@ public class ControlBindingDataSourceBuildable implements ControlBindingDataSour
         booleans.put(name, buttonChannel);
     }
 
-    public void addJoystickAxes(String name, IJoystick joy, int axisCount) {
-        for (int i = 1; i <= axisCount; i++) {
-            addAxis(name + " AXIS " + i, joy.getAxisSource(i));
-        }
-    }
-
+    /**
+     * Add a FloatInput axis, both as a raw axis and as buttons for the extremes
+     * of the axis.
+     *
+     * @param name the name for the axis.
+     * @param axisSource the FloatInput to add.
+     */
     public void addAxis(String name, FloatInput axisSource) {
         addAxisRaw(name, axisSource);
         addButton(name + " AS BTN+", FloatMixing.floatIsAtLeast(axisSource, 0.8f));
         addButton(name + " AS BTN-", FloatMixing.floatIsAtMost(axisSource, -0.8f));
     }
 
+    /**
+     * Add a FloatInput.
+     *
+     * @param name the name for the axis.
+     * @param axisSource the FloatInput to add.
+     */
     public void addAxisRaw(String name, FloatInput axisSource) {
         if (floats.containsKey(name)) {
             throw new IllegalArgumentException("Float source already registered: '" + name + "'");
@@ -83,6 +134,15 @@ public class ControlBindingDataSourceBuildable implements ControlBindingDataSour
         floats.put(name, axisSource);
     }
 
+    /**
+     * Add inputs for all the buttons and axes of a Joystick, and its POV hat.
+     *
+     * @param name a name for the Joystick.
+     * @param joy the Joystick.
+     * @param buttonCount the number of buttons.
+     * @param axisCount the number of axes.
+     * @see #addJoystick(String, IJoystick, int, int)
+     */
     public void addJoystick(String name, IJoystickWithPOV joy, int buttonCount, int axisCount) {
         addJoystick(name, (IJoystick) joy, buttonCount, axisCount);
         addPOVHandler(name, joy);

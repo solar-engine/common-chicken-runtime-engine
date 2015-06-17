@@ -21,12 +21,46 @@ package ccre.ctrl.binding;
 import ccre.channel.BooleanOutput;
 import ccre.channel.FloatOutput;
 
+/**
+ * An interface to a module that provides a named set of boolean and float
+ * outputs that it wants to be controlled by the user in some fashion.
+ *
+ * This can be used with a CluckControlBinder to allow a user to customize how
+ * they want to control these outputs.
+ *
+ * For example, this could be a Drive Code module, and this interface would
+ * provide access to outputs like "shift high button" and "forward drive axis".
+ *
+ * @author skeggsc
+ */
 public interface ControlBindingDataSink {
+    /**
+     * Enumerate the boolean outputs of this module.
+     *
+     * @return a list of the names of the boolean outputs.
+     */
     public String[] listBooleans();
 
+    /**
+     * Access a specified boolean output.
+     *
+     * @param name the name of the boolean output.
+     * @return the discovered output.
+     */
     public BooleanOutput getBoolean(String name);
 
+    /**
+     * Enumerate the float outputs of this module.
+     *
+     * @return a list of the names of the float outputs.
+     */
     public String[] listFloats();
 
+    /**
+     * Access a specified float output.
+     *
+     * @param name the name of the float output.
+     * @return the discovered output.
+     */
     public FloatOutput getFloat(String name);
 }

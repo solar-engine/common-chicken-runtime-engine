@@ -23,12 +23,45 @@ import ccre.channel.BooleanOutput;
 import ccre.channel.FloatInput;
 import ccre.channel.FloatOutput;
 
+/**
+ * A ControlBindingCreator is an abstract mechanism by which a program or module
+ * can make available a set of booleans and/or floats that it wants to be
+ * controlled by the user.
+ *
+ * @author skeggsc
+ */
 public interface ControlBindingCreator {
+    /**
+     * Make the specified BooleanOutput controllable by the user under the
+     * specified name.
+     *
+     * @param name the name of the control binding.
+     * @param output the output to let the user control.
+     */
     public void addBoolean(String name, BooleanOutput output);
 
+    /**
+     * Provide a BooleanInput controllable by the user under the specified name.
+     *
+     * @param name the name of the control binding.
+     * @return a BooleanInput controlled by the user
+     */
     public BooleanInput addBoolean(String name);
 
+    /**
+     * Make the specified FloatOutput controllable by the user under the
+     * specified name.
+     *
+     * @param name the name of the control binding.
+     * @param output the output to let the user control.
+     */
     public void addFloat(String name, FloatOutput output);
 
+    /**
+     * Provide a FloatInput controllable by the user under the specified name.
+     *
+     * @param name the name of the control binding.
+     * @return a FloatInput controlled by the user
+     */
     public FloatInput addFloat(String name);
 }

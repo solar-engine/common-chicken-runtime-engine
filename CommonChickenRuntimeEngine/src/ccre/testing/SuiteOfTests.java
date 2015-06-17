@@ -85,16 +85,22 @@ public class SuiteOfTests {
 
                 // ccre.utils
                 new TestAllocationPool(),
+                new TestLineCollectorOutputStream(),
+                new TestUniqueIds(),
 
                 // CAbstractList - Included in CArrayList and CLinkedList tests
                 new TestCArrayList(), new TestCHashMap(), new TestCLinkedList(),
 
                 new TestUtils(), // Tests both Utils and CArrayUtils
         };
+        boolean failFast = args.length > 0 && args[0].equals("--failfast");
         int count = 0;
         for (BaseTest bt : tests) {
             if (bt.test()) {
                 count++;
+            } else if (failFast) {
+                Logger.severe("Failing fast after error...");
+                System.exit(1);
             }
         }
         if (count < tests.length) {

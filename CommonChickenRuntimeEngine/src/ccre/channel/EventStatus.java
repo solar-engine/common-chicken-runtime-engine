@@ -150,4 +150,25 @@ public class EventStatus implements EventInput, EventOutputRecoverable, Serializ
     public void clearListeners() {
         consumers.clear();
     }
+
+    /**
+     * Returns a version of this status as an output. This is equivalent to
+     * upcasting to EventOutput.
+     *
+     * @return this status, as an output.
+     */
+    public EventOutput asOutput() {
+        return this;
+    }
+
+    /**
+     * Returns a version of this status as an input. This is equivalent to
+     * upcasting to EventInput.
+     *
+     * @return this status, as an input.
+     */
+    public EventInput asInput() {
+        return this;
+    }
+
 }

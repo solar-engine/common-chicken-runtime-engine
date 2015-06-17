@@ -3,6 +3,7 @@
 /CommonChickenRuntimeEngine/coverage/
 /CommonChickenRuntimeEngine/CCRE.jar
 /CommonChickenRuntimeEngine/cobertura.ser
+/CommonChickenRuntimeEngine/test-file*
 /IgneousEmulator/bin/
 /IgneousEmulator/Emulator.jar
 /SampleIgneousRobot/bin/

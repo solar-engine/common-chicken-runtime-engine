@@ -32,6 +32,25 @@ import ccre.ctrl.EventMixing;
  */
 public class TestEventMixing extends BaseTest {
 
+    // TODO: Use this more
+    public static class CountingEventOutput implements EventOutput {
+
+        public boolean ifExpected;
+
+        public synchronized void event() {
+            if (!ifExpected) {
+                throw new RuntimeException("Unexpected event");
+            }
+            ifExpected = false;
+        }
+
+        public void check() {
+            if (ifExpected) {
+                throw new RuntimeException("Event did not occur");
+            }
+        }
+    }
+
     @Override
     public String getName() {
         return "EventMixing Test";

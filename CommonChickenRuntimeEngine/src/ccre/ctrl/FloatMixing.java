@@ -95,6 +95,7 @@ public class FloatMixing {
     };
     /**
      * A FloatOutput that goes nowhere. All data sent here is ignored.
+     *
      * @deprecated renamed to simply <code>FloatMixing.ignored</code>.
      */
     @Deprecated
@@ -168,6 +169,9 @@ public class FloatMixing {
      * Return a BooleanInput that is true when the specified float input is at
      * least the specified minimum value.
      *
+     * Warning: this will only update when base updates, not when minimum
+     * updates!
+     *
      * @param base the value to test
      * @param minimum the minimum value
      * @return an input that represents the value being at least the minimum.
@@ -228,6 +232,9 @@ public class FloatMixing {
      * Return a BooleanInput that is true when the specified float input is at
      * most the specified maximum value.
      *
+     * Warning: this will only update when base updates, not when minimum
+     * updates!
+     *
      * @param base the value to test
      * @param maximum the maximum value
      * @return an input that represents the value being at most the maximum.
@@ -240,13 +247,17 @@ public class FloatMixing {
     /**
      * Return a Filter that applies the specified limitation to the value.
      *
+     * If the original is NaN, the filtered result is always NaN. If either
+     * bound is NaN, then it will be ignored.
+     *
      * @param minimum The minimum value to limit to. Use Float.NEGATIVE_INFINITY
      * if you want no lower bound.
      * @param maximum The maximum value to limit to. Use Float.POSITIVE_INFINITY
      * if you want no upper bound.
      * @return The filter representing the specified limit.
+     * @throws IllegalArgumentException if maximum is less than minimum
      */
-    public static FloatFilter limit(final float minimum, final float maximum) {
+    public static FloatFilter limit(final float minimum, final float maximum) throws IllegalArgumentException {
         if (maximum < minimum) {
             throw new IllegalArgumentException("Maximum is smaller than minimum!");
         }
@@ -307,13 +318,19 @@ public class FloatMixing {
      * outside of the range of the specified minimum and maximum. It will be
      * false at the minimum or maximum.
      *
+     * If value is NaN, then the result is false.
+     *
      * @param base the value to test
      * @param minimum the minimum value
      * @param maximum the maximum value
      * @return an input that represents the value being outside the range
+     * @throws IllegalArgumentException if either bound is NaN
      */
     public static BooleanInputPoll floatIsOutsideRange(final FloatInputPoll base, final float minimum, final float maximum) {
         Mixing.checkNull(base);
+        if (Float.isNaN(minimum) || Float.isNaN(maximum)) {
+            throw new IllegalArgumentException("Cannot have NaN boundary in floatIsOutsideRange!");
+        }
         return new BooleanInputPoll() {
             public boolean get() {
                 float val = base.get();
@@ -327,13 +344,19 @@ public class FloatMixing {
      * outside of the range of the specified minimum and maximum. It will be
      * false at the minimum or maximum.
      *
+     * If value is NaN, then the result is false.
+     *
      * @param base the value to test
      * @param minimum the minimum value
      * @param maximum the maximum value
      * @return an input that represents the value being outside the range
+     * @throws IllegalArgumentException if either bound is NaN
      */
     public static BooleanInput floatIsOutsideRange(final FloatInput base, final float minimum, final float maximum) {
         Mixing.checkNull(base);
+        if (Float.isNaN(minimum) || Float.isNaN(maximum)) {
+            throw new IllegalArgumentException("Cannot have NaN boundary in floatIsOutsideRange!");
+        }
         return BooleanMixing.createDispatch(floatIsOutsideRange((FloatInputPoll) base, minimum, maximum), FloatMixing.onUpdate(base));
     }
 
@@ -447,13 +470,19 @@ public class FloatMixing {
      * Return a BooleanInputPoll that is true when the specified float input is
      * in the range of the specified minimum and maximum, inclusive.
      *
+     * If value is NaN, then the result is false.
+     *
      * @param base the value to test
      * @param minimum the minimum value
      * @param maximum the maximum value
      * @return an input that represents the value being in range
+     * @throws IllegalArgumentException if either bound is NaN
      */
     public static BooleanInputPoll floatIsInRange(final FloatInputPoll base, final float minimum, final float maximum) {
         Mixing.checkNull(base);
+        if (Float.isNaN(minimum) || Float.isNaN(maximum)) {
+            throw new IllegalArgumentException("Cannot have NaN boundary in floatIsOutsideRange!");
+        }
         return new BooleanInputPoll() {
             public boolean get() {
                 float val = base.get();
@@ -466,13 +495,19 @@ public class FloatMixing {
      * Return a BooleanInput that is true when the specified float input is in
      * the range of the specified minimum and maximum, inclusive.
      *
+     * If value is NaN, then the result is false.
+     *
      * @param base the value to test
      * @param minimum the minimum value
      * @param maximum the maximum value
      * @return an input that represents the value being in range
+     * @throws IllegalArgumentException if either bound is NaN
      */
     public static BooleanInput floatIsInRange(final FloatInput base, final float minimum, final float maximum) {
         Mixing.checkNull(base);
+        if (Float.isNaN(minimum) || Float.isNaN(maximum)) {
+            throw new IllegalArgumentException("Cannot have NaN boundary in floatIsOutsideRange!");
+        }
         return BooleanMixing.createDispatch(floatIsInRange((FloatInputPoll) base, minimum, maximum), FloatMixing.onUpdate(base));
     }
 

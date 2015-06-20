@@ -54,6 +54,7 @@ public class SuiteOfTests {
                 new TestMixing(),
                 new TestEventMixing(),
                 new TestBooleanMixing(),
+                new TestFloatMixing(),
                 new TestTicker(),
                 new TestPauseTimer(),
 

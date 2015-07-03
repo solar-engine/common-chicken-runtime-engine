@@ -21,7 +21,6 @@ package ccre.testing;
 import ccre.channel.BooleanInput;
 import ccre.channel.BooleanInputPoll;
 import ccre.channel.BooleanStatus;
-import ccre.channel.EventInput;
 import ccre.channel.EventStatus;
 import ccre.channel.FloatFilter;
 import ccre.channel.FloatInput;
@@ -39,8 +38,31 @@ import ccre.util.Utils;
  */
 public class TestFloatMixing extends BaseTest {
 
+    /**
+     * A class used to ensure that an output is only set to the correct value
+     * and in the correct interval of time - and not anywhen else.
+     *
+     * Set {@link #valueExpected} to the expected value and {@link #ifExpected}
+     * to true, let the code run that should update the value, and then call
+     * {@link #check()}.
+     *
+     * If a value is received when ifExpected is not set, an exception will be
+     * thrown. Note that this also happens if a value is received more than
+     * once, because ifExpected is cleared after the first value written.
+     *
+     * check() will fail if ifExpected is still true, because that means that
+     * means that the value was never received.
+     *
+     * @author skeggsc
+     */
     public static class CountingFloatOutput implements FloatOutput {
+        /**
+         * The value expected to be received.
+         */
         public float valueExpected;
+        /**
+         * Whether or not we're still expected a value to be received.
+         */
         public boolean ifExpected;
 
         public synchronized void set(float value) {
@@ -53,7 +75,13 @@ public class TestFloatMixing extends BaseTest {
             }
         }
 
-        public void check() {
+        /**
+         * Ensure that the correct value has been received since the last time
+         * that ifExpected was set to true.
+         *
+         * @throws RuntimeException if a write did not occur.
+         */
+        public void check() throws RuntimeException {
             if (ifExpected) {
                 throw new RuntimeException("Did not get expected set!");
             }
@@ -61,7 +89,20 @@ public class TestFloatMixing extends BaseTest {
     }
 
     // TODO: use these everywhere relevant
+    /**
+     * A sequence of interesting floats for testing edge cases: things like
+     * negative infinity, NaN, MAX_VALUE, -MAX_VALUE, 0, 1, -1, etc.
+     *
+     * @see TestFloatMixing#lessInterestingFloats
+     */
     public static final float[] interestingFloats = new float[] { Float.NEGATIVE_INFINITY, -Float.MAX_VALUE, -1024.7f, -32f, -6.3f, -1.1f, -1f, -0.7f, -0.5f, -0.1f, -0.001f, -Float.MIN_VALUE, 0, Float.NaN, Float.MIN_VALUE, 0.001f, 0.1f, 0.5f, 0.7f, 1.0f, 1.1f, 6.3f, 32f, 1024.7f, Float.MAX_VALUE, Float.POSITIVE_INFINITY };
+    /**
+     * A sequence of slightly less interesting floats for testing edge cases:
+     * this is like {@link #interestingFloats}, but with only finite values not
+     * near MAX_VALUE in magnitude.
+     *
+     * @see TestFloatMixing#interestingFloats
+     */
     public static final float[] lessInterestingFloats = new float[] { -1024.7f, -32f, -6.3f, -1.1f, -1f, -0.7f, -0.5f, -0.1f, -0.001f, -Float.MIN_VALUE, 0, Float.NaN, Float.MIN_VALUE, 0.001f, 0.1f, 0.5f, 0.7f, 1.0f, 1.1f, 6.3f, 32f, 1024.7f };
 
     @Override

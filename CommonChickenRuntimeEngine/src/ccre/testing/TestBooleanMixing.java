@@ -33,6 +33,10 @@ import ccre.ctrl.BooleanMixing;
  */
 public class TestBooleanMixing extends BaseTest {
 
+    /**
+     * An "interesting" sequence of booleans to test with, such that edge cases
+     * with things like repetition of the same value can be caught.
+     */
     public static final boolean[] interestingBooleans = new boolean[] { false, true, true, false, false, true, false, true, false, true, true, true, false, true, false, false, false };
 
     @Override

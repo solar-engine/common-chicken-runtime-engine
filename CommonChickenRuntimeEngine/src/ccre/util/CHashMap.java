@@ -51,6 +51,9 @@ public final class CHashMap<K, V> implements Iterable<K> {
      * @param initial initial size.
      */
     public CHashMap(int initial) {
+        if (initial <= 0) {
+            throw new IllegalArgumentException("Invalid initial size for HashMap: " + initial);
+        }
         map = CArrayUtils.castToGeneric(new Node<?, ?>[initial]);
         size = 0;
     }

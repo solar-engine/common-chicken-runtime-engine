@@ -24,7 +24,8 @@ import ccre.channel.BooleanOutput;
 import ccre.channel.FloatInput;
 import ccre.channel.FloatInputPoll;
 import ccre.channel.FloatOutput;
-import ccre.util.CArrayList;
+import ccre.channel.FloatStatus;
+import ccre.concurrency.ConcurrentDispatchArray;
 
 /**
  * Mixing is a class that provides a wide variety of useful static methods to
@@ -87,11 +88,11 @@ public class Mixing {
 
     /**
      * Provides a FloatInput that contains a value selected from the two float
-     * arguments based on the state of the specified BooleanInputProducer.
+     * arguments based on the state of the specified BooleanInput.
      *
      * @param selector the value to select the float value based on.
-     * @param default_ the value to assume for the BooleanInputProducer before
-     * any changes are detected.
+     * @param default_ the value to assume for the BooleanInput before any
+     * changes are detected.
      * @param off the value to use when false
      * @param on the value to use when true
      * @return the FloatInput calculated from the selector's value and the two
@@ -99,41 +100,9 @@ public class Mixing {
      */
     public static FloatInput select(final BooleanInput selector, final boolean default_, final float off, final float on) {
         checkNull(selector);
-        return new FloatInput() {
-            private float cur = default_ ? on : off;
-            private CArrayList<FloatOutput> consumers = null;
-
-            {
-                selector.send(new BooleanOutput() {
-                    public void set(boolean value) {
-                        cur = value ? on : off;
-                        if (consumers != null) {
-                            for (FloatOutput out : consumers) {
-                                out.set(cur);
-                            }
-                        }
-                    }
-                });
-            }
-
-            public float get() {
-                return cur;
-            }
-
-            public void send(FloatOutput consum) {
-                if (consumers == null) {
-                    consumers = new CArrayList<FloatOutput>();
-                }
-                consumers.add(consum);
-                consum.set(cur);
-            }
-
-            public void unsend(FloatOutput consum) {
-                if (consumers != null) {
-                    consumers.remove(consum);
-                }
-            }
-        };
+        final FloatStatus stat = new FloatStatus(default_ ? on : off);
+        selector.send(select(stat, off, on));
+        return stat;
     }
 
     /**
@@ -215,17 +184,15 @@ public class Mixing {
         checkNull(selector, off, on);
         return new FloatInput() {
             private FloatInputPoll cur = default_ ? on : off;
-            private CArrayList<FloatOutput> consumers = null;
+            private final ConcurrentDispatchArray<FloatOutput> consumers = new ConcurrentDispatchArray<FloatOutput>();
 
             {
                 selector.send(new BooleanOutput() {
                     public void set(boolean value) {
                         cur = value ? on : off;
-                        if (consumers != null) {
-                            float val = cur.get();
-                            for (FloatOutput out : consumers) {
-                                out.set(val);
-                            }
+                        float val = cur.get();
+                        for (FloatOutput out : consumers) {
+                            out.set(val);
                         }
                     }
                 });
@@ -236,17 +203,12 @@ public class Mixing {
             }
 
             public void send(FloatOutput consum) {
-                if (consumers == null) {
-                    consumers = new CArrayList<FloatOutput>();
-                }
-                consumers.add(consum);
+                consumers.addIfNotFound(consum);
                 consum.set(get());
             }
 
             public void unsend(FloatOutput consum) {
-                if (consumers != null) {
-                    consumers.remove(consum);
-                }
+                consumers.remove(consum);
             }
         };
     }

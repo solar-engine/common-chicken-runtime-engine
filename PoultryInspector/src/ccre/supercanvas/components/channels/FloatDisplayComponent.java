@@ -98,8 +98,8 @@ public class FloatDisplayComponent extends BaseChannelComponent<FloatDisplayComp
                 String strv = String.format("%.3f", value);
                 g.drawString(strv, value > 0 ? centerX - fontMetrics.stringWidth(strv) - 10 : centerX + 10, centerY - halfHeight / 2 + fontMetrics.getHeight());
             }
-            int ptrCtr = (int) (centerX + halfWidth * ((2 * (value - minimum) / (maximum - minimum)) - 1) * 2 / 3) + 1;
-            if (Math.abs(value) <= 1) {
+            int ptrCtr = (int) (centerX + halfWidth * ((2 * (value - minimum) / (maximum - minimum)) - 1) * 2 / 3);
+            if (minimum <= value && value <= maximum) {
                 if (value < 0) {
                     g.setColor(value == -1 ? Color.RED : Color.RED.darker().darker());
                 } else if (value > 0) {

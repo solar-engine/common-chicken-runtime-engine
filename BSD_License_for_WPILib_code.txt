@@ -1,3 +1,6 @@
+To be clear: this only applies to WPILib code, and that will be specifically
+stated in each relevant file.
+
 * Copyright (c) 2009 FIRST
 * All rights reserved.
 *

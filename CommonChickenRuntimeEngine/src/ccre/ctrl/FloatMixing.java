@@ -89,10 +89,17 @@ public class FloatMixing {
     /**
      * A FloatOutput that goes nowhere. All data sent here is ignored.
      */
-    public static final FloatOutput ignoredFloatOutput = new FloatOutput() {
+    public static final FloatOutput ignored = new FloatOutput() {
         public void set(float newValue) {
         }
     };
+    /**
+     * A FloatOutput that goes nowhere. All data sent here is ignored.
+     *
+     * @deprecated renamed to simply <code>FloatMixing.ignored</code>.
+     */
+    @Deprecated
+    public static final FloatOutput ignoredFloatOutput = ignored;
 
     /**
      * Returns an EventOutput that, when fired, writes the specified value to
@@ -162,6 +169,9 @@ public class FloatMixing {
      * Return a BooleanInput that is true when the specified float input is at
      * least the specified minimum value.
      *
+     * Warning: this will only update when base updates, not when minimum
+     * updates!
+     *
      * @param base the value to test
      * @param minimum the minimum value
      * @return an input that represents the value being at least the minimum.
@@ -222,6 +232,9 @@ public class FloatMixing {
      * Return a BooleanInput that is true when the specified float input is at
      * most the specified maximum value.
      *
+     * Warning: this will only update when base updates, not when minimum
+     * updates!
+     *
      * @param base the value to test
      * @param maximum the maximum value
      * @return an input that represents the value being at most the maximum.
@@ -234,13 +247,17 @@ public class FloatMixing {
     /**
      * Return a Filter that applies the specified limitation to the value.
      *
+     * If the original is NaN, the filtered result is always NaN. If either
+     * bound is NaN, then it will be ignored.
+     *
      * @param minimum The minimum value to limit to. Use Float.NEGATIVE_INFINITY
      * if you want no lower bound.
      * @param maximum The maximum value to limit to. Use Float.POSITIVE_INFINITY
      * if you want no upper bound.
      * @return The filter representing the specified limit.
+     * @throws IllegalArgumentException if maximum is less than minimum
      */
-    public static FloatFilter limit(final float minimum, final float maximum) {
+    public static FloatFilter limit(final float minimum, final float maximum) throws IllegalArgumentException {
         if (maximum < minimum) {
             throw new IllegalArgumentException("Maximum is smaller than minimum!");
         }
@@ -301,13 +318,19 @@ public class FloatMixing {
      * outside of the range of the specified minimum and maximum. It will be
      * false at the minimum or maximum.
      *
+     * If value is NaN, then the result is false.
+     *
      * @param base the value to test
      * @param minimum the minimum value
      * @param maximum the maximum value
      * @return an input that represents the value being outside the range
+     * @throws IllegalArgumentException if either bound is NaN
      */
     public static BooleanInputPoll floatIsOutsideRange(final FloatInputPoll base, final float minimum, final float maximum) {
         Mixing.checkNull(base);
+        if (Float.isNaN(minimum) || Float.isNaN(maximum)) {
+            throw new IllegalArgumentException("Cannot have NaN boundary in floatIsOutsideRange!");
+        }
         return new BooleanInputPoll() {
             public boolean get() {
                 float val = base.get();
@@ -321,13 +344,19 @@ public class FloatMixing {
      * outside of the range of the specified minimum and maximum. It will be
      * false at the minimum or maximum.
      *
+     * If value is NaN, then the result is false.
+     *
      * @param base the value to test
      * @param minimum the minimum value
      * @param maximum the maximum value
      * @return an input that represents the value being outside the range
+     * @throws IllegalArgumentException if either bound is NaN
      */
     public static BooleanInput floatIsOutsideRange(final FloatInput base, final float minimum, final float maximum) {
         Mixing.checkNull(base);
+        if (Float.isNaN(minimum) || Float.isNaN(maximum)) {
+            throw new IllegalArgumentException("Cannot have NaN boundary in floatIsOutsideRange!");
+        }
         return BooleanMixing.createDispatch(floatIsOutsideRange((FloatInputPoll) base, minimum, maximum), FloatMixing.onUpdate(base));
     }
 
@@ -441,13 +470,19 @@ public class FloatMixing {
      * Return a BooleanInputPoll that is true when the specified float input is
      * in the range of the specified minimum and maximum, inclusive.
      *
+     * If value is NaN, then the result is false.
+     *
      * @param base the value to test
      * @param minimum the minimum value
      * @param maximum the maximum value
      * @return an input that represents the value being in range
+     * @throws IllegalArgumentException if either bound is NaN
      */
     public static BooleanInputPoll floatIsInRange(final FloatInputPoll base, final float minimum, final float maximum) {
         Mixing.checkNull(base);
+        if (Float.isNaN(minimum) || Float.isNaN(maximum)) {
+            throw new IllegalArgumentException("Cannot have NaN boundary in floatIsOutsideRange!");
+        }
         return new BooleanInputPoll() {
             public boolean get() {
                 float val = base.get();
@@ -460,13 +495,19 @@ public class FloatMixing {
      * Return a BooleanInput that is true when the specified float input is in
      * the range of the specified minimum and maximum, inclusive.
      *
+     * If value is NaN, then the result is false.
+     *
      * @param base the value to test
      * @param minimum the minimum value
      * @param maximum the maximum value
      * @return an input that represents the value being in range
+     * @throws IllegalArgumentException if either bound is NaN
      */
     public static BooleanInput floatIsInRange(final FloatInput base, final float minimum, final float maximum) {
         Mixing.checkNull(base);
+        if (Float.isNaN(minimum) || Float.isNaN(maximum)) {
+            throw new IllegalArgumentException("Cannot have NaN boundary in floatIsOutsideRange!");
+        }
         return BooleanMixing.createDispatch(floatIsInRange((FloatInputPoll) base, minimum, maximum), FloatMixing.onUpdate(base));
     }
 
@@ -571,7 +612,7 @@ public class FloatMixing {
 
     /**
      * Returns a FloatInputPoll with a deadzone applied as defined in
-     * Utils.deadzone
+     * Utils.deadzone.
      *
      * @param inp the input representing the current value.
      * @param range the deadzone to apply.
@@ -627,10 +668,17 @@ public class FloatMixing {
     /**
      * Returns a FloatInputPoll representing the delta between the current value
      * of input and the previous value. This _only_ works when you use the
-     * result in one place! If you use it in multiple, then it may try to find
-     * the deltas between each invocation!
+     * result in one place! If you use it in multiple, then it tries to find the
+     * deltas between each invocation!
      *
      * To get around this, use findRate with two arguments.
+     *
+     * If any sample is NaN, then NaN will be returned - the sample will be
+     * discarded and the previous sample will be unmodified. However, if the
+     * first sample is NaN, then the first delta will be NaN, and the subsequent
+     * deltas will be based on that first non-NaN sample.
+     *
+     * Infinite values cause undefined behavior.
      *
      * @param input The input value to find the rate of.
      * @return The FloatInputPoll representing the rate.
@@ -642,6 +690,9 @@ public class FloatMixing {
 
             public synchronized float get() {
                 float next = input.get();
+                if (next != next) { // is it NaN?
+                    return Float.NaN;
+                }
                 float out = next - lastValue;
                 lastValue = next;
                 return out;
@@ -657,6 +708,13 @@ public class FloatMixing {
      * If you only need to use this in one place, then using findRate with one
      * argument might be a better choice.
      *
+     * If any sample is NaN, then NaN will be returned - the sample will be
+     * discarded. However, if the first sample is NaN, then the first delta will
+     * be NaN, and the subsequent deltas will be based on that first non-NaN
+     * sample.
+     *
+     * Infinite values cause undefined behavior.
+     *
      * @param input The input value to find the rate of.
      * @param updateWhen When to update the current state, so that the delta is
      * from the last update of this.
@@ -670,7 +728,10 @@ public class FloatMixing {
             {
                 updateWhen.send(new EventOutput() {
                     public void event() {
-                        lastValue = input.get();
+                        float next = input.get();
+                        if (next == next) { // if next is not NaN
+                            lastValue = next;
+                        }
                     }
                 });
             }
@@ -693,8 +754,9 @@ public class FloatMixing {
      * output.
      * @param checkTrigger when to recheck the input.
      * @return the EventInput that fires when the input changes enough.
+     * @throws IllegalArgumentException if delta is not finite.
      */
-    public static EventInput whenFloatChanges(final FloatInputPoll input, final float delta, EventInput checkTrigger) {
+    public static EventInput whenFloatChanges(final FloatInputPoll input, final float delta, EventInput checkTrigger) throws IllegalArgumentException {
         Mixing.checkNull(input, checkTrigger);
         return whenFloatChanges(createDispatch(input, checkTrigger), delta);
     }
@@ -710,15 +772,20 @@ public class FloatMixing {
      * @param delta the value by which the input must change to produce an
      * output.
      * @return the EventInput that fires when the input changes enough.
+     * @throws IllegalArgumentException if delta is not finite.
      */
-    public static EventInput whenFloatChanges(final FloatInput input, final float delta) {
+    public static EventInput whenFloatChanges(final FloatInput input, final float delta) throws IllegalArgumentException {
         Mixing.checkNull(input);
+        if (!Float.isFinite(delta)) {
+            throw new IllegalArgumentException("delta must be finite and non-NaN");
+        }
         final EventStatus out = new EventStatus();
         input.send(new FloatOutput() {
             float last = input.get();
 
             public void set(float value) {
                 if (Math.abs(last - value) > delta) {
+                    last = value;
                     out.produce();
                 }
             }
@@ -738,14 +805,28 @@ public class FloatMixing {
      * The scaling is equivalent to:
      * <code>(base.get() - zero) / (one - zero)</code>
      *
+     * If the value is NaN, the result is NaN.
+     *
      * @param base the value to scale.
      * @param zero the value of base that turns into 0.0.
      * @param one the value of base that turns into 1.0.
      * @return the scaled value.
+     * @throws IllegalArgumentException if either bound is infinite or NaN, if
+     * the bounds are equal, or if the range between the bounds rounds to an
+     * infinite value
      */
-    public static FloatInputPoll normalizeFloat(final FloatInputPoll base, final float zero, float one) {
+    public static FloatInputPoll normalizeFloat(final FloatInputPoll base, final float zero, float one) throws IllegalArgumentException {
         Mixing.checkNull(base);
+        if (!Float.isFinite(zero) || !Float.isFinite(one)) {
+            throw new IllegalArgumentException("Infinite or NaN bound to normalizeFloat!");
+        }
+        if (zero == one) {
+            throw new IllegalArgumentException("Equal zero and one bounds to normalizeFloat!");
+        }
         final float range = one - zero;
+        if (!Float.isFinite(range)) {
+            throw new IllegalArgumentException("normalizeFloat range is large enough to provide invalid results");
+        }
         return new FloatInputPoll() {
             public float get() {
                 return (base.get() - zero) / range;
@@ -765,6 +846,11 @@ public class FloatMixing {
      * The scaling is equivalent to:
      * <code>(base.get() - zero.get()) / (one.get() - zero.get())</code>
      *
+     * Results are undefined when either of the bounds are infinite or very
+     * close to MAX_VALUE.
+     *
+     * If any bound or value is NaN, or the bounds are equal, the result is NaN.
+     *
      * @param base the value to scale.
      * @param zero the value of base that turns into 0.0.
      * @param one the value of base that turns into 1.0.
@@ -774,8 +860,11 @@ public class FloatMixing {
         Mixing.checkNull(base, zero, one);
         return new FloatInputPoll() {
             public float get() {
-                float zeroN = zero.get();
-                return (base.get() - zeroN) / (one.get() - zeroN);
+                float zeroN = zero.get(), deltaN = one.get() - zeroN;
+                if (deltaN == 0) {
+                    return Float.NaN; // as opposed to either infinity or negative infinity
+                }
+                return (base.get() - zeroN) / deltaN;
             }
         };
     }
@@ -792,12 +881,17 @@ public class FloatMixing {
      * The scaling is equivalent to:
      * <code>(base.get() - zero) / (one - zero)</code>
      *
+     * If the value is NaN, the result is NaN.
+     *
      * @param base the value to scale.
      * @param zero the value of base that turns into 0.0.
      * @param one the value of base that turns into 1.0.
      * @return the scaled value.
+     * @throws IllegalArgumentException if either bound is infinite or NaN, if
+     * the bounds are equal, or if the range between the bounds rounds to an
+     * infinite value
      */
-    public static FloatInput normalizeFloat(final FloatInput base, final float zero, float one) {
+    public static FloatInput normalizeFloat(final FloatInput base, final float zero, float one) throws IllegalArgumentException {
         Mixing.checkNull(base);
         return createDispatch(normalizeFloat((FloatInputPoll) base, zero, one), FloatMixing.onUpdate(base));
     }
@@ -816,6 +910,11 @@ public class FloatMixing {
      *
      * The scaling is equivalent to:
      * <code>(base.get() - zero.get()) / (one.get() - zero.get())</code>
+     *
+     * Results are undefined when either of the bounds are infinite or very
+     * close to MAX_VALUE.
+     *
+     * If any bound or value is NaN, or the bounds are equal, the result is NaN.
      *
      * @param base the value to scale.
      * @param zero the value of base that turns into 0.0.
@@ -854,6 +953,10 @@ public class FloatMixing {
     /**
      * Return a FloatOutput that will fire an EventOutput whenever it changes.
      *
+     * This may fire more than expected in the case that the propagated value is
+     * NaN. This is because it would be a lot slower to check this, and it
+     * doesn't matter much, so deal with it.
+     *
      * @param output the output to fire.
      * @return the output to track.
      */
@@ -864,6 +967,7 @@ public class FloatMixing {
 
             public void set(float out) {
                 if (out != last) {
+                    last = out;
                     output.event();
                 }
             }

@@ -33,8 +33,10 @@ public interface RemoteProcedure {
 
     /**
      * Run this procedure with data from the specified input and put the results
-     * into the specified output. Procedures should not block, but may wait a
-     * small amount of time in a different thread before replying.
+     * into the specified output. The invoke method itself should not block, but
+     * a procedure may delay responding for a small amount of time, as long as
+     * invoke itself returns quickly. (This implies that a different thread
+     * should be used.)
      *
      * Replies work by writing results to the output, and then closing the
      * output.

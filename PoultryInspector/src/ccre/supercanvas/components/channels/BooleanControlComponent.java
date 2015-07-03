@@ -71,7 +71,7 @@ public class BooleanControlComponent extends BaseChannelComponent<BooleanControl
      * @param name the name of the output.
      */
     public BooleanControlComponent(int cx, int cy, String name) {
-        this(cx, cy, name, BooleanMixing.ignoredBooleanOutput);
+        this(cx, cy, name, BooleanMixing.ignored);
     }
 
     /**

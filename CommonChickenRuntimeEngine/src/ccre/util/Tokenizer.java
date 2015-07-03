@@ -24,7 +24,9 @@ import java.io.EOFException;
  * A system for grabbing tokens from an input string.
  *
  * @author skeggsc
+ * @deprecated unused by anything within the CCRE, and probably never will be.
  */
+@Deprecated // NOTE: this is duplicated in tests.xml to exclude this from testing
 public class Tokenizer {
 
     private String input = "";

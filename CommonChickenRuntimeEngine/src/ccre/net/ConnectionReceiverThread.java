@@ -80,7 +80,6 @@ public abstract class ConnectionReceiverThread extends ReporterThread {
                 }
             }.start();
         }
-
     }
 
     /**

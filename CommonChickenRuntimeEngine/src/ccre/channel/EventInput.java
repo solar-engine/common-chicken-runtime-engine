@@ -30,16 +30,28 @@ package ccre.channel;
 public interface EventInput {
 
     /**
-     * Register a listener for when this event is fired.
+     * Register a listener for when this event is fired, so that whenever this
+     * event is fired, the specified output will get fired as well.
+     *
+     * If the same listener is added multiple times, it has the same effect as
+     * if it was added once.
      *
      * @param listener the listener to add.
+     * @see #unsend(EventOutput)
      */
     void send(EventOutput listener);
 
     /**
-     * Remove a listener for when this event is fired.
+     * Remove a listener for when this event is fired. This reverses the actions
+     * of a previous send call.
+     *
+     * If the listener was not added previously (or had been removed), this call
+     * will do nothing.
+     *
+     * After unsend is called, a listener can be reregistered with send.
      *
      * @param listener the listener to remove.
+     * @see #send(EventOutput)
      */
     void unsend(EventOutput listener);
 }

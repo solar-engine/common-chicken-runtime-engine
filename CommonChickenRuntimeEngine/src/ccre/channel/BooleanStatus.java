@@ -52,7 +52,7 @@ public class BooleanStatus implements BooleanOutput, BooleanInput, RConfable, Se
      * @see #send(ccre.channel.BooleanOutput)
      * @see #unsend(ccre.channel.BooleanOutput)
      */
-    private ConcurrentDispatchArray<BooleanOutput> consumers = null;
+    private final ConcurrentDispatchArray<BooleanOutput> consumers = new ConcurrentDispatchArray<BooleanOutput>();
     /**
      * The cached EventOutput that sets the current value to true. Use
      * getSetTrueEvent() instead, because this might be null.
@@ -100,7 +100,6 @@ public class BooleanStatus implements BooleanOutput, BooleanInput, RConfable, Se
      * @param target The BooleanOutput to automatically update.
      */
     public BooleanStatus(BooleanOutput target) {
-        consumers = new ConcurrentDispatchArray<BooleanOutput>();
         consumers.add(target);
         target.set(false);
     }
@@ -115,7 +114,7 @@ public class BooleanStatus implements BooleanOutput, BooleanInput, RConfable, Se
      * @param targets The BooleanOutputs to automatically update.
      */
     public BooleanStatus(BooleanOutput... targets) {
-        consumers = new ConcurrentDispatchArray<BooleanOutput>(CArrayUtils.asList(targets));
+        consumers.addAllIfNotFound(CArrayUtils.asList(targets));
         for (BooleanOutput t : targets) {
             t.set(false);
         }
@@ -211,7 +210,7 @@ public class BooleanStatus implements BooleanOutput, BooleanInput, RConfable, Se
      * @see #set(boolean)
      */
     public boolean hasConsumers() {
-        return consumers != null && !consumers.isEmpty();
+        return !consumers.isEmpty();
     }
 
     public final synchronized void set(boolean value) {
@@ -219,10 +218,8 @@ public class BooleanStatus implements BooleanOutput, BooleanInput, RConfable, Se
             return;
         }
         this.value = value;
-        if (consumers != null) {
-            for (BooleanOutput output : consumers) {
-                output.set(value);
-            }
+        for (BooleanOutput output : consumers) {
+            output.set(value);
         }
     }
 
@@ -231,19 +228,12 @@ public class BooleanStatus implements BooleanOutput, BooleanInput, RConfable, Se
     }
 
     public synchronized void send(BooleanOutput output) {
-        if (consumers == null) {
-            consumers = new ConcurrentDispatchArray<BooleanOutput>();
-        }
-        consumers.add(output);
+        consumers.addIfNotFound(output);
         output.set(value);
     }
 
     public synchronized void unsend(BooleanOutput output) {
-        if (consumers != null) {
-            if (consumers.remove(output) && consumers.isEmpty()) {
-                consumers = null;
-            }
-        }
+        consumers.remove(output);
     }
 
     /**

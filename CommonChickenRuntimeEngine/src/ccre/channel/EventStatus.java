@@ -38,13 +38,12 @@ public class EventStatus implements EventInput, EventOutputRecoverable, Serializ
     /**
      * The events to fire when this event is fired.
      */
-    private final ConcurrentDispatchArray<EventOutput> consumers;
+    private final ConcurrentDispatchArray<EventOutput> consumers = new ConcurrentDispatchArray<EventOutput>();
 
     /**
      * Create a new Event.
      */
     public EventStatus() {
-        consumers = new ConcurrentDispatchArray<EventOutput>();
     }
 
     /**
@@ -55,7 +54,6 @@ public class EventStatus implements EventInput, EventOutputRecoverable, Serializ
      * @see #send(ccre.channel.EventOutput)
      */
     public EventStatus(EventOutput event) {
-        consumers = new ConcurrentDispatchArray<EventOutput>();
         consumers.add(event);
     }
 
@@ -67,8 +65,7 @@ public class EventStatus implements EventInput, EventOutputRecoverable, Serializ
      * @see #send(ccre.channel.EventOutput)
      */
     public EventStatus(EventOutput... events) {
-        consumers = new ConcurrentDispatchArray<EventOutput>();
-        consumers.addAll(CArrayUtils.asList(events));
+        consumers.addAllIfNotFound(CArrayUtils.asList(events));
     }
 
     /**
@@ -86,13 +83,15 @@ public class EventStatus implements EventInput, EventOutputRecoverable, Serializ
      * Returns the number of consumers.
      *
      * @return the number of consumers.
+     * @deprecated this information does not need to be a public interface.
      */
+    @Deprecated
     public int countConsumers() {
         return consumers.size();
     }
 
     /**
-     * Produce this event - fire all listenering events.
+     * Produce this event - fire all listening events.
      */
     public void produce() {
         for (EventOutput ec : consumers) {
@@ -101,15 +100,11 @@ public class EventStatus implements EventInput, EventOutputRecoverable, Serializ
     }
 
     public void send(EventOutput client) {
-        if (!consumers.contains(client)) {
-            consumers.add(client);
-        }
+        consumers.addIfNotFound(client);
     }
 
     public void unsend(EventOutput client) throws IllegalStateException {
-        if (!consumers.remove(client)) {
-            throw new IllegalStateException("Listener not in event list: " + client);
-        }
+        consumers.remove(client);
     }
 
     public void event() {
@@ -155,4 +150,25 @@ public class EventStatus implements EventInput, EventOutputRecoverable, Serializ
     public void clearListeners() {
         consumers.clear();
     }
+
+    /**
+     * Returns a version of this status as an output. This is equivalent to
+     * upcasting to EventOutput.
+     *
+     * @return this status, as an output.
+     */
+    public EventOutput asOutput() {
+        return this;
+    }
+
+    /**
+     * Returns a version of this status as an input. This is equivalent to
+     * upcasting to EventInput.
+     *
+     * @return this status, as an input.
+     */
+    public EventInput asInput() {
+        return this;
+    }
+
 }

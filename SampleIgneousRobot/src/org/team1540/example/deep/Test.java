@@ -20,6 +20,8 @@ package org.team1540.example.deep;
 
 import ccre.channel.BooleanStatus;
 import ccre.cluck.Cluck;
+import ccre.ctrl.BooleanMixing;
+import ccre.ctrl.binding.ControlBindingCreator;
 import ccre.igneous.Igneous;
 import ccre.igneous.IgneousApplication;
 
@@ -33,6 +35,8 @@ import ccre.igneous.IgneousApplication;
  */
 public class Test implements IgneousApplication {
 
+    public static final ControlBindingCreator driveControls = Igneous.makeControlBindingCreator("Drive Code", true);
+
     /**
      * Set up the test robot. This includes tank drive, high gear/low gear, a
      * compressor, and a simple autonomous.
@@ -43,8 +47,8 @@ public class Test implements IgneousApplication {
         BooleanStatus shifter = new BooleanStatus(Igneous.makeSolenoid(2));
         Cluck.publishRConf("shifter", shifter);
         shifter.setFalseWhen(Igneous.startTele);
-        shifter.setTrueWhen(Igneous.joystick1.getButtonSource(3));
-        shifter.setFalseWhen(Igneous.joystick1.getButtonSource(1));
+        shifter.setTrueWhen(BooleanMixing.onPress(driveControls.addBoolean("High Gear")));
+        shifter.setFalseWhen(BooleanMixing.onPress(driveControls.addBoolean("Low Gear")));
         // Compressor
         Igneous.useCompressor(1, 1);
         // Autonomous

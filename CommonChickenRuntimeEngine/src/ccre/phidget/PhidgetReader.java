@@ -106,7 +106,7 @@ public class PhidgetReader {
      */
     public static BooleanInput getDigitalInput(int id) {
         BooleanInput bi = digitalInputs[id];
-        bi.send(BooleanMixing.ignoredBooleanOutput);
+        bi.send(BooleanMixing.ignored);
         return bi;
     }
 
@@ -118,7 +118,7 @@ public class PhidgetReader {
      */
     public static FloatInput getAnalogInput(int id) {
         FloatInput fi = analogInputs[id];
-        fi.send(FloatMixing.ignoredFloatOutput);
+        fi.send(FloatMixing.ignored);
         return fi;
     }
 

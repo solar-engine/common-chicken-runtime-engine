@@ -59,7 +59,7 @@ public class FloatStatus implements FloatOutput, FloatInput, RConfable, Serializ
      * @see #send(ccre.channel.FloatOutput)
      * @see #unsend(ccre.channel.FloatOutput)
      */
-    private ConcurrentDispatchArray<FloatOutput> consumers = null;
+    private final ConcurrentDispatchArray<FloatOutput> consumers = new ConcurrentDispatchArray<FloatOutput>();
 
     /**
      * Create a new FloatStatus with a value of zero.
@@ -86,7 +86,6 @@ public class FloatStatus implements FloatOutput, FloatInput, RConfable, Serializ
      * @param target The FloatOutput to automatically update.
      */
     public FloatStatus(FloatOutput target) {
-        consumers = new ConcurrentDispatchArray<FloatOutput>();
         consumers.add(target);
         target.set(0);
     }
@@ -101,7 +100,7 @@ public class FloatStatus implements FloatOutput, FloatInput, RConfable, Serializ
      * @param targets The FloatOutputs to automatically update.
      */
     public FloatStatus(FloatOutput... targets) {
-        consumers = new ConcurrentDispatchArray<FloatOutput>(CArrayUtils.asList(targets));
+        consumers.addAllIfNotFound(CArrayUtils.asList(targets));
         for (FloatOutput t : targets) {
             t.set(0);
         }
@@ -120,7 +119,7 @@ public class FloatStatus implements FloatOutput, FloatInput, RConfable, Serializ
      * @see #set(float)
      */
     public boolean hasConsumers() {
-        return consumers != null && !consumers.isEmpty();
+        return !consumers.isEmpty();
     }
 
     public final synchronized void set(float newValue) {
@@ -128,10 +127,8 @@ public class FloatStatus implements FloatOutput, FloatInput, RConfable, Serializ
             return; // Do nothing. We want to ignore the value if it's the same.
         }
         value = newValue;
-        if (consumers != null) {
-            for (FloatOutput fws : consumers) {
-                fws.set(newValue);
-            }
+        for (FloatOutput fws : consumers) {
+            fws.set(newValue);
         }
     }
 
@@ -159,19 +156,32 @@ public class FloatStatus implements FloatOutput, FloatInput, RConfable, Serializ
     }
 
     public synchronized void send(FloatOutput output) {
-        if (consumers == null) {
-            consumers = new ConcurrentDispatchArray<FloatOutput>();
-        }
-        consumers.add(output);
+        consumers.addIfNotFound(output);
         output.set(value);
     }
 
     public synchronized void unsend(FloatOutput output) {
-        if (consumers != null) {
-            if (consumers.remove(output) && consumers.isEmpty()) {
-                consumers = null;
-            }
-        }
+        consumers.remove(output);
+    }
+
+    /**
+     * Returns a version of this status as an output. This is equivalent to
+     * upcasting to FloatOutput.
+     *
+     * @return this status, as an output.
+     */
+    public FloatOutput asOutput() {
+        return this;
+    }
+
+    /**
+     * Returns a version of this status as an input. This is equivalent to
+     * upcasting to FloatInput.
+     *
+     * @return this status, as an input.
+     */
+    public FloatInput asInput() {
+        return this;
     }
 
     public Entry[] queryRConf() {

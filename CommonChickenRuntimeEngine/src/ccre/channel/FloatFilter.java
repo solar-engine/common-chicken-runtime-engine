@@ -43,6 +43,9 @@ public abstract class FloatFilter {
      * @return the filtered input.
      */
     public FloatInput wrap(final FloatInput input) {
+        if (input == null) {
+            throw new NullPointerException();
+        }
         FloatStatus out = new FloatStatus(filter(input.get()));
         input.send(wrap((FloatOutput) out));
         return out;
@@ -56,6 +59,9 @@ public abstract class FloatFilter {
      * @return the filtered input.
      */
     public FloatInputPoll wrap(final FloatInputPoll input) {
+        if (input == null) {
+            throw new NullPointerException();
+        }
         return new FloatInputPoll() {
             public float get() {
                 return filter(input.get());
@@ -71,6 +77,9 @@ public abstract class FloatFilter {
      * @return the output to write values to in order to filter them.
      */
     public FloatOutput wrap(final FloatOutput output) {
+        if (output == null) {
+            throw new NullPointerException();
+        }
         return new FloatOutput() {
             public void set(float value) {
                 output.set(filter(value));

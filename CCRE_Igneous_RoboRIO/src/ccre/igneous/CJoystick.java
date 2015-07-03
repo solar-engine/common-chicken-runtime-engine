@@ -44,7 +44,7 @@ final class CJoystick extends AbstractJoystickWithPOV {
      */
     CJoystick(int joystick, EventInput check) {
         super(check);
-        if (joystick < 1 || joystick > 4) {
+        if (joystick < 1 || joystick > 6) {
             throw new IllegalArgumentException("Joystick " + joystick + " is not a valid joystick number.");
         } else {
             joy = new Joystick(joystick - 1);

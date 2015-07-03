@@ -35,6 +35,9 @@ public interface BooleanInput extends BooleanInputPoll {
      * If available, the current value of the input will be written at this
      * time.
      *
+     * If the same listener is added multiple times, it has the same effect as
+     * if it was added once.
+     *
      * @param output The boolean output to notify when the value changes.
      * @see BooleanOutput#set(boolean)
      * @see #unsend(ccre.channel.BooleanOutput)
@@ -44,6 +47,11 @@ public interface BooleanInput extends BooleanInputPoll {
     /**
      * Unsubscribe from changes in this boolean input's value. This reverses the
      * actions of a previous send call.
+     *
+     * If the listener was not added previously (or had been removed), this call
+     * will do nothing.
+     *
+     * After unsend is called, a listener can be reregistered with send.
      *
      * @param output The output to unsubscribe.
      * @see #send(ccre.channel.BooleanOutput)

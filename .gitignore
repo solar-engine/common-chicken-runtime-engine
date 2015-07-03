@@ -1,46 +1,34 @@
-/CommonChickenRuntimeEngine/build
-/CCRE_Igneous/build/
-/Sample Igneous Robot/build/
-/Igneous Emulator/nbproject/private/
-/Igneous Emulator/build/
-/Test_Copy/build/
-/Sample Igneous Robot/nbproject/project.bak.xml
-/Sample Igneous Robot/ccre_storage/
-/Igneous Emulator/dist/lib/
-/Sample Igneous Robot/nbproject/private/
-/CCRE_Obsidian/nbproject/private/
-/CCRE_Igneous/dist/
-/Sample Igneous Robot/resources/META-INF/MANIFEST.MF
-/CCRE_Obsidian/nbproject/project.bak.xml
-/CommonChickenRuntimeEngine/dist/
-/Igneous Emulator/dist/
-/CCRE_Igneous/nbproject/private/
-/CCRE_Obsidian/build/
-/CCRE_Obsidian/dist/
-/Prototype Obsidian Project/build/
-/Prototype Obsidian Project/dist/
-/Prototype Obsidian Project/nbproject/private/
-/Obsidian Emulator/nbproject/private/
-/Prototype Obsidian Project/nbproject/project.bak.xml
-/Obsidian Emulator/build/
-/Obsidian Emulator/dist/
-/CommonChickenRuntimeEngine/nbproject/private/
-/CCRE_Igneous/nbproject/private/private.xml
-/CCRE_PoultryInspector/nbproject/build-impl.xml
-/CommonChickenRuntimeEngine/nbproject/build-impl.xml
-/Igneous Emulator/nbproject/build-impl.xml
-/Obsidian Emulator/nbproject/build-impl.xml
-/CCRE Examples/nbproject/private/
-/CCRE Examples/build/
-/CCRE Examples/dist/
-/CCRE_ReflectionGenerator/nbproject/private/
-/CCRE_ReflectionGenerator/build/
-/CCRE_ReflectionGenerator/dist/
-/CCRE_PoultryInspector/lib/Phidget_2.1.8.20130731.dmg
-/CCRE_PoultryInspector/lib/Phidget-x64_2.1.8.20131105.exe
-/CCRE_PoultryInspector/lib/Phidget-x86_2.1.8.20131105.exe
-/CCRE_PoultryInspector/lib/libphidget_2.1.8.20130723.tar.gz
+/CommonChickenRuntimeEngine/bin/
+/CommonChickenRuntimeEngine/cobertura-instrumented/
+/CommonChickenRuntimeEngine/coverage/
+/CommonChickenRuntimeEngine/CCRE.jar
+/CommonChickenRuntimeEngine/cobertura.ser
+/CommonChickenRuntimeEngine/test-file*
+/IgneousEmulator/bin/
+/IgneousEmulator/Emulator.jar
+/SampleIgneousRobot/bin/
+/SampleIgneousRobot/dist/
+/SampleIgneousRobot/build/
+/SampleIgneousRobot/build-2014/
+/SampleIgneousRobot/emulation-crio/
+/SampleIgneousRobot/emulation-roborio/
+/SampleIgneousRobot/launches/
+/PoultryInspector/bin/
+/PoultryInspector/PoultryInspector*.jar
+/PoultryInspector/log-*
+/PoultryInspector/*.ser
+/CCRE_Igneous_cRIO/bin/
+/CCRE_Igneous_cRIO/build-2014/
+/CCRE_Igneous_cRIO/Empty.jar
+/CCRE_Igneous_cRIO/Igneous.jar
+/CCRE_Igneous_cRIO/Library_Prebuild.jar
+/CCRE_Igneous_cRIO/Library_Postbuild.jar
+/CCRE_Igneous_RoboRIO/bin/
+/CCRE_Igneous_RoboRIO/Igneous.jar
+/TemplateIgneousRobot/bin/
+/CCRE_Examples/bin/
 /.metadata
 /RemoteSystemsTempFiles
-/Cobertura-2.0.3
+/cobertura-2.1.1
 /Javadoc
+/javadoc.tgz

@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2014 Colby Skeggs
+ * Copyright 2013-2015 Colby Skeggs
  *
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  *
@@ -22,6 +22,7 @@ import ccre.channel.EventOutput;
 import ccre.channel.EventStatus;
 import ccre.channel.FloatOutput;
 import ccre.channel.FloatStatus;
+import ccre.ctrl.FloatMixing;
 
 /**
  * Test FloatStatus.
@@ -169,11 +170,71 @@ public class TestFloatStatus extends BaseTest {
         assertObjectEqual(cur[0], -8.2f, "Expected write!");
     }
 
+    private void testConsumerTracking() throws TestingException {
+        FloatStatus target = new FloatStatus();
+        assertFalse(target.hasConsumers(), "Target should not have consumers initially!");
+        target.send(FloatMixing.ignored);
+        assertTrue(target.hasConsumers(), "Target should now have consumers!");
+        target.unsend(FloatMixing.ignored);
+        assertFalse(target.hasConsumers(), "Target should no longer have consumers!");
+        target.send(FloatMixing.ignored);
+        assertTrue(target.hasConsumers(), "Target should now have consumers!");
+        target.send(FloatMixing.ignored);
+        assertTrue(target.hasConsumers(), "Target should still have consumers!");
+        target.unsend(FloatMixing.ignored);
+        assertFalse(target.hasConsumers(), "Target should no longer have consumers!");
+        target.unsend(FloatMixing.ignored); // should not fail
+        assertFalse(target.hasConsumers(), "Target should still not have consumers!");
+
+        target = new FloatStatus(FloatMixing.ignored);
+        assertTrue(target.hasConsumers(), "Target should have consumers initially!");
+        target.unsend(FloatMixing.ignored);
+        assertFalse(target.hasConsumers(), "Target should no longer have consumers!");
+        target.send(FloatMixing.ignored);
+        assertTrue(target.hasConsumers(), "Target should now have consumers!");
+        target.unsend(FloatMixing.ignored);
+        assertFalse(target.hasConsumers(), "Target should no longer have consumers!");
+        target.send(FloatMixing.ignored);
+        assertTrue(target.hasConsumers(), "Target should now have consumers!");
+        target.send(FloatMixing.ignored);
+        assertTrue(target.hasConsumers(), "Target should still have consumers!");
+        target.unsend(FloatMixing.ignored);
+        assertFalse(target.hasConsumers(), "Target should no longer have consumers!");
+        target.unsend(FloatMixing.ignored); // should not fail
+        assertFalse(target.hasConsumers(), "Target should still not have consumers!");
+
+        target = new FloatStatus(FloatMixing.ignored, FloatMixing.ignored);
+        assertTrue(target.hasConsumers(), "Target should have consumers initially!");
+        target.unsend(FloatMixing.ignored);
+        assertFalse(target.hasConsumers(), "Target should no longer have consumers!");
+        target.send(FloatMixing.ignored);
+        assertTrue(target.hasConsumers(), "Target should now have consumers!");
+        target.unsend(FloatMixing.ignored);
+        assertFalse(target.hasConsumers(), "Target should no longer have consumers!");
+        target.send(FloatMixing.ignored);
+        assertTrue(target.hasConsumers(), "Target should now have consumers!");
+        target.send(FloatMixing.ignored);
+        assertTrue(target.hasConsumers(), "Target should still have consumers!");
+        target.unsend(FloatMixing.ignored);
+        assertFalse(target.hasConsumers(), "Target should no longer have consumers!");
+        target.unsend(FloatMixing.ignored); // should not fail
+        assertFalse(target.hasConsumers(), "Target should still not have consumers!");
+    }
+
+    private void testIOConversions() throws TestingException {
+        FloatStatus test = new FloatStatus();
+        // Guaranteed by documentation to be exactly the same object.
+        assertIdentityEqual(test, test.asInput(), "test should be its own input!");
+        assertIdentityEqual(test, test.asOutput(), "test should be its own output!");
+    }
+
     @Override
     protected void runTest() throws TestingException {
         testBasicReadWrite();
         testUpdateTargets();
         testCreationTargets();
         testSetEvents();
+        testConsumerTracking();
+        testIOConversions();
     }
 }

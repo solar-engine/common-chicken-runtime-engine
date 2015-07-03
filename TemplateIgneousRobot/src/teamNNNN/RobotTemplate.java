@@ -2,6 +2,7 @@ package teamNNNN;
 
 import ccre.igneous.Igneous;
 import ccre.igneous.IgneousApplication;
+import ccre.log.Logger;
 
 /**
  * This is the core class of a CCRE project. The CCRE launching system will make

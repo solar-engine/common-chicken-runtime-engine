@@ -30,6 +30,7 @@ import ccre.channel.FloatInput;
 import ccre.channel.FloatOutput;
 import ccre.ctrl.FloatMixing;
 import ccre.log.Logger;
+import ccre.rconf.RConf;
 import ccre.rconf.RConf.Entry;
 import ccre.supercanvas.BaseChannelComponent;
 import ccre.supercanvas.Rendering;
@@ -51,6 +52,7 @@ public class FloatControlComponent extends BaseChannelComponent<FloatControlComp
     private float lastSentValue;
     private final FloatInput alternateSource;
     private final FloatOutput rawOut;
+    private float minimum = -1.0f, maximum = 1.0f;
     private boolean hasSentInitial = false;
     private StringBuilder activeBuffer;
 
@@ -90,7 +92,7 @@ public class FloatControlComponent extends BaseChannelComponent<FloatControlComp
      * @param name the name of the output.
      */
     public FloatControlComponent(int cx, int cy, String name) {
-        this(cx, cy, name, FloatMixing.ignoredFloatOutput);
+        this(cx, cy, name, FloatMixing.ignored);
     }
 
     @Override
@@ -138,7 +140,7 @@ public class FloatControlComponent extends BaseChannelComponent<FloatControlComp
             g.drawLine(centerX + 3 * halfWidth / 6, centerY + halfHeight / 2 - 1, centerX + 3 * halfWidth / 6, centerY + 15);
             if (hasValue) {
                 float value = getDele();
-                int ptrCtr = centerX + (int) (halfWidth * 2 / 3 * value);
+                int ptrCtr = (int) (centerX + halfWidth * ((2 * (value - minimum) / (maximum - minimum)) - 1) * 2 / 3);
                 if (value < 0) {
                     g.setColor(value == -1 ? Color.RED : Color.RED.darker().darker());
                 } else if (value > 0) {
@@ -253,7 +255,9 @@ public class FloatControlComponent extends BaseChannelComponent<FloatControlComp
         float value;
         switch (activeView) {
         case HORIZONTAL_POINTER:
-            value = Math.min(1, Math.max(-1, (x - centerX) / (float) (halfWidth * 2 / 3)));
+            value = (x - centerX - 1) / (float) (halfWidth * 2 / 3);
+            value = minimum + ((value + 1) / 2) * (maximum - minimum); // min to max, incl
+            value = Math.min(maximum, Math.max(minimum, value));
             if (-0.1 < value && value < 0.1) {
                 value = 0;
             }
@@ -317,10 +321,21 @@ public class FloatControlComponent extends BaseChannelComponent<FloatControlComp
     }
 
     public Entry[] queryRConf() throws InterruptedException {
-        return rconfBase();
+        return rconfBase(RConf.string("minimum"), RConf.fieldFloat(minimum), RConf.string("maximum"), RConf.fieldFloat(maximum));
     }
 
     public boolean signalRConf(int field, byte[] data) throws InterruptedException {
-        return rconfBase(field, data) == BASE_VALID;
+        switch (rconfBase(field, data)) {
+        case 1:
+            minimum = RConf.bytesToFloat(data);
+            return true;
+        case 3:
+            maximum = RConf.bytesToFloat(data);
+            return true;
+        case BASE_VALID:
+            return true;
+        default:
+            return false;
+        }
     }
 }

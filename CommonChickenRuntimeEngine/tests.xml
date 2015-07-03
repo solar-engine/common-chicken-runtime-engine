@@ -24,8 +24,7 @@
 <project name="Example" default="run-tests">
 	<!-- You must first extract cobertura-2.1.1 so that the cobertura-2.1.1 directory shows up in the repository root -->
 
-	<property name="cobertura.dir"
-	          value="${basedir}${file.separator}..${file.separator}cobertura-2.1.1" />
+	<property name="cobertura.dir" value="${basedir}${file.separator}..${file.separator}cobertura-2.1.1" />
 	<path id="cobertura.classpath">
 		<fileset dir="${cobertura.dir}">
 			<include name="cobertura-2.1.1.jar" />
@@ -36,6 +35,15 @@
 
 	<property name="instrumented.dir" value="cobertura-instrumented" />
 
+	<target name="run-tests-short">
+		<java classname="ccre.testing.SuiteOfTests" fork="true" failonerror="true">
+			<arg value="--failfast" />
+			<classpath>
+				<pathelement location="./bin" />
+			</classpath>
+		</java>
+	</target>
+
 	<target name="run-tests">
 		<delete file="cobertura.ser" />
 		<delete dir="${instrumented.dir}" />
@@ -43,11 +51,15 @@
 			<fileset dir="bin">
 				<include name="**/*.class" />
 				<exclude name="ccre/testing/*.class" />
+				<!-- because of deprecation -->
+				<exclude name="ccre/util/Tokenizer.class" />
+				<exclude name="ccre/rload/RLoadClient.class" />
+				<exclude name="ccre/rload/RLoadServer.class" />
+				<exclude name="ccre/launcher/Launcher.class" />
 			</fileset>
 		</cobertura-instrument>
-		<java classname="ccre.testing.SuiteOfTests" fork="true">
-			<sysproperty key="net.sourceforge.cobertura.datafile"
-			             file="${basedir}/cobertura.ser" />
+		<java classname="ccre.testing.SuiteOfTests" fork="true" failonerror="true">
+			<sysproperty key="net.sourceforge.cobertura.datafile" file="${basedir}/cobertura.ser" />
 			<classpath>
 				<pathelement location="${instrumented.dir}" />
 				<pathelement location="./bin" />
@@ -61,6 +73,7 @@
 		<script language="javascript">
 			<![CDATA[
 		    location = "file:///"+project.getProperty("browser-target").toString().replaceAll("\\\\","/")+"/index.html";
+		    java.lang.System.out.println(location);
 		    java.awt.Desktop.getDesktop().browse(java.net.URI.create(location));
 			]]>
 		</script>

@@ -79,7 +79,7 @@ public class BooleanTextComponent extends TextComponent implements BooleanOutput
     }
 
     public void send(BooleanOutput output) {
-        listeners.add(output);
+        listeners.addIfNotFound(output);
         output.set(state);
     }
 

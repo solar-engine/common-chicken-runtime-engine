@@ -59,6 +59,10 @@
 			<param name="outer-name" value="Deploy for roboRIO" />
 			<param name="targets" value="deploy" />
 		</antcall>
+		<!-- <antcall target="generate-by-template">
+			<param name="outer-name" value="QuickDeploy for roboRIO" />
+			<param name="targets" value="quick-deploy" />
+		</antcall> -->
 		<antcall target="generate-by-template">
 			<param name="outer-name" value="Deploy and Debug for roboRIO" />
 			<param name="targets" value="debug-deploy" />

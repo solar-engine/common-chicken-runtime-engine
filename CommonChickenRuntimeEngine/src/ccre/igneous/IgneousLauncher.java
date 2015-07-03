@@ -28,6 +28,7 @@ import ccre.channel.SerialIO;
 import ccre.ctrl.ExtendedMotor;
 import ccre.ctrl.IJoystick;
 import ccre.ctrl.IJoystickWithPOV;
+import ccre.ctrl.binding.ControlBindingCreator;
 
 /**
  * This is a launcher for an Igneous application. The reason for this is so that
@@ -423,4 +424,17 @@ public interface IgneousLauncher {
      * @return whether or not the channel is enabled.
      */
     public BooleanInputPoll getChannelEnabled(int powerChannel);
+
+    /**
+     * @param name the name of this control binding client.
+     * @return a ControlBindingCreator if there is special emulation available,
+     * but otherwise just return null.
+     */
+    public ControlBindingCreator tryMakeControlBindingCreator(String name);
+
+    /**
+     * @return an event that is fired once, right after the user program has
+     * finished its initialization
+     */
+    public EventInput getOnInitComplete();
 }

@@ -56,6 +56,7 @@ public class SuiteOfTests {
                 new TestFloatMixing(),
                 new TestTicker(),
                 new TestPauseTimer(),
+                new TestPIDController(),
 
                 // ccre.event
                 new TestEventStatus(),

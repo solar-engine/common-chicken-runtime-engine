@@ -39,7 +39,7 @@ import ccre.util.Utils;
  */
 public class TestFloatMixing extends BaseTest {
 
-    public class CountingFloatOutput implements FloatOutput {
+    public static class CountingFloatOutput implements FloatOutput {
         public float valueExpected;
         public boolean ifExpected;
 
@@ -74,6 +74,7 @@ public class TestFloatMixing extends BaseTest {
         testOperations();
         testNegation();
         testLimits();
+        testLimitsSimple();
         FloatMixing.ignored.set(0);
         testGetSetEvent();
         testSimpleComparisons();
@@ -87,6 +88,17 @@ public class TestFloatMixing extends BaseTest {
         testWhenFloatChanges();
         testNormalize();
         testOnUpdate();
+    }
+
+    private void testLimitsSimple() throws TestingException {
+        FloatFilter limit1 = FloatMixing.limit(Float.NEGATIVE_INFINITY, 0);
+        assertObjectEqual(limit1.filter(-10000), -10000f, "Bad limit!");
+        assertObjectEqual(limit1.filter(0), 0f, "Bad limit!");
+        assertObjectEqual(limit1.filter(1), 0f, "Bad limit!");
+        FloatFilter limit2 = FloatMixing.limit(0, Float.POSITIVE_INFINITY);
+        assertObjectEqual(limit2.filter(-1), 0f, "Bad limit!");
+        assertObjectEqual(limit2.filter(0), 0f, "Bad limit!");
+        assertObjectEqual(limit2.filter(10000), 10000f, "Bad limit!");
     }
 
     private void testOnUpdate() {

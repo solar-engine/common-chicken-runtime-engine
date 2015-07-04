@@ -35,7 +35,8 @@ public class CallerInfo {
      *
      * Only className is required - the rest can be set to null or -1.
      *
-     * @param className the name of the class, required. This will be normalized into dot-form.
+     * @param className the name of the class, required. This will be normalized
+     * into dot-form.
      * @param methodName the name of the method, optional.
      * @param fileName the name of the file, optional.
      * @param lineNum the line number, optional. (Set to a negative number for

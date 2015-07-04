@@ -33,10 +33,10 @@ public class TestLineCollectorOutputStream extends BaseTest {
     public String getName() {
         return "LineCollectorOutputStream";
     }
-    
+
     private int count = 0, lastCount = 0;
     private String lastLine = null;
-    
+
     private final LineCollectorOutputStream stream = new LineCollectorOutputStream() {
         @Override
         protected void collect(String param) {
@@ -44,12 +44,12 @@ public class TestLineCollectorOutputStream extends BaseTest {
             lastLine = param;
         }
     };
-    
+
     private void check(String shouldBe) throws TestingException {
         assertIntsEqual(count, ++lastCount, "wrong number of new entries");
         assertObjectEqual(shouldBe, lastLine, "bad most recent entry");
     }
-    
+
     private void fullCheck(String test) throws TestingException, IOException {
         stream.write((test + "\n").getBytes());
         check(test);
@@ -68,7 +68,7 @@ public class TestLineCollectorOutputStream extends BaseTest {
     protected void runTest() throws Throwable {
         stream.write('\n');
         check("");
-        for (String str : new String[] {"", "orange", "borange", "mountain", "embedded\0nulls", "same spaces and such", "a carriage\rreturn or\rtwo", "and some\ttab characters", "11111111111111111111"}) {
+        for (String str : new String[] { "", "orange", "borange", "mountain", "embedded\0nulls", "same spaces and such", "a carriage\rreturn or\rtwo", "and some\ttab characters", "11111111111111111111" }) {
             fullCheck(str);
         }
     }

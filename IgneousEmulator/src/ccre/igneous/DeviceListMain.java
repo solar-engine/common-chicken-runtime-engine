@@ -45,7 +45,7 @@ public class DeviceListMain {
      * Start the emulator.
      *
      * @param args a single-element array containing only the path to the main
-     *            Jar file for the emulated program.
+     * Jar file for the emulated program.
      * @throws IOException if the jar file cannot be properly accessed
      * @throws ClassNotFoundException if a reflection error occurs
      * @throws InstantiationException if a reflection error occurs

@@ -34,7 +34,8 @@ import ccre.net.ServerSocket;
  * A server for the RLoad system.
  *
  * @author skeggsc
- * @deprecated This is unused in the CCRE and will be replaced with something better at some point soonish.
+ * @deprecated This is unused in the CCRE and will be replaced with something
+ * better at some point soonish.
  */
 @Deprecated
 // This deprecation is duplicated in tests.xml

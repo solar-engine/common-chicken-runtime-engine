@@ -27,7 +27,8 @@ import ccre.testing.SuiteOfTests;
  * The launcher for running utilities directly from the CCRE jar.
  *
  * @author skeggsc
- * @deprecated This is unused in the CCRE and will be replaced with something better at some point soonish.
+ * @deprecated This is unused in the CCRE and will be replaced with something
+ * better at some point soonish.
  */
 @Deprecated // This is duplicated in tests.xml
 public class Launcher {

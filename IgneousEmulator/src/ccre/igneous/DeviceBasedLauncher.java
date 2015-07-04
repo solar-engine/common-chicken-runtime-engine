@@ -73,7 +73,8 @@ public class DeviceBasedLauncher implements IgneousLauncher {
      *
      * @param isRoboRIO specifies if the emulated robot should have a roboRIO
      * instead of a cRIO.
-     * @param onInitComplete should be fired once the user program has initialized.
+     * @param onInitComplete should be fired once the user program has
+     * initialized.
      */
     public DeviceBasedLauncher(boolean isRoboRIO, EventInput onInitComplete) {
         this.isRoboRIO = isRoboRIO;

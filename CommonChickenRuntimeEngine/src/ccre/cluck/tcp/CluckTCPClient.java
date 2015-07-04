@@ -282,7 +282,8 @@ public class CluckTCPClient extends ReporterThread {
     }
 
     /**
-     * @return a short summary of the current error being experienced by this client.
+     * @return a short summary of the current error being experienced by this
+     * client.
      */
     public String getErrorSummary() {
         return errorSummary;

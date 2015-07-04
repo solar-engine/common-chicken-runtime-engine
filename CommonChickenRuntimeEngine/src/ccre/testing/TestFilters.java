@@ -120,7 +120,7 @@ public class TestFilters extends BaseTest {
         FloatInputPoll input2 = f.wrap((FloatInputPoll) stat.asInput());
         input1.send(target);
 
-        for (float fv : new float[] {8.76f, 1.23f, -129123.4f}) {
+        for (float fv : new float[] { 8.76f, 1.23f, -129123.4f }) {
             assertObjectEqual(stat.get() + inc, target.get(), "Expected same value!");
             assertObjectEqual(input1.get(), target.get(), "Expected same value!");
             assertObjectEqual(input2.get(), target.get(), "Expected same value!");
@@ -135,10 +135,10 @@ public class TestFilters extends BaseTest {
             assertObjectEqual(input1.get(), target.get(), "Expected same value!");
             assertObjectEqual(input2.get(), target.get(), "Expected same value!");
         }
-        
+
         FloatOutput owrap = f.wrap(stat.asOutput());
 
-        for (float fv : new float[] {8.76f, 1.23f, -129123.4f}) {
+        for (float fv : new float[] { 8.76f, 1.23f, -129123.4f }) {
             owrap.set(fv);
             assertObjectEqual(stat.get(), fv + inc, "Expected same value!");
             assertObjectEqual(stat.get() + inc, target.get(), "Expected same value!");

@@ -49,6 +49,7 @@ public class BooleanMixing {
     };
     /**
      * A BooleanOutput that goes nowhere. All data sent here is ignored.
+     *
      * @deprecated renamed simply <code>BooleanMixing.ignored</code>.
      */
     @Deprecated

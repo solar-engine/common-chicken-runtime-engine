@@ -53,24 +53,24 @@ public class TestUniqueIds extends BaseTest {
         assertObjectEqual(local.nextHexId(), "f", "bad id");
         assertObjectEqual(local.nextHexId(), "10", "bad id");
         assertObjectEqual(local.nextHexId(), "11", "bad id");
-        for (int i=0x12; i<0x4A; i++) {
+        for (int i = 0x12; i < 0x4A; i++) {
             assertIntsEqual(local.nextId(), i, "bad id");
         }
         assertObjectEqual(local.nextHexId(), "4a", "bad id");
-        for (int i=0x4B; i<0xDC; i++) {
+        for (int i = 0x4B; i < 0xDC; i++) {
             assertIntsEqual(local.nextId(), i, "bad id");
         }
         assertObjectEqual(local.nextHexId("000"), "000-dc", "bad id");
-        for (int i=0xDD; i<0xFF; i++) {
+        for (int i = 0xDD; i < 0xFF; i++) {
             assertIntsEqual(local.nextId(), i, "bad id");
         }
         assertObjectEqual(local.nextHexId(), "ff", "bad id");
         assertObjectEqual(local.nextHexId(), "100", "bad id");
         assertObjectEqual(local.nextHexId(), "101", "bad id");
         assertObjectEqual(local.nextHexId("-102"), "-102-102", "bad id");
-        
+
         synchronized (UniqueIds.global) {
-            for (int i=0; i<1000; i++) {
+            for (int i = 0; i < 1000; i++) {
                 assertIntsEqual(UniqueIds.global.nextId() + 1, UniqueIds.global.nextId(), "bad global id");
             }
         }

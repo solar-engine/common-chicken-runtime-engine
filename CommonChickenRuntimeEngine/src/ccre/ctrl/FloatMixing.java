@@ -740,6 +740,37 @@ public class FloatMixing {
                 return input.get() - lastValue;
             }
         };
+    } 
+    
+    public static FloatInput derivative(final FloatInput input) {
+        final FloatStatus out = new FloatStatus();
+        input.send(derivative(out.asOutput()));
+        return out;
+    }
+
+    /**
+     * 
+     * @param out
+     * @return
+     */
+    public static FloatOutput derivative(final FloatOutput out) {
+        return new FloatOutput() {
+            private long lastUpdate = 0;
+            private float lastValue = Float.NaN;
+            public synchronized void set(float value) {
+                if (lastUpdate == 0) {
+                    lastValue = value;
+                    return;
+                }
+                long time = System.currentTimeMillis();
+                if (lastUpdate == time) {
+                    return;
+                }
+                out.set(1000f * (value - lastValue) / (time - lastUpdate)); // 1000f is to correct for time and lastUpdate being measured in milliseconds.
+                lastValue = value;
+                lastUpdate = time;
+            }
+        };
     }
 
     /**

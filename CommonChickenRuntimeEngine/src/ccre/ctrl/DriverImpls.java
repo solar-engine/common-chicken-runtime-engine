@@ -320,7 +320,7 @@ public class DriverImpls {
      * @param rightBackMotor the right back motor.
      * @see DriverImpls
      */
-    public static void createSynchSingleJoystickDriver(EventInput source, final FloatInputPoll forward, final FloatInputPoll strafe, final FloatInputPoll rotate, final FloatOutput leftFrontMotor, final FloatOutput leftBackMotor, final FloatOutput rightFrontMotor, final FloatOutput rightBackMotor) {
+    public static void createSynchMecanumDriver(EventInput source, final FloatInputPoll forward, final FloatInputPoll strafe, final FloatInputPoll rotate, final FloatOutput leftFrontMotor, final FloatOutput leftBackMotor, final FloatOutput rightFrontMotor, final FloatOutput rightBackMotor) {
         source.send(createMecanumDriveEvent(forward, strafe, rotate, leftFrontMotor, leftBackMotor, rightFrontMotor, rightBackMotor));
     }
 

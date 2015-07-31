@@ -78,7 +78,7 @@ public final class DefaultStorageSegment extends StorageSegment {
         }
         for (char c : name.toCharArray()) {
             if (!(Character.isUpperCase(c) || Character.isLowerCase(c) || Character.isDigit(c) || c == '$' || c == '_')) {
-                throw new IllegalArgumentException("Storage names must only contain 'a-zA-Z0-9$_'");
+                throw new IllegalArgumentException("Storage names must only contain 'a-zA-Z0-9$_', but got: " + c);
             }
         }
         this.name = name;
@@ -105,7 +105,11 @@ public final class DefaultStorageSegment extends StorageSegment {
 
     @Override
     public synchronized void setStringForKey(String key, String bytes) {
-        data.put(key, bytes);
+        if (bytes == null) {
+            data.remove(key);
+        } else {
+            data.put(key, bytes);
+        }
         modified = true;
     }
 
@@ -121,7 +125,9 @@ public final class DefaultStorageSegment extends StorageSegment {
                             data.put(UniqueIds.global.nextHexId("badkey-" + System.currentTimeMillis() + "-" + key.hashCode()), key);
                         } else {
                             String value = data.get(key);
-                            pout.println(key + "=" + value);
+                            if (value != null) {
+                                pout.println(key + "=" + value);
+                            }
                         }
                     }
                 } finally {

@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2014 Colby Skeggs
+ * Copyright 2013-2015 Colby Skeggs
  *
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  *
@@ -139,5 +139,23 @@ public class LogLevel implements Serializable {
 
     private Object readResolve() {
         return fromByte(id);
+    }
+
+    /**
+     * Get the next (more severe) LogLevel, or the least severe if the current
+     * level is the most severe.
+     *
+     * The idea is that this can be used in a user interface to iterate around
+     * the list of LogLevels.
+     *
+     * @return the next LogLevel.
+     */
+    public LogLevel next() {
+        for (int i = 0; i < levels.length - 1; i++) {
+            if (levels[i] == this) {
+                return levels[i + 1];
+            }
+        }
+        return levels[0];
     }
 }

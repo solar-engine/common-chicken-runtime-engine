@@ -49,6 +49,7 @@ import ccre.ctrl.FloatMixing;
 import ccre.ctrl.IJoystick;
 import ccre.ctrl.IJoystickWithPOV;
 import ccre.ctrl.Ticker;
+import ccre.ctrl.binding.ControlBindingCreator;
 import ccre.igneous.IgneousApplication;
 import ccre.igneous.IgneousLauncher;
 import ccre.igneous.IgneousLauncherHolder;
@@ -179,6 +180,8 @@ public final class DirectIgneousLauncherImpl implements IgneousLauncher {
 
     private final EventStatus[] startEvents, duringEvents;
 
+    private final EventStatus onInitComplete = new EventStatus();
+
     {
         int count = Mode.values().length;
         startEvents = new EventStatus[count];
@@ -277,6 +280,7 @@ public final class DirectIgneousLauncherImpl implements IgneousLauncher {
         }
         Logger.info("Starting application: " + name);
         ((IgneousApplication) Class.forName(name).newInstance()).setupRobot();
+        onInitComplete.event();
         Logger.info("Hello, " + name + "!");
     }
 
@@ -515,7 +519,7 @@ public final class DirectIgneousLauncherImpl implements IgneousLauncher {
     }
 
     public IJoystickWithPOV getJoystick(int id) {
-        if (id < 1 || id > 4) {
+        if (id < 1 || id > 6) {
             throw new IllegalArgumentException("Joystick " + id + " is not a valid joystick number.");
         }
         return new CJoystickDirect(id, globalPeriodic);
@@ -563,5 +567,14 @@ public final class DirectIgneousLauncherImpl implements IgneousLauncher {
 
     public BooleanInputPoll getChannelEnabled(int powerChannel) {
         return () -> DirectPower.readChannelEnabled(powerChannel);
+    }
+
+    public ControlBindingCreator tryMakeControlBindingCreator(String title) {
+        return null;
+    }
+
+    @Override
+    public EventInput getOnInitComplete() {
+        return onInitComplete;
     }
 }

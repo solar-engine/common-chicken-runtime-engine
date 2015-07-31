@@ -30,7 +30,6 @@ import ccre.log.Logger;
  */
 public class SuiteOfTests {
 
-    // Trello #131: This package needs more tests!
     /**
      * Run all the tests.
      *
@@ -41,6 +40,7 @@ public class SuiteOfTests {
         BaseTest[] tests = new BaseTest[] {
                 // ccre.chan
                 new TestBooleanStatus(), new TestFloatStatus(),
+                new TestFilters(),
 
                 // ccre.cluck - Tests needed!
 
@@ -53,6 +53,7 @@ public class SuiteOfTests {
                 new TestMixing(),
                 new TestEventMixing(),
                 new TestBooleanMixing(),
+                new TestFloatMixing(),
                 new TestTicker(),
                 new TestPauseTimer(),
 
@@ -79,25 +80,33 @@ public class SuiteOfTests {
                 // ccre.testing
                 new TestTests(),
 
-                // ccre.workarounds - Needed!
+                // ccre.workarounds
+                new TestWorkarounds(),
 
                 // ccre.utils
                 new TestAllocationPool(),
+                new TestLineCollectorOutputStream(),
+                new TestUniqueIds(),
 
                 // CAbstractList - Included in CArrayList and CLinkedList tests
                 new TestCArrayList(), new TestCHashMap(), new TestCLinkedList(),
 
                 new TestUtils(), // Tests both Utils and CArrayUtils
         };
+        boolean failFast = args.length > 0 && args[0].equals("--failfast");
         int count = 0;
         for (BaseTest bt : tests) {
             if (bt.test()) {
                 count++;
+            } else if (failFast) {
+                Logger.severe("Failing fast after error...");
+                System.exit(1);
             }
         }
         if (count < tests.length) {
             Logger.warning(count + "/" + tests.length + " tests succeeded.");
             Logger.warning("Read above to see which tests failed.");
+            System.exit(1);
         } else {
             Logger.info(count + "/" + tests.length + " tests succeeded.");
         }

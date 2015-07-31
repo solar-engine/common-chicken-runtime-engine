@@ -22,6 +22,7 @@ import ccre.channel.BooleanInput;
 import ccre.channel.BooleanInputPoll;
 import ccre.channel.BooleanOutput;
 import ccre.channel.EventInput;
+import ccre.channel.FloatInput;
 import ccre.channel.FloatInputPoll;
 import ccre.channel.FloatOutput;
 import ccre.channel.SerialIO;
@@ -29,11 +30,13 @@ import ccre.ctrl.BooleanMixing;
 import ccre.ctrl.DisconnectedSerialIO;
 import ccre.ctrl.EventMixing;
 import ccre.ctrl.ExtendedMotor;
+import ccre.ctrl.FakeJoystick;
 import ccre.ctrl.FloatMixing;
 import ccre.ctrl.IJoystick;
 import ccre.ctrl.IJoystickWithPOV;
 import ccre.ctrl.LoopbackSerialIO;
 import ccre.ctrl.Ticker;
+import ccre.ctrl.binding.ControlBindingCreator;
 import ccre.igneous.devices.BooleanControlDevice;
 import ccre.igneous.devices.BooleanViewDevice;
 import ccre.igneous.devices.CANJaguarDevice;
@@ -44,6 +47,7 @@ import ccre.igneous.devices.FloatControlDevice;
 import ccre.igneous.devices.FloatViewDevice;
 import ccre.igneous.devices.HeadingDevice;
 import ccre.igneous.devices.JoystickDevice;
+import ccre.igneous.devices.LoggingDevice;
 import ccre.igneous.devices.RobotModeDevice;
 import ccre.igneous.devices.SpinDevice;
 import ccre.log.Logger;
@@ -63,15 +67,19 @@ public class DeviceBasedLauncher implements IgneousLauncher {
     private final boolean isRoboRIO;
     private final int baseIndex;
     private final JoystickHandler joyHandler = new JoystickHandler();
+    private final EventInput onInitComplete;
 
     /**
      * Create a new DeviceBasedLauncher for either the cRIO or roboRIO.
      *
      * @param isRoboRIO specifies if the emulated robot should have a roboRIO
      * instead of a cRIO.
+     * @param onInitComplete should be fired once the user program has
+     * initialized.
      */
-    public DeviceBasedLauncher(boolean isRoboRIO) {
+    public DeviceBasedLauncher(boolean isRoboRIO, EventInput onInitComplete) {
         this.isRoboRIO = isRoboRIO;
+        this.onInitComplete = onInitComplete;
         baseIndex = isRoboRIO ? 0 : 1;
         joysticks = new IJoystickWithPOV[isRoboRIO ? 6 : 4];
         motors = new FloatOutput[isRoboRIO ? 20 : 10];
@@ -82,6 +90,7 @@ public class DeviceBasedLauncher implements IgneousLauncher {
         servos = new FloatOutput[motors.length];
         relaysFwd = new BooleanOutput[isRoboRIO ? 4 : 8];
         relaysRev = new BooleanOutput[relaysFwd.length];
+        mode = panel.add(new RobotModeDevice());
         mode.getIsEnabled().send(new BooleanOutput() {
             @Override
             public void set(boolean enabled) {
@@ -92,6 +101,15 @@ public class DeviceBasedLauncher implements IgneousLauncher {
                 }
             }
         });
+        logger = panel.add(new LoggingDevice(100));
+        Logger.addTarget(logger);
+    }
+
+    /**
+     * Clear out all the lines in the Emulator's logging pane.
+     */
+    public void clearLoggingPane() {
+        logger.clearLines();
     }
 
     private int checkRange(String name, int id, Object[] target) {
@@ -101,17 +119,23 @@ public class DeviceBasedLauncher implements IgneousLauncher {
         return id - baseIndex;
     }
 
-    private final RobotModeDevice mode = panel.add(new RobotModeDevice());
+    private final RobotModeDevice mode;
+    private final LoggingDevice logger;
     private EventInput masterPeriodic = new Ticker(20);
 
     private IJoystickWithPOV[] joysticks;
 
     public IJoystickWithPOV getJoystick(int id) {
-        int index = checkRange("Joystick", id, joysticks);
-        if (joysticks[index] == null) {
-            joysticks[index] = new JoystickDevice(id, isRoboRIO, panel, joyHandler).getJoystick(masterPeriodic);
+        if ((id == 5 || id == 6) && !isRoboRIO()) {
+            return new FakeJoystick("The cRIO doesn't support Joystick #5 or #6!");
         }
-        return joysticks[index];
+        if (id < 1 || id > joysticks.length) {
+            throw new IllegalArgumentException("Invalid Joystick #" + id + "!");
+        }
+        if (joysticks[id - 1] == null) {
+            joysticks[id - 1] = new JoystickDevice(id, isRoboRIO, panel, joyHandler).getJoystick(masterPeriodic);
+        }
+        return joysticks[id - 1];
     }
 
     private IJoystick rightKinect, leftKinect;
@@ -504,5 +528,30 @@ public class DeviceBasedLauncher implements IgneousLauncher {
                 return BooleanMixing.alwaysFalse;
             }
         }
+    }
+
+    public ControlBindingCreator tryMakeControlBindingCreator(String title) {
+        return new ControlBindingCreator() {
+            public void addBoolean(String name, BooleanOutput output) {
+                addBoolean(name).send(output);
+            }
+
+            public BooleanInput addBoolean(String name) {
+                return panel.add(new BooleanControlDevice("Control: " + name));
+            }
+
+            public void addFloat(String name, FloatOutput output) {
+                addFloat(name).send(output);
+            }
+
+            public FloatInput addFloat(String name) {
+                return panel.add(new FloatControlDevice("Control: " + name));
+            }
+        };
+    }
+
+    @Override
+    public EventInput getOnInitComplete() {
+        return onInitComplete;
     }
 }

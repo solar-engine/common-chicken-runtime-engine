@@ -57,6 +57,10 @@ public class CluckTCPClient extends ReporterThread {
      */
     private String remote;
     /**
+     * A short summary of the current error being experienced by this client.
+     */
+    private String errorSummary;
+    /**
      * The delay between each connection to the server.
      */
     private int reconnectDelayMillis = 5000;
@@ -204,6 +208,7 @@ public class CluckTCPClient extends ReporterThread {
 
     private String tryConnection() {
         String postfix = "";
+        this.errorSummary = null;
         try {
             try {
                 isReconnecting = true;
@@ -223,7 +228,10 @@ public class CluckTCPClient extends ReporterThread {
                     din.close();
                 }
             } catch (IOException ex) {
-                if ("Remote server not available.".equals(ex.getMessage()) || "Timed out while connecting.".equals(ex.getMessage()) || "java.net.UnknownHostException".equals(ex.getClass().getName())) {
+                boolean uhe = "java.net.UnknownHostException".equals(ex.getClass().getName());
+                this.errorSummary = uhe ? "Unknown Host: " + ex.getMessage() : ex.getMessage();
+                if (uhe || (ex.getMessage() != null &&
+                        (ex.getMessage().startsWith("Remote server not available") || ex.getMessage().startsWith("Timed out while connecting")))) {
                     postfix = " (" + ex.getMessage() + ")";
                 } else {
                     Logger.warning("IO Error while handling connection", ex);
@@ -271,5 +279,13 @@ public class CluckTCPClient extends ReporterThread {
      */
     public boolean isEstablished() {
         return isEstablished;
+    }
+
+    /**
+     * @return a short summary of the current error being experienced by this
+     * client.
+     */
+    public String getErrorSummary() {
+        return errorSummary;
     }
 }

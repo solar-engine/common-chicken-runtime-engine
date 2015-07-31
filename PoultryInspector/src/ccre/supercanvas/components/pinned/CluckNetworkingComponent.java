@@ -98,7 +98,13 @@ public class CluckNetworkingComponent extends SuperCanvasComponent {
             } else {
                 g.setColor(contains(mouseX, mouseY) ? Color.GREEN : Color.BLACK);
             }
-            String countReport = "(" + getStatusMessage() + ") ~" + CountingNetworkProvider.getRate() / 128 + "kbs/s";
+            StringBuilder sb = new StringBuilder(getStatusMessage());
+            String summ = client == null ? null : client.getErrorSummary();
+            if (summ != null) {
+                sb.append(" (").append(summ).append(')');
+            }
+            sb.append(" ~").append(CountingNetworkProvider.getRate() / 128).append("kbs/s");
+            String countReport = sb.toString();
             g.drawString(countReport, screenWidth - fontMetrics.stringWidth(countReport), fontMetrics.getAscent());
         }
     }

@@ -49,7 +49,7 @@ public class OutputStreamControlComponent extends DraggableBoxComponent {
      * @param cx the X coordinate.
      * @param cy the Y coordinate.
      * @param name the name of the input.
-     * @param out the OutputStream to write from.
+     * @param out the OutputStream to write to.
      */
     public OutputStreamControlComponent(int cx, int cy, String name, OutputStream out) {
         super(cx, cy);
@@ -101,7 +101,7 @@ public class OutputStreamControlComponent extends DraggableBoxComponent {
         }
     }
 
-    private void checkContents(boolean allowSpaces) { // Returns the number of hex digits found.
+    private void checkContents(boolean allowSpaces) {
         if (inBinaryMode) {
             for (int i = 0; i < contents.length(); i++) {
                 char c = contents.charAt(i);

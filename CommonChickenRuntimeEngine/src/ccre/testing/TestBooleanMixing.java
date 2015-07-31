@@ -33,6 +33,12 @@ import ccre.ctrl.BooleanMixing;
  */
 public class TestBooleanMixing extends BaseTest {
 
+    /**
+     * An "interesting" sequence of booleans to test with, such that edge cases
+     * with things like repetition of the same value can be caught.
+     */
+    public static final boolean[] interestingBooleans = new boolean[] { false, true, true, false, false, true, false, true, false, true, true, true, false, true, false, false, false };
+
     @Override
     public String getName() {
         return "BooleanMixing test";
@@ -52,8 +58,8 @@ public class TestBooleanMixing extends BaseTest {
 
     private void testIgnored() throws TestingException, InterruptedException {
         // Not much of any way to test these...
-        BooleanMixing.ignoredBooleanOutput.set(false);
-        BooleanMixing.ignoredBooleanOutput.set(true);
+        BooleanMixing.ignored.set(false);
+        BooleanMixing.ignored.set(true);
 
         assertFalse(BooleanMixing.alwaysFalse.get(), "False should be.");
         assertTrue(BooleanMixing.alwaysTrue.get(), "True should be.");
@@ -306,7 +312,7 @@ public class TestBooleanMixing extends BaseTest {
         int a = 0, b = 0;
         boolean last = false;
 
-        for (boolean v : new boolean[] { false, true, true, false, false, true, false, true, false, true, true, true, false, true, false, false, false }) {
+        for (boolean v : interestingBooleans) {
             if (v != last) {
                 if (v) {
                     b++;
@@ -348,7 +354,7 @@ public class TestBooleanMixing extends BaseTest {
         BooleanMixing.setWhen(setTrue, out, true);
         BooleanMixing.setWhen(setFalse, out, false);
 
-        for (boolean b : new boolean[] { false, false, true, true, false, true, false, true }) {
+        for (boolean b : interestingBooleans) {
             expecting[0] = b;
             expecting[1] = true;
             (b ? setTrue : setFalse).event();

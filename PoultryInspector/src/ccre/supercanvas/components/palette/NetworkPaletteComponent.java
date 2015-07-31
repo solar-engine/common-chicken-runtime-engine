@@ -35,9 +35,11 @@ import ccre.cluck.Cluck;
 import ccre.cluck.CluckNode;
 import ccre.cluck.CluckPublisher;
 import ccre.cluck.CluckRemoteListener;
+import ccre.cluck.rpc.RemoteProcedure;
 import ccre.ctrl.PauseTimer;
 import ccre.log.LogLevel;
 import ccre.log.Logger;
+import ccre.log.LoggingTarget;
 import ccre.rconf.RConfable;
 import ccre.supercanvas.SuperCanvasComponent;
 import ccre.supercanvas.components.channels.BooleanControlComponent;
@@ -46,8 +48,10 @@ import ccre.supercanvas.components.channels.EventControlComponent;
 import ccre.supercanvas.components.channels.EventDisplayComponent;
 import ccre.supercanvas.components.channels.FloatControlComponent;
 import ccre.supercanvas.components.channels.FloatDisplayComponent;
+import ccre.supercanvas.components.channels.LoggingTargetControlComponent;
 import ccre.supercanvas.components.channels.OutputStreamControlComponent;
 import ccre.supercanvas.components.channels.RConfComponent;
+import ccre.supercanvas.components.channels.RPCControlComponent;
 import ccre.util.UniqueIds;
 
 /**
@@ -99,8 +103,10 @@ public class NetworkPaletteComponent extends PaletteComponent<Collection<Network
             return new RConfComponent(x, y, name, (RConfable) target);
         case CluckNode.RMT_OUTSTREAM:
             return new OutputStreamControlComponent(x, y, name, (OutputStream) target);
-        case CluckNode.RMT_INVOKE: // Trello #134: These two.
         case CluckNode.RMT_LOGTARGET:
+            return new LoggingTargetControlComponent(x, y, name, (LoggingTarget) target);
+        case CluckNode.RMT_INVOKE:
+            return new RPCControlComponent(x, y, name, (RemoteProcedure) target);
         default:
             Logger.warning("Could not display RMT of " + CluckNode.rmtToString(type));
             return null;

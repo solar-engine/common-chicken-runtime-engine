@@ -172,6 +172,37 @@ public abstract class BaseTest {
      * @throws TestingException if the objects are unequal.
      */
     protected void assertObjectEqual(Object a, Object b, String message) throws TestingException {
-        assertTrue(a == null ? b == null : a.equals(b), message + "( " + a + " != " + b + " )");
+        assertTrue(a == null ? b == null : a.equals(b), message + " ( " + a + " != " + b + " )");
+    }
+
+    /**
+     * The float arguments should be similar, within 0.1% of each other. If not,
+     * the test has failed! Report this and stop the test.
+     *
+     * @param a the first float.
+     * @param b the second float.
+     * @param message the explanation of what went wrong.
+     * @throws TestingException if the numbers are dissimilar.
+     */
+    protected void assertFloatsNear(float a, float b, String message) throws TestingException {
+        float delta = Math.abs(a - b);
+        float maxDelta = Math.max(Math.abs(a), Math.abs(b)) * 0.001f;
+        assertTrue(delta <= maxDelta, message + " (" + a + " <> " + b + ")");
+    }
+
+    /**
+     * The float arguments should be similar, within 0.1% of each other,
+     * including an extra value to include in calculating the maximum variance.
+     * If not, the test has failed! Report this and stop the test.
+     *
+     * @param a the first float.
+     * @param b the second float.
+     * @param message the explanation of what went wrong.
+     * @throws TestingException if the numbers are dissimilar.
+     */
+    protected void assertFloatsNear(float a, float b, float maxvar, String message) throws TestingException {
+        float delta = Math.abs(a - b);
+        float maxDelta = Math.max(Math.max(Math.abs(a), Math.abs(b)), Math.abs(maxvar)) * 0.001f;
+        assertTrue(delta <= maxDelta, message + " (" + a + " <> " + b + ")");
     }
 }

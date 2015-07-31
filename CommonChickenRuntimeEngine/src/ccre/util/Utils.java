@@ -149,8 +149,12 @@ public class Utils {
      * @return The newly casted object.
      * @throws ClassCastException If the specified object cannot be cast to the
      * specified class.
+     * @deprecated Not used anywhere in the CCRE, and not particularly useful,
+     * so becoming deprecated. Copy this into your own code if you still need
+     * it.
      */
     @SuppressWarnings("unchecked")
+    @Deprecated
     public static <T> T dynamicCast(Object o, Class<T> clazz) throws ClassCastException {
         if (!clazz.isInstance(o)) {
             throw new ClassCastException("Cannot cast to " + clazz + "!");
@@ -165,8 +169,12 @@ public class Utils {
      * @param <T> The base type for the object.
      * @param obj The object to get the class of.
      * @return The class of the object.
+     * @deprecated Not used anywhere in the CCRE, and not particularly useful,
+     * so becoming deprecated. Copy this into your own code if you still need
+     * it.
      */
     @SuppressWarnings("unchecked")
+    @Deprecated
     public static <T> Class<T> getGenericClass(T obj) {
         return (Class<T>) obj.getClass();
     }
@@ -176,12 +184,7 @@ public class Utils {
      * equivalent to:
      * <code>((array[offset] &amp; 0xff) &lt;&lt; 24) | ((array[offset+1] &amp; 0xff) &lt;&lt; 16) | ((array[offset+2] &amp; 0xff) &lt;&lt; 8) | (array[offset+3] &amp; 0xff)</code>
      *
-     * @param array The array
-     *
-     *
-     *
-     *
-     * to extract data from.
+     * @param array The array to extract data from.
      * @param offset The offset in the array of the most significant byte.
      * @return The integer extracted from the array.
      */

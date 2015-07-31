@@ -190,10 +190,24 @@ public final class ConcurrentDispatchArray<E> implements CCollection<E>, Seriali
         data = new Object[0];
     }
 
-    public boolean addAll(CCollection<? extends E> c) {
+    public boolean addAll(CCollection<? extends E> c) { // TODO: Make this more efficient.
         boolean out = false;
         for (E e : c) {
             out |= add(e);
+        }
+        return out;
+    }
+
+    /**
+     * Like addAll, but as if addIfNotFound were used instead of add.
+     *
+     * @param c The elements to add.
+     * @return if anything in c is added to the array.
+     */
+    public boolean addAllIfNotFound(CCollection<? extends E> c) { // TODO: Make this more efficient.
+        boolean out = false;
+        for (E e : c) {
+            out |= addIfNotFound(e);
         }
         return out;
     }

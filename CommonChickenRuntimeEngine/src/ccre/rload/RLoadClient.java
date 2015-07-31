@@ -28,10 +28,14 @@ import ccre.net.ClientSocket;
 import ccre.net.Network;
 
 /**
- * A client for the RLoad system primarily used by Obsidian projects.
+ * A client for the RLoad system.
  *
  * @author skeggsc
+ * @deprecated This is unused in the CCRE and will be replaced with something
+ * better at some point soonish.
  */
+@Deprecated
+// This deprecation is duplicated in tests.xml
 public class RLoadClient {
 
     /**

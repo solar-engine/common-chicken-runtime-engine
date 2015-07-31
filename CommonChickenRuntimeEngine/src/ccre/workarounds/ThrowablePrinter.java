@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2014 Colby Skeggs
+ * Copyright 2013-2015 Colby Skeggs
  *
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  *
@@ -60,29 +60,21 @@ public abstract class ThrowablePrinter {
      */
     public static synchronized void initProvider() {
         if (provider == null) {
-            Exception ex2 = null;
             try {
-                provider = (ThrowablePrinter) Class.forName("ccre.workarounds.DefaultThrowablePrinter").newInstance();
-            } catch (InstantiationException ex) {
-                ex2 = ex;
-            } catch (IllegalAccessException ex) {
-                ex2 = ex;
-            } catch (ClassNotFoundException ex) {
-                ex2 = ex;
-            }
-            if (ex2 != null) {
-                provider = new ThrowablePrinter() {
+                setProvider((ThrowablePrinter) Class.forName("ccre.workarounds.DefaultThrowablePrinter").newInstance());
+            } catch (Throwable thr) {
+                setProvider(new ThrowablePrinter() {
                     @Override
-                    public void send(Throwable thr, PrintStream pstr) {
-                        pstr.println(thr);
+                    public void send(Throwable thr2, PrintStream pstr) {
+                        pstr.println(thr2);
                     }
 
                     @Override
                     public CallerInfo findMethodCaller(int index) {
                         return null;
                     }
-                };
-                Logger.warning("No throwable printing provider!", ex2);
+                });
+                Logger.warning("No ThrowablePrinter provider!", thr);
             }
         }
     }
@@ -94,7 +86,7 @@ public abstract class ThrowablePrinter {
      * @param pstr the PrintStream to write to.
      */
     public static void printThrowable(Throwable thr, PrintStream pstr) {
-        if (thr == null) {
+        if (thr == null || pstr == null) {
             throw new NullPointerException();
         }
         initProvider();
@@ -109,7 +101,8 @@ public abstract class ThrowablePrinter {
      * originally.
      *
      * @param thr the throwable to print.
-     * @return the String version of the throwable, including the traceback.
+     * @return the String version of the throwable, including the traceback, or
+     * null if the throwable was null.
      */
     public static String toStringThrowable(Throwable thr) {
         if (thr == null) {
@@ -135,7 +128,7 @@ public abstract class ThrowablePrinter {
      */
     public static CallerInfo getMethodCaller(int index) {
         initProvider();
-        return provider.findMethodCaller(index + 1);
+        return index == -1 ? null : provider.findMethodCaller(index + 1);
     }
 
     /**

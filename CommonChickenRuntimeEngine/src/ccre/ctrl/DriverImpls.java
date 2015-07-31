@@ -1,5 +1,7 @@
 /*
- * Copyright 2013-2014 Colby Skeggs, Alexander Mackworth (single joystick)
+ * Copyright 2013-2015 Colby Skeggs
+ * Copyright 2014 Alexander Mackworth (single joystick)
+ * Copyright 2015 Aidan Smith (mecanum)
  *
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  *
@@ -35,12 +37,18 @@ import ccre.channel.FloatOutput;
  * Extended tank drive adds another joystick axis that is added to both motors'
  * outputs, so that direct forward and backward movement is easy.
  *
+ * Single joystick drive, aka Arcade drive, is where one joystick is used to
+ * control a robot in rotation and movement.
+ *
+ * Mecanum drive only works with a special kind of wheel, and allows strafing in
+ * addition to normal movement and rotation.
+ *
  * Other types to come later.
  *
  * Types of implementations:
  *
- * Asynchronous: Requires FloatInputProducers for the inputs, and requires no
- * event to write through values.
+ * Asynchronous: Requires FloatInputs for the inputs, and requires no event to
+ * write through values. Not available for every type.
  *
  * Event: Can use FloatInputPoll, and returns an event that will update the
  * motors.
@@ -246,6 +254,74 @@ public class DriverImpls {
      */
     public static void createSynchSingleJoystickDriver(EventInput source, final IJoystick joystick, FloatOutput leftOut, FloatOutput rightOut) {
         createSynchSingleJoystickDriver(source, joystick.getXChannel(), joystick.getYChannel(), leftOut, rightOut);
+    }
+
+    /**
+     * When the returned EventInput is fired, run Mecanum drive on the given
+     * FloatInputPolls and FloatOutputs.
+     *
+     * @param forward the forward movement axis.
+     * @param strafe the strafing axis.
+     * @param rotate the rotation axis.
+     * @param leftFrontMotor the left front motor.
+     * @param leftBackMotor the left back motor.
+     * @param rightFrontMotor the right front motor.
+     * @param rightBackMotor the right back motor.
+     * @return the EventOutput that will update the motors.
+     * @see DriverImpls
+     */
+    public static EventOutput createMecanumDriveEvent(final FloatInputPoll forward, final FloatInputPoll strafe, final FloatInputPoll rotate, final FloatOutput leftFrontMotor, final FloatOutput leftBackMotor, final FloatOutput rightFrontMotor, final FloatOutput rightBackMotor) {
+        return new EventOutput() {
+            public void event() {
+                float distanceY = forward.get();
+                float distanceX = strafe.get();
+                float rotationspeed = rotate.get();
+                double speed = Math.sqrt(distanceX * distanceX + distanceY * distanceY);
+                if (speed > 1) {
+                    speed = 1;
+                }
+                double angle = Math.atan2(distanceY, distanceX) - Math.PI / 4;
+
+                double sin = speed * Math.sin(angle), cos = speed * Math.cos(angle);
+                double leftFront = sin - rotationspeed;
+                double rightBack = sin + rotationspeed;
+                double leftBack = cos - rotationspeed;
+                double rightFront = cos + rotationspeed;
+                double normalize = Math.max(
+                        Math.max(Math.abs(leftFront), Math.abs(rightFront)),
+                        Math.max(Math.abs(leftBack), Math.abs(rightBack)));
+                double mul;
+                if (normalize > 1) {
+                    mul = 1 / normalize;
+                } else if (normalize < speed) {
+                    mul = speed / normalize;
+                } else {
+                    mul = 1;
+                }
+                rightFrontMotor.set((float) (rightFront * mul));
+                leftFrontMotor.set((float) (leftFront * mul));
+                rightBackMotor.set((float) (rightBack * mul));
+                leftBackMotor.set((float) (leftBack * mul));
+            }
+        };
+    }
+
+    /**
+     * When the specified EventInput is fired, run Mecanum drive on the given
+     * FloatInputPolls and FloatOutputs.
+     *
+     * @param source when to update the motors.
+     * @param forward the forward movement axis.
+     * @param strafe the strafing axis.
+     * @param rotate the rotation axis.
+     * @param leftFrontMotor the left front motor.
+     * @param leftBackMotor the left back motor.
+     * @param rightFrontMotor the right front motor.
+     * @param rightBackMotor the right back motor.
+     * @see DriverImpls
+     */
+    public static void createSynchMecanumDriver(EventInput source, final FloatInputPoll forward, final FloatInputPoll strafe, final FloatInputPoll rotate, final FloatOutput leftFrontMotor, final FloatOutput leftBackMotor, final FloatOutput rightFrontMotor, final FloatOutput rightBackMotor) {
+        source.send(createMecanumDriveEvent(forward, strafe, rotate, leftFrontMotor, leftBackMotor, rightFrontMotor, rightBackMotor));
     }
 
     private DriverImpls() {

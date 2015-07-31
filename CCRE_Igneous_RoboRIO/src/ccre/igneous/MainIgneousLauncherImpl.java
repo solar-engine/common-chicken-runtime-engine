@@ -43,6 +43,7 @@ import ccre.ctrl.ExtendedMotorFailureException;
 import ccre.ctrl.IJoystick;
 import ccre.ctrl.IJoystickWithPOV;
 import ccre.ctrl.Ticker;
+import ccre.ctrl.binding.ControlBindingCreator;
 import ccre.log.BootLogger;
 import ccre.log.FileLogger;
 import ccre.log.Logger;
@@ -82,6 +83,11 @@ import edu.wpi.first.wpilibj.communication.UsageReporting;
 public final class MainIgneousLauncherImpl extends RobotBase implements IgneousLauncher {
 
     private static final EventStatus globalPeriodic = new EventStatus();
+
+    /**
+     * Fired exactly once after the user code has been initialized.
+     */
+    private final EventStatus onInitComplete = new EventStatus();
 
     /**
      * The number of recent code failures - used to determine when to get
@@ -260,6 +266,7 @@ public final class MainIgneousLauncherImpl extends RobotBase implements IgneousL
         }
         Logger.info("Starting application: " + name);
         ((IgneousApplication) Class.forName(name).newInstance()).setupRobot();
+        onInitComplete.event();
         Logger.info("Hello, " + name + "!");
     }
 
@@ -385,7 +392,7 @@ public final class MainIgneousLauncherImpl extends RobotBase implements IgneousL
     }
 
     public IJoystickWithPOV getJoystick(int id) {
-        if (id < 1 || id > 4) {
+        if (id < 1 || id > 6) {
             throw new IllegalArgumentException("Joystick " + id + " is not a valid joystick number.");
         }
         return new CJoystick(id, globalPeriodic);
@@ -676,5 +683,14 @@ public final class MainIgneousLauncherImpl extends RobotBase implements IgneousL
                 return false;
             }
         };
+    }
+
+    public ControlBindingCreator tryMakeControlBindingCreator(String title) {
+        return null;
+    }
+
+    @Override
+    public EventInput getOnInitComplete() {
+        return onInitComplete;
     }
 }

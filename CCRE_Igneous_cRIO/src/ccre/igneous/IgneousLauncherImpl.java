@@ -37,10 +37,12 @@ import ccre.ctrl.BooleanMixing;
 import ccre.ctrl.CommunicationFailureExtendedMotor;
 import ccre.ctrl.ExtendedMotor;
 import ccre.ctrl.ExtendedMotorFailureException;
+import ccre.ctrl.FakeJoystick;
 import ccre.ctrl.FloatMixing;
 import ccre.ctrl.IJoystick;
 import ccre.ctrl.IJoystickWithPOV;
 import ccre.ctrl.Ticker;
+import ccre.ctrl.binding.ControlBindingCreator;
 import ccre.log.BootLogger;
 import ccre.log.FileLogger;
 import ccre.log.Logger;
@@ -83,6 +85,11 @@ final class IgneousLauncherImpl extends IterativeRobot implements IgneousLaunche
      * Produced during every state where the driver station is attached.
      */
     private final EventStatus globalPeriodic = new EventStatus();
+
+    /**
+     * Fired exactly once, after the user code has finished initialization.
+     */
+    private final EventStatus onInitComplete = new EventStatus();
 
     /**
      * Produced when the robot enters autonomous mode.
@@ -165,6 +172,7 @@ final class IgneousLauncherImpl extends IterativeRobot implements IgneousLaunche
         }
         Logger.info("Starting application: " + name);
         ((IgneousApplication) Class.forName(name).newInstance()).setupRobot();
+        onInitComplete.event();
         Logger.info("Hello, " + name + "!");
     }
 
@@ -530,6 +538,12 @@ final class IgneousLauncherImpl extends IterativeRobot implements IgneousLaunche
     }
 
     public IJoystickWithPOV getJoystick(int id) {
+        if (id < 1 || id > 6) {
+            throw new IllegalArgumentException("cRIO only supports Joysticks 1-4!");
+        }
+        if (id == 5 || id == 6) {
+            return new FakeJoystick("The cRIO doesn't support Joystick #5 or #6!");
+        }
         return new CJoystick(id, globalPeriodic);
     }
 
@@ -798,5 +812,13 @@ final class IgneousLauncherImpl extends IterativeRobot implements IgneousLaunche
     public BooleanInputPoll getChannelEnabled(int powerChannel) {
         Logger.warning("Power channel statuses are not available on the cRIO!");
         return powerChannel == Igneous.POWER_CHANNEL_BATTERY ? BooleanMixing.alwaysTrue : BooleanMixing.alwaysFalse;
+    }
+
+    public ControlBindingCreator tryMakeControlBindingCreator(String title) {
+        return null;
+    }
+
+    public EventInput getOnInitComplete() {
+        return onInitComplete;
     }
 }

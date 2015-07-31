@@ -202,4 +202,77 @@
 
 	<import file="${ccre-root.dir}/CCRE_Igneous_cRIO/src/external_build_2014.xml" />
 
+	<target name="quick-deploy-begin" depends="clean,jar">
+		<property name="target" value="roboRIO-${team-number}.local" />
+		<script language="javascript">
+			<![CDATA[
+			if (javax.swing.JOptionPane.showConfirmDialog(null, "Press OK when ready to connect to roboRIO...", "QuickDeploy", javax.swing.JOptionPane.OK_CANCEL_OPTION) != javax.swing.JOptionPane.OK_OPTION) {
+			    var fail = project.createTask("fail");
+				fail.setMessage("Cancelled by user.");
+				fail.perform();
+			}
+			var target = project.getProperty("target");
+			function check() {
+				try {
+					var addr = java.net.InetAddress.getByName(target);
+					return true;
+				} catch (e) {
+					return false;
+				}
+			}
+			var tries = 0;
+			while (!check()) {
+				if (++tries >= 1000) {
+					var fail = project.createTask("fail");
+					fail.setMessage("Could not find roboRIO.");
+					fail.perform();
+				}
+			}
+			var fail = project.createTask("echo");
+			fail.setMessage("roboRIO detected. Continuing...");
+			fail.perform();
+			]]>
+		</script>
+	</target>
+
+	<target name="quick-deploy" depends="quick-deploy-begin,get-target-ip,dependencies,fetch-logs">
+		<echo>[athena-deploy] Deploying CCRE-based code.</echo>
+		<scp file="${dist.jar}"
+		     todir="${username}@${target}:${deploy.dir}"
+		     password="${password}"
+		     trust="true" />
+
+		<script language="javascript">
+			<![CDATA[
+			if (javax.swing.JOptionPane.showConfirmDialog(null, "Press OK when ready to activate code...", "QuickDeploy", javax.swing.JOptionPane.OK_CANCEL_OPTION) != javax.swing.JOptionPane.OK_OPTION) {
+			    var fail = project.createTask("fail");
+				fail.setMessage("Cancelled by user.");
+				fail.perform();
+			}
+			]]>
+		</script>
+		<sshexec host="${target}"
+		         username="admin"
+		         password="${password}"
+		         trust="true"
+		         failonerror="false"
+		         command="killall netconsole-host" />
+		<scp file="${wpilib.ant.dir}/netconsole-host"
+		     todir="admin@${target}:/usr/local/frc/bin"
+		     password="${password}"
+		     trust="true" />
+
+		<scp file="${wpilib.ant.dir}/robotCommand"
+		     todir="${username}@${target}:${command.dir}"
+		     password="${password}"
+		     trust="true" />
+
+		<echo>[athena-deploy] Starting program.</echo>
+		<sshexec host="${target}"
+		         username="${username}"
+		         password="${password}"
+		         trust="true"
+		         command="${deploy.kill.command};" />
+	</target>
+
 </project>

@@ -13,7 +13,7 @@ import edu.wpi.first.wpilibj.hal.SWIGTYPE_p_CTR_Code;
 import edu.wpi.first.wpilibj.hal.SWIGTYPE_p_double;
 import edu.wpi.first.wpilibj.hal.SWIGTYPE_p_int;
 
-@SuppressWarnings({"javadoc", "unused"})
+@SuppressWarnings({ "javadoc", "unused" })
 class CANTalonMod {
 
     public enum ControlMode {

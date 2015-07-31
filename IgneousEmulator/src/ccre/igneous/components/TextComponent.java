@@ -74,7 +74,7 @@ public class TextComponent extends DeviceComponent {
     }
 
     /**
-     * Change the displayed string to the given color.
+     * Change the displayed string to the given text.
      *
      * @param newLabel the new text to display.
      */

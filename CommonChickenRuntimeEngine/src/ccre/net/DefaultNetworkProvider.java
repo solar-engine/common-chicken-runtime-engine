@@ -48,19 +48,28 @@ import ccre.util.CCollection;
 class DefaultNetworkProvider implements NetworkProvider {
 
     public ClientSocket openClient(String targetAddress, int port) throws IOException {
+        Socket sock = new Socket();
+        boolean leaveOpen = false;
         try {
-            Socket sock = new Socket();
-            sock.connect(new InetSocketAddress(targetAddress, port), 500); // TODO: What timeout should be used?
-            return new ClientSocketImpl(sock);
-        } catch (SocketTimeoutException ex) {
-            throw new ConnectException("Timed out while connecting."); // Smaller traceback.
-        } catch (ConnectException ctc) {
-            if (ctc.getMessage().startsWith("Connection timed out")) {
-                throw new ConnectException("Timed out while connecting."); // Smaller traceback.
-            } else if (ctc.getMessage().startsWith("Connection refused")) {
-                throw new ConnectException("Remote server not available."); // Smaller traceback.
+            InetSocketAddress ina = new InetSocketAddress(targetAddress, port);
+            try {
+                sock.connect(ina, 500); // TODO: What timeout should be used?
+                leaveOpen = true;
+                return new ClientSocketImpl(sock);
+            } catch (SocketTimeoutException ex) {
+                throw new ConnectException("Timed out while connecting to " + ina); // Smaller traceback.
+            } catch (ConnectException ctc) {
+                if (ctc.getMessage().startsWith("Connection timed out")) {
+                    throw new ConnectException("Timed out while connecting to " + ina); // Smaller traceback.
+                } else if (ctc.getMessage().startsWith("Connection refused")) {
+                    throw new ConnectException("Remote server not available: " + ina); // Smaller traceback.
+                }
+                throw ctc;
             }
-            throw ctc;
+        } finally {
+            if (!leaveOpen) {
+                sock.close();
+            }
         }
     }
 

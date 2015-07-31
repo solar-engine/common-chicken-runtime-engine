@@ -30,6 +30,7 @@ import ccre.ctrl.BooleanMixing;
 import ccre.ctrl.DisconnectedSerialIO;
 import ccre.ctrl.EventMixing;
 import ccre.ctrl.ExtendedMotor;
+import ccre.ctrl.FakeJoystick;
 import ccre.ctrl.FloatMixing;
 import ccre.ctrl.IJoystick;
 import ccre.ctrl.IJoystickWithPOV;
@@ -125,14 +126,11 @@ public class DeviceBasedLauncher implements IgneousLauncher {
     private IJoystickWithPOV[] joysticks;
 
     public IJoystickWithPOV getJoystick(int id) {
-        if (isRoboRIO()) {
-            if (id < 1 || id > joysticks.length) {
-                throw new IllegalArgumentException("Invalid Joystick #" + id + " (roboRIO supports 1-6)!");
-            }
-        } else {
-            if (id < 1 || id > joysticks.length) {
-                throw new IllegalArgumentException("Invalid Joystick #" + id + " (cRIO supports 1-4)!");
-            }
+        if ((id == 5 || id == 6) && !isRoboRIO()) {
+            return new FakeJoystick("The cRIO doesn't support Joystick #5 or #6!");
+        }
+        if (id < 1 || id > joysticks.length) {
+            throw new IllegalArgumentException("Invalid Joystick #" + id + "!");
         }
         if (joysticks[id - 1] == null) {
             joysticks[id - 1] = new JoystickDevice(id, isRoboRIO, panel, joyHandler).getJoystick(masterPeriodic);

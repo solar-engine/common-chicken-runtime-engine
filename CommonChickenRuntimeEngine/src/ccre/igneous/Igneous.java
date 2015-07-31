@@ -877,7 +877,11 @@ public class Igneous {
     public static ControlBindingDataSource getControlBindingDataSource(String... names) {
         ControlBindingDataSourceBuildable ds = new ControlBindingDataSourceBuildable(globalPeriodic);
         for (int i = 0; i < names.length; i++) {
-            ds.addJoystick(names[i], launcher.getJoystick(i + 1), 12, 6);
+            if (isRoboRIO()) {
+                ds.addJoystick(names[i], launcher.getJoystick(i + 1), 12, 6);
+            } else {
+                ds.addJoystick(names[i], (IJoystick) launcher.getJoystick(i + 1), 12, 6); // don't include POV on cRIO
+            }
         }
         return ds;
     }

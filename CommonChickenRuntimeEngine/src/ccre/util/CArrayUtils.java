@@ -209,6 +209,7 @@ public class CArrayUtils {
      * Collect everything yielded by an iterable into a CArrayList.
      *
      * @param elements the iterable to collect from.
+     * @param <T> the element type of the iterable and therefore the resulting collection.
      * @return the resulting collection, as a CArrayList.
      */
     public static <T> CArrayList<T> collectIterable(Iterable<T> elements) {

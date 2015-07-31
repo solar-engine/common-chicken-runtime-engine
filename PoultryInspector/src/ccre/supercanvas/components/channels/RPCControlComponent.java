@@ -23,6 +23,7 @@ import java.awt.FontMetrics;
 import java.awt.Graphics2D;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.io.Serializable;
 
 import ccre.cluck.rpc.RemoteProcedure;
 import ccre.log.Logger;
@@ -37,14 +38,9 @@ import ccre.supercanvas.Rendering;
  */
 public class RPCControlComponent extends DraggableBoxComponent {
 
-    private static final long serialVersionUID = 800737743696942747L;
-    private final RemoteProcedure out;
-    private final String name;
-    private final StringBuilder contents = new StringBuilder();
-    private final StringBuilder received = new StringBuilder();
-    private boolean finished = false;
-    private boolean inBinaryMode = false;
-    private final OutputStream receiverStream = new OutputStream() {
+    private final class Receiver extends OutputStream implements Serializable {
+        private static final long serialVersionUID = -8619972677259470148L;
+
         @Override
         public synchronized void write(int arg0) throws IOException {
             if (finished) {
@@ -69,8 +65,17 @@ public class RPCControlComponent extends DraggableBoxComponent {
             } else {
                 finished = true;
             }
-        };
-    };
+        }
+    }
+
+    private static final long serialVersionUID = 800737743696942747L;
+    private final RemoteProcedure out;
+    private final String name;
+    private final StringBuilder contents = new StringBuilder();
+    private final StringBuilder received = new StringBuilder();
+    private boolean finished = false;
+    private boolean inBinaryMode = false;
+    private final OutputStream receiverStream = new Receiver();
 
     /**
      * Create a new RPCControlComponent with a RemoteProcedure to invoke.

@@ -4,11 +4,11 @@ echo
 GOOD=true
 for x in `find -name '*.java'`
 do
-	if head -n 18 $x | grep -iE '(This file is part of the CCRE, the Common Chicken Runtime Engine[.]|Copyright \(c\) FIRST)' >/dev/null
+	if echo $x | grep -iE '(SampleIgneousRobot|cobertura|TemplateIgneousRobot|edu.wpi.first.wpilib.networktables.java)' >/dev/null
 	then
 		true
 	else
-		if echo $x | grep -iE '(SampleIgneousRobot|cobertura|TemplateIgneousRobot)' >/dev/null
+		if head -n 18 $x | grep -iE '(This file is part of the CCRE, the Common Chicken Runtime Engine[.]|Copyright \(c\) FIRST)' >/dev/null
 		then
 			true
 		else

@@ -18,7 +18,7 @@
  */
 package ccre.ctrl;
 
-import ccre.channel.BooleanInputPoll;
+import ccre.channel.BooleanInput;
 import ccre.channel.EventInput;
 import ccre.channel.EventOutput;
 import ccre.channel.EventOutputRecoverable;
@@ -85,6 +85,11 @@ public class EventMixing {
      */
     public static EventInput combine(final EventInput... sources) {
         Mixing.checkNull((Object[]) sources);
+        if (sources.length == 0) {
+            return EventMixing.never;
+        } else if (sources.length == 1) {
+            return sources[0];
+        }
         return new EventInput() {
             public void send(EventOutput listener) {
                 for (EventInput es : sources) {
@@ -201,8 +206,10 @@ public class EventMixing {
      * @param requirement the value to require.
      * @param target the target to fire.
      * @return when to check if the target should be fired.
+     * @deprecated use filter instead. TODO: remove this method
      */
-    public static EventOutput filterEvent(final BooleanInputPoll shouldAllow, final boolean requirement, final EventOutput target) {
+    @Deprecated
+    public static EventOutput filterEvent(final BooleanInput shouldAllow, final boolean requirement, final EventOutput target) {
         Mixing.checkNull(shouldAllow, target);
         return new EventOutputRecoverable() {
             public void event() {
@@ -224,34 +231,26 @@ public class EventMixing {
         };
     }
 
-    /**
-     * Return an EventInput that is fired when the specified EventInput is fired
-     * and the specified BooleanInputPoll is the specified requirement.
-     *
-     * @param shouldAllow the input to test.
-     * @param requirement the value to require.
-     * @param when when to check if the target should be fired.
-     * @return the target to fire.
-     */
-    public static EventInput filterEvent(final BooleanInputPoll shouldAllow, final boolean requirement, EventInput when) {
-        Mixing.checkNull(shouldAllow, when);
-        final EventStatus out = new EventStatus();
-        when.send(new EventOutputRecoverable() {
+    public static EventOutput filter(final BooleanInput shouldAllow, final EventOutput target) {
+        Mixing.checkNull(shouldAllow, target);
+        return new EventOutputRecoverable() {
             public void event() {
-                if (shouldAllow.get() == requirement) {
-                    out.produce();
+                if (shouldAllow.get()) {
+                    target.event();
                 }
             }
 
             public boolean eventWithRecovery() {
-                if (shouldAllow.get() == requirement) {
-                    return out.produceWithFailureRecovery();
-                } else {
-                    return false;
+                if (shouldAllow.get()) {
+                    if (target instanceof EventOutputRecoverable) {
+                        return ((EventOutputRecoverable) target).eventWithRecovery();
+                    } else {
+                        target.event();
+                    }
                 }
+                return false;
             }
-        });
-        return out;
+        };
     }
 
     private EventMixing() {

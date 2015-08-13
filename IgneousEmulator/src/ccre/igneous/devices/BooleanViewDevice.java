@@ -18,8 +18,10 @@
  */
 package ccre.igneous.devices;
 
+import ccre.channel.BooleanInput;
 import ccre.channel.BooleanInputPoll;
 import ccre.channel.BooleanOutput;
+import ccre.channel.EventInput;
 import ccre.igneous.Device;
 import ccre.igneous.components.BooleanTextComponent;
 import ccre.igneous.components.SpacingComponent;
@@ -31,7 +33,7 @@ import ccre.igneous.components.TextComponent;
  *
  * @author skeggsc
  */
-public class BooleanViewDevice extends Device implements BooleanOutput, BooleanInputPoll, Disableable {
+public class BooleanViewDevice extends Device implements BooleanOutput, Disableable {
 
     private final BooleanTextComponent actuated;
     private boolean savedValue = false, disabled = true;
@@ -48,15 +50,16 @@ public class BooleanViewDevice extends Device implements BooleanOutput, BooleanI
         add(actuated);
     }
 
+    public BooleanViewDevice(String label, boolean enabledByDefault) {
+        this(label);
+        this.set(enabledByDefault);
+    }
+    
     public void set(boolean value) {
         savedValue = value;
         if (!disabled) {
             actuated.set(value);
         }
-    }
-
-    public boolean get() {
-        return actuated.get();
     }
 
     @Override
@@ -68,4 +71,7 @@ public class BooleanViewDevice extends Device implements BooleanOutput, BooleanI
             actuated.set(savedValue);
         }
     }
-}
+    
+    public BooleanInput asInput() {
+        return actuated;
+    }}

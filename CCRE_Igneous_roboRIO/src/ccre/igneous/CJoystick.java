@@ -18,10 +18,8 @@
  */
 package ccre.igneous;
 
-import ccre.channel.BooleanInputPoll;
 import ccre.channel.EventInput;
-import ccre.channel.FloatInputPoll;
-import ccre.ctrl.AbstractJoystickWithPOV;
+import ccre.ctrl.AbstractJoystick;
 import edu.wpi.first.wpilibj.Joystick;
 
 /**
@@ -30,7 +28,7 @@ import edu.wpi.first.wpilibj.Joystick;
  *
  * @author skeggsc
  */
-final class CJoystick extends AbstractJoystickWithPOV {
+final class CJoystick extends AbstractJoystick {
 
     /**
      * The joystick object that is read from.
@@ -43,27 +41,25 @@ final class CJoystick extends AbstractJoystickWithPOV {
      * @param joystick the joystick ID
      */
     CJoystick(int joystick, EventInput check) {
-        super(check);
+        super(check, 12, 32);
         if (joystick < 1 || joystick > 6) {
             throw new IllegalArgumentException("Joystick " + joystick + " is not a valid joystick number.");
-        } else {
-            joy = new Joystick(joystick - 1);
         }
+        joy = new Joystick(joystick - 1);
     }
 
-    public FloatInputPoll getAxisChannel(final int axis) {
-        return () -> (float) joy.getRawAxis(axis - 1);
+    @Override
+    protected boolean getButton(int btn) {
+        return joy.getRawButton(btn);
     }
 
-    public BooleanInputPoll getButtonChannel(final int button) {
-        return () -> joy.getRawButton(button);
+    @Override
+    protected float getAxis(int axis) {
+        return (float) joy.getRawAxis(axis);
     }
 
-    public BooleanInputPoll isPOVPressed(int id) {
-        return () -> joy.getPOV(id - 1) != -1;
-    }
-
-    public FloatInputPoll getPOVAngle(int id) {
-        return () -> joy.getPOV(id - 1);
+    @Override
+    protected boolean getPOV(int direction) {
+        return joy.getPOV(0) == direction;
     }
 }

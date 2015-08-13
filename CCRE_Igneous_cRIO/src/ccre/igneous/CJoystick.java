@@ -18,12 +18,8 @@
  */
 package ccre.igneous;
 
-import ccre.channel.BooleanInputPoll;
 import ccre.channel.EventInput;
-import ccre.channel.FloatInputPoll;
-import ccre.ctrl.AbstractJoystickWithPOV;
-import ccre.ctrl.BooleanMixing;
-import ccre.ctrl.FloatMixing;
+import ccre.ctrl.AbstractJoystick;
 import ccre.log.Logger;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.Joystick;
@@ -35,7 +31,7 @@ import edu.wpi.first.wpilibj.KinectStick;
  *
  * @author skeggsc
  */
-final class CJoystick extends AbstractJoystickWithPOV {
+final class CJoystick extends AbstractJoystick {
 
     /**
      * The joystick object that is read from.
@@ -48,7 +44,7 @@ final class CJoystick extends AbstractJoystickWithPOV {
      * @param joystick the joystick ID
      */
     CJoystick(int joystick, EventInput check) {
-        super(check);
+        super(check, 6, 12);
         if (joystick == 5) {
             joy = new KinectStick(1);
         } else if (joystick == 6) {
@@ -58,29 +54,19 @@ final class CJoystick extends AbstractJoystickWithPOV {
         }
     }
 
-    public FloatInputPoll getAxisChannel(final int axis) {
-        return new FloatInputPoll() {
-            public float get() {
-                return (float) joy.getRawAxis(axis);
-            }
-        };
+    @Override
+    protected boolean getButton(int btn) {
+        return joy.getRawButton(btn);
     }
 
-    public BooleanInputPoll getButtonChannel(final int button) {
-        return new BooleanInputPoll() {
-            public boolean get() {
-                return joy.getRawButton(button);
-            }
-        };
+    @Override
+    protected float getAxis(int axis) {
+        return (float) joy.getRawAxis(axis);
     }
 
-    public BooleanInputPoll isPOVPressed(int id) {
-        Logger.warning("POVs not supported on the cRIO.");
-        return BooleanMixing.alwaysFalse;
-    }
-
-    public FloatInputPoll getPOVAngle(int id) {
-        Logger.warning("POVs not supported on the cRIO.");
-        return FloatMixing.always(0);
+    @Override
+    protected boolean getPOV(int direction) {
+        Logger.warning("POVs not supported on cRIO!");
+        return false;
     }
 }

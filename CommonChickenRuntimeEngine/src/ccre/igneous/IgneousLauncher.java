@@ -19,10 +19,9 @@
 package ccre.igneous;
 
 import ccre.channel.BooleanInput;
-import ccre.channel.BooleanInputPoll;
 import ccre.channel.BooleanOutput;
 import ccre.channel.EventInput;
-import ccre.channel.FloatInputPoll;
+import ccre.channel.FloatInput;
 import ccre.channel.FloatOutput;
 import ccre.channel.SerialIO;
 import ccre.ctrl.ExtendedMotor;
@@ -123,7 +122,7 @@ public interface IgneousLauncher {
      * @param id the port number.
      * @return the analog input, reporting in voltage.
      */
-    public FloatInputPoll makeAnalogInput(int id);
+    public FloatInput makeAnalogInput(int id, EventInput updateOn);
 
     /**
      * Create a reference to an analog input on the specified port with the
@@ -133,20 +132,7 @@ public interface IgneousLauncher {
      * @param averageBits the number of averaging bits.
      * @return the analog input, reporting in voltage.
      */
-    public FloatInputPoll makeAnalogInput(int id, int averageBits);
-
-    /**
-     * Create a reference to an analog input's raw value on the specified port
-     * with the specified number of average bits.
-     *
-     * @param id the port number.
-     * @param averageBits the number of averaging bits.
-     * @return the analog input, reporting in uncalibrated units.
-     * @deprecated makeAnalogInput should be used directly because it gives more
-     * useful volts instead of a raw value.
-     */
-    @Deprecated
-    public FloatInputPoll makeAnalogInput_ValuedBased(int id, int averageBits);
+    public FloatInput makeAnalogInput(int id, int averageBits, EventInput updateOn);
 
     /**
      * Create a reference to a digital input on the specified port.
@@ -154,7 +140,7 @@ public interface IgneousLauncher {
      * @param id the port number.
      * @return the digital input.
      */
-    public BooleanInputPoll makeDigitalInput(int id);
+    public BooleanInput makeDigitalInput(int id, EventInput updateOn);
 
     /**
      * Create a reference to a digital input on the specified port, as a
@@ -193,7 +179,7 @@ public interface IgneousLauncher {
      *
      * @return the input.
      */
-    public BooleanInputPoll getIsDisabled();
+    public BooleanInput getIsDisabled();
 
     /**
      * Get a boolean input that checks if the robot is currently in autonomous,
@@ -201,7 +187,7 @@ public interface IgneousLauncher {
      *
      * @return the input.
      */
-    public BooleanInputPoll getIsAutonomous();
+    public BooleanInput getIsAutonomous();
 
     /**
      * Get a boolean input that checks if the robot is currently in testing
@@ -209,7 +195,7 @@ public interface IgneousLauncher {
      *
      * @return the input.
      */
-    public BooleanInputPoll getIsTest();
+    public BooleanInput getIsTest();
 
     /**
      * Get a boolean input that checks if the robot is currently connected to
@@ -217,16 +203,7 @@ public interface IgneousLauncher {
      *
      * @return the input.
      */
-    public BooleanInputPoll getIsFMS();
-
-    /**
-     * Activate the compressor on the given pressure switch input and compressor
-     * relay channel.
-     *
-     * @param shouldDisable should the compressor be turned off.
-     * @param compressorRelayChannel the channel of the compressor's relay.
-     */
-    public void useCustomCompressor(BooleanInputPoll shouldDisable, int compressorRelayChannel);
+    public BooleanInput getIsFMS();
 
     /**
      * Create a reference to an Encoder on the specified ports with the
@@ -239,7 +216,7 @@ public interface IgneousLauncher {
      * event is produced.
      * @return the Encoder, reporting encoder ticks.
      */
-    public FloatInputPoll makeEncoder(int aChannel, int bChannel, boolean reverse, EventInput resetWhen);
+    public FloatInput makeEncoder(int aChannel, int bChannel, boolean reverse, EventInput resetWhen, EventInput updateOn);
 
     /**
      * Create a reference to the Forward side of the relay on the specified
@@ -275,22 +252,7 @@ public interface IgneousLauncher {
      * @param resetWhen When to reset the Gyro.
      * @return The reference to the Gyro's current value.
      */
-    public FloatInputPoll makeGyro(int port, double sensitivity, EventInput resetWhen);
-
-    /**
-     * Create a reference to a Accelerometer Axis on the specified port, with
-     * the specified sensitivity and voltage zero point.
-     *
-     * @param port The port number to attach to.
-     * @param sensitivity The sensitivity of the accelerometer. This varies per
-     * model.
-     * @param zeropoint The voltage that corresponds to 0 G. This also varies by
-     * model.
-     * @return The reference to the axis on the Accelerometer.
-     * @deprecated This is literally a subtraction and a division.
-     */
-    @Deprecated
-    public FloatInputPoll makeAccelerometerAxis(int port, double sensitivity, double zeropoint);
+    public FloatInput makeGyro(int port, double sensitivity, EventInput resetWhen, EventInput updateOn);
 
     /**
      * Get a reference to the analog input that reads the current battery
@@ -298,7 +260,7 @@ public interface IgneousLauncher {
      *
      * @return The current battery voltage.
      */
-    public FloatInputPoll getBatteryVoltage();
+    public FloatInput getBatteryVoltage(EventInput updateOn);
 
     /**
      * @return an event that is produced during every mode if the driver station
@@ -355,28 +317,28 @@ public interface IgneousLauncher {
     /**
      * @return the status of the PCM pressure switch.
      */
-    public BooleanInputPoll getPCMPressureSwitch();
+    public BooleanInput getPCMPressureSwitch(EventInput updateOn);
 
     /**
      * @return the status of the PCM compressor enable.
      */
-    public BooleanInputPoll getPCMCompressorRunning();
+    public BooleanInput getPCMCompressorRunning(EventInput updateOn);
 
     /**
      * @return the current draw of the PCM compressor.
      */
-    public FloatInputPoll getPCMCompressorCurrent();
+    public FloatInput getPCMCompressorCurrent(EventInput updateOn);
 
     /**
      * @param channel the channel to monitor.
      * @return the current draw of the specified PDP channel.
      */
-    public FloatInputPoll getPDPChannelCurrent(int channel);
+    public FloatInput getPDPChannelCurrent(int channel, EventInput updateOn);
 
     /**
      * @return the voltage measured at the PDP.
      */
-    public FloatInputPoll getPDPVoltage();
+    public FloatInput getPDPVoltage(EventInput updateOn);
 
     /**
      * @return if this system is a roboRIO.
@@ -411,19 +373,19 @@ public interface IgneousLauncher {
      * @param powerChannel the power channel to monitor.
      * @return the active voltage of the channel.
      */
-    public FloatInputPoll getChannelVoltage(int powerChannel);
+    public FloatInput getChannelVoltage(int powerChannel, EventInput updateOn);
 
     /**
      * @param powerChannel the power channel to monitor.
      * @return the active current of the channel.
      */
-    public FloatInputPoll getChannelCurrent(int powerChannel);
+    public FloatInput getChannelCurrent(int powerChannel, EventInput updateOn);
 
     /**
      * @param powerChannel the power channel to monitor.
      * @return whether or not the channel is enabled.
      */
-    public BooleanInputPoll getChannelEnabled(int powerChannel);
+    public BooleanInput getChannelEnabled(int powerChannel, EventInput updateOn);
 
     /**
      * @param name the name of this control binding client.

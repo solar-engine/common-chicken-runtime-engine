@@ -23,6 +23,7 @@ import ccre.channel.BooleanInputPoll;
 import ccre.channel.BooleanOutput;
 import ccre.channel.EventInput;
 import ccre.channel.FloatFilter;
+import ccre.channel.FloatInput;
 import ccre.channel.FloatInputPoll;
 import ccre.ctrl.BooleanMixing;
 import ccre.ctrl.EventMixing;
@@ -35,25 +36,24 @@ public class UserInterface {
     private static final IJoystick driveJoystick = Igneous.joystick1;
     private static final FloatFilter deadzone = FloatMixing.deadzone(0.1f);
 
-    public static FloatInputPoll getLeftAxis() {
-        return deadzone.wrap(FloatMixing.negate(driveJoystick.getAxisChannel(2)));
+    public static FloatInput getLeftAxis() {
+        return deadzone.wrap(FloatMixing.negate(driveJoystick.axis(2)));
     }
 
-    public static FloatInputPoll getRightAxis() {
-        return deadzone.wrap(FloatMixing.negate(driveJoystick.getAxisChannel(6)));
+    public static FloatInput getRightAxis() {
+        return deadzone.wrap(FloatMixing.negate(driveJoystick.axis(6)));
     }
 
-    public static FloatInputPoll getForwardAxis() {
-        final FloatInputPoll positive = driveJoystick.getAxisChannel(3), negative = driveJoystick.getAxisChannel(4);
-        return deadzone.wrap(FloatMixing.negate(FloatMixing.subtraction.of(positive, negative)));
+    public static FloatInput getForwardAxis() {
+        return deadzone.wrap(FloatMixing.subtraction.of(driveJoystick.axis(4), driveJoystick.axis(3)));
     }
 
     public static EventInput getHighGearShift() {
-        return driveJoystick.getButtonSource(1);
+        return driveJoystick.onPress(1);
     }
 
     public static EventInput getLowGearShift() {
-        return driveJoystick.getButtonSource(3);
+        return driveJoystick.onPress(3);
     }
 
     public static EventInput getArmLower() {
@@ -76,11 +76,11 @@ public class UserInterface {
         return PhidgetReader.getDigitalOutput(1);
     }
 
-    public static BooleanInputPoll getRollersInSwitch() {
+    public static BooleanInput getRollersInSwitch() {
         return PhidgetReader.getDigitalInput(3);
     }
 
-    public static BooleanInputPoll getRollersOutSwitch() {
+    public static BooleanInput getRollersOutSwitch() {
         return PhidgetReader.getDigitalInput(4);
     }
 
@@ -88,7 +88,7 @@ public class UserInterface {
         return EventMixing.combine(
                 BooleanMixing.onPress(PhidgetReader.getDigitalInput(1)),
                 EventMixing.filterEvent(ApolloGemini.isKidMode, false,
-                        driveJoystick.getButtonSource(6)));
+                        driveJoystick.onPress(6)));
     }
 
     public static EventInput getRearmCatapult() {
@@ -99,9 +99,9 @@ public class UserInterface {
         notFiring.send(PhidgetReader.getDigitalOutput(2));
     }
 
-    public static BooleanInputPoll getShouldOverrideDrivingDisable() {
+    public static BooleanInput getShouldOverrideDrivingDisable() {
         return BooleanMixing.orBooleans(
-                driveJoystick.getButtonChannel(7),
-                driveJoystick.getButtonChannel(8));
+                driveJoystick.button(7),
+                driveJoystick.button(8));
     }
 }

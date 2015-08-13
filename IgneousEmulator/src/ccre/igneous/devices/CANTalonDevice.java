@@ -20,6 +20,7 @@ package ccre.igneous.devices;
 
 import java.util.HashMap;
 
+import ccre.channel.BooleanInput;
 import ccre.channel.BooleanInputPoll;
 import ccre.channel.BooleanOutput;
 import ccre.channel.FloatInputPoll;
@@ -146,7 +147,7 @@ public class CANTalonDevice extends DeviceGroup implements Disableable {
             }
         }
 
-        public BooleanInputPoll getDiagnosticChannel(DiagnosticType type) {
+        public BooleanInput getDiagnosticChannel(DiagnosticType type) {
             if (type.isBooleanDiagnostic) {
                 if (!diagnosticDevices.containsKey(type)) {
                     diagnosticDevices.put(type, add(new BooleanControlDevice(type.toString())));

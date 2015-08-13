@@ -19,10 +19,8 @@
 package ccre.igneous.devices;
 
 import ccre.channel.BooleanInput;
-import ccre.channel.BooleanInputPoll;
 import ccre.channel.EventInput;
 import ccre.channel.FloatInput;
-import ccre.channel.FloatInputPoll;
 import ccre.ctrl.CombinationJoystickWithPOV;
 import ccre.ctrl.IJoystickWithPOV;
 import ccre.igneous.Device;
@@ -71,8 +69,7 @@ public class JoystickDevice extends DeviceGroup {
 
     private final FloatControlDevice[] axes = new FloatControlDevice[6];
     private final BooleanControlDevice[] buttons = new BooleanControlDevice[14];
-    private final FloatControlDevice[] povs = new FloatControlDevice[10]; // 10 is arbitrary.
-    private final BooleanControlDevice[] povPresses = new BooleanControlDevice[povs.length];
+    private final BooleanControlDevice[] povAngles = new BooleanControlDevice[360];
 
     private boolean wasAddedToMaster = false;
     private final DeviceListPanel master;
@@ -130,18 +127,6 @@ public class JoystickDevice extends DeviceGroup {
         return this;
     }
 
-    private FloatControlDevice getAxis(int id) {
-        if (id < 1 || id > axes.length) {
-            throw new IllegalArgumentException("Invalid axis number: " + id);
-        }
-        if (axes[id - 1] == null) {
-            axes[id - 1] = new FloatControlDevice("Axis " + id);
-            add(axes[id - 1]);
-            addToMaster();
-        }
-        return axes[id - 1];
-    }
-
     /**
      * Get the IJoystickWithPOV to access this Joystick.
      *
@@ -150,27 +135,7 @@ public class JoystickDevice extends DeviceGroup {
      */
     public IJoystickWithPOV getJoystick(EventInput check) {
         return new CombinationJoystickWithPOV(joystickHolder.getJoystick(check), new IJoystickWithPOV() {
-            public EventInput getButtonSource(int id) {
-                if (id < 1 || id > buttons.length) {
-                    throw new IllegalArgumentException("Invalid button number: " + id);
-                }
-                if (buttons[id - 1] == null) {
-                    buttons[id - 1] = new BooleanControlDevice("Button " + id);
-                    add(buttons[id - 1]);
-                    addToMaster();
-                }
-                return buttons[id - 1].whenPressed();
-            }
-
-            public FloatInput getAxisSource(int axis) {
-                return getAxis(axis);
-            }
-
-            public FloatInputPoll getAxisChannel(int axis) {
-                return getAxis(axis);
-            }
-
-            public BooleanInputPoll getButtonChannel(int id) {
+            public BooleanInput button(int id) {
                 if (id < 1 || id > buttons.length) {
                     throw new IllegalArgumentException("Invalid button number: " + id);
                 }
@@ -182,58 +147,31 @@ public class JoystickDevice extends DeviceGroup {
                 return buttons[id - 1];
             }
 
-            public FloatInputPoll getXChannel() {
-                return getAxisChannel(1);
+            public FloatInput axis(int id) {
+                if (id < 1 || id > axes.length) {
+                    throw new IllegalArgumentException("Invalid axis number: " + id);
+                }
+                if (axes[id - 1] == null) {
+                    axes[id - 1] = new FloatControlDevice("Axis " + id);
+                    add(axes[id - 1]);
+                    addToMaster();
+                }
+                return axes[id - 1];
             }
 
-            public FloatInputPoll getYChannel() {
-                return getAxisChannel(2);
-            }
-
-            public FloatInput getXAxisSource() {
-                return getAxisSource(1);
-            }
-
-            public FloatInput getYAxisSource() {
-                return getAxisSource(2);
-            }
-
-            public BooleanInputPoll isPOVPressed(int id) {
-                return isPOVPressedSource(id);
-            }
-
-            public FloatInputPoll getPOVAngle(int id) {
-                return getPOVAngleSource(id);
-            }
-
-            public BooleanInput isPOVPressedSource(int id) {
+            public BooleanInput isPOV(int direction) {
                 if (!isRoboRIO) {
                     throw new RuntimeException("POVs can only be accessed from a roboRIO!");
                 }
-                if (id < 1 || id > povPresses.length) {
-                    throw new IllegalArgumentException("Invalid POV number: " + id);
+                if (direction < 0 || direction >= 360) {
+                    throw new IllegalArgumentException("POV directions must be in range 0 ... 359!");
                 }
-                if (povPresses[id - 1] == null) {
-                    povPresses[id - 1] = new BooleanControlDevice("POV " + id);
-                    add(povPresses[id - 1]);
+                if (povAngles[direction] == null) {
+                    povAngles[direction] = new BooleanControlDevice("POV dir " + direction);
+                    add(povAngles[direction]);
                     addToMaster();
                 }
-                return povPresses[id - 1];
-            }
-
-            public FloatInput getPOVAngleSource(int id) {
-                if (!isRoboRIO) {
-                    throw new RuntimeException("POVs can only be accessed from a roboRIO!");
-                }
-                if (id < 1 || id > povs.length) {
-                    throw new IllegalArgumentException("Invalid POV number: " + id);
-                }
-                if (povs[id - 1] == null) {
-                    povs[id - 1] = new FloatControlDevice("POV " + id, 0, 360, 0, 0);
-                    add(povs[id - 1]);
-                    addToMaster();
-                }
-                return povs[id - 1];
+                return povAngles[direction];
             }
         });
     }

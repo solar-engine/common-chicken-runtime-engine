@@ -20,6 +20,8 @@ package ccre.ctrl;
 
 import ccre.channel.BooleanInput;
 import ccre.channel.BooleanInputPoll;
+import ccre.channel.DerivedBooleanInput;
+import ccre.channel.DerivedFloatInput;
 import ccre.channel.EventInput;
 import ccre.channel.EventOutput;
 import ccre.channel.EventStatus;
@@ -119,34 +121,37 @@ public class FloatMixing {
     }
 
     /**
-     * Return a BooleanInputPoll that is true when the specified float input is
-     * at least the specified minimum value.
+     * Return a BooleanInput that is true when the specified float input is at
+     * least the specified minimum value.
      *
      * @param base the value to test
      * @param minimum the minimum value
      * @return an input that represents the value being at least the minimum.
      */
-    public static BooleanInputPoll floatIsAtLeast(final FloatInputPoll base, final float minimum) {
-        Mixing.checkNull(base);
-        return new BooleanInputPoll() {
-            public boolean get() {
+    public static BooleanInput atLeast(FloatInput base, float minimum) {
+        if (Float.isNaN(minimum)) {
+            throw new IllegalArgumentException("Cannot have NaN boundary in atLeast!");
+        }
+        return new DerivedBooleanInput(base) {
+            @Override
+            protected boolean apply() {
                 return base.get() >= minimum;
             }
         };
     }
 
     /**
-     * Return a BooleanInputPoll that is true when the specified float input is
-     * at least the specified minimum value.
+     * Return a BooleanInput that is true when the specified float input is at
+     * least the specified minimum value.
      *
      * @param base the value to test
      * @param minimum the minimum value
      * @return an input that represents the value being at least the minimum.
      */
-    public static BooleanInputPoll floatIsAtLeast(final FloatInputPoll base, final FloatInputPoll minimum) {
-        Mixing.checkNull(base, minimum);
-        return new BooleanInputPoll() {
-            public boolean get() {
+    public static BooleanInput atLeast(FloatInput base, FloatInput minimum) {
+        return new DerivedBooleanInput(base, minimum) {
+            @Override
+            protected boolean apply() {
                 return base.get() >= minimum.get();
             }
         };
@@ -154,94 +159,39 @@ public class FloatMixing {
 
     /**
      * Return a BooleanInput that is true when the specified float input is at
-     * least the specified minimum value.
-     *
-     * @param base the value to test
-     * @param minimum the minimum value
-     * @return an input that represents the value being at least the minimum.
-     */
-    public static BooleanInput floatIsAtLeast(FloatInput base, float minimum) {
-        Mixing.checkNull(base);
-        return BooleanMixing.createDispatch(floatIsAtLeast((FloatInputPoll) base, minimum), FloatMixing.onUpdate(base));
-    }
-
-    /**
-     * Return a BooleanInput that is true when the specified float input is at
-     * least the specified minimum value.
-     *
-     * Warning: this will only update when base updates, not when minimum
-     * updates!
-     *
-     * @param base the value to test
-     * @param minimum the minimum value
-     * @return an input that represents the value being at least the minimum.
-     */
-    public static BooleanInput floatIsAtLeast(FloatInput base, FloatInputPoll minimum) {
-        Mixing.checkNull(base, minimum);
-        return BooleanMixing.createDispatch(floatIsAtLeast((FloatInputPoll) base, minimum), FloatMixing.onUpdate(base));
-    }
-
-    /**
-     * Return a BooleanInputPoll that is true when the specified float input is
-     * at most the specified maximum value.
+     * most the specified maximum value.
      *
      * @param base the value to test
      * @param maximum the maximum value
      * @return an input that represents the value being at most the maximum.
      */
-    public static BooleanInputPoll floatIsAtMost(final FloatInputPoll base, final float maximum) {
-        Mixing.checkNull(base);
-        return new BooleanInputPoll() {
-            public boolean get() {
+    public static BooleanInput atMost(final FloatInput base, final float maximum) {
+        if (Float.isNaN(maximum)) {
+            throw new IllegalArgumentException("Cannot have NaN boundary in atMost!");
+        }
+        return new DerivedBooleanInput(base) {
+            @Override
+            protected boolean apply() {
                 return base.get() <= maximum;
             }
         };
     }
 
     /**
-     * Return a BooleanInputPoll that is true when the specified float input is
-     * at most the specified maximum value.
+     * Return a BooleanInput that is true when the specified float input is at
+     * most the specified maximum value.
      *
      * @param base the value to test
      * @param maximum the maximum value
      * @return an input that represents the value being at most the maximum.
      */
-    public static BooleanInputPoll floatIsAtMost(final FloatInputPoll base, final FloatInputPoll maximum) {
-        Mixing.checkNull(base, maximum);
-        return new BooleanInputPoll() {
-            public boolean get() {
+    public static BooleanInput atMost(final FloatInput base, final FloatInput maximum) {
+        return new DerivedBooleanInput(base) {
+            @Override
+            protected boolean apply() {
                 return base.get() <= maximum.get();
             }
         };
-    }
-
-    /**
-     * Return a BooleanInput that is true when the specified float input is at
-     * most the specified maximum value.
-     *
-     * @param base the value to test
-     * @param maximum the maximum value
-     * @return an input that represents the value being at most the maximum.
-     */
-    public static BooleanInput floatIsAtMost(final FloatInput base, final float maximum) {
-        Mixing.checkNull(base);
-        return BooleanMixing.createDispatch(floatIsAtMost((FloatInputPoll) base, maximum), FloatMixing.onUpdate(base));
-    }
-
-    /**
-     * Return a BooleanInput that is true when the specified float input is at
-     * most the specified maximum value.
-     *
-     * Warning: this will only update when base updates, not when minimum
-     * updates!
-     *
-     * @param base the value to test
-     * @param maximum the maximum value
-     * @return an input that represents the value being at most the maximum.
-     */
-    public static BooleanInput floatIsAtMost(final FloatInput base, final FloatInputPoll maximum) {
-        Mixing.checkNull(base, maximum);
-        return BooleanMixing.createDispatch(floatIsAtMost((FloatInputPoll) base, maximum), FloatMixing.onUpdate(base));
     }
 
     /**
@@ -326,53 +276,16 @@ public class FloatMixing {
      * @return an input that represents the value being outside the range
      * @throws IllegalArgumentException if either bound is NaN
      */
-    public static BooleanInputPoll floatIsOutsideRange(final FloatInputPoll base, final float minimum, final float maximum) {
+    public static BooleanInput outsideRange(final FloatInput base, final float minimum, final float maximum) {
         Mixing.checkNull(base);
         if (Float.isNaN(minimum) || Float.isNaN(maximum)) {
             throw new IllegalArgumentException("Cannot have NaN boundary in floatIsOutsideRange!");
         }
-        return new BooleanInputPoll() {
-            public boolean get() {
-                float val = base.get();
-                return val < minimum || val > maximum;
-            }
-        };
-    }
-
-    /**
-     * Return a BooleanInput that is true when the specified float input is
-     * outside of the range of the specified minimum and maximum. It will be
-     * false at the minimum or maximum.
-     *
-     * If value is NaN, then the result is false.
-     *
-     * @param base the value to test
-     * @param minimum the minimum value
-     * @param maximum the maximum value
-     * @return an input that represents the value being outside the range
-     * @throws IllegalArgumentException if either bound is NaN
-     */
-    public static BooleanInput floatIsOutsideRange(final FloatInput base, final float minimum, final float maximum) {
-        Mixing.checkNull(base);
-        if (Float.isNaN(minimum) || Float.isNaN(maximum)) {
-            throw new IllegalArgumentException("Cannot have NaN boundary in floatIsOutsideRange!");
-        }
-        return BooleanMixing.createDispatch(floatIsOutsideRange((FloatInputPoll) base, minimum, maximum), FloatMixing.onUpdate(base));
-    }
-
-    /**
-     * Returns an EventOutput that, when called, pumps the value from the
-     * specified input to the specified output
-     *
-     * @param in the input
-     * @param out the output
-     * @return the EventOutput that pumps the value
-     */
-    public static EventOutput pumpEvent(final FloatInputPoll in, final FloatOutput out) {
-        Mixing.checkNull(in, out);
-        return new EventOutput() {
-            public void event() {
-                out.set(in.get());
+        return new DerivedBooleanInput() {
+            @Override
+            protected boolean apply() {
+                float value = base.get();
+                return value < minimum || value > maximum;
             }
         };
     }
@@ -404,22 +317,11 @@ public class FloatMixing {
      * @param source The source to wrap
      * @return The wrapped input.
      */
-    public static FloatInput addRamping(final float limit, EventInput updateWhen, final FloatInputPoll source) {
+    public static FloatInput addRamping(final float limit, EventInput updateWhen, final FloatInput source) {
         Mixing.checkNull(updateWhen, source);
         FloatStatus temp = new FloatStatus();
         updateWhen.send(createRamper(limit, source, temp));
         return temp;
-    }
-
-    /**
-     * Returns a FloatInputPoll representing the negated version of the
-     * specified input.
-     *
-     * @param value the input to negate.
-     * @return the negated input.
-     */
-    public static FloatInputPoll negate(final FloatInputPoll value) {
-        return negate.wrap(value);
     }
 
     /**
@@ -454,7 +356,7 @@ public class FloatMixing {
      * @param target The output to write the current value to.
      * @return The EventOutput that updates the ramping system.
      */
-    public static EventOutput createRamper(final float limit, final FloatInputPoll from, final FloatOutput target) {
+    public static EventOutput createRamper(final float limit, final FloatInput from, final FloatOutput target) {
         Mixing.checkNull(from, target);
         return new EventOutput() {
             private float last = from.get();
@@ -478,37 +380,17 @@ public class FloatMixing {
      * @return an input that represents the value being in range
      * @throws IllegalArgumentException if either bound is NaN
      */
-    public static BooleanInputPoll floatIsInRange(final FloatInputPoll base, final float minimum, final float maximum) {
+    public static BooleanInput inRange(final FloatInput base, final float minimum, final float maximum) {
         Mixing.checkNull(base);
         if (Float.isNaN(minimum) || Float.isNaN(maximum)) {
             throw new IllegalArgumentException("Cannot have NaN boundary in floatIsOutsideRange!");
         }
-        return new BooleanInputPoll() {
-            public boolean get() {
+        return new DerivedBooleanInput(base) {
+            public boolean apply() {
                 float val = base.get();
                 return val >= minimum && val <= maximum;
             }
         };
-    }
-
-    /**
-     * Return a BooleanInput that is true when the specified float input is in
-     * the range of the specified minimum and maximum, inclusive.
-     *
-     * If value is NaN, then the result is false.
-     *
-     * @param base the value to test
-     * @param minimum the minimum value
-     * @param maximum the maximum value
-     * @return an input that represents the value being in range
-     * @throws IllegalArgumentException if either bound is NaN
-     */
-    public static BooleanInput floatIsInRange(final FloatInput base, final float minimum, final float maximum) {
-        Mixing.checkNull(base);
-        if (Float.isNaN(minimum) || Float.isNaN(maximum)) {
-            throw new IllegalArgumentException("Cannot have NaN boundary in floatIsOutsideRange!");
-        }
-        return BooleanMixing.createDispatch(floatIsInRange((FloatInputPoll) base, minimum, maximum), FloatMixing.onUpdate(base));
     }
 
     /**
@@ -529,23 +411,12 @@ public class FloatMixing {
 
             public void unsend(FloatOutput consum) {
             }
-        };
-    }
 
-    /**
-     * Return a FloatInput that is the same as the specified FloatInputPoll,
-     * except that it is also a producer that will update whenever the specified
-     * event is triggered.
-     *
-     * @param input the original input.
-     * @param trigger the event to dispatch at.
-     * @return the dispatchable input.
-     */
-    public static FloatInput createDispatch(FloatInputPoll input, EventInput trigger) {
-        Mixing.checkNull(input, trigger);
-        FloatStatus fstat = new FloatStatus(input.get());
-        FloatMixing.pumpWhen(trigger, input, fstat);
-        return fstat;
+            @Override
+            public EventInput onUpdate() {
+                return EventMixing.never;
+            }
+        };
     }
 
     /**
@@ -559,38 +430,6 @@ public class FloatMixing {
     public static void setWhen(EventInput when, FloatOutput out, float value) {
         Mixing.checkNull(when, out);
         when.send(getSetEvent(out, value));
-    }
-
-    /**
-     * When check is fired, and shouldSet is true, set the output to value.
-     *
-     * This is intended to be used with a frequent event as check, to
-     * effectively hold the output at a specific value.
-     *
-     * @param check when to update the value.
-     * @param shouldSet whether or not the output should be held.
-     * @param output the output to hold.
-     * @param value the value to hold it at.
-     */
-    public static void setWhile(EventInput check, BooleanInputPoll shouldSet, FloatOutput output, float value) {
-        Mixing.checkNull(check, shouldSet, output);
-        setWhen(EventMixing.filterEvent(shouldSet, true, check), output, value);
-    }
-
-    /**
-     * When check is fired, and shouldSet is false, set the output to value.
-     *
-     * This is intended to be used with a frequent event as check, to
-     * effectively hold the output at a specific value.
-     *
-     * @param check when to update the value.
-     * @param shouldSet whether or not the output should NOT be held.
-     * @param output the output to hold.
-     * @param value the value to hold it at.
-     */
-    public static void setWhileNot(EventInput check, BooleanInputPoll shouldSet, FloatOutput output, float value) {
-        Mixing.checkNull(check, shouldSet, output);
-        setWhen(EventMixing.filterEvent(shouldSet, false, check), output, value);
     }
 
     /**
@@ -748,11 +587,6 @@ public class FloatMixing {
         return out;
     }
 
-    /**
-     * 
-     * @param out
-     * @return
-     */
     public static FloatOutput derivative(final FloatOutput out) {
         return new FloatOutput() {
             private long lastUpdate = 0;

@@ -26,11 +26,12 @@ package ccre.channel;
  * By convention, most float inputs and outputs have states that range from
  * -1.0f to 1.0f.
  *
- * @see FloatInputPoll
  * @author skeggsc
  */
-public interface FloatInput extends FloatInputPoll {
+public interface FloatInput extends UpdatingInput {
 
+    public float get();
+    
     /**
      * Subscribe to changes in this float input's value. The float output will
      * be modified whenever the value of this input changes.

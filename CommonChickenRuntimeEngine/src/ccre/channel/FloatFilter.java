@@ -52,24 +52,6 @@ public abstract class FloatFilter {
     }
 
     /**
-     * Returns a FloatInputPoll representing the filtered version of the
-     * specified input.
-     *
-     * @param input The input to filter.
-     * @return the filtered input.
-     */
-    public FloatInputPoll wrap(final FloatInputPoll input) {
-        if (input == null) {
-            throw new NullPointerException();
-        }
-        return new FloatInputPoll() {
-            public float get() {
-                return filter(input.get());
-            }
-        };
-    }
-
-    /**
      * Returns a FloatOutput that, when written to, writes the filtered version
      * of the value through to the specified output.
      *

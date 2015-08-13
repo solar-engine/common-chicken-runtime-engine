@@ -18,6 +18,7 @@
  */
 package ccre.instinct;
 
+import ccre.channel.BooleanInput;
 import ccre.channel.BooleanInputPoll;
 import ccre.channel.EventInput;
 import ccre.channel.EventOutput;
@@ -34,7 +35,7 @@ public abstract class InstinctModule extends InstinctBaseModule implements Event
     /**
      * If the instinct module should currently be running.
      */
-    private BooleanInputPoll shouldBeRunning;
+    private BooleanInput shouldBeRunning;
     /**
      * The amount of time between condition checks for most things that auto is
      * waiting on. Must be positive. 20 milliseconds by default.
@@ -57,7 +58,7 @@ public abstract class InstinctModule extends InstinctBaseModule implements Event
      *
      * @param shouldBeRunning The input to control the running of this module.
      */
-    public InstinctModule(BooleanInputPoll shouldBeRunning) {
+    public InstinctModule(BooleanInput shouldBeRunning) {
         if (shouldBeRunning == null) {
             throw new NullPointerException();
         }
@@ -151,7 +152,7 @@ public abstract class InstinctModule extends InstinctBaseModule implements Event
      * @param when When this should be running.
      * @see #updateWhen(ccre.channel.EventInput)
      */
-    public void setShouldBeRunning(BooleanInputPoll when) {
+    public void setShouldBeRunning(BooleanInput when) {
         if (this.shouldBeRunning != null) {
             throw new IllegalStateException();
         }

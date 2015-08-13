@@ -16,12 +16,8 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with the CCRE.  If not, see <http://www.gnu.org/licenses/>.
  */
-package ccre.ctrl;
+package ccre.channel;
 
-/**
- * A joystick with axes, buttons, and POV hats.
- *
- * @author skeggsc
- */
-public interface IJoystickWithPOV extends IJoystick {
+public interface UpdatingInput {
+    public EventInput onUpdate();
 }

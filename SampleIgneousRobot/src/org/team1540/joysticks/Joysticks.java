@@ -20,6 +20,7 @@ package org.team1540.joysticks;
 
 import ccre.cluck.Cluck;
 import ccre.ctrl.BooleanMixing;
+import ccre.ctrl.IJoystick;
 import ccre.ctrl.IJoystickWithPOV;
 import ccre.igneous.Igneous;
 import ccre.igneous.IgneousApplication;
@@ -48,13 +49,16 @@ public class Joysticks implements IgneousApplication {
 
     private void publishJoystick(int id, IJoystickWithPOV joy) {
         for (int axis = 1; axis <= 6; axis++) {
-            Cluck.publish("Joystick " + id + " Axis " + axis, joy.getAxisSource(axis));
+            Cluck.publish("Joystick " + id + " Axis " + axis, joy.axis(axis));
         }
         for (int button = 1; button <= 12; button++) {
-            Cluck.publish("Joystick " + id + " Button " + button, BooleanMixing.createDispatch(joy.getButtonChannel(button), Igneous.globalPeriodic));
+            Cluck.publish("Joystick " + id + " Button " + button, joy.button(button));
         }
         if (Igneous.isRoboRIO() && POV_NUMBER > 0) {
             for (int pov = 1; pov <= POV_NUMBER; pov++) {
+                for (int direction : IJoystick.POV_DIRECTIONS) {
+                    
+                }
                 Cluck.publish("Joystick " + id + " POV Angle ", joy.getPOVAngleSource(pov));
                 Cluck.publish("Joystick " + id + " POV Pressed ", joy.isPOVPressedSource(pov));
             }

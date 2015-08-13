@@ -27,7 +27,7 @@ package ccre.channel;
  * @see EventStatus
  * @author skeggsc
  */
-public interface EventInput {
+public interface EventInput extends UpdatingInput {
 
     /**
      * Register a listener for when this event is fired, so that whenever this
@@ -54,4 +54,8 @@ public interface EventInput {
      * @see #send(EventOutput)
      */
     void unsend(EventOutput listener);
+    
+    public default EventInput onUpdate() {
+        return this;
+    }
 }

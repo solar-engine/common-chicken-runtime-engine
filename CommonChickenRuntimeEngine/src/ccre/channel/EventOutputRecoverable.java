@@ -28,12 +28,4 @@ package ccre.channel;
  * @author skeggsc
  */
 public interface EventOutputRecoverable extends EventOutput {
-
-    /**
-     * Fire the event with recovery: try to recover instead of throwing an
-     * exception.
-     * 
-     * @return if anything was changed to recover from an error.
-     */
-    boolean eventWithRecovery();
 }

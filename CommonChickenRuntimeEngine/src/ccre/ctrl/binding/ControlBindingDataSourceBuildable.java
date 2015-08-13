@@ -28,6 +28,7 @@ import ccre.ctrl.BooleanMixing;
 import ccre.ctrl.FloatMixing;
 import ccre.ctrl.IJoystick;
 import ccre.ctrl.IJoystickWithPOV;
+import ccre.igneous.Igneous;
 import ccre.util.CArrayList;
 import ccre.util.CArrayUtils;
 import ccre.util.CHashMap;
@@ -75,24 +76,11 @@ public class ControlBindingDataSourceBuildable implements ControlBindingDataSour
      */
     public void addJoystick(String name, IJoystick joy, int buttonCount, int axisCount) {
         for (int i = 1; i <= buttonCount; i++) {
-            addButton(name + " BTN " + i, joy.getButtonChannel(i));
+            addButton(name + " BTN " + i, joy.button(i));
         }
         for (int i = 1; i <= axisCount; i++) {
-            addAxis(name + " AXIS " + i, joy.getAxisSource(i));
+            addAxis(name + " AXIS " + i, joy.axis(i));
         }
-    }
-
-    /**
-     * Add a BooleanInputPoll as a control input.
-     *
-     * The value will be polled whenever updateOn (from the constructor) is
-     * produced.
-     *
-     * @param name the name of the input.
-     * @param buttonChannel the BooleanInputPoll.
-     */
-    public void addButton(String name, BooleanInputPoll buttonChannel) {
-        addButton(name, BooleanMixing.createDispatch(buttonChannel, updateOn));
     }
 
     /**
@@ -149,12 +137,10 @@ public class ControlBindingDataSourceBuildable implements ControlBindingDataSour
     }
 
     private void addPOVHandler(String name, IJoystickWithPOV joy) {
-        BooleanInput povPressed = joy.isPOVPressedSource(1);
-        FloatInput povAngle = joy.getPOVAngleSource(1);
-        addButton(name + " POV UP", BooleanMixing.andBooleans(FloatMixing.floatIsInRange(povAngle, -0.1f, 0.1f), povPressed));
-        addButton(name + " POV DOWN", BooleanMixing.andBooleans(FloatMixing.floatIsInRange(povAngle, 179.9f, 180.1f), povPressed));
-        addButton(name + " POV LEFT", BooleanMixing.andBooleans(FloatMixing.floatIsInRange(povAngle, 269.9f, 270.1f), povPressed));
-        addButton(name + " POV RIGHT", BooleanMixing.andBooleans(FloatMixing.floatIsInRange(povAngle, 89.9f, 90.1f), povPressed));
+        addButton(name + " POV UP", Igneous.joystick2.isPOV(IJoystick.POV_NORTH));
+        addButton(name + " POV DOWN", Igneous.joystick2.isPOV(IJoystick.POV_SOUTH));
+        addButton(name + " POV LEFT", Igneous.joystick2.isPOV(IJoystick.POV_WEST));
+        addButton(name + " POV RIGHT", Igneous.joystick2.isPOV(IJoystick.POV_EAST));
     }
 
     public String[] listBooleans() {

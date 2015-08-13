@@ -188,7 +188,7 @@ public class DriverImpls {
      * @see DriverImpls
      */
     public static void createAsynchSingleJoystickDriver(final IJoystick joystick, final FloatOutput leftOut, final FloatOutput rightOut) {
-        createAsynchSingleJoystickDriver(joystick.getXAxisSource(), joystick.getYAxisSource(), leftOut, rightOut);
+        createAsynchSingleJoystickDriver(joystick.axisX(), joystick.axisY(), leftOut, rightOut);
     }
 
     /**
@@ -224,7 +224,7 @@ public class DriverImpls {
      * @see DriverImpls
      */
     public static EventOutput createSingleJoystickDriveEvent(IJoystick joystick, FloatOutput leftOut, FloatOutput rightOut) {
-        return createSingleJoystickDriveEvent(joystick.getXChannel(), joystick.getYChannel(), leftOut, rightOut);
+        return createSingleJoystickDriveEvent(joystick.axisX(), joystick.axisY(), leftOut, rightOut);
     }
 
     /**
@@ -253,7 +253,7 @@ public class DriverImpls {
      * @see DriverImpls
      */
     public static void createSynchSingleJoystickDriver(EventInput source, final IJoystick joystick, FloatOutput leftOut, FloatOutput rightOut) {
-        createSynchSingleJoystickDriver(source, joystick.getXChannel(), joystick.getYChannel(), leftOut, rightOut);
+        createSynchSingleJoystickDriver(source, joystick.axisX(), joystick.axisY(), leftOut, rightOut);
     }
 
     /**

@@ -21,6 +21,7 @@ package ccre.igneous;
 import ccre.channel.BooleanInput;
 import ccre.channel.BooleanInputPoll;
 import ccre.channel.BooleanOutput;
+import ccre.channel.BooleanStatus;
 import ccre.channel.EventInput;
 import ccre.channel.FloatInput;
 import ccre.channel.FloatInputPoll;
@@ -214,7 +215,7 @@ public class DeviceBasedLauncher implements IgneousLauncher {
 
     private BooleanInput[] digitalInputs;
 
-    public BooleanInputPoll makeDigitalInput(int id) {
+    public BooleanInput makeDigitalInput(int id) {
         int index = checkRange("Digital Input", id, digitalInputs);
         if (digitalInputs[index] == null) {
             digitalInputs[index] = panel.add(new BooleanControlDevice("Digital Input " + id));
@@ -272,30 +273,25 @@ public class DeviceBasedLauncher implements IgneousLauncher {
         dslcd.update(lineid, value);
     }
 
-    public BooleanInputPoll getIsDisabled() {
+    public BooleanInput getIsDisabled() {
         return mode.getIsMode(RobotModeDevice.RobotMode.DISABLED);
     }
 
-    public BooleanInputPoll getIsAutonomous() {
+    public BooleanInput getIsAutonomous() {
         return mode.getIsMode(RobotModeDevice.RobotMode.AUTONOMOUS);
     }
 
-    public BooleanInputPoll getIsTest() {
+    public BooleanInput getIsTest() {
         return mode.getIsMode(RobotModeDevice.RobotMode.TESTING);
     }
 
-    private BooleanInputPoll isFMS;
+    private BooleanInput isFMS;
 
-    public BooleanInputPoll getIsFMS() {
+    public BooleanInput getIsFMS() {
         if (isFMS == null) {
             isFMS = panel.add(new BooleanControlDevice("On FMS"));
         }
         return isFMS;
-    }
-
-    public void useCustomCompressor(BooleanInputPoll shouldDisable, int compressorRelayChannel) {
-        BooleanOutput relay = panel.add(new BooleanViewDevice("Compressor (Forward Relay " + compressorRelayChannel + ")"));
-        BooleanMixing.pumpWhen(new Ticker(500), BooleanMixing.invert(shouldDisable), relay);
     }
 
     public FloatInputPoll makeEncoder(int aChannel, int bChannel, boolean reverse, EventInput resetWhen) {
@@ -384,22 +380,23 @@ public class DeviceBasedLauncher implements IgneousLauncher {
         return getModeDuring(RobotModeDevice.RobotMode.DISABLED);
     }
 
-    private BooleanViewDevice pcmCompressor;
+    private final BooleanViewDevice pcmCompressor = new BooleanViewDevice("PCM Compressor Closed-Loop Control", true);
+    private boolean pcmCompressorAdded = false;
 
-    public BooleanOutput usePCMCompressor() {
+    public synchronized BooleanOutput usePCMCompressor() {
         if (!isRoboRIO()) {
             throw new IllegalArgumentException("Cannot use a PCM on a cRIO!");
         }
-        if (pcmCompressor == null) {
-            pcmCompressor = panel.add(new BooleanViewDevice("PCM Compressor Closed-Loop Control"));
-            pcmCompressor.set(true);
+        if (!pcmCompressorAdded) {
+            panel.add(pcmCompressor);
+            pcmCompressorAdded = true;
         }
         return pcmCompressor;
     }
 
-    private BooleanInputPoll pcmPressureSwitch;
+    private BooleanInput pcmPressureSwitch;
 
-    public BooleanInputPoll getPCMPressureSwitch() {
+    public BooleanInput getPCMPressureSwitch(int updateRate) {
         if (!isRoboRIO()) {
             throw new IllegalArgumentException("Cannot use a PCM on a cRIO!");
         }
@@ -409,30 +406,26 @@ public class DeviceBasedLauncher implements IgneousLauncher {
         return pcmPressureSwitch;
     }
 
-    public BooleanInputPoll getPCMCompressorRunning() {
+    public BooleanInput getPCMCompressorRunning(int updateRate) {
         if (!isRoboRIO()) {
             throw new IllegalArgumentException("Cannot use a PCM on a cRIO!");
         }
-        return BooleanMixing.andBooleans(new BooleanInputPoll() {
-            public boolean get() {
-                return pcmCompressor == null ? true : pcmCompressor.get();
-            }
-        }, BooleanMixing.invert(getPCMPressureSwitch()));
+        return BooleanMixing.andBooleans(pcmCompressor.asInput(), BooleanMixing.invert(getPCMPressureSwitch(updateRate)));
     }
 
-    public FloatInputPoll getPCMCompressorCurrent() {
+    public FloatInput getPCMCompressorCurrent(int updateRate) {
         return getAmperage("PCM Compressor");
     }
 
-    private FloatInputPoll getAmperage(String label) {
+    private FloatInput getAmperage(String label) {
         return panel.add(new FloatControlDevice(label + " Current (0A-100A)", 0, 100, 0.5f, 0.0f));
     }
 
-    public FloatInputPoll getPDPChannelCurrent(int channel) {
+    public FloatInput getPDPChannelCurrent(int channel, int updateRate) {
         return getAmperage("PDP Channel " + channel);
     }
 
-    public FloatInputPoll getPDPVoltage() {
+    public FloatInput getPDPVoltage(int updateRate) {
         return panel.add(new FloatControlDevice("PDP Voltage (6.5V-12.5V)", 6.5f, 12.5f, 9.5f, 6.5f));
     }
 
@@ -509,7 +502,7 @@ public class DeviceBasedLauncher implements IgneousLauncher {
         }
     }
 
-    public BooleanInputPoll getChannelEnabled(int powerChannel) {
+    public BooleanInput getChannelEnabled(int powerChannel) {
         if (!isRoboRIO()) {
             Logger.warning("Power channel statuses are not available on the cRIO!");
             return powerChannel == Igneous.POWER_CHANNEL_BATTERY ? BooleanMixing.alwaysTrue : BooleanMixing.alwaysFalse;

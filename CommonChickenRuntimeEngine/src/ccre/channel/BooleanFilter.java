@@ -52,24 +52,6 @@ public abstract class BooleanFilter {
     }
 
     /**
-     * Returns a BooleanInputPoll representing the filtered version of the
-     * specified input.
-     *
-     * @param input The input to filter.
-     * @return the filtered input.
-     */
-    public BooleanInputPoll wrap(final BooleanInputPoll input) {
-        if (input == null) {
-            throw new NullPointerException();
-        }
-        return new BooleanInputPoll() {
-            public boolean get() {
-                return filter(input.get());
-            }
-        };
-    }
-
-    /**
      * Returns a BooleanOutput that, when written to, writes the filtered
      * version of the value through to the specified output.
      *

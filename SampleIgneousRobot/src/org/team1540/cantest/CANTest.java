@@ -40,7 +40,7 @@ public class CANTest implements IgneousApplication {
     public void setupRobot() {
         try {
             ExtendedMotor motor = Igneous.makeCANJaguar(0);
-            Igneous.joystick1.getAxisSource(2).send(motor.asMode(OutputControlMode.VOLTAGE_FIXED));
+            Igneous.joystick1.axis(2).send(motor.asMode(OutputControlMode.VOLTAGE_FIXED));
             BooleanMixing.pumpWhen(Igneous.globalPeriodic, Igneous.getIsTeleop(), motor.asEnable());
             motor.setInternalPID(1, 0.1f, 0.01f);
             Cluck.publish("CAN Jaguar Bus Fault", BooleanMixing.createDispatch(motor.getDiagnosticChannel(DiagnosticType.BUS_VOLTAGE_FAULT), Igneous.globalPeriodic));

@@ -30,11 +30,9 @@ import java.util.WeakHashMap;
 import net.java.games.input.Component;
 import net.java.games.input.Controller;
 import net.java.games.input.ControllerEnvironment;
-import ccre.channel.BooleanInputPoll;
 import ccre.channel.EventInput;
 import ccre.channel.EventOutput;
-import ccre.channel.FloatInputPoll;
-import ccre.ctrl.AbstractJoystickWithPOV;
+import ccre.ctrl.AbstractJoystick;
 import ccre.ctrl.IJoystickWithPOV;
 import ccre.log.Logger;
 
@@ -140,70 +138,51 @@ public class JoystickHandler {
                     }
                 }
             });
-            return new AbstractJoystickWithPOV(check) {
+            return new AbstractJoystick(check, 12, 32) {
 
-                public BooleanInputPoll getButtonChannel(final int button) {
-                    return new BooleanInputPoll() {
-                        public boolean get() {
-                            if (ctrl == null) {
-                                return false;
-                            }
-                            ArrayList<Component> buttons = ctrl.buttons;
-                            if (button < 1 || button > buttons.size()) {
-                                return false;
-                            }
-                            return buttons.get(button - 1).getPollData() > 0.5f;
-                        }
-                    };
+                @Override
+                protected boolean getButton(int btn) {
+                    if (ctrl == null) {
+                        return false;
+                    }
+                    ArrayList<Component> buttons = ctrl.buttons;
+                    if (btn < 1 || btn > buttons.size()) {
+                        return false;
+                    }
+                    return buttons.get(btn - 1).getPollData() > 0.5f;
                 }
 
-                public FloatInputPoll getAxisChannel(final int axis) {
-                    return new FloatInputPoll() {
-                        public float get() {
-                            if (ctrl == null) {
-                                return 0.0f;
-                            }
-                            ArrayList<Component> axes = ctrl.axes;
-                            if (ctrl.isXBox()) {
-                                // Split axis 3 into axes 3 and 4.
-                                if (axis >= 5 && axis <= 6) {
-                                    return axes.get(axis - 2).getPollData();
-                                } else if (axis == 3) {
-                                    float raw = axes.get(2).getPollData();
-                                    return raw > 0 ? raw : 0;
-                                } else if (axis == 4) {
-                                    float raw = axes.get(2).getPollData();
-                                    return raw < 0 ? -raw : 0;
-                                }
-                            }
-                            if (axis < 1 || axis > axes.size()) {
-                                return 0.0f;
-                            }
-                            return axes.get(axis - 1).getPollData();
+                @Override
+                protected float getAxis(int axis) {
+                    if (ctrl == null) {
+                        return 0.0f;
+                    }
+                    ArrayList<Component> axes = ctrl.axes;
+                    if (ctrl.isXBox()) {
+                        // Split axis 3 into axes 3 and 4.
+                        if (axis >= 5 && axis <= 6) {
+                            return axes.get(axis - 2).getPollData();
+                        } else if (axis == 3) {
+                            float raw = axes.get(2).getPollData();
+                            return raw > 0 ? raw : 0;
+                        } else if (axis == 4) {
+                            float raw = axes.get(2).getPollData();
+                            return raw < 0 ? -raw : 0;
                         }
-                    };
+                    }
+                    if (axis < 1 || axis > axes.size()) {
+                        return 0.0f;
+                    }
+                    return axes.get(axis - 1).getPollData();
                 }
 
-                public BooleanInputPoll isPOVPressed(final int id) {
-                    return new BooleanInputPoll() {
-                        public boolean get() {
-                            if (id != 1 || ctrl == null || ctrl.pov == null) {
-                                return false;
-                            }
-                            return ctrl.pov.getPollData() > 0.0f;
-                        }
-                    };
-                }
-
-                public FloatInputPoll getPOVAngle(final int id) {
-                    return new FloatInputPoll() {
-                        public float get() {
-                            if (id != 1 || ctrl == null || ctrl.pov == null) {
-                                return 0.0f;
-                            }
-                            return (ctrl.pov.getPollData() * 360 + 270) % 360;
-                        }
-                    };
+                @Override
+                protected boolean getPOV(int direction) {
+                    if (ctrl == null || ctrl.pov == null) {
+                        return false;
+                    }
+                    int angle = (int) ((ctrl.pov.getPollData() * 360 + 270) % 360);
+                    return direction == angle;
                 }
             };
         }

@@ -26,12 +26,13 @@ import java.util.Enumeration;
 import java.util.jar.Manifest;
 
 import ccre.channel.BooleanInput;
-import ccre.channel.BooleanInputPoll;
 import ccre.channel.BooleanOutput;
 import ccre.channel.BooleanStatus;
+import ccre.channel.DerivedBooleanInput;
+import ccre.channel.DerivedFloatInput;
 import ccre.channel.EventInput;
 import ccre.channel.EventStatus;
-import ccre.channel.FloatInputPoll;
+import ccre.channel.FloatInput;
 import ccre.channel.FloatOutput;
 import ccre.channel.SerialIO;
 import ccre.cluck.Cluck;
@@ -282,30 +283,43 @@ public final class MainIgneousLauncherImpl extends RobotBase implements IgneousL
         return new DigitalOutput(id)::set;
     }
 
-    public FloatInputPoll getBatteryVoltage() {
-        return () -> (float) DriverStation.getInstance().getBatteryVoltage();
+    public FloatInput getBatteryVoltage(EventInput updateOn) {
+        return new DerivedFloatInput() {
+            @Override
+            protected float apply() {
+                return (float) DriverStation.getInstance().getBatteryVoltage();
+            }
+        };
     }
 
-    public FloatInputPoll makeAnalogInput(int id) {
+    public FloatInput makeAnalogInput(int id, EventInput updateOn) {
         final AnalogInput chan = new AnalogInput(id);
-        return () -> (float) chan.getAverageVoltage();
+        return new DerivedFloatInput() {
+            @Override
+            protected float apply() {
+                return (float) chan.getAverageVoltage();
+            }
+        };
     }
 
-    public FloatInputPoll makeAnalogInput(int id, int averageBits) {
+    public FloatInput makeAnalogInput(int id, int averageBits, EventInput updateOns) {
         final AnalogInput chan = new AnalogInput(id);
         chan.setAverageBits(averageBits);
-        return () -> (float) chan.getAverageVoltage();
+        return new DerivedFloatInput() {
+            @Override
+            protected float apply() {
+                return (float) chan.getAverageVoltage();
+            }
+        };
     }
-
-    @Deprecated
-    public FloatInputPoll makeAnalogInput_ValuedBased(int id, int averageBits) {
-        final AnalogInput chan = new AnalogInput(id);
-        chan.setAverageBits(averageBits);
-        return chan::getAverageValue;
-    }
-
-    public BooleanInputPoll makeDigitalInput(int id) {
-        return new DigitalInput(id)::get;
+    public BooleanInput makeDigitalInput(int id, EventInput updateOn) {
+        final DigitalInput input = new DigitalInput(id);
+        return new DerivedBooleanInput() {
+            @Override
+            protected boolean apply() {
+                return input.get();
+            }
+        };
     }
 
     public BooleanInput makeDigitalInputByInterrupt(int id) {
@@ -335,28 +349,23 @@ public final class MainIgneousLauncherImpl extends RobotBase implements IgneousL
         Logger.warning("The Driver Station LCD no longer exists!");
     }
 
-    public BooleanInputPoll getIsDisabled() {
+    public BooleanInput getIsDisabled() {
         return () -> activeMode == Mode.DISABLED;
     }
 
-    public BooleanInputPoll getIsAutonomous() {
+    public BooleanInput getIsAutonomous() {
         return () -> activeMode == Mode.AUTONOMOUS;
     }
 
-    public BooleanInputPoll getIsTest() {
+    public BooleanInput getIsTest() {
         return () -> activeMode == Mode.TEST;
     }
 
-    public BooleanInputPoll getIsFMS() {
+    public BooleanInput getIsFMS() {
         return DriverStation.getInstance()::isFMSAttached;
     }
 
-    public void useCustomCompressor(BooleanInputPoll shouldDisable, int compressorRelayChannel) {
-        BooleanOutput relay = makeRelayForwardOutput(compressorRelayChannel);
-        BooleanMixing.pumpWhen(new Ticker(500), BooleanMixing.invert(shouldDisable), relay);
-    }
-
-    public FloatInputPoll makeEncoder(int aChannel, int bChannel, boolean reverse, EventInput resetWhen) {
+    public FloatInput makeEncoder(int aChannel, int bChannel, boolean reverse, EventInput resetWhen) {
         final Encoder enc = new Encoder(aChannel, bChannel, reverse);
         if (resetWhen != null) {
             resetWhen.send(enc::reset);
@@ -374,21 +383,13 @@ public final class MainIgneousLauncherImpl extends RobotBase implements IgneousL
         return (bln) -> r.set(bln ? Relay.Value.kOn : Relay.Value.kOff);
     }
 
-    public FloatInputPoll makeGyro(int port, double sensitivity, EventInput evt) {
+    public FloatInput makeGyro(int port, double sensitivity, EventInput evt) {
         final Gyro g = new Gyro(port);
         g.setSensitivity(sensitivity);
         if (evt != null) {
             evt.send(() -> g.reset());
         }
         return () -> (float) g.getAngle();
-    }
-
-    @Deprecated
-    public FloatInputPoll makeAccelerometerAxis(int port, double sensitivity, double zeropoint) {
-        final AnalogAccelerometer a = new AnalogAccelerometer(port);
-        a.setSensitivity(sensitivity);
-        a.setZero(zeropoint);
-        return () -> (float) a.getAcceleration();
     }
 
     public IJoystickWithPOV getJoystick(int id) {
@@ -477,11 +478,11 @@ public final class MainIgneousLauncherImpl extends RobotBase implements IgneousL
         return getPCMCompressor()::setClosedLoopControl;
     }
 
-    public BooleanInputPoll getPCMPressureSwitch() {
+    public BooleanInput getPCMPressureSwitch() {
         return getPCMCompressor()::getPressureSwitchValue;
     }
 
-    public BooleanInputPoll getPCMCompressorRunning() {
+    public BooleanInput getPCMCompressorRunning() {
         return getPCMCompressor()::enabled;
     }
 
@@ -668,7 +669,7 @@ public final class MainIgneousLauncherImpl extends RobotBase implements IgneousL
         }
     }
 
-    public BooleanInputPoll getChannelEnabled(int powerChannel) {
+    public BooleanInput getChannelEnabled(int powerChannel) {
         return () -> {
             switch (powerChannel) {
             case Igneous.POWER_CHANNEL_BATTERY:

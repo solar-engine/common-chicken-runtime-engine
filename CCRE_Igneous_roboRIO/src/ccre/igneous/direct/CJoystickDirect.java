@@ -18,10 +18,8 @@
  */
 package ccre.igneous.direct;
 
-import ccre.channel.BooleanInputPoll;
 import ccre.channel.EventInput;
-import ccre.channel.FloatInputPoll;
-import ccre.ctrl.AbstractJoystickWithPOV;
+import ccre.ctrl.AbstractJoystick;
 
 /**
  * An IJoystick implementation that allows reading from a joystick on the driver
@@ -29,7 +27,7 @@ import ccre.ctrl.AbstractJoystickWithPOV;
  *
  * @author skeggsc
  */
-public final class CJoystickDirect extends AbstractJoystickWithPOV {
+public final class CJoystickDirect extends AbstractJoystick {
 
     private final int port;
 
@@ -40,7 +38,7 @@ public final class CJoystickDirect extends AbstractJoystickWithPOV {
      * @param check when to update the input sources.
      */
     public CJoystickDirect(int joystick, EventInput check) {
-        super(check);
+        super(check, 12, 32);
         if (joystick < 1 || joystick > 6) {
             throw new IllegalArgumentException("Joystick " + joystick + " is not a valid joystick number.");
         } else {
@@ -49,25 +47,18 @@ public final class CJoystickDirect extends AbstractJoystickWithPOV {
         DirectDriverStation.verifyPortNumber(port);
     }
 
-    public FloatInputPoll getAxisChannel(final int axis) {
-        if (axis < 1 || axis > DirectDriverStation.AXIS_NUM) {
-            throw new IllegalArgumentException("Invalid axis: " + axis);
-        }
-        return () -> DirectDriverStation.getStickAxis(port, axis - 1);
+    @Override
+    protected boolean getButton(int btn) {
+        return DirectDriverStation.getStickButton(port, btn - 1);
     }
 
-    public BooleanInputPoll getButtonChannel(final int button) {
-        if (button < 1) {
-            throw new IllegalArgumentException("Invalid button ID: " + button);
-        }
-        return () -> DirectDriverStation.getStickButton(port, button - 1);
+    @Override
+    protected float getAxis(int axis) {
+        return DirectDriverStation.getStickAxis(port, axis - 1);
     }
 
-    public BooleanInputPoll isPOVPressed(int pov) {
-        return () -> DirectDriverStation.getStickPOV(port, pov - 1) != -1;
-    }
-
-    public FloatInputPoll getPOVAngle(int pov) {
-        return () -> DirectDriverStation.getStickPOV(port, pov - 1);
+    @Override
+    protected boolean getPOV(int direction) {
+        return DirectDriverStation.getStickPOV(port, 0) == direction;
     }
 }

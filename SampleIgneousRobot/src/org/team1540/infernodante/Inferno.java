@@ -63,9 +63,9 @@ public class Inferno extends IgneousCore {
 
     private void createDriving() {
         isKiddieMode = IS_COMPETITION_ROBOT ? BooleanMixing.alwaysFalse : PhidgetReader.getDigitalInput(4);
-        FloatInputPoll leftAxis = joystick1.getAxisChannel(2);
-        FloatInputPoll forwardAxis = joystick1.getAxisChannel(3);
-        FloatInputPoll rightAxis = joystick1.getAxisChannel(5);
+        FloatInput leftAxis = joystick1.axis(2);
+        FloatInput forwardAxis = joystick1.axis(3);
+        FloatInput rightAxis = joystick1.axis(5);
         FloatOutput leftOut = makeTalonMotor(2, MOTOR_FORWARD, 0);
         FloatOutput rightOut = makeTalonMotor(1, IS_COMPETITION_ROBOT ? MOTOR_REVERSE : MOTOR_FORWARD, 0);
         DriverImpls.createExtendedSynchTankDriver(duringTele, leftAxis, rightAxis, forwardAxis, leftOut, rightOut);
@@ -75,19 +75,19 @@ public class Inferno extends IgneousCore {
         FloatOutput wheel = FloatMixing.combine(makeTalonMotor(3, MOTOR_FORWARD, 0), makeTalonMotor(4, MOTOR_FORWARD, 0), makeTalonMotor(5, MOTOR_FORWARD, 0));
         FloatInput moddedSpeed = Mixing.select(isKiddieMode, 1f, 0.5f);
         BooleanOutput wheelControl = Mixing.select(wheel, FloatMixing.always(0f), moddedSpeed);
-        BooleanInputPoll runWheelBtn = BooleanMixing.orBooleans(PhidgetReader.getDigitalInput(5), joystick1.getButtonChannel(4));
+        BooleanInput runWheelBtn = BooleanMixing.orBooleans(PhidgetReader.getDigitalInput(5), joystick1.button(4));
         BooleanMixing.pumpWhen(duringTele, runWheelBtn, wheelControl);
     }
 
     private void createShooterPistons() {
         BooleanOutput fire = BooleanMixing.combine(makeSolenoid(1), makeSolenoid(4));
-        BooleanInputPoll shootWheelBtn = BooleanMixing.orBooleans(PhidgetReader.getDigitalInput(7), joystick1.getButtonChannel(2));
+        BooleanInput shootWheelBtn = BooleanMixing.orBooleans(PhidgetReader.getDigitalInput(7), joystick1.button(2));
         BooleanMixing.pumpWhen(duringTele, shootWheelBtn, fire);
     }
 
     private void createArm() {
-        FloatInputPoll manualArm = PhidgetReader.getAnalogInput(5);
-        FloatInputPoll armPotentiometer = makeAnalogInput(2, 9);
+        FloatInput manualArm = PhidgetReader.getAnalogInput(5);
+        FloatInput armPotentiometer = makeAnalogInput(2, 9);
         Cluck.publish("arm-potentiometer", FloatMixing.createDispatch(armPotentiometer, globalPeriodic));
         FloatOutput armMotor = IS_COMPETITION_ROBOT ? makeTalonMotor(6, MOTOR_FORWARD, 0) : makeVictorMotor(6, MOTOR_REVERSE, 0);
 

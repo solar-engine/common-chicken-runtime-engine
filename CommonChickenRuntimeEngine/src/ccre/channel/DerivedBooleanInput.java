@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2014 Colby Skeggs
+ * Copyright 2015 Colby Skeggs
  *
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  *
@@ -18,23 +18,34 @@
  */
 package ccre.channel;
 
-/**
- * A FloatInputPoll is a way to get the current state of a float input.
- *
- * By convention, most float inputs and outputs have states that range from
- * -1.0f to 1.0f.
- *
- * @author skeggsc
- */
-public interface FloatInputPoll {
+public abstract class DerivedBooleanInput implements BooleanInput {
 
-    /**
-     * Get the current state of this float input.
-     *
-     * By convention, most float inputs and outputs have states that range from
-     * -1.0f to 1.0f.
-     *
-     * @return The current value.
-     */
-    public float get();
+    private final BooleanStatus value = new BooleanStatus();
+    
+    public DerivedBooleanInput(UpdatingInput... updates) {
+        DerivedEventInput.whenAny(updates, () -> {
+            value.set(apply());
+        });
+    }
+
+    public final boolean get() {
+        return value.get();
+    }
+
+    protected abstract boolean apply();
+
+    @Override
+    public final EventInput onUpdate() {
+        return value.onUpdate();
+    }
+
+    @Override
+    public final void send(BooleanOutput output) {
+        value.send(output);
+    }
+
+    @Override
+    public final void unsend(BooleanOutput output) {
+        value.send(output);
+    }
 }

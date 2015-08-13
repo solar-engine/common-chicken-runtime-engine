@@ -44,7 +44,7 @@ public class Test implements IgneousApplication {
     public void setupRobot() {
         Cluck.publishRConf("drive-code", new DriveCode());
         // Shifting
-        BooleanStatus shifter = new BooleanStatus(Igneous.makeSolenoid(2));
+        BooleanStatus shifter = new BooleanStatus(Igneous.makeSolenoid(3));
         Cluck.publishRConf("shifter", shifter);
         shifter.setFalseWhen(Igneous.startTele);
         shifter.setTrueWhen(BooleanMixing.onPress(driveControls.addBoolean("High Gear")));

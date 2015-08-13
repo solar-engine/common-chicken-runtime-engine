@@ -31,4 +31,15 @@ public interface EventOutput {
      * Fire the event.
      */
     void event();
+
+    /**
+     * Fire the event with recovery: try to recover instead of throwing an
+     * exception.
+     * 
+     * @return if anything was changed to recover from an error.
+     */
+    default boolean eventWithRecovery() {
+        event();
+        return false;
+    }
 }

@@ -21,13 +21,14 @@ package ccre.igneous;
 import java.io.IOException;
 
 import ccre.channel.BooleanInput;
-import ccre.channel.BooleanInputPoll;
 import ccre.channel.BooleanOutput;
 import ccre.channel.BooleanStatus;
+import ccre.channel.DerivedBooleanInput;
+import ccre.channel.DerivedFloatInput;
 import ccre.channel.EventInput;
 import ccre.channel.EventOutput;
 import ccre.channel.EventStatus;
-import ccre.channel.FloatInputPoll;
+import ccre.channel.FloatInput;
 import ccre.channel.FloatOutput;
 import ccre.channel.SerialIO;
 import ccre.cluck.Cluck;
@@ -41,7 +42,6 @@ import ccre.ctrl.FakeJoystick;
 import ccre.ctrl.FloatMixing;
 import ccre.ctrl.IJoystick;
 import ccre.ctrl.IJoystickWithPOV;
-import ccre.ctrl.Ticker;
 import ccre.ctrl.binding.ControlBindingCreator;
 import ccre.log.BootLogger;
 import ccre.log.FileLogger;
@@ -53,7 +53,6 @@ import ccre.workarounds.IgneousThrowablePrinter;
 
 import com.sun.squawk.VM;
 
-import edu.wpi.first.wpilibj.Accelerometer;
 import edu.wpi.first.wpilibj.AnalogChannel;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DigitalOutput;
@@ -85,6 +84,11 @@ final class IgneousLauncherImpl extends IterativeRobot implements IgneousLaunche
      * Produced during every state where the driver station is attached.
      */
     private final EventStatus globalPeriodic = new EventStatus();
+
+    /**
+     * Produced whenever a new mode is entered.
+     */
+    private final EventStatus updateMode = new EventStatus();
 
     /**
      * Fired exactly once, after the user code has finished initialization.
@@ -136,6 +140,8 @@ final class IgneousLauncherImpl extends IterativeRobot implements IgneousLaunche
      * Produced during testing mode.
      */
     private final EventStatus duringTesting = new EventStatus();
+    
+    private static final DriverStation ds = DriverStation.getInstance();
 
     IgneousLauncherImpl() {
         IgneousNetworkProvider.register();
@@ -178,7 +184,8 @@ final class IgneousLauncherImpl extends IterativeRobot implements IgneousLaunche
 
     public void autonomousInit() {
         try {
-            Logger.fine(DriverStation.getInstance().isFMSAttached() ? "Began autonomous on FMS" : "Began autonomous mode");
+            Logger.fine(ds.isFMSAttached() ? "Began autonomous on FMS" : "Began autonomous mode");
+            updateMode.produce();
             startedAutonomous.produce();
         } catch (Throwable thr) {
             Logger.severe("Critical Code Failure in Autonomous Init", thr);
@@ -210,7 +217,8 @@ final class IgneousLauncherImpl extends IterativeRobot implements IgneousLaunche
 
     public void disabledInit() {
         try {
-            Logger.fine(DriverStation.getInstance().isFMSAttached() ? "Began disabled on FMS" : "Began disabled mode");
+            Logger.fine(ds.isFMSAttached() ? "Began disabled on FMS" : "Began disabled mode");
+            updateMode.produce();
             startDisabled.produce();
         } catch (Throwable thr) {
             Logger.severe("Critical Code Failure in Disabled Init", thr);
@@ -242,7 +250,8 @@ final class IgneousLauncherImpl extends IterativeRobot implements IgneousLaunche
 
     public void teleopInit() {
         try {
-            Logger.fine(DriverStation.getInstance().isFMSAttached() ? "Began teleop on FMS" : "Began teleop mode");
+            Logger.fine(ds.isFMSAttached() ? "Began teleop on FMS" : "Began teleop mode");
+            updateMode.produce();
             startedTeleop.produce();
         } catch (Throwable thr) {
             Logger.severe("Critical Code Failure in Teleop Init", thr);
@@ -274,7 +283,8 @@ final class IgneousLauncherImpl extends IterativeRobot implements IgneousLaunche
 
     public void testInit() {
         try {
-            Logger.fine(DriverStation.getInstance().isFMSAttached() ? "Began testing on FMS (?????)" : "Began testing mode");
+            Logger.fine(ds.isFMSAttached() ? "Began testing on FMS (?????)" : "Began testing mode");
+            updateMode.produce();
             startedTesting.produce();
         } catch (Throwable thr) {
             Logger.severe("Critical Code Failure in Testing Init", thr);
@@ -327,50 +337,42 @@ final class IgneousLauncherImpl extends IterativeRobot implements IgneousLaunche
         };
     }
 
-    public FloatInputPoll getBatteryVoltage() {
-        return new FloatInputPoll() {
-            private final DriverStation d = DriverStation.getInstance();
-
-            public float get() {
+    public FloatInput getBatteryVoltage(EventInput updateOn) {
+        final DriverStation d = ds;
+        return new DerivedFloatInput(updateOn) {
+            @Override
+            protected float apply() {
                 return (float) d.getBatteryVoltage();
             }
         };
     }
 
-    public FloatInputPoll makeAnalogInput(int id) {
+    public FloatInput makeAnalogInput(int id, EventInput updateOn) {
         final AnalogChannel chan = new AnalogChannel(id);
-        return new FloatInputPoll() {
-            public float get() {
+        return new DerivedFloatInput(updateOn) {
+            @Override
+            protected float apply() {
                 return (float) chan.getAverageVoltage();
             }
         };
     }
 
-    public FloatInputPoll makeAnalogInput(int id, int averageBits) {
+    public FloatInput makeAnalogInput(int id, int averageBits, EventInput updateOn) {
         final AnalogChannel chan = new AnalogChannel(id);
         chan.setAverageBits(averageBits);
-        return new FloatInputPoll() {
-            public float get() {
+        return new DerivedFloatInput(updateOn) {
+            @Override
+            protected float apply() {
                 return (float) chan.getAverageVoltage();
             }
         };
     }
 
-    @Deprecated
-    public FloatInputPoll makeAnalogInput_ValuedBased(int id, int averageBits) {
-        final AnalogChannel chan = new AnalogChannel(id);
-        chan.setAverageBits(averageBits);
-        return new FloatInputPoll() {
-            public float get() {
-                return chan.getAverageValue();
-            }
-        };
-    }
-
-    public BooleanInputPoll makeDigitalInput(int id) {
+    public BooleanInput makeDigitalInput(int id, EventInput updateOn) {
         final DigitalInput dinput = new DigitalInput(id);
-        return new BooleanInputPoll() {
-            public boolean get() {
+        return new DerivedBooleanInput(updateOn) {
+            @Override
+            protected boolean apply() {
                 return dinput.get();
             }
         };
@@ -434,46 +436,43 @@ final class IgneousLauncherImpl extends IterativeRobot implements IgneousLaunche
         dslcd.updateLCD();
     }
 
-    public BooleanInputPoll getIsDisabled() {
-        return new BooleanInputPoll() {
-            public boolean get() {
-                return DriverStation.getInstance().isDisabled();
+    public BooleanInput getIsDisabled() {
+        return new DerivedBooleanInput(updateMode) {
+            @Override
+            protected boolean apply() {
+                return ds.isDisabled();
             }
         };
     }
 
-    public BooleanInputPoll getIsAutonomous() {
-        return new BooleanInputPoll() {
-            public boolean get() {
-                DriverStation ds = DriverStation.getInstance();
+    public BooleanInput getIsAutonomous() {
+        return new DerivedBooleanInput(updateMode) {
+            @Override
+            protected boolean apply() {
                 return ds.isEnabled() && ds.isAutonomous() && !ds.isTest();
             }
         };
     }
 
-    public BooleanInputPoll getIsTest() {
-        return new BooleanInputPoll() {
-            public boolean get() {
-                DriverStation ds = DriverStation.getInstance();
+    public BooleanInput getIsTest() {
+        return new DerivedBooleanInput(updateMode) {
+            @Override
+            protected boolean apply() {
                 return ds.isEnabled() && ds.isTest();
             }
         };
     }
 
-    public BooleanInputPoll getIsFMS() {
-        return new BooleanInputPoll() {
-            public boolean get() {
-                return DriverStation.getInstance().isFMSAttached();
+    public BooleanInput getIsFMS() {
+        return new DerivedBooleanInput(globalPeriodic) {
+            @Override
+            protected boolean apply() {
+                return ds.isFMSAttached();
             }
         };
     }
 
-    public void useCustomCompressor(BooleanInputPoll shouldDisable, int compressorRelayChannel) {
-        BooleanOutput relay = makeRelayForwardOutput(compressorRelayChannel);
-        BooleanMixing.pumpWhen(new Ticker(500), BooleanMixing.invert(shouldDisable), relay);
-    }
-
-    public FloatInputPoll makeEncoder(int aChannel, int bChannel, boolean reverse, EventInput resetWhen) {
+    public FloatInput makeEncoder(int aChannel, int bChannel, boolean reverse, EventInput resetWhen, EventInput updateOn) {
         final Encoder enc = new Encoder(aChannel, bChannel, reverse);
         enc.start();
         if (resetWhen != null) {
@@ -483,8 +482,9 @@ final class IgneousLauncherImpl extends IterativeRobot implements IgneousLaunche
                 }
             });
         }
-        return new FloatInputPoll() {
-            public float get() {
+        return new DerivedFloatInput(resetWhen, updateOn) {
+            @Override
+            protected float apply() {
                 return enc.get();
             }
         };
@@ -508,31 +508,20 @@ final class IgneousLauncherImpl extends IterativeRobot implements IgneousLaunche
         };
     }
 
-    public FloatInputPoll makeGyro(int port, double sensitivity, EventInput evt) {
+    public FloatInput makeGyro(int port, double sensitivity, EventInput resetEvent, EventInput updateMode) {
         final Gyro g = new Gyro(port);
         g.setSensitivity(sensitivity);
-        if (evt != null) {
-            evt.send(new EventOutput() {
+        if (resetEvent != null) {
+            resetEvent.send(new EventOutput() {
                 public void event() {
                     g.reset();
                 }
             });
         }
-        return new FloatInputPoll() {
-            public float get() {
+        return new DerivedFloatInput(resetEvent, updateMode) {
+            @Override
+            protected float apply() {
                 return (float) g.getAngle();
-            }
-        };
-    }
-
-    @Deprecated
-    public FloatInputPoll makeAccelerometerAxis(int port, double sensitivity, double zeropoint) {
-        final Accelerometer a = new Accelerometer(port);
-        a.setSensitivity(sensitivity);
-        a.setZero(zeropoint);
-        return new FloatInputPoll() {
-            public float get() {
-                return (float) a.getAcceleration();
             }
         };
     }
@@ -622,23 +611,23 @@ final class IgneousLauncherImpl extends IterativeRobot implements IgneousLaunche
         throw new RuntimeException("PCM not supported on cRIO.");
     }
 
-    public BooleanInputPoll getPCMPressureSwitch() {
+    public BooleanInput getPCMPressureSwitch(EventInput updateOn) {
         throw new RuntimeException("PCM not supported on cRIO.");
     }
 
-    public BooleanInputPoll getPCMCompressorRunning() {
+    public BooleanInput getPCMCompressorRunning(EventInput updateOn) {
         throw new RuntimeException("PCM not supported on cRIO.");
     }
 
-    public FloatInputPoll getPCMCompressorCurrent() {
+    public FloatInput getPCMCompressorCurrent(EventInput updateOn) {
         throw new RuntimeException("PCM not supported on cRIO.");
     }
 
-    public FloatInputPoll getPDPChannelCurrent(int channel) {
+    public FloatInput getPDPChannelCurrent(int channel, EventInput updateOn) {
         throw new RuntimeException("PDP not supported on cRIO.");
     }
 
-    public FloatInputPoll getPDPVoltage() {
+    public FloatInput getPDPVoltage(EventInput updateOn) {
         throw new RuntimeException("PDP not supported on cRIO.");
     }
 
@@ -795,21 +784,21 @@ final class IgneousLauncherImpl extends IterativeRobot implements IgneousLaunche
         throw new RuntimeException("USB Serial I/O not supported on cRIO.");
     }
 
-    public FloatInputPoll getChannelVoltage(int powerChannel) {
+    public FloatInput getChannelVoltage(int powerChannel, EventInput updateOn) {
         if (powerChannel == Igneous.POWER_CHANNEL_BATTERY) {
-            return getBatteryVoltage();
+            return getBatteryVoltage(updateOn);
         } else {
             Logger.warning("Voltage channels besides POWER_CHANNEL_BATTERY are not available on the cRIO!");
             return FloatMixing.always(-1);
         }
     }
 
-    public FloatInputPoll getChannelCurrent(int powerChannel) {
+    public FloatInput getChannelCurrent(int powerChannel, EventInput updateOn) {
         Logger.warning("Current channels are not available on the cRIO!");
         return FloatMixing.always(-1);
     }
 
-    public BooleanInputPoll getChannelEnabled(int powerChannel) {
+    public BooleanInput getChannelEnabled(int powerChannel, EventInput updateOn) {
         Logger.warning("Power channel statuses are not available on the cRIO!");
         return powerChannel == Igneous.POWER_CHANNEL_BATTERY ? BooleanMixing.alwaysTrue : BooleanMixing.alwaysFalse;
     }

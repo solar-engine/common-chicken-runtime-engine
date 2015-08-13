@@ -19,10 +19,9 @@
 package ccre.igneous;
 
 import ccre.channel.BooleanInput;
-import ccre.channel.BooleanInputPoll;
 import ccre.channel.BooleanOutput;
 import ccre.channel.EventInput;
-import ccre.channel.FloatInputPoll;
+import ccre.channel.FloatInput;
 import ccre.channel.FloatOutput;
 import ccre.channel.SerialIO;
 import ccre.ctrl.BooleanMixing;
@@ -109,10 +108,14 @@ public class Igneous {
      */
     public static final EventInput globalPeriodic = launcher.getGlobalPeriodic();
     /**
-     * Constant time periodic. Should pulse every 10 ms, as accurately as
-     * possible.
+     * Constant time periodic. Should pulse every 10 ms.
      */
     public static final EventInput constantPeriodic = new Ticker(10);
+    /**
+     * Constant time sensor update event. Should pulse every 20 ms. This should
+     * be used when you want to poll an on-robot sensor.
+     */
+    public static final EventInput sensorPeriodic = new Ticker(20);
     /**
      * Produced when the robot enters autonomous mode.
      */
@@ -305,8 +308,19 @@ public class Igneous {
      *
      * @return The current battery voltage.
      */
-    public static FloatInputPoll getBatteryVoltage() {
-        return launcher.getBatteryVoltage();
+    public static FloatInput getBatteryVoltage() {
+        return launcher.getBatteryVoltage(sensorPeriodic);
+    }
+
+    /**
+     * Get a reference to the analog input that reads the current battery
+     * voltage, scaled to represent the real battery voltage.
+     *
+     * @param updateOn when to update the sensor value.
+     * @return The current battery voltage.
+     */
+    public static FloatInput getBatteryVoltage(EventInput updateOn) {
+        return launcher.getBatteryVoltage(updateOn);
     }
 
     /**
@@ -315,8 +329,19 @@ public class Igneous {
      * @param id the port number.
      * @return the analog input, reporting in voltage.
      */
-    public static FloatInputPoll makeAnalogInput(int id) {
-        return launcher.makeAnalogInput(id);
+    public static FloatInput makeAnalogInput(int id) {
+        return launcher.makeAnalogInput(id, sensorPeriodic);
+    }
+
+    /**
+     * Create a reference to an analog input on the specified port.
+     *
+     * @param id the port number.
+     * @param updateOn when to update the sensor value.
+     * @return the analog input, reporting in voltage.
+     */
+    public static FloatInput makeAnalogInput(int id, EventInput updateOn) {
+        return launcher.makeAnalogInput(id, updateOn);
     }
 
     /**
@@ -327,23 +352,21 @@ public class Igneous {
      * @param averageBits the number of averaging bits.
      * @return the analog input, reporting in voltage.
      */
-    public static FloatInputPoll makeAnalogInput(int id, int averageBits) {
-        return launcher.makeAnalogInput(id, averageBits);
+    public static FloatInput makeAnalogInput(int id, int averageBits) {
+        return launcher.makeAnalogInput(id, averageBits, sensorPeriodic);
     }
 
     /**
-     * Create a reference to an analog input's raw value on the specified port
-     * with the specified number of average bits.
+     * Create a reference to an analog input on the specified port with the
+     * specified number of average bits.
      *
      * @param id the port number.
      * @param averageBits the number of averaging bits.
-     * @return the analog input, reporting in uncalibrated units.
-     * @deprecated makeAnalogInput should be used directly because it gives more
-     * useful volts instead of a raw value.
+     * @param updateOn when to update the sensor value.
+     * @return the analog input, reporting in voltage.
      */
-    @Deprecated
-    public static FloatInputPoll makeAnalogInput_ValueBased(int id, int averageBits) {
-        return launcher.makeAnalogInput_ValuedBased(id, averageBits);
+    public static FloatInput makeAnalogInput(int id, int averageBits, EventInput updateOn) {
+        return launcher.makeAnalogInput(id, averageBits, updateOn);
     }
 
     /**
@@ -352,8 +375,19 @@ public class Igneous {
      * @param id the port number.
      * @return the digital input.
      */
-    public static BooleanInputPoll makeDigitalInput(int id) {
-        return launcher.makeDigitalInput(id);
+    public static BooleanInput makeDigitalInput(int id) {
+        return launcher.makeDigitalInput(id, sensorPeriodic);
+    }
+
+    /**
+     * Create a reference to a digital input on the specified port.
+     *
+     * @param id the port number.
+     * @param updateOn when to update the sensor value.
+     * @return the digital input.
+     */
+    public static BooleanInput makeDigitalInput(int id, EventInput updateOn) {
+        return launcher.makeDigitalInput(id, updateOn);
     }
 
     /**
@@ -385,60 +419,6 @@ public class Igneous {
     }
 
     /**
-     * Create an output that will display the current value on the driver
-     * station's LCD.
-     *
-     * @param prefix the prefix, or label, of the output. this is prepended to
-     * the value.
-     * @param line the line to display the value on, from 1 to 6.
-     * @return the output that will write to the LCD.
-     */
-    public static FloatOutput makeDSFloatReadout(final String prefix, final int line) {
-        return new DSFloatReadout(prefix, line);
-    }
-
-    /**
-     * Create an output that will display the current value on the driver
-     * station's LCD.
-     *
-     * @param prefix the prefix, or label, of the output. this is prepended to
-     * the value.
-     * @param line the line to display the value on, from 1 to 6.
-     * @return the output that will write to the LCD.
-     */
-    public static BooleanOutput makeDSBooleanReadout(final String prefix, final int line) {
-        return new DSBooleanReadout(prefix, line);
-    }
-
-    /**
-     * Display the current value of the specified FloatInputPoll on the driver
-     * station's LCD, whenever the specified event is triggered.
-     *
-     * @param prefix the prefix, or label, of the output. this is prepended to
-     * the value.
-     * @param line the line to display the value on, from 1 to 6.
-     * @param value the value to display.
-     * @param when when to update the output.
-     */
-    public static void makeDSFloatReadout(String prefix, int line, FloatInputPoll value, EventInput when) {
-        FloatMixing.pumpWhen(when, value, makeDSFloatReadout(prefix, line));
-    }
-
-    /**
-     * Display the current value of the specified BooleanInputPoll on the driver
-     * station's LCD, whenever the specified event is triggered.
-     *
-     * @param prefix the prefix, or label, of the output. this is prepended to
-     * the value.
-     * @param line the line to display the value on, from 1 to 6.
-     * @param value the value to display.
-     * @param when when to update the output.
-     */
-    public static void makeDSBooleanReadout(String prefix, int line, BooleanInputPoll value, EventInput when) {
-        BooleanMixing.pumpWhen(when, value, makeDSBooleanReadout(prefix, line));
-    }
-
-    /**
      * Send the specified string to the specified line of the driver station.
      *
      * @param value The string to display.
@@ -453,7 +433,7 @@ public class Igneous {
      *
      * @return the input.
      */
-    public static BooleanInputPoll getIsDisabled() {
+    public static BooleanInput getIsDisabled() {
         return launcher.getIsDisabled();
     }
 
@@ -463,7 +443,7 @@ public class Igneous {
      *
      * @return the input.
      */
-    public static BooleanInputPoll getIsAutonomous() {
+    public static BooleanInput getIsAutonomous() {
         return launcher.getIsAutonomous();
     }
 
@@ -473,7 +453,7 @@ public class Igneous {
      *
      * @return the input.
      */
-    public static BooleanInputPoll getIsTest() {
+    public static BooleanInput getIsTest() {
         return launcher.getIsTest();
     }
 
@@ -483,7 +463,7 @@ public class Igneous {
      *
      * @return the input.
      */
-    public static BooleanInputPoll getIsTeleop() {
+    public static BooleanInput getIsTeleop() {
         return BooleanMixing.invert(BooleanMixing.orBooleans(launcher.getIsTest(), launcher.getIsAutonomous()));
     }
 
@@ -493,7 +473,7 @@ public class Igneous {
      *
      * @return the input.
      */
-    public static BooleanInputPoll getIsFMS() {
+    public static BooleanInput getIsFMS() {
         return launcher.getIsFMS();
     }
 
@@ -506,6 +486,7 @@ public class Igneous {
      * @param compressorRelayChannel the channel of the compressor's relay.
      */
     public static void useCompressor(int pressureSwitchChannel, int compressorRelayChannel) {
+        
         useCustomCompressor(makeDigitalInput(pressureSwitchChannel), compressorRelayChannel);
     }
 
@@ -524,8 +505,18 @@ public class Igneous {
      *
      * @return the pressure switch status.
      */
-    public static BooleanInputPoll getPCMPressureSwitch() {
-        return launcher.getPCMPressureSwitch();
+    public static BooleanInput getPCMPressureSwitch() {
+        return launcher.getPCMPressureSwitch(sensorPeriodic);
+    }
+
+    /**
+     * Reads the current status of the PCM pressure switch.
+     *
+     * @param updateOn when to update the sensor value.
+     * @return the pressure switch status.
+     */
+    public static BooleanInput getPCMPressureSwitch(EventInput updateOn) {
+        return launcher.getPCMPressureSwitch(updateOn);
     }
 
     /**
@@ -533,8 +524,18 @@ public class Igneous {
      *
      * @return the compressor enable output.
      */
-    public static BooleanInputPoll getPCMCompressorRunning() {
-        return launcher.getPCMCompressorRunning();
+    public static BooleanInput getPCMCompressorRunning() {
+        return launcher.getPCMCompressorRunning(sensorPeriodic);
+    }
+
+    /**
+     * Reads the current status of the PCM compressor enable output.
+     *
+     * @param updateOn when to update the sensor value.
+     * @return the compressor enable output.
+     */
+    public static BooleanInput getPCMCompressorRunning(EventInput updateOn) {
+        return launcher.getPCMCompressorRunning(updateOn);
     }
 
     /**
@@ -542,8 +543,18 @@ public class Igneous {
      *
      * @return the current being used by the compressor.
      */
-    public static FloatInputPoll getPCMCompressorCurrent() {
-        return launcher.getPCMCompressorCurrent();
+    public static FloatInput getPCMCompressorCurrent() {
+        return launcher.getPCMCompressorCurrent(sensorPeriodic);
+    }
+
+    /**
+     * Reads the current draw of the PCM compressor.
+     *
+     * @param updateOn when to update the sensor value.
+     * @return the current being used by the compressor.
+     */
+    public static FloatInput getPCMCompressorCurrent(EventInput updateOn) {
+        return launcher.getPCMCompressorCurrent(updateOn);
     }
 
     /**
@@ -552,8 +563,19 @@ public class Igneous {
      * @param channel the channel to monitor
      * @return the current being used by the specified channel.
      */
-    public static FloatInputPoll getPDPChannelCurrent(int channel) {
-        return launcher.getPDPChannelCurrent(channel);
+    public static FloatInput getPDPChannelCurrent(int channel) {
+        return launcher.getPDPChannelCurrent(channel, sensorPeriodic);
+    }
+
+    /**
+     * Reads the current draw of the specified PDP channel.
+     *
+     * @param channel the channel to monitor
+     * @param updateOn when to update the sensor value.
+     * @return the current being used by the specified channel.
+     */
+    public static FloatInput getPDPChannelCurrent(int channel, EventInput updateOn) {
+        return launcher.getPDPChannelCurrent(channel, updateOn);
     }
 
     /**
@@ -561,8 +583,18 @@ public class Igneous {
      *
      * @return the voltage being measured by the PDP.
      */
-    public static FloatInputPoll getPDPVoltage() {
-        return launcher.getPDPVoltage();
+    public static FloatInput getPDPVoltage() {
+        return launcher.getPDPVoltage(sensorPeriodic);
+    }
+
+    /**
+     * Reads the voltage of the PDP.
+     *
+     * @param updateOn when to update the sensor value.
+     * @return the voltage being measured by the PDP.
+     */
+    public static FloatInput getPDPVoltage(EventInput updateOn) {
+        return launcher.getPDPVoltage(updateOn);
     }
 
     /**
@@ -571,8 +603,19 @@ public class Igneous {
      * @param powerChannel the power channel to read from.
      * @return the voltage being measured.
      */
-    public static FloatInputPoll getChannelVoltage(int powerChannel) {
-        return launcher.getChannelVoltage(powerChannel);
+    public static FloatInput getChannelVoltage(int powerChannel) {
+        return launcher.getChannelVoltage(powerChannel, sensorPeriodic);
+    }
+
+    /**
+     * Reads the voltage from a specified power reading channel.
+     *
+     * @param powerChannel the power channel to read from.
+     * @param updateOn when to update the sensor value.
+     * @return the voltage being measured.
+     */
+    public static FloatInput getChannelVoltage(int powerChannel, EventInput updateOn) {
+        return launcher.getChannelVoltage(powerChannel, updateOn);
     }
 
     /**
@@ -581,8 +624,19 @@ public class Igneous {
      * @param powerChannel the power channel to read from.
      * @return the current being measured.
      */
-    public static FloatInputPoll getChannelCurrent(int powerChannel) {
-        return launcher.getChannelCurrent(powerChannel);
+    public static FloatInput getChannelCurrent(int powerChannel) {
+        return launcher.getChannelCurrent(powerChannel, sensorPeriodic);
+    }
+
+    /**
+     * Reads the current from a specified power reading channel.
+     *
+     * @param powerChannel the power channel to read from.
+     * @param updateOn when to update the sensor value.
+     * @return the current being measured.
+     */
+    public static FloatInput getChannelCurrent(int powerChannel, EventInput updateOn) {
+        return launcher.getChannelCurrent(powerChannel, updateOn);
     }
 
     /**
@@ -591,8 +645,19 @@ public class Igneous {
      * @param powerChannel the power channel to read from.
      * @return if the channel is enabled.
      */
-    public static BooleanInputPoll getChannelEnabled(int powerChannel) {
-        return launcher.getChannelEnabled(powerChannel);
+    public static BooleanInput getChannelEnabled(int powerChannel) {
+        return launcher.getChannelEnabled(powerChannel, sensorPeriodic);
+    }
+
+    /**
+     * Checks if the specified power reading channel is enabled.
+     *
+     * @param powerChannel the power channel to read from.
+     * @param updateOn when to update the sensor value.
+     * @return if the channel is enabled.
+     */
+    public static BooleanInput getChannelEnabled(int powerChannel, EventInput updateOn) {
+        return launcher.getChannelEnabled(powerChannel, updateOn);
     }
 
     /**
@@ -611,8 +676,9 @@ public class Igneous {
      * @param shouldDisable should the compressor be turned off.
      * @param compressorRelayChannel the channel of the compressor's relay.
      */
-    public static void useCustomCompressor(BooleanInputPoll shouldDisable, int compressorRelayChannel) {
-        launcher.useCustomCompressor(shouldDisable, compressorRelayChannel);
+    public static void useCustomCompressor(BooleanInput shouldDisable, int compressorRelayChannel) {
+        BooleanOutput relay = makeForwardRelay(compressorRelayChannel);
+        BooleanMixing.pumpWhen(new Ticker(500), BooleanMixing.invert(shouldDisable), relay);
     }
 
     /**
@@ -626,8 +692,8 @@ public class Igneous {
      * event is produced.
      * @return the Encoder, reporting encoder ticks.
      */
-    public static FloatInputPoll makeEncoder(int aChannel, int bChannel, boolean reverse, EventInput resetWhen) {
-        return launcher.makeEncoder(aChannel, bChannel, reverse, resetWhen);
+    public static FloatInput makeEncoder(int aChannel, int bChannel, boolean reverse, EventInput resetWhen) {
+        return launcher.makeEncoder(aChannel, bChannel, reverse, resetWhen, sensorPeriodic);
     }
 
     /**
@@ -637,10 +703,14 @@ public class Igneous {
      * @param aChannel The alpha-channel for the encoder.
      * @param bChannel The beta-channel for the encoder.
      * @param reverse Should the result of the encoder be negated?
+     * @param resetWhen If provided, the Encoder's value will be reset when this
+     * event is produced.
+     * @param updateOn when to update the sensor value.
      * @return the Encoder, reporting encoder ticks.
      */
-    public static FloatInputPoll makeEncoder(int aChannel, int bChannel, boolean reverse) {
-        return launcher.makeEncoder(aChannel, bChannel, reverse, null);
+    public static FloatInput makeEncoder(int aChannel, int bChannel, boolean reverse, EventInput resetWhen, EventInput updateOn) {
+        // TODO: check arguments; similar issue to Gyro
+        return launcher.makeEncoder(aChannel, bChannel, reverse, resetWhen, updateOn);
     }
 
     /**
@@ -681,13 +751,15 @@ public class Igneous {
      * @param evt When to reset the Gyro.
      * @return The reference to the Gyro's current value.
      */
-    public static FloatInputPoll makeGyro(int port, double sensitivity, EventInput evt) {
-        return launcher.makeGyro(port, sensitivity, evt);
+    public static FloatInput makeGyro(int port, double sensitivity, EventInput evt) {
+        return launcher.makeGyro(port, sensitivity, evt, sensorPeriodic);
     }
 
     /**
      * Create a reference to a Gyro on the specified port with the specified
      * sensitivity. This will allow reading the current rotation of the Gyro.
+     * This also takes an EventInput, and when this is fired, the Gyro will be
+     * reset.
      *
      * Increased sensitivity means a smaller output for the same turn.
      *
@@ -696,27 +768,13 @@ public class Igneous {
      * volts/degree/second sensitivity of the gyro and is used in calculations
      * to allow the code to work with multiple gyros. 0.007 is a good default
      * value.
+     * @param evt When to reset the Gyro.
+     * @param updateOn when to update the sensor value.
      * @return The reference to the Gyro's current value.
      */
-    public static FloatInputPoll makeGyro(int port, double sensitivity) {
-        return launcher.makeGyro(port, sensitivity, null);
-    }
-
-    /**
-     * Create a reference to a Accelerometer Axis on the specified port, with
-     * the specified sensitivity and voltage zero point.
-     *
-     * @param port The port number to attach to.
-     * @param sensitivity The sensitivity of the accelerometer. This varies per
-     * model.
-     * @param zeropoint The voltage that corresponds to 0 G. This also varies by
-     * model.
-     * @return The reference to the axis on the Accelerometer.
-     * @deprecated This is literally a subtraction and a division.
-     */
-    @Deprecated
-    public static FloatInputPoll makeAccelerometerAxis(int port, double sensitivity, double zeropoint) {
-        return launcher.makeAccelerometerAxis(port, sensitivity, zeropoint);
+    public static FloatInput makeGyro(int port, double sensitivity, EventInput evt, EventInput updateOn) {
+        // TODO: Figure out if anything should change about makeGyro's arguments now that I got rid of the no-event versions due to argument list conflicts.
+        return launcher.makeGyro(port, sensitivity, evt, updateOn);
     }
 
     /**
@@ -766,36 +824,6 @@ public class Igneous {
     }
 
     Igneous() {
-    }
-
-    private static class DSFloatReadout implements FloatOutput {
-
-        private final String prefix;
-        private final int line;
-
-        DSFloatReadout(String prefix, int line) {
-            this.prefix = prefix;
-            this.line = line;
-        }
-
-        public void set(float f) {
-            sendDSUpdate(prefix + f, line);
-        }
-    }
-
-    private static class DSBooleanReadout implements BooleanOutput {
-
-        private final String prefix;
-        private final int line;
-
-        DSBooleanReadout(String prefix, int line) {
-            this.prefix = prefix;
-            this.line = line;
-        }
-
-        public void set(boolean f) {
-            sendDSUpdate(prefix + f, line);
-        }
     }
 
     private static ControlBindingDataSource builtControlSource;

@@ -18,12 +18,13 @@
  */
 package ccre.ctrl;
 
-import ccre.channel.BooleanInputPoll;
+import ccre.channel.BooleanInput;
 import ccre.channel.BooleanOutput;
+import ccre.channel.BooleanStatus;
 import ccre.channel.EventInput;
 import ccre.channel.EventOutput;
 import ccre.channel.EventStatus;
-import ccre.channel.FloatInputPoll;
+import ccre.channel.FloatInput;
 import ccre.concurrency.ReporterThread;
 import ccre.log.Logger;
 import ccre.util.CArrayList;
@@ -49,7 +50,7 @@ public final class ExpirationTimer {
     /**
      * Is this timer running?
      */
-    private boolean isStarted = false;
+    private final BooleanStatus isStarted = new BooleanStatus();
     /**
      * When did this timer get started? Delays get computer from this point.
      */
@@ -164,7 +165,7 @@ public final class ExpirationTimer {
      * @throws IllegalStateException if the timer is already running.
      */
     public synchronized void schedule(long delay, EventOutput cnsm) throws IllegalStateException {
-        if (isStarted) {
+        if (isStarted.get()) {
             throw new IllegalStateException("Timer is running!");
         }
         tasks.add(new Task(delay, cnsm));
@@ -177,8 +178,8 @@ public final class ExpirationTimer {
      * @param cnsm the event to fire.
      * @throws IllegalStateException if the timer is already running.
      */
-    public synchronized void schedule(FloatInputPoll delay, EventOutput cnsm) throws IllegalStateException {
-        if (isStarted) {
+    public synchronized void schedule(FloatInput delay, EventOutput cnsm) throws IllegalStateException {
+        if (isStarted.get()) {
             throw new IllegalStateException("Timer is running!");
         }
         tasks.add(new Task(delay, cnsm));
@@ -204,7 +205,7 @@ public final class ExpirationTimer {
      * @return the event that will be fired.
      * @throws IllegalStateException if the timer is already running.
      */
-    public EventInput schedule(FloatInputPoll delay) throws IllegalStateException {
+    public EventInput schedule(FloatInput delay) throws IllegalStateException {
         EventStatus evt = new EventStatus();
         schedule(delay, evt);
         return evt;
@@ -216,10 +217,10 @@ public final class ExpirationTimer {
      * @throws IllegalStateException if the timer was already running.
      */
     public synchronized void start() throws IllegalStateException {
-        if (isStarted) {
+        if (isStarted.get()) {
             throw new IllegalStateException("Timer is running!");
         }
-        isStarted = true;
+        isStarted.set(true);
         if (!main.isAlive()) {
             main.start();
         }
@@ -230,7 +231,7 @@ public final class ExpirationTimer {
      * Start or restart the timer running.
      */
     public synchronized void startOrFeed() {
-        if (isStarted) {
+        if (isStarted.get()) {
             feed();
         } else {
             start();
@@ -263,13 +264,13 @@ public final class ExpirationTimer {
     private synchronized void body() {
         while (!terminated) {
             try {
-                while (!isStarted) {
-                    wait();
+                while (!isStarted.get()) {
+                    this.wait();
                 }
                 recalculateTasks();
                 runTasks();
-                while (isStarted) { // Once finished, wait to stop before restarting.
-                    wait();
+                while (isStarted.get()) { // Once finished, wait to stop before restarting.
+                    this.wait();
                 }
             } catch (InterruptedException ex) {
             }
@@ -283,7 +284,7 @@ public final class ExpirationTimer {
      * @throws IllegalStateException if the timer was not started.
      */
     public synchronized void feed() throws IllegalStateException {
-        if (!isStarted) {
+        if (!isStarted.get()) {
             throw new IllegalStateException("Timer is not running!");
         }
         startedAt = System.currentTimeMillis();
@@ -298,10 +299,10 @@ public final class ExpirationTimer {
      * @throws IllegalStateException if the timer was not started.
      */
     public synchronized void stop() throws IllegalStateException {
-        if (!isStarted) {
+        if (!isStarted.get()) {
             throw new IllegalStateException("Timer is not running!");
         }
-        isStarted = false;
+        isStarted.set(false);
         notifyAll();
         main.interrupt();
     }
@@ -316,7 +317,7 @@ public final class ExpirationTimer {
         if (startEvt == null) {
             startEvt = new EventOutput() {
                 public void event() {
-                    if (!isStarted) {
+                    if (!isStarted.get()) {
                         start();
                     }
                 }
@@ -352,7 +353,7 @@ public final class ExpirationTimer {
         if (feedEvt == null) {
             feedEvt = new EventOutput() {
                 public void event() {
-                    if (isStarted) {
+                    if (isStarted.get()) {
                         feed();
                     }
                 }
@@ -371,7 +372,7 @@ public final class ExpirationTimer {
         if (stopEvt == null) {
             stopEvt = new EventOutput() {
                 public void event() {
-                    if (isStarted) {
+                    if (isStarted.get()) {
                         stop();
                     }
                 }
@@ -436,11 +437,11 @@ public final class ExpirationTimer {
         return new BooleanOutput() {
             public void set(boolean value) {
                 if (value) {
-                    if (!isStarted) {
+                    if (!isStarted.get()) {
                         start();
                     }
                 } else {
-                    if (isStarted) {
+                    if (isStarted.get()) {
                         stop();
                     }
                 }
@@ -453,12 +454,8 @@ public final class ExpirationTimer {
      *
      * @return an input representing if the timer is running.
      */
-    public BooleanInputPoll getRunningStatus() {
-        return new BooleanInputPoll() {
-            public boolean get() {
-                return isStarted;
-            }
-        };
+    public BooleanInput getRunningStatus() {
+        return isStarted;
     }
 
     /**
@@ -467,7 +464,7 @@ public final class ExpirationTimer {
      * @return if the timer is running.
      */
     public boolean isRunning() {
-        return isStarted;
+        return isStarted.get();
     }
 
     /**
@@ -486,7 +483,7 @@ public final class ExpirationTimer {
         /**
          * The source of tuning for the delay.
          */
-        public final FloatInputPoll tuning;
+        public final FloatInput tuning;
 
         /**
          * Create a new task with a hard-coded delay.
@@ -507,7 +504,7 @@ public final class ExpirationTimer {
          * @param delay The delay after which the task is fired, in seconds.
          * @param cnsm The EventOutput fired by this Task.
          */
-        Task(FloatInputPoll delay, EventOutput cnsm) {
+        Task(FloatInput delay, EventOutput cnsm) {
             this.cnsm = cnsm;
             this.tuning = delay;
             recalculate();

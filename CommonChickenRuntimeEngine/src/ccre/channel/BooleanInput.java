@@ -21,16 +21,29 @@ package ccre.channel;
 /**
  * A BooleanInput is a way to get the current state of a boolean input, and to
  * subscribe to notifications of changes in the boolean input's value.
- * BooleanInput is a subinterface of BooleanInputPoll.
  *
- * @see BooleanInputPoll
+ * A BooleanInput also acts as an UpdatingInput that updates when the
+ * BooleanInput's value changes.
+ * 
+ * TODO: Make sure that's actually true everywhere.
+ *
  * @author skeggsc
  */
-public interface BooleanInput extends BooleanInputPoll {
+public interface BooleanInput extends UpdatingInput {
+
+    /**
+     * Get the current state of this boolean input.
+     *
+     * @return The current value.
+     */
+    public boolean get();
 
     /**
      * Subscribe to changes in this boolean input's value. The boolean output
-     * will be modified whenever the value of this input changes.
+     * will be modified whenever the value of this input changes. The boolean
+     * output will not be modified if the value of this input does not change.
+     *
+     * TODO: ensure that's true everywhere.
      *
      * If available, the current value of the input will be written at this
      * time.

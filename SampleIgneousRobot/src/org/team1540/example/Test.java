@@ -19,6 +19,7 @@
 package org.team1540.example;
 
 import ccre.channel.BooleanStatus;
+import ccre.channel.FloatInput;
 import ccre.channel.FloatInputPoll;
 import ccre.channel.FloatOutput;
 import ccre.ctrl.DriverImpls;
@@ -41,16 +42,16 @@ public class Test extends IgneousCore {
      */
     public void setupRobot() {
         // Driving
-        FloatInputPoll leftAxis = joystick1.getAxisChannel(2);
-        FloatInputPoll rightAxis = joystick1.getAxisChannel(5);
+        FloatInput leftAxis = joystick1.axis(2);
+        FloatInput rightAxis = joystick1.axis(5);
         final FloatOutput leftOut = makeTalonMotor(2, MOTOR_FORWARD, 0.1f);
         final FloatOutput rightOut = makeTalonMotor(1, MOTOR_REVERSE, 0.1f);
         DriverImpls.createSynchTankDriver(duringTele, leftAxis, rightAxis, leftOut, rightOut);
         // Shifting
         BooleanStatus shifter = new BooleanStatus(makeSolenoid(2));
         shifter.setFalseWhen(startTele);
-        shifter.setTrueWhen(joystick1.getButtonSource(3));
-        shifter.setFalseWhen(joystick1.getButtonSource(1));
+        shifter.setTrueWhen(joystick1.onPress(3));
+        shifter.setFalseWhen(joystick1.onPress(1));
         // Compressor
         useCompressor(1, 1);
         // Autonomous

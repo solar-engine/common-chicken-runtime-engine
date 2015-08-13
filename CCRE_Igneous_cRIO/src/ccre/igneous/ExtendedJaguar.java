@@ -19,7 +19,9 @@
 package ccre.igneous;
 
 import ccre.channel.BooleanOutput;
-import ccre.channel.FloatInputPoll;
+import ccre.channel.DerivedFloatInput;
+import ccre.channel.EventInput;
+import ccre.channel.FloatInput;
 import ccre.channel.FloatOutput;
 import ccre.ctrl.ExtendedMotor;
 import ccre.ctrl.ExtendedMotorFailureException;
@@ -168,17 +170,19 @@ public class ExtendedJaguar extends ExtendedMotor implements FloatOutput {
         }
     }
 
-    public FloatInputPoll asStatus(final StatusType type) {
+    @Override
+    public FloatInput asStatus(final StatusType type, EventInput updateOn) {
         switch (type) {
         case BUS_VOLTAGE:
         case OUTPUT_CURRENT:
         case OUTPUT_VOLTAGE:
         case TEMPERATURE:
-            return new FloatInputPoll() {
+            return new DerivedFloatInput(updateOn) { // TODO: can this be done without an update input?
                 private boolean zeroed = false;
                 private long zeroUntil = 0;
 
-                public float get() {
+                @Override
+                protected float apply() {
                     if (zeroed) {
                         if (System.currentTimeMillis() > zeroUntil) {
                             zeroed = false;

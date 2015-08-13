@@ -19,10 +19,7 @@
 package ccre.ctrl;
 
 import ccre.channel.BooleanInput;
-import ccre.channel.BooleanInputPoll;
-import ccre.channel.EventInput;
 import ccre.channel.FloatInput;
-import ccre.channel.FloatInputPoll;
 
 /**
  * A Joystick that doesn't actually exist and instead just throws exceptions.
@@ -44,51 +41,15 @@ public class FakeJoystick implements IJoystickWithPOV {
         this.errorMessage = errorMessage;
     }
 
-    public EventInput getButtonSource(int id) {
+    public BooleanInput button(int id) {
         throw new RuntimeException(errorMessage);
     }
 
-    public FloatInput getAxisSource(int axis) {
+    public FloatInput axis(int axis) {
         throw new RuntimeException(errorMessage);
     }
 
-    public FloatInputPoll getAxisChannel(int axis) {
-        throw new RuntimeException(errorMessage);
-    }
-
-    public BooleanInputPoll getButtonChannel(int button) {
-        throw new RuntimeException(errorMessage);
-    }
-
-    public FloatInputPoll getXChannel() {
-        throw new RuntimeException(errorMessage);
-    }
-
-    public FloatInputPoll getYChannel() {
-        throw new RuntimeException(errorMessage);
-    }
-
-    public FloatInput getXAxisSource() {
-        throw new RuntimeException(errorMessage);
-    }
-
-    public FloatInput getYAxisSource() {
-        throw new RuntimeException(errorMessage);
-    }
-
-    public BooleanInputPoll isPOVPressed(int id) {
-        throw new RuntimeException(errorMessage);
-    }
-
-    public FloatInputPoll getPOVAngle(int id) {
-        throw new RuntimeException(errorMessage);
-    }
-
-    public BooleanInput isPOVPressedSource(int id) {
-        throw new RuntimeException(errorMessage);
-    }
-
-    public FloatInput getPOVAngleSource(int id) {
+    public BooleanInput isPOV(int direction) {
         throw new RuntimeException(errorMessage);
     }
 }

@@ -52,7 +52,7 @@ public class ControlInterface {
     }
 
     public EventInput getRearmCatapult() {
-        return EventMixing.combine(joystick2.getButtonSource(1), BooleanMixing.whenBooleanBecomes(PhidgetReader.getDigitalInput(2), true, globalPeriodic));
+        return EventMixing.combine(joystick2.onPress(1), BooleanMixing.whenBooleanBecomes(PhidgetReader.getDigitalInput(2), true, globalPeriodic));
     }
 
     public EventInput getFireButton(BooleanInputPoll isKidMode) {
@@ -71,12 +71,12 @@ public class ControlInterface {
         return EventMixing.combine(new EventInput[] { forceArmLower, joystick2.getButtonSource(6), BooleanMixing.whenBooleanBecomes(PhidgetReader.getDigitalInput(0), true) });
     }
 
-    public BooleanInputPoll rollerIn() {
-        return BooleanMixing.orBooleans(PhidgetReader.getDigitalInput(3), FloatMixing.floatIsAtLeast(joystick2.getAxisChannel(2), 0.2f));
+    public BooleanInput rollerIn() {
+        return BooleanMixing.orBooleans(PhidgetReader.getDigitalInput(3), FloatMixing.floatIsAtLeast(joystick2.axis(2), 0.2f));
     }
 
-    public BooleanInputPoll rollerOut() {
-        return BooleanMixing.orBooleans(PhidgetReader.getDigitalInput(4), FloatMixing.floatIsAtMost(joystick2.getAxisChannel(2), -0.2f));
+    public BooleanInput rollerOut() {
+        return BooleanMixing.orBooleans(PhidgetReader.getDigitalInput(4), FloatMixing.floatIsAtMost(joystick2.axis(2), -0.2f));
     }
 
     public FloatInputPoll getSlider() {
@@ -134,40 +134,35 @@ public class ControlInterface {
         return ((value - zero) / range);
     }
 
-    public FloatInputPoll getLeftDriveAxis() {
-        return driveDeadzone.wrap(FloatMixing.negate(joystick1.getAxisChannel(2)));
+    public FloatInput getLeftDriveAxis() {
+        return driveDeadzone.wrap(FloatMixing.negate(joystick1.axis(2)));
     }
 
-    public FloatInputPoll getRightDriveAxis() {
-        return driveDeadzone.wrap(FloatMixing.negate(joystick1.getAxisChannel(6)));
+    public FloatInput getRightDriveAxis() {
+        return driveDeadzone.wrap(FloatMixing.negate(joystick1.axis(6)));
     }
 
-    public FloatInputPoll getForwardDriveAxis() {
-        final FloatInputPoll plus = joystick1.getAxisChannel(3), minus = joystick1.getAxisChannel(4);
-        return driveDeadzone.wrap(FloatMixing.negate(new FloatInputPoll() {
-            public float get() {
-                return plus.get() - minus.get();
-            }
-        }));
+    public FloatInput getForwardDriveAxis() {
+        return driveDeadzone.wrap(FloatMixing.subtraction.of(joystick1.axis(4), joystick1.axis(3)));
     }
 
     public EventInput getShiftHighButton() {
-        return joystick1.getButtonSource(1);
+        return joystick1.onPress(1);
     }
 
     public EventInput getShiftLowButton() {
-        return joystick1.getButtonSource(3);
+        return joystick1.onPress(3);
     }
 
-    public BooleanInputPoll getToggleDisabled() {
-        return BooleanMixing.orBooleans(joystick1.getButtonChannel(7), joystick1.getButtonChannel(8));
+    public BooleanInput getToggleDisabled() {
+        return BooleanMixing.orBooleans(joystick1.button(7), joystick1.button(8));
     }
 
     public EventOutput forceArmLower() {
         return forceArmLower;
     }
 
-    public BooleanInputPoll shouldBeCollectingBecauseLoader() {
+    public BooleanInput shouldBeCollectingBecauseLoader() {
         ExpirationTimer exp = new ExpirationTimer();
         exp.startWhen(BooleanMixing.whenBooleanBecomes(PhidgetReader.getDigitalInput(0), true));
         BooleanStatus runCollector = new BooleanStatus();

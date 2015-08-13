@@ -18,10 +18,9 @@
  */
 package ccre.ctrl;
 
-import ccre.channel.BooleanInputPoll;
+import ccre.channel.BooleanInput;
 import ccre.channel.EventInput;
 import ccre.channel.FloatInput;
-import ccre.channel.FloatInputPoll;
 
 /**
  * A joystick with axes and buttons.
@@ -29,66 +28,43 @@ import ccre.channel.FloatInputPoll;
  * @author skeggsc
  */
 public interface IJoystick {
+    
+    public static final int POV_NORTH = 0;
+    public static final int POV_NORTHEAST = 45;
+    public static final int POV_EAST = 90;
+    public static final int POV_SOUTHEAST = 135;
+    public static final int POV_SOUTH = 180;
+    public static final int POV_SOUTHWEST = 225;
+    public static final int POV_WEST = 270;
+    public static final int POV_NORTHWEST = 315;
+    public static final int[] POV_DIRECTIONS = { POV_NORTH, POV_NORTHEAST, POV_EAST, POV_SOUTHEAST, POV_SOUTH, POV_SOUTHWEST, POV_WEST, POV_NORTHWEST };
 
-    /**
-     * Get an EventInput that will be fired when the given button is pressed.
-     *
-     * @param id the button ID.
-     * @return the EventInput representing the button being pressed.
-     */
-    public EventInput getButtonSource(int id);
-
-    /**
-     * Get a FloatInput that represents the given axis.
-     *
-     * @param axis the axis ID.
-     * @return the FloatInput representing the axis.
-     */
-    public FloatInput getAxisSource(int axis);
-
-    /**
-     * Get a FloatInputPoll representing the state of the specified axis on this
-     * joystick.
-     *
-     * @param axis the axis ID.
-     * @return the FloatInputPoll representing the status of the axis.
-     */
-    public FloatInputPoll getAxisChannel(int axis);
-
-    /**
-     * Get a BooleanInputPoll representing whether or not the given button is
-     * pressed.
-     *
-     * @param button the button ID.
-     * @return the BooleanInputPoll representing if the given button is pressed.
-     */
-    public BooleanInputPoll getButtonChannel(int button);
-
-    /**
-     * Get a FloatInputPoll for the X axis.
-     *
-     * @return the FloatInputPoll representing the status of the X axis.
-     */
-    public FloatInputPoll getXChannel();
-
-    /**
-     * Get a FloatInputPoll for the Y axis.
-     *
-     * @return the FloatInputPoll representing the status of the Y axis.
-     */
-    public FloatInputPoll getYChannel();
-
-    /**
-     * Get a FloatInput for the X axis.
-     *
-     * @return the FloatInput representing the axis.
-     */
-    public FloatInput getXAxisSource();
-
-    /**
-     * Get a FloatInput for the Y axis.
-     *
-     * @return the FloatInput representing the axis.
-     */
-    public FloatInput getYAxisSource();
+    public default EventInput onPress(int btn) {
+        return BooleanMixing.onPress(button(btn));
+    }
+    
+    public default EventInput onRelease(int btn) {
+        return BooleanMixing.onRelease(button(btn));
+    }
+    
+    public BooleanInput button(int btn);
+    
+    public FloatInput axis(int axis);
+    
+    public default FloatInput axisX() {
+        return axis(1);
+    }
+    
+    public default FloatInput axisY() {
+        return axis(2);
+    }
+    
+    public BooleanInput isPOV(int direction);
+    
+    public default EventInput onPressPOV(int direction) {
+        return BooleanMixing.onPress(isPOV(direction));
+    }
+    public default EventInput onReleasePOV(int direction) {
+        return BooleanMixing.onRelease(isPOV(direction));
+    }
 }

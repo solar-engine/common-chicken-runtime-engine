@@ -36,6 +36,7 @@ import ccre.channel.BooleanOutput;
 import ccre.channel.BooleanStatus;
 import ccre.channel.EventInput;
 import ccre.channel.EventStatus;
+import ccre.channel.FloatInput;
 import ccre.channel.FloatInputPoll;
 import ccre.channel.FloatOutput;
 import ccre.channel.SerialIO;
@@ -303,20 +304,15 @@ public final class DirectIgneousLauncherImpl implements IgneousLauncher {
         return () -> DirectAnalog.getAverageVoltage(port);
     }
 
-    public FloatInputPoll makeAnalogInput(int id, int averageBits) {
+    @Override
+    public FloatInput makeAnalogInput(int id, int averageBits, int updateRate) {
         ByteBuffer port = DirectAnalog.init(id);
         DirectAnalog.configure(port, averageBits, 0); // TODO: oversample bits
         return () -> DirectAnalog.getAverageVoltage(port);
     }
 
-    @Deprecated
-    public FloatInputPoll makeAnalogInput_ValuedBased(int id, int averageBits) {
-        ByteBuffer port = DirectAnalog.init(id);
-        DirectAnalog.configure(port, averageBits, 0);
-        return () -> DirectAnalog.getAverageValue(port);
-    }
-
-    public BooleanInputPoll makeDigitalInput(int id) {
+    @Override
+    public BooleanInput makeDigitalInput(int id, int updateRate) {
         DirectDigital.init(id, true);
         return () -> DirectDigital.get(id);
     }
@@ -350,26 +346,24 @@ public final class DirectIgneousLauncherImpl implements IgneousLauncher {
         Logger.warning("The Driver Station LCD no longer exists!");
     }
 
-    public BooleanInputPoll getIsDisabled() {
+    @Override
+    public BooleanInput getIsDisabled() {
         return () -> activeMode == Mode.DISABLED;
     }
 
-    public BooleanInputPoll getIsAutonomous() {
+    @Override
+    public BooleanInput getIsAutonomous() {
         return () -> activeMode == Mode.AUTONOMOUS;
     }
 
-    public BooleanInputPoll getIsTest() {
+    @Override
+    public BooleanInput getIsTest() {
         return () -> activeMode == Mode.TEST;
     }
 
-    public BooleanInputPoll getIsFMS() {
+    @Override
+    public BooleanInput getIsFMS() {
         return () -> onFMS;
-    }
-
-    // TODO: Move this into Igneous?
-    public void useCustomCompressor(BooleanInputPoll shouldDisable, int compressorRelayChannel) {
-        BooleanOutput relay = makeRelayForwardOutput(compressorRelayChannel);
-        BooleanMixing.pumpWhen(new Ticker(500), BooleanMixing.invert(shouldDisable), relay);
     }
 
     public FloatInputPoll makeEncoder(int channelA, int channelB, boolean reverse, EventInput resetWhen) {
@@ -476,17 +470,17 @@ public final class DirectIgneousLauncherImpl implements IgneousLauncher {
         return (on) -> DirectCompressor.setClosedLoop(getPCMCompressor(), on);
     }
 
-    public BooleanInputPoll getPCMPressureSwitch() {
+    public BooleanInput getPCMPressureSwitch(int updateRate) {
         getPCMCompressor();
         return () -> DirectCompressor.getPressureSwitch(getPCMCompressor());
     }
 
-    public BooleanInputPoll getPCMCompressorRunning() {
+    public BooleanInput getPCMCompressorRunning(int updateRate) {
         getPCMCompressor();
         return () -> DirectCompressor.getCompressorRunning(getPCMCompressor());
     }
 
-    public FloatInputPoll getPCMCompressorCurrent() {
+    public FloatInput getPCMCompressorCurrent(int updateRate) {
         getPCMCompressor();
         return () -> DirectCompressor.getCompressorCurrent(getPCMCompressor());
     }
@@ -551,21 +545,21 @@ public final class DirectIgneousLauncherImpl implements IgneousLauncher {
         }
     }
 
-    public FloatInputPoll getChannelVoltage(int powerChannel) {
+    public FloatInput getChannelVoltage(int powerChannel, int updateRate) {
         if (DirectPower.readChannelVoltage(powerChannel) == -1) {
             Logger.warning("Unknown power channel: " + powerChannel);
         }
         return () -> DirectPower.readChannelVoltage(powerChannel);
     }
 
-    public FloatInputPoll getChannelCurrent(int powerChannel) {
+    public FloatInput getChannelCurrent(int powerChannel, int updateRate) {
         if (DirectPower.readChannelCurrent(powerChannel) == -1) {
             Logger.warning("Unknown power channel: " + powerChannel);
         }
         return () -> DirectPower.readChannelCurrent(powerChannel);
     }
 
-    public BooleanInputPoll getChannelEnabled(int powerChannel) {
+    public BooleanInput getChannelEnabled(int powerChannel, int updateRate) {
         return () -> DirectPower.readChannelEnabled(powerChannel);
     }
 

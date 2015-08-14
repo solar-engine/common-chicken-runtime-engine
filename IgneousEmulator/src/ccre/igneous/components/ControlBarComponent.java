@@ -23,9 +23,10 @@ import java.awt.FontMetrics;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
 
+import ccre.channel.EventInput;
 import ccre.channel.FloatInput;
 import ccre.channel.FloatOutput;
-import ccre.concurrency.ConcurrentDispatchArray;
+import ccre.channel.FloatStatus;
 import ccre.igneous.DeviceComponent;
 
 /**
@@ -35,10 +36,9 @@ import ccre.igneous.DeviceComponent;
  */
 public class ControlBarComponent extends DeviceComponent implements FloatInput {
 
-    private float value = 0.0f;
     private boolean dragging = false;
     private int maxWidth = 0; // zero means no maximum
-    private final ConcurrentDispatchArray<FloatOutput> listeners = new ConcurrentDispatchArray<FloatOutput>();
+    private final FloatStatus value;
     private final float min, max, originValue;
 
     /**
@@ -52,7 +52,7 @@ public class ControlBarComponent extends DeviceComponent implements FloatInput {
     public ControlBarComponent(float min, float max, float defaultValue, float originValue) {
         this.max = max;
         this.min = min;
-        this.value = defaultValue;
+        this.value = new FloatStatus(defaultValue);
         this.originValue = originValue;
     }
 
@@ -72,7 +72,7 @@ public class ControlBarComponent extends DeviceComponent implements FloatInput {
         g.setColor(Color.WHITE);
         g.drawRect(startX - 1, startY - 1, barWidth + 1, barHeight + 1);
         g.setColor(Color.RED);
-        int actualLimitX = Math.round(startX + barWidth * (value - min) / (max - min)) - originX;
+        int actualLimitX = Math.round(startX + barWidth * (value.get() - min) / (max - min)) - originX;
         if (actualLimitX < 0) {
             g.fillRect(originX + actualLimitX, startY, -actualLimitX, barHeight);
         } else {
@@ -105,11 +105,8 @@ public class ControlBarComponent extends DeviceComponent implements FloatInput {
             // value == ((x - startX) / barWidth) * (max - min) + min
             // (value - min) / (max - min) == (x - startX) / barWidth
             // startX + barWidth * (value - min) / (max - min) == x
-            value = Math.min(1, Math.max(0, ((x - rect.x) / (float) rect.width))) * (max - min) + min;
+            value.set(Math.min(1, Math.max(0, ((x - rect.x) / (float) rect.width))) * (max - min) + min);
             repaint();
-            for (FloatOutput o : listeners) {
-                o.set(value);
-            }
         }
     }
 
@@ -122,15 +119,19 @@ public class ControlBarComponent extends DeviceComponent implements FloatInput {
     }
 
     public float get() {
-        return value;
+        return value.get();
     }
 
     public void send(FloatOutput output) {
-        listeners.addIfNotFound(output);
-        output.set(value);
+        value.send(output);
     }
 
     public void unsend(FloatOutput output) {
-        listeners.remove(output);
+        value.unsend(output);
+    }
+
+    @Override
+    public EventInput onUpdate() {
+        return value.onUpdate();
     }
 }

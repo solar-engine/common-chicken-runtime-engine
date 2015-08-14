@@ -19,13 +19,10 @@
 package ccre.ctrl;
 
 import ccre.channel.BooleanInput;
-import ccre.channel.BooleanInputPoll;
 import ccre.channel.BooleanOutput;
+import ccre.channel.DerivedFloatInput;
 import ccre.channel.FloatInput;
-import ccre.channel.FloatInputPoll;
 import ccre.channel.FloatOutput;
-import ccre.channel.FloatStatus;
-import ccre.concurrency.ConcurrentDispatchArray;
 
 /**
  * Mixing is a class that provides a wide variety of useful static methods to
@@ -63,6 +60,38 @@ public class Mixing {
         };
     }
 
+    /**
+     * The returned BooleanOutput is a way to modify the specified target. When
+     * the BooleanOutput is changed, the target is set to the current value of
+     * the associated parameter (the on parameter if true, the off parameter if
+     * false).
+     *
+     * @param target the FloatOutput to write to.
+     * @param off the value to write if the written boolean is false.
+     * @param on the value to write if the written boolean is true.
+     * @return the BooleanOutput that will modify the specified target.
+     */
+    public static BooleanOutput select(final FloatOutput target, final FloatInput off, final FloatInput on) {
+        checkNull(target, off, on);
+        return new BooleanOutput() {
+            private boolean lastValue = false, anyValue = false;
+            
+            {
+                EventMixing.combine(off.onUpdate(), on.onUpdate()).send(() -> {
+                    if (anyValue) {
+                        set(lastValue); // resend as necessary
+                    }
+                });
+            }
+            
+            public void set(boolean value) {
+                lastValue = value;
+                anyValue = true;
+                target.set(value ? on.get() : off.get());
+            }
+        };
+    }
+
     static void checkNull(Object... objs) {
         for (Object obj : objs) {
             if (obj == null) {
@@ -82,67 +111,10 @@ public class Mixing {
      * floats.
      */
     public static FloatInput select(final BooleanInput selector, final float off, final float on) {
-        checkNull(selector);
-        return select(selector, selector.get(), off, on);
-    }
-
-    /**
-     * Provides a FloatInput that contains a value selected from the two float
-     * arguments based on the state of the specified BooleanInput.
-     *
-     * @param selector the value to select the float value based on.
-     * @param default_ the value to assume for the BooleanInput before any
-     * changes are detected.
-     * @param off the value to use when false
-     * @param on the value to use when true
-     * @return the FloatInput calculated from the selector's value and the two
-     * floats.
-     */
-    public static FloatInput select(final BooleanInput selector, final boolean default_, final float off, final float on) {
-        checkNull(selector);
-        final FloatStatus stat = new FloatStatus(default_ ? on : off);
-        selector.send(select(stat, off, on));
-        return stat;
-    }
-
-    /**
-     * Provides a FloatInputPoll that contains a value selected from the two
-     * float arguments based on the state of the specified BooleanInputPool.
-     *
-     * @param selector the value to select the float value based on.
-     * @param off the value to use when false
-     * @param on the value to use when true
-     * @return the FloatInputPoll calculated from the selector's value and the
-     * two floats.
-     */
-    public static FloatInputPoll select(final BooleanInputPoll selector, final float off, final float on) {
-        checkNull(selector);
-        return new FloatInputPoll() {
-            public float get() {
+        return new DerivedFloatInput(selector) {
+            @Override
+            protected float apply() {
                 return selector.get() ? on : off;
-            }
-        };
-    }
-
-    /**
-     * The returned BooleanOutput is a way to modify the specified target. When
-     * the BooleanOutput is changed, the target is set to the current value of
-     * the associated parameter (the on parameter if true, the off parameter if
-     * false).
-     *
-     * Warning: changes to the FloatInputPoll parameters will not modify the
-     * output until the BooleanOutput is written to!
-     *
-     * @param target the FloatOutput to write to.
-     * @param off the value to write if the written boolean is false.
-     * @param on the value to write if the written boolean is true.
-     * @return the BooleanOutput that will modify the specified target.
-     */
-    public static BooleanOutput select(final FloatOutput target, final FloatInputPoll off, final FloatInputPoll on) {
-        checkNull(target, off, on);
-        return new BooleanOutput() {
-            public void set(boolean value) {
-                target.set(value ? on.get() : off.get());
             }
         };
     }
@@ -160,97 +132,11 @@ public class Mixing {
      * @return the value selected based on the selector's value and the statuses
      * of the two arguments.
      */
-    public static FloatInput select(BooleanInput selector, FloatInputPoll off, FloatInputPoll on) {
-        checkNull(selector, off, on);
-        return select(selector, selector.get(), off, on);
-    }
-
-    /**
-     * Returns a FloatInput with a value selected from two FloatInputPolls based
-     * on the BooleanInputProducer's value.
-     *
-     * Warning: changes to the FloatInputPoll parameters will not modify the
-     * output until the BooleanInput changes! However, this is likely to be
-     * fixed in the future.
-     *
-     * @param selector the selector to choose an input using.
-     * @param default_ the value to default the selector to before it changes.
-     * @param off if the selector is false.
-     * @param on if the selector is true.
-     * @return the value selected based on the selector's value and the statuses
-     * of the two arguments.
-     */
-    public static FloatInput select(final BooleanInput selector, final boolean default_, final FloatInputPoll off, final FloatInputPoll on) {
-        checkNull(selector, off, on);
-        return new FloatInput() {
-            private FloatInputPoll cur = default_ ? on : off;
-            private final ConcurrentDispatchArray<FloatOutput> consumers = new ConcurrentDispatchArray<FloatOutput>();
-
-            {
-                selector.send(new BooleanOutput() {
-                    public void set(boolean value) {
-                        cur = value ? on : off;
-                        float val = cur.get();
-                        for (FloatOutput out : consumers) {
-                            out.set(val);
-                        }
-                    }
-                });
-            }
-
-            public float get() {
-                return cur.get();
-            }
-
-            public void send(FloatOutput consum) {
-                consumers.addIfNotFound(consum);
-                consum.set(get());
-            }
-
-            public void unsend(FloatOutput consum) {
-                consumers.remove(consum);
-            }
-        };
-    }
-
-    /**
-     * Returns a FloatInputPoll with a value selected from two specified
-     * FloatInputPolls based on the BooleanInputPoll's value.
-     *
-     * @param selector the selector to choose an input using.
-     * @param off if the selector is false.
-     * @param on if the selector is true.
-     * @return the value selected based on the selector's value and the statuses
-     * of the two arguments.
-     */
-    public static FloatInputPoll select(final BooleanInputPoll selector, final FloatInputPoll off, final FloatInputPoll on) {
-        checkNull(selector, off, on);
-        return new FloatInputPoll() {
-            public float get() {
+    public static FloatInput select(BooleanInput selector, FloatInput off, FloatInput on) {
+        return new DerivedFloatInput(selector, off, on) {
+            @Override
+            protected float apply() {
                 return selector.get() ? on.get() : off.get();
-            }
-        };
-    }
-
-    /**
-     * Returns a four-way select based on two BooleanInputPolls from four
-     * floats.
-     *
-     * @param alpha The first boolean.
-     * @param beta The second boolean.
-     * @param ff The value to use when both inputs are false.
-     * @param ft The value to use when the first is false and the second is
-     * true.
-     * @param tf The value to use when the first is true and the second is
-     * false.
-     * @param tt The value to use when both inputs are true.
-     * @return The FloatInputPoll representing the current value.
-     */
-    public static FloatInputPoll quadSelect(final BooleanInputPoll alpha, final BooleanInputPoll beta, final float ff, final float ft, final float tf, final float tt) {
-        checkNull(alpha, beta);
-        return new FloatInputPoll() {
-            public float get() {
-                return alpha.get() ? (beta.get() ? tt : tf) : (beta.get() ? ft : ff);
             }
         };
     }
@@ -269,30 +155,10 @@ public class Mixing {
      * @return The FloatInput representing the current value.
      */
     public static FloatInput quadSelect(final BooleanInput alpha, final BooleanInput beta, final float ff, final float ft, final float tf, final float tt) {
-        checkNull(alpha, beta);
-        return FloatMixing.createDispatch(quadSelect((BooleanInputPoll) alpha, (BooleanInputPoll) beta, ff, ft, tf, tt),
-                EventMixing.combine(BooleanMixing.whenBooleanChanges(alpha), BooleanMixing.whenBooleanChanges(alpha)));
-    }
-
-    /**
-     * Returns a four-way select based on two BooleanInputPolls from four
-     * FloatInputPolls.
-     *
-     * @param alpha The first boolean.
-     * @param beta The second boolean.
-     * @param ff The value to use when both inputs are false.
-     * @param ft The value to use when the first is false and the second is
-     * true.
-     * @param tf The value to use when the first is true and the second is
-     * false.
-     * @param tt The value to use when both inputs are true.
-     * @return The FloatInputPoll representing the current value.
-     */
-    public static FloatInputPoll quadSelect(final BooleanInputPoll alpha, final BooleanInputPoll beta, final FloatInputPoll ff, final FloatInputPoll ft, final FloatInputPoll tf, final FloatInputPoll tt) {
-        checkNull(alpha, beta, ff, ft, tf, tt);
-        return new FloatInputPoll() {
-            public float get() {
-                return (alpha.get() ? (beta.get() ? tt : tf) : (beta.get() ? ft : ff)).get();
+        return new DerivedFloatInput(alpha, beta) {
+            @Override
+            protected float apply() {
+                return alpha.get() ? beta.get() ? tt : tf : beta.get() ? ft : ff;
             }
         };
     }
@@ -311,10 +177,13 @@ public class Mixing {
      * @param tt The value to use when both inputs are true.
      * @return The FloatInput representing the current value.
      */
-    public static FloatInput quadSelect(final BooleanInput alpha, final BooleanInput beta, final FloatInputPoll ff, final FloatInputPoll ft, final FloatInputPoll tf, final FloatInputPoll tt) {
-        checkNull(alpha, beta, ff, ft, tf, tt);
-        return FloatMixing.createDispatch(quadSelect((BooleanInputPoll) alpha, (BooleanInputPoll) beta, ff, ft, tf, tt),
-                EventMixing.combine(BooleanMixing.whenBooleanChanges(alpha), BooleanMixing.whenBooleanChanges(beta)));
+    public static FloatInput quadSelect(final BooleanInput alpha, final BooleanInput beta, final FloatInput ff, final FloatInput ft, final FloatInput tf, final FloatInput tt) {
+        return new DerivedFloatInput(alpha, beta, tt, tf, ft, ff) {
+            @Override
+            protected float apply() {
+                return alpha.get() ? beta.get() ? tt.get() : tf.get() : beta.get() ? ft.get() : ff.get();
+            }
+        };
     }
 
     private Mixing() {

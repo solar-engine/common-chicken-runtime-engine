@@ -20,7 +20,9 @@ package ccre.ctrl;
 
 import ccre.channel.BooleanInput;
 import ccre.channel.BooleanOutput;
+import ccre.channel.EventInput;
 import ccre.channel.EventOutput;
+import ccre.channel.EventStatus;
 import ccre.concurrency.ConcurrentDispatchArray;
 import ccre.concurrency.ReporterThread;
 import ccre.log.Logger;
@@ -41,6 +43,7 @@ public class PauseTimer implements BooleanInput, EventOutput {
     private final long timeout;
     private final Object lock = new Object();
     private final ConcurrentDispatchArray<BooleanOutput> consumers = new ConcurrentDispatchArray<BooleanOutput>();
+    private final EventStatus events = new EventStatus();
     private boolean isRunning = true;
     private final ReporterThread main = new ReporterThread("PauseTimer") {
         @Override
@@ -118,6 +121,12 @@ public class PauseTimer implements BooleanInput, EventOutput {
                 Logger.severe("Exception in PauseTimer dispatch!", thr);
             }
         }
+        try {
+            // TODO: somehow, take recovery events into account.
+            events.event();
+        } catch (Throwable thr) {
+            Logger.severe("Exception in PauseTimer dispatch!", thr);
+        }
     }
 
     public void send(BooleanOutput output) {
@@ -156,5 +165,10 @@ public class PauseTimer implements BooleanInput, EventOutput {
      */
     public void triggerAtChanges(EventOutput start, EventOutput end) {
         send(BooleanMixing.triggerWhenBooleanChanges(end, start));
+    }
+
+    @Override
+    public EventInput onUpdate() {
+        return events;
     }
 }

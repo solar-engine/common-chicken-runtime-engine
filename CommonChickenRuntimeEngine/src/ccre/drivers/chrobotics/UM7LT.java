@@ -21,15 +21,14 @@ package ccre.drivers.chrobotics;
 import java.io.IOException;
 
 import ccre.channel.BooleanStatus;
+import ccre.channel.DerivedFloatInput;
 import ccre.channel.EventInput;
 import ccre.channel.EventOutput;
 import ccre.channel.EventStatus;
 import ccre.channel.FloatInput;
-import ccre.channel.FloatInputPoll;
 import ccre.channel.SerialIO;
 import ccre.concurrency.CollapsingWorkerThread;
 import ccre.concurrency.ReporterThread;
-import ccre.ctrl.FloatMixing;
 import ccre.log.Logger;
 
 /**
@@ -103,49 +102,56 @@ public class UM7LT {
     public UM7LT(SerialIO rs232) {
         internal = new InternalUM7LT(rs232, worker);
 
-        roll = FloatMixing.createDispatch(new FloatInputPoll() {
-            public float get() {
+        roll = new DerivedFloatInput(onEulerUpdate) {
+            @Override
+            protected float apply() {
                 return ((short) (internal.dregs[InternalUM7LT.DREG_EULER_PHI_THETA - InternalUM7LT.DREG_BASE] >> 16)) / InternalUM7LT.EULER_CONVERSION_DIVISOR;
             }
-        }, onEulerUpdate);
+        };
 
-        pitch = FloatMixing.createDispatch(new FloatInputPoll() {
-            public float get() {
+        pitch = new DerivedFloatInput(onEulerUpdate) {
+            @Override
+            protected float apply() {
                 return ((short) (internal.dregs[InternalUM7LT.DREG_EULER_PHI_THETA - InternalUM7LT.DREG_BASE])) / InternalUM7LT.EULER_CONVERSION_DIVISOR;
             }
-        }, onEulerUpdate);
+        };
 
-        yaw = FloatMixing.createDispatch(new FloatInputPoll() {
-            public float get() {
+        yaw = new DerivedFloatInput(onEulerUpdate) {
+            @Override
+            protected float apply() {
                 return ((short) (internal.dregs[InternalUM7LT.DREG_EULER_PSI - InternalUM7LT.DREG_BASE] >> 16)) / InternalUM7LT.EULER_CONVERSION_DIVISOR;
             }
-        }, onEulerUpdate);
+        };
 
         // These return numbers in degrees per second.
-        rollRate = FloatMixing.createDispatch(new FloatInputPoll() {
-            public float get() {
+        rollRate = new DerivedFloatInput(onEulerUpdate) {
+            @Override
+            protected float apply() {
                 return ((short) (internal.dregs[InternalUM7LT.DREG_EULER_PHI_THETA_DOT - InternalUM7LT.DREG_BASE] >> 16)) / InternalUM7LT.EULER_RATE_CONVERSION_DIVISOR;
             }
-        }, onEulerUpdate);
+        };
 
-        pitchRate = FloatMixing.createDispatch(new FloatInputPoll() {
-            public float get() {
+        pitchRate = new DerivedFloatInput(onEulerUpdate) {
+            @Override
+            protected float apply() {
                 return ((short) (internal.dregs[InternalUM7LT.DREG_EULER_PHI_THETA_DOT - InternalUM7LT.DREG_BASE])) / InternalUM7LT.EULER_RATE_CONVERSION_DIVISOR;
             }
-        }, onEulerUpdate);
+        };
 
-        yawRate = FloatMixing.createDispatch(new FloatInputPoll() {
-            public float get() {
+        yawRate = new DerivedFloatInput(onEulerUpdate) {
+            @Override
+            protected float apply() {
                 return ((short) (internal.dregs[InternalUM7LT.DREG_EULER_PSI_DOT - InternalUM7LT.DREG_BASE] >> 16)) / InternalUM7LT.EULER_RATE_CONVERSION_DIVISOR;
             }
-        }, onEulerUpdate);
+        };
 
         // This returns a time in seconds. (?)
-        eulerTime = FloatMixing.createDispatch(new FloatInputPoll() {
-            public float get() {
+        eulerTime = new DerivedFloatInput(onEulerUpdate) {
+            @Override
+            protected float apply() {
                 return Float.intBitsToFloat(internal.dregs[InternalUM7LT.DREG_EULER_TIME - InternalUM7LT.DREG_BASE]);
             }
-        }, onEulerUpdate);
+        };
     }
 
     private boolean started = false;

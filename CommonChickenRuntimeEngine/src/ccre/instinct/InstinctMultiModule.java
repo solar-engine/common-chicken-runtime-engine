@@ -18,13 +18,13 @@
  */
 package ccre.instinct;
 
-import ccre.channel.BooleanInputPoll;
+import ccre.channel.BooleanInput;
 import ccre.channel.EventOutput;
 import ccre.cluck.CluckPublisher;
 import ccre.holders.TuningContext;
 import ccre.log.Logger;
-import ccre.rconf.RConf.Entry;
 import ccre.rconf.RConf;
+import ccre.rconf.RConf.Entry;
 import ccre.rconf.RConfable;
 import ccre.util.CArrayList;
 
@@ -57,7 +57,7 @@ public class InstinctMultiModule extends InstinctModule {
      * @param shouldBeRunning The input to control the running of this module.
      * @param context the TuningContext to use in this MultiModule.
      */
-    public InstinctMultiModule(BooleanInputPoll shouldBeRunning, TuningContext context) {
+    public InstinctMultiModule(BooleanInput shouldBeRunning, TuningContext context) {
         super(shouldBeRunning);
         this.context = context;
     }

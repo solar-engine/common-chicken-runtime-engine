@@ -24,11 +24,9 @@ package ccre.testing;
 
 import ccre.channel.BooleanFilter;
 import ccre.channel.BooleanInput;
-import ccre.channel.BooleanInputPoll;
 import ccre.channel.BooleanOutput;
 import ccre.channel.FloatFilter;
 import ccre.channel.FloatInput;
-import ccre.channel.FloatInputPoll;
 import ccre.channel.FloatOutput;
 import ccre.channel.FloatStatus;
 
@@ -59,12 +57,6 @@ public class TestFilters extends BaseTest {
             }
         };
         try {
-            f.wrap((BooleanInputPoll) null);
-            assertFail("Expected a NullPointerException from a null parameter!");
-        } catch (NullPointerException ex) {
-            // correct!
-        }
-        try {
             f.wrap((BooleanInput) null);
             assertFail("Expected a NullPointerException from a null parameter!");
         } catch (NullPointerException ex) {
@@ -85,12 +77,6 @@ public class TestFilters extends BaseTest {
                 return input;
             }
         };
-        try {
-            f.wrap((FloatInputPoll) null);
-            assertFail("Expected a NullPointerException from a null parameter!");
-        } catch (NullPointerException ex) {
-            // correct!
-        }
         try {
             f.wrap((FloatInput) null);
             assertFail("Expected a NullPointerException from a null parameter!");
@@ -117,23 +103,19 @@ public class TestFilters extends BaseTest {
         FloatStatus stat = new FloatStatus(7);
         FloatStatus target = new FloatStatus(0);
         FloatInput input1 = f.wrap(stat.asInput());
-        FloatInputPoll input2 = f.wrap((FloatInputPoll) stat.asInput());
         input1.send(target);
 
         for (float fv : new float[] { 8.76f, 1.23f, -129123.4f }) {
             assertObjectEqual(stat.get() + inc, target.get(), "Expected same value!");
             assertObjectEqual(input1.get(), target.get(), "Expected same value!");
-            assertObjectEqual(input2.get(), target.get(), "Expected same value!");
             stat.set(fv);
             assertObjectEqual(stat.get(), fv, "Expected same value!");
             assertObjectEqual(stat.get() + inc, target.get(), "Expected same value!");
             assertObjectEqual(input1.get(), target.get(), "Expected same value!");
-            assertObjectEqual(input2.get(), target.get(), "Expected same value!");
             stat.set(fv);
             assertObjectEqual(stat.get(), fv, "Expected same value!");
             assertObjectEqual(stat.get() + inc, target.get(), "Expected same value!");
             assertObjectEqual(input1.get(), target.get(), "Expected same value!");
-            assertObjectEqual(input2.get(), target.get(), "Expected same value!");
         }
 
         FloatOutput owrap = f.wrap(stat.asOutput());
@@ -143,12 +125,10 @@ public class TestFilters extends BaseTest {
             assertObjectEqual(stat.get(), fv + inc, "Expected same value!");
             assertObjectEqual(stat.get() + inc, target.get(), "Expected same value!");
             assertObjectEqual(input1.get(), target.get(), "Expected same value!");
-            assertObjectEqual(input2.get(), target.get(), "Expected same value!");
             owrap.set(fv);
             assertObjectEqual(stat.get(), fv + inc, "Expected same value!");
             assertObjectEqual(stat.get() + inc, target.get(), "Expected same value!");
             assertObjectEqual(input1.get(), target.get(), "Expected same value!");
-            assertObjectEqual(input2.get(), target.get(), "Expected same value!");
         }
     }
 }

@@ -412,9 +412,9 @@ public class TestUtils extends BaseTest {
     private void testCurrentTimeSeconds() throws InterruptedException, TestingException {
         boolean success = false;
         for (int i = 0; i < 5; i++) {
-            float here = Utils.currentTimeSeconds.get();
+            float here = Utils.getCurrentTimeSeconds();
             Thread.sleep(99); // 99 because it causes Java SE to make the request more accurate...
-            float there = Utils.currentTimeSeconds.get();
+            float there = Utils.getCurrentTimeSeconds();
             float dt = Math.abs(there - here - (99 / 1000f));
             if (dt >= 0.002) {
                 //Logger.warning("Failed timing test: " + here + " to " + there + " is " + (there - here) + " and expected " + (100 / 1000f));

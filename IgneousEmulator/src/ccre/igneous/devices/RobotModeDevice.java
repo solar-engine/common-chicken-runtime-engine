@@ -19,7 +19,7 @@
 package ccre.igneous.devices;
 
 import ccre.channel.BooleanInput;
-import ccre.channel.BooleanInputPoll;
+import ccre.channel.DerivedBooleanInput;
 import ccre.ctrl.BooleanMixing;
 import ccre.igneous.Device;
 import ccre.igneous.components.BooleanTextComponent;
@@ -121,12 +121,19 @@ public class RobotModeDevice extends Device {
      * @param mode the mode to monitor.
      * @return the channel representing if the robot is in that mode.
      */
-    public BooleanInputPoll getIsMode(final RobotMode mode) {
-        return mode == RobotMode.DISABLED ? BooleanMixing.invert((BooleanInputPoll) enabled) : new BooleanInputPoll() {
-            public boolean get() {
-                return enabled.get() && selectedMode == mode;
-            }
-        };
+    public BooleanInput getIsMode(final RobotMode mode) {
+        if (mode == RobotMode.DISABLED) {
+            return BooleanMixing.invert((BooleanInput) enabled);
+        } else {
+            return new DerivedBooleanInput(enabled) {
+                // updates only matter when enabled changes... the mode (and so the result) can't change when the mode is enabled.
+                // and when disabled, the result is false anyway... until enabled becomes true.
+                @Override
+                protected boolean apply() {
+                    return enabled.get() && selectedMode == mode;
+                }
+            };
+        }
     }
 
     /**

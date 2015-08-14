@@ -22,7 +22,8 @@ import java.awt.Color;
 
 import ccre.channel.BooleanInput;
 import ccre.channel.BooleanOutput;
-import ccre.concurrency.ConcurrentDispatchArray;
+import ccre.channel.BooleanStatus;
+import ccre.channel.EventInput;
 
 /**
  * A textual display component that displays one of two strings based on whether
@@ -34,8 +35,7 @@ import ccre.concurrency.ConcurrentDispatchArray;
 public class BooleanTextComponent extends TextComponent implements BooleanOutput, BooleanInput {
 
     private final String off, on;
-    private final ConcurrentDispatchArray<BooleanOutput> listeners = new ConcurrentDispatchArray<BooleanOutput>();
-    private boolean state = false;
+    private final BooleanStatus state = new BooleanStatus();
     private boolean editable = false;
 
     /**
@@ -75,25 +75,21 @@ public class BooleanTextComponent extends TextComponent implements BooleanOutput
     }
 
     public boolean get() {
-        return state;
+        return state.get();
     }
 
     public void send(BooleanOutput output) {
-        listeners.addIfNotFound(output);
-        output.set(state);
+        state.send(output);
     }
 
     public void unsend(BooleanOutput output) {
-        listeners.remove(output);
+        state.unsend(output);
     }
 
     public void set(boolean value) {
-        state = value;
         this.setLabel(value ? on : off);
         this.setColor(value ? Color.green : Color.RED.darker());
-        for (BooleanOutput out : listeners) {
-            out.set(value);
-        }
+        state.set(value);
     }
 
     @Override
@@ -102,5 +98,10 @@ public class BooleanTextComponent extends TextComponent implements BooleanOutput
             set(!get());
             repaint();
         }
+    }
+
+    @Override
+    public EventInput onUpdate() {
+        return state.onUpdate();
     }
 }

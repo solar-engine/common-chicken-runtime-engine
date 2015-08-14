@@ -78,4 +78,9 @@ public class BooleanControlDevice extends Device implements BooleanInput {
     public EventInput whenPressed() {
         return pressEvent;
     }
+
+    @Override
+    public EventInput onUpdate() {
+        return actuated.onUpdate();
+    }
 }

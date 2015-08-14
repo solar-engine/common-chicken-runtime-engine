@@ -126,11 +126,11 @@ public class TestEventMixing extends BaseTest {
             }
         };
         if (testInputs) {
-            EventMixing.filterEvent(allow, true, trig.asInput()).send(ev1);
-            EventMixing.filterEvent(allow, true, trig.asInput()).send(ev2);
+            EventMixing.filter(allow, trig.asInput()).send(ev1);
+            EventMixing.filter(allow, trig.asInput()).send(ev2);
         } else {
-            trig.send(EventMixing.filterEvent(allow, true, ev1));
-            trig.send(EventMixing.filterEvent(allow, true, ev2));
+            trig.send(EventMixing.filter(allow, ev1));
+            trig.send(EventMixing.filter(allow, ev2));
         }
         int mirror0 = 0, mirror1 = 0, mirror2 = 0;
         for (boolean b : new boolean[] { false, false, true, true, false, true, false, true, true, true, false, false, false, true, false, true, true, false, true, false, false, true }) {

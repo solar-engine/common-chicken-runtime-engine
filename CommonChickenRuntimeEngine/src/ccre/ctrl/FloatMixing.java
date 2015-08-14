@@ -19,7 +19,6 @@
 package ccre.ctrl;
 
 import ccre.channel.BooleanInput;
-import ccre.channel.BooleanInputPoll;
 import ccre.channel.DerivedBooleanInput;
 import ccre.channel.DerivedFloatInput;
 import ccre.channel.EventInput;
@@ -27,7 +26,6 @@ import ccre.channel.EventOutput;
 import ccre.channel.EventStatus;
 import ccre.channel.FloatFilter;
 import ccre.channel.FloatInput;
-import ccre.channel.FloatInputPoll;
 import ccre.channel.FloatOutput;
 import ccre.channel.FloatStatus;
 import ccre.util.Utils;
@@ -450,20 +448,6 @@ public class FloatMixing {
     }
 
     /**
-     * Returns a FloatInputPoll with a deadzone applied as defined in
-     * Utils.deadzone.
-     *
-     * @param inp the input representing the current value.
-     * @param range the deadzone to apply.
-     * @return the input representing the deadzone applied to the specified
-     * value.
-     * @see ccre.util.Utils#deadzone(float, float)
-     */
-    public static FloatInputPoll deadzone(FloatInputPoll inp, float range) {
-        return deadzone(range).wrap(inp);
-    }
-
-    /**
      * Returns a FloatInput with a deadzone applied as specified in
      * Utils.deadzone.
      *
@@ -492,54 +476,6 @@ public class FloatMixing {
     }
 
     /**
-     * When the specified event is fired, pump the value from the specified
-     * input to the specified output.
-     *
-     * @param trigger when to pump the value
-     * @param in the input
-     * @param out the output
-     */
-    public static void pumpWhen(EventInput trigger, final FloatInputPoll in, final FloatOutput out) {
-        Mixing.checkNull(trigger, in, out);
-        trigger.send(pumpEvent(in, out));
-    }
-
-    /**
-     * Returns a FloatInputPoll representing the delta between the current value
-     * of input and the previous value. This _only_ works when you use the
-     * result in one place! If you use it in multiple, then it tries to find the
-     * deltas between each invocation!
-     *
-     * To get around this, use findRate with two arguments.
-     *
-     * If any sample is NaN, then NaN will be returned - the sample will be
-     * discarded and the previous sample will be unmodified. However, if the
-     * first sample is NaN, then the first delta will be NaN, and the subsequent
-     * deltas will be based on that first non-NaN sample.
-     *
-     * Infinite values cause undefined behavior.
-     *
-     * @param input The input value to find the rate of.
-     * @return The FloatInputPoll representing the rate.
-     */
-    public static FloatInputPoll findRate(final FloatInputPoll input) {
-        Mixing.checkNull(input);
-        return new FloatInputPoll() {
-            private float lastValue = input.get();
-
-            public synchronized float get() {
-                float next = input.get();
-                if (next != next) { // is it NaN?
-                    return Float.NaN;
-                }
-                float out = next - lastValue;
-                lastValue = next;
-                return out;
-            }
-        };
-    }
-
-    /**
      * Returns a FloatInputPoll representing the delta between the current value
      * of input and the value in the last cycle, denoted by the specified
      * EventInput.
@@ -559,9 +495,10 @@ public class FloatMixing {
      * from the last update of this.
      * @return The FloatInputPoll representing the rate.
      */
-    public static FloatInputPoll findRate(final FloatInputPoll input, final EventInput updateWhen) {
+    @Deprecated
+    public static FloatInput findRate(final FloatInput input, final EventInput updateWhen) {
         Mixing.checkNull(input, updateWhen);
-        return new FloatInputPoll() {
+        return new DerivedFloatInput(input, updateWhen) {
             private float lastValue = input.get();
 
             {
@@ -575,7 +512,7 @@ public class FloatMixing {
                 });
             }
 
-            public synchronized float get() {
+            protected synchronized float apply() {
                 return input.get() - lastValue;
             }
         };
@@ -605,25 +542,6 @@ public class FloatMixing {
                 lastUpdate = time;
             }
         };
-    }
-
-    /**
-     * When the input has changed by more than a certain value, the returned
-     * EventInput fires. (This is checked when checkTrigger is fired.)
-     *
-     * This maximum delta can be over any period of time - the delta is
-     * calculated relative to the value the last time the event fired.
-     *
-     * @param input the input to track.
-     * @param delta the value by which the input must change to produce an
-     * output.
-     * @param checkTrigger when to recheck the input.
-     * @return the EventInput that fires when the input changes enough.
-     * @throws IllegalArgumentException if delta is not finite.
-     */
-    public static EventInput whenFloatChanges(final FloatInputPoll input, final float delta, EventInput checkTrigger) throws IllegalArgumentException {
-        Mixing.checkNull(input, checkTrigger);
-        return whenFloatChanges(createDispatch(input, checkTrigger), delta);
     }
 
     /**
@@ -680,7 +598,7 @@ public class FloatMixing {
      * the bounds are equal, or if the range between the bounds rounds to an
      * infinite value
      */
-    public static FloatInputPoll normalizeFloat(final FloatInputPoll base, final float zero, float one) throws IllegalArgumentException {
+    public static FloatInput normalizeFloat(final FloatInput base, final float zero, float one) throws IllegalArgumentException {
         Mixing.checkNull(base);
         if (!Float.isFinite(zero) || !Float.isFinite(one)) {
             throw new IllegalArgumentException("Infinite or NaN bound to normalizeFloat!");
@@ -692,73 +610,11 @@ public class FloatMixing {
         if (!Float.isFinite(range)) {
             throw new IllegalArgumentException("normalizeFloat range is large enough to provide invalid results");
         }
-        return new FloatInputPoll() {
-            public float get() {
+        return new DerivedFloatInput(base) {
+            protected float apply() {
                 return (base.get() - zero) / range;
             }
         };
-    }
-
-    /**
-     * Returns a scaled version of the specified input, such that when the value
-     * from the specified input is the value in the one parameter, the output is
-     * 1.0, and when the value from the specified input is the value in the zero
-     * parameter, the output is 0.0. The value is linearly scaled, for example:
-     * a value of ((zero + one) / 2) will create an output of 0.5. There is no
-     * capping - the output can be any number, including a number out of the
-     * range of zero to one.
-     *
-     * The scaling is equivalent to:
-     * <code>(base.get() - zero.get()) / (one.get() - zero.get())</code>
-     *
-     * Results are undefined when either of the bounds are infinite or very
-     * close to MAX_VALUE.
-     *
-     * If any bound or value is NaN, or the bounds are equal, the result is NaN.
-     *
-     * @param base the value to scale.
-     * @param zero the value of base that turns into 0.0.
-     * @param one the value of base that turns into 1.0.
-     * @return the scaled value.
-     */
-    public static FloatInputPoll normalizeFloat(final FloatInputPoll base, final FloatInputPoll zero, final FloatInputPoll one) {
-        Mixing.checkNull(base, zero, one);
-        return new FloatInputPoll() {
-            public float get() {
-                float zeroN = zero.get(), deltaN = one.get() - zeroN;
-                if (deltaN == 0) {
-                    return Float.NaN; // as opposed to either infinity or negative infinity
-                }
-                return (base.get() - zeroN) / deltaN;
-            }
-        };
-    }
-
-    /**
-     * Returns a scaled version of the specified input, such that when the value
-     * from the specified input is the value in the one parameter, the output is
-     * 1.0, and when the value from the specified input is the value in the zero
-     * parameter, the output is 0.0. The value is linearly scaled, for example:
-     * a value of ((zero + one) / 2) will create an output of 0.5. There is no
-     * capping - the output can be any number, including a number out of the
-     * range of zero to one.
-     *
-     * The scaling is equivalent to:
-     * <code>(base.get() - zero) / (one - zero)</code>
-     *
-     * If the value is NaN, the result is NaN.
-     *
-     * @param base the value to scale.
-     * @param zero the value of base that turns into 0.0.
-     * @param one the value of base that turns into 1.0.
-     * @return the scaled value.
-     * @throws IllegalArgumentException if either bound is infinite or NaN, if
-     * the bounds are equal, or if the range between the bounds rounds to an
-     * infinite value
-     */
-    public static FloatInput normalizeFloat(final FloatInput base, final float zero, float one) throws IllegalArgumentException {
-        Mixing.checkNull(base);
-        return createDispatch(normalizeFloat((FloatInputPoll) base, zero, one), FloatMixing.onUpdate(base));
     }
 
     /**
@@ -786,9 +642,17 @@ public class FloatMixing {
      * @param one the value of base that turns into 1.0.
      * @return the scaled value.
      */
-    public static FloatInput normalizeFloat(final FloatInput base, final FloatInputPoll zero, final FloatInputPoll one) {
+    public static FloatInput normalizeFloat(final FloatInput base, final FloatInput zero, final FloatInput one) {
         Mixing.checkNull(base, zero, one);
-        return createDispatch(normalizeFloat((FloatInputPoll) base, zero, one), FloatMixing.onUpdate(base));
+        return new DerivedFloatInput(base, zero, one) {
+            protected float apply() {
+                float zeroN = zero.get(), deltaN = one.get() - zeroN;
+                if (deltaN == 0) {
+                    return Float.NaN; // as opposed to either infinity or negative infinity
+                }
+                return (base.get() - zeroN) / deltaN;
+            }
+        };
     }
 
     /**

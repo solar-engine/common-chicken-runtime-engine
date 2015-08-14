@@ -18,8 +18,8 @@
  */
 package ccre.ctrl;
 
+import ccre.channel.DerivedFloatInput;
 import ccre.channel.FloatInput;
-import ccre.channel.FloatInputPoll;
 import ccre.channel.FloatOutput;
 
 /**
@@ -53,43 +53,10 @@ public abstract class FloatOperation {
      * @return a channel representing the result of the operation applied to
      * these operands.
      */
-    public FloatInputPoll of(final FloatInputPoll a, final FloatInputPoll b) {
-        return new FloatInputPoll() {
-            public float get() {
-                return of(a.get(), b.get());
-            }
-        };
-    }
-
-    /**
-     * Return a new channel that represents the operation applied to the values
-     * of the specified channels.
-     *
-     * @param a a channel representing the first operand to the operation.
-     * @param b a channel representing the second operand to the operation.
-     * @return a channel representing the result of the operation applied to
-     * these operands.
-     */
-    public FloatInputPoll of(final FloatInputPoll a, final float b) {
-        return new FloatInputPoll() {
-            public float get() {
-                return of(a.get(), b);
-            }
-        };
-    }
-
-    /**
-     * Return a new channel that represents the operation applied to the values
-     * of the specified channels.
-     *
-     * @param a a channel representing the first operand to the operation.
-     * @param b a channel representing the second operand to the operation.
-     * @return a channel representing the result of the operation applied to
-     * these operands.
-     */
-    public FloatInputPoll of(final float a, final FloatInputPoll b) {
-        return new FloatInputPoll() {
-            public float get() {
+    public FloatInput of(float a, FloatInput b) {
+        return new DerivedFloatInput(b) {
+            @Override
+            protected float apply() {
                 return of(a, b.get());
             }
         };
@@ -104,47 +71,13 @@ public abstract class FloatOperation {
      * @return a channel representing the result of the operation applied to
      * these operands.
      */
-    public FloatInput of(float a, FloatInput b) {
-        return FloatMixing.createDispatch(of(a, (FloatInputPoll) b), FloatMixing.onUpdate(b));
-    }
-
-    /**
-     * Return a new channel that represents the operation applied to the values
-     * of the specified channels.
-     *
-     * @param a a channel representing the first operand to the operation.
-     * @param b a channel representing the second operand to the operation.
-     * @return a channel representing the result of the operation applied to
-     * these operands.
-     */
     public FloatInput of(FloatInput a, float b) {
-        return FloatMixing.createDispatch(of((FloatInputPoll) a, b), FloatMixing.onUpdate(a));
-    }
-
-    /**
-     * Return a new channel that represents the operation applied to the values
-     * of the specified channels.
-     *
-     * @param a a channel representing the first operand to the operation.
-     * @param b a channel representing the second operand to the operation.
-     * @return a channel representing the result of the operation applied to
-     * these operands.
-     */
-    public FloatInput of(FloatInput a, FloatInputPoll b) {
-        return FloatMixing.createDispatch(of((FloatInputPoll) a, b), FloatMixing.onUpdate(a));
-    }
-
-    /**
-     * Return a new channel that represents the operation applied to the values
-     * of the specified channels.
-     *
-     * @param a a channel representing the first operand to the operation.
-     * @param b a channel representing the second operand to the operation.
-     * @return a channel representing the result of the operation applied to
-     * these operands.
-     */
-    public FloatInput of(FloatInputPoll a, FloatInput b) {
-        return FloatMixing.createDispatch(of(a, (FloatInputPoll) b), FloatMixing.onUpdate(b));
+        return new DerivedFloatInput(a) {
+            @Override
+            protected float apply() {
+                return of(a.get(), b);
+            }
+        };
     }
 
     /**
@@ -157,7 +90,12 @@ public abstract class FloatOperation {
      * these operands.
      */
     public FloatInput of(FloatInput a, FloatInput b) {
-        return FloatMixing.createDispatch(of((FloatInputPoll) a, (FloatInputPoll) b), EventMixing.combine(FloatMixing.onUpdate(a), FloatMixing.onUpdate(b)));
+        return new DerivedFloatInput(a, b) {
+            @Override
+            protected float apply() {
+                return of(a.get(), b.get());
+            }
+        };
     }
 
     /**
@@ -184,9 +122,21 @@ public abstract class FloatOperation {
      * @param b a channel representing the second operand to the operation.
      * @return a channel representing the first operand to the operation.
      */
-    public FloatOutput of(final FloatOutput out, final FloatInputPoll b) {
+    public FloatOutput of(final FloatOutput out, final FloatInput b) {
         return new FloatOutput() {
+            private boolean anyValue;
+            private float lastValue;
+            {
+                b.send((o) -> {
+                    if (anyValue) {
+                        out.set(of(lastValue, o));
+                    }
+                });
+            }
+
             public void set(float value) {
+                lastValue = value;
+                anyValue = true;
                 out.set(of(value, b.get()));
             }
         };
@@ -216,9 +166,21 @@ public abstract class FloatOperation {
      * @param out a channel representing the output of the operation.
      * @return a channel representing the second operand to the operation.
      */
-    public FloatOutput of(final FloatInputPoll a, final FloatOutput out) {
+    public FloatOutput of(final FloatInput a, final FloatOutput out) {
         return new FloatOutput() {
+            private boolean anyValue;
+            private float lastValue;
+            {
+                a.send((o) -> {
+                    if (anyValue) {
+                        out.set(of(o, lastValue));
+                    }
+                });
+            }
+
             public void set(float value) {
+                lastValue = value;
+                anyValue = true;
                 out.set(of(a.get(), value));
             }
         };

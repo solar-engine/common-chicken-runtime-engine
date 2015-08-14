@@ -19,12 +19,9 @@
 package ccre.testing;
 
 import ccre.channel.BooleanInput;
-import ccre.channel.BooleanInputPoll;
-import ccre.channel.BooleanStatus;
 import ccre.channel.EventStatus;
 import ccre.channel.FloatFilter;
 import ccre.channel.FloatInput;
-import ccre.channel.FloatInputPoll;
 import ccre.channel.FloatOutput;
 import ccre.channel.FloatStatus;
 import ccre.ctrl.FloatMixing;
@@ -123,10 +120,7 @@ public class TestFloatMixing extends BaseTest {
         testCombine();
         testRamping();
         testAlways();
-        testSetWhile();
         testDeadzones();
-        testFindRate();
-        testWhenFloatChanges();
         testNormalize();
         testOnUpdate();
     }
@@ -159,22 +153,14 @@ public class TestFloatMixing extends BaseTest {
         FloatStatus value = new FloatStatus();
         FloatStatus low = new FloatStatus(), high = new FloatStatus();
         FloatInput norm1 = FloatMixing.normalizeFloat(value, low, high);
-        FloatInputPoll norm2 = FloatMixing.normalizeFloat((FloatInputPoll) value, low, high);
         for (float lowV : interestingFloats) {
             low.set(lowV);
             for (float highV : interestingFloats) {
                 high.set(highV);
-                FloatInput norm3;
-                FloatInputPoll norm4;
+                FloatInput norm2;
                 if (!Float.isFinite(lowV) || !Float.isFinite(highV) || !Float.isFinite(highV - lowV)) {
                     try {
                         FloatMixing.normalizeFloat(value, lowV, highV);
-                        assertFail("expected failure due to non-finite parameter or range");
-                    } catch (IllegalArgumentException ex) {
-                        // correct!
-                    }
-                    try {
-                        FloatMixing.normalizeFloat((FloatInputPoll) value, lowV, highV);
                         assertFail("expected failure due to non-finite parameter or range");
                     } catch (IllegalArgumentException ex) {
                         // correct!
@@ -187,23 +173,14 @@ public class TestFloatMixing extends BaseTest {
                     } catch (IllegalArgumentException ex) {
                         // correct!
                     }
-                    try {
-                        FloatMixing.normalizeFloat((FloatInputPoll) value, lowV, highV);
-                        assertFail("expected failure due to zero range");
-                    } catch (IllegalArgumentException ex) {
-                        // correct!
-                    }
-                    norm4 = norm3 = FloatMixing.always(Float.NaN);
+                    norm2 = FloatMixing.always(Float.NaN);
                 } else {
-                    norm3 = FloatMixing.normalizeFloat(value, lowV, highV);
-                    norm4 = FloatMixing.normalizeFloat((FloatInputPoll) value, lowV, highV);
+                    norm2 = FloatMixing.normalizeFloat(value, lowV, highV);
                 }
                 for (float v : interestingFloats) {
                     value.set(v);
                     // check sameness
                     assertObjectEqual(norm1.get(), norm2.get(), "inconsistent");
-                    assertObjectEqual(norm1.get(), norm3.get(), "inconsistent");
-                    assertObjectEqual(norm1.get(), norm4.get(), "inconsistent");
                     // check correctness
                     float scaled = norm1.get();
                     if (Float.isNaN(lowV) || Float.isNaN(highV) || Float.isNaN(v) || (lowV == highV)) {
@@ -218,73 +195,12 @@ public class TestFloatMixing extends BaseTest {
         }
     }
 
-    private void testWhenFloatChanges() throws TestingException {
-        for (float delta : interestingFloats) {
-            FloatStatus value = new FloatStatus();
-            EventStatus updateOn = new EventStatus();
-            TestEventMixing.CountingEventOutput co = new TestEventMixing.CountingEventOutput();
-            if (!Float.isFinite(delta)) {
-                try {
-                    FloatMixing.whenFloatChanges(value, delta, updateOn);
-                    assertFail("Expected IAE from non-finite delta");
-                } catch (IllegalArgumentException ex) {
-                    // correct!
-                }
-                continue;
-            }
-            FloatMixing.whenFloatChanges(value, delta, updateOn).send(co);
-            float lastValue = value.get();
-            updateOn.event();
-            for (float v : interestingFloats) {
-                value.set(v);
-                value.set(v);
-                if (co.ifExpected = Math.abs(lastValue - v) > delta) {
-                    lastValue = v;
-                }
-                updateOn.event();
-                co.check();
-            }
-        }
-    }
-
-    private void testFindRate() throws TestingException {
-        // TODO: test initial NaN behavior
-        FloatStatus finp = new FloatStatus();
-        EventStatus updateOn = new EventStatus();
-        FloatInputPoll fin = FloatMixing.findRate(finp);
-        FloatInputPoll fin2 = FloatMixing.findRate(finp, updateOn);
-        float lastValue = finp.get();
-        for (float value : interestingFloats) {
-            if (Float.isInfinite(value)) {
-                continue;
-            }
-            finp.set(value);
-            float delta = fin.get();
-            if (Float.isNaN(value)) {
-                assertTrue(Float.isNaN(delta), "bad NaN handling");
-                assertTrue(Float.isNaN(fin2.get()), "bad NaN handling");
-                updateOn.event();
-                assertTrue(Float.isNaN(fin2.get()), "bad NaN handling");
-                continue;
-            }
-            assertFalse(Float.isNaN(delta), "expected non-NaN at this point");
-            assertTrue(Math.abs(lastValue + delta - value) <= Math.max(Math.abs(value), Math.abs(lastValue)) * 0.0001f, "bad findRate from " + lastValue + " + " + delta + " => " + (lastValue + delta) + " => " + Math.abs(lastValue + delta - value) + " vs " + Math.abs(value) * 0.0001f);
-            lastValue = value;
-            assertObjectEqual(fin.get(), 0.0f, "bad second findRate"); // because of DOCUMENTED bad usage of 1-parameter findRate
-            assertObjectEqual(fin2.get(), delta, "bad findRate2 delta");
-            assertObjectEqual(fin2.get(), delta, "bad findRate2 delta"); // check for consistency
-            updateOn.event();
-            assertObjectEqual(fin2.get(), 0.0f, "bad findRate2 initial");
-        }
-    }
-
     private void testDeadzones() throws TestingException {
         for (float zone : interestingFloats) {
             FloatFilter filter = FloatMixing.deadzone(zone);
             FloatStatus val = new FloatStatus();
             FloatInput in1 = filter.wrap(val.asInput());
             FloatInput in2 = FloatMixing.deadzone(val.asInput(), zone);
-            FloatInputPoll in3 = FloatMixing.deadzone((FloatInputPoll) val, zone);
             CountingFloatOutput out = new CountingFloatOutput();
             out.ifExpected = true;
             out.valueExpected = 0;
@@ -297,27 +213,6 @@ public class TestFloatMixing extends BaseTest {
                 out.check();
                 assertObjectEqual(Utils.deadzone(value, zone), in1.get(), "bad deadzoning");
                 assertObjectEqual(Utils.deadzone(value, zone), in2.get(), "bad deadzoning");
-                assertObjectEqual(Utils.deadzone(value, zone), in3.get(), "bad deadzoning");
-            }
-        }
-    }
-
-    private void testSetWhile() {
-        CountingFloatOutput a = new CountingFloatOutput(), b = new CountingFloatOutput();
-        BooleanStatus should = new BooleanStatus();
-        for (float value : interestingFloats) {
-            EventStatus check = new EventStatus();
-            FloatMixing.setWhile(check, should, a, value);
-            FloatMixing.setWhileNot(check, should, b, value);
-
-            a.valueExpected = b.valueExpected = value;
-            for (boolean bool : TestBooleanMixing.interestingBooleans) {
-                should.set(bool);
-                a.ifExpected = bool;
-                b.ifExpected = !bool;
-                check.event();
-                a.check();
-                b.check();
             }
         }
     }
@@ -366,45 +261,29 @@ public class TestFloatMixing extends BaseTest {
                 FloatStatus value = new FloatStatus();
                 if (Float.isNaN(min) || Float.isNaN(max)) {
                     try {
-                        FloatMixing.floatIsInRange(value, min, max);
+                        FloatMixing.inRange(value, min, max);
                         assertFail("Expected a thrown exception for NaN bound!");
                     } catch (IllegalArgumentException ex) {
                         // correct!
                     }
                     try {
-                        FloatMixing.floatIsInRange((FloatInputPoll) value, min, max);
-                        assertFail("Expected a thrown exception for NaN bound!");
-                    } catch (IllegalArgumentException ex) {
-                        // correct!
-                    }
-                    try {
-                        FloatMixing.floatIsOutsideRange(value, min, max);
-                        assertFail("Expected a thrown exception for NaN bound!");
-                    } catch (IllegalArgumentException ex) {
-                        // correct!
-                    }
-                    try {
-                        FloatMixing.floatIsOutsideRange((FloatInputPoll) value, min, max);
+                        FloatMixing.outsideRange(value, min, max);
                         assertFail("Expected a thrown exception for NaN bound!");
                     } catch (IllegalArgumentException ex) {
                         // correct!
                     }
                     continue;
                 }
-                BooleanInput in = FloatMixing.floatIsInRange(value, min, max);
-                BooleanInputPoll inp = FloatMixing.floatIsInRange((FloatInputPoll) value, min, max);
-                BooleanInput out = FloatMixing.floatIsOutsideRange(value, min, max);
-                BooleanInputPoll outp = FloatMixing.floatIsOutsideRange((FloatInputPoll) value, min, max);
+                BooleanInput in = FloatMixing.inRange(value, min, max);
+                BooleanInput out = FloatMixing.outsideRange(value, min, max);
                 for (float v : interestingFloats) {
                     value.set(v);
                     if (Float.isNaN(v)) {
-                        assertFalse(in.get() || inp.get() || out.get() || outp.get(), "bad NaN handling");
+                        assertFalse(in.get() || out.get(), "bad NaN handling");
                         continue;
                     }
                     assertTrue(in.get() == (min <= v && v <= max), "bad in range");
-                    assertTrue(in.get() == inp.get(), "inconsistent with in");
                     assertTrue(in.get() != out.get(), "inconsistent with out: " + min + "," + v + "," + max + ": " + in.get() + " " + out.get());
-                    assertTrue(inp.get() != outp.get(), "inconsistent with out");
                 }
             }
         }
@@ -432,26 +311,18 @@ public class TestFloatMixing extends BaseTest {
 
     private void testSimpleComparisons() throws TestingException {
         FloatStatus val = new FloatStatus(), comparison = new FloatStatus();
-        BooleanInput al0 = FloatMixing.floatIsAtLeast(val, 1f);
-        BooleanInput al1 = FloatMixing.floatIsAtLeast(val, comparison);
-        BooleanInputPoll al2 = FloatMixing.floatIsAtLeast((FloatInputPoll) val, 1f);
-        BooleanInputPoll al3 = FloatMixing.floatIsAtLeast((FloatInputPoll) val, comparison);
-        BooleanInput am0 = FloatMixing.floatIsAtMost(val, 1f);
-        BooleanInput am1 = FloatMixing.floatIsAtMost(val, comparison);
-        BooleanInputPoll am2 = FloatMixing.floatIsAtMost((FloatInputPoll) val, 1f);
-        BooleanInputPoll am3 = FloatMixing.floatIsAtMost((FloatInputPoll) val, comparison);
+        BooleanInput al0 = FloatMixing.atLeast(val, 1f);
+        BooleanInput al1 = FloatMixing.atLeast(val, comparison);
+        BooleanInput am0 = FloatMixing.atMost(val, 1f);
+        BooleanInput am1 = FloatMixing.atMost(val, comparison);
         for (float f : interestingFloats) {
             val.set(f);
             assertTrue(al0.get() == (f >= 1f), "bad least comparison");
             assertTrue(am0.get() == (f <= 1f), "bad most comparison");
-            assertTrue(al2.get() == (f >= 1f), "bad least comparison");
-            assertTrue(am2.get() == (f <= 1f), "bad most comparison");
             for (float c : interestingFloats) {
                 comparison.set(c);
-                assertTrue(al3.get() == (f >= c), "bad least comparison");
-                assertTrue(am3.get() == (f <= c), "bad most comparison");
-
                 // last because we need to resend val - this is ugly...
+                // TODO: still necessary?
                 val.set(f == 0.0f ? 1.0f : 0.0f);
                 val.set(f);
                 assertTrue(al1.get() == (f >= c), "bad least comparison: " + f + " versus " + c + ": " + al1.get() + " vs " + (f >= c));
@@ -473,9 +344,9 @@ public class TestFloatMixing extends BaseTest {
         testNegation();
         for (float low : interestingFloats) {
             for (float high : interestingFloats) {
-                FloatInputPoll test;
+                FloatInput test;
                 try {
-                    test = FloatMixing.limit(low, high).wrap((FloatInputPoll) in);
+                    test = FloatMixing.limit(low, high).wrap(in.asInput());
                     assertFalse(high < low, "no IAE when expected!");
                 } catch (IllegalArgumentException ex) {
                     assertTrue(high < low, "IAE when unexpected!");
@@ -510,15 +381,12 @@ public class TestFloatMixing extends BaseTest {
     private void testNegation() throws TestingException {
         FloatStatus in = new FloatStatus();
         FloatInput out = FloatMixing.negate(in.asInput());
-        FloatInputPoll out2 = FloatMixing.negate((FloatInputPoll) in);
         FloatOutput nset = FloatMixing.negate(in.asOutput());
         for (float f : interestingFloats) {
             in.set(f);
             assertObjectEqual(out.get(), -f, "bad negation");
-            assertObjectEqual(out2.get(), -f, "bad negation");
             in.set(-f);
             assertObjectEqual(out.get(), f, "bad negation");
-            assertObjectEqual(out2.get(), f, "bad negation");
             nset.set(-f);
             assertObjectEqual(out.get(), -f, "bad negation");
             nset.set(f);

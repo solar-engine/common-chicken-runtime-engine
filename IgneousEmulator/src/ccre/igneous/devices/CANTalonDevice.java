@@ -21,9 +21,9 @@ package ccre.igneous.devices;
 import java.util.HashMap;
 
 import ccre.channel.BooleanInput;
-import ccre.channel.BooleanInputPoll;
 import ccre.channel.BooleanOutput;
-import ccre.channel.FloatInputPoll;
+import ccre.channel.EventInput;
+import ccre.channel.FloatInput;
 import ccre.channel.FloatOutput;
 import ccre.ctrl.ExtendedMotor;
 import ccre.ctrl.ExtendedMotorFailureException;
@@ -129,7 +129,7 @@ public class CANTalonDevice extends DeviceGroup implements Disableable {
             return outputDevices.get(mode);
         }
 
-        public FloatInputPoll asStatus(StatusType type) {
+        public FloatInput asStatus(StatusType type, EventInput updateOn) {
             if (!statusDevices.containsKey(type)) {
                 statusDevices.put(type, add(new FloatControlDevice(type.toString())));
             }

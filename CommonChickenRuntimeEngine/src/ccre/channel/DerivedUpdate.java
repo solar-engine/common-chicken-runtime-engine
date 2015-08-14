@@ -18,37 +18,20 @@
  */
 package ccre.channel;
 
-public abstract class DerivedBooleanInput extends DerivedUpdate implements BooleanInput {
+public abstract class DerivedUpdate {
 
-    private final BooleanStatus value = new BooleanStatus();
-    
-    public DerivedBooleanInput(UpdatingInput... updates) {
-        super(updates);
-    }
-    
-    @Override
-    protected final void update() {
-        value.set(apply());
-    }
-
-    public final boolean get() {
-        return value.get();
+    public DerivedUpdate(UpdatingInput... updates) {
+        EventOutput doUpdate = this::update;
+        if (updates.length == 0) {
+            throw new IllegalArgumentException("Must be at least one update source!");
+        }
+        for (int i = 0; i < updates.length; i++) {
+            if (updates[i] == null) {
+                throw new NullPointerException();
+            }
+            updates[i].onUpdate().send(doUpdate);
+        }
     }
 
-    protected abstract boolean apply();
-
-    @Override
-    public final EventInput onUpdate() {
-        return value.onUpdate();
-    }
-
-    @Override
-    public final void send(BooleanOutput output) {
-        value.send(output);
-    }
-
-    @Override
-    public final void unsend(BooleanOutput output) {
-        value.unsend(output);
-    }
+    protected abstract void update();
 }

@@ -18,7 +18,6 @@
  */
 package ccre.util;
 
-import ccre.channel.FloatInputPoll;
 import ccre.ctrl.Mixing;
 
 /**
@@ -30,21 +29,6 @@ import ccre.ctrl.Mixing;
  * @author skeggsc
  */
 public class Utils {
-
-    /**
-     * An input representing the current time in seconds since a constant but
-     * arbitrary point in the past. The value is equivalent to
-     * <code>System.currentTimeMillis() / 1000.0f - N</code> where N is some
-     * point since when the program was started.
-     *
-     * @see #getCurrentTimeSeconds() has the same value.
-     */
-    public static final FloatInputPoll currentTimeSeconds = new FloatInputPoll() {
-
-        public float get() {
-            return getCurrentTimeSeconds();
-        }
-    };
 
     private static final long baseMeasurementTime = System.currentTimeMillis();
 

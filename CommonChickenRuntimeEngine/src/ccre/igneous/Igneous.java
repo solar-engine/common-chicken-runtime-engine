@@ -677,8 +677,7 @@ public class Igneous {
      * @param compressorRelayChannel the channel of the compressor's relay.
      */
     public static void useCustomCompressor(BooleanInput shouldDisable, int compressorRelayChannel) {
-        BooleanOutput relay = makeForwardRelay(compressorRelayChannel);
-        BooleanMixing.pumpWhen(new Ticker(500), BooleanMixing.invert(shouldDisable), relay);
+        shouldDisable.send(BooleanMixing.debounce(BooleanMixing.invert(makeForwardRelay(compressorRelayChannel)), 500));
     }
 
     /**
@@ -903,7 +902,7 @@ public class Igneous {
      * @return the generated control binding source.
      */
     public static ControlBindingDataSource getControlBindingDataSource(String... names) {
-        ControlBindingDataSourceBuildable ds = new ControlBindingDataSourceBuildable(globalPeriodic);
+        ControlBindingDataSourceBuildable ds = new ControlBindingDataSourceBuildable();
         for (int i = 0; i < names.length; i++) {
             if (isRoboRIO()) {
                 ds.addJoystick(names[i], launcher.getJoystick(i + 1), 12, 6);

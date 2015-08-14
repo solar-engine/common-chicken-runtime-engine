@@ -19,7 +19,6 @@
 package ccre.instinct;
 
 import ccre.channel.BooleanInput;
-import ccre.channel.BooleanInputPoll;
 import ccre.channel.EventInput;
 import ccre.channel.EventOutput;
 import ccre.concurrency.ReporterThread;

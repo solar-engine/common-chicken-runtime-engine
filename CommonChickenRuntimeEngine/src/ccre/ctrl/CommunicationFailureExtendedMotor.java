@@ -19,7 +19,8 @@
 package ccre.ctrl;
 
 import ccre.channel.BooleanOutput;
-import ccre.channel.FloatInputPoll;
+import ccre.channel.EventInput;
+import ccre.channel.FloatInput;
 import ccre.channel.FloatOutput;
 import ccre.log.Logger;
 
@@ -72,13 +73,9 @@ public class CommunicationFailureExtendedMotor extends ExtendedMotor implements 
     }
 
     @Override
-    public FloatInputPoll asStatus(StatusType type) {
+    public FloatInput asStatus(StatusType type, EventInput updateOn) {
         Logger.severe("Could not access status of Extended Motor: " + message);
-        return new FloatInputPoll() {
-            public float get() {
-                return 0f;
-            }
-        };
+        return FloatMixing.always(0);
     }
 
     @Override

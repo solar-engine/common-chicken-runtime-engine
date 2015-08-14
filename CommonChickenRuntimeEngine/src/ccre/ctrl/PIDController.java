@@ -21,7 +21,6 @@ package ccre.ctrl;
 import ccre.channel.EventInput;
 import ccre.channel.EventOutput;
 import ccre.channel.FloatInput;
-import ccre.channel.FloatInputPoll;
 import ccre.channel.FloatOutput;
 import ccre.channel.FloatStatus;
 
@@ -45,10 +44,10 @@ import ccre.channel.FloatStatus;
  */
 public class PIDController implements FloatInput, EventOutput {
 
-    private final FloatInputPoll input, setpoint;
-    private final FloatInputPoll P, I, D;
-    private FloatInputPoll maxOutput = null, minOutput = null;
-    private FloatInputPoll maxIntegral = null, minIntegral = null;
+    private final FloatInput input, setpoint;
+    private final FloatInput P, I, D;
+    private FloatInput maxOutput = null, minOutput = null;
+    private FloatInput maxIntegral = null, minIntegral = null;
     private float previousError = 0.0f;
     private long previousTime = 0;
     /**
@@ -60,7 +59,7 @@ public class PIDController implements FloatInput, EventOutput {
      * If two executions of the PIDController differ by more than this much, the
      * controller will pretend it only differed by this much.
      */
-    private FloatInputPoll maximumTimeDelta = FloatMixing.always(0.1f); // 100ms.
+    private FloatInput maximumTimeDelta = FloatMixing.always(0.1f); // 100ms.
 
     /**
      * Create a simple fixed PID controller. It's very much possible to have
@@ -75,7 +74,7 @@ public class PIDController implements FloatInput, EventOutput {
      * @return the PID controller, which is also an input representing the
      * current value.
      */
-    public static PIDController createFixed(EventInput trigger, FloatInputPoll input, FloatInputPoll setpoint, float p, float i, float d) {
+    public static PIDController createFixed(EventInput trigger, FloatInput input, FloatInput setpoint, float p, float i, float d) {
         PIDController ctrl = new PIDController(input, setpoint,
                 FloatMixing.always(p), FloatMixing.always(i), FloatMixing.always(d));
         ctrl.updateWhen(trigger);
@@ -94,7 +93,7 @@ public class PIDController implements FloatInput, EventOutput {
      * @param I a source for the integral term.
      * @param D a source for the derivative term.
      */
-    public PIDController(FloatInputPoll error, FloatInputPoll P, FloatInputPoll I, FloatInputPoll D) {
+    public PIDController(FloatInput error, FloatInput P, FloatInput I, FloatInput D) {
         this.input = FloatMixing.always(0);
         this.setpoint = error;
         this.P = P;
@@ -111,7 +110,7 @@ public class PIDController implements FloatInput, EventOutput {
      * @param I a source for the integral term.
      * @param D a source for the derivative term.
      */
-    public PIDController(FloatInputPoll input, FloatInputPoll setpoint, FloatInputPoll P, FloatInputPoll I, FloatInputPoll D) {
+    public PIDController(FloatInput input, FloatInput setpoint, FloatInput P, FloatInput I, FloatInput D) {
         this.input = input;
         this.setpoint = setpoint;
         this.P = P;
@@ -133,7 +132,7 @@ public class PIDController implements FloatInput, EventOutput {
      *
      * @param maximumAbsolute the maximum absolute value.
      */
-    public void setOutputBounds(FloatInputPoll maximumAbsolute) {
+    public void setOutputBounds(FloatInput maximumAbsolute) {
         setOutputBounds(FloatMixing.negate(maximumAbsolute), maximumAbsolute);
     }
 
@@ -153,7 +152,7 @@ public class PIDController implements FloatInput, EventOutput {
      * @param minimum the minimum value.
      * @param maximum the maximum value.
      */
-    public void setOutputBounds(FloatInputPoll minimum, FloatInputPoll maximum) {
+    public void setOutputBounds(FloatInput minimum, FloatInput maximum) {
         this.maxOutput = maximum;
         this.minOutput = minimum;
     }
@@ -172,7 +171,7 @@ public class PIDController implements FloatInput, EventOutput {
      *
      * @param maximumAbsolute the maximum absolute value.
      */
-    public void setIntegralBounds(FloatInputPoll maximumAbsolute) {
+    public void setIntegralBounds(FloatInput maximumAbsolute) {
         setIntegralBounds(FloatMixing.negate(maximumAbsolute), maximumAbsolute);
     }
 
@@ -194,7 +193,7 @@ public class PIDController implements FloatInput, EventOutput {
      * @param minimum the minimum value.
      * @param maximum the maximum value.
      */
-    public void setIntegralBounds(FloatInputPoll minimum, FloatInputPoll maximum) {
+    public void setIntegralBounds(FloatInput minimum, FloatInput maximum) {
         this.maxIntegral = maximum;
         this.minIntegral = minimum;
     }
@@ -217,7 +216,7 @@ public class PIDController implements FloatInput, EventOutput {
      *
      * @param delta the new maximum time delta, in seconds.
      */
-    public void setMaximumTimeDelta(FloatInputPoll delta) {
+    public void setMaximumTimeDelta(FloatInput delta) {
         this.maximumTimeDelta = delta;
     }
 
@@ -300,5 +299,10 @@ public class PIDController implements FloatInput, EventOutput {
      */
     public float getPreviousError() {
         return previousError;
+    }
+
+    @Override
+    public EventInput onUpdate() {
+        return output.onUpdate();
     }
 }

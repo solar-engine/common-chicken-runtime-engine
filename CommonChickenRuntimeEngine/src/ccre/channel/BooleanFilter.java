@@ -46,9 +46,12 @@ public abstract class BooleanFilter {
         if (input == null) {
             throw new NullPointerException();
         }
-        BooleanStatus out = new BooleanStatus(filter(input.get()));
-        input.send(wrap((BooleanOutput) out));
-        return out;
+        return new DerivedBooleanInput(input) {
+            @Override
+            protected boolean apply() {
+                return filter(input.get());
+            }
+        };
     }
 
     /**

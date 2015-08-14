@@ -19,12 +19,9 @@
 package ccre.igneous;
 
 import ccre.channel.BooleanInput;
-import ccre.channel.BooleanInputPoll;
 import ccre.channel.BooleanOutput;
-import ccre.channel.BooleanStatus;
 import ccre.channel.EventInput;
 import ccre.channel.FloatInput;
-import ccre.channel.FloatInputPoll;
 import ccre.channel.FloatOutput;
 import ccre.channel.SerialIO;
 import ccre.ctrl.BooleanMixing;
@@ -87,7 +84,7 @@ public class DeviceBasedLauncher implements IgneousLauncher {
         solenoids = new BooleanOutput[isRoboRIO ? 64 : 2][8];
         digitalOutputs = new BooleanOutput[isRoboRIO ? 26 : 14];
         digitalInputs = new BooleanInput[digitalOutputs.length];
-        analogInputs = new FloatInputPoll[isRoboRIO ? 8 : 14];
+        analogInputs = new FloatInput[isRoboRIO ? 8 : 14];
         servos = new FloatOutput[motors.length];
         relaysFwd = new BooleanOutput[isRoboRIO ? 4 : 8];
         relaysRev = new BooleanOutput[relaysFwd.length];
@@ -215,7 +212,7 @@ public class DeviceBasedLauncher implements IgneousLauncher {
 
     private BooleanInput[] digitalInputs;
 
-    public BooleanInput makeDigitalInput(int id) {
+    public BooleanInput makeDigitalInput(int id, EventInput updateOn) {
         int index = checkRange("Digital Input", id, digitalInputs);
         if (digitalInputs[index] == null) {
             digitalInputs[index] = panel.add(new BooleanControlDevice("Digital Input " + id));
@@ -231,9 +228,9 @@ public class DeviceBasedLauncher implements IgneousLauncher {
         return digitalInputs[index];
     }
 
-    private FloatInputPoll[] analogInputs;
+    private FloatInput[] analogInputs;
 
-    public FloatInputPoll makeAnalogInput(int id) {
+    public FloatInput makeAnalogInput(int id, EventInput updateOn) {
         int index = checkRange("Analog Input", id, analogInputs);
         if (analogInputs[index] == null) {
             analogInputs[index] = panel.add(new FloatControlDevice("Analog Input " + id, 0.0f, 5.0f, 1.0f, 0.0f));
@@ -241,14 +238,8 @@ public class DeviceBasedLauncher implements IgneousLauncher {
         return analogInputs[index];
     }
 
-    public FloatInputPoll makeAnalogInput(int id, int averageBits) {
-        return makeAnalogInput(id);
-    }
-
-    @Deprecated
-    public FloatInputPoll makeAnalogInput_ValuedBased(int id, int averageBits) {
-        Logger.warning("ValueBased analog inputs are deprecated.");
-        return FloatMixing.addition.of(FloatMixing.multiplication.of(makeAnalogInput(id), 2048), 2048);
+    public FloatInput makeAnalogInput(int id, int averageBits, EventInput updateOn) {
+        return makeAnalogInput(id, updateOn);
     }
 
     private FloatOutput[] servos;
@@ -294,8 +285,8 @@ public class DeviceBasedLauncher implements IgneousLauncher {
         return isFMS;
     }
 
-    public FloatInputPoll makeEncoder(int aChannel, int bChannel, boolean reverse, EventInput resetWhen) {
-        return panel.add(new SpinDevice("Encoder " + aChannel + ":" + bChannel + (reverse ? " (REVERSED)" : ""), resetWhen));
+    public FloatInput makeEncoder(int aChannel, int bChannel, boolean reverse, EventInput resetWhen, EventInput updateOn) {
+        return panel.add(new SpinDevice("Encoder " + aChannel + ":" + bChannel + (reverse ? " (REVERSED)" : ""), resetWhen)).asInput();
     }
 
     private BooleanOutput[] relaysFwd;
@@ -318,18 +309,13 @@ public class DeviceBasedLauncher implements IgneousLauncher {
         return relaysRev[index];
     }
 
-    public FloatInputPoll makeGyro(int port, double sensitivity, EventInput resetWhen) {
-        return panel.add(new SpinDevice("Gyro " + port + " (Sensitivity " + sensitivity + ")", resetWhen));
+    public FloatInput makeGyro(int port, double sensitivity, EventInput resetWhen, EventInput updateOn) {
+        return panel.add(new SpinDevice("Gyro " + port + " (Sensitivity " + sensitivity + ")", resetWhen)).asInput();
     }
 
-    @Deprecated
-    public FloatInputPoll makeAccelerometerAxis(int port, double sensitivity, double zeropoint) {
-        return panel.add(new SpinDevice("Accelerometer " + port + " (Sensitivity " + sensitivity + ", Zero-Point " + zeropoint + ")", null));
-    }
+    private FloatInput batteryLevel;
 
-    private FloatInputPoll batteryLevel;
-
-    public FloatInputPoll getBatteryVoltage() {
+    public FloatInput getBatteryVoltage(EventInput updateOn) {
         if (batteryLevel == null) {
             batteryLevel = panel.add(new FloatControlDevice("Battery Voltage (6.5V-12.5V)", 6.5f, 12.5f, 9.5f, 6.5f));
         }
@@ -341,11 +327,11 @@ public class DeviceBasedLauncher implements IgneousLauncher {
     }
 
     private EventInput getModeBecomes(RobotModeDevice.RobotMode target) {
-        return BooleanMixing.whenBooleanBecomes(mode.getIsMode(target), true, masterPeriodic);
+        return BooleanMixing.onPress(mode.getIsMode(target));
     }
 
     private EventInput getModeDuring(RobotModeDevice.RobotMode target) {
-        return EventMixing.filterEvent(mode.getIsMode(target), true, masterPeriodic);
+        return EventMixing.filter(mode.getIsMode(target), masterPeriodic);
     }
 
     public EventInput getStartAuto() {
@@ -396,7 +382,7 @@ public class DeviceBasedLauncher implements IgneousLauncher {
 
     private BooleanInput pcmPressureSwitch;
 
-    public BooleanInput getPCMPressureSwitch(int updateRate) {
+    public BooleanInput getPCMPressureSwitch(EventInput updateOn) {
         if (!isRoboRIO()) {
             throw new IllegalArgumentException("Cannot use a PCM on a cRIO!");
         }
@@ -406,26 +392,26 @@ public class DeviceBasedLauncher implements IgneousLauncher {
         return pcmPressureSwitch;
     }
 
-    public BooleanInput getPCMCompressorRunning(int updateRate) {
+    public BooleanInput getPCMCompressorRunning(EventInput updateOn) {
         if (!isRoboRIO()) {
             throw new IllegalArgumentException("Cannot use a PCM on a cRIO!");
         }
-        return BooleanMixing.andBooleans(pcmCompressor.asInput(), BooleanMixing.invert(getPCMPressureSwitch(updateRate)));
+        return BooleanMixing.andBooleans(pcmCompressor.asInput(), BooleanMixing.invert(getPCMPressureSwitch(updateOn)));
     }
 
-    public FloatInput getPCMCompressorCurrent(int updateRate) {
-        return getAmperage("PCM Compressor");
+    public FloatInput getPCMCompressorCurrent(EventInput updateOn) {
+        return getAmperage("PCM Compressor", updateOn);
     }
 
-    private FloatInput getAmperage(String label) {
+    private FloatInput getAmperage(String label, EventInput updateOn) {
         return panel.add(new FloatControlDevice(label + " Current (0A-100A)", 0, 100, 0.5f, 0.0f));
     }
 
-    public FloatInput getPDPChannelCurrent(int channel, int updateRate) {
-        return getAmperage("PDP Channel " + channel);
+    public FloatInput getPDPChannelCurrent(int channel, EventInput updateOn) {
+        return getAmperage("PDP Channel " + channel, updateOn);
     }
 
-    public FloatInput getPDPVoltage(int updateRate) {
+    public FloatInput getPDPVoltage(EventInput updateOn) {
         return panel.add(new FloatControlDevice("PDP Voltage (6.5V-12.5V)", 6.5f, 12.5f, 9.5f, 6.5f));
     }
 
@@ -456,10 +442,10 @@ public class DeviceBasedLauncher implements IgneousLauncher {
         }
     }
 
-    public FloatInputPoll getChannelVoltage(int powerChannel) {
+    public FloatInput getChannelVoltage(int powerChannel, EventInput updateOn) {
         if (!isRoboRIO()) {
             if (powerChannel == Igneous.POWER_CHANNEL_BATTERY) {
-                return getBatteryVoltage();
+                return getBatteryVoltage(updateOn);
             } else {
                 Logger.warning("Voltage channels besides POWER_CHANNEL_BATTERY are not available on the cRIO!");
                 return FloatMixing.always(-1);
@@ -467,7 +453,7 @@ public class DeviceBasedLauncher implements IgneousLauncher {
         } else {
             switch (powerChannel) {
             case Igneous.POWER_CHANNEL_BATTERY:
-                return getBatteryVoltage();
+                return getBatteryVoltage(updateOn);
             case Igneous.POWER_CHANNEL_3V3:
                 return panel.add(new FloatControlDevice("Rail Voltage 3.3V (0V-4V)", 0.0f, 4.0f, 3.3f, 0.0f));
             case Igneous.POWER_CHANNEL_5V:
@@ -481,7 +467,7 @@ public class DeviceBasedLauncher implements IgneousLauncher {
         }
     }
 
-    public FloatInputPoll getChannelCurrent(int powerChannel) {
+    public FloatInput getChannelCurrent(int powerChannel, EventInput updateOn) {
         if (!isRoboRIO()) {
             Logger.warning("Current channels are not available on the cRIO!");
             return FloatMixing.always(-1);
@@ -502,7 +488,7 @@ public class DeviceBasedLauncher implements IgneousLauncher {
         }
     }
 
-    public BooleanInput getChannelEnabled(int powerChannel) {
+    public BooleanInput getChannelEnabled(int powerChannel, EventInput updateOn) {
         if (!isRoboRIO()) {
             Logger.warning("Power channel statuses are not available on the cRIO!");
             return powerChannel == Igneous.POWER_CHANNEL_BATTERY ? BooleanMixing.alwaysTrue : BooleanMixing.alwaysFalse;

@@ -22,8 +22,8 @@ import java.io.Serializable;
 
 import ccre.concurrency.ConcurrentDispatchArray;
 import ccre.ctrl.BooleanMixing;
-import ccre.rconf.RConf.Entry;
 import ccre.rconf.RConf;
+import ccre.rconf.RConf.Entry;
 import ccre.rconf.RConfable;
 import ccre.util.CArrayUtils;
 
@@ -34,7 +34,7 @@ import ccre.util.CArrayUtils;
  *
  * @author skeggsc
  */
-public class BooleanStatus implements BooleanOutput, BooleanInput, RConfable, Serializable {
+public class BooleanStatus implements BooleanOutput, BooleanInput, Serializable {
 
     private static final long serialVersionUID = 2573411070442038676L;
 
@@ -53,27 +53,6 @@ public class BooleanStatus implements BooleanOutput, BooleanInput, RConfable, Se
      * @see #unsend(ccre.channel.BooleanOutput)
      */
     private final ConcurrentDispatchArray<BooleanOutput> consumers = new ConcurrentDispatchArray<BooleanOutput>();
-    /**
-     * The cached EventOutput that sets the current value to true. Use
-     * getSetTrueEvent() instead, because this might be null.
-     *
-     * @see #getSetTrueEvent()
-     */
-    private transient EventOutput setTrue;
-    /**
-     * The cached EventOutput that sets the current value to false. Use
-     * getSetFalseEvent() instead, because this might be null.
-     *
-     * @see #getSetFalseEvent()
-     */
-    private transient EventOutput setFalse;
-    /**
-     * The cached EventOutput that toggles the current value. Use
-     * getToggleEvent() instead, because this might be null.
-     *
-     * @see #getToggleEvent()
-     */
-    private transient EventOutput toggle;
 
     /**
      * Create a new BooleanStatus with the value of false.
@@ -157,14 +136,11 @@ public class BooleanStatus implements BooleanOutput, BooleanInput, RConfable, Se
      * @see #setTrueWhen(ccre.channel.EventInput)
      */
     public final EventOutput getSetTrueEvent() {
-        if (setTrue == null) {
-            setTrue = new EventOutput() {
-                public void event() {
-                    set(true);
-                }
-            };
-        }
-        return setTrue;
+        return new EventOutput() {
+            public void event() {
+                set(true);
+            }
+        };
     }
 
     /**
@@ -174,31 +150,25 @@ public class BooleanStatus implements BooleanOutput, BooleanInput, RConfable, Se
      * @see #setFalseWhen(ccre.channel.EventInput)
      */
     public final EventOutput getSetFalseEvent() {
-        if (setFalse == null) {
-            setFalse = new EventOutput() {
-                public void event() {
-                    set(false);
-                }
-            };
-        }
-        return setFalse;
+        return new EventOutput() {
+            public void event() {
+                set(false);
+            }
+        };
     }
 
     /**
      * Get an EventOutput that, when fired, will toggle the state.
      *
-     * @return the firable EventOutput.
+     * @return the EventOutput.
      * @see #toggleWhen(ccre.channel.EventInput)
      */
     public final EventOutput getToggleEvent() {
-        if (toggle == null) {
-            toggle = new EventOutput() {
-                public void event() {
-                    set(!get());
-                }
-            };
-        }
-        return toggle;
+        return new EventOutput() {
+            public void event() {
+                set(!get());
+            }
+        };
     }
 
     /**
@@ -274,23 +244,5 @@ public class BooleanStatus implements BooleanOutput, BooleanInput, RConfable, Se
      */
     public BooleanInput asInvertedInput() {
         return BooleanMixing.invert((BooleanInput) this);
-    }
-
-    public Entry[] queryRConf() {
-        return new Entry[] { RConf.fieldBoolean(get()), RConf.button("toggle"), RConf.fieldInteger(consumers == null ? 0 : consumers.size()) };
-    }
-
-    public boolean signalRConf(int field, byte[] data) {
-        switch (field) {
-        case 0: // change value
-            if (data.length > 0) {
-                set(data[0] != 0);
-            }
-            return true;
-        case 1: // toggle
-            set(!get());
-            return true;
-        }
-        return false;
     }
 }

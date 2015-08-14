@@ -20,14 +20,11 @@ package ccre.ctrl;
 
 import ccre.channel.BooleanFilter;
 import ccre.channel.BooleanInput;
-import ccre.channel.BooleanInputPoll;
 import ccre.channel.BooleanOutput;
-import ccre.channel.BooleanStatus;
 import ccre.channel.DerivedBooleanInput;
 import ccre.channel.DerivedEventInput;
 import ccre.channel.EventInput;
 import ccre.channel.EventOutput;
-import ccre.channel.EventStatus;
 
 /**
  * BooleanMixing is a class that provides a wide variety of useful static
@@ -249,17 +246,6 @@ public class BooleanMixing {
                 return false;
             }
         };
-    }
-
-    /**
-     * When the BooleanInput changes, the returned EventInput is fired.
-     *
-     * @param input the value to monitor.
-     * @return the EventInput that fires when the input changes.
-     */
-    @Deprecated
-    public static EventInput whenBooleanChanges(final BooleanInput input) {
-        return input.onUpdate();
     }
 
     /**

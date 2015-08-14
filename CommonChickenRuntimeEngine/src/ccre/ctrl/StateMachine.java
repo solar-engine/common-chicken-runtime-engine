@@ -19,8 +19,8 @@
 package ccre.ctrl;
 
 import ccre.channel.BooleanInput;
-import ccre.channel.BooleanInputPoll;
 import ccre.channel.BooleanOutput;
+import ccre.channel.DerivedBooleanInput;
 import ccre.channel.EventInput;
 import ccre.channel.EventOutput;
 import ccre.channel.EventOutputRecoverable;
@@ -246,40 +246,13 @@ public class StateMachine {
     }
 
     /**
-     * Return a channel representing if the machine is in the named state.
-     *
-     * @param state the state to check.
-     * @return a channel for if this machine is in that state.
-     */
-    public BooleanInputPoll getIsState(String state) {
-        return getIsState(indexOfName(state));
-    }
-
-    /**
-     * Return a channel representing if the machine is in the indexed state.
-     *
-     * @param state the state to check, as an index in the list of state names.
-     * @return a channel for if this machine is in that state.
-     */
-    public BooleanInputPoll getIsState(final int state) {
-        if (state < 0 || state >= numberOfStates) {
-            throw new IllegalArgumentException("Invalid state ID: " + state);
-        }
-        return new BooleanInputPoll() {
-            public boolean get() {
-                return currentState == state;
-            }
-        };
-    }
-
-    /**
      * Return an input representing if the machine is in the named state.
      *
      * @param state the state to check.
      * @return an input for if this machine is in that state.
      */
-    public BooleanInput getIsStateDyn(String state) {
-        return getIsStateDyn(indexOfName(state));
+    public BooleanInput getIsState(String state) {
+        return getIsState(indexOfName(state));
     }
 
     /**
@@ -288,8 +261,16 @@ public class StateMachine {
      * @param state the state to check, as an index in the list of state names.
      * @return an input for if this machine is in that state.
      */
-    public BooleanInput getIsStateDyn(int state) {
-        return BooleanMixing.createDispatch(getIsState(state), onEnter);
+    public BooleanInput getIsState(int state) {
+        if (state < 0 || state >= numberOfStates) {
+            throw new IllegalArgumentException("Invalid state ID: " + state);
+        }
+        return new DerivedBooleanInput(onEnter) {
+            @Override
+            protected boolean apply() {
+                return currentState == state;
+            }
+        };
     }
 
     /**
@@ -314,7 +295,7 @@ public class StateMachine {
      * @return the event to conditionally change the machine's state.
      */
     public EventOutput getStateTransitionEvent(int fromState, int toState) {
-        return EventMixing.filterEvent(getIsState(fromState), true, getStateSetEvent(toState));
+        return EventMixing.filter(getIsState(fromState), getStateSetEvent(toState));
     }
 
     /**
@@ -418,7 +399,7 @@ public class StateMachine {
      * @param output the event to fire.
      */
     public void onEnterState(int state, final EventOutput output) {
-        onEnter.send(EventMixing.filterEvent(getIsState(state), true, output));
+        onEnter.send(EventMixing.filter(getIsState(state), output));
     }
 
     /**
@@ -569,7 +550,7 @@ public class StateMachine {
      * @param output the event to fire.
      */
     public void onExitState(int state, final EventOutput output) {
-        onExit.send(EventMixing.filterEvent(getIsState(state), true, output));
+        onExit.send(EventMixing.filter(getIsState(state), output));
     }
 
     /**

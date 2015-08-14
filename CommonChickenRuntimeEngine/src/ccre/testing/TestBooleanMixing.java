@@ -19,7 +19,6 @@
 package ccre.testing;
 
 import ccre.channel.BooleanInput;
-import ccre.channel.BooleanInputPoll;
 import ccre.channel.BooleanOutput;
 import ccre.channel.BooleanStatus;
 import ccre.channel.EventOutput;
@@ -53,7 +52,6 @@ public class TestBooleanMixing extends BaseTest {
         testAlgebraPoly();
         testChangeMonitors();
         testSetWhen();
-        testSetWhile();
     }
 
     private void testIgnored() throws TestingException, InterruptedException {
@@ -101,58 +99,47 @@ public class TestBooleanMixing extends BaseTest {
         BooleanStatus test = new BooleanStatus();
         BooleanStatus test2 = new BooleanStatus();
         BooleanInput wrapped = BooleanMixing.invert((BooleanInput) test);
-        BooleanInputPoll wrappedpoll = BooleanMixing.invert((BooleanInputPoll) test);
         wrapped.send(test2);
 
         assertTrue(test.get() != wrapped.get(), "Values should be opposites.");
-        assertTrue(test.get() != wrappedpoll.get(), "Values should be opposites.");
         assertTrue(test.get() != test2.get(), "Values should be opposites.");
         assertFalse(test.get(), "Should be false.");
         test.set(true);
         assertTrue(test.get() != wrapped.get(), "Values should be opposites.");
-        assertTrue(test.get() != wrappedpoll.get(), "Values should be opposites.");
         assertTrue(test.get() != test2.get(), "Values should be opposites.");
         assertTrue(test.get(), "Should be true.");
         test.set(false);
         assertTrue(test.get() != wrapped.get(), "Values should be opposites.");
-        assertTrue(test.get() != wrappedpoll.get(), "Values should be opposites.");
         assertTrue(test.get() != test2.get(), "Values should be opposites.");
         assertFalse(test.get(), "Should be false.");
         test.set(true);
         assertTrue(test.get() != wrapped.get(), "Values should be opposites.");
-        assertTrue(test.get() != wrappedpoll.get(), "Values should be opposites.");
         assertTrue(test.get() != test2.get(), "Values should be opposites.");
         assertTrue(test.get(), "Should be true.");
         test.set(false);
         assertTrue(test.get() != wrapped.get(), "Values should be opposites.");
-        assertTrue(test.get() != wrappedpoll.get(), "Values should be opposites.");
         assertTrue(test.get() != test2.get(), "Values should be opposites.");
         assertFalse(test.get(), "Should be false.");
 
         BooleanOutput wrapout = BooleanMixing.invert((BooleanOutput) test);
         wrapout.set(true);
         assertTrue(test.get() != wrapped.get(), "Values should be opposites.");
-        assertTrue(test.get() != wrappedpoll.get(), "Values should be opposites.");
         assertTrue(test.get() != test2.get(), "Values should be opposites.");
         assertFalse(test.get(), "Should be false.");
         wrapout.set(false);
         assertTrue(test.get() != wrapped.get(), "Values should be opposites.");
-        assertTrue(test.get() != wrappedpoll.get(), "Values should be opposites.");
         assertTrue(test.get() != test2.get(), "Values should be opposites.");
         assertTrue(test.get(), "Should be true.");
         wrapout.set(true);
         assertTrue(test.get() != wrapped.get(), "Values should be opposites.");
-        assertTrue(test.get() != wrappedpoll.get(), "Values should be opposites.");
         assertTrue(test.get() != test2.get(), "Values should be opposites.");
         assertFalse(test.get(), "Should be false.");
         wrapout.set(false);
         assertTrue(test.get() != wrapped.get(), "Values should be opposites.");
-        assertTrue(test.get() != wrappedpoll.get(), "Values should be opposites.");
         assertTrue(test.get() != test2.get(), "Values should be opposites.");
         assertTrue(test.get(), "Should be true.");
         wrapout.set(true);
         assertTrue(test.get() != wrapped.get(), "Values should be opposites.");
-        assertTrue(test.get() != wrappedpoll.get(), "Values should be opposites.");
         assertTrue(test.get() != test2.get(), "Values should be opposites.");
         assertFalse(test.get(), "Should be false.");
     }
@@ -190,9 +177,9 @@ public class TestBooleanMixing extends BaseTest {
 
     private void testAlgebra() throws TestingException {
         BooleanStatus a = new BooleanStatus(), b = new BooleanStatus();
-        BooleanInputPoll xor = BooleanMixing.xorBooleans(a, b);
-        BooleanInputPoll or = BooleanMixing.orBooleans((BooleanInputPoll) a, (BooleanInputPoll) b);
-        BooleanInputPoll and = BooleanMixing.andBooleans((BooleanInputPoll) a, (BooleanInputPoll) b);
+        BooleanInput xor = BooleanMixing.xorBooleans(a, b);
+        BooleanInput or = BooleanMixing.orBooleans(a, b);
+        BooleanInput and = BooleanMixing.andBooleans(a, b);
         BooleanStatus orStat = new BooleanStatus(), andStat = new BooleanStatus(), xorStat = new BooleanStatus();
         BooleanMixing.orBooleans(a, b).send(orStat);
         BooleanMixing.andBooleans(a, b).send(andStat);
@@ -246,8 +233,8 @@ public class TestBooleanMixing extends BaseTest {
 
     private void testAlgebraPoly() throws TestingException {
         BooleanStatus a = new BooleanStatus(), b = new BooleanStatus(), c = new BooleanStatus();
-        BooleanInputPoll or = BooleanMixing.orBooleans((BooleanInputPoll) a, (BooleanInputPoll) b, (BooleanInputPoll) c);
-        BooleanInputPoll and = BooleanMixing.andBooleans((BooleanInputPoll) a, (BooleanInputPoll) b, (BooleanInputPoll) c);
+        BooleanInput or = BooleanMixing.orBooleans(a, b, c);
+        BooleanInput and = BooleanMixing.andBooleans(a, b, c);
         BooleanStatus orStat = new BooleanStatus(), andStat = new BooleanStatus();
         BooleanMixing.orBooleans(a, b, c).send(orStat);
         BooleanMixing.andBooleans(a, b, c).send(andStat);
@@ -266,7 +253,7 @@ public class TestBooleanMixing extends BaseTest {
     }
 
     private void testChangeMonitors() throws TestingException {
-        final int[] counts = new int[8];
+        final int[] counts = new int[4];
         BooleanOutput out = BooleanMixing.triggerWhenBooleanChanges(new EventOutput() {
             public void event() {
                 counts[0]++;
@@ -287,27 +274,6 @@ public class TestBooleanMixing extends BaseTest {
                 counts[3]++;
             }
         });
-        EventStatus check = new EventStatus();
-        BooleanMixing.whenBooleanChanges(out2, check).send(new EventOutput() {
-            public void event() {
-                counts[4]++;
-            }
-        });
-        BooleanMixing.whenBooleanChanges(out2).send(new EventOutput() {
-            public void event() {
-                counts[5]++;
-            }
-        });
-        BooleanMixing.whenBooleanBecomes(out2, false, check).send(new EventOutput() {
-            public void event() {
-                counts[6]++;
-            }
-        });
-        BooleanMixing.whenBooleanBecomes(out2, true, check).send(new EventOutput() {
-            public void event() {
-                counts[7]++;
-            }
-        });
 
         int a = 0, b = 0;
         boolean last = false;
@@ -320,19 +286,12 @@ public class TestBooleanMixing extends BaseTest {
                     a++;
                 }
             }
-            check.event();
             out.set(v);
             out2.set(v);
-            check.event();
-            //Logger.finest("T: " + v + " " + last + ": " + a + " " + b + ": " + counts[0] + " " + counts[1] + " " + counts[2] + " " + counts[3]);
             assertIntsEqual(counts[0], a, "Bad count.");
             assertIntsEqual(counts[1], b, "Bad count.");
             assertIntsEqual(counts[2], a, "Bad count.");
             assertIntsEqual(counts[3], b, "Bad count.");
-            assertIntsEqual(counts[4], a + b, "Bad count.");
-            assertIntsEqual(counts[5], a + b, "Bad count.");
-            assertIntsEqual(counts[6], a, "Bad count.");
-            assertIntsEqual(counts[7], b, "Bad count.");
             last = v;
         }
     }
@@ -359,37 +318,6 @@ public class TestBooleanMixing extends BaseTest {
             expecting[1] = true;
             (b ? setTrue : setFalse).event();
             assertFalse(expecting[1], "Value not received.");
-        }
-    }
-
-    private void testSetWhile() throws TestingException {
-        BooleanStatus b = new BooleanStatus(), shouldSet = new BooleanStatus(), shouldNotUnset = new BooleanStatus();
-        EventStatus check = new EventStatus();
-        BooleanMixing.setWhile(check, shouldSet, b, true);
-        BooleanMixing.setWhileNot(check, shouldNotUnset, b, false);
-        EventOutput toggle = BooleanMixing.toggleEvent(b);
-        boolean shouldBeNext = true;
-
-        for (int i : new int[] { 0, 0, 1, 2, 1, 1, 4, 2, 2, 0, 2, 0, 1, 0, 2, 1, 4, 0, 1, 4, 2, 0, 0, 1, 2, 4, 2, 1, 1, 4, 0, 4, 4 }) {
-            boolean now = b.get();
-            check.event();
-            assertTrue(now == b.get(), "Should be unchanged.");
-            shouldSet.set((i & 1) != 0);
-            shouldNotUnset.set((i & 2) == 0);
-            assertTrue(now == b.get(), "Should be unchanged.");
-            check.event();
-            if ((i & 1) != 0) {
-                assertTrue(b.get(), "Should be true.");
-            } else if ((i & 2) != 0) {
-                assertFalse(b.get(), "Should be false.");
-            } else if ((i & 4) != 0) {
-                assertTrue(now == b.get(), "Should be unchanged.");
-                toggle.event();
-                assertTrue(b.get() == shouldBeNext, "Should be changed.");
-                shouldBeNext = !shouldBeNext;
-            } else {
-                assertTrue(now == b.get(), "Should be unchanged.");
-            }
         }
     }
 }

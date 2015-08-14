@@ -18,10 +18,10 @@
  */
 package ccre.instinct;
 
-import ccre.channel.BooleanInputPoll;
+import ccre.channel.BooleanInput;
 import ccre.channel.EventInput;
 import ccre.channel.EventOutput;
-import ccre.channel.FloatInputPoll;
+import ccre.channel.FloatInput;
 import ccre.ctrl.FloatMixing;
 import ccre.log.Logger;
 
@@ -39,7 +39,8 @@ public abstract class InstinctBaseModule {
      * @throws AutonomousModeOverException If the autonomous mode has ended.
      * @throws InterruptedException Possibly also if autonomous mode has ended.
      */
-    protected void waitUntil(BooleanInputPoll waitFor) throws AutonomousModeOverException, InterruptedException {
+    protected void waitUntil(BooleanInput waitFor) throws AutonomousModeOverException, InterruptedException {
+        // TODO: make this dynamic
         while (true) {
             ensureShouldBeRunning();
             if (waitFor.get()) {
@@ -56,7 +57,8 @@ public abstract class InstinctBaseModule {
      * @throws AutonomousModeOverException If the autonomous mode has ended.
      * @throws InterruptedException Possibly also if autonomous mode has ended.
      */
-    protected void waitUntilNot(BooleanInputPoll waitFor) throws AutonomousModeOverException, InterruptedException {
+    protected void waitUntilNot(BooleanInput waitFor) throws AutonomousModeOverException, InterruptedException {
+        // TODO: make this dynamic
         while (true) {
             ensureShouldBeRunning();
             if (!waitFor.get()) {
@@ -104,7 +106,8 @@ public abstract class InstinctBaseModule {
      * @throws AutonomousModeOverException If the autonomous mode has ended.
      * @throws InterruptedException Possibly also if autonomous mode has ended.
      */
-    protected int waitUntilOneOf(BooleanInputPoll... waitFor) throws AutonomousModeOverException, InterruptedException {
+    protected int waitUntilOneOf(BooleanInput... waitFor) throws AutonomousModeOverException, InterruptedException {
+        // TODO: make this dynamic
         while (true) {
             ensureShouldBeRunning();
             for (int i = 0; i < waitFor.length; i++) {
@@ -125,8 +128,8 @@ public abstract class InstinctBaseModule {
      * @throws AutonomousModeOverException If the autonomous mode has ended.
      * @throws InterruptedException Possibly also if autonomous mode has ended.
      */
-    protected void waitUntilAtLeast(FloatInputPoll waitFor, float minimum) throws AutonomousModeOverException, InterruptedException {
-        waitUntil(FloatMixing.floatIsAtLeast(waitFor, minimum));
+    protected void waitUntilAtLeast(FloatInput waitFor, float minimum) throws AutonomousModeOverException, InterruptedException {
+        waitUntil(FloatMixing.atLeast(waitFor, minimum));
     }
 
     /**
@@ -138,8 +141,8 @@ public abstract class InstinctBaseModule {
      * @throws AutonomousModeOverException If the autonomous mode has ended.
      * @throws InterruptedException Possibly also if autonomous mode has ended.
      */
-    protected void waitUntilAtMost(FloatInputPoll waitFor, float maximum) throws AutonomousModeOverException, InterruptedException {
-        waitUntil(FloatMixing.floatIsAtMost(waitFor, maximum));
+    protected void waitUntilAtMost(FloatInput waitFor, float maximum) throws AutonomousModeOverException, InterruptedException {
+        waitUntil(FloatMixing.atMost(waitFor, maximum));
     }
 
     /**
@@ -167,12 +170,16 @@ public abstract class InstinctBaseModule {
     /**
      * Wait for the specified amount of time, fetched from a FloatInputPoll
      * specified in seconds.
+     * 
+     * WARNING: If the time changes during the call to this method, the updated
+     * value will not be used. Only the value from when the call was originally
+     * made will count.
      *
      * @param seconds The amount of time to wait for, in seconds.
      * @throws AutonomousModeOverException If the autonomous mode has ended.
      * @throws InterruptedException Possibly also if autonomous mode has ended.
      */
-    protected void waitForTime(FloatInputPoll seconds) throws InterruptedException, AutonomousModeOverException {
+    protected void waitForTime(FloatInput seconds) throws InterruptedException, AutonomousModeOverException {
         waitForTime((long) (1000 * seconds.get() + 0.5f));
     }
 

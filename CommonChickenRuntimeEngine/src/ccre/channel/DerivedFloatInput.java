@@ -18,14 +18,17 @@
  */
 package ccre.channel;
 
-public abstract class DerivedFloatInput implements FloatInput {
+public abstract class DerivedFloatInput extends DerivedUpdate implements FloatInput {
 
     private final FloatStatus value = new FloatStatus();
-    
+
     public DerivedFloatInput(UpdatingInput... updates) {
-        DerivedEventInput.whenAny(updates, () -> {
-            value.set(apply());
-        });
+        super(updates);
+    }
+
+    @Override
+    protected final void update() {
+        value.set(apply());
     }
 
     public float get() {

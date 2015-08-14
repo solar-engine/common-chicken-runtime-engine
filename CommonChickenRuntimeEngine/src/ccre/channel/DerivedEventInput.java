@@ -18,28 +18,18 @@
  */
 package ccre.channel;
 
-
-public abstract class DerivedEventInput implements EventInput {
+public abstract class DerivedEventInput extends DerivedUpdate implements EventInput {
 
     private final EventStatus value = new EventStatus();
 
     public DerivedEventInput(UpdatingInput... updates) {
-        whenAny(updates, () -> {
-            if (shouldProduce()) {
-                value.event();
-            }
-        });
+        super(updates);
     }
 
-    static void whenAny(UpdatingInput[] updates, EventOutput event) {
-        if (updates.length == 0) {
-            throw new IllegalArgumentException("Must be at least one update source!");
-        }
-        for (int i = 0; i < updates.length; i++) {
-            if (updates[i] == null) {
-                throw new NullPointerException();
-            }
-            updates[i].onUpdate().send(event);
+    @Override
+    protected final void update() {
+        if (shouldProduce()) {
+            value.event();
         }
     }
 

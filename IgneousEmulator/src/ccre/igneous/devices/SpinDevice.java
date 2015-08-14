@@ -20,7 +20,8 @@ package ccre.igneous.devices;
 
 import ccre.channel.EventInput;
 import ccre.channel.EventOutput;
-import ccre.channel.FloatInputPoll;
+import ccre.channel.FloatInput;
+import ccre.channel.FloatStatus;
 import ccre.ctrl.Ticker;
 import ccre.igneous.Device;
 import ccre.igneous.components.BooleanTextComponent;
@@ -34,9 +35,9 @@ import ccre.igneous.components.TextComponent;
  *
  * @author skeggsc
  */
-public class SpinDevice extends Device implements FloatInputPoll {
+public class SpinDevice extends Device {
 
-    private int ticks = 0;
+    private FloatStatus ticks = new FloatStatus();
     private int velocity = 0;
     private BooleanTextComponent isVelocityMode = new BooleanTextComponent("POSITION", "VELOCITY") {
         public void onPress(int x, int y) {
@@ -104,11 +105,11 @@ public class SpinDevice extends Device implements FloatInputPoll {
                 partials += velocity;
                 while (partials >= 10) {
                     partials -= 10;
-                    setTicks(ticks + 1);
+                    addTicks(1);
                 }
                 while (partials <= -10) {
                     partials += 10;
-                    setTicks(ticks - 1);
+                    addTicks(-1);
                 }
             }
         });
@@ -118,16 +119,20 @@ public class SpinDevice extends Device implements FloatInputPoll {
         if (isVelocityMode.get()) {
             velocity += i;
         } else {
-            setTicks(ticks + i);
+            addTicks(i);
         }
     }
 
-    public float get() {
+    public FloatInput asInput() {
         return ticks;
     }
+    
+    private void addTicks(int ticks) {
+        setTicks(this.ticks.get() + ticks);
+    }
 
-    private void setTicks(int ticks) {
-        this.ticks = ticks;
+    private void setTicks(float ticks) {
+        this.ticks.set(ticks);
         positionView.setLabel(String.valueOf(ticks));
     }
 }

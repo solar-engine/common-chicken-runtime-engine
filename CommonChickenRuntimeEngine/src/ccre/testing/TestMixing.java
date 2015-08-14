@@ -18,11 +18,9 @@
  */
 package ccre.testing;
 
-import ccre.channel.BooleanInputPoll;
 import ccre.channel.BooleanOutput;
 import ccre.channel.BooleanStatus;
 import ccre.channel.FloatInput;
-import ccre.channel.FloatInputPoll;
 import ccre.channel.FloatStatus;
 import ccre.ctrl.Mixing;
 
@@ -48,19 +46,11 @@ public class TestMixing extends BaseTest {
         FloatStatus offStat = new FloatStatus(1), onStat = new FloatStatus(2);
         BooleanStatus vbool = new BooleanStatus();
         FloatInput fin1 = Mixing.select(vbool.asInput(), offStat, onStat);
-        FloatInputPoll fin2 = Mixing.select((BooleanInputPoll) vbool, offStat, onStat);
-        FloatInput fin3 = Mixing.select(vbool.asInput(), false, offStat, onStat);
-        FloatInput fin4 = Mixing.select(vbool.asInput(), true, offStat, onStat);
-        // We don't bother testing the initial values of fin3 and fin4 because vbool instantly overwrites the defaults on registration.
-        // TODO: Maybe we should?
         for (float off : TestFloatMixing.interestingFloats) {
             for (float on : TestFloatMixing.interestingFloats) {
                 offStat.set(off);
                 onStat.set(on);
-                FloatInput fin5 = Mixing.select(vbool.asInput(), off, on);
-                FloatInputPoll fin6 = Mixing.select((BooleanInputPoll) vbool, off, on);
-                FloatInput fin7 = Mixing.select(vbool.asInput(), false, off, on);
-                FloatInput fin8 = Mixing.select(vbool.asInput(), true, off, on);
+                FloatInput fin2 = Mixing.select(vbool.asInput(), off, on);
                 // make sure that changes to the parameters propagate
                 //vbool.set(false);
                 //vbool.set(true);
@@ -68,13 +58,7 @@ public class TestMixing extends BaseTest {
                     vbool.set(value);
                     float expected = value ? on : off;
                     assertObjectEqual(fin1.get(), expected, "bad float 1: " + value + " => " + off + ", " + on);
-                    assertObjectEqual(fin2.get(), expected, "bad float 2: " + value + " => " + off + ", " + on);
-                    assertObjectEqual(fin3.get(), expected, "bad float 3: " + value + " => " + off + ", " + on);
-                    assertObjectEqual(fin4.get(), expected, "bad float 4: " + value + " => " + off + ", " + on);
-                    assertObjectEqual(fin5.get(), expected, "bad float 5: " + value + " => " + off + ", " + on);
-                    assertObjectEqual(fin6.get(), expected, "bad float 6: " + value + " => " + off + ", " + on);
-                    assertObjectEqual(fin7.get(), expected, "bad float 7: " + value + " => " + off + ", " + on);
-                    assertObjectEqual(fin8.get(), expected, "bad float 8: " + value + " => " + off + ", " + on);
+                    assertObjectEqual(fin2.get(), expected, "bad float 5: " + value + " => " + off + ", " + on);
                 }
             }
         }

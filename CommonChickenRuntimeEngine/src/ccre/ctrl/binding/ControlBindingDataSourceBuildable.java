@@ -21,10 +21,7 @@ package ccre.ctrl.binding;
 import java.util.ConcurrentModificationException;
 
 import ccre.channel.BooleanInput;
-import ccre.channel.BooleanInputPoll;
-import ccre.channel.EventInput;
 import ccre.channel.FloatInput;
-import ccre.ctrl.BooleanMixing;
 import ccre.ctrl.FloatMixing;
 import ccre.ctrl.IJoystick;
 import ccre.ctrl.IJoystickWithPOV;
@@ -44,27 +41,8 @@ import ccre.util.CHashMap;
  * @author skeggsc
  */
 public class ControlBindingDataSourceBuildable implements ControlBindingDataSource {
-    private final EventInput updateOn;
     private final CHashMap<String, BooleanInput> booleans = new CHashMap<String, BooleanInput>();
     private final CHashMap<String, FloatInput> floats = new CHashMap<String, FloatInput>();
-
-    /**
-     * Create a new ControlBindingDataSourceBuildable that updates when the
-     * specified event is produced.
-     *
-     * Since certain inputs will update when, and only when, updateOn is
-     * pressed, make sure that it always keeps firing.
-     *
-     * For example, you could use <code>Igneous.globalPeriodic</code>.
-     *
-     * @param updateOn when to update any InputPolls provided to this buildable.
-     */
-    public ControlBindingDataSourceBuildable(EventInput updateOn) {
-        if (updateOn == null) {
-            throw new NullPointerException();
-        }
-        this.updateOn = updateOn;
-    }
 
     /**
      * Add inputs for all the buttons and axes of a Joystick.
@@ -105,8 +83,8 @@ public class ControlBindingDataSourceBuildable implements ControlBindingDataSour
      */
     public void addAxis(String name, FloatInput axisSource) {
         addAxisRaw(name, axisSource);
-        addButton(name + " AS BTN+", FloatMixing.floatIsAtLeast(axisSource, 0.8f));
-        addButton(name + " AS BTN-", FloatMixing.floatIsAtMost(axisSource, -0.8f));
+        addButton(name + " AS BTN+", FloatMixing.atLeast(axisSource, 0.8f));
+        addButton(name + " AS BTN-", FloatMixing.atMost(axisSource, -0.8f));
     }
 
     /**

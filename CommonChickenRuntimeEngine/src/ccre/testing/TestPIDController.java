@@ -22,7 +22,6 @@ import ccre.channel.EventStatus;
 import ccre.channel.FloatInput;
 import ccre.channel.FloatStatus;
 import ccre.ctrl.FloatMixing;
-import ccre.ctrl.PIDControl;
 import ccre.ctrl.PIDController;
 
 /**
@@ -51,20 +50,15 @@ public class TestPIDController extends BaseTest {
         PIDController shifted = new PIDController(FloatMixing.subtraction.of(setPoint.asInput(), currentValue.asInput()),
                 FloatMixing.always(P), FloatMixing.always(I), FloatMixing.always(D));
         PIDController chopped = PIDController.createFixed(updateOn, currentValue, setPoint, P, I, D);
-        @SuppressWarnings("deprecation")
-        // we still want to test these!
-        PIDControl deprecated = PIDControl.createFixedPID(updateOn, currentValue, setPoint, -P, -I, -D);
         float integralBounds = 0.05f;
         ipid.setIntegralBounds(integralBounds);
         merged.setIntegralBounds(integralBounds);
-        deprecated.setIntegralBounds(FloatMixing.always(integralBounds)); // `always` used just to test more uses
-        shifted.setIntegralBounds(integralBounds);
+        shifted.setIntegralBounds(FloatMixing.always(integralBounds));
         chopped.setIntegralBounds(integralBounds);
 
         float outputBounds = 1.1f;
         merged.setOutputBounds(outputBounds);
-        deprecated.setOutputBounds(FloatMixing.always(outputBounds)); // `always` used just to test more uses
-        shifted.setOutputBounds(outputBounds);
+        shifted.setOutputBounds(FloatMixing.always(outputBounds));
         chopped.setOutputBounds(outputBounds);
 
         final int millis = 20;
@@ -88,7 +82,6 @@ public class TestPIDController extends BaseTest {
                 ipid.update(millis);
                 dpid.update(millis);
                 merged.update(millis);
-                deprecated.update(millis);
                 shifted.update(millis);
                 chopped.update(millis * 37); // update a lot more - but it'll get CHOPPED
                 //System.out.println("Step " + sp + "/" + i + ": " + currentValue.get() + ": " + ppid.get() + " + " + ipid.get() + " + " + dpid.get() + " = " + merged.get());
@@ -109,7 +102,6 @@ public class TestPIDController extends BaseTest {
                     expectedMerged = outputBounds;
                 }
                 assertFloatsNear(expectedMerged, merged.get(), "mismatched merged result");
-                assertFloatsNear(merged.get(), deprecated.get(), "mismatched deprecated result");
                 assertFloatsNear(merged.get(), shifted.get(), "mismatched shifted result");
                 assertFloatsNear(merged.get(), chopped.get(), "mismatched chopped result");
                 if (!lastCycle) {

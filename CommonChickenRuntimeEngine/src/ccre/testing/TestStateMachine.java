@@ -18,7 +18,7 @@
  */
 package ccre.testing;
 
-import ccre.channel.BooleanInputPoll;
+import ccre.channel.BooleanInput;
 import ccre.channel.BooleanStatus;
 import ccre.channel.EventInput;
 import ccre.channel.EventOutput;
@@ -55,7 +55,7 @@ public class TestStateMachine extends BaseTest {
 
         door.autologTransitions(LogLevel.FINEST, "Subtest check: ");
 
-        BooleanInputPoll isOpen = door.getIsState("OPEN");
+        BooleanInput isOpen = door.getIsState("OPEN");
         EventStatus doOpen = new EventStatus(), doClose = new EventStatus();
         door.setStateWhen("OPEN", doOpen);
         door.setStateWhen("CLOSED", doClose);
@@ -172,7 +172,7 @@ public class TestStateMachine extends BaseTest {
         BooleanStatus isLocked = new BooleanStatus(true);
         BooleanStatus gotThrough = new BooleanStatus();
 
-        gotThrough.setTrueWhen(EventMixing.filterEvent(isLocked, false, (EventInput) pushThrough));
+        gotThrough.setTrueWhen(EventMixing.filterNot(isLocked, (EventInput) pushThrough));
         turnstile.transitionStateWhen("LOCKED", "UNLOCKED", insertCoin);
         turnstile.transitionStateWhen("UNLOCKED", "LOCKED", pushThrough);
         turnstile.setFalseOnEnterState("UNLOCKED", isLocked);
@@ -375,7 +375,7 @@ public class TestStateMachine extends BaseTest {
             }
         });
 
-        gandalf.getIsStateDyn("DEAD").send(died);
+        gandalf.getIsState("DEAD").send(died);
         gandalf.onEnterState("MIA", missing.getSetTrueEvent());
         gandalf.onExitState("MIA", missing.getSetFalseEvent());
         gandalf.setTrueOnEnterState("ALIVE", alive);

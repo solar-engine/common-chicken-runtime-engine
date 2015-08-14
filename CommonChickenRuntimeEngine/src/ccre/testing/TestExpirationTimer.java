@@ -54,7 +54,9 @@ public class TestExpirationTimer extends BaseTest {
         ExpirationTimer alarmClock = new ExpirationTimer();
         try {
             FloatStatus time = new FloatStatus();
-            alarmClock.schedule(99).send(FloatMixing.pumpEvent(Utils.currentTimeSeconds, time));
+            alarmClock.schedule(99).send(() -> {
+                time.set(Utils.getCurrentTimeSeconds()); // TODO: This isn't particularly DATAFLOWY
+            });
             float expected = Utils.getCurrentTimeSeconds() + 0.099f;
             assertFalse(alarmClock.isRunning(), "Alarm clock should not be running!");
             alarmClock.start();

@@ -26,7 +26,6 @@ import ccre.channel.FloatOutput;
 import ccre.channel.SerialIO;
 import ccre.ctrl.ExtendedMotor;
 import ccre.ctrl.IJoystick;
-import ccre.ctrl.IJoystickWithPOV;
 import ccre.ctrl.binding.ControlBindingCreator;
 
 /**
@@ -57,7 +56,7 @@ public interface IgneousLauncher {
      * @param id the Joystick number (1-4)
      * @return the associated joystick on the driver station.
      */
-    public IJoystickWithPOV getJoystick(int id);
+    public IJoystick getJoystick(int id);
 
     /**
      * Get an IJoystick for the specified Kinect virtual joystick.

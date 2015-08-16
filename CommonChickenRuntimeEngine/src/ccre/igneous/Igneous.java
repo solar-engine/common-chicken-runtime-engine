@@ -28,7 +28,6 @@ import ccre.ctrl.BooleanMixing;
 import ccre.ctrl.ExtendedMotor;
 import ccre.ctrl.FloatMixing;
 import ccre.ctrl.IJoystick;
-import ccre.ctrl.IJoystickWithPOV;
 import ccre.ctrl.Ticker;
 import ccre.ctrl.binding.CluckControlBinder;
 import ccre.ctrl.binding.ControlBindingCreator;
@@ -82,27 +81,27 @@ public class Igneous {
     /**
      * Joystick 1 on the Driver Station.
      */
-    public static final IJoystickWithPOV joystick1 = launcher.getJoystick(1);
+    public static final IJoystick joystick1 = launcher.getJoystick(1);
     /**
      * Joystick 2 on the Driver Station.
      */
-    public static final IJoystickWithPOV joystick2 = launcher.getJoystick(2);
+    public static final IJoystick joystick2 = launcher.getJoystick(2);
     /**
      * Joystick 3 on the Driver Station.
      */
-    public static final IJoystickWithPOV joystick3 = launcher.getJoystick(3);
+    public static final IJoystick joystick3 = launcher.getJoystick(3);
     /**
      * Joystick 4 on the Driver Station.
      */
-    public static final IJoystickWithPOV joystick4 = launcher.getJoystick(4);
+    public static final IJoystick joystick4 = launcher.getJoystick(4);
     /**
      * Joystick 5 on the Driver Station. Not available on cRIO.
      */
-    public static final IJoystickWithPOV joystick5 = launcher.getJoystick(5);
+    public static final IJoystick joystick5 = launcher.getJoystick(5);
     /**
      * Joystick 6 on the Driver Station. Not available on cRIO.
      */
-    public static final IJoystickWithPOV joystick6 = launcher.getJoystick(6);
+    public static final IJoystick joystick6 = launcher.getJoystick(6);
     /**
      * Produced during every mode if the driver station is attached.
      */

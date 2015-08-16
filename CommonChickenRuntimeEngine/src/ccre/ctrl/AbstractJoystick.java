@@ -26,7 +26,7 @@ import ccre.channel.EventInput;
 import ccre.channel.FloatInput;
 import ccre.channel.FloatStatus;
 
-public abstract class AbstractJoystick implements IJoystickWithPOV {
+public abstract class AbstractJoystick implements IJoystick {
 
     private final EventInput check;
     private final int axisCount, buttonCount;

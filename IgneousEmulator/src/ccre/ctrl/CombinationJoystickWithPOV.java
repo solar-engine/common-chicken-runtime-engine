@@ -27,7 +27,7 @@ import ccre.channel.FloatInput;
  *
  * @author skeggsc
  */
-public class CombinationJoystickWithPOV implements IJoystickWithPOV {
+public class CombinationJoystickWithPOV implements IJoystick {
 
     private final IJoystick alpha, beta;
 

@@ -31,7 +31,6 @@ import ccre.ctrl.ExtendedMotor;
 import ccre.ctrl.FakeJoystick;
 import ccre.ctrl.FloatMixing;
 import ccre.ctrl.IJoystick;
-import ccre.ctrl.IJoystickWithPOV;
 import ccre.ctrl.LoopbackSerialIO;
 import ccre.ctrl.Ticker;
 import ccre.ctrl.binding.ControlBindingCreator;
@@ -79,7 +78,7 @@ public class DeviceBasedLauncher implements IgneousLauncher {
         this.isRoboRIO = isRoboRIO;
         this.onInitComplete = onInitComplete;
         baseIndex = isRoboRIO ? 0 : 1;
-        joysticks = new IJoystickWithPOV[isRoboRIO ? 6 : 4];
+        joysticks = new IJoystick[isRoboRIO ? 6 : 4];
         motors = new FloatOutput[isRoboRIO ? 20 : 10];
         solenoids = new BooleanOutput[isRoboRIO ? 64 : 2][8];
         digitalOutputs = new BooleanOutput[isRoboRIO ? 26 : 14];
@@ -121,9 +120,9 @@ public class DeviceBasedLauncher implements IgneousLauncher {
     private final LoggingDevice logger;
     private EventInput masterPeriodic = new Ticker(20);
 
-    private IJoystickWithPOV[] joysticks;
+    private IJoystick[] joysticks;
 
-    public IJoystickWithPOV getJoystick(int id) {
+    public IJoystick getJoystick(int id) {
         if ((id == 5 || id == 6) && !isRoboRIO()) {
             return new FakeJoystick("The cRIO doesn't support Joystick #5 or #6!");
         }

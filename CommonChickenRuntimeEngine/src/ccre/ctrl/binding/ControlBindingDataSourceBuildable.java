@@ -24,8 +24,6 @@ import ccre.channel.BooleanInput;
 import ccre.channel.FloatInput;
 import ccre.ctrl.FloatMixing;
 import ccre.ctrl.IJoystick;
-import ccre.ctrl.IJoystickWithPOV;
-import ccre.igneous.Igneous;
 import ccre.util.CArrayList;
 import ccre.util.CArrayUtils;
 import ccre.util.CHashMap;
@@ -45,12 +43,13 @@ public class ControlBindingDataSourceBuildable implements ControlBindingDataSour
     private final CHashMap<String, FloatInput> floats = new CHashMap<String, FloatInput>();
 
     /**
-     * Add inputs for all the buttons and axes of a Joystick.
+     * Add inputs for all the buttons and axes of a Joystick, and its POV hat.
      *
      * @param name a name for the Joystick.
      * @param joy the Joystick.
-     * @param buttonCount how many buttons to include.
-     * @param axisCount how many axes to include.
+     * @param buttonCount the number of buttons.
+     * @param axisCount the number of axes.
+     * @see #addJoystick(String, IJoystick, int, int)
      */
     public void addJoystick(String name, IJoystick joy, int buttonCount, int axisCount) {
         for (int i = 1; i <= buttonCount; i++) {
@@ -59,6 +58,10 @@ public class ControlBindingDataSourceBuildable implements ControlBindingDataSour
         for (int i = 1; i <= axisCount; i++) {
             addAxis(name + " AXIS " + i, joy.axis(i));
         }
+        addButton(name + " POV UP", joy.isPOV(IJoystick.POV_NORTH));
+        addButton(name + " POV DOWN", joy.isPOV(IJoystick.POV_SOUTH));
+        addButton(name + " POV LEFT", joy.isPOV(IJoystick.POV_WEST));
+        addButton(name + " POV RIGHT", joy.isPOV(IJoystick.POV_EAST));
     }
 
     /**
@@ -98,27 +101,6 @@ public class ControlBindingDataSourceBuildable implements ControlBindingDataSour
             throw new IllegalArgumentException("Float source already registered: '" + name + "'");
         }
         floats.put(name, axisSource);
-    }
-
-    /**
-     * Add inputs for all the buttons and axes of a Joystick, and its POV hat.
-     *
-     * @param name a name for the Joystick.
-     * @param joy the Joystick.
-     * @param buttonCount the number of buttons.
-     * @param axisCount the number of axes.
-     * @see #addJoystick(String, IJoystick, int, int)
-     */
-    public void addJoystick(String name, IJoystickWithPOV joy, int buttonCount, int axisCount) {
-        addJoystick(name, (IJoystick) joy, buttonCount, axisCount);
-        addPOVHandler(name, joy);
-    }
-
-    private void addPOVHandler(String name, IJoystickWithPOV joy) {
-        addButton(name + " POV UP", Igneous.joystick2.isPOV(IJoystick.POV_NORTH));
-        addButton(name + " POV DOWN", Igneous.joystick2.isPOV(IJoystick.POV_SOUTH));
-        addButton(name + " POV LEFT", Igneous.joystick2.isPOV(IJoystick.POV_WEST));
-        addButton(name + " POV RIGHT", Igneous.joystick2.isPOV(IJoystick.POV_EAST));
     }
 
     public String[] listBooleans() {

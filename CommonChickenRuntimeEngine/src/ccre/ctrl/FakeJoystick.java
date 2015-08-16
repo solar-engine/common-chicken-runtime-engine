@@ -28,7 +28,7 @@ import ccre.channel.FloatInput;
  *
  * @author skeggsc
  */
-public class FakeJoystick implements IJoystickWithPOV {
+public class FakeJoystick implements IJoystick {
 
     private final String errorMessage;
 

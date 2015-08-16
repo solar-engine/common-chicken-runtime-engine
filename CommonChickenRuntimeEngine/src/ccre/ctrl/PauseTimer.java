@@ -19,10 +19,7 @@
 package ccre.ctrl;
 
 import ccre.channel.BooleanInput;
-import ccre.channel.BooleanOutput;
-import ccre.channel.EventInput;
 import ccre.channel.EventOutput;
-import ccre.channel.EventStatus;
 import ccre.concurrency.ConcurrentDispatchArray;
 import ccre.concurrency.ReporterThread;
 import ccre.log.Logger;
@@ -42,8 +39,7 @@ public class PauseTimer implements BooleanInput, EventOutput {
     private volatile long endAt;
     private final long timeout;
     private final Object lock = new Object();
-    private final ConcurrentDispatchArray<BooleanOutput> consumers = new ConcurrentDispatchArray<BooleanOutput>();
-    private final EventStatus events = new EventStatus();
+    private final ConcurrentDispatchArray<EventOutput> consumers = new ConcurrentDispatchArray<EventOutput>();
     private boolean isRunning = true;
     private final ReporterThread main = new ReporterThread("PauseTimer") {
         @Override
@@ -114,28 +110,14 @@ public class PauseTimer implements BooleanInput, EventOutput {
         if (disabled == !enabling) {
             return;
         }
-        for (BooleanOutput c : consumers) {
+        for (EventOutput c : consumers) {
             try {
-                c.set(enabling);
+                c.event();
             } catch (Throwable thr) {
                 Logger.severe("Exception in PauseTimer dispatch!", thr);
             }
         }
-        try {
-            // TODO: somehow, take recovery events into account.
-            events.event();
-        } catch (Throwable thr) {
-            Logger.severe("Exception in PauseTimer dispatch!", thr);
-        }
-    }
-
-    public void send(BooleanOutput output) {
-        consumers.addIfNotFound(output);
-        output.set(get());
-    }
-
-    public void unsend(BooleanOutput output) {
-        consumers.remove(output);
+        // TODO: refactor this so that dispatch errors actually work.
     }
 
     /**
@@ -166,9 +148,14 @@ public class PauseTimer implements BooleanInput, EventOutput {
     public void triggerAtChanges(EventOutput start, EventOutput end) {
         send(BooleanMixing.triggerWhenBooleanChanges(end, start));
     }
+    
+    public void onUpdate(EventOutput notify) {
+        consumers.add(notify);
+    }
 
     @Override
-    public EventInput onUpdate() {
-        return events;
+    public EventOutput onUpdateR(EventOutput notify) {
+        consumers.add(notify);
+        return () -> consumers.remove(notify);
     }
 }

@@ -23,9 +23,7 @@ import java.awt.FontMetrics;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
 
-import ccre.channel.EventInput;
 import ccre.channel.FloatInput;
-import ccre.channel.FloatOutput;
 import ccre.channel.FloatStatus;
 import ccre.igneous.DeviceComponent;
 
@@ -34,7 +32,7 @@ import ccre.igneous.DeviceComponent;
  *
  * @author skeggsc
  */
-public class ControlBarComponent extends DeviceComponent implements FloatInput {
+public class ControlBarComponent extends DeviceComponent {
 
     private boolean dragging = false;
     private int maxWidth = 0; // zero means no maximum
@@ -122,16 +120,7 @@ public class ControlBarComponent extends DeviceComponent implements FloatInput {
         return value.get();
     }
 
-    public void send(FloatOutput output) {
-        value.send(output);
-    }
-
-    public void unsend(FloatOutput output) {
-        value.unsend(output);
-    }
-
-    @Override
-    public EventInput onUpdate() {
-        return value.onUpdate();
+    public FloatInput asInput() {
+        return value;
     }
 }

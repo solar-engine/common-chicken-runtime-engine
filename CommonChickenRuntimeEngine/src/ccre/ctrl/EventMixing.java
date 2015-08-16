@@ -22,7 +22,6 @@ import ccre.channel.BooleanInput;
 import ccre.channel.DerivedEventInput;
 import ccre.channel.EventInput;
 import ccre.channel.EventOutput;
-import ccre.channel.EventOutputRecoverable;
 import ccre.channel.EventStatus;
 
 /**
@@ -47,10 +46,9 @@ public class EventMixing {
      * An EventInput that will never be fired. Ever.
      */
     public static final EventInput never = new EventInput() {
-        public void send(EventOutput listener) {
-        }
-
-        public void unsend(EventOutput listener) {
+        @Override
+        public EventOutput onUpdateR(EventOutput notify) {
+            return ignored;
         }
     };
 
@@ -65,14 +63,13 @@ public class EventMixing {
     public static EventInput combine(final EventInput a, final EventInput b) {
         Mixing.checkNull(a, b);
         return new EventInput() {
-            public void send(EventOutput listener) {
-                a.send(listener);
-                b.send(listener);
+            public void onUpdate(EventOutput notify) {
+                a.onUpdate(notify);
+                b.onUpdate(notify);
             }
-
-            public void unsend(EventOutput listener) {
-                a.unsend(listener);
-                b.unsend(listener);
+            @Override
+            public EventOutput onUpdateR(EventOutput notify) {
+                return combine(a.onUpdateR(notify), b.onUpdateR(notify));
             }
         };
     }
@@ -92,16 +89,19 @@ public class EventMixing {
             return sources[0];
         }
         return new EventInput() {
-            public void send(EventOutput listener) {
-                for (EventInput es : sources) {
-                    es.send(listener);
+            public void onUpdate(EventOutput notify) {
+                for (EventInput input : sources) {
+                    input.onUpdate(notify);
                 }
             }
-
-            public void unsend(EventOutput listener) {
-                for (EventInput es : sources) {
-                    es.unsend(listener);
+            @Override
+            public EventOutput onUpdateR(EventOutput notify) {
+                EventOutput[] removals = new EventOutput[sources.length];
+                for (int i = 0; i < sources.length; i++) {
+                    EventInput input = sources[i];
+                    removals[i] = input.onUpdateR(notify);
                 }
+                return combine(removals);
             }
         };
     }
@@ -154,7 +154,7 @@ public class EventMixing {
      */
     public static EventOutput debounce(final EventOutput orig, final int minMillis) {
         Mixing.checkNull(orig);
-        return new EventOutputRecoverable() {
+        return new EventOutput() {
             private long nextFire = 0;
 
             public synchronized void event() {
@@ -172,12 +172,7 @@ public class EventMixing {
                     return false; // Ignore event.
                 }
                 nextFire = now + minMillis;
-                if (orig instanceof EventOutputRecoverable) {
-                    return ((EventOutputRecoverable) orig).eventWithRecovery();
-                } else {
-                    orig.event();
-                    return false;
-                }
+                return orig.eventWithRecovery();
             }
         };
     }
@@ -201,7 +196,7 @@ public class EventMixing {
 
     public static EventOutput filter(final BooleanInput shouldAllow, final EventOutput target) {
         Mixing.checkNull(shouldAllow, target);
-        return new EventOutputRecoverable() {
+        return new EventOutput() {
             public void event() {
                 if (shouldAllow.get()) {
                     target.event();
@@ -210,11 +205,7 @@ public class EventMixing {
 
             public boolean eventWithRecovery() {
                 if (shouldAllow.get()) {
-                    if (target instanceof EventOutputRecoverable) {
-                        return ((EventOutputRecoverable) target).eventWithRecovery();
-                    } else {
-                        target.event();
-                    }
+                    return target.eventWithRecovery();
                 }
                 return false;
             }
@@ -223,7 +214,7 @@ public class EventMixing {
 
     public static EventOutput filterNot(final BooleanInput shouldAllow, final EventOutput target) {
         Mixing.checkNull(shouldAllow, target);
-        return new EventOutputRecoverable() {
+        return new EventOutput() {
             public void event() {
                 if (!shouldAllow.get()) {
                     target.event();
@@ -232,11 +223,7 @@ public class EventMixing {
 
             public boolean eventWithRecovery() {
                 if (!shouldAllow.get()) {
-                    if (target instanceof EventOutputRecoverable) {
-                        return ((EventOutputRecoverable) target).eventWithRecovery();
-                    } else {
-                        target.event();
-                    }
+                    return target.eventWithRecovery();
                 }
                 return false;
             }

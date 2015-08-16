@@ -19,5 +19,11 @@
 package ccre.channel;
 
 public interface UpdatingInput {
-    public EventInput onUpdate();
+    public default void onUpdate(EventOutput notify) {
+        onUpdateR(notify);
+    }
+
+    // Returns an event that may be fired to remove this notification.
+    // Note: you MUST NOT fire it more than once!
+    public EventOutput onUpdateR(EventOutput notify);
 }

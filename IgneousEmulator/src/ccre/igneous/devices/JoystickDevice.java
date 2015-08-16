@@ -144,7 +144,7 @@ public class JoystickDevice extends DeviceGroup {
                     add(buttons[id - 1]);
                     addToMaster();
                 }
-                return buttons[id - 1];
+                return buttons[id - 1].asInput();
             }
 
             public FloatInput axis(int id) {
@@ -156,7 +156,7 @@ public class JoystickDevice extends DeviceGroup {
                     add(axes[id - 1]);
                     addToMaster();
                 }
-                return axes[id - 1];
+                return axes[id - 1].asInput();
             }
 
             public BooleanInput isPOV(int direction) {
@@ -171,7 +171,7 @@ public class JoystickDevice extends DeviceGroup {
                     add(povAngles[direction]);
                     addToMaster();
                 }
-                return povAngles[direction];
+                return povAngles[direction].asInput();
             }
         });
     }

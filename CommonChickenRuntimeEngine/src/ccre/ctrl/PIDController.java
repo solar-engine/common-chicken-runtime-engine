@@ -21,7 +21,6 @@ package ccre.ctrl;
 import ccre.channel.EventInput;
 import ccre.channel.EventOutput;
 import ccre.channel.FloatInput;
-import ccre.channel.FloatOutput;
 import ccre.channel.FloatStatus;
 
 /**
@@ -279,16 +278,18 @@ public class PIDController implements FloatInput, EventOutput {
         }
     }
 
-    public void send(FloatOutput to) {
-        output.send(to);
-    }
-
-    public void unsend(FloatOutput to) {
-        output.unsend(to);
-    }
-
     public float get() {
         return output.get();
+    }
+
+    @Override
+    public void onUpdate(EventOutput notify) {
+        output.onUpdate(notify);
+    }
+
+    @Override
+    public EventOutput onUpdateR(EventOutput notify) {
+        return output.onUpdateR(notify);
     }
 
     /**
@@ -299,10 +300,5 @@ public class PIDController implements FloatInput, EventOutput {
      */
     public float getPreviousError() {
         return previousError;
-    }
-
-    @Override
-    public EventInput onUpdate() {
-        return output.onUpdate();
     }
 }

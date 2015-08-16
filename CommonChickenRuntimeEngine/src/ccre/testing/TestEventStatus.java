@@ -29,12 +29,6 @@ import ccre.ctrl.EventMixing;
  */
 public final class TestEventStatus extends BaseTest implements EventOutput {
 
-    private final class EventNothing implements EventOutput {
-        public void event() {
-            // do nothing
-        }
-    }
-
     private int eventCalled = -42;
 
     @Override
@@ -47,17 +41,16 @@ public final class TestEventStatus extends BaseTest implements EventOutput {
         basicTest();
         testSingleParameter();
         testConsumerTracking();
-        testDeprecatedFeatures();
     }
 
     private void basicTest() throws TestingException {
         EventStatus event = new EventStatus();
         eventCalled = 0;
-        event.send(this);
+        EventOutput unbind = event.sendR(this);
         assertIntsEqual(eventCalled, 0, "Event fired too soon!");
         event.produce();
         assertIntsEqual(eventCalled, 1, "Event did not fire properly!");
-        event.unsend(this);
+        unbind.event();
         event.produce();
         assertIntsEqual(eventCalled, 1, "Event did not remove properly!");
     }
@@ -68,89 +61,53 @@ public final class TestEventStatus extends BaseTest implements EventOutput {
         assertIntsEqual(eventCalled, 0, "Event fired too soon!");
         event.produce();
         assertIntsEqual(eventCalled, 1, "Event did not fire properly!");
-        event.unsend(this);
-        event.produce();
-        assertIntsEqual(eventCalled, 1, "Event did not remove properly!");
     }
 
     private void testConsumerTracking() throws TestingException {
         EventStatus target = new EventStatus();
         assertFalse(target.hasConsumers(), "Target should not have consumers initially!");
-        target.send(EventMixing.ignored);
+        EventOutput unbind = target.sendR(EventMixing.ignored);
         assertTrue(target.hasConsumers(), "Target should now have consumers!");
-        target.unsend(EventMixing.ignored);
+        unbind.event();
         assertFalse(target.hasConsumers(), "Target should no longer have consumers!");
-        target.send(EventMixing.ignored);
+        EventOutput unbind1 = target.sendR(EventMixing.ignored);
         assertTrue(target.hasConsumers(), "Target should now have consumers!");
-        target.send(EventMixing.ignored);
+        EventOutput unbind2 = target.sendR(EventMixing.ignored);
         assertTrue(target.hasConsumers(), "Target should still have consumers!");
-        target.unsend(EventMixing.ignored);
-        assertFalse(target.hasConsumers(), "Target should no longer have consumers!");
-        target.unsend(EventMixing.ignored); // should not fail
-        assertFalse(target.hasConsumers(), "Target should still not have consumers!");
+        unbind2.event();
+        assertTrue(target.hasConsumers(), "Target should still have consumers!");
+        unbind1.event();
+        assertFalse(target.hasConsumers(), "Target should not have consumers!");
 
         target = new EventStatus(EventMixing.ignored);
-        assertTrue(target.hasConsumers(), "Target should have consumers initially!");
-        target.unsend(EventMixing.ignored);
-        assertFalse(target.hasConsumers(), "Target should no longer have consumers!");
-        target.send(EventMixing.ignored);
-        assertTrue(target.hasConsumers(), "Target should now have consumers!");
-        target.unsend(EventMixing.ignored);
-        assertFalse(target.hasConsumers(), "Target should no longer have consumers!");
-        target.send(EventMixing.ignored);
-        assertTrue(target.hasConsumers(), "Target should now have consumers!");
-        target.send(EventMixing.ignored);
         assertTrue(target.hasConsumers(), "Target should still have consumers!");
-        target.unsend(EventMixing.ignored);
-        assertFalse(target.hasConsumers(), "Target should no longer have consumers!");
-        target.unsend(EventMixing.ignored); // should not fail
-        assertFalse(target.hasConsumers(), "Target should still not have consumers!");
+        unbind = target.sendR(EventMixing.ignored);
+        assertTrue(target.hasConsumers(), "Target should still have consumers!");
+        unbind.event();
+        assertTrue(target.hasConsumers(), "Target should still have consumers!");
+        unbind1 = target.sendR(EventMixing.ignored);
+        assertTrue(target.hasConsumers(), "Target should still have consumers!");
+        unbind2 = target.sendR(EventMixing.ignored);
+        assertTrue(target.hasConsumers(), "Target should still have consumers!");
+        unbind2.event();
+        assertTrue(target.hasConsumers(), "Target should still have consumers!");
+        unbind1.event();
+        assertTrue(target.hasConsumers(), "Target should still have consumers!");
 
         target = new EventStatus(EventMixing.ignored, EventMixing.ignored);
-        assertTrue(target.hasConsumers(), "Target should have consumers initially!");
-        target.unsend(EventMixing.ignored);
-        assertFalse(target.hasConsumers(), "Target should no longer have consumers!");
-        target.send(EventMixing.ignored);
-        assertTrue(target.hasConsumers(), "Target should now have consumers!");
-        target.unsend(EventMixing.ignored);
-        assertFalse(target.hasConsumers(), "Target should no longer have consumers!");
-        target.send(EventMixing.ignored);
-        assertTrue(target.hasConsumers(), "Target should now have consumers!");
-        target.send(EventMixing.ignored);
         assertTrue(target.hasConsumers(), "Target should still have consumers!");
-        target.unsend(EventMixing.ignored);
-        assertFalse(target.hasConsumers(), "Target should no longer have consumers!");
-        target.unsend(EventMixing.ignored); // should not fail
-        assertFalse(target.hasConsumers(), "Target should still not have consumers!");
-    }
-
-    @SuppressWarnings("deprecation")
-    private void testDeprecatedFeatures() throws TestingException {
-        EventStatus target = new EventStatus();
-        EventOutput[] nothings = new EventOutput[] { new EventNothing(), new EventNothing(), new EventNothing(), new EventNothing() };
-        for (int i = 0; i < nothings.length; i++) {
-            assertIntsEqual(target.countConsumers(), 0, "Wrong initial number of consumers!");
-            for (int j = 0; j < i; j++) {
-                EventOutput n = nothings[j];
-                assertIntsEqual(j, target.countConsumers(), "Wrong number of consumers!");
-                target.send(n);
-                assertIntsEqual(j + 1, target.countConsumers(), "Wrong number of consumers!");
-                target.send(n);
-                assertIntsEqual(j + 1, target.countConsumers(), "Wrong number of consumers!");
-                target.unsend(n);
-                assertIntsEqual(j, target.countConsumers(), "Wrong number of consumers!");
-                target.send(n);
-                assertIntsEqual(j + 1, target.countConsumers(), "Wrong number of consumers!");
-            }
-            assertIntsEqual(target.countConsumers(), i, "Wrong intermediate number of consumers!");
-            for (int j = i; j > 0; j--) {
-                EventOutput n = nothings[j - 1];
-                assertIntsEqual(j, target.countConsumers(), "Wrong number of consumers!");
-                target.unsend(n);
-                assertIntsEqual(j - 1, target.countConsumers(), "Wrong number of consumers!");
-            }
-            assertIntsEqual(target.countConsumers(), 0, "Wrong final number of consumers!");
-        }
+        unbind = target.sendR(EventMixing.ignored);
+        assertTrue(target.hasConsumers(), "Target should still have consumers!");
+        unbind.event();
+        assertTrue(target.hasConsumers(), "Target should still have consumers!");
+        unbind1 = target.sendR(EventMixing.ignored);
+        assertTrue(target.hasConsumers(), "Target should still have consumers!");
+        unbind2 = target.sendR(EventMixing.ignored);
+        assertTrue(target.hasConsumers(), "Target should still have consumers!");
+        unbind2.event();
+        assertTrue(target.hasConsumers(), "Target should still have consumers!");
+        unbind1.event(); // should not fail
+        assertTrue(target.hasConsumers(), "Target should still have consumers!");
     }
 
     public void event() {

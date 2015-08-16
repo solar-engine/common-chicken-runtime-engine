@@ -44,6 +44,7 @@ public class EventDisplayComponent extends BaseChannelComponent<EventDisplayComp
     private transient long countStart;
     private boolean subscribed;
     private final EventInput inp;
+    private EventOutput unsubscribe;
 
     /**
      * Create a new EventDisplayComponent with a EventInput to read from.
@@ -107,10 +108,12 @@ public class EventDisplayComponent extends BaseChannelComponent<EventDisplayComp
     protected void onChangePanel(SuperCanvasPanel panel) {
         boolean hasPanel = panel != null;
         if (inp != null && hasPanel != subscribed) {
+            if (unsubscribe != null) {
+                unsubscribe.event();
+                unsubscribe = null;
+            }
             if (hasPanel) {
-                inp.send(this);
-            } else {
-                inp.unsend(this);
+                unsubscribe = inp.sendR(this);
             }
             subscribed = hasPanel;
         }

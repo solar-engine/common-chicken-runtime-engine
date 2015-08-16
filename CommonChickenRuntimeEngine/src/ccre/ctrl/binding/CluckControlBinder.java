@@ -43,6 +43,10 @@ public class CluckControlBinder implements RConfable {
     // From sink to source.
     private final CHashMap<String, String> boolLinkage = new CHashMap<String, String>();
     private final CHashMap<String, String> floatLinkage = new CHashMap<String, String>();
+    
+    private final CHashMap<String, EventOutput> boolUnbinds = new CHashMap<String, EventOutput>();
+    private final CHashMap<String, EventOutput> floatUnbinds = new CHashMap<String, EventOutput>();
+    
     private final String name;
     private boolean dirty = false;
     private final StorageSegment storage;
@@ -201,30 +205,34 @@ public class CluckControlBinder implements RConfable {
     }
 
     private void rebindBoolean(String sink, String source) {
-        String oldSource = boolLinkage.get(sink);
-        if (oldSource != null) {
-            sourceSet.getBoolean(oldSource).unsend(sinkSet.getBoolean(sink));
+        EventOutput unbind = boolUnbinds.get(sink);
+        if (unbind != null) {
+            unbind.event();
         }
 
         if (source == null) {
             boolLinkage.remove(sink);
+            boolUnbinds.remove(sink);
         } else {
-            sourceSet.getBoolean(source).send(sinkSet.getBoolean(sink));
+            unbind = sourceSet.getBoolean(source).sendR(sinkSet.getBoolean(sink));
             boolLinkage.put(sink, source);
+            boolUnbinds.put(sink, unbind);
         }
     }
 
     private void rebindFloat(String sink, String source) {
-        String oldSource = floatLinkage.get(sink);
-        if (oldSource != null) {
-            sourceSet.getFloat(oldSource).unsend(sinkSet.getFloat(sink));
+        EventOutput unbind = floatUnbinds.get(sink);
+        if (unbind != null) {
+            unbind.event();
         }
 
         if (source == null) {
             floatLinkage.remove(sink);
+            floatUnbinds.remove(sink);
         } else {
-            sourceSet.getFloat(source).send(sinkSet.getFloat(sink));
+            unbind = sourceSet.getFloat(source).sendR(sinkSet.getFloat(sink));
             floatLinkage.put(sink, source);
+            floatUnbinds.put(sink, unbind);
         }
     }
 

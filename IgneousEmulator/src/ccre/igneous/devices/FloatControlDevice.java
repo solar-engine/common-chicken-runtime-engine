@@ -18,9 +18,7 @@
  */
 package ccre.igneous.devices;
 
-import ccre.channel.EventInput;
 import ccre.channel.FloatInput;
-import ccre.channel.FloatOutput;
 import ccre.igneous.Device;
 import ccre.igneous.components.ControlBarComponent;
 import ccre.igneous.components.SpacingComponent;
@@ -31,7 +29,7 @@ import ccre.igneous.components.TextComponent;
  *
  * @author skeggsc
  */
-public class FloatControlDevice extends Device implements FloatInput {
+public class FloatControlDevice extends Device {
 
     private final ControlBarComponent value;
 
@@ -64,16 +62,7 @@ public class FloatControlDevice extends Device implements FloatInput {
         return value.get();
     }
 
-    public void send(FloatOutput output) {
-        value.send(output);
-    }
-
-    public void unsend(FloatOutput output) {
-        value.unsend(output);
-    }
-
-    @Override
-    public EventInput onUpdate() {
-        return value.onUpdate();
+    public FloatInput asInput() {
+        return value.asInput();
     }
 }

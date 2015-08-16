@@ -28,6 +28,7 @@ import java.io.Serializable;
 
 import ccre.channel.BooleanInput;
 import ccre.channel.BooleanOutput;
+import ccre.channel.EventOutput;
 import ccre.ctrl.BooleanMixing;
 import ccre.rconf.RConf.Entry;
 import ccre.supercanvas.BaseChannelComponent;
@@ -50,6 +51,7 @@ public class BooleanControlComponent extends BaseChannelComponent<BooleanControl
     private boolean lastSentValue;
     private final BooleanInput alternateSource;
     private final BooleanOutput rawOut;
+    private EventOutput unsubscribe;
 
     /**
      * Create a new BooleanControlComponent with a BooleanOutput to control.
@@ -205,10 +207,12 @@ public class BooleanControlComponent extends BaseChannelComponent<BooleanControl
     protected void onChangePanel(SuperCanvasPanel panel) {
         boolean hasPanel = panel != null;
         if (alternateSource != null && hasPanel != isFakeSubscribed) {
+            if (unsubscribe != null) {
+                unsubscribe.event();
+                unsubscribe = null;
+            }
             if (hasPanel) {
-                alternateSource.send(fakeOut);
-            } else {
-                alternateSource.unsend(fakeOut);
+                unsubscribe = alternateSource.sendR(fakeOut);
             }
             isFakeSubscribed = hasPanel;
         }

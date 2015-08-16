@@ -19,7 +19,6 @@
 package ccre.igneous.devices;
 
 import ccre.channel.BooleanInput;
-import ccre.channel.BooleanOutput;
 import ccre.channel.EventInput;
 import ccre.channel.EventStatus;
 import ccre.igneous.Device;
@@ -33,7 +32,7 @@ import ccre.igneous.components.TextComponent;
  *
  * @author skeggsc
  */
-public class BooleanControlDevice extends Device implements BooleanInput {
+public class BooleanControlDevice extends Device {
 
     private final EventStatus pressEvent = new EventStatus();
     private final BooleanTextComponent actuated = new BooleanTextComponent("INACTIVE", "ACTIVE") {
@@ -58,18 +57,6 @@ public class BooleanControlDevice extends Device implements BooleanInput {
         add(actuated);
     }
 
-    public boolean get() {
-        return actuated.get();
-    }
-
-    public void send(BooleanOutput output) {
-        actuated.send(output);
-    }
-
-    public void unsend(BooleanOutput output) {
-        actuated.unsend(output);
-    }
-
     /**
      * Returns an event representing when the BooleanControlDevice is pressed.
      *
@@ -78,9 +65,8 @@ public class BooleanControlDevice extends Device implements BooleanInput {
     public EventInput whenPressed() {
         return pressEvent;
     }
-
-    @Override
-    public EventInput onUpdate() {
-        return actuated.onUpdate();
+    
+    public BooleanInput asInput() {
+        return actuated.asInput();
     }
 }

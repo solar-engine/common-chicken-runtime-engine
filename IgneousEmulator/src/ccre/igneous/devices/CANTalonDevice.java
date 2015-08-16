@@ -133,7 +133,7 @@ public class CANTalonDevice extends DeviceGroup implements Disableable {
             if (!statusDevices.containsKey(type)) {
                 statusDevices.put(type, add(new FloatControlDevice(type.toString())));
             }
-            return statusDevices.get(type);
+            return statusDevices.get(type).asInput();
         }
 
         public Object getDiagnostics(DiagnosticType type) {
@@ -152,7 +152,7 @@ public class CANTalonDevice extends DeviceGroup implements Disableable {
                 if (!diagnosticDevices.containsKey(type)) {
                     diagnosticDevices.put(type, add(new BooleanControlDevice(type.toString())));
                 }
-                return diagnosticDevices.get(type);
+                return diagnosticDevices.get(type).asInput();
             } else {
                 return null;
             }

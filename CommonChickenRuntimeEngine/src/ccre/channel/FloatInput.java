@@ -47,24 +47,14 @@ public interface FloatInput extends UpdatingInput {
      *
      * @param output The float output to notify when the value changes.
      * @see FloatOutput#set(float)
-     * @see #unsend(ccre.channel.FloatOutput)
      */
-    public void send(FloatOutput output);
-
-    /**
-     * Unsubscribe from changes in this float input's value. This reverses the
-     * actions of a previous send call.
-     *
-     * By convention, most float inputs and outputs have states that range from
-     * -1.0f to 1.0f.
-     *
-     * If the listener was not added previously (or had been removed), this call
-     * will do nothing.
-     *
-     * After this is called, a listener can be reregistered with send.
-     *
-     * @param output The output to unsubscribe.
-     * @see #send(ccre.channel.FloatOutput)
-     */
-    public void unsend(FloatOutput output);
+    public default void send(FloatOutput output) {
+        output.set(get());
+        onUpdate(() -> output.set(get()));
+    }
+    
+    public default EventOutput sendR(FloatOutput output) {
+        output.set(get());
+        return onUpdateR(() -> output.set(get()));
+    }
 }

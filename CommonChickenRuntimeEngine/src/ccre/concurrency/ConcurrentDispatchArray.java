@@ -22,6 +22,7 @@ import java.io.Serializable;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
+import ccre.channel.EventOutput;
 import ccre.util.CArrayUtils;
 import ccre.util.CCollection;
 
@@ -143,6 +144,11 @@ public final class ConcurrentDispatchArray<E> implements CCollection<E>, Seriali
                 return true;
             }
         }
+    }
+
+    public EventOutput addR(E e) {
+        add(e);
+        return () -> remove(e);
     }
 
     /**

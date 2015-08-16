@@ -27,6 +27,7 @@ import java.awt.Shape;
 import java.awt.Stroke;
 import java.awt.geom.AffineTransform;
 
+import ccre.channel.EventOutput;
 import ccre.channel.FloatInput;
 import ccre.channel.FloatOutput;
 import ccre.log.Logger;
@@ -52,6 +53,7 @@ public class FloatDisplayComponent extends BaseChannelComponent<FloatDisplayComp
     private float minimum = -1.0f, maximum = 1.0f;
     private boolean subscribed;
     private final FloatInput inp;
+    private EventOutput unsubscribe; // TODO: collapse subscribed and unsubscribe? here and other places?
 
     /**
      * Create a new FloatDisplayComponent with a FloatInput to read from.
@@ -192,10 +194,12 @@ public class FloatDisplayComponent extends BaseChannelComponent<FloatDisplayComp
     protected void onChangePanel(SuperCanvasPanel panel) {
         boolean hasPanel = panel != null;
         if (inp != null && hasPanel != subscribed) {
+            if (unsubscribe != null) {
+                unsubscribe.event();
+                unsubscribe = null;
+            }
             if (hasPanel) {
-                inp.send(this);
-            } else {
-                inp.unsend(this);
+                unsubscribe = inp.sendR(this);
             }
             subscribed = hasPanel;
         }

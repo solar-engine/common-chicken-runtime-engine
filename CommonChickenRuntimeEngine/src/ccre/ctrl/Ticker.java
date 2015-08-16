@@ -72,32 +72,6 @@ public final class Ticker implements EventInput {
     }
 
     /**
-     * Adds an EventOutput to listen for the periodically fired events produced
-     * by this EventInput.
-     *
-     * @param ec The EventOutput to add.
-     */
-    public void send(EventOutput ec) {
-        if (isKilled) {
-            throw new IllegalStateException("The Ticker is dead!");
-        }
-        if (!main.isAlive()) {
-            main.start();
-        }
-        producer.send(ec);
-    }
-
-    /**
-     * Removes the specified EventOutput, so that its eventFired method will no
-     * longer be called by this EventInput.
-     *
-     * @param ec The EventOutput to remove.
-     */
-    public void unsend(EventOutput ec) {
-        producer.unsend(ec);
-    }
-
-    /**
      * Destroys this Ticker. It won't function after this.
      */
     public void terminate() {
@@ -169,5 +143,27 @@ public final class Ticker implements EventInput {
                 countFails += 10;
             }
         }
+    }
+
+    @Override
+    public void onUpdate(EventOutput notify) {
+        if (isKilled) {
+            throw new IllegalStateException("Terminated!");
+        }
+        if (!main.isAlive()) {
+            main.start();
+        }
+        producer.onUpdate(notify);
+    }
+
+    @Override
+    public EventOutput onUpdateR(EventOutput notify) {
+        if (isKilled) {
+            throw new IllegalStateException("Terminated!");
+        }
+        if (!main.isAlive()) {
+            main.start();
+        }
+        return producer.onUpdateR(notify);
     }
 }

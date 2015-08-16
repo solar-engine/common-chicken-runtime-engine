@@ -279,7 +279,7 @@ public class FloatMixing {
         if (Float.isNaN(minimum) || Float.isNaN(maximum)) {
             throw new IllegalArgumentException("Cannot have NaN boundary in floatIsOutsideRange!");
         }
-        return new DerivedBooleanInput() {
+        return new DerivedBooleanInput(base) {
             @Override
             protected boolean apply() {
                 float value = base.get();
@@ -403,16 +403,9 @@ public class FloatMixing {
                 return value;
             }
 
-            public void send(FloatOutput consum) {
-                consum.set(value);
-            }
-
-            public void unsend(FloatOutput consum) {
-            }
-
             @Override
-            public EventInput onUpdate() {
-                return EventMixing.never;
+            public EventOutput onUpdateR(EventOutput notify) {
+                return EventMixing.ignored;
             }
         };
     }

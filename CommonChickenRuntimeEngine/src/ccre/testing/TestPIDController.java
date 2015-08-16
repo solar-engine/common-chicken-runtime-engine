@@ -18,6 +18,7 @@
  */
 package ccre.testing;
 
+import ccre.channel.EventOutput;
 import ccre.channel.EventStatus;
 import ccre.channel.FloatInput;
 import ccre.channel.FloatStatus;
@@ -65,14 +66,14 @@ public class TestPIDController extends BaseTest {
         chopped.setMaximumTimeDelta(millis / 1000f);
         
         FloatStatus reflection = new FloatStatus();
-        merged.send(reflection);
+        EventOutput unbind = merged.sendR(reflection);
 
         float lastSample = 0, lastIntegral = ipid.integralTotal.get();
         float lastMergedResult = 0;
         for (float sp : new float[] { 10, -5, 0, 3 }) {
             boolean lastCycle = (sp == 3);
             if (lastCycle) {
-                merged.unsend(reflection);
+                unbind.event();
             }
             setPoint.set(sp);
             reflection.set(Float.NaN); // so we know when it gets updated

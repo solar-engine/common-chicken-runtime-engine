@@ -39,23 +39,11 @@ public interface EventInput extends UpdatingInput {
      * @param listener the listener to add.
      * @see #unsend(EventOutput)
      */
-    void send(EventOutput listener);
-
-    /**
-     * Remove a listener for when this event is fired. This reverses the actions
-     * of a previous send call.
-     *
-     * If the listener was not added previously (or had been removed), this call
-     * will do nothing.
-     *
-     * After unsend is called, a listener can be reregistered with send.
-     *
-     * @param listener the listener to remove.
-     * @see #send(EventOutput)
-     */
-    void unsend(EventOutput listener);
+    public default void send(EventOutput output) {
+        onUpdate(output);
+    }
     
-    public default EventInput onUpdate() {
-        return this;
+    public default EventOutput sendR(EventOutput output) {
+        return onUpdateR(output);
     }
 }

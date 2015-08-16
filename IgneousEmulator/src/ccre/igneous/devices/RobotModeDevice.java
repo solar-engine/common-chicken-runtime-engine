@@ -125,7 +125,7 @@ public class RobotModeDevice extends Device {
         if (mode == RobotMode.DISABLED) {
             return BooleanMixing.invert((BooleanInput) enabled);
         } else {
-            return new DerivedBooleanInput(enabled) {
+            return new DerivedBooleanInput(enabled.asInput()) {
                 // updates only matter when enabled changes... the mode (and so the result) can't change when the mode is enabled.
                 // and when disabled, the result is false anyway... until enabled becomes true.
                 @Override
@@ -142,6 +142,6 @@ public class RobotModeDevice extends Device {
      * @return the channel representing if the robot is enabled.
      */
     public BooleanInput getIsEnabled() {
-        return enabled;
+        return enabled.asInput();
     }
 }

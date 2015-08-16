@@ -19,6 +19,7 @@
 package ccre.testing;
 
 import ccre.channel.BooleanInput;
+import ccre.channel.EventOutput;
 import ccre.channel.EventStatus;
 import ccre.channel.FloatFilter;
 import ccre.channel.FloatInput;
@@ -223,9 +224,9 @@ public class TestFloatMixing extends BaseTest {
             out.ifExpected = true;
             out.valueExpected = value;
             FloatInput vall = FloatMixing.always(value);
-            vall.send(out);
+            EventOutput unbind = vall.sendR(out);
             out.check();
-            vall.unsend(out);
+            unbind.event();
         }
     }
 

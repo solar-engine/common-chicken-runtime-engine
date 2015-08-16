@@ -20,6 +20,7 @@ package ccre.testing;
 
 import ccre.channel.BooleanOutput;
 import ccre.channel.BooleanStatus;
+import ccre.channel.EventOutput;
 import ccre.ctrl.PauseTimer;
 import ccre.log.Logger;
 
@@ -136,7 +137,7 @@ public class TestPauseTimer extends BaseTest {
                     }
                 }
             };
-            timer.send(evil);
+            EventOutput unbindEvil = timer.sendR(evil);
             canOccur[0] = false;
             final boolean[] atAll = new boolean[1];
             BooleanOutput checker = new BooleanOutput() {
@@ -155,7 +156,7 @@ public class TestPauseTimer extends BaseTest {
                     }
                 }
             };
-            timer.send(checker);
+            EventOutput unbindChecker = timer.sendR(checker);
             canOccur[1] = false;
             timer.event();
             assertTrue(timer.get(), "Should be on.");
@@ -163,17 +164,17 @@ public class TestPauseTimer extends BaseTest {
             assertFalse(timer.get(), "Should be off.");
             assertTrue(atAll[0], "Should have occurred even with an erroneous throw!");
             // TODO: Should test logging as well.
-            timer.unsend(evil);
-            timer.unsend(checker);
+            unbindEvil.event();
+            unbindChecker.event();
 
             // Now use it semi-normally.
             BooleanStatus temp = new BooleanStatus();
-            timer.send(temp);
+            EventOutput unbind = timer.sendR(temp);
             assertFalse(temp.get(), "Should be off.");
             timer.event();
             Thread.sleep(199);
             assertTrue(temp.get(), "Should be on.");
-            timer.unsend(temp);
+            unbind.event();
             assertTrue(temp.get(), "Should be on.");
             Thread.sleep(149);
             assertTrue(temp.get(), "Should be on.");

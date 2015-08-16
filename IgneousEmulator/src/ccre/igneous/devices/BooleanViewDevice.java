@@ -52,7 +52,7 @@ public class BooleanViewDevice extends Device implements BooleanOutput, Disablea
         this(label);
         this.set(enabledByDefault);
     }
-    
+
     public void set(boolean value) {
         savedValue = value;
         if (!disabled) {
@@ -69,7 +69,8 @@ public class BooleanViewDevice extends Device implements BooleanOutput, Disablea
             actuated.set(savedValue);
         }
     }
-    
+
     public BooleanInput asInput() {
-        return actuated;
-    }}
+        return actuated.asInput();
+    }
+}

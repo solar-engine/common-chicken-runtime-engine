@@ -18,9 +18,11 @@
  */
 package ccre.channel;
 
+import ccre.concurrency.ConcurrentDispatchArray;
+
 public abstract class DerivedEventInput extends DerivedUpdate implements EventInput {
 
-    private final EventStatus value = new EventStatus();
+    private final ConcurrentDispatchArray<EventOutput> consumers = new ConcurrentDispatchArray<>();
 
     public DerivedEventInput(UpdatingInput... updates) {
         super(updates);
@@ -29,24 +31,32 @@ public abstract class DerivedEventInput extends DerivedUpdate implements EventIn
     @Override
     protected final void update() {
         if (shouldProduce()) {
-            value.event();
+            for (EventOutput consumer : consumers) {
+                consumer.event();
+            }
         }
+    }
+
+    @Override
+    protected final boolean updateWithRecovery() {
+        boolean recovered = false;
+        if (shouldProduce()) {
+            for (EventOutput consumer : consumers) {
+                recovered |= consumer.eventWithRecovery();
+            }
+        }
+        return recovered;
     }
 
     protected abstract boolean shouldProduce();
 
     @Override
-    public EventInput onUpdate() {
-        return value;
+    public void onUpdate(EventOutput notify) {
+        consumers.add(notify);
     }
 
     @Override
-    public void send(EventOutput output) {
-        value.send(output);
-    }
-
-    @Override
-    public void unsend(EventOutput output) {
-        value.send(output);
+    public EventOutput onUpdateR(EventOutput notify) {
+        return consumers.addR(notify);
     }
 }

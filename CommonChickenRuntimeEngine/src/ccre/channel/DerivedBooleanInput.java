@@ -18,37 +18,54 @@
  */
 package ccre.channel;
 
+import ccre.concurrency.ConcurrentDispatchArray;
+
 public abstract class DerivedBooleanInput extends DerivedUpdate implements BooleanInput {
 
-    private final BooleanStatus value = new BooleanStatus();
+    private boolean value;
+    private final ConcurrentDispatchArray<EventOutput> consumers = new ConcurrentDispatchArray<>();
     
     public DerivedBooleanInput(UpdatingInput... updates) {
         super(updates);
+        value = apply();
     }
-    
+
     @Override
     protected final void update() {
-        value.set(apply());
+        boolean newvalue = apply();
+        if (newvalue != value) {
+            value = newvalue;
+            for (EventOutput consumer : consumers) {
+                consumer.event();
+            }
+        }
+    }
+    
+    protected final boolean updateWithRecovery() {
+        boolean newvalue = apply();
+        boolean recovered = false;
+        if (newvalue != value) {
+            value = newvalue;
+            for (EventOutput consumer : consumers) {
+                recovered |= consumer.eventWithRecovery();
+            }
+        }
+        return recovered;
     }
 
     public final boolean get() {
-        return value.get();
+        return value;
     }
 
     protected abstract boolean apply();
 
     @Override
-    public final EventInput onUpdate() {
-        return value.onUpdate();
+    public void onUpdate(EventOutput notify) {
+        consumers.add(notify);
     }
-
+    
     @Override
-    public final void send(BooleanOutput output) {
-        value.send(output);
-    }
-
-    @Override
-    public final void unsend(BooleanOutput output) {
-        value.unsend(output);
+    public EventOutput onUpdateR(EventOutput notify) {
+        return consumers.addR(notify);
     }
 }

@@ -52,6 +52,7 @@ import ccre.channel.FloatStatus;
 import ccre.cluck.rpc.RemoteProcedure;
 import ccre.cluck.rpc.SimpleProcedure;
 import ccre.concurrency.ConcurrentDispatchArray;
+import ccre.ctrl.EventMixing;
 import ccre.log.LogLevel;
 import ccre.log.Logger;
 import ccre.log.LoggingTarget;
@@ -717,8 +718,8 @@ public class CluckPublisher {
         }
 
         @Override
-        public synchronized void send(FloatOutput out) {
-            super.send(out);
+        public synchronized void onUpdate(EventOutput out) {
+            super.onUpdate(out);
             if (!sent) {
                 sent = true;
                 node.transmit(path, linkName, new byte[] { RMT_FLOATPROD });
@@ -726,12 +727,18 @@ public class CluckPublisher {
         }
 
         @Override
-        public synchronized void unsend(FloatOutput cns) {
-            super.unsend(cns);
-            if (canUnsubscribe && sent && !this.hasConsumers()) {
-                sent = false;
-                node.transmit(path, linkName, new byte[] { RMT_FLOATPROD_UNSUB });
+        public synchronized EventOutput onUpdateR(EventOutput out) {
+            EventOutput base = super.onUpdateR(out);
+            if (!sent) {
+                sent = true;
+                node.transmit(path, linkName, new byte[] { RMT_FLOATPROD });
             }
+            return EventMixing.combine(base, () -> {
+                if (canUnsubscribe && sent && !this.hasConsumers()) {
+                    sent = false;
+                    node.transmit(path, linkName, new byte[] { RMT_FLOATPROD_UNSUB });
+                }
+            });
         }
 
         private boolean shouldResend() {
@@ -748,9 +755,6 @@ public class CluckPublisher {
             linkName = UniqueIds.global.nextHexId("srcFI");
         }
 
-        /**
-         * @return the linkName
-         */
         public String getLinkName() {
             return linkName;
         }
@@ -814,8 +818,8 @@ public class CluckPublisher {
         }
 
         @Override
-        public synchronized void send(BooleanOutput out) {
-            super.send(out);
+        public synchronized void onUpdate(EventOutput out) {
+            super.onUpdate(out);
             if (!sent) {
                 sent = true;
                 node.transmit(path, linkName, new byte[] { RMT_BOOLPROD });
@@ -823,12 +827,18 @@ public class CluckPublisher {
         }
 
         @Override
-        public synchronized void unsend(BooleanOutput cns) {
-            super.unsend(cns);
-            if (canUnsubscribe && sent && !this.hasConsumers()) {
-                sent = false;
-                node.transmit(path, linkName, new byte[] { RMT_BOOLPROD_UNSUB });
+        public synchronized EventOutput onUpdateR(EventOutput cns) {
+            EventOutput base = super.onUpdateR(cns);
+            if (!sent) {
+                sent = true;
+                node.transmit(path, linkName, new byte[] { RMT_BOOLPROD });
             }
+            return EventMixing.combine(base, () -> {
+                if (canUnsubscribe && sent && !this.hasConsumers()) {
+                    sent = false;
+                    node.transmit(path, linkName, new byte[] { RMT_BOOLPROD_UNSUB });
+                }
+            });
         }
 
         private boolean shouldResend() {
@@ -845,9 +855,6 @@ public class CluckPublisher {
             linkName = UniqueIds.global.nextHexId("srcBI");
         }
 
-        /**
-         * @return the linkName
-         */
         public String getLinkName() {
             return linkName;
         }
@@ -905,8 +912,8 @@ public class CluckPublisher {
         }
 
         @Override
-        public synchronized void send(EventOutput cns) {
-            super.send(cns);
+        public synchronized void onUpdate(EventOutput cns) {
+            super.onUpdate(cns);
             if (!sent) {
                 sent = true;
                 node.transmit(path, linkName, new byte[] { RMT_EVENTINPUT });
@@ -914,12 +921,18 @@ public class CluckPublisher {
         }
 
         @Override
-        public synchronized void unsend(EventOutput cns) {
-            super.unsend(cns);
-            if (sent && !this.hasConsumers()) {
-                sent = false;
-                node.transmit(path, linkName, new byte[] { RMT_EVENTINPUT_UNSUB });
+        public synchronized EventOutput onUpdateR(EventOutput cns) {
+            EventOutput base = super.onUpdateR(cns);
+            if (!sent) {
+                sent = true;
+                node.transmit(path, linkName, new byte[] { RMT_EVENTINPUT });
             }
+            return EventMixing.combine(base, () -> {
+                if (sent && !this.hasConsumers()) {
+                    sent = false;
+                    node.transmit(path, linkName, new byte[] { RMT_EVENTINPUT_UNSUB });
+                }
+            });
         }
 
         private boolean shouldResend() {
@@ -936,9 +949,6 @@ public class CluckPublisher {
             this.linkName = UniqueIds.global.nextHexId("srcES");
         }
 
-        /**
-         * @return the linkName
-         */
         public String getLinkName() {
             return linkName;
         }

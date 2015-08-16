@@ -69,11 +69,18 @@ public class TestMixing extends BaseTest {
         TestFloatMixing.CountingFloatOutput cfo1 = new TestFloatMixing.CountingFloatOutput();
         TestFloatMixing.CountingFloatOutput cfo2 = new TestFloatMixing.CountingFloatOutput();
         BooleanOutput bout1 = Mixing.select(cfo1, offStat, onStat);
+        boolean firstIteration = true;
         for (float off : TestFloatMixing.interestingFloats) {
             for (float on : TestFloatMixing.interestingFloats) {
+                // at this point, the value is FALSE
+                cfo1.valueExpected = off;
+                cfo1.ifExpected = (Float.floatToIntBits(off) != Float.floatToIntBits(offStat.get())) && !firstIteration; // if it's the first iteration, updating the arguments should have no effect, since it's never received a value
                 offStat.set(off);
-                onStat.set(on);
+                cfo1.check();
+                onStat.set(on); // should make no difference because the last value was FALSE
+
                 BooleanOutput bout2 = Mixing.select(cfo2, off, on);
+                boolean last = false;
                 for (boolean value : TestBooleanMixing.interestingBooleans) {
                     cfo1.valueExpected = cfo2.valueExpected = value ? on : off;
                     cfo1.ifExpected = true;
@@ -82,7 +89,19 @@ public class TestMixing extends BaseTest {
                     cfo2.ifExpected = true;
                     bout2.set(value);
                     cfo2.check();
+                    last = value;
                 }
+                if (last) {
+                    cfo1.valueExpected = cfo2.valueExpected = off;
+                    cfo1.ifExpected = true;
+                    bout1.set(false);
+                    cfo1.check();
+                    cfo2.ifExpected = true;
+                    bout2.set(false);
+                    cfo2.check();
+                }
+
+                firstIteration = false;
             }
         }
     }

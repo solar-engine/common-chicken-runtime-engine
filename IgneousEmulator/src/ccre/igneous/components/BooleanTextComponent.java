@@ -23,7 +23,6 @@ import java.awt.Color;
 import ccre.channel.BooleanInput;
 import ccre.channel.BooleanOutput;
 import ccre.channel.BooleanStatus;
-import ccre.channel.EventInput;
 
 /**
  * A textual display component that displays one of two strings based on whether
@@ -32,7 +31,7 @@ import ccre.channel.EventInput;
  *
  * @author skeggsc
  */
-public class BooleanTextComponent extends TextComponent implements BooleanOutput, BooleanInput {
+public class BooleanTextComponent extends TextComponent implements BooleanOutput {
 
     private final String off, on;
     private final BooleanStatus state = new BooleanStatus();
@@ -74,18 +73,6 @@ public class BooleanTextComponent extends TextComponent implements BooleanOutput
         return this;
     }
 
-    public boolean get() {
-        return state.get();
-    }
-
-    public void send(BooleanOutput output) {
-        state.send(output);
-    }
-
-    public void unsend(BooleanOutput output) {
-        state.unsend(output);
-    }
-
     public void set(boolean value) {
         this.setLabel(value ? on : off);
         this.setColor(value ? Color.green : Color.RED.darker());
@@ -95,13 +82,16 @@ public class BooleanTextComponent extends TextComponent implements BooleanOutput
     @Override
     public void onPress(int x, int y) {
         if (editable) {
-            set(!get());
+            set(!state.get());
             repaint();
         }
     }
 
-    @Override
-    public EventInput onUpdate() {
-        return state.onUpdate();
+    public BooleanInput asInput() {
+        return state;
+    }
+
+    public boolean get() {
+        return state.get();
     }
 }

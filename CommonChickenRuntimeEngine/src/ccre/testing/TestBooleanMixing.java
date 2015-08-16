@@ -36,7 +36,7 @@ public class TestBooleanMixing extends BaseTest {
      * An "interesting" sequence of booleans to test with, such that edge cases
      * with things like repetition of the same value can be caught.
      */
-    public static final boolean[] interestingBooleans = new boolean[] { false, true, true, false, false, true, false, true, false, true, true, true, false, true, false, false, false };
+    public static final boolean[] interestingBooleans = new boolean[] { false, true, true, false, false, true, false, true, false, true, true, true, false, true, false, false, false, true };
 
     @Override
     public String getName() {
@@ -71,9 +71,9 @@ public class TestBooleanMixing extends BaseTest {
                 found[0]++;
             }
         };
-        BooleanMixing.alwaysFalse.send(fsend);
+        EventOutput unbind = BooleanMixing.alwaysFalse.sendR(fsend);
         assertIntsEqual(found[0], 1, "Should have been sent initial value of false.");
-        BooleanMixing.alwaysFalse.unsend(fsend);
+        unbind.event();
         assertIntsEqual(found[0], 1, "Values should still be unchanged.");
 
         BooleanOutput tsend = new BooleanOutput() {
@@ -84,11 +84,11 @@ public class TestBooleanMixing extends BaseTest {
                 found[0]++;
             }
         };
-        BooleanMixing.alwaysTrue.send(tsend);
+        unbind = BooleanMixing.alwaysTrue.sendR(tsend);
         assertIntsEqual(found[0], 2, "Should have been sent initial value of true.");
         Thread.sleep(50);
         assertIntsEqual(found[0], 2, "Values should still be unchanged.");
-        BooleanMixing.alwaysTrue.unsend(tsend);
+        unbind.event();
         assertIntsEqual(found[0], 2, "Values should still be unchanged.");
 
         assertFalse(BooleanMixing.alwaysFalse.get(), "False should be.");

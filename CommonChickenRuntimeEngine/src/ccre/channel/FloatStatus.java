@@ -22,10 +22,6 @@ import java.io.Serializable;
 
 import ccre.concurrency.ConcurrentDispatchArray;
 import ccre.ctrl.FloatMixing;
-import ccre.rconf.RConf;
-import ccre.rconf.RConf.Entry;
-import ccre.rconf.RConfable;
-import ccre.util.CArrayUtils;
 
 /**
  * A virtual node that is both a FloatOutput and a FloatInput. You can modify
@@ -37,7 +33,7 @@ import ccre.util.CArrayUtils;
  *
  * @author skeggsc
  */
-public class FloatStatus implements FloatOutput, FloatInput, RConfable, Serializable {
+public class FloatStatus implements FloatOutput, FloatInput, Serializable {
 
     private static final long serialVersionUID = -579209218982597622L;
 
@@ -55,11 +51,8 @@ public class FloatStatus implements FloatOutput, FloatInput, RConfable, Serializ
     /**
      * The list of all the FloatOutputs to modify when this FloatStatus changes
      * value.
-     *
-     * @see #send(ccre.channel.FloatOutput)
-     * @see #unsend(ccre.channel.FloatOutput)
      */
-    private final ConcurrentDispatchArray<FloatOutput> consumers = new ConcurrentDispatchArray<FloatOutput>();
+    private final ConcurrentDispatchArray<EventOutput> consumers = new ConcurrentDispatchArray<>();
 
     /**
      * Create a new FloatStatus with a value of zero.
@@ -86,8 +79,7 @@ public class FloatStatus implements FloatOutput, FloatInput, RConfable, Serializ
      * @param target The FloatOutput to automatically update.
      */
     public FloatStatus(FloatOutput target) {
-        consumers.add(target);
-        target.set(0);
+        send(target);
     }
 
     /**
@@ -100,9 +92,8 @@ public class FloatStatus implements FloatOutput, FloatInput, RConfable, Serializ
      * @param targets The FloatOutputs to automatically update.
      */
     public FloatStatus(FloatOutput... targets) {
-        consumers.addAllIfNotFound(CArrayUtils.asList(targets));
-        for (FloatOutput t : targets) {
-            t.set(0);
+        for (FloatOutput o : targets) {
+            send(o);
         }
     }
 
@@ -127,8 +118,8 @@ public class FloatStatus implements FloatOutput, FloatInput, RConfable, Serializ
             return; // Do nothing. We want to ignore the value if it's the same.
         }
         value = newValue;
-        for (FloatOutput fws : consumers) {
-            fws.set(newValue);
+        for (EventOutput evt : consumers) {
+            evt.event();
         }
     }
 
@@ -155,15 +146,6 @@ public class FloatStatus implements FloatOutput, FloatInput, RConfable, Serializ
         FloatMixing.setWhen(when, this, value);
     }
 
-    public synchronized void send(FloatOutput output) {
-        consumers.addIfNotFound(output);
-        output.set(value);
-    }
-
-    public synchronized void unsend(FloatOutput output) {
-        consumers.remove(output);
-    }
-
     /**
      * Returns a version of this status as an output. This is equivalent to
      * upcasting to FloatOutput.
@@ -183,20 +165,14 @@ public class FloatStatus implements FloatOutput, FloatInput, RConfable, Serializ
     public FloatInput asInput() {
         return this;
     }
-
-    public Entry[] queryRConf() {
-        return new Entry[] { RConf.fieldFloat(get()), RConf.fieldInteger(consumers == null ? 0 : consumers.size()) };
+    
+    @Override
+    public void onUpdate(EventOutput notify) {
+        consumers.add(notify);
     }
 
-    public boolean signalRConf(int field, byte[] data) {
-        switch (field) {
-        case 0: // change value
-            if (data.length >= 4) {
-                set(RConf.bytesToFloat(data));
-                return true;
-            }
-            return false;
-        }
-        return false;
+    @Override
+    public EventOutput onUpdateR(EventOutput notify) {
+        return consumers.addR(notify);
     }
 }

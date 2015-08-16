@@ -21,6 +21,7 @@ package ccre.ctrl;
 import ccre.channel.BooleanFilter;
 import ccre.channel.BooleanInput;
 import ccre.channel.BooleanOutput;
+import ccre.channel.BooleanStatus;
 import ccre.channel.DerivedBooleanInput;
 import ccre.channel.DerivedEventInput;
 import ccre.channel.EventInput;
@@ -61,25 +62,9 @@ public class BooleanMixing {
             return false;
         }
 
-        public void send(BooleanOutput consum) {
-            consum.set(false);
-        }
-
-        public void unsend(BooleanOutput consum) {
-        }
-
         @Override
-        public EventInput onUpdate() {
-            return EventMixing.never;
-        }
-    };
-    /**
-     * A BooleanFilter that inverts a value. (True-&gt;False, False-&gt;True).
-     */
-    public static final BooleanFilter invert = new BooleanFilter() {
-        @Override
-        public boolean filter(boolean input) {
-            return !input;
+        public EventOutput onUpdateR(EventOutput notify) {
+            return EventMixing.ignored;
         }
     };
     /**
@@ -90,16 +75,18 @@ public class BooleanMixing {
             return true;
         }
 
-        public void send(BooleanOutput consum) {
-            consum.set(true);
-        }
-
-        public void unsend(BooleanOutput consum) {
-        }
-
         @Override
-        public EventInput onUpdate() {
-            return EventMixing.never;
+        public EventOutput onUpdateR(EventOutput notify) {
+            return EventMixing.ignored;
+        }
+    };
+    /**
+     * A BooleanFilter that inverts a value. (True-&gt;False, False-&gt;True).
+     */
+    public static final BooleanFilter invert = new BooleanFilter() {
+        @Override
+        public boolean filter(boolean input) {
+            return !input;
         }
     };
 
@@ -386,7 +373,33 @@ public class BooleanMixing {
             }
         };
     }
+    
+    public static BooleanOutput onToggle(EventOutput out) {
+        Mixing.checkNull(out);
+        return new BooleanOutput() {
+            private boolean last, wasLast;
+            @Override
+            public void set(boolean value) {
+                if (wasLast) {
+                    if (last != value) {
+                        out.event();
+                    }
+                } else {
+                    last = value;
+                    wasLast = true;
+                }
+            }
+        };
+    }
 
     private BooleanMixing() {
+    }
+
+    public static BooleanOutput limitUpdatesTo(BooleanOutput value, EventInput update) {
+        BooleanStatus bstat = new BooleanStatus();
+        update.send(() -> {
+            value.set(bstat.get());
+        });
+        return bstat;
     }
 }

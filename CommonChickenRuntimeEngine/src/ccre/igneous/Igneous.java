@@ -677,7 +677,9 @@ public class Igneous {
      * @param compressorRelayChannel the channel of the compressor's relay.
      */
     public static void useCustomCompressor(BooleanInput shouldDisable, int compressorRelayChannel) {
-        shouldDisable.send(BooleanMixing.debounce(BooleanMixing.invert(makeForwardRelay(compressorRelayChannel)), 500));
+        shouldDisable.send(BooleanMixing.limitUpdatesTo(
+                BooleanMixing.invert(makeForwardRelay(compressorRelayChannel)),
+                new Ticker(500)));
     }
 
     /**

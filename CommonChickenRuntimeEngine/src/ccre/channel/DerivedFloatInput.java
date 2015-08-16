@@ -18,37 +18,56 @@
  */
 package ccre.channel;
 
+import ccre.concurrency.ConcurrentDispatchArray;
+
 public abstract class DerivedFloatInput extends DerivedUpdate implements FloatInput {
 
-    private final FloatStatus value = new FloatStatus();
-
+    private float value;
+    private final ConcurrentDispatchArray<EventOutput> consumers = new ConcurrentDispatchArray<>();
+    
     public DerivedFloatInput(UpdatingInput... updates) {
         super(updates);
+        value = apply();
     }
 
     @Override
     protected final void update() {
-        value.set(apply());
+        float newvalue = apply();
+        if (newvalue != value) {
+            value = newvalue;
+            for (EventOutput consumer : consumers) {
+                consumer.event();
+            }
+        }
     }
 
-    public float get() {
-        return value.get();
+
+    @Override
+    protected final boolean updateWithRecovery() {
+        float newvalue = apply();
+        boolean recovered = false;
+        if (newvalue != value) {
+            value = newvalue;
+            for (EventOutput consumer : consumers) {
+                recovered |= consumer.eventWithRecovery();
+            }
+        }
+        return recovered;
+    }
+
+    public final float get() {
+        return value;
     }
 
     protected abstract float apply();
 
     @Override
-    public EventInput onUpdate() {
-        return value.onUpdate();
+    public void onUpdate(EventOutput notify) {
+        consumers.add(notify);
     }
-
+    
     @Override
-    public void send(FloatOutput output) {
-        value.send(output);
-    }
-
-    @Override
-    public void unsend(FloatOutput output) {
-        value.send(output);
+    public EventOutput onUpdateR(EventOutput notify) {
+        return consumers.addR(notify);
     }
 }

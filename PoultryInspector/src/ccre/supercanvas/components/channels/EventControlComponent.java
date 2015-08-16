@@ -36,7 +36,7 @@ import ccre.supercanvas.SuperCanvasPanel;
  *
  * @author skeggsc
  */
-public class EventControlComponent extends BaseChannelComponent<EventControlComponent.View> implements EventInput {
+public class EventControlComponent extends BaseChannelComponent<EventControlComponent.View> {
 
     static enum View {
         ISOMETRIC_BUTTON, SQUARE_BUTTON, TEXTUAL
@@ -46,6 +46,7 @@ public class EventControlComponent extends BaseChannelComponent<EventControlComp
     private transient long countStart;
     private final EventInput alternateSource;
     private final EventStatus stat = new EventStatus();
+    private EventOutput unsubscribe;
 
     /**
      * Create a new EventControlComponent with a EventOutput to control.
@@ -143,16 +144,6 @@ public class EventControlComponent extends BaseChannelComponent<EventControlComp
     }
 
     @Override
-    public void send(EventOutput listener) {
-        stat.send(listener);
-    }
-
-    @Override
-    public void unsend(EventOutput listener) {
-        stat.unsend(listener);
-    }
-
-    @Override
     protected void setDefaultView() {
         activeView = View.ISOMETRIC_BUTTON;
     }
@@ -164,10 +155,12 @@ public class EventControlComponent extends BaseChannelComponent<EventControlComp
     protected void onChangePanel(SuperCanvasPanel panel) {
         boolean hasPanel = panel != null;
         if (alternateSource != null && hasPanel != isFakeSubscribed) {
+            if (unsubscribe != null) {
+                unsubscribe.event();
+                unsubscribe = null;
+            }
             if (hasPanel) {
-                alternateSource.send(fakeOut);
-            } else {
-                alternateSource.unsend(fakeOut);
+                unsubscribe = alternateSource.sendR(fakeOut);
             }
             isFakeSubscribed = hasPanel;
         }
@@ -195,5 +188,9 @@ public class EventControlComponent extends BaseChannelComponent<EventControlComp
 
     public boolean signalRConf(int field, byte[] data) throws InterruptedException {
         return rconfBase(field, data) == BASE_VALID;
+    }
+    
+    public EventInput asInput() {
+        return stat;
     }
 }

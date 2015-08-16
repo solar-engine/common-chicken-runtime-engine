@@ -73,7 +73,7 @@ public class TestFloatStatus extends BaseTest {
                 c2[0] = true;
             }
         };
-        status.send(b);
+        EventOutput unbind = status.sendR(b);
         assertTrue(c2[0], "Current value not written!");
         assertObjectEqual(cur[0], 0.0f, "Initial value bad!");
         c2[0] = false;
@@ -89,7 +89,7 @@ public class TestFloatStatus extends BaseTest {
         assertTrue(c2[0], "Expected write when value modified!");
         assertObjectEqual(cur[0], -4.6f, "Expected write of -4.6f!");
         c2[0] = false;
-        status.unsend(b);
+        unbind.event();
         status.set(1.8f);
         status.set(0.0f);
         assertFalse(c2[0], "Expected no write after removal!");
@@ -112,10 +112,6 @@ public class TestFloatStatus extends BaseTest {
         c1[0] = false;
         status.set(1.8f);
         assertTrue(c1[0], "Expected write!");
-        c1[0] = false;
-        status.unsend(b);
-        status.set(-3.2f);
-        assertFalse(c1[0], "Expected no write once removed!");
 
         FloatOutput b2 = new FloatOutput() {
             public void set(float value) {
@@ -130,17 +126,6 @@ public class TestFloatStatus extends BaseTest {
         status.set(123.4f);
         assertTrue(c1[0], "Expected write!");
         assertTrue(c1[1], "Expected write!");
-        c1[0] = false;
-        c1[1] = false;
-        status.unsend(b);
-        status.set(-0.002f);
-        assertFalse(c1[0], "Expected no write once removed!");
-        assertTrue(c1[1], "Expected write!");
-        c1[1] = false;
-        status.unsend(b2);
-        status.set(3.6f);
-        assertFalse(c1[0], "Expected no write once removed!");
-        assertFalse(c1[1], "Expected no write once removed!");
     }
 
     /**
@@ -173,52 +158,48 @@ public class TestFloatStatus extends BaseTest {
     private void testConsumerTracking() throws TestingException {
         FloatStatus target = new FloatStatus();
         assertFalse(target.hasConsumers(), "Target should not have consumers initially!");
-        target.send(FloatMixing.ignored);
+        EventOutput unbind = target.sendR(FloatMixing.ignored);
         assertTrue(target.hasConsumers(), "Target should now have consumers!");
-        target.unsend(FloatMixing.ignored);
+        unbind.event();
         assertFalse(target.hasConsumers(), "Target should no longer have consumers!");
-        target.send(FloatMixing.ignored);
+        EventOutput unbind1 = target.sendR(FloatMixing.ignored);
         assertTrue(target.hasConsumers(), "Target should now have consumers!");
-        target.send(FloatMixing.ignored);
+        EventOutput unbind2 = target.sendR(FloatMixing.ignored);
         assertTrue(target.hasConsumers(), "Target should still have consumers!");
-        target.unsend(FloatMixing.ignored);
-        assertFalse(target.hasConsumers(), "Target should no longer have consumers!");
-        target.unsend(FloatMixing.ignored); // should not fail
+        unbind2.event();
+        assertTrue(target.hasConsumers(), "Target should still have consumers!");
+        unbind1.event(); // should not fail
         assertFalse(target.hasConsumers(), "Target should still not have consumers!");
 
         target = new FloatStatus(FloatMixing.ignored);
-        assertTrue(target.hasConsumers(), "Target should have consumers initially!");
-        target.unsend(FloatMixing.ignored);
-        assertFalse(target.hasConsumers(), "Target should no longer have consumers!");
-        target.send(FloatMixing.ignored);
-        assertTrue(target.hasConsumers(), "Target should now have consumers!");
-        target.unsend(FloatMixing.ignored);
-        assertFalse(target.hasConsumers(), "Target should no longer have consumers!");
-        target.send(FloatMixing.ignored);
-        assertTrue(target.hasConsumers(), "Target should now have consumers!");
-        target.send(FloatMixing.ignored);
         assertTrue(target.hasConsumers(), "Target should still have consumers!");
-        target.unsend(FloatMixing.ignored);
-        assertFalse(target.hasConsumers(), "Target should no longer have consumers!");
-        target.unsend(FloatMixing.ignored); // should not fail
-        assertFalse(target.hasConsumers(), "Target should still not have consumers!");
+        unbind = target.sendR(FloatMixing.ignored);
+        assertTrue(target.hasConsumers(), "Target should still have consumers!");
+        unbind.event();
+        assertTrue(target.hasConsumers(), "Target should still have consumers!");
+        unbind1 = target.sendR(FloatMixing.ignored);
+        assertTrue(target.hasConsumers(), "Target should still have consumers!");
+        unbind2 = target.sendR(FloatMixing.ignored);
+        assertTrue(target.hasConsumers(), "Target should still have consumers!");
+        unbind2.event();
+        assertTrue(target.hasConsumers(), "Target should still have consumers!");
+        unbind1.event(); // should not fail
+        assertTrue(target.hasConsumers(), "Target should still have consumers!");
 
         target = new FloatStatus(FloatMixing.ignored, FloatMixing.ignored);
-        assertTrue(target.hasConsumers(), "Target should have consumers initially!");
-        target.unsend(FloatMixing.ignored);
-        assertFalse(target.hasConsumers(), "Target should no longer have consumers!");
-        target.send(FloatMixing.ignored);
-        assertTrue(target.hasConsumers(), "Target should now have consumers!");
-        target.unsend(FloatMixing.ignored);
-        assertFalse(target.hasConsumers(), "Target should no longer have consumers!");
-        target.send(FloatMixing.ignored);
-        assertTrue(target.hasConsumers(), "Target should now have consumers!");
-        target.send(FloatMixing.ignored);
         assertTrue(target.hasConsumers(), "Target should still have consumers!");
-        target.unsend(FloatMixing.ignored);
-        assertFalse(target.hasConsumers(), "Target should no longer have consumers!");
-        target.unsend(FloatMixing.ignored); // should not fail
-        assertFalse(target.hasConsumers(), "Target should still not have consumers!");
+        unbind = target.sendR(FloatMixing.ignored);
+        assertTrue(target.hasConsumers(), "Target should still have consumers!");
+        unbind.event();
+        assertTrue(target.hasConsumers(), "Target should still have consumers!");
+        unbind1 = target.sendR(FloatMixing.ignored);
+        assertTrue(target.hasConsumers(), "Target should still have consumers!");
+        unbind2 = target.sendR(FloatMixing.ignored);
+        assertTrue(target.hasConsumers(), "Target should still have consumers!");
+        unbind2.event();
+        assertTrue(target.hasConsumers(), "Target should still have consumers!");
+        unbind1.event(); // should not fail
+        assertTrue(target.hasConsumers(), "Target should still have consumers!");
     }
 
     private void testIOConversions() throws TestingException {

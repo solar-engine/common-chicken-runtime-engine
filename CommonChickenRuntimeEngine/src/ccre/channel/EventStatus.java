@@ -31,7 +31,7 @@ import ccre.util.CArrayUtils;
  *
  * @author skeggsc
  */
-public class EventStatus implements EventInput, EventOutputRecoverable, Serializable {
+public class EventStatus implements EventInput, EventOutput, Serializable {
 
     private static final long serialVersionUID = 115846451690403376L;
 
@@ -80,17 +80,6 @@ public class EventStatus implements EventInput, EventOutputRecoverable, Serializ
     }
 
     /**
-     * Returns the number of consumers.
-     *
-     * @return the number of consumers.
-     * @deprecated this information does not need to be a public interface.
-     */
-    @Deprecated
-    public int countConsumers() {
-        return consumers.size();
-    }
-
-    /**
      * Produce this event - fire all listening events.
      */
     public void produce() {
@@ -99,12 +88,12 @@ public class EventStatus implements EventInput, EventOutputRecoverable, Serializ
         }
     }
 
-    public void send(EventOutput client) {
-        consumers.addIfNotFound(client);
+    public void onUpdate(EventOutput client) {
+        consumers.add(client);
     }
-
-    public void unsend(EventOutput client) throws IllegalStateException {
-        consumers.remove(client);
+    
+    public EventOutput onUpdateR(EventOutput client) {
+        return consumers.addR(client);
     }
 
     public void event() {
@@ -127,13 +116,7 @@ public class EventStatus implements EventInput, EventOutputRecoverable, Serializ
         for (Iterator<EventOutput> it = consumers.iterator(); it.hasNext();) {
             EventOutput ec = it.next();
             try {
-                if (ec instanceof EventOutputRecoverable) {
-                    if (((EventOutputRecoverable) ec).eventWithRecovery()) {
-                        found = true;
-                    }
-                } else {
-                    ec.event();
-                }
+                found |= ec.eventWithRecovery();
             } catch (Throwable thr) {
                 Logger.severe("Event Subscriber Detached: " + ec, thr);
                 it.remove();

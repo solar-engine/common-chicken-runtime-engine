@@ -75,8 +75,8 @@ public class TestTicker extends BaseTest {
             }
             Ticker t = new Ticker(19, false);
             try {
-                t.send(a);
-                t.unsend(a);
+                EventOutput unbind = t.sendR(a);
+                unbind.event();
                 synchronized (cur) {
                     assertTrue(cur[0] == 0, "Bad Ticker count: " + cur[0]);
                 }

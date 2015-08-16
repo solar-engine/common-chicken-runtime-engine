@@ -215,7 +215,7 @@ public class DeviceBasedLauncher implements IgneousLauncher {
     public BooleanInput makeDigitalInput(int id, EventInput updateOn) {
         int index = checkRange("Digital Input", id, digitalInputs);
         if (digitalInputs[index] == null) {
-            digitalInputs[index] = panel.add(new BooleanControlDevice("Digital Input " + id));
+            digitalInputs[index] = panel.add(new BooleanControlDevice("Digital Input " + id)).asInput();
         }
         return digitalInputs[index];
     }
@@ -223,7 +223,7 @@ public class DeviceBasedLauncher implements IgneousLauncher {
     public BooleanInput makeDigitalInputByInterrupt(int id) {
         int index = checkRange("Digital Input", id, digitalInputs);
         if (digitalInputs[index] == null) {
-            digitalInputs[index] = panel.add(new BooleanControlDevice("Digital Input " + id + " (Interrupt)"));
+            digitalInputs[index] = panel.add(new BooleanControlDevice("Digital Input " + id + " (Interrupt)")).asInput();
         }
         return digitalInputs[index];
     }
@@ -233,7 +233,7 @@ public class DeviceBasedLauncher implements IgneousLauncher {
     public FloatInput makeAnalogInput(int id, EventInput updateOn) {
         int index = checkRange("Analog Input", id, analogInputs);
         if (analogInputs[index] == null) {
-            analogInputs[index] = panel.add(new FloatControlDevice("Analog Input " + id, 0.0f, 5.0f, 1.0f, 0.0f));
+            analogInputs[index] = panel.add(new FloatControlDevice("Analog Input " + id, 0.0f, 5.0f, 1.0f, 0.0f)).asInput();
         }
         return analogInputs[index];
     }
@@ -280,7 +280,7 @@ public class DeviceBasedLauncher implements IgneousLauncher {
 
     public BooleanInput getIsFMS() {
         if (isFMS == null) {
-            isFMS = panel.add(new BooleanControlDevice("On FMS"));
+            isFMS = panel.add(new BooleanControlDevice("On FMS")).asInput();
         }
         return isFMS;
     }
@@ -317,7 +317,7 @@ public class DeviceBasedLauncher implements IgneousLauncher {
 
     public FloatInput getBatteryVoltage(EventInput updateOn) {
         if (batteryLevel == null) {
-            batteryLevel = panel.add(new FloatControlDevice("Battery Voltage (6.5V-12.5V)", 6.5f, 12.5f, 9.5f, 6.5f));
+            batteryLevel = panel.add(new FloatControlDevice("Battery Voltage (6.5V-12.5V)", 6.5f, 12.5f, 9.5f, 6.5f)).asInput();
         }
         return batteryLevel;
     }
@@ -387,7 +387,7 @@ public class DeviceBasedLauncher implements IgneousLauncher {
             throw new IllegalArgumentException("Cannot use a PCM on a cRIO!");
         }
         if (pcmPressureSwitch == null) {
-            pcmPressureSwitch = panel.add(new BooleanControlDevice("PCM Pressure Switch"));
+            pcmPressureSwitch = panel.add(new BooleanControlDevice("PCM Pressure Switch")).asInput();
         }
         return pcmPressureSwitch;
     }
@@ -404,7 +404,7 @@ public class DeviceBasedLauncher implements IgneousLauncher {
     }
 
     private FloatInput getAmperage(String label, EventInput updateOn) {
-        return panel.add(new FloatControlDevice(label + " Current (0A-100A)", 0, 100, 0.5f, 0.0f));
+        return panel.add(new FloatControlDevice(label + " Current (0A-100A)", 0, 100, 0.5f, 0.0f)).asInput();
     }
 
     public FloatInput getPDPChannelCurrent(int channel, EventInput updateOn) {
@@ -412,7 +412,7 @@ public class DeviceBasedLauncher implements IgneousLauncher {
     }
 
     public FloatInput getPDPVoltage(EventInput updateOn) {
-        return panel.add(new FloatControlDevice("PDP Voltage (6.5V-12.5V)", 6.5f, 12.5f, 9.5f, 6.5f));
+        return panel.add(new FloatControlDevice("PDP Voltage (6.5V-12.5V)", 6.5f, 12.5f, 9.5f, 6.5f)).asInput();
     }
 
     public boolean isRoboRIO() {
@@ -455,11 +455,11 @@ public class DeviceBasedLauncher implements IgneousLauncher {
             case Igneous.POWER_CHANNEL_BATTERY:
                 return getBatteryVoltage(updateOn);
             case Igneous.POWER_CHANNEL_3V3:
-                return panel.add(new FloatControlDevice("Rail Voltage 3.3V (0V-4V)", 0.0f, 4.0f, 3.3f, 0.0f));
+                return panel.add(new FloatControlDevice("Rail Voltage 3.3V (0V-4V)", 0.0f, 4.0f, 3.3f, 0.0f)).asInput();
             case Igneous.POWER_CHANNEL_5V:
-                return panel.add(new FloatControlDevice("Rail Voltage 5V (0V-6V)", 0.0f, 6.0f, 5.0f, 0.0f));
+                return panel.add(new FloatControlDevice("Rail Voltage 5V (0V-6V)", 0.0f, 6.0f, 5.0f, 0.0f)).asInput();
             case Igneous.POWER_CHANNEL_6V:
-                return panel.add(new FloatControlDevice("Rail Voltage 6V (0V-7V)", 0.0f, 7.0f, 6.0f, 0.0f));
+                return panel.add(new FloatControlDevice("Rail Voltage 6V (0V-7V)", 0.0f, 7.0f, 6.0f, 0.0f)).asInput();
             default:
                 Logger.warning("Unknown power channel: " + powerChannel);
                 return FloatMixing.always(-1);
@@ -474,13 +474,13 @@ public class DeviceBasedLauncher implements IgneousLauncher {
         } else {
             switch (powerChannel) {
             case Igneous.POWER_CHANNEL_BATTERY:
-                return panel.add(new FloatControlDevice("Battery Current (0-100A)", 0.0f, 100.0f, 5.0f, 0.0f));
+                return panel.add(new FloatControlDevice("Battery Current (0-100A)", 0.0f, 100.0f, 5.0f, 0.0f)).asInput();
             case Igneous.POWER_CHANNEL_3V3:
-                return panel.add(new FloatControlDevice("Rail Current 3.3V (0-100A)", 0.0f, 100.0f, 5.0f, 0.0f));
+                return panel.add(new FloatControlDevice("Rail Current 3.3V (0-100A)", 0.0f, 100.0f, 5.0f, 0.0f)).asInput();
             case Igneous.POWER_CHANNEL_5V:
-                return panel.add(new FloatControlDevice("Rail Current 5V (0-100A)", 0.0f, 100.0f, 5.0f, 0.0f));
+                return panel.add(new FloatControlDevice("Rail Current 5V (0-100A)", 0.0f, 100.0f, 5.0f, 0.0f)).asInput();
             case Igneous.POWER_CHANNEL_6V:
-                return panel.add(new FloatControlDevice("Rail Current 6V (0-100A)", 0.0f, 100.0f, 5.0f, 0.0f));
+                return panel.add(new FloatControlDevice("Rail Current 6V (0-100A)", 0.0f, 100.0f, 5.0f, 0.0f)).asInput();
             default:
                 Logger.warning("Unknown power channel: " + powerChannel);
                 return FloatMixing.always(-1);
@@ -497,11 +497,11 @@ public class DeviceBasedLauncher implements IgneousLauncher {
             case Igneous.POWER_CHANNEL_BATTERY:
                 return BooleanMixing.alwaysTrue;
             case Igneous.POWER_CHANNEL_3V3:
-                return panel.add(new BooleanControlDevice("Rail Enabled 3.3V"));
+                return panel.add(new BooleanControlDevice("Rail Enabled 3.3V")).asInput();
             case Igneous.POWER_CHANNEL_5V:
-                return panel.add(new BooleanControlDevice("Rail Enabled 5V"));
+                return panel.add(new BooleanControlDevice("Rail Enabled 5V")).asInput();
             case Igneous.POWER_CHANNEL_6V:
-                return panel.add(new BooleanControlDevice("Rail Enabled 6V"));
+                return panel.add(new BooleanControlDevice("Rail Enabled 6V")).asInput();
             default:
                 Logger.warning("Unknown power channel: " + powerChannel);
                 return BooleanMixing.alwaysFalse;
@@ -516,7 +516,7 @@ public class DeviceBasedLauncher implements IgneousLauncher {
             }
 
             public BooleanInput addBoolean(String name) {
-                return panel.add(new BooleanControlDevice("Control: " + name));
+                return panel.add(new BooleanControlDevice("Control: " + name)).asInput();
             }
 
             public void addFloat(String name, FloatOutput output) {
@@ -524,7 +524,7 @@ public class DeviceBasedLauncher implements IgneousLauncher {
             }
 
             public FloatInput addFloat(String name) {
-                return panel.add(new FloatControlDevice("Control: " + name));
+                return panel.add(new FloatControlDevice("Control: " + name)).asInput();
             }
         };
     }

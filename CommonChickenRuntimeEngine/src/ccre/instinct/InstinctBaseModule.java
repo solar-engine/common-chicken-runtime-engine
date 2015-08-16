@@ -85,7 +85,7 @@ public abstract class InstinctBaseModule {
                 }
             }
         };
-        source.send(c);
+        EventOutput unbind = source.sendR(c);
         try {
             synchronized (b) {
                 while (!b[0]) {
@@ -94,7 +94,7 @@ public abstract class InstinctBaseModule {
                 }
             }
         } finally {
-            source.unsend(c);
+            unbind.event();
         }
     }
 

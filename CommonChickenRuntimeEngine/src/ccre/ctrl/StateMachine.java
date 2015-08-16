@@ -23,7 +23,6 @@ import ccre.channel.BooleanOutput;
 import ccre.channel.DerivedBooleanInput;
 import ccre.channel.EventInput;
 import ccre.channel.EventOutput;
-import ccre.channel.EventOutputRecoverable;
 import ccre.channel.EventStatus;
 import ccre.channel.FloatOutput;
 import ccre.log.LogLevel;
@@ -171,7 +170,7 @@ public class StateMachine {
         if (state < 0 || state >= numberOfStates) {
             throw new IllegalArgumentException("Invalid state ID: " + state);
         }
-        return new EventOutputRecoverable() {
+        return new EventOutput() {
             public void event() {
                 if (state == currentState) {
                     return;

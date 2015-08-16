@@ -73,7 +73,7 @@ public class TestBooleanStatus extends BaseTest {
                 cur[1] = true;
             }
         };
-        status.send(b);
+        EventOutput unbind = status.sendR(b);
         assertTrue(cur[1], "Current value not written!");
         assertFalse(cur[0], "Initial value bad!");
         cur[1] = false;
@@ -89,7 +89,7 @@ public class TestBooleanStatus extends BaseTest {
         assertTrue(cur[1], "Expected write when value modified!");
         assertFalse(cur[0], "Expected write of false!");
         cur[1] = false;
-        status.unsend(b);
+        unbind.event();
         status.set(true);
         status.set(false);
         assertFalse(cur[1], "Expected no write after removal!");
@@ -112,10 +112,6 @@ public class TestBooleanStatus extends BaseTest {
         cur[0] = false;
         status.set(true);
         assertTrue(cur[0], "Expected write!");
-        cur[0] = false;
-        status.unsend(b);
-        status.set(false);
-        assertFalse(cur[0], "Expected no write once removed!");
 
         BooleanOutput b2 = new BooleanOutput() {
             public void set(boolean value) {
@@ -130,17 +126,6 @@ public class TestBooleanStatus extends BaseTest {
         status.set(true);
         assertTrue(cur[0], "Expected write!");
         assertTrue(cur[1], "Expected write!");
-        cur[0] = false;
-        cur[1] = false;
-        status.unsend(b);
-        status.set(false);
-        assertFalse(cur[0], "Expected no write once removed!");
-        assertTrue(cur[1], "Expected write!");
-        cur[1] = false;
-        status.unsend(b2);
-        status.set(true);
-        assertFalse(cur[0], "Expected no write once removed!");
-        assertFalse(cur[1], "Expected no write once removed!");
     }
 
     /**
@@ -191,52 +176,44 @@ public class TestBooleanStatus extends BaseTest {
     private void testConsumerTracking() throws TestingException {
         BooleanStatus target = new BooleanStatus();
         assertFalse(target.hasConsumers(), "Target should not have consumers initially!");
-        target.send(BooleanMixing.ignored);
+        EventOutput unbind = target.sendR(BooleanMixing.ignored);
         assertTrue(target.hasConsumers(), "Target should now have consumers!");
-        target.unsend(BooleanMixing.ignored);
+        unbind.event();
         assertFalse(target.hasConsumers(), "Target should no longer have consumers!");
-        target.send(BooleanMixing.ignored);
+        EventOutput unbind1 = target.sendR(BooleanMixing.ignored);
         assertTrue(target.hasConsumers(), "Target should now have consumers!");
-        target.send(BooleanMixing.ignored);
+        EventOutput unbind2 = target.sendR(BooleanMixing.ignored);
         assertTrue(target.hasConsumers(), "Target should still have consumers!");
-        target.unsend(BooleanMixing.ignored);
-        assertFalse(target.hasConsumers(), "Target should no longer have consumers!");
-        target.unsend(BooleanMixing.ignored); // should not fail
+        unbind2.event();
+        assertTrue(target.hasConsumers(), "Target should still have consumers!");
+        unbind1.event();
         assertFalse(target.hasConsumers(), "Target should still not have consumers!");
 
         target = new BooleanStatus(BooleanMixing.ignored);
-        assertTrue(target.hasConsumers(), "Target should have consumers initially!");
-        target.unsend(BooleanMixing.ignored);
-        assertFalse(target.hasConsumers(), "Target should no longer have consumers!");
-        target.send(BooleanMixing.ignored);
-        assertTrue(target.hasConsumers(), "Target should now have consumers!");
-        target.unsend(BooleanMixing.ignored);
-        assertFalse(target.hasConsumers(), "Target should no longer have consumers!");
-        target.send(BooleanMixing.ignored);
-        assertTrue(target.hasConsumers(), "Target should now have consumers!");
+        assertTrue(target.hasConsumers(), "Target should still have consumers!");
+        unbind = target.sendR(BooleanMixing.ignored);
+        assertTrue(target.hasConsumers(), "Target should still have consumers!");
+        unbind.event();
+        assertTrue(target.hasConsumers(), "Target should still have consumers!");
         target.send(BooleanMixing.ignored);
         assertTrue(target.hasConsumers(), "Target should still have consumers!");
-        target.unsend(BooleanMixing.ignored);
-        assertFalse(target.hasConsumers(), "Target should no longer have consumers!");
-        target.unsend(BooleanMixing.ignored); // should not fail
-        assertFalse(target.hasConsumers(), "Target should still not have consumers!");
+        unbind = target.sendR(BooleanMixing.ignored);
+        assertTrue(target.hasConsumers(), "Target should still have consumers!");
+        unbind.event();
+        assertTrue(target.hasConsumers(), "Target should still have consumers!");
 
         target = new BooleanStatus(BooleanMixing.ignored, BooleanMixing.ignored);
-        assertTrue(target.hasConsumers(), "Target should have consumers initially!");
-        target.unsend(BooleanMixing.ignored);
-        assertFalse(target.hasConsumers(), "Target should no longer have consumers!");
-        target.send(BooleanMixing.ignored);
-        assertTrue(target.hasConsumers(), "Target should now have consumers!");
-        target.unsend(BooleanMixing.ignored);
-        assertFalse(target.hasConsumers(), "Target should no longer have consumers!");
-        target.send(BooleanMixing.ignored);
-        assertTrue(target.hasConsumers(), "Target should now have consumers!");
+        assertTrue(target.hasConsumers(), "Target should still have consumers!");
+        unbind = target.sendR(BooleanMixing.ignored);
+        assertTrue(target.hasConsumers(), "Target should still have consumers!");
+        unbind.event();
+        assertTrue(target.hasConsumers(), "Target should still have consumers!");
         target.send(BooleanMixing.ignored);
         assertTrue(target.hasConsumers(), "Target should still have consumers!");
-        target.unsend(BooleanMixing.ignored);
-        assertFalse(target.hasConsumers(), "Target should no longer have consumers!");
-        target.unsend(BooleanMixing.ignored); // should not fail
-        assertFalse(target.hasConsumers(), "Target should still not have consumers!");
+        unbind = target.sendR(BooleanMixing.ignored);
+        assertTrue(target.hasConsumers(), "Target should still have consumers!");
+        unbind.event();
+        assertTrue(target.hasConsumers(), "Target should still have consumers!");
     }
 
     private void testIOConversions() throws TestingException {

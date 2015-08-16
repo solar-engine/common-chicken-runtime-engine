@@ -22,10 +22,6 @@ import java.io.Serializable;
 
 import ccre.concurrency.ConcurrentDispatchArray;
 import ccre.ctrl.BooleanMixing;
-import ccre.rconf.RConf;
-import ccre.rconf.RConf.Entry;
-import ccre.rconf.RConfable;
-import ccre.util.CArrayUtils;
 
 /**
  * A virtual node that is both a BooleanOutput and a BooleanInput. You can
@@ -48,11 +44,8 @@ public class BooleanStatus implements BooleanOutput, BooleanInput, Serializable 
     /**
      * The list of all the BooleanOutputs to modify when this BooleanStatus
      * changes value.
-     *
-     * @see #send(ccre.channel.BooleanOutput)
-     * @see #unsend(ccre.channel.BooleanOutput)
      */
-    private final ConcurrentDispatchArray<BooleanOutput> consumers = new ConcurrentDispatchArray<BooleanOutput>();
+    private final ConcurrentDispatchArray<EventOutput> consumers = new ConcurrentDispatchArray<EventOutput>();
 
     /**
      * Create a new BooleanStatus with the value of false.
@@ -79,8 +72,7 @@ public class BooleanStatus implements BooleanOutput, BooleanInput, Serializable 
      * @param target The BooleanOutput to automatically update.
      */
     public BooleanStatus(BooleanOutput target) {
-        consumers.add(target);
-        target.set(false);
+        send(target);
     }
 
     /**
@@ -93,9 +85,8 @@ public class BooleanStatus implements BooleanOutput, BooleanInput, Serializable 
      * @param targets The BooleanOutputs to automatically update.
      */
     public BooleanStatus(BooleanOutput... targets) {
-        consumers.addAllIfNotFound(CArrayUtils.asList(targets));
-        for (BooleanOutput t : targets) {
-            t.set(false);
+        for (BooleanOutput out : targets) {
+            send(out);
         }
     }
 
@@ -188,22 +179,13 @@ public class BooleanStatus implements BooleanOutput, BooleanInput, Serializable 
             return;
         }
         this.value = value;
-        for (BooleanOutput output : consumers) {
-            output.set(value);
+        for (EventOutput output : consumers) {
+            output.event();
         }
     }
 
     public final synchronized boolean get() {
         return value;
-    }
-
-    public synchronized void send(BooleanOutput output) {
-        consumers.addIfNotFound(output);
-        output.set(value);
-    }
-
-    public synchronized void unsend(BooleanOutput output) {
-        consumers.remove(output);
     }
 
     /**
@@ -244,5 +226,15 @@ public class BooleanStatus implements BooleanOutput, BooleanInput, Serializable 
      */
     public BooleanInput asInvertedInput() {
         return BooleanMixing.invert((BooleanInput) this);
+    }
+    
+    @Override
+    public void onUpdate(EventOutput notify) {
+        consumers.add(notify);
+    }
+
+    @Override
+    public EventOutput onUpdateR(EventOutput notify) {
+        return consumers.addR(notify);
     }
 }

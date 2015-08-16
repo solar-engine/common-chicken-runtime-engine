@@ -77,8 +77,13 @@ public class Mixing {
             private boolean lastValue = false, anyValue = false;
             
             {
-                EventMixing.combine(off.onUpdate(), on.onUpdate()).send(() -> {
-                    if (anyValue) {
+                off.onUpdate(() -> {
+                    if (anyValue && !lastValue) {
+                        set(lastValue); // resend as necessary
+                    }
+                });
+                on.onUpdate(() -> {
+                    if (anyValue && lastValue) {
                         set(lastValue); // resend as necessary
                     }
                 });

@@ -5,7 +5,7 @@
 /* the project.                                                               */
 /*----------------------------------------------------------------------------*/
 
-package ccre.igneous.direct;
+package ccre.igneous;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;

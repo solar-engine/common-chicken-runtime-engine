@@ -19,12 +19,10 @@
 package org.team1540.apollogemini2;
 
 import ccre.channel.BooleanInput;
-import ccre.channel.BooleanInputPoll;
 import ccre.channel.BooleanOutput;
 import ccre.channel.EventInput;
 import ccre.channel.FloatFilter;
 import ccre.channel.FloatInput;
-import ccre.channel.FloatInputPoll;
 import ccre.ctrl.BooleanMixing;
 import ccre.ctrl.EventMixing;
 import ccre.ctrl.FloatMixing;
@@ -85,10 +83,7 @@ public class UserInterface {
     }
 
     public static EventInput getFireButton() {
-        return EventMixing.combine(
-                BooleanMixing.onPress(PhidgetReader.getDigitalInput(1)),
-                EventMixing.filterEvent(ApolloGemini.isKidMode, false,
-                        driveJoystick.onPress(6)));
+        return EventMixing.combine(BooleanMixing.onPress(PhidgetReader.getDigitalInput(1)), EventMixing.filterNot(ApolloGemini.isKidMode, driveJoystick.onPress(6)));
     }
 
     public static EventInput getRearmCatapult() {
@@ -100,8 +95,6 @@ public class UserInterface {
     }
 
     public static BooleanInput getShouldOverrideDrivingDisable() {
-        return BooleanMixing.orBooleans(
-                driveJoystick.button(7),
-                driveJoystick.button(8));
+        return BooleanMixing.orBooleans(driveJoystick.button(7), driveJoystick.button(8));
     }
 }

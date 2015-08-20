@@ -437,6 +437,15 @@ public class Igneous {
     }
 
     /**
+     * Get a boolean input that checks if the robot is currently disabled.
+     *
+     * @return the input.
+     */
+    public static BooleanInput getIsEnabled() {
+        return launcher.getIsDisabled().not();
+    }
+
+    /**
      * Get a boolean input that checks if the robot is currently in autonomous,
      * as opposed to teleop and testing.
      *
@@ -463,7 +472,7 @@ public class Igneous {
      * @return the input.
      */
     public static BooleanInput getIsTeleop() {
-        return BooleanMixing.invert(BooleanMixing.orBooleans(launcher.getIsTest(), launcher.getIsAutonomous()));
+        return BooleanMixing.orBooleans(launcher.getIsTest(), launcher.getIsAutonomous()).not();
     }
 
     /**
@@ -677,7 +686,7 @@ public class Igneous {
      */
     public static void useCustomCompressor(BooleanInput shouldDisable, int compressorRelayChannel) {
         shouldDisable.send(BooleanMixing.limitUpdatesTo(
-                BooleanMixing.invert(makeForwardRelay(compressorRelayChannel)),
+                makeForwardRelay(compressorRelayChannel).invert(),
                 new Ticker(500)));
     }
 
@@ -784,7 +793,7 @@ public class Igneous {
      * @param module the InstinctModule to register.
      */
     public static void registerAutonomous(InstinctModule module) {
-        module.setShouldBeRunning(BooleanMixing.andBooleans(BooleanMixing.invert(getIsDisabled()), getIsAutonomous()));
+        module.setShouldBeRunning(getIsEnabled().and(getIsAutonomous()));
     }
 
     /**

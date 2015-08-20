@@ -20,7 +20,7 @@ package ccre.channel;
 
 public abstract class DerivedUpdate {
 
-    public DerivedUpdate(UpdatingInput... updates) {
+    public DerivedUpdate(UpdatingInput[] updates, UpdatingInput... moreUpdates) {
         EventOutput doUpdate = new EventOutput() {
             @Override
             public void event() {
@@ -41,6 +41,10 @@ public abstract class DerivedUpdate {
             }
             updates[i].onUpdate(doUpdate);
         }
+    }
+
+    public DerivedUpdate(UpdatingInput... updates) {
+        this(updates, new UpdatingInput[0]);
     }
 
     protected abstract void update();

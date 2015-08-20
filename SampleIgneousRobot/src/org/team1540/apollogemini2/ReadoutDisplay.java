@@ -20,11 +20,9 @@ package org.team1540.apollogemini2;
 
 import java.io.PrintStream;
 
-import ccre.channel.BooleanInputPoll;
+import ccre.channel.BooleanInput;
 import ccre.channel.EventOutput;
 import ccre.channel.FloatInput;
-import ccre.channel.FloatInputPoll;
-import ccre.ctrl.BooleanMixing;
 import ccre.ctrl.FloatMixing;
 import ccre.ctrl.Ticker;
 import ccre.igneous.Igneous;
@@ -116,9 +114,9 @@ public class ReadoutDisplay {
         }
     }
 
-    private static FloatInputPoll percentPressure = FloatMixing.always(-10);
-    private static BooleanInputPoll pressureSwitch = BooleanMixing.alwaysFalse;
-    private static FloatInputPoll winchJoules = FloatMixing.always(-42);
+    private static FloatInput percentPressure = FloatMixing.always(-10);
+    private static BooleanInput pressureSwitch = BooleanInput.alwaysFalse;
+    private static FloatInput winchJoules = FloatMixing.always(-42);
 
     private static final EventOutput update = new EventOutput() {
         public void event() {
@@ -137,11 +135,11 @@ public class ReadoutDisplay {
         new Ticker(2000).send(update);
     }
 
-    public static void showPressure(FloatInputPoll percent, BooleanInputPoll fullPressure) {
+    public static void showPressure(FloatInput percent, BooleanInput fullPressure) {
         ReadoutDisplay.percentPressure = percent;
         ReadoutDisplay.pressureSwitch = fullPressure;
-        BooleanMixing.whenBooleanChanges(fullPressure, Igneous.globalPeriodic).send(update);
-        FloatMixing.whenFloatChanges(percent, 0.5f, Igneous.globalPeriodic).send(update);
+        fullPressure.onUpdate(update);
+        FloatMixing.whenFloatChanges(percent, 0.5f).send(update);
     }
 
     public static void showWinchStatus(FloatInput joules) {

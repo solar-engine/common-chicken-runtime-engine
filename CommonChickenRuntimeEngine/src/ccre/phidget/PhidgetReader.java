@@ -24,7 +24,6 @@ import ccre.channel.BooleanInput;
 import ccre.channel.BooleanOutput;
 import ccre.channel.FloatInput;
 import ccre.cluck.Cluck;
-import ccre.ctrl.BooleanMixing;
 import ccre.ctrl.FloatMixing;
 
 /**
@@ -106,7 +105,7 @@ public class PhidgetReader {
      */
     public static BooleanInput getDigitalInput(int id) {
         BooleanInput bi = digitalInputs[id];
-        bi.send(BooleanMixing.ignored);
+        bi.send(BooleanOutput.ignored);
         return bi;
     }
 

@@ -29,7 +29,6 @@ import java.io.Serializable;
 import ccre.channel.BooleanInput;
 import ccre.channel.BooleanOutput;
 import ccre.channel.EventOutput;
-import ccre.ctrl.BooleanMixing;
 import ccre.rconf.RConf.Entry;
 import ccre.supercanvas.BaseChannelComponent;
 import ccre.supercanvas.Rendering;
@@ -73,7 +72,7 @@ public class BooleanControlComponent extends BaseChannelComponent<BooleanControl
      * @param name the name of the output.
      */
     public BooleanControlComponent(int cx, int cy, String name) {
-        this(cx, cy, name, BooleanMixing.ignored);
+        this(cx, cy, name, BooleanOutput.ignored);
     }
 
     /**

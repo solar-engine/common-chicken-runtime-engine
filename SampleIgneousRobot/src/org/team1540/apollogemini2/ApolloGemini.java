@@ -21,8 +21,6 @@ package org.team1540.apollogemini2;
 import ccre.channel.BooleanInput;
 import ccre.channel.BooleanStatus;
 import ccre.cluck.Cluck;
-import ccre.ctrl.BooleanMixing;
-import ccre.ctrl.FloatMixing;
 import ccre.holders.TuningContext;
 import ccre.igneous.Igneous;
 import ccre.igneous.IgneousApplication;
@@ -53,7 +51,7 @@ public class ApolloGemini implements IgneousApplication {
         CompressorHandler.setup();
         Shooter.setup();
         if (Igneous.isRoboRIO()) {
-            AutonomousModeBase.setHotZoneTrigger(BooleanMixing.alwaysFalse);
+            AutonomousModeBase.setHotZoneTrigger(BooleanInput.alwaysFalse);
         } else {
             AutonomousModeBase.setHotZoneTrigger(KinectControl.main(
                     Igneous.globalPeriodic,
@@ -73,6 +71,6 @@ public class ApolloGemini implements IgneousApplication {
     }
 
     private void displayBatteryLevel() {
-        Cluck.publish("Battery Level", FloatMixing.createDispatch(Igneous.getBatteryVoltage(), Igneous.globalPeriodic));
+        Cluck.publish("Battery Level", Igneous.getBatteryVoltage());
     }
 }

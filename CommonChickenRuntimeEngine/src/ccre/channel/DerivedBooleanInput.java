@@ -24,9 +24,14 @@ public abstract class DerivedBooleanInput extends DerivedUpdate implements Boole
 
     private boolean value;
     private final ConcurrentDispatchArray<EventOutput> consumers = new ConcurrentDispatchArray<>();
-    
+
     public DerivedBooleanInput(UpdatingInput... updates) {
         super(updates);
+        value = apply();
+    }
+
+    public DerivedBooleanInput(UpdatingInput[] updates, UpdatingInput... moreUpdates) {
+        super(updates, moreUpdates);
         value = apply();
     }
 
@@ -40,7 +45,7 @@ public abstract class DerivedBooleanInput extends DerivedUpdate implements Boole
             }
         }
     }
-    
+
     protected final boolean updateWithRecovery() {
         boolean newvalue = apply();
         boolean recovered = false;
@@ -63,7 +68,7 @@ public abstract class DerivedBooleanInput extends DerivedUpdate implements Boole
     public void onUpdate(EventOutput notify) {
         consumers.add(notify);
     }
-    
+
     @Override
     public EventOutput onUpdateR(EventOutput notify) {
         return consumers.addR(notify);

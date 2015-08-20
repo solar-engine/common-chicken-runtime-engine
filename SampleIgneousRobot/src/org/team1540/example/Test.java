@@ -20,7 +20,6 @@ package org.team1540.example;
 
 import ccre.channel.BooleanStatus;
 import ccre.channel.FloatInput;
-import ccre.channel.FloatInputPoll;
 import ccre.channel.FloatOutput;
 import ccre.ctrl.DriverImpls;
 import ccre.igneous.Igneous;
@@ -46,7 +45,7 @@ public class Test extends IgneousCore {
         FloatInput rightAxis = joystick1.axis(5);
         final FloatOutput leftOut = makeTalonMotor(2, MOTOR_FORWARD, 0.1f);
         final FloatOutput rightOut = makeTalonMotor(1, MOTOR_REVERSE, 0.1f);
-        DriverImpls.createSynchTankDriver(duringTele, leftAxis, rightAxis, leftOut, rightOut);
+        DriverImpls.tankDrive(leftAxis, rightAxis, leftOut, rightOut);
         // Shifting
         BooleanStatus shifter = new BooleanStatus(makeSolenoid(2));
         shifter.setFalseWhen(startTele);

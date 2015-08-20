@@ -18,7 +18,6 @@
  */
 package ccre.ctrl;
 
-import ccre.channel.BooleanFilter;
 import ccre.channel.BooleanInput;
 import ccre.channel.BooleanOutput;
 import ccre.channel.BooleanStatus;
@@ -38,57 +37,6 @@ import ccre.channel.EventOutput;
  * @see Mixing
  */
 public class BooleanMixing {
-
-    /**
-     * A BooleanOutput that goes nowhere. All data sent here is ignored.
-     */
-    public static final BooleanOutput ignored = new BooleanOutput() { // TODO: Rename to "ignored"
-        public void set(boolean newValue) {
-            // Do nothing.
-        }
-    };
-    /**
-     * A BooleanOutput that goes nowhere. All data sent here is ignored.
-     *
-     * @deprecated renamed simply <code>BooleanMixing.ignored</code>.
-     */
-    @Deprecated
-    public static final BooleanOutput ignoredBooleanOutput = ignored;
-    /**
-     * A BooleanInput that is always false.
-     */
-    public static final BooleanInput alwaysFalse = new BooleanInput() {
-        public boolean get() {
-            return false;
-        }
-
-        @Override
-        public EventOutput onUpdateR(EventOutput notify) {
-            return EventMixing.ignored;
-        }
-    };
-    /**
-     * A BooleanInput that is always true.
-     */
-    public static final BooleanInput alwaysTrue = new BooleanInput() {
-        public boolean get() {
-            return true;
-        }
-
-        @Override
-        public EventOutput onUpdateR(EventOutput notify) {
-            return EventMixing.ignored;
-        }
-    };
-    /**
-     * A BooleanFilter that inverts a value. (True-&gt;False, False-&gt;True).
-     */
-    public static final BooleanFilter invert = new BooleanFilter() {
-        @Override
-        public boolean filter(boolean input) {
-            return !input;
-        }
-    };
 
     /**
      * Returns a BooleanOutput, and when the value written to it changes, it
@@ -158,28 +106,6 @@ public class BooleanMixing {
                 c.set(value);
             }
         };
-    }
-
-    /**
-     * Returns a BooleanInput that represents the logical inversion of the value
-     * of the specified input.
-     *
-     * @param value the value to invert.
-     * @return the inverted value.
-     */
-    public static BooleanInput invert(BooleanInput value) {
-        return invert.wrap(value);
-    }
-
-    /**
-     * Returns a BooleanOutput that, when written to, writes the logical
-     * inversion of the value through to the specified output.
-     *
-     * @param output the output to write inverted values to.
-     * @return the output to write pre-inverted values to.
-     */
-    public static BooleanOutput invert(final BooleanOutput output) {
-        return invert.wrap(output);
     }
 
     /**
@@ -295,42 +221,6 @@ public class BooleanMixing {
         return new EventOutput() {
             public void event() {
                 output.set(value);
-            }
-        };
-    }
-
-    /**
-     * Return a BooleanInput that is true when both specified inputs are true.
-     *
-     * @param a the first input.
-     * @param b the second input.
-     * @return the input representing if both given inputs are true.
-     */
-    public static BooleanInput andBooleans(final BooleanInput a, final BooleanInput b) {
-        return new DerivedBooleanInput(a, b) {
-            @Override
-            protected boolean apply() {
-                return a.get() && b.get();
-            }
-        };
-    }
-
-    /**
-     * Return a BooleanInput that is true when all specified inputs are true.
-     *
-     * @param vals the inputs to check.
-     * @return the input representing if all given inputs are true.
-     */
-    public static BooleanInput andBooleans(final BooleanInput... vals) {
-        return new DerivedBooleanInput(vals) {
-            @Override
-            protected boolean apply() {
-                for (BooleanInput b : vals) {
-                    if (!b.get()) {
-                        return false;
-                    }
-                }
-                return true;
             }
         };
     }

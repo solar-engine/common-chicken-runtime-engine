@@ -20,7 +20,6 @@ package ccre.igneous;
 
 import ccre.channel.EventInput;
 import ccre.ctrl.AbstractJoystick;
-import edu.wpi.first.wpilibj.Joystick;
 
 /**
  * An IJoystick implementation that allows reading from a joystick on the driver
@@ -28,38 +27,38 @@ import edu.wpi.first.wpilibj.Joystick;
  *
  * @author skeggsc
  */
-final class CJoystick extends AbstractJoystick {
+public final class CJoystickDirect extends AbstractJoystick {
 
-    /**
-     * The joystick object that is read from.
-     */
-    private final Joystick joy;
+    private final int port;
 
     /**
      * Create a new CJoystick for a specific joystick ID.
      *
      * @param joystick the joystick ID
+     * @param check when to update the input sources.
      */
-    CJoystick(int joystick, EventInput check) {
+    public CJoystickDirect(int joystick, EventInput check) {
         super(check, 12, 32);
         if (joystick < 1 || joystick > 6) {
             throw new IllegalArgumentException("Joystick " + joystick + " is not a valid joystick number.");
+        } else {
+            port = joystick - 1;
         }
-        joy = new Joystick(joystick - 1);
+        DirectDriverStation.verifyPortNumber(port);
     }
 
     @Override
     protected boolean getButton(int btn) {
-        return joy.getRawButton(btn);
+        return DirectDriverStation.getStickButton(port, btn - 1);
     }
 
     @Override
     protected float getAxis(int axis) {
-        return (float) joy.getRawAxis(axis);
+        return DirectDriverStation.getStickAxis(port, axis - 1);
     }
 
     @Override
     protected boolean getPOV(int direction) {
-        return joy.getPOV(0) == direction;
+        return DirectDriverStation.getStickPOV(port, 0) == direction;
     }
 }

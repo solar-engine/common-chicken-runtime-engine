@@ -20,7 +20,7 @@
  * This file contains code inspired by/based on code Copyright 2008-2014 FIRST.
  * To see the license terms of that code (modified BSD), see the root of the CCRE.
  */
-package ccre.igneous.direct;
+package ccre.igneous;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -31,29 +31,22 @@ import java.util.Enumeration;
 import java.util.jar.Manifest;
 
 import ccre.channel.BooleanInput;
-import ccre.channel.BooleanInputPoll;
 import ccre.channel.BooleanOutput;
 import ccre.channel.BooleanStatus;
+import ccre.channel.DerivedBooleanInput;
+import ccre.channel.DerivedFloatInput;
 import ccre.channel.EventInput;
 import ccre.channel.EventStatus;
 import ccre.channel.FloatInput;
-import ccre.channel.FloatInputPoll;
 import ccre.channel.FloatOutput;
 import ccre.channel.SerialIO;
 import ccre.cluck.Cluck;
 import ccre.concurrency.ReporterThread;
-import ccre.ctrl.BooleanMixing;
 import ccre.ctrl.CommunicationFailureExtendedMotor;
 import ccre.ctrl.ExtendedMotor;
 import ccre.ctrl.ExtendedMotorFailureException;
-import ccre.ctrl.FloatMixing;
 import ccre.ctrl.IJoystick;
-import ccre.ctrl.IJoystickWithPOV;
-import ccre.ctrl.Ticker;
 import ccre.ctrl.binding.ControlBindingCreator;
-import ccre.igneous.IgneousApplication;
-import ccre.igneous.IgneousLauncher;
-import ccre.igneous.IgneousLauncherHolder;
 import ccre.log.BootLogger;
 import ccre.log.FileLogger;
 import ccre.log.Logger;
@@ -182,6 +175,8 @@ public final class DirectIgneousLauncherImpl implements IgneousLauncher {
     private final EventStatus[] startEvents, duringEvents;
 
     private final EventStatus onInitComplete = new EventStatus();
+    
+    private final EventStatus onChangeMode = new EventStatus();
 
     {
         int count = Mode.values().length;
@@ -227,6 +222,7 @@ public final class DirectIgneousLauncherImpl implements IgneousLauncher {
         private void start(DirectIgneousLauncherImpl launcher, boolean onFMS) {
             try {
                 Logger.fine("Began " + name + (onFMS ? " on FMS" : " mode"));
+                launcher.onChangeMode.produce();
                 getStart(launcher).produce();
             } catch (Throwable thr) {
                 Logger.severe("Critical Code Failure in " + name + " init", thr);
@@ -299,22 +295,34 @@ public final class DirectIgneousLauncherImpl implements IgneousLauncher {
         return value -> DirectDigital.set(id, value);
     }
 
-    public FloatInputPoll makeAnalogInput(int id) {
+    public FloatInput makeAnalogInput(int id, EventInput updateOn) {
         ByteBuffer port = DirectAnalog.init(id);
-        return () -> DirectAnalog.getAverageVoltage(port);
+        return new DerivedFloatInput(updateOn) {
+            protected float apply() {
+                return DirectAnalog.getAverageVoltage(port);
+            }
+        };
     }
 
     @Override
-    public FloatInput makeAnalogInput(int id, int averageBits, int updateRate) {
+    public FloatInput makeAnalogInput(int id, int averageBits, EventInput updateOn) {
         ByteBuffer port = DirectAnalog.init(id);
         DirectAnalog.configure(port, averageBits, 0); // TODO: oversample bits
-        return () -> DirectAnalog.getAverageVoltage(port);
+        return new DerivedFloatInput(updateOn) {
+            protected float apply() {
+                return DirectAnalog.getAverageVoltage(port);
+            }
+        };
     }
 
     @Override
-    public BooleanInput makeDigitalInput(int id, int updateRate) {
+    public BooleanInput makeDigitalInput(int id, EventInput updateOn) {
         DirectDigital.init(id, true);
-        return () -> DirectDigital.get(id);
+        return new DerivedBooleanInput(updateOn) {
+            protected boolean apply() {
+                return DirectDigital.get(id);
+            }
+        };
     }
 
     public BooleanInput makeDigitalInputByInterrupt(int id) {
@@ -348,30 +356,50 @@ public final class DirectIgneousLauncherImpl implements IgneousLauncher {
 
     @Override
     public BooleanInput getIsDisabled() {
-        return () -> activeMode == Mode.DISABLED;
+        return new DerivedBooleanInput(onChangeMode) {
+            protected boolean apply() {
+                return activeMode == Mode.DISABLED;
+            }
+        };
     }
 
     @Override
     public BooleanInput getIsAutonomous() {
-        return () -> activeMode == Mode.AUTONOMOUS;
+        return new DerivedBooleanInput(onChangeMode) {
+            protected boolean apply() {
+                return activeMode == Mode.AUTONOMOUS;
+            }
+        };
     }
 
     @Override
     public BooleanInput getIsTest() {
-        return () -> activeMode == Mode.TEST;
+        return new DerivedBooleanInput(onChangeMode) {
+            protected boolean apply() {
+                return activeMode == Mode.TEST;
+            }
+        };
     }
 
     @Override
     public BooleanInput getIsFMS() {
-        return () -> onFMS;
+        return new DerivedBooleanInput(onChangeMode) {
+            protected boolean apply() {
+                return onFMS;
+            }
+        };
     }
 
-    public FloatInputPoll makeEncoder(int channelA, int channelB, boolean reverse, EventInput resetWhen) {
+    public FloatInput makeEncoder(int channelA, int channelB, boolean reverse, EventInput resetWhen, EventInput updateOn) {
         ByteBuffer encoder = DirectEncoder.init(channelA, channelB, reverse);
         if (resetWhen != null) {
             resetWhen.send(() -> DirectEncoder.reset(encoder));
         }
-        return () -> DirectEncoder.get(encoder);
+        return new DerivedFloatInput(updateOn) {
+            protected float apply() {
+                return DirectEncoder.get(encoder);
+            }
+        };
     }
 
     public BooleanOutput makeRelayForwardOutput(int channel) {
@@ -384,7 +412,7 @@ public final class DirectIgneousLauncherImpl implements IgneousLauncher {
         return (bln) -> DirectRelay.setReverse(relay, bln);
     }
 
-    public FloatInputPoll makeGyro(int port, double sensitivity, EventInput evt) {
+    public FloatInput makeGyro(int port, double sensitivity, EventInput evt, EventInput updateOn) {
         ByteBuffer gyro;
         try {
             gyro = DirectGyro.init(port);
@@ -394,15 +422,11 @@ public final class DirectIgneousLauncherImpl implements IgneousLauncher {
         if (evt != null) {
             evt.send(() -> DirectGyro.reset(gyro));
         }
-        return () -> DirectGyro.getAngle(gyro, port, sensitivity);
-    }
-
-    @Deprecated
-    public FloatInputPoll makeAccelerometerAxis(int port, double sensitivity, double zeropoint) {
-        if (sensitivity == 0) {
-            throw new IllegalArgumentException("Accelerometer sensitivity cannot be zero!");
-        }
-        return FloatMixing.division.of(FloatMixing.subtraction.of(makeAnalogInput(port), (float) zeropoint), (float) sensitivity);
+        return new DerivedFloatInput(updateOn) {
+            protected float apply() {
+                return DirectGyro.getAngle(gyro, port, sensitivity);
+            }
+        };
     }
 
     public FloatOutput makeMotor(int id, int type) {
@@ -470,30 +494,50 @@ public final class DirectIgneousLauncherImpl implements IgneousLauncher {
         return (on) -> DirectCompressor.setClosedLoop(getPCMCompressor(), on);
     }
 
-    public BooleanInput getPCMPressureSwitch(int updateRate) {
+    public BooleanInput getPCMPressureSwitch(EventInput updateOn) {
         getPCMCompressor();
-        return () -> DirectCompressor.getPressureSwitch(getPCMCompressor());
+        return new DerivedBooleanInput(updateOn) {
+            protected boolean apply() {
+                return DirectCompressor.getPressureSwitch(getPCMCompressor());
+            }
+        };
     }
 
-    public BooleanInput getPCMCompressorRunning(int updateRate) {
+    public BooleanInput getPCMCompressorRunning(EventInput updateOn) {
         getPCMCompressor();
-        return () -> DirectCompressor.getCompressorRunning(getPCMCompressor());
+        return new DerivedBooleanInput(updateOn) {
+            protected boolean apply() {
+                return DirectCompressor.getCompressorRunning(getPCMCompressor());
+            }
+        };
     }
 
-    public FloatInput getPCMCompressorCurrent(int updateRate) {
+    public FloatInput getPCMCompressorCurrent(EventInput updateOn) {
         getPCMCompressor();
-        return () -> DirectCompressor.getCompressorCurrent(getPCMCompressor());
+        return new DerivedFloatInput(updateOn) {
+            protected float apply() {
+                return DirectCompressor.getCompressorCurrent(getPCMCompressor());
+            }
+        };
     }
 
     // TODO: Add the rest of the PCM and PDP accessors.
 
-    public FloatInputPoll getPDPChannelCurrent(final int channel) {
+    public FloatInput getPDPChannelCurrent(final int channel, EventInput updateOn) {
         DirectPDP.checkChannel(channel);
-        return () -> DirectPDP.getCurrent(channel);
+        return new DerivedFloatInput(updateOn) {
+            protected float apply() {
+                return DirectPDP.getCurrent(channel);
+            }
+        };
     }
 
-    public FloatInputPoll getPDPVoltage() {
-        return () -> DirectPDP.getVoltage();
+    public FloatInput getPDPVoltage(EventInput updateOn) {
+        return new DerivedFloatInput(updateOn) {
+            protected float apply() {
+                return DirectPDP.getVoltage();
+            }
+        };
     }
 
     public boolean isRoboRIO() {
@@ -512,16 +556,20 @@ public final class DirectIgneousLauncherImpl implements IgneousLauncher {
         return new SerialPortDirect(DirectRS232.PORT_USB, baudRate);
     }
 
-    public IJoystickWithPOV getJoystick(int id) {
+    public IJoystick getJoystick(int id) {
         if (id < 1 || id > 6) {
             throw new IllegalArgumentException("Joystick " + id + " is not a valid joystick number.");
         }
         return new CJoystickDirect(id, globalPeriodic);
     }
 
-    public FloatInputPoll getBatteryVoltage() {
+    public FloatInput getBatteryVoltage(EventInput updateOn) {
         DirectPower.init();
-        return () -> DirectPower.getBatteryVoltage();
+        return new DerivedFloatInput(updateOn) {
+            protected float apply() {
+                return DirectPower.getBatteryVoltage();
+            }
+        };
     }
 
     public ExtendedMotor makeCANJaguar(int deviceNumber) {
@@ -545,22 +593,34 @@ public final class DirectIgneousLauncherImpl implements IgneousLauncher {
         }
     }
 
-    public FloatInput getChannelVoltage(int powerChannel, int updateRate) {
+    public FloatInput getChannelVoltage(int powerChannel, EventInput updateOn) {
         if (DirectPower.readChannelVoltage(powerChannel) == -1) {
             Logger.warning("Unknown power channel: " + powerChannel);
         }
-        return () -> DirectPower.readChannelVoltage(powerChannel);
+        return new DerivedFloatInput(updateOn) {
+            protected float apply() {
+                return DirectPower.readChannelVoltage(powerChannel);
+            }
+        };
     }
 
-    public FloatInput getChannelCurrent(int powerChannel, int updateRate) {
+    public FloatInput getChannelCurrent(int powerChannel, EventInput updateOn) {
         if (DirectPower.readChannelCurrent(powerChannel) == -1) {
             Logger.warning("Unknown power channel: " + powerChannel);
         }
-        return () -> DirectPower.readChannelCurrent(powerChannel);
+        return new DerivedFloatInput(updateOn) {
+            protected float apply() {
+                return DirectPower.readChannelCurrent(powerChannel);
+            }
+        };
     }
 
-    public BooleanInput getChannelEnabled(int powerChannel, int updateRate) {
-        return () -> DirectPower.readChannelEnabled(powerChannel);
+    public BooleanInput getChannelEnabled(int powerChannel, EventInput updateOn) {
+        return new DerivedBooleanInput(updateOn) {
+            protected boolean apply() {
+                return DirectPower.readChannelEnabled(powerChannel);
+            }
+        };
     }
 
     public ControlBindingCreator tryMakeControlBindingCreator(String title) {

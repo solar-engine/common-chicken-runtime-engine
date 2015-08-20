@@ -20,7 +20,7 @@
  * This file contains code inspired by/based on code Copyright 2008-2014 FIRST.
  * To see the license terms of that code (modified BSD), see the root of the CCRE.
  */
-package ccre.igneous.direct;
+package ccre.igneous;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;

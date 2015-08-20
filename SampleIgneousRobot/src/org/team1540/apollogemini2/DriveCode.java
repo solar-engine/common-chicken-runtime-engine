@@ -18,13 +18,12 @@
  */
 package org.team1540.apollogemini2;
 
-import ccre.channel.BooleanInputPoll;
+import ccre.channel.BooleanInput;
 import ccre.channel.BooleanOutput;
 import ccre.channel.BooleanStatus;
-import ccre.channel.FloatInputPoll;
+import ccre.channel.FloatInput;
 import ccre.channel.FloatOutput;
 import ccre.cluck.Cluck;
-import ccre.ctrl.BooleanMixing;
 import ccre.ctrl.DriverImpls;
 import ccre.ctrl.FloatMixing;
 import ccre.ctrl.Mixing;
@@ -61,11 +60,11 @@ public class DriveCode {
     }
 
     private static void setupDriveCode(FloatOutput leftDrive, FloatOutput rightDrive, BooleanOutput shiftSolenoidHigh) {
-        final BooleanInputPoll actuallyDisable = BooleanMixing.andBooleans(Shooter.getShouldDisableDrivingAndCompressor(), UserInterface.getShouldOverrideDrivingDisable());
+        final BooleanInput actuallyDisable = Shooter.getShouldDisableDrivingAndCompressor().and(UserInterface.getShouldOverrideDrivingDisable());
 
-        FloatInputPoll speedScale = Mixing.select(actuallyDisable, Mixing.select(ApolloGemini.isKidMode, 1.0f, 0.5f), FloatMixing.always(0.0f));
+        FloatInput speedScale = Mixing.select(actuallyDisable, Mixing.select(ApolloGemini.isKidMode, 1.0f, 0.5f), FloatMixing.always(0.0f));
 
-        DriverImpls.createExtendedSynchTankDriver(Igneous.duringTele,
+        DriverImpls.extendedTankDrive(
                 UserInterface.getLeftAxis(), UserInterface.getRightAxis(), UserInterface.getForwardAxis(),
                 FloatMixing.multiplication.of(leftDrive, speedScale), FloatMixing.multiplication.of(rightDrive, speedScale));
 

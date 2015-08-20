@@ -23,7 +23,6 @@ import ccre.channel.BooleanOutput;
 import ccre.channel.BooleanStatus;
 import ccre.channel.EventOutput;
 import ccre.channel.EventStatus;
-import ccre.ctrl.BooleanMixing;
 
 /**
  * Test BooleanStatus.
@@ -176,41 +175,41 @@ public class TestBooleanStatus extends BaseTest {
     private void testConsumerTracking() throws TestingException {
         BooleanStatus target = new BooleanStatus();
         assertFalse(target.hasConsumers(), "Target should not have consumers initially!");
-        EventOutput unbind = target.sendR(BooleanMixing.ignored);
+        EventOutput unbind = target.sendR(BooleanOutput.ignored);
         assertTrue(target.hasConsumers(), "Target should now have consumers!");
         unbind.event();
         assertFalse(target.hasConsumers(), "Target should no longer have consumers!");
-        EventOutput unbind1 = target.sendR(BooleanMixing.ignored);
+        EventOutput unbind1 = target.sendR(BooleanOutput.ignored);
         assertTrue(target.hasConsumers(), "Target should now have consumers!");
-        EventOutput unbind2 = target.sendR(BooleanMixing.ignored);
+        EventOutput unbind2 = target.sendR(BooleanOutput.ignored);
         assertTrue(target.hasConsumers(), "Target should still have consumers!");
         unbind2.event();
         assertTrue(target.hasConsumers(), "Target should still have consumers!");
         unbind1.event();
         assertFalse(target.hasConsumers(), "Target should still not have consumers!");
 
-        target = new BooleanStatus(BooleanMixing.ignored);
+        target = new BooleanStatus(BooleanOutput.ignored);
         assertTrue(target.hasConsumers(), "Target should still have consumers!");
-        unbind = target.sendR(BooleanMixing.ignored);
+        unbind = target.sendR(BooleanOutput.ignored);
         assertTrue(target.hasConsumers(), "Target should still have consumers!");
         unbind.event();
         assertTrue(target.hasConsumers(), "Target should still have consumers!");
-        target.send(BooleanMixing.ignored);
+        target.send(BooleanOutput.ignored);
         assertTrue(target.hasConsumers(), "Target should still have consumers!");
-        unbind = target.sendR(BooleanMixing.ignored);
+        unbind = target.sendR(BooleanOutput.ignored);
         assertTrue(target.hasConsumers(), "Target should still have consumers!");
         unbind.event();
         assertTrue(target.hasConsumers(), "Target should still have consumers!");
 
-        target = new BooleanStatus(BooleanMixing.ignored, BooleanMixing.ignored);
+        target = new BooleanStatus(BooleanOutput.ignored, BooleanOutput.ignored);
         assertTrue(target.hasConsumers(), "Target should still have consumers!");
-        unbind = target.sendR(BooleanMixing.ignored);
+        unbind = target.sendR(BooleanOutput.ignored);
         assertTrue(target.hasConsumers(), "Target should still have consumers!");
         unbind.event();
         assertTrue(target.hasConsumers(), "Target should still have consumers!");
-        target.send(BooleanMixing.ignored);
+        target.send(BooleanOutput.ignored);
         assertTrue(target.hasConsumers(), "Target should still have consumers!");
-        unbind = target.sendR(BooleanMixing.ignored);
+        unbind = target.sendR(BooleanOutput.ignored);
         assertTrue(target.hasConsumers(), "Target should still have consumers!");
         unbind.event();
         assertTrue(target.hasConsumers(), "Target should still have consumers!");
@@ -222,11 +221,11 @@ public class TestBooleanStatus extends BaseTest {
         assertIdentityEqual(test, test.asInput(), "test should be its own input!");
         assertIdentityEqual(test, test.asOutput(), "test should be its own output!");
 
-        BooleanInput inverted = test.asInvertedInput();
+        BooleanInput inverted = test.not();
 
         assertTrue(inverted.get() == !test.get(), "Expected initial condition to be correct!");
         // check the opposite initialization
-        assertFalse(new BooleanStatus(true).asInvertedInput().get(), "Expected initial condition to be correct!");
+        assertFalse(new BooleanStatus(true).not().get(), "Expected initial condition to be correct!");
 
         boolean[] testBools = new boolean[] { false, true, true, true, false, false, true, true, false, true, false, false, false, false, true, true, false };
 
@@ -235,7 +234,7 @@ public class TestBooleanStatus extends BaseTest {
             assertTrue(inverted.get() == !b, "Expected new condition to match.");
         }
 
-        BooleanOutput invout = test.asInvertedOutput();
+        BooleanOutput invout = test.invert();
 
         for (boolean b : testBools) {
             invout.set(b);

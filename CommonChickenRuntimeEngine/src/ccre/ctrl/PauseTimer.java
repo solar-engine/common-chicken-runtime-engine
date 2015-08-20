@@ -117,7 +117,6 @@ public class PauseTimer implements BooleanInput, EventOutput {
                 Logger.severe("Exception in PauseTimer dispatch!", thr);
             }
         }
-        // TODO: refactor this so that dispatch errors actually work.
     }
 
     /**

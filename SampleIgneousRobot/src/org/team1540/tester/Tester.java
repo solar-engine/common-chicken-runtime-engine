@@ -20,7 +20,6 @@ package org.team1540.tester;
 
 import ccre.channel.FloatOutput;
 import ccre.cluck.Cluck;
-import ccre.ctrl.FloatMixing;
 import ccre.igneous.Igneous;
 import ccre.igneous.IgneousApplication;
 
@@ -59,22 +58,22 @@ public class Tester implements IgneousApplication {
             Cluck.publish("solenoid-" + i, Igneous.makeSolenoid(i));
         }
         for (int i = base; i < 4 + base; i++) {
-            Cluck.publish("analog-" + i, FloatMixing.createDispatch(Igneous.makeAnalogInput(i, 8), Igneous.globalPeriodic));
+            Cluck.publish("analog-" + i, Igneous.makeAnalogInput(i, 8));
         }
-        Cluck.publish("input-voltage", FloatMixing.createDispatch(Igneous.getChannelVoltage(Igneous.POWER_CHANNEL_BATTERY), Igneous.globalPeriodic));
+        Cluck.publish("input-voltage", Igneous.getChannelVoltage(Igneous.POWER_CHANNEL_BATTERY));
         if (Igneous.isRoboRIO()) {
-            Cluck.publish("input-current", FloatMixing.createDispatch(Igneous.getChannelCurrent(Igneous.POWER_CHANNEL_BATTERY), Igneous.globalPeriodic));
-            Cluck.publish("6v-voltage", FloatMixing.createDispatch(Igneous.getChannelVoltage(Igneous.POWER_CHANNEL_6V), Igneous.globalPeriodic));
-            Cluck.publish("6v-current", FloatMixing.createDispatch(Igneous.getChannelCurrent(Igneous.POWER_CHANNEL_6V), Igneous.globalPeriodic));
-            Cluck.publish("5v-voltage", FloatMixing.createDispatch(Igneous.getChannelVoltage(Igneous.POWER_CHANNEL_5V), Igneous.globalPeriodic));
-            Cluck.publish("5v-current", FloatMixing.createDispatch(Igneous.getChannelCurrent(Igneous.POWER_CHANNEL_5V), Igneous.globalPeriodic));
-            Cluck.publish("3.3v-voltage", FloatMixing.createDispatch(Igneous.getChannelVoltage(Igneous.POWER_CHANNEL_3V3), Igneous.globalPeriodic));
-            Cluck.publish("3.3v-current", FloatMixing.createDispatch(Igneous.getChannelCurrent(Igneous.POWER_CHANNEL_3V3), Igneous.globalPeriodic));
+            Cluck.publish("input-current", Igneous.getChannelCurrent(Igneous.POWER_CHANNEL_BATTERY));
+            Cluck.publish("6v-voltage", Igneous.getChannelVoltage(Igneous.POWER_CHANNEL_6V));
+            Cluck.publish("6v-current", Igneous.getChannelCurrent(Igneous.POWER_CHANNEL_6V));
+            Cluck.publish("5v-voltage", Igneous.getChannelVoltage(Igneous.POWER_CHANNEL_5V));
+            Cluck.publish("5v-current", Igneous.getChannelCurrent(Igneous.POWER_CHANNEL_5V));
+            Cluck.publish("3.3v-voltage", Igneous.getChannelVoltage(Igneous.POWER_CHANNEL_3V3));
+            Cluck.publish("3.3v-current", Igneous.getChannelCurrent(Igneous.POWER_CHANNEL_3V3));
             for (int i = base; i < 16 + base; i++) {
-                Cluck.publish("current-" + i, FloatMixing.createDispatch(Igneous.getPDPChannelCurrent(i), Igneous.globalPeriodic));
+                Cluck.publish("current-" + i, Igneous.getPDPChannelCurrent(i));
             }
             Cluck.publish("compressor", Igneous.usePCMCompressor());
-            Cluck.publish("pdp-voltage", FloatMixing.createDispatch(Igneous.getPDPVoltage(), Igneous.globalPeriodic));
+            Cluck.publish("pdp-voltage", Igneous.getPDPVoltage());
         }
     }
 }

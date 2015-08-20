@@ -30,7 +30,7 @@ public class NullJoystick implements IJoystick {
 
     @Override
     public BooleanInput button(int btn) {
-        return BooleanMixing.alwaysFalse;
+        return BooleanInput.alwaysFalse;
     }
 
     @Override
@@ -40,7 +40,7 @@ public class NullJoystick implements IJoystick {
 
     @Override
     public BooleanInput isPOV(int direction) {
-        return BooleanMixing.alwaysFalse;
+        return BooleanInput.alwaysFalse;
     }
 
 }

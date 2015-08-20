@@ -395,7 +395,7 @@ public class DeviceBasedLauncher implements IgneousLauncher {
         if (!isRoboRIO()) {
             throw new IllegalArgumentException("Cannot use a PCM on a cRIO!");
         }
-        return BooleanMixing.andBooleans(pcmCompressor.asInput(), BooleanMixing.invert(getPCMPressureSwitch(updateOn)));
+        return pcmCompressor.asInput().and(getPCMPressureSwitch(updateOn).not());
     }
 
     public FloatInput getPCMCompressorCurrent(EventInput updateOn) {
@@ -490,11 +490,11 @@ public class DeviceBasedLauncher implements IgneousLauncher {
     public BooleanInput getChannelEnabled(int powerChannel, EventInput updateOn) {
         if (!isRoboRIO()) {
             Logger.warning("Power channel statuses are not available on the cRIO!");
-            return powerChannel == Igneous.POWER_CHANNEL_BATTERY ? BooleanMixing.alwaysTrue : BooleanMixing.alwaysFalse;
+            return powerChannel == Igneous.POWER_CHANNEL_BATTERY ? BooleanInput.alwaysTrue : BooleanInput.alwaysFalse;
         } else {
             switch (powerChannel) {
             case Igneous.POWER_CHANNEL_BATTERY:
-                return BooleanMixing.alwaysTrue;
+                return BooleanInput.alwaysTrue;
             case Igneous.POWER_CHANNEL_3V3:
                 return panel.add(new BooleanControlDevice("Rail Enabled 3.3V")).asInput();
             case Igneous.POWER_CHANNEL_5V:
@@ -503,7 +503,7 @@ public class DeviceBasedLauncher implements IgneousLauncher {
                 return panel.add(new BooleanControlDevice("Rail Enabled 6V")).asInput();
             default:
                 Logger.warning("Unknown power channel: " + powerChannel);
-                return BooleanMixing.alwaysFalse;
+                return BooleanInput.alwaysFalse;
             }
         }
     }

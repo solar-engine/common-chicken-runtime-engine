@@ -21,7 +21,6 @@ package ccre.channel;
 import java.io.Serializable;
 
 import ccre.concurrency.ConcurrentDispatchArray;
-import ccre.ctrl.BooleanMixing;
 
 /**
  * A virtual node that is both a BooleanOutput and a BooleanInput. You can
@@ -206,26 +205,6 @@ public class BooleanStatus implements BooleanOutput, BooleanInput, Serializable 
      */
     public BooleanInput asInput() {
         return this;
-    }
-
-    /**
-     * Returns an inverted version of this status as an output. This is
-     * equivalent to using BooleanMixing.invert.
-     *
-     * @return this status, inverted, as an output.
-     */
-    public BooleanOutput asInvertedOutput() {
-        return BooleanMixing.invert((BooleanOutput) this);
-    }
-
-    /**
-     * Returns an inverted version of this status as an input. This is
-     * equivalent to using BooleanMixing.invert.
-     *
-     * @return this status, inverted, as an input.
-     */
-    public BooleanInput asInvertedInput() {
-        return BooleanMixing.invert((BooleanInput) this);
     }
     
     @Override

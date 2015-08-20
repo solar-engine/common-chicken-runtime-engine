@@ -18,13 +18,10 @@
  */
 package org.team1540.apollogemini2;
 
-import ccre.channel.BooleanInputPoll;
 import ccre.channel.FloatInput;
-import ccre.ctrl.FloatMixing;
 import ccre.holders.TuningContext;
 import ccre.instinct.AutonomousModeOverException;
 import ccre.log.Logger;
-import ccre.util.Utils;
 
 public class AutonomousModeHotcheck extends AutonomousModeBase {
 
@@ -58,12 +55,10 @@ public class AutonomousModeHotcheck extends AutonomousModeBase {
     }
 
     private void waitForHotZoneOrTimeout(FloatInput timeout) throws AutonomousModeOverException, InterruptedException {
-        float timeoutAt = Utils.getCurrentTimeSeconds() + timeout.get();
-        BooleanInputPoll hasTimedOut = FloatMixing.floatIsAtLeast(Utils.currentTimeSeconds, timeoutAt);
-        if (waitUntilOneOf(getHotZoneActive(), hasTimedOut) != 0) {
-            Logger.warning("Cancelled HotZone wait after " + timeout.get() + " secs: " + Utils.getCurrentTimeSeconds() + "," + timeoutAt);
-        } else {
+        if (waitUntil((long) (timeout.get() * 1000), getHotZoneActive())) {
             Logger.fine("Found HotZone");
+        } else {
+            Logger.warning("Cancelled HotZone wait after " + timeout.get());
         }
     }
 

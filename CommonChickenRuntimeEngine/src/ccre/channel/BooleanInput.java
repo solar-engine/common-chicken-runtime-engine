@@ -18,6 +18,8 @@
  */
 package ccre.channel;
 
+import ccre.ctrl.EventMixing;
+
 /**
  * A BooleanInput is a way to get the current state of a boolean input, and to
  * subscribe to notifications of changes in the boolean input's value.
@@ -30,6 +32,43 @@ package ccre.channel;
  * @author skeggsc
  */
 public interface BooleanInput extends UpdatingInput {
+
+    /**
+     * A BooleanInput that is always false.
+     */
+    public static BooleanInput alwaysFalse = new BooleanInput() {
+        public boolean get() {
+            return false;
+        }
+
+        @Override
+        public EventOutput onUpdateR(EventOutput notify) {
+            return EventMixing.ignored;
+        }
+
+        @Override
+        public BooleanInput not() {
+            return alwaysTrue;
+        };
+    };
+    /**
+     * A BooleanInput that is always true.
+     */
+    public static BooleanInput alwaysTrue = new BooleanInput() {
+        public boolean get() {
+            return true;
+        }
+
+        @Override
+        public EventOutput onUpdateR(EventOutput notify) {
+            return EventMixing.ignored;
+        }
+
+        @Override
+        public BooleanInput not() {
+            return alwaysFalse;
+        };
+    };
 
     /**
      * Get the current state of this boolean input.
@@ -58,9 +97,62 @@ public interface BooleanInput extends UpdatingInput {
         output.set(get());
         onUpdate(() -> output.set(get()));
     }
-    
+
     public default EventOutput sendR(BooleanOutput output) {
         output.set(get());
         return onUpdateR(() -> output.set(get()));
+    }
+
+    public default BooleanInput not() {
+        BooleanInput original = this;
+        return new BooleanInput() {
+            @Override
+            public void onUpdate(EventOutput notify) {
+                original.onUpdate(notify);
+            }
+
+            @Override
+            public EventOutput onUpdateR(EventOutput notify) {
+                return original.onUpdateR(notify);
+            }
+
+            @Override
+            public boolean get() {
+                return !original.get();
+            }
+
+            @Override
+            public BooleanInput not() {
+                return original;
+            }
+        };
+    }
+
+    public default BooleanInput and(final BooleanInput b) {
+        final BooleanInput a = this;
+        return new DerivedBooleanInput(a, b) {
+            @Override
+            protected boolean apply() {
+                return a.get() && b.get();
+            }
+        };
+    }
+
+    public default BooleanInput and(final BooleanInput... vals) {
+        final BooleanInput a = this;
+        return new DerivedBooleanInput(vals, a) {
+            @Override
+            protected boolean apply() {
+                if (!a.get()) {
+                    return false;
+                }
+                for (BooleanInput b : vals) {
+                    if (!b.get()) {
+                        return false;
+                    }
+                }
+                return true;
+            }
+        };
     }
 }

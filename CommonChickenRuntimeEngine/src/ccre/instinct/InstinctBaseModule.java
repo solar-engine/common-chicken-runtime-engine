@@ -51,6 +51,26 @@ public abstract class InstinctBaseModule {
     }
 
     /**
+     * Wait until the specified BooleanInputPoll becomes true before returning, or for a timeout to elapse.
+     *
+     * @param waitFor The condition to wait until.
+     * @throws AutonomousModeOverException If the autonomous mode has ended.
+     * @throws InterruptedException Possibly also if autonomous mode has ended.
+     */
+    protected boolean waitUntil(long timeout, BooleanInput waitFor) throws AutonomousModeOverException, InterruptedException {
+        long doneAt = System.currentTimeMillis() + timeout;
+        // TODO: make this dynamic
+        while (System.currentTimeMillis() < doneAt) {
+            ensureShouldBeRunning();
+            if (waitFor.get()) {
+                return true;
+            }
+            waitCycle();
+        }
+        return false;
+    }
+
+    /**
      * Wait until the specified BooleanInputPoll becomes false before returning.
      *
      * @param waitFor The condition to wait until false.
@@ -96,6 +116,29 @@ public abstract class InstinctBaseModule {
         } finally {
             unbind.event();
         }
+    }
+
+    /**
+     * Wait for one of the specified conditions to become true before returning, or for the timeout to elapse.
+     *
+     * @param waitFor The conditions to check.
+     * @return The index of the first condition that became true, or -1 if this method timed out.
+     * @throws AutonomousModeOverException If the autonomous mode has ended.
+     * @throws InterruptedException Possibly also if autonomous mode has ended.
+     */
+    protected int waitUntilOneOf(long timeout, BooleanInput... waitFor) throws AutonomousModeOverException, InterruptedException {
+        long doneAt = System.currentTimeMillis() + timeout;
+        // TODO: make this dynamic
+        while (System.currentTimeMillis() < doneAt) {
+            ensureShouldBeRunning();
+            for (int i = 0; i < waitFor.length; i++) {
+                if (waitFor[i].get()) {
+                    return i;
+                }
+            }
+            waitCycle();
+        }
+        return -1;
     }
 
     /**

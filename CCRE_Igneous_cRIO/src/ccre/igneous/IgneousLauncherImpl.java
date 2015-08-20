@@ -34,14 +34,12 @@ import ccre.channel.SerialIO;
 import ccre.cluck.Cluck;
 import ccre.cluck.tcp.CluckTCPServer;
 import ccre.concurrency.ReporterThread;
-import ccre.ctrl.BooleanMixing;
 import ccre.ctrl.CommunicationFailureExtendedMotor;
 import ccre.ctrl.ExtendedMotor;
 import ccre.ctrl.ExtendedMotorFailureException;
 import ccre.ctrl.FakeJoystick;
 import ccre.ctrl.FloatMixing;
 import ccre.ctrl.IJoystick;
-import ccre.ctrl.IJoystickWithPOV;
 import ccre.ctrl.binding.ControlBindingCreator;
 import ccre.log.BootLogger;
 import ccre.log.FileLogger;
@@ -526,7 +524,7 @@ final class IgneousLauncherImpl extends IterativeRobot implements IgneousLaunche
         };
     }
 
-    public IJoystickWithPOV getJoystick(int id) {
+    public IJoystick getJoystick(int id) {
         if (id < 1 || id > 6) {
             throw new IllegalArgumentException("cRIO only supports Joysticks 1-4!");
         }
@@ -800,7 +798,7 @@ final class IgneousLauncherImpl extends IterativeRobot implements IgneousLaunche
 
     public BooleanInput getChannelEnabled(int powerChannel, EventInput updateOn) {
         Logger.warning("Power channel statuses are not available on the cRIO!");
-        return powerChannel == Igneous.POWER_CHANNEL_BATTERY ? BooleanMixing.alwaysTrue : BooleanMixing.alwaysFalse;
+        return powerChannel == Igneous.POWER_CHANNEL_BATTERY ? BooleanInput.alwaysTrue : BooleanInput.alwaysFalse;
     }
 
     public ControlBindingCreator tryMakeControlBindingCreator(String title) {

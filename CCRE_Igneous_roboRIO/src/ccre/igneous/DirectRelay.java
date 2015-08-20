@@ -20,42 +20,41 @@
  * This file contains code inspired by/based on code Copyright 2008-2014 FIRST.
  * To see the license terms of that code (modified BSD), see the root of the CCRE.
  */
-package ccre.igneous.direct;
+package ccre.igneous;
 
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
 
-import edu.wpi.first.wpilibj.hal.CompressorJNI;
+import edu.wpi.first.wpilibj.hal.DIOJNI;
+import edu.wpi.first.wpilibj.hal.JNIWrapper;
+import edu.wpi.first.wpilibj.hal.RelayJNI;
 
-class DirectCompressor {
-    public static ByteBuffer init(int pcmID) {
-        return CompressorJNI.initializeCompressor((byte) pcmID);
+class DirectRelay {
+    public static final int RELAY_NUM = 4;
+    private static final ByteBuffer[] relays = new ByteBuffer[RELAY_NUM];
+
+    public static ByteBuffer init(int channel) {
+        if (channel < 0 || channel >= RELAY_NUM) {
+            throw new RuntimeException("Invalid relay port number: " + channel);
+        }
+        if (relays[channel] == null) {
+            IntBuffer status = Common.getCheckBuffer();
+            ByteBuffer port = DIOJNI.initializeDigitalPort(JNIWrapper.getPort((byte) channel), status);
+            Common.check(status);
+            relays[channel] = port;
+        }
+        return relays[channel];
     }
 
-    public static void setClosedLoop(ByteBuffer pcm, boolean on) {
+    public static void setForward(ByteBuffer port, boolean active) {
         IntBuffer status = Common.getCheckBuffer();
-        CompressorJNI.setClosedLoopControl(pcm, on, status); // errors when not yet initialized, so should be fine since init will always be called.
+        RelayJNI.setRelayForward(port, (byte) (active ? 1 : 0), status); // just FPGA errors
         Common.check(status);
     }
 
-    public static boolean getPressureSwitch(ByteBuffer pcm) {
+    public static void setReverse(ByteBuffer port, boolean active) {
         IntBuffer status = Common.getCheckBuffer();
-        boolean swt = CompressorJNI.getPressureSwitch(pcm, status); // TODO: errors if timed out
+        RelayJNI.setRelayReverse(port, (byte) (active ? 1 : 0), status); // just FPGA errors
         Common.check(status);
-        return swt;
-    }
-
-    public static boolean getCompressorRunning(ByteBuffer pcm) {
-        IntBuffer status = Common.getCheckBuffer();
-        boolean on = CompressorJNI.getCompressor(pcm, status); // TODO: errors if timed out.
-        Common.check(status);
-        return on;
-    }
-
-    public static float getCompressorCurrent(ByteBuffer pcm) {
-        IntBuffer status = Common.getCheckBuffer();
-        float current = CompressorJNI.getCompressorCurrent(pcm, status); // TODO: errors if timed out
-        Common.check(status);
-        return current;
     }
 }

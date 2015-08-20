@@ -153,7 +153,7 @@ public class TestFloatMixing extends BaseTest {
     private void testNormalize() throws TestingException {
         FloatStatus value = new FloatStatus();
         FloatStatus low = new FloatStatus(), high = new FloatStatus();
-        FloatInput norm1 = FloatMixing.normalizeFloat(value, low, high);
+        FloatInput norm1 = FloatMixing.normalize(value, low, high);
         for (float lowV : interestingFloats) {
             low.set(lowV);
             for (float highV : interestingFloats) {

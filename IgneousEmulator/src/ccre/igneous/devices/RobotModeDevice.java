@@ -20,7 +20,6 @@ package ccre.igneous.devices;
 
 import ccre.channel.BooleanInput;
 import ccre.channel.DerivedBooleanInput;
-import ccre.ctrl.BooleanMixing;
 import ccre.igneous.Device;
 import ccre.igneous.components.BooleanTextComponent;
 import ccre.igneous.components.SpacingComponent;
@@ -123,7 +122,7 @@ public class RobotModeDevice extends Device {
      */
     public BooleanInput getIsMode(final RobotMode mode) {
         if (mode == RobotMode.DISABLED) {
-            return BooleanMixing.invert((BooleanInput) enabled);
+            return enabled.asInput().not();
         } else {
             return new DerivedBooleanInput(enabled.asInput()) {
                 // updates only matter when enabled changes... the mode (and so the result) can't change when the mode is enabled.

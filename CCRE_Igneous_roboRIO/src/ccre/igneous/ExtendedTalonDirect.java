@@ -19,21 +19,22 @@
 package ccre.igneous;
 
 import ccre.channel.BooleanOutput;
-import ccre.channel.FloatInputPoll;
+import ccre.channel.DerivedFloatInput;
+import ccre.channel.EventInput;
+import ccre.channel.FloatInput;
 import ccre.channel.FloatOutput;
 import ccre.ctrl.ExtendedMotor;
 import ccre.ctrl.ExtendedMotorFailureException;
 import ccre.log.Logger;
-import edu.wpi.first.wpilibj.CANTalon;
 
 /**
  * A CANTalon ExtendedMotor interface for the roboRIO.
  *
  * @author skeggsc
  */
-public class ExtendedTalon extends ExtendedMotor implements FloatOutput {
+public class ExtendedTalonDirect extends ExtendedMotor implements FloatOutput {
 
-    private final CANTalon talon;
+    private final CANTalonMod talon;
     private Boolean enableMode = null; // null until something cares. This means that it's not enabled, but could be automatically.
     private boolean isBypassed = false;
     private long bypassUntil = 0;
@@ -45,10 +46,10 @@ public class ExtendedTalon extends ExtendedMotor implements FloatOutput {
      * @throws ExtendedMotorFailureException if the CAN Talon cannot be
      * allocated.
      */
-    public ExtendedTalon(int deviceNumber) throws ExtendedMotorFailureException {
+    public ExtendedTalonDirect(int deviceNumber) throws ExtendedMotorFailureException {
         try {
-            talon = new CANTalon(deviceNumber);
-            talon.changeControlMode(CANTalon.ControlMode.PercentVbus);
+            talon = new CANTalonMod(deviceNumber);
+            talon.changeControlMode(CANTalonMod.ControlMode.PercentVbus);
         } catch (RuntimeException ex) {
             throw new ExtendedMotorFailureException("WPILib CANTalon Failure: Create", ex);
         }
@@ -70,11 +71,11 @@ public class ExtendedTalon extends ExtendedMotor implements FloatOutput {
         } catch (ExtendedMotorFailureException ex) {
             isBypassed = true;
             bypassUntil = System.currentTimeMillis() + 3000;
-            Logger.warning("Motor control failed: CAN Talon " + talon.getDeviceID() + ": bypassing for three seconds.", ex);
+            Logger.warning("Motor control failed: CAN Talon " + talon.m_deviceNumber + ": bypassing for three seconds.", ex);
             try {
                 disable();
             } catch (ExtendedMotorFailureException e) {
-                Logger.warning("Could not bypass CAN Talon: " + talon.getDeviceID(), e);
+                Logger.warning("Could not bypass CAN Talon: " + talon.m_deviceNumber, e);
             }
             enableMode = null; // automatically re-enableable.
         }
@@ -130,7 +131,7 @@ public class ExtendedTalon extends ExtendedMotor implements FloatOutput {
                             disable();
                         }
                     } catch (ExtendedMotorFailureException ex) {
-                        Logger.warning("Motor control failed: CAN Talon " + talon.getDeviceID(), ex);
+                        Logger.warning("Motor control failed: CAN Talon " + talon.m_deviceNumber, ex);
                     }
                 }
             }
@@ -141,14 +142,14 @@ public class ExtendedTalon extends ExtendedMotor implements FloatOutput {
         try {
             switch (mode) {
             case CURRENT_FIXED:
-                talon.changeControlMode(CANTalon.ControlMode.Current);
+                talon.changeControlMode(CANTalonMod.ControlMode.Current);
                 return this;
             case VOLTAGE_FIXED:
-                talon.changeControlMode(CANTalon.ControlMode.Voltage);
+                talon.changeControlMode(CANTalonMod.ControlMode.Voltage);
                 return this;
             case GENERIC_FRACTIONAL:
             case VOLTAGE_FRACTIONAL:
-                talon.changeControlMode(CANTalon.ControlMode.PercentVbus);
+                talon.changeControlMode(CANTalonMod.ControlMode.PercentVbus);
                 return this;
                 // TODO: Support more modes.
             default:
@@ -173,17 +174,17 @@ public class ExtendedTalon extends ExtendedMotor implements FloatOutput {
         }
     }
 
-    public FloatInputPoll asStatus(final StatusType type) {
+    public FloatInput asStatus(final StatusType type, EventInput updateOn) {
         switch (type) {
         case BUS_VOLTAGE:
         case OUTPUT_CURRENT:
         case OUTPUT_VOLTAGE:
         case TEMPERATURE:
-            return new FloatInputPoll() {
+            return new DerivedFloatInput(updateOn) {
                 private boolean zeroed = false;
                 private long zeroUntil = 0;
 
-                public float get() {
+                protected float apply() {
                     if (zeroed) {
                         if (System.currentTimeMillis() > zeroUntil) {
                             zeroed = false;
@@ -222,11 +223,13 @@ public class ExtendedTalon extends ExtendedMotor implements FloatOutput {
         try {
             switch (type) {
             case ANY_FAULT:
-                return talon.getFaultHardwareFailure() != 0 || talon.getFaultOverTemp() != 0 || talon.getFaultUnderVoltage() != 0;
+                return talon.getFaultHardwareFailure() != 0 || talon.getFaultOverTemp() != 0 || talon.getFaultUnderVoltage() != 0 || isBypassed;
             case BUS_VOLTAGE_FAULT:
                 return talon.getFaultUnderVoltage() != 0;
             case TEMPERATURE_FAULT:
                 return talon.getFaultOverTemp() != 0;
+            case COMMS_FAULT:
+                return isBypassed;
             default:
                 return null;
             }

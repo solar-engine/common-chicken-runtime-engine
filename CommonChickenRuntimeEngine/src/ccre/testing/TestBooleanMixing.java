@@ -56,11 +56,11 @@ public class TestBooleanMixing extends BaseTest {
 
     private void testIgnored() throws TestingException, InterruptedException {
         // Not much of any way to test these...
-        BooleanMixing.ignored.set(false);
-        BooleanMixing.ignored.set(true);
+        BooleanOutput.ignored.set(false);
+        BooleanOutput.ignored.set(true);
 
-        assertFalse(BooleanMixing.alwaysFalse.get(), "False should be.");
-        assertTrue(BooleanMixing.alwaysTrue.get(), "True should be.");
+        assertFalse(BooleanInput.alwaysFalse.get(), "False should be.");
+        assertTrue(BooleanInput.alwaysTrue.get(), "True should be.");
 
         final int[] found = new int[1];
         BooleanOutput fsend = new BooleanOutput() {
@@ -71,7 +71,7 @@ public class TestBooleanMixing extends BaseTest {
                 found[0]++;
             }
         };
-        EventOutput unbind = BooleanMixing.alwaysFalse.sendR(fsend);
+        EventOutput unbind = BooleanInput.alwaysFalse.sendR(fsend);
         assertIntsEqual(found[0], 1, "Should have been sent initial value of false.");
         unbind.event();
         assertIntsEqual(found[0], 1, "Values should still be unchanged.");
@@ -84,21 +84,21 @@ public class TestBooleanMixing extends BaseTest {
                 found[0]++;
             }
         };
-        unbind = BooleanMixing.alwaysTrue.sendR(tsend);
+        unbind = BooleanInput.alwaysTrue.sendR(tsend);
         assertIntsEqual(found[0], 2, "Should have been sent initial value of true.");
         Thread.sleep(50);
         assertIntsEqual(found[0], 2, "Values should still be unchanged.");
         unbind.event();
         assertIntsEqual(found[0], 2, "Values should still be unchanged.");
 
-        assertFalse(BooleanMixing.alwaysFalse.get(), "False should be.");
-        assertTrue(BooleanMixing.alwaysTrue.get(), "True should be.");
+        assertFalse(BooleanInput.alwaysFalse.get(), "False should be.");
+        assertTrue(BooleanInput.alwaysTrue.get(), "True should be.");
     }
 
     private void testFilters() throws TestingException {
         BooleanStatus test = new BooleanStatus();
         BooleanStatus test2 = new BooleanStatus();
-        BooleanInput wrapped = BooleanMixing.invert((BooleanInput) test);
+        BooleanInput wrapped = test.not();
         wrapped.send(test2);
 
         assertTrue(test.get() != wrapped.get(), "Values should be opposites.");
@@ -121,7 +121,7 @@ public class TestBooleanMixing extends BaseTest {
         assertTrue(test.get() != test2.get(), "Values should be opposites.");
         assertFalse(test.get(), "Should be false.");
 
-        BooleanOutput wrapout = BooleanMixing.invert((BooleanOutput) test);
+        BooleanOutput wrapout = test.invert();
         wrapout.set(true);
         assertTrue(test.get() != wrapped.get(), "Values should be opposites.");
         assertTrue(test.get() != test2.get(), "Values should be opposites.");
@@ -179,10 +179,10 @@ public class TestBooleanMixing extends BaseTest {
         BooleanStatus a = new BooleanStatus(), b = new BooleanStatus();
         BooleanInput xor = BooleanMixing.xorBooleans(a, b);
         BooleanInput or = BooleanMixing.orBooleans(a, b);
-        BooleanInput and = BooleanMixing.andBooleans(a, b);
+        BooleanInput and = a.and(b);
         BooleanStatus orStat = new BooleanStatus(), andStat = new BooleanStatus(), xorStat = new BooleanStatus();
         BooleanMixing.orBooleans(a, b).send(orStat);
-        BooleanMixing.andBooleans(a, b).send(andStat);
+        a.and(b).send(andStat);
         BooleanMixing.xorBooleans(a, b).send(xorStat);
 
         a.set(false);
@@ -234,10 +234,10 @@ public class TestBooleanMixing extends BaseTest {
     private void testAlgebraPoly() throws TestingException {
         BooleanStatus a = new BooleanStatus(), b = new BooleanStatus(), c = new BooleanStatus();
         BooleanInput or = BooleanMixing.orBooleans(a, b, c);
-        BooleanInput and = BooleanMixing.andBooleans(a, b, c);
+        BooleanInput and = a.and(b, c);
         BooleanStatus orStat = new BooleanStatus(), andStat = new BooleanStatus();
         BooleanMixing.orBooleans(a, b, c).send(orStat);
-        BooleanMixing.andBooleans(a, b, c).send(andStat);
+        a.and(b, c).send(andStat);
 
         for (int i = 0; i < 16; i++) {
             a.set((i & 1) != 0);

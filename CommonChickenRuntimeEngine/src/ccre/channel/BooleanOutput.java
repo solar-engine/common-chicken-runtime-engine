@@ -28,9 +28,33 @@ package ccre.channel;
 public interface BooleanOutput {
 
     /**
+     * A BooleanOutput that goes nowhere. All data sent here is ignored.
+     */
+    BooleanOutput ignored = new BooleanOutput() {
+        public void set(boolean newValue) {
+            // Do nothing.
+        }
+    };
+
+    /**
      * Set the boolean value of this output. In other words, turn it on or off.
      *
      * @param value The new value to send to this output.
      */
     public void set(boolean value);
+    
+    public default BooleanOutput invert() {
+        BooleanOutput original = this;
+        return new BooleanOutput() {
+            @Override
+            public void set(boolean value) {
+                original.set(!value);
+            }
+            
+            @Override
+            public BooleanOutput invert() {
+                return original;
+            }
+        };
+    }
 }

@@ -30,6 +30,11 @@ public abstract class DerivedFloatInput extends DerivedUpdate implements FloatIn
         value = apply();
     }
 
+    public DerivedFloatInput(UpdatingInput[] updates, UpdatingInput... moreUpdates) {
+        super(updates, moreUpdates);
+        value = apply();
+    }
+
     @Override
     protected final void update() {
         float newvalue = apply();

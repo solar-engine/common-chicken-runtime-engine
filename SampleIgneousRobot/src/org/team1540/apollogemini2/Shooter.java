@@ -19,13 +19,12 @@
 package org.team1540.apollogemini2;
 
 import ccre.channel.BooleanInput;
-import ccre.channel.BooleanInputPoll;
 import ccre.channel.BooleanOutput;
 import ccre.channel.BooleanStatus;
+import ccre.channel.DerivedFloatInput;
 import ccre.channel.EventInput;
 import ccre.channel.EventOutput;
 import ccre.channel.FloatInput;
-import ccre.channel.FloatInputPoll;
 import ccre.channel.FloatOutput;
 import ccre.channel.FloatStatus;
 import ccre.cluck.Cluck;
@@ -50,11 +49,11 @@ public class Shooter {
     private static final FloatInput winchSpeedSetting = shooterTuningContext.getFloat("Winch Speed", 1f);
     private static final FloatInput rearmTimeout = shooterTuningContext.getFloat("Winch Rearm Timeout", 5f);
 
-    private static final BooleanInputPoll isArmInTheWay = BooleanMixing.invert(Actuators.isSafeToShoot);
-    private static final BooleanInput winchPastThreshold = FloatMixing.floatIsAtLeast(joules, drawBack);
+    private static final BooleanInput isArmInTheWay = Actuators.isSafeToShoot.not();
+    private static final BooleanInput winchPastThreshold = FloatMixing.atLeast(joules, drawBack);
 
     private static final FloatOutput winchMotor;
-    private static final FloatInputPoll winchCurrent;
+    private static final FloatInput winchCurrent;
     private static final BooleanOutput winchSolenoidDisengage;
 
     static {
@@ -69,12 +68,12 @@ public class Shooter {
         }
     }
 
-    private static final FloatInput amps = FloatMixing.createDispatch(new FloatInputPoll() {
+    private static final FloatInput ampThreshold = shooterTuningContext.getFloat("Amp Threshold", 5f);
+
+    private static final FloatInput amps = new DerivedFloatInput(winchCurrent, ampThreshold) {
         private final float tare = winchCurrent.get();
 
-        private final FloatInput ampThreshold = shooterTuningContext.getFloat("Amp Threshold", 5f);
-
-        public float get() {
+        protected float apply() {
             float o;
             if (Igneous.isRoboRIO()) {
                 o = winchCurrent.get() - tare;
@@ -83,7 +82,7 @@ public class Shooter {
             }
             return o >= ampThreshold.get() ? o : 0;
         }
-    }, Igneous.constantPeriodic);
+    };
 
     private static final FloatInput watts = FloatMixing.multiplication.of(amps, Igneous.getBatteryVoltage());
 
@@ -105,7 +104,7 @@ public class Shooter {
     public static void setup() {
         Cluck.publish("Winch Motor", winchMotor);
         Cluck.publish("Winch Solenoid", winchSolenoidDisengage);
-        Cluck.publish("Winch Current", FloatMixing.createDispatch(winchCurrent, Igneous.globalPeriodic));
+        Cluck.publish("Winch Current", winchCurrent);
         EventInput fireWhen = EventMixing.combine(AutonomousModeBase.getWhenToFire(), UserInterface.getFireButton());
 
         winchDisengaged.setFalseWhen(Igneous.startDisabled);

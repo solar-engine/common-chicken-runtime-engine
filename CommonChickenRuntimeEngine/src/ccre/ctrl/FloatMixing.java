@@ -635,7 +635,7 @@ public class FloatMixing {
      * @param one the value of base that turns into 1.0.
      * @return the scaled value.
      */
-    public static FloatInput normalizeFloat(final FloatInput base, final FloatInput zero, final FloatInput one) {
+    public static FloatInput normalize(final FloatInput base, final FloatInput zero, final FloatInput one) {
         Mixing.checkNull(base, zero, one);
         return new DerivedFloatInput(base, zero, one) {
             protected float apply() {

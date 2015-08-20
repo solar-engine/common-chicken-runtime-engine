@@ -18,11 +18,10 @@
  */
 package org.team1540.apollogemini2;
 
-import ccre.channel.BooleanInputPoll;
-import ccre.channel.BooleanOutput;
+import ccre.channel.BooleanInput;
 import ccre.channel.BooleanStatus;
 import ccre.channel.EventOutput;
-import ccre.channel.FloatInputPoll;
+import ccre.channel.FloatInput;
 import ccre.cluck.Cluck;
 import ccre.ctrl.BooleanMixing;
 import ccre.ctrl.FloatMixing;
@@ -34,34 +33,30 @@ import ccre.log.Logger;
 public class CompressorHandler {
     private static final TuningContext pressureTuningContext = new TuningContext("PressureTuner").publishSavingEvent();
 
-    private static FloatInputPoll getPercentPressure(FloatInputPoll pressureSensorVolts) {
-        return FloatMixing.multiplication.of(100,
-                FloatMixing.normalizeFloat(pressureSensorVolts,
-                        pressureTuningContext.getFloat("LowPressure", 0.494f),
-                        pressureTuningContext.getFloat("HighPressure", Igneous.isRoboRIO() ? 2.7f : 2.9f)));
+    private static FloatInput getPercentPressure(FloatInput pressureSensorVolts) {
+        return FloatMixing.multiplication.of(100, FloatMixing.normalize(pressureSensorVolts, pressureTuningContext.getFloat("LowPressure", 0.494f), pressureTuningContext.getFloat("HighPressure", Igneous.isRoboRIO() ? 2.7f : 2.9f)));
     }
 
     public static void setup() {
-        final BooleanInputPoll pressureSwitch = Igneous.makeDigitalInput(1);
+        final BooleanInput pressureSwitch = Igneous.makeDigitalInput(1);
         final BooleanStatus forceDisableVar = new BooleanStatus();
         Cluck.publish("Compressor Set Disable", forceDisableVar);
-        final BooleanInputPoll forceDisable = BooleanMixing.orBooleans(forceDisableVar, Shooter.getShouldDisableDrivingAndCompressor());
-        final FloatInputPoll pressureSensorVolts = Igneous.makeAnalogInput(Igneous.isRoboRIO() ? 0 : 2);
-        Cluck.publish("Compressor Pressure Switch", BooleanMixing.createDispatch(pressureSwitch, Igneous.globalPeriodic));
-        Cluck.publish("Compressor Pressure Sensor", FloatMixing.createDispatch(pressureSensorVolts, Igneous.globalPeriodic));
-        final FloatInputPoll percentPressure = getPercentPressure(pressureSensorVolts);
-        Cluck.publish("Compressor Pressure Percent", FloatMixing.createDispatch(percentPressure, Igneous.globalPeriodic));
+        final BooleanInput forceDisable = BooleanMixing.orBooleans(forceDisableVar, Shooter.getShouldDisableDrivingAndCompressor());
+        final FloatInput pressureSensorVolts = Igneous.makeAnalogInput(Igneous.isRoboRIO() ? 0 : 2);
+        Cluck.publish("Compressor Pressure Switch", pressureSwitch);
+        Cluck.publish("Compressor Pressure Sensor", pressureSensorVolts);
+        final FloatInput percentPressure = getPercentPressure(pressureSensorVolts);
+        Cluck.publish("Compressor Pressure Percent", percentPressure);
         setupPressureLogger(percentPressure);
         ReadoutDisplay.showPressure(percentPressure, pressureSwitch);
         if (Igneous.isRoboRIO()) {
-            BooleanOutput tryToRunCompressor = Igneous.usePCMCompressor();
-            BooleanMixing.pumpWhen(Igneous.globalPeriodic, forceDisable, BooleanMixing.invert(tryToRunCompressor));
+            forceDisable.send(Igneous.usePCMCompressor().invert());
         } else {
             Igneous.useCustomCompressor(BooleanMixing.orBooleans(forceDisable, pressureSwitch), 1);
         }
     }
 
-    private static void setupPressureLogger(final FloatInputPoll percentPressure) {
+    private static void setupPressureLogger(final FloatInput percentPressure) {
         EventOutput report = new EventOutput() {
             private float last;
 

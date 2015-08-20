@@ -19,15 +19,13 @@
 package org.team1540.apollogemini2;
 
 import ccre.channel.BooleanInput;
-import ccre.channel.BooleanInputPoll;
 import ccre.channel.BooleanOutput;
 import ccre.channel.BooleanStatus;
 import ccre.channel.EventInput;
 import ccre.channel.EventOutput;
 import ccre.channel.EventStatus;
-import ccre.channel.FloatInputPoll;
+import ccre.channel.FloatInput;
 import ccre.channel.FloatOutput;
-import ccre.ctrl.BooleanMixing;
 import ccre.ctrl.FloatMixing;
 import ccre.instinct.AutonomousModeOverException;
 import ccre.instinct.InstinctModeModule;
@@ -95,17 +93,17 @@ public abstract class AutonomousModeBase extends InstinctModeModule {
         bothDriveMotors.set(speed);
     }
 
-    protected void drive(FloatInputPoll speed) {
+    protected void drive(FloatInput speed) {
         drive(speed.get());
     }
 
-    protected void driveFor(FloatInputPoll speed, FloatInputPoll seconds) throws InterruptedException, AutonomousModeOverException {
+    protected void driveFor(FloatInput speed, FloatInput seconds) throws InterruptedException, AutonomousModeOverException {
         drive(speed);
         waitForTime(seconds);
         drive(0);
     }
 
-    protected void startCollection(FloatInputPoll speed) {
+    protected void startCollection(FloatInput speed) {
         armCollectorMotor.set(speed.get());
         Logger.fine("Started collecting...");
     }
@@ -119,7 +117,7 @@ public abstract class AutonomousModeBase extends InstinctModeModule {
         armUp.event();
     }
 
-    protected void raiseArm(FloatInputPoll seconds) throws InterruptedException, AutonomousModeOverException {
+    protected void raiseArm(FloatInput seconds) throws InterruptedException, AutonomousModeOverException {
         startRaisingArm();
         waitForTime(seconds);
     }
@@ -128,7 +126,7 @@ public abstract class AutonomousModeBase extends InstinctModeModule {
         armDown.event();
     }
 
-    protected void lowerArm(FloatInputPoll seconds) throws InterruptedException, AutonomousModeOverException {
+    protected void lowerArm(FloatInput seconds) throws InterruptedException, AutonomousModeOverException {
         armDown.event();
         waitForTime(seconds);
     }
@@ -137,7 +135,7 @@ public abstract class AutonomousModeBase extends InstinctModeModule {
         armAlign.event();
     }
 
-    protected void alignArm(FloatInputPoll seconds) throws InterruptedException, AutonomousModeOverException {
+    protected void alignArm(FloatInput seconds) throws InterruptedException, AutonomousModeOverException {
         armAlign.event();
         waitForTime(seconds);
     }
@@ -150,7 +148,7 @@ public abstract class AutonomousModeBase extends InstinctModeModule {
         armFingerSolenoids.set(false);
     }
 
-    protected BooleanInputPoll getHotZoneActive() {
+    protected BooleanInput getHotZoneActive() {
         return hotZoneActive;
     }
 
@@ -166,6 +164,6 @@ public abstract class AutonomousModeBase extends InstinctModeModule {
     }
 
     protected void waitUntilRearmed() throws AutonomousModeOverException, InterruptedException {
-        waitUntil(BooleanMixing.invert((BooleanInputPoll) waitingForRearm));
+        waitUntilNot(waitingForRearm);
     }
 }

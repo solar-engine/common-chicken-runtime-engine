@@ -28,6 +28,10 @@ public abstract class DerivedEventInput extends DerivedUpdate implements EventIn
         super(updates);
     }
 
+    public DerivedEventInput(UpdatingInput[] updates, UpdatingInput... moreUpdates) {
+        super(updates, moreUpdates);
+    }
+
     @Override
     protected final void update() {
         if (shouldProduce()) {

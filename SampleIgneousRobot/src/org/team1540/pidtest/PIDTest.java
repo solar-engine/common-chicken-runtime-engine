@@ -36,7 +36,7 @@ public class PIDTest implements IgneousApplication {
      */
     public void setupRobot() {
         TuningContext context = new TuningContext("pid_control").publishSavingEvent();
-        PIDController controller = new PIDController(Igneous.joystick1.getYChannel(),
+        PIDController controller = new PIDController(Igneous.joystick1.axisY(),
                 context.getFloat("P", 1), context.getFloat("I", 0), context.getFloat("D", 0));
         controller.send(Igneous.makeTalonMotor(1, false, 0));
         controller.updateWhen(Igneous.duringTele);

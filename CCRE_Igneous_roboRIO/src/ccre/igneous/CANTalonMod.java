@@ -5,7 +5,7 @@
 /* the project.                                                               */
 /*----------------------------------------------------------------------------*/
 
-package ccre.igneous.direct;
+package ccre.igneous;
 
 import edu.wpi.first.wpilibj.hal.CanTalonJNI;
 import edu.wpi.first.wpilibj.hal.CanTalonSRX;

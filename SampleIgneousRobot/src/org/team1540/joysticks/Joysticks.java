@@ -19,9 +19,7 @@
 package org.team1540.joysticks;
 
 import ccre.cluck.Cluck;
-import ccre.ctrl.BooleanMixing;
 import ccre.ctrl.IJoystick;
-import ccre.ctrl.IJoystickWithPOV;
 import ccre.igneous.Igneous;
 import ccre.igneous.IgneousApplication;
 
@@ -32,10 +30,6 @@ import ccre.igneous.IgneousApplication;
  */
 public class Joysticks implements IgneousApplication {
 
-    /**
-     * The number of POVs to publish information on.
-     */
-    public static int POV_NUMBER = 1;
 
     /**
      * Set up the robot.
@@ -47,20 +41,16 @@ public class Joysticks implements IgneousApplication {
         publishJoystick(4, Igneous.joystick4);
     }
 
-    private void publishJoystick(int id, IJoystickWithPOV joy) {
+    private void publishJoystick(int id, IJoystick joy) {
         for (int axis = 1; axis <= 6; axis++) {
             Cluck.publish("Joystick " + id + " Axis " + axis, joy.axis(axis));
         }
         for (int button = 1; button <= 12; button++) {
             Cluck.publish("Joystick " + id + " Button " + button, joy.button(button));
         }
-        if (Igneous.isRoboRIO() && POV_NUMBER > 0) {
-            for (int pov = 1; pov <= POV_NUMBER; pov++) {
-                for (int direction : IJoystick.POV_DIRECTIONS) {
-                    
-                }
-                Cluck.publish("Joystick " + id + " POV Angle ", joy.getPOVAngleSource(pov));
-                Cluck.publish("Joystick " + id + " POV Pressed ", joy.isPOVPressedSource(pov));
+        if (Igneous.isRoboRIO()) {
+            for (int direction : IJoystick.POV_DIRECTIONS) {
+                Cluck.publish("Joystick " + id + " POV Pressed (" + direction + ")", joy.isPOV(direction));
             }
         }
     }

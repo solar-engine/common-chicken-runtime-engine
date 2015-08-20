@@ -18,6 +18,8 @@
  */
 package ccre.channel;
 
+import ccre.util.Utils;
+
 /**
  * A FloatFilter is a wrapper that can be wrapped around any kind of Output,
  * Input, InputPoll, or InputProducer, and will apply the same transformation in
@@ -26,6 +28,16 @@ package ccre.channel;
  * @author skeggsc
  */
 public abstract class FloatFilter {
+
+    /**
+     * A FloatFilter that negates a value.
+     */
+    public static final FloatFilter negate = new FloatFilter() {
+        @Override
+        public float filter(float input) {
+            return -input;
+        }
+    };
 
     /**
      * Filter this value according to the subclass's implementation.
@@ -65,6 +77,54 @@ public abstract class FloatFilter {
         return new FloatOutput() {
             public void set(float value) {
                 output.set(filter(value));
+            }
+        };
+    }
+
+    /**
+     * Return a Filter that applies the specified-size deadzone as defined in
+     * Utils.deadzone.
+     *
+     * @param deadzone The deadzone size to apply.
+     * @return The filter representing this deadzone size.
+     * @see ccre.util.Utils#deadzone(float, float)
+     */
+    public static FloatFilter deadzone(final float deadzone) {
+        return new FloatFilter() {
+            @Override
+            public float filter(float input) {
+                return Utils.deadzone(input, deadzone);
+            }
+        };
+    }
+
+    /**
+     * Return a Filter that applies the specified limitation to the value.
+     *
+     * If the original is NaN, the filtered result is always NaN. If either
+     * bound is NaN, then it will be ignored.
+     *
+     * @param minimum The minimum value to limit to. Use Float.NEGATIVE_INFINITY
+     * if you want no lower bound.
+     * @param maximum The maximum value to limit to. Use Float.POSITIVE_INFINITY
+     * if you want no upper bound.
+     * @return The filter representing the specified limit.
+     * @throws IllegalArgumentException if maximum is less than minimum
+     */
+    public static FloatFilter limit(final float minimum, final float maximum) throws IllegalArgumentException {
+        if (maximum < minimum) {
+            throw new IllegalArgumentException("Maximum is smaller than minimum!");
+        }
+        return new FloatFilter() {
+            @Override
+            public float filter(float input) {
+                if (input < minimum) {
+                    return minimum;
+                } else if (input > maximum) {
+                    return maximum;
+                } else {
+                    return input;
+                }
             }
         };
     }

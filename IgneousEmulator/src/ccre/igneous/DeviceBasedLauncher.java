@@ -24,12 +24,9 @@ import ccre.channel.EventInput;
 import ccre.channel.FloatInput;
 import ccre.channel.FloatOutput;
 import ccre.channel.SerialIO;
-import ccre.ctrl.BooleanMixing;
 import ccre.ctrl.DisconnectedSerialIO;
-import ccre.ctrl.EventMixing;
 import ccre.ctrl.ExtendedMotor;
 import ccre.ctrl.FakeJoystick;
-import ccre.ctrl.FloatMixing;
 import ccre.ctrl.IJoystick;
 import ccre.ctrl.LoopbackSerialIO;
 import ccre.ctrl.Ticker;
@@ -326,11 +323,11 @@ public class DeviceBasedLauncher implements IgneousLauncher {
     }
 
     private EventInput getModeBecomes(RobotModeDevice.RobotMode target) {
-        return BooleanMixing.onPress(mode.getIsMode(target));
+        return mode.getIsMode(target).onPress();
     }
 
     private EventInput getModeDuring(RobotModeDevice.RobotMode target) {
-        return EventMixing.filter(mode.getIsMode(target), masterPeriodic);
+        return masterPeriodic.and(mode.getIsMode(target));
     }
 
     public EventInput getStartAuto() {
@@ -447,7 +444,7 @@ public class DeviceBasedLauncher implements IgneousLauncher {
                 return getBatteryVoltage(updateOn);
             } else {
                 Logger.warning("Voltage channels besides POWER_CHANNEL_BATTERY are not available on the cRIO!");
-                return FloatMixing.always(-1);
+                return FloatInput.always(-1);
             }
         } else {
             switch (powerChannel) {
@@ -461,7 +458,7 @@ public class DeviceBasedLauncher implements IgneousLauncher {
                 return panel.add(new FloatControlDevice("Rail Voltage 6V (0V-7V)", 0.0f, 7.0f, 6.0f, 0.0f)).asInput();
             default:
                 Logger.warning("Unknown power channel: " + powerChannel);
-                return FloatMixing.always(-1);
+                return FloatInput.always(-1);
             }
         }
     }
@@ -469,7 +466,7 @@ public class DeviceBasedLauncher implements IgneousLauncher {
     public FloatInput getChannelCurrent(int powerChannel, EventInput updateOn) {
         if (!isRoboRIO()) {
             Logger.warning("Current channels are not available on the cRIO!");
-            return FloatMixing.always(-1);
+            return FloatInput.always(-1);
         } else {
             switch (powerChannel) {
             case Igneous.POWER_CHANNEL_BATTERY:
@@ -482,7 +479,7 @@ public class DeviceBasedLauncher implements IgneousLauncher {
                 return panel.add(new FloatControlDevice("Rail Current 6V (0-100A)", 0.0f, 100.0f, 5.0f, 0.0f)).asInput();
             default:
                 Logger.warning("Unknown power channel: " + powerChannel);
-                return FloatMixing.always(-1);
+                return FloatInput.always(-1);
             }
         }
     }

@@ -19,7 +19,6 @@
 package org.team1540.apollogemini2;
 
 import ccre.channel.FloatInput;
-import ccre.ctrl.FloatMixing;
 import ccre.holders.TuningContext;
 import ccre.instinct.AutonomousModeOverException;
 import ccre.log.Logger;
@@ -87,7 +86,7 @@ public class AutonomousModeDouble extends AutonomousModeBase {
     @Override
     public void loadSettings(TuningContext context) {
         armMoveTime = context.getFloat("autom-double-armmove-time", 0.9f);
-        halfArmMoveTime = FloatMixing.multiplication.of(armMoveTime, 0.5f);
+        halfArmMoveTime = armMoveTime.multipliedBy(0.5f);
         fireTime = context.getFloat("autom-double-fire-time", 0.7f);
         collectorHoldSpeed = context.getFloat("autom-double-collector-hold-speed", 1f);
         collectorSpeed = context.getFloat("autom-double-collect-speed", 1f);

@@ -19,6 +19,7 @@
 package ccre.ctrl;
 
 import ccre.channel.BooleanInput;
+import ccre.channel.BooleanOutput;
 import ccre.channel.EventOutput;
 import ccre.concurrency.ConcurrentDispatchArray;
 import ccre.concurrency.ReporterThread;
@@ -125,7 +126,7 @@ public class PauseTimer implements BooleanInput, EventOutput {
      * @param trigger The EventOutput to trigger.
      */
     public void triggerAtEnd(EventOutput trigger) {
-        send(BooleanMixing.triggerWhenBooleanChanges(trigger, null));
+        send(BooleanOutput.onChange(trigger, null));
     }
 
     /**
@@ -134,7 +135,7 @@ public class PauseTimer implements BooleanInput, EventOutput {
      * @param trigger The EventOutput to trigger.
      */
     public void triggerAtStart(EventOutput trigger) {
-        send(BooleanMixing.triggerWhenBooleanChanges(null, trigger));
+        send(BooleanOutput.onChange(null, trigger));
     }
 
     /**
@@ -145,7 +146,7 @@ public class PauseTimer implements BooleanInput, EventOutput {
      * @param end The EventOutput to trigger when the timer ends.
      */
     public void triggerAtChanges(EventOutput start, EventOutput end) {
-        send(BooleanMixing.triggerWhenBooleanChanges(end, start));
+        send(BooleanOutput.onChange(end, start));
     }
     
     public void onUpdate(EventOutput notify) {

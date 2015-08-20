@@ -23,8 +23,6 @@ import ccre.channel.BooleanStatus;
 import ccre.channel.EventOutput;
 import ccre.channel.FloatInput;
 import ccre.cluck.Cluck;
-import ccre.ctrl.BooleanMixing;
-import ccre.ctrl.FloatMixing;
 import ccre.ctrl.Ticker;
 import ccre.holders.TuningContext;
 import ccre.igneous.Igneous;
@@ -34,14 +32,14 @@ public class CompressorHandler {
     private static final TuningContext pressureTuningContext = new TuningContext("PressureTuner").publishSavingEvent();
 
     private static FloatInput getPercentPressure(FloatInput pressureSensorVolts) {
-        return FloatMixing.multiplication.of(100, FloatMixing.normalize(pressureSensorVolts, pressureTuningContext.getFloat("LowPressure", 0.494f), pressureTuningContext.getFloat("HighPressure", Igneous.isRoboRIO() ? 2.7f : 2.9f)));
+        return pressureSensorVolts.normalize(pressureTuningContext.getFloat("LowPressure", 0.494f), pressureTuningContext.getFloat("HighPressure", Igneous.isRoboRIO() ? 2.7f : 2.9f)).multipliedBy(100);
     }
 
     public static void setup() {
         final BooleanInput pressureSwitch = Igneous.makeDigitalInput(1);
         final BooleanStatus forceDisableVar = new BooleanStatus();
         Cluck.publish("Compressor Set Disable", forceDisableVar);
-        final BooleanInput forceDisable = BooleanMixing.orBooleans(forceDisableVar, Shooter.getShouldDisableDrivingAndCompressor());
+        final BooleanInput forceDisable = forceDisableVar.or(Shooter.getShouldDisableDrivingAndCompressor());
         final FloatInput pressureSensorVolts = Igneous.makeAnalogInput(Igneous.isRoboRIO() ? 0 : 2);
         Cluck.publish("Compressor Pressure Switch", pressureSwitch);
         Cluck.publish("Compressor Pressure Sensor", pressureSensorVolts);
@@ -52,7 +50,7 @@ public class CompressorHandler {
         if (Igneous.isRoboRIO()) {
             forceDisable.send(Igneous.usePCMCompressor().invert());
         } else {
-            Igneous.useCustomCompressor(BooleanMixing.orBooleans(forceDisable, pressureSwitch), 1);
+            Igneous.useCustomCompressor(forceDisable.or(pressureSwitch), 1);
         }
     }
 

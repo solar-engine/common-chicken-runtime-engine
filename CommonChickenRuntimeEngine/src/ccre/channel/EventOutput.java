@@ -18,6 +18,8 @@
  */
 package ccre.channel;
 
+import ccre.util.Utils;
+
 /**
  * An event output or consumer. This can be fired (or produced or triggered or
  * activated or a number of other verbs that all mean the same thing), which
@@ -28,9 +30,17 @@ package ccre.channel;
 public interface EventOutput {
 
     /**
+     * An EventOutput that, when fired, does absolutely nothing.
+     */
+    public static final EventOutput ignored = new EventOutput() {
+        public void event() {
+        }
+    };
+
+    /**
      * Fire the event.
      */
-    void event();
+    public void event();
 
     /**
      * Fire the event with recovery: try to recover instead of throwing an
@@ -38,8 +48,115 @@ public interface EventOutput {
      * 
      * @return if anything was changed to recover from an error.
      */
-    default boolean eventWithRecovery() {
+    public default boolean eventWithRecovery() {
         event();
         return false;
     }
+
+    public default EventOutput combine(EventOutput other) {
+        Utils.checkNull(other);
+        EventOutput original = this;
+        return new EventOutput() {
+            @Override
+            public void event() {
+                original.event();
+                other.event();
+            }
+
+            @Override
+            public boolean eventWithRecovery() {
+                // uses '|' instead of '||' to avoid short-circuiting.
+                return original.eventWithRecovery() | other.eventWithRecovery();
+            }
+        };
+    }
+
+    public default EventOutput combine(EventOutput... other) {
+        Utils.checkNull((Object[]) other);
+        EventOutput original = this;
+        return new EventOutput() {
+            @Override
+            public void event() {
+                original.event();
+                for (EventOutput o : other) {
+                    o.event();
+                }
+            }
+
+            @Override
+            public boolean eventWithRecovery() {
+                boolean output = original.eventWithRecovery();
+                for (EventOutput o : other) {
+                    output |= o.eventWithRecovery();
+                }
+                return output;
+            }
+        };
+    }
+
+    public default EventOutput filter(BooleanInput condition) {
+        EventOutput original = this;
+        return new EventOutput() {
+            @Override
+            public void event() {
+                if (condition.get()) {
+                    original.event();
+                }
+            }
+
+            @Override
+            public boolean eventWithRecovery() {
+                if (condition.get()) {
+                    return original.eventWithRecovery();
+                }
+                return false;
+            }
+        };
+    }
+
+    public default EventOutput filterNot(BooleanInput condition) {
+        EventOutput original = this;
+        return new EventOutput() {
+            @Override
+            public void event() {
+                if (!condition.get()) {
+                    original.event();
+                }
+            }
+
+            @Override
+            public boolean eventWithRecovery() {
+                if (!condition.get()) {
+                    return original.eventWithRecovery();
+                }
+                return false;
+            }
+        };
+    }
+
+    public default EventOutput debounce(final long minMillis) {
+        EventOutput original = this;
+        return new EventOutput() {
+            private long nextFire = 0;
+
+            public synchronized void event() {
+                long now = System.currentTimeMillis();
+                if (now < nextFire) {
+                    return;// Ignore event.
+                }
+                nextFire = now + minMillis;
+                original.event();
+            }
+
+            public boolean eventWithRecovery() {
+                long now = System.currentTimeMillis();
+                if (now < nextFire) {
+                    return false;// Ignore event.
+                }
+                nextFire = now + minMillis;
+                return original.eventWithRecovery();
+            }
+        };
+    }
+
 }

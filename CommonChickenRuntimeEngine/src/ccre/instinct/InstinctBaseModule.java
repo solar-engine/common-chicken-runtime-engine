@@ -22,7 +22,6 @@ import ccre.channel.BooleanInput;
 import ccre.channel.EventInput;
 import ccre.channel.EventOutput;
 import ccre.channel.FloatInput;
-import ccre.ctrl.FloatMixing;
 import ccre.log.Logger;
 
 /**
@@ -172,7 +171,8 @@ public abstract class InstinctBaseModule {
      * @throws InterruptedException Possibly also if autonomous mode has ended.
      */
     protected void waitUntilAtLeast(FloatInput waitFor, float minimum) throws AutonomousModeOverException, InterruptedException {
-        waitUntil(FloatMixing.atLeast(waitFor, minimum));
+     // TODO: make sure that nothing is accidentally kept around after this
+        waitUntil(waitFor.atLeast(minimum));
     }
 
     /**
@@ -185,7 +185,8 @@ public abstract class InstinctBaseModule {
      * @throws InterruptedException Possibly also if autonomous mode has ended.
      */
     protected void waitUntilAtMost(FloatInput waitFor, float maximum) throws AutonomousModeOverException, InterruptedException {
-        waitUntil(FloatMixing.atMost(waitFor, maximum));
+        // TODO: make sure that nothing is accidentally kept around after this
+        waitUntil(waitFor.atMost(maximum));
     }
 
     /**

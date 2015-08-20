@@ -23,8 +23,8 @@
 /CCRE_Igneous_cRIO/Igneous.jar
 /CCRE_Igneous_cRIO/Library_Prebuild.jar
 /CCRE_Igneous_cRIO/Library_Postbuild.jar
-/CCRE_Igneous_RoboRIO/bin/
-/CCRE_Igneous_RoboRIO/Igneous.jar
+/CCRE_Igneous_roboRIO/bin/
+/CCRE_Igneous_roboRIO/Igneous.jar
 /TemplateIgneousRobot/bin/
 /CCRE_Examples/bin/
 /.metadata

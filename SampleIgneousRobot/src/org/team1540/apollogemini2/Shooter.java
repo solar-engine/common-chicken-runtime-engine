@@ -28,10 +28,7 @@ import ccre.channel.FloatInput;
 import ccre.channel.FloatOutput;
 import ccre.channel.FloatStatus;
 import ccre.cluck.Cluck;
-import ccre.ctrl.BooleanMixing;
-import ccre.ctrl.EventMixing;
 import ccre.ctrl.ExpirationTimer;
-import ccre.ctrl.FloatMixing;
 import ccre.ctrl.Mixing;
 import ccre.holders.TuningContext;
 import ccre.igneous.Igneous;
@@ -45,12 +42,12 @@ public class Shooter {
 
     private static final FloatStatus joules = new FloatStatus();
 
-    private static final FloatInput drawBack = shooterTuningContext.getFloat("Draw Back", 650);
+    private static final FloatInput drawBackThreshold = shooterTuningContext.getFloat("Draw Back", 650);
     private static final FloatInput winchSpeedSetting = shooterTuningContext.getFloat("Winch Speed", 1f);
     private static final FloatInput rearmTimeout = shooterTuningContext.getFloat("Winch Rearm Timeout", 5f);
 
     private static final BooleanInput isArmInTheWay = Actuators.isSafeToShoot.not();
-    private static final BooleanInput winchPastThreshold = FloatMixing.atLeast(joules, drawBack);
+    private static final BooleanInput winchPastThreshold = joules.atLeast(drawBackThreshold);
 
     private static final FloatOutput winchMotor;
     private static final FloatInput winchCurrent;
@@ -84,7 +81,7 @@ public class Shooter {
         }
     };
 
-    private static final FloatInput watts = FloatMixing.multiplication.of(amps, Igneous.getBatteryVoltage());
+    private static final FloatInput watts = amps.multipliedBy(Igneous.getBatteryVoltage());
 
     static {
         // Update wattage total
@@ -105,7 +102,7 @@ public class Shooter {
         Cluck.publish("Winch Motor", winchMotor);
         Cluck.publish("Winch Solenoid", winchSolenoidDisengage);
         Cluck.publish("Winch Current", winchCurrent);
-        EventInput fireWhen = EventMixing.combine(AutonomousModeBase.getWhenToFire(), UserInterface.getFireButton());
+        EventInput fireWhen = AutonomousModeBase.getWhenToFire().or(UserInterface.getFireButton());
 
         winchDisengaged.setFalseWhen(Igneous.startDisabled);
         rearming.setFalseWhen(Igneous.startDisabled);
@@ -113,7 +110,7 @@ public class Shooter {
         winchDisengaged.send(winchSolenoidDisengage);
         Cluck.publish("Winch Disengaged", winchDisengaged);
 
-        rearming.send(Mixing.select(winchMotor, FloatMixing.always(0), winchSpeedSetting));
+        rearming.send(Mixing.select(winchMotor, FloatInput.always(0), winchSpeedSetting));
 
         Cluck.publish("Winch Amps", amps);
         Cluck.publish("Winch Watts", watts);
@@ -122,7 +119,7 @@ public class Shooter {
         EventInput rearmEvent = UserInterface.getRearmCatapult();
 
         final FloatStatus resetRearm = new FloatStatus();
-        resetRearm.setWhen(0, BooleanMixing.whenBooleanBecomes(rearming, false));
+        resetRearm.setWhen(0, rearming.onRelease());
         Cluck.publish("Winch Rearm Timeout Status", (FloatInput) resetRearm);
         Igneous.constantPeriodic.send(new EventOutput() {
             public void event() {
@@ -175,7 +172,7 @@ public class Shooter {
 
         fireWhen.send(guardedFire);
 
-        EventMixing.combine(AutonomousModeBase.getWhenToRearm(), rearmEvent).send(new EventOutput() {
+        AutonomousModeBase.getWhenToRearm().or(rearmEvent).send(new EventOutput() {
             public void event() {
                 if (rearming.get()) {
                     rearming.set(false);

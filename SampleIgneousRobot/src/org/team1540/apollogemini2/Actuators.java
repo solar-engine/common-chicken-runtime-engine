@@ -26,8 +26,6 @@ import ccre.channel.FloatInput;
 import ccre.channel.FloatOutput;
 import ccre.channel.FloatStatus;
 import ccre.cluck.Cluck;
-import ccre.ctrl.BooleanMixing;
-import ccre.ctrl.FloatMixing;
 import ccre.ctrl.Mixing;
 import ccre.ctrl.PauseTimer;
 import ccre.holders.TuningContext;
@@ -59,14 +57,14 @@ public class Actuators {
             armLockSolenoid = Igneous.makeSolenoid(8);
             armCollectorMotor = Igneous.makeVictorMotor(6, Igneous.MOTOR_REVERSE, 0.1f);
         }
-        BooleanOutput armFingerSolenoids = BooleanMixing.combine(Igneous.makeSolenoid(5).invert(), Igneous.makeSolenoid(Igneous.isRoboRIO() ? 0 : 6));
+        BooleanOutput armFingerSolenoids = Igneous.makeSolenoid(5).invert().combine(Igneous.makeSolenoid(Igneous.isRoboRIO() ? 0 : 6));
         armFingerSolenoids.set(false);
 
-        BooleanInput runActuatorControlLoop = Igneous.getIsEnabled().and(BooleanMixing.orBooleans(Igneous.getIsTeleop(), Igneous.getIsAutonomous()));
+        BooleanInput runActuatorControlLoop = Igneous.getIsEnabled().and(Igneous.getIsTeleop().or(Igneous.getIsAutonomous()));
         AutonomousModeBase.addArmActuators(armCollectorMotor, armFingerSolenoids);
         final PauseTimer runCollectorsWhileArmAligns = new PauseTimer(1000);
         final PauseTimer runCollectorsWhileArmLowers = new PauseTimer(500);
-        final BooleanInput runCollectorWhileArmMoves = BooleanMixing.orBooleans(runCollectorsWhileArmAligns, runCollectorsWhileArmLowers);
+        final BooleanInput runCollectorWhileArmMoves = runCollectorsWhileArmAligns.or(runCollectorsWhileArmLowers);
         new InstinctModule(runActuatorControlLoop) {
             final BooleanStatus hasPressedUp = new BooleanStatus(),
                     hasPressedDown = new BooleanStatus(),
@@ -163,10 +161,10 @@ public class Actuators {
         FloatInput forwardCollectorSpeed = actuatorTuningContext.getFloat("forward-collector-speed", 1.0f);
         FloatInput reverseCollectorSpeed = actuatorTuningContext.getFloat("reverse-collector-speed", -1.0f);
 
-        FloatInput collectorSpeedFromArm = Mixing.select(runCollectorWhileArmMoves, FloatMixing.always(0f), reverseCollectorSpeed);
+        FloatInput collectorSpeedFromArm = Mixing.select(runCollectorWhileArmMoves, FloatInput.always(0f), reverseCollectorSpeed);
 
-        Mixing.quadSelect(switchRollersIn, switchRollersOut, collectorSpeedFromArm, reverseCollectorSpeed, forwardCollectorSpeed, FloatMixing.always(0f)).send(armCollectorMotor);
-        BooleanMixing.orBooleans(switchRollersIn, switchRollersOut).send(armFingerSolenoids);
+        Mixing.quadSelect(switchRollersIn, switchRollersOut, collectorSpeedFromArm, reverseCollectorSpeed, forwardCollectorSpeed, FloatInput.always(0f)).send(armCollectorMotor);
+        switchRollersIn.or(switchRollersOut).send(armFingerSolenoids);
 
         Cluck.publish("Arm Main Solenoid", armMainSolenoid);
         Cluck.publish("Arm Lock Solenoid", armLockSolenoid);

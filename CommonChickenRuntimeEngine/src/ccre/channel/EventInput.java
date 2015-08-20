@@ -18,6 +18,8 @@
  */
 package ccre.channel;
 
+import ccre.util.Utils;
+
 /**
  * An event input or source. This produces events when it fires. A user can
  * register listeners to be called when the EventInput fires.
@@ -28,6 +30,18 @@ package ccre.channel;
  * @author skeggsc
  */
 public interface EventInput extends UpdatingInput {
+
+    /**
+     * An EventInput that will never be fired. Ever.
+     */
+    public static EventInput never = new EventInput() {
+        @Override
+        public EventOutput onUpdateR(EventOutput notify) {
+            return EventOutput.ignored;
+        }
+
+        // TODO: optimizations?
+    };
 
     /**
      * Register a listener for when this event is fired, so that whenever this
@@ -42,8 +56,90 @@ public interface EventInput extends UpdatingInput {
     public default void send(EventOutput output) {
         onUpdate(output);
     }
-    
+
     public default EventOutput sendR(EventOutput output) {
         return onUpdateR(output);
+    }
+
+    public default EventInput or(EventInput other) {
+        Utils.checkNull(other);
+        EventInput original = this;
+        return new EventInput() {
+            @Override
+            public EventOutput onUpdateR(EventOutput notify) {
+                return original.onUpdateR(notify).combine(other.onUpdateR(notify));
+            }
+
+            @Override
+            public void onUpdate(EventOutput notify) {
+                original.onUpdate(notify);
+                other.onUpdate(notify);
+            }
+        };
+    }
+
+    public default EventInput or(EventInput... sources) {
+        Utils.checkNull((Object[]) sources);
+        if (sources.length == 0) {
+            return this;
+        }
+        EventInput original = this;
+        return new EventInput() {
+            public void onUpdate(EventOutput notify) {
+                original.onUpdate(notify);
+                for (EventInput input : sources) {
+                    input.onUpdate(notify);
+                }
+            }
+
+            @Override
+            public EventOutput onUpdateR(EventOutput notify) {
+                EventOutput originalRemoval = original.onUpdateR(notify);
+                EventOutput[] otherRemovals = new EventOutput[sources.length];
+                for (int i = 0; i < sources.length; i++) {
+                    EventInput input = sources[i];
+                    otherRemovals[i] = input.onUpdateR(notify);
+                }
+                return originalRemoval.combine(otherRemovals);
+            }
+        };
+    }
+
+    public default EventInput and(BooleanInput condition) {
+        Utils.checkNull(condition);
+        EventInput original = this;
+        return new DerivedEventInput(original) {
+            @Override
+            protected boolean shouldProduce() {
+                return condition.get();
+            }
+        };
+    }
+
+    public default EventInput andNot(BooleanInput condition) {
+        Utils.checkNull(condition);
+        EventInput original = this;
+        return new DerivedEventInput(original) {
+            @Override
+            protected boolean shouldProduce() {
+                return !condition.get();
+            }
+        };
+    }
+
+    public default EventInput debounced(final long minMillis) {
+        return new DerivedEventInput(this) {
+            private long nextFire = 0;
+
+            @Override
+            protected boolean shouldProduce() {
+                long now = System.currentTimeMillis();
+                if (now < nextFire) {
+                    return false;// Ignore event.
+                }
+                nextFire = now + minMillis;
+                return true;
+            }
+        };
     }
 }

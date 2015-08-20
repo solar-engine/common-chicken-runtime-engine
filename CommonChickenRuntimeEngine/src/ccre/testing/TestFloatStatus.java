@@ -22,7 +22,6 @@ import ccre.channel.EventOutput;
 import ccre.channel.EventStatus;
 import ccre.channel.FloatOutput;
 import ccre.channel.FloatStatus;
-import ccre.ctrl.FloatMixing;
 
 /**
  * Test FloatStatus.
@@ -158,43 +157,43 @@ public class TestFloatStatus extends BaseTest {
     private void testConsumerTracking() throws TestingException {
         FloatStatus target = new FloatStatus();
         assertFalse(target.hasConsumers(), "Target should not have consumers initially!");
-        EventOutput unbind = target.sendR(FloatMixing.ignored);
+        EventOutput unbind = target.sendR(FloatOutput.ignored);
         assertTrue(target.hasConsumers(), "Target should now have consumers!");
         unbind.event();
         assertFalse(target.hasConsumers(), "Target should no longer have consumers!");
-        EventOutput unbind1 = target.sendR(FloatMixing.ignored);
+        EventOutput unbind1 = target.sendR(FloatOutput.ignored);
         assertTrue(target.hasConsumers(), "Target should now have consumers!");
-        EventOutput unbind2 = target.sendR(FloatMixing.ignored);
+        EventOutput unbind2 = target.sendR(FloatOutput.ignored);
         assertTrue(target.hasConsumers(), "Target should still have consumers!");
         unbind2.event();
         assertTrue(target.hasConsumers(), "Target should still have consumers!");
         unbind1.event(); // should not fail
         assertFalse(target.hasConsumers(), "Target should still not have consumers!");
 
-        target = new FloatStatus(FloatMixing.ignored);
+        target = new FloatStatus(FloatOutput.ignored);
         assertTrue(target.hasConsumers(), "Target should still have consumers!");
-        unbind = target.sendR(FloatMixing.ignored);
+        unbind = target.sendR(FloatOutput.ignored);
         assertTrue(target.hasConsumers(), "Target should still have consumers!");
         unbind.event();
         assertTrue(target.hasConsumers(), "Target should still have consumers!");
-        unbind1 = target.sendR(FloatMixing.ignored);
+        unbind1 = target.sendR(FloatOutput.ignored);
         assertTrue(target.hasConsumers(), "Target should still have consumers!");
-        unbind2 = target.sendR(FloatMixing.ignored);
+        unbind2 = target.sendR(FloatOutput.ignored);
         assertTrue(target.hasConsumers(), "Target should still have consumers!");
         unbind2.event();
         assertTrue(target.hasConsumers(), "Target should still have consumers!");
         unbind1.event(); // should not fail
         assertTrue(target.hasConsumers(), "Target should still have consumers!");
 
-        target = new FloatStatus(FloatMixing.ignored, FloatMixing.ignored);
+        target = new FloatStatus(FloatOutput.ignored, FloatOutput.ignored);
         assertTrue(target.hasConsumers(), "Target should still have consumers!");
-        unbind = target.sendR(FloatMixing.ignored);
+        unbind = target.sendR(FloatOutput.ignored);
         assertTrue(target.hasConsumers(), "Target should still have consumers!");
         unbind.event();
         assertTrue(target.hasConsumers(), "Target should still have consumers!");
-        unbind1 = target.sendR(FloatMixing.ignored);
+        unbind1 = target.sendR(FloatOutput.ignored);
         assertTrue(target.hasConsumers(), "Target should still have consumers!");
-        unbind2 = target.sendR(FloatMixing.ignored);
+        unbind2 = target.sendR(FloatOutput.ignored);
         assertTrue(target.hasConsumers(), "Target should still have consumers!");
         unbind2.event();
         assertTrue(target.hasConsumers(), "Target should still have consumers!");

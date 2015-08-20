@@ -22,7 +22,6 @@ import ccre.channel.BooleanStatus;
 import ccre.channel.EventInput;
 import ccre.channel.EventOutput;
 import ccre.channel.EventStatus;
-import ccre.ctrl.EventMixing;
 
 /**
  * Tests the EventMixing class.
@@ -125,11 +124,11 @@ public class TestEventMixing extends BaseTest {
             }
         };
         if (testInputs) {
-            EventMixing.filter(allow, trig.asInput()).send(ev1);
-            EventMixing.filter(allow, trig.asInput()).send(ev2);
+            trig.and(allow).send(ev1);
+            trig.and(allow).send(ev2);
         } else {
-            trig.send(EventMixing.filter(allow, ev1));
-            trig.send(EventMixing.filter(allow, ev2));
+            trig.send(ev1.filter(allow));
+            trig.send(ev2.filter(allow));
         }
         int mirror0 = 0, mirror1 = 0, mirror2 = 0;
         for (boolean b : new boolean[] { false, false, true, true, false, true, false, true, true, true, false, false, false, true, false, true, true, false, true, false, false, true }) {
@@ -178,8 +177,8 @@ public class TestEventMixing extends BaseTest {
                 return flag[0];
             }
         };
-        EventOutput db1 = new EventStatus(EventMixing.debounce(o1, 10));
-        EventOutput db2 = new EventStatus(EventMixing.debounce(o2, 10));
+        EventOutput db1 = new EventStatus(o1.debounce(10));
+        EventOutput db2 = new EventStatus(o2.debounce(10));
         assertIntsEqual(count[0], 0, "bad count");
         assertIntsEqual(count[1], 0, "bad count");
         assertIntsEqual(count[2], 0, "bad count");
@@ -228,7 +227,7 @@ public class TestEventMixing extends BaseTest {
             }
         };
         EventStatus input = new EventStatus();
-        EventMixing.debounce((EventInput) input, 10).send(o);
+        input.debounced(10).send(o);
 
         assertTrue(count[0] == 0, "Bad counter");
         input.event();
@@ -257,7 +256,7 @@ public class TestEventMixing extends BaseTest {
 
     private void testCombine_poly_in() throws TestingException {
         EventStatus triggerA = new EventStatus(), triggerB = new EventStatus(), triggerC = new EventStatus();
-        EventInput combined = EventMixing.combine((EventInput) triggerA, (EventInput) triggerB, (EventInput) triggerC);
+        EventInput combined = triggerA.or(triggerB, triggerC);
         BooleanStatus alpha = new BooleanStatus();
         EventOutput unbind = combined.sendR(alpha.getSetTrueEvent());
         assertFalse(alpha.get(), "Should not have happened.");
@@ -294,17 +293,11 @@ public class TestEventMixing extends BaseTest {
         triggerB.event();
         triggerC.event();
         assertFalse(alpha.get(), "Should not have happened.");
-
-        EventMixing.combine(new EventInput[0]).send(new EventOutput() {
-            public void event() {
-                throw new RuntimeException("Should not occur!");
-            }
-        });
     }
 
     private void testCombine_in_in() throws TestingException {
         EventStatus triggerA = new EventStatus(), triggerB = new EventStatus();
-        EventInput combined = EventMixing.combine((EventInput) triggerA, (EventInput) triggerB);
+        EventInput combined = triggerA.or(triggerB);
         BooleanStatus alpha = new BooleanStatus();
 
         EventOutput unbind = combined.sendR(alpha.getSetTrueEvent());
@@ -346,7 +339,7 @@ public class TestEventMixing extends BaseTest {
 
     private void testCombine_poly_out() throws TestingException {
         BooleanStatus alpha = new BooleanStatus(), beta = new BooleanStatus(), gamma = new BooleanStatus();
-        EventOutput combined = EventMixing.combine(alpha.getSetTrueEvent(), beta.getSetTrueEvent(), gamma.getSetTrueEvent());
+        EventOutput combined = alpha.getSetTrueEvent().combine(beta.getSetTrueEvent(), gamma.getSetTrueEvent());
         assertFalse(alpha.get(), "Should be false.");
         assertFalse(beta.get(), "Should be false.");
         assertFalse(gamma.get(), "Should be false.");
@@ -370,12 +363,11 @@ public class TestEventMixing extends BaseTest {
         assertFalse(alpha.get(), "Should be false.");
         assertFalse(beta.get(), "Should be false.");
         assertFalse(gamma.get(), "Should be false.");
-        EventMixing.combine(new EventOutput[0]).event();
     }
 
     private void testCombine_out_out() throws TestingException {
         BooleanStatus alpha = new BooleanStatus(), beta = new BooleanStatus();
-        EventOutput combined = EventMixing.combine(alpha.getSetTrueEvent(), beta.getSetTrueEvent());
+        EventOutput combined = alpha.getSetTrueEvent().combine(beta.getSetTrueEvent());
         assertFalse(alpha.get(), "Should be false.");
         assertFalse(beta.get(), "Should be false.");
         combined.event();
@@ -396,12 +388,12 @@ public class TestEventMixing extends BaseTest {
                 throw new RuntimeException("Should not have happened!");
             }
         };
-        EventOutput unbind = EventMixing.never.sendR(neverOut);
+        EventOutput unbind = EventInput.never.sendR(neverOut);
         Thread.sleep(500);
         unbind.event();
     }
 
     private void testIgnored() {
-        EventMixing.ignored.event(); // nothing should happen... but we don't have much of a way to check that.
+        EventOutput.ignored.event(); // nothing should happen... but we don't have much of a way to check that.
     }
 }

@@ -26,7 +26,6 @@ import ccre.channel.EventOutput;
 import ccre.channel.EventStatus;
 import ccre.channel.FloatInput;
 import ccre.channel.FloatOutput;
-import ccre.ctrl.FloatMixing;
 import ccre.instinct.AutonomousModeOverException;
 import ccre.instinct.InstinctModeModule;
 import ccre.log.Logger;
@@ -70,7 +69,7 @@ public abstract class AutonomousModeBase extends InstinctModeModule {
     }
 
     public static void addDriveMotors(FloatOutput leftDrive, FloatOutput rightDrive) {
-        bothDriveMotors = FloatMixing.combine(leftDrive, rightDrive);
+        bothDriveMotors = leftDrive.combine(rightDrive);
     }
 
     @Override

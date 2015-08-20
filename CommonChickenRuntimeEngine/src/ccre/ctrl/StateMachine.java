@@ -294,7 +294,7 @@ public class StateMachine {
      * @return the event to conditionally change the machine's state.
      */
     public EventOutput getStateTransitionEvent(int fromState, int toState) {
-        return EventMixing.filter(getIsState(fromState), getStateSetEvent(toState));
+        return getStateSetEvent(toState).filter(getIsState(fromState));
     }
 
     /**
@@ -398,7 +398,7 @@ public class StateMachine {
      * @param output the event to fire.
      */
     public void onEnterState(int state, final EventOutput output) {
-        onEnter.send(EventMixing.filter(getIsState(state), output));
+        onEnter.send(output.filter(getIsState(state)));
     }
 
     /**
@@ -421,7 +421,7 @@ public class StateMachine {
      * @param value the value to set the output to.
      */
     public void setOnEnterState(int state, BooleanOutput output, boolean value) {
-        onEnterState(state, BooleanMixing.getSetEvent(output, value));
+        onEnterState(state, output.getSetEvent(value));
     }
 
     /**
@@ -486,7 +486,7 @@ public class StateMachine {
      * @param value the value to set the output to.
      */
     public void setOnEnterState(int state, FloatOutput output, float value) {
-        onEnterState(state, FloatMixing.getSetEvent(output, value));
+        onEnterState(state, output.getSetEvent(value));
     }
 
     /**
@@ -549,7 +549,7 @@ public class StateMachine {
      * @param output the event to fire.
      */
     public void onExitState(int state, final EventOutput output) {
-        onExit.send(EventMixing.filter(getIsState(state), output));
+        onExit.send(output.filter(getIsState(state)));
     }
 
     /**
@@ -572,7 +572,7 @@ public class StateMachine {
      * @param value the value to set the output to.
      */
     public void setOnExitState(int state, BooleanOutput output, boolean value) {
-        onExitState(state, BooleanMixing.getSetEvent(output, value));
+        onExitState(state, output.getSetEvent(value));
     }
 
     /**
@@ -637,6 +637,6 @@ public class StateMachine {
      * @param value the value to set the output to.
      */
     public void setOnExitState(int state, FloatOutput output, float value) {
-        onExitState(state, FloatMixing.getSetEvent(output, value));
+        onExitState(state, output.getSetEvent(value));
     }
 }

@@ -29,7 +29,6 @@ import java.io.Serializable;
 import ccre.channel.EventOutput;
 import ccre.channel.FloatInput;
 import ccre.channel.FloatOutput;
-import ccre.ctrl.FloatMixing;
 import ccre.log.Logger;
 import ccre.rconf.RConf;
 import ccre.rconf.RConf.Entry;
@@ -94,7 +93,7 @@ public class FloatControlComponent extends BaseChannelComponent<FloatControlComp
      * @param name the name of the output.
      */
     public FloatControlComponent(int cx, int cy, String name) {
-        this(cx, cy, name, FloatMixing.ignored);
+        this(cx, cy, name, FloatOutput.ignored);
     }
 
     @Override

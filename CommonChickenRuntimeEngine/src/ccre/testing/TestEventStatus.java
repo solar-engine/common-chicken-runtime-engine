@@ -20,7 +20,6 @@ package ccre.testing;
 
 import ccre.channel.EventOutput;
 import ccre.channel.EventStatus;
-import ccre.ctrl.EventMixing;
 
 /**
  * A test that tests some parts of the Event class.
@@ -66,43 +65,43 @@ public final class TestEventStatus extends BaseTest implements EventOutput {
     private void testConsumerTracking() throws TestingException {
         EventStatus target = new EventStatus();
         assertFalse(target.hasConsumers(), "Target should not have consumers initially!");
-        EventOutput unbind = target.sendR(EventMixing.ignored);
+        EventOutput unbind = target.sendR(EventOutput.ignored);
         assertTrue(target.hasConsumers(), "Target should now have consumers!");
         unbind.event();
         assertFalse(target.hasConsumers(), "Target should no longer have consumers!");
-        EventOutput unbind1 = target.sendR(EventMixing.ignored);
+        EventOutput unbind1 = target.sendR(EventOutput.ignored);
         assertTrue(target.hasConsumers(), "Target should now have consumers!");
-        EventOutput unbind2 = target.sendR(EventMixing.ignored);
+        EventOutput unbind2 = target.sendR(EventOutput.ignored);
         assertTrue(target.hasConsumers(), "Target should still have consumers!");
         unbind2.event();
         assertTrue(target.hasConsumers(), "Target should still have consumers!");
         unbind1.event();
         assertFalse(target.hasConsumers(), "Target should not have consumers!");
 
-        target = new EventStatus(EventMixing.ignored);
+        target = new EventStatus(EventOutput.ignored);
         assertTrue(target.hasConsumers(), "Target should still have consumers!");
-        unbind = target.sendR(EventMixing.ignored);
+        unbind = target.sendR(EventOutput.ignored);
         assertTrue(target.hasConsumers(), "Target should still have consumers!");
         unbind.event();
         assertTrue(target.hasConsumers(), "Target should still have consumers!");
-        unbind1 = target.sendR(EventMixing.ignored);
+        unbind1 = target.sendR(EventOutput.ignored);
         assertTrue(target.hasConsumers(), "Target should still have consumers!");
-        unbind2 = target.sendR(EventMixing.ignored);
+        unbind2 = target.sendR(EventOutput.ignored);
         assertTrue(target.hasConsumers(), "Target should still have consumers!");
         unbind2.event();
         assertTrue(target.hasConsumers(), "Target should still have consumers!");
         unbind1.event();
         assertTrue(target.hasConsumers(), "Target should still have consumers!");
 
-        target = new EventStatus(EventMixing.ignored, EventMixing.ignored);
+        target = new EventStatus(EventOutput.ignored, EventOutput.ignored);
         assertTrue(target.hasConsumers(), "Target should still have consumers!");
-        unbind = target.sendR(EventMixing.ignored);
+        unbind = target.sendR(EventOutput.ignored);
         assertTrue(target.hasConsumers(), "Target should still have consumers!");
         unbind.event();
         assertTrue(target.hasConsumers(), "Target should still have consumers!");
-        unbind1 = target.sendR(EventMixing.ignored);
+        unbind1 = target.sendR(EventOutput.ignored);
         assertTrue(target.hasConsumers(), "Target should still have consumers!");
-        unbind2 = target.sendR(EventMixing.ignored);
+        unbind2 = target.sendR(EventOutput.ignored);
         assertTrue(target.hasConsumers(), "Target should still have consumers!");
         unbind2.event();
         assertTrue(target.hasConsumers(), "Target should still have consumers!");

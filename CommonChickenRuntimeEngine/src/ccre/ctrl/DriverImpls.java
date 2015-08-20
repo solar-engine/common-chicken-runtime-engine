@@ -78,8 +78,8 @@ public class DriverImpls {
      * @see DriverImpls
      */
     public static void extendedTankDrive(FloatInput leftIn, FloatInput rightIn, FloatInput forward, FloatOutput leftOut, FloatOutput rightOut) {
-        leftIn.send(FloatMixing.addition.of(forward, leftOut));
-        rightIn.send(FloatMixing.addition.of(forward, rightOut));
+        leftIn.plus(forward).send(leftOut);
+        rightIn.plus(forward).send(rightOut);
     }
 
     /**
@@ -92,21 +92,8 @@ public class DriverImpls {
      * @see DriverImpls
      */
     public static void arcadeDrive(final FloatInput joystickXAxis, final FloatInput joystickYAxis, final FloatOutput leftOut, final FloatOutput rightOut) {
-        joystickXAxis.send(new FloatOutput() {
-            public void set(final float xAxis) {
-                final float yAxis = joystickYAxis.get();
-                leftOut.set(yAxis + xAxis);
-                rightOut.set(yAxis - xAxis);
-            }
-        });
-
-        joystickYAxis.send(new FloatOutput() {
-            public void set(final float yAxis) {
-                final float xAxis = joystickXAxis.get();
-                leftOut.set(yAxis + xAxis);
-                rightOut.set(yAxis - xAxis);
-            }
-        });
+        joystickYAxis.plus(joystickXAxis).send(leftOut);
+        joystickYAxis.minus(joystickXAxis).send(rightOut);
     }
 
     /**

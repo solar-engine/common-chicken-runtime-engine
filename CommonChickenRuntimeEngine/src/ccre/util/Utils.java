@@ -216,4 +216,12 @@ public class Utils {
 
     private Utils() {
     }
+
+    public static void checkNull(Object... objs) {
+        for (Object obj : objs) {
+            if (obj == null) {
+                throw new NullPointerException();
+            }
+        }
+    }
 }

@@ -38,7 +38,6 @@ import ccre.ctrl.CommunicationFailureExtendedMotor;
 import ccre.ctrl.ExtendedMotor;
 import ccre.ctrl.ExtendedMotorFailureException;
 import ccre.ctrl.FakeJoystick;
-import ccre.ctrl.FloatMixing;
 import ccre.ctrl.IJoystick;
 import ccre.ctrl.binding.ControlBindingCreator;
 import ccre.log.BootLogger;
@@ -787,13 +786,13 @@ final class IgneousLauncherImpl extends IterativeRobot implements IgneousLaunche
             return getBatteryVoltage(updateOn);
         } else {
             Logger.warning("Voltage channels besides POWER_CHANNEL_BATTERY are not available on the cRIO!");
-            return FloatMixing.always(-1);
+            return FloatInput.always(-1);
         }
     }
 
     public FloatInput getChannelCurrent(int powerChannel, EventInput updateOn) {
         Logger.warning("Current channels are not available on the cRIO!");
-        return FloatMixing.always(-1);
+        return FloatInput.always(-1);
     }
 
     public BooleanInput getChannelEnabled(int powerChannel, EventInput updateOn) {

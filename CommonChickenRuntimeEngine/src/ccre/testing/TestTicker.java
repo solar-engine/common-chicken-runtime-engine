@@ -19,7 +19,6 @@
 package ccre.testing;
 
 import ccre.channel.EventOutput;
-import ccre.ctrl.EventMixing;
 import ccre.ctrl.Ticker;
 import ccre.log.Logger;
 
@@ -107,7 +106,7 @@ public class TestTicker extends BaseTest {
                 t.terminate();
             }
             try {
-                t.send(EventMixing.ignored);
+                t.send(EventOutput.ignored);
                 assertFail("Expected a failure!");
             } catch (IllegalStateException exc) {
                 // Correct!

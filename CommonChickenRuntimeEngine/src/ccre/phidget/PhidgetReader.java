@@ -23,8 +23,8 @@ import java.io.PrintStream;
 import ccre.channel.BooleanInput;
 import ccre.channel.BooleanOutput;
 import ccre.channel.FloatInput;
+import ccre.channel.FloatOutput;
 import ccre.cluck.Cluck;
-import ccre.ctrl.FloatMixing;
 
 /**
  * A system to read data over the network about the Phidget system, and provide
@@ -117,7 +117,7 @@ public class PhidgetReader {
      */
     public static FloatInput getAnalogInput(int id) {
         FloatInput fi = analogInputs[id];
-        fi.send(FloatMixing.ignored);
+        fi.send(FloatOutput.ignored);
         return fi;
     }
 

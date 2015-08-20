@@ -21,7 +21,6 @@ package org.team1540.apollogemini2;
 import ccre.channel.BooleanInput;
 import ccre.channel.EventInput;
 import ccre.cluck.Cluck;
-import ccre.ctrl.FloatMixing;
 import ccre.ctrl.IJoystick;
 
 public class KinectControl {
@@ -29,7 +28,7 @@ public class KinectControl {
     public static BooleanInput main(EventInput globalPeriodic, IJoystick left, IJoystick right) {
         Cluck.publish("Kinect Axis Left Arm", left.axis(2));
         Cluck.publish("Kinect Axis Right Arm", right.axis(2));
-        BooleanInput pressed = FloatMixing.atMost(left.axis(2), -0.1f).and(FloatMixing.atMost(right.axis(2), -0.1f));
+        BooleanInput pressed = left.axis(2).atMost(-0.1f).and(right.axis(2).atMost(-0.1f));
         Cluck.publish("Kinect Activation", pressed);
         return pressed;
     }

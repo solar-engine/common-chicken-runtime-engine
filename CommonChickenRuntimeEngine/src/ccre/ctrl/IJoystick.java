@@ -40,11 +40,11 @@ public interface IJoystick {
     public static final int[] POV_DIRECTIONS = { POV_NORTH, POV_NORTHEAST, POV_EAST, POV_SOUTHEAST, POV_SOUTH, POV_SOUTHWEST, POV_WEST, POV_NORTHWEST };
 
     public default EventInput onPress(int btn) {
-        return BooleanMixing.onPress(button(btn));
+        return button(btn).onPress();
     }
     
     public default EventInput onRelease(int btn) {
-        return BooleanMixing.onRelease(button(btn));
+        return button(btn).onRelease();
     }
     
     public BooleanInput button(int btn);
@@ -62,9 +62,9 @@ public interface IJoystick {
     public BooleanInput isPOV(int direction);
     
     public default EventInput onPressPOV(int direction) {
-        return BooleanMixing.onPress(isPOV(direction));
+        return isPOV(direction).onPress();
     }
     public default EventInput onReleasePOV(int direction) {
-        return BooleanMixing.onRelease(isPOV(direction));
+        return isPOV(direction).onRelease();
     }
 }

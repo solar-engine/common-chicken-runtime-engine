@@ -22,10 +22,7 @@ import ccre.channel.BooleanInput;
 import ccre.channel.BooleanStatus;
 import ccre.channel.FloatInput;
 import ccre.channel.FloatOutput;
-import ccre.ctrl.BooleanMixing;
 import ccre.ctrl.DriverImpls;
-import ccre.ctrl.EventMixing;
-import ccre.ctrl.FloatMixing;
 import ccre.igneous.Igneous;
 import ccre.rconf.RConf;
 import ccre.rconf.RConf.Entry;
@@ -33,14 +30,14 @@ import ccre.rconf.RConfable;
 
 public class DriveCode implements RConfable {
 
-    private final FloatInput leftAxis = FloatMixing.deadzone(Test.driveControls.addFloat("Drive Axis Left"), 0.1f);
-    private final FloatInput rightAxis = FloatMixing.deadzone(Test.driveControls.addFloat("Drive Axis Right"), 0.1f);
+    private final FloatInput leftAxis = Test.driveControls.addFloat("Drive Axis Left").deadzone(0.1f);
+    private final FloatInput rightAxis = Test.driveControls.addFloat("Drive Axis Right").deadzone(0.1f);
     private final FloatOutput leftOut = Igneous.makeTalonMotor(1, Igneous.MOTOR_REVERSE, 0.1f);
     private final FloatOutput rightOut = Igneous.makeTalonMotor(2, Igneous.MOTOR_FORWARD, 0.1f);
     private final BooleanStatus allowToRun = new BooleanStatus(true),
             forceEnabled = new BooleanStatus();
 
-    private final BooleanInput shouldBeRunning = allowToRun.and(BooleanMixing.orBooleans(Igneous.getIsTeleop(), forceEnabled));
+    private final BooleanInput shouldBeRunning = allowToRun.and(Igneous.getIsTeleop().or(forceEnabled));
 
     public DriveCode() {
         DriverImpls.tankDrive(shouldBeRunning, leftAxis, rightAxis, leftOut, rightOut);

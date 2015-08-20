@@ -58,7 +58,7 @@ public class PIDController implements FloatInput, EventOutput {
      * If two executions of the PIDController differ by more than this much, the
      * controller will pretend it only differed by this much.
      */
-    private FloatInput maximumTimeDelta = FloatMixing.always(0.1f); // 100ms.
+    private FloatInput maximumTimeDelta = FloatInput.always(0.1f); // 100ms.
 
     /**
      * Create a simple fixed PID controller. It's very much possible to have
@@ -75,7 +75,7 @@ public class PIDController implements FloatInput, EventOutput {
      */
     public static PIDController createFixed(EventInput trigger, FloatInput input, FloatInput setpoint, float p, float i, float d) {
         PIDController ctrl = new PIDController(input, setpoint,
-                FloatMixing.always(p), FloatMixing.always(i), FloatMixing.always(d));
+                FloatInput.always(p), FloatInput.always(i), FloatInput.always(d));
         ctrl.updateWhen(trigger);
         return ctrl;
     }
@@ -93,7 +93,7 @@ public class PIDController implements FloatInput, EventOutput {
      * @param D a source for the derivative term.
      */
     public PIDController(FloatInput error, FloatInput P, FloatInput I, FloatInput D) {
-        this.input = FloatMixing.always(0);
+        this.input = FloatInput.always(0);
         this.setpoint = error;
         this.P = P;
         this.I = I;
@@ -132,7 +132,7 @@ public class PIDController implements FloatInput, EventOutput {
      * @param maximumAbsolute the maximum absolute value.
      */
     public void setOutputBounds(FloatInput maximumAbsolute) {
-        setOutputBounds(FloatMixing.negate(maximumAbsolute), maximumAbsolute);
+        setOutputBounds(maximumAbsolute.negated(), maximumAbsolute);
     }
 
     /**
@@ -142,7 +142,7 @@ public class PIDController implements FloatInput, EventOutput {
      * @param maximum the maximum value.
      */
     public void setOutputBounds(float minimum, float maximum) {
-        setOutputBounds(FloatMixing.always(minimum), FloatMixing.always(maximum));
+        setOutputBounds(FloatInput.always(minimum), FloatInput.always(maximum));
     }
 
     /**
@@ -171,7 +171,7 @@ public class PIDController implements FloatInput, EventOutput {
      * @param maximumAbsolute the maximum absolute value.
      */
     public void setIntegralBounds(FloatInput maximumAbsolute) {
-        setIntegralBounds(FloatMixing.negate(maximumAbsolute), maximumAbsolute);
+        setIntegralBounds(maximumAbsolute.negated(), maximumAbsolute);
     }
 
     /**
@@ -182,7 +182,7 @@ public class PIDController implements FloatInput, EventOutput {
      * @param maximum the maximum value.
      */
     public void setIntegralBounds(float minimum, float maximum) {
-        setIntegralBounds(FloatMixing.always(minimum), FloatMixing.always(maximum));
+        setIntegralBounds(FloatInput.always(minimum), FloatInput.always(maximum));
     }
 
     /**
@@ -205,7 +205,7 @@ public class PIDController implements FloatInput, EventOutput {
      * @param delta the new maximum time delta, in seconds.
      */
     public void setMaximumTimeDelta(float delta) {
-        setMaximumTimeDelta(FloatMixing.always(delta));
+        setMaximumTimeDelta(FloatInput.always(delta));
     }
 
     /**

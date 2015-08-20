@@ -16,11 +16,7 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with the CCRE.  If not, see <http://www.gnu.org/licenses/>.
  */
-package ccre.ctrl;
-
-import ccre.channel.DerivedFloatInput;
-import ccre.channel.FloatInput;
-import ccre.channel.FloatOutput;
+package ccre.channel;
 
 /**
  * A FloatOperation provides a generic operation that takes two Float values as
@@ -33,6 +29,44 @@ import ccre.channel.FloatOutput;
  * @author skeggsc
  */
 public abstract class FloatOperation {
+
+    /**
+     * An operation representing summation, aka addition.
+     */
+    public static final FloatOperation addition = new FloatOperation() {
+        @Override
+        public float of(float augend, float addend) {
+            return augend + addend;
+        }
+    };
+    /**
+     * An operation representing a difference, aka subtracting.
+     */
+    public static final FloatOperation subtraction = new FloatOperation() {
+        @Override
+        public float of(float minend, float subtrahend) {
+            return minend - subtrahend;
+        }
+    };
+    /**
+     * An operation representing a product, aka multiplication.
+     */
+    public static final FloatOperation multiplication = new FloatOperation() {
+        @Override
+        public float of(float multiplicand, float multiplier) {
+            return multiplicand * multiplier;
+        }
+    };
+    /**
+     * An operation representing a quotient, aka division.
+     */
+    public static final FloatOperation division = new FloatOperation() {
+        @Override
+        public float of(float dividend, float divisor) {
+            return dividend / divisor;
+        }
+    };
+
     /**
      * Compute the result of the operation for the specified inputs.
      *
@@ -126,6 +160,7 @@ public abstract class FloatOperation {
         return new FloatOutput() {
             private boolean anyValue;
             private float lastValue;
+
             {
                 b.send((o) -> {
                     if (anyValue) {
@@ -170,6 +205,7 @@ public abstract class FloatOperation {
         return new FloatOutput() {
             private boolean anyValue;
             private float lastValue;
+
             {
                 a.send((o) -> {
                     if (anyValue) {

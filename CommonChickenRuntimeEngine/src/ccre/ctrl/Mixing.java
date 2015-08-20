@@ -23,6 +23,7 @@ import ccre.channel.BooleanOutput;
 import ccre.channel.DerivedFloatInput;
 import ccre.channel.FloatInput;
 import ccre.channel.FloatOutput;
+import ccre.util.Utils;
 
 /**
  * Mixing is a class that provides a wide variety of useful static methods to
@@ -52,7 +53,7 @@ public class Mixing {
      * @return the BooleanOutput that will now control the provided FloatOutput.
      */
     public static BooleanOutput select(final FloatOutput controlled, final float off, final float on) {
-        checkNull(controlled);
+        Utils.checkNull(controlled);
         return new BooleanOutput() {
             public void set(boolean value) {
                 controlled.set(value ? on : off);
@@ -72,7 +73,7 @@ public class Mixing {
      * @return the BooleanOutput that will modify the specified target.
      */
     public static BooleanOutput select(final FloatOutput target, final FloatInput off, final FloatInput on) {
-        checkNull(target, off, on);
+        Utils.checkNull(target, off, on);
         return new BooleanOutput() {
             private boolean lastValue = false, anyValue = false;
             
@@ -95,14 +96,6 @@ public class Mixing {
                 target.set(value ? on.get() : off.get());
             }
         };
-    }
-
-    static void checkNull(Object... objs) {
-        for (Object obj : objs) {
-            if (obj == null) {
-                throw new NullPointerException();
-            }
-        }
     }
 
     /**

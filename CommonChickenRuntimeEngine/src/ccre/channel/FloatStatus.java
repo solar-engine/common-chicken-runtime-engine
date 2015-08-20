@@ -21,7 +21,6 @@ package ccre.channel;
 import java.io.Serializable;
 
 import ccre.concurrency.ConcurrentDispatchArray;
-import ccre.ctrl.FloatMixing;
 
 /**
  * A virtual node that is both a FloatOutput and a FloatInput. You can modify
@@ -121,29 +120,6 @@ public class FloatStatus implements FloatOutput, FloatInput, Serializable {
         for (EventOutput evt : consumers) {
             evt.event();
         }
-    }
-
-    /**
-     * Get an EventOutput that, when fired, will set the state to the given
-     * float.
-     *
-     * @param newValue the value to set the state to.
-     * @return the fire-able EventOutput.
-     * @see #setWhen(float, ccre.channel.EventInput)
-     */
-    public final EventOutput getSetEvent(float newValue) {
-        return FloatMixing.getSetEvent(this, newValue);
-    }
-
-    /**
-     * When the specified event occurs, set the state to the specified value.
-     *
-     * @param value the value to set the state to.
-     * @param when when to set the status.
-     * @see #getSetEvent(float)
-     */
-    public final void setWhen(float value, EventInput when) {
-        FloatMixing.setWhen(when, this, value);
     }
 
     /**

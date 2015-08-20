@@ -52,7 +52,6 @@ import ccre.channel.FloatStatus;
 import ccre.cluck.rpc.RemoteProcedure;
 import ccre.cluck.rpc.SimpleProcedure;
 import ccre.concurrency.ConcurrentDispatchArray;
-import ccre.ctrl.EventMixing;
 import ccre.log.LogLevel;
 import ccre.log.Logger;
 import ccre.log.LoggingTarget;
@@ -733,7 +732,7 @@ public class CluckPublisher {
                 sent = true;
                 node.transmit(path, linkName, new byte[] { RMT_FLOATPROD });
             }
-            return EventMixing.combine(base, () -> {
+            return base.combine(() -> {
                 if (canUnsubscribe && sent && !this.hasConsumers()) {
                     sent = false;
                     node.transmit(path, linkName, new byte[] { RMT_FLOATPROD_UNSUB });
@@ -833,7 +832,7 @@ public class CluckPublisher {
                 sent = true;
                 node.transmit(path, linkName, new byte[] { RMT_BOOLPROD });
             }
-            return EventMixing.combine(base, () -> {
+            return base.combine(() -> {
                 if (canUnsubscribe && sent && !this.hasConsumers()) {
                     sent = false;
                     node.transmit(path, linkName, new byte[] { RMT_BOOLPROD_UNSUB });
@@ -927,7 +926,7 @@ public class CluckPublisher {
                 sent = true;
                 node.transmit(path, linkName, new byte[] { RMT_EVENTINPUT });
             }
-            return EventMixing.combine(base, () -> {
+            return base.combine(() -> {
                 if (sent && !this.hasConsumers()) {
                     sent = false;
                     node.transmit(path, linkName, new byte[] { RMT_EVENTINPUT_UNSUB });

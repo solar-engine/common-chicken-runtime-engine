@@ -23,7 +23,6 @@ import java.io.PrintStream;
 import ccre.channel.BooleanInput;
 import ccre.channel.EventOutput;
 import ccre.channel.FloatInput;
-import ccre.ctrl.FloatMixing;
 import ccre.ctrl.Ticker;
 import ccre.igneous.Igneous;
 import ccre.log.Logger;
@@ -114,9 +113,9 @@ public class ReadoutDisplay {
         }
     }
 
-    private static FloatInput percentPressure = FloatMixing.always(-10);
+    private static FloatInput percentPressure = FloatInput.always(-10);
     private static BooleanInput pressureSwitch = BooleanInput.alwaysFalse;
-    private static FloatInput winchJoules = FloatMixing.always(-42);
+    private static FloatInput winchJoules = FloatInput.always(-42);
 
     private static final EventOutput update = new EventOutput() {
         public void event() {
@@ -139,11 +138,11 @@ public class ReadoutDisplay {
         ReadoutDisplay.percentPressure = percent;
         ReadoutDisplay.pressureSwitch = fullPressure;
         fullPressure.onUpdate(update);
-        FloatMixing.whenFloatChanges(percent, 0.5f).send(update);
+        percent.onChangeBy(0.5f).send(update);
     }
 
     public static void showWinchStatus(FloatInput joules) {
         winchJoules = joules;
-        FloatMixing.whenFloatChanges(joules, 0.5f).send(update);
+        joules.onChangeBy(0.5f).send(update);
     }
 }

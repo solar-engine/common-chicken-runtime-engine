@@ -23,27 +23,24 @@ import ccre.channel.BooleanOutput;
 import ccre.channel.EventInput;
 import ccre.channel.FloatFilter;
 import ccre.channel.FloatInput;
-import ccre.ctrl.BooleanMixing;
-import ccre.ctrl.EventMixing;
-import ccre.ctrl.FloatMixing;
 import ccre.ctrl.IJoystick;
 import ccre.igneous.Igneous;
 import ccre.phidget.PhidgetReader;
 
 public class UserInterface {
     private static final IJoystick driveJoystick = Igneous.joystick1;
-    private static final FloatFilter deadzone = FloatMixing.deadzone(0.1f);
+    private static final FloatFilter deadzone = FloatFilter.deadzone(0.1f);
 
     public static FloatInput getLeftAxis() {
-        return deadzone.wrap(FloatMixing.negate(driveJoystick.axis(2)));
+        return deadzone.wrap(driveJoystick.axis(2).negated());
     }
 
     public static FloatInput getRightAxis() {
-        return deadzone.wrap(FloatMixing.negate(driveJoystick.axis(6)));
+        return deadzone.wrap(driveJoystick.axis(6).negated());
     }
 
     public static FloatInput getForwardAxis() {
-        return deadzone.wrap(FloatMixing.subtraction.of(driveJoystick.axis(4), driveJoystick.axis(3)));
+        return deadzone.wrap(driveJoystick.axis(4).minus(driveJoystick.axis(3)));
     }
 
     public static EventInput getHighGearShift() {
@@ -55,15 +52,15 @@ public class UserInterface {
     }
 
     public static EventInput getArmLower() {
-        return BooleanMixing.onPress(PhidgetReader.getDigitalInput(0));
+        return PhidgetReader.getDigitalInput(0).onPress();
     }
 
     public static EventInput getArmRaise() {
-        return BooleanMixing.onPress(PhidgetReader.getDigitalInput(5));
+        return PhidgetReader.getDigitalInput(5).onPress();
     }
 
     public static EventInput getArmAlign() {
-        return BooleanMixing.onPress(PhidgetReader.getDigitalInput(7));
+        return PhidgetReader.getDigitalInput(7).onPress();
     }
 
     public static BooleanOutput getArmDownLight() {
@@ -83,11 +80,11 @@ public class UserInterface {
     }
 
     public static EventInput getFireButton() {
-        return EventMixing.combine(BooleanMixing.onPress(PhidgetReader.getDigitalInput(1)), EventMixing.filterNot(ApolloGemini.isKidMode, driveJoystick.onPress(6)));
+        return PhidgetReader.getDigitalInput(1).onPress().or(driveJoystick.onPress(6).and(ApolloGemini.isKidMode));
     }
 
     public static EventInput getRearmCatapult() {
-        return BooleanMixing.onPress(PhidgetReader.getDigitalInput(2));
+        return PhidgetReader.getDigitalInput(2).onPress();
     }
 
     public static void showFiring(BooleanInput notFiring) {
@@ -95,6 +92,6 @@ public class UserInterface {
     }
 
     public static BooleanInput getShouldOverrideDrivingDisable() {
-        return BooleanMixing.orBooleans(driveJoystick.button(7), driveJoystick.button(8));
+        return driveJoystick.button(7).or(driveJoystick.button(8));
     }
 }

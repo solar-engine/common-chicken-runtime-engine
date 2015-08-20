@@ -95,7 +95,7 @@ public final class ExpirationTimer {
      * @throws IllegalStateException if the timer is already running.
      */
     public void scheduleSet(long delay, BooleanOutput out, boolean value) throws IllegalStateException {
-        schedule(delay, BooleanMixing.getSetEvent(out, value));
+        schedule(delay, out.getSetEvent(value));
     }
 
     /**

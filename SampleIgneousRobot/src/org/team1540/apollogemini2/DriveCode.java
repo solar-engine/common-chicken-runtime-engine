@@ -25,7 +25,6 @@ import ccre.channel.FloatInput;
 import ccre.channel.FloatOutput;
 import ccre.cluck.Cluck;
 import ccre.ctrl.DriverImpls;
-import ccre.ctrl.FloatMixing;
 import ccre.ctrl.Mixing;
 import ccre.igneous.Igneous;
 
@@ -47,7 +46,7 @@ public class DriveCode {
             rightDrive2 = Igneous.makeVictorMotor(4, Igneous.MOTOR_REVERSE, 0.1f);
             shiftSolenoidHigh = Igneous.makeSolenoid(1);
         }
-        FloatOutput leftDrive = FloatMixing.combine(leftDrive1, leftDrive2), rightDrive = FloatMixing.combine(rightDrive1, rightDrive2);
+        FloatOutput leftDrive = leftDrive1.combine(leftDrive2), rightDrive = rightDrive1.combine(rightDrive2);
         Cluck.publish("Drive Motors Left", leftDrive);
         Cluck.publish("Drive Motors Right", rightDrive);
         Cluck.publish("Drive Motor Left 1", leftDrive1);
@@ -62,11 +61,11 @@ public class DriveCode {
     private static void setupDriveCode(FloatOutput leftDrive, FloatOutput rightDrive, BooleanOutput shiftSolenoidHigh) {
         final BooleanInput actuallyDisable = Shooter.getShouldDisableDrivingAndCompressor().and(UserInterface.getShouldOverrideDrivingDisable());
 
-        FloatInput speedScale = Mixing.select(actuallyDisable, Mixing.select(ApolloGemini.isKidMode, 1.0f, 0.5f), FloatMixing.always(0.0f));
+        FloatInput speedScale = Mixing.select(actuallyDisable, Mixing.select(ApolloGemini.isKidMode, 1.0f, 0.5f), FloatInput.always(0.0f));
 
         DriverImpls.extendedTankDrive(
                 UserInterface.getLeftAxis(), UserInterface.getRightAxis(), UserInterface.getForwardAxis(),
-                FloatMixing.multiplication.of(leftDrive, speedScale), FloatMixing.multiplication.of(rightDrive, speedScale));
+                leftDrive.outputMultipliedBy(speedScale), rightDrive.outputMultipliedBy(speedScale));
 
         final BooleanStatus isHighGear = new BooleanStatus(shiftSolenoidHigh);
         isHighGear.setTrueWhen(Igneous.startTele); // begin

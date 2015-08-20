@@ -22,7 +22,6 @@ import ccre.channel.EventOutput;
 import ccre.channel.EventStatus;
 import ccre.channel.FloatInput;
 import ccre.channel.FloatStatus;
-import ccre.ctrl.FloatMixing;
 import ccre.ctrl.PIDController;
 
 /**
@@ -42,29 +41,28 @@ public class TestPIDController extends BaseTest {
         EventStatus updateOn = new EventStatus();
         FloatStatus currentValue = new FloatStatus();
         FloatStatus setPoint = new FloatStatus();
-        FloatInput delta = FloatMixing.subtraction.of(setPoint.asInput(), currentValue.asInput());
+        FloatInput delta = setPoint.minus(currentValue);
         float P = 1, I = 0.1f, D = 0.01f;
         PIDController ppid = PIDController.createFixed(updateOn, currentValue, setPoint, P, 0, 0);
         PIDController ipid = PIDController.createFixed(updateOn, currentValue, setPoint, 0, I, 0);
         PIDController dpid = PIDController.createFixed(updateOn, currentValue, setPoint, 0, 0, D);
         PIDController merged = PIDController.createFixed(updateOn, currentValue, setPoint, P, I, D);
-        PIDController shifted = new PIDController(FloatMixing.subtraction.of(setPoint.asInput(), currentValue.asInput()),
-                FloatMixing.always(P), FloatMixing.always(I), FloatMixing.always(D));
+        PIDController shifted = new PIDController(delta, FloatInput.always(P), FloatInput.always(I), FloatInput.always(D));
         PIDController chopped = PIDController.createFixed(updateOn, currentValue, setPoint, P, I, D);
         float integralBounds = 0.05f;
         ipid.setIntegralBounds(integralBounds);
         merged.setIntegralBounds(integralBounds);
-        shifted.setIntegralBounds(FloatMixing.always(integralBounds));
+        shifted.setIntegralBounds(FloatInput.always(integralBounds));
         chopped.setIntegralBounds(integralBounds);
 
         float outputBounds = 1.1f;
         merged.setOutputBounds(outputBounds);
-        shifted.setOutputBounds(FloatMixing.always(outputBounds));
+        shifted.setOutputBounds(FloatInput.always(outputBounds));
         chopped.setOutputBounds(outputBounds);
 
         final int millis = 20;
         chopped.setMaximumTimeDelta(millis / 1000f);
-        
+
         FloatStatus reflection = new FloatStatus();
         EventOutput unbind = merged.sendR(reflection);
 
@@ -76,7 +74,7 @@ public class TestPIDController extends BaseTest {
                 unbind.event();
             }
             setPoint.set(sp);
-            reflection.set(Float.NaN); // so we know when it gets updated
+            reflection.set(Float.NaN);// so we know when it gets updated
             for (int i = 0; i < 1000; i++) {
                 currentValue.set(currentValue.get() + lastMergedResult * 0.05f);
                 ppid.update(millis);
@@ -84,7 +82,7 @@ public class TestPIDController extends BaseTest {
                 dpid.update(millis);
                 merged.update(millis);
                 shifted.update(millis);
-                chopped.update(millis * 37); // update a lot more - but it'll get CHOPPED
+                chopped.update(millis * 37);// update a lot more - but it'll get CHOPPED
                 //System.out.println("Step " + sp + "/" + i + ": " + currentValue.get() + ": " + ppid.get() + " + " + ipid.get() + " + " + dpid.get() + " = " + merged.get());
                 float inttotal = lastIntegral + (millis / 1000f) * delta.get();
                 if (inttotal < -integralBounds) {
@@ -140,8 +138,8 @@ public class TestPIDController extends BaseTest {
             merged.update(millis);
             assertTrue(Float.isNaN(merged.get()), "expected NaN output!");
 
-            currentValue.set(oldValue * 300); // something that will throw off the whole thing... if it gets used
-            merged.update(0); // which it won't
+            currentValue.set(oldValue * 300);// something that will throw off the whole thing... if it gets used
+            merged.update(0);// which it won't
             assertObjectEqual(merged.integralTotal.get(), curTotal, "update(0) affected integral total!");
             assertObjectEqual(merged.getPreviousError(), prevErr, "update(0) affected error!");
 

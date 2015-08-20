@@ -22,9 +22,6 @@
  */
 package ccre.testing;
 
-import ccre.channel.BooleanFilter;
-import ccre.channel.BooleanInput;
-import ccre.channel.BooleanOutput;
 import ccre.channel.FloatFilter;
 import ccre.channel.FloatInput;
 import ccre.channel.FloatOutput;
@@ -44,30 +41,8 @@ public class TestFilters extends BaseTest {
 
     @Override
     protected void runTest() throws Throwable {
-        testBooleanFailures(); // other aspects tested elsewhere; at least for BooleanFilters.
         testFloatFailures();
         testFloatFilters();
-    }
-
-    private void testBooleanFailures() throws TestingException {
-        BooleanFilter f = new BooleanFilter() {
-            @Override
-            public boolean filter(boolean input) {
-                return input;
-            }
-        };
-        try {
-            f.wrap((BooleanInput) null);
-            assertFail("Expected a NullPointerException from a null parameter!");
-        } catch (NullPointerException ex) {
-            // correct!
-        }
-        try {
-            f.wrap((BooleanOutput) null);
-            assertFail("Expected a NullPointerException from a null parameter!");
-        } catch (NullPointerException ex) {
-            // correct!
-        }
     }
 
     private void testFloatFailures() throws TestingException {

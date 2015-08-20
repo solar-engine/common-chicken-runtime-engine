@@ -90,26 +90,6 @@ public class BooleanStatus implements BooleanOutput, BooleanInput, Serializable 
     }
 
     /**
-     * When the specified event occurs, set the status to true.
-     *
-     * @param event When to set the status to true.
-     * @see #getSetTrueEvent()
-     */
-    public final void setTrueWhen(EventInput event) {
-        event.send(getSetTrueEvent());
-    }
-
-    /**
-     * When the specified event occurs, set the status to false.
-     *
-     * @param event When to set the status to false.
-     * @see #getSetFalseEvent()
-     */
-    public final void setFalseWhen(EventInput event) {
-        event.send(getSetFalseEvent());
-    }
-
-    /**
      * When the specified event occurs, toggle the status.
      *
      * @param event When to toggle the status.
@@ -117,34 +97,6 @@ public class BooleanStatus implements BooleanOutput, BooleanInput, Serializable 
      */
     public final void toggleWhen(EventInput event) {
         event.send(getToggleEvent());
-    }
-
-    /**
-     * Get an EventOutput that, when fired, will set the state to true.
-     *
-     * @return the firable EventOutput.
-     * @see #setTrueWhen(ccre.channel.EventInput)
-     */
-    public final EventOutput getSetTrueEvent() {
-        return new EventOutput() {
-            public void event() {
-                set(true);
-            }
-        };
-    }
-
-    /**
-     * Get an EventOutput that, when fired, will set the state to false.
-     *
-     * @return the firable EventOutput.
-     * @see #setFalseWhen(ccre.channel.EventInput)
-     */
-    public final EventOutput getSetFalseEvent() {
-        return new EventOutput() {
-            public void event() {
-                set(false);
-            }
-        };
     }
 
     /**

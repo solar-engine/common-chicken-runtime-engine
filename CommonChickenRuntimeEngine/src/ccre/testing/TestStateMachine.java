@@ -20,11 +20,9 @@ package ccre.testing;
 
 import ccre.channel.BooleanInput;
 import ccre.channel.BooleanStatus;
-import ccre.channel.EventInput;
 import ccre.channel.EventOutput;
 import ccre.channel.EventStatus;
 import ccre.channel.FloatStatus;
-import ccre.ctrl.EventMixing;
 import ccre.ctrl.StateMachine;
 import ccre.log.LogLevel;
 
@@ -172,7 +170,7 @@ public class TestStateMachine extends BaseTest {
         BooleanStatus isLocked = new BooleanStatus(true);
         BooleanStatus gotThrough = new BooleanStatus();
 
-        gotThrough.setTrueWhen(EventMixing.filterNot(isLocked, (EventInput) pushThrough));
+        gotThrough.setTrueWhen(pushThrough.andNot(isLocked));
         turnstile.transitionStateWhen("LOCKED", "UNLOCKED", insertCoin);
         turnstile.transitionStateWhen("UNLOCKED", "LOCKED", pushThrough);
         turnstile.setFalseOnEnterState("UNLOCKED", isLocked);

@@ -43,15 +43,15 @@ public class CombinationJoystickWithPOV implements IJoystick {
     }
 
     public FloatInput axis(int axis) {
-        return FloatMixing.addition.of(alpha.axis(axis), beta.axis(axis));
+        return alpha.axis(axis).plus(beta.axis(axis));
     }
 
     public BooleanInput button(int button) {
-        return BooleanMixing.xorBooleans(alpha.button(button), beta.button(button));
+        return alpha.button(button).xor(beta.button(button));
     }
 
     @Override
     public BooleanInput isPOV(int direction) {
-        return BooleanMixing.xorBooleans(alpha.isPOV(direction), beta.isPOV(direction));
+        return alpha.isPOV(direction).xor(beta.isPOV(direction));
     }
 }

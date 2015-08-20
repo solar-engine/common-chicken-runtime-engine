@@ -23,7 +23,6 @@ import ccre.channel.BooleanOutput;
 import ccre.channel.BooleanStatus;
 import ccre.channel.EventOutput;
 import ccre.channel.EventStatus;
-import ccre.ctrl.BooleanMixing;
 
 /**
  * Tests the BooleanMixing class.
@@ -146,7 +145,7 @@ public class TestBooleanMixing extends BaseTest {
 
     private void testCombine() throws TestingException {
         BooleanStatus a = new BooleanStatus(), b = new BooleanStatus(), c = new BooleanStatus();
-        BooleanOutput d = BooleanMixing.combine(a, b), e = BooleanMixing.combine(a, b, c);
+        BooleanOutput d = a.combine(b), e = a.combine(b, c);
 
         assertFalse(a.get() || b.get() || c.get(), "Should all be off.");
         e.set(false);
@@ -177,13 +176,13 @@ public class TestBooleanMixing extends BaseTest {
 
     private void testAlgebra() throws TestingException {
         BooleanStatus a = new BooleanStatus(), b = new BooleanStatus();
-        BooleanInput xor = BooleanMixing.xorBooleans(a, b);
-        BooleanInput or = BooleanMixing.orBooleans(a, b);
+        BooleanInput xor = a.xor(b);
+        BooleanInput or = a.or(b);
         BooleanInput and = a.and(b);
         BooleanStatus orStat = new BooleanStatus(), andStat = new BooleanStatus(), xorStat = new BooleanStatus();
-        BooleanMixing.orBooleans(a, b).send(orStat);
+        a.or(b).send(orStat);
         a.and(b).send(andStat);
-        BooleanMixing.xorBooleans(a, b).send(xorStat);
+        a.xor(b).send(xorStat);
 
         a.set(false);
         b.set(false);
@@ -233,10 +232,10 @@ public class TestBooleanMixing extends BaseTest {
 
     private void testAlgebraPoly() throws TestingException {
         BooleanStatus a = new BooleanStatus(), b = new BooleanStatus(), c = new BooleanStatus();
-        BooleanInput or = BooleanMixing.orBooleans(a, b, c);
+        BooleanInput or = a.or(b, c);
         BooleanInput and = a.and(b, c);
         BooleanStatus orStat = new BooleanStatus(), andStat = new BooleanStatus();
-        BooleanMixing.orBooleans(a, b, c).send(orStat);
+        a.or(b, c).send(orStat);
         a.and(b, c).send(andStat);
 
         for (int i = 0; i < 16; i++) {
@@ -254,7 +253,7 @@ public class TestBooleanMixing extends BaseTest {
 
     private void testChangeMonitors() throws TestingException {
         final int[] counts = new int[4];
-        BooleanOutput out = BooleanMixing.triggerWhenBooleanChanges(new EventOutput() {
+        BooleanOutput out = BooleanOutput.onChange(new EventOutput() {
             public void event() {
                 counts[0]++;
             }
@@ -264,12 +263,12 @@ public class TestBooleanMixing extends BaseTest {
             }
         });
         BooleanStatus out2 = new BooleanStatus();
-        BooleanMixing.onRelease(out2).send(new EventOutput() {
+        out2.onRelease().send(new EventOutput() {
             public void event() {
                 counts[2]++;
             }
         });
-        BooleanMixing.onPress(out2).send(new EventOutput() {
+        out2.onPress().send(new EventOutput() {
             public void event() {
                 counts[3]++;
             }
@@ -310,8 +309,8 @@ public class TestBooleanMixing extends BaseTest {
             }
         };
         EventStatus setTrue = new EventStatus(), setFalse = new EventStatus();
-        BooleanMixing.setWhen(setTrue, out, true);
-        BooleanMixing.setWhen(setFalse, out, false);
+        out.setTrueWhen(setTrue);
+        out.setFalseWhen(setFalse);
 
         for (boolean b : interestingBooleans) {
             expecting[0] = b;

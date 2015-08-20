@@ -18,7 +18,7 @@
  */
 package ccre.channel;
 
-import ccre.ctrl.EventMixing;
+import ccre.util.Utils;
 
 /**
  * A BooleanInput is a way to get the current state of a boolean input, and to
@@ -43,7 +43,7 @@ public interface BooleanInput extends UpdatingInput {
 
         @Override
         public EventOutput onUpdateR(EventOutput notify) {
-            return EventMixing.ignored;
+            return EventOutput.ignored;
         }
 
         @Override
@@ -61,7 +61,7 @@ public interface BooleanInput extends UpdatingInput {
 
         @Override
         public EventOutput onUpdateR(EventOutput notify) {
-            return EventMixing.ignored;
+            return EventOutput.ignored;
         }
 
         @Override
@@ -129,6 +129,7 @@ public interface BooleanInput extends UpdatingInput {
     }
 
     public default BooleanInput and(final BooleanInput b) {
+        Utils.checkNull(b);
         final BooleanInput a = this;
         return new DerivedBooleanInput(a, b) {
             @Override
@@ -139,6 +140,7 @@ public interface BooleanInput extends UpdatingInput {
     }
 
     public default BooleanInput and(final BooleanInput... vals) {
+        Utils.checkNull((Object[]) vals);
         final BooleanInput a = this;
         return new DerivedBooleanInput(vals, a) {
             @Override
@@ -151,6 +153,74 @@ public interface BooleanInput extends UpdatingInput {
                         return false;
                     }
                 }
+                return true;
+            }
+        };
+    }
+
+    public default BooleanInput xor(final BooleanInput b) {
+        Utils.checkNull(b);
+        final BooleanInput a = this;
+        return new DerivedBooleanInput(a, b) {
+            @Override
+            protected boolean apply() {
+                return a.get() ^ b.get();
+            }
+        };
+    }
+
+    public default BooleanInput or(final BooleanInput b) {
+        Utils.checkNull(b);
+        final BooleanInput a = this;
+        return new DerivedBooleanInput(a, b) {
+            @Override
+            protected boolean apply() {
+                return a.get() || b.get();
+            }
+        };
+    }
+
+    public default BooleanInput or(final BooleanInput... vals) {
+        Utils.checkNull((Object[]) vals);
+        final BooleanInput a = this;
+        return new DerivedBooleanInput(vals, a) {
+            @Override
+            protected boolean apply() {
+                if (a.get()) {
+                    return true;
+                }
+                for (BooleanInput b : vals) {
+                    if (b.get()) {
+                        return true;
+                    }
+                }
+                return false;
+            }
+        };
+    }
+    
+    public default EventInput onPress() {
+        return new DerivedEventInput(this) {
+            @Override
+            protected boolean shouldProduce() {
+                return get();
+            }
+        };
+    }
+
+    public default EventInput onRelease() {
+        return new DerivedEventInput(this) {
+            @Override
+            protected boolean shouldProduce() {
+                return !get();
+            }
+        };
+    }
+
+    public default EventInput onChange() {
+        return new DerivedEventInput(this) {
+            @Override
+            protected boolean shouldProduce() {
                 return true;
             }
         };

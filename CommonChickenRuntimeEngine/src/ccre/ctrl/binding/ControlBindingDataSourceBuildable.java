@@ -22,7 +22,6 @@ import java.util.ConcurrentModificationException;
 
 import ccre.channel.BooleanInput;
 import ccre.channel.FloatInput;
-import ccre.ctrl.FloatMixing;
 import ccre.ctrl.IJoystick;
 import ccre.util.CArrayList;
 import ccre.util.CArrayUtils;
@@ -82,12 +81,12 @@ public class ControlBindingDataSourceBuildable implements ControlBindingDataSour
      * of the axis.
      *
      * @param name the name for the axis.
-     * @param axisSource the FloatInput to add.
+     * @param axis the FloatInput to add.
      */
-    public void addAxis(String name, FloatInput axisSource) {
-        addAxisRaw(name, axisSource);
-        addButton(name + " AS BTN+", FloatMixing.atLeast(axisSource, 0.8f));
-        addButton(name + " AS BTN-", FloatMixing.atMost(axisSource, -0.8f));
+    public void addAxis(String name, FloatInput axis) {
+        addAxisRaw(name, axis);
+        addButton(name + " AS BTN+", axis.atLeast(0.8f));
+        addButton(name + " AS BTN-", axis.atMost(-0.8f));
     }
 
     /**

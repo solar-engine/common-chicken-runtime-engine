@@ -19,11 +19,11 @@
 package ccre.testing;
 
 import ccre.channel.BooleanStatus;
+import ccre.channel.EventOutput;
 import ccre.channel.EventStatus;
+import ccre.channel.FloatInput;
 import ccre.channel.FloatStatus;
-import ccre.ctrl.EventMixing;
 import ccre.ctrl.ExpirationTimer;
-import ccre.ctrl.FloatMixing;
 import ccre.util.Utils;
 
 /**
@@ -262,13 +262,13 @@ public class TestExpirationTimer extends BaseTest {
             }
             // Can't schedule while already running!
             try {
-                bad.schedule(100, EventMixing.ignored);
+                bad.schedule(100, EventOutput.ignored);
                 assertFail("Expected an exception from schedule!");
             } catch (IllegalStateException ex) {
                 // Correct!
             }
             try {
-                bad.schedule(FloatMixing.always(1), EventMixing.ignored);
+                bad.schedule(FloatInput.always(1), EventOutput.ignored);
                 assertFail("Expected an exception from schedule!");
             } catch (IllegalStateException ex) {
                 // Correct!

@@ -24,9 +24,7 @@ import ccre.channel.EventInput;
 import ccre.channel.FloatInput;
 import ccre.channel.FloatOutput;
 import ccre.channel.SerialIO;
-import ccre.ctrl.BooleanMixing;
 import ccre.ctrl.ExtendedMotor;
-import ccre.ctrl.FloatMixing;
 import ccre.ctrl.IJoystick;
 import ccre.ctrl.Ticker;
 import ccre.ctrl.binding.CluckControlBinder;
@@ -181,8 +179,8 @@ public class Igneous {
      */
     public static FloatOutput makeJaguarMotor(int id, boolean negate, float ramping) {
         FloatOutput motor = launcher.makeMotor(id, IgneousLauncher.JAGUAR);
-        FloatOutput ramped = FloatMixing.addRamping(ramping, constantPeriodic, negate ? FloatMixing.negate(motor) : motor);
-        FloatMixing.setWhen(startDisabled, ramped, 0.0f);
+        FloatOutput ramped = (negate ? motor.negate() : motor).addRamping(ramping, constantPeriodic);
+        ramped.setWhen(0.0f, startDisabled);
         return ramped;
     }
 
@@ -206,8 +204,8 @@ public class Igneous {
      */
     public static FloatOutput makeVictorMotor(int id, boolean negate, float ramping) {
         FloatOutput motor = launcher.makeMotor(id, IgneousLauncher.VICTOR);
-        FloatOutput ramped = FloatMixing.addRamping(ramping, constantPeriodic, negate ? FloatMixing.negate(motor) : motor);
-        FloatMixing.setWhen(startDisabled, ramped, 0.0f);
+        FloatOutput ramped = (negate ? motor.negate() : motor).addRamping(ramping, constantPeriodic);
+        ramped.setWhen(0.0f, startDisabled);
         return ramped;
     }
 
@@ -231,8 +229,8 @@ public class Igneous {
      */
     public static FloatOutput makeTalonMotor(int id, boolean negate, float ramping) {
         FloatOutput motor = launcher.makeMotor(id, IgneousLauncher.TALON);
-        FloatOutput ramped = FloatMixing.addRamping(ramping, constantPeriodic, negate ? FloatMixing.negate(motor) : motor);
-        FloatMixing.setWhen(startDisabled, ramped, 0.0f);
+        FloatOutput ramped = (negate ? motor.negate() : motor).addRamping(ramping, constantPeriodic);
+        ramped.setWhen(0.0f, startDisabled);
         return ramped;
     }
 
@@ -472,7 +470,7 @@ public class Igneous {
      * @return the input.
      */
     public static BooleanInput getIsTeleop() {
-        return BooleanMixing.orBooleans(launcher.getIsTest(), launcher.getIsAutonomous()).not();
+        return launcher.getIsTest().or(launcher.getIsAutonomous()).not();
     }
 
     /**
@@ -685,9 +683,8 @@ public class Igneous {
      * @param compressorRelayChannel the channel of the compressor's relay.
      */
     public static void useCustomCompressor(BooleanInput shouldDisable, int compressorRelayChannel) {
-        shouldDisable.send(BooleanMixing.limitUpdatesTo(
-                makeForwardRelay(compressorRelayChannel).invert(),
-                new Ticker(500)));
+        // TODO: do this without an extra Ticker?
+        shouldDisable.send(makeForwardRelay(compressorRelayChannel).invert().limitUpdatesTo(new Ticker(500)));
     }
 
     /**

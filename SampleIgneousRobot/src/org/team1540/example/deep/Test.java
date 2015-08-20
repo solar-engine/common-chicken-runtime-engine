@@ -20,7 +20,6 @@ package org.team1540.example.deep;
 
 import ccre.channel.BooleanStatus;
 import ccre.cluck.Cluck;
-import ccre.ctrl.BooleanMixing;
 import ccre.ctrl.binding.ControlBindingCreator;
 import ccre.igneous.Igneous;
 import ccre.igneous.IgneousApplication;
@@ -46,8 +45,8 @@ public class Test implements IgneousApplication {
         // Shifting
         BooleanStatus shifter = new BooleanStatus(Igneous.makeSolenoid(3));
         shifter.setFalseWhen(Igneous.startTele);
-        shifter.setTrueWhen(BooleanMixing.onPress(driveControls.addBoolean("High Gear")));
-        shifter.setFalseWhen(BooleanMixing.onPress(driveControls.addBoolean("Low Gear")));
+        shifter.setTrueWhen(driveControls.addBoolean("High Gear").onPress());
+        shifter.setFalseWhen(driveControls.addBoolean("Low Gear").onPress());
         // Compressor
         Igneous.useCompressor(1, 1);
         // Autonomous

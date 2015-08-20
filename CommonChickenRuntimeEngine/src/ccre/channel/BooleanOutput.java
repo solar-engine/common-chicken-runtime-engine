@@ -165,4 +165,22 @@ public interface BooleanOutput {
             }
         };
     }
+
+    public default BooleanOutput filter(BooleanInput allow) {
+        BooleanOutput original = this;
+        return (value) -> {
+            if (allow.get()) {
+                original.set(value);
+            }
+        };
+    }
+
+    public default BooleanOutput filterNot(BooleanInput deny) {
+        BooleanOutput original = this;
+        return (value) -> {
+            if (!deny.get()) {
+                original.set(value);
+            }
+        };
+    }
 }

@@ -177,4 +177,22 @@ public interface FloatOutput {
             }
         };
     }
+
+    public default FloatOutput filter(BooleanInput allow) {
+        FloatOutput original = this;
+        return (value) -> {
+            if (allow.get()) {
+                original.set(value);
+            }
+        };
+    }
+
+    public default FloatOutput filterNot(BooleanInput deny) {
+        FloatOutput original = this;
+        return (value) -> {
+            if (!deny.get()) {
+                original.set(value);
+            }
+        };
+    }
 }

@@ -45,7 +45,7 @@ class DirectPDP {
 
     public static float getVoltage() {
         IntBuffer status = Common.getCheckBuffer();
-        double voltage = PDPJNI.getPDPVoltage(status); // errors are timeouts. TODO: avoid timeouts errors
+        double voltage = PDPJNI.getPDPVoltage(status); // errors are timeouts. TODO: avoid timeout errors
         Common.check(status);
         return (float) voltage;
     }

@@ -76,7 +76,7 @@ public abstract class FloatFilter {
         }
         return new FloatOutput() {
             public void set(float value) {
-                output.set(filter(value));
+                output.set(FloatFilter.this.filter(value));
             }
         };
     }

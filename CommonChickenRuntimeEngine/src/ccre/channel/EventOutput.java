@@ -94,19 +94,19 @@ public interface EventOutput {
         };
     }
 
-    public default EventOutput filter(BooleanInput condition) {
+    public default EventOutput filter(BooleanInput allow) {
         EventOutput original = this;
         return new EventOutput() {
             @Override
             public void event() {
-                if (condition.get()) {
+                if (allow.get()) {
                     original.event();
                 }
             }
 
             @Override
             public boolean eventWithRecovery() {
-                if (condition.get()) {
+                if (allow.get()) {
                     return original.eventWithRecovery();
                 }
                 return false;
@@ -114,19 +114,19 @@ public interface EventOutput {
         };
     }
 
-    public default EventOutput filterNot(BooleanInput condition) {
+    public default EventOutput filterNot(BooleanInput deny) {
         EventOutput original = this;
         return new EventOutput() {
             @Override
             public void event() {
-                if (!condition.get()) {
+                if (!deny.get()) {
                     original.event();
                 }
             }
 
             @Override
             public boolean eventWithRecovery() {
-                if (!condition.get()) {
+                if (!deny.get()) {
                     return original.eventWithRecovery();
                 }
                 return false;

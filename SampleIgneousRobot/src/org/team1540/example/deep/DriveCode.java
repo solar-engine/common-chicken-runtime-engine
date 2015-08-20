@@ -40,7 +40,7 @@ public class DriveCode implements RConfable {
     private final BooleanInput shouldBeRunning = allowToRun.and(Igneous.getIsTeleop().or(forceEnabled));
 
     public DriveCode() {
-        DriverImpls.tankDrive(shouldBeRunning, leftAxis, rightAxis, leftOut, rightOut);
+        DriverImpls.tankDrive(leftAxis, rightAxis, leftOut.filter(shouldBeRunning), rightOut.filter(shouldBeRunning));
     }
 
     public Entry[] queryRConf() throws InterruptedException {

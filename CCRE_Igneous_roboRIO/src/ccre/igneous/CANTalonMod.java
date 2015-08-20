@@ -394,7 +394,6 @@ class CANTalonMod {
     }
 
     /**
-     * TODO documentation (see CANJaguar.java)
      *
      * @return The position of the sensor currently providing feedback. When
      * using analog sensors, 0 units corresponds to 0V, 1023 units corresponds
@@ -413,7 +412,6 @@ class CANTalonMod {
     }
 
     /**
-     * TODO documentation (see CANJaguar.java)
      *
      * @return The speed of the sensor currently providing feedback.
      *

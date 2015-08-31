@@ -200,8 +200,7 @@ public class DeviceBasedLauncher implements IgneousLauncher {
     public BooleanOutput makeDigitalOutput(int id) {
         int index = checkRange("Digital Output", id, digitalOutputs);
         if (digitalOutputs[index] == null) {
-            // TODO: Should this really be forced to disabled with other outputs?
-            digitalOutputs[index] = panel.add(new BooleanViewDevice("Digital Output " + id));
+            digitalOutputs[index] = panel.add(new BooleanViewDevice("Digital Output " + id).setBypassDisabledMode());
         }
         return digitalOutputs[index];
     }

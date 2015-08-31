@@ -35,6 +35,7 @@ public class BooleanViewDevice extends Device implements BooleanOutput, Disablea
 
     private final BooleanTextComponent actuated;
     private boolean savedValue = false, disabled = true;
+    private boolean bypassDisabled;
 
     /**
      * Create a new BooleanViewDevice with a label to describe the device.
@@ -53,6 +54,12 @@ public class BooleanViewDevice extends Device implements BooleanOutput, Disablea
         this.set(enabledByDefault);
     }
 
+    public BooleanViewDevice setBypassDisabledMode() {
+        notifyDisabled(false);
+        bypassDisabled = true;
+        return this;
+    }
+
     public void set(boolean value) {
         savedValue = value;
         if (!disabled) {
@@ -62,6 +69,9 @@ public class BooleanViewDevice extends Device implements BooleanOutput, Disablea
 
     @Override
     public void notifyDisabled(boolean disabled) {
+        if (bypassDisabled) {
+            return;
+        }
         this.disabled = disabled;
         if (disabled) {
             actuated.set(false);

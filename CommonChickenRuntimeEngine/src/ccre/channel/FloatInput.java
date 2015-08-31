@@ -22,8 +22,7 @@ import ccre.util.Utils;
 
 /**
  * A FloatInput is a way to get the current state of a float input, and to
- * subscribe to notifications of changes in the float input's value. FloatInput
- * is a subinterface of FloatInputPoll.
+ * subscribe to notifications of changes in the float input's value.
  *
  * By convention, most float inputs and outputs have states that range from
  * -1.0f to 1.0f.

@@ -52,7 +52,7 @@ public abstract class InstinctModule extends InstinctBaseModule implements Event
     };
 
     /**
-     * Create a new InstinctModule with a BooleanInputPoll controlling when this
+     * Create a new InstinctModule with a BooleanInput controlling when this
      * module should run.
      *
      * @param shouldBeRunning The input to control the running of this module.
@@ -106,8 +106,8 @@ public abstract class InstinctModule extends InstinctBaseModule implements Event
                 } catch (InterruptedException ex) {
                 }
             }
-            try { // TODO: Is this needed any longer?
-                  // Get rid of any lingering interruptions.
+            try {// TODO: Is this needed any longer?
+                 // Get rid of any lingering interruptions.
                 waitCycle();
             } catch (InterruptedException ex) {
             }
@@ -145,8 +145,8 @@ public abstract class InstinctModule extends InstinctBaseModule implements Event
     }
 
     /**
-     * Sets this module to run when the specified BooleanInputPoll is true. You
-     * also need to fire the InstinctModule's event - likely with updateWhen().
+     * Sets this module to run when the specified BooleanInput is true. You also
+     * need to fire the InstinctModule's event - likely with updateWhen().
      *
      * @param when When this should be running.
      * @see #updateWhen(ccre.channel.EventInput)

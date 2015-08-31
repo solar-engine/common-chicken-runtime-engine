@@ -63,25 +63,25 @@ public class CluckNode implements Serializable {
      */
     public static final byte RMT_LOGTARGET = 4;
     /**
-     * The ID representing a BooleanInputProducer subscription message.
+     * The ID representing a BooleanInput subscription message.
      */
-    public static final byte RMT_BOOLPROD = 5;
+    public static final byte RMT_BOOLINPUT = 5;
     /**
-     * The ID representing a BooleanInputProducer response message.
+     * The ID representing a BooleanInput response message.
      */
-    public static final byte RMT_BOOLPRODRESP = 6;
+    public static final byte RMT_BOOLINPUTRESP = 6;
     /**
      * The ID representing a BooleanOutput write message.
      */
     public static final byte RMT_BOOLOUTP = 7;
     /**
-     * The ID representing a FloatInputProducer subscription message.
+     * The ID representing a FloatInput subscription message.
      */
-    public static final byte RMT_FLOATPROD = 8;
+    public static final byte RMT_FLOATINPUT = 8;
     /**
-     * The ID representing a FloatInputProducer response message.
+     * The ID representing a FloatInput response message.
      */
-    public static final byte RMT_FLOATPRODRESP = 9;
+    public static final byte RMT_FLOATINPUTRESP = 9;
     /**
      * The ID representing a FloatOutput write message.
      */
@@ -111,13 +111,13 @@ public class CluckNode implements Serializable {
      */
     public static final byte RMT_EVENTINPUT_UNSUB = 16;
     /**
-     * The ID representing an BooleanInputProducer unsubscription request.
+     * The ID representing an BooleanInput unsubscription request.
      */
-    public static final byte RMT_BOOLPROD_UNSUB = 17;
+    public static final byte RMT_BOOLINPUT_UNSUB = 17;
     /**
-     * The ID representing an FloatInputProducer unsubscription request.
+     * The ID representing an FloatInput unsubscription request.
      */
-    public static final byte RMT_FLOATPROD_UNSUB = 18;
+    public static final byte RMT_FLOATINPUT_UNSUB = 18;
     private static final String[] remoteNames = new String[] { "Ping", "EventOutput", "EventInput", "EventInputResponse", "LogTarget", "BooleanInput", "BooleanInputResponse", "BooleanOutput", "FloatInput", "FloatInputResponse", "FloatOutput", "OutputStream", "Notify", "RemoteProcedure", "RemoteProcedureReply", "NonexistenceNotification", "EventInputUnsubscription", "BooleanInputUnsubscription", "FloatInputUnsubscription" };
 
     /**

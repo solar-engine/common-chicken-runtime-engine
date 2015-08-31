@@ -31,7 +31,7 @@ import ccre.ctrl.binding.ControlBindingCreator;
 /**
  * This is a launcher for an Igneous application. The reason for this is so that
  * the main program can be ran without a robot. Documentation for all the
- * methods here can be found in IgneousCore, where they are invoked.
+ * methods here can be found in Igneous, where they are invoked.
  *
  * @author skeggsc
  */
@@ -143,9 +143,9 @@ public interface IgneousLauncher {
 
     /**
      * Create a reference to a digital input on the specified port, as a
-     * BooleanInput (not a BooleanInputPoll) that updates by using FPGA
-     * interrupts or an equivalent. Warning: many systems have a limit on the
-     * maximum number of interrupts available - use sparingly!
+     * BooleanInput that updates by using FPGA interrupts or an equivalent.
+     * Warning: many systems have a limit on the maximum number of interrupts
+     * available - use sparingly!
      *
      * @param id the port number.
      * @return the digital input.

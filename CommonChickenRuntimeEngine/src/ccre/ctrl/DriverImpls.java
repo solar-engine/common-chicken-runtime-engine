@@ -50,10 +50,8 @@ import ccre.channel.FloatOutput;
  */
 public class DriverImpls {
 
-    // TODO: Search and remove InputProducer and InputPoll from documentation.
-
     /**
-     * Run tank drive on the given two FloatInputProducers and FloatOutputs.
+     * Run tank drive on the given two FloatInputs and FloatOutputs.
      *
      * @param leftIn the left control axis.
      * @param rightIn the right control axis.
@@ -67,7 +65,7 @@ public class DriverImpls {
     }
 
     /**
-     * Run extended tank drive on the given three FloatInputProducers and
+     * Run extended tank drive on the given three FloatInputs and
      * FloatOutputs.
      *
      * @param leftIn the left control axis.
@@ -83,7 +81,7 @@ public class DriverImpls {
     }
 
     /**
-     * Run arcade drive on the given two FloatInputProducers and FloatOutputs.
+     * Run arcade drive on the given two FloatInputs and FloatOutputs.
      *
      * @param joystickXAxis the joystick's x-axis.
      * @param joystickYAxis the joystick's y-axis.
@@ -110,7 +108,7 @@ public class DriverImpls {
 
     /**
      * When the returned EventInput is fired, run Mecanum drive on the given
-     * FloatInputPolls and FloatOutputs.
+     * FloatInputs and FloatOutputs.
      *
      * @param forward the forward movement axis.
      * @param strafe the strafing axis.

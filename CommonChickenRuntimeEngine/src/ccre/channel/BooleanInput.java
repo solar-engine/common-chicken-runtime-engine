@@ -45,11 +45,6 @@ public interface BooleanInput extends UpdatingInput {
         public EventOutput onUpdateR(EventOutput notify) {
             return EventOutput.ignored;
         }
-
-        @Override
-        public BooleanInput not() {
-            return alwaysTrue;
-        };
     };
     /**
      * A BooleanInput that is always true.
@@ -63,11 +58,6 @@ public interface BooleanInput extends UpdatingInput {
         public EventOutput onUpdateR(EventOutput notify) {
             return EventOutput.ignored;
         }
-
-        @Override
-        public BooleanInput not() {
-            return alwaysFalse;
-        };
     };
 
     public static BooleanInput always(boolean b) {

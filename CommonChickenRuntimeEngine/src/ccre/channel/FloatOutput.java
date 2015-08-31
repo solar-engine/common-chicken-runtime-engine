@@ -38,8 +38,6 @@ public interface FloatOutput {
     FloatOutput ignored = new FloatOutput() {
         public void set(float newValue) {
         }
-
-        // TODO: optimize?
     };
 
     /**

@@ -39,8 +39,6 @@ public interface EventInput extends UpdatingInput {
         public EventOutput onUpdateR(EventOutput notify) {
             return EventOutput.ignored;
         }
-
-        // TODO: optimizations?
     };
 
     /**

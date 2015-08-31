@@ -21,9 +21,8 @@ package ccre.channel;
 import ccre.util.Utils;
 
 /**
- * A FloatFilter is a wrapper that can be wrapped around any kind of Output,
- * Input, InputPoll, or InputProducer, and will apply the same transformation in
- * any case.
+ * A FloatFilter is a stateless transformer that can be wrapped around any
+ * Output or Input.
  *
  * @author skeggsc
  */

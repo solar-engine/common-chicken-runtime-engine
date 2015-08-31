@@ -389,9 +389,9 @@ public class Igneous {
 
     /**
      * Create a reference to a digital input on the specified port, as a
-     * BooleanInput (not a BooleanInputPoll) that updates by using FPGA
-     * interrupts or an equivalent. Warning: many systems have a limit on the
-     * maximum number of interrupts available - use sparingly!
+     * BooleanInput that updates by using FPGA interrupts or an equivalent.
+     * Warning: many systems have a limit on the maximum number of interrupts
+     * available - use sparingly!
      *
      * @param id the port number.
      * @return the digital input.
@@ -492,7 +492,7 @@ public class Igneous {
      * @param compressorRelayChannel the channel of the compressor's relay.
      */
     public static void useCompressor(int pressureSwitchChannel, int compressorRelayChannel) {
-        
+
         useCustomCompressor(makeDigitalInput(pressureSwitchChannel), compressorRelayChannel);
     }
 
@@ -914,7 +914,7 @@ public class Igneous {
             if (isRoboRIO()) {
                 ds.addJoystick(names[i], launcher.getJoystick(i + 1), 12, 6);
             } else {
-                ds.addJoystick(names[i], (IJoystick) launcher.getJoystick(i + 1), 12, 6); // don't include POV on cRIO
+                ds.addJoystick(names[i], (IJoystick) launcher.getJoystick(i + 1), 12, 6);// don't include POV on cRIO
             }
         }
         return ds;

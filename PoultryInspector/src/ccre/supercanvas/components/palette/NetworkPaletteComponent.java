@@ -83,7 +83,7 @@ public class NetworkPaletteComponent extends PaletteComponent<Collection<Network
         switch (type) {
         case CluckNode.RMT_BOOLOUTP:
             return new BooleanControlComponent(x, y, name, (BooleanOutput) target);
-        case CluckNode.RMT_BOOLPROD:
+        case CluckNode.RMT_BOOLINPUT:
             return new BooleanDisplayComponent(x, y, name, (BooleanInput) target);
         case CluckNode.RMT_EVENTOUTP:
             return new EventControlComponent(x, y, name, (EventOutput) target);
@@ -91,7 +91,7 @@ public class NetworkPaletteComponent extends PaletteComponent<Collection<Network
             return new EventDisplayComponent(x, y, name, (EventInput) target);
         case CluckNode.RMT_FLOATOUTP:
             return new FloatControlComponent(x, y, name, (FloatOutput) target);
-        case CluckNode.RMT_FLOATPROD:
+        case CluckNode.RMT_FLOATINPUT:
             return new FloatDisplayComponent(x, y, name, (FloatInput) target);
         case F_RMT_EVENTS:
             return new EventControlComponent(x, y, name, (EventInput) ((Object[]) target)[0], (EventOutput) ((Object[]) target)[1]);
@@ -117,7 +117,7 @@ public class NetworkPaletteComponent extends PaletteComponent<Collection<Network
         switch (type) {
         case CluckNode.RMT_BOOLOUTP:
             return Cluck.subscribeBO(path);
-        case CluckNode.RMT_BOOLPROD:
+        case CluckNode.RMT_BOOLINPUT:
             return Cluck.subscribeBI(path, false);
         case CluckNode.RMT_EVENTOUTP:
             return Cluck.subscribeEO(path);
@@ -125,7 +125,7 @@ public class NetworkPaletteComponent extends PaletteComponent<Collection<Network
             return Cluck.subscribeEI(path);
         case CluckNode.RMT_FLOATOUTP:
             return Cluck.subscribeFO(path);
-        case CluckNode.RMT_FLOATPROD:
+        case CluckNode.RMT_FLOATINPUT:
             return Cluck.subscribeFI(path, false);
         case CluckNode.RMT_INVOKE:
             return Cluck.getNode().getRPCManager().subscribe(path, 500); // Is this a good amount of time?
@@ -188,11 +188,11 @@ public class NetworkPaletteComponent extends PaletteComponent<Collection<Network
                     base = remote.substring(0, remote.length() - 6);
                     pairName = base + ".output";
                     switch (remoteType) {
-                    case CluckNode.RMT_BOOLPROD:
+                    case CluckNode.RMT_BOOLINPUT:
                         expect = CluckNode.RMT_BOOLOUTP;
                         type = F_RMT_BOOLEANS;
                         break;
-                    case CluckNode.RMT_FLOATPROD:
+                    case CluckNode.RMT_FLOATINPUT:
                         expect = CluckNode.RMT_FLOATOUTP;
                         type = F_RMT_FLOATS;
                         break;
@@ -209,11 +209,11 @@ public class NetworkPaletteComponent extends PaletteComponent<Collection<Network
                     pairName = base + ".input";
                     switch (remoteType) {
                     case CluckNode.RMT_BOOLOUTP:
-                        expect = CluckNode.RMT_BOOLPROD;
+                        expect = CluckNode.RMT_BOOLINPUT;
                         type = F_RMT_BOOLEANS;
                         break;
                     case CluckNode.RMT_FLOATOUTP:
-                        expect = CluckNode.RMT_FLOATPROD;
+                        expect = CluckNode.RMT_FLOATINPUT;
                         type = F_RMT_FLOATS;
                         break;
                     case CluckNode.RMT_EVENTOUTP:

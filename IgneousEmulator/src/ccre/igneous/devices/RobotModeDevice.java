@@ -42,18 +42,16 @@ public class RobotModeDevice extends Device {
         /**
          * The DISABLED mode. Has a null selection name.
          */
-        DISABLED(null),
-        /**
-         * The AUTONOMOUS mode. The selection name is AUTO.
-         */
-        AUTONOMOUS("AUTO"),
-        /**
-         * The TELEOPERATED mode. The selection name is TELE.
-         */
-        TELEOPERATED("TELE"),
-        /**
-         * The TESTING mode. The selection name is TEST.
-         */
+        DISABLED(null), /**
+                         * The AUTONOMOUS mode. The selection name is AUTO.
+                         */
+        AUTONOMOUS("AUTO"), /**
+                             * The TELEOPERATED mode. The selection name is
+                             * TELE.
+                             */
+        TELEOPERATED("TELE"), /**
+                               * The TESTING mode. The selection name is TEST.
+                               */
         TESTING("TEST");
 
         /**
@@ -88,11 +86,11 @@ public class RobotModeDevice extends Device {
             setMode(RobotMode.TESTING);
         }
     };
-    private RobotMode selectedMode = RobotMode.TELEOPERATED; // except for DISABLED
+    private RobotMode selectedMode = RobotMode.TELEOPERATED;// except for DISABLED
 
     private void setMode(RobotMode mode) {
         if (enabled.get()) {
-            return; // Can't change mode while enabled.
+            return;// Can't change mode while enabled.
         }
         this.selectedMode = mode;
         autoLight.set(mode == RobotMode.AUTONOMOUS);
@@ -114,8 +112,7 @@ public class RobotModeDevice extends Device {
     }
 
     /**
-     * Return a BooleanInputPoll representing if the robot is in the specified
-     * mode.
+     * Return a BooleanInput representing if the robot is in the specified mode.
      *
      * @param mode the mode to monitor.
      * @return the channel representing if the robot is in that mode.

@@ -32,7 +32,7 @@ import ccre.log.Logger;
 public abstract class InstinctBaseModule {
 
     /**
-     * Wait until the specified BooleanInputPoll becomes true before returning.
+     * Wait until the specified BooleanInput becomes true before returning.
      *
      * @param waitFor The condition to wait until.
      * @throws AutonomousModeOverException If the autonomous mode has ended.
@@ -50,7 +50,8 @@ public abstract class InstinctBaseModule {
     }
 
     /**
-     * Wait until the specified BooleanInputPoll becomes true before returning, or for a timeout to elapse.
+     * Wait until the specified BooleanInput becomes true before returning, or
+     * for a timeout to elapse.
      *
      * @param waitFor The condition to wait until.
      * @throws AutonomousModeOverException If the autonomous mode has ended.
@@ -70,7 +71,7 @@ public abstract class InstinctBaseModule {
     }
 
     /**
-     * Wait until the specified BooleanInputPoll becomes false before returning.
+     * Wait until the specified BooleanInput becomes false before returning.
      *
      * @param waitFor The condition to wait until false.
      * @throws AutonomousModeOverException If the autonomous mode has ended.
@@ -118,10 +119,12 @@ public abstract class InstinctBaseModule {
     }
 
     /**
-     * Wait for one of the specified conditions to become true before returning, or for the timeout to elapse.
+     * Wait for one of the specified conditions to become true before returning,
+     * or for the timeout to elapse.
      *
      * @param waitFor The conditions to check.
-     * @return The index of the first condition that became true, or -1 if this method timed out.
+     * @return The index of the first condition that became true, or -1 if this
+     * method timed out.
      * @throws AutonomousModeOverException If the autonomous mode has ended.
      * @throws InterruptedException Possibly also if autonomous mode has ended.
      */
@@ -162,8 +165,8 @@ public abstract class InstinctBaseModule {
     }
 
     /**
-     * Wait until the specified FloatInputPoll reaches or rises above the
-     * specified minimum.
+     * Wait until the specified FloatInput reaches or rises above the specified
+     * minimum.
      *
      * @param waitFor The value to monitor.
      * @param minimum The threshold to wait for the value to reach.
@@ -171,13 +174,13 @@ public abstract class InstinctBaseModule {
      * @throws InterruptedException Possibly also if autonomous mode has ended.
      */
     protected void waitUntilAtLeast(FloatInput waitFor, float minimum) throws AutonomousModeOverException, InterruptedException {
-     // TODO: make sure that nothing is accidentally kept around after this
+        // TODO: make sure that nothing is accidentally kept around after this
         waitUntil(waitFor.atLeast(minimum));
     }
 
     /**
-     * Wait until the specified FloatInputPoll reaches or falls below the
-     * specified maximum.
+     * Wait until the specified FloatInput reaches or falls below the specified
+     * maximum.
      *
      * @param waitFor The value to monitor.
      * @param maximum The threshold to wait for the value to reach.
@@ -201,7 +204,7 @@ public abstract class InstinctBaseModule {
             Logger.warning("Negative wait in Instinct: " + milliseconds);
             return;
         } else if (milliseconds == 0) {
-            return; // Do nothing.
+            return;// Do nothing.
         }
         ensureShouldBeRunning();
         try {
@@ -212,7 +215,7 @@ public abstract class InstinctBaseModule {
     }
 
     /**
-     * Wait for the specified amount of time, fetched from a FloatInputPoll
+     * Wait for the specified amount of time, fetched from a FloatInput
      * specified in seconds.
      * 
      * WARNING: If the time changes during the call to this method, the updated

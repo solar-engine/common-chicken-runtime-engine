@@ -64,10 +64,10 @@ public class ControlBindingDataSourceBuildable implements ControlBindingDataSour
     }
 
     /**
-     * Add a BooleanInputPoll as a control input.
+     * Add a BooleanInput as a control input.
      *
      * @param name the name of the input.
-     * @param buttonChannel the BooleanInputPoll.
+     * @param buttonChannel the BooleanInput.
      */
     public void addButton(String name, BooleanInput buttonChannel) {
         if (booleans.containsKey(name)) {

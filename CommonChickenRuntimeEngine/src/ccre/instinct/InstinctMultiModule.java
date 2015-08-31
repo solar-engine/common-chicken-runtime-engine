@@ -51,7 +51,7 @@ public class InstinctMultiModule extends InstinctModule {
     private final TuningContext context;
 
     /**
-     * Create a new InstinctMultiModule with a BooleanInputPoll controlling when
+     * Create a new InstinctMultiModule with a BooleanInput controlling when
      * this module should run.
      *
      * @param shouldBeRunning The input to control the running of this module.
@@ -149,7 +149,7 @@ public class InstinctMultiModule extends InstinctModule {
                     }
                     // Couldn't find the mode. (We would have returned earlier.)
                     Logger.warning("Mode not found while iterating: " + mode.getModeName());
-                    setActiveMode(modes.get(0)); // Just use the first mode.
+                    setActiveMode(modes.get(0));// Just use the first mode.
                     Logger.info("New autonomous mode: " + mode.getModeName());
                 }
             });
@@ -166,7 +166,7 @@ public class InstinctMultiModule extends InstinctModule {
                     }
                     // Couldn't find the mode. (We would have returned earlier.)
                     Logger.warning("Mode not found while iterating: " + mode.getModeName());
-                    setActiveMode(modes.get(0)); // Just use the first mode.
+                    setActiveMode(modes.get(0));// Just use the first mode.
                     Logger.info("New autonomous mode: " + mode.getModeName());
                 }
             });

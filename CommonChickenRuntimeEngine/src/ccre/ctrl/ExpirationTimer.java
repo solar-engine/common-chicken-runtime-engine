@@ -450,7 +450,7 @@ public final class ExpirationTimer {
     }
 
     /**
-     * Get a BooleanInputPoll representing whether or not the timer is running.
+     * Get a BooleanInput representing whether or not the timer is running.
      *
      * @return an input representing if the timer is running.
      */

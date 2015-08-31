@@ -249,4 +249,35 @@ public interface BooleanInput extends UpdatingInput {
             }
         };
     }
+
+    public default BooleanInput filterUpdates(BooleanInput allow) {
+        final BooleanInput original = this;
+        return new DerivedBooleanInput(this, allow) {
+            private boolean lastValue = original.get();
+
+            @Override
+            public boolean apply() {
+                if (allow.get()) {
+                    lastValue = original.get();
+                }
+                return lastValue;
+            }
+        };
+    }
+
+    public default BooleanInput filterUpdatesNot(BooleanInput allow) {
+        final BooleanInput original = this;
+        return new DerivedBooleanInput(this, allow) {
+            private boolean lastValue = original.get();
+
+            @Override
+            public boolean apply() {
+                if (!allow.get()) {
+                    lastValue = original.get();
+                }
+                return lastValue;
+            }
+        };
+    }
+
 }

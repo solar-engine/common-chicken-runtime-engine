@@ -333,4 +333,34 @@ public interface FloatInput extends UpdatingInput {
         send(out.viaDerivative());
         return out;
     }
+
+    public default FloatInput filterUpdates(BooleanInput allow) {
+        final FloatInput original = this;
+        return new DerivedFloatInput(this, allow) {
+            private float lastValue = original.get();
+
+            @Override
+            public float apply() {
+                if (allow.get()) {
+                    lastValue = original.get();
+                }
+                return lastValue;
+            }
+        };
+    }
+
+    public default FloatInput filterUpdatesNot(BooleanInput allow) {
+        final FloatInput original = this;
+        return new DerivedFloatInput(this, allow) {
+            private float lastValue = original.get();
+
+            @Override
+            public float apply() {
+                if (!allow.get()) {
+                    lastValue = original.get();
+                }
+                return lastValue;
+            }
+        };
+    }
 }

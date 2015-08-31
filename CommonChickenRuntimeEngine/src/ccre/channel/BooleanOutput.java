@@ -112,20 +112,20 @@ public interface BooleanOutput {
         return () -> set(false);
     }
 
-    public default void setWhen(EventInput when, boolean value) {
+    public default void setWhen(boolean value, EventInput when) {
         when.send(this.getSetEvent(value));
     }
 
-    public default void setWhen(EventInput when, BooleanInput value) {
+    public default void setWhen(BooleanInput value, EventInput when) {
         when.send(this.getSetEvent(value));
     }
 
     public default void setTrueWhen(EventInput when) {
-        setWhen(when, true);
+        setWhen(true, when);
     }
 
     public default void setFalseWhen(EventInput when) {
-        setWhen(when, false);
+        setWhen(false, when);
     }
 
     /**

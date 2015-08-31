@@ -136,4 +136,7 @@ public interface EventOutput {
         };
     }
 
+    public default void on(EventInput when) {
+        when.send(this);
+    }
 }

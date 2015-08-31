@@ -61,8 +61,18 @@ public class TestFloatMixing extends BaseTest {
          */
         public boolean ifExpected;
 
+        private final boolean allowExtras;
+
+        public CountingFloatOutput() {
+            this(false);
+        }
+
+        public CountingFloatOutput(boolean allowExtras) {
+            this.allowExtras = allowExtras;
+        }
+
         public synchronized void set(float value) {
-            if (!ifExpected) {
+            if (!ifExpected && !allowExtras) {
                 throw new RuntimeException("Unexpected set!");
             }
             ifExpected = false;
@@ -150,7 +160,7 @@ public class TestFloatMixing extends BaseTest {
                     } catch (IllegalArgumentException ex) {
                         // correct!
                     }
-                    continue; // undefined behavior - don't care at all
+                    continue;// undefined behavior - don't care at all
                 } else if (lowV == highV) {
                     try {
                         value.normalize(lowV, highV);
@@ -190,7 +200,7 @@ public class TestFloatMixing extends BaseTest {
             out.ifExpected = true;
             out.valueExpected = 0;
             val.send(out.outputDeadzone(zone));
-            out.check(); // because send will automatically set with the current value
+            out.check();// because send will automatically set with the current value
             for (float value : interestingFloats) {
                 out.ifExpected = true;
                 out.valueExpected = Utils.deadzone(value, zone);
@@ -226,7 +236,7 @@ public class TestFloatMixing extends BaseTest {
             float lastValue = 0.0f;
             for (float cmp1 : interestingFloats) {
                 for (float cmp2 : interestingFloats) {
-                    float value = cmp1 - cmp2; // to get more and more interesting numbers here
+                    float value = cmp1 - cmp2;// to get more and more interesting numbers here
 
                     out.valueExpected = lastValue = Utils.updateRamping(lastValue, value, limit);
                     rampout.set(value);
@@ -276,22 +286,16 @@ public class TestFloatMixing extends BaseTest {
     }
 
     private void testCombine() {
-        CountingFloatOutput a = new CountingFloatOutput(), b = new CountingFloatOutput(), c = new CountingFloatOutput();
-        FloatOutput c2 = a.combine(b), c3 = a.combine(b, c);
+        CountingFloatOutput a = new CountingFloatOutput(), b = new CountingFloatOutput();
+        FloatOutput c2 = a.combine(b);
 
         for (float f : interestingFloats) {
-            a.valueExpected = b.valueExpected = c.valueExpected = f;
+            a.valueExpected = b.valueExpected = f;
 
             a.ifExpected = b.ifExpected = true;
             c2.set(f);
             a.check();
             b.check();
-
-            a.ifExpected = b.ifExpected = c.ifExpected = true;
-            c3.set(f);
-            a.check();
-            b.check();
-            c.check();
         }
     }
 

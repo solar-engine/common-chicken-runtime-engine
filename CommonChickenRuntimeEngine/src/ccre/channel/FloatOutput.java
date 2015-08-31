@@ -101,14 +101,19 @@ public interface FloatOutput {
     }
 
     public default EventOutput getSetEvent(final float value) {
-        return new EventOutput() {
-            public void event() {
-                set(value);
-            }
-        };
+        return () -> set(value);
+    }
+
+    public default EventOutput getSetEvent(final FloatInput value) {
+        return () -> set(value.get());
     }
 
     public default void setWhen(float value, EventInput when) {
+        Utils.checkNull(when);
+        when.send(getSetEvent(value));
+    }
+
+    public default void setWhen(FloatInput value, EventInput when) {
         Utils.checkNull(when);
         when.send(getSetEvent(value));
     }
@@ -120,22 +125,6 @@ public interface FloatOutput {
             public void set(float value) {
                 original.set(value);
                 other.set(value);
-            }
-        };
-    }
-
-    public default FloatOutput combine(FloatOutput... others) {
-        FloatOutput original = this;
-        if (others.length == 0) {
-            return this;
-        }
-        return new FloatOutput() {
-            @Override
-            public void set(float value) {
-                original.set(value);
-                for (FloatOutput other : others) {
-                    other.set(value);
-                }
             }
         };
     }
@@ -194,5 +183,53 @@ public interface FloatOutput {
                 original.set(value);
             }
         };
+    }
+
+    public default BooleanOutput fromBoolean(final float off, final float on) {
+        return fromBoolean(off, on, false);
+    }
+
+    public default BooleanOutput fromBoolean(float off, FloatInput on) {
+        return fromBoolean(off, on, false);
+    }
+
+    public default BooleanOutput fromBoolean(FloatInput off, float on) {
+        return fromBoolean(off, on, false);
+    }
+
+    public default BooleanOutput fromBoolean(FloatInput off, FloatInput on) {
+        return fromBoolean(off, on, false);
+    }
+
+    public default BooleanOutput fromBoolean(final float off, final float on, boolean default_) {
+        set(default_ ? on : off);
+        return new BooleanOutput() {
+            private boolean lastValue = default_;
+            @Override
+            public synchronized void set(boolean value) {
+                if (value != lastValue) {
+                    lastValue = value;
+                    FloatOutput.this.set(value ? on : off);
+                }
+            }
+        };
+    }
+
+    public default BooleanOutput fromBoolean(float off, FloatInput on, boolean default_) {
+        BooleanStatus temp = new BooleanStatus(default_);
+        temp.toFloat(off, on).send(this);
+        return temp;
+    }
+
+    public default BooleanOutput fromBoolean(FloatInput off, float on, boolean default_) {
+        BooleanStatus temp = new BooleanStatus(default_);
+        temp.toFloat(off, on).send(this);
+        return temp;
+    }
+
+    public default BooleanOutput fromBoolean(FloatInput off, FloatInput on, boolean default_) {
+        BooleanStatus temp = new BooleanStatus(default_);
+        temp.toFloat(off, on).send(this);
+        return temp;
     }
 }

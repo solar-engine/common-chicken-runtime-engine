@@ -29,7 +29,6 @@ import ccre.channel.FloatOutput;
 import ccre.channel.FloatStatus;
 import ccre.cluck.Cluck;
 import ccre.ctrl.ExpirationTimer;
-import ccre.ctrl.Mixing;
 import ccre.holders.TuningContext;
 import ccre.igneous.Igneous;
 import ccre.log.Logger;
@@ -110,7 +109,7 @@ public class Shooter {
         winchDisengaged.send(winchSolenoidDisengage);
         Cluck.publish("Winch Disengaged", winchDisengaged);
 
-        rearming.send(Mixing.select(winchMotor, FloatInput.always(0), winchSpeedSetting));
+        rearming.send(winchMotor.fromBoolean(0f, winchSpeedSetting));
 
         Cluck.publish("Winch Amps", amps);
         Cluck.publish("Winch Watts", watts);

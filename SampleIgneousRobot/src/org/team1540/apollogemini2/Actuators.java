@@ -26,7 +26,6 @@ import ccre.channel.FloatInput;
 import ccre.channel.FloatOutput;
 import ccre.channel.FloatStatus;
 import ccre.cluck.Cluck;
-import ccre.ctrl.Mixing;
 import ccre.ctrl.PauseTimer;
 import ccre.holders.TuningContext;
 import ccre.igneous.Igneous;
@@ -161,9 +160,9 @@ public class Actuators {
         FloatInput forwardCollectorSpeed = actuatorTuningContext.getFloat("forward-collector-speed", 1.0f);
         FloatInput reverseCollectorSpeed = actuatorTuningContext.getFloat("reverse-collector-speed", -1.0f);
 
-        FloatInput collectorSpeedFromArm = Mixing.select(runCollectorWhileArmMoves, FloatInput.always(0f), reverseCollectorSpeed);
+        FloatInput collectorSpeedFromArm = runCollectorWhileArmMoves.toFloat(0f, reverseCollectorSpeed);
 
-        Mixing.quadSelect(switchRollersIn, switchRollersOut, collectorSpeedFromArm, reverseCollectorSpeed, forwardCollectorSpeed, FloatInput.always(0f)).send(armCollectorMotor);
+        switchRollersIn.toFloat(switchRollersOut.toFloat(collectorSpeedFromArm, reverseCollectorSpeed), switchRollersOut.toFloat(forwardCollectorSpeed, 0f)).send(armCollectorMotor);
         switchRollersIn.or(switchRollersOut).send(armFingerSolenoids);
 
         Cluck.publish("Arm Main Solenoid", armMainSolenoid);

@@ -85,9 +85,7 @@ public class TestEventMixing extends BaseTest {
         testIgnored();
         testNever();
         testCombine_out_out();
-        testCombine_poly_out();
         testCombine_in_in();
-        testCombine_poly_in();
         testDebounce();
         testDebounceRecovery();
         testFilter(false);
@@ -254,47 +252,6 @@ public class TestEventMixing extends BaseTest {
         assertTrue(count[0] == 3, "Bad counter");
     }
 
-    private void testCombine_poly_in() throws TestingException {
-        EventStatus triggerA = new EventStatus(), triggerB = new EventStatus(), triggerC = new EventStatus();
-        EventInput combined = triggerA.or(triggerB, triggerC);
-        BooleanStatus alpha = new BooleanStatus();
-        EventOutput unbind = combined.sendR(alpha.getSetTrueEvent());
-        assertFalse(alpha.get(), "Should not have happened.");
-        triggerA.event();
-        assertTrue(alpha.get(), "Should have happened.");
-        alpha.set(false);
-        triggerA.event();
-        assertTrue(alpha.get(), "Should have happened.");
-        alpha.set(false);
-        triggerB.event();
-        assertTrue(alpha.get(), "Should have happened.");
-        alpha.set(false);
-        triggerB.event();
-        assertTrue(alpha.get(), "Should have happened.");
-        alpha.set(false);
-        triggerC.event();
-        assertTrue(alpha.get(), "Should have happened.");
-        alpha.set(false);
-        triggerC.event();
-        assertTrue(alpha.get(), "Should have happened.");
-        alpha.set(false);
-        triggerA.event();
-        assertTrue(alpha.get(), "Should have happened.");
-        alpha.set(false);
-        triggerB.event();
-        assertTrue(alpha.get(), "Should have happened.");
-        alpha.set(false);
-        triggerA.event();
-        assertTrue(alpha.get(), "Should have happened.");
-        alpha.set(false);
-        unbind.event();
-        assertFalse(alpha.get(), "Should not have happened.");
-        triggerA.event();
-        triggerB.event();
-        triggerC.event();
-        assertFalse(alpha.get(), "Should not have happened.");
-    }
-
     private void testCombine_in_in() throws TestingException {
         EventStatus triggerA = new EventStatus(), triggerB = new EventStatus();
         EventInput combined = triggerA.or(triggerB);
@@ -335,34 +292,6 @@ public class TestEventMixing extends BaseTest {
         assertTrue(alpha.get(), "Should have happened.");
         triggerB.event();
         assertTrue(alpha.get(), "Should have happened.");
-    }
-
-    private void testCombine_poly_out() throws TestingException {
-        BooleanStatus alpha = new BooleanStatus(), beta = new BooleanStatus(), gamma = new BooleanStatus();
-        EventOutput combined = alpha.getSetTrueEvent().combine(beta.getSetTrueEvent(), gamma.getSetTrueEvent());
-        assertFalse(alpha.get(), "Should be false.");
-        assertFalse(beta.get(), "Should be false.");
-        assertFalse(gamma.get(), "Should be false.");
-        combined.event();
-        assertTrue(alpha.get(), "Should be true.");
-        assertTrue(beta.get(), "Should be true.");
-        assertTrue(gamma.get(), "Should be true.");
-        alpha.set(false);
-        beta.set(false);
-        gamma.set(false);
-        assertFalse(alpha.get(), "Should be false.");
-        assertFalse(beta.get(), "Should be false.");
-        assertFalse(gamma.get(), "Should be false.");
-        combined.event();
-        assertTrue(alpha.get(), "Should be true.");
-        assertTrue(beta.get(), "Should be true.");
-        assertTrue(gamma.get(), "Should be true.");
-        alpha.set(false);
-        beta.set(false);
-        gamma.set(false);
-        assertFalse(alpha.get(), "Should be false.");
-        assertFalse(beta.get(), "Should be false.");
-        assertFalse(gamma.get(), "Should be false.");
     }
 
     private void testCombine_out_out() throws TestingException {

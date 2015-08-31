@@ -48,7 +48,6 @@ public class TestBooleanMixing extends BaseTest {
         testFilters();
         testCombine();
         testAlgebra();
-        testAlgebraPoly();
         testChangeMonitors();
         testSetWhen();
     }
@@ -145,7 +144,7 @@ public class TestBooleanMixing extends BaseTest {
 
     private void testCombine() throws TestingException {
         BooleanStatus a = new BooleanStatus(), b = new BooleanStatus(), c = new BooleanStatus();
-        BooleanOutput d = a.combine(b), e = a.combine(b, c);
+        BooleanOutput d = a.combine(b), e = a.combine(b).combine(c);
 
         assertFalse(a.get() || b.get() || c.get(), "Should all be off.");
         e.set(false);
@@ -228,27 +227,6 @@ public class TestBooleanMixing extends BaseTest {
         assertFalse(xorStat.get(), "Bad xor");
         assertFalse(orStat.get(), "Bad or");
         assertFalse(andStat.get(), "Bad and");
-    }
-
-    private void testAlgebraPoly() throws TestingException {
-        BooleanStatus a = new BooleanStatus(), b = new BooleanStatus(), c = new BooleanStatus();
-        BooleanInput or = a.or(b, c);
-        BooleanInput and = a.and(b, c);
-        BooleanStatus orStat = new BooleanStatus(), andStat = new BooleanStatus();
-        a.or(b, c).send(orStat);
-        a.and(b, c).send(andStat);
-
-        for (int i = 0; i < 16; i++) {
-            a.set((i & 1) != 0);
-            b.set((i & 2) != 0);
-            c.set((i & 4) != 0);
-            boolean orReal = ((i & 7) != 0);
-            boolean andReal = ((i & 7) == 7);
-            assertTrue(or.get() == orReal, "Bad or");
-            assertTrue(and.get() == andReal, "Bad and");
-            assertTrue(orStat.get() == orReal, "Bad or");
-            assertTrue(andStat.get() == andReal, "Bad and");
-        }
     }
 
     private void testChangeMonitors() throws TestingException {

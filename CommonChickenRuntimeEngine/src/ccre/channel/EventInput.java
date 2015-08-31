@@ -78,33 +78,6 @@ public interface EventInput extends UpdatingInput {
         };
     }
 
-    public default EventInput or(EventInput... sources) {
-        Utils.checkNull((Object[]) sources);
-        if (sources.length == 0) {
-            return this;
-        }
-        EventInput original = this;
-        return new EventInput() {
-            public void onUpdate(EventOutput notify) {
-                original.onUpdate(notify);
-                for (EventInput input : sources) {
-                    input.onUpdate(notify);
-                }
-            }
-
-            @Override
-            public EventOutput onUpdateR(EventOutput notify) {
-                EventOutput originalRemoval = original.onUpdateR(notify);
-                EventOutput[] otherRemovals = new EventOutput[sources.length];
-                for (int i = 0; i < sources.length; i++) {
-                    EventInput input = sources[i];
-                    otherRemovals[i] = input.onUpdateR(notify);
-                }
-                return originalRemoval.combine(otherRemovals);
-            }
-        };
-    }
-
     public default EventInput and(BooleanInput condition) {
         Utils.checkNull(condition);
         EventInput original = this;

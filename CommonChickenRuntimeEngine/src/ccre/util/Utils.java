@@ -18,8 +18,6 @@
  */
 package ccre.util;
 
-import ccre.ctrl.Mixing;
-
 /**
  * A class for utilities that don't fit anywhere else. Most utilites are in
  * Mixing or CArrayUtils.

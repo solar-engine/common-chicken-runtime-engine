@@ -22,7 +22,6 @@ import ccre.channel.BooleanOutput;
 import ccre.channel.BooleanStatus;
 import ccre.channel.FloatInput;
 import ccre.channel.FloatStatus;
-import ccre.ctrl.Mixing;
 
 /**
  * Tests the Mixing class.
@@ -39,18 +38,19 @@ public class TestMixing extends BaseTest {
     @Override
     protected void runTest() throws TestingException, InterruptedException {
         testSelectFloat();
-        testSelectBool();
+        testSelectBool(false);
+        testSelectBool(true);
     }
 
     private void testSelectFloat() throws TestingException {
         FloatStatus offStat = new FloatStatus(1), onStat = new FloatStatus(2);
         BooleanStatus vbool = new BooleanStatus();
-        FloatInput fin1 = Mixing.select(vbool.asInput(), offStat, onStat);
+        FloatInput fin1 = vbool.toFloat(offStat, onStat);
         for (float off : TestFloatMixing.interestingFloats) {
             for (float on : TestFloatMixing.interestingFloats) {
                 offStat.set(off);
                 onStat.set(on);
-                FloatInput fin2 = Mixing.select(vbool.asInput(), off, on);
+                FloatInput fin2 = vbool.toFloat(off, on);
                 // make sure that changes to the parameters propagate
                 //vbool.set(false);
                 //vbool.set(true);
@@ -64,44 +64,48 @@ public class TestMixing extends BaseTest {
         }
     }
 
-    private void testSelectBool() throws TestingException {
+    private void testSelectBool(boolean default_) throws TestingException {
         FloatStatus offStat = new FloatStatus(), onStat = new FloatStatus();
         TestFloatMixing.CountingFloatOutput cfo1 = new TestFloatMixing.CountingFloatOutput();
         TestFloatMixing.CountingFloatOutput cfo2 = new TestFloatMixing.CountingFloatOutput();
-        BooleanOutput bout1 = Mixing.select(cfo1, offStat, onStat);
-        boolean firstIteration = true;
+        cfo1.valueExpected = 0;
+        cfo1.ifExpected = true;
+        BooleanOutput bout1 = cfo1.fromBoolean(offStat, onStat, default_);
+        cfo1.check();
+        boolean lastValueTo1 = default_;
         for (float off : TestFloatMixing.interestingFloats) {
             for (float on : TestFloatMixing.interestingFloats) {
                 // at this point, the value is FALSE
-                cfo1.valueExpected = off;
-                cfo1.ifExpected = (Float.floatToIntBits(off) != Float.floatToIntBits(offStat.get())) && !firstIteration; // if it's the first iteration, updating the arguments should have no effect, since it's never received a value
+                cfo1.valueExpected = lastValueTo1 ? on : off;
+                cfo1.ifExpected = true;
                 offStat.set(off);
-                cfo1.check();
                 onStat.set(on); // should make no difference because the last value was FALSE
+                cfo1.check();
 
-                BooleanOutput bout2 = Mixing.select(cfo2, off, on);
-                boolean last = false;
+                cfo2.valueExpected = default_ ? on : off;
+                cfo2.ifExpected = true;
+                BooleanOutput bout2 = cfo2.fromBoolean(off, on, default_);
+                cfo2.check();
+                boolean last = default_;
                 for (boolean value : TestBooleanMixing.interestingBooleans) {
-                    cfo1.valueExpected = cfo2.valueExpected = value ? on : off;
-                    cfo1.ifExpected = true;
+                    float newlyExpected = cfo2.valueExpected = value ? on : off;
+                    boolean repeat = newlyExpected == cfo1.valueExpected;
+                    cfo1.valueExpected = newlyExpected;
+                    cfo1.ifExpected = (value != lastValueTo1 && !repeat); // TODO: is this test too specific?
                     bout1.set(value);
+                    lastValueTo1 = value;
                     cfo1.check();
-                    cfo2.ifExpected = true;
+                    cfo2.ifExpected = (value != last);
                     bout2.set(value);
                     cfo2.check();
                     last = value;
                 }
                 if (last) {
-                    cfo1.valueExpected = cfo2.valueExpected = off;
-                    cfo1.ifExpected = true;
-                    bout1.set(false);
-                    cfo1.check();
+                    cfo2.valueExpected = off;
                     cfo2.ifExpected = true;
                     bout2.set(false);
                     cfo2.check();
                 }
-
-                firstIteration = false;
             }
         }
     }

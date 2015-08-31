@@ -72,20 +72,6 @@ public interface BooleanOutput {
         };
     }
 
-    public default BooleanOutput combine(BooleanOutput... others) {
-        Utils.checkNull((Object[]) others);
-        BooleanOutput self = this;
-        return new BooleanOutput() {
-            @Override
-            public void set(boolean value) {
-                self.set(value);
-                for (BooleanOutput other : others) {
-                    other.set(value);
-                }
-            }
-        };
-    }
-
     public default BooleanOutput limitUpdatesTo(EventInput update) {
         Utils.checkNull(update);
         return new BooleanOutput() {
@@ -114,6 +100,10 @@ public interface BooleanOutput {
         return value ? getSetTrueEvent() : getSetFalseEvent();
     }
 
+    public default EventOutput getSetEvent(BooleanInput value) {
+        return () -> set(value.get());
+    }
+
     public default EventOutput getSetTrueEvent() {
         return () -> set(true);
     }
@@ -123,6 +113,10 @@ public interface BooleanOutput {
     }
 
     public default void setWhen(EventInput when, boolean value) {
+        when.send(this.getSetEvent(value));
+    }
+
+    public default void setWhen(EventInput when, BooleanInput value) {
         when.send(this.getSetEvent(value));
     }
 

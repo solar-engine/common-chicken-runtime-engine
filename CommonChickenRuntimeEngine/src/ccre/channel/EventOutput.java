@@ -71,29 +71,6 @@ public interface EventOutput {
         };
     }
 
-    public default EventOutput combine(EventOutput... other) {
-        Utils.checkNull((Object[]) other);
-        EventOutput original = this;
-        return new EventOutput() {
-            @Override
-            public void event() {
-                original.event();
-                for (EventOutput o : other) {
-                    o.event();
-                }
-            }
-
-            @Override
-            public boolean eventWithRecovery() {
-                boolean output = original.eventWithRecovery();
-                for (EventOutput o : other) {
-                    output |= o.eventWithRecovery();
-                }
-                return output;
-            }
-        };
-    }
-
     public default EventOutput filter(BooleanInput allow) {
         EventOutput original = this;
         return new EventOutput() {

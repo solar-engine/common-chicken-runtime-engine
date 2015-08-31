@@ -182,6 +182,16 @@ public interface FloatInput extends UpdatingInput {
         };
     }
 
+    public default BooleanInput outsideRange(final FloatInput minimum, final FloatInput maximum) {
+        return new DerivedBooleanInput(this) {
+            @Override
+            protected boolean apply() {
+                float value = FloatInput.this.get();
+                return value < minimum.get() || value > maximum.get();
+            }
+        };
+    }
+
     public default BooleanInput inRange(final float minimum, final float maximum) {
         if (Float.isNaN(minimum) || Float.isNaN(maximum)) {
             throw new IllegalArgumentException("Cannot have NaN boundary in inRange!");
@@ -190,6 +200,15 @@ public interface FloatInput extends UpdatingInput {
             public boolean apply() {
                 float val = FloatInput.this.get();
                 return val >= minimum && val <= maximum;
+            }
+        };
+    }
+
+    public default BooleanInput inRange(final FloatInput minimum, final FloatInput maximum) {
+        return new DerivedBooleanInput(this, minimum, maximum) {
+            public boolean apply() {
+                float val = FloatInput.this.get();
+                return val >= minimum.get() && val <= maximum.get();
             }
         };
     }
@@ -248,6 +267,34 @@ public interface FloatInput extends UpdatingInput {
         };
     }
 
+    public default FloatInput normalize(final float zero, final FloatInput one) {
+        Utils.checkNull(zero, one);
+        FloatInput original = this;
+        return new DerivedFloatInput(original, one) {
+            protected float apply() {
+                float deltaN = one.get() - zero;
+                if (deltaN == 0) {
+                    return Float.NaN;// as opposed to either infinity or negative infinity
+                }
+                return (original.get() - zero) / deltaN;
+            }
+        };
+    }
+
+    public default FloatInput normalize(final FloatInput zero, final float one) {
+        Utils.checkNull(zero, one);
+        FloatInput original = this;
+        return new DerivedFloatInput(original, zero) {
+            protected float apply() {
+                float zeroN = zero.get(), deltaN = one - zeroN;
+                if (deltaN == 0) {
+                    return Float.NaN;// as opposed to either infinity or negative infinity
+                }
+                return (original.get() - zeroN) / deltaN;
+            }
+        };
+    }
+
     public default FloatInput normalize(final FloatInput zero, final FloatInput one) {
         Utils.checkNull(zero, one);
         FloatInput original = this;
@@ -268,7 +315,7 @@ public interface FloatInput extends UpdatingInput {
         updateWhen.send(this.createRampingEvent(limit, temp));
         return temp;
     }
-    
+
     public default EventOutput createRampingEvent(final float limit, final FloatOutput target) {
         Utils.checkNull(target);
         return new EventOutput() {

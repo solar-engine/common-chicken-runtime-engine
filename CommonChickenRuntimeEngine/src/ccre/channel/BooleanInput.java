@@ -70,6 +70,10 @@ public interface BooleanInput extends UpdatingInput {
         };
     };
 
+    public static BooleanInput always(boolean b) {
+        return b ? alwaysTrue : alwaysFalse;
+    }
+
     /**
      * Get the current state of this boolean input.
      *
@@ -139,21 +143,13 @@ public interface BooleanInput extends UpdatingInput {
         };
     }
 
-    public default BooleanInput and(final BooleanInput... vals) {
-        Utils.checkNull((Object[]) vals);
+    public default BooleanInput andNot(final BooleanInput b) {
+        Utils.checkNull(b);
         final BooleanInput a = this;
-        return new DerivedBooleanInput(vals, a) {
+        return new DerivedBooleanInput(a, b) {
             @Override
             protected boolean apply() {
-                if (!a.get()) {
-                    return false;
-                }
-                for (BooleanInput b : vals) {
-                    if (!b.get()) {
-                        return false;
-                    }
-                }
-                return true;
+                return a.get() && !b.get();
             }
         };
     }
@@ -180,25 +176,17 @@ public interface BooleanInput extends UpdatingInput {
         };
     }
 
-    public default BooleanInput or(final BooleanInput... vals) {
-        Utils.checkNull((Object[]) vals);
+    public default BooleanInput orNot(final BooleanInput b) {
+        Utils.checkNull(b);
         final BooleanInput a = this;
-        return new DerivedBooleanInput(vals, a) {
+        return new DerivedBooleanInput(a, b) {
             @Override
             protected boolean apply() {
-                if (a.get()) {
-                    return true;
-                }
-                for (BooleanInput b : vals) {
-                    if (b.get()) {
-                        return true;
-                    }
-                }
-                return false;
+                return a.get() || !b.get();
             }
         };
     }
-    
+
     public default EventInput onPress() {
         return new DerivedEventInput(this) {
             @Override
@@ -222,6 +210,42 @@ public interface BooleanInput extends UpdatingInput {
             @Override
             protected boolean shouldProduce() {
                 return true;
+            }
+        };
+    }
+
+    public default FloatInput toFloat(final float off, final float on) {
+        return new DerivedFloatInput(this) {
+            @Override
+            protected float apply() {
+                return BooleanInput.this.get() ? on : off;
+            }
+        };
+    }
+
+    public default FloatInput toFloat(float off, FloatInput on) {
+        return new DerivedFloatInput(this, on) {
+            @Override
+            protected float apply() {
+                return BooleanInput.this.get() ? on.get() : off;
+            }
+        };
+    }
+
+    public default FloatInput toFloat(FloatInput off, float on) {
+        return new DerivedFloatInput(this, off) {
+            @Override
+            protected float apply() {
+                return BooleanInput.this.get() ? on : off.get();
+            }
+        };
+    }
+
+    public default FloatInput toFloat(FloatInput off, FloatInput on) {
+        return new DerivedFloatInput(this, off, on) {
+            @Override
+            protected float apply() {
+                return BooleanInput.this.get() ? on.get() : off.get();
             }
         };
     }

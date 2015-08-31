@@ -25,7 +25,6 @@ import ccre.channel.FloatInput;
 import ccre.channel.FloatOutput;
 import ccre.cluck.Cluck;
 import ccre.ctrl.DriverImpls;
-import ccre.ctrl.Mixing;
 import ccre.igneous.Igneous;
 
 public class DriveCode {
@@ -61,7 +60,7 @@ public class DriveCode {
     private static void setupDriveCode(FloatOutput leftDrive, FloatOutput rightDrive, BooleanOutput shiftSolenoidHigh) {
         final BooleanInput actuallyDisable = Shooter.getShouldDisableDrivingAndCompressor().and(UserInterface.getShouldOverrideDrivingDisable());
 
-        FloatInput speedScale = Mixing.select(actuallyDisable, Mixing.select(ApolloGemini.isKidMode, 1.0f, 0.5f), FloatInput.always(0.0f));
+        FloatInput speedScale = actuallyDisable.toFloat(ApolloGemini.isKidMode.toFloat(1.0f, 0.5f), 0f);
 
         DriverImpls.extendedTankDrive(
                 UserInterface.getLeftAxis(), UserInterface.getRightAxis(), UserInterface.getForwardAxis(),

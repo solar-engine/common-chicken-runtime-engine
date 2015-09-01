@@ -18,6 +18,7 @@
  */
 package org.team1540.example;
 
+import ccre.channel.BooleanOutput;
 import ccre.channel.BooleanStatus;
 import ccre.channel.FloatInput;
 import ccre.channel.FloatOutput;
@@ -47,7 +48,7 @@ public class Test extends IgneousCore {
         final FloatOutput rightOut = makeTalonMotor(1, MOTOR_REVERSE, 0.1f);
         DriverImpls.tankDrive(leftAxis, rightAxis, leftOut, rightOut);
         // Shifting
-        BooleanStatus shifter = new BooleanStatus(makeSolenoid(2));
+        BooleanOutput shifter = makeSolenoid(2);
         shifter.setFalseWhen(startTele);
         shifter.setTrueWhen(joystick1.onPress(3));
         shifter.setFalseWhen(joystick1.onPress(1));

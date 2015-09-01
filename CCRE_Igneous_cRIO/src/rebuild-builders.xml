@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+/*
+ * Copyright 2015 Colby Skeggs
+ * 
+ * This file is part of the CCRE, the Common Chicken Runtime Engine.
+ * 
+ * The CCRE is free software: you can redistribute it and/or modify it under the
+ * terms of the GNU Lesser General Public License as published by the Free
+ * Software Foundation, either version 3 of the License, or (at your option) any
+ * later version.
+ * 
+ * The CCRE is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
+ * A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
+ * details.
+ * 
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with the CCRE.  If not, see <http://www.gnu.org/licenses/>.
+ */
+ -->
+
+<project name="FRC Fake Deployment" default="upgrade">
+
+	<!-- Specified in the builder configuration for this ANT builder. -->
+
+	<target name="upgrade">
+		<basename file="${rebuilder-target}" property="project.name" />
+		<script language="javascript">
+			<![CDATA[
+			if (javax.swing.JOptionPane.showConfirmDialog(null, "A project that you are trying to build (" + project.getProperty("project.name") + ") is set up for CCRE version 2, but you are using CCRE version 3.\nWould you like to upgrade the project automatically?\nIf you have any issues, please ask about them on the forum thread on Chief Delphi.", "CCRE Project Upgrade", javax.swing.JOptionPane.YES_NO_OPTION) != javax.swing.JOptionPane.YES_OPTION) {
+				throw new java.lang.Exception("Upgrade cancelled.");
+			}
+			]]>
+		</script>
+		<echo>If you have any issues, please ask about them on the forum thread on Chief Delphi at http://www.chiefdelphi.com/forums/showthread.php?t=130813</echo>
+		<replace file="${rebuilder-target}/.externalToolBuilders/Target Rebuilder.launch" token="CCRE_Igneous_cRIO" value="roboRIO" />
+	</target>
+
+</project>

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <projectDescription>
-	<name>SampleIgneousRobot</name>
+	<name>TemplateRobot</name>
 	<comment></comment>
 	<projects>
 		<project>CCRE_Igneous_cRIO</project>

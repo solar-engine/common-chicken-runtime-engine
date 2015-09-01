@@ -4,8 +4,8 @@
 /CommonChickenRuntimeEngine/CCRE.jar
 /CommonChickenRuntimeEngine/cobertura.ser
 /CommonChickenRuntimeEngine/test-file*
-/IgneousEmulator/bin/
-/IgneousEmulator/Emulator.jar
+/Emulator/bin/
+/Emulator/Emulator.jar
 /SampleRobot/bin/
 /SampleRobot/dist/
 /SampleRobot/build/
@@ -17,8 +17,8 @@
 /PoultryInspector/PoultryInspector*.jar
 /PoultryInspector/log-*
 /PoultryInspector/*.ser
-/neous_roboRIO/bin/
-/neous_roboRIO/Igneous.jar
+/roboRIO/bin/
+/roboRIO/Igneous.jar
 /TemplateRobot/bin/
 /CCRE_Examples/bin/
 /.metadata

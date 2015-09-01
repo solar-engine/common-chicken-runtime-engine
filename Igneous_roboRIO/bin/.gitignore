@@ -1,0 +1,6 @@
+/ccre/
+/edu/
+/libwpilibJavaJNI.so
+/${build.jars}/
+/build.properties
+/wpilib-build.properties

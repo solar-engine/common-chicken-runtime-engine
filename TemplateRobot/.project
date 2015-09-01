@@ -3,9 +3,8 @@
 	<name>TemplateRobot</name>
 	<comment></comment>
 	<projects>
-		<project>CCRE_Igneous_cRIO</project>
-		<project>CCRE_Igneous_RoboRIO</project>
 		<project>CommonChickenRuntimeEngine</project>
+		<project>Igneous_roboRIO</project>
 		<project>IgneousEmulator</project>
 	</projects>
 	<buildSpec>
@@ -27,6 +26,5 @@
 	</buildSpec>
 	<natures>
 		<nature>org.eclipse.jdt.core.javanature</nature>
-		<nature>edu.wpi.first.wpilib.plugins.core.nature.FRCProjectNature</nature>
 	</natures>
 </projectDescription>

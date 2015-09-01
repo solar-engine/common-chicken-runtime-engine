@@ -82,7 +82,7 @@ class CANTalonMod {
     int m_deviceNumber;
     boolean m_controlEnabled;
     int m_profile;
-
+    
     double m_setPoint;
 
     public CANTalonMod(int deviceNumber) {

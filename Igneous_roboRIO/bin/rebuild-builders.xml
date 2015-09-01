@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+/*
+ * Copyright 2014-2015 Colby Skeggs
+ * 
+ * This file is part of the CCRE, the Common Chicken Runtime Engine.
+ * 
+ * The CCRE is free software: you can redistribute it and/or modify it under the
+ * terms of the GNU Lesser General Public License as published by the Free
+ * Software Foundation, either version 3 of the License, or (at your option) any
+ * later version.
+ * 
+ * The CCRE is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
+ * A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
+ * details.
+ * 
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with the CCRE.  If not, see <http://www.gnu.org/licenses/>.
+ */
+ -->
+
+<project name="FRC Deployment" default="generate-all">
+
+	<!-- Specified in the builder configuration for this ANT builder. -->
+	<eclipse.convertPath filesystempath="${rebuilder-target}" property="rebuilder.dir" />
+
+	<condition property="should-not-generate">
+		<equals arg1="${rebuilder.dir}" arg2="/TemplateRobot" />
+	</condition>
+
+	<target name="generate-by-template" unless="should-not-generate">
+		<script language="javascript">
+			<![CDATA[
+			// Strip off the slash.
+			project.setNewProperty("rebuilder.name", project.getProperty("rebuilder.dir").substr(1));
+			]]>
+		</script>
+		<property name="target.file" value="${rebuilder-target}/launches/${rebuilder.name} ${outer-name}.launch" />
+		<copy verbose="false" file="invocation-template.xml" tofile="${target.file}" overwrite="true" />
+		<replace file="${target.file}" token="PROJECT_ROOT" value="${rebuilder.name}" />
+		<replace file="${target.file}" token="LAUNCH_ANT_TARGETS" value="${targets}" />
+	</target>
+
+	<target name="generate-all">
+		<echo message="Rebuilding targets..." />
+		<delete failonerror="true" dir="${rebuilder-target}/launches" />
+		<antcall target="generate-by-template">
+			<param name="outer-name" value="Deploy" />
+			<param name="targets" value="deploy" />
+		</antcall>
+		<!-- <antcall target="generate-by-template">
+			<param name="outer-name" value="QuickDeploy" />
+			<param name="targets" value="quick-deploy" />
+		</antcall> -->
+		<antcall target="generate-by-template">
+			<param name="outer-name" value="Deploy and Debug" />
+			<param name="targets" value="debug-deploy" />
+		</antcall>
+		<antcall target="generate-by-template">
+			<param name="outer-name" value="Emulate" />
+			<param name="targets" value="emulate" />
+		</antcall>
+		<antcall target="generate-by-template">
+			<param name="outer-name" value="Download Logs" />
+			<param name="targets" value="fetch-logs" />
+		</antcall>
+	</target>
+
+</project>

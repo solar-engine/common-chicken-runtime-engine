@@ -18,7 +18,7 @@
  */
 package org.team1540.minimal;
 
-import ccre.igneous.IgneousApplication;
+import ccre.frc.FRCApplication;
 import ccre.log.Logger;
 
 /**
@@ -26,7 +26,7 @@ import ccre.log.Logger;
  *
  * @author skeggsc
  */
-public class Minimal implements IgneousApplication {
+public class Minimal implements FRCApplication {
 
     /**
      * Set up the robot. For the minimal robot, this only means printing a

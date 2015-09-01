@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2014 Colby Skeggs
+ * Copyright 2013-2015 Colby Skeggs
  *
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  *
@@ -19,12 +19,10 @@
 package org.team1540.example;
 
 import ccre.channel.BooleanOutput;
-import ccre.channel.BooleanStatus;
 import ccre.channel.FloatInput;
 import ccre.channel.FloatOutput;
 import ccre.ctrl.DriverImpls;
-import ccre.igneous.Igneous;
-import ccre.igneous.IgneousCore;
+import ccre.frc.FRC;
 import ccre.instinct.AutonomousModeOverException;
 import ccre.instinct.InstinctModule;
 
@@ -34,7 +32,7 @@ import ccre.instinct.InstinctModule;
  *
  * @author skeggsc
  */
-public class Test extends IgneousCore {
+public class Test {
 
     /**
      * Set up the test robot. This includes tank drive, high gear/low gear, a
@@ -42,20 +40,20 @@ public class Test extends IgneousCore {
      */
     public void setupRobot() {
         // Driving
-        FloatInput leftAxis = joystick1.axis(2);
-        FloatInput rightAxis = joystick1.axis(5);
-        final FloatOutput leftOut = makeTalonMotor(2, MOTOR_FORWARD, 0.1f);
-        final FloatOutput rightOut = makeTalonMotor(1, MOTOR_REVERSE, 0.1f);
+        FloatInput leftAxis = FRC.joystick1.axis(2);
+        FloatInput rightAxis = FRC.joystick1.axis(5);
+        final FloatOutput leftOut = FRC.makeTalonMotor(2, FRC.MOTOR_FORWARD, 0.1f);
+        final FloatOutput rightOut = FRC.makeTalonMotor(1, FRC.MOTOR_REVERSE, 0.1f);
         DriverImpls.tankDrive(leftAxis, rightAxis, leftOut, rightOut);
         // Shifting
-        BooleanOutput shifter = makeSolenoid(2);
-        shifter.setFalseWhen(startTele);
-        shifter.setTrueWhen(joystick1.onPress(3));
-        shifter.setFalseWhen(joystick1.onPress(1));
+        BooleanOutput shifter = FRC.makeSolenoid(2);
+        shifter.setFalseWhen(FRC.startTele);
+        shifter.setTrueWhen(FRC.joystick1.onPress(3));
+        shifter.setFalseWhen(FRC.joystick1.onPress(1));
         // Compressor
-        useCompressor(1, 1);
+        FRC.useCompressor(1, 1);
         // Autonomous
-        Igneous.registerAutonomous(new InstinctModule() {
+        FRC.registerAutonomous(new InstinctModule() {
             protected void autonomousMain() throws AutonomousModeOverException, InterruptedException {
                 leftOut.set(-1);
                 rightOut.set(-1);

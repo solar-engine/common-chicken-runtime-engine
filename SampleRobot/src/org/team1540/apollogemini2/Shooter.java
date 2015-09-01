@@ -29,8 +29,8 @@ import ccre.channel.FloatOutput;
 import ccre.channel.FloatStatus;
 import ccre.cluck.Cluck;
 import ccre.ctrl.ExpirationTimer;
+import ccre.frc.FRC;
 import ccre.holders.TuningContext;
-import ccre.igneous.Igneous;
 import ccre.log.Logger;
 
 public class Shooter {
@@ -53,14 +53,14 @@ public class Shooter {
     private static final BooleanOutput winchSolenoidDisengage;
 
     static {
-        if (Igneous.isRoboRIO()) {
-            winchMotor = Igneous.makeTalonMotor(6, Igneous.MOTOR_REVERSE, Igneous.NO_RAMPING);
-            winchSolenoidDisengage = Igneous.makeSolenoid(4);
-            winchCurrent = Igneous.getPDPChannelCurrent(12);
+        if (FRC.isRoboRIO()) {
+            winchMotor = FRC.makeTalonMotor(6, FRC.MOTOR_REVERSE, FRC.NO_RAMPING);
+            winchSolenoidDisengage = FRC.makeSolenoid(4);
+            winchCurrent = FRC.getPDPChannelCurrent(12);
         } else {
-            winchMotor = Igneous.makeVictorMotor(5, Igneous.MOTOR_REVERSE, Igneous.NO_RAMPING);
-            winchSolenoidDisengage = Igneous.makeSolenoid(3);
-            winchCurrent = Igneous.makeAnalogInput(1);
+            winchMotor = FRC.makeVictorMotor(5, FRC.MOTOR_REVERSE, FRC.NO_RAMPING);
+            winchSolenoidDisengage = FRC.makeSolenoid(3);
+            winchCurrent = FRC.makeAnalogInput(1);
         }
     }
 
@@ -71,7 +71,7 @@ public class Shooter {
 
         protected float apply() {
             float o;
-            if (Igneous.isRoboRIO()) {
+            if (FRC.isRoboRIO()) {
                 o = winchCurrent.get() - tare;
             } else {
                 o = (winchCurrent.get() - 0.60f) / 0.04f;
@@ -80,11 +80,11 @@ public class Shooter {
         }
     };
 
-    private static final FloatInput watts = amps.multipliedBy(Igneous.getBatteryVoltage());
+    private static final FloatInput watts = amps.multipliedBy(FRC.getBatteryVoltage());
 
     static {
         // Update wattage total
-        Igneous.constantPeriodic.send(new EventOutput() {
+        FRC.constantPeriodic.send(new EventOutput() {
             private long lastReadingAt = System.currentTimeMillis();
 
             public void event() {
@@ -103,8 +103,8 @@ public class Shooter {
         Cluck.publish("Winch Current", winchCurrent);
         EventInput fireWhen = AutonomousModeBase.getWhenToFire().or(UserInterface.getFireButton());
 
-        winchDisengaged.setFalseWhen(Igneous.startDisabled);
-        rearming.setFalseWhen(Igneous.startDisabled);
+        winchDisengaged.setFalseWhen(FRC.startDisabled);
+        rearming.setFalseWhen(FRC.startDisabled);
 
         winchDisengaged.send(winchSolenoidDisengage);
         Cluck.publish("Winch Disengaged", winchDisengaged);
@@ -120,7 +120,7 @@ public class Shooter {
         final FloatStatus resetRearm = new FloatStatus();
         resetRearm.setWhen(0, rearming.onRelease());
         Cluck.publish("Winch Rearm Timeout Status", (FloatInput) resetRearm);
-        Igneous.constantPeriodic.send(new EventOutput() {
+        FRC.constantPeriodic.send(new EventOutput() {
             public void event() {
                 float val = resetRearm.get();
                 if (val > 0) {
@@ -186,7 +186,7 @@ public class Shooter {
                 }
             }
         });
-        Igneous.globalPeriodic.send(new EventOutput() {
+        FRC.globalPeriodic.send(new EventOutput() {
             public void event() {
                 if (rearming.get() && winchPastThreshold.get()) {
                     rearming.set(false);

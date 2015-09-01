@@ -4,8 +4,8 @@
 	<comment></comment>
 	<projects>
 		<project>CommonChickenRuntimeEngine</project>
-		<project>Igneous_roboRIO</project>
-		<project>IgneousEmulator</project>
+		<project>Emulator</project>
+		<project>roboRIO</project>
 	</projects>
 	<buildSpec>
 		<buildCommand>

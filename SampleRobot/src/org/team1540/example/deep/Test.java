@@ -21,8 +21,8 @@ package org.team1540.example.deep;
 import ccre.channel.BooleanStatus;
 import ccre.cluck.Cluck;
 import ccre.ctrl.binding.ControlBindingCreator;
-import ccre.igneous.Igneous;
-import ccre.igneous.IgneousApplication;
+import ccre.frc.FRC;
+import ccre.frc.FRCApplication;
 
 /**
  * This is like org.team1540.example.Test, but it has it dressed up with many of
@@ -32,9 +32,9 @@ import ccre.igneous.IgneousApplication;
  *
  * @author skeggsc
  */
-public class Test implements IgneousApplication {
+public class Test implements FRCApplication {
 
-    public static final ControlBindingCreator driveControls = Igneous.makeControlBindingCreator("Drive Code");
+    public static final ControlBindingCreator driveControls = FRC.makeControlBindingCreator("Drive Code");
 
     /**
      * Set up the test robot. This includes tank drive, high gear/low gear, a
@@ -43,14 +43,14 @@ public class Test implements IgneousApplication {
     public void setupRobot() {
         Cluck.publishRConf("drive-code", new DriveCode());
         // Shifting
-        BooleanStatus shifter = new BooleanStatus(Igneous.makeSolenoid(3));
-        shifter.setFalseWhen(Igneous.startTele);
+        BooleanStatus shifter = new BooleanStatus(FRC.makeSolenoid(3));
+        shifter.setFalseWhen(FRC.startTele);
         shifter.setTrueWhen(driveControls.addBoolean("High Gear").onPress());
         shifter.setFalseWhen(driveControls.addBoolean("Low Gear").onPress());
         // Compressor
-        Igneous.useCompressor(1, 1);
+        FRC.useCompressor(1, 1);
         // Autonomous
-        /* Igneous.registerAutonomous(new InstinctModule() {
+        /* FRC.registerAutonomous(new InstinctModule() {
             protected void autonomousMain() throws AutonomousModeOverException, InterruptedException {
                 leftOut.set(-1);
                 rightOut.set(-1);

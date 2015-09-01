@@ -68,7 +68,7 @@ public abstract class InstinctModule extends InstinctBaseModule implements Event
      * Create a new InstinctModule that needs to be registered before it will be
      * useful.
      *
-     * @see ccre.igneous.Igneous#registerAutonomous(InstinctModule)
+     * @see ccre.frc.FRC#registerAutonomous(InstinctModule)
      */
     public InstinctModule() {
         this.shouldBeRunning = null;

@@ -65,8 +65,6 @@ public class SuiteOfTests {
 
                 // ccre.instinct - Needed!
 
-                // ccre.launcher - Not needed.
-
                 // ccre.log - Needed!
 
                 // ccre.net - Needed!

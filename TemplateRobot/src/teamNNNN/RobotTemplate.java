@@ -1,7 +1,7 @@
 package teamNNNN;
 
-import ccre.igneous.Igneous;
-import ccre.igneous.IgneousApplication;
+import ccre.frc.FRC;
+import ccre.frc.FRCApplication;
 import ccre.log.Logger;
 
 /**
@@ -10,7 +10,7 @@ import ccre.log.Logger;
  * loading it. Make sure that main.properties is updated with the correct class
  * name for this to work properly.
  */
-public class RobotTemplate implements IgneousApplication {
+public class RobotTemplate implements FRCApplication {
 
     public void setupRobot() {
         // Robot setup code goes here.

@@ -32,6 +32,15 @@
 	<property name="build.dir" value="${project.dir}/build" />
 	<property name="dist.dir" value="${project.dir}/dist" />
 
+	<!-- Load Tasks -->
+	<taskdef resource="net/sf/antcontrib/antlib.xml">
+		<classpath>
+			<pathelement location="${ccre-root.dir}/roboRIO/src/edu/wpi/first/wpilibj/binaries/ant-contrib.jar" />
+		</classpath>
+	</taskdef>
+	<taskdef resource="net/jtools/classloadertask/antlib.xml" classpath="${ccre-root.dir}/roboRIO/src/edu/wpi/first/wpilibj/binaries/ant-classloadertask.jar" />
+	<classloader loader="system" classpath="${ccre-root.dir}/roboRIO/src/edu/wpi/first/wpilibj/binaries/jsch-0.1.50.jar" />
+
 	<property file="${user.home}/wpilib/wpilib.properties" />
 	<property file="${project.dir}/build.properties" />
 	<property file="${user.home}/wpilib/java/${version}/ant/build.properties" />
@@ -39,19 +48,11 @@
 	<property file="wpilib-build.properties" />
 
 	<fail unless="team-number" message="team-number should be set by main.properties!" />
+	<fail unless="frc.main" message="frc.main should be set by main.properties!" />
 
 	<property name="emulate.jar" value="${dist.dir}/EmulationTarget.jar" />
-	<property name="emulator.jar" value="${ccre-root.dir}/IgneousEmulator/Emulator.jar" />
-	<property name="classpath" value="${ccre-root.dir}/Igneous_roboRIO/Igneous.jar" />
-
-	<!-- Load Tasks -->
-	<taskdef resource="net/sf/antcontrib/antlib.xml">
-		<classpath>
-			<pathelement location="${ccre-root.dir}/Igneous_roboRIO/src/edu/wpi/first/wpilibj/binaries/ant-contrib.jar" />
-		</classpath>
-	</taskdef>
-	<taskdef resource="net/jtools/classloadertask/antlib.xml" classpath="${ccre-root.dir}/Igneous_roboRIO/src/edu/wpi/first/wpilibj/binaries/ant-classloadertask.jar" />
-	<classloader loader="system" classpath="${ccre-root.dir}/Igneous_roboRIO/src/edu/wpi/first/wpilibj/binaries/jsch-0.1.50.jar" />
+	<property name="emulator.jar" value="${ccre-root.dir}/Emulator/Emulator.jar" />
+	<property name="classpath" value="${ccre-root.dir}/roboRIO/roboRIO.jar" />
 
 	<target name="compile" description="Compile the source code.">
 		<mkdir dir="${build.dir}" />
@@ -78,8 +79,8 @@
 		<jar destfile="${dist.jar}" update="false">
 			<manifest>
 				<attribute name="Main-Class" value="${boot-class}" />
-				<attribute name="Robot-Class" value="ccre.igneous.MainIgneousLauncherImpl" />
-				<attribute name="CCRE-Main" value="${igneous.main}" />
+				<attribute name="Robot-Class" value="ccre.frc.DirectFRCImplementation" />
+				<attribute name="CCRE-Main" value="${frc.main}" />
 				<attribute name="Class-Path" value="." />
 			</manifest>
 
@@ -92,7 +93,7 @@
 
 		<jar destfile="${emulate.jar}" update="false">
 			<manifest>
-				<attribute name="Igneous-Main" value="${igneous.main}" />
+				<attribute name="FRC-Main" value="${frc.main}" />
 			</manifest>
 
 			<fileset dir="${build.dir}" includes="**/*.class" />
@@ -133,9 +134,9 @@
 		<scp file="${dist.jar}" todir="${username}@${target}:${deploy.dir}" password="${password}" trust="true" />
 
 		<sshexec host="${target}" username="admin" password="${password}" trust="true" failonerror="false" command="killall netconsole-host" />
-		<scp file="${ccre-root.dir}/Igneous_roboRIO/src/edu/wpi/first/wpilibj/binaries/netconsole-host" todir="admin@${target}:/usr/local/frc/bin" password="${password}" trust="true" />
+		<scp file="${ccre-root.dir}/roboRIO/src/edu/wpi/first/wpilibj/binaries/netconsole-host" todir="admin@${target}:/usr/local/frc/bin" password="${password}" trust="true" />
 
-		<scp file="${ccre-root.dir}/Igneous_roboRIO/src/edu/wpi/first/wpilibj/binaries/robotCommand" todir="${username}@${target}:${command.dir}" password="${password}" trust="true" />
+		<scp file="${ccre-root.dir}/roboRIO/src/edu/wpi/first/wpilibj/binaries/robotCommand" todir="${username}@${target}:${command.dir}" password="${password}" trust="true" />
 
 		<echo>[athena-deploy] Starting program.</echo>
 		<sshexec host="${target}" username="${username}" password="${password}" trust="true" command="${deploy.kill.command};" />
@@ -145,9 +146,9 @@
 		<echo>[athena-deploy] Deploying CCRE-based code.</echo>
 		<scp file="${dist.jar}" todir="${username}@${target}:${deploy.dir}" password="${password}" trust="true" />
 		<!-- The remoteDebugCommand file is used by /usr/local/frc/bin/frcRunRobot.sh on the roboRIO  -->
-		<scp file="${ccre-root.dir}/Igneous_roboRIO/src/edu/wpi/first/wpilibj/binaries/robotDebugCommand" todir="${username}@${target}:${command.dir}" password="${password}" trust="true" />
+		<scp file="${ccre-root.dir}/roboRIO/src/edu/wpi/first/wpilibj/binaries/robotDebugCommand" todir="${username}@${target}:${command.dir}" password="${password}" trust="true" />
 		<!-- The frcdebug file is used as a flag for /usr/local/frc/bin/frcRunRobot.sh to run the robot program in debug mode -->
-		<scp file="${ccre-root.dir}/Igneous_roboRIO/src/edu/wpi/first/wpilibj/binaries/frcdebug" todir="${username}@${target}:${debug.flag.dir}" password="${password}" trust="true" />
+		<scp file="${ccre-root.dir}/roboRIO/src/edu/wpi/first/wpilibj/binaries/frcdebug" todir="${username}@${target}:${debug.flag.dir}" password="${password}" trust="true" />
 		<sshexec host="${target}" username="${username}" password="${password}" trust="true" command="${debug.flag.command}" />
 
 		<echo>[athena-deploy] Starting Debug program.</echo>
@@ -156,7 +157,7 @@
 
 	<target name="emulate" depends="jar">
 		<mkdir dir="${project.dir}/emulation-roborio" />
-		<java jar="${ccre-root.dir}/IgneousEmulator/Emulator.jar" fork="true" dir="${project.dir}/emulation-roborio">
+		<java jar="${ccre-root.dir}/Emulator/Emulator.jar" fork="true" dir="${project.dir}/emulation-roborio">
 			<!-- <jvmarg value="-Xdebug" />
 			<jvmarg value="-Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=51540" /> -->
 			<arg value="${emulate.jar}" />
@@ -214,9 +215,9 @@
 			]]>
 		</script>
 		<sshexec host="${target}" username="admin" password="${password}" trust="true" failonerror="false" command="killall netconsole-host" />
-		<scp file="${ccre-root.dir}/Igneous_roboRIO/src/edu/wpi/first/wpilibj/binaries/netconsole-host" todir="admin@${target}:/usr/local/frc/bin" password="${password}" trust="true" />
+		<scp file="${ccre-root.dir}/roboRIO/src/edu/wpi/first/wpilibj/binaries/netconsole-host" todir="admin@${target}:/usr/local/frc/bin" password="${password}" trust="true" />
 
-		<scp file="${ccre-root.dir}/Igneous_roboRIO/src/edu/wpi/first/wpilibj/binaries/robotCommand" todir="${username}@${target}:${command.dir}" password="${password}" trust="true" />
+		<scp file="${ccre-root.dir}/roboRIO/src/edu/wpi/first/wpilibj/binaries/robotCommand" todir="${username}@${target}:${command.dir}" password="${password}" trust="true" />
 
 		<echo>[athena-deploy] Starting program.</echo>
 		<sshexec host="${target}" username="${username}" password="${password}" trust="true" command="${deploy.kill.command};" />

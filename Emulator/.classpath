@@ -4,7 +4,7 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/CommonChickenRuntimeEngine"/>
 	<classpathentry kind="lib" path="lib/jinput.jar">
 		<attributes>
-			<attribute name="javadoc_location" value="jar:platform:/resource/IgneousEmulator/lib/jinput-javadoc.zip!/"/>
+			<attribute name="javadoc_location" value="jar:platform:/resource/Emulator/lib/jinput-javadoc.zip!/"/>
 		</attributes>
 	</classpathentry>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.8"/>

@@ -28,7 +28,7 @@ import ccre.channel.FloatInput;
 import ccre.channel.FloatOutput;
 import ccre.channel.FloatStatus;
 import ccre.cluck.Cluck;
-import ccre.igneous.IgneousApplication;
+import ccre.frc.FRCApplication;
 import ccre.log.LogLevel;
 
 /**
@@ -37,7 +37,7 @@ import ccre.log.LogLevel;
  *
  * @author skeggsc
  */
-public class UnitTestBot implements IgneousApplication {
+public class UnitTestBot implements FRCApplication {
 
     public void setupRobot() {
         String targetRoot = "phidget/";

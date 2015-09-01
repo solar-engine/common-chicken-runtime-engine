@@ -24,33 +24,33 @@ import ccre.channel.EventOutput;
 import ccre.channel.FloatInput;
 import ccre.cluck.Cluck;
 import ccre.ctrl.Ticker;
+import ccre.frc.FRC;
 import ccre.holders.TuningContext;
-import ccre.igneous.Igneous;
 import ccre.log.Logger;
 
 public class CompressorHandler {
     private static final TuningContext pressureTuningContext = new TuningContext("PressureTuner").publishSavingEvent();
 
     private static FloatInput getPercentPressure(FloatInput pressureSensorVolts) {
-        return pressureSensorVolts.normalize(pressureTuningContext.getFloat("LowPressure", 0.494f), pressureTuningContext.getFloat("HighPressure", Igneous.isRoboRIO() ? 2.7f : 2.9f)).multipliedBy(100);
+        return pressureSensorVolts.normalize(pressureTuningContext.getFloat("LowPressure", 0.494f), pressureTuningContext.getFloat("HighPressure", FRC.isRoboRIO() ? 2.7f : 2.9f)).multipliedBy(100);
     }
 
     public static void setup() {
-        final BooleanInput pressureSwitch = Igneous.makeDigitalInput(1);
+        final BooleanInput pressureSwitch = FRC.makeDigitalInput(1);
         final BooleanStatus forceDisableVar = new BooleanStatus();
         Cluck.publish("Compressor Set Disable", forceDisableVar);
         final BooleanInput forceDisable = forceDisableVar.or(Shooter.getShouldDisableDrivingAndCompressor());
-        final FloatInput pressureSensorVolts = Igneous.makeAnalogInput(Igneous.isRoboRIO() ? 0 : 2);
+        final FloatInput pressureSensorVolts = FRC.makeAnalogInput(FRC.isRoboRIO() ? 0 : 2);
         Cluck.publish("Compressor Pressure Switch", pressureSwitch);
         Cluck.publish("Compressor Pressure Sensor", pressureSensorVolts);
         final FloatInput percentPressure = getPercentPressure(pressureSensorVolts);
         Cluck.publish("Compressor Pressure Percent", percentPressure);
         setupPressureLogger(percentPressure);
         ReadoutDisplay.showPressure(percentPressure, pressureSwitch);
-        if (Igneous.isRoboRIO()) {
-            forceDisable.send(Igneous.usePCMCompressor().invert());
+        if (FRC.isRoboRIO()) {
+            forceDisable.send(FRC.usePCMCompressor().invert());
         } else {
-            Igneous.useCustomCompressor(forceDisable.or(pressureSwitch), 1);
+            FRC.useCustomCompressor(forceDisable.or(pressureSwitch), 1);
         }
     }
 
@@ -66,9 +66,9 @@ public class CompressorHandler {
                 }
             }
         };
-        Igneous.startAuto.send(report);
-        Igneous.startTele.send(report);
-        Igneous.startDisabled.send(report);
+        FRC.startAuto.send(report);
+        FRC.startTele.send(report);
+        FRC.startDisabled.send(report);
         new Ticker(10000).send(report);
     }
 }

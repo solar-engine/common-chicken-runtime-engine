@@ -42,7 +42,7 @@ import ccre.util.CHashMap;
  * like a CluckControlBinder so that it can be configured without special work
  * on your part.
  *
- * But probably, you should just use the interfaces in Igneous.
+ * But probably, you should just use the interfaces in FRC.
  *
  * @author skeggsc
  */

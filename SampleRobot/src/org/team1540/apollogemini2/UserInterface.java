@@ -24,11 +24,11 @@ import ccre.channel.EventInput;
 import ccre.channel.FloatFilter;
 import ccre.channel.FloatInput;
 import ccre.ctrl.IJoystick;
-import ccre.igneous.Igneous;
+import ccre.frc.FRC;
 import ccre.phidget.PhidgetReader;
 
 public class UserInterface {
-    private static final IJoystick driveJoystick = Igneous.joystick1;
+    private static final IJoystick driveJoystick = FRC.joystick1;
     private static final FloatFilter deadzone = FloatFilter.deadzone(0.1f);
 
     public static FloatInput getLeftAxis() {

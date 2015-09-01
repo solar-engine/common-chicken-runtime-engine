@@ -25,25 +25,25 @@ import ccre.channel.FloatInput;
 import ccre.channel.FloatOutput;
 import ccre.cluck.Cluck;
 import ccre.ctrl.DriverImpls;
-import ccre.igneous.Igneous;
+import ccre.frc.FRC;
 
 public class DriveCode {
 
     public static void setup() {
         FloatOutput leftDrive1, leftDrive2, rightDrive1, rightDrive2;
         BooleanOutput shiftSolenoidHigh;
-        if (Igneous.isRoboRIO()) {
-            leftDrive1 = Igneous.makeTalonMotor(2, Igneous.MOTOR_REVERSE, 0.1f);
-            leftDrive2 = Igneous.makeTalonMotor(3, Igneous.MOTOR_REVERSE, 0.1f);
-            rightDrive1 = Igneous.makeTalonMotor(4, Igneous.MOTOR_FORWARD, 0.1f);
-            rightDrive2 = Igneous.makeTalonMotor(5, Igneous.MOTOR_FORWARD, 0.1f);
-            shiftSolenoidHigh = Igneous.makeSolenoid(7);
+        if (FRC.isRoboRIO()) {
+            leftDrive1 = FRC.makeTalonMotor(2, FRC.MOTOR_REVERSE, 0.1f);
+            leftDrive2 = FRC.makeTalonMotor(3, FRC.MOTOR_REVERSE, 0.1f);
+            rightDrive1 = FRC.makeTalonMotor(4, FRC.MOTOR_FORWARD, 0.1f);
+            rightDrive2 = FRC.makeTalonMotor(5, FRC.MOTOR_FORWARD, 0.1f);
+            shiftSolenoidHigh = FRC.makeSolenoid(7);
         } else {
-            leftDrive1 = Igneous.makeVictorMotor(1, Igneous.MOTOR_FORWARD, 0.1f);
-            leftDrive2 = Igneous.makeVictorMotor(2, Igneous.MOTOR_FORWARD, 0.1f);
-            rightDrive1 = Igneous.makeVictorMotor(3, Igneous.MOTOR_REVERSE, 0.1f);
-            rightDrive2 = Igneous.makeVictorMotor(4, Igneous.MOTOR_REVERSE, 0.1f);
-            shiftSolenoidHigh = Igneous.makeSolenoid(1);
+            leftDrive1 = FRC.makeVictorMotor(1, FRC.MOTOR_FORWARD, 0.1f);
+            leftDrive2 = FRC.makeVictorMotor(2, FRC.MOTOR_FORWARD, 0.1f);
+            rightDrive1 = FRC.makeVictorMotor(3, FRC.MOTOR_REVERSE, 0.1f);
+            rightDrive2 = FRC.makeVictorMotor(4, FRC.MOTOR_REVERSE, 0.1f);
+            shiftSolenoidHigh = FRC.makeSolenoid(1);
         }
         FloatOutput leftDrive = leftDrive1.combine(leftDrive2), rightDrive = rightDrive1.combine(rightDrive2);
         Cluck.publish("Drive Motors Left", leftDrive);
@@ -67,8 +67,8 @@ public class DriveCode {
                 leftDrive.outputMultipliedBy(speedScale), rightDrive.outputMultipliedBy(speedScale));
 
         final BooleanStatus isHighGear = new BooleanStatus(shiftSolenoidHigh);
-        isHighGear.setTrueWhen(Igneous.startTele); // begin
-        isHighGear.setFalseWhen(Igneous.startAuto);
+        isHighGear.setTrueWhen(FRC.startTele); // begin
+        isHighGear.setFalseWhen(FRC.startAuto);
         isHighGear.setTrueWhen(UserInterface.getHighGearShift()); // high
         isHighGear.setFalseWhen(UserInterface.getLowGearShift()); // low
         Cluck.publish("Drive Shifting High Gear", isHighGear);

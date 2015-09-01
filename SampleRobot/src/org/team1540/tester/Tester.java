@@ -20,8 +20,8 @@ package org.team1540.tester;
 
 import ccre.channel.FloatOutput;
 import ccre.cluck.Cluck;
-import ccre.igneous.Igneous;
-import ccre.igneous.IgneousApplication;
+import ccre.frc.FRC;
+import ccre.frc.FRCApplication;
 
 /**
  * An example program that simply shares all the motors over the network.
@@ -31,17 +31,17 @@ import ccre.igneous.IgneousApplication;
  *
  * @author skeggsc
  */
-public class Tester implements IgneousApplication {
+public class Tester implements FRCApplication {
 
     /**
      * Set up the robot. For the testing robot, this means publishing all the
      * motors.
      */
     public void setupRobot() {
-        int base = Igneous.isRoboRIO() ? 0 : 1;
-        final FloatOutput[] outs = new FloatOutput[Igneous.isRoboRIO() ? 20 : 10];
-        for (int i = base; i < (Igneous.isRoboRIO() ? 20 : 10) + base; i++) {
-            Cluck.publish("talon-" + i, outs[i - base] = Igneous.makeTalonMotor(i, false, 0.1f));
+        int base = FRC.isRoboRIO() ? 0 : 1;
+        final FloatOutput[] outs = new FloatOutput[FRC.isRoboRIO() ? 20 : 10];
+        for (int i = base; i < (FRC.isRoboRIO() ? 20 : 10) + base; i++) {
+            Cluck.publish("talon-" + i, outs[i - base] = FRC.makeTalonMotor(i, false, 0.1f));
         }
         Cluck.publish("talon-all", new FloatOutput() {
             public void set(float value) {
@@ -50,30 +50,30 @@ public class Tester implements IgneousApplication {
                 }
             }
         });
-        for (int i = base; i < (Igneous.isRoboRIO() ? 4 : 8) + base; i++) {
-            Cluck.publish("relay-" + i + "-fwd", Igneous.makeForwardRelay(i));
-            Cluck.publish("relay-" + i + "-rev", Igneous.makeReverseRelay(i));
+        for (int i = base; i < (FRC.isRoboRIO() ? 4 : 8) + base; i++) {
+            Cluck.publish("relay-" + i + "-fwd", FRC.makeForwardRelay(i));
+            Cluck.publish("relay-" + i + "-rev", FRC.makeReverseRelay(i));
         }
         for (int i = base; i < 8 + base; i++) {
-            Cluck.publish("solenoid-" + i, Igneous.makeSolenoid(i));
+            Cluck.publish("solenoid-" + i, FRC.makeSolenoid(i));
         }
         for (int i = base; i < 4 + base; i++) {
-            Cluck.publish("analog-" + i, Igneous.makeAnalogInput(i, 8));
+            Cluck.publish("analog-" + i, FRC.makeAnalogInput(i, 8));
         }
-        Cluck.publish("input-voltage", Igneous.getChannelVoltage(Igneous.POWER_CHANNEL_BATTERY));
-        if (Igneous.isRoboRIO()) {
-            Cluck.publish("input-current", Igneous.getChannelCurrent(Igneous.POWER_CHANNEL_BATTERY));
-            Cluck.publish("6v-voltage", Igneous.getChannelVoltage(Igneous.POWER_CHANNEL_6V));
-            Cluck.publish("6v-current", Igneous.getChannelCurrent(Igneous.POWER_CHANNEL_6V));
-            Cluck.publish("5v-voltage", Igneous.getChannelVoltage(Igneous.POWER_CHANNEL_5V));
-            Cluck.publish("5v-current", Igneous.getChannelCurrent(Igneous.POWER_CHANNEL_5V));
-            Cluck.publish("3.3v-voltage", Igneous.getChannelVoltage(Igneous.POWER_CHANNEL_3V3));
-            Cluck.publish("3.3v-current", Igneous.getChannelCurrent(Igneous.POWER_CHANNEL_3V3));
+        Cluck.publish("input-voltage", FRC.getChannelVoltage(FRC.POWER_CHANNEL_BATTERY));
+        if (FRC.isRoboRIO()) {
+            Cluck.publish("input-current", FRC.getChannelCurrent(FRC.POWER_CHANNEL_BATTERY));
+            Cluck.publish("6v-voltage", FRC.getChannelVoltage(FRC.POWER_CHANNEL_6V));
+            Cluck.publish("6v-current", FRC.getChannelCurrent(FRC.POWER_CHANNEL_6V));
+            Cluck.publish("5v-voltage", FRC.getChannelVoltage(FRC.POWER_CHANNEL_5V));
+            Cluck.publish("5v-current", FRC.getChannelCurrent(FRC.POWER_CHANNEL_5V));
+            Cluck.publish("3.3v-voltage", FRC.getChannelVoltage(FRC.POWER_CHANNEL_3V3));
+            Cluck.publish("3.3v-current", FRC.getChannelCurrent(FRC.POWER_CHANNEL_3V3));
             for (int i = base; i < 16 + base; i++) {
-                Cluck.publish("current-" + i, Igneous.getPDPChannelCurrent(i));
+                Cluck.publish("current-" + i, FRC.getPDPChannelCurrent(i));
             }
-            Cluck.publish("compressor", Igneous.usePCMCompressor());
-            Cluck.publish("pdp-voltage", Igneous.getPDPVoltage());
+            Cluck.publish("compressor", FRC.usePCMCompressor());
+            Cluck.publish("pdp-voltage", FRC.getPDPVoltage());
         }
     }
 }

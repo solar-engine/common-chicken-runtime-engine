@@ -51,11 +51,6 @@
 			<fileset dir="bin">
 				<include name="**/*.class" />
 				<exclude name="ccre/testing/*.class" />
-				<!-- because of deprecation -->
-				<exclude name="ccre/util/Tokenizer.class" />
-				<exclude name="ccre/rload/RLoadClient.class" />
-				<exclude name="ccre/rload/RLoadServer.class" />
-				<exclude name="ccre/launcher/Launcher.class" />
 			</fileset>
 		</cobertura-instrument>
 		<java classname="ccre.testing.SuiteOfTests" fork="true" failonerror="true">

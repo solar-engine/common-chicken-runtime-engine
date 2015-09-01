@@ -24,7 +24,7 @@ import ccre.channel.DerivedBooleanInput;
 import ccre.channel.EventInput;
 import ccre.channel.FloatInput;
 import ccre.channel.FloatOutput;
-import ccre.igneous.Igneous;
+import ccre.frc.FRC;
 
 /**
  * Sometimes there's more to control about a motor than just a power level, and
@@ -199,7 +199,7 @@ public abstract class ExtendedMotor {
      * it cannot be acquired.
      */
     public FloatInput asStatus(StatusType type) {
-        return asStatus(type, Igneous.sensorPeriodic);
+        return asStatus(type, FRC.sensorPeriodic);
     }
 
     /**
@@ -229,7 +229,7 @@ public abstract class ExtendedMotor {
      * be acquired.
      */
     public BooleanInput getDiagnosticChannel(final DiagnosticType type) {
-        return getDiagnosticChannel(type, Igneous.sensorPeriodic);
+        return getDiagnosticChannel(type, FRC.sensorPeriodic);
     }
 
     /**

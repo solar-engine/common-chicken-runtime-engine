@@ -24,7 +24,7 @@ import ccre.channel.BooleanInput;
 import ccre.channel.EventOutput;
 import ccre.channel.FloatInput;
 import ccre.ctrl.Ticker;
-import ccre.igneous.Igneous;
+import ccre.frc.FRC;
 import ccre.log.Logger;
 import ccre.phidget.PhidgetReader;
 
@@ -39,22 +39,22 @@ public class ReadoutDisplay {
 
     static {
         setModeString("....");
-        Igneous.startDisabled.send(new EventOutput() {
+        FRC.startDisabled.send(new EventOutput() {
             public void event() {
-                setModeString(Igneous.isRoboRIO() ? "____" : "1540");
+                setModeString(FRC.isRoboRIO() ? "____" : "1540");
             }
         });
-        Igneous.startTele.send(new EventOutput() {
+        FRC.startTele.send(new EventOutput() {
             public void event() {
                 setModeString("TELE");
             }
         });
-        Igneous.startAuto.send(new EventOutput() {
+        FRC.startAuto.send(new EventOutput() {
             public void event() {
                 setModeString("AUTO");
             }
         });
-        Igneous.startTest.send(new EventOutput() {
+        FRC.startTest.send(new EventOutput() {
             public void event() {
                 setModeString("TEST");
             }
@@ -62,11 +62,11 @@ public class ReadoutDisplay {
     }
 
     private static void setModeString(String str) {
-        defaultString = Igneous.isRoboRIO() ? "[" + str + "] GEMINI [" + str + "]" : "(" + str + ") APOLLO (" + str + ")";
+        defaultString = FRC.isRoboRIO() ? "[" + str + "] GEMINI [" + str + "]" : "(" + str + ") APOLLO (" + str + ")";
     }
 
     public static void setupErrors() {
-        Igneous.constantPeriodic.send(new EventOutput() {
+        FRC.constantPeriodic.send(new EventOutput() {
             public void event() {
                 if (activeMessage != null) {
                     timeRemaining -= 10;

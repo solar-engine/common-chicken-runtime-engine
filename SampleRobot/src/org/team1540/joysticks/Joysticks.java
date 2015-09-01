@@ -20,25 +20,25 @@ package org.team1540.joysticks;
 
 import ccre.cluck.Cluck;
 import ccre.ctrl.IJoystick;
-import ccre.igneous.Igneous;
-import ccre.igneous.IgneousApplication;
+import ccre.frc.FRC;
+import ccre.frc.FRCApplication;
 
 /**
  * An example program that just publishes all of the Joystick data.
  *
  * @author skeggsc
  */
-public class Joysticks implements IgneousApplication {
+public class Joysticks implements FRCApplication {
 
 
     /**
      * Set up the robot.
      */
     public void setupRobot() {
-        publishJoystick(1, Igneous.joystick1);
-        publishJoystick(2, Igneous.joystick2);
-        publishJoystick(3, Igneous.joystick3);
-        publishJoystick(4, Igneous.joystick4);
+        publishJoystick(1, FRC.joystick1);
+        publishJoystick(2, FRC.joystick2);
+        publishJoystick(3, FRC.joystick3);
+        publishJoystick(4, FRC.joystick4);
     }
 
     private void publishJoystick(int id, IJoystick joy) {
@@ -48,7 +48,7 @@ public class Joysticks implements IgneousApplication {
         for (int button = 1; button <= 12; button++) {
             Cluck.publish("Joystick " + id + " Button " + button, joy.button(button));
         }
-        if (Igneous.isRoboRIO()) {
+        if (FRC.isRoboRIO()) {
             for (int direction : IJoystick.POV_DIRECTIONS) {
                 Cluck.publish("Joystick " + id + " POV Pressed (" + direction + ")", joy.isPOV(direction));
             }

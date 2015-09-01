@@ -68,7 +68,7 @@ public class InstinctMultiModule extends InstinctModule {
      *
      * @param context the TuningContext to use in this MultiModule.
      *
-     * @see ccre.igneous.Igneous#registerAutonomous(InstinctModule)
+     * @see ccre.frc.FRC#registerAutonomous(InstinctModule)
      */
     public InstinctMultiModule(TuningContext context) {
         super();

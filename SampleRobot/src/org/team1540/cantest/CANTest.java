@@ -22,9 +22,9 @@ import ccre.cluck.Cluck;
 import ccre.ctrl.ExtendedMotor;
 import ccre.ctrl.ExtendedMotor.DiagnosticType;
 import ccre.ctrl.ExtendedMotor.OutputControlMode;
+import ccre.frc.FRC;
+import ccre.frc.FRCApplication;
 import ccre.ctrl.ExtendedMotorFailureException;
-import ccre.igneous.Igneous;
-import ccre.igneous.IgneousApplication;
 import ccre.log.Logger;
 
 /**
@@ -32,15 +32,15 @@ import ccre.log.Logger;
  *
  * @author skeggsc
  */
-public class CANTest implements IgneousApplication {
+public class CANTest implements FRCApplication {
 
     // WARNING: This has never actually been tested on a real robot.
 
     public void setupRobot() {
         try {
-            ExtendedMotor motor = Igneous.makeCANJaguar(0);
-            Igneous.joystick1.axis(2).send(motor.asMode(OutputControlMode.VOLTAGE_FIXED));
-            Igneous.getIsTeleop().send(motor.asEnable());
+            ExtendedMotor motor = FRC.makeCANJaguar(0);
+            FRC.joystick1.axis(2).send(motor.asMode(OutputControlMode.VOLTAGE_FIXED));
+            FRC.getIsTeleop().send(motor.asEnable());
             motor.setInternalPID(1, 0.1f, 0.01f);
             Cluck.publish("CAN Jaguar Bus Fault", motor.getDiagnosticChannel(DiagnosticType.BUS_VOLTAGE_FAULT));
         } catch (ExtendedMotorFailureException e) {

@@ -27,8 +27,8 @@ import ccre.channel.FloatOutput;
 import ccre.channel.FloatStatus;
 import ccre.cluck.Cluck;
 import ccre.ctrl.PauseTimer;
+import ccre.frc.FRC;
 import ccre.holders.TuningContext;
-import ccre.igneous.Igneous;
 import ccre.instinct.AutonomousModeOverException;
 import ccre.instinct.InstinctModule;
 import ccre.log.Logger;
@@ -47,19 +47,19 @@ public class Actuators {
         final BooleanOutput armMainSolenoid;
         final BooleanOutput armLockSolenoid;
         FloatOutput armCollectorMotor;
-        if (Igneous.isRoboRIO()) {
-            armMainSolenoid = Igneous.makeSolenoid(6);
-            armLockSolenoid = Igneous.makeSolenoid(1);
-            armCollectorMotor = Igneous.makeTalonMotor(7, Igneous.MOTOR_REVERSE, 0.1f);
+        if (FRC.isRoboRIO()) {
+            armMainSolenoid = FRC.makeSolenoid(6);
+            armLockSolenoid = FRC.makeSolenoid(1);
+            armCollectorMotor = FRC.makeTalonMotor(7, FRC.MOTOR_REVERSE, 0.1f);
         } else {
-            armMainSolenoid = Igneous.makeSolenoid(2);
-            armLockSolenoid = Igneous.makeSolenoid(8);
-            armCollectorMotor = Igneous.makeVictorMotor(6, Igneous.MOTOR_REVERSE, 0.1f);
+            armMainSolenoid = FRC.makeSolenoid(2);
+            armLockSolenoid = FRC.makeSolenoid(8);
+            armCollectorMotor = FRC.makeVictorMotor(6, FRC.MOTOR_REVERSE, 0.1f);
         }
-        BooleanOutput armFingerSolenoids = Igneous.makeSolenoid(5).invert().combine(Igneous.makeSolenoid(Igneous.isRoboRIO() ? 0 : 6));
+        BooleanOutput armFingerSolenoids = FRC.makeSolenoid(5).invert().combine(FRC.makeSolenoid(FRC.isRoboRIO() ? 0 : 6));
         armFingerSolenoids.set(false);
 
-        BooleanInput runActuatorControlLoop = Igneous.getIsEnabled().and(Igneous.getIsTeleop().or(Igneous.getIsAutonomous()));
+        BooleanInput runActuatorControlLoop = FRC.getIsEnabled().and(FRC.getIsTeleop().or(FRC.getIsAutonomous()));
         AutonomousModeBase.addArmActuators(armCollectorMotor, armFingerSolenoids);
         final PauseTimer runCollectorsWhileArmAligns = new PauseTimer(1000);
         final PauseTimer runCollectorsWhileArmLowers = new PauseTimer(500);

@@ -18,7 +18,7 @@
 /PoultryInspector/log-*
 /PoultryInspector/*.ser
 /roboRIO/bin/
-/roboRIO/Igneous.jar
+/roboRIO/roboRIO.jar
 /TemplateRobot/bin/
 /CCRE_Examples/bin/
 /.metadata

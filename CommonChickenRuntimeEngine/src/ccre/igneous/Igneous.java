@@ -492,7 +492,6 @@ public class Igneous {
      * @param compressorRelayChannel the channel of the compressor's relay.
      */
     public static void useCompressor(int pressureSwitchChannel, int compressorRelayChannel) {
-
         useCustomCompressor(makeDigitalInput(pressureSwitchChannel), compressorRelayChannel);
     }
 

@@ -34,7 +34,7 @@ import ccre.igneous.IgneousApplication;
  */
 public class Test implements IgneousApplication {
 
-    public static final ControlBindingCreator driveControls = Igneous.makeControlBindingCreator("Drive Code", true);
+    public static final ControlBindingCreator driveControls = Igneous.makeControlBindingCreator("Drive Code");
 
     /**
      * Set up the test robot. This includes tank drive, high gear/low gear, a

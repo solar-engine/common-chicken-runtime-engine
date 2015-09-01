@@ -74,6 +74,7 @@ public interface BooleanOutput {
 
     public default BooleanOutput limitUpdatesTo(EventInput update) {
         Utils.checkNull(update);
+        BooleanOutput original = this;
         return new BooleanOutput() {
             private boolean lastValue, anyValue;
 
@@ -82,7 +83,7 @@ public interface BooleanOutput {
                     @Override
                     public void event() {
                         if (anyValue) {
-                            set(lastValue);
+                            original.set(lastValue);
                         }
                     }
                 });

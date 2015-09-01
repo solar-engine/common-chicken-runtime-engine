@@ -4,7 +4,7 @@ echo
 GOOD=true
 for x in `find -name '*.java'`
 do
-	if echo $x | grep -iE '(SampleRobot|cobertura|TemplateRobot|edu.wpi.first.wpilib.networktables.java)' >/dev/null
+	if echo $x | grep -iE '(SampleRobot|cobertura|TemplateRobot|edu.wpi.first.wpilib.networktables.java|edu/wpi/first/wpilibj/hal|edu/wpi/first/wpilibj/communication|edu/wpi/first/wpilibj/can)' >/dev/null
 	then
 		true
 	else

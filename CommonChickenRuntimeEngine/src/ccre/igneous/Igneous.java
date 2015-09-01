@@ -185,6 +185,22 @@ public class Igneous {
     }
 
     /**
+     * Create a reference to a Jaguar speed controller on the specified PWM port
+     * and motor reversal, with a default ramping rate of 0.1, aka 200
+     * milliseconds to ramp from stopped to full speed.
+     *
+     * @param id the motor port ID, from 1 to 10, inclusive.
+     * @param negate MOTOR_FORWARD if the motor direction should be unmodified,
+     * MOTOR_REVERSE if the motor direction should be reversed.
+     * @return the output that will output to the specified motor.
+     * @see #MOTOR_FORWARD
+     * @see #MOTOR_REVERSE
+     */
+    public static FloatOutput makeJaguarMotor(int id, boolean negate) {
+        return makeJaguarMotor(id, negate, 0.1f);
+    }
+
+    /**
      * Create a reference to a Victor speed controller on the specified PWM port
      * and motor reversal, with a specified ramping rate.
      *
@@ -207,6 +223,22 @@ public class Igneous {
         FloatOutput ramped = (negate ? motor.negate() : motor).addRamping(ramping, constantPeriodic);
         ramped.setWhen(0.0f, startDisabled);
         return ramped;
+    }
+
+    /**
+     * Create a reference to a Victor speed controller on the specified PWM port
+     * and motor reversal, with a default ramping rate of 0.1, aka 200
+     * milliseconds to ramp from stopped to full speed.
+     *
+     * @param id the motor port ID, from 1 to 10, inclusive.
+     * @param negate MOTOR_FORWARD if the motor direction should be unmodified,
+     * MOTOR_REVERSE if the motor direction should be reversed.
+     * @return the output that will output to the specified motor.
+     * @see #MOTOR_FORWARD
+     * @see #MOTOR_REVERSE
+     */
+    public static FloatOutput makeVictorMotor(int id, boolean negate) {
+        return makeVictorMotor(id, negate, 0.1f);
     }
 
     /**
@@ -235,9 +267,22 @@ public class Igneous {
     }
 
     /**
-     * **** WARNING ****: THIS API IS NOT YET FINALIZED. Future changes may
-     * break your code!
+     * Create a reference to a Talon speed controller on the specified PWM port
+     * and motor reversal, with a default ramping rate of 0.1, aka 200
+     * milliseconds to ramp from stopped to full speed.
      *
+     * @param id the motor port ID, from 1 to 10, inclusive.
+     * @param negate MOTOR_FORWARD if the motor direction should be unmodified,
+     * MOTOR_REVERSE if the motor direction should be reversed.
+     * @return the output that will output to the specified motor.
+     * @see #MOTOR_FORWARD
+     * @see #MOTOR_REVERSE
+     */
+    public static FloatOutput makeTalonMotor(int id, boolean negate) {
+        return makeTalonMotor(id, negate, 0.1f);
+    }
+
+    /**
      * Create a reference to a CAN Jaguar speed controller with the specified
      * CAN device number. This may, of course, fail, if the Jaguar cannot be
      * found.
@@ -246,14 +291,11 @@ public class Igneous {
      * @return the ExtendedMotor representing this output.
      */
     public static ExtendedMotor makeCANJaguar(int deviceNumber) {
-        Logger.warning("The CCRE CAN functionality is NOT yet complete and is UNTESTED! Use with your own risk.");
+        Logger.warning("The CCRE CAN Jaguar functionality is NOT yet complete and is UNTESTED! Use with your own risk.");
         return launcher.makeCANJaguar(deviceNumber);
     }
 
     /**
-     * **** WARNING ****: THIS API IS NOT YET FINALIZED. Future changes may
-     * break your code!
-     *
      * Create a reference to a CAN Talon speed controller with the specified CAN
      * device number. This may, of course, fail, if the Talon cannot be found.
      *
@@ -263,7 +305,6 @@ public class Igneous {
      * @return the ExtendedMotor representing this output.
      */
     public static ExtendedMotor makeCANTalon(int deviceNumber) {
-        Logger.warning("The CCRE CAN functionality is NOT yet complete and is UNTESTED! Use with your own risk.");
         return launcher.makeCANTalon(deviceNumber);
     }
 

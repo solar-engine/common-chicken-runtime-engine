@@ -51,7 +51,7 @@ public interface EventInput extends UpdatingInput {
      * @param listener the listener to add.
      * @see #unsend(EventOutput)
      */
-    public default void send(EventOutput output) {
+    public default void send(EventOutput output) { // TODO: rename this to 'then'?
         onUpdate(output);
     }
 

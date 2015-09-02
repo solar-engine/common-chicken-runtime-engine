@@ -78,8 +78,7 @@
 
 		<jar destfile="${dist.jar}" update="false">
 			<manifest>
-				<attribute name="Main-Class" value="${boot-class}" />
-				<attribute name="Robot-Class" value="ccre.frc.DirectFRCImplementation" />
+				<attribute name="Main-Class" value="ccre.frc.DirectFRCImplementation" />
 				<attribute name="CCRE-Main" value="${frc.main}" />
 				<attribute name="Class-Path" value="." />
 			</manifest>

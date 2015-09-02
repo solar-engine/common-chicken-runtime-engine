@@ -56,6 +56,7 @@
 		</propertyfile>
 		<jar destfile="roboRIO.jar" update="false">
 			<fileset dir="bin" includes="**/*.class" />
+			<fileset dir="bin" includes="**/*.so" />
 			<fileset dir="bin" includes="version.properties" />
 			<fileset dir="../CommonChickenRuntimeEngine/bin"
 			         includes="**/*.class" />

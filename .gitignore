@@ -13,6 +13,7 @@
 /SampleRobot/emulation-crio/
 /SampleRobot/emulation-roborio/
 /SampleRobot/launches/
+/SampleRobot/logs-*
 /PoultryInspector/bin/
 /PoultryInspector/PoultryInspector*.jar
 /PoultryInspector/log-*
@@ -26,3 +27,4 @@
 /cobertura-2.1.1
 /Javadoc
 /javadoc.tgz
+/CCRE_Igneous_cRIO/bin

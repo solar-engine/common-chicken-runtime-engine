@@ -150,11 +150,12 @@ public interface FloatOutput {
             private float lastValue = Float.NaN;
 
             public synchronized void set(float value) {
+                long timeMillis = System.currentTimeMillis();
                 if (lastUpdateMillis == 0) {
                     lastValue = value;
+                    lastUpdateMillis = timeMillis;
                     return;
                 }
-                long timeMillis = System.currentTimeMillis();
                 if (lastUpdateMillis == timeMillis) {
                     return;
                 }
@@ -203,6 +204,7 @@ public interface FloatOutput {
         set(default_ ? on : off);
         return new BooleanOutput() {
             private boolean lastValue = default_;
+
             @Override
             public synchronized void set(boolean value) {
                 if (value != lastValue) {

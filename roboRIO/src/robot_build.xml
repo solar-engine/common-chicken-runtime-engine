@@ -266,13 +266,14 @@
 	</target>
 
 	<target name="dependencies" depends="get-target-ip">
-		<post to="http://${target}/nisysapi/server" logfile="sysProps.xml" verbose="false" encoding="UTF-16LE" append="false">
+		<tempfile property="sysprops.file" suffix=".xml" deleteonexit="true" />
+		<post to="http://${target}/nisysapi/server" logfile="${sysprops.file}" verbose="false" encoding="UTF-16LE" append="false">
 			<prop name="Function" value="GetPropertiesOfItem" />
 			<prop name="Plugins" value="nisyscfg" />
 			<prop name="Items" value="system" />
 		</post>
 		<!-- If sysProps.xml doesn't seem to exist... you probably aren't pointing at a roboRIO. -->
-		<loadfile srcFile="sysProps.xml" encoding="UTF-16LE" property="roboRIOSysValues" />
+		<loadfile srcFile="${sysprops.file}" encoding="UTF-16LE" property="roboRIOSysValues" />
 		<propertyregex property="roboRIOImage" input="${roboRIOSysValues}" regexp="FRC_roboRIO_2015_v([0-9]+)" select="\1" defaultValue="ImageRegExFail" />
 		<if>
 			<contains string="${roboRIOAllowedImages}" substring="${roboRIOImage}" />

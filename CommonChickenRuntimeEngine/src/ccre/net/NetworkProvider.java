@@ -19,8 +19,7 @@
 package ccre.net;
 
 import java.io.IOException;
-
-import ccre.util.CCollection;
+import java.util.Collection;
 
 /**
  * A Network provider, which provides access to the basic networking
@@ -52,7 +51,7 @@ public interface NetworkProvider {
      *
      * @return a collection of the IPv4 addresses of the current system.
      */
-    CCollection<String> listIPv4Addresses();
+    Collection<String> listIPv4Addresses();
 
     /**
      * Gets a string representing the platform type for this system. This is

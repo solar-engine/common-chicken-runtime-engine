@@ -87,9 +87,6 @@ public class SuiteOfTests {
                 new TestLineCollectorOutputStream(),
                 new TestUniqueIds(),
 
-                // CAbstractList - Included in CArrayList and CLinkedList tests
-                new TestCArrayList(), new TestCHashMap(), new TestCLinkedList(),
-
                 new TestUtils(), // Tests both Utils and CArrayUtils
         };
         boolean failFast = args.length > 0 && args[0].equals("--failfast");

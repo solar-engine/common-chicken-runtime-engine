@@ -18,13 +18,14 @@
  */
 package ccre.log;
 
+import java.util.HashMap;
+
 import ccre.channel.EventOutput;
 import ccre.cluck.Cluck;
 import ccre.cluck.CluckNode;
 import ccre.cluck.CluckPublisher;
 import ccre.cluck.CluckRemoteListener;
 import ccre.concurrency.ConcurrentDispatchArray;
-import ccre.util.CHashMap;
 import ccre.util.UniqueIds;
 
 /**
@@ -72,7 +73,7 @@ public final class NetworkAutologger implements LoggingTarget, CluckRemoteListen
      * The current cache of subscribed LoggingTargets to send logging messages
      * to.
      */
-    private final CHashMap<String, LoggingTarget> targetCache = new CHashMap<String, LoggingTarget>();
+    private final HashMap<String, LoggingTarget> targetCache = new HashMap<String, LoggingTarget>();
     private final CluckNode node;
     private final String localpath, hereID;
 

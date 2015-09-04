@@ -18,6 +18,9 @@
  */
 package ccre.ctrl;
 
+import java.util.ArrayList;
+import java.util.Collections;
+
 import ccre.channel.BooleanInput;
 import ccre.channel.BooleanOutput;
 import ccre.channel.BooleanStatus;
@@ -27,8 +30,6 @@ import ccre.channel.EventStatus;
 import ccre.channel.FloatInput;
 import ccre.concurrency.ReporterThread;
 import ccre.log.Logger;
-import ccre.util.CArrayList;
-import ccre.util.CArrayUtils;
 
 /**
  * An ExpirationTimer acts sort of like an alarm clock. You can schedule a
@@ -46,7 +47,7 @@ public final class ExpirationTimer {
      * The list of tasks, sorted in order with the first task (shortest delay)
      * first.
      */
-    private final CArrayList<Task> tasks = new CArrayList<Task>();
+    private final ArrayList<Task> tasks = new ArrayList<Task>();
     /**
      * Is this timer running?
      */
@@ -242,7 +243,7 @@ public final class ExpirationTimer {
         for (Task t : tasks) {
             t.recalculate();
         }
-        CArrayUtils.sort(tasks);
+        Collections.sort(tasks);
     }
 
     private synchronized void runTasks() throws InterruptedException {

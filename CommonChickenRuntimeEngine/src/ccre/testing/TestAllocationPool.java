@@ -18,8 +18,9 @@
  */
 package ccre.testing;
 
+import java.util.ArrayList;
+
 import ccre.util.AllocationPool;
-import ccre.util.CArrayList;
 
 /**
  * Tests the allocation pool.
@@ -35,7 +36,7 @@ public class TestAllocationPool extends BaseTest {
 
     @Override
     protected void runTest() throws TestingException {
-        final CArrayList<Object> alloced = new CArrayList<Object>();
+        final ArrayList<Object> alloced = new ArrayList<Object>();
         AllocationPool<Object> aop = new ReportingPool(alloced);
         assertIntsEqual(0, alloced.size(), "Should have different number of allocations!");
         Object o1 = aop.alloc();
@@ -69,9 +70,9 @@ public class TestAllocationPool extends BaseTest {
 
     private static class ReportingPool extends AllocationPool<Object> {
 
-        private final CArrayList<Object> alloced;
+        private final ArrayList<Object> alloced;
 
-        ReportingPool(CArrayList<Object> alloced) {
+        ReportingPool(ArrayList<Object> alloced) {
             this.alloced = alloced;
         }
 

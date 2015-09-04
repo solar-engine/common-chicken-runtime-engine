@@ -19,13 +19,13 @@
 package ccre.drivers.chrobotics;
 
 import java.io.IOException;
+import java.util.Arrays;
 
 import ccre.channel.EventOutput;
 import ccre.channel.SerialIO;
 import ccre.drivers.ByteFiddling;
 import ccre.drivers.NMEA;
 import ccre.log.Logger;
-import ccre.util.CArrayUtils;
 
 /**
  * The low-level interface to the UM7-LT orientation sensor from CH Robotics,
@@ -286,7 +286,7 @@ public class InternalUM7LT { // default rate: 115200 baud.
         } else if (address == (byte) 0xC) {
             Logger.config("UM7LT gyro calibration updated.");
         } else if (address != 0) {
-            Logger.finest("UNHANDLED BINARY MESSAGE " + Integer.toHexString(address & 0xFF) + " " + CArrayUtils.asList(data) + " [" + is_hidden + ":" + is_command_failed + "]");
+            Logger.finest("UNHANDLED BINARY MESSAGE " + Integer.toHexString(address & 0xFF) + " " + Arrays.asList(data) + " [" + is_hidden + ":" + is_command_failed + "]");
         }
         return 2 + 4 * data_count + 2 + 3; // two for checksum, three for the 'snp' that was stripped out. 
     }

@@ -19,9 +19,9 @@
 package ccre.net;
 
 import java.io.IOException;
+import java.util.Collection;
 
 import ccre.log.Logger;
-import ccre.util.CCollection;
 
 /**
  * The global Network handler. This contains a location to store the current
@@ -127,7 +127,7 @@ public class Network {
      *
      * @return a collection of the IPv4 addresses of the current system.
      */
-    public static CCollection<String> listIPv4Addresses() {
+    public static Collection<String> listIPv4Addresses() {
         return getProvider().listIPv4Addresses();
     }
 

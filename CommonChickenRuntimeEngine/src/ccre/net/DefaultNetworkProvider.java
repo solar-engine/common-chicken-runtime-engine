@@ -30,13 +30,13 @@ import java.net.NetworkInterface;
 import java.net.Socket;
 import java.net.SocketException;
 import java.net.SocketTimeoutException;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Enumeration;
 
 import ccre.log.Logger;
-import ccre.util.CArrayList;
-import ccre.util.CArrayUtils;
-import ccre.util.CCollection;
 
 /**
  * The default network provider. This is chosen by default if no other provider
@@ -81,18 +81,18 @@ class DefaultNetworkProvider implements NetworkProvider {
         return new ServerSocketImpl(new java.net.ServerSocket(port));
     }
 
-    public CCollection<String> listIPv4Addresses() {
+    public Collection<String> listIPv4Addresses() {
         Enumeration<NetworkInterface> enm;
         try {
             enm = NetworkInterface.getNetworkInterfaces();
         } catch (SocketException ex) {
             Logger.severe("Could not enumerate IP addresses!", ex);
-            return CArrayUtils.getEmptyList();
+            return Collections.emptyList();
         }
         if (enm == null) {
-            return CArrayUtils.getEmptyList();
+            return Collections.emptyList();
         }
-        CArrayList<String> allAddresses = new CArrayList<String>();
+        ArrayList<String> allAddresses = new ArrayList<String>();
         while (enm.hasMoreElements()) {
             NetworkInterface ni = enm.nextElement();
             Enumeration<InetAddress> ins = ni.getInetAddresses();

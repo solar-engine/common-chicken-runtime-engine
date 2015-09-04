@@ -22,13 +22,13 @@ import java.io.IOException;
 import java.io.NotSerializableException;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 
 import ccre.channel.EventOutput;
 import ccre.cluck.rpc.RPCManager;
 import ccre.log.Logger;
-import ccre.util.CArrayList;
-import ccre.util.CHashMap;
 import ccre.util.UniqueIds;
 
 /**
@@ -137,7 +137,7 @@ public class CluckNode implements Serializable {
     /**
      * A map of the current link names to the CluckLinks.
      */
-    public final CHashMap<String, CluckLink> links = new CHashMap<String, CluckLink>();
+    public final HashMap<String, CluckLink> links = new HashMap<String, CluckLink>();
     /**
      * The time when the last error message was printed about a link not
      * existing.
@@ -232,7 +232,7 @@ public class CluckNode implements Serializable {
      * ccre.cluck.CluckLink)
      */
     public void broadcast(String source, byte[] data, CluckLink denyLink) {
-        for (Iterator<String> linkIter = links.looseIterator(); linkIter.hasNext();) {
+        for (Iterator<String> linkIter = links.keySet().iterator(); linkIter.hasNext();) {
             CluckLink cl = links.get(linkIter.next());
             if (cl != null && cl != denyLink) {
                 if (cl.send("*", source, data) == false) {
@@ -332,7 +332,7 @@ public class CluckNode implements Serializable {
      */
     @Deprecated
     public String[] searchRemotes(final Integer remoteType, int timeout) throws InterruptedException {
-        final CArrayList<String> discovered = new CArrayList<String>();
+        final ArrayList<String> discovered = new ArrayList<String>();
         String localRecv = UniqueIds.global.nextHexId("rsch");
         new CluckSubscriber(this) {
             @Override
@@ -385,7 +385,7 @@ public class CluckNode implements Serializable {
         if (link == null) {
             throw new NullPointerException();
         }
-        for (String key : links) {
+        for (String key : links.keySet()) {
             if (links.get(key) == link) {
                 return key;
             }

@@ -18,6 +18,8 @@
  */
 package ccre.util;
 
+import java.util.ArrayList;
+
 /**
  * A superclass of a basic allocate/release allocation pool. Call alloc() to get
  * a value of type T, call release(T) once finished with it. This will minimize
@@ -31,7 +33,7 @@ public abstract class AllocationPool<T> {
     /**
      * The list of available instances.
      */
-    private final CArrayList<T> available = new CArrayList<T>(10);
+    private final ArrayList<T> available = new ArrayList<T>(10);
 
     /**
      * Create a new instance, because there are no instances remaining.

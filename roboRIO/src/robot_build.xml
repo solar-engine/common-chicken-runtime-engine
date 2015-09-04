@@ -74,8 +74,6 @@
 			</path>
 		</copy>
 
-		<property name="boot-class" value="edu.wpi.first.wpilibj.RobotBase" />
-
 		<jar destfile="${dist.jar}" update="false">
 			<manifest>
 				<attribute name="Main-Class" value="ccre.frc.DirectFRCImplementation" />

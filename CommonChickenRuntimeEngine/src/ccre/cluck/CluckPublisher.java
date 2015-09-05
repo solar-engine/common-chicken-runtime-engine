@@ -479,7 +479,7 @@ public class CluckPublisher {
                     try {
                         out.write(new byte[] { (byte) (count >> 8), (byte) count });
                         for (int i = 0; i < count; i++) {
-                            int len = data[i].contents.length + 1; // plus one for the type
+                            int len = data[i].contents.length + 1;// plus one for the type
                             out.write(new byte[] { (byte) (len >> 24), (byte) (len >> 16), (byte) (len >> 8), (byte) len, data[i].type });
                             out.write(data[i].contents);
                         }
@@ -733,14 +733,16 @@ public class CluckPublisher {
                 node.transmit(path, linkName, new byte[] { RMT_FLOATINPUT });
             }
             return base.combine(() -> {
-                if (canUnsubscribe && sent && !this.hasConsumers()) {
-                    sent = false;
-                    node.transmit(path, linkName, new byte[] { RMT_FLOATINPUT_UNSUB });
+                synchronized (SubscribedFloatInput.this) {
+                    if (canUnsubscribe && sent && !this.hasConsumers()) {
+                        sent = false;
+                        node.transmit(path, linkName, new byte[] { RMT_FLOATINPUT_UNSUB });
+                    }
                 }
             });
         }
 
-        private boolean shouldResend() {
+        private synchronized boolean shouldResend() {
             return sent;
         }
 
@@ -833,14 +835,16 @@ public class CluckPublisher {
                 node.transmit(path, linkName, new byte[] { RMT_BOOLINPUT });
             }
             return base.combine(() -> {
-                if (canUnsubscribe && sent && !this.hasConsumers()) {
-                    sent = false;
-                    node.transmit(path, linkName, new byte[] { RMT_BOOLINPUT_UNSUB });
+                synchronized (SubscribedBooleanInput.this) {
+                    if (canUnsubscribe && sent && !this.hasConsumers()) {
+                        sent = false;
+                        node.transmit(path, linkName, new byte[] { RMT_BOOLINPUT_UNSUB });
+                    }
                 }
             });
         }
 
-        private boolean shouldResend() {
+        private synchronized boolean shouldResend() {
             return sent;
         }
 
@@ -927,14 +931,16 @@ public class CluckPublisher {
                 node.transmit(path, linkName, new byte[] { RMT_EVENTINPUT });
             }
             return base.combine(() -> {
-                if (sent && !this.hasConsumers()) {
-                    sent = false;
-                    node.transmit(path, linkName, new byte[] { RMT_EVENTINPUT_UNSUB });
+                synchronized (SubscribedEventInput.this) {
+                    if (sent && !this.hasConsumers()) {
+                        sent = false;
+                        node.transmit(path, linkName, new byte[] { RMT_EVENTINPUT_UNSUB });
+                    }
                 }
             });
         }
 
-        private boolean shouldResend() {
+        private synchronized boolean shouldResend() {
             return sent;
         }
 

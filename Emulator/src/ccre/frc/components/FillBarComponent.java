@@ -46,7 +46,7 @@ public class FillBarComponent extends DeviceComponent implements FloatOutput {
         g.setColor(Color.WHITE);
         g.drawRect(startX - 1, startY - 1, barWidth + 1, barHeight + 1);
         g.setColor(Color.CYAN);
-        int actualLimitX = Math.round((barWidth / 2) * Math.min(1, Math.max(-1, value)));
+        int actualLimitX = Math.round((barWidth / 2f) * Math.min(1, Math.max(-1, value)));
         if (actualLimitX < 0) {
             g.fillRect(originX + actualLimitX, startY, -actualLimitX, barHeight);
         } else {
@@ -55,6 +55,7 @@ public class FillBarComponent extends DeviceComponent implements FloatOutput {
         return width;
     }
 
+    @Override
     public void set(float value) {
         this.value = value;
     }

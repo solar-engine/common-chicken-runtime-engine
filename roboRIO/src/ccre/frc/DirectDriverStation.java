@@ -85,7 +85,9 @@ class DirectDriverStation {
 
     public static void waitForData() throws InterruptedException {
         synchronized (updateLock) {
-            updateLock.wait();
+            while (!dataUpdated) {
+                updateLock.wait();
+            }
         }
     }
 

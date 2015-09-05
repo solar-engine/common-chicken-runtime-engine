@@ -62,6 +62,6 @@ class DirectEncoder {
     }
 
     public static float get(ByteBuffer port) {
-        return getRaw(port) / 4;
+        return getRaw(port) / 4f;
     }
 }

@@ -94,7 +94,7 @@ class CANJaguarMod {
          */
         Coast((byte) 2);
 
-        public byte value;
+        private final byte value;
 
         public static NeutralMode valueOf(byte value) {
             for (NeutralMode mode : values()) {
@@ -133,7 +133,7 @@ class CANJaguarMod {
          */
         SoftPositionLimits((byte) 1);
 
-        public byte value;
+        private final byte value;
 
         public static LimitMode valueOf(byte value) {
             for (LimitMode mode : values()) {
@@ -1730,10 +1730,11 @@ class CANJaguarMod {
     public void configFaultTime(float faultTime) {
         byte[] data = new byte[8];
 
-        if (faultTime < 0.5f)
+        if (faultTime < 0.5f) {
             faultTime = 0.5f;
-        else if (faultTime > 3.0f)
+        } else if (faultTime > 3.0f) {
             faultTime = 3.0f;
+        }
 
         int dataSize = packINT16(data, (short) (faultTime * 1000.0));
         sendMessage(CANJNI.LM_API_CFG_FAULT_TIME, data, dataSize);
@@ -2060,10 +2061,12 @@ class CANJaguarMod {
     }
 
     private static final byte packPercentage(byte[] buffer, double value) {
-        if (value < -1.0)
+        if (value < -1.0) {
             value = -1.0;
-        if (value > 1.0)
+        }
+        if (value > 1.0) {
             value = 1.0;
+        }
         short intValue = (short) (value * 32767.0);
         swap16(intValue, buffer);
         return 2;

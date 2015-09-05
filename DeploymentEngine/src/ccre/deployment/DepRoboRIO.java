@@ -42,6 +42,8 @@ public class DepRoboRIO {
 
     public static final int EXPECTED_IMAGE = 23;
 
+    private static final Random random = new Random();
+
     public class RIOShell extends Shell {
 
         private RIOShell(InetAddress ip, String username, String password, boolean alwaysTrust) throws IOException {
@@ -54,7 +56,7 @@ public class DepRoboRIO {
 
         public void archiveLogsTo(File destdir) throws IOException {
             if (this.exec("ls hs_* >/dev/null 2>/dev/null") == 0) {
-                long name = new Random().nextLong();
+                long name = random.nextLong();
                 this.exec("tar -czf logs-" + name + ".tgz ccre-storage/log-*");
                 this.exec("mkdir /tmp/logs-" + name + "/ && mv ccre-storage/log-* /tmp/" + name + "/");
                 Files.copy(this.receiveFile("logs-" + name + ".tgz"), new File(destdir, "logs-" + name + ".tgz").toPath());

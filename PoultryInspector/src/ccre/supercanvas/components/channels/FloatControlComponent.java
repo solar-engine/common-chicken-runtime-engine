@@ -256,7 +256,7 @@ public class FloatControlComponent extends BaseChannelComponent<FloatControlComp
         float value;
         switch (activeView) {
         case HORIZONTAL_POINTER:
-            value = (x - centerX - 1) / (float) (halfWidth * 2 / 3);
+            value = (x - centerX - 1) / (halfWidth * 2 / 3f);
             value = minimum + ((value + 1) / 2) * (maximum - minimum); // min to max, incl
             value = Math.min(maximum, Math.max(minimum, value));
             if (-0.1 < value && value < 0.1) {
@@ -315,18 +315,21 @@ public class FloatControlComponent extends BaseChannelComponent<FloatControlComp
         }
     }
 
-    private final class FakeFloatOutput implements FloatOutput, Serializable {
+    private static final class FakeFloatOutput implements FloatOutput, Serializable {
         private static final long serialVersionUID = 8588017785288111886L;
 
+        @Override
         public void set(float f) {
             // Do nothing. This is just so that we can make the remote end send us data by subscribing.
         }
     }
 
+    @Override
     public Entry[] queryRConf() throws InterruptedException {
         return rconfBase(RConf.string("minimum"), RConf.fieldFloat(minimum), RConf.string("maximum"), RConf.fieldFloat(maximum));
     }
 
+    @Override
     public boolean signalRConf(int field, byte[] data) throws InterruptedException {
         switch (rconfBase(field, data)) {
         case 1:

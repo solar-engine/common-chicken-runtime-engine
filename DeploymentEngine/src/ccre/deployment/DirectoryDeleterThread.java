@@ -19,6 +19,7 @@
 package ccre.deployment;
 
 import java.io.File;
+import java.io.IOException;
 
 import ccre.concurrency.ReporterThread;
 
@@ -36,14 +37,16 @@ class DirectoryDeleterThread extends ReporterThread {
         deleteRecursive(directory);
     }
 
-    private static void deleteRecursive(File dir) {
+    private static void deleteRecursive(File dir) throws IOException {
         if (dir.exists()) {
             if (dir.isDirectory()) {
-                for (File f : dir.listFiles()) {
+                for (File f : dir.listFiles()) { // Note: we don't need to worry about this being NULL due to being invalid because that would have caused dir.isDirectory() to return false.
                     deleteRecursive(f);
                 }
             }
-            dir.delete();
+            if (!dir.delete()) {
+                throw new IOException("Could not delete directory: " + dir);
+            }
         }
     }
 }

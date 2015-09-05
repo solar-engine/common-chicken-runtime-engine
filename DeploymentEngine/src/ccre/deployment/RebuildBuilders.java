@@ -54,7 +54,9 @@ public class RebuildBuilders {
     public static void rebuild(Class<?> deployment, String displayName, String methodName) throws IOException {
         File launches = DepProject.directory("launches");
         File launcher = new File(launches, DepProject.name() + " " + displayName + ".launch");
-        launches.mkdir();
+        if (!launches.exists() && !launches.mkdir()) {
+            throw new IOException("Could not created directory: " + launches);
+        }
         try (BufferedReader in = new BufferedReader(new InputStreamReader(RebuildBuilders.class.getResourceAsStream("/ccre/deployment/invocation-template.xml")))) {
             try (BufferedWriter out = new BufferedWriter(new FileWriter(launcher))) {
                 String line;

@@ -59,6 +59,16 @@ class NetworkPaletteElement implements PaletteEntry, Comparable<NetworkPaletteEl
         return name.compareTo(o.name);
     }
 
+    @Override
+    public boolean equals(Object obj) {
+        return obj instanceof NetworkPaletteElement && name.equals(((NetworkPaletteElement) obj).name);
+    }
+
+    @Override
+    public int hashCode() {
+        return name.hashCode();
+    }
+
     /**
      * @return the RMT type of this NetworkPaletteElement.
      */

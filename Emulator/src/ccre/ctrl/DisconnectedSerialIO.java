@@ -33,16 +33,19 @@ import ccre.log.Logger;
 public class DisconnectedSerialIO implements SerialIO {
 
     private boolean closed = false;
+    private final Object synch = new Object();
 
+    @Override
     public void setTermination(Character end) throws IOException {
         // don't care.
     }
 
+    @Override
     public synchronized byte[] readBlocking(int max) throws IOException {
         Logger.warning("Blocking read from DisconnectedSerialIO!");
         while (!closed) {
             try {
-                this.wait();
+                synch.wait();
             } catch (InterruptedException e) {
                 throw new InterruptedIOException("interrupted in DisconnectedSerialIO blocking read");
             }
@@ -50,6 +53,7 @@ public class DisconnectedSerialIO implements SerialIO {
         throw new IOException("DisconnectedSerialIO closed.");
     }
 
+    @Override
     public byte[] readNonblocking(int max) throws IOException {
         if (closed) {
             throw new IOException("DisconnectedSerialIO closed.");
@@ -57,6 +61,7 @@ public class DisconnectedSerialIO implements SerialIO {
         return new byte[0];
     }
 
+    @Override
     public void flush() throws IOException {
         if (closed) {
             throw new IOException("DisconnectedSerialIO closed.");
@@ -64,12 +69,14 @@ public class DisconnectedSerialIO implements SerialIO {
         // do nothing.
     }
 
+    @Override
     public synchronized void close() throws IOException {
         // do nothing.
         closed = true;
-        this.notifyAll();
+        synch.notifyAll();
     }
 
+    @Override
     public void setFlushOnWrite(boolean flushOnWrite) throws IOException {
         if (closed) {
             throw new IOException("DisconnectedSerialIO closed.");
@@ -77,6 +84,7 @@ public class DisconnectedSerialIO implements SerialIO {
         // don't care.
     }
 
+    @Override
     public void writeFully(byte[] bytes, int from, int to) throws IOException {
         if (closed) {
             throw new IOException("DisconnectedSerialIO closed.");
@@ -84,6 +92,7 @@ public class DisconnectedSerialIO implements SerialIO {
         // do nothing.
     }
 
+    @Override
     public int writePartial(byte[] bytes, int from, int to) throws IOException {
         if (closed) {
             throw new IOException("DisconnectedSerialIO closed.");

@@ -249,7 +249,7 @@ public class InternalUM7LT { // default rate: 115200 baud.
         }
         from += 3; // 'snp' has already been checked
         byte packet_type = bin[from];
-        byte address = bin[from + 1];
+        int address = bin[from + 1] & 0xFF;
         boolean has_data = (packet_type & 0x80) != 0;
         boolean is_batch = (packet_type & 0x40) != 0;
         int batch_length = is_batch ? (packet_type & 0x3C) >> 2 : -1;
@@ -279,14 +279,14 @@ public class InternalUM7LT { // default rate: 115200 baud.
             lastUpdateId = nextUpdateId;
             lastUpdateTime = System.currentTimeMillis();
             onUpdate.event();
-        } else if (address == (byte) 0xAA) {
+        } else if (address == 0xAA) {
             Logger.info("UM7LT firmware revision: " + new String(new char[] { (char) ((data[0] >> 24) & 0xFF), (char) ((data[0] >> 16) & 0xFF), (char) ((data[0] >> 8) & 0xFF), (char) (data[0] & 0xFF) }));
-        } else if (address == (byte) 0xAD) {
+        } else if (address == 0xAD) {
             Logger.config("UM7LT gyro calibrating...");
-        } else if (address == (byte) 0xC) {
+        } else if (address == 0xC) {
             Logger.config("UM7LT gyro calibration updated.");
         } else if (address != 0) {
-            Logger.finest("UNHANDLED BINARY MESSAGE " + Integer.toHexString(address & 0xFF) + " " + CArrayUtils.asList(data) + " [" + is_hidden + ":" + is_command_failed + "]");
+            Logger.finest("UNHANDLED BINARY MESSAGE " + Integer.toHexString(address & 0xFF) + " [" + is_hidden + ":" + is_command_failed + "]");
         }
         return 2 + 4 * data_count + 2 + 3; // two for checksum, three for the 'snp' that was stripped out. 
     }

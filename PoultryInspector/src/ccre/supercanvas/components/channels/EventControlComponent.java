@@ -166,9 +166,10 @@ public class EventControlComponent extends BaseChannelComponent<EventControlComp
         }
     }
 
-    private final class FakeEventOutput implements EventOutput, Serializable {
+    private static final class FakeEventOutput implements EventOutput, Serializable {
         private static final long serialVersionUID = 1493349644760515921L;
 
+        @Override
         public void event() {
             // Do nothing. This is just so that we can make the remote end send us data by subscribing.
         }
@@ -177,19 +178,22 @@ public class EventControlComponent extends BaseChannelComponent<EventControlComp
     private final class CountNotifier implements EventOutput, Serializable {
         private static final long serialVersionUID = 2028623211384850963L;
 
+        @Override
         public void event() {
             countStart = System.currentTimeMillis();
         }
     }
 
+    @Override
     public Entry[] queryRConf() throws InterruptedException {
         return rconfBase();
     }
 
+    @Override
     public boolean signalRConf(int field, byte[] data) throws InterruptedException {
         return rconfBase(field, data) == BASE_VALID;
     }
-    
+
     public EventInput asInput() {
         return stat;
     }

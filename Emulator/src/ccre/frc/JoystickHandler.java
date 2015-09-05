@@ -27,14 +27,14 @@ import java.util.ArrayList;
 import java.util.Properties;
 import java.util.WeakHashMap;
 
-import net.java.games.input.Component;
-import net.java.games.input.Controller;
-import net.java.games.input.ControllerEnvironment;
 import ccre.channel.EventInput;
 import ccre.channel.EventOutput;
 import ccre.ctrl.AbstractJoystick;
 import ccre.ctrl.IJoystick;
 import ccre.log.Logger;
+import net.java.games.input.Component;
+import net.java.games.input.Controller;
+import net.java.games.input.ControllerEnvironment;
 
 /**
  * Uses JInput to allow the Emulator to work with physical joysticks.
@@ -54,7 +54,9 @@ public class JoystickHandler {
                 f.deleteOnExit();
                 Logger.info("Putting binaries in: " + f);
                 Properties props = new Properties();
-                props.load(JoystickHandler.class.getResourceAsStream("/natives.properties"));
+                try (InputStream resource = JoystickHandler.class.getResourceAsStream("/natives.properties")) {
+                    props.load(resource);
+                }
                 Object str = props.get("natives");
                 if (!(str instanceof String)) {
                     throw new IOException("Bad type for natives field: " + str);
@@ -132,6 +134,7 @@ public class JoystickHandler {
          */
         public IJoystick getJoystick(EventInput check) {
             check.send(new EventOutput() {
+                @Override
                 public void event() {
                     if (ctrl != null) {
                         ctrl.ctrl.poll();
@@ -210,6 +213,7 @@ public class JoystickHandler {
             return ctrl.getName().contains("XBOX 360 For Windows") && axes.size() == 5;
         }
 
+        @Override
         public String toString() {
             return ctrl + " on " + ctrl.getPortType() + ":" + ctrl.getPortNumber();
         }

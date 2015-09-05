@@ -59,13 +59,13 @@ public class TestWorkarounds extends BaseTest {
         // TODO: maybe this should be changed to a more useful description string?
         assertObjectEqual(info.toString(), "class.null(null:-1)", "Bad toString()!");
         try {
-            info = new CallerInfo(null, "method", "file", 10);
+            new CallerInfo(null, "method", "file", 10);
             assertFail("Expected an IllegalArgumentException - can't have a NULL class!");
         } catch (IllegalArgumentException ex) {
             // correct!
         }
         try {
-            info = new CallerInfo(null, null, null, -1);
+            new CallerInfo(null, null, null, -1);
             assertFail("Expected an IllegalArgumentException - can't have a NULL class!");
         } catch (IllegalArgumentException ex) {
             // correct!

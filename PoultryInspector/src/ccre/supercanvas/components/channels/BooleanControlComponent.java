@@ -217,18 +217,21 @@ public class BooleanControlComponent extends BaseChannelComponent<BooleanControl
         }
     }
 
-    private final class FakeBooleanOutput implements BooleanOutput, Serializable {
+    private static final class FakeBooleanOutput implements BooleanOutput, Serializable {
         private static final long serialVersionUID = -5025143910878910655L;
 
+        @Override
         public void set(boolean b) {
             // Do nothing. This is just so that we can make the remote end send us data by subscribing.
         }
     }
 
+    @Override
     public Entry[] queryRConf() throws InterruptedException {
         return rconfBase();
     }
 
+    @Override
     public boolean signalRConf(int field, byte[] data) throws InterruptedException {
         return rconfBase(field, data) == BASE_VALID;
     }

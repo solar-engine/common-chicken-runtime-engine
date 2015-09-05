@@ -19,7 +19,7 @@ class CANTalonMod {
     public enum ControlMode {
         PercentVbus(0), Follower(5), Voltage(4), Position(1), Speed(2), Current(3), Disabled(15);
 
-        public int value;
+        private final int value;
 
         public static ControlMode valueOf(int value) {
             for (ControlMode mode : values()) {
@@ -59,7 +59,7 @@ class CANTalonMod {
     /** enumerated types for frame rate ms */
     public enum StatusFrameRate {
         General(0), Feedback(1), QuadEncoder(2), AnalogTempVbat(3);
-        public int value;
+        private final int value;
 
         public static StatusFrameRate valueOf(int value) {
             for (StatusFrameRate mode : values()) {
@@ -82,7 +82,7 @@ class CANTalonMod {
     int m_deviceNumber;
     boolean m_controlEnabled;
     int m_profile;
-    
+
     double m_setPoint;
 
     public CANTalonMod(int deviceNumber) {
@@ -196,14 +196,14 @@ class CANTalonMod {
             return getOutputCurrent();
         case Speed:
             m_impl.GetSensorVelocity(swigp);
-            return (double) CanTalonJNI.intp_value(valuep);
+            return CanTalonJNI.intp_value(valuep);
         case Position:
             m_impl.GetSensorPosition(swigp);
-            return (double) CanTalonJNI.intp_value(valuep);
+            return CanTalonJNI.intp_value(valuep);
         case PercentVbus:
         default:
             m_impl.GetAppliedThrottle(swigp);
-            return (double) CanTalonJNI.intp_value(valuep) / 1023.0;
+            return CanTalonJNI.intp_value(valuep) / 1023.0;
         }
     }
 
@@ -373,7 +373,7 @@ class CANTalonMod {
     public double getOutputVoltage() {
         long throttlep = CanTalonJNI.new_intp();
         m_impl.GetAppliedThrottle(new SWIGTYPE_p_int(throttlep, true));
-        double voltage = getBusVoltage() * (double) CanTalonJNI.intp_value(throttlep) / 1023.0;
+        double voltage = getBusVoltage() * CanTalonJNI.intp_value(throttlep) / 1023.0;
         return voltage;
     }
 
@@ -445,8 +445,9 @@ class CANTalonMod {
      */
     private void applyControlMode(ControlMode controlMode) {
         m_controlMode = controlMode;
-        if (controlMode == ControlMode.Disabled)
+        if (controlMode == ControlMode.Disabled) {
             m_controlEnabled = false;
+        }
         // Disable until set() is called.
         m_impl.SetModeSelect(ControlMode.Disabled.value);
     }
@@ -493,10 +494,11 @@ class CANTalonMod {
         //}
 
         // Update the information that we have.
-        if (m_profile == 0)
+        if (m_profile == 0) {
             m_impl.RequestParam(CanTalonSRX.param_t.eProfileParamSlot0_P);
-        else
+        } else {
             m_impl.RequestParam(CanTalonSRX.param_t.eProfileParamSlot1_P);
+        }
 
         // Briefly wait for new values from the Talon.
         Thread.sleep(kDelayForSolicitedSignalsMillis);
@@ -512,10 +514,11 @@ class CANTalonMod {
         //}
 
         // Update the information that we have.
-        if (m_profile == 0)
+        if (m_profile == 0) {
             m_impl.RequestParam(CanTalonSRX.param_t.eProfileParamSlot0_I);
-        else
+        } else {
             m_impl.RequestParam(CanTalonSRX.param_t.eProfileParamSlot1_I);
+        }
 
         // Briefly wait for new values from the Talon.
         Thread.sleep(kDelayForSolicitedSignalsMillis);
@@ -531,10 +534,11 @@ class CANTalonMod {
         //}
 
         // Update the information that we have.
-        if (m_profile == 0)
+        if (m_profile == 0) {
             m_impl.RequestParam(CanTalonSRX.param_t.eProfileParamSlot0_D);
-        else
+        } else {
             m_impl.RequestParam(CanTalonSRX.param_t.eProfileParamSlot1_D);
+        }
 
         // Briefly wait for new values from the Talon.
         Thread.sleep(kDelayForSolicitedSignalsMillis);
@@ -550,10 +554,11 @@ class CANTalonMod {
         //}
 
         // Update the information that we have.
-        if (m_profile == 0)
+        if (m_profile == 0) {
             m_impl.RequestParam(CanTalonSRX.param_t.eProfileParamSlot0_F);
-        else
+        } else {
             m_impl.RequestParam(CanTalonSRX.param_t.eProfileParamSlot1_F);
+        }
 
         // Briefly wait for new values from the Talon.
         Thread.sleep(kDelayForSolicitedSignalsMillis);
@@ -569,10 +574,11 @@ class CANTalonMod {
         //}
 
         // Update the information that we have.
-        if (m_profile == 0)
+        if (m_profile == 0) {
             m_impl.RequestParam(CanTalonSRX.param_t.eProfileParamSlot0_IZone);
-        else
+        } else {
             m_impl.RequestParam(CanTalonSRX.param_t.eProfileParamSlot1_IZone);
+        }
 
         // Briefly wait for new values from the Talon.
         Thread.sleep(kDelayForSolicitedSignalsMillis);
@@ -598,10 +604,11 @@ class CANTalonMod {
         //      }
 
         // Update the information that we have.
-        if (m_profile == 0)
+        if (m_profile == 0) {
             m_impl.RequestParam(CanTalonSRX.param_t.eProfileParamSlot0_CloseLoopRampRate);
-        else
+        } else {
             m_impl.RequestParam(CanTalonSRX.param_t.eProfileParamSlot1_CloseLoopRampRate);
+        }
 
         // Briefly wait for new values from the Talon.
         Thread.sleep(kDelayForSolicitedSignalsMillis);
@@ -752,8 +759,9 @@ class CANTalonMod {
      */
     public void setPID(double p, double i, double d, double f, int izone, double closeLoopRampRate, int profile)
     {
-        if (profile != 0 && profile != 1)
+        if (profile != 0 && profile != 1) {
             throw new IllegalArgumentException("Talon PID profile must be 0 or 1.");
+        }
         m_profile = profile;
         setProfile(profile);
         setP(p);
@@ -781,8 +789,9 @@ class CANTalonMod {
      */
     public void setProfile(int profile)
     {
-        if (profile != 0 && profile != 1)
+        if (profile != 0 && profile != 1) {
             throw new IllegalArgumentException("Talon PID profile must be 0 or 1.");
+        }
         m_profile = profile;
         m_impl.SetProfileSlotSelect(m_profile);
     }

@@ -52,7 +52,7 @@ public class Folder extends Artifact {
     }
 
     private void listFiles(File folder, List<String> files, String prefix) {
-        for (File f : folder.listFiles()) {
+        for (File f : folder.listFiles()) {// we don't need to worry about the return value being null because we know that folder exists, so we also know that it's a valid path, and null is only returned on an invalid path.
             String name = join(prefix, f.getName());
             if (f.isDirectory()) {
                 listFiles(f, files, name);

@@ -79,7 +79,6 @@ public final class DirectFRCImplementation implements FRCImplementation {
             if (version.exists()) {
                 version.delete();
             }
-            version.createNewFile();
             try (FileOutputStream output = new FileOutputStream(version)) {
                 output.write(("CCRE " + Version.getShortVersion() + ": 2015 Java 1.0.0").getBytes());
             }
@@ -194,7 +193,9 @@ public final class DirectFRCImplementation implements FRCImplementation {
     public DirectFRCImplementation() {
         FRCNetworkCommunicationsLibrary.FRCNetworkCommunicationUsageReportingReport((byte) tResourceType.kResourceType_Language, (byte) tInstances.kLanguage_Java, (byte) 0, "With the CCRE: the CommonChickenRuntimeEngine");
         File rootDir = new File("/home/lvuser/ccre-storage");
-        rootDir.mkdirs();
+        if (!rootDir.exists() && !rootDir.mkdirs()) {
+            Logger.warning("Could not create rootDir! Something might break...");
+        }
         DefaultStorageProvider.register(rootDir);
         NetworkAutologger.register();
         BootLogger.register();

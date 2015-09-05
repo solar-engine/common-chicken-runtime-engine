@@ -56,6 +56,10 @@ public final class ExpirationTimer {
      */
     private long startedAt;
     /**
+     * The synchronization object for this class.
+     */
+    private final Object synch = new Object();
+    /**
      * The main thread of the Expiration Timer.
      */
     private final ReporterThread main = new ReporterThread("ExpirationTimer") {
@@ -250,7 +254,7 @@ public final class ExpirationTimer {
         for (Task t : tasks) {
             long rel = startAt + t.delay - System.currentTimeMillis();
             while (rel > 0) {
-                wait(rel);
+                synch.wait(rel);
                 rel = startAt + t.delay - System.currentTimeMillis();
             }
             try {
@@ -265,12 +269,12 @@ public final class ExpirationTimer {
         while (!terminated) {
             try {
                 while (!isStarted.get()) {
-                    this.wait();
+                    synch.wait();
                 }
                 recalculateTasks();
                 runTasks();
-                while (isStarted.get()) { // Once finished, wait to stop before restarting.
-                    this.wait();
+                while (isStarted.get()) {// Once finished, wait to stop before restarting.
+                    synch.wait();
                 }
             } catch (InterruptedException ex) {
             }
@@ -288,7 +292,7 @@ public final class ExpirationTimer {
             throw new IllegalStateException("Timer is not running!");
         }
         startedAt = System.currentTimeMillis();
-        notifyAll();
+        synch.notifyAll();
         main.interrupt();
     }
 
@@ -303,7 +307,7 @@ public final class ExpirationTimer {
             throw new IllegalStateException("Timer is not running!");
         }
         isStarted.set(false);
-        notifyAll();
+        synch.notifyAll();
         main.interrupt();
     }
 
@@ -518,6 +522,16 @@ public final class ExpirationTimer {
 
         public int compareTo(Task o) {
             return Long.compare(delay, o.delay);
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            return obj instanceof Task && delay == ((Task) obj).delay;
+        }
+
+        @Override
+        public int hashCode() {
+            return (int) (delay ^ (delay >> 32));
         }
     }
 

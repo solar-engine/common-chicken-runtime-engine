@@ -98,7 +98,7 @@ public class RConfComponent extends DraggableBoxComponent {
             trigger();
         }
 
-        public boolean recentlySent(int field, int within) {
+        public synchronized boolean recentlySent(int field, int within) {
             return signalField == field && System.currentTimeMillis() - lastSent < within;
         }
     }
@@ -127,7 +127,7 @@ public class RConfComponent extends DraggableBoxComponent {
     private transient Ticker autoRefreshTicker = null;
 
     @Override
-    protected void onChangePanel(SuperCanvasPanel newPanel) {
+    protected synchronized void onChangePanel(SuperCanvasPanel newPanel) {
         if (newPanel == null) {
             if (signaler != null) {
                 signaler.terminate();
@@ -161,7 +161,7 @@ public class RConfComponent extends DraggableBoxComponent {
 
     private synchronized void setAutoRefreshDelay(Integer delay) {
         if (delay != null && delay < 10000) {
-            delay = (int) Math.min(Math.round(delay * Math.pow(2, consecutiveUpdateFailures / 5)), 10000);
+            delay = (int) Math.min(Math.round(delay * Math.pow(2, consecutiveUpdateFailures / 5f)), 10000);
         }
         if (delay != null && delay < 10) {
             delay = 10;
@@ -177,6 +177,7 @@ public class RConfComponent extends DraggableBoxComponent {
         if (delay != null) {
             autoRefreshTicker = new Ticker(delay);
             autoRefreshTicker.send(new EventOutput() {
+                @Override
                 public void event() {
                     if (getPanel() == null) {
                         setAutoRefreshDelay(null);

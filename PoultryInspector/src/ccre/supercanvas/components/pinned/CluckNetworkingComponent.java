@@ -107,7 +107,7 @@ public class CluckNetworkingComponent extends SuperCanvasComponent {
         }
     }
 
-    private String getStatusMessage() {
+    private synchronized String getStatusMessage() {
         if (client == null) {
             return "not ready";
         } else if (client.isReconnecting()) {

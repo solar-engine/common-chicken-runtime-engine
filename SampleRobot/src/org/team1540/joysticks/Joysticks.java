@@ -30,10 +30,10 @@ import ccre.frc.FRCApplication;
  */
 public class Joysticks implements FRCApplication {
 
-
     /**
      * Set up the robot.
      */
+    @Override
     public void setupRobot() {
         publishJoystick(1, FRC.joystick1);
         publishJoystick(2, FRC.joystick2);
@@ -48,10 +48,8 @@ public class Joysticks implements FRCApplication {
         for (int button = 1; button <= 12; button++) {
             Cluck.publish("Joystick " + id + " Button " + button, joy.button(button));
         }
-        if (FRC.isRoboRIO()) {
-            for (int direction : IJoystick.POV_DIRECTIONS) {
-                Cluck.publish("Joystick " + id + " POV Pressed (" + direction + ")", joy.isPOV(direction));
-            }
+        for (int direction : IJoystick.POV_DIRECTIONS) {
+            Cluck.publish("Joystick " + id + " POV Pressed (" + direction + ")", joy.isPOV(direction));
         }
     }
 }

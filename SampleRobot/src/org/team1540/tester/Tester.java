@@ -37,43 +37,39 @@ public class Tester implements FRCApplication {
      * Set up the robot. For the testing robot, this means publishing all the
      * motors.
      */
+    @Override
     public void setupRobot() {
-        int base = FRC.isRoboRIO() ? 0 : 1;
-        final FloatOutput[] outs = new FloatOutput[FRC.isRoboRIO() ? 20 : 10];
-        for (int i = base; i < (FRC.isRoboRIO() ? 20 : 10) + base; i++) {
-            Cluck.publish("talon-" + i, outs[i - base] = FRC.makeTalonMotor(i, false, 0.1f));
+        final FloatOutput[] outs = new FloatOutput[20];
+        for (int i = 0; i < 20; i++) {
+            Cluck.publish("talon-" + i, outs[i] = FRC.makeTalonMotor(i, false, 0.1f));
         }
-        Cluck.publish("talon-all", new FloatOutput() {
-            public void set(float value) {
-                for (FloatOutput out : outs) {
-                    out.set(value);
-                }
+        Cluck.publish("talon-all", (FloatOutput) value -> {// TODO: make this work better. should be standard library!
+            for (FloatOutput out : outs) {
+                out.set(value);
             }
         });
-        for (int i = base; i < (FRC.isRoboRIO() ? 4 : 8) + base; i++) {
+        for (int i = 0; i < 4; i++) {
             Cluck.publish("relay-" + i + "-fwd", FRC.makeForwardRelay(i));
             Cluck.publish("relay-" + i + "-rev", FRC.makeReverseRelay(i));
         }
-        for (int i = base; i < 8 + base; i++) {
+        for (int i = 0; i < 8; i++) {
             Cluck.publish("solenoid-" + i, FRC.makeSolenoid(i));
         }
-        for (int i = base; i < 4 + base; i++) {
+        for (int i = 0; i < 4; i++) {
             Cluck.publish("analog-" + i, FRC.makeAnalogInput(i, 8));
         }
         Cluck.publish("input-voltage", FRC.getChannelVoltage(FRC.POWER_CHANNEL_BATTERY));
-        if (FRC.isRoboRIO()) {
-            Cluck.publish("input-current", FRC.getChannelCurrent(FRC.POWER_CHANNEL_BATTERY));
-            Cluck.publish("6v-voltage", FRC.getChannelVoltage(FRC.POWER_CHANNEL_6V));
-            Cluck.publish("6v-current", FRC.getChannelCurrent(FRC.POWER_CHANNEL_6V));
-            Cluck.publish("5v-voltage", FRC.getChannelVoltage(FRC.POWER_CHANNEL_5V));
-            Cluck.publish("5v-current", FRC.getChannelCurrent(FRC.POWER_CHANNEL_5V));
-            Cluck.publish("3.3v-voltage", FRC.getChannelVoltage(FRC.POWER_CHANNEL_3V3));
-            Cluck.publish("3.3v-current", FRC.getChannelCurrent(FRC.POWER_CHANNEL_3V3));
-            for (int i = base; i < 16 + base; i++) {
-                Cluck.publish("current-" + i, FRC.getPDPChannelCurrent(i));
-            }
-            Cluck.publish("compressor", FRC.usePCMCompressor());
-            Cluck.publish("pdp-voltage", FRC.getPDPVoltage());
+        Cluck.publish("input-current", FRC.getChannelCurrent(FRC.POWER_CHANNEL_BATTERY));
+        Cluck.publish("6v-voltage", FRC.getChannelVoltage(FRC.POWER_CHANNEL_6V));
+        Cluck.publish("6v-current", FRC.getChannelCurrent(FRC.POWER_CHANNEL_6V));
+        Cluck.publish("5v-voltage", FRC.getChannelVoltage(FRC.POWER_CHANNEL_5V));
+        Cluck.publish("5v-current", FRC.getChannelCurrent(FRC.POWER_CHANNEL_5V));
+        Cluck.publish("3.3v-voltage", FRC.getChannelVoltage(FRC.POWER_CHANNEL_3V3));
+        Cluck.publish("3.3v-current", FRC.getChannelCurrent(FRC.POWER_CHANNEL_3V3));
+        for (int i = 0; i < 16; i++) {
+            Cluck.publish("current-" + i, FRC.getPDPChannelCurrent(i));
         }
+        Cluck.publish("compressor", FRC.usePCMCompressor());
+        Cluck.publish("pdp-voltage", FRC.getPDPVoltage());
     }
 }

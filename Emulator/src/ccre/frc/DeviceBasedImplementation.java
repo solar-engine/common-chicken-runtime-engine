@@ -26,18 +26,14 @@ import ccre.channel.FloatOutput;
 import ccre.channel.SerialIO;
 import ccre.ctrl.DisconnectedSerialIO;
 import ccre.ctrl.ExtendedMotor;
-import ccre.ctrl.FakeJoystick;
 import ccre.ctrl.IJoystick;
 import ccre.ctrl.LoopbackSerialIO;
 import ccre.ctrl.Ticker;
 import ccre.ctrl.binding.ControlBindingCreator;
-import ccre.frc.FRC;
-import ccre.frc.FRCImplementation;
 import ccre.frc.devices.BooleanControlDevice;
 import ccre.frc.devices.BooleanViewDevice;
 import ccre.frc.devices.CANJaguarDevice;
 import ccre.frc.devices.CANTalonDevice;
-import ccre.frc.devices.DSLCDDevice;
 import ccre.frc.devices.Disableable;
 import ccre.frc.devices.FloatControlDevice;
 import ccre.frc.devices.FloatViewDevice;
@@ -49,7 +45,7 @@ import ccre.frc.devices.SpinDevice;
 import ccre.log.Logger;
 
 /**
- * The FRCImplementation provided to an emulated FRC robot, for cRIO or roboRIO.
+ * The FRCImplementation provided to an emulated roboRIO robot.
  *
  * @author skeggsc
  */
@@ -59,40 +55,31 @@ public class DeviceBasedImplementation implements FRCImplementation {
      * The DeviceListPanel used for all the virtual devices.
      */
     public final DeviceListPanel panel = new DeviceListPanel();
-    private final boolean isRoboRIO;
-    private final int baseIndex;
     private final JoystickHandler joyHandler = new JoystickHandler();
     private final EventInput onInitComplete;
 
     /**
-     * Create a new DeviceBasedImplementation for either the cRIO or roboRIO.
+     * Create a new DeviceBasedImplementation for the roboRIO.
      *
-     * @param isRoboRIO specifies if the emulated robot should have a roboRIO
-     * instead of a cRIO.
      * @param onInitComplete should be fired once the user program has
      * initialized.
      */
-    public DeviceBasedImplementation(boolean isRoboRIO, EventInput onInitComplete) {
-        this.isRoboRIO = isRoboRIO;
+    public DeviceBasedImplementation(EventInput onInitComplete) {
         this.onInitComplete = onInitComplete;
-        baseIndex = isRoboRIO ? 0 : 1;
-        joysticks = new IJoystick[isRoboRIO ? 6 : 4];
-        motors = new FloatOutput[isRoboRIO ? 20 : 10];
-        solenoids = new BooleanOutput[isRoboRIO ? 64 : 2][8];
-        digitalOutputs = new BooleanOutput[isRoboRIO ? 26 : 14];
+        joysticks = new IJoystick[6];
+        motors = new FloatOutput[20];
+        solenoids = new BooleanOutput[64][8];
+        digitalOutputs = new BooleanOutput[26];
         digitalInputs = new BooleanInput[digitalOutputs.length];
-        analogInputs = new FloatInput[isRoboRIO ? 8 : 14];
+        analogInputs = new FloatInput[8];
         servos = new FloatOutput[motors.length];
-        relaysFwd = new BooleanOutput[isRoboRIO ? 4 : 8];
+        relaysFwd = new BooleanOutput[4];
         relaysRev = new BooleanOutput[relaysFwd.length];
         mode = panel.add(new RobotModeDevice());
-        mode.getIsEnabled().send(new BooleanOutput() {
-            @Override
-            public void set(boolean enabled) {
-                for (Device d : panel) {
-                    if (d instanceof Disableable) {
-                        ((Disableable) d).notifyDisabled(!enabled);
-                    }
+        mode.getIsEnabled().send(enabled -> {
+            for (Device d : panel) {
+                if (d instanceof Disableable) {
+                    ((Disableable) d).notifyDisabled(!enabled);
                 }
             }
         });
@@ -108,10 +95,10 @@ public class DeviceBasedImplementation implements FRCImplementation {
     }
 
     private int checkRange(String name, int id, Object[] target) {
-        if (id < baseIndex || id >= target.length + baseIndex) {
+        if (id < 0 || id >= target.length) {
             throw new IllegalArgumentException(name + " index out-of-range: " + id);
         }
-        return id - baseIndex;
+        return id;
     }
 
     private final RobotModeDevice mode;
@@ -120,37 +107,20 @@ public class DeviceBasedImplementation implements FRCImplementation {
 
     private IJoystick[] joysticks;
 
+    @Override
     public IJoystick getJoystick(int id) {
-        if ((id == 5 || id == 6) && !isRoboRIO()) {
-            return new FakeJoystick("The cRIO doesn't support Joystick #5 or #6!");
-        }
         if (id < 1 || id > joysticks.length) {
             throw new IllegalArgumentException("Invalid Joystick #" + id + "!");
         }
         if (joysticks[id - 1] == null) {
-            joysticks[id - 1] = new JoystickDevice(id, isRoboRIO, panel, joyHandler).getJoystick(masterPeriodic);
+            joysticks[id - 1] = new JoystickDevice(id, true, panel, joyHandler).getJoystick(masterPeriodic);
         }
         return joysticks[id - 1];
     }
 
-    private IJoystick rightKinect, leftKinect;
-
-    public IJoystick getKinectJoystick(boolean isRightArm) {
-        if (isRightArm) {
-            if (rightKinect == null) {
-                rightKinect = new JoystickDevice("Kinect Right Arm", isRoboRIO, panel, joyHandler).addToMaster().getJoystick(masterPeriodic);
-            }
-            return rightKinect;
-        } else {
-            if (leftKinect == null) {
-                leftKinect = new JoystickDevice("Kinect Left Arm", isRoboRIO, panel, joyHandler).addToMaster().getJoystick(masterPeriodic);
-            }
-            return leftKinect;
-        }
-    }
-
     private FloatOutput[] motors;
 
+    @Override
     public FloatOutput makeMotor(int id, int type) {
         int index = checkRange("Motor", id, motors);
         if (motors[index] == null) {
@@ -174,19 +144,19 @@ public class DeviceBasedImplementation implements FRCImplementation {
         return motors[index];
     }
 
+    @Override
     public ExtendedMotor makeCANJaguar(int deviceNumber) {
         return new CANJaguarDevice(deviceNumber, panel).addToMaster().getMotor();
     }
 
+    @Override
     public ExtendedMotor makeCANTalon(int deviceNumber) {
-        if (!isRoboRIO()) {
-            throw new IllegalArgumentException("Cannot use a CANTalon on a cRIO!");
-        }
         return new CANTalonDevice(deviceNumber, panel).addToMaster().getMotor();
     }
 
     private BooleanOutput[][] solenoids;
 
+    @Override
     public BooleanOutput makeSolenoid(int module, int id) {
         int moduleIndex = checkRange("Solenoid Module", module, solenoids);
         int index = checkRange("Solenoid", id, solenoids[moduleIndex]);
@@ -198,6 +168,7 @@ public class DeviceBasedImplementation implements FRCImplementation {
 
     private BooleanOutput[] digitalOutputs;
 
+    @Override
     public BooleanOutput makeDigitalOutput(int id) {
         int index = checkRange("Digital Output", id, digitalOutputs);
         if (digitalOutputs[index] == null) {
@@ -208,6 +179,7 @@ public class DeviceBasedImplementation implements FRCImplementation {
 
     private BooleanInput[] digitalInputs;
 
+    @Override
     public BooleanInput makeDigitalInput(int id, EventInput updateOn) {
         int index = checkRange("Digital Input", id, digitalInputs);
         if (digitalInputs[index] == null) {
@@ -216,6 +188,7 @@ public class DeviceBasedImplementation implements FRCImplementation {
         return digitalInputs[index];
     }
 
+    @Override
     public BooleanInput makeDigitalInputByInterrupt(int id) {
         int index = checkRange("Digital Input", id, digitalInputs);
         if (digitalInputs[index] == null) {
@@ -226,6 +199,7 @@ public class DeviceBasedImplementation implements FRCImplementation {
 
     private FloatInput[] analogInputs;
 
+    @Override
     public FloatInput makeAnalogInput(int id, EventInput updateOn) {
         int index = checkRange("Analog Input", id, analogInputs);
         if (analogInputs[index] == null) {
@@ -234,12 +208,14 @@ public class DeviceBasedImplementation implements FRCImplementation {
         return analogInputs[index];
     }
 
+    @Override
     public FloatInput makeAnalogInput(int id, int averageBits, EventInput updateOn) {
         return makeAnalogInput(id, updateOn);
     }
 
     private FloatOutput[] servos;
 
+    @Override
     public FloatOutput makeServo(int id, float minInput, float maxInput) {
         int index = checkRange("Servo", id, servos);
         if (servos[index] == null) {
@@ -248,32 +224,24 @@ public class DeviceBasedImplementation implements FRCImplementation {
         return servos[index];
     }
 
-    private DSLCDDevice dslcd;
-
-    public void sendDSUpdate(String value, int lineid) {
-        if (isRoboRIO()) {
-            throw new IllegalStateException("DS LCD does not exist on roboRIO.");
-        }
-        if (dslcd == null) {
-            dslcd = new DSLCDDevice();
-        }
-        dslcd.update(lineid, value);
-    }
-
+    @Override
     public BooleanInput getIsDisabled() {
         return mode.getIsMode(RobotModeDevice.RobotMode.DISABLED);
     }
 
+    @Override
     public BooleanInput getIsAutonomous() {
         return mode.getIsMode(RobotModeDevice.RobotMode.AUTONOMOUS);
     }
 
+    @Override
     public BooleanInput getIsTest() {
         return mode.getIsMode(RobotModeDevice.RobotMode.TESTING);
     }
 
     private BooleanInput isFMS;
 
+    @Override
     public BooleanInput getIsFMS() {
         if (isFMS == null) {
             isFMS = panel.add(new BooleanControlDevice("On FMS")).asInput();
@@ -281,12 +249,14 @@ public class DeviceBasedImplementation implements FRCImplementation {
         return isFMS;
     }
 
+    @Override
     public FloatInput makeEncoder(int aChannel, int bChannel, boolean reverse, EventInput resetWhen, EventInput updateOn) {
         return panel.add(new SpinDevice("Encoder " + aChannel + ":" + bChannel + (reverse ? " (REVERSED)" : ""), resetWhen)).asInput();
     }
 
     private BooleanOutput[] relaysFwd;
 
+    @Override
     public BooleanOutput makeRelayForwardOutput(int channel) {
         int index = checkRange("Relay", channel, relaysFwd);
         if (relaysFwd[index] == null) {
@@ -297,6 +267,7 @@ public class DeviceBasedImplementation implements FRCImplementation {
 
     private BooleanOutput[] relaysRev;
 
+    @Override
     public BooleanOutput makeRelayReverseOutput(int channel) {
         int index = checkRange("Relay", channel, relaysRev);
         if (relaysRev[index] == null) {
@@ -305,12 +276,14 @@ public class DeviceBasedImplementation implements FRCImplementation {
         return relaysRev[index];
     }
 
+    @Override
     public FloatInput makeGyro(int port, double sensitivity, EventInput resetWhen, EventInput updateOn) {
         return panel.add(new SpinDevice("Gyro " + port + " (Sensitivity " + sensitivity + ")", resetWhen)).asInput();
     }
 
     private FloatInput batteryLevel;
 
+    @Override
     public FloatInput getBatteryVoltage(EventInput updateOn) {
         if (batteryLevel == null) {
             batteryLevel = panel.add(new FloatControlDevice("Battery Voltage (6.5V-12.5V)", 6.5f, 12.5f, 9.5f, 6.5f)).asInput();
@@ -318,6 +291,7 @@ public class DeviceBasedImplementation implements FRCImplementation {
         return batteryLevel;
     }
 
+    @Override
     public EventInput getGlobalPeriodic() {
         return masterPeriodic;
     }
@@ -330,34 +304,42 @@ public class DeviceBasedImplementation implements FRCImplementation {
         return masterPeriodic.and(mode.getIsMode(target));
     }
 
+    @Override
     public EventInput getStartAuto() {
         return getModeBecomes(RobotModeDevice.RobotMode.AUTONOMOUS);
     }
 
+    @Override
     public EventInput getDuringAuto() {
         return getModeDuring(RobotModeDevice.RobotMode.AUTONOMOUS);
     }
 
+    @Override
     public EventInput getStartTele() {
         return getModeBecomes(RobotModeDevice.RobotMode.TELEOPERATED);
     }
 
+    @Override
     public EventInput getDuringTele() {
         return getModeDuring(RobotModeDevice.RobotMode.TELEOPERATED);
     }
 
+    @Override
     public EventInput getStartTest() {
         return getModeBecomes(RobotModeDevice.RobotMode.TESTING);
     }
 
+    @Override
     public EventInput getDuringTest() {
         return getModeDuring(RobotModeDevice.RobotMode.TESTING);
     }
 
+    @Override
     public EventInput getStartDisabled() {
         return getModeBecomes(RobotModeDevice.RobotMode.DISABLED);
     }
 
+    @Override
     public EventInput getDuringDisabled() {
         return getModeDuring(RobotModeDevice.RobotMode.DISABLED);
     }
@@ -365,10 +347,8 @@ public class DeviceBasedImplementation implements FRCImplementation {
     private final BooleanViewDevice pcmCompressor = new BooleanViewDevice("PCM Compressor Closed-Loop Control", true);
     private boolean pcmCompressorAdded = false;
 
+    @Override
     public synchronized BooleanOutput usePCMCompressor() {
-        if (!isRoboRIO()) {
-            throw new IllegalArgumentException("Cannot use a PCM on a cRIO!");
-        }
         if (!pcmCompressorAdded) {
             panel.add(pcmCompressor);
             pcmCompressorAdded = true;
@@ -378,23 +358,20 @@ public class DeviceBasedImplementation implements FRCImplementation {
 
     private BooleanInput pcmPressureSwitch;
 
+    @Override
     public BooleanInput getPCMPressureSwitch(EventInput updateOn) {
-        if (!isRoboRIO()) {
-            throw new IllegalArgumentException("Cannot use a PCM on a cRIO!");
-        }
         if (pcmPressureSwitch == null) {
             pcmPressureSwitch = panel.add(new BooleanControlDevice("PCM Pressure Switch")).asInput();
         }
         return pcmPressureSwitch;
     }
 
+    @Override
     public BooleanInput getPCMCompressorRunning(EventInput updateOn) {
-        if (!isRoboRIO()) {
-            throw new IllegalArgumentException("Cannot use a PCM on a cRIO!");
-        }
         return pcmCompressor.asInput().and(getPCMPressureSwitch(updateOn).not());
     }
 
+    @Override
     public FloatInput getPCMCompressorCurrent(EventInput updateOn) {
         return getAmperage("PCM Compressor", updateOn);
     }
@@ -403,26 +380,27 @@ public class DeviceBasedImplementation implements FRCImplementation {
         return panel.add(new FloatControlDevice(label + " Current (0A-100A)", 0, 100, 0.5f, 0.0f)).asInput();
     }
 
+    @Override
     public FloatInput getPDPChannelCurrent(int channel, EventInput updateOn) {
         return getAmperage("PDP Channel " + channel, updateOn);
     }
 
+    @Override
     public FloatInput getPDPVoltage(EventInput updateOn) {
         return panel.add(new FloatControlDevice("PDP Voltage (6.5V-12.5V)", 6.5f, 12.5f, 9.5f, 6.5f)).asInput();
     }
 
-    public boolean isRoboRIO() {
-        return isRoboRIO;
-    }
-
+    @Override
     public SerialIO makeRS232_Onboard(int baudRate, String deviceName) {
         return makeRS232("RS232 Onboard: " + baudRate, deviceName);
     }
 
+    @Override
     public SerialIO makeRS232_MXP(int baudRate, String deviceName) {
         return makeRS232("RS232 MXP: " + baudRate, deviceName);
     }
 
+    @Override
     public SerialIO makeRS232_USB(int baudRate, String deviceName) {
         return makeRS232("RS232 USB: " + baudRate, deviceName);
     }
@@ -438,87 +416,76 @@ public class DeviceBasedImplementation implements FRCImplementation {
         }
     }
 
+    @Override
     public FloatInput getChannelVoltage(int powerChannel, EventInput updateOn) {
-        if (!isRoboRIO()) {
-            if (powerChannel == FRC.POWER_CHANNEL_BATTERY) {
-                return getBatteryVoltage(updateOn);
-            } else {
-                Logger.warning("Voltage channels besides POWER_CHANNEL_BATTERY are not available on the cRIO!");
-                return FloatInput.always(-1);
-            }
-        } else {
-            switch (powerChannel) {
-            case FRC.POWER_CHANNEL_BATTERY:
-                return getBatteryVoltage(updateOn);
-            case FRC.POWER_CHANNEL_3V3:
-                return panel.add(new FloatControlDevice("Rail Voltage 3.3V (0V-4V)", 0.0f, 4.0f, 3.3f, 0.0f)).asInput();
-            case FRC.POWER_CHANNEL_5V:
-                return panel.add(new FloatControlDevice("Rail Voltage 5V (0V-6V)", 0.0f, 6.0f, 5.0f, 0.0f)).asInput();
-            case FRC.POWER_CHANNEL_6V:
-                return panel.add(new FloatControlDevice("Rail Voltage 6V (0V-7V)", 0.0f, 7.0f, 6.0f, 0.0f)).asInput();
-            default:
-                Logger.warning("Unknown power channel: " + powerChannel);
-                return FloatInput.always(-1);
-            }
-        }
-    }
-
-    public FloatInput getChannelCurrent(int powerChannel, EventInput updateOn) {
-        if (!isRoboRIO()) {
-            Logger.warning("Current channels are not available on the cRIO!");
+        switch (powerChannel) {
+        case FRC.POWER_CHANNEL_BATTERY:
+            return getBatteryVoltage(updateOn);
+        case FRC.POWER_CHANNEL_3V3:
+            return panel.add(new FloatControlDevice("Rail Voltage 3.3V (0V-4V)", 0.0f, 4.0f, 3.3f, 0.0f)).asInput();
+        case FRC.POWER_CHANNEL_5V:
+            return panel.add(new FloatControlDevice("Rail Voltage 5V (0V-6V)", 0.0f, 6.0f, 5.0f, 0.0f)).asInput();
+        case FRC.POWER_CHANNEL_6V:
+            return panel.add(new FloatControlDevice("Rail Voltage 6V (0V-7V)", 0.0f, 7.0f, 6.0f, 0.0f)).asInput();
+        default:
+            Logger.warning("Unknown power channel: " + powerChannel);
             return FloatInput.always(-1);
-        } else {
-            switch (powerChannel) {
-            case FRC.POWER_CHANNEL_BATTERY:
-                return panel.add(new FloatControlDevice("Battery Current (0-100A)", 0.0f, 100.0f, 5.0f, 0.0f)).asInput();
-            case FRC.POWER_CHANNEL_3V3:
-                return panel.add(new FloatControlDevice("Rail Current 3.3V (0-100A)", 0.0f, 100.0f, 5.0f, 0.0f)).asInput();
-            case FRC.POWER_CHANNEL_5V:
-                return panel.add(new FloatControlDevice("Rail Current 5V (0-100A)", 0.0f, 100.0f, 5.0f, 0.0f)).asInput();
-            case FRC.POWER_CHANNEL_6V:
-                return panel.add(new FloatControlDevice("Rail Current 6V (0-100A)", 0.0f, 100.0f, 5.0f, 0.0f)).asInput();
-            default:
-                Logger.warning("Unknown power channel: " + powerChannel);
-                return FloatInput.always(-1);
-            }
         }
     }
 
+    @Override
+    public FloatInput getChannelCurrent(int powerChannel, EventInput updateOn) {
+        switch (powerChannel) {
+        case FRC.POWER_CHANNEL_BATTERY:
+            return panel.add(new FloatControlDevice("Battery Current (0-100A)", 0.0f, 100.0f, 5.0f, 0.0f)).asInput();
+        case FRC.POWER_CHANNEL_3V3:
+            return panel.add(new FloatControlDevice("Rail Current 3.3V (0-100A)", 0.0f, 100.0f, 5.0f, 0.0f)).asInput();
+        case FRC.POWER_CHANNEL_5V:
+            return panel.add(new FloatControlDevice("Rail Current 5V (0-100A)", 0.0f, 100.0f, 5.0f, 0.0f)).asInput();
+        case FRC.POWER_CHANNEL_6V:
+            return panel.add(new FloatControlDevice("Rail Current 6V (0-100A)", 0.0f, 100.0f, 5.0f, 0.0f)).asInput();
+        default:
+            Logger.warning("Unknown power channel: " + powerChannel);
+            return FloatInput.always(-1);
+        }
+    }
+
+    @Override
     public BooleanInput getChannelEnabled(int powerChannel, EventInput updateOn) {
-        if (!isRoboRIO()) {
-            Logger.warning("Power channel statuses are not available on the cRIO!");
-            return powerChannel == FRC.POWER_CHANNEL_BATTERY ? BooleanInput.alwaysTrue : BooleanInput.alwaysFalse;
-        } else {
-            switch (powerChannel) {
-            case FRC.POWER_CHANNEL_BATTERY:
-                return BooleanInput.alwaysTrue;
-            case FRC.POWER_CHANNEL_3V3:
-                return panel.add(new BooleanControlDevice("Rail Enabled 3.3V")).asInput();
-            case FRC.POWER_CHANNEL_5V:
-                return panel.add(new BooleanControlDevice("Rail Enabled 5V")).asInput();
-            case FRC.POWER_CHANNEL_6V:
-                return panel.add(new BooleanControlDevice("Rail Enabled 6V")).asInput();
-            default:
-                Logger.warning("Unknown power channel: " + powerChannel);
-                return BooleanInput.alwaysFalse;
-            }
+        switch (powerChannel) {
+        case FRC.POWER_CHANNEL_BATTERY:
+            return BooleanInput.alwaysTrue;
+        case FRC.POWER_CHANNEL_3V3:
+            return panel.add(new BooleanControlDevice("Rail Enabled 3.3V")).asInput();
+        case FRC.POWER_CHANNEL_5V:
+            return panel.add(new BooleanControlDevice("Rail Enabled 5V")).asInput();
+        case FRC.POWER_CHANNEL_6V:
+            return panel.add(new BooleanControlDevice("Rail Enabled 6V")).asInput();
+        default:
+            Logger.warning("Unknown power channel: " + powerChannel);
+            return BooleanInput.alwaysFalse;
         }
     }
 
+    @Override
     public ControlBindingCreator tryMakeControlBindingCreator(String title) {
         return new ControlBindingCreator() {
+            @Override
             public void addBoolean(String name, BooleanOutput output) {
                 addBoolean(name).send(output);
             }
 
+            @Override
             public BooleanInput addBoolean(String name) {
                 return panel.add(new BooleanControlDevice("Control: " + name)).asInput();
             }
 
+            @Override
             public void addFloat(String name, FloatOutput output) {
                 addFloat(name).send(output);
             }
 
+            @Override
             public FloatInput addFloat(String name) {
                 return panel.add(new FloatControlDevice("Control: " + name)).asInput();
             }

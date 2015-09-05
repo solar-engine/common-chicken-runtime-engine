@@ -29,8 +29,6 @@ import javax.swing.JFrame;
 
 import ccre.channel.EventStatus;
 import ccre.cluck.Cluck;
-import ccre.frc.FRCApplication;
-import ccre.frc.FRCImplementationHolder;
 import ccre.log.BootLogger;
 import ccre.log.FileLogger;
 import ccre.log.Logger;
@@ -57,13 +55,11 @@ public class DeviceListMain {
      * @throws InterruptedException if the main thread is somehow interrupted.
      */
     public static void main(String[] args) throws IOException, ClassNotFoundException, InstantiationException, NoSuchMethodException, IllegalAccessException, InvocationTargetException, InterruptedException {
-        if (args.length != 2 || !("roboRIO".equals(args[1]) || "cRIO".equals(args[1]))) {
-            System.err.println("Expected arguments: <FRC-Jar> (roboRIO|cRIO)");
+        if (args.length != 1) {
+            System.err.println("Expected arguments: <FRC-Jar>");
             System.exit(-1);
             return;
         }
-        boolean isRoboRIO = "roboRIO".equals(args[1]);
-        Logger.info("Setting up emulator for platform: " + (isRoboRIO ? "roboRIO" : "cRIO"));
         File jarFile = new File(args[0]);
         JarFile frcJar = new JarFile(jarFile);
         String mainClass;
@@ -78,10 +74,10 @@ public class DeviceListMain {
         @SuppressWarnings("resource")
         URLClassLoader classLoader = new URLClassLoader(new URL[] { jarFile.toURI().toURL() }, DeviceListMain.class.getClassLoader());
         Class<? extends FRCApplication> asSubclass = classLoader.loadClass(mainClass).asSubclass(FRCApplication.class);
-        final JFrame main = new JFrame("CCRE DeviceList-Based Emulator for " + (isRoboRIO ? "roboRIO" : "cRIO"));
+        final JFrame main = new JFrame("CCRE DeviceList-Based Emulator for roboRIO");
         main.setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         EventStatus onInit = new EventStatus();
-        DeviceBasedImplementation impl = new DeviceBasedImplementation(isRoboRIO, onInit);
+        DeviceBasedImplementation impl = new DeviceBasedImplementation(onInit);
         main.setContentPane(impl.panel);
         main.setSize(1024, 768);
         java.awt.EventQueue.invokeLater(new Runnable() {
@@ -99,7 +95,7 @@ public class DeviceListMain {
             Cluck.setupServer();
         }
         Cluck.setupServer(1540);
-        Thread.sleep(500); // give a bit of time for network stuff to try to set itself up.
+        Thread.sleep(500);// give a bit of time for network stuff to try to set itself up.
         try {
             impl.clearLoggingPane();
             Logger.info("Starting application: " + mainClass);

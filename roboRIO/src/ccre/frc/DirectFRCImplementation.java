@@ -47,9 +47,6 @@ import ccre.ctrl.ExtendedMotor;
 import ccre.ctrl.ExtendedMotorFailureException;
 import ccre.ctrl.IJoystick;
 import ccre.ctrl.binding.ControlBindingCreator;
-import ccre.frc.FRCApplication;
-import ccre.frc.FRCImplementation;
-import ccre.frc.FRCImplementationHolder;
 import ccre.log.BootLogger;
 import ccre.log.FileLogger;
 import ccre.log.Logger;
@@ -283,23 +280,23 @@ public final class DirectFRCImplementation implements FRCImplementation {
         Logger.info("Hello, " + name + "!");
     }
 
-    public IJoystick getKinectJoystick(boolean isRightStick) {
-        throw new RuntimeException("Kinect Joysticks are not supported by the RoboRIO.");
-    }
-
+    @Override
     public BooleanOutput makeSolenoid(int module, int id) {
         final ByteBuffer port = DirectSolenoid.init(module, id);
         return value -> DirectSolenoid.set(port, value);
     }
 
+    @Override
     public BooleanOutput makeDigitalOutput(int id) {
         DirectDigital.init(id, false);
         return value -> DirectDigital.set(id, value);
     }
 
+    @Override
     public FloatInput makeAnalogInput(int id, EventInput updateOn) {
         ByteBuffer port = DirectAnalog.init(id);
         return new DerivedFloatInput(updateOn) {
+            @Override
             protected float apply() {
                 return DirectAnalog.getAverageVoltage(port);
             }
@@ -311,6 +308,7 @@ public final class DirectFRCImplementation implements FRCImplementation {
         ByteBuffer port = DirectAnalog.init(id);
         DirectAnalog.configure(port, averageBits, 0);// TODO: oversample bits
         return new DerivedFloatInput(updateOn) {
+            @Override
             protected float apply() {
                 return DirectAnalog.getAverageVoltage(port);
             }
@@ -321,12 +319,14 @@ public final class DirectFRCImplementation implements FRCImplementation {
     public BooleanInput makeDigitalInput(int id, EventInput updateOn) {
         DirectDigital.init(id, true);
         return new DerivedBooleanInput(updateOn) {
+            @Override
             protected boolean apply() {
                 return DirectDigital.get(id);
             }
         };
     }
 
+    @Override
     public BooleanInput makeDigitalInputByInterrupt(int id) {
         DirectDigital.init(id, true);
         DirectDigital.initInterruptsSynchronous(id, true, true);
@@ -344,6 +344,7 @@ public final class DirectFRCImplementation implements FRCImplementation {
         return out;
     }
 
+    @Override
     public FloatOutput makeServo(int id, final float minInput, float maxInput) {
         if (minInput == maxInput) {
             throw new IllegalArgumentException("Servos cannot have their extrema be the same!");
@@ -352,13 +353,10 @@ public final class DirectFRCImplementation implements FRCImplementation {
         return f -> DirectPWM.set(id, (f - minInput) / (maxInput - minInput));
     }
 
-    public void sendDSUpdate(String value, int lineid) {
-        Logger.warning("The Driver Station LCD no longer exists!");
-    }
-
     @Override
     public BooleanInput getIsDisabled() {
         return new DerivedBooleanInput(onChangeMode) {
+            @Override
             protected boolean apply() {
                 return activeMode == Mode.DISABLED;
             }
@@ -368,6 +366,7 @@ public final class DirectFRCImplementation implements FRCImplementation {
     @Override
     public BooleanInput getIsAutonomous() {
         return new DerivedBooleanInput(onChangeMode) {
+            @Override
             protected boolean apply() {
                 return activeMode == Mode.AUTONOMOUS;
             }
@@ -377,6 +376,7 @@ public final class DirectFRCImplementation implements FRCImplementation {
     @Override
     public BooleanInput getIsTest() {
         return new DerivedBooleanInput(onChangeMode) {
+            @Override
             protected boolean apply() {
                 return activeMode == Mode.TEST;
             }
@@ -386,34 +386,40 @@ public final class DirectFRCImplementation implements FRCImplementation {
     @Override
     public BooleanInput getIsFMS() {
         return new DerivedBooleanInput(onChangeMode) {
+            @Override
             protected boolean apply() {
                 return onFMS;
             }
         };
     }
 
+    @Override
     public FloatInput makeEncoder(int channelA, int channelB, boolean reverse, EventInput resetWhen, EventInput updateOn) {
         ByteBuffer encoder = DirectEncoder.init(channelA, channelB, reverse);
         if (resetWhen != null) {
             resetWhen.send(() -> DirectEncoder.reset(encoder));
         }
         return new DerivedFloatInput(updateOn) {
+            @Override
             protected float apply() {
                 return DirectEncoder.get(encoder);
             }
         };
     }
 
+    @Override
     public BooleanOutput makeRelayForwardOutput(int channel) {
         ByteBuffer relay = DirectRelay.init(channel);
         return (bln) -> DirectRelay.setForward(relay, bln);
     }
 
+    @Override
     public BooleanOutput makeRelayReverseOutput(int channel) {
         ByteBuffer relay = DirectRelay.init(channel);
         return (bln) -> DirectRelay.setReverse(relay, bln);
     }
 
+    @Override
     public FloatInput makeGyro(int port, double sensitivity, EventInput evt, EventInput updateOn) {
         ByteBuffer gyro;
         try {
@@ -425,12 +431,14 @@ public final class DirectFRCImplementation implements FRCImplementation {
             evt.send(() -> DirectGyro.reset(gyro));
         }
         return new DerivedFloatInput(updateOn) {
+            @Override
             protected float apply() {
                 return DirectGyro.getAngle(gyro, port, sensitivity);
             }
         };
     }
 
+    @Override
     public FloatOutput makeMotor(int id, int type) {
         switch (type) {
         case JAGUAR:
@@ -448,38 +456,47 @@ public final class DirectFRCImplementation implements FRCImplementation {
         return (f) -> DirectPWM.set(id, f);
     }
 
+    @Override
     public EventInput getGlobalPeriodic() {
         return globalPeriodic;
     }
 
+    @Override
     public EventInput getStartAuto() {
         return Mode.AUTONOMOUS.getStart(this);
     }
 
+    @Override
     public EventInput getDuringAuto() {
         return Mode.AUTONOMOUS.getDuring(this);
     }
 
+    @Override
     public EventInput getStartTele() {
         return Mode.TELEOP.getStart(this);
     }
 
+    @Override
     public EventInput getDuringTele() {
         return Mode.TELEOP.getDuring(this);
     }
 
+    @Override
     public EventInput getStartTest() {
         return Mode.TEST.getStart(this);
     }
 
+    @Override
     public EventInput getDuringTest() {
         return Mode.TEST.getDuring(this);
     }
 
+    @Override
     public EventInput getStartDisabled() {
         return Mode.DISABLED.getStart(this);
     }
 
+    @Override
     public EventInput getDuringDisabled() {
         return Mode.DISABLED.getDuring(this);
     }
@@ -491,32 +508,39 @@ public final class DirectFRCImplementation implements FRCImplementation {
         return pcmCompressor;
     }
 
+    @Override
     public BooleanOutput usePCMCompressor() {
         DirectCompressor.setClosedLoop(getPCMCompressor(), true);
         return (on) -> DirectCompressor.setClosedLoop(getPCMCompressor(), on);
     }
 
+    @Override
     public BooleanInput getPCMPressureSwitch(EventInput updateOn) {
         getPCMCompressor();
         return new DerivedBooleanInput(updateOn) {
+            @Override
             protected boolean apply() {
                 return DirectCompressor.getPressureSwitch(getPCMCompressor());
             }
         };
     }
 
+    @Override
     public BooleanInput getPCMCompressorRunning(EventInput updateOn) {
         getPCMCompressor();
         return new DerivedBooleanInput(updateOn) {
+            @Override
             protected boolean apply() {
                 return DirectCompressor.getCompressorRunning(getPCMCompressor());
             }
         };
     }
 
+    @Override
     public FloatInput getPCMCompressorCurrent(EventInput updateOn) {
         getPCMCompressor();
         return new DerivedFloatInput(updateOn) {
+            @Override
             protected float apply() {
                 return DirectCompressor.getCompressorCurrent(getPCMCompressor());
             }
@@ -525,17 +549,21 @@ public final class DirectFRCImplementation implements FRCImplementation {
 
     // TODO: Add the rest of the PCM and PDP accessors.
 
+    @Override
     public FloatInput getPDPChannelCurrent(final int channel, EventInput updateOn) {
         DirectPDP.checkChannel(channel);
         return new DerivedFloatInput(updateOn) {
+            @Override
             protected float apply() {
                 return DirectPDP.getCurrent(channel);
             }
         };
     }
 
+    @Override
     public FloatInput getPDPVoltage(EventInput updateOn) {
         return new DerivedFloatInput(updateOn) {
+            @Override
             protected float apply() {
                 return DirectPDP.getVoltage();
             }
@@ -546,18 +574,22 @@ public final class DirectFRCImplementation implements FRCImplementation {
         return true;
     }
 
+    @Override
     public SerialIO makeRS232_Onboard(int baudRate, String deviceName) {
         return new SerialPortDirect(DirectRS232.PORT_ONBOARD, baudRate);
     }
 
+    @Override
     public SerialIO makeRS232_MXP(int baudRate, String deviceName) {
         return new SerialPortDirect(DirectRS232.PORT_MXP, baudRate);
     }
 
+    @Override
     public SerialIO makeRS232_USB(int baudRate, String deviceName) {
         return new SerialPortDirect(DirectRS232.PORT_USB, baudRate);
     }
 
+    @Override
     public IJoystick getJoystick(int id) {
         if (id < 1 || id > 6) {
             throw new IllegalArgumentException("Joystick " + id + " is not a valid joystick number.");
@@ -565,15 +597,18 @@ public final class DirectFRCImplementation implements FRCImplementation {
         return new CJoystickDirect(id, globalPeriodic);
     }
 
+    @Override
     public FloatInput getBatteryVoltage(EventInput updateOn) {
         DirectPower.init();
         return new DerivedFloatInput(updateOn) {
+            @Override
             protected float apply() {
                 return DirectPower.getBatteryVoltage();
             }
         };
     }
 
+    @Override
     public ExtendedMotor makeCANJaguar(int deviceNumber) {
         try {
             return new ExtendedJaguarDirect(deviceNumber);
@@ -586,6 +621,7 @@ public final class DirectFRCImplementation implements FRCImplementation {
         }
     }
 
+    @Override
     public ExtendedMotor makeCANTalon(int deviceNumber) {
         try {
             return new ExtendedTalonDirect(deviceNumber);
@@ -595,36 +631,43 @@ public final class DirectFRCImplementation implements FRCImplementation {
         }
     }
 
+    @Override
     public FloatInput getChannelVoltage(int powerChannel, EventInput updateOn) {
         if (DirectPower.readChannelVoltage(powerChannel) == -1) {
             Logger.warning("Unknown power channel: " + powerChannel);
         }
         return new DerivedFloatInput(updateOn) {
+            @Override
             protected float apply() {
                 return DirectPower.readChannelVoltage(powerChannel);
             }
         };
     }
 
+    @Override
     public FloatInput getChannelCurrent(int powerChannel, EventInput updateOn) {
         if (DirectPower.readChannelCurrent(powerChannel) == -1) {
             Logger.warning("Unknown power channel: " + powerChannel);
         }
         return new DerivedFloatInput(updateOn) {
+            @Override
             protected float apply() {
                 return DirectPower.readChannelCurrent(powerChannel);
             }
         };
     }
 
+    @Override
     public BooleanInput getChannelEnabled(int powerChannel, EventInput updateOn) {
         return new DerivedBooleanInput(updateOn) {
+            @Override
             protected boolean apply() {
                 return DirectPower.readChannelEnabled(powerChannel);
             }
         };
     }
 
+    @Override
     public ControlBindingCreator tryMakeControlBindingCreator(String title) {
         return null;
     }

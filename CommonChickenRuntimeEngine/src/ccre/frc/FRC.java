@@ -35,7 +35,7 @@ import ccre.instinct.InstinctModule;
 import ccre.log.Logger;
 
 /**
- * The main class to access FRC I/O.
+ * The main class to access the I/O on a roboRIO.
  *
  * @author skeggsc
  */
@@ -54,8 +54,7 @@ public class FRC {
      */
     public static final float NO_RAMPING = 0.0f;
     /**
-     * The battery power channel. Reading this voltage is the only power channel
-     * that exists on the cRIO.
+     * The battery power channel.
      */
     public static final int POWER_CHANNEL_BATTERY = 0;
     /**
@@ -93,11 +92,11 @@ public class FRC {
      */
     public static final IJoystick joystick4 = impl.getJoystick(4);
     /**
-     * Joystick 5 on the Driver Station. Not available on cRIO.
+     * Joystick 5 on the Driver Station.
      */
     public static final IJoystick joystick5 = impl.getJoystick(5);
     /**
-     * Joystick 6 on the Driver Station. Not available on cRIO.
+     * Joystick 6 on the Driver Station.
      */
     public static final IJoystick joystick6 = impl.getJoystick(6);
     /**
@@ -145,19 +144,6 @@ public class FRC {
      * Produced while the robot is disabled.
      */
     public static final EventInput duringDisabled = impl.getDuringDisabled();
-
-    /**
-     * Get an IJoystick for the specified Kinect virtual joystick. Joysticks on
-     * the driver station are accessed through the variables
-     * joystick1...joystick4.
-     *
-     * @param isRightArm If the right arm joystick should be used instead of the
-     * left. (6 instead of 5 if you're used to the old system.)
-     * @return the IJoystick.
-     */
-    public static final IJoystick getKinectJoystick(boolean isRightArm) {
-        return impl.getKinectJoystick(isRightArm);
-    }
 
     /**
      * Create a reference to a Jaguar speed controller on the specified PWM port
@@ -299,8 +285,6 @@ public class FRC {
      * Create a reference to a CAN Talon speed controller with the specified CAN
      * device number. This may, of course, fail, if the Talon cannot be found.
      *
-     * This is not supported on the cRIO!
-     *
      * @param deviceNumber the device number to connect to.
      * @return the ExtendedMotor representing this output.
      */
@@ -316,7 +300,7 @@ public class FRC {
      * @return the output that will control the solenoid.
      */
     public static BooleanOutput makeSolenoid(int id) {
-        return impl.makeSolenoid(impl.isRoboRIO() ? 0 : 1, id);
+        return impl.makeSolenoid(0, id);
     }
 
     /**
@@ -454,16 +438,6 @@ public class FRC {
      */
     public static FloatOutput makeServo(int id, float minInput, float maxInput) {
         return impl.makeServo(id, minInput, maxInput);
-    }
-
-    /**
-     * Send the specified string to the specified line of the driver station.
-     *
-     * @param value The string to display.
-     * @param line The line number (1-6).
-     */
-    public static void sendDSUpdate(String value, int line) {
-        impl.sendDSUpdate(value, line);
     }
 
     /**
@@ -707,15 +681,6 @@ public class FRC {
     }
 
     /**
-     * Checks if this platform is a roboRIO.
-     *
-     * @return if the platform is a roboRIO.
-     */
-    public static boolean isRoboRIO() {
-        return impl.isRoboRIO();
-    }
-
-    /**
      * Activate the compressor on the given pressure switch input and compressor
      * relay channel.
      *
@@ -877,8 +842,6 @@ public class FRC {
     /**
      * Get a ControlBindingDataSource for the six Joysticks.
      *
-     * If on a cRIO, only four Joysticks are available.
-     *
      * @return the data source.
      * @see #getControlBindingDataSource(String...) if you want to provide your
      * own names, or use a different number of Joysticks.
@@ -887,11 +850,7 @@ public class FRC {
      */
     public static synchronized ControlBindingDataSource getControlBindingDataSource() {
         if (builtControlSource == null) {
-            if (isRoboRIO()) {
-                builtControlSource = getControlBindingDataSource("Joystick 1", "Joystick 2", "Joystick 3", "Joystick 4", "Joystick 5", "Joystick 6");
-            } else {
-                builtControlSource = getControlBindingDataSource("Joystick 1", "Joystick 2", "Joystick 3", "Joystick 4");
-            }
+            builtControlSource = getControlBindingDataSource("Joystick 1", "Joystick 2", "Joystick 3", "Joystick 4", "Joystick 5", "Joystick 6");
         }
         return builtControlSource;
     }
@@ -951,11 +910,7 @@ public class FRC {
     public static ControlBindingDataSource getControlBindingDataSource(String... names) {
         ControlBindingDataSourceBuildable ds = new ControlBindingDataSourceBuildable();
         for (int i = 0; i < names.length; i++) {
-            if (isRoboRIO()) {
-                ds.addJoystick(names[i], impl.getJoystick(i + 1), 12, 6);
-            } else {
-                ds.addJoystick(names[i], (IJoystick) impl.getJoystick(i + 1), 12, 6);// don't include POV on cRIO
-            }
+            ds.addJoystick(names[i], impl.getJoystick(i + 1), 12, 6);
         }
         return ds;
     }

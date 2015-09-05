@@ -59,15 +59,6 @@ public interface FRCImplementation {
     public IJoystick getJoystick(int id);
 
     /**
-     * Get an IJoystick for the specified Kinect virtual joystick.
-     *
-     * @param isRightArm If the right arm joystick should be used instead of the
-     * left. (6 instead of 5 if you're used to the old system.)
-     * @return the IJoystick.
-     */
-    public IJoystick getKinectJoystick(boolean isRightArm);
-
-    /**
      * Create a reference to a speed controller.
      *
      * @param id the motor port ID, from 1 to 10, inclusive.
@@ -164,14 +155,6 @@ public interface FRCImplementation {
      * @return the FloatOutput that controls the servo.
      */
     public FloatOutput makeServo(int id, float minInput, float maxInput);
-
-    /**
-     * Send the specified string to the specified line of the driver station.
-     *
-     * @param value The string to display.
-     * @param lineid The line number (1-6).
-     */
-    public void sendDSUpdate(String value, int lineid);
 
     /**
      * Get a boolean input that checks if the robot is currently disabled.
@@ -338,11 +321,6 @@ public interface FRCImplementation {
      * @return the voltage measured at the PDP.
      */
     public FloatInput getPDPVoltage(EventInput updateOn);
-
-    /**
-     * @return if this system is a roboRIO.
-     */
-    public boolean isRoboRIO();
 
     /**
      * @param baudRate the baud rate of the port.

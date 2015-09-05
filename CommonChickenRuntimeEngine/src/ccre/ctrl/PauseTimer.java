@@ -24,6 +24,7 @@ import ccre.channel.EventOutput;
 import ccre.concurrency.ConcurrentDispatchArray;
 import ccre.concurrency.ReporterThread;
 import ccre.log.Logger;
+import ccre.time.Time;
 
 /**
  * A PauseTimer has a boolean state for running or not, which is readable but
@@ -55,9 +56,9 @@ public class PauseTimer implements BooleanInput, EventOutput {
                     }
                 }
                 long now;
-                while ((now = System.currentTimeMillis()) < endAt) {
+                while ((now = Time.currentTimeMillis()) < endAt) {
                     synchronized (lock) {
-                        lock.wait(endAt - now);
+                        Time.wait(lock, endAt - now);
                     }
                 }
                 setEndAt(0);
@@ -89,7 +90,7 @@ public class PauseTimer implements BooleanInput, EventOutput {
      * Start the timer running.
      */
     public void event() {
-        setEndAt(System.currentTimeMillis() + timeout);
+        setEndAt(Time.currentTimeMillis() + timeout);
     }
 
     public boolean get() {

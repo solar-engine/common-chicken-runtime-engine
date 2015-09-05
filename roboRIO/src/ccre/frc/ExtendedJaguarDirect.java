@@ -26,6 +26,7 @@ import ccre.channel.FloatOutput;
 import ccre.ctrl.ExtendedMotor;
 import ccre.ctrl.ExtendedMotorFailureException;
 import ccre.log.Logger;
+import ccre.time.Time;
 
 /**
  * A CANJaguar ExtendedMotor interface for the roboRIO.
@@ -59,7 +60,7 @@ public class ExtendedJaguarDirect extends ExtendedMotor implements FloatOutput {
     @Override
     public void set(float value) {
         if (isBypassed) {
-            if (System.currentTimeMillis() > bypassUntil) {
+            if (Time.currentTimeMillis() > bypassUntil) {
                 isBypassed = false;
             } else {
                 return;
@@ -71,7 +72,7 @@ public class ExtendedJaguarDirect extends ExtendedMotor implements FloatOutput {
             setUnsafe(value);
         } catch (ExtendedMotorFailureException ex) {
             isBypassed = true;
-            bypassUntil = System.currentTimeMillis() + 3000;
+            bypassUntil = Time.currentTimeMillis() + 3000;
             Logger.warning("Motor control failed: CAN Jaguar " + jaguar.m_deviceNumber + ": bypassing for three seconds.", ex);
             try {
                 disable();
@@ -125,6 +126,7 @@ public class ExtendedJaguarDirect extends ExtendedMotor implements FloatOutput {
     @Override
     public BooleanOutput asEnable() {
         return new BooleanOutput() {
+            @Override
             public void set(boolean value) {
                 if (enableMode == null || enableMode.booleanValue() != value) {
                     try {
@@ -141,6 +143,7 @@ public class ExtendedJaguarDirect extends ExtendedMotor implements FloatOutput {
         };
     }
 
+    @Override
     public FloatOutput asMode(OutputControlMode mode) throws ExtendedMotorFailureException {
         try {
             switch (mode) {
@@ -176,6 +179,7 @@ public class ExtendedJaguarDirect extends ExtendedMotor implements FloatOutput {
         }
     }
 
+    @Override
     public FloatInput asStatus(final StatusType type, EventInput updateOn) {
         switch (type) {
         case BUS_VOLTAGE:
@@ -186,9 +190,10 @@ public class ExtendedJaguarDirect extends ExtendedMotor implements FloatOutput {
                 private boolean zeroed = false;
                 private long zeroUntil = 0;
 
+                @Override
                 protected float apply() {
                     if (zeroed) {
-                        if (System.currentTimeMillis() > zeroUntil) {
+                        if (Time.currentTimeMillis() > zeroUntil) {
                             zeroed = false;
                         } else {
                             return (float) 0.0;
@@ -207,7 +212,7 @@ public class ExtendedJaguarDirect extends ExtendedMotor implements FloatOutput {
                         }
                     } catch (RuntimeException ex) {
                         zeroed = true;
-                        zeroUntil = System.currentTimeMillis() + 3000;
+                        zeroUntil = Time.currentTimeMillis() + 3000;
                         Logger.warning("WPILib CANJaguar Failure during status: temporarily zeroing value for three seconds.", ex);
                         return (float) 0.0;
                     }

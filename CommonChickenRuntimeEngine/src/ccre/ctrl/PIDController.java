@@ -22,6 +22,7 @@ import ccre.channel.EventInput;
 import ccre.channel.EventOutput;
 import ccre.channel.FloatInput;
 import ccre.channel.FloatStatus;
+import ccre.time.Time;
 
 /**
  * A generic PID Controller for use in CCRE applications. Supports online tuning
@@ -232,7 +233,7 @@ public class PIDController implements FloatInput, EventOutput {
      * Update the PID controller.
      */
     public void event() {
-        long time = System.currentTimeMillis();
+        long time = Time.currentTimeMillis();
         long timeDelta = time - previousTime;
         previousTime = time;
         update(timeDelta);

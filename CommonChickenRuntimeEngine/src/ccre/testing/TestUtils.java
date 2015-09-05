@@ -21,7 +21,6 @@ package ccre.testing;
 import java.util.Iterator;
 import java.util.Random;
 
-import ccre.log.Logger;
 import ccre.util.CArrayList;
 import ccre.util.CArrayUtils;
 import ccre.util.CLinkedList;
@@ -43,7 +42,6 @@ public class TestUtils extends BaseTest {
 
     @Override
     protected void runTest() throws TestingException, InterruptedException {
-        testCurrentTimeSeconds();
         testDeadzone();
         testSplit();
         testEmptyList();
@@ -55,49 +53,9 @@ public class TestUtils extends BaseTest {
         testUpdateRamping();
         testBytesToInt();
         testBytesToFloat();
-        testIsStringEmpty();
-        testDoesStringContain();
         testCallerInfo();
         testMethodCaller();
         testThrowablePrinting();
-    }
-
-    private void checkStringContains(String str, String check) throws TestingException {
-        boolean checking = Utils.doesStringContain(str, check);
-        boolean actuallyHas = false;
-        for (int i = 0; i <= str.length() - check.length(); i++) {
-            if (str.substring(i, i + check.length()).equals(check)) {
-                actuallyHas = true;
-                break;
-            }
-        }
-        assertTrue(checking == actuallyHas, "containment failure: thought " + checking + " but was " + actuallyHas);
-    }
-
-    private void testDoesStringContain() throws TestingException {
-        String[] strs = new String[] { "", "aha", "a testy tester testing", "micromanage", "!!@!@!", "\0\0\0\0", "123412341234", "repeated repeaters repeating", "but no" };
-        for (String str : strs) {
-            for (String supersubstr : strs) {
-                for (int i = 0; i < supersubstr.length(); i++) {
-                    for (int j = i; j < supersubstr.length(); j++) {
-                        String check = supersubstr.substring(i, j);
-                        checkStringContains(str, check);
-                    }
-                }
-            }
-        }
-    }
-
-    private void testIsStringEmpty() throws TestingException {
-        assertTrue(Utils.isStringEmpty(""), "string was actually empty!");
-        assertTrue(Utils.isStringEmpty("hello".substring(4, 4)), "string was actually empty!");
-        assertFalse(Utils.isStringEmpty("hello world"), "string was not empty!");
-        assertFalse(Utils.isStringEmpty("\0"), "string was not empty!");
-        assertFalse(Utils.isStringEmpty("\1"), "string was not empty!");
-        assertFalse(Utils.isStringEmpty(" "), "string was not empty!");
-        assertFalse(Utils.isStringEmpty("\n"), "string was not empty!");
-        assertFalse(Utils.isStringEmpty("\0\0\0\0"), "string was not empty!");
-        assertFalse(Utils.isStringEmpty("THIS IS A TEST!"), "string was not empty!");
     }
 
     private void checkFloat(float f) throws TestingException {
@@ -411,24 +369,6 @@ public class TestUtils extends BaseTest {
                 assertObjectEqual(dz, i, "Bad deadzoning!");
             }
         }
-    }
-
-    private void testCurrentTimeSeconds() throws InterruptedException, TestingException {
-        boolean success = false;
-        for (int i = 0; i < 5; i++) {
-            float here = Utils.getCurrentTimeSeconds();
-            Thread.sleep(99);// 99 because it causes Java SE to make the request more accurate...
-            float there = Utils.getCurrentTimeSeconds();
-            float dt = Math.abs(there - here - (99 / 1000f));
-            if (dt >= 0.002) {
-                //Logger.warning("Failed timing test: " + here + " to " + there + " is " + (there - here) + " and expected " + (100 / 1000f));
-                Logger.warning("Failed timing attempt...");
-            } else {
-                success = true;
-                break;
-            }
-        }
-        assertTrue(success, "Five timing check attempts failed!");
     }
 
     private void testCallerInfo() throws TestingException {

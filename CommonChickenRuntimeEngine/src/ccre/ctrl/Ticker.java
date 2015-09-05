@@ -23,6 +23,7 @@ import ccre.channel.EventOutput;
 import ccre.channel.EventStatus;
 import ccre.concurrency.ReporterThread;
 import ccre.log.Logger;
+import ccre.time.Time;
 
 /**
  * An EventInput that will fire the event in all its consumers at a specified
@@ -97,15 +98,15 @@ public final class Ticker implements EventInput {
         @Override
         protected void threadBody() throws InterruptedException {
             if (fixedRate) {
-                long next = System.currentTimeMillis() + interval;
+                long next = Time.currentTimeMillis() + interval;
                 while (true) {
                     synchronized (lock) {
                         if (isKilled) {
                             break;
                         }
-                        long rem = next - System.currentTimeMillis();
+                        long rem = next - Time.currentTimeMillis();
                         if (rem > 0) {
-                            lock.wait(rem);
+                            Time.wait(lock, rem);
                             continue;
                         }
                     }
@@ -114,10 +115,10 @@ public final class Ticker implements EventInput {
                 }
             } else {
                 while (!isKilled) {
-                    long doneAt = System.currentTimeMillis() + interval;
+                    long doneAt = Time.currentTimeMillis() + interval;
                     synchronized (lock) {
-                        while (!isKilled && System.currentTimeMillis() < doneAt) {
-                            lock.wait(interval);
+                        while (!isKilled && Time.currentTimeMillis() < doneAt) {
+                            Time.wait(lock, interval);
                         }
                     }
                     cycle();

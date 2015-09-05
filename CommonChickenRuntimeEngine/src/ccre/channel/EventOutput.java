@@ -18,6 +18,7 @@
  */
 package ccre.channel;
 
+import ccre.time.Time;
 import ccre.util.Utils;
 
 /**
@@ -117,7 +118,7 @@ public interface EventOutput {
             private long nextFire = 0;
 
             public synchronized void event() {
-                long now = System.currentTimeMillis();
+                long now = Time.currentTimeMillis();
                 if (now < nextFire) {
                     return;// Ignore event.
                 }
@@ -126,7 +127,7 @@ public interface EventOutput {
             }
 
             public boolean eventWithRecovery() {
-                long now = System.currentTimeMillis();
+                long now = Time.currentTimeMillis();
                 if (now < nextFire) {
                     return false;// Ignore event.
                 }

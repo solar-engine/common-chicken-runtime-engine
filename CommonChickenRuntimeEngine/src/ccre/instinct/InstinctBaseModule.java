@@ -23,6 +23,7 @@ import ccre.channel.EventInput;
 import ccre.channel.EventOutput;
 import ccre.channel.FloatInput;
 import ccre.log.Logger;
+import ccre.time.Time;
 
 /**
  * The base class for the different kinds of user-extendable Instinct modules.
@@ -58,9 +59,9 @@ public abstract class InstinctBaseModule {
      * @throws InterruptedException Possibly also if autonomous mode has ended.
      */
     protected boolean waitUntil(long timeout, BooleanInput waitFor) throws AutonomousModeOverException, InterruptedException {
-        long doneAt = System.currentTimeMillis() + timeout;
+        long doneAt = Time.currentTimeMillis() + timeout;
         // TODO: make this dynamic
-        while (System.currentTimeMillis() < doneAt) {
+        while (Time.currentTimeMillis() < doneAt) {
             ensureShouldBeRunning();
             if (waitFor.get()) {
                 return true;
@@ -129,9 +130,9 @@ public abstract class InstinctBaseModule {
      * @throws InterruptedException Possibly also if autonomous mode has ended.
      */
     protected int waitUntilOneOf(long timeout, BooleanInput... waitFor) throws AutonomousModeOverException, InterruptedException {
-        long doneAt = System.currentTimeMillis() + timeout;
+        long doneAt = Time.currentTimeMillis() + timeout;
         // TODO: make this dynamic
-        while (System.currentTimeMillis() < doneAt) {
+        while (Time.currentTimeMillis() < doneAt) {
             ensureShouldBeRunning();
             for (int i = 0; i < waitFor.length; i++) {
                 if (waitFor[i].get()) {
@@ -208,7 +209,7 @@ public abstract class InstinctBaseModule {
         }
         ensureShouldBeRunning();
         try {
-            Thread.sleep(milliseconds);
+            Time.sleep(milliseconds);
         } finally {
             ensureShouldBeRunning();
         }

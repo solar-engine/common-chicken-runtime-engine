@@ -249,6 +249,8 @@ public class CluckNode implements Serializable {
     private void reportMissingLink(byte[] data, String source, String target, String direct) {
         // Warnings about lost RMT_NEGATIVE_ACK messages or research messages are annoying, so don't send these,
         // and don't warn about the same message path too quickly.
+
+        // We use System.currentTimeMillis() instead of Time.currentTimeMillis() because this is only to prevent message spam.
         if ((data.length == 0 || data[0] != RMT_NEGATIVE_ACK) && !target.contains("/rsch-") && (!direct.equals(lastMissingLink) || System.currentTimeMillis() >= lastMissingLinkError + 1000)) {
             lastMissingLink = direct;
             lastMissingLinkError = System.currentTimeMillis();

@@ -686,6 +686,7 @@ public class CluckPublisher {
                     node.transmit(path, null, out);
                 }
             } catch (Throwable thr) {
+                // We use System.currentTimeMillis() instead of Time.currentTimeMillis() because this is only to prevent message spam.
                 if (System.currentTimeMillis() - lastReportedRemoteLoggingError > 500) {
                     Logger.severe("[LOCAL] Error during remote log", thr);
                     lastReportedRemoteLoggingError = System.currentTimeMillis();

@@ -26,6 +26,7 @@ import java.io.Serializable;
 import ccre.cluck.CluckNode;
 import ccre.cluck.CluckSubscriber;
 import ccre.log.Logger;
+import ccre.time.Time;
 import ccre.util.CArrayList;
 import ccre.util.CHashMap;
 import ccre.util.UniqueIds;
@@ -138,7 +139,7 @@ public final class RPCManager implements Serializable {
      * while for the timeout to happen.
      */
     void checkRPCTimeouts() {
-        long now = System.currentTimeMillis();
+        long now = Time.currentTimeMillis();
         CArrayList<String> toRemove = new CArrayList<String>();
         synchronized (this) {
             for (String key : timeouts) {
@@ -172,7 +173,7 @@ public final class RPCManager implements Serializable {
 
     private void putNewInvokeBinding(String path, String localname, long timeoutAfter, OutputStream out, byte[] toSend) {
         synchronized (this) {
-            timeouts.put(localname, System.currentTimeMillis() + timeoutAfter);
+            timeouts.put(localname, Time.currentTimeMillis() + timeoutAfter);
             bindings.put(localname, out);
         }
         node.transmit(path, localRPCBinding + "/" + localname, toSend);

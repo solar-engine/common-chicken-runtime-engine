@@ -25,6 +25,7 @@ import ccre.channel.SerialIO;
 import ccre.drivers.ByteFiddling;
 import ccre.drivers.NMEA;
 import ccre.log.Logger;
+import ccre.time.Time;
 
 /**
  * The low-level interface to the UM7-LT orientation sensor from CH Robotics,
@@ -114,7 +115,7 @@ public class InternalUM7LT { // default rate: 115200 baud.
      *
      * @see #lastUpdateId
      */
-    public long lastUpdateTime = System.currentTimeMillis();
+    public long lastUpdateTime = Time.currentTimeMillis();
     private final EventOutput onUpdate;
     private int correctBinaryPackets, correctNMEAPackets, incorrectPackets;
     private static boolean treatNMEAAsErroneous = true;
@@ -276,7 +277,7 @@ public class InternalUM7LT { // default rate: 115200 baud.
                 }
             }
             lastUpdateId = nextUpdateId;
-            lastUpdateTime = System.currentTimeMillis();
+            lastUpdateTime = Time.currentTimeMillis();
             onUpdate.event();
         } else if (address == 0xAA) {
             Logger.info("UM7LT firmware revision: " + new String(new char[] { (char) ((data[0] >> 24) & 0xFF), (char) ((data[0] >> 16) & 0xFF), (char) ((data[0] >> 8) & 0xFF), (char) (data[0] & 0xFF) }));

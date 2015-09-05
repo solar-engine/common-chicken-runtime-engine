@@ -18,6 +18,7 @@
  */
 package ccre.channel;
 
+import ccre.time.Time;
 import ccre.util.Utils;
 
 /**
@@ -145,23 +146,22 @@ public interface FloatOutput {
     public default FloatOutput viaDerivative() {
         FloatOutput original = this;
         return new FloatOutput() {
-            private static final int MILLISECONDS_PER_SECOND = 1000;
-            private long lastUpdateMillis = 0;
+            private long lastUpdateNanos = 0;
             private float lastValue = Float.NaN;
 
             public synchronized void set(float value) {
-                long timeMillis = System.currentTimeMillis();
-                if (lastUpdateMillis == 0) {
+                long timeNanos = Time.currentTimeNanos();
+                if (lastUpdateNanos == 0) {
                     lastValue = value;
-                    lastUpdateMillis = timeMillis;
+                    lastUpdateNanos = timeNanos;
                     return;
                 }
-                if (lastUpdateMillis == timeMillis) {
-                    return;
+                if (lastUpdateNanos == timeNanos) {
+                    return; // extremely unlikely... but just in case.
                 }
-                original.set(MILLISECONDS_PER_SECOND * (value - lastValue) / (timeMillis - lastUpdateMillis));
+                original.set(Time.NANOSECONDS_PER_SECOND * (value - lastValue) / (timeNanos - lastUpdateNanos));
                 lastValue = value;
-                lastUpdateMillis = timeMillis;
+                lastUpdateNanos = timeNanos;
             }
         };
     }

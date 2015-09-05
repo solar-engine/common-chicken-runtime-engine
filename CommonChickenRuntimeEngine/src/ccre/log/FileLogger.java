@@ -27,6 +27,7 @@ import java.util.Date;
 import ccre.channel.EventOutput;
 import ccre.ctrl.Ticker;
 import ccre.saver.Storage;
+import ccre.time.Time;
 
 /**
  * A logging tool that stores logging message in a file on the current computer
@@ -61,10 +62,6 @@ public class FileLogger implements LoggingTarget {
      * The PrintStream to log outputs to.
      */
     private final PrintStream pstream;
-    /**
-     * The time at which this logger was started.
-     */
-    private final long start;
 
     /**
      * Create a new FileLogger writing to the specified output file.
@@ -92,8 +89,8 @@ public class FileLogger implements LoggingTarget {
      */
     public FileLogger(final PrintStream pstream) {
         this.pstream = pstream;
-        start = System.currentTimeMillis();
-        pstream.println("Logging began at " + new Date(start) + " [" + start + "]");
+        long now = Time.currentTimeMillis();
+        pstream.println("Logging began at " + new Date(System.currentTimeMillis()) + " [" + now + "]");
         new Ticker(10000).send(new EventOutput() {
             public void event() {
                 synchronized (FileLogger.this) {
@@ -105,7 +102,7 @@ public class FileLogger implements LoggingTarget {
     }
 
     public synchronized void log(LogLevel level, String message, Throwable throwable) {
-        pstream.println("[" + (System.currentTimeMillis() - start) + " " + level + "] " + message);
+        pstream.println("[" + (Time.currentTimeMillis()) + " " + level + "] " + message);
         if (throwable != null) {
             throwable.printStackTrace(pstream);
         }
@@ -113,7 +110,7 @@ public class FileLogger implements LoggingTarget {
     }
 
     public synchronized void log(LogLevel level, String message, String extended) {
-        pstream.println("[" + (System.currentTimeMillis() - start) + " " + level + "] " + message);
+        pstream.println("[" + (Time.currentTimeMillis()) + " " + level + "] " + message);
         if (extended != null) {
             int i = extended.length();
             while (i != 0 && extended.charAt(i - 1) <= 32) {

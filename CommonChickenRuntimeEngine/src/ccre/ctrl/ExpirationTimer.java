@@ -27,6 +27,7 @@ import ccre.channel.EventStatus;
 import ccre.channel.FloatInput;
 import ccre.concurrency.ReporterThread;
 import ccre.log.Logger;
+import ccre.time.Time;
 import ccre.util.CArrayList;
 import ccre.util.CArrayUtils;
 
@@ -248,10 +249,10 @@ public final class ExpirationTimer {
     private synchronized void runTasks() throws InterruptedException {
         long startAt = startedAt;
         for (Task t : tasks) {
-            long rel = startAt + t.delay - System.currentTimeMillis();
+            long rel = startAt + t.delay - Time.currentTimeMillis();
             while (rel > 0) {
-                this.wait(rel);
-                rel = startAt + t.delay - System.currentTimeMillis();
+                Time.wait(this, rel);
+                rel = startAt + t.delay - Time.currentTimeMillis();
             }
             try {
                 t.cnsm.event();
@@ -287,7 +288,7 @@ public final class ExpirationTimer {
         if (!isStarted.get()) {
             throw new IllegalStateException("Timer is not running!");
         }
-        startedAt = System.currentTimeMillis();
+        startedAt = Time.currentTimeMillis();
         this.notifyAll();
         main.interrupt();
     }

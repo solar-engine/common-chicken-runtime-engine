@@ -18,6 +18,7 @@
  */
 package ccre.channel;
 
+import ccre.time.Time;
 import ccre.util.Utils;
 
 /**
@@ -104,7 +105,7 @@ public interface EventInput extends UpdatingInput {
 
             @Override
             protected boolean shouldProduce() {
-                long now = System.currentTimeMillis();
+                long now = Time.currentTimeMillis();
                 if (now < nextFire) {
                     return false;// Ignore event.
                 }

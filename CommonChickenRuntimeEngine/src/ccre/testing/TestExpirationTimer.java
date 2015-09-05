@@ -24,7 +24,7 @@ import ccre.channel.EventStatus;
 import ccre.channel.FloatInput;
 import ccre.channel.FloatStatus;
 import ccre.ctrl.ExpirationTimer;
-import ccre.util.Utils;
+import ccre.time.Time;
 
 /**
  * Tests the ExpirationTimer class.
@@ -55,28 +55,28 @@ public class TestExpirationTimer extends BaseTest {
         try {
             FloatStatus time = new FloatStatus();
             alarmClock.schedule(99).send(() -> {
-                time.set(Utils.getCurrentTimeSeconds()); // TODO: This isn't particularly DATAFLOWY
+                time.set(Time.currentTimeMillis()); // TODO: This isn't particularly DATAFLOWY
             });
-            float expected = Utils.getCurrentTimeSeconds() + 0.099f;
+            long expected = Time.currentTimeMillis() + 99;
             assertFalse(alarmClock.isRunning(), "Alarm clock should not be running!");
             alarmClock.start();
             assertTrue(alarmClock.isRunning(), "Alarm clock should be running!");
 
             Thread.sleep(151);
             assertTrue(alarmClock.isRunning(), "Alarm clock should still be running!");
-            assertTrue(Math.abs(time.get() - expected) < 0.01f, "Alarm clock did not ring properly: " + (time.get() - expected) * 1000 + "ms");
+            assertTrue(Math.abs(time.get() - expected) < 10, "Alarm clock did not ring properly: " + (time.get() - expected) * 1000 + "ms");
 
             Thread.sleep(151);
             assertTrue(alarmClock.isRunning(), "Alarm clock should still be running!");
-            assertTrue(Math.abs(time.get() - expected) < 0.01f, "Alarm clock did not ring properly: " + (time.get() - expected) * 1000 + "ms");
+            assertTrue(Math.abs(time.get() - expected) < 10, "Alarm clock did not ring properly: " + (time.get() - expected) * 1000 + "ms");
 
-            expected = Utils.getCurrentTimeSeconds() + 0.099f;
+            expected = Time.currentTimeMillis() + 99;
             alarmClock.feed();
             assertTrue(alarmClock.isRunning(), "Alarm clock should still be running!");
 
             Thread.sleep(151);
             assertTrue(alarmClock.isRunning(), "Alarm clock should still be running!");
-            assertTrue(Math.abs(time.get() - expected) < 0.01f, "Alarm clock did not ring properly: " + (time.get() - expected) * 1000 + "ms");
+            assertTrue(Math.abs(time.get() - expected) < 10, "Alarm clock did not ring properly: " + (time.get() - expected) * 1000 + "ms");
 
             alarmClock.stop();
             assertFalse(alarmClock.isRunning(), "Alarm clock should have stopped!");

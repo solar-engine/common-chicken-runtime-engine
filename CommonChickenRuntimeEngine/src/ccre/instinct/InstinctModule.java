@@ -23,13 +23,14 @@ import ccre.channel.EventInput;
 import ccre.channel.EventOutput;
 import ccre.concurrency.ReporterThread;
 import ccre.log.Logger;
+import ccre.time.Time;
 
 /**
  * The base class for an Instinct (the simple autonomous subsystem) module.
  *
  * @author skeggsc
  */
-public abstract class InstinctModule extends InstinctBaseModule implements EventOutput {
+public abstract class InstinctModule extends InstinctBaseModule {
 
     /**
      * If the instinct module should currently be running.
@@ -164,31 +165,13 @@ public abstract class InstinctModule extends InstinctBaseModule implements Event
         }
     }
 
-    /**
-     * This no longer needs to be called, and is ignored.
-     *
-     * Sets this module to be updated (continue execution) when the specified
-     * event is produced.
-     *
-     * @param src The event to wait for to continue execution.
-     */
-    @Deprecated
-    public void updateWhen(EventInput src) {
-        Logger.severe("InstinctModule.updateWhen no longer needs to be called!");
-    }
-
     void waitCycle() throws InterruptedException {
-        Thread.sleep(autoCycleRate);
+        Time.sleep(autoCycleRate);
     }
 
     void ensureShouldBeRunning() throws AutonomousModeOverException {
         if (!shouldBeRunning.get()) {
             throw new AutonomousModeOverException();
         }
-    }
-
-    @Deprecated
-    public void event() {
-        Logger.warning("You no longer need to call InstinctModule.event()! Stop doing it.");
     }
 }

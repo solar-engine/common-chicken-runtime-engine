@@ -21,6 +21,8 @@ package ccre.cluck.tcp;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.net.SocketException;
+import java.net.SocketTimeoutException;
 import java.util.Random;
 
 import ccre.cluck.CluckLink;
@@ -28,7 +30,6 @@ import ccre.cluck.CluckNode;
 import ccre.concurrency.ReporterThread;
 import ccre.log.Logger;
 import ccre.net.ClientSocket;
-import ccre.net.Network;
 import ccre.util.CLinkedList;
 
 /**
@@ -38,8 +39,8 @@ import ccre.util.CLinkedList;
  */
 public class CluckProtocol {
 
-    static final int TIMEOUT_PERIOD = 600; // milliseconds
-    static final int KEEPALIVE_INTERVAL = 200; // milliseconds, should always be noticeably less than TIMEOUT_PERIOD
+    static final int TIMEOUT_PERIOD = 600;// milliseconds
+    static final int KEEPALIVE_INTERVAL = 200;// milliseconds, should always be noticeably less than TIMEOUT_PERIOD
 
     /**
      * Sets the appropriate timeout on sock, for disconnection reporting.
@@ -131,17 +132,19 @@ public class CluckProtocol {
                         Logger.warning("[LOCAL] Took a long time to process: " + dest + " <- " + source + " of " + (endAt - start) + " ms");
                     }
                     lastReceive = System.currentTimeMillis();
-                } catch (IOException ex) {
-                    if ((expectKeepAlives && System.currentTimeMillis() - lastReceive > TIMEOUT_PERIOD) || !Network.isTimeoutException(ex)) {
+                } catch (SocketTimeoutException ex) {
+                    if (expectKeepAlives && System.currentTimeMillis() - lastReceive > TIMEOUT_PERIOD) {
                         throw ex;
+                    } else {
+                        // otherwise, don't do anything - we don't know if this is a timeout.
                     }
                 }
             }
-        } catch (IOException ex) {
-            if (ex.getClass().getName().equals("java.net.SocketException") && ex.getMessage().equals("Connection reset")) {
+        } catch (SocketTimeoutException ex) {
+            Logger.fine("Link timed out: " + linkName);
+        } catch (SocketException ex) {
+            if ("Connection reset".equals(ex.getMessage())) {
                 Logger.fine("Link receiving disconnected: " + linkName);
-            } else if (Network.isTimeoutException(ex)) {
-                Logger.fine("Link timed out: " + linkName);
             } else {
                 throw ex;
             }

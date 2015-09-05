@@ -213,9 +213,9 @@ public class CluckTCPClient extends ReporterThread {
             try {
                 isReconnecting = true;
                 sock = Network.connectDynPort(remote, DEFAULT_PORT);
-                DataInputStream din = sock.openDataInputStream();
+                DataInputStream din = new DataInputStream(sock.openInputStream());
                 try {
-                    DataOutputStream dout = sock.openDataOutputStream();
+                    DataOutputStream dout = new DataOutputStream(sock.openOutputStream());
                     isEstablished = true;
                     try {
                         CluckLink deny = doStart(din, dout, sock);

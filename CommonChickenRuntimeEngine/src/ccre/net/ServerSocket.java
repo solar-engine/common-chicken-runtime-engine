@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 Colby Skeggs
+ * Copyright 2013, 2015 Colby Skeggs
  *
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  *
@@ -25,7 +25,13 @@ import java.io.IOException;
  *
  * @author skeggsc
  */
-public interface ServerSocket {
+public class ServerSocket {
+
+    private final java.net.ServerSocket sock;
+
+    ServerSocket(java.net.ServerSocket ss) {
+        sock = ss;
+    }
 
     /**
      * Wait until a connection is made, and then return that connection.
@@ -33,12 +39,16 @@ public interface ServerSocket {
      * @return the ClientSocket representing the connection.
      * @throws IOException if an IO error occurs.
      */
-    public ClientSocket accept() throws IOException;
+    public ClientSocket accept() throws IOException {
+        return new ClientSocket(sock.accept());
+    }
 
     /**
      * Close this socket. This will terminate the connection.
      *
      * @throws IOException if an IO error occurs.
      */
-    public void close() throws IOException;
+    public void close() throws IOException {
+        sock.close();
+    }
 }

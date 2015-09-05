@@ -25,8 +25,8 @@ import java.awt.Graphics2D;
 import ccre.cluck.Cluck;
 import ccre.cluck.tcp.CluckTCPClient;
 import ccre.cluck.tcp.TracingCluckTCPClient;
-import ccre.net.CountingNetworkProvider;
 import ccre.net.Network;
+import ccre.net.TrafficCounting;
 import ccre.supercanvas.Rendering;
 import ccre.supercanvas.SuperCanvasComponent;
 import ccre.supercanvas.SuperCanvasPanel;
@@ -101,7 +101,7 @@ public class CluckNetworkingComponent extends SuperCanvasComponent {
             if (summ != null) {
                 sb.append(" (").append(summ).append(')');
             }
-            sb.append(" ~").append(CountingNetworkProvider.getRate() / 128).append("kbs/s");
+            sb.append(" ~").append(TrafficCounting.getRateBytesPerSecond() / 128).append("kbs/s");
             String countReport = sb.toString();
             g.drawString(countReport, screenWidth - fontMetrics.stringWidth(countReport), fontMetrics.getAscent());
         }

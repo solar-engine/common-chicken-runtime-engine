@@ -21,15 +21,14 @@ package ccre.cluck.tcp;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.net.SocketException;
+import java.net.SocketTimeoutException;
 
 import ccre.cluck.CluckLink;
 import ccre.cluck.CluckNode;
-import ccre.cluck.tcp.CluckProtocol;
-import ccre.cluck.tcp.CluckTCPClient;
 import ccre.drivers.ByteFiddling;
 import ccre.log.Logger;
 import ccre.net.ClientSocket;
-import ccre.net.Network;
 
 /**
  * A CluckTCPClient that traces all traffic that goes through it, for debugging
@@ -58,6 +57,7 @@ public class TracingCluckTCPClient extends CluckTCPClient {
             this.link = link;
         }
 
+        @Override
         public boolean send(String dest, String source, byte[] data) {
             if (data.length == 0) {
                 Logger.finest("[LOCAL] SEND " + source + " -> " + dest + ": EMPTY");
@@ -93,7 +93,7 @@ public class TracingCluckTCPClient extends CluckTCPClient {
         CluckLink link = CluckProtocol.handleSend(dout, linkName, node);
         link = new TracingLink(link);
         node.addOrReplaceLink(link, linkName);
-        node.notifyNetworkModified(); // Only send here, not on server.
+        node.notifyNetworkModified();// Only send here, not on server.
         return link;
     }
 
@@ -125,17 +125,19 @@ public class TracingCluckTCPClient extends CluckTCPClient {
                         Logger.warning("[LOCAL] Took a long time to process: " + dest + " <- " + source + " of " + (endAt - start) + " ms");
                     }
                     lastReceive = System.currentTimeMillis();
-                } catch (IOException ex) {
-                    if ((expectKeepAlives && System.currentTimeMillis() - lastReceive > CluckProtocol.TIMEOUT_PERIOD) || !Network.isTimeoutException(ex)) {
+                } catch (SocketTimeoutException ex) {
+                    if (expectKeepAlives && System.currentTimeMillis() - lastReceive > CluckProtocol.TIMEOUT_PERIOD) {
                         throw ex;
+                    } else {
+                        // otherwise, don't do anything - we don't know if this is a timeout.
                     }
                 }
             }
-        } catch (IOException ex) {
-            if (ex.getClass().getName().equals("java.net.SocketException") && ex.getMessage().equals("Connection reset")) {
+        } catch (SocketTimeoutException ex) {
+            Logger.fine("Link timed out: " + linkName);
+        } catch (SocketException ex) {
+            if ("Connection reset".equals(ex.getMessage())) {
                 Logger.fine("Link receiving disconnected: " + linkName);
-            } else if (Network.isTimeoutException(ex)) {
-                Logger.fine("Link timed out: " + linkName);
             } else {
                 throw ex;
             }

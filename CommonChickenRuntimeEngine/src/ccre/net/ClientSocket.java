@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 Colby Skeggs
+ * Copyright 2013, 2015 Colby Skeggs
  *
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  *
@@ -18,28 +18,34 @@
  */
 package ccre.net;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.Socket;
 
 /**
  * An open data transfer socket.
  *
  * @author skeggsc
  */
-public interface ClientSocket {
+public class ClientSocket {
+
+    private final Socket sock;
+
+    ClientSocket(Socket s) {
+        sock = s;
+    }
 
     /**
      * Set the blocking operation timeout on this socket in milliseconds to
      * wait, or zero to wait forever.
      *
      * @param millis how long to wait before throwing an IOException.
-     * @return if the timeout has been set.
      * @throws IOException if an IO error occurs.
      */
-    public boolean setSocketTimeout(int millis) throws IOException;
+    public void setSocketTimeout(int millis) throws IOException {
+        sock.setSoTimeout(millis);
+    }
 
     /**
      * Open an InputStream that reads from this socket.
@@ -47,7 +53,9 @@ public interface ClientSocket {
      * @return the InputStream that reads from the socket.
      * @throws IOException if an IO error occurs.
      */
-    public InputStream openInputStream() throws IOException;
+    public InputStream openInputStream() throws IOException {
+        return TrafficCounting.wrap(sock.getInputStream());
+    }
 
     /**
      * Open an OutputStream that writes to this socket.
@@ -55,28 +63,16 @@ public interface ClientSocket {
      * @return the OutputStream that writes to the socket.
      * @throws IOException if an IO error occurs.
      */
-    public OutputStream openOutputStream() throws IOException;
-
-    /**
-     * Open a DataInputStream that reads from this socket.
-     *
-     * @return the DataInputStream that reads from the socket.
-     * @throws IOException if an IO error occurs.
-     */
-    public DataInputStream openDataInputStream() throws IOException;
-
-    /**
-     * Open a DataOutputStream that writes to this socket.
-     *
-     * @return the DataOutputStream that writes to the socket.
-     * @throws IOException if an IO error occurs.
-     */
-    public DataOutputStream openDataOutputStream() throws IOException;
+    public OutputStream openOutputStream() throws IOException {
+        return TrafficCounting.wrap(sock.getOutputStream());
+    }
 
     /**
      * Close this socket. This will terminate the connection.
      *
      * @throws IOException if an IO error occurs.
      */
-    public void close() throws IOException;
+    public void close() throws IOException {
+        sock.close();
+    }
 }

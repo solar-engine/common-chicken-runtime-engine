@@ -64,9 +64,9 @@ public class CluckTCPServer extends ConnectionReceiverThread {
     @Override
     protected void handleClient(ClientSocket conn) {
         try {
-            DataInputStream din = conn.openDataInputStream();
+            DataInputStream din = new DataInputStream(conn.openInputStream());
             try {
-                DataOutputStream dout = conn.openDataOutputStream();
+                DataOutputStream dout = new DataOutputStream(conn.openOutputStream());
                 try {
                     String linkName = CluckProtocol.handleHeader(din, dout, null);
                     if (linkName == null) {

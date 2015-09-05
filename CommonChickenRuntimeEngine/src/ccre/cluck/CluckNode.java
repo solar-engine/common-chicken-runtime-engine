@@ -27,9 +27,7 @@ import java.util.Iterator;
 import ccre.channel.EventOutput;
 import ccre.cluck.rpc.RPCManager;
 import ccre.log.Logger;
-import ccre.util.CArrayList;
 import ccre.util.CHashMap;
-import ccre.util.UniqueIds;
 
 /**
  * A CluckNode is the core hub of the Cluck networking system on a device. It
@@ -109,16 +107,16 @@ public class CluckNode implements Serializable {
     /**
      * The ID representing an EventInput unsubscription request.
      */
-    public static final byte RMT_EVENTINPUT_UNSUB = 16;
+    public static final byte RMT_LEGACY_EVENTINPUT_UNSUB = 16;
     /**
      * The ID representing an BooleanInput unsubscription request.
      */
-    public static final byte RMT_BOOLINPUT_UNSUB = 17;
+    public static final byte RMT_LEGACY_BOOLINPUT_UNSUB = 17;
     /**
      * The ID representing an FloatInput unsubscription request.
      */
-    public static final byte RMT_FLOATINPUT_UNSUB = 18;
-    private static final String[] remoteNames = new String[] { "Ping", "EventOutput", "EventInput", "EventInputResponse", "LogTarget", "BooleanInput", "BooleanInputResponse", "BooleanOutput", "FloatInput", "FloatInputResponse", "FloatOutput", "OutputStream", "Notify", "RemoteProcedure", "RemoteProcedureReply", "NonexistenceNotification", "EventInputUnsubscription", "BooleanInputUnsubscription", "FloatInputUnsubscription" };
+    public static final byte RMT_LEGACY_FLOATINPUT_UNSUB = 18;
+    private static final String[] remoteNames = new String[] { "Ping", "EventOutput", "EventInput", "EventInputResponse", "LogTarget", "BooleanInput", "BooleanInputResponse", "BooleanOutput", "FloatInput", "FloatInputResponse", "FloatOutput", "OutputStream", "Notify", "RemoteProcedure", "RemoteProcedureReply", "NonexistenceNotification", "LEGACY_EventInputUnsubscription", "LEGACY_BooleanInputUnsubscription", "LEGACY_FloatInputUnsubscription" };
 
     /**
      * Convert an RMT ID to a string.
@@ -211,7 +209,7 @@ public class CluckNode implements Serializable {
                 try {
                     boolean shouldLive = link.send(indirect, source, data);
                     if (!shouldLive) {
-                        links.remove(direct); // Remove the link if it says that it's done.
+                        links.remove(direct);
                     }
                 } catch (Throwable ex) {
                     Logger.severe("Error while dispatching to Cluck link " + target, ex);
@@ -233,10 +231,16 @@ public class CluckNode implements Serializable {
      */
     public void broadcast(String source, byte[] data, CluckLink denyLink) {
         for (Iterator<String> linkIter = links.looseIterator(); linkIter.hasNext();) {
-            CluckLink cl = links.get(linkIter.next());
+            String linkName = linkIter.next();
+            CluckLink cl = links.get(linkName);
             if (cl != null && cl != denyLink) {
-                if (cl.send("*", source, data) == false) {
-                    linkIter.remove(); // Remove it if the link says that it's done.
+                try {
+                    boolean shouldLive = cl.send("*", source, data);
+                    if (!shouldLive) {
+                        linkIter.remove();
+                    }
+                } catch (Throwable ex) {
+                    Logger.severe("Error while broadcasting to Cluck link " + linkName, ex);
                 }
             }
         }
@@ -273,106 +277,6 @@ public class CluckNode implements Serializable {
                 }
             }
         }.attach(localRecvName);
-    }
-
-    /**
-     * Set up the specified CluckRemoteListener to start receiving updates about
-     * what remote nodes are broadcasting their availability.
-     *
-     * After this is set up, use cycleSearchRemotes to recheck for more remote
-     * nodes.
-     *
-     * @param localRecvName The local link name for the listener. Should be
-     * unique.
-     * @param listener The listener to notify with all found remotes.
-     * @see #cycleSearchRemotes(java.lang.String)
-     * @deprecated Use CluckPublisher.setupSearching instead.
-     */
-    @Deprecated
-    public void startSearchRemotes(String localRecvName, final CluckRemoteListener listener) {
-        new CluckSubscriber(this) {
-            @Override
-            protected void receive(String source, byte[] data) {
-                if (data.length == 2 && data[0] == RMT_PING) {
-                    listener.handle(source, data[1]);
-                }
-            }
-
-            @Override
-            protected void receiveBroadcast(String source, byte[] data) {
-            }
-        }.attach(localRecvName);
-        transmit("*", localRecvName, new byte[] { RMT_PING });
-    }
-
-    /**
-     * Recheck for remote nodes, as in startSearchRemotes.
-     *
-     * @param localRecv The local receiving address, which must be the same as
-     * the one passed to startSearchRemotes originally.
-     * @see #startSearchRemotes(java.lang.String,
-     * ccre.cluck.CluckRemoteListener)
-     * @deprecated Use CluckPublisher.setupSearching instead.
-     */
-    @Deprecated
-    public void cycleSearchRemotes(String localRecv) {
-        transmit("*", localRecv, new byte[] { RMT_PING });
-    }
-
-    /**
-     * Get a snapshot of the list of remote nodes of the specified remote type
-     * (or null for all types).
-     *
-     * @param remoteType The remote type to search for, or null for all types.
-     * @param timeout How long to wait for responses.
-     * @return The snapshot of remotes.
-     * @throws InterruptedException If the current thread is interrupted while
-     * searching for remotes.
-     * @deprecated Use CluckPublisher.setupSearching instead.
-     */
-    @Deprecated
-    public String[] searchRemotes(final Integer remoteType, int timeout) throws InterruptedException {
-        final CArrayList<String> discovered = new CArrayList<String>();
-        String localRecv = UniqueIds.global.nextHexId("rsch");
-        new CluckSubscriber(this) {
-            @Override
-            protected void receive(String source, byte[] data) {
-                if (data.length == 2 && data[0] == RMT_PING) {
-                    if (remoteType == null || remoteType == data[1]) {
-                        synchronized (discovered) {
-                            discovered.add(source);
-                        }
-                    }
-                }
-            }
-
-            @Override
-            protected void receiveBroadcast(String source, byte[] data) {
-            }
-        }.attach(localRecv);
-        try {
-            transmit("*", localRecv, new byte[] { RMT_PING });
-            Thread.sleep(timeout);
-        } finally {
-            links.remove(localRecv);
-        }
-        synchronized (discovered) {
-            Iterator<String> it = discovered.iterator();
-            String[] out = new String[discovered.size()];
-            int i = 0;
-            while (it.hasNext()) {
-                String str = it.next();
-                if (i >= out.length) {
-                    Logger.severe("Lost remote due to concurrent modification!");
-                    break;
-                }
-                out[i++] = str;
-            }
-            if (i < out.length) {
-                Logger.severe("Damaged remotes due to concurrent modification!");
-            }
-            return out;
-        }
     }
 
     /**

@@ -18,18 +18,18 @@
  */
 package ccre.cluck;
 
-import static ccre.cluck.CluckNode.RMT_BOOLOUTP;
 import static ccre.cluck.CluckNode.RMT_BOOLINPUT;
 import static ccre.cluck.CluckNode.RMT_BOOLINPUTRESP;
-import static ccre.cluck.CluckNode.RMT_BOOLINPUT_UNSUB;
+import static ccre.cluck.CluckNode.RMT_BOOLOUTP;
+import static ccre.cluck.CluckNode.RMT_LEGACY_BOOLINPUT_UNSUB;
 import static ccre.cluck.CluckNode.RMT_EVENTINPUT;
 import static ccre.cluck.CluckNode.RMT_EVENTINPUTRESP;
-import static ccre.cluck.CluckNode.RMT_EVENTINPUT_UNSUB;
+import static ccre.cluck.CluckNode.RMT_LEGACY_EVENTINPUT_UNSUB;
 import static ccre.cluck.CluckNode.RMT_EVENTOUTP;
-import static ccre.cluck.CluckNode.RMT_FLOATOUTP;
 import static ccre.cluck.CluckNode.RMT_FLOATINPUT;
 import static ccre.cluck.CluckNode.RMT_FLOATINPUTRESP;
-import static ccre.cluck.CluckNode.RMT_FLOATINPUT_UNSUB;
+import static ccre.cluck.CluckNode.RMT_LEGACY_FLOATINPUT_UNSUB;
+import static ccre.cluck.CluckNode.RMT_FLOATOUTP;
 import static ccre.cluck.CluckNode.RMT_LOGTARGET;
 import static ccre.cluck.CluckNode.RMT_NEGATIVE_ACK;
 import static ccre.cluck.CluckNode.RMT_OUTSTREAM;
@@ -150,7 +150,7 @@ public class CluckPublisher {
         new CluckSubscriber(node) {
             @Override
             protected void receive(String src, byte[] data) {
-                if (data.length != 0 && (data[0] == RMT_NEGATIVE_ACK || data[0] == RMT_EVENTINPUT_UNSUB)) {
+                if (data.length != 0 && (data[0] == RMT_NEGATIVE_ACK || data[0] == RMT_LEGACY_EVENTINPUT_UNSUB)) {
                     if (remotes.remove(src)) {
                         Logger.warning("Connection cancelled to " + src + " on " + name);
                     } else {
@@ -232,7 +232,7 @@ public class CluckPublisher {
         new CluckSubscriber(node) {
             @Override
             protected void receive(String src, byte[] data) {
-                if (data.length != 0 && (data[0] == RMT_NEGATIVE_ACK || data[0] == RMT_BOOLINPUT_UNSUB)) {
+                if (data.length != 0 && (data[0] == RMT_NEGATIVE_ACK || data[0] == RMT_LEGACY_BOOLINPUT_UNSUB)) {
                     if (remotes.remove(src)) {
                         Logger.warning("Connection cancelled to " + src + " on " + name);
                     } else {
@@ -308,7 +308,7 @@ public class CluckPublisher {
         new CluckSubscriber(node) {
             @Override
             protected void receive(String src, byte[] data) {
-                if (data.length != 0 && (data[0] == RMT_NEGATIVE_ACK || data[0] == RMT_FLOATINPUT_UNSUB)) {
+                if (data.length != 0 && (data[0] == RMT_NEGATIVE_ACK || data[0] == RMT_LEGACY_FLOATINPUT_UNSUB)) {
                     if (remotes.remove(src)) {
                         Logger.warning("Connection cancelled to " + src + " on " + name);
                     } else {
@@ -735,7 +735,7 @@ public class CluckPublisher {
                 synchronized (SubscribedFloatInput.this) {
                     if (canUnsubscribe && sent && !this.hasConsumers()) {
                         sent = false;
-                        node.transmit(path, linkName, new byte[] { RMT_FLOATINPUT_UNSUB });
+                        node.transmit(path, linkName, new byte[] { RMT_NEGATIVE_ACK });
                     }
                 }
             });
@@ -837,7 +837,7 @@ public class CluckPublisher {
                 synchronized (SubscribedBooleanInput.this) {
                     if (canUnsubscribe && sent && !this.hasConsumers()) {
                         sent = false;
-                        node.transmit(path, linkName, new byte[] { RMT_BOOLINPUT_UNSUB });
+                        node.transmit(path, linkName, new byte[] { RMT_NEGATIVE_ACK });
                     }
                 }
             });
@@ -933,7 +933,7 @@ public class CluckPublisher {
                 synchronized (SubscribedEventInput.this) {
                     if (sent && !this.hasConsumers()) {
                         sent = false;
-                        node.transmit(path, linkName, new byte[] { RMT_EVENTINPUT_UNSUB });
+                        node.transmit(path, linkName, new byte[] { RMT_NEGATIVE_ACK });
                     }
                 }
             });

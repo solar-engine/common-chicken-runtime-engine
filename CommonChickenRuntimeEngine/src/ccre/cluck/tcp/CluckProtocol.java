@@ -39,6 +39,9 @@ import ccre.util.CLinkedList;
  */
 public class CluckProtocol {
 
+    static final int CURRENT_VERSION = 0;// NOTE: changing this will break compatibility with anything older than CCRE v3!
+    // also, it can only be, at most, 0xFF.
+
     static final int TIMEOUT_PERIOD = 600;// milliseconds
     static final int KEEPALIVE_INTERVAL = 200;// milliseconds, should always be noticeably less than TIMEOUT_PERIOD
 
@@ -63,13 +66,20 @@ public class CluckProtocol {
      * @throws IOException If an IO error occurs.
      */
     protected static String handleHeader(DataInputStream din, DataOutputStream dout, String remoteHint) throws IOException {
-        dout.writeInt(0x154000CA);
+        dout.writeInt(0x154000CA | (CURRENT_VERSION << 8));
         Random r = new Random();
         int ra = r.nextInt(), rb = r.nextInt();
         dout.writeInt(ra);
         dout.writeInt(rb);
-        if (din.readInt() != 0x154000CA) {
+        int raw_magic = din.readInt();
+        if ((raw_magic & 0xFFFF00FF) != 0x154000CA) {
             throw new IOException("Magic number did not match!");
+        }
+        int version = (raw_magic & 0x0000FF00) >> 8;// always in [0, 255]
+        if (version < CURRENT_VERSION) {
+            // The side with the higher version (if they differ) is responsible for providing a transformer to be compatible with the older version.
+            // But so far, we're still on version 0, so this shouldn't happen!
+            throw new IOException("Remote end is on an older version of Cluck! I don't quite know how to deal with this.");
         }
         dout.writeInt(din.readInt() ^ din.readInt());
         if (din.readInt() != (ra ^ rb)) {

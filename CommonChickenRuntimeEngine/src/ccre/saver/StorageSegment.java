@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2014 Colby Skeggs
+ * Copyright 2013-2015 Colby Skeggs
  *
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  *
@@ -18,6 +18,12 @@
  */
 package ccre.saver;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.PrintStream;
+
 import ccre.channel.BooleanOutput;
 import ccre.channel.BooleanStatus;
 import ccre.channel.EventOutput;
@@ -25,15 +31,83 @@ import ccre.channel.FloatOutput;
 import ccre.channel.FloatStatus;
 import ccre.holders.StringHolder;
 import ccre.log.Logger;
+import ccre.util.CHashMap;
+import ccre.util.UniqueIds;
 
 /**
  * A storage segment - a place to store various pieces of data. A StorageSegment
  * can be obtained using StorageProvider.
- *
- * @see StorageProvider
- * @author skeggsc
  */
-public abstract class StorageSegment {
+public final class StorageSegment {
+
+    private final CHashMap<String, String> data = new CHashMap<String, String>();
+    private String name;
+    private boolean modified = false;
+
+    /**
+     * Load a map from a properties-like file.
+     * 
+     * @param input the InputStream to read from.
+     * @param keepInvalidLines whether or not to save invalid lines under backup
+     * keys.
+     * @param target the map to put the loaded keys into.
+     * @throws IOException if reading from the input fails for some reason.
+     */
+    public static void loadProperties(InputStream input, boolean keepInvalidLines, CHashMap<String, String> target) throws IOException {
+        BufferedReader din = new BufferedReader(new InputStreamReader(input));
+        try {
+            while (true) {
+                String line = din.readLine();
+                if (line == null) {
+                    break;
+                }
+                int ind = line.indexOf('=');
+                if (ind == -1) {// Invalid or empty line.
+                    if (!line.isEmpty() && keepInvalidLines) {
+                        Logger.warning("Invalid line ignored in configuration: " + line + " - saving under backup key.");
+                        target.put(UniqueIds.global.nextHexId("unknown-" + System.currentTimeMillis() + "-" + line.hashCode()), line);
+                    }
+                    continue;
+                }
+                String key = line.substring(0, ind), value = line.substring(ind + 1);
+                target.put(key, value);
+            }
+        } finally {
+            din.close();
+        }
+    }
+
+    StorageSegment(String name) {
+        if (name == null) {
+            throw new NullPointerException("Storage names cannot be null");
+        }
+        StringBuffer buf = new StringBuffer(name);
+        for (int i = buf.length() - 1; i >= 0; i--) {
+            char c = buf.charAt(i);
+            if (c == ' ') {
+                buf.setCharAt(i, '_');
+            } else if (!(Character.isUpperCase(c) || Character.isLowerCase(c) || Character.isDigit(c))) {
+                // escape any "weird" characters
+                buf.setCharAt(i, '$');
+                buf.insert(i + 1, (int) c);
+            }
+        }
+        this.name = buf.toString();
+        try {
+            InputStream target = Storage.openInput("ccre_storage_" + name);
+            if (target == null) {
+                Logger.info("No data file for: " + name + " - assuming empty.");
+            } else {
+                try {
+                    loadProperties(target, true, data);
+                } finally {
+                    target.close();
+                }
+            }
+        } catch (IOException ex) {
+            Logger.warning("Error reading storage: " + name, ex);
+        }
+    }
 
     /**
      * Get a String value for the specified key.
@@ -41,7 +115,9 @@ public abstract class StorageSegment {
      * @param key the key to look up.
      * @return the String contained there, or null if the key doesn't exist.
      */
-    public abstract String getStringForKey(String key);
+    public synchronized String getStringForKey(String key) {
+        return data.get(key);
+    }
 
     /**
      * Set the string value behind the specified key.
@@ -49,28 +125,54 @@ public abstract class StorageSegment {
      * @param key the key to put the String under.
      * @param value the String to store under this key.
      */
-    public abstract void setStringForKey(String key, String value);
+    public synchronized void setStringForKey(String key, String bytes) {
+        if (bytes == null) {
+            data.remove(key);
+        } else {
+            data.put(key, bytes);
+        }
+        modified = true;
+    }
 
     /**
      * Flush the segment. This attempts to make sure that all data is stored on
      * disk (or somewhere else, depending on the provider). If this is not
      * called, data might not be saved!
      */
-    public abstract void flush();
-
-    /**
-     * Close the segment. This includes flushing the segment if applicable. The
-     * segment may be unusable once this is called. Do not use the segment
-     * afterwards.
-     */
-    public abstract void close();
+    public synchronized void flush() {
+        if (modified) {
+            try {
+                PrintStream pout = new PrintStream(Storage.openOutput("ccre_storage_" + name));
+                try {
+                    for (String key : data) {
+                        if (key.contains("=")) {
+                            Logger.warning("Invalid key ignored during save: " + key + " - saving under backup key.");
+                            data.put(UniqueIds.global.nextHexId("badkey-" + System.currentTimeMillis() + "-" + key.hashCode()), key);
+                        } else {
+                            String value = data.get(key);
+                            if (value != null) {
+                                pout.println(key + "=" + value);
+                            }
+                        }
+                    }
+                } finally {
+                    pout.close();
+                }
+            } catch (IOException ex) {
+                Logger.warning("Error writing storage: " + name, ex);
+            }
+            modified = false;
+        }
+    }
 
     /**
      * Get the name of this segment, if available.
      *
      * @return the segment's name, or null if none exists.
      */
-    public abstract String getName();
+    public String getName() {
+        return name;
+    }
 
     /**
      * Attach a StringHolder to this storage segment. This will restore data if

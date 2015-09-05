@@ -22,7 +22,7 @@ import java.io.IOException;
 import java.io.InputStream;
 
 import ccre.log.Logger;
-import ccre.saver.DefaultStorageSegment;
+import ccre.saver.StorageSegment;
 
 /**
  * Utilities for accessing the version of the CCRE.
@@ -48,7 +48,7 @@ public class Version {
         }
         try {
             try {
-                DefaultStorageSegment.loadProperties(props, false, versions);
+                StorageSegment.loadProperties(props, false, versions);
             } catch (IOException e) {
                 Logger.warning("IOException while reading /version.properties", e);
                 return "unknown version: could not load";

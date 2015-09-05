@@ -25,7 +25,7 @@ import ccre.cluck.Cluck;
 import ccre.cluck.CluckNode;
 import ccre.cluck.CluckPublisher;
 import ccre.log.Logger;
-import ccre.saver.StorageProvider;
+import ccre.saver.Storage;
 import ccre.saver.StorageSegment;
 import ccre.util.UniqueIds;
 
@@ -54,7 +54,7 @@ public final class TuningContext {
      * @param storageName the storage name to save values to.
      */
     public TuningContext(CluckNode node, String storageName) {
-        this(node, StorageProvider.openStorage(storageName));
+        this(node, Storage.openStorage(storageName));
     }
 
     /**
@@ -76,7 +76,7 @@ public final class TuningContext {
      * @param storageName the storage name to save values to.
      */
     public TuningContext(String storageName) {
-        this(Cluck.getNode(), StorageProvider.openStorage(storageName));
+        this(Cluck.getNode(), Storage.openStorage(storageName));
     }
 
     /**

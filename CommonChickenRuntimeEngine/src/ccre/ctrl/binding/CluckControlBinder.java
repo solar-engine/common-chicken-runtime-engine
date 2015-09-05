@@ -25,7 +25,7 @@ import ccre.log.Logger;
 import ccre.rconf.RConf;
 import ccre.rconf.RConf.Entry;
 import ccre.rconf.RConfable;
-import ccre.saver.StorageProvider;
+import ccre.saver.Storage;
 import ccre.saver.StorageSegment;
 import ccre.util.CHashMap;
 
@@ -67,7 +67,7 @@ public class CluckControlBinder implements RConfable {
         this.name = name;
         this.sourceSet = source;
         this.sinkSet = sink;
-        storage = StorageProvider.openStorage("Control Bindings: " + name);
+        storage = Storage.openStorage("Control Bindings: " + name);
         if (sink.listBooleans().length != 0 || sink.listFloats().length != 0) {
             load();
         }

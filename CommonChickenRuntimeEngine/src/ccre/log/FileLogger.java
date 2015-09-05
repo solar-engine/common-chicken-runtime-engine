@@ -26,7 +26,7 @@ import java.util.Date;
 
 import ccre.channel.EventOutput;
 import ccre.ctrl.Ticker;
-import ccre.saver.StorageProvider;
+import ccre.saver.Storage;
 
 /**
  * A logging tool that stores logging message in a file on the current computer
@@ -44,7 +44,7 @@ public class FileLogger implements LoggingTarget {
         try {
             int i = 0;
             while (true) {
-                InputStream oi = StorageProvider.openInput("log-" + i);
+                InputStream oi = Storage.openInput("log-" + i);
                 if (oi == null) {
                     break;
                 }
@@ -73,7 +73,7 @@ public class FileLogger implements LoggingTarget {
      * @throws IOException If an IO Exception occurs.
      */
     public FileLogger(String fname) throws IOException {
-        this(StorageProvider.openOutput(fname));
+        this(Storage.openOutput(fname));
     }
 
     /**

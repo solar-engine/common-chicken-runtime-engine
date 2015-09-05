@@ -26,7 +26,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-import ccre.saver.StorageProvider;
+import ccre.saver.Storage;
 
 /**
  * Tests the StorageProvider class and the currently-registered storage
@@ -52,7 +52,7 @@ public class TestFiles extends BaseTest {
     }
 
     private void testInput(String name) throws TestingException, IOException {
-        InputStream input = StorageProvider.openInput(name);
+        InputStream input = Storage.openInput(name);
         assertTrue(input != null, "openInput should not return null for an existing file!");
         // this could be removed... it's not guaranteed but I would like it to be true.
         assertTrue(input.available() > 0, "non-empty input streams should (hopefully) never be unavailable");
@@ -119,7 +119,7 @@ public class TestFiles extends BaseTest {
     }
 
     private void testOutput(String name) throws TestingException, IOException {
-        OutputStream output = StorageProvider.openOutput(name);
+        OutputStream output = Storage.openOutput(name);
         assertTrue(output != null, "openOutput should not return null!");
         output.write("Hello, World!".getBytes());
         output.write('\n');
@@ -147,7 +147,7 @@ public class TestFiles extends BaseTest {
     }
 
     private void testNonexistent(String name) throws TestingException, IOException {
-        InputStream input = StorageProvider.openInput(name);
+        InputStream input = Storage.openInput(name);
         assertIdentityEqual(input, null, "Nonexistent file should result in a NULL return value!");
     }
 

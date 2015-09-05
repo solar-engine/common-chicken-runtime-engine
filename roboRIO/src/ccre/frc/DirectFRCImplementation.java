@@ -51,7 +51,7 @@ import ccre.log.BootLogger;
 import ccre.log.FileLogger;
 import ccre.log.Logger;
 import ccre.log.NetworkAutologger;
-import ccre.saver.DefaultStorageProvider;
+import ccre.saver.Storage;
 import ccre.util.Version;
 import edu.wpi.first.wpilibj.communication.FRCNetworkCommunicationsLibrary;
 import edu.wpi.first.wpilibj.communication.FRCNetworkCommunicationsLibrary.tInstances;
@@ -196,7 +196,7 @@ public final class DirectFRCImplementation implements FRCImplementation {
         if (!rootDir.exists() && !rootDir.mkdirs()) {
             Logger.warning("Could not create rootDir! Something might break...");
         }
-        DefaultStorageProvider.register(rootDir);
+        Storage.setBaseDir(rootDir);
         NetworkAutologger.register();
         BootLogger.register();
         FileLogger.register();

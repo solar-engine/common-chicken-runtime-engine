@@ -18,7 +18,7 @@
  */
 package ccre.instinct;
 
-import ccre.holders.TuningContext;
+import ccre.tuning.TuningContext;
 
 /**
  * An Instinct module that can be added to an InstinctMultiModule.

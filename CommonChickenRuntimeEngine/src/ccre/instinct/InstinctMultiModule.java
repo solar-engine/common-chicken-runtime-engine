@@ -21,10 +21,10 @@ package ccre.instinct;
 import ccre.channel.BooleanInput;
 import ccre.channel.EventOutput;
 import ccre.cluck.CluckPublisher;
-import ccre.holders.TuningContext;
 import ccre.log.Logger;
 import ccre.rconf.RConf;
 import ccre.rconf.RConf.Entry;
+import ccre.tuning.TuningContext;
 import ccre.rconf.RConfable;
 import ccre.util.CArrayList;
 

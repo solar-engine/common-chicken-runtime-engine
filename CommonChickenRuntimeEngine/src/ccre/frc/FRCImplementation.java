@@ -164,16 +164,16 @@ public interface FRCImplementation {
     public BooleanInput getIsDisabled();
 
     /**
-     * Get a boolean input that checks if the robot is currently in autonomous,
-     * as opposed to teleop and testing.
+     * Get a boolean input that checks if the robot is currently enabled in
+     * autonomous.
      *
      * @return the input.
      */
     public BooleanInput getIsAutonomous();
 
     /**
-     * Get a boolean input that checks if the robot is currently in testing
-     * mode, as opposed to teleop and autonomous.
+     * Get a boolean input that checks if the robot is currently enabled in
+     * testing mode.
      *
      * @return the input.
      */
@@ -181,7 +181,7 @@ public interface FRCImplementation {
 
     /**
      * Get a boolean input that checks if the robot is currently connected to
-     * the FMS, as opposed to being off the playing field.
+     * the FMS, as opposed to being off of the playing field.
      *
      * @return the input.
      */

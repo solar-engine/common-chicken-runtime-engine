@@ -29,7 +29,6 @@ import javax.swing.JFrame;
 
 import ccre.channel.EventStatus;
 import ccre.cluck.Cluck;
-import ccre.log.BootLogger;
 import ccre.log.FileLogger;
 import ccre.log.Logger;
 import ccre.log.NetworkAutologger;
@@ -87,7 +86,6 @@ public class DeviceListMain {
             }
         });
         NetworkAutologger.register();
-        BootLogger.register();
         FileLogger.register();
         FRCImplementationHolder.setImplementation(impl);
         if (!System.getProperty("os.name").toLowerCase().contains("linux") && !System.getProperty("os.name").toLowerCase().contains("mac os")) {

@@ -47,7 +47,6 @@ import ccre.ctrl.ExtendedMotor;
 import ccre.ctrl.ExtendedMotorFailureException;
 import ccre.ctrl.IJoystick;
 import ccre.ctrl.binding.ControlBindingCreator;
-import ccre.log.BootLogger;
 import ccre.log.FileLogger;
 import ccre.log.Logger;
 import ccre.log.NetworkAutologger;
@@ -198,7 +197,6 @@ public final class DirectFRCImplementation implements FRCImplementation {
         }
         Storage.setBaseDir(rootDir);
         NetworkAutologger.register();
-        BootLogger.register();
         FileLogger.register();
     }
 

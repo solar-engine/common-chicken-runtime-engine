@@ -37,6 +37,7 @@
 		<echo>If you have any issues, please ask about them on the forum thread on Chief Delphi at http://www.chiefdelphi.com/forums/showthread.php?t=130813</echo>
 		<replace file="${rebuilder-target}/src/main.properties" token="igneous.main" value="frc.main" />
 		<replace file="${rebuilder-target}/.externalToolBuilders/Target Rebuilder.launch" token="CCRE_Igneous_cRIO" value="roboRIO" />
+		TODO: add something for TemplateRobot DeploymentEngine dependency
 	</target>
 
 </project>

@@ -1,10 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <projectDescription>
-	<name>roboRIO</name>
+	<name>DeploymentEngine</name>
 	<comment></comment>
 	<projects>
-		<project>CommonChickenRuntimeEngine</project>
-		<project>DeploymentEngine</project>
 	</projects>
 	<buildSpec>
 		<buildCommand>
@@ -18,7 +16,7 @@
 			<arguments>
 				<dictionary>
 					<key>LaunchConfigHandle</key>
-					<value>&lt;project&gt;/.externalToolBuilders/Build Jar.launch</value>
+					<value>&lt;project&gt;/.externalToolBuilders/Jar Builder.launch</value>
 				</dictionary>
 				<dictionary>
 					<key>incclean</key>

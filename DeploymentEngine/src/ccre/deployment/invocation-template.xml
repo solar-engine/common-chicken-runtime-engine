@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<launchConfiguration type="org.eclipse.ant.AntLaunchConfigurationType">
+	<booleanAttribute key="org.eclipse.ant.ui.DEFAULT_VM_INSTALL"
+		value="false" />
+	<stringAttribute key="org.eclipse.debug.core.ATTR_REFRESH_SCOPE"
+		value="${workspace}" />
+	<listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_PATHS">
+		<listEntry value="/roboRIO/src/dispatch_build.xml" />
+	</listAttribute>
+	<listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_TYPES">
+		<listEntry value="1" />
+	</listAttribute>
+	<listAttribute key="org.eclipse.debug.ui.favoriteGroups">
+		<listEntry value="org.eclipse.ui.externaltools.launchGroup" />
+	</listAttribute>
+	<booleanAttribute key="org.eclipse.debug.ui.private"
+		value="false" />
+	<stringAttribute key="org.eclipse.jdt.launching.CLASSPATH_PROVIDER"
+		value="org.eclipse.ant.ui.AntClasspathProvider" />
+	<stringAttribute key="org.eclipse.jdt.launching.JRE_CONTAINER"
+		value="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.8" />
+	<stringAttribute key="org.eclipse.jdt.launching.MAIN_TYPE"
+		value="org.eclipse.ant.internal.launching.remote.InternalAntRunner" />
+	<stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR"
+		value="PROJECT_ROOT" />
+	<stringAttribute key="org.eclipse.jdt.launching.SOURCE_PATH_PROVIDER"
+		value="org.eclipse.ant.ui.AntClasspathProvider" />
+	<mapAttribute key="org.eclipse.ui.externaltools.ATTR_ANT_PROPERTIES">
+		<mapEntry key="eclipse.running" value="true" />
+		<mapEntry key="project.dir" value="${resource_loc:/PROJECT_ROOT}" />
+		<mapEntry key="ccre-nonroot.dir" value="${resource_loc:/roboRIO}" />
+		<mapEntry key="class.name" value="CLASS_NAME"/>
+		<mapEntry key="method.name" value="METHOD_NAME"/>
+	</mapAttribute>
+	<booleanAttribute
+		key="org.eclipse.ui.externaltools.ATTR_INCLUDE_REFERENCED_PROJECTS"
+		value="false" />
+	<stringAttribute key="org.eclipse.ui.externaltools.ATTR_ANT_TARGETS"
+		value="dispatch" />
+	<stringAttribute
+		key="org.eclipse.ui.externaltools.ATTR_LAUNCH_CONFIGURATION_BUILD_SCOPE"
+		value="${project}" />
+	<stringAttribute key="org.eclipse.ui.externaltools.ATTR_LOCATION"
+		value="${workspace_loc:/roboRIO/src/dispatch_build.xml}" />
+	<booleanAttribute key="org.eclipse.ui.externaltools.ATTR_SHOW_CONSOLE"
+		value="true" />
+	<stringAttribute key="process_factory_id"
+		value="org.eclipse.ant.ui.remoteAntProcessFactory" />
+</launchConfiguration>

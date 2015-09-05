@@ -1,8 +1,8 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
 
 <!--
 /*
- * Copyright 2014-2015 Colby Skeggs
+ * Copyright 2015 Colby Skeggs
  * 
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  * 
@@ -21,17 +21,16 @@
  */
  -->
 
-<project name="FRC Deployment">
-	<!-- Specified in the builder configuration for this ANT builder. -->
-	<eclipse.convertPath resourcepath="/roboRIO" property="ccre-nonroot.dir" />
-
-	<condition property="should-not-generate">
-		<equals arg1="${rebuilder.dir}" arg2="/TemplateRobot" />
-	</condition>
-
-	<property name="project.dir" value="${rebuilder-target}" />
-	<property name="class.name" value="ccre.deployment.RebuildBuilders" />
-	<property name="method.name" value="rebuild" />
-
-	<ant antfile="dispatch_build.xml" inheritall="true" />
+<project name="Build Jar">
+	<target name="clean">
+		<delete file="DepEngine.jar" />
+	</target>
+	<target name="build-jar" depends="clean">
+		<jar destfile="DepEngine.jar" update="false">
+			<fileset dir="bin" includes="**/*" />
+			<zipfileset src="libs/sshj-0.13.0.jar">
+				<include name="**/*" />
+			</zipfileset>
+		</jar>
+	</target>
 </project>

@@ -1,37 +1,30 @@
-<?xml version="1.0" encoding="UTF-8"?>
-
-<!--
 /*
- * Copyright 2014-2015 Colby Skeggs
- * 
+ * Copyright 2015 Colby Skeggs.
+ *
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
- * 
+ *
  * The CCRE is free software: you can redistribute it and/or modify it under the
  * terms of the GNU Lesser General Public License as published by the Free
  * Software Foundation, either version 3 of the License, or (at your option) any
  * later version.
- * 
+ *
  * The CCRE is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
  * A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
  * details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public License
  * along with the CCRE.  If not, see <http://www.gnu.org/licenses/>.
  */
- -->
+package ccre.deployment;
 
-<project name="FRC Deployment">
-	<!-- Specified in the builder configuration for this ANT builder. -->
-	<eclipse.convertPath resourcepath="/roboRIO" property="ccre-nonroot.dir" />
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
-	<condition property="should-not-generate">
-		<equals arg1="${rebuilder.dir}" arg2="/TemplateRobot" />
-	</condition>
-
-	<property name="project.dir" value="${rebuilder-target}" />
-	<property name="class.name" value="ccre.deployment.RebuildBuilders" />
-	<property name="method.name" value="rebuild" />
-
-	<ant antfile="dispatch_build.xml" inheritall="true" />
-</project>
+@Retention(RetentionPolicy.RUNTIME)
+@Target(ElementType.METHOD)
+public @interface DepTask {
+    public String value();// name
+}

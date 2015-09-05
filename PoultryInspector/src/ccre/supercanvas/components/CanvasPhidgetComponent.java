@@ -34,7 +34,6 @@ import ccre.channel.BooleanStatus;
 import ccre.channel.FloatInput;
 import ccre.channel.FloatStatus;
 import ccre.cluck.Cluck;
-import ccre.holders.StringHolder;
 import ccre.supercanvas.DraggableBoxComponent;
 import ccre.supercanvas.Rendering;
 import ccre.supercanvas.SuperCanvasPanel;
@@ -49,7 +48,7 @@ public class CanvasPhidgetComponent extends DraggableBoxComponent {
 
     private static final long serialVersionUID = -4281545286901323041L;
     private final BooleanStatus attached = new BooleanStatus();
-    private final StringHolder[] lcdLines = new StringHolder[2];
+    private final String[] lcdLines = new String[2];
     private final boolean[] displayLights = new boolean[8];
     private final BooleanStatus[] inputButtons = new BooleanStatus[8];
     private final FloatStatus[] sliders = new FloatStatus[8];
@@ -65,7 +64,7 @@ public class CanvasPhidgetComponent extends DraggableBoxComponent {
     public CanvasPhidgetComponent(int cx, int cy) {
         super(cx, cy);
         for (int i = 0; i < lcdLines.length; i++) {
-            lcdLines[i] = new StringHolder("....................");
+            lcdLines[i] = "....................";
         }
         for (int i = 0; i < inputButtons.length; i++) {
             inputButtons[i] = new BooleanStatus();
@@ -82,6 +81,7 @@ public class CanvasPhidgetComponent extends DraggableBoxComponent {
         for (int i = 0; i < OUTPUT_COUNT; i++) {
             final int localI = i;
             Cluck.publish("phidget-bo" + i, new BooleanOutput() {
+                @Override
                 public void set(boolean value) {
                     displayLights[localI] = value;
                 }
@@ -95,7 +95,7 @@ public class CanvasPhidgetComponent extends DraggableBoxComponent {
                     EventQueue.invokeLater(new Runnable() {
                         @Override
                         public void run() {
-                            lcdLines[localI].set((str + "                    ").substring(0, 20));
+                            lcdLines[localI] = (str + "                    ").substring(0, 20);
                         }
                     });
                 }
@@ -136,9 +136,9 @@ public class CanvasPhidgetComponent extends DraggableBoxComponent {
         g.setColor(Color.BLACK);
         int baseY = centerY - halfHeight + 1 + fontMetrics.getAscent();
         g.drawString("VirtualPhidget", centerX - g.getFontMetrics().stringWidth("VirtualPhidget") / 2, baseY);
-        for (StringHolder line : lcdLines) {
+        for (String line : lcdLines) {
             baseY += g.getFontMetrics().getHeight();
-            g.drawString(line.get(), centerX - g.getFontMetrics().stringWidth(line.get()) / 2, baseY);
+            g.drawString(line, centerX - g.getFontMetrics().stringWidth(line) / 2, baseY);
         }
         baseY += 10;
         for (int y = 0; y < 2; y++) {

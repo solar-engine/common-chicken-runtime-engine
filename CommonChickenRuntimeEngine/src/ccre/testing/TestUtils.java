@@ -463,7 +463,7 @@ public class TestUtils extends BaseTest {
         CallerInfo info = Utils.getMethodCaller(0);
         CallerInfo info2 = Utils.getMethodCaller(0);
         // TODO: Check that toString() is accurate?
-        String expect = "ccre.testing.TestWorkarounds.testMethodCaller(TestWorkarounds.java:";
+        String expect = "ccre.testing.TestUtils.testMethodCaller(TestUtils.java:";
         String istr = info.toString(), istr2 = info2.toString();
         assertObjectEqual(istr.substring(0, expect.length()), expect, "bad caller info");
         assertObjectEqual(istr2.substring(0, expect.length()), expect, "bad caller info");
@@ -484,7 +484,7 @@ public class TestUtils extends BaseTest {
         String got = Utils.toStringThrowable(new Throwable("Example"));
         String[] pts = Utils.split(got, '\n');
         assertObjectEqual(pts[0], "java.lang.Throwable: Example", "bad line 1 of Throwable dump");
-        assertObjectEqual(pts[1], "\tat ccre.testing.TestWorkarounds.testThrowablePrinting(TestWorkarounds.java:" + expectedLine + ")", "bad line 1 of Throwable dump");
+        assertObjectEqual(pts[1], "\tat ccre.testing.TestUtils.testThrowablePrinting(TestUtils.java:" + expectedLine + ")", "bad line 1 of Throwable dump");
 
         assertIdentityEqual(Utils.toStringThrowable(null), null, "should have returned null!");
     }

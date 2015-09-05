@@ -21,16 +21,6 @@ package ccre.supercanvas.phidget;
 import java.io.Serializable;
 import java.util.Arrays;
 
-import ccre.channel.BooleanInput;
-import ccre.channel.BooleanOutput;
-import ccre.channel.BooleanStatus;
-import ccre.channel.EventOutput;
-import ccre.channel.FloatInput;
-import ccre.channel.FloatStatus;
-import ccre.cluck.Cluck;
-import ccre.holders.StringHolder;
-import ccre.log.Logger;
-
 import com.phidgets.InterfaceKitPhidget;
 import com.phidgets.Phidget;
 import com.phidgets.PhidgetException;
@@ -45,6 +35,15 @@ import com.phidgets.event.InputChangeEvent;
 import com.phidgets.event.InputChangeListener;
 import com.phidgets.event.SensorChangeEvent;
 import com.phidgets.event.SensorChangeListener;
+
+import ccre.channel.BooleanInput;
+import ccre.channel.BooleanOutput;
+import ccre.channel.BooleanStatus;
+import ccre.channel.FloatInput;
+import ccre.channel.FloatStatus;
+import ccre.cluck.Cluck;
+import ccre.log.Logger;
+import ccre.util.LineCollectorOutputStream;
 
 /**
  * The interface to the Phidget system. Currently, this has hardcoded constants
@@ -103,7 +102,7 @@ public class PhidgetMonitor implements Serializable, AttachListener, DetachListe
     /**
      * The lines of the LCD.
      */
-    private final StringHolder[] lines = new StringHolder[LCD_LINES];
+    private final String[] lines = new String[LCD_LINES];
     /**
      * The internal status of whether or not the phidget is attached.
      */
@@ -141,16 +140,8 @@ public class PhidgetMonitor implements Serializable, AttachListener, DetachListe
         Arrays.fill(fillchars, ' ');
         fillLine = new String(fillchars);
         for (int i = 0; i < LCD_LINES; i++) {
-            StringHolder strh = new StringHolder(fillstr, false);
-            final int cur = i;
-            strh.whenModified(new EventOutput() {
-                @Override
-                public void event() {
-                    updateStringOutput(cur);
-                }
-            });
-            lines[i] = strh;
-            strh.notifyChanged();
+            lines[i] = fillstr;
+            updateStringOutput(i);
         }
         for (int i = 0; i < INPUT_COUNT; i++) {
             inputs[i] = new BooleanStatus();
@@ -194,7 +185,13 @@ public class PhidgetMonitor implements Serializable, AttachListener, DetachListe
             Cluck.publish("phidget-bo" + i, outputs[i]);
         }
         for (int i = 0; i < LCD_LINES; i++) {
-            Cluck.publish("phidget-lcd" + i, lines[i].getOutput());
+            final int cur = i;
+            Cluck.publish("phidget-lcd" + i, new LineCollectorOutputStream() {
+                @Override
+                protected void collect(String param) {
+                    lines[cur] = param;
+                }
+            });
         }
         Cluck.publish("phidget-attached", (BooleanInput) attachStat);
         for (int i = 0; i < INPUT_COUNT; i++) {
@@ -240,7 +237,7 @@ public class PhidgetMonitor implements Serializable, AttachListener, DetachListe
     private void updateStringOutput(int line) {
         try {
             if (lcd != null) {
-                lcd.setDisplayString(line, lines[line].get().replace('\r', ' ').concat(fillLine).substring(0, LCD_WIDTH));
+                lcd.setDisplayString(line, lines[line].replace('\r', ' ').concat(fillLine).substring(0, LCD_WIDTH));
             }
         } catch (PhidgetException ex) {
             if (ex.getErrorNumber() == PhidgetException.EPHIDGET_NOTATTACHED) {

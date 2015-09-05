@@ -26,10 +26,8 @@ import java.io.PrintStream;
 
 import ccre.channel.BooleanOutput;
 import ccre.channel.BooleanStatus;
-import ccre.channel.EventOutput;
 import ccre.channel.FloatOutput;
 import ccre.channel.FloatStatus;
-import ccre.holders.StringHolder;
 import ccre.log.Logger;
 import ccre.util.CHashMap;
 import ccre.util.UniqueIds;
@@ -172,46 +170,6 @@ public final class StorageSegment {
      */
     public String getName() {
         return name;
-    }
-
-    /**
-     * Attach a StringHolder to this storage segment. This will restore data if
-     * it has been stored as modified in the segment. This will save the data of
-     * the string holder as it updates, although you may need to call flush() to
-     * ensure that the data is saved.
-     *
-     * This will only overwrite the current value of the StringHolder if the
-     * data was saved when the StringHolder had the same default (value when
-     * this method is called). This means that you can modify the contents using
-     * either the StorageSegment or by changing the StringHolder's original
-     * value.
-     *
-     * @param name the name to save the holder under.
-     * @param holder the holder to save.
-     */
-    public void attachStringHolder(String name, final StringHolder holder) {
-        final String key = "string_holder_" + name;
-        String dflt = "string_holder_default_" + name;
-        String value = getStringForKey(key);
-        if (value == null) {
-            if (holder.hasModified()) {
-                value = holder.get();
-                setStringForKey(key, value);
-                setStringForKey(dflt, value);
-            }
-        } else {
-            String default_ = getStringForKey(dflt);
-            // If the default is the same as the holder's default, or the holder doesn't have a value, then load the value
-            if ((default_ != null && default_.equals(holder.get())) || !holder.hasModified()) {
-                holder.set(value);
-            }
-            // Otherwise, the holder has been modified and the default has changed from the holder, and therefore we want the updated value from the holder
-        }
-        holder.whenModified(new EventOutput() {
-            public void event() {
-                setStringForKey(key, holder.get());
-            }
-        });
     }
 
     /**

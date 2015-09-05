@@ -26,6 +26,7 @@ import ccre.util.CArrayList;
 import ccre.util.CArrayUtils;
 import ccre.util.CLinkedList;
 import ccre.util.CList;
+import ccre.util.CallerInfo;
 import ccre.util.Utils;
 
 /**
@@ -56,6 +57,9 @@ public class TestUtils extends BaseTest {
         testBytesToFloat();
         testIsStringEmpty();
         testDoesStringContain();
+        testCallerInfo();
+        testMethodCaller();
+        testThrowablePrinting();
     }
 
     private void checkStringContains(String str, String check) throws TestingException {
@@ -413,7 +417,7 @@ public class TestUtils extends BaseTest {
         boolean success = false;
         for (int i = 0; i < 5; i++) {
             float here = Utils.getCurrentTimeSeconds();
-            Thread.sleep(99); // 99 because it causes Java SE to make the request more accurate...
+            Thread.sleep(99);// 99 because it causes Java SE to make the request more accurate...
             float there = Utils.getCurrentTimeSeconds();
             float dt = Math.abs(there - here - (99 / 1000f));
             if (dt >= 0.002) {
@@ -425,5 +429,63 @@ public class TestUtils extends BaseTest {
             }
         }
         assertTrue(success, "Five timing check attempts failed!");
+    }
+
+    private void testCallerInfo() throws TestingException {
+        CallerInfo info = new CallerInfo("class", "method", "file", 10);
+        assertObjectEqual(info.getClassName(), "class", "Bad passthrough!");
+        assertObjectEqual(info.getMethodName(), "method", "Bad passthrough!");
+        assertObjectEqual(info.getFileName(), "file", "Bad passthrough!");
+        assertObjectEqual(info.getLineNum(), 10, "Bad passthrough!");
+        assertObjectEqual(info.toString(), "class.method(file:10)", "Bad toString()!");
+        info = new CallerInfo("class", null, null, -1);
+        assertObjectEqual(info.getClassName(), "class", "Bad passthrough!");
+        assertObjectEqual(info.getMethodName(), null, "Bad passthrough!");
+        assertObjectEqual(info.getFileName(), null, "Bad passthrough!");
+        assertObjectEqual(info.getLineNum(), -1, "Bad passthrough!");
+        // TODO: maybe this should be changed to a more useful description string?
+        assertObjectEqual(info.toString(), "class.null(null:-1)", "Bad toString()!");
+        try {
+            new CallerInfo(null, "method", "file", 10);
+            assertFail("Expected an IllegalArgumentException - can't have a NULL class!");
+        } catch (IllegalArgumentException ex) {
+            // correct!
+        }
+        try {
+            new CallerInfo(null, null, null, -1);
+            assertFail("Expected an IllegalArgumentException - can't have a NULL class!");
+        } catch (IllegalArgumentException ex) {
+            // correct!
+        }
+    }
+
+    private void testMethodCaller() throws TestingException {
+        CallerInfo info = Utils.getMethodCaller(0);
+        CallerInfo info2 = Utils.getMethodCaller(0);
+        // TODO: Check that toString() is accurate?
+        String expect = "ccre.testing.TestWorkarounds.testMethodCaller(TestWorkarounds.java:";
+        String istr = info.toString(), istr2 = info2.toString();
+        assertObjectEqual(istr.substring(0, expect.length()), expect, "bad caller info");
+        assertObjectEqual(istr2.substring(0, expect.length()), expect, "bad caller info");
+        assertIntsEqual(istr.charAt(istr.length() - 1), ')', "bad caller info");
+        assertIntsEqual(istr2.charAt(istr.length() - 1), ')', "bad caller info");
+        int line = Integer.parseInt(istr.substring(expect.length(), istr.length() - 1));
+        int line2 = Integer.parseInt(istr2.substring(expect.length(), istr.length() - 1));
+        assertIntsEqual(line, line2 - 1, "line numbers not one apart");
+
+        for (int i = -10; i < 0; i++) {
+            assertIdentityEqual(Utils.getMethodCaller(i), null, "got caller info for internals");
+        }
+        assertIdentityEqual(Utils.getMethodCaller(1000), null, "got caller info for what should be off the end of the stack trace");
+    }
+
+    private void testThrowablePrinting() throws TestingException {
+        int expectedLine = Utils.getMethodCaller(0).getLineNum() + 1;
+        String got = Utils.toStringThrowable(new Throwable("Example"));
+        String[] pts = Utils.split(got, '\n');
+        assertObjectEqual(pts[0], "java.lang.Throwable: Example", "bad line 1 of Throwable dump");
+        assertObjectEqual(pts[1], "\tat ccre.testing.TestWorkarounds.testThrowablePrinting(TestWorkarounds.java:" + expectedLine + ")", "bad line 1 of Throwable dump");
+
+        assertIdentityEqual(Utils.toStringThrowable(null), null, "should have returned null!");
     }
 }

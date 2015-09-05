@@ -18,6 +18,9 @@
  */
 package ccre.util;
 
+import java.io.ByteArrayOutputStream;
+import java.io.PrintStream;
+
 /**
  * A class for utilities that don't fit anywhere else. Most utilites are in
  * Mixing or CArrayUtils.
@@ -220,6 +223,50 @@ public class Utils {
             if (obj == null) {
                 throw new NullPointerException();
             }
+        }
+    }
+
+    /**
+     * Convert the specified Throwable to a String that contains what would have
+     * been printed by printThrowable.
+     *
+     * Printing this value is equivalent to just calling printThrowable
+     * originally.
+     *
+     * @param thr the throwable to print.
+     * @return the String version of the throwable, including the traceback, or
+     * null if the throwable was null.
+     */
+    public static String toStringThrowable(Throwable thr) {
+        if (thr == null) {
+            return null;
+        }
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        thr.printStackTrace(new PrintStream(out));
+        return out.toString();
+    }
+
+    /**
+     * Get diagnostic information for someone in the call stack of this method,
+     * at a given index.
+     *
+     * Index 0 is the caller of this method; 1 is the caller of that method,
+     * etc.
+     *
+     * This should contain, at the very least, the class, but should also
+     * contain the method, source file, and line number if possible.
+     *
+     * @param index which frame to report.
+     * @return a CallerInfo for the specified caller, or null.
+     */
+    public static CallerInfo getMethodCaller(int index) {
+        int traceIndex = index + 1;
+        StackTraceElement[] trace = new Throwable().getStackTrace();
+        if (traceIndex <= 0 || traceIndex >= trace.length || trace[traceIndex] == null) {
+            return null;
+        } else {
+            StackTraceElement elem = trace[traceIndex];
+            return new CallerInfo(elem.getClassName(), elem.getMethodName(), elem.getFileName(), elem.getLineNumber());
         }
     }
 }

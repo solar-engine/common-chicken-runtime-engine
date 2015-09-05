@@ -20,8 +20,6 @@ package ccre.log;
 
 import java.io.PrintStream;
 
-import ccre.workarounds.ThrowablePrinter;
-
 /**
  * A logging target that will write all messages to the specified PrintStream.
  *
@@ -49,7 +47,7 @@ public final class PrintStreamLogger implements LoggingTarget {
     public synchronized void log(LogLevel level, String message, Throwable thr) {
         if (thr != null) {
             str.println("LOG{" + level.message + "} " + message);
-            ThrowablePrinter.printThrowable(thr, str);
+            thr.printStackTrace(str);
         } else {
             str.println("LOG[" + level.message + "] " + message);
         }

@@ -28,7 +28,7 @@ import java.nio.IntBuffer;
 import java.nio.LongBuffer;
 
 import ccre.log.Logger;
-import ccre.workarounds.ThrowablePrinter;
+import ccre.util.Utils;
 import edu.wpi.first.wpilibj.hal.HALUtil;
 
 class Common {
@@ -65,7 +65,7 @@ class Common {
             throw new RuntimeException(message + " [" + s + "]");
         } else if (s > 0) {
             String message = HALUtil.getHALErrorMessage(s);
-            Logger.warning("HAL Warning: " + message + "[" + s + "] in " + ThrowablePrinter.getMethodCaller(1));
+            Logger.warning("HAL Warning: " + message + "[" + s + "] in " + Utils.getMethodCaller(1));
         }
     }
 }

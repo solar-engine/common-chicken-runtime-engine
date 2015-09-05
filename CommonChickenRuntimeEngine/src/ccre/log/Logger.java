@@ -19,8 +19,8 @@
 package ccre.log;
 
 import ccre.concurrency.ConcurrentDispatchArray;
-import ccre.workarounds.CallerInfo;
-import ccre.workarounds.ThrowablePrinter;
+import ccre.util.CallerInfo;
+import ccre.util.Utils;
 
 /**
  * A class containing easy global methods for logging, as well as holding the
@@ -118,7 +118,7 @@ public class Logger {
 
     private static String prependCallerInfo(int index, String message) {
         if (includeLineNumbers && !message.startsWith("(") && !message.startsWith("[")) {
-            CallerInfo caller = ThrowablePrinter.getMethodCaller(index + 1);
+            CallerInfo caller = Utils.getMethodCaller(index + 1);
             if (caller != null && caller.getFileName() != null) {
                 if (caller.getLineNum() > 0) {
                     return "(" + caller.getFileName() + ":" + caller.getLineNum() + ") " + message;

@@ -60,7 +60,6 @@ import ccre.rconf.RConf.Entry;
 import ccre.rconf.RConfable;
 import ccre.util.UniqueIds;
 import ccre.util.Utils;
-import ccre.workarounds.ThrowablePrinter;
 
 /**
  * A file that handles publishing and subscribing of basic channels.
@@ -661,7 +660,7 @@ public class CluckPublisher {
         }
 
         public void log(LogLevel level, String message, Throwable throwable) {
-            log(level, message, ThrowablePrinter.toStringThrowable(throwable));
+            log(level, message, Utils.toStringThrowable(throwable));
         }
 
         public void log(LogLevel level, String message, String extended) {

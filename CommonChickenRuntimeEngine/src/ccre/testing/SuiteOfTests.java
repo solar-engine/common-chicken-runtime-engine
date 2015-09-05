@@ -79,9 +79,6 @@ public class SuiteOfTests {
                 // ccre.testing
                 new TestTests(),
 
-                // ccre.workarounds
-                new TestWorkarounds(),
-
                 // ccre.utils
                 new TestAllocationPool(),
                 new TestLineCollectorOutputStream(),

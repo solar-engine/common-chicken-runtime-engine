@@ -22,7 +22,7 @@ import ccre.channel.EventOutput;
 import ccre.cluck.Cluck;
 import ccre.cluck.CluckNode;
 import ccre.cluck.CluckPublisher;
-import ccre.workarounds.ThrowablePrinter;
+import ccre.util.Utils;
 
 /**
  * A logging tool that holds the first twenty log messages so that they can be
@@ -86,7 +86,7 @@ public class BootLogger implements LoggingTarget {
         if (outId >= LOG_MESSAGE_COUNT) {
             return;
         }
-        log(level, message, ThrowablePrinter.toStringThrowable(throwable));
+        log(level, message, Utils.toStringThrowable(throwable));
     }
 
     public void log(LogLevel level, String message, String extended) {

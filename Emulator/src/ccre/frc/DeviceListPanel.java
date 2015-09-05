@@ -36,7 +36,7 @@ import ccre.channel.EventOutput;
 import ccre.concurrency.ConcurrentDispatchArray;
 import ccre.ctrl.ExpirationTimer;
 import ccre.log.Logger;
-import ccre.workarounds.ThrowablePrinter;
+import ccre.util.Utils;
 
 /**
  * A base display panel used in device tree panels.
@@ -90,7 +90,7 @@ public final class DeviceListPanel extends JPanel implements Iterable<Device> {
      * @param thr the Throwable to be displayed, or null to display nothing.
      */
     public void setErrorDisplay(Throwable thr) {
-        errorMessageLines = thr == null ? new String[0] : ThrowablePrinter.toStringThrowable(thr).split("\n");
+        errorMessageLines = thr == null ? new String[0] : Utils.toStringThrowable(thr).split("\n");
     }
 
     /**

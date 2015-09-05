@@ -27,7 +27,6 @@ import java.util.Date;
 import ccre.channel.EventOutput;
 import ccre.ctrl.Ticker;
 import ccre.saver.StorageProvider;
-import ccre.workarounds.ThrowablePrinter;
 
 /**
  * A logging tool that stores logging message in a file on the current computer
@@ -108,7 +107,7 @@ public class FileLogger implements LoggingTarget {
     public synchronized void log(LogLevel level, String message, Throwable throwable) {
         pstream.println("[" + (System.currentTimeMillis() - start) + " " + level + "] " + message);
         if (throwable != null) {
-            ThrowablePrinter.printThrowable(throwable, pstream);
+            throwable.printStackTrace(pstream);
         }
         pstream.flush();
     }

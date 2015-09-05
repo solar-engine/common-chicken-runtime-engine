@@ -56,10 +56,6 @@ public final class ExpirationTimer {
      */
     private long startedAt;
     /**
-     * The synchronization object for this class.
-     */
-    private final Object synch = new Object();
-    /**
      * The main thread of the Expiration Timer.
      */
     private final ReporterThread main = new ReporterThread("ExpirationTimer") {
@@ -254,7 +250,7 @@ public final class ExpirationTimer {
         for (Task t : tasks) {
             long rel = startAt + t.delay - System.currentTimeMillis();
             while (rel > 0) {
-                synch.wait(rel);
+                this.wait(rel);
                 rel = startAt + t.delay - System.currentTimeMillis();
             }
             try {
@@ -269,12 +265,12 @@ public final class ExpirationTimer {
         while (!terminated) {
             try {
                 while (!isStarted.get()) {
-                    synch.wait();
+                    this.wait();
                 }
                 recalculateTasks();
                 runTasks();
                 while (isStarted.get()) {// Once finished, wait to stop before restarting.
-                    synch.wait();
+                    this.wait();
                 }
             } catch (InterruptedException ex) {
             }
@@ -292,7 +288,7 @@ public final class ExpirationTimer {
             throw new IllegalStateException("Timer is not running!");
         }
         startedAt = System.currentTimeMillis();
-        synch.notifyAll();
+        this.notifyAll();
         main.interrupt();
     }
 
@@ -307,7 +303,7 @@ public final class ExpirationTimer {
             throw new IllegalStateException("Timer is not running!");
         }
         isStarted.set(false);
-        synch.notifyAll();
+        this.notifyAll();
         main.interrupt();
     }
 

@@ -33,7 +33,6 @@ import ccre.log.Logger;
 public class DisconnectedSerialIO implements SerialIO {
 
     private boolean closed = false;
-    private final Object synch = new Object();
 
     @Override
     public void setTermination(Character end) throws IOException {
@@ -45,7 +44,7 @@ public class DisconnectedSerialIO implements SerialIO {
         Logger.warning("Blocking read from DisconnectedSerialIO!");
         while (!closed) {
             try {
-                synch.wait();
+                this.wait();
             } catch (InterruptedException e) {
                 throw new InterruptedIOException("interrupted in DisconnectedSerialIO blocking read");
             }
@@ -73,7 +72,7 @@ public class DisconnectedSerialIO implements SerialIO {
     public synchronized void close() throws IOException {
         // do nothing.
         closed = true;
-        synch.notifyAll();
+        this.notifyAll();
     }
 
     @Override

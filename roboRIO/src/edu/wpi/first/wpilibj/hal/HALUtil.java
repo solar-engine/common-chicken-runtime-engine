@@ -13,18 +13,12 @@ public class HALUtil extends JNIWrapper {
     public static final int NO_AVAILABLE_RESOURCES = -104;
     public static final int PARAMETER_OUT_OF_RANGE = -1028;
 
-    //public static final int SEMAPHORE_WAIT_FOREVER = -1;
-    //public static final int SEMAPHORE_Q_PRIORITY = 0x01;
-
     public static native ByteBuffer initializeMutexNormal();
 
     public static native void deleteMutex(ByteBuffer sem);
 
     public static native byte takeMutex(ByteBuffer sem);
 
-    //public static native ByteBuffer initializeSemaphore(int initialValue);
-    //public static native void deleteSemaphore(ByteBuffer sem);
-    //public static native byte takeSemaphore(ByteBuffer sem, int timeout);
     public static native ByteBuffer initializeMultiWait();
 
     public static native void deleteMultiWait(ByteBuffer sem);

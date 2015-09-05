@@ -9,13 +9,13 @@ import ccre.frc.FRCApplication;
 
 public class Deployment {
 
-    public static final Class<? extends FRCApplication> robot = teamNNNN.RobotTemplate.class;
+    public static final Class<? extends FRCApplication> robot = org.team1540.minimal.Minimal.class;
 
     @DepTask
     public static void deploy() throws Exception {
         Artifact result = DepRoboRIO.buildProject(robot);
 
-        DepRoboRIO.RIOShell rshell = DepRoboRIO.discoverAndVerify(0000);
+        DepRoboRIO.RIOShell rshell = DepRoboRIO.discoverAndVerify(1540);
 
         rshell.archiveLogsTo(DepProject.root());
 

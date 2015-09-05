@@ -25,7 +25,6 @@ import ccre.channel.SerialIO;
 import ccre.drivers.ByteFiddling;
 import ccre.drivers.NMEA;
 import ccre.log.Logger;
-import ccre.util.CArrayUtils;
 
 /**
  * The low-level interface to the UM7-LT orientation sensor from CH Robotics,

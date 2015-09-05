@@ -26,5 +26,7 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)
 public @interface DepTask {
-    public String value();// name
+    public String name() default "";
+
+    public boolean fork() default false;
 }

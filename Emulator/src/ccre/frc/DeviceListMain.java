@@ -64,7 +64,7 @@ public class DeviceListMain {
         JarFile frcJar = new JarFile(jarFile);
         String mainClass;
         try {
-            mainClass = frcJar.getManifest().getMainAttributes().getValue("FRC-Main");
+            mainClass = frcJar.getManifest().getMainAttributes().getValue("CCRE-Main");
         } finally {
             frcJar.close();
         }

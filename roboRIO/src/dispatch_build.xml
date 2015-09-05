@@ -35,7 +35,7 @@
 
 	<target name="dispatch">
 		<echo>${build.dir}</echo>
-		<java classname="ccre.deployment.DispatchEntry" failonerror="true">
+		<java classname="ccre.deployment.DispatchEntry" failonerror="true" fork="${fork-needed}">
 			<arg value="${ccre-root.dir}" />
 			<arg value="${project.dir}" />
 			<arg value="${class.name}" />

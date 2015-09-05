@@ -83,6 +83,6 @@ public class Jar extends Artifact {
     }
 
     public File toFile() {
-        return preserved;
+        return preserved != null ? preserved : f;
     }
 }

@@ -29,7 +29,11 @@ import java.lang.reflect.Modifier;
 
 public class RebuildBuilders {
     public static void rebuild() throws IOException {
-        System.out.println("Rebuilding...");
+        if ("TemplateRobot".equals(DepProject.name())) {
+            System.out.println("Not building launchers for TemplateRobot.");
+            return;
+        }
+        System.out.println("Rebuilding launchers...");
         try {
             rebuild(Class.forName("deployment.Deployment"));
         } catch (ClassNotFoundException e) {
@@ -46,12 +50,17 @@ public class RebuildBuilders {
                 if (m.getParameterCount() != 0) {
                     throw new RuntimeException("Invalid method: " + m + ": annotated with @DepTask and doesn't have zero parameters!");
                 }
-                rebuild(deployment, m.getAnnotation(DepTask.class).value(), m.getName());
+                DepTask annot = m.getAnnotation(DepTask.class);
+                String annotName = annot.name();
+                if (annotName.isEmpty()) {
+                    annotName = Character.toUpperCase(m.getName().charAt(0)) + m.getName().substring(1);
+                }
+                rebuild(deployment, annotName, m.getName(), annot.fork());
             }
         }
     }
 
-    public static void rebuild(Class<?> deployment, String displayName, String methodName) throws IOException {
+    public static void rebuild(Class<?> deployment, String displayName, String methodName, boolean fork) throws IOException {
         File launches = DepProject.directory("launches");
         File launcher = new File(launches, DepProject.name() + " " + displayName + ".launch");
         if (!launches.exists() && !launches.mkdir()) {
@@ -61,7 +70,7 @@ public class RebuildBuilders {
             try (BufferedWriter out = new BufferedWriter(new FileWriter(launcher))) {
                 String line;
                 while ((line = in.readLine()) != null) {
-                    out.write(line.replace("PROJECT_ROOT", DepProject.name()).replace("CLASS_NAME", deployment.getName()).replace("METHOD_NAME", methodName).replace("\n", "") + "\n");
+                    out.write(line.replace("PROJECT_ROOT", DepProject.name()).replace("CLASS_NAME", deployment.getName()).replace("METHOD_NAME", methodName).replace("FORK_NEEDED", Boolean.toString(fork)).replace("\n", "") + "\n");
                 }
             }
         }

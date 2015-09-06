@@ -99,6 +99,9 @@ public final class Ticker implements EventInput {
         protected void threadBody() throws InterruptedException {
             if (fixedRate) {
                 long next = Time.currentTimeMillis() + interval;
+                synchronized (lock) {
+                    lock.notifyAll(); // tell the main thread that we've started
+                }
                 while (true) {
                     synchronized (lock) {
                         if (isKilled) {
@@ -109,19 +112,30 @@ public final class Ticker implements EventInput {
                             Time.wait(lock, rem);
                             continue;
                         }
+                        if (isKilled) {
+                            break;
+                        }
                     }
                     cycle();
                     next += interval;
                 }
             } else {
-                while (!isKilled) {
-                    long doneAt = Time.currentTimeMillis() + interval;
+                long lastTime = Time.currentTimeMillis();
+                synchronized (lock) {
+                    lock.notifyAll(); // tell the main thread that we've started
+                }
+                while (true) {
+                    long doneAt = lastTime + interval;
                     synchronized (lock) {
                         while (!isKilled && Time.currentTimeMillis() < doneAt) {
                             Time.wait(lock, interval);
                         }
+                        if (isKilled) {
+                            break;
+                        }
                     }
                     cycle();
+                    lastTime = Time.currentTimeMillis();
                 }
             }
         }
@@ -152,9 +166,20 @@ public final class Ticker implements EventInput {
             throw new IllegalStateException("Terminated!");
         }
         if (!main.isAlive()) {
-            main.start();
+            start();
         }
         producer.onUpdate(notify);
+    }
+
+    private void start() {
+        synchronized (lock) {
+            main.start();
+            try {
+                lock.wait();
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+        }
     }
 
     @Override
@@ -163,7 +188,7 @@ public final class Ticker implements EventInput {
             throw new IllegalStateException("Terminated!");
         }
         if (!main.isAlive()) {
-            main.start();
+            start();
         }
         return producer.onUpdateR(notify);
     }

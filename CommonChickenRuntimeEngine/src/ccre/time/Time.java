@@ -37,9 +37,9 @@ public abstract class Time {
             throw new NullPointerException();
         }
         Time old = Time.time;
-        Logger.info("Replacing time provider " + old + " with " + time);
+        //Logger.info("Replacing time provider " + old + " with " + time);
         Time.time = time;
-        Logger.info("Replaced time provider!");
+        //Logger.info("Replaced time provider!");
         old.close();// we do it afterwards so that anything new will get sent to the new time provider
     }
 

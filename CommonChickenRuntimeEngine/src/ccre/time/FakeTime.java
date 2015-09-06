@@ -28,10 +28,11 @@ import ccre.log.Logger;
 public class FakeTime extends Time {
 
     private long now = 0;
+    private int adds = 0;
     private final LinkedList<Object> otherSleepers = new LinkedList<>();
     private final PriorityQueue<ScheduleEntry> executionTimes = new PriorityQueue<>();
 
-    public void forward(long millis) {
+    public void forward(long millis) throws InterruptedException {
         if (closing) {
             throw new IllegalStateException("The FakeTime is closing! Don't try to control it!");
         }
@@ -42,6 +43,7 @@ public class FakeTime extends Time {
             now += millis;
             this.notifyAll();
         }
+        Object[] osl;
         while (true) {
             ScheduleEntry entry;
             synchronized (this) {
@@ -60,9 +62,29 @@ public class FakeTime extends Time {
                 Logger.severe("Schedule entry threw exception!", thr);
             }
         }
-        for (Object obj : otherSleepers) {
+        synchronized (this) {
+            osl = otherSleepers.toArray();
+            adds = 0;
+        }
+        for (Object obj : osl) {
             synchronized (obj) {
                 obj.notifyAll();
+            }
+        }
+        synchronized (this) {
+            int i = 0;
+            while (true) {
+                if (adds >= osl.length) {
+                    if (i != 1) {
+                        System.out.println("Completed in " + i + "!");
+                    }
+                    break;
+                }
+                this.wait(1);
+                if (i++ >= 30) {
+                    System.out.println("Timed out!");
+                    break;
+                }
             }
         }
     }
@@ -112,6 +134,7 @@ public class FakeTime extends Time {
         // so we just go with the spurious wakeups every time the time changes.
         synchronized (this) {
             otherSleepers.add(object);
+            adds++;
         }
         try {
             // we only wait ONCE ... which means that we WILL have spurious wakeups! I _do_ hope that code using this can handle them like it's supposed to.
@@ -128,7 +151,7 @@ public class FakeTime extends Time {
             }
         }
     }
-    
+
     private boolean closing = false;
 
     @Override
@@ -141,9 +164,14 @@ public class FakeTime extends Time {
 
     @Override
     protected void close() {
+        Object[] others;
         synchronized (this) {
             closing = true;
-            for (Object o : otherSleepers) { // wake up, everyone!
+            others = otherSleepers.toArray();
+            otherSleepers.clear();
+        }
+        for (Object o : others) {// wake up, everyone!
+            synchronized (o) {
                 o.notifyAll();
             }
         }
@@ -161,7 +189,7 @@ public class FakeTime extends Time {
         synchronized (this) {
             now = 0;
             closing = false;
-            this.notifyAll(); // just in case something's still waiting on us
+            this.notifyAll();// just in case something's still waiting on us
         }
     }
 }

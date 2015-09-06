@@ -54,7 +54,6 @@ public class SuiteOfTests {
                 new TestEventMixing(),
                 new TestBooleanMixing(),
                 new TestFloatMixing(),
-                new TestTicker(),
                 new TestPauseTimer(),
                 new TestPIDController(),
 
@@ -76,18 +75,11 @@ public class SuiteOfTests {
                 // ccre.saver - Needed!
                 new TestFiles(),
 
-                // ccre.testing
-                new TestTests(),
-
                 // ccre.utils
                 new TestAllocationPool(),
-                new TestLineCollectorOutputStream(),
-                new TestUniqueIds(),
 
                 // CAbstractList - Included in CArrayList and CLinkedList tests
-                new TestCArrayList(), new TestCHashMap(), new TestCLinkedList(),
-
-                new TestUtils(), // Tests both Utils and CArrayUtils
+                new TestCArrayList(), new TestCHashMap(), new TestCLinkedList()
         };
         boolean failFast = args.length > 0 && args[0].equals("--failfast");
         int count = 0;

@@ -80,10 +80,10 @@ public class TestStateMachine extends BaseTest {
         BooleanStatus hasNotUnexplodedEver = new BooleanStatus(true);
         FloatStatus timeDilationConstant = new FloatStatus(1.0f);
 
-        door.setOnEnterState("EXPLODED", hasExplodedEver, true);
-        door.setOnExitState("EXPLODED", hasNotUnexplodedEver, false);
-        door.setOnEnterState("EXPLODED", timeDilationConstant, 0.1f);
-        door.setOnExitState("EXPLODED", timeDilationConstant, 1.0f);
+        door.onEnterState("EXPLODED", hasExplodedEver.getSetTrueEvent());
+        door.onExitState("EXPLODED", hasNotUnexplodedEver.getSetFalseEvent());
+        door.onEnterState("EXPLODED", timeDilationConstant.getSetEvent(0.1f));
+        door.onExitState("EXPLODED", timeDilationConstant.getSetEvent(1.0f));
 
         assertFalse(door.isState("EXPLODED"), "Should not have exploded!");
         assertFalse(hasExplodedEver.get(), "Never exploded!");
@@ -173,8 +173,8 @@ public class TestStateMachine extends BaseTest {
         gotThrough.setTrueWhen(pushThrough.andNot(isLocked));
         turnstile.transitionStateWhen("LOCKED", "UNLOCKED", insertCoin);
         turnstile.transitionStateWhen("UNLOCKED", "LOCKED", pushThrough);
-        turnstile.setFalseOnEnterState("UNLOCKED", isLocked);
-        turnstile.setTrueOnExitState("UNLOCKED", isLocked);
+        turnstile.onEnterState("UNLOCKED", isLocked.getSetFalseEvent());
+        turnstile.onExitState("UNLOCKED", isLocked.getSetTrueEvent());
 
         final int[] totalEntriesExits = new int[4];
         turnstile.onEnterState("LOCKED").send(new EventOutput() {
@@ -376,8 +376,8 @@ public class TestStateMachine extends BaseTest {
         gandalf.getIsState("DEAD").send(died);
         gandalf.onEnterState("MIA", missing.getSetTrueEvent());
         gandalf.onExitState("MIA", missing.getSetFalseEvent());
-        gandalf.setTrueOnEnterState("ALIVE", alive);
-        gandalf.setFalseOnExitState("ALIVE", alive);
+        gandalf.onEnterState("ALIVE", alive.getSetTrueEvent());
+        gandalf.onExitState("ALIVE", alive.getSetFalseEvent());
 
         assertObjectEqual(gandalf.getStateName(0), "ALIVE", "State 0 should be alive.");
         assertObjectEqual(gandalf.getStateName(1), "MIA", "State 1 should be missing.");

@@ -44,36 +44,6 @@ public class Utils {
     }
 
     /**
-     * Split a string into parts delimited by the specified character.
-     *
-     * @param s The string to split.
-     * @param c The delimiter.
-     * @return The parts of the string.
-     */
-    public static String[] split(String s, char c) {
-        int count = 1;
-        for (int i = 0; i < s.length(); i++) {
-            if (s.charAt(i) == c) {
-                count++;
-            }
-        }
-        String[] parts = new String[count];
-        int last = 0;
-        int part = 0;
-        for (int i = 0; i < s.length(); i++) {
-            if (s.charAt(i) == c) {
-                parts[part++] = s.substring(last, i);
-                last = i + 1;
-            }
-        }
-        parts[part++] = s.substring(last);
-        if (part != count) {
-            throw new RuntimeException("Internal error - wait, what?");
-        }
-        return parts;
-    }
-
-    /**
      * Run a cycle of ramping code on the previous ramping value, target value,
      * and acceleration limit.
      *

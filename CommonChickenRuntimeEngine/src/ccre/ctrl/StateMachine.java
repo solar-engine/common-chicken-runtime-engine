@@ -19,12 +19,10 @@
 package ccre.ctrl;
 
 import ccre.channel.BooleanInput;
-import ccre.channel.BooleanOutput;
 import ccre.channel.DerivedBooleanInput;
 import ccre.channel.EventInput;
 import ccre.channel.EventOutput;
 import ccre.channel.EventStatus;
-import ccre.channel.FloatOutput;
 import ccre.log.LogLevel;
 import ccre.log.Logger;
 
@@ -402,94 +400,6 @@ public class StateMachine {
     }
 
     /**
-     * Set output to value when the named state is entered.
-     *
-     * @param state the state to monitor.
-     * @param output the output to modify.
-     * @param value the value to set the output to.
-     */
-    public void setOnEnterState(String state, BooleanOutput output, boolean value) {
-        setOnEnterState(indexOfName(state), output, value);
-    }
-
-    /**
-     * Set output to value when the indexed state is entered.
-     *
-     * @param state the state to monitor, as an index in the list of state
-     * names.
-     * @param output the output to modify.
-     * @param value the value to set the output to.
-     */
-    public void setOnEnterState(int state, BooleanOutput output, boolean value) {
-        onEnterState(state, output.getSetEvent(value));
-    }
-
-    /**
-     * Set output to true when the named state is entered.
-     *
-     * @param state the state to monitor.
-     * @param output the output to modify.
-     */
-    public void setTrueOnEnterState(String state, BooleanOutput output) {
-        setTrueOnEnterState(indexOfName(state), output);
-    }
-
-    /**
-     * Set output to true when the indexed state is entered.
-     *
-     * @param state the state to monitor, as an index in the list of state
-     * names.
-     * @param output the output to modify.
-     */
-    public void setTrueOnEnterState(int state, BooleanOutput output) {
-        setOnEnterState(state, output, true);
-    }
-
-    /**
-     * Set output to false when the named state is entered.
-     *
-     * @param state the state to monitor.
-     * @param output the output to modify.
-     */
-    public void setFalseOnEnterState(String state, BooleanOutput output) {
-        setFalseOnEnterState(indexOfName(state), output);
-    }
-
-    /**
-     * Set output to false when the indexed state is entered.
-     *
-     * @param state the state to monitor, as an index in the list of state
-     * names.
-     * @param output the output to modify.
-     */
-    public void setFalseOnEnterState(int state, BooleanOutput output) {
-        setOnEnterState(state, output, false);
-    }
-
-    /**
-     * Set output to value when the named state is entered.
-     *
-     * @param state the state to monitor.
-     * @param output the output to modify.
-     * @param value the value to set the output to.
-     */
-    public void setOnEnterState(String state, FloatOutput output, float value) {
-        setOnEnterState(indexOfName(state), output, value);
-    }
-
-    /**
-     * Set output to value when the indexed state is entered.
-     *
-     * @param state the state to monitor, as an index in the list of state
-     * names.
-     * @param output the output to modify.
-     * @param value the value to set the output to.
-     */
-    public void setOnEnterState(int state, FloatOutput output, float value) {
-        onEnterState(state, output.getSetEvent(value));
-    }
-
-    /**
      * Get an event that will fire whenever a state is exited, and before the
      * next state is entered.
      *
@@ -550,93 +460,5 @@ public class StateMachine {
      */
     public void onExitState(int state, final EventOutput output) {
         onExit.send(output.filter(getIsState(state)));
-    }
-
-    /**
-     * Set output to value when the named state is exited.
-     *
-     * @param state the state to monitor.
-     * @param output the output to modify.
-     * @param value the value to set the output to.
-     */
-    public void setOnExitState(String state, BooleanOutput output, boolean value) {
-        setOnExitState(indexOfName(state), output, value);
-    }
-
-    /**
-     * Set output to value when the indexed state is exited.
-     *
-     * @param state the state to monitor, as an index in the list of state
-     * names.
-     * @param output the output to modify.
-     * @param value the value to set the output to.
-     */
-    public void setOnExitState(int state, BooleanOutput output, boolean value) {
-        onExitState(state, output.getSetEvent(value));
-    }
-
-    /**
-     * Set output to true when the named state is exited.
-     *
-     * @param state the state to monitor.
-     * @param output the output to modify.
-     */
-    public void setTrueOnExitState(String state, BooleanOutput output) {
-        setTrueOnExitState(indexOfName(state), output);
-    }
-
-    /**
-     * Set output to true when the indexed state is exited.
-     *
-     * @param state the state to monitor, as an index in the list of state
-     * names.
-     * @param output the output to modify.
-     */
-    public void setTrueOnExitState(int state, BooleanOutput output) {
-        setOnExitState(state, output, true);
-    }
-
-    /**
-     * Set output to false when the named state is exited.
-     *
-     * @param state the state to monitor.
-     * @param output the output to modify.
-     */
-    public void setFalseOnExitState(String state, BooleanOutput output) {
-        setFalseOnExitState(indexOfName(state), output);
-    }
-
-    /**
-     * Set output to false when the indexed state is exited.
-     *
-     * @param state the state to monitor, as an index in the list of state
-     * names.
-     * @param output the output to modify.
-     */
-    public void setFalseOnExitState(int state, BooleanOutput output) {
-        setOnExitState(state, output, false);
-    }
-
-    /**
-     * Set output to value when the named state is exited.
-     *
-     * @param state the state to monitor.
-     * @param output the output to modify.
-     * @param value the value to set the output to.
-     */
-    public void setOnExitState(String state, FloatOutput output, float value) {
-        setOnExitState(indexOfName(state), output, value);
-    }
-
-    /**
-     * Set output to value when the indexed state is exited.
-     *
-     * @param state the state to monitor, as an index in the list of state
-     * names.
-     * @param output the output to modify.
-     * @param value the value to set the output to.
-     */
-    public void setOnExitState(int state, FloatOutput output, float value) {
-        onExitState(state, output.getSetEvent(value));
     }
 }

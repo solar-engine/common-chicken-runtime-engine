@@ -79,7 +79,7 @@ public class Version {
      */
     public static String getShortVersion() {
         String version = getVersion();
-        String[] parts = Utils.split(version, '-');
+        String[] parts = version.split("-");
         if (parts.length >= 2 && "ccre".equals(parts[0]) && parts[1].startsWith("v")) {
             if (parts.length >= 3 && !"0".equals(parts[2]) || version.contains("dirty")) {
                 return parts[1].substring(1) + "+M";

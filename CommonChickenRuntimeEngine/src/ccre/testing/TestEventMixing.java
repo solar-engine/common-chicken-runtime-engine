@@ -30,51 +30,6 @@ import ccre.channel.EventStatus;
  */
 public class TestEventMixing extends BaseTest {
 
-    // TODO: Use this more
-    /**
-     * An EventOutput that can be used when a test needs to check that an event
-     * did or did not happen, including the number of times that it did or did
-     * not happen.
-     *
-     * If an unexpected event is received (dictated by {@link #ifExpected}), an
-     * exception will be thrown. If an expected event is received, ifExpected
-     * will be set to false.
-     *
-     * The other side of the equation is handled by {@link #check()}, which
-     * throws an exception if ifExpected is true (i.e. an event hasn't
-     * happened.)
-     *
-     * @author skeggsc
-     */
-    public static class CountingEventOutput implements EventOutput {
-
-        /**
-         * If an event should be expected, this should be true.
-         *
-         * If an event is received
-         */
-        public boolean ifExpected;
-
-        public synchronized void event() {
-            if (!ifExpected) {
-                throw new RuntimeException("Unexpected event");
-            }
-            ifExpected = false;
-        }
-
-        /**
-         * Ensure than an event has happened since ifExpected was last set to
-         * true.
-         *
-         * @throws RuntimeException if an event did not occur.
-         */
-        public void check() throws RuntimeException {
-            if (ifExpected) {
-                throw new RuntimeException("Event did not occur");
-            }
-        }
-    }
-
     @Override
     public String getName() {
         return "EventMixing Test";

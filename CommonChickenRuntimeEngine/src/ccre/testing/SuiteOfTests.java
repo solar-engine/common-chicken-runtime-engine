@@ -49,7 +49,6 @@ public class SuiteOfTests {
 
                 // ccre.ctrl
                 new TestExpirationTimer(),
-                new TestStateMachine(),
                 new TestMixing(),
                 new TestEventMixing(),
                 new TestBooleanMixing(),

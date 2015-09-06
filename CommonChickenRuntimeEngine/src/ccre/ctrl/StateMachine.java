@@ -39,10 +39,7 @@ import ccre.log.Logger;
  */
 public class StateMachine {
     private int currentState;
-    /**
-     * The number of states in this machine.
-     */
-    public final int numberOfStates;
+    private final int numberOfStates;
     private final EventStatus onExit = new EventStatus();
     private final EventStatus onEnter = new EventStatus();
     private final String[] stateNames;
@@ -76,6 +73,13 @@ public class StateMachine {
         setState(defaultState);
     }
 
+    /**
+     * @return the number of states
+     */
+    public int getNumberOfStates() {
+        return numberOfStates;
+    }
+
     private static void checkNamesConsistency(String... names) {
         for (int i = 0; i < names.length; i++) {
             String name = names[i];
@@ -91,7 +95,7 @@ public class StateMachine {
     }
 
     private int indexOfName(String state) {
-        for (int i = 0; i < numberOfStates; i++) {
+        for (int i = 0; i < getNumberOfStates(); i++) {
             if (state.equals(stateNames[i])) {
                 return i;
             }
@@ -115,7 +119,7 @@ public class StateMachine {
      * names.
      */
     public void setState(int state) {
-        if (state < 0 || state >= numberOfStates) {
+        if (state < 0 || state >= getNumberOfStates()) {
             throw new IllegalArgumentException("Invalid state ID: " + state);
         }
         if (state == currentState) {
@@ -165,7 +169,7 @@ public class StateMachine {
      * @return the event that changes state.
      */
     public EventOutput getStateSetEvent(final int state) {
-        if (state < 0 || state >= numberOfStates) {
+        if (state < 0 || state >= getNumberOfStates()) {
             throw new IllegalArgumentException("Invalid state ID: " + state);
         }
         return new EventOutput() {
@@ -216,7 +220,7 @@ public class StateMachine {
      * @return the name of the indexed state.
      */
     public String getStateName(int state) {
-        if (state < 0 || state >= numberOfStates) {
+        if (state < 0 || state >= getNumberOfStates()) {
             throw new IllegalArgumentException("Invalid state ID: " + state);
         }
         return stateNames[state];
@@ -239,6 +243,9 @@ public class StateMachine {
      * @return if this machine is in that state.
      */
     public boolean isState(int state) {
+        if (state < 0 || state >= numberOfStates) {
+            throw new IllegalArgumentException("State out of range: " + state);
+        }
         return currentState == state;
     }
 
@@ -259,7 +266,7 @@ public class StateMachine {
      * @return an input for if this machine is in that state.
      */
     public BooleanInput getIsState(int state) {
-        if (state < 0 || state >= numberOfStates) {
+        if (state < 0 || state >= getNumberOfStates()) {
             throw new IllegalArgumentException("Invalid state ID: " + state);
         }
         return new DerivedBooleanInput(onEnter) {

@@ -27,7 +27,6 @@ import javax.swing.JOptionPane;
 
 import ccre.channel.EventOutput;
 import ccre.concurrency.CollapsingWorkerThread;
-import ccre.ctrl.Ticker;
 import ccre.log.Logger;
 import ccre.rconf.RConf;
 import ccre.rconf.RConfable;
@@ -36,6 +35,7 @@ import ccre.supercanvas.Rendering;
 import ccre.supercanvas.SuperCanvasComponent;
 import ccre.supercanvas.SuperCanvasPanel;
 import ccre.supercanvas.components.palette.NetworkPaletteComponent;
+import ccre.timers.Ticker;
 
 /**
  * A SuperCanvas-based component to allow interaction with RConf data.

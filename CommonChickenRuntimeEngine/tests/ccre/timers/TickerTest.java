@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with the CCRE.  If not, see <http://www.gnu.org/licenses/>.
  */
-package ccre.ctrl;
+package ccre.timers;
 
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
@@ -38,6 +38,7 @@ import ccre.channel.EventOutput;
 import ccre.log.Logger;
 import ccre.time.FakeTime;
 import ccre.time.Time;
+import ccre.timers.Ticker;
 
 @RunWith(Parameterized.class)
 public class TickerTest {

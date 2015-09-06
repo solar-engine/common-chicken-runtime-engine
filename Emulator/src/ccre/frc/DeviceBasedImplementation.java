@@ -28,7 +28,6 @@ import ccre.ctrl.DisconnectedSerialIO;
 import ccre.ctrl.ExtendedMotor;
 import ccre.ctrl.IJoystick;
 import ccre.ctrl.LoopbackSerialIO;
-import ccre.ctrl.Ticker;
 import ccre.ctrl.binding.ControlBindingCreator;
 import ccre.frc.devices.BooleanControlDevice;
 import ccre.frc.devices.BooleanViewDevice;
@@ -43,6 +42,7 @@ import ccre.frc.devices.LoggingDevice;
 import ccre.frc.devices.RobotModeDevice;
 import ccre.frc.devices.SpinDevice;
 import ccre.log.Logger;
+import ccre.timers.Ticker;
 
 /**
  * The FRCImplementation provided to an emulated roboRIO robot.

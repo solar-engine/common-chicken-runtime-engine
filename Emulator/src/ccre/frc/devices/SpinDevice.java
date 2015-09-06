@@ -22,11 +22,11 @@ import ccre.channel.EventInput;
 import ccre.channel.EventOutput;
 import ccre.channel.FloatInput;
 import ccre.channel.FloatStatus;
-import ccre.ctrl.Ticker;
 import ccre.frc.Device;
 import ccre.frc.components.BooleanTextComponent;
 import ccre.frc.components.SpacingComponent;
 import ccre.frc.components.TextComponent;
+import ccre.timers.Ticker;
 
 /**
  * A device allowing for input of tick-based increasing or decreasing values,

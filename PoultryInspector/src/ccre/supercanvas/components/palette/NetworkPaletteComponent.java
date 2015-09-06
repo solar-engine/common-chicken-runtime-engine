@@ -36,7 +36,6 @@ import ccre.cluck.CluckNode;
 import ccre.cluck.CluckPublisher;
 import ccre.cluck.CluckRemoteListener;
 import ccre.cluck.rpc.RemoteProcedure;
-import ccre.ctrl.PauseTimer;
 import ccre.log.LogLevel;
 import ccre.log.Logger;
 import ccre.log.LoggingTarget;
@@ -52,6 +51,7 @@ import ccre.supercanvas.components.channels.LoggingTargetControlComponent;
 import ccre.supercanvas.components.channels.OutputStreamControlComponent;
 import ccre.supercanvas.components.channels.RConfComponent;
 import ccre.supercanvas.components.channels.RPCControlComponent;
+import ccre.timers.PauseTimer;
 import ccre.util.UniqueIds;
 
 /**

@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with the CCRE.  If not, see <http://www.gnu.org/licenses/>.
  */
-package ccre.ctrl;
+package ccre.timers;
 
 import static org.junit.Assert.*;
 
@@ -29,6 +29,7 @@ import org.junit.Test;
 import ccre.testing.CountingEventOutput;
 import ccre.time.FakeTime;
 import ccre.time.Time;
+import ccre.timers.PauseTimer;
 
 public class PauseTimerTest {
 

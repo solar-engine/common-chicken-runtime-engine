@@ -25,9 +25,9 @@ import java.io.PrintStream;
 import java.util.Date;
 
 import ccre.channel.EventOutput;
-import ccre.ctrl.Ticker;
 import ccre.storage.Storage;
 import ccre.time.Time;
+import ccre.timers.Ticker;
 
 /**
  * A logging tool that stores logging message in a file on the current computer

@@ -26,13 +26,13 @@ import ccre.channel.FloatOutput;
 import ccre.channel.SerialIO;
 import ccre.ctrl.ExtendedMotor;
 import ccre.ctrl.IJoystick;
-import ccre.ctrl.Ticker;
 import ccre.ctrl.binding.CluckControlBinder;
 import ccre.ctrl.binding.ControlBindingCreator;
 import ccre.ctrl.binding.ControlBindingDataSource;
 import ccre.ctrl.binding.ControlBindingDataSourceBuildable;
 import ccre.instinct.InstinctModule;
 import ccre.log.Logger;
+import ccre.timers.Ticker;
 
 /**
  * The main class to access the I/O on a roboRIO.

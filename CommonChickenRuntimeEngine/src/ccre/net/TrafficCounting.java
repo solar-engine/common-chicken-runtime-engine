@@ -24,7 +24,7 @@ import java.io.OutputStream;
 import java.util.concurrent.atomic.AtomicLong;
 
 import ccre.channel.EventOutput;
-import ccre.ctrl.Ticker;
+import ccre.timers.Ticker;
 
 /**
  * You can enable Traffic Counting and query traffic analytics via this class.

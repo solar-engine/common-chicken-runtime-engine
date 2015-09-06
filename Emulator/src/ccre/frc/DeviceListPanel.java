@@ -34,8 +34,8 @@ import javax.swing.JPanel;
 
 import ccre.channel.EventOutput;
 import ccre.concurrency.ConcurrentDispatchArray;
-import ccre.ctrl.ExpirationTimer;
 import ccre.log.Logger;
+import ccre.timers.ExpirationTimer;
 import ccre.util.Utils;
 
 /**

@@ -23,8 +23,8 @@ import ccre.channel.EventOutput;
 import ccre.channel.EventStatus;
 import ccre.channel.FloatInput;
 import ccre.channel.FloatStatus;
-import ccre.ctrl.ExpirationTimer;
 import ccre.time.Time;
+import ccre.timers.ExpirationTimer;
 
 /**
  * Tests the ExpirationTimer class.

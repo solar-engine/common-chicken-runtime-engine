@@ -25,8 +25,8 @@ import ccre.cluck.Cluck;
 import ccre.cluck.CluckNode;
 import ccre.cluck.CluckPublisher;
 import ccre.log.Logger;
-import ccre.saver.Storage;
-import ccre.saver.StorageSegment;
+import ccre.storage.Storage;
+import ccre.storage.StorageSegment;
 import ccre.util.UniqueIds;
 
 /**

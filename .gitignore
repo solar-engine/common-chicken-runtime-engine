@@ -3,7 +3,7 @@
 /CommonChickenRuntimeEngine/coverage/
 /CommonChickenRuntimeEngine/CCRE.jar
 /CommonChickenRuntimeEngine/cobertura.ser
-/CommonChickenRuntimeEngine/test-file*
+/CommonChickenRuntimeEngine/unit_testing_test.txt
 /Emulator/bin/
 /Emulator/Emulator.jar
 /SampleRobot/bin/

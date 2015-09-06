@@ -115,7 +115,7 @@ public class TickerTest {
 
     private EventOutput start(EventOutput eo) throws InterruptedException {
         EventOutput unbind = ticker.sendR(eo);
-        Thread.sleep(1);
+        Thread.sleep(5);
         return unbind;
     }
 

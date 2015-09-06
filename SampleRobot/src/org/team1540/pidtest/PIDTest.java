@@ -18,6 +18,7 @@
  */
 package org.team1540.pidtest;
 
+import ccre.channel.FloatInput;
 import ccre.ctrl.PIDController;
 import ccre.frc.FRC;
 import ccre.frc.FRCApplication;
@@ -34,9 +35,10 @@ public class PIDTest implements FRCApplication {
      * Set up the robot. For the minimal robot, this only means printing a
      * message.
      */
+    @Override
     public void setupRobot() {
         TuningContext context = new TuningContext("pid_control").publishSavingEvent();
-        PIDController controller = new PIDController(FRC.joystick1.axisY(),
+        PIDController controller = new PIDController(FloatInput.always(0), FRC.joystick1.axisY(),
                 context.getFloat("P", 1), context.getFloat("I", 0), context.getFloat("D", 0));
         controller.send(FRC.makeTalonMotor(1, false, 0));
         controller.updateWhen(FRC.duringTele);

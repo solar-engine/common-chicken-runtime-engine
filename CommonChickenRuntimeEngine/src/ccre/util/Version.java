@@ -22,7 +22,7 @@ import java.io.IOException;
 import java.io.InputStream;
 
 import ccre.log.Logger;
-import ccre.saver.StorageSegment;
+import ccre.storage.StorageSegment;
 
 /**
  * Utilities for accessing the version of the CCRE.

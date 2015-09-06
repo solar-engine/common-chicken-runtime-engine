@@ -19,11 +19,10 @@
 package ccre.time;
 
 import ccre.channel.EventOutput;
-import ccre.log.Logger;
 
 public abstract class Time {
 
-    public static final int MILLISSECONDS_PER_SECOND = 1000;
+    public static final int MILLISECONDS_PER_SECOND = 1000;
     public static final int MICROSECONDS_PER_SECOND = 1000000;
     public static final int NANOSECONDS_PER_SECOND = 1000000000;
     public static final int MICROSECONDS_PER_MILLISECOND = 1000;

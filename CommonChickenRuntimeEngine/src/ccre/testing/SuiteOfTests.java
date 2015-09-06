@@ -38,47 +38,28 @@ public class SuiteOfTests {
      */
     public static void main(String[] args) throws InterruptedException {
         BaseTest[] tests = new BaseTest[] {
-                // ccre.chan
-                new TestBooleanStatus(), new TestFloatStatus(),
+
+                new TestBooleanStatus(),
+
+                new TestFloatStatus(),
+
                 new TestFilters(),
 
-                // ccre.cluck - Tests needed!
+                new TestConcurrentDispatchArray(),
 
-                // ccre.concurrency
-                new TestConcurrentDispatchArray(), new TestReporterThread(),
-
-                // ccre.ctrl
                 new TestExpirationTimer(),
+
                 new TestMixing(),
+
                 new TestEventMixing(),
+
                 new TestBooleanMixing(),
+
                 new TestFloatMixing(),
+
                 new TestPauseTimer(),
-                new TestPIDController(),
 
-                // ccre.event
-                new TestEventStatus(),
-
-                // ccre.holders - Needed!
-
-                // ccre.instinct - Needed!
-
-                // ccre.log - Needed!
-
-                // ccre.net - Needed!
-
-                // ccre.phidget
-
-                // ccre.rload - Do I need this?
-
-                // ccre.saver - Needed!
-                new TestFiles(),
-
-                // ccre.utils
-                new TestAllocationPool(),
-
-                // CAbstractList - Included in CArrayList and CLinkedList tests
-                new TestCArrayList(), new TestCHashMap(), new TestCLinkedList()
+                new TestEventStatus()
         };
         boolean failFast = args.length > 0 && args[0].equals("--failfast");
         int count = 0;

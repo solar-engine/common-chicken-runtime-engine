@@ -24,9 +24,9 @@ import ccre.cluck.Cluck;
 import ccre.log.Logger;
 import ccre.rconf.RConf;
 import ccre.rconf.RConf.Entry;
+import ccre.storage.Storage;
+import ccre.storage.StorageSegment;
 import ccre.rconf.RConfable;
-import ccre.saver.Storage;
-import ccre.saver.StorageSegment;
 import ccre.util.CHashMap;
 
 /**

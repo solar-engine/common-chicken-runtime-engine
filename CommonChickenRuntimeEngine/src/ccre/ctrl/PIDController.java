@@ -46,8 +46,8 @@ public class PIDController implements FloatInput, EventOutput {
 
     private final FloatInput input, setpoint;
     private final FloatInput P, I, D;
-    private FloatInput maxOutput = null, minOutput = null;
-    private FloatInput maxIntegral = null, minIntegral = null;
+    private FloatInput maxAbsOutput = null;
+    private FloatInput maxAbsIntegral = null;
     private float previousError = 0.0f;
     private long previousTime = 0;
     /**
@@ -82,26 +82,6 @@ public class PIDController implements FloatInput, EventOutput {
     }
 
     /**
-     * Create a new PIDController with the specified sources for its tuning, and
-     * no setpoint.
-     *
-     * This is equivalent to using the error parameter as the input parameter
-     * and a fixed setpoint of zero.
-     *
-     * @param error the error source for the PID controller.
-     * @param P a source for the proportional term.
-     * @param I a source for the integral term.
-     * @param D a source for the derivative term.
-     */
-    public PIDController(FloatInput error, FloatInput P, FloatInput I, FloatInput D) {
-        this.input = FloatInput.always(0);
-        this.setpoint = error;
-        this.P = P;
-        this.I = I;
-        this.D = D;
-    }
-
-    /**
      * Create a new PIDController with the specified sources for its tuning.
      *
      * @param input the input source for the PID controller.
@@ -111,6 +91,9 @@ public class PIDController implements FloatInput, EventOutput {
      * @param D a source for the derivative term.
      */
     public PIDController(FloatInput input, FloatInput setpoint, FloatInput P, FloatInput I, FloatInput D) {
+        if (input == null || setpoint == null || P == null || I == null || D == null) {
+            throw new NullPointerException();
+        }
         this.input = input;
         this.setpoint = setpoint;
         this.P = P;
@@ -124,7 +107,7 @@ public class PIDController implements FloatInput, EventOutput {
      * @param maximumAbsolute the maximum absolute value.
      */
     public void setOutputBounds(float maximumAbsolute) {
-        setOutputBounds(-maximumAbsolute, maximumAbsolute);
+        setOutputBounds(FloatInput.always(maximumAbsolute));
     }
 
     /**
@@ -133,28 +116,7 @@ public class PIDController implements FloatInput, EventOutput {
      * @param maximumAbsolute the maximum absolute value.
      */
     public void setOutputBounds(FloatInput maximumAbsolute) {
-        setOutputBounds(maximumAbsolute.negated(), maximumAbsolute);
-    }
-
-    /**
-     * Restrict the PID output to the specified lower and upper bounds.
-     *
-     * @param minimum the minimum value.
-     * @param maximum the maximum value.
-     */
-    public void setOutputBounds(float minimum, float maximum) {
-        setOutputBounds(FloatInput.always(minimum), FloatInput.always(maximum));
-    }
-
-    /**
-     * Restrict the PID output to the specified lower and upper bounds.
-     *
-     * @param minimum the minimum value.
-     * @param maximum the maximum value.
-     */
-    public void setOutputBounds(FloatInput minimum, FloatInput maximum) {
-        this.maxOutput = maximum;
-        this.minOutput = minimum;
+        maxAbsOutput = maximumAbsolute;
     }
 
     /**
@@ -163,7 +125,7 @@ public class PIDController implements FloatInput, EventOutput {
      * @param maximumAbsolute the maximum absolute value.
      */
     public void setIntegralBounds(float maximumAbsolute) {
-        setIntegralBounds(-maximumAbsolute, maximumAbsolute);
+        setIntegralBounds(FloatInput.always(maximumAbsolute));
     }
 
     /**
@@ -172,30 +134,7 @@ public class PIDController implements FloatInput, EventOutput {
      * @param maximumAbsolute the maximum absolute value.
      */
     public void setIntegralBounds(FloatInput maximumAbsolute) {
-        setIntegralBounds(maximumAbsolute.negated(), maximumAbsolute);
-    }
-
-    /**
-     * Restrict the current integral sum to the specified lower and upper
-     * bounds.
-     *
-     * @param minimum the minimum value.
-     * @param maximum the maximum value.
-     */
-    public void setIntegralBounds(float minimum, float maximum) {
-        setIntegralBounds(FloatInput.always(minimum), FloatInput.always(maximum));
-    }
-
-    /**
-     * Restrict the current integral sum to the specified lower and upper
-     * bounds.
-     *
-     * @param minimum the minimum value.
-     * @param maximum the maximum value.
-     */
-    public void setIntegralBounds(FloatInput minimum, FloatInput maximum) {
-        this.maxIntegral = maximum;
-        this.minIntegral = minimum;
+        maxAbsIntegral = maximumAbsolute;
     }
 
     /**
@@ -259,21 +198,15 @@ public class PIDController implements FloatInput, EventOutput {
                 timeDelta = (long) (maximumTimeDelta.get() * 1000);
             }
             float newTotal = integralTotal.get() + error * timeDelta / 1000f;
-            if (minIntegral != null && newTotal < minIntegral.get()) {
-                newTotal = minIntegral.get();
-            }
-            if (maxIntegral != null && newTotal > maxIntegral.get()) {
-                newTotal = maxIntegral.get();
+            if (maxAbsIntegral != null && Math.abs(newTotal) > maxAbsIntegral.get()) {
+                newTotal = newTotal < 0 ? -maxAbsIntegral.get() : maxAbsIntegral.get();
             }
             integralTotal.set(newTotal);
-            float slope = 1000 /* milliseconds per second */* (error - previousError) / timeDelta;
+            float slope = Time.MILLISECONDS_PER_SECOND * (error - previousError) / timeDelta;
             float valueOut = error * P.get() + integralTotal.get() * I.get() + slope * D.get();
             previousError = error;
-            if (minOutput != null && valueOut < minOutput.get()) {
-                valueOut = minOutput.get();
-            }
-            if (maxOutput != null && valueOut > maxOutput.get()) {
-                valueOut = maxOutput.get();
+            if (maxAbsOutput != null && Math.abs(valueOut) > maxAbsOutput.get()) {
+                valueOut = valueOut < 0 ? -maxAbsOutput.get() : maxAbsOutput.get();
             }
             output.set(valueOut);
         }

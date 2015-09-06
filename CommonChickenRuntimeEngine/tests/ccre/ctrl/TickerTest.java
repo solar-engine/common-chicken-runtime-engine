@@ -77,7 +77,7 @@ public class TickerTest {
     @Parameters
     public static Collection<Object[]> generateData() {
         ArrayList<Object[]> out = new ArrayList<>();
-        for (int i : new int[] { 1000, 10, 3, 2, 1 }) {
+        for (int i : new int[] { 1000, 3 }) {
             out.add(new Object[] { i, false });
             out.add(new Object[] { i, true });
         }
@@ -87,6 +87,7 @@ public class TickerTest {
     @After
     public void tearDown() {
         ticker.terminate();
+        ticker = null;
     }
 
     @AfterClass

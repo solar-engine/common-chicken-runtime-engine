@@ -57,8 +57,6 @@ public class SuiteOfTests {
 
                 new TestFloatMixing(),
 
-                new TestPauseTimer(),
-
                 new TestEventStatus()
         };
         boolean failFast = args.length > 0 && args[0].equals("--failfast");

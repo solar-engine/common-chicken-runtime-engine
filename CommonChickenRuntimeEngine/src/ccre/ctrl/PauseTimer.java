@@ -46,6 +46,9 @@ public class PauseTimer implements BooleanInput, EventOutput {
     private final ReporterThread main = new ReporterThread("PauseTimer") {
         @Override
         protected void threadBody() throws InterruptedException {
+            synchronized (lock) {
+                lock.notifyAll();
+            }
             while (true) {
                 synchronized (lock) {
                     while (isRunning && endAt == 0) {
@@ -72,6 +75,9 @@ public class PauseTimer implements BooleanInput, EventOutput {
      * @param timeout The timeout for each time the timer is activated.
      */
     public PauseTimer(long timeout) {
+        if (timeout <= 0) {
+            throw new IllegalArgumentException("PauseTimer must have a positive timeout!");
+        }
         this.timeout = timeout;
     }
 
@@ -99,14 +105,21 @@ public class PauseTimer implements BooleanInput, EventOutput {
 
     private void setEndAt(long endAt) {
         long old;
-        boolean enabling = endAt != 0;
-        if (enabling && !main.isAlive()) {
-            main.start();
-        }
         synchronized (lock) {
             old = this.endAt;
             this.endAt = endAt;
             lock.notifyAll();
+        }
+        boolean enabling = endAt != 0;
+        if (enabling && !main.isAlive()) {
+            synchronized (lock) {
+                main.start();
+                try {
+                    lock.wait();
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                }
+            }
         }
         boolean disabled = old == 0;
         if (disabled == !enabling) {

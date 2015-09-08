@@ -165,7 +165,7 @@ public class Utils {
     }
     
     /**
-     * Collect everything yielded by an iterable into a CArrayList.
+     * Collect everything yielded by an iterable into a ArrayList.
      *
      * @param elements the iterable to collect from.
      * @param <T> the element type of the iterable and therefore the resulting collection.

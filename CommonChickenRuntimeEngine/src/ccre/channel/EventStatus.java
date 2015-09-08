@@ -19,11 +19,11 @@
 package ccre.channel;
 
 import java.io.Serializable;
+import java.util.Arrays;
 import java.util.Iterator;
 
 import ccre.concurrency.ConcurrentDispatchArray;
 import ccre.log.Logger;
-import ccre.util.CArrayUtils;
 
 /**
  * An implementation of an EventInput. This can be fired using the .produce()
@@ -65,7 +65,7 @@ public class EventStatus implements EventInput, EventOutput, Serializable {
      * @see #send(ccre.channel.EventOutput)
      */
     public EventStatus(EventOutput... events) {
-        consumers.addAllIfNotFound(CArrayUtils.asList(events));
+        consumers.addAllIfNotFound(Arrays.asList(events));
     }
 
     /**

@@ -23,6 +23,7 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.SocketException;
 import java.net.SocketTimeoutException;
+import java.util.LinkedList;
 import java.util.Random;
 
 import ccre.cluck.CluckLink;
@@ -30,7 +31,6 @@ import ccre.cluck.CluckNode;
 import ccre.concurrency.ReporterThread;
 import ccre.log.Logger;
 import ccre.net.ClientSocket;
-import ccre.util.CLinkedList;
 
 /**
  * A static utility class for handling various encodings of Cluck packets.
@@ -183,7 +183,7 @@ public class CluckProtocol {
      * @return The newly created link.
      */
     protected static CluckLink handleSend(final DataOutputStream dout, final String linkName, CluckNode node) {
-        final CLinkedList<SendableEntry> queue = new CLinkedList<SendableEntry>();
+        final LinkedList<SendableEntry> queue = new LinkedList<SendableEntry>();
         final ReporterThread main = new CluckSenderThread("Cluck-Send-" + linkName, queue, dout);
         main.start();
         CluckLink clink = new CluckLink() {
@@ -261,10 +261,10 @@ public class CluckProtocol {
 
     private static class CluckSenderThread extends ReporterThread {
 
-        private final CLinkedList<SendableEntry> queue;
+        private final LinkedList<SendableEntry> queue;
         private final DataOutputStream dout;
 
-        CluckSenderThread(String name, CLinkedList<SendableEntry> queue, DataOutputStream dout) {
+        CluckSenderThread(String name, LinkedList<SendableEntry> queue, DataOutputStream dout) {
             super(name);
             this.queue = queue;
             this.dout = dout;

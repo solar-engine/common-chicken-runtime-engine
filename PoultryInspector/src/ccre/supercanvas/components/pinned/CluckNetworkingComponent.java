@@ -21,6 +21,7 @@ package ccre.supercanvas.components.pinned;
 import java.awt.Color;
 import java.awt.FontMetrics;
 import java.awt.Graphics2D;
+import java.util.Collection;
 
 import ccre.cluck.Cluck;
 import ccre.cluck.tcp.CluckTCPClient;
@@ -30,7 +31,6 @@ import ccre.net.TrafficCounting;
 import ccre.supercanvas.Rendering;
 import ccre.supercanvas.SuperCanvasComponent;
 import ccre.supercanvas.SuperCanvasPanel;
-import ccre.util.CCollection;
 
 /**
  * A component that displays the current results from the
@@ -169,7 +169,7 @@ public class CluckNetworkingComponent extends SuperCanvasComponent {
             return null;
         }
         char T = '?', E = '?', A = '?', M = '?';
-        CCollection<String> addresses = Network.listIPv4Addresses();
+        Collection<String> addresses = Network.listIPv4Addresses();
         for (String addr : addresses) {
             String[] spt = addr.split("[.]");
             if (spt.length == 4 && spt[0].equals("10")) {

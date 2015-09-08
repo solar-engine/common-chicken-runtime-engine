@@ -23,13 +23,13 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.PrintStream;
+import java.util.HashMap;
 
 import ccre.channel.BooleanOutput;
 import ccre.channel.BooleanStatus;
 import ccre.channel.FloatOutput;
 import ccre.channel.FloatStatus;
 import ccre.log.Logger;
-import ccre.util.CHashMap;
 import ccre.util.UniqueIds;
 
 /**
@@ -38,7 +38,7 @@ import ccre.util.UniqueIds;
  */
 public final class StorageSegment {
 
-    private final CHashMap<String, String> data = new CHashMap<String, String>();
+    private final HashMap<String, String> data = new HashMap<String, String>();
     private String name;
     private boolean modified = false;
 
@@ -51,7 +51,7 @@ public final class StorageSegment {
      * @param target the map to put the loaded keys into.
      * @throws IOException if reading from the input fails for some reason.
      */
-    public static void loadProperties(InputStream input, boolean keepInvalidLines, CHashMap<String, String> target) throws IOException {
+    public static void loadProperties(InputStream input, boolean keepInvalidLines, HashMap<String, String> target) throws IOException {
         BufferedReader din = new BufferedReader(new InputStreamReader(input));
         try {
             while (true) {
@@ -142,7 +142,7 @@ public final class StorageSegment {
             try {
                 PrintStream pout = new PrintStream(Storage.openOutput("ccre_storage_" + name));
                 try {
-                    for (String key : data) {
+                    for (String key : data.keySet()) {
                         if (key.contains("=")) {
                             Logger.warning("Invalid key ignored during save: " + key + " - saving under backup key.");
                             data.put(UniqueIds.global.nextHexId("badkey-" + System.currentTimeMillis() + "-" + key.hashCode()), key);

@@ -20,13 +20,15 @@ package ccre.util;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
+import java.util.ArrayList;
+import java.util.Arrays;
 
 /**
  * A class for utilities that don't fit anywhere else. Most utilites are in
  * Mixing or CArrayUtils.
  *
  * @see Mixing
- * @see CArrayUtils
+ * @see Arrays
  * @author skeggsc
  */
 public class Utils {
@@ -160,5 +162,20 @@ public class Utils {
             StackTraceElement elem = trace[traceIndex];
             return new CallerInfo(elem.getClassName(), elem.getMethodName(), elem.getFileName(), elem.getLineNumber());
         }
+    }
+    
+    /**
+     * Collect everything yielded by an iterable into a CArrayList.
+     *
+     * @param elements the iterable to collect from.
+     * @param <T> the element type of the iterable and therefore the resulting collection.
+     * @return the resulting collection, as a CArrayList.
+     */
+    public static <T> ArrayList<T> collectIterable(Iterable<T> elements) {
+        ArrayList<T> out = new ArrayList<T>();
+        for (T elem : elements) {
+            out.add(elem);
+        }
+        return out;
     }
 }

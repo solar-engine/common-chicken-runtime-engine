@@ -22,12 +22,13 @@ import java.io.IOException;
 import java.io.NotSerializableException;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 
 import ccre.channel.EventOutput;
 import ccre.cluck.rpc.RPCManager;
 import ccre.log.Logger;
-import ccre.util.CHashMap;
 
 /**
  * A CluckNode is the core hub of the Cluck networking system on a device. It
@@ -135,7 +136,7 @@ public class CluckNode implements Serializable {
     /**
      * A map of the current link names to the CluckLinks.
      */
-    public final CHashMap<String, CluckLink> links = new CHashMap<String, CluckLink>();
+    public final HashMap<String, CluckLink> links = new HashMap<String, CluckLink>();
     /**
      * The time when the last error message was printed about a link not
      * existing.
@@ -230,7 +231,7 @@ public class CluckNode implements Serializable {
      * ccre.cluck.CluckLink)
      */
     public void broadcast(String source, byte[] data, CluckLink denyLink) {
-        for (Iterator<String> linkIter = links.looseIterator(); linkIter.hasNext();) {
+        for (Iterator<String> linkIter = new HashSet<String>(links.keySet()).iterator(); linkIter.hasNext();) {
             String linkName = linkIter.next();
             CluckLink cl = links.get(linkName);
             if (cl != null && cl != denyLink) {
@@ -291,7 +292,7 @@ public class CluckNode implements Serializable {
         if (link == null) {
             throw new NullPointerException();
         }
-        for (String key : links) {
+        for (String key : links.keySet()) {
             if (links.get(key) == link) {
                 return key;
             }

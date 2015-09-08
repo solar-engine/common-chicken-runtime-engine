@@ -19,12 +19,12 @@
 package ccre.concurrency;
 
 import java.io.Serializable;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
 import ccre.channel.EventOutput;
-import ccre.util.CArrayUtils;
-import ccre.util.CCollection;
 
 /**
  * A concurrent collection that allows concurrent iteration and removal without
@@ -37,7 +37,7 @@ import ccre.util.CCollection;
  * @author skeggsc
  * @param <E> The type of the collection's elements
  */
-public final class ConcurrentDispatchArray<E> implements CCollection<E>, Serializable {
+public final class ConcurrentDispatchArray<E> implements Collection<E>, Serializable {
 
     private static final long serialVersionUID = -7949492774411494179L;
     /**
@@ -61,7 +61,7 @@ public final class ConcurrentDispatchArray<E> implements CCollection<E>, Seriali
      *
      * @param base The elements to add to the list.
      */
-    public ConcurrentDispatchArray(CCollection<? extends E> base) {
+    public ConcurrentDispatchArray(Collection<? extends E> base) {
         data = base.toArray();
     }
 
@@ -138,7 +138,7 @@ public final class ConcurrentDispatchArray<E> implements CCollection<E>, Seriali
         }
         while (true) {
             Object[] old = data;
-            Object[] dout = CArrayUtils.copyOf(old, old.length + 1);
+            Object[] dout = Arrays.copyOf(old, old.length + 1);
             dout[dout.length - 1] = e;
             if (compareAndSetArray(old, dout)) {
                 return true;
@@ -169,7 +169,7 @@ public final class ConcurrentDispatchArray<E> implements CCollection<E>, Seriali
                     return false;
                 }
             }
-            Object[] dout = CArrayUtils.copyOf(old, old.length + 1);
+            Object[] dout = Arrays.copyOf(old, old.length + 1);
             dout[dout.length - 1] = e;
             if (compareAndSetArray(old, dout)) {
                 return true;
@@ -196,7 +196,7 @@ public final class ConcurrentDispatchArray<E> implements CCollection<E>, Seriali
         data = new Object[0];
     }
 
-    public boolean addAll(CCollection<? extends E> c) { // TODO: Make this more efficient.
+    public boolean addAll(Collection<? extends E> c) { // TODO: Make this more efficient.
         boolean out = false;
         for (E e : c) {
             out |= add(e);
@@ -210,7 +210,7 @@ public final class ConcurrentDispatchArray<E> implements CCollection<E>, Seriali
      * @param c The elements to add.
      * @return if anything in c is added to the array.
      */
-    public boolean addAllIfNotFound(CCollection<? extends E> c) { // TODO: Make this more efficient.
+    public boolean addAllIfNotFound(Collection<? extends E> c) { // TODO: Make this more efficient.
         boolean out = false;
         for (E e : c) {
             out |= addIfNotFound(e);
@@ -231,7 +231,7 @@ public final class ConcurrentDispatchArray<E> implements CCollection<E>, Seriali
         return false;
     }
 
-    public boolean containsAll(CCollection<?> c) {
+    public boolean containsAll(Collection<?> c) {
         for (Object o : c) {
             if (!contains(o)) {
                 return false;
@@ -240,7 +240,7 @@ public final class ConcurrentDispatchArray<E> implements CCollection<E>, Seriali
         return true;
     }
 
-    public boolean removeAll(CCollection<?> c) {
+    public boolean removeAll(Collection<?> c) {
         boolean mod = false;
         for (Iterator<E> it = this.iterator(); it.hasNext();) {
             E e = it.next();
@@ -252,7 +252,7 @@ public final class ConcurrentDispatchArray<E> implements CCollection<E>, Seriali
         return mod;
     }
 
-    public boolean retainAll(CCollection<?> c) {
+    public boolean retainAll(Collection<?> c) {
         boolean mod = false;
         for (Iterator<E> it = this.iterator(); it.hasNext();) {
             E e = it.next();
@@ -266,7 +266,7 @@ public final class ConcurrentDispatchArray<E> implements CCollection<E>, Seriali
 
     public Object[] toArray() {
         Object[] d = data;
-        return CArrayUtils.copyOf(d, d.length);
+        return Arrays.copyOf(d, d.length);
     }
 
     public int fillArray(Object[] target) {
@@ -274,5 +274,12 @@ public final class ConcurrentDispatchArray<E> implements CCollection<E>, Seriali
         int out = d.length - target.length;
         System.arraycopy(d, 0, target, 0, out >= 0 ? target.length : d.length);
         return out;
+    }
+
+    @Override
+    public <T> T[] toArray(T[] a) {
+        if (a.length < data.length) a = (T[]) new Object[data.length];
+        fillArray(a);
+        return a;
     }
 }

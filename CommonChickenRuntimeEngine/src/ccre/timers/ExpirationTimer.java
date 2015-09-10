@@ -67,97 +67,9 @@ public final class ExpirationTimer {
         }
     };
     /**
-     * The cached value for getStartEvent()
-     */
-    private EventOutput startEvt;
-    /**
-     * The cached value for getStartOrFeedEvent()
-     */
-    private EventOutput startOrFeedEvt;
-    /**
-     * The cached value for getFeedEvent()
-     */
-    private EventOutput feedEvt;
-    /**
-     * The cached value for getStopEvent()
-     */
-    private EventOutput stopEvt;
-    /**
      * Whether or not this thread has been told to terminate.
      */
     private boolean terminated = false;
-
-    /**
-     * Schedule a BooleanOutput to be set to a specified value at a specific
-     * delay.
-     *
-     * @param delay the delay (in milliseconds) to trigger at.
-     * @param out the BooleanOutput to modify.
-     * @param value the value to modify it to.
-     * @throws IllegalStateException if the timer is already running.
-     */
-    public void scheduleSet(long delay, BooleanOutput out, boolean value) throws IllegalStateException {
-        schedule(delay, out.getSetEvent(value));
-    }
-
-    /**
-     * Schedule a BooleanOutput to be set to true at a specific delay.
-     *
-     * @param delay the delay (in milliseconds) to trigger at.
-     * @param out the BooleanOutput to modify.
-     * @throws IllegalStateException if the timer is already running.
-     */
-    public void scheduleEnable(long delay, BooleanOutput out) throws IllegalStateException {
-        scheduleSet(delay, out, true);
-    }
-
-    /**
-     * Schedule a BooleanOutput to be set to false at a specific delay.
-     *
-     * @param delay the delay (in milliseconds) to trigger at.
-     * @param out the BooleanOutput to modify.
-     * @throws IllegalStateException if the timer is already running.
-     */
-    public void scheduleDisable(long delay, BooleanOutput out) throws IllegalStateException {
-        scheduleSet(delay, out, false);
-    }
-
-    /**
-     * Schedule a BooleanOutput to be set to a specific value during the
-     * specified range of times, and then set to the inversion of the value
-     * afterwards.
-     *
-     * @param start the beginning of the period.
-     * @param stop the end of the period.
-     * @param out the BooleanOutput to modify.
-     * @param setToDuring the value to set to during the period.
-     * @throws IllegalStateException if the timer is already running.
-     */
-    public void scheduleBooleanPeriod(long start, long stop, BooleanOutput out, boolean setToDuring) throws IllegalStateException {
-        scheduleSet(start, out, setToDuring);
-        scheduleSet(stop, out, !setToDuring);
-    }
-
-    /**
-     * Schedule a BooleanOutput to go through a series of changes over the
-     * course of the timer's execution. The output will be set to the specified
-     * boolean at the start, and then toggled at each specified time after that.
-     *
-     * @param control the BooleanOutput to modify.
-     * @param beginWith the boolean to begin with.
-     * @param beginAt when to begin.
-     * @param additionalToggles when each subsequent toggle should occur. (each
-     * element should be larger than the previous, but this is not checked.)
-     * @throws IllegalStateException if the timer is already running.
-     */
-    public void scheduleToggleSequence(BooleanOutput control, boolean beginWith, long beginAt, long... additionalToggles) throws IllegalStateException {
-        scheduleSet(beginAt, control, beginWith);
-        boolean stateToSet = beginWith;
-        for (long cur : additionalToggles) {
-            stateToSet = !stateToSet;
-            scheduleSet(cur, control, stateToSet);
-        }
-    }
 
     /**
      * Schedule an EventOutput to be triggered at a specific delay.
@@ -247,8 +159,7 @@ public final class ExpirationTimer {
         Collections.sort(tasks);
     }
 
-    private synchronized void runTasks() throws InterruptedException {
-        long startAt = startedAt;
+    private synchronized void runTasks(long startAt) throws InterruptedException {
         for (Task t : tasks) {
             long rel = startAt + t.delay - Time.currentTimeMillis();
             while (rel > 0) {
@@ -269,12 +180,21 @@ public final class ExpirationTimer {
                 while (!isStarted.get()) {
                     this.wait();
                 }
+                if (terminated) {
+                    break;
+                }
                 recalculateTasks();
-                runTasks();
-                while (isStarted.get()) {// Once finished, wait to stop before restarting.
-                    this.wait();
+                long startAt = startedAt;
+                runTasks(startAt);
+                while (isStarted.get() && !terminated && startAt == startedAt) {// Once finished, wait to stop before restarting.
+                    try {
+                        this.wait();
+                    } catch (InterruptedException e) {
+                        // this is actually the expected way of notifying this thread
+                    }
                 }
             } catch (InterruptedException ex) {
+                // this is actually the expected way of notifying this thread
             }
         }
     }
@@ -290,7 +210,6 @@ public final class ExpirationTimer {
             throw new IllegalStateException("Timer is not running!");
         }
         startedAt = Time.currentTimeMillis();
-        this.notifyAll();
         main.interrupt();
     }
 
@@ -305,7 +224,6 @@ public final class ExpirationTimer {
             throw new IllegalStateException("Timer is not running!");
         }
         isStarted.set(false);
-        this.notifyAll();
         main.interrupt();
     }
 
@@ -316,16 +234,11 @@ public final class ExpirationTimer {
      * @return the event to start the timer.
      */
     public EventOutput getStartEvent() {
-        if (startEvt == null) {
-            startEvt = new EventOutput() {
-                public void event() {
-                    if (!isStarted.get()) {
-                        start();
-                    }
-                }
-            };
-        }
-        return startEvt;
+        return () -> {
+            if (!isStarted.get()) {
+                start();
+            }
+        };
     }
 
     /**
@@ -335,14 +248,7 @@ public final class ExpirationTimer {
      * @return the event to start or feed the timer.
      */
     public EventOutput getStartOrFeedEvent() {
-        if (startOrFeedEvt == null) {
-            startOrFeedEvt = new EventOutput() {
-                public void event() {
-                    startOrFeed();
-                }
-            };
-        }
-        return startOrFeedEvt;
+        return () -> startOrFeed();
     }
 
     /**
@@ -352,16 +258,11 @@ public final class ExpirationTimer {
      * @return the event to feed the timer.
      */
     public EventOutput getFeedEvent() {
-        if (feedEvt == null) {
-            feedEvt = new EventOutput() {
-                public void event() {
-                    if (isStarted.get()) {
-                        feed();
-                    }
-                }
-            };
-        }
-        return feedEvt;
+        return () -> {
+            if (isStarted.get()) {
+                feed();
+            }
+        };
     }
 
     /**
@@ -371,16 +272,11 @@ public final class ExpirationTimer {
      * @return the event to stop the timer.
      */
     public EventOutput getStopEvent() {
-        if (stopEvt == null) {
-            stopEvt = new EventOutput() {
-                public void event() {
-                    if (isStarted.get()) {
-                        stop();
-                    }
-                }
-            };
-        }
-        return stopEvt;
+        return () -> {
+            if (isStarted.get()) {
+                stop();
+            }
+        };
     }
 
     /**
@@ -436,16 +332,14 @@ public final class ExpirationTimer {
      * @return a BooleanOutput to control the ExpirationTimer.
      */
     public BooleanOutput getRunningControl() {
-        return new BooleanOutput() {
-            public void set(boolean value) {
-                if (value) {
-                    if (!isStarted.get()) {
-                        start();
-                    }
-                } else {
-                    if (isStarted.get()) {
-                        stop();
-                    }
+        return value -> {
+            if (value) {
+                if (!isStarted.get()) {
+                    start();
+                }
+            } else {
+                if (isStarted.get()) {
+                    stop();
                 }
             }
         };

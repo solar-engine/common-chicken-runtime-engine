@@ -32,7 +32,6 @@ import ccre.channel.EventInput;
 import ccre.channel.EventOutput;
 import ccre.channel.EventStatus;
 import ccre.channel.FloatStatus;
-import ccre.log.LogLevel;
 import ccre.testing.CountingEventOutput;
 import ccre.testing.TestingException;
 
@@ -651,8 +650,6 @@ public class StateMachineTest {
     public void testDoor() throws TestingException {
         // Setup door
         StateMachine door = new StateMachine(0, "CLOSED", "OPEN", "EXPLODED");
-
-        door.autologTransitions(LogLevel.FINEST, "Subtest check: ");
 
         BooleanInput isOpen = door.getIsState("OPEN");
         EventStatus doOpen = new EventStatus(), doClose = new EventStatus();

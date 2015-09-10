@@ -45,10 +45,6 @@ public class SuiteOfTests {
 
                 new TestFilters(),
 
-                new TestConcurrentDispatchArray(),
-
-                new TestExpirationTimer(),
-
                 new TestMixing(),
 
                 new TestEventMixing(),

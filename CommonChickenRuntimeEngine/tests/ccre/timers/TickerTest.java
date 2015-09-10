@@ -77,10 +77,9 @@ public class TickerTest {
     @Parameters
     public static Collection<Object[]> generateData() {
         ArrayList<Object[]> out = new ArrayList<>();
-        for (int i : new int[] { 1000, 3 }) {
-            out.add(new Object[] { i, false });
-            out.add(new Object[] { i, true });
-        }
+        // the different timings here aren't really relevant - this just tests more birds with two stones.
+        out.add(new Object[] { 770, false });
+        out.add(new Object[] { 760, true });
         return out;
     }
 

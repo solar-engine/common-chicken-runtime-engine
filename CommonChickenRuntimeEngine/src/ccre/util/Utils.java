@@ -167,21 +167,6 @@ public class Utils {
         }
     }
     
-    /**
-     * Collect everything yielded by an iterable into a ArrayList.
-     *
-     * @param elements the iterable to collect from.
-     * @param <T> the element type of the iterable and therefore the resulting collection.
-     * @return the resulting collection, as a CArrayList.
-     */
-    public static <T> ArrayList<T> collectIterable(Iterable<T> elements) {
-        ArrayList<T> out = new ArrayList<T>();
-        for (T elem : elements) {
-            out.add(elem);
-        }
-        return out;
-    }
-    
     public static <T> EventOutput addR(Collection<T> collection, T item) {
         collection.add(item);
         return () -> collection.remove(item);

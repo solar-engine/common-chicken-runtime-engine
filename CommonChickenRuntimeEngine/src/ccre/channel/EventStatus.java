@@ -120,7 +120,7 @@ public class EventStatus implements EventInput, EventOutput, Serializable {
                 found |= ec.eventWithRecovery();
             } catch (Throwable thr) {
                 Logger.severe("Event Subscriber Detached: " + ec, thr);
-                it.remove();
+                consumers.remove(ec);
                 found = true;
             }
         }

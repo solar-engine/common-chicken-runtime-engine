@@ -229,17 +229,17 @@ public class CluckNode implements Serializable {
      * ccre.cluck.CluckLink)
      */
     public void broadcast(String source, byte[] data, CluckLink denyLink) {
-        String[] linksKeySet = (String[]) links.keySet().toArray();
-        for (int i=0; i<linksKeySet.length; ++i) {
-            CluckLink cl = links.get(linksKeySet[i]);
+        Object[] linksKeySet = links.keySet().toArray();
+        for (Object link : linksKeySet) {
+            CluckLink cl = links.get(link);
             if (cl != null && cl != denyLink) {
                 try {
                     boolean shouldLive = cl.send("*", source, data);
                     if (!shouldLive) {
-                        links.remove(linksKeySet[i]);
+                        links.remove(link);
                     }
                 } catch (Throwable ex) {
-                    Logger.severe("Error while broadcasting to Cluck link " + linksKeySet[i], ex);
+                    Logger.severe("Error while broadcasting to Cluck link " + link, ex);
                 }
             }
         }

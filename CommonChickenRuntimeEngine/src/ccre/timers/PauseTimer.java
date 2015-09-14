@@ -18,10 +18,11 @@
  */
 package ccre.timers;
 
+import java.util.concurrent.CopyOnWriteArrayList;
+
 import ccre.channel.BooleanInput;
 import ccre.channel.BooleanOutput;
 import ccre.channel.EventOutput;
-import ccre.concurrency.ConcurrentDispatchArray;
 import ccre.concurrency.ReporterThread;
 import ccre.log.Logger;
 import ccre.time.Time;
@@ -41,7 +42,7 @@ public class PauseTimer implements BooleanInput, EventOutput {
     private volatile long endAt;
     private final long timeout;
     private final Object lock = new Object();
-    private final ConcurrentDispatchArray<EventOutput> consumers = new ConcurrentDispatchArray<EventOutput>();
+    private final CopyOnWriteArrayList<EventOutput> consumers = new CopyOnWriteArrayList<EventOutput>();
     private boolean isRunning = true;
     private final ReporterThread main = new ReporterThread("PauseTimer") {
         @Override

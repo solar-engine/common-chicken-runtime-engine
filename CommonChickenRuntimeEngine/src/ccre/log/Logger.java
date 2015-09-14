@@ -18,7 +18,8 @@
  */
 package ccre.log;
 
-import ccre.concurrency.ConcurrentDispatchArray;
+import java.util.concurrent.CopyOnWriteArrayList;
+
 import ccre.util.CallerInfo;
 import ccre.util.Utils;
 
@@ -33,7 +34,7 @@ public class Logger {
     /**
      * The logging targets to write logs to.
      */
-    public static final ConcurrentDispatchArray<LoggingTarget> targets = new ConcurrentDispatchArray<LoggingTarget>();
+    public static final CopyOnWriteArrayList<LoggingTarget> targets = new CopyOnWriteArrayList<LoggingTarget>();
     private static boolean includeLineNumbers = true;
 
     /**

@@ -23,8 +23,6 @@ import java.io.NotSerializableException;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
 
 import ccre.channel.EventOutput;
 import ccre.cluck.rpc.RPCManager;
@@ -231,17 +229,17 @@ public class CluckNode implements Serializable {
      * ccre.cluck.CluckLink)
      */
     public void broadcast(String source, byte[] data, CluckLink denyLink) {
-        for (Iterator<String> linkIter = new HashSet<String>(links.keySet()).iterator(); linkIter.hasNext();) {
-            String linkName = linkIter.next();
-            CluckLink cl = links.get(linkName);
+        String[] linksKeySet = (String[]) links.keySet().toArray();
+        for (int i=0; i<linksKeySet.length; ++i) {
+            CluckLink cl = links.get(linksKeySet[i]);
             if (cl != null && cl != denyLink) {
                 try {
                     boolean shouldLive = cl.send("*", source, data);
                     if (!shouldLive) {
-                        linkIter.remove();
+                        links.remove(linksKeySet[i]);
                     }
                 } catch (Throwable ex) {
-                    Logger.severe("Error while broadcasting to Cluck link " + linkName, ex);
+                    Logger.severe("Error while broadcasting to Cluck link " + linksKeySet[i], ex);
                 }
             }
         }

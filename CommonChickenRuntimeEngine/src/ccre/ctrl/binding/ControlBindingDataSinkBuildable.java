@@ -19,8 +19,6 @@
 package ccre.ctrl.binding;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.ConcurrentModificationException;
 import java.util.HashMap;
 
 import ccre.channel.BooleanInput;

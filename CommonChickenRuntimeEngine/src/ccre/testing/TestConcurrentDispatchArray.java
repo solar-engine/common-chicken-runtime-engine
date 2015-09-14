@@ -19,8 +19,7 @@
 package ccre.testing;
 
 import java.util.Iterator;
-
-import ccre.concurrency.ConcurrentDispatchArray;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * A test that tests some parts of the ConcurrentDispatchArray class.
@@ -36,7 +35,7 @@ public class TestConcurrentDispatchArray extends BaseTest {
 
     @Override
     protected void runTest() throws TestingException {
-        ConcurrentDispatchArray<Object> arr = new ConcurrentDispatchArray<Object>();
+        CopyOnWriteArrayList<Object> arr = new CopyOnWriteArrayList<Object>();
         Object test = new Object();
         assertFalse(arr.contains(test), "Bad contains!");
         arr.add(test);

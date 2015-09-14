@@ -39,6 +39,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.OutputStream;
 import java.io.Serializable;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import ccre.channel.BooleanInput;
 import ccre.channel.BooleanOutput;
@@ -51,7 +52,6 @@ import ccre.channel.FloatOutput;
 import ccre.channel.FloatStatus;
 import ccre.cluck.rpc.RemoteProcedure;
 import ccre.cluck.rpc.SimpleProcedure;
-import ccre.concurrency.ConcurrentDispatchArray;
 import ccre.log.LogLevel;
 import ccre.log.Logger;
 import ccre.log.LoggingTarget;
@@ -139,7 +139,7 @@ public class CluckPublisher {
      * @param input The EventInput.
      */
     public static void publish(final CluckNode node, final String name, EventInput input) {
-        final ConcurrentDispatchArray<String> remotes = new ConcurrentDispatchArray<String>();
+        final CopyOnWriteArrayList<String> remotes = new CopyOnWriteArrayList<String>();
         input.send(new EventOutput() {
             public void event() {
                 for (String remote : remotes) {
@@ -227,7 +227,7 @@ public class CluckPublisher {
      * @param input The BooleanInput.
      */
     public static void publish(final CluckNode node, final String name, final BooleanInput input) {
-        final ConcurrentDispatchArray<String> remotes = new ConcurrentDispatchArray<String>();
+        final CopyOnWriteArrayList<String> remotes = new CopyOnWriteArrayList<String>();
         input.send(new BooleanInputPublishListener(name, remotes, node));
         new CluckSubscriber(node) {
             @Override
@@ -303,7 +303,7 @@ public class CluckPublisher {
      * @param input The FloatInput.
      */
     public static void publish(final CluckNode node, final String name, final FloatInput input) {
-        final ConcurrentDispatchArray<String> remotes = new ConcurrentDispatchArray<String>();
+        final CopyOnWriteArrayList<String> remotes = new CopyOnWriteArrayList<String>();
         input.send(new FloatInputPublishListener(remotes, name, node));
         new CluckSubscriber(node) {
             @Override
@@ -609,11 +609,11 @@ public class CluckPublisher {
 
     private static final class FloatInputPublishListener implements FloatOutput, Serializable {
         private static final long serialVersionUID = 1432024738866192130L;
-        private final ConcurrentDispatchArray<String> remotes;
+        private final CopyOnWriteArrayList<String> remotes;
         private final String name;
         private final CluckNode node;
 
-        private FloatInputPublishListener(ConcurrentDispatchArray<String> remotes, String name, CluckNode node) {
+        private FloatInputPublishListener(CopyOnWriteArrayList<String> remotes, String name, CluckNode node) {
             this.remotes = remotes;
             this.name = name;
             this.node = node;
@@ -630,10 +630,10 @@ public class CluckPublisher {
     private static final class BooleanInputPublishListener implements BooleanOutput, Serializable {
         private static final long serialVersionUID = -7563622859541688219L;
         private final String name;
-        private final ConcurrentDispatchArray<String> remotes;
+        private final CopyOnWriteArrayList<String> remotes;
         private final CluckNode node;
 
-        private BooleanInputPublishListener(String name, ConcurrentDispatchArray<String> remotes, CluckNode node) {
+        private BooleanInputPublishListener(String name, CopyOnWriteArrayList<String> remotes, CluckNode node) {
             this.name = name;
             this.remotes = remotes;
             this.node = node;

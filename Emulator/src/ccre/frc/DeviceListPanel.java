@@ -29,11 +29,11 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseWheelEvent;
 import java.util.Iterator;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import javax.swing.JPanel;
 
 import ccre.channel.EventOutput;
-import ccre.concurrency.ConcurrentDispatchArray;
 import ccre.log.Logger;
 import ccre.timers.ExpirationTimer;
 import ccre.util.Utils;
@@ -57,7 +57,7 @@ public final class DeviceListPanel extends JPanel implements Iterable<Device> {
     /**
      * The currently visible list of devices.
      */
-    private final ConcurrentDispatchArray<Device> devices = new ConcurrentDispatchArray<Device>();
+    private final CopyOnWriteArrayList<Device> devices = new CopyOnWriteArrayList<Device>();
     /**
      * The most recent position of the mouse.
      */

@@ -19,8 +19,9 @@
 package ccre.channel;
 
 import java.io.Serializable;
+import java.util.concurrent.CopyOnWriteArrayList;
 
-import ccre.concurrency.ConcurrentDispatchArray;
+import ccre.util.Utils;
 
 /**
  * A virtual node that is both a FloatOutput and a FloatInput. You can modify
@@ -51,7 +52,7 @@ public class FloatStatus implements FloatOutput, FloatInput, Serializable {
      * The list of all the FloatOutputs to modify when this FloatStatus changes
      * value.
      */
-    private final ConcurrentDispatchArray<EventOutput> consumers = new ConcurrentDispatchArray<>();
+    private final CopyOnWriteArrayList<EventOutput> consumers = new CopyOnWriteArrayList<>();
 
     /**
      * Create a new FloatStatus with a value of zero.
@@ -149,6 +150,6 @@ public class FloatStatus implements FloatOutput, FloatInput, Serializable {
 
     @Override
     public EventOutput onUpdateR(EventOutput notify) {
-        return consumers.addR(notify);
+        return Utils.addR(consumers, notify);
     }
 }

@@ -18,7 +18,10 @@
  */
 package ccre.timers;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 import org.junit.After;
 import org.junit.AfterClass;
@@ -29,7 +32,6 @@ import org.junit.Test;
 import ccre.testing.CountingEventOutput;
 import ccre.time.FakeTime;
 import ccre.time.Time;
-import ccre.timers.PauseTimer;
 
 public class PauseTimerTest {
 

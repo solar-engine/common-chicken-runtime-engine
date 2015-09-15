@@ -18,16 +18,17 @@
  */
 package ccre.ctrl.binding;
 
+import java.util.HashMap;
+
 import ccre.channel.EventInput;
 import ccre.channel.EventOutput;
 import ccre.cluck.Cluck;
 import ccre.log.Logger;
 import ccre.rconf.RConf;
 import ccre.rconf.RConf.Entry;
+import ccre.rconf.RConfable;
 import ccre.storage.Storage;
 import ccre.storage.StorageSegment;
-import ccre.rconf.RConfable;
-import ccre.util.CHashMap;
 
 /**
  * A CluckControlBinder connects together a ControlBindingDataSource (such as a
@@ -41,11 +42,11 @@ public class CluckControlBinder implements RConfable {
     private final ControlBindingDataSource sourceSet;
     private final ControlBindingDataSink sinkSet;
     // From sink to source.
-    private final CHashMap<String, String> boolLinkage = new CHashMap<String, String>();
-    private final CHashMap<String, String> floatLinkage = new CHashMap<String, String>();
+    private final HashMap<String, String> boolLinkage = new HashMap<String, String>();
+    private final HashMap<String, String> floatLinkage = new HashMap<String, String>();
     
-    private final CHashMap<String, EventOutput> boolUnbinds = new CHashMap<String, EventOutput>();
-    private final CHashMap<String, EventOutput> floatUnbinds = new CHashMap<String, EventOutput>();
+    private final HashMap<String, EventOutput> boolUnbinds = new HashMap<String, EventOutput>();
+    private final HashMap<String, EventOutput> floatUnbinds = new HashMap<String, EventOutput>();
     
     private final String name;
     private boolean dirty = false;

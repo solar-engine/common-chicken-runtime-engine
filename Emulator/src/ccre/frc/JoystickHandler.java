@@ -27,14 +27,14 @@ import java.util.ArrayList;
 import java.util.Properties;
 import java.util.WeakHashMap;
 
+import net.java.games.input.Component;
+import net.java.games.input.Controller;
+import net.java.games.input.ControllerEnvironment;
 import ccre.channel.EventInput;
 import ccre.channel.EventOutput;
 import ccre.ctrl.AbstractJoystick;
 import ccre.ctrl.IJoystick;
 import ccre.log.Logger;
-import net.java.games.input.Component;
-import net.java.games.input.Controller;
-import net.java.games.input.ControllerEnvironment;
 
 /**
  * Uses JInput to allow the Emulator to work with physical joysticks.

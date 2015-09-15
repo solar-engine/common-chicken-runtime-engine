@@ -22,12 +22,11 @@ import java.io.IOException;
 import java.io.NotSerializableException;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
-import java.util.Iterator;
+import java.util.HashMap;
 
 import ccre.channel.EventOutput;
 import ccre.cluck.rpc.RPCManager;
 import ccre.log.Logger;
-import ccre.util.CHashMap;
 
 /**
  * A CluckNode is the core hub of the Cluck networking system on a device. It
@@ -135,7 +134,7 @@ public class CluckNode implements Serializable {
     /**
      * A map of the current link names to the CluckLinks.
      */
-    public final CHashMap<String, CluckLink> links = new CHashMap<String, CluckLink>();
+    public final HashMap<String, CluckLink> links = new HashMap<String, CluckLink>();
     /**
      * The time when the last error message was printed about a link not
      * existing.
@@ -230,17 +229,17 @@ public class CluckNode implements Serializable {
      * ccre.cluck.CluckLink)
      */
     public void broadcast(String source, byte[] data, CluckLink denyLink) {
-        for (Iterator<String> linkIter = links.looseIterator(); linkIter.hasNext();) {
-            String linkName = linkIter.next();
-            CluckLink cl = links.get(linkName);
+        String[] linksKeySet = links.keySet().toArray(new String[links.keySet().size()]);
+        for (String link : linksKeySet) {
+            CluckLink cl = links.get(link);
             if (cl != null && cl != denyLink) {
                 try {
                     boolean shouldLive = cl.send("*", source, data);
                     if (!shouldLive) {
-                        linkIter.remove();
+                        links.remove(link);
                     }
                 } catch (Throwable ex) {
-                    Logger.severe("Error while broadcasting to Cluck link " + linkName, ex);
+                    Logger.severe("Error while broadcasting to Cluck link " + link, ex);
                 }
             }
         }
@@ -291,7 +290,7 @@ public class CluckNode implements Serializable {
         if (link == null) {
             throw new NullPointerException();
         }
-        for (String key : links) {
+        for (String key : links.keySet()) {
             if (links.get(key) == link) {
                 return key;
             }

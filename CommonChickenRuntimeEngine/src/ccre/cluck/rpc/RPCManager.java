@@ -22,13 +22,13 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.HashMap;
 
 import ccre.cluck.CluckNode;
 import ccre.cluck.CluckSubscriber;
 import ccre.log.Logger;
 import ccre.time.Time;
-import ccre.util.CArrayList;
-import ccre.util.CHashMap;
 import ccre.util.UniqueIds;
 
 /**
@@ -45,8 +45,8 @@ public final class RPCManager implements Serializable {
      * subscribing to RemoteProcedures.
      */
     private final String localRPCBinding;
-    private final CHashMap<String, OutputStream> bindings = new CHashMap<String, OutputStream>();
-    private final CHashMap<String, Long> timeouts = new CHashMap<String, Long>();
+    private final HashMap<String, OutputStream> bindings = new HashMap<String, OutputStream>();
+    private final HashMap<String, Long> timeouts = new HashMap<String, Long>();
 
     /**
      * Create a new RPCManager for the specified node.
@@ -56,8 +56,8 @@ public final class RPCManager implements Serializable {
     public RPCManager(CluckNode node) {
         this.node = node;
         localRPCBinding = UniqueIds.global.nextHexId("rpc-endpoint");
-        final CHashMap<String, OutputStream> localBindings = this.bindings;
-        final CHashMap<String, Long> localTimeouts = this.timeouts;
+        final HashMap<String, OutputStream> localBindings = this.bindings;
+        final HashMap<String, Long> localTimeouts = this.timeouts;
         new CluckSubscriber(node) {
             @Override
             protected void receive(String source, byte[] data) {
@@ -140,9 +140,9 @@ public final class RPCManager implements Serializable {
      */
     void checkRPCTimeouts() {
         long now = Time.currentTimeMillis();
-        CArrayList<String> toRemove = new CArrayList<String>();
+        ArrayList<String> toRemove = new ArrayList<String>();
         synchronized (this) {
-            for (String key : timeouts) {
+            for (String key : timeouts.keySet()) {
                 long value = timeouts.get(key);
                 if (value < now) {
                     toRemove.add(key);

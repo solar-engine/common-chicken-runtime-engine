@@ -22,8 +22,7 @@ import java.awt.Color;
 import java.awt.FontMetrics;
 import java.awt.Graphics2D;
 import java.util.Iterator;
-
-import ccre.concurrency.ConcurrentDispatchArray;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * A set of related devices grouped into one larger device for display purposes.
@@ -31,7 +30,7 @@ import ccre.concurrency.ConcurrentDispatchArray;
  * @author skeggsc
  */
 public class DeviceGroup extends Device implements Iterable<Device> {
-    private final ConcurrentDispatchArray<Device> devices = new ConcurrentDispatchArray<Device>();
+    private final CopyOnWriteArrayList<Device> devices = new CopyOnWriteArrayList<Device>();
 
     /**
      * Add a device to this group.

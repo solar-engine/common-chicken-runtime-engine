@@ -18,12 +18,14 @@
  */
 package ccre.channel;
 
-import ccre.concurrency.ConcurrentDispatchArray;
+import java.util.concurrent.CopyOnWriteArrayList;
+
+import ccre.util.Utils;
 
 public abstract class DerivedBooleanInput extends DerivedUpdate implements BooleanInput {
 
     private boolean value;
-    private final ConcurrentDispatchArray<EventOutput> consumers = new ConcurrentDispatchArray<>();
+    private final CopyOnWriteArrayList<EventOutput> consumers = new CopyOnWriteArrayList<>();
 
     public DerivedBooleanInput(UpdatingInput... updates) {
         super(updates);
@@ -71,6 +73,6 @@ public abstract class DerivedBooleanInput extends DerivedUpdate implements Boole
 
     @Override
     public EventOutput onUpdateR(EventOutput notify) {
-        return consumers.addR(notify);
+        return Utils.addR(consumers, notify);
     }
 }

@@ -18,7 +18,8 @@
  */
 package ccre.ctrl.binding;
 
-import java.util.ConcurrentModificationException;
+import java.util.ArrayList;
+import java.util.HashMap;
 
 import ccre.channel.BooleanInput;
 import ccre.channel.BooleanOutput;
@@ -26,9 +27,7 @@ import ccre.channel.BooleanStatus;
 import ccre.channel.FloatInput;
 import ccre.channel.FloatOutput;
 import ccre.channel.FloatStatus;
-import ccre.util.CArrayList;
-import ccre.util.CArrayUtils;
-import ccre.util.CHashMap;
+import ccre.util.Utils;
 
 /**
  * A ControlBindingDataSinkBuildable allows a program to easily fill out a
@@ -48,17 +47,11 @@ import ccre.util.CHashMap;
  */
 public class ControlBindingDataSinkBuildable implements ControlBindingDataSink, ControlBindingCreator {
 
-    private final CHashMap<String, BooleanOutput> booleans = new CHashMap<String, BooleanOutput>();
-    private final CHashMap<String, FloatOutput> floats = new CHashMap<String, FloatOutput>();
+    private final HashMap<String, BooleanOutput> booleans = new HashMap<String, BooleanOutput>();
+    private final HashMap<String, FloatOutput> floats = new HashMap<String, FloatOutput>();
 
     public String[] listBooleans() {
-        String[] stra;
-        CArrayList<String> strs = CArrayUtils.collectIterable(booleans);
-        stra = new String[strs.size()];
-        if (strs.fillArray(stra) != 0) {
-            throw new ConcurrentModificationException();
-        }
-        return stra;
+        return booleans.keySet().toArray(new String[booleans.keySet().size()]);
     }
 
     public BooleanOutput getBoolean(String name) {
@@ -66,13 +59,7 @@ public class ControlBindingDataSinkBuildable implements ControlBindingDataSink, 
     }
 
     public String[] listFloats() {
-        String[] stra;
-        CArrayList<String> strs = CArrayUtils.collectIterable(floats);
-        stra = new String[strs.size()];
-        if (strs.fillArray(stra) != 0) {
-            throw new ConcurrentModificationException();
-        }
-        return stra;
+        return floats.keySet().toArray(new String[floats.keySet().size()]);
     }
 
     public FloatOutput getFloat(String name) {

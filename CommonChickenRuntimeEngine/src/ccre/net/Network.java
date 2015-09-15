@@ -26,13 +26,13 @@ import java.net.NetworkInterface;
 import java.net.Socket;
 import java.net.SocketException;
 import java.net.SocketTimeoutException;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Enumeration;
 
 import ccre.log.Logger;
-import ccre.util.CArrayList;
-import ccre.util.CArrayUtils;
-import ccre.util.CCollection;
 
 /**
  * The global Network handler. This contains a location to store the current
@@ -123,7 +123,7 @@ public class Network {
      *
      * @return a collection of the IPv4 addresses of the current system.
      */
-    public static CCollection<String> listIPv4Addresses() {
+    public static Collection<String> listIPv4Addresses() {
         Enumeration<NetworkInterface> enm = null;
         try {
             enm = NetworkInterface.getNetworkInterfaces();
@@ -131,9 +131,9 @@ public class Network {
             Logger.severe("Could not enumerate IP addresses!", ex);
         }
         if (enm == null) {
-            return CArrayUtils.getEmptyList();
+            return Collections.emptyList();
         }
-        CArrayList<String> allAddresses = new CArrayList<String>();
+        ArrayList<String> allAddresses = new ArrayList<String>();
         while (enm.hasMoreElements()) {
             NetworkInterface ni = enm.nextElement();
             Enumeration<InetAddress> ins = ni.getInetAddresses();

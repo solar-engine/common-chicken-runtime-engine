@@ -18,14 +18,13 @@
  */
 package ccre.ctrl.binding;
 
-import java.util.ConcurrentModificationException;
+import java.util.ArrayList;
+import java.util.HashMap;
 
 import ccre.channel.BooleanInput;
 import ccre.channel.FloatInput;
 import ccre.ctrl.IJoystick;
-import ccre.util.CArrayList;
-import ccre.util.CArrayUtils;
-import ccre.util.CHashMap;
+import ccre.util.Utils;
 
 /**
  * A ControlBindingDataSourceBuildable is an easy way to define a
@@ -38,8 +37,8 @@ import ccre.util.CHashMap;
  * @author skeggsc
  */
 public class ControlBindingDataSourceBuildable implements ControlBindingDataSource {
-    private final CHashMap<String, BooleanInput> booleans = new CHashMap<String, BooleanInput>();
-    private final CHashMap<String, FloatInput> floats = new CHashMap<String, FloatInput>();
+    private final HashMap<String, BooleanInput> booleans = new HashMap<String, BooleanInput>();
+    private final HashMap<String, FloatInput> floats = new HashMap<String, FloatInput>();
 
     /**
      * Add inputs for all the buttons and axes of a Joystick, and its POV hat.
@@ -103,13 +102,7 @@ public class ControlBindingDataSourceBuildable implements ControlBindingDataSour
     }
 
     public String[] listBooleans() {
-        String[] stra;
-        CArrayList<String> strs = CArrayUtils.collectIterable(booleans);
-        stra = new String[strs.size()];
-        if (strs.fillArray(stra) != 0) {
-            throw new ConcurrentModificationException();
-        }
-        return stra;
+        return booleans.keySet().toArray(new String[booleans.keySet().size()]);
     }
 
     public BooleanInput getBoolean(String name) {
@@ -117,13 +110,7 @@ public class ControlBindingDataSourceBuildable implements ControlBindingDataSour
     }
 
     public String[] listFloats() {
-        String[] stra;
-        CArrayList<String> strs = CArrayUtils.collectIterable(floats);
-        stra = new String[strs.size()];
-        if (strs.fillArray(stra) != 0) {
-            throw new ConcurrentModificationException();
-        }
-        return stra;
+        return floats.keySet().toArray(new String[floats.keySet().size()]);
     }
 
     public FloatInput getFloat(String name) {

@@ -19,11 +19,12 @@
 package ccre.channel;
 
 import java.io.Serializable;
+import java.util.Arrays;
 import java.util.Iterator;
+import java.util.concurrent.CopyOnWriteArrayList;
 
-import ccre.concurrency.ConcurrentDispatchArray;
 import ccre.log.Logger;
-import ccre.util.CArrayUtils;
+import ccre.util.Utils;
 
 /**
  * An implementation of an EventInput. This can be fired using the .produce()
@@ -38,7 +39,7 @@ public class EventStatus implements EventInput, EventOutput, Serializable {
     /**
      * The events to fire when this event is fired.
      */
-    private final ConcurrentDispatchArray<EventOutput> consumers = new ConcurrentDispatchArray<EventOutput>();
+    private final CopyOnWriteArrayList<EventOutput> consumers = new CopyOnWriteArrayList<EventOutput>();
 
     /**
      * Create a new Event.
@@ -65,7 +66,7 @@ public class EventStatus implements EventInput, EventOutput, Serializable {
      * @see #send(ccre.channel.EventOutput)
      */
     public EventStatus(EventOutput... events) {
-        consumers.addAllIfNotFound(CArrayUtils.asList(events));
+        consumers.addAllAbsent(Arrays.asList(events));
     }
 
     /**
@@ -93,7 +94,7 @@ public class EventStatus implements EventInput, EventOutput, Serializable {
     }
     
     public EventOutput onUpdateR(EventOutput client) {
-        return consumers.addR(client);
+        return Utils.addR(consumers, client);
     }
 
     public void event() {
@@ -119,7 +120,7 @@ public class EventStatus implements EventInput, EventOutput, Serializable {
                 found |= ec.eventWithRecovery();
             } catch (Throwable thr) {
                 Logger.severe("Event Subscriber Detached: " + ec, thr);
-                it.remove();
+                consumers.remove(ec);
                 found = true;
             }
         }

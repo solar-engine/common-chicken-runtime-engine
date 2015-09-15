@@ -20,13 +20,18 @@ package ccre.util;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+
+import ccre.channel.EventOutput;
 
 /**
  * A class for utilities that don't fit anywhere else. Most utilites are in
  * Mixing or CArrayUtils.
  *
  * @see Mixing
- * @see CArrayUtils
+ * @see Arrays
  * @author skeggsc
  */
 public class Utils {
@@ -160,5 +165,10 @@ public class Utils {
             StackTraceElement elem = trace[traceIndex];
             return new CallerInfo(elem.getClassName(), elem.getMethodName(), elem.getFileName(), elem.getLineNumber());
         }
+    }
+    
+    public static <T> EventOutput addR(Collection<T> collection, T item) {
+        collection.add(item);
+        return () -> collection.remove(item);
     }
 }

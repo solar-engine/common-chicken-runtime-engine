@@ -20,6 +20,7 @@ package ccre.util;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.HashMap;
 
 import ccre.log.Logger;
 import ccre.storage.StorageSegment;
@@ -41,7 +42,7 @@ public class Version {
      * @return the long-form version.
      */
     public static String getVersion() {
-        CHashMap<String, String> versions = new CHashMap<String, String>();
+        HashMap<String, String> versions = new HashMap<String, String>();
         InputStream props = Version.class.getResourceAsStream("/version.properties");
         if (props == null) {
             return "unknown version: no version.properties";

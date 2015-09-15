@@ -38,7 +38,6 @@ import ccre.channel.EventOutput;
 import ccre.log.Logger;
 import ccre.time.FakeTime;
 import ccre.time.Time;
-import ccre.timers.Ticker;
 
 @RunWith(Parameterized.class)
 public class TickerTest {

@@ -18,15 +18,16 @@
  */
 package ccre.instinct;
 
+import java.util.ArrayList;
+
 import ccre.channel.BooleanInput;
 import ccre.channel.EventOutput;
 import ccre.cluck.CluckPublisher;
 import ccre.log.Logger;
 import ccre.rconf.RConf;
 import ccre.rconf.RConf.Entry;
-import ccre.tuning.TuningContext;
 import ccre.rconf.RConfable;
-import ccre.util.CArrayList;
+import ccre.tuning.TuningContext;
 
 /**
  * An easy way to have multiple autonomous modes. Simply register a series of
@@ -39,7 +40,7 @@ public class InstinctMultiModule extends InstinctModule {
     /**
      * The list of modes registered with this InstinctMultiModule.
      */
-    private final CArrayList<InstinctModeModule> modes = new CArrayList<InstinctModeModule>();
+    private final ArrayList<InstinctModeModule> modes = new ArrayList<InstinctModeModule>();
     /**
      * The actively-selected mode, or null.
      */

@@ -18,11 +18,13 @@
  */
 package ccre.channel;
 
-import ccre.concurrency.ConcurrentDispatchArray;
+import java.util.concurrent.CopyOnWriteArrayList;
+
+import ccre.util.Utils;
 
 public abstract class DerivedEventInput extends DerivedUpdate implements EventInput {
 
-    private final ConcurrentDispatchArray<EventOutput> consumers = new ConcurrentDispatchArray<>();
+    private final CopyOnWriteArrayList<EventOutput> consumers = new CopyOnWriteArrayList<>();
 
     public DerivedEventInput(UpdatingInput... updates) {
         super(updates);
@@ -61,6 +63,6 @@ public abstract class DerivedEventInput extends DerivedUpdate implements EventIn
 
     @Override
     public EventOutput onUpdateR(EventOutput notify) {
-        return consumers.addR(notify);
+        return Utils.addR(consumers, notify);
     }
 }

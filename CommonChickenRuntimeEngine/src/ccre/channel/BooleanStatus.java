@@ -19,8 +19,9 @@
 package ccre.channel;
 
 import java.io.Serializable;
+import java.util.concurrent.CopyOnWriteArrayList;
 
-import ccre.concurrency.ConcurrentDispatchArray;
+import ccre.util.Utils;
 
 /**
  * A virtual node that is both a BooleanOutput and a BooleanInput. You can
@@ -44,7 +45,7 @@ public class BooleanStatus implements BooleanOutput, BooleanInput, Serializable 
      * The list of all the BooleanOutputs to modify when this BooleanStatus
      * changes value.
      */
-    private final ConcurrentDispatchArray<EventOutput> consumers = new ConcurrentDispatchArray<EventOutput>();
+    private final CopyOnWriteArrayList<EventOutput> consumers = new CopyOnWriteArrayList<EventOutput>();
 
     /**
      * Create a new BooleanStatus with the value of false.
@@ -166,6 +167,6 @@ public class BooleanStatus implements BooleanOutput, BooleanInput, Serializable 
 
     @Override
     public EventOutput onUpdateR(EventOutput notify) {
-        return consumers.addR(notify);
+        return Utils.addR(consumers, notify);
     }
 }

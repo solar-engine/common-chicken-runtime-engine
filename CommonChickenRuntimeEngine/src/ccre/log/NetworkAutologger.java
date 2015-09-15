@@ -18,13 +18,14 @@
  */
 package ccre.log;
 
+import java.util.HashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
+
 import ccre.channel.EventOutput;
 import ccre.cluck.Cluck;
 import ccre.cluck.CluckNode;
 import ccre.cluck.CluckPublisher;
 import ccre.cluck.CluckRemoteListener;
-import ccre.concurrency.ConcurrentDispatchArray;
-import ccre.util.CHashMap;
 import ccre.util.UniqueIds;
 
 /**
@@ -67,12 +68,12 @@ public final class NetworkAutologger implements LoggingTarget, CluckRemoteListen
     /**
      * The current list of remotes to send logging messages to.
      */
-    private final ConcurrentDispatchArray<String> remotes = new ConcurrentDispatchArray<String>();
+    private final CopyOnWriteArrayList<String> remotes = new CopyOnWriteArrayList<String>();
     /**
      * The current cache of subscribed LoggingTargets to send logging messages
      * to.
      */
-    private final CHashMap<String, LoggingTarget> targetCache = new CHashMap<String, LoggingTarget>();
+    private final HashMap<String, LoggingTarget> targetCache = new HashMap<String, LoggingTarget>();
     private final CluckNode node;
     private final String localpath, hereID;
 
@@ -140,6 +141,6 @@ public final class NetworkAutologger implements LoggingTarget, CluckRemoteListen
             targetCache.put(remote, CluckPublisher.subscribeLT(node, remote, LogLevel.FINEST));
             Logger.config("[LOCAL] Loaded logger: " + remote);
         }
-        remotes.addIfNotFound(remote);
+        remotes.addIfAbsent(remote);
     }
 }

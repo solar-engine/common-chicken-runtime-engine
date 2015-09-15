@@ -18,12 +18,14 @@
  */
 package ccre.channel;
 
-import ccre.concurrency.ConcurrentDispatchArray;
+import java.util.concurrent.CopyOnWriteArrayList;
+
+import ccre.util.Utils;
 
 public abstract class DerivedFloatInput extends DerivedUpdate implements FloatInput {
 
     private float value;
-    private final ConcurrentDispatchArray<EventOutput> consumers = new ConcurrentDispatchArray<>();
+    private final CopyOnWriteArrayList<EventOutput> consumers = new CopyOnWriteArrayList<>();
     
     public DerivedFloatInput(UpdatingInput... updates) {
         super(updates);
@@ -73,6 +75,6 @@ public abstract class DerivedFloatInput extends DerivedUpdate implements FloatIn
     
     @Override
     public EventOutput onUpdateR(EventOutput notify) {
-        return consumers.addR(notify);
+        return Utils.addR(consumers, notify);
     }
 }

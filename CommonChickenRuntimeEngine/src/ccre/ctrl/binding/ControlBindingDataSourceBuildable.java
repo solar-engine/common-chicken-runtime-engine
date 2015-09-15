@@ -102,8 +102,7 @@ public class ControlBindingDataSourceBuildable implements ControlBindingDataSour
     }
 
     public String[] listBooleans() {
-        String[] stra = booleans.keySet().toArray(new String[booleans.keySet().size()]);
-        return stra;
+        return booleans.keySet().toArray(new String[booleans.keySet().size()]);
     }
 
     public BooleanInput getBoolean(String name) {
@@ -111,8 +110,7 @@ public class ControlBindingDataSourceBuildable implements ControlBindingDataSour
     }
 
     public String[] listFloats() {
-        String[] stra = floats.keySet().toArray(new String[floats.keySet().size()]);
-        return stra;
+        return floats.keySet().toArray(new String[floats.keySet().size()]);
     }
 
     public FloatInput getFloat(String name) {

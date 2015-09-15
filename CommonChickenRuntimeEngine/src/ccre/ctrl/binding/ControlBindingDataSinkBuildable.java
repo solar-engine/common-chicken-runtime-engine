@@ -51,8 +51,7 @@ public class ControlBindingDataSinkBuildable implements ControlBindingDataSink, 
     private final HashMap<String, FloatOutput> floats = new HashMap<String, FloatOutput>();
 
     public String[] listBooleans() {
-        String[] stra = booleans.keySet().toArray(new String[booleans.keySet().size()]);
-        return stra;
+        return booleans.keySet().toArray(new String[booleans.keySet().size()]);
     }
 
     public BooleanOutput getBoolean(String name) {
@@ -60,8 +59,7 @@ public class ControlBindingDataSinkBuildable implements ControlBindingDataSink, 
     }
 
     public String[] listFloats() {
-        String[] stra = floats.keySet().toArray(new String[floats.keySet().size()]);
-        return stra;
+        return floats.keySet().toArray(new String[floats.keySet().size()]);
     }
 
     public FloatOutput getFloat(String name) {

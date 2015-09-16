@@ -145,6 +145,9 @@ public class FloatStatus implements FloatOutput, FloatInput, Serializable {
     
     @Override
     public void onUpdate(EventOutput notify) {
+        if (notify == null) {
+            throw new NullPointerException();
+        }
         consumers.add(notify);
     }
 

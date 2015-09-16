@@ -39,10 +39,6 @@ public class SuiteOfTests {
     public static void main(String[] args) throws InterruptedException {
         BaseTest[] tests = new BaseTest[] {
 
-                new TestBooleanStatus(),
-
-                new TestFloatStatus(),
-
                 new TestFilters(),
 
                 new TestMixing(),

@@ -162,6 +162,9 @@ public class BooleanStatus implements BooleanOutput, BooleanInput, Serializable 
     
     @Override
     public void onUpdate(EventOutput notify) {
+        if (notify == null) {
+            throw new NullPointerException();
+        }
         consumers.add(notify);
     }
 

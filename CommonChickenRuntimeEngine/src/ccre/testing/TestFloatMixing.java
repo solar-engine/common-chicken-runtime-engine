@@ -34,66 +34,6 @@ import ccre.util.Utils;
  */
 public class TestFloatMixing extends BaseTest {
 
-    /**
-     * A class used to ensure that an output is only set to the correct value
-     * and in the correct interval of time - and not anywhen else.
-     *
-     * Set {@link #valueExpected} to the expected value and {@link #ifExpected}
-     * to true, let the code run that should update the value, and then call
-     * {@link #check()}.
-     *
-     * If a value is received when ifExpected is not set, an exception will be
-     * thrown. Note that this also happens if a value is received more than
-     * once, because ifExpected is cleared after the first value written.
-     *
-     * check() will fail if ifExpected is still true, because that means that
-     * means that the value was never received.
-     *
-     * @author skeggsc
-     */
-    public static class CountingFloatOutput implements FloatOutput {
-        /**
-         * The value expected to be received.
-         */
-        public float valueExpected;
-        /**
-         * Whether or not we're still expected a value to be received.
-         */
-        public boolean ifExpected;
-
-        private final boolean allowExtras;
-
-        public CountingFloatOutput() {
-            this(false);
-        }
-
-        public CountingFloatOutput(boolean allowExtras) {
-            this.allowExtras = allowExtras;
-        }
-
-        public synchronized void set(float value) {
-            if (!ifExpected && !allowExtras) {
-                throw new RuntimeException("Unexpected set!");
-            }
-            ifExpected = false;
-            if (value != valueExpected && !(Float.isNaN(value) && Float.isNaN(valueExpected))) {
-                throw new RuntimeException("Incorrect set!");
-            }
-        }
-
-        /**
-         * Ensure that the correct value has been received since the last time
-         * that ifExpected was set to true.
-         *
-         * @throws RuntimeException if a write did not occur.
-         */
-        public void check() throws RuntimeException {
-            if (ifExpected) {
-                throw new RuntimeException("Did not get expected set!");
-            }
-        }
-    }
-
     // TODO: use these everywhere relevant
     /**
      * A sequence of interesting floats for testing edge cases: things like

@@ -56,6 +56,11 @@ public class EventStatusTest {
         ceo.check();
     }
 
+    @Test(expected = NullPointerException.class)
+    public void testEventStatusEventOutputNull() {
+        new EventStatus((EventOutput) null);
+    }
+
     @Test
     public void testEventStatusEventOutputArray() {
         CountingEventOutput c1 = new CountingEventOutput();
@@ -66,6 +71,16 @@ public class EventStatusTest {
         status.event();
         c1.check();
         c2.check();
+    }
+
+    @Test(expected = NullPointerException.class)
+    public void testEventStatusEventOutputArrayNull() {
+        new EventStatus((EventOutput[]) null);
+    }
+
+    @Test(expected = NullPointerException.class)
+    public void testEventStatusEventOutputArrayNulls() {
+        new EventStatus(EventOutput.ignored, null);
     }
 
     @Test
@@ -113,6 +128,11 @@ public class EventStatusTest {
         }
     }
 
+    @Test(expected = NullPointerException.class)
+    public void testOnUpdateNull() {
+        status.onUpdate(null);
+    }
+
     @Test
     public void testOnUpdateR() {
         CountingEventOutput ceo = new CountingEventOutput();
@@ -129,6 +149,11 @@ public class EventStatusTest {
             }
             ceo.check();
         }
+    }
+
+    @Test(expected = NullPointerException.class)
+    public void testOnUpdateRNull() {
+        status.onUpdateR(null);
     }
 
     @Test

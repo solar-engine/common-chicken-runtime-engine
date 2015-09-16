@@ -55,6 +55,9 @@ public class EventStatus implements EventInput, EventOutput, Serializable {
      * @see #send(ccre.channel.EventOutput)
      */
     public EventStatus(EventOutput event) {
+        if (event == null) {
+            throw new NullPointerException();
+        }
         consumers.add(event);
     }
 
@@ -66,6 +69,11 @@ public class EventStatus implements EventInput, EventOutput, Serializable {
      * @see #send(ccre.channel.EventOutput)
      */
     public EventStatus(EventOutput... events) {
+        for (EventOutput e : events) {
+            if (e == null) {
+                throw new NullPointerException();
+            }
+        }
         consumers.addAllAbsent(Arrays.asList(events));
     }
 
@@ -90,6 +98,9 @@ public class EventStatus implements EventInput, EventOutput, Serializable {
     }
 
     public void onUpdate(EventOutput client) {
+        if (client == null) {
+            throw new NullPointerException();
+        }
         consumers.add(client);
     }
     

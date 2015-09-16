@@ -163,6 +163,9 @@ public class Utils {
     }
     
     public static <T> EventOutput addR(Collection<T> collection, T item) {
+        if (item == null) {
+            throw new NullPointerException();
+        }
         collection.add(item);
         return () -> collection.remove(item);
     }

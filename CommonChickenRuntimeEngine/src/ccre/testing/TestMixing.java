@@ -66,8 +66,8 @@ public class TestMixing extends BaseTest {
 
     private void testSelectBool(boolean default_) throws TestingException {
         FloatStatus offStat = new FloatStatus(), onStat = new FloatStatus();
-        TestFloatMixing.CountingFloatOutput cfo1 = new TestFloatMixing.CountingFloatOutput();
-        TestFloatMixing.CountingFloatOutput cfo2 = new TestFloatMixing.CountingFloatOutput();
+        CountingFloatOutput cfo1 = new CountingFloatOutput();
+        CountingFloatOutput cfo2 = new CountingFloatOutput();
         cfo1.valueExpected = 0;
         cfo1.ifExpected = true;
         BooleanOutput bout1 = cfo1.fromBoolean(offStat, onStat, default_);

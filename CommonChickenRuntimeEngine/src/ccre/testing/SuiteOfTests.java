@@ -41,8 +41,6 @@ public class SuiteOfTests {
 
                 new TestMixing(),
 
-                new TestEventMixing(),
-
                 new TestFloatMixing()
         };
         boolean failFast = args.length > 0 && args[0].equals("--failfast");

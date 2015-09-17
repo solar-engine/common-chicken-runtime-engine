@@ -102,6 +102,9 @@ public interface BooleanOutput {
     }
 
     public default EventOutput getSetEvent(BooleanInput value) {
+        if (value == null) {
+            throw new NullPointerException();
+        }
         return () -> set(value.get());
     }
 
@@ -134,11 +137,18 @@ public interface BooleanOutput {
      * fires the associated event. This will only fire when the value changes,
      * and is false by default.
      *
+     * Either parameter can be null, which is equivalent to passing
+     * <code>EventOutput.ignored</code>. They cannot both be null - this will
+     * throw a NullPointerException.
+     *
      * @param toFalse if the output becomes false.
      * @param toTrue if the output becomes true.
      * @return the output that can trigger the events.
      */
     public static BooleanOutput onChange(final EventOutput toFalse, final EventOutput toTrue) {
+        if (toFalse == null && toTrue == null) {
+            throw new NullPointerException();
+        }
         return new BooleanOutput() {
             private boolean last;
 
@@ -163,18 +173,48 @@ public interface BooleanOutput {
 
     public default BooleanOutput filter(BooleanInput allow) {
         BooleanOutput original = this;
-        return (value) -> {
-            if (allow.get()) {
-                original.set(value);
+        return new BooleanOutput() {
+            private boolean lastValue, anyValue;
+
+            {
+                allow.onPress().send(() -> {
+                    if (anyValue) {
+                        original.set(lastValue);
+                    }
+                });
+            }
+
+            @Override
+            public void set(boolean value) {
+                lastValue = value;
+                anyValue = true;
+                if (allow.get()) {
+                    original.set(value);
+                }
             }
         };
     }
 
     public default BooleanOutput filterNot(BooleanInput deny) {
         BooleanOutput original = this;
-        return (value) -> {
-            if (!deny.get()) {
-                original.set(value);
+        return new BooleanOutput() {
+            private boolean lastValue, anyValue;
+
+            {
+                deny.onRelease().send(() -> {
+                    if (anyValue) {
+                        original.set(lastValue);
+                    }
+                });
+            }
+
+            @Override
+            public void set(boolean value) {
+                lastValue = value;
+                anyValue = true;
+                if (!deny.get()) {
+                    original.set(value);
+                }
             }
         };
     }

@@ -19,8 +19,6 @@
 package ccre.testing;
 
 import ccre.channel.BooleanOutput;
-import ccre.channel.BooleanStatus;
-import ccre.channel.FloatInput;
 import ccre.channel.FloatStatus;
 
 /**
@@ -56,7 +54,7 @@ public class TestMixing extends BaseTest {
                 cfo1.valueExpected = lastValueTo1 ? on : off;
                 cfo1.ifExpected = true;
                 offStat.set(off);
-                onStat.set(on); // should make no difference because the last value was FALSE
+                onStat.set(on);// should make no difference because the last value was FALSE
                 cfo1.check();
 
                 cfo2.valueExpected = default_ ? on : off;
@@ -64,11 +62,11 @@ public class TestMixing extends BaseTest {
                 BooleanOutput bout2 = cfo2.fromBoolean(off, on, default_);
                 cfo2.check();
                 boolean last = default_;
-                for (boolean value : TestBooleanMixing.interestingBooleans) {
+                for (boolean value : new boolean[] { false, true, true, false, false, true, false, true, false, true, true, true, false, true, false, false, false, true }) {
                     float newlyExpected = cfo2.valueExpected = value ? on : off;
                     boolean repeat = newlyExpected == cfo1.valueExpected;
                     cfo1.valueExpected = newlyExpected;
-                    cfo1.ifExpected = (value != lastValueTo1 && !repeat); // TODO: is this test too specific?
+                    cfo1.ifExpected = (value != lastValueTo1 && !repeat);// TODO: is this test too specific?
                     bout1.set(value);
                     lastValueTo1 = value;
                     cfo1.check();

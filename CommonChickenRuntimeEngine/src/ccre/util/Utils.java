@@ -40,7 +40,7 @@ public class Utils {
      * @return the deadzoned version of the value
      */
     public static float deadzone(float value, float deadzone) {
-        return Math.abs(value) > deadzone ? value : 0.0f;
+        return Math.abs(value) > deadzone ? value : Float.isNaN(value) ? Float.NaN : 0.0f;
     }
 
     /**

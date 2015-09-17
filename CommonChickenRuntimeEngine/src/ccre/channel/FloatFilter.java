@@ -89,6 +89,9 @@ public abstract class FloatFilter {
      * @see ccre.util.Utils#deadzone(float, float)
      */
     public static FloatFilter deadzone(final float deadzone) {
+        if (Float.isNaN(deadzone)) {
+            throw new IllegalArgumentException("deadzones cannot be NaN!");
+        }
         return new FloatFilter() {
             @Override
             public float filter(float input) {

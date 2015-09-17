@@ -75,7 +75,7 @@ public class CountingFloatOutput implements FloatOutput {
      */
     public void check() throws RuntimeException {
         if (ifExpected) {
-            throw new RuntimeException("Did not get expected set!");
+            throw new RuntimeException("Did not get expected set of " + valueExpected + "!");
         }
     }
 }

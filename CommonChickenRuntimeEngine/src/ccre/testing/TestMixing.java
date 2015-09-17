@@ -37,31 +37,8 @@ public class TestMixing extends BaseTest {
 
     @Override
     protected void runTest() throws TestingException, InterruptedException {
-        testSelectFloat();
         testSelectBool(false);
         testSelectBool(true);
-    }
-
-    private void testSelectFloat() throws TestingException {
-        FloatStatus offStat = new FloatStatus(1), onStat = new FloatStatus(2);
-        BooleanStatus vbool = new BooleanStatus();
-        FloatInput fin1 = vbool.toFloat(offStat, onStat);
-        for (float off : TestFloatMixing.interestingFloats) {
-            for (float on : TestFloatMixing.interestingFloats) {
-                offStat.set(off);
-                onStat.set(on);
-                FloatInput fin2 = vbool.toFloat(off, on);
-                // make sure that changes to the parameters propagate
-                //vbool.set(false);
-                //vbool.set(true);
-                for (boolean value : TestBooleanMixing.interestingBooleans) {
-                    vbool.set(value);
-                    float expected = value ? on : off;
-                    assertObjectEqual(fin1.get(), expected, "bad float 1: " + value + " => " + off + ", " + on);
-                    assertObjectEqual(fin2.get(), expected, "bad float 5: " + value + " => " + off + ", " + on);
-                }
-            }
-        }
     }
 
     private void testSelectBool(boolean default_) throws TestingException {

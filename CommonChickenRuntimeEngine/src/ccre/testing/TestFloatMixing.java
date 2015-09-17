@@ -21,7 +21,6 @@ package ccre.testing;
 import ccre.channel.BooleanInput;
 import ccre.channel.EventOutput;
 import ccre.channel.EventStatus;
-import ccre.channel.FloatFilter;
 import ccre.channel.FloatInput;
 import ccre.channel.FloatOutput;
 import ccre.channel.FloatStatus;
@@ -60,8 +59,6 @@ public class TestFloatMixing extends BaseTest {
     protected void runTest() throws Throwable {
         testOperations();
         testNegation();
-        testLimits();
-        testLimitsSimple();
         FloatOutput.ignored.set(0);
         testGetSetEvent();
         testSimpleComparisons();
@@ -69,19 +66,7 @@ public class TestFloatMixing extends BaseTest {
         testCombine();
         testRamping();
         testAlways();
-        testDeadzones();
         testNormalize();
-    }
-
-    private void testLimitsSimple() throws TestingException {
-        FloatFilter limit1 = FloatFilter.limit(Float.NEGATIVE_INFINITY, 0);
-        assertObjectEqual(limit1.filter(-10000), -10000f, "Bad limit!");
-        assertObjectEqual(limit1.filter(0), 0f, "Bad limit!");
-        assertObjectEqual(limit1.filter(1), 0f, "Bad limit!");
-        FloatFilter limit2 = FloatFilter.limit(0, Float.POSITIVE_INFINITY);
-        assertObjectEqual(limit2.filter(-1), 0f, "Bad limit!");
-        assertObjectEqual(limit2.filter(0), 0f, "Bad limit!");
-        assertObjectEqual(limit2.filter(10000), 10000f, "Bad limit!");
     }
 
     private void testNormalize() throws TestingException {
@@ -126,28 +111,6 @@ public class TestFloatMixing extends BaseTest {
                         assertTrue(unscaled == v || Math.abs(unscaled - v) <= Math.max(Math.max(Math.abs(unscaled), Math.abs(v)), Math.max(Math.abs(lowV), Math.abs(highV))) * 0.0001f, "non-reversible calculation: " + unscaled + " vs " + v);
                     }
                 }
-            }
-        }
-    }
-
-    private void testDeadzones() throws TestingException {
-        for (float zone : interestingFloats) {
-            FloatFilter filter = FloatFilter.deadzone(zone);
-            FloatStatus val = new FloatStatus();
-            FloatInput in1 = filter.wrap(val.asInput());
-            FloatInput in2 = val.deadzone(zone);
-            CountingFloatOutput out = new CountingFloatOutput();
-            out.ifExpected = true;
-            out.valueExpected = 0;
-            val.send(out.outputDeadzone(zone));
-            out.check();// because send will automatically set with the current value
-            for (float value : interestingFloats) {
-                out.ifExpected = true;
-                out.valueExpected = Utils.deadzone(value, zone);
-                val.set(value);
-                out.check();
-                assertObjectEqual(Utils.deadzone(value, zone), in1.get(), "bad deadzoning");
-                assertObjectEqual(Utils.deadzone(value, zone), in2.get(), "bad deadzoning");
             }
         }
     }
@@ -266,45 +229,6 @@ public class TestFloatMixing extends BaseTest {
         for (float f : interestingFloats) {
             val.getSetEvent(f).event();
             assertObjectEqual(val.get(), f, "bad set event");
-        }
-    }
-
-    private void testLimits() throws TestingException {
-        FloatStatus in = new FloatStatus();
-        testNegation();
-        for (float low : interestingFloats) {
-            for (float high : interestingFloats) {
-                FloatInput test;
-                try {
-                    test = FloatFilter.limit(low, high).wrap(in.asInput());
-                    assertFalse(high < low, "no IAE when expected!");
-                } catch (IllegalArgumentException ex) {
-                    assertTrue(high < low, "IAE when unexpected!");
-                    continue;
-                }
-                for (float value : interestingFloats) {
-                    in.set(value);
-                    float gotten = test.get();
-                    if (Float.isNaN(value)) {
-                        assertTrue(Float.isNaN(gotten), "bad NaN handling");
-                        continue;
-                    }
-                    assertTrue((gotten >= low || Float.isNaN(low)) && (gotten <= high || Float.isNaN(high)), "limit failed: " + gotten + " from " + low + "," + value + "," + high);
-                    if (gotten != value) {
-                        if (gotten == low) {
-                            if (low == high) {
-                                assertTrue(value <= low || value >= high, "wrong roundoff");
-                            } else {
-                                assertTrue(value <= low, "wrong roundoff");
-                            }
-                        } else if (gotten == high) {
-                            assertTrue(value >= high, "wrong roundoff");
-                        } else {
-                            assertFail("bad roundoff");
-                        }
-                    }
-                }
-            }
         }
     }
 

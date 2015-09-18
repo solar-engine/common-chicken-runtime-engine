@@ -225,16 +225,17 @@ public interface FloatInput extends UpdatingInput {
         };
     }
 
-    public default EventInput onChangeBy(final float delta) throws IllegalArgumentException {
+    public default EventInput onChangeBy(float delta) throws IllegalArgumentException {
         if (!Float.isFinite(delta)) {
-            throw new IllegalArgumentException("delta must be finite and non-NaN");
+            throw new IllegalArgumentException("delta must be finite and non-NaN, but was: " + delta);
         }
+        final float deltaAbs = Math.abs(delta);
         return new DerivedEventInput(this) {
             float last = get();
 
             protected boolean shouldProduce() {
                 float value = get();
-                if (Math.abs(last - value) > delta) {
+                if (Math.abs(last - value) > deltaAbs) {
                     last = value;
                     return true;
                 }
@@ -249,14 +250,14 @@ public interface FloatInput extends UpdatingInput {
 
     public default FloatInput normalize(final float zero, float one) throws IllegalArgumentException {
         if (!Float.isFinite(zero) || !Float.isFinite(one)) {
-            throw new IllegalArgumentException("Infinite or NaN bound to normalizeFloat!");
+            throw new IllegalArgumentException("Infinite or NaN bound to normalize!");
         }
         if (zero == one) {
-            throw new IllegalArgumentException("Equal zero and one bounds to normalizeFloat!");
+            throw new IllegalArgumentException("Equal zero and one bounds to normalize!");
         }
         final float range = one - zero;
         if (!Float.isFinite(range)) {
-            throw new IllegalArgumentException("normalizeFloat range is large enough to provide invalid results");
+            throw new IllegalArgumentException("normalize range is large enough to provide invalid results");
         }
         FloatInput original = this;
         return new DerivedFloatInput(original) {
@@ -267,7 +268,10 @@ public interface FloatInput extends UpdatingInput {
     }
 
     public default FloatInput normalize(final float zero, final FloatInput one) {
-        Utils.checkNull(zero, one);
+        Utils.checkNull(one);
+        if (!Float.isFinite(zero)) {
+            throw new IllegalArgumentException("Infinite or NaN bound to normalize!");
+        }
         FloatInput original = this;
         return new DerivedFloatInput(original, one) {
             protected float apply() {
@@ -281,7 +285,10 @@ public interface FloatInput extends UpdatingInput {
     }
 
     public default FloatInput normalize(final FloatInput zero, final float one) {
-        Utils.checkNull(zero, one);
+        Utils.checkNull(zero);
+        if (!Float.isFinite(one)) {
+            throw new IllegalArgumentException("Infinite or NaN bound to normalize!");
+        }
         FloatInput original = this;
         return new DerivedFloatInput(original, zero) {
             protected float apply() {
@@ -317,6 +324,9 @@ public interface FloatInput extends UpdatingInput {
 
     public default EventOutput createRampingEvent(final float limit, final FloatOutput target) {
         Utils.checkNull(target);
+        if (Float.isNaN(limit)) {
+            throw new IllegalArgumentException("Ramping rate cannot be NaN!");
+        }
         return new EventOutput() {
             private float last = get();
 
@@ -329,7 +339,8 @@ public interface FloatInput extends UpdatingInput {
 
     public default FloatInput derivative() {
         final FloatStatus out = new FloatStatus();
-        send(out.viaDerivative());
+        FloatOutput deriv = out.viaDerivative();
+        onUpdate(() -> deriv.set(get()));
         return out;
     }
 
@@ -362,4 +373,5 @@ public interface FloatInput extends UpdatingInput {
             }
         };
     }
+    // TODO: integrate!
 }

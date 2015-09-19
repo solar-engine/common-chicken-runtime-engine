@@ -49,8 +49,8 @@
 		<copy file="${template.dir}/.classpath" tofile="${rebuilder-target}/.classpath" failonerror="true" overwrite="true" />
 		<property name="deployed" value="${rebuilder-target}/src/deployment/Deployment.java" />
 		<copy file="${template.dir}/src/deployment/Deployment.java" tofile="${deployed}" failonerror="true" overwrite="true" />
-		<replace file="${deployed}" token="0000" value="${team.number}" />
-		<replace file="${deployed}" token="teamNNNN.RobotTemplate.class" value="${igneous.main}.class" />
+		<replace file="${deployed}" token="robot.RobotTemplate.TEAM_NUMBER" value="${team.number}" />
+		<replace file="${deployed}" token="robot.RobotTemplate" value="${igneous.main}" />
 		<delete file="${rebuilder-target}/src/main.properties" />
 		<echo>Success!</echo>
 	</target>

@@ -1,17 +1,20 @@
-package teamNNNN;
+package robot;
 
-import ccre.frc.FRC;
 import ccre.frc.FRCApplication;
-import ccre.log.Logger;
 
 /**
  * This is the core class of a CCRE project. The CCRE launching system will make
  * sure that this class is loaded, and will have set up everything else before
- * loading it. Make sure that main.properties is updated with the correct class
- * name for this to work properly.
+ * loading it. If you change the name, use Eclipse's rename functionality. If
+ * you don't, you will have to change the name in Deployment.java.
+ *
+ * Make sure to set TEAM_NUMBER to your team number.
  */
 public class RobotTemplate implements FRCApplication {
 
+    public static final int TEAM_NUMBER = 0000;
+
+    @Override
     public void setupRobot() {
         // Robot setup code goes here.
     }

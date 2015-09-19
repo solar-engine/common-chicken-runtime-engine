@@ -27,7 +27,7 @@
 		<delete file="bin/version.properties" />
 	</target>
 	<target name="find-version">
-		<exec executable="git" outputproperty="git-desc" failonerror="true" failifexecutionfails="false">
+		<exec executable="git" outputproperty="git-desc" failonerror="false" failifexecutionfails="false">
 			<arg value="describe" />
 			<arg value="--long" />
 			<arg value="--dirty" />

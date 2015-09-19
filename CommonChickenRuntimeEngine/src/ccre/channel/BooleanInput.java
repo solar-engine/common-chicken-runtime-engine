@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2014 Colby Skeggs
+ * Copyright 2013-2015 Colby Skeggs
  *
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  *
@@ -24,8 +24,8 @@ import ccre.util.Utils;
  * A BooleanInput is a way to get the current state of a boolean input, and to
  * subscribe to notifications of changes in the boolean input's value.
  *
- * A BooleanInput also acts as an UpdatingInput that updates when the
- * BooleanInput's value changes, and never when it doesn't.
+ * A BooleanInput also acts as an UpdatingInput that updates when the value
+ * changes, and never updates when the value doesn't change.
  * 
  * TODO: Make sure that's actually true everywhere.
  *

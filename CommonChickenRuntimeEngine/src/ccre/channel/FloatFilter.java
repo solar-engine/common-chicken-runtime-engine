@@ -84,13 +84,14 @@ public abstract class FloatFilter {
      * Return a Filter that applies the specified-size deadzone as defined in
      * Utils.deadzone.
      *
-     * @param deadzone The deadzone size to apply.
+     * @param deadzone The deadzone size to apply, which must be greater than
+     * zero and less than infinity.
      * @return The filter representing this deadzone size.
      * @see ccre.util.Utils#deadzone(float, float)
      */
     public static FloatFilter deadzone(final float deadzone) {
-        if (Float.isNaN(deadzone)) {
-            throw new IllegalArgumentException("deadzones cannot be NaN!");
+        if (!Float.isFinite(deadzone) || deadzone <= 0) {
+            throw new IllegalArgumentException("deadzones cannot be NaN, infinite, or less than or equal to zero!");
         }
         return new FloatFilter() {
             @Override

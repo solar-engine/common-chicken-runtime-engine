@@ -147,7 +147,7 @@ public interface BooleanOutput {
      */
     public static BooleanOutput onChange(final EventOutput toFalse, final EventOutput toTrue) {
         if (toFalse == null && toTrue == null) {
-            throw new NullPointerException();
+            throw new NullPointerException("Both toFalse and toTrue are null in onChange! You can only have at most one be null.");
         }
         return new BooleanOutput() {
             private boolean last;

@@ -146,7 +146,8 @@ public interface FloatOutput {
     public default FloatOutput viaDerivative() {
         FloatOutput original = this;
         return new FloatOutput() {
-            private static final long UNINITIALIZED = -1;// not zero because then FakeTime might break...
+            // not zero because then FakeTime might break...
+            private static final long UNINITIALIZED = -1;
             private long lastUpdateNanos = UNINITIALIZED;
             private float lastValue = Float.NaN;
 
@@ -158,7 +159,7 @@ public interface FloatOutput {
                     return;
                 }
                 if (lastUpdateNanos == timeNanos) {
-                    return;// extremely unlikely... but just in case.
+                    return; // extremely unlikely... but just in case.
                 }
                 original.set(Time.NANOSECONDS_PER_SECOND * (value - lastValue) / (timeNanos - lastUpdateNanos));
                 lastValue = value;

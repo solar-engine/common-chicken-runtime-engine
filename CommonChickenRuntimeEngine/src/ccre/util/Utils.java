@@ -35,12 +35,14 @@ public class Utils {
      * Calculate a value with a deadzone. If the value is within the specified
      * deadzone, the result will be zero instead.
      *
+     * The result is undefined if deadzone is negative, NaN, or infinite.
+     *
      * @param value the value
      * @param deadzone the deadzone size
      * @return the deadzoned version of the value
      */
     public static float deadzone(float value, float deadzone) {
-        return Math.abs(value) >= Math.abs(deadzone) ? value : Float.isNaN(value) ? Float.NaN : 0.0f;
+        return Math.abs(value) >= deadzone ? value : Float.isNaN(value) ? Float.NaN : 0.0f;
     }
 
     /**

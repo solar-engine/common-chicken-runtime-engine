@@ -29,4 +29,7 @@
 /javadoc.tgz
 /CCRE_Igneous_cRIO/bin
 /DeploymentEngine/DepEngine.jar
-
+/docsrc/*.css
+/docsrc/*.html
+/docsrc/*.js
+/docsrc/*~

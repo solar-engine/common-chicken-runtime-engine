@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2014 Colby Skeggs
+ * Copyright 2013-2015 Colby Skeggs
  *
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  *
@@ -20,18 +20,13 @@ package ccre.util;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 
 import ccre.channel.EventOutput;
 
 /**
- * A class for utilities that don't fit anywhere else. Most utilites are in
- * Mixing or CArrayUtils.
+ * A class for utilities that don't fit anywhere else.
  *
- * @see Mixing
- * @see Arrays
  * @author skeggsc
  */
 public class Utils {
@@ -40,12 +35,14 @@ public class Utils {
      * Calculate a value with a deadzone. If the value is within the specified
      * deadzone, the result will be zero instead.
      *
+     * The result is undefined if deadzone is negative, NaN, or infinite.
+     *
      * @param value the value
      * @param deadzone the deadzone size
      * @return the deadzoned version of the value
      */
     public static float deadzone(float value, float deadzone) {
-        return Math.abs(value) > deadzone ? value : 0.0f;
+        return Math.abs(value) >= deadzone ? value : Float.isNaN(value) ? Float.NaN : 0.0f;
     }
 
     /**
@@ -168,6 +165,9 @@ public class Utils {
     }
     
     public static <T> EventOutput addR(Collection<T> collection, T item) {
+        if (item == null) {
+            throw new NullPointerException();
+        }
         collection.add(item);
         return () -> collection.remove(item);
     }

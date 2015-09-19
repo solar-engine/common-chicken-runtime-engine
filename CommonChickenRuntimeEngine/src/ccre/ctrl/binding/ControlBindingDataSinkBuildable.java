@@ -18,7 +18,6 @@
  */
 package ccre.ctrl.binding;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 
 import ccre.channel.BooleanInput;
@@ -27,7 +26,6 @@ import ccre.channel.BooleanStatus;
 import ccre.channel.FloatInput;
 import ccre.channel.FloatOutput;
 import ccre.channel.FloatStatus;
-import ccre.util.Utils;
 
 /**
  * A ControlBindingDataSinkBuildable allows a program to easily fill out a

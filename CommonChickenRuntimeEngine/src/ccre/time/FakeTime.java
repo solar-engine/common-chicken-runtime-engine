@@ -27,6 +27,8 @@ import ccre.log.Logger;
 // NOTE: this contains complex and likely slightly broken synchronization code. do not use it in production!
 public class FakeTime extends Time {
 
+    private static final boolean debug = false;
+
     private long now = 0;
     private int adds = 0;
     private final LinkedList<Object> otherSleepers = new LinkedList<>();
@@ -75,14 +77,18 @@ public class FakeTime extends Time {
             int i = 0;
             while (true) {
                 if (adds >= osl.length) {
-                    if (i != 1) {
-                        System.out.println("Completed in " + i + "!");
+                    if (debug) {
+                        if (i != 1) {
+                            System.out.println("Completed in " + i + "!");
+                        }
                     }
                     break;
                 }
                 this.wait(1);
                 if (i++ >= 30) {
-                    System.out.println("Timed out!");
+                    if (debug) {
+                        System.out.println("Timed out!");
+                    }
                     break;
                 }
             }

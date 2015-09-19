@@ -52,11 +52,17 @@ public interface EventInput extends UpdatingInput {
      * @param listener the listener to add.
      * @see #unsend(EventOutput)
      */
-    public default void send(EventOutput output) { // TODO: rename this to 'then'?
+    public default void send(EventOutput output) {// TODO: rename this to 'then'?
+        if (output == null) {
+            throw new NullPointerException();
+        }
         onUpdate(output);
     }
 
     public default EventOutput sendR(EventOutput output) {
+        if (output == null) {
+            throw new NullPointerException();
+        }
         return onUpdateR(output);
     }
 
@@ -100,6 +106,9 @@ public interface EventInput extends UpdatingInput {
     }
 
     public default EventInput debounced(final long minMillis) {
+        if (minMillis <= 0) {
+            throw new IllegalArgumentException("debounced() parameter must be positive!");
+        }
         return new DerivedEventInput(this) {
             private long nextFire = 0;
 

@@ -20,6 +20,9 @@ package ccre.channel;
 
 public interface UpdatingInput {
     public default void onUpdate(EventOutput notify) {
+        if (notify == null) {
+            throw new NullPointerException();
+        }
         onUpdateR(notify);
     }
 

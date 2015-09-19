@@ -33,10 +33,7 @@ public interface EventOutput {
     /**
      * An EventOutput that, when fired, does absolutely nothing.
      */
-    public static final EventOutput ignored = new EventOutput() {
-        public void event() {
-        }
-    };
+    public static final EventOutput ignored = () -> {};
 
     /**
      * Fire the event.
@@ -73,6 +70,9 @@ public interface EventOutput {
     }
 
     public default EventOutput filter(BooleanInput allow) {
+        if (allow == null) {
+            throw new NullPointerException();
+        }
         EventOutput original = this;
         return new EventOutput() {
             @Override
@@ -93,6 +93,9 @@ public interface EventOutput {
     }
 
     public default EventOutput filterNot(BooleanInput deny) {
+        if (deny == null) {
+            throw new NullPointerException();
+        }
         EventOutput original = this;
         return new EventOutput() {
             @Override
@@ -113,6 +116,9 @@ public interface EventOutput {
     }
 
     public default EventOutput debounce(final long minMillis) {
+        if (minMillis <= 0) {
+            throw new IllegalArgumentException("debounce() parameter must be positive!");
+        }
         EventOutput original = this;
         return new EventOutput() {
             private long nextFire = 0;
@@ -137,6 +143,13 @@ public interface EventOutput {
         };
     }
 
+    /**
+     * Fires this event when the specified event fires.
+     *
+     * <code>what.on(when)</code> is equivalent to <code>when.send(what)</code>
+     *
+     * @param when when to fire this event.
+     */
     public default void on(EventInput when) {
         when.send(this);
     }

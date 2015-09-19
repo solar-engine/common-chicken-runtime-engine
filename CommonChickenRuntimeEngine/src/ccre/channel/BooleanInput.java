@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2014 Colby Skeggs
+ * Copyright 2013-2015 Colby Skeggs
  *
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  *
@@ -24,8 +24,8 @@ import ccre.util.Utils;
  * A BooleanInput is a way to get the current state of a boolean input, and to
  * subscribe to notifications of changes in the boolean input's value.
  *
- * A BooleanInput also acts as an UpdatingInput that updates when the
- * BooleanInput's value changes.
+ * A BooleanInput also acts as an UpdatingInput that updates when the value
+ * changes, and never updates when the value doesn't change.
  * 
  * TODO: Make sure that's actually true everywhere.
  *
@@ -97,6 +97,20 @@ public interface BooleanInput extends UpdatingInput {
         return onUpdateR(() -> output.set(get()));
     }
 
+    /**
+     * Provides an inverted version of this BooleanInput.
+     *
+     * This is defined as:
+     * <ul>
+     * <li>The get() method always returns the opposite of the original.</li>
+     * <li>The onUpdate() and onUpdateR() methods always dispatch to the same
+     * methods on the original.</li>
+     * <li>Other operations may be overridden, but must have the same effective
+     * result implied by the first two rules.</li>
+     * </ul>
+     *
+     * @return the inverted version.
+     */
     public default BooleanInput not() {
         BooleanInput original = this;
         return new BooleanInput() {

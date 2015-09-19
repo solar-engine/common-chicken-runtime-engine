@@ -95,6 +95,7 @@ public class BooleanStatus implements BooleanOutput, BooleanInput, Serializable 
      *
      * @param event When to toggle the status.
      * @see #getToggleEvent()
+     * @see #toggle()
      */
     public final void toggleWhen(EventInput event) {
         event.send(getToggleEvent());
@@ -105,13 +106,20 @@ public class BooleanStatus implements BooleanOutput, BooleanInput, Serializable 
      *
      * @return the EventOutput.
      * @see #toggleWhen(ccre.channel.EventInput)
+     * @see #toggle()
      */
     public final EventOutput getToggleEvent() {
-        return new EventOutput() {
-            public void event() {
-                set(!get());
-            }
-        };
+        return this::toggle;
+    }
+
+    /**
+     * Toggle the value. True to false, and false to true.
+     *
+     * @see #toggleWhen(EventInput)
+     * @see #getToggleEvent()
+     */
+    public void toggle() {
+        set(!get());
     }
 
     /**
@@ -162,6 +170,9 @@ public class BooleanStatus implements BooleanOutput, BooleanInput, Serializable 
     
     @Override
     public void onUpdate(EventOutput notify) {
+        if (notify == null) {
+            throw new NullPointerException();
+        }
         consumers.add(notify);
     }
 

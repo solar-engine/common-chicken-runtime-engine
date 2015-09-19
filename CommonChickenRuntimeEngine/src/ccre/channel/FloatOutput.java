@@ -146,12 +146,14 @@ public interface FloatOutput {
     public default FloatOutput viaDerivative() {
         FloatOutput original = this;
         return new FloatOutput() {
-            private long lastUpdateNanos = 0;
+            // not zero because then FakeTime might break...
+            private static final long UNINITIALIZED = -1;
+            private long lastUpdateNanos = UNINITIALIZED;
             private float lastValue = Float.NaN;
 
             public synchronized void set(float value) {
                 long timeNanos = Time.currentTimeNanos();
-                if (lastUpdateNanos == 0) {
+                if (lastUpdateNanos == UNINITIALIZED) {
                     lastValue = value;
                     lastUpdateNanos = timeNanos;
                     return;

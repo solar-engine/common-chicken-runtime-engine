@@ -24,6 +24,11 @@ import ccre.util.Utils;
  * A FloatInput is a way to get the current state of a float input, and to
  * subscribe to notifications of changes in the float input's value.
  *
+ * A FloatInput also acts as an UpdatingInput that updates when the value
+ * changes, and never updates when the value doesn't change.
+ *
+ * TODO: Make sure that's actually true everywhere.
+ *
  * By convention, most float inputs and outputs have states that range from
  * -1.0f to 1.0f.
  *
@@ -225,16 +230,28 @@ public interface FloatInput extends UpdatingInput {
         };
     }
 
-    public default EventInput onChangeBy(final float delta) throws IllegalArgumentException {
-        if (!Float.isFinite(delta)) {
-            throw new IllegalArgumentException("delta must be finite and non-NaN");
+    /**
+     * Returns an EventInput that fires whenever the value changes by at least
+     * the specified amount, relative to the value the last time it changed.
+     *
+     * Note that this means that if the value changes by eight at once and the
+     * specified value is four, the input will only fire once.
+     *
+     * @param magnitude the nonnegative and finite number that acts as the
+     * threshold for whether or not the event should fire.
+     * @return the EventInput to fire.
+     */
+    public default EventInput onChangeBy(float magnitude) throws IllegalArgumentException {
+        if (!Float.isFinite(magnitude) || magnitude < 0) {
+            throw new IllegalArgumentException("delta must be nonnegative and finite, but was: " + magnitude);
         }
+        final float deltaAbs = Math.abs(magnitude);
         return new DerivedEventInput(this) {
             float last = get();
 
             protected boolean shouldProduce() {
                 float value = get();
-                if (Math.abs(last - value) > delta) {
+                if (Math.abs(last - value) > deltaAbs) {
                     last = value;
                     return true;
                 }
@@ -249,14 +266,14 @@ public interface FloatInput extends UpdatingInput {
 
     public default FloatInput normalize(final float zero, float one) throws IllegalArgumentException {
         if (!Float.isFinite(zero) || !Float.isFinite(one)) {
-            throw new IllegalArgumentException("Infinite or NaN bound to normalizeFloat!");
+            throw new IllegalArgumentException("Infinite or NaN bound to normalize: " + zero + ", " + one);
         }
         if (zero == one) {
-            throw new IllegalArgumentException("Equal zero and one bounds to normalizeFloat!");
+            throw new IllegalArgumentException("Equal zero and one bounds to normalize: " + zero);
         }
         final float range = one - zero;
         if (!Float.isFinite(range)) {
-            throw new IllegalArgumentException("normalizeFloat range is large enough to provide invalid results");
+            throw new IllegalArgumentException("normalize range is large enough to provide invalid results: " + zero + ", " + one);
         }
         FloatInput original = this;
         return new DerivedFloatInput(original) {
@@ -267,7 +284,10 @@ public interface FloatInput extends UpdatingInput {
     }
 
     public default FloatInput normalize(final float zero, final FloatInput one) {
-        Utils.checkNull(zero, one);
+        Utils.checkNull(one);
+        if (!Float.isFinite(zero)) {
+            throw new IllegalArgumentException("Infinite or NaN zero bound to normalize: " + zero);
+        }
         FloatInput original = this;
         return new DerivedFloatInput(original, one) {
             protected float apply() {
@@ -281,7 +301,10 @@ public interface FloatInput extends UpdatingInput {
     }
 
     public default FloatInput normalize(final FloatInput zero, final float one) {
-        Utils.checkNull(zero, one);
+        Utils.checkNull(zero);
+        if (!Float.isFinite(one)) {
+            throw new IllegalArgumentException("Infinite or NaN one bound to normalize: " + one);
+        }
         FloatInput original = this;
         return new DerivedFloatInput(original, zero) {
             protected float apply() {
@@ -317,6 +340,9 @@ public interface FloatInput extends UpdatingInput {
 
     public default EventOutput createRampingEvent(final float limit, final FloatOutput target) {
         Utils.checkNull(target);
+        if (Float.isNaN(limit)) {
+            throw new IllegalArgumentException("Ramping rate cannot be NaN!");
+        }
         return new EventOutput() {
             private float last = get();
 
@@ -329,7 +355,8 @@ public interface FloatInput extends UpdatingInput {
 
     public default FloatInput derivative() {
         final FloatStatus out = new FloatStatus();
-        send(out.viaDerivative());
+        FloatOutput deriv = out.viaDerivative();
+        onUpdate(() -> deriv.set(get()));
         return out;
     }
 
@@ -362,4 +389,5 @@ public interface FloatInput extends UpdatingInput {
             }
         };
     }
+    // TODO: integrate!
 }

@@ -28,7 +28,7 @@ package ccre.channel;
  *
  * @author skeggsc
  */
-public abstract class FloatOperation {
+public abstract class FloatOperation { // TODO: NEEDS TEST
 
     /**
      * An operation representing summation, aka addition.

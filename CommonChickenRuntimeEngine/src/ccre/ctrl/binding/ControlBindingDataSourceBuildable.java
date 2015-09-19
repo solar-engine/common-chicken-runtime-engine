@@ -18,13 +18,11 @@
  */
 package ccre.ctrl.binding;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 
 import ccre.channel.BooleanInput;
 import ccre.channel.FloatInput;
 import ccre.ctrl.IJoystick;
-import ccre.util.Utils;
 
 /**
  * A ControlBindingDataSourceBuildable is an easy way to define a

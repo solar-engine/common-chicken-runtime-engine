@@ -19,8 +19,6 @@
 package ccre.testing;
 
 import ccre.channel.BooleanOutput;
-import ccre.channel.BooleanStatus;
-import ccre.channel.FloatInput;
 import ccre.channel.FloatStatus;
 
 /**
@@ -37,37 +35,14 @@ public class TestMixing extends BaseTest {
 
     @Override
     protected void runTest() throws TestingException, InterruptedException {
-        testSelectFloat();
         testSelectBool(false);
         testSelectBool(true);
     }
 
-    private void testSelectFloat() throws TestingException {
-        FloatStatus offStat = new FloatStatus(1), onStat = new FloatStatus(2);
-        BooleanStatus vbool = new BooleanStatus();
-        FloatInput fin1 = vbool.toFloat(offStat, onStat);
-        for (float off : TestFloatMixing.interestingFloats) {
-            for (float on : TestFloatMixing.interestingFloats) {
-                offStat.set(off);
-                onStat.set(on);
-                FloatInput fin2 = vbool.toFloat(off, on);
-                // make sure that changes to the parameters propagate
-                //vbool.set(false);
-                //vbool.set(true);
-                for (boolean value : TestBooleanMixing.interestingBooleans) {
-                    vbool.set(value);
-                    float expected = value ? on : off;
-                    assertObjectEqual(fin1.get(), expected, "bad float 1: " + value + " => " + off + ", " + on);
-                    assertObjectEqual(fin2.get(), expected, "bad float 5: " + value + " => " + off + ", " + on);
-                }
-            }
-        }
-    }
-
     private void testSelectBool(boolean default_) throws TestingException {
         FloatStatus offStat = new FloatStatus(), onStat = new FloatStatus();
-        TestFloatMixing.CountingFloatOutput cfo1 = new TestFloatMixing.CountingFloatOutput();
-        TestFloatMixing.CountingFloatOutput cfo2 = new TestFloatMixing.CountingFloatOutput();
+        CountingFloatOutput cfo1 = new CountingFloatOutput();
+        CountingFloatOutput cfo2 = new CountingFloatOutput();
         cfo1.valueExpected = 0;
         cfo1.ifExpected = true;
         BooleanOutput bout1 = cfo1.fromBoolean(offStat, onStat, default_);
@@ -79,7 +54,7 @@ public class TestMixing extends BaseTest {
                 cfo1.valueExpected = lastValueTo1 ? on : off;
                 cfo1.ifExpected = true;
                 offStat.set(off);
-                onStat.set(on); // should make no difference because the last value was FALSE
+                onStat.set(on);// should make no difference because the last value was FALSE
                 cfo1.check();
 
                 cfo2.valueExpected = default_ ? on : off;
@@ -87,11 +62,11 @@ public class TestMixing extends BaseTest {
                 BooleanOutput bout2 = cfo2.fromBoolean(off, on, default_);
                 cfo2.check();
                 boolean last = default_;
-                for (boolean value : TestBooleanMixing.interestingBooleans) {
+                for (boolean value : new boolean[] { false, true, true, false, false, true, false, true, false, true, true, true, false, true, false, false, false, true }) {
                     float newlyExpected = cfo2.valueExpected = value ? on : off;
                     boolean repeat = newlyExpected == cfo1.valueExpected;
                     cfo1.valueExpected = newlyExpected;
-                    cfo1.ifExpected = (value != lastValueTo1 && !repeat); // TODO: is this test too specific?
+                    cfo1.ifExpected = (value != lastValueTo1 && !repeat);// TODO: is this test too specific?
                     bout1.set(value);
                     lastValueTo1 = value;
                     cfo1.check();

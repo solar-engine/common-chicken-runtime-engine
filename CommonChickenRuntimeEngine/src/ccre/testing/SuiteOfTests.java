@@ -39,8 +39,6 @@ public class SuiteOfTests {
     public static void main(String[] args) throws InterruptedException {
         BaseTest[] tests = new BaseTest[] {
 
-                new TestMixing(),
-
                 new TestFloatMixing()
         };
         boolean failFast = args.length > 0 && args[0].equals("--failfast");

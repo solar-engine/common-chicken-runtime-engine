@@ -193,12 +193,12 @@ public class PIDControllerTest {
 
     @Test
     public void testSetMaximumTimeDeltaFloat() {
-        pid = new PIDController(input, setpoint, FloatInput.always(0), I, FloatInput.always(0));
+        pid = new PIDController(input, setpoint, FloatInput.zero, I, FloatInput.zero);
         pid.setMaximumTimeDelta(0.1f);
         setpoint.set(1);
         pid.update(650);
         float shortValue = pid.get();
-        pid = new PIDController(input, setpoint, FloatInput.always(0), I, FloatInput.always(0));
+        pid = new PIDController(input, setpoint, FloatInput.zero, I, FloatInput.zero);
         pid.setMaximumTimeDelta(0.6f);
         setpoint.set(1);
         pid.update(650);
@@ -209,7 +209,7 @@ public class PIDControllerTest {
     @Test
     public void testSetMaximumTimeDeltaFloatInput() {
         FloatStatus max = new FloatStatus(0.1f);
-        pid = new PIDController(input, setpoint, FloatInput.always(0), I, FloatInput.always(0));
+        pid = new PIDController(input, setpoint, FloatInput.zero, I, FloatInput.zero);
         pid.setMaximumTimeDelta(max);
         setpoint.set(1);
         pid.update(650);
@@ -279,15 +279,15 @@ public class PIDControllerTest {
         pid.update(1000);
         float total = pid.get();
 
-        pid = new PIDController(input, setpoint, P, FloatInput.always(0), FloatInput.always(0));
+        pid = new PIDController(input, setpoint, P, FloatInput.zero, FloatInput.zero);
         pid.update(1000);
         float p = pid.get();
 
-        pid = new PIDController(input, setpoint, FloatInput.always(0), I, FloatInput.always(0));
+        pid = new PIDController(input, setpoint, FloatInput.zero, I, FloatInput.zero);
         pid.update(1000);
         float i = pid.get();
 
-        pid = new PIDController(input, setpoint, FloatInput.always(0), FloatInput.always(0), D);
+        pid = new PIDController(input, setpoint, FloatInput.zero, FloatInput.zero, D);
         pid.update(1000);
         float d = pid.get();
 
@@ -296,7 +296,7 @@ public class PIDControllerTest {
 
     @Test
     public void testProportional() throws Throwable {
-        pid = new PIDController(input, setpoint, P, FloatInput.always(0), FloatInput.always(0));
+        pid = new PIDController(input, setpoint, P, FloatInput.zero, FloatInput.zero);
         input.set(1);
         setpoint.set(3.2f);
         pid.update(100);
@@ -305,7 +305,7 @@ public class PIDControllerTest {
 
     @Test
     public void testIntegral() throws Throwable {
-        pid = new PIDController(input, setpoint, FloatInput.always(0), I, FloatInput.always(0));
+        pid = new PIDController(input, setpoint, FloatInput.zero, I, FloatInput.zero);
         input.set(1);
         setpoint.set(3.2f);
         float base_integral = 1.773f;
@@ -318,7 +318,7 @@ public class PIDControllerTest {
     @Test
     public void testDerivative() throws Throwable {
         setpoint.set(1);
-        pid = new PIDController(input, setpoint, FloatInput.always(0), FloatInput.always(0), D);
+        pid = new PIDController(input, setpoint, FloatInput.zero, FloatInput.zero, D);
         pid.update(100);
         assertTrue(pid.getPreviousError() == 1);
         setpoint.set(3.2f);

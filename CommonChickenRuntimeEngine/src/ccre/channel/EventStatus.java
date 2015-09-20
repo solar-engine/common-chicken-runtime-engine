@@ -142,7 +142,7 @@ public class EventStatus implements EventInput, EventOutput, Serializable {
      * Clear all listeners on this EventStatus. Only do this if you have a very
      * good reason!
      */
-    public void clearListeners() {
+    public void __UNSAFE_clearListeners() {
         consumers.clear();
     }
 

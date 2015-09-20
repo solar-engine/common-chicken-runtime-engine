@@ -503,8 +503,8 @@ public class StateMachineTest {
                 }
 
                 // this is hacky, but it works!
-                ((EventStatus) machine.getStateEnterEvent()).clearListeners();
-                ((EventStatus) machine.getStateExitEvent()).clearListeners();
+                ((EventStatus) machine.getStateEnterEvent()).__UNSAFE_clearListeners();
+                ((EventStatus) machine.getStateExitEvent()).__UNSAFE_clearListeners();
                 // the point is that otherwise, the CountingEventOutputs will start being annoyed next cycle around
 
                 final int ftarget = target;
@@ -568,8 +568,8 @@ public class StateMachineTest {
                 }
 
                 // this is hacky, but it works!
-                ((EventStatus) machine.getStateEnterEvent()).clearListeners();
-                ((EventStatus) machine.getStateExitEvent()).clearListeners();
+                ((EventStatus) machine.getStateEnterEvent()).__UNSAFE_clearListeners();
+                ((EventStatus) machine.getStateExitEvent()).__UNSAFE_clearListeners();
                 // the point is that otherwise, the CountingEventOutputs will start being annoyed next cycle around
 
                 final int ftarget = target;

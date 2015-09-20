@@ -92,6 +92,16 @@ public class FloatInputTest {
         }
     }
 
+    @Test
+    public void testZero() {
+        FloatInput always = FloatInput.zero;
+        assertEquals(0, always.get(), 0);
+        cfo.ifExpected = true;
+        cfo.valueExpected = 0;
+        always.send(cfo);
+        cfo.check();
+    }
+
     private boolean gotProperly;
     private float result;
 
@@ -547,7 +557,7 @@ public class FloatInputTest {
     @Test
     public void testOnChangeBy() {
         for (float d : Values.lessInterestingFloats) {
-            if (Float.isNaN(d)) {
+            if (Float.isNaN(d) || d < 0) {
                 continue;
             }
             FloatStatus fs = new FloatStatus();
@@ -581,6 +591,11 @@ public class FloatInputTest {
     }
 
     @Test(expected = IllegalArgumentException.class)
+    public void testOnChangeByNegative() {
+        fs.onChangeBy(-1);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
     public void testOnChangeByPInf() {
         fs.onChangeBy(Float.POSITIVE_INFINITY);
     }
@@ -593,7 +608,7 @@ public class FloatInputTest {
     @Test
     public void testDeadzone() {
         for (float zone : Values.lessInterestingFloats) {
-            if (Float.isNaN(zone)) {
+            if (!Float.isFinite(zone) || zone < 0) {
                 continue;
             }
             FloatInput fin = fs.deadzone(zone);
@@ -614,6 +629,16 @@ public class FloatInputTest {
     @Test(expected = IllegalArgumentException.class)
     public void testDeadzoneNaN() {
         fs.deadzone(Float.NaN);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testDeadzoneNegative() {
+        fs.deadzone(-1);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testDeadzoneInfinite() {
+        fs.deadzone(Float.POSITIVE_INFINITY);
     }
 
     @Test
@@ -844,7 +869,6 @@ public class FloatInputTest {
                 fake.forward(timeDelta);
                 j += delta;
                 fs.set(j);
-                System.out.println("For: " + i + "," + j + "," + delta + "," + timeDelta);
                 assertEquals(1000 * delta / timeDelta, fi.get(), 0.00001f * (1000 * delta / timeDelta));
             }
             fake.forward(1000);

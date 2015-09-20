@@ -46,6 +46,10 @@ public class CountingFloatOutput implements FloatOutput {
      * Whether or not we're still expected a value to be received.
      */
     public boolean ifExpected;
+    /**
+     * The maximum delta between the gotten value and the expected value.
+     */
+    public float maxDelta = 0;
 
     private final boolean allowExtras;
 
@@ -62,8 +66,14 @@ public class CountingFloatOutput implements FloatOutput {
             throw new RuntimeException("Unexpected set!");
         }
         ifExpected = false;
-        if (value != valueExpected && !(Float.isNaN(value) && Float.isNaN(valueExpected))) {
-            throw new RuntimeException("Incorrect set!");
+        boolean correct = false;
+        if (Float.isNaN(valueExpected)) {
+            correct = Float.isNaN(value);
+        } else if (!Float.isNaN(value)) {
+            correct = value == valueExpected || Math.abs(value - valueExpected) <= maxDelta;
+        }
+        if (!correct) {
+            throw new RuntimeException("Incorrect set: " + value + " instead of " + valueExpected);
         }
     }
 

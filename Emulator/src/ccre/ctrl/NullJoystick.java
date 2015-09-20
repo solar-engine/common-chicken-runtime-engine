@@ -35,7 +35,7 @@ public class NullJoystick implements IJoystick {
 
     @Override
     public FloatInput axis(int axis) {
-        return FloatInput.always(0);
+        return FloatInput.zero;
     }
 
     @Override

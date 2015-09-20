@@ -1,4 +1,5 @@
 /CommonChickenRuntimeEngine/bin/
+/CommonChickenRuntimeEngine/build/
 /CommonChickenRuntimeEngine/cobertura-instrumented/
 /CommonChickenRuntimeEngine/coverage/
 /CommonChickenRuntimeEngine/CCRE.jar
@@ -28,3 +29,10 @@
 /Javadoc
 /javadoc.tgz
 /CCRE_Igneous_cRIO/bin
+/DeploymentEngine/DepEngine.jar
+/docsrc/*.css
+/docsrc/*.html
+/docsrc/*.js
+/docsrc/*.tgz
+/docsrc/ccre-docs-*
+/docsrc/*~

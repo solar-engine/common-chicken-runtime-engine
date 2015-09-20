@@ -65,6 +65,11 @@ public class BooleanOutputTest {
     }
 
     @Test
+    public void testInvertInvert() {
+        assertEquals(cbo, cbo.invert().invert());
+    }
+
+    @Test
     public void testCombine() {
         BooleanOutput bo = cbo.combine(cbo2);
         for (boolean b : Values.interestingBooleans) {
@@ -87,7 +92,8 @@ public class BooleanOutputTest {
         BooleanOutput ob = cbo.limitUpdatesTo(es);
 
         es.event();
-        cbo.check();// nothing should have gone through yet, since no value has been sent yet!
+        cbo.check();// nothing should have gone through yet, since no value has
+                    // been sent yet!
 
         Random rand = new Random();
         for (int i = 0; i < 1000; i++) {

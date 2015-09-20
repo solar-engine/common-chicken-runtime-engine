@@ -153,7 +153,7 @@ public class DepRoboRIO {
     }
 
     public static DepRoboRIO discover(int team_number) throws UnknownHostException {
-        DepRoboRIO rio = byNameOrIP("roboRIO-1540.local");
+        DepRoboRIO rio = byNameOrIP("roboRIO-" + team_number + ".local");
         if (rio == null) {
             rio = byNameOrIP("172.22.11.2");
         }
@@ -161,7 +161,7 @@ public class DepRoboRIO {
             rio = byNameOrIP("10." + (team_number / 100) + "." + (team_number % 100) + ".2");
         }
         if (rio == null) {
-            throw new UnknownHostException("Cannot reach roboRIO over mDNS, ethernet-over-USB, or via static 10.15.40.2 address.");
+            throw new UnknownHostException("Cannot reach roboRIO over mDNS, ethernet-over-USB, or via static 10." + (team_number / 100) + "." + (team_number % 100) + ".2 address.");
         }
         return rio;
     }

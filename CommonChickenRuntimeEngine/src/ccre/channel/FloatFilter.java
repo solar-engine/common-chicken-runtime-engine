@@ -90,7 +90,7 @@ public abstract class FloatFilter {
      * @see ccre.util.Utils#deadzone(float, float)
      */
     public static FloatFilter deadzone(final float deadzone) {
-        if (!Float.isFinite(deadzone) || deadzone <= 0) {
+        if (!Float.isFinite(deadzone) || deadzone < 0) {
             throw new IllegalArgumentException("deadzones cannot be NaN, infinite, or less than or equal to zero!");
         }
         return new FloatFilter() {

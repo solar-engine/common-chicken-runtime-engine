@@ -69,7 +69,8 @@ public class FloatFilterTest {
         fin.send(cfo);
         cfo.check();
         for (float f : Values.interestingFloats) {
-            if (f == 0) { // avoids artificial problem with negative epsilon followed by zero... they both add with one to one!
+            if (f == 0) { // avoids artificial problem with negative epsilon
+                          // followed by zero... they both add with one to one!
                 cfo.valueExpected = 2;
                 cfo.ifExpected = true;
                 fs.set(1);
@@ -103,7 +104,7 @@ public class FloatFilterTest {
     @Test
     public void testDeadzone() {
         for (float zone : Values.interestingFloats) {
-            if (Float.isNaN(zone)) {
+            if (!Float.isFinite(zone) || zone < 0) {
                 continue;
             }
             FloatFilter filter = FloatFilter.deadzone(zone);
@@ -116,10 +117,20 @@ public class FloatFilterTest {
             }
         }
     }
-    
+
     @Test(expected = IllegalArgumentException.class)
     public void testDeadzoneNaN() {
         FloatFilter.deadzone(Float.NaN);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testDeadzoneNegative() {
+        FloatFilter.deadzone(-1);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testDeadzoneInfinite() {
+        FloatFilter.deadzone(Float.POSITIVE_INFINITY);
     }
 
     @Test

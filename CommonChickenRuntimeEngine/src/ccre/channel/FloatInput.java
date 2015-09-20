@@ -55,6 +55,15 @@ public interface FloatInput extends UpdatingInput {
         };
     }
 
+    /**
+     * A FloatInput that is always zero.
+     *
+     * Equivalent to <code>FloatInput.always(0)</code>.
+     *
+     * @see #always(float)
+     */
+    public static final FloatInput zero = always(0);
+
     public float get();
 
     /**
@@ -264,67 +273,70 @@ public interface FloatInput extends UpdatingInput {
         return FloatFilter.deadzone(deadzone).wrap(this);
     }
 
-    public default FloatInput normalize(final float zero, float one) throws IllegalArgumentException {
-        if (!Float.isFinite(zero) || !Float.isFinite(one)) {
-            throw new IllegalArgumentException("Infinite or NaN bound to normalize: " + zero + ", " + one);
+    public default FloatInput normalize(float zeroV, float oneV) throws IllegalArgumentException {
+        if (!Float.isFinite(zeroV) || !Float.isFinite(oneV)) {
+            throw new IllegalArgumentException("Infinite or NaN bound to normalize: " + zeroV + ", " + oneV);
         }
-        if (zero == one) {
-            throw new IllegalArgumentException("Equal zero and one bounds to normalize: " + zero);
+        if (zeroV == oneV) {
+            throw new IllegalArgumentException("Equal zero and one bounds to normalize: " + zeroV);
         }
-        final float range = one - zero;
+        final float range = oneV - zeroV;
         if (!Float.isFinite(range)) {
-            throw new IllegalArgumentException("normalize range is large enough to provide invalid results: " + zero + ", " + one);
+            throw new IllegalArgumentException("normalize range is large enough to provide invalid results: " + zeroV + ", " + oneV);
         }
         FloatInput original = this;
         return new DerivedFloatInput(original) {
             protected float apply() {
-                return (original.get() - zero) / range;
+                return (original.get() - zeroV) / range;
             }
         };
     }
 
-    public default FloatInput normalize(final float zero, final FloatInput one) {
-        Utils.checkNull(one);
-        if (!Float.isFinite(zero)) {
-            throw new IllegalArgumentException("Infinite or NaN zero bound to normalize: " + zero);
+    public default FloatInput normalize(final float zeroV, final FloatInput oneV) {
+        Utils.checkNull(oneV);
+        if (!Float.isFinite(zeroV)) {
+            throw new IllegalArgumentException("Infinite or NaN zero bound to normalize: " + zeroV);
         }
         FloatInput original = this;
-        return new DerivedFloatInput(original, one) {
+        return new DerivedFloatInput(original, oneV) {
             protected float apply() {
-                float deltaN = one.get() - zero;
+                float deltaN = oneV.get() - zeroV;
                 if (deltaN == 0) {
-                    return Float.NaN;// as opposed to either infinity or negative infinity
+                    return Float.NaN;// as opposed to either infinity or
+                                     // negative infinity
                 }
-                return (original.get() - zero) / deltaN;
+                return (original.get() - zeroV) / deltaN;
             }
         };
     }
 
-    public default FloatInput normalize(final FloatInput zero, final float one) {
-        Utils.checkNull(zero);
-        if (!Float.isFinite(one)) {
-            throw new IllegalArgumentException("Infinite or NaN one bound to normalize: " + one);
+    public default FloatInput normalize(final FloatInput zeroV, final float oneV) {
+        Utils.checkNull(zeroV);
+        if (!Float.isFinite(oneV)) {
+            throw new IllegalArgumentException("Infinite or NaN one bound to normalize: " + oneV);
         }
         FloatInput original = this;
-        return new DerivedFloatInput(original, zero) {
+        return new DerivedFloatInput(original, zeroV) {
             protected float apply() {
-                float zeroN = zero.get(), deltaN = one - zeroN;
+                float zeroN = zeroV.get(), deltaN = oneV - zeroN;
                 if (deltaN == 0) {
-                    return Float.NaN;// as opposed to either infinity or negative infinity
+                    return Float.NaN;// as opposed to either infinity or
+                                     // negative infinity
                 }
                 return (original.get() - zeroN) / deltaN;
             }
         };
     }
 
-    public default FloatInput normalize(final FloatInput zero, final FloatInput one) {
-        Utils.checkNull(zero, one);
+    public default FloatInput normalize(final FloatInput zeroV, final FloatInput oneV) {
+        Utils.checkNull(zeroV, oneV);
         FloatInput original = this;
-        return new DerivedFloatInput(original, zero, one) {
+        return new DerivedFloatInput(original, zeroV, oneV) {
             protected float apply() {
-                float zeroN = zero.get(), deltaN = one.get() - zeroN;
+                float zeroN = zeroV.get(), deltaN = oneV.get() - zeroN;
                 if (deltaN == 0) {
-                    return Float.NaN;// as opposed to either infinity or negative infinity
+                    return Float.NaN;// as opposed to either infinity or
+                                     // negative infinity
                 }
                 return (original.get() - zeroN) / deltaN;
             }

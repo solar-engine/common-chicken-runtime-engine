@@ -214,7 +214,7 @@ public class EventStatusTest {
                 cs[i].check();
             }
         }
-        status.clearListeners();
+        status.__UNSAFE_clearListeners();
         for (int r = 0; r < 5; r++) {
             status.event();
             for (int i = 0; i < cs.length; i++) {

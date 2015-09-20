@@ -35,13 +35,13 @@ public class DispatchEntry {
                 e = ((InvocationTargetException) e).getCause();
             }
             trimStackTrace(e);
+            System.err.println("[some irrelevant stack elements may have been trimmed]");
+            e.printStackTrace();
             if (e.getMessage() != null) {
                 System.err.println(" \n===> " + e.getMessage() + "\n ");
             } else {
                 System.err.println(" \n===> " + e.getClass().getName() + "\n ");
             }
-            System.err.println("[some irrelevant stack elements may have been trimmed]");
-            e.printStackTrace();
             System.exit(1);
         }
     }

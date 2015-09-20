@@ -20,8 +20,6 @@ package ccre.util;
 
 import java.util.Random;
 
-import ccre.testing.TestFloatMixing;
-
 public class Values {
     private static final Random random = new Random();
 

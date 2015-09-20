@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2014 Colby Skeggs
+ * Copyright 2013-2015 Colby Skeggs
  *
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  *
@@ -51,59 +51,14 @@ public interface FloatOutput {
      */
     public void set(float value);
 
-    public default FloatOutput outputPlus(FloatInput other) {
-        return FloatOperation.addition.of(this, other);
-    }
-
-    public default FloatOutput outputMinus(FloatInput other) {
-        return FloatOperation.subtraction.of(this, other);
-    }
-
-    public default FloatOutput outputMinusRev(FloatInput other) {
-        return FloatOperation.subtraction.of(other, this);
-    }
-
-    public default FloatOutput outputMultipliedBy(FloatInput other) {
-        return FloatOperation.multiplication.of(this, other);
-    }
-
-    public default FloatOutput outputDividedBy(FloatInput other) {
-        return FloatOperation.division.of(this, other);
-    }
-
-    public default FloatOutput outputDividedByRev(FloatInput other) {
-        return FloatOperation.division.of(other, this);
-    }
-
-    public default FloatOutput outputPlus(float other) {
-        return FloatOperation.addition.of(this, other);
-    }
-
-    public default FloatOutput outputMinus(float other) {
-        return FloatOperation.subtraction.of(this, other);
-    }
-
-    public default FloatOutput outputMinusRev(float other) {
-        return FloatOperation.subtraction.of(other, this);
-    }
-
-    public default FloatOutput outputMultipliedBy(float other) {
-        return FloatOperation.multiplication.of(this, other);
-    }
-
-    public default FloatOutput outputDividedBy(float other) {
-        return FloatOperation.division.of(this, other);
-    }
-
-    public default FloatOutput outputDividedByRev(float other) {
-        return FloatOperation.division.of(other, this);
-    }
-
     public default EventOutput getSetEvent(final float value) {
         return () -> set(value);
     }
 
     public default EventOutput getSetEvent(final FloatInput value) {
+        if (value == null) {
+            throw new NullPointerException();
+        }
         return () -> set(value.get());
     }
 
@@ -113,11 +68,14 @@ public interface FloatOutput {
     }
 
     public default void setWhen(FloatInput value, EventInput when) {
-        Utils.checkNull(when);
+        Utils.checkNull(when, value);
         when.send(getSetEvent(value));
     }
 
     public default FloatOutput combine(FloatOutput other) {
+        if (other == null) {
+            throw new NullPointerException();
+        }
         FloatOutput original = this;
         return new FloatOutput() {
             @Override
@@ -187,51 +145,46 @@ public interface FloatOutput {
     }
 
     public default BooleanOutput fromBoolean(final float off, final float on) {
-        return fromBoolean(off, on, false);
+        return fromBoolean(FloatInput.always(off), FloatInput.always(on));
     }
 
     public default BooleanOutput fromBoolean(float off, FloatInput on) {
-        return fromBoolean(off, on, false);
+        return fromBoolean(FloatInput.always(off), on);
     }
 
     public default BooleanOutput fromBoolean(FloatInput off, float on) {
-        return fromBoolean(off, on, false);
+        return fromBoolean(off, FloatInput.always(on));
     }
 
     public default BooleanOutput fromBoolean(FloatInput off, FloatInput on) {
-        return fromBoolean(off, on, false);
-    }
-
-    public default BooleanOutput fromBoolean(final float off, final float on, boolean default_) {
-        set(default_ ? on : off);
         return new BooleanOutput() {
-            private boolean lastValue = default_;
+            private boolean lastValue, anyValue = false;
+
+            {
+                off.onUpdate(() -> {
+                    if (anyValue && !lastValue) {
+                        update();
+                    }
+                });
+                on.onUpdate(() -> {
+                    if (anyValue && lastValue) {
+                        update();
+                    }
+                });
+            }
 
             @Override
             public synchronized void set(boolean value) {
-                if (value != lastValue) {
+                if (value != lastValue || !anyValue) {
                     lastValue = value;
-                    FloatOutput.this.set(value ? on : off);
+                    anyValue = true;
+                    update();
                 }
             }
+
+            private void update() {
+                FloatOutput.this.set(lastValue ? on.get() : off.get());
+            }
         };
-    }
-
-    public default BooleanOutput fromBoolean(float off, FloatInput on, boolean default_) {
-        BooleanStatus temp = new BooleanStatus(default_);
-        temp.toFloat(off, on).send(this);
-        return temp;
-    }
-
-    public default BooleanOutput fromBoolean(FloatInput off, float on, boolean default_) {
-        BooleanStatus temp = new BooleanStatus(default_);
-        temp.toFloat(off, on).send(this);
-        return temp;
-    }
-
-    public default BooleanOutput fromBoolean(FloatInput off, FloatInput on, boolean default_) {
-        BooleanStatus temp = new BooleanStatus(default_);
-        temp.toFloat(off, on).send(this);
-        return temp;
     }
 }

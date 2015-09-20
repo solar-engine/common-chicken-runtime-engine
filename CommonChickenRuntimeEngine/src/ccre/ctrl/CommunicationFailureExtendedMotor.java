@@ -76,7 +76,7 @@ public class CommunicationFailureExtendedMotor extends ExtendedMotor implements 
     @Override
     public FloatInput asStatus(StatusType type, EventInput updateOn) {
         Logger.severe("Could not access status of Extended Motor: " + message);
-        return FloatInput.always(0);
+        return FloatInput.zero;
     }
 
     @Override

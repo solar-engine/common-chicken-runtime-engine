@@ -77,7 +77,7 @@ public final class Ticker implements EventInput {
      */
     public void terminate() {
         isKilled = true;
-        producer.clearListeners();
+        producer.__UNSAFE_clearListeners();
         synchronized (lock) {
             lock.notifyAll();
         }

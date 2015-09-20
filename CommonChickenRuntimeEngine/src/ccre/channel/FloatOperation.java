@@ -28,7 +28,7 @@ package ccre.channel;
  *
  * @author skeggsc
  */
-public abstract class FloatOperation { // TODO: NEEDS TEST
+public abstract class FloatOperation {
 
     /**
      * An operation representing summation, aka addition.
@@ -141,11 +141,10 @@ public abstract class FloatOperation { // TODO: NEEDS TEST
      * @return a channel representing the first operand to the operation.
      */
     public FloatOutput of(final FloatOutput out, final float b) {
-        return new FloatOutput() {
-            public void set(float value) {
-                out.set(of(value, b));
-            }
-        };
+        if (out == null) {
+            throw new NullPointerException();
+        }
+        return value -> out.set(of(value, b));
     }
 
     /**
@@ -157,6 +156,9 @@ public abstract class FloatOperation { // TODO: NEEDS TEST
      * @return a channel representing the first operand to the operation.
      */
     public FloatOutput of(final FloatOutput out, final FloatInput b) {
+        if (out == null || b == null) {
+            throw new NullPointerException();
+        }
         return new FloatOutput() {
             private boolean anyValue;
             private float lastValue;
@@ -186,11 +188,10 @@ public abstract class FloatOperation { // TODO: NEEDS TEST
      * @return a channel representing the second operand to the operation.
      */
     public FloatOutput of(final float a, final FloatOutput out) {
-        return new FloatOutput() {
-            public void set(float value) {
-                out.set(of(a, value));
-            }
-        };
+        if (out == null) {
+            throw new NullPointerException();
+        }
+        return value -> out.set(of(a, value));
     }
 
     /**
@@ -202,6 +203,9 @@ public abstract class FloatOperation { // TODO: NEEDS TEST
      * @return a channel representing the second operand to the operation.
      */
     public FloatOutput of(final FloatInput a, final FloatOutput out) {
+        if (a == null || out == null) {
+            throw new NullPointerException();
+        }
         return new FloatOutput() {
             private boolean anyValue;
             private float lastValue;

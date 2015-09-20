@@ -74,6 +74,11 @@ public class FloatOutputTest {
     }
 
     @Test
+    public void testIgnored() {
+        FloatOutput.ignored.set(0);
+    }
+
+    @Test
     public void testGetSetEventFloat() {
         for (float f : Values.interestingFloats) {
             EventOutput setE = cfo1.getSetEvent(f);
@@ -280,6 +285,7 @@ public class FloatOutputTest {
                     cfo1.valueExpected = f;
                     fo.set(f);
                     cfo1.check();
+                    j++;
                 }
             }
         }

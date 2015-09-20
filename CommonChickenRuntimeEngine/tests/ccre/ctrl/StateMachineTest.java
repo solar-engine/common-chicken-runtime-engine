@@ -33,7 +33,6 @@ import ccre.channel.EventOutput;
 import ccre.channel.EventStatus;
 import ccre.channel.FloatStatus;
 import ccre.testing.CountingEventOutput;
-import ccre.testing.TestingException;
 
 public class StateMachineTest {
 
@@ -647,7 +646,7 @@ public class StateMachineTest {
     // And now some higher-level tests
 
     @Test
-    public void testDoor() throws TestingException {
+    public void testDoor() {
         // Setup door
         StateMachine door = new StateMachine(0, "CLOSED", "OPEN", "EXPLODED");
 
@@ -710,7 +709,7 @@ public class StateMachineTest {
     }
 
     @Test
-    public void testTurnstile() throws TestingException {
+    public void testTurnstile() {
         // Setup turnstile
         StateMachine turnstile = new StateMachine("LOCKED", "LOCKED", "UNLOCKED");
 
@@ -806,7 +805,7 @@ public class StateMachineTest {
     }
 
     @Test
-    public void testGandalf() throws TestingException {
+    public void testGandalf() {
         StateMachine gandalf = new StateMachine(0, "ALIVE", "MIA", "DEAD");
 
         BooleanStatus died = new BooleanStatus();

@@ -754,6 +754,11 @@ public class FloatInputTest {
         fs.normalize(fs, Float.NEGATIVE_INFINITY);
     }
 
+    @Test(expected = IllegalArgumentException.class)
+    public void testNormalizeHugeRange() {
+        fs.normalize(-Float.MAX_VALUE, Float.MAX_VALUE);
+    }
+
     @Test
     public void testFilterUpdates() {
         for (boolean not : new boolean[] { false, true }) {

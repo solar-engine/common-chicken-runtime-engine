@@ -33,4 +33,6 @@
 /docsrc/*.css
 /docsrc/*.html
 /docsrc/*.js
+/docsrc/*.tgz
+/docsrc/ccre-docs-*
 /docsrc/*~

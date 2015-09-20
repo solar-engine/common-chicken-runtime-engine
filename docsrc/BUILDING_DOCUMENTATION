@@ -1,3 +1,0 @@
-The documentation is currently written with Racket's scribble system.
-
-Run 'scribble intro.rkt' to compile the documentation.

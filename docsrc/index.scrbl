@@ -124,8 +124,6 @@ Of course, that's not particularly interesting, so let's move on to actual motor
 
 Let's set up a Talon speed controller and control it with the Y axis of a Joystick.
 
-@margin-note{This code snippet assumes that you have a Talon speed controller on PWM port 0, which might not be correct for your actual robot. Ignore @code{FRC.MOTOR_FORWARD} for now.}
-
 @codeblock|{
   FloatOutput motor = FRC.makeTalonMotor(0, FRC.MOTOR_FORWARD);
   FloatInput yAxis = FRC.joystick1.axisY();

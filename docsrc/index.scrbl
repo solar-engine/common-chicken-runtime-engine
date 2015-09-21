@@ -231,7 +231,7 @@ However, this technique is really easy to get wrong. That example has the bug wh
 
 Yes, that can be fixed, but the code gets more complicated:
 
-@margin-note{Can you write helper code to make this easier? Yes, but it still gets messy.}
+@margin-note{This is hard to scale for multiple reasons, including an inability to have @italic{inline state}. For each button, you need a variable defined in a completely different location in the file (which becomes more significant with larger files) and you have to reference multiple places to figure out what your code does.}
 
 @vl-append[20
  (cell "define variable was_button_pressed")
@@ -241,8 +241,6 @@ Yes, that can be fixed, but the code gets more complicated:
  (indent (cell "blow up the world") 120)
  (indent (cell "set was_button_pressed to whether or not the button is currently pressed") 40)
  (indent (cell "sleep for 20 milliseconds") 40)]
-
-@margin-note{This is hard to scale for multiple reasons, including an inability to have @italic{inline state}. For each button, you need a variable defined in a completely different location in the file (which becomes more significant with larger files) and you have to reference multiple places to figure out what your code does.}
 
 With the number of things you have to think about in a practical system, this quickly becomes an ineffective strategy: you can do it, but you will probably have a hard time keeping it understandable.
 
@@ -293,6 +291,7 @@ With an Output, the users of the channel can send messages over the channel to t
 
 @itemlist[@item{@bold{EventOutput}: messages have no associated data.
            They simply represent the request that the implementor should cause a defined thing to happen.
+           We call this "firing" the EventOutput.
 
            @codeblock{start_driving_forward.event(); // start the robot driving forward}
           }
@@ -314,7 +313,7 @@ With an Output, the users of the channel can send messages over the channel to t
 With an Input, the users of the channel can request the present state of the channel from the implementation (if any), and ask the implementation to tell them when the value represented by the input changes.
 
 @itemlist[@item{@bold{EventInput}: there is no associated value.
-           Users to be notified when something happens.
+           Users to be notified when something happens - we call this the EventInput being either fired or produced.
 
            @codeblock|{
              // when the match starts, start the robot driving forward
@@ -387,10 +386,13 @@ So, correspondingly, all channels have a variety of built-in methods to help you
 
 The simplest example is probably @code{send}, which works for all three varieties of channels:
 
+This connects the input to the output, so that @code{y} is updated with the current value of @code{x} both immediately and whenever @code{x} changes.
+In the case of events, @code{send} causes the EventOutput to be fired whenever the EventInput is produced.
+
 @codeblock|{
-  *****Input x = /* ... */;
-  *****Output y = /* ... */;
-  x.send(y); // connect the input to the output, so that y is updated with the current value of x both right now and whenever it changes.
+  BooleanInput x = /* ... */; // this also works if you replace Boolean with Event or Float in both places.
+  BooleanOutput y = /* ... */;
+  x.send(y);
   }|
 
 Another simple example is @code{onPress}, which converts a BooleanInput into an EventInput (for when the BooleanInput changes to true):
@@ -408,6 +410,10 @@ Also useful is @code{setWhen} (along with @code{setFalseWhen} and @code{setTrueW
   }|
 
 See @secref["remixing"] for more info.
+
+@subsection{Status cells}
+
+In progress.
 
 @section{Review of advanced Java concepts}
 

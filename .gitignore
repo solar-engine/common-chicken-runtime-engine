@@ -34,5 +34,6 @@
 /docsrc/*.html
 /docsrc/*.js
 /docsrc/*.tgz
+/docsrc/pict*.png
 /docsrc/ccre-docs-*
 /docsrc/*~

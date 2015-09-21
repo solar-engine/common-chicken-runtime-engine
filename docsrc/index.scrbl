@@ -1,4 +1,5 @@
 #lang scribble/manual
+@require[pict]
 
 @title{The Common Chicken Runtime Engine v3.0.0-pre1}
 
@@ -180,13 +181,269 @@ Congratulations! You now know how to use the basics of the CCRE!
 
 @section{Introduction to Dataflow programming}
 
+When thinking about how a robot should react to stimuli, often the mental model that you generate is about the flow of data:
+
+@define-syntax-rule[(pict-wrap xes ...) (let () xes ...)]
+@define-syntax-rule[(defines (name ...) value ...)
+                    (define-values (name ...)
+                      (values value ...))]
+@define[(cell txt) (let ((gen-text (text txt)))
+                     (cc-superimpose (rectangle (+ (pict-width gen-text) 40) 40) gen-text))]
+@define[(harrows-i base pict-pairs) (if (null? (cdr pict-pairs)) base
+                                       (pin-arrow-line 10 (harrows-i base (cdr pict-pairs))
+                                                       (car pict-pairs) rc-find
+                                                       (cadr pict-pairs) lc-find
+                                                       #:line-width 2))]
+@define-syntax-rule[(harrows base (picts ...) ...) (let loop ((cur base) (rest (list (list picts ...) ...)))
+                                                     (if (null? rest)
+                                                         cur
+                                                         (loop (harrows-i cur (car rest)) (cdr rest))))]
+@define[(varrows-i base pict-pairs) (if (null? (cdr pict-pairs)) base
+                                        (pin-arrow-line 10 (varrows-i base (cdr pict-pairs))
+                                                        (car pict-pairs) cb-find
+                                                        (cadr pict-pairs) ct-find
+                                                        #:line-width 2))]
+@define-syntax-rule[(varrows base (picts ...) ...) (let loop ((cur base) (rest (list (list picts ...) ...)))
+                                                     (if (null? rest)
+                                                         cur
+                                                         (loop (varrows-i cur (car rest)) (cdr rest))))]
+@define[(indent x n) (hc-append (blank n 40) x)]
+
+@define[ccre-intro-model
+        (let ((pict-a (cell "When the red button is pressed"))
+              (pict-b (cell "and the key is turned"))
+              (pict-c (cell "blow up the world")))
+          (harrows (hc-append 75 pict-a pict-b pict-c)
+                   (pict-a pict-b pict-c)))]
+
+@ccre-intro-model
+
+With traditional methods, you might think to implement that control system like this:
+
+@vl-append[20
+ (cell "white true")
+ (indent (cell "if red button is pressed") 40)
+ (indent (cell "if key is turned") 80)
+ (indent (cell "blow up the world") 120)
+ (indent (cell "sleep for 20 milliseconds") 40)]
+
+However, this technique is really easy to get wrong. That example has the bug where if the red button is pressed for very long - more than 20 milliseconds, which isn't very long - then the program will blow up the world multiple times!
+
+Yes, that can be fixed, but the code gets more complicated:
+
+@margin-note{This is hard to scale for multiple reasons, including an inability to have @italic{inline state}. For each button, you need a variable defined in a completely different location in the file (which becomes more significant with larger files) and you have to reference multiple places to figure out what your code does.}
+
+@vl-append[20
+ (cell "define variable was_button_pressed")
+ (cell "white true")
+ (indent (cell "if red button is pressed AND not was_button_pressed") 40)
+ (indent (cell "if key is turned") 80)
+ (indent (cell "blow up the world") 120)
+ (indent (cell "set was_button_pressed to whether or not the button is currently pressed") 40)
+ (indent (cell "sleep for 20 milliseconds") 40)]
+
+With the number of things you have to think about in a practical system, this quickly becomes an ineffective strategy: you can do it, but you will probably have a hard time keeping it understandable.
+
+The CCRE solves this by aligning the code more closely with the original model. Recall what we had earlier:
+
+@ccre-intro-model
+
+The CCRE would express this as:
+
+@margin-note{This is slightly simplified, but not by much.}
+
+@let[((red (cell "red button"))
+              (is (cell "becomes pressed"))
+              (key (cell "key is turned"))
+              (and (cell "and"))
+              (blow (cell "blow up the world")))
+     (harrows (vl-append 40
+                         (hc-append 75 red is and blow)
+                         (indent key 206))
+              (red is and blow)
+              (key and))]
+
+Or, in practice:
+
+@codeblock|{
+            red_button.onPress().and(key_input).send(blow_up_world);
+      }|
+
+And that's the reason that we built the CCRE.
+
+@subsection{Channels}
+
+The CCRE is built around the concept of "channels."
+A channel has an implementation that handles one side of the channel,
+and any number of users that talk to the implementation over the channel.
+Neither side has to know much about the details of the other side.
+
+There are six kinds of channels, along two axes.
+
+@tabular[(list (list "" "Event" "Boolean" "Float")
+               (list "Input" (bold "EventInput") (bold "BooleanInput") (bold "FloatInput"))
+               (list "Output" (bold "EventOutput") (bold "BooleanOutput") (bold "FloatOutput")))
+         #:style 'boxed
+         #:column-properties '((left-border right-border) right-border right-border right-border)
+         #:row-properties '(bottom-border bottom-border bottom-border)]
+
+With an Output, the users of the channel can send messages over the channel to the implementation behind it.
+
+@itemlist[@item{@bold{EventOutput}: messages have no associated data.
+           They simply represent the request that the implementor should cause a defined thing to happen.
+           We call this "firing" the EventOutput.
+
+           @codeblock{start_driving_forward.event(); // start the robot driving forward}
+          }
+          @item{@bold{BooleanOutput}: messages have an associated value of true or false.
+           The message represents the request that the implementor change something to a state representable by a binary choice.
+
+           @codeblock{light_bulb.set(false); // turn off the light bulb}
+           @codeblock{light_bulb.set(true); // turn on the light bulb}
+          }
+          @item{@bold{FloatOutput}: messages have an associated real number value - often, but not always, in the range of -1.0 to 1.0.
+           The message represents the request that the implementor change something to some potentially intermediate state.
+
+           @codeblock{motor.set(0.0f); // stop the motor}
+           @codeblock{motor.set(1.0f); // run the motor clockwise at full speed}
+           @codeblock{motor.set(-1.0f); // run the motor counterclockwise at full speed}
+           @codeblock{motor.set(0.6f); // run the motor clockwise at 60% speed}
+           }]
+
+With an Input, the users of the channel can request the present state of the channel from the implementation (if any), and ask the implementation to tell them when the value represented by the input changes.
+
+@itemlist[@item{@bold{EventInput}: there is no associated value.
+           Users to be notified when something happens - we call this the EventInput being either fired or produced.
+
+           @codeblock|{
+             // when the match starts, start the robot driving forward
+             match_start.send(start_driving_forward);
+             }|
+           @margin-note{Don't actually use @code{System.out.println} for any of these. You'll learn about Logging later, which is a better way to do this.}
+           @codeblock|{
+              // when the match ends, say so
+              match_end.send(() -> System.out.println("Match has ended!"));
+              }|
+          }
+          @item{@bold{BooleanInput}: the associated value is a boolean.
+           Users can ask if the current state is true or false, and ask to be told when it changes.
+
+           @codeblock|{
+            // as long as the light switch is flipped, turn on the light bulb
+            light_switch.send(light_bulb);
+           }|
+           @codeblock|{
+            light_switch.send((is_flipped) ->
+                System.out.println("The light switch is flipped: " + is_flipped));
+            // whenever the light switch position is changed, say so
+           }|
+           @codeblock|{
+            if (light_switch.get()) {
+                // We're wasting power!
+            } else {
+                // It's too dark in here!
+            }
+               }|}
+          @item{@bold{FloatInput}: the associated value is a real number value - often, but not always, in the range of -1.0 to 1.0.
+           Users can ask for the current value, and ask to be told when it changes.
+
+           @codeblock|{
+             // control a motor with a joystick axis
+             joystick_axis.send(motor);
+             }|
+           @codeblock|{
+            joystick_axis.send((current_position) ->
+                System.out.println("The current Joystick position: " + current_position));
+            // report the new position of the Joystick whenever someone moves it
+           }|
+           @margin-note{A number of these examples aren't the right way to do things. Keep reading.}
+           @codeblock|{
+            if (sewage_level.get() > 1000.0f) {
+                // open drainage valve
+            }
+            }|}]
+
+@subsection{Hardware}
+
+The CCRE contains an interface layer that lets you work with an FRC robot's hardware with these channels.
+
+For example:
+
+@codeblock|{
+            BooleanOutput led = FRC.makeDigitalOutput(7);
+            FloatOutput test_motor = FRC.makeTalonMotor(3, FRC.MOTOR_FORWARD, 0.2f);
+            EventInput start_match = FRC.startTele;
+            BooleanInput button = FRC.joystick1.button(3);
+            FloatInput axis = FRC.joystick6.axis(3);
+}|
+
+See @secref["hardware-access"] below for more info on robot hardware.
+
+@subsection{Remixing channels}
+
+It turns out that, often, you want to do similar things with your channels.
+So, correspondingly, all channels have a variety of built-in methods to help you on your journey!
+
+The simplest example is probably @code{send}, which works for all three varieties of channels:
+
+This connects the input to the output, so that @code{y} is updated with the current value of @code{x} both immediately and whenever @code{x} changes.
+In the case of events, @code{send} causes the EventOutput to be fired whenever the EventInput is produced.
+
+@codeblock|{
+  BooleanInput x = /* ... */; // this also works if you replace Boolean with Event or Float in both places.
+  BooleanOutput y = /* ... */;
+  x.send(y);
+  }|
+
+Another simple example is @code{onPress}, which converts a BooleanInput into an EventInput (for when the BooleanInput changes to true):
+
+@codeblock|{
+  BooleanInput bumper = FRC.makeDigitalInput(3);
+  bumper.onPress().send(stop_motors);
+  }|
+
+Also useful is @code{setWhen} (along with @code{setFalseWhen} and @code{setTrueWhen}, and the mirrors @code{getSet*Event}):
+
+@codeblock|{
+  driving_forward.setTrueWhen(FRC.joystick1.onPress(2));
+  stop_motors = driving_forward.getSetEvent(false);
+  }|
+
+See @secref["remixing"] for more info.
+
+@subsection{Status cells}
+
 In progress.
 
 @section{Review of advanced Java concepts}
 
 In progress.
 
+@subsection{Anonymous classes}
+
+In progress.
+
+@subsection{Lambdas}
+
+In progress.
+
 @section{Detailed guide to the CCRE}
+
+In progress.
+
+@subsection[#:tag "hardware-access"]{Hardware Access}
+
+In progress.
+
+@subsection[#:tag "remixing"]{Remixing}
+
+In progress.
+
+@subsection{Deployment}
+
+In progress.
+
+@subsection{The Cluck Pub/Sub System}
 
 In progress.
 

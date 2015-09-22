@@ -18,11 +18,13 @@
  */
 package ccre.instinct;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import ccre.channel.BooleanInput;
 import ccre.channel.EventInput;
 import ccre.channel.EventOutput;
 import ccre.channel.FloatInput;
-import ccre.log.Logger;
 import ccre.time.Time;
 
 /**
@@ -31,6 +33,7 @@ import ccre.time.Time;
  * @author skeggsc
  */
 public abstract class InstinctBaseModule {
+    private static Logger logger = LoggerFactory.getLogger(InstinctBaseModule.class);
 
     /**
      * Wait until the specified BooleanInput becomes true before returning.
@@ -202,7 +205,7 @@ public abstract class InstinctBaseModule {
      */
     protected void waitForTime(long milliseconds) throws InterruptedException, AutonomousModeOverException {
         if (milliseconds < 0) {
-            Logger.warning("Negative wait in Instinct: " + milliseconds);
+            logger.warn("Negative wait in Instinct: " + milliseconds);
             return;
         } else if (milliseconds == 0) {
             return;// Do nothing.

@@ -18,6 +18,9 @@
  */
 package ccre.frc;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import ccre.channel.BooleanOutput;
 import ccre.channel.DerivedFloatInput;
 import ccre.channel.EventInput;
@@ -25,7 +28,6 @@ import ccre.channel.FloatInput;
 import ccre.channel.FloatOutput;
 import ccre.ctrl.ExtendedMotor;
 import ccre.ctrl.ExtendedMotorFailureException;
-import ccre.log.Logger;
 import ccre.time.Time;
 
 /**
@@ -34,6 +36,7 @@ import ccre.time.Time;
  * @author skeggsc
  */
 public class ExtendedJaguarDirect extends ExtendedMotor implements FloatOutput {
+    private static Logger logger = LoggerFactory.getLogger(ExtendedJaguarDirect.class);
 
     private final CANJaguarMod jaguar;
     private Boolean enableMode = null; // null until something cares. This means that it's not enabled, but could be automatically.
@@ -73,11 +76,11 @@ public class ExtendedJaguarDirect extends ExtendedMotor implements FloatOutput {
         } catch (ExtendedMotorFailureException ex) {
             isBypassed = true;
             bypassUntil = Time.currentTimeMillis() + 3000;
-            Logger.warning("Motor control failed: CAN Jaguar " + jaguar.m_deviceNumber + ": bypassing for three seconds.", ex);
+            logger.warn("Motor control failed: CAN Jaguar " + jaguar.m_deviceNumber + ": bypassing for three seconds.", ex);
             try {
                 disable();
             } catch (ExtendedMotorFailureException e) {
-                Logger.warning("Could not bypass CAN Jaguar: " + jaguar.m_deviceNumber, e);
+                logger.warn("Could not bypass CAN Jaguar: " + jaguar.m_deviceNumber, e);
             }
             enableMode = null; // automatically re-enableable.
         }
@@ -136,7 +139,7 @@ public class ExtendedJaguarDirect extends ExtendedMotor implements FloatOutput {
                             disable();
                         }
                     } catch (ExtendedMotorFailureException ex) {
-                        Logger.warning("Motor control failed: CAN Jaguar " + jaguar.m_deviceNumber, ex);
+                        logger.warn("Motor control failed: CAN Jaguar " + jaguar.m_deviceNumber, ex);
                     }
                 }
             }
@@ -213,7 +216,7 @@ public class ExtendedJaguarDirect extends ExtendedMotor implements FloatOutput {
                     } catch (RuntimeException ex) {
                         zeroed = true;
                         zeroUntil = Time.currentTimeMillis() + 3000;
-                        Logger.warning("WPILib CANJaguar Failure during status: temporarily zeroing value for three seconds.", ex);
+                        logger.warn("WPILib CANJaguar Failure during status: temporarily zeroing value for three seconds.", ex);
                         return (float) 0.0;
                     }
                     throw new RuntimeException("Invalid internal asStatus setting: " + type); // should never happen as long as the lists match.

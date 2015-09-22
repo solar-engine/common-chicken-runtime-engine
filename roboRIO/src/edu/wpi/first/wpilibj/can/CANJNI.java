@@ -7,9 +7,10 @@ package edu.wpi.first.wpilibj.can;
 //import com.sun.jna.NativeLibrary;
 //import com.sun.jna.Pointer;
 //import com.sun.jna.ptr.IntByReference;
-import edu.wpi.first.wpilibj.hal.JNIWrapper;
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
+
+import edu.wpi.first.wpilibj.hal.JNIWrapper;
 
 /**
  * JNA Wrapper for library <b>CAN</b><br>

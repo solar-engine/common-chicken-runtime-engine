@@ -52,9 +52,9 @@ public class FileLogger implements LoggingTarget {
                 oi.close();
                 i++;
             }
-            Logger.addTarget(new FileLogger("log-" + i));
+            CCRELoggerFactory.getLogger().addTarget(new FileLogger("log-" + i));
         } catch (IOException ex) {
-            Logger.warning("Could not set up File logging!", ex);
+            CCRELoggerFactory.getLogger().warn("Could not set up File logging!", ex);
         }
     }
 

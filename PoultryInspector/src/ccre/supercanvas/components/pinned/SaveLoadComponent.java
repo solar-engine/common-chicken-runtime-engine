@@ -32,7 +32,9 @@ import java.io.ObjectOutputStream;
 import javax.swing.JFileChooser;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
-import ccre.log.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import ccre.supercanvas.Rendering;
 import ccre.supercanvas.SuperCanvasComponent;
 
@@ -43,6 +45,7 @@ import ccre.supercanvas.SuperCanvasComponent;
  * @author skeggsc
  */
 public class SaveLoadComponent extends SuperCanvasComponent {
+    private static Logger logger = LoggerFactory.getLogger(SaveLoadComponent.class);
 
     private static final long serialVersionUID = -8609998417324680908L;
     private final int x, y;
@@ -80,20 +83,20 @@ public class SaveLoadComponent extends SuperCanvasComponent {
     @Override
     public boolean onInteract(int tx, int ty) {
         if (ty < btnBorder) {
-            Logger.info("Saving...");
+            logger.info("Saving...");
             try {
                 saveLayout();
             } catch (IOException ex) {
-                Logger.severe("Could not save!", ex);
+                logger.error("Could not save!", ex);
             }
         } else {
-            Logger.info("Loading...");
+            logger.info("Loading...");
             try {
                 loadLayout();
             } catch (ClassNotFoundException ex) {
-                Logger.severe("Could not load!", ex);
+                logger.error("Could not load!", ex);
             } catch (IOException ex) {
-                Logger.severe("Could not load!", ex);
+                logger.error("Could not load!", ex);
             }
         }
         return true;
@@ -120,9 +123,9 @@ public class SaveLoadComponent extends SuperCanvasComponent {
             } finally {
                 out.close();
             }
-            Logger.info("Saved as " + file + ".");
+            logger.info("Saved as " + file + ".");
         } else {
-            Logger.info("Cancelled by user.");
+            logger.info("Cancelled by user.");
         }
     }
 
@@ -135,9 +138,9 @@ public class SaveLoadComponent extends SuperCanvasComponent {
             } finally {
                 in.close();
             }
-            Logger.info("Loaded from " + chooser.getSelectedFile() + ".");
+            logger.info("Loaded from " + chooser.getSelectedFile() + ".");
         } else {
-            Logger.info("Cancelled by user.");
+            logger.info("Cancelled by user.");
         }
     }
 

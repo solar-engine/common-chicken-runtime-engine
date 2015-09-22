@@ -30,9 +30,10 @@ import java.io.ObjectInputStream;
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Logger;
 
+import ccre.log.CCRELoggerFactory;
 import ccre.log.LogLevel;
-import ccre.log.Logger;
 import ccre.log.LoggingTarget;
 import ccre.supercanvas.DraggableBoxComponent;
 import ccre.supercanvas.Rendering;
@@ -97,7 +98,7 @@ public class LoggingComponent extends DraggableBoxComponent {
                 }
             }
         };
-        Logger.addTarget(tgt);
+        CCRELoggerFactory.getLogger().addTarget(tgt);
     }
 
     private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
@@ -340,7 +341,7 @@ public class LoggingComponent extends DraggableBoxComponent {
     @Override
     public boolean onDelete(boolean forced) {
         if (tgt != null) {
-            Logger.removeTarget(tgt);
+            CCRELoggerFactory.getLogger().removeTarget(tgt);
             tgt = null;
             pstr = null;
             lines = null;

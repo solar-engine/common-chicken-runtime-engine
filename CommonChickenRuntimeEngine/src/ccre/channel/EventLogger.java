@@ -18,8 +18,12 @@
  */
 package ccre.channel;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import ccre.log.CCRELogger;
 import ccre.log.LogLevel;
-import ccre.log.Logger;
+import ccre.log.NetworkAutologger;
 
 /**
  * An event that logs a string at a LogLevel when fired.
@@ -27,6 +31,7 @@ import ccre.log.Logger;
  * @author skeggsc
  */
 public final class EventLogger implements EventOutput {
+    private static Logger logger = LoggerFactory.getLogger(EventLogger.class);
 
     /**
      * When the specified event is fired, log the specified message at the
@@ -62,6 +67,6 @@ public final class EventLogger implements EventOutput {
     }
 
     public void event() {
-        Logger.log(level, message);
+        CCRELogger.logByLevel(logger, level, message);
     }
 }

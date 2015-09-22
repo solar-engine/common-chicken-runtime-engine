@@ -24,6 +24,9 @@ import java.awt.Graphics2D;
 import java.io.IOException;
 import java.io.OutputStream;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import ccre.channel.BooleanInput;
 import ccre.channel.BooleanOutput;
 import ccre.channel.EventInput;
@@ -33,7 +36,6 @@ import ccre.channel.FloatOutput;
 import ccre.cluck.Cluck;
 import ccre.concurrency.CollapsingWorkerThread;
 import ccre.log.LogLevel;
-import ccre.log.Logger;
 import ccre.log.LoggingTarget;
 import ccre.supercanvas.DraggableBoxComponent;
 import ccre.supercanvas.Rendering;
@@ -46,6 +48,7 @@ import ccre.util.LineCollectorOutputStream;
  * @author skeggsc
  */
 public class CluckUnitTestComponent extends DraggableBoxComponent {
+    private static Logger logger = LoggerFactory.getLogger(CluckUnitTestComponent.class);
 
     private static final long serialVersionUID = 4921789619177479709L;
 
@@ -57,7 +60,7 @@ public class CluckUnitTestComponent extends DraggableBoxComponent {
         EventInput ei = Cluck.subscribeEI("robot/utest-ei0");
         FloatOutput fo = Cluck.subscribeFO("robot/utest-fo0");
         FloatInput fi = Cluck.subscribeFI("robot/utest-fi0", false);
-        LoggingTarget lt = Cluck.subscribeLT("robot/utest-lt0", LogLevel.FINEST);
+        LoggingTarget lt = Cluck.subscribeLT("robot/utest-lt0", LogLevel.TRACE);
         OutputStream os = Cluck.subscribeOS("robot/utest-os0");
         private int ctr;
         {
@@ -79,16 +82,16 @@ public class CluckUnitTestComponent extends DraggableBoxComponent {
             Cluck.publish("utest-lt1", new LoggingTarget() {
                 public void log(LogLevel level, String message, String extended) {
                     // TODO: Do more with other possible logging messages (with throwables or extended)
-                    if (level == LogLevel.FINER && message.equals(testMessage0) && extended == null) {
+                    if (level == LogLevel.TRACE && message.equals(testMessage0) && extended == null) {
                         ctr++;
                     } else {
-                        Logger.warning("Wrong log data sent!");
+                        logger.warn("Wrong log data sent!");
                         success = false;
                     }
                 }
 
                 public void log(LogLevel level, String message, Throwable throwable) {
-                    Logger.warning("Wrong log event called!");
+                    logger.warn("Wrong log event called!");
                     success = false;
                 }
             });
@@ -98,7 +101,7 @@ public class CluckUnitTestComponent extends DraggableBoxComponent {
                     if (param.equals("THIS IS THE CCRE TALKING.\0 send properly. DO IT.")) {
                         ctr++;
                     } else {
-                        Logger.warning("Wrong test data sent!");
+                        logger.warn("Wrong test data sent!");
                         success = false;
                     }
                 }
@@ -113,10 +116,10 @@ public class CluckUnitTestComponent extends DraggableBoxComponent {
 
         private void checkSendLog() throws InterruptedException {
             int start = ctr;
-            lt.log(LogLevel.FINER, testMessage0, (Throwable) null);
+            lt.log(LogLevel.TRACE, testMessage0, (Throwable) null);
             this.wait(200);
             if (ctr != start + 1) {
-                Logger.warning("Unit testing failed - send log failed.");
+                logger.warn("Unit testing failed - send log failed.");
                 success = false;
             }
         }
@@ -126,7 +129,7 @@ public class CluckUnitTestComponent extends DraggableBoxComponent {
             os.write("THIS IS THE CCRE TALKING.\0 send properly. DO IT.\n".getBytes());
             this.wait(200);
             if (ctr != start + 1) {
-                Logger.warning("Unit testing failed - send data failed.");
+                logger.warn("Unit testing failed - send data failed.");
                 success = false;
             }
         }
@@ -136,11 +139,11 @@ public class CluckUnitTestComponent extends DraggableBoxComponent {
             bo.set(b);
             this.wait(200);
             if (ctr != start + (expect ? 1 : 0)) {
-                Logger.warning("Unit testing failed - boolean event count wrong.");
+                logger.warn("Unit testing failed - boolean event count wrong.");
                 success = false;
             }
             if (bi.get() != b) {
-                Logger.warning("Unit testing failed - boolean value wrong.");
+                logger.warn("Unit testing failed - boolean value wrong.");
                 success = false;
             }
         }
@@ -150,11 +153,11 @@ public class CluckUnitTestComponent extends DraggableBoxComponent {
             fo.set(f);
             this.wait(200);
             if (ctr != start + (expect ? 1 : 0)) {
-                Logger.warning("Unit testing failed - float event count wrong.");
+                logger.warn("Unit testing failed - float event count wrong.");
                 success = false;
             }
             if (fi.get() != f) {
-                Logger.warning("Unit testing failed - float value wrong.");
+                logger.warn("Unit testing failed - float value wrong.");
                 success = false;
             }
         }
@@ -164,14 +167,14 @@ public class CluckUnitTestComponent extends DraggableBoxComponent {
             eo.event();
             this.wait(200);
             if (ctr != start + 1) {
-                Logger.warning("Unit testing failed - event count wrong.");
+                logger.warn("Unit testing failed - event count wrong.");
                 success = false;
             }
         }
 
         @Override
         protected synchronized void doWork() throws Throwable {
-            Logger.info("Starting test...");
+            logger.info("Starting test...");
             bo.set(false);
             fo.set(0.3f);
             this.wait(200);
@@ -204,12 +207,12 @@ public class CluckUnitTestComponent extends DraggableBoxComponent {
             checkSetFloat(-6.2f, true);
             if (ctr != MAX_CTR) {
                 success = false;
-                Logger.warning("Unit testing failed: wrong number of overall message events!");
+                logger.warn("Unit testing failed: wrong number of overall message events!");
             }
             if (success) {
-                Logger.info("Unit tests completed successfully!");
+                logger.info("Unit tests completed successfully!");
             } else {
-                Logger.warning("Unit tests failed.");
+                logger.warn("Unit tests failed.");
             }
         }
     }

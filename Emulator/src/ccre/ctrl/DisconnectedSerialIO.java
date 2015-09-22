@@ -21,8 +21,10 @@ package ccre.ctrl;
 import java.io.IOException;
 import java.io.InterruptedIOException;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import ccre.channel.SerialIO;
-import ccre.log.Logger;
 
 /**
  * An emulation of a completely disconnected serial port. Nothing comes in, and
@@ -31,6 +33,7 @@ import ccre.log.Logger;
  * @author skeggsc
  */
 public class DisconnectedSerialIO implements SerialIO {
+    private static Logger logger = LoggerFactory.getLogger(DisconnectedSerialIO.class);
 
     private boolean closed = false;
 
@@ -41,7 +44,7 @@ public class DisconnectedSerialIO implements SerialIO {
 
     @Override
     public synchronized byte[] readBlocking(int max) throws IOException {
-        Logger.warning("Blocking read from DisconnectedSerialIO!");
+        logger.warn("Blocking read from DisconnectedSerialIO!");
         while (!closed) {
             try {
                 this.wait();

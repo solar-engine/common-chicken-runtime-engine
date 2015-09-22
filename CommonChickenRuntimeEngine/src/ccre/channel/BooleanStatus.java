@@ -167,7 +167,7 @@ public class BooleanStatus implements BooleanOutput, BooleanInput, Serializable 
     public BooleanInput asInput() {
         return this;
     }
-    
+
     @Override
     public void onUpdate(EventOutput notify) {
         if (notify == null) {

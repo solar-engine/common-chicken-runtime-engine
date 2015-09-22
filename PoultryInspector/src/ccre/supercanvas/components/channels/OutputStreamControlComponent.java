@@ -24,7 +24,9 @@ import java.awt.Graphics2D;
 import java.io.IOException;
 import java.io.OutputStream;
 
-import ccre.log.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import ccre.supercanvas.DraggableBoxComponent;
 import ccre.supercanvas.Rendering;
 
@@ -35,6 +37,7 @@ import ccre.supercanvas.Rendering;
  * @author skeggsc
  */
 public class OutputStreamControlComponent extends DraggableBoxComponent {
+    private static Logger logger = LoggerFactory.getLogger(OutputStreamControlComponent.class);
 
     private static final long serialVersionUID = 800737743696942747L;
     private final OutputStream out;
@@ -118,12 +121,12 @@ public class OutputStreamControlComponent extends DraggableBoxComponent {
         for (int i = 0; i < decoded.length; i++) {
             int a = decodeHexDigit(contents.charAt(i * 2)), b = decodeHexDigit(contents.charAt(i * 2 + 1));
             if (a == -1 || b == -1) {
-                Logger.warning("Undiscovered bad hex digit in sendable.");
+                logger.warn("Undiscovered bad hex digit in sendable.");
             } else {
                 decoded[i] = (byte) ((a << 4) | b);
             }
         }
-        Logger.info("Decoded " + decoded.length + " bytes.");
+        logger.info("Decoded " + decoded.length + " bytes.");
         return decoded;
     }
 
@@ -143,7 +146,7 @@ public class OutputStreamControlComponent extends DraggableBoxComponent {
                     out.write((contents + "\n").getBytes());
                 }
             } catch (IOException e) {
-                Logger.warning("Error while writing to OutputStream " + name, e);
+                logger.warn("Error while writing to OutputStream " + name, e);
             }
             contents.setLength(0);
             getPanel().editing = null;

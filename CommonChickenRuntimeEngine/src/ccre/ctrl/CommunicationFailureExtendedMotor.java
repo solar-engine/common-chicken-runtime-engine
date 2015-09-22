@@ -18,11 +18,13 @@
  */
 package ccre.ctrl;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import ccre.channel.BooleanOutput;
 import ccre.channel.EventInput;
 import ccre.channel.FloatInput;
 import ccre.channel.FloatOutput;
-import ccre.log.Logger;
 import ccre.time.Time;
 
 /**
@@ -35,6 +37,7 @@ import ccre.time.Time;
  * @author skeggsc
  */
 public class CommunicationFailureExtendedMotor extends ExtendedMotor implements FloatOutput {
+    private static Logger logger = LoggerFactory.getLogger(CommunicationFailureExtendedMotor.class);
 
     private final String message;
 
@@ -62,20 +65,20 @@ public class CommunicationFailureExtendedMotor extends ExtendedMotor implements 
     public BooleanOutput asEnable() {
         return new BooleanOutput() {
             public void set(boolean value) {
-                Logger.warning("Motor control (enable/disable) failed: " + message);
+                logger.warn("Motor control (enable/disable) failed: " + message);
             }
         };
     }
 
     @Override
     public FloatOutput asMode(OutputControlMode mode) {
-        Logger.severe("Could not access mode of Extended Motor: " + message);
+        logger.error("Could not access mode of Extended Motor: " + message);
         return this;
     }
 
     @Override
     public FloatInput asStatus(StatusType type, EventInput updateOn) {
-        Logger.severe("Could not access status of Extended Motor: " + message);
+        logger.error("Could not access status of Extended Motor: " + message);
         return FloatInput.zero;
     }
 
@@ -97,7 +100,7 @@ public class CommunicationFailureExtendedMotor extends ExtendedMotor implements 
 
     @Override
     public void setInternalPID(float P, float I, float D) throws ExtendedMotorFailureException {
-        Logger.warning("Tried to set PID on Extended Motor with failed comms: " + message);
+        logger.warn("Tried to set PID on Extended Motor with failed comms: " + message);
     }
 
     private long nextWarning = 0;
@@ -105,7 +108,7 @@ public class CommunicationFailureExtendedMotor extends ExtendedMotor implements 
     public void set(float value) {
         long now = Time.currentTimeMillis();
         if (now > nextWarning) {
-            Logger.warning("Could not modify Extended Motor value - failed comms: " + message);
+            logger.warn("Could not modify Extended Motor value - failed comms: " + message);
             nextWarning = now + 3000;
         }
     }

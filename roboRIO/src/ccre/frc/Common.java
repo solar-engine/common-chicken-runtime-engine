@@ -27,7 +27,8 @@ import java.nio.ByteOrder;
 import java.nio.IntBuffer;
 import java.nio.LongBuffer;
 
-import ccre.log.Logger;
+import org.slf4j.LoggerFactory;
+
 import ccre.util.Utils;
 import edu.wpi.first.wpilibj.hal.HALUtil;
 
@@ -65,7 +66,7 @@ class Common {
             throw new RuntimeException(message + " [" + s + "]");
         } else if (s > 0) {
             String message = HALUtil.getHALErrorMessage(s);
-            Logger.warning("HAL Warning: " + message + "[" + s + "] in " + Utils.getMethodCaller(1));
+            LoggerFactory.getLogger(Common.class).warn("HAL Warning: " + message + "[" + s + "] in " + Utils.getMethodCaller(1));
         }
     }
 }

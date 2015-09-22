@@ -1,7 +1,7 @@
 package edu.wpi.first.wpilibj.hal;
 
-import java.nio.IntBuffer;
 import java.nio.ByteBuffer;
+import java.nio.IntBuffer;
 
 public class EncoderJNI extends JNIWrapper {
     public static native ByteBuffer initializeEncoder(byte port_a_module, int port_a_pin, byte port_a_analog_trigger, byte port_b_module, int port_b_pin, byte port_b_analog_trigger, byte reverseDirection, IntBuffer index, IntBuffer status);

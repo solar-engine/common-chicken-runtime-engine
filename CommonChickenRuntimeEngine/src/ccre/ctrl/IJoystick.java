@@ -28,7 +28,7 @@ import ccre.channel.FloatInput;
  * @author skeggsc
  */
 public interface IJoystick {
-    
+
     public static final int POV_NORTH = 0;
     public static final int POV_NORTHEAST = 45;
     public static final int POV_EAST = 90;
@@ -42,28 +42,29 @@ public interface IJoystick {
     public default EventInput onPress(int btn) {
         return button(btn).onPress();
     }
-    
+
     public default EventInput onRelease(int btn) {
         return button(btn).onRelease();
     }
-    
+
     public BooleanInput button(int btn);
-    
+
     public FloatInput axis(int axis);
-    
+
     public default FloatInput axisX() {
         return axis(1);
     }
-    
+
     public default FloatInput axisY() {
         return axis(2);
     }
-    
+
     public BooleanInput isPOV(int direction);
-    
+
     public default EventInput onPressPOV(int direction) {
         return isPOV(direction).onPress();
     }
+
     public default EventInput onReleasePOV(int direction) {
         return isPOV(direction).onRelease();
     }

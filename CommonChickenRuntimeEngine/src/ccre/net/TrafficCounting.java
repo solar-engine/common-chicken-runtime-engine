@@ -56,7 +56,8 @@ public class TrafficCounting {
         TrafficCounting.countingEnabled = enabled;
         if (enabled && !TrafficCounting.countingEverEnabled) {
             TrafficCounting.countingEverEnabled = true;
-            new Ticker(1000).send(new EventOutput() {// TODO: get rid of this ticker
+            new Ticker(1000).send(new EventOutput() {// TODO: get rid of this
+                                                     // ticker
                 @Override
                 public void event() {
                     long newTotal = getTotalBytes();

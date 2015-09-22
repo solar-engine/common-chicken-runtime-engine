@@ -18,11 +18,13 @@
  */
 package ccre.concurrency;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import ccre.channel.BooleanInput;
 import ccre.channel.BooleanStatus;
 import ccre.channel.EventInput;
 import ccre.channel.EventOutput;
-import ccre.log.Logger;
 
 /**
  * A worker thread that will allow other threads to trigger a predefined action
@@ -37,6 +39,7 @@ import ccre.log.Logger;
  * @author skeggsc
  */
 public abstract class CollapsingWorkerThread extends ReporterThread implements EventOutput {
+    private static Logger logger = LoggerFactory.getLogger(CollapsingWorkerThread.class);
 
     /**
      * Does this thread need to run its work?
@@ -173,7 +176,7 @@ public abstract class CollapsingWorkerThread extends ReporterThread implements E
                     doWork();
                 }
             } catch (Throwable t) {
-                Logger.severe("Uncaught exception in worker thread: " + this.getName(), t);
+                logger.error("Uncaught exception in worker thread: " + this.getName(), t);
             }
             if (shouldIgnoreWhileRunning) {
                 needsToRun = false;

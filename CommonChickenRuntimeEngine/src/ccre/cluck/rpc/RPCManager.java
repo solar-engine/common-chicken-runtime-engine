@@ -25,9 +25,11 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import ccre.cluck.CluckNode;
 import ccre.cluck.CluckSubscriber;
-import ccre.log.Logger;
 import ccre.time.Time;
 import ccre.util.UniqueIds;
 
@@ -37,6 +39,7 @@ import ccre.util.UniqueIds;
  * @author skeggsc
  */
 public final class RPCManager implements Serializable {
+    private static Logger logger = LoggerFactory.getLogger(RPCManager.class);
 
     private static final long serialVersionUID = -2530136013743162226L;
     private final CluckNode node;
@@ -61,7 +64,7 @@ public final class RPCManager implements Serializable {
         new CluckSubscriber(node) {
             @Override
             protected void receive(String source, byte[] data) {
-                Logger.warning("Message to RPC endpoint!");
+                logger.warn("Message to RPC endpoint!");
             }
 
             @Override
@@ -73,13 +76,13 @@ public final class RPCManager implements Serializable {
                         stream = localBindings.get(dest);
                     }
                     if (stream == null) {
-                        Logger.warning("No RPC binding for: " + dest);
+                        logger.warn("No RPC binding for: " + dest);
                     } else {
                         try {
                             stream.write(data, 1, data.length - 1);
                             stream.close();
                         } catch (IOException ex) {
-                            Logger.warning("Exception in RPC response write!", ex);
+                            logger.warn("Exception in RPC response write!", ex);
                         }
                         synchronized (RPCManager.this) {
                             localBindings.remove(dest);
@@ -153,7 +156,7 @@ public final class RPCManager implements Serializable {
                 try {
                     bindings.remove(rmt).close();
                 } catch (IOException ex) {
-                    Logger.warning("Exception during timeout close!", ex);
+                    logger.warn("Exception during timeout close!", ex);
                 }
             }
         }

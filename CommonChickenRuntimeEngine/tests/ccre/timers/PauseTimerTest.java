@@ -76,12 +76,14 @@ public class PauseTimerTest {
         new PauseTimer(-1);
     }
 
-    @Test/**/
+    @Test
+    /**/
     public void testPauseTimerSmallPositive() {
         new PauseTimer(1);
     }
 
-    @Test/**/
+    @Test
+    /**/
     public void testNoDefaultTrigger() throws InterruptedException {
         CountingEventOutput con = new CountingEventOutput();
         CountingEventOutput coff = new CountingEventOutput();
@@ -92,7 +94,8 @@ public class PauseTimerTest {
         // if it ever fires here, then ceo will get annoyed
     }
 
-    @Test/**/
+    @Test
+    /**/
     public void testEventAllAtOnce() throws InterruptedException {
         CountingEventOutput ceo = new CountingEventOutput();
         pt.onRelease().send(ceo);
@@ -103,7 +106,8 @@ public class PauseTimerTest {
         ceo.check();
     }
 
-    @Test/**/
+    @Test
+    /**/
     public void testTriggerAtEnd() throws InterruptedException {
         CountingEventOutput coff = new CountingEventOutput();
         pt.triggerAtEnd(coff);
@@ -114,7 +118,8 @@ public class PauseTimerTest {
         coff.check();
     }
 
-    @Test/**/
+    @Test
+    /**/
     public void testTriggerAtStart() throws InterruptedException {
         CountingEventOutput con = new CountingEventOutput();
         pt.triggerAtStart(con);
@@ -124,7 +129,8 @@ public class PauseTimerTest {
         fake.forward(1000);
     }
 
-    @Test/**/
+    @Test
+    /**/
     public void testTriggerAtChanges() throws InterruptedException {
         CountingEventOutput con = new CountingEventOutput();
         CountingEventOutput coff = new CountingEventOutput();
@@ -139,7 +145,8 @@ public class PauseTimerTest {
         coff.check();
     }
 
-    @Test/**/
+    @Test
+    /**/
     public void testEventSequenceMultiPress() throws InterruptedException {
         CountingEventOutput con = new CountingEventOutput();
         CountingEventOutput coff = new CountingEventOutput();

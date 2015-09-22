@@ -18,14 +18,16 @@
  */
 package org.team1540.cantest;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import ccre.cluck.Cluck;
 import ccre.ctrl.ExtendedMotor;
 import ccre.ctrl.ExtendedMotor.DiagnosticType;
 import ccre.ctrl.ExtendedMotor.OutputControlMode;
+import ccre.ctrl.ExtendedMotorFailureException;
 import ccre.frc.FRC;
 import ccre.frc.FRCApplication;
-import ccre.ctrl.ExtendedMotorFailureException;
-import ccre.log.Logger;
 
 /**
  * A simple test program that will allow testing control of a CAN Jaguar.
@@ -33,6 +35,7 @@ import ccre.log.Logger;
  * @author skeggsc
  */
 public class CANTest implements FRCApplication {
+    private static Logger logger = LoggerFactory.getLogger(CANTest.class);
 
     // WARNING: This has never actually been tested on a real robot.
 
@@ -44,7 +47,7 @@ public class CANTest implements FRCApplication {
             motor.setInternalPID(1, 0.1f, 0.01f);
             Cluck.publish("CAN Jaguar Bus Fault", motor.getDiagnosticChannel(DiagnosticType.BUS_VOLTAGE_FAULT));
         } catch (ExtendedMotorFailureException e) {
-            Logger.severe("Failed to initialize", e);
+            logger.error("Failed to initialize", e);
             throw new RuntimeException();
         }
     }

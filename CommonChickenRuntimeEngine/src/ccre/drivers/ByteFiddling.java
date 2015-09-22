@@ -18,7 +18,7 @@
  */
 package ccre.drivers;
 
-import ccre.log.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * A collection of useful byte-level fiddling utilities.
@@ -243,7 +243,7 @@ public class ByteFiddling {
                 out[j++] = hex[(bytes[i] >> 4) & 0xF];
                 out[j++] = hex[bytes[i] & 0xF];
             } catch (ArrayIndexOutOfBoundsException ex) {
-                Logger.warning("Offending indexes: " + j + "," + i + ": " + from + "," + to + "," + bytes.length + "," + out.length);
+                LoggerFactory.getLogger(ByteFiddling.class).warn("Offending indexes: " + j + "," + i + ": " + from + "," + to + "," + bytes.length + "," + out.length);
                 throw ex;
             }
         }

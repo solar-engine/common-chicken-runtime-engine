@@ -22,7 +22,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
 
-import ccre.log.Logger;
+import org.slf4j.LoggerFactory;
+
 import ccre.storage.StorageSegment;
 
 /**
@@ -51,7 +52,7 @@ public class Version {
             try {
                 StorageSegment.loadProperties(props, false, versions);
             } catch (IOException e) {
-                Logger.warning("IOException while reading /version.properties", e);
+                LoggerFactory.getLogger(Version.class).warn("IOException while reading /version.properties", e);
                 return "unknown version: could not load";
             }
             String version = versions.get("ccre-version");
@@ -63,7 +64,7 @@ public class Version {
             try {
                 props.close();
             } catch (IOException e) {
-                Logger.warning("IOException while closing /version.properties", e);
+                LoggerFactory.getLogger(Version.class).warn("IOException while closing /version.properties", e);
             }
         }
     }

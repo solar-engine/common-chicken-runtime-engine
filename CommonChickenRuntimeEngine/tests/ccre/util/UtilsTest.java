@@ -125,7 +125,7 @@ public class UtilsTest {
             }
         }
     }
-    
+
     @Test
     public void testMethodCaller() {
         CallerInfo info = Utils.getMethodCaller(0);
@@ -133,14 +133,14 @@ public class UtilsTest {
         assertEquals(info.getFileName(), "UtilsTest.java");
         assertEquals(info.getMethodName(), "testMethodCaller");
     }
-    
+
     @Test
     public void testMethodCallerLineNumber() {
         CallerInfo info = Utils.getMethodCaller(0);
         CallerInfo info2 = Utils.getMethodCaller(0);
         assertEquals(info.getLineNum(), info2.getLineNum() - 1);
     }
-    
+
     @Test
     public void testMethodCallerInvalid() {
         for (int i = -10; i < 0; i++) {
@@ -158,7 +158,7 @@ public class UtilsTest {
         int expectedLine = info.getLineNum() + 1;
         assertEquals(pts[1], "\tat " + info.getClassName() + "." + info.getMethodName() + "(" + info.getFileName() + ":" + expectedLine + ")");
     }
-    
+
     @Test
     public void testNullToStringThrowable() {
         assertNull(Utils.toStringThrowable(null));

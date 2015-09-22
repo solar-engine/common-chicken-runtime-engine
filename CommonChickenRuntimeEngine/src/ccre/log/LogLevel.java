@@ -27,47 +27,54 @@ import java.io.Serializable;
  *
  * @author skeggsc
  */
-public class LogLevel implements Serializable {
+public class LogLevel implements Serializable, Comparable<LogLevel> {
 
-    private static final long serialVersionUID = 6646883245419060561L;
+    private static final long serialVersionUID = -4814366160212981658L;
+
+    public static final byte FATAL_ID = 9;
+    public static final byte ERROR_ID = 6;
+    public static final byte WARN_ID = 3;
+    public static final byte INFO_ID = 0;
+    public static final byte DEBUG_ID = -3;
+    public static final byte TRACE_ID = -6;
+
     /**
      * A severe error. This usually means that something major didn't work, or
      * an impossible condition occurred.
      */
-    public static final LogLevel SEVERE = new LogLevel(9, "SEVERE");
+    public static final LogLevel FATAL = new LogLevel(FATAL_ID, "FATAL");
+
     /**
-     * A warning. This usually means that something bad happened, but most
-     * things should probably still work.
+     * An error. This usually means that something bad happened, but some things
+     * may still work.
      */
-    public static final LogLevel WARNING = new LogLevel(6, "WARNING");
+    public static final LogLevel ERROR = new LogLevel(ERROR_ID, "ERROR");
+
+    /**
+     * A warning. This usually means that something that could cause a potential
+     * problem happened, but things should still work.
+     */
+    public static final LogLevel WARN = new LogLevel(ERROR_ID, "WARN");
+
     /**
      * A piece of info. This usually means something happened that the user
      * might want to know.
      */
-    public static final LogLevel INFO = new LogLevel(3, "INFO");
-    /**
-     * A piece of configuration information. This usually means something that
-     * isn't really important, but is something triggered by configuration
-     * instead of normal operation.
-     */
-    public static final LogLevel CONFIG = new LogLevel(0, "CONFIG");
-    /**
-     * A top-level debugging message. This can be caused by anything, but
-     * probably shouldn't be logged particularly often.
-     */
-    public static final LogLevel FINE = new LogLevel(-3, "FINE");
-    /**
-     * A mid-level debugging message. This can be caused by anything, and can be
-     * logged relatively often.
-     */
-    public static final LogLevel FINER = new LogLevel(-6, "FINER");
-    /**
-     * A low-level debugging message. This can be caused by anything, and might
-     * be called many times per second.
-     */
-    public static final LogLevel FINEST = new LogLevel(-9, "FINEST");
+    public static final LogLevel INFO = new LogLevel(INFO_ID, "INFO");
 
-    private static final LogLevel[] levels = new LogLevel[] { FINEST, FINER, FINE, CONFIG, INFO, WARNING, SEVERE };
+    /**
+     * A debugging message. This can be caused by anything, but probably
+     * shouldn't be logged particularly often.
+     */
+    public static final LogLevel DEBUG = new LogLevel(DEBUG_ID, "DEBUG");
+
+    /**
+     * A trace message. This could be caused by anything, but probably shouldn't
+     * be logged particularly often.
+     */
+    public static final LogLevel TRACE = new LogLevel(TRACE_ID, "TRACE");
+
+    private static final LogLevel[] levels = new LogLevel[] { TRACE, DEBUG, INFO, WARN, ERROR, FATAL };
 
     /**
      * Get a LogLevel from its ID level. If it doesn't exist, a RuntimeException
@@ -157,5 +164,14 @@ public class LogLevel implements Serializable {
             }
         }
         return levels[0];
+    }
+
+    @Override
+    public int compareTo(LogLevel o) {
+        if (o.id > this.id)
+            return -1;
+        if (o.id < this.id)
+            return +1;
+        return 0; // they are equal
     }
 }

@@ -22,10 +22,12 @@ import java.awt.Color;
 import java.awt.FontMetrics;
 import java.awt.Graphics2D;
 
-import ccre.log.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import ccre.rconf.RConf;
-import ccre.rconf.RConfable;
 import ccre.rconf.RConf.Entry;
+import ccre.rconf.RConfable;
 import ccre.supercanvas.components.channels.RConfComponent;
 
 /**
@@ -36,6 +38,7 @@ import ccre.supercanvas.components.channels.RConfComponent;
  * @param <View> the type of the View enum used for this component.
  */
 public abstract class BaseChannelComponent<View extends Enum<View>> extends DraggableBoxComponent implements RConfable {
+    private static Logger logger = LoggerFactory.getLogger(BaseChannelComponent.class);
 
     private static final long serialVersionUID = 6151244350551965041L;
     /**
@@ -95,7 +98,7 @@ public abstract class BaseChannelComponent<View extends Enum<View>> extends Drag
                 if (this.onDelete(false)) {
                     getPanel().remove(this);
                 } else {
-                    Logger.warning("Component deletion disallowed: " + this);
+                    logger.warn("Component deletion disallowed: " + this);
                 }
                 return true;
             }

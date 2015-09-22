@@ -52,7 +52,8 @@ public interface EventInput extends UpdatingInput {
      * @param listener the listener to add.
      * @see #unsend(EventOutput)
      */
-    public default void send(EventOutput output) {// TODO: rename this to 'then'?
+    // TODO: rename this to 'then'?
+    public default void send(EventOutput output) {
         if (output == null) {
             throw new NullPointerException();
         }

@@ -26,10 +26,12 @@ import java.awt.Rectangle;
 import java.awt.Shape;
 import java.io.Serializable;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import ccre.channel.EventOutput;
 import ccre.channel.FloatInput;
 import ccre.channel.FloatOutput;
-import ccre.log.Logger;
 import ccre.rconf.RConf;
 import ccre.rconf.RConf.Entry;
 import ccre.supercanvas.BaseChannelComponent;
@@ -42,6 +44,7 @@ import ccre.supercanvas.SuperCanvasPanel;
  * @author skeggsc
  */
 public class FloatControlComponent extends BaseChannelComponent<FloatControlComponent.View> {
+    private static Logger logger = LoggerFactory.getLogger(FloatControlComponent.class);
 
     private static final long serialVersionUID = -5862659067200938010L;
 
@@ -228,7 +231,7 @@ public class FloatControlComponent extends BaseChannelComponent<FloatControlComp
                 setDele(false, Float.parseFloat(activeBuffer.toString()));
                 getPanel().editing = null;
             } catch (NumberFormatException ex) {
-                Logger.warning("Could not parse number '" + activeBuffer + "'.");
+                logger.warn("Could not parse number '" + activeBuffer + "'.");
             }
         }
     }

@@ -1,7 +1,7 @@
 package edu.wpi.first.wpilibj.hal;
 
-import java.nio.IntBuffer;
 import java.nio.ByteBuffer;
+import java.nio.IntBuffer;
 
 public class SerialPortJNI extends JNIWrapper {
     public static native void serialInitializePort(byte port, IntBuffer status);

@@ -18,13 +18,15 @@
  */
 package ccre.tuning;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import ccre.channel.BooleanStatus;
 import ccre.channel.EventOutput;
 import ccre.channel.FloatStatus;
 import ccre.cluck.Cluck;
 import ccre.cluck.CluckNode;
 import ccre.cluck.CluckPublisher;
-import ccre.log.Logger;
 import ccre.storage.Storage;
 import ccre.storage.StorageSegment;
 import ccre.util.UniqueIds;
@@ -36,6 +38,7 @@ import ccre.util.UniqueIds;
  * @author skeggsc
  */
 public final class TuningContext {
+    private static Logger logger = LoggerFactory.getLogger(TuningContext.class);
 
     /**
      * The node to publish the values to.
@@ -124,7 +127,8 @@ public final class TuningContext {
 
     /**
      * Get a BooleanStatus with the specified name and default value. This will
-     * be tunable over the network and saved on the roboRIO once flush() is called.
+     * be tunable over the network and saved on the roboRIO once flush() is
+     * called.
      *
      * @param name the name of the tunable value.
      * @param default_ the default value.
@@ -142,7 +146,7 @@ public final class TuningContext {
      */
     public void flush() {
         segment.flush();
-        Logger.info("Flushed storage segment " + segment.getName());
+        logger.info("Flushed storage segment " + segment.getName());
     }
 
     /**

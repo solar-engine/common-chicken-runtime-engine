@@ -26,7 +26,7 @@ public abstract class DerivedFloatInput extends DerivedUpdate implements FloatIn
 
     private float value;
     private final CopyOnWriteArrayList<EventOutput> consumers = new CopyOnWriteArrayList<>();
-    
+
     public DerivedFloatInput(UpdatingInput... updates) {
         super(updates);
         value = apply();
@@ -47,7 +47,6 @@ public abstract class DerivedFloatInput extends DerivedUpdate implements FloatIn
             }
         }
     }
-
 
     @Override
     protected final boolean updateWithRecovery() {
@@ -72,7 +71,7 @@ public abstract class DerivedFloatInput extends DerivedUpdate implements FloatIn
     public void onUpdate(EventOutput notify) {
         consumers.add(notify);
     }
-    
+
     @Override
     public EventOutput onUpdateR(EventOutput notify) {
         return Utils.addR(consumers, notify);

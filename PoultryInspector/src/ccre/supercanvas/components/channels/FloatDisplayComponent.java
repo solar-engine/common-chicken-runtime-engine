@@ -27,10 +27,12 @@ import java.awt.Shape;
 import java.awt.Stroke;
 import java.awt.geom.AffineTransform;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import ccre.channel.EventOutput;
 import ccre.channel.FloatInput;
 import ccre.channel.FloatOutput;
-import ccre.log.Logger;
 import ccre.rconf.RConf;
 import ccre.rconf.RConf.Entry;
 import ccre.supercanvas.BaseChannelComponent;
@@ -43,6 +45,7 @@ import ccre.supercanvas.SuperCanvasPanel;
  * @author skeggsc
  */
 public class FloatDisplayComponent extends BaseChannelComponent<FloatDisplayComponent.View> implements FloatOutput {
+    private static Logger logger = LoggerFactory.getLogger(FloatDisplayComponent.class);
 
     static enum View {
         HORIZONTAL_POINTER, DIAL, TEXTUAL
@@ -168,7 +171,7 @@ public class FloatDisplayComponent extends BaseChannelComponent<FloatDisplayComp
                             break;
                         }
                     } catch (NumberFormatException ex) {
-                        Logger.warning("Unexpected failure of number formatting", ex);
+                        logger.warn("Unexpected failure of number formatting", ex);
                         break;
                     }
                     text = nline;

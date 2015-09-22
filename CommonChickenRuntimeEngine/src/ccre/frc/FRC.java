@@ -18,6 +18,8 @@
  */
 package ccre.frc;
 
+import org.slf4j.LoggerFactory;
+
 import ccre.channel.BooleanInput;
 import ccre.channel.BooleanOutput;
 import ccre.channel.EventInput;
@@ -31,7 +33,6 @@ import ccre.ctrl.binding.ControlBindingCreator;
 import ccre.ctrl.binding.ControlBindingDataSource;
 import ccre.ctrl.binding.ControlBindingDataSourceBuildable;
 import ccre.instinct.InstinctModule;
-import ccre.log.Logger;
 import ccre.timers.Ticker;
 
 /**
@@ -277,7 +278,7 @@ public class FRC {
      * @return the ExtendedMotor representing this output.
      */
     public static ExtendedMotor makeCANJaguar(int deviceNumber) {
-        Logger.warning("The CCRE CAN Jaguar functionality is NOT yet complete and is UNTESTED! Use with your own risk.");
+        LoggerFactory.getLogger(FRC.class).warn("The CCRE CAN Jaguar functionality is NOT yet complete and is UNTESTED! Use with your own risk.");
         return impl.makeCANJaguar(deviceNumber);
     }
 
@@ -784,7 +785,9 @@ public class FRC {
      * @return The reference to the Gyro's current value.
      */
     public static FloatInput makeGyro(int port, double sensitivity, EventInput evt, EventInput updateOn) {
-        // TODO: Figure out if anything should change about makeGyro's arguments now that I got rid of the no-event versions due to argument list conflicts.
+        // TODO: Figure out if anything should change about makeGyro's arguments
+        // now that I got rid of the no-event versions due to argument list
+        // conflicts.
         return impl.makeGyro(port, sensitivity, evt, updateOn);
     }
 

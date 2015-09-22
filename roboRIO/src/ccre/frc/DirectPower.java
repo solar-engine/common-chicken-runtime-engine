@@ -24,7 +24,6 @@ package ccre.frc;
 
 import java.nio.IntBuffer;
 
-import ccre.frc.FRC;
 import edu.wpi.first.wpilibj.hal.PowerJNI;
 
 class DirectPower {

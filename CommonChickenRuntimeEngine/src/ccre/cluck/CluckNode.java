@@ -24,9 +24,11 @@ import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.util.HashMap;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import ccre.channel.EventOutput;
 import ccre.cluck.rpc.RPCManager;
-import ccre.log.Logger;
 
 /**
  * A CluckNode is the core hub of the Cluck networking system on a device. It
@@ -37,6 +39,7 @@ import ccre.log.Logger;
  * @author skeggsc
  */
 public class CluckNode implements Serializable {
+    private static Logger logger = LoggerFactory.getLogger(CluckNode.class);
 
     private static final long serialVersionUID = -5439319159206467512L;
     /**
@@ -187,7 +190,7 @@ public class CluckNode implements Serializable {
     public void transmit(String target, String source, byte[] data, CluckLink denyLink) {
         if (target == null) {
             if (data.length == 0 || data[0] != RMT_NEGATIVE_ACK) {
-                Logger.warning("Received message addressed to unreceving node (source: " + source + ")");
+                logger.warn("Received message addressed to unreceving node (source: " + source + ")");
             }
         } else if ("*".equals(target)) {
             broadcast(source, data, denyLink);
@@ -211,7 +214,7 @@ public class CluckNode implements Serializable {
                         links.remove(direct);
                     }
                 } catch (Throwable ex) {
-                    Logger.severe("Error while dispatching to Cluck link " + target, ex);
+                    logger.error("Error while dispatching to Cluck link " + target, ex);
                 }
             }
         }
@@ -239,21 +242,23 @@ public class CluckNode implements Serializable {
                         links.remove(link);
                     }
                 } catch (Throwable ex) {
-                    Logger.severe("Error while broadcasting to Cluck link " + link, ex);
+                    logger.error("Error while broadcasting to Cluck link " + link, ex);
                 }
             }
         }
     }
 
     private void reportMissingLink(byte[] data, String source, String target, String direct) {
-        // Warnings about lost RMT_NEGATIVE_ACK messages or research messages are annoying, so don't send these,
+        // Warnings about lost RMT_NEGATIVE_ACK messages or research messages
+        // are annoying, so don't send these,
         // and don't warn about the same message path too quickly.
 
-        // We use System.currentTimeMillis() instead of Time.currentTimeMillis() because this is only to prevent message spam.
+        // We use System.currentTimeMillis() instead of Time.currentTimeMillis()
+        // because this is only to prevent message spam.
         if ((data.length == 0 || data[0] != RMT_NEGATIVE_ACK) && !target.contains("/rsch-") && (!direct.equals(lastMissingLink) || System.currentTimeMillis() >= lastMissingLinkError + 1000)) {
             lastMissingLink = direct;
             lastMissingLinkError = System.currentTimeMillis();
-            Logger.warning("No link for " + target + "(" + direct + ") from " + source + "!");
+            logger.warn("No link for " + target + "(" + direct + ") from " + source + "!");
             transmit(source, target, new byte[] { RMT_NEGATIVE_ACK });
         }
     }
@@ -337,7 +342,7 @@ public class CluckNode implements Serializable {
             throw new NullPointerException();
         }
         if (links.get(linkName) != null) {
-            Logger.fine("Replaced current link on: " + linkName);
+            logger.debug("Replaced current link on: " + linkName);
         }
         links.put(linkName, link);
     }

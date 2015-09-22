@@ -41,6 +41,9 @@ import java.io.OutputStream;
 import java.io.Serializable;
 import java.util.concurrent.CopyOnWriteArrayList;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import ccre.channel.BooleanInput;
 import ccre.channel.BooleanOutput;
 import ccre.channel.BooleanStatus;
@@ -53,7 +56,6 @@ import ccre.channel.FloatStatus;
 import ccre.cluck.rpc.RemoteProcedure;
 import ccre.cluck.rpc.SimpleProcedure;
 import ccre.log.LogLevel;
-import ccre.log.Logger;
 import ccre.log.LoggingTarget;
 import ccre.rconf.RConf;
 import ccre.rconf.RConf.Entry;
@@ -67,6 +69,7 @@ import ccre.util.Utils;
  * @author skeggsc
  */
 public class CluckPublisher {
+    private static Logger logger = LoggerFactory.getLogger(CluckPublisher.class);
 
     private static long lastReportedRemoteLoggingError = 0;
 
@@ -152,9 +155,9 @@ public class CluckPublisher {
             protected void receive(String src, byte[] data) {
                 if (data.length != 0 && (data[0] == RMT_NEGATIVE_ACK || data[0] == RMT_LEGACY_EVENTINPUT_UNSUB)) {
                     if (remotes.remove(src)) {
-                        Logger.warning("Connection cancelled to " + src + " on " + name);
+                        logger.warn("Connection cancelled to " + src + " on " + name);
                     } else {
-                        Logger.warning("Received cancellation to nonexistent " + src + " on " + name);
+                        logger.warn("Received cancellation to nonexistent " + src + " on " + name);
                     }
                 } else if (requireRMT(src, data, RMT_EVENTINPUT) && !remotes.contains(src)) {
                     remotes.add(src);
@@ -195,7 +198,7 @@ public class CluckPublisher {
                 int len1 = Utils.bytesToInt(data, 2);
                 int len2 = Utils.bytesToInt(data, 6);
                 if (len1 + len2 + 10 != data.length) {
-                    Logger.warning("Bad data length to Logging Target!");
+                    logger.warn("Bad data length to Logging Target!");
                     return;
                 }
                 String message = new String(data, 10, len1);
@@ -234,9 +237,9 @@ public class CluckPublisher {
             protected void receive(String src, byte[] data) {
                 if (data.length != 0 && (data[0] == RMT_NEGATIVE_ACK || data[0] == RMT_LEGACY_BOOLINPUT_UNSUB)) {
                     if (remotes.remove(src)) {
-                        Logger.warning("Connection cancelled to " + src + " on " + name);
+                        logger.warn("Connection cancelled to " + src + " on " + name);
                     } else {
-                        Logger.warning("Received cancellation to nonexistent " + src + " on " + name);
+                        logger.warn("Received cancellation to nonexistent " + src + " on " + name);
                     }
                 } else if (requireRMT(src, data, RMT_BOOLINPUT)) {
                     remotes.add(src);
@@ -310,9 +313,9 @@ public class CluckPublisher {
             protected void receive(String src, byte[] data) {
                 if (data.length != 0 && (data[0] == RMT_NEGATIVE_ACK || data[0] == RMT_LEGACY_FLOATINPUT_UNSUB)) {
                     if (remotes.remove(src)) {
-                        Logger.warning("Connection cancelled to " + src + " on " + name);
+                        logger.warn("Connection cancelled to " + src + " on " + name);
                     } else {
-                        Logger.warning("Received cancellation to nonexistent " + src + " on " + name);
+                        logger.warn("Received cancellation to nonexistent " + src + " on " + name);
                     }
                 } else if (requireRMT(src, data, RMT_FLOATINPUT)) {
                     remotes.add(src);
@@ -434,7 +437,7 @@ public class CluckPublisher {
                     try {
                         out.write(data, 1, data.length - 1);
                     } catch (IOException ex) {
-                        Logger.warning("IO Exception during network transfer!", ex);
+                        logger.warn("IO Exception during network transfer!", ex);
                     }
                 }
             }
@@ -472,24 +475,25 @@ public class CluckPublisher {
                     }
                     short count = (short) data.length;
                     if (count != data.length) {
-                        Logger.warning("Too many fields in RConf query response!");
+                        logger.warn("Too many fields in RConf query response!");
                         count = Short.MAX_VALUE;
                     }
                     try {
                         out.write(new byte[] { (byte) (count >> 8), (byte) count });
                         for (int i = 0; i < count; i++) {
-                            int len = data[i].contents.length + 1;// plus one for the type
+                            // plus one for the type
+                            int len = data[i].contents.length + 1;
                             out.write(new byte[] { (byte) (len >> 24), (byte) (len >> 16), (byte) (len >> 8), (byte) len, data[i].type });
                             out.write(data[i].contents);
                         }
                     } catch (IOException e) {
-                        Logger.warning("IOException during response to RConf query!", e);
+                        logger.warn("IOException during response to RConf query!", e);
                     }
                 } finally {
                     try {
                         out.close();
                     } catch (IOException e) {
-                        Logger.warning("IOException during RConf close!", e);
+                        logger.warn("IOException during RConf close!", e);
                     }
                 }
             }
@@ -498,7 +502,7 @@ public class CluckPublisher {
             public void invoke(byte[] in, OutputStream out) {
                 try {
                     if (in.length < 2) {
-                        Logger.warning("Invalid message to RConf signal node!");
+                        logger.warn("Invalid message to RConf signal node!");
                         return;
                     }
                     byte[] data = new byte[in.length - 2];
@@ -508,7 +512,7 @@ public class CluckPublisher {
                         try {
                             out.write(success ? (byte) 1 : (byte) 0);
                         } catch (IOException e) {
-                            Logger.warning("IOException during response to RConf signal!", e);
+                            logger.warn("IOException during response to RConf signal!", e);
                         }
                     } catch (InterruptedException e1) {
                         Thread.currentThread().interrupt();
@@ -517,7 +521,7 @@ public class CluckPublisher {
                     try {
                         out.close();
                     } catch (IOException e) {
-                        Logger.warning("IOException during response to RConf signal!", e);
+                        logger.warn("IOException during response to RConf signal!", e);
                     }
                 }
             }
@@ -556,7 +560,7 @@ public class CluckPublisher {
         public boolean signalRConf(int field, byte[] data) throws InterruptedException {
             byte[] ndata = new byte[data.length + 2];
             if (field != (field & 0xFFFF)) {
-                Logger.warning("Out of range field in RConf query response!");
+                logger.warn("Out of range field in RConf query response!");
                 return false;
             }
             ndata[0] = (byte) (field >> 8);
@@ -577,14 +581,14 @@ public class CluckPublisher {
                 return null;
             }
             if (data.length < 2) {
-                Logger.warning("Too-short (1) RConf query response!");
+                logger.warn("Too-short (1) RConf query response!");
                 return null;
             }
             Entry[] out = new Entry[((data[0] & 0xFF) << 8) | (data[1] & 0xFF)];
             int ptr = 2;
             for (int i = 0; i < out.length; i++) {
                 if (data.length - ptr < 4) {
-                    Logger.warning("Too-short (2) RConf query response!");
+                    logger.warn("Too-short (2) RConf query response!");
                     return null;
                 }
                 int len = ((data[ptr] & 0xFF) << 24) | ((data[ptr + 1] & 0xFF) << 16) | ((data[ptr + 2] & 0xFF) << 8) | (data[ptr + 3] & 0xFF);
@@ -592,7 +596,7 @@ public class CluckPublisher {
                 byte[] part = new byte[len - 1];
                 ptr += 5;
                 if (data.length - ptr < part.length) {
-                    Logger.warning("Too-short (3) RConf query response!");
+                    logger.warn("Too-short (3) RConf query response!");
                     return null;
                 }
                 System.arraycopy(data, ptr, part, 0, part.length);
@@ -600,7 +604,7 @@ public class CluckPublisher {
                 out[i] = new RConf.Entry(type, part);
             }
             if (ptr != data.length) {
-                Logger.warning("Too-long RConf query response!");
+                logger.warn("Too-long RConf query response!");
                 return null;
             }
             return out;
@@ -686,9 +690,11 @@ public class CluckPublisher {
                     node.transmit(path, null, out);
                 }
             } catch (Throwable thr) {
-                // We use System.currentTimeMillis() instead of Time.currentTimeMillis() because this is only to prevent message spam.
+                // We use System.currentTimeMillis() instead of
+                // Time.currentTimeMillis() because this is only to prevent
+                // message spam.
                 if (System.currentTimeMillis() - lastReportedRemoteLoggingError > 500) {
-                    Logger.severe("[LOCAL] Error during remote log", thr);
+                    logger.error("[LOCAL] Error during remote log", thr);
                     lastReportedRemoteLoggingError = System.currentTimeMillis();
                 }
             }
@@ -777,7 +783,7 @@ public class CluckPublisher {
         @Override
         protected void receiveValid(String src, byte[] data) {
             if (!path.equals(src)) {
-                Logger.warning("Bad source to " + linkName + ": " + src + " instead of " + path);
+                logger.warn("Bad source to " + linkName + ": " + src + " instead of " + path);
             } else {
                 result.set(Utils.bytesToFloat(data, 1));
             }
@@ -879,7 +885,7 @@ public class CluckPublisher {
         @Override
         protected void receiveValid(String src, byte[] data) {
             if (!path.equals(src)) {
-                Logger.warning("Bad source to " + linkName + ": " + src + " instead of " + path);
+                logger.warn("Bad source to " + linkName + ": " + src + " instead of " + path);
             } else {
                 result.set(data[1] != 0);
             }
@@ -975,7 +981,7 @@ public class CluckPublisher {
         @Override
         protected void receiveValid(String src, byte[] data) {
             if (!path.equals(src)) {
-                Logger.warning("Bad source to " + linkName + ": " + src + " instead of " + path);
+                logger.warn("Bad source to " + linkName + ": " + src + " instead of " + path);
             } else {
                 result.produce();
             }

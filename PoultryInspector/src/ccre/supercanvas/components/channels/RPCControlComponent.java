@@ -25,8 +25,10 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.Serializable;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import ccre.cluck.rpc.RemoteProcedure;
-import ccre.log.Logger;
 import ccre.supercanvas.DraggableBoxComponent;
 import ccre.supercanvas.Rendering;
 
@@ -37,6 +39,7 @@ import ccre.supercanvas.Rendering;
  * @author skeggsc
  */
 public class RPCControlComponent extends DraggableBoxComponent {
+    private static Logger logger = LoggerFactory.getLogger(RPCControlComponent.class);
 
     private final class Receiver extends OutputStream implements Serializable {
         private static final long serialVersionUID = -8619972677259470148L;
@@ -165,12 +168,12 @@ public class RPCControlComponent extends DraggableBoxComponent {
         for (int i = 0; i < decoded.length; i++) {
             int a = decodeHexDigit(contents.charAt(i * 2)), b = decodeHexDigit(contents.charAt(i * 2 + 1));
             if (a == -1 || b == -1) {
-                Logger.warning("Undiscovered bad hex digit in sendable.");
+                logger.warn("Undiscovered bad hex digit in sendable.");
             } else {
                 decoded[i] = (byte) ((a << 4) | b);
             }
         }
-        Logger.info("Decoded " + decoded.length + " bytes.");
+        logger.info("Decoded " + decoded.length + " bytes.");
         return decoded;
     }
 

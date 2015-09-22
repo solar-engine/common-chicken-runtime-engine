@@ -18,7 +18,10 @@
  */
 package ccre.channel;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import org.junit.After;
 import org.junit.Before;
@@ -201,7 +204,8 @@ public class BooleanInputTest {
             }
         };
         BooleanInput bi2 = bi.not();
-        result = false;// no update fired because not() is required to work without that.
+        result = false;// no update fired because not() is required to work
+                       // without that.
         assertTrue(bi2.get());
         result = true;
         assertFalse(bi2.get());

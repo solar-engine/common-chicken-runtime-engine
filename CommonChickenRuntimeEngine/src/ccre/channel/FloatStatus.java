@@ -142,7 +142,7 @@ public class FloatStatus implements FloatOutput, FloatInput, Serializable {
     public FloatInput asInput() {
         return this;
     }
-    
+
     @Override
     public void onUpdate(EventOutput notify) {
         if (notify == null) {

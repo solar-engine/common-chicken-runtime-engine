@@ -26,10 +26,12 @@ import java.net.SocketTimeoutException;
 import java.util.LinkedList;
 import java.util.Random;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import ccre.cluck.CluckLink;
 import ccre.cluck.CluckNode;
 import ccre.concurrency.ReporterThread;
-import ccre.log.Logger;
 import ccre.net.ClientSocket;
 
 /**
@@ -38,12 +40,22 @@ import ccre.net.ClientSocket;
  * @author skeggsc
  */
 public class CluckProtocol {
-
-    static final int CURRENT_VERSION = 0;// NOTE: changing this will break compatibility with anything older than CCRE v3!
+    /**
+     * NOTE: changing this will break compatibility with anything older than
+     * CCRE v3!
+     */
+    static final int CURRENT_VERSION = 0;
     // also, it can only be, at most, 0xFF.
 
-    static final int TIMEOUT_PERIOD = 600;// milliseconds
-    static final int KEEPALIVE_INTERVAL = 200;// milliseconds, should always be noticeably less than TIMEOUT_PERIOD
+    /**
+     * Milliseconds
+     */
+    static final int TIMEOUT_PERIOD = 600;
+    
+    /**
+     * Milliseconds, should always be noticeably less than TIMEOUT_PERIOD
+     */
+    static final int KEEPALIVE_INTERVAL = 200;
 
     /**
      * Sets the appropriate timeout on sock, for disconnection reporting.
@@ -75,9 +87,11 @@ public class CluckProtocol {
         if ((raw_magic & 0xFFFF00FF) != 0x154000CA) {
             throw new IOException("Magic number did not match!");
         }
-        int version = (raw_magic & 0x0000FF00) >> 8;// always in [0, 255]
+        int version = (raw_magic & 0x0000FF00) >> 8; // always in [0, 255]
         if (version < CURRENT_VERSION) {
-            // The side with the higher version (if they differ) is responsible for providing a transformer to be compatible with the older version.
+            // The side with the higher version (if they differ) is responsible
+            // for providing a transformer to be compatible with the older
+            // version.
             // But so far, we're still on version 0, so this shouldn't happen!
             throw new IOException("Remote end is on an older version of Cluck! I don't quite know how to deal with this.");
         }
@@ -132,29 +146,30 @@ public class CluckProtocol {
                     }
                     if (!expectKeepAlives && "KEEPALIVE".equals(dest) && source == null && data.length >= 2 && data[0] == CluckNode.RMT_NEGATIVE_ACK && data[1] == 0x6D) {
                         expectKeepAlives = true;
-                        Logger.info("Detected KEEPALIVE message. Expecting future keepalives on " + linkName + ".");
+                        LoggerFactory.getLogger(CluckProtocol.class).info("Detected KEEPALIVE message. Expecting future keepalives on " + linkName + ".");
                     }
                     source = prependLink(linkName, source);
                     long start = System.currentTimeMillis();
                     node.transmit(dest, source, data, denyLink);
                     long endAt = System.currentTimeMillis();
                     if (endAt - start > 1000) {
-                        Logger.warning("[LOCAL] Took a long time to process: " + dest + " <- " + source + " of " + (endAt - start) + " ms");
+                        LoggerFactory.getLogger(CluckProtocol.class).warn("[LOCAL] Took a long time to process: " + dest + " <- " + source + " of " + (endAt - start) + " ms");
                     }
                     lastReceive = System.currentTimeMillis();
                 } catch (SocketTimeoutException ex) {
                     if (expectKeepAlives && System.currentTimeMillis() - lastReceive > TIMEOUT_PERIOD) {
                         throw ex;
                     } else {
-                        // otherwise, don't do anything - we don't know if this is a timeout.
+                        // otherwise, don't do anything - we don't know if this
+                        // is a timeout.
                     }
                 }
             }
         } catch (SocketTimeoutException ex) {
-            Logger.fine("Link timed out: " + linkName);
+            LoggerFactory.getLogger(CluckProtocol.class).debug("Link timed out: " + linkName);
         } catch (SocketException ex) {
             if ("Connection reset".equals(ex.getMessage())) {
-                Logger.fine("Link receiving disconnected: " + linkName);
+                LoggerFactory.getLogger(CluckProtocol.class).debug("Link receiving disconnected: " + linkName);
             } else {
                 throw ex;
             }
@@ -187,11 +202,13 @@ public class CluckProtocol {
         final ReporterThread main = new CluckSenderThread("Cluck-Send-" + linkName, queue, dout);
         main.start();
         CluckLink clink = new CluckLink() {
+            private Logger logger = LoggerFactory.getLogger(CluckProtocol.class);
+
             private boolean isRunning = false;
 
             public synchronized boolean send(String dest, String source, byte[] data) {
                 if (isRunning) {
-                    Logger.severe("[LOCAL] Already running transmit!");
+                    logger.error("[LOCAL] Already running transmit!");
                     return true;
                 }
                 isRunning = true;
@@ -204,7 +221,7 @@ public class CluckProtocol {
                     }
                     Thread.yield();
                     if (size > 75) {
-                        Logger.warning("[LOCAL] Queue too long: " + size + " for " + dest + " at " + System.currentTimeMillis());
+                        logger.warn("[LOCAL] Queue too long: " + size + " for " + dest + " at " + System.currentTimeMillis());
                     }
                 } finally {
                     isRunning = false;
@@ -260,6 +277,7 @@ public class CluckProtocol {
     }
 
     private static class CluckSenderThread extends ReporterThread {
+        private static Logger logger = LoggerFactory.getLogger(CluckSenderThread.class);
 
         private final LinkedList<SendableEntry> queue;
         private final DataOutputStream dout;
@@ -281,7 +299,8 @@ public class CluckProtocol {
                             queue.wait(200);
                         }
                         if (queue.isEmpty()) {
-                            // Send a "keep-alive" message. RMT_NEGATIVE_ACK will never be complained about, so it works.
+                            // Send a "keep-alive" message. RMT_NEGATIVE_ACK
+                            // will never be complained about, so it works.
                             ent = new SendableEntry(null, "KEEPALIVE", new byte[] { CluckNode.RMT_NEGATIVE_ACK, 0x6D });
                         } else {
                             ent = queue.removeFirst();
@@ -298,7 +317,7 @@ public class CluckProtocol {
                     dout.writeLong(checksum(data, begin));
                 }
             } catch (IOException ex) {
-                Logger.warning("Bad IO in " + this + ": " + ex);
+                logger.warn("Bad IO in " + this + ": " + ex);
             }
         }
     }

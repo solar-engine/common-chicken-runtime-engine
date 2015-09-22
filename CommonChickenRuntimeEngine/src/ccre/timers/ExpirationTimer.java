@@ -21,6 +21,9 @@ package ccre.timers;
 import java.util.ArrayList;
 import java.util.Collections;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import ccre.channel.BooleanInput;
 import ccre.channel.BooleanOutput;
 import ccre.channel.BooleanStatus;
@@ -29,7 +32,6 @@ import ccre.channel.EventOutput;
 import ccre.channel.EventStatus;
 import ccre.channel.FloatInput;
 import ccre.concurrency.ReporterThread;
-import ccre.log.Logger;
 import ccre.time.Time;
 
 /**
@@ -43,6 +45,7 @@ import ccre.time.Time;
  * @author skeggsc
  */
 public final class ExpirationTimer {
+    private static Logger logger = LoggerFactory.getLogger(ExpirationTimer.class);
 
     /**
      * The list of tasks, sorted in order with the first task (shortest delay)
@@ -169,7 +172,7 @@ public final class ExpirationTimer {
             try {
                 t.cnsm.event();
             } catch (Throwable thr) {
-                Logger.severe("Exception in ExpirationTimer dispatch!", thr);
+                logger.error("Exception in ExpirationTimer dispatch!", thr);
             }
         }
     }
@@ -186,11 +189,18 @@ public final class ExpirationTimer {
                 recalculateTasks();
                 long startAt = startedAt;
                 runTasks(startAt);
-                while (isStarted.get() && !terminated && startAt == startedAt) {// Once finished, wait to stop before restarting.
+                while (isStarted.get() && !terminated && startAt == startedAt) {// Once
+                                                                                // finished,
+                                                                                // wait
+                                                                                // to
+                                                                                // stop
+                                                                                // before
+                                                                                // restarting.
                     try {
                         this.wait();
                     } catch (InterruptedException e) {
-                        // this is actually the expected way of notifying this thread
+                        // this is actually the expected way of notifying this
+                        // thread
                     }
                 }
             } catch (InterruptedException ex) {

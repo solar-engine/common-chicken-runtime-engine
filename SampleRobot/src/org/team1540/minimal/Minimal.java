@@ -18,8 +18,10 @@
  */
 package org.team1540.minimal;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import ccre.frc.FRCApplication;
-import ccre.log.Logger;
 
 /**
  * A very simple example program.
@@ -27,12 +29,13 @@ import ccre.log.Logger;
  * @author skeggsc
  */
 public class Minimal implements FRCApplication {
+    private static Logger logger = LoggerFactory.getLogger(Minimal.class);
 
     /**
      * Set up the robot. For the minimal robot, this only means printing a
      * message.
      */
     public void setupRobot() {
-        Logger.info("I live!");
+        logger.info("I live!");
     }
 }

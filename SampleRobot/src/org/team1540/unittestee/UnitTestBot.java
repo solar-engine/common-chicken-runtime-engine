@@ -46,7 +46,7 @@ public class UnitTestBot implements FRCApplication {
         FloatStatus f = new FloatStatus();
         EventStatus e = new EventStatus();
         Cluck.publish("utest-os0", Cluck.subscribeOS(targetRoot + "utest-os1"));
-        Cluck.publish("utest-lt0", Cluck.subscribeLT(targetRoot + "utest-lt1", LogLevel.FINEST));
+        Cluck.publish("utest-lt0", Cluck.subscribeLT(targetRoot + "utest-lt1", LogLevel.TRACE));
         Cluck.publish("utest-fo0", (FloatOutput) f);
         Cluck.publish("utest-fi0", (FloatInput) f);
         Cluck.publish("utest-bo0", (BooleanOutput) b);

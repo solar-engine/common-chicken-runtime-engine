@@ -30,11 +30,14 @@ import java.util.WeakHashMap;
 import net.java.games.input.Component;
 import net.java.games.input.Controller;
 import net.java.games.input.ControllerEnvironment;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import ccre.channel.EventInput;
 import ccre.channel.EventOutput;
 import ccre.ctrl.AbstractJoystick;
 import ccre.ctrl.IJoystick;
-import ccre.log.Logger;
 
 /**
  * Uses JInput to allow the Emulator to work with physical joysticks.
@@ -42,17 +45,19 @@ import ccre.log.Logger;
  * @author skeggsc
  */
 public class JoystickHandler {
+    private static Logger logger = LoggerFactory.getLogger(JoystickHandler.class);
+
     static {
         File f;
         try {
             f = File.createTempFile("joystick-binaries", "");
             if (!f.delete()) {
-                Logger.warning("Could not delete JInput temporary file.");
+                LoggerFactory.getLogger(JoystickHandler.class).warn("Could not delete JInput temporary file.");
             } else if (!f.mkdir()) {
-                Logger.warning("Could not create JInput temporary directory.");
+                LoggerFactory.getLogger(JoystickHandler.class).warn("Could not create JInput temporary directory.");
             } else {
                 f.deleteOnExit();
-                Logger.info("Putting binaries in: " + f);
+                LoggerFactory.getLogger(JoystickHandler.class).info("Putting binaries in: " + f);
                 Properties props = new Properties();
                 try (InputStream resource = JoystickHandler.class.getResourceAsStream("/natives.properties")) {
                     props.load(resource);
@@ -89,7 +94,7 @@ public class JoystickHandler {
                 System.setProperty("net.java.games.input.librarypath", f.getAbsolutePath());
             }
         } catch (IOException e) {
-            Logger.warning("Could not unpack binaries for JInput", e);
+            LoggerFactory.getLogger(JoystickHandler.class).warn("Could not unpack binaries for JInput", e);
         }
         ControllerEnvironment.getDefaultEnvironment().getControllers();
     }
@@ -219,7 +224,7 @@ public class JoystickHandler {
         }
 
         private void start() {
-            Logger.info("Started: " + ctrl + ": " + ctrl.getType());
+            logger.info("Started: " + ctrl + ": " + ctrl.getType());
             axes.clear();
             buttons.clear();
             axes.add(null);
@@ -228,7 +233,7 @@ public class JoystickHandler {
             axes.add(null);
             axes.add(null);
             for (Component comp : ctrl.getComponents()) {
-                Logger.info("Component: " + comp);
+                logger.info("Component: " + comp);
                 if (comp.getIdentifier() instanceof Component.Identifier.Button) {
                     buttons.add(comp);
                 } else if (comp.getIdentifier() instanceof Component.Identifier.Axis) {
@@ -252,12 +257,12 @@ public class JoystickHandler {
             while (axes.contains(null)) {
                 axes.remove(null);
             }
-            Logger.info("B/A/P: " + buttons + "/" + axes + "/" + pov);
+            logger.info("B/A/P: " + buttons + "/" + axes + "/" + pov);
             if (isXBox()) {
-                Logger.info("This is a 5-axis XBOX controller, which means that it's not going to show up the same as on the real robot.");
-                Logger.info("To resolve this, the emulator will remap the trigger axis into the two separate axes - but it won't work exactly the same.");
-                Logger.info("Notably, unlike the real robot, we don't know the difference between pressing both axes and pressing neither axes.");
-                Logger.info("So, it will think that neither are pressed in this scenario.");
+                logger.info("This is a 5-axis XBOX controller, which means that it's not going to show up the same as on the real robot.");
+                logger.info("To resolve this, the emulator will remap the trigger axis into the two separate axes - but it won't work exactly the same.");
+                logger.info("Notably, unlike the real robot, we don't know the difference between pressing both axes and pressing neither axes.");
+                logger.info("So, it will think that neither are pressed in this scenario.");
             }
         }
     }

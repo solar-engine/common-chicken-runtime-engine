@@ -20,11 +20,13 @@ package ccre.timers;
 
 import java.util.concurrent.CopyOnWriteArrayList;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import ccre.channel.BooleanInput;
 import ccre.channel.BooleanOutput;
 import ccre.channel.EventOutput;
 import ccre.concurrency.ReporterThread;
-import ccre.log.Logger;
 import ccre.time.Time;
 
 /**
@@ -38,6 +40,7 @@ import ccre.time.Time;
  * @author skeggsc
  */
 public class PauseTimer implements BooleanInput, EventOutput {
+    private static Logger logger = LoggerFactory.getLogger(PauseTimer.class);
 
     private volatile long endAt;
     private final long timeout;
@@ -130,7 +133,7 @@ public class PauseTimer implements BooleanInput, EventOutput {
             try {
                 c.event();
             } catch (Throwable thr) {
-                Logger.severe("Exception in PauseTimer dispatch!", thr);
+                logger.error("Exception in PauseTimer dispatch!", thr);
             }
         }
     }
@@ -163,7 +166,7 @@ public class PauseTimer implements BooleanInput, EventOutput {
     public void triggerAtChanges(EventOutput start, EventOutput end) {
         send(BooleanOutput.onChange(end, start));
     }
-    
+
     public void onUpdate(EventOutput notify) {
         consumers.add(notify);
     }

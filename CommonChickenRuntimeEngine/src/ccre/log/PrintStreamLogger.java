@@ -44,17 +44,19 @@ public final class PrintStreamLogger implements LoggingTarget {
         this.str = out;
     }
 
+    @Override
     public synchronized void log(LogLevel level, String message, Throwable thr) {
         if (thr != null) {
-            str.println("LOG{" + level.message + "} " + message);
+            str.println("[" + level.message + "] " + message);
             thr.printStackTrace(str);
         } else {
-            str.println("LOG[" + level.message + "] " + message);
+            str.println("[" + level.message + "] " + message);
         }
     }
 
-    public synchronized void log(LogLevel level, String message, String extended) {
-        str.println("LOG[" + level.message + "] " + message);
+    @Override
+    public void log(LogLevel level, String message, String extended) {
+        str.println("[" + level.message + "] " + message);
         if (extended != null && !extended.isEmpty()) {
             str.println(extended);
         }

@@ -55,7 +55,7 @@ public class LineCollectorOutputStreamTest {
         stream.write(("hello world\n").getBytes());
         check("hello world");
     }
-    
+
     @Test
     public void testPartialResult() throws IOException {
         stream.write("hello world".getBytes());
@@ -64,7 +64,7 @@ public class LineCollectorOutputStreamTest {
         stream.write('\n');
         check("hello world");
     }
-    
+
     @Test
     public void testStrangeStrings() throws IOException {
         for (int i = 0; i < 3000; i++) {

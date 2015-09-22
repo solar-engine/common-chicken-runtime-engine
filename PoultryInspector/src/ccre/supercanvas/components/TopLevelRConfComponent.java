@@ -23,8 +23,10 @@ import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import ccre.cluck.Cluck;
-import ccre.log.Logger;
 import ccre.rconf.RConf;
 import ccre.rconf.RConf.Entry;
 import ccre.rconf.RConfable;
@@ -38,6 +40,7 @@ import ccre.supercanvas.components.pinned.CluckNetworkingComponent;
  * @author skeggsc
  */
 public class TopLevelRConfComponent extends RConfComponent {
+    private static Logger logger = LoggerFactory.getLogger(TopLevelRConfComponent.class);
 
     /**
      * An RConfable that allows inspection of Java objects.
@@ -157,7 +160,7 @@ public class TopLevelRConfComponent extends RConfComponent {
                     f.setAccessible(true);
                     return f.get(target);
                 } catch (IllegalAccessException e) {
-                    Logger.warning("Could not access field " + f, e);
+                    logger.warn("Could not access field " + f, e);
                 }
             }
             return null;
@@ -175,9 +178,9 @@ public class TopLevelRConfComponent extends RConfComponent {
 
         public boolean signalRConf(int field, byte[] data) throws InterruptedException {
             if (field == 1) {
-                Logger.fine("Notifying...");
+                logger.debug("Notifying...");
                 Cluck.getNode().notifyNetworkModified();
-                Logger.fine("Notified!");
+                logger.debug("Notified!");
                 return true;
             } else if (field == 2) {
                 master.addInspection(master.getPanel());

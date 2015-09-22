@@ -1,7 +1,7 @@
 package edu.wpi.first.wpilibj.hal;
 
-import java.nio.IntBuffer;
 import java.nio.ByteBuffer;
+import java.nio.IntBuffer;
 
 public class SolenoidJNI extends JNIWrapper {
     public static native ByteBuffer initializeSolenoidPort(ByteBuffer portPointer, IntBuffer status);

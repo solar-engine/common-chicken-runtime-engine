@@ -18,13 +18,16 @@
  */
 package ccre.ctrl;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import ccre.channel.BooleanInput;
 import ccre.channel.DerivedBooleanInput;
 import ccre.channel.EventInput;
 import ccre.channel.EventOutput;
 import ccre.channel.EventStatus;
+import ccre.log.CCRELogger;
 import ccre.log.LogLevel;
-import ccre.log.Logger;
 
 /**
  * A finite-state machine. This has a number of named, predefined states, which
@@ -38,6 +41,8 @@ import ccre.log.Logger;
  * @author skeggsc
  */
 public class StateMachine {
+    private static Logger logger = LoggerFactory.getLogger(StateMachine.class);
+    
     private int currentState;
     private final int numberOfStates;
     private final EventStatus onExit = new EventStatus();
@@ -339,7 +344,7 @@ public class StateMachine {
     public void autologTransitions(final LogLevel level, final String prefix) {
         onEnter.send(new EventOutput() {
             public void event() {
-                Logger.log(level, prefix + getStateName());
+                CCRELogger.logByLevel(logger, level, prefix + getStateName());
             }
         });
     }

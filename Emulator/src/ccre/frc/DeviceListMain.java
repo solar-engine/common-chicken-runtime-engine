@@ -24,13 +24,15 @@ import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.jar.JarFile;
+import java.util.logging.Logger;
 
 import javax.swing.JFrame;
+
+import org.slf4j.LoggerFactory;
 
 import ccre.channel.EventStatus;
 import ccre.cluck.Cluck;
 import ccre.log.FileLogger;
-import ccre.log.Logger;
 import ccre.log.NetworkAutologger;
 
 /**
@@ -96,13 +98,13 @@ public class DeviceListMain {
         Thread.sleep(500);// give a bit of time for network stuff to try to set itself up.
         try {
             impl.clearLoggingPane();
-            Logger.info("Starting application: " + mainClass);
+            LoggerFactory.getLogger(DeviceListMain.class).info("Starting application: " + mainClass);
             asSubclass.getConstructor().newInstance().setupRobot();
             onInit.event();
-            Logger.info("Hello, " + mainClass + "!");
+            LoggerFactory.getLogger(DeviceListMain.class).info("Hello, " + mainClass + "!");
             impl.panel.start();
         } catch (Throwable thr) {
-            Logger.warning("Init failed", thr);
+            LoggerFactory.getLogger(DeviceListMain.class).warn("Init failed", thr);
             impl.panel.setErrorDisplay(thr);
         }
     }

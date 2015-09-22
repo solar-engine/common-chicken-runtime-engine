@@ -571,7 +571,10 @@ public class FloatInputTest {
             fs.set(0);
             ceo.check();
             for (float v : Values.lessInterestingFloats) {
-                if (Math.abs(last - v) > Math.abs(d)) {// note: if onChangeBy(0), then everything should trigger this.
+                if (Math.abs(last - v) > Math.abs(d)) {// note: if
+                                                       // onChangeBy(0), then
+                                                       // everything should
+                                                       // trigger this.
                     last = v;
                     ceo.ifExpected = true;
                 } else {
@@ -828,7 +831,8 @@ public class FloatInputTest {
     }
 
     @Test
-    public void testCreateRampingEvent() {// TODO: perhaps flesh these tests out a bit more?
+    public void testCreateRampingEvent() {// TODO: perhaps flesh these tests out
+                                          // a bit more?
         FloatStatus fi = new FloatStatus();
         EventOutput update = fs.createRampingEvent(0.2f, fi);
         for (float i = -5f; i < 5f; i++) {

@@ -18,11 +18,13 @@
  */
 package ccre.timers;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import ccre.channel.EventInput;
 import ccre.channel.EventOutput;
 import ccre.channel.EventStatus;
 import ccre.concurrency.ReporterThread;
-import ccre.log.Logger;
 import ccre.time.Time;
 
 /**
@@ -32,6 +34,7 @@ import ccre.time.Time;
  * @author MillerV, SkeggsC
  */
 public final class Ticker implements EventInput {
+    private static Logger logger = LoggerFactory.getLogger(Ticker.class);
 
     private final EventStatus producer = new EventStatus();
     private final ReporterThread main;
@@ -154,7 +157,7 @@ public final class Ticker implements EventInput {
                     }
                 }
             } catch (Throwable thr) {
-                Logger.severe("Exception in Ticker main loop!", thr);
+                logger.error("Exception in Ticker main loop!", thr);
                 countFails += 10;
             }
         }

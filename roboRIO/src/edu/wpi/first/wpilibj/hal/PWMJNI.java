@@ -1,7 +1,7 @@
 package edu.wpi.first.wpilibj.hal;
 
-import java.nio.IntBuffer;
 import java.nio.ByteBuffer;
+import java.nio.IntBuffer;
 
 public class PWMJNI extends DIOJNI {
     public static native boolean allocatePWMChannel(ByteBuffer digital_port_pointer, IntBuffer status);

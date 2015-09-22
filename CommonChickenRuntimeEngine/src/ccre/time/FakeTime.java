@@ -21,11 +21,14 @@ package ccre.time;
 import java.util.LinkedList;
 import java.util.PriorityQueue;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import ccre.channel.EventOutput;
-import ccre.log.Logger;
 
 // NOTE: this contains complex and likely slightly broken synchronization code. do not use it in production!
 public class FakeTime extends Time {
+    private static Logger logger = LoggerFactory.getLogger(FakeTime.class);
 
     private static final boolean debug = false;
 
@@ -61,7 +64,7 @@ public class FakeTime extends Time {
             try {
                 entry.target.event();
             } catch (Throwable thr) {
-                Logger.severe("Schedule entry threw exception!", thr);
+                logger.error("Schedule entry threw exception!", thr);
             }
         }
         synchronized (this) {
@@ -136,20 +139,30 @@ public class FakeTime extends Time {
         } else if (timeout < 0) {
             throw new IllegalArgumentException("Negative wait time!");
         }
-        // we ignore the actual timeout... we can't tell the difference between an actual notification and a time-update notification!
+        // we ignore the actual timeout... we can't tell the difference between
+        // an actual notification and a time-update notification!
         // so we just go with the spurious wakeups every time the time changes.
         synchronized (this) {
             otherSleepers.add(object);
             adds++;
         }
         try {
-            // we only wait ONCE ... which means that we WILL have spurious wakeups! I _do_ hope that code using this can handle them like it's supposed to.
+            // we only wait ONCE ... which means that we WILL have spurious
+            // wakeups! I _do_ hope that code using this can handle them like
+            // it's supposed to.
 
-            // there's no race condition here because the notifying have to synchronize with 'object' to be able to send our own notification, and THIS thread is holding it.
+            // there's no race condition here because the notifying have to
+            // synchronize with 'object' to be able to send our own
+            // notification, and THIS thread is holding it.
             object.wait(1000);
-            // but there is a possible starvation condition, if a later object needs to be notified for the lock on this to be able to be release
-            // so we set a timeout on object, which should break the starvation possibilities... eventually. (but long enough away to be noticed by the user.)
-            // this would be a bigger issue if it could ever happen in production, so I'm leaving it for now.
+            // but there is a possible starvation condition, if a later object
+            // needs to be notified for the lock on this to be able to be
+            // release
+            // so we set a timeout on object, which should break the starvation
+            // possibilities... eventually. (but long enough away to be noticed
+            // by the user.)
+            // this would be a bigger issue if it could ever happen in
+            // production, so I'm leaving it for now.
             // simply put: NEVER USE FakeTime IN A PRODUCTION SYSTEM!
         } finally {
             synchronized (this) {

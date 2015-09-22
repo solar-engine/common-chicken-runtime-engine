@@ -25,6 +25,9 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.TreeSet;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import ccre.channel.BooleanInput;
 import ccre.channel.BooleanOutput;
 import ccre.channel.EventInput;
@@ -37,7 +40,6 @@ import ccre.cluck.CluckPublisher;
 import ccre.cluck.CluckRemoteListener;
 import ccre.cluck.rpc.RemoteProcedure;
 import ccre.log.LogLevel;
-import ccre.log.Logger;
 import ccre.log.LoggingTarget;
 import ccre.rconf.RConfable;
 import ccre.supercanvas.SuperCanvasComponent;
@@ -60,6 +62,7 @@ import ccre.util.UniqueIds;
  * @author skeggsc
  */
 public class NetworkPaletteComponent extends PaletteComponent<Collection<NetworkPaletteElement>> {
+    private static Logger logger = LoggerFactory.getLogger(NetworkPaletteComponent.class);
 
     /**
      * Fake RMT number used for merged event channels.
@@ -108,7 +111,7 @@ public class NetworkPaletteComponent extends PaletteComponent<Collection<Network
         case CluckNode.RMT_INVOKE:
             return new RPCControlComponent(x, y, name, (RemoteProcedure) target);
         default:
-            Logger.warning("Could not display RMT of " + CluckNode.rmtToString(type));
+            LoggerFactory.getLogger(NetworkPaletteComponent.class).warn("Could not display RMT of " + CluckNode.rmtToString(type));
             return null;
         }
     }
@@ -130,11 +133,11 @@ public class NetworkPaletteComponent extends PaletteComponent<Collection<Network
         case CluckNode.RMT_INVOKE:
             return Cluck.getNode().getRPCManager().subscribe(path, 500); // Is this a good amount of time?
         case CluckNode.RMT_LOGTARGET:
-            return Cluck.subscribeLT(path, LogLevel.FINEST); // Is this a good level?
+            return Cluck.subscribeLT(path, LogLevel.TRACE); // Is this a good level?
         case CluckNode.RMT_OUTSTREAM:
             return Cluck.subscribeOS(path);
         default:
-            Logger.warning("Could not subscribe to RMT of " + CluckNode.rmtToString(type));
+            LoggerFactory.getLogger(NetworkPaletteComponent.class).warn("Could not subscribe to RMT of " + CluckNode.rmtToString(type));
             return null;
         }
     }
@@ -171,7 +174,7 @@ public class NetworkPaletteComponent extends PaletteComponent<Collection<Network
                 for (NetworkPaletteElement e : entries) {
                     if (e.getName().equals(remote)) {
                         if (e.getType() != remoteType) {
-                            Logger.warning("Mismatched remote type in search!");
+                            logger.warn("Mismatched remote type in search!");
                         }
                         return;
                     }

@@ -33,7 +33,8 @@ public interface EventOutput {
     /**
      * An EventOutput that, when fired, does absolutely nothing.
      */
-    public static final EventOutput ignored = () -> {};
+    public static final EventOutput ignored = () -> {
+    };
 
     /**
      * Fire the event.

@@ -108,6 +108,8 @@ Now, let's test this code in the emulator. Open the dropdown next to the Externa
 
 @image["emulate.png"]{emulate}
 
+If the emulator doesn't appear properly, close it and rebuild the entire CCRE by pressing Project -> Clean... -> Clean All Projects -> OK and then Project -> Build All.
+
 On the emulator window that pops up, you should see it say something like
 @codeblock|{
     [INFO] (RobotTemplate.java:20) Hello, World!
@@ -390,7 +392,8 @@ This connects the input to the output, so that @code{y} is updated with the curr
 In the case of events, @code{send} causes the EventOutput to be fired whenever the EventInput is produced.
 
 @codeblock|{
-  BooleanInput x = /* ... */; // this also works if you replace Boolean with Event or Float in both places.
+  // this also works if you replace Boolean with Event or Float in both places.
+  BooleanInput x = /* ... */;
   BooleanOutput y = /* ... */;
   x.send(y);
   }|
@@ -413,19 +416,398 @@ See @secref["remixing"] for more info.
 
 @subsection{Status cells}
 
-In progress.
+Sometimes, you want to connect together methods that aren't easy to connect together. For example, you might have:
+
+@codeblock|{
+  send_some_data_to_an_output(???);
+  do_something_based_on_an_input(???);
+  }|
+
+How would you connect these? There's no implementation to provide either end. Luckily, the solution is easy: statuses!
+
+@codeblock|{
+   // this also works for EventStatus and FloatStatus, depending on what you're connecting.
+   BooleanStatus intermediate_channels = new BooleanStatus();
+   send_some_data_to_an_output(intermediate_channels);
+   do_something_based_on_an_input(intermediate_channels);
+   }|
+
+How is this works is: they have an internal state (at least for BooleanStatuses and FloatStatuses) that can be modified when they are used as an output, and can be monitored and read when they are used as an input. In the case of EventStatuses, when the output side is fired, the input side is produced.
+
+Because they have a persistent value, which is preserved over time, you can have persistent states that you can change.
+
+You can also use them as a named place to exchange data and control between different parts of a program.
 
 @section{Review of advanced Java concepts}
 
-In progress.
+There are a number of features of Java which are heavily used by the CCRE that you might not be familiar with. Below is a quick catalogue of them.
 
 @subsection{Anonymous classes}
 
-In progress.
+Sometimes you might want to implement an Output that does something unique, so you can't use anything built-in. You could put this somewhere else:
+
+@codeblock|{
+  public class CatPettingEventOutput implements EventOutput {
+    private final Cat cat_to_pet;
+
+    public CatPettingEventOutput(Cat cat_to_pet) {
+      this.cat_to_pet = cat_to_pet;
+    }
+
+    @Override
+    public void event() {
+      // pet a cat
+    }
+  }
+  }|
+
+and later:
+
+@codeblock|{
+  EventOutput pet_fluffy = new CatPettingEventOutput(fluffy);
+    }|
+
+But then the class definition is far away from the actual use, and your code gets clogged up with all of your classes. Clearly, there has to be an easier way:
+
+@codeblock|{
+     EventOutput pet_fluffy = new EventOutput() {
+       public void event() {
+         // pet fluffy
+       }
+     };
+     }|
+
+Useful!
 
 @subsection{Lambdas}
 
-In progress.
+Let's go one step further. In Java 8, there's a new feature called Lambdas which can replace some simple anonymous classes with even shorter code.
+
+Instead of these:
+
+@codeblock|{
+     EventOutput pet_fluffy = new EventOutput() {
+       public void event() {
+         // pet fluffy
+       }
+     };
+     BooleanOutput fluffy_cage_light = new BooleanOutput() {
+       public void set(boolean light_on) {
+         // turn on or off the light in fluffy's cage
+       }
+     };
+     FloatOutput fluffy_heater_temp = new FloatOutput() {
+       public void set(float temperature) {
+         // change the thermostat on fluffy's cage
+       }
+     };
+     }|
+
+You can now simply say:
+
+@codeblock|{
+     EventOutput pet_fluffy = () -> {
+       // pet fluffy
+     };
+     BooleanOutput fluffy_cage_light = (light_on) -> {
+       // turn on or off the light in fluffy's cage
+     };
+     FloatOutput fluffy_heater_temp = (temperature) -> {
+       // change the thermostat on fluffy's cage
+     };
+     }|
+
+(Also, if you only have a single statement in the lambda, you can omit the @code|{{}}| and the semicolon around the statement.)
+
+@section{The software environment}
+
+There are a number of components that you will be working with.
+
+@table-of-contents{}
+
+@subsection{The Driver Station}
+
+@margin-note{Unfortunately, the DS software only runs on Microsoft Windows.}
+The Driver Station is two different things: a piece of software, and the Windows laptop that runs that software.
+
+The Driver Station software connects over the robot's wireless network to the roboRIO (the brain of the robot) and tells it:
+
+@itemlist[@item{If it should be @italic{enabled}}
+          @item{What @italic{mode} it should be in}
+          @item{The current positions of all @italic{Joysticks}}]
+
+It also talks to the Field Management System (FMS) if you're playing in a real competition.
+
+The software looks like this:
+
+@image["driver-station.png"]
+
+The laptop might looks something like this: (depending on your team)
+
+@image["driver-station-laptop.jpg"]
+
+@margin-note{I'm only showing the left half of the DS - the right half is relatively unimportant.}
+
+Let's go over the tabs available on the DS:
+
+@image["driver-station-annotated.png"]
+
+@itemlist[@item{On the first page, you can select the @italic{mode} of the robot, as well as whether or not it's enabled.}
+          @item{On the third page, you can change the team number, which needs to be correct for you to be able to connect properly.}
+          @item{On the fourth page, you can see the current plugged-in Joysticks, change their ordering (by dragging them), and see the current inputs on any Joystick by selecting it.}
+          @item{And much more, but that's the most important stuff.}]
+
+@subsubsection{Modes}
+
+There are many different conceptualizations of what a "mode" is. The core three are Autonomous Mode, Teleoperated Mode, and Test Mode.
+
+From the robot's perspective, there's also disabled mode. (You can also think of it as Enabled versus Disabled and the three fundamental modes.)
+
+When in disabled mode, nothing on the robot should move. Safe!
+
+From the driver station's perspective, there is also Practice mode, which is useful in theory but not much in practice. (heh.) This mode simply sequences through the other modes in the standard order.
+
+There's also the emergency stop mode, which is entered by pressing the spacebar (in practice) or the physical e-stop button (on the real field.) Once the robot enters emergency stop mode, it is disabled until the robot is physically turned off and on again.
+
+@subsubsection{Keyboard shortcuts}
+
+There are a few important keyboard shortcuts:
+
+@itemlist[@item{The spacebar is the @italic{emergency-stop} button. Once you press it, the robot stops running until you reboot it physically.}
+          @item{The enter key is the disable key. It is the same as pressing the disable button on the first tab of the driver station.}
+          @item{If you press the keysequence @code|{[]\ }|, the robot will enable. This is the same as pressing the enable button on the first tab of the driver station.}]
+
+Always keep your hand near the disable key when enabling the robot.
+
+@subsubsection{Joysticks}
+
+The driver station can have up to six Joysticks attached to it. Each Joystick is an individual physical device. Examples of Joysticks:
+
+This is a Joystick:
+
+@image["joystick-normal.jpg"]
+
+This is ALSO a Joystick:
+
+@image["joystick-flight.jpg"]
+
+This? Another Joystick. Not two Joysticks - just one.
+
+@image["joystick-xbox.jpg"]
+
+Each Joystick has some number of @italic{axes} - each axis measures a value from -1.0 to 1.0. It also has some number of @italic{buttons} - each button can be either pressed or unpressed.
+
+Standard axes are the position of a Joystick on the forward-backward (Y) axis and the left-right (X) axis.
+
+For example, a trigger on a Joystick is a button, and an altitude control wheel (as on the base of the first Joystick) is an axis.
+
+The X axis on a Joystick is usually axis #1, and the Y axis is usually axis #2.
+
+If you work with something with multiple XY sticks, this may vary. On an xbox controller, for example, this is the left stick, but for the right stick, the X axis is #5 and the Y axis is #6. (And the triggers are #3 (left) and #4 (right.))
+
+@subsection{The match sequence}
+
+Here's how a match goes in normal FRC competitions:
+
+@itemlist[@item{All six teams from both alliances place their robots on the field, powered up.}
+          @item{They connect their driver stations to the FMS (field management system.)}
+          @item{The FMS takes control of the driver stations, preventing the user from controlling the robot mode.}
+          @item{When the match starts, after all robots have powered up and connected properly (or are bypassed if not) and the field personel start the match, the FMS enables each of the robots in autonomous mode.}
+          @item{Fifteen seconds later (depending on the game), the robots momentarily change into disabled mode.}
+          @item{Either momentarily afterward, or perhaps a few seconds afterward depending on the game, the robots are enabled in teleoperated mode.}
+          @item{Around two minutes later, the robots are disabled and the match ends.}]
+
+There is no way for a team to disable a robot during this time except to emergency-stop the robot. The robot can be forcibly disabled by the referees if it displays unsafe behaviour.
+
+Autonomous mode requires some different programming techniques to write well. See @secref["autonomous"] below.
+
+@subsection{Safety}
+
+There are some important guidelines that you need to follow, even if you're working on software:
+
+@itemlist[@item{Always wear safety glasses when working with a robot. You probably like having eyes.}
+          @item{Before enabling a robot, always yell CLEAR and wait for people to step away from the robot. Yell CLEAR multiple times if necessary - but don't enable the robot if people could be hit by it.}
+          @item{When you first test an autonomous mode, the robot will probably move faster than you expect. Set you speeds low.}
+          @item{Before enabling a robot, confirm that all of the Joysticks are free. Do not set any of them on seating surfaces.}
+          @item{When enabling a robot, always hover your fingers over the enter (disable) key. This will work regardless of what application currently has focus.}
+          @item{The first time you test a robot, or test any potentially dangerous behavior, place the robot "on blocks" - put bricks/wood blocks/something under the drive frame so that the wheels don't touch anything and can spin freely. This prevents it from running into anyone.}]
+
+Remember that following safety procedures are the difference between getting work done and being in the hospital.
+
+@subsection{The roboRIO}
+
+@image["roboRIO.jpg"]
+
+@smaller{@smaller{image sourced from @url{http://khengineering.github.io/RoboRio/faq/roborio/}}}
+
+The roboRIO is FRC's next-generation robot controller, from National Instruments. It supplants the previous cRIO, and runs Linux with PREEMPT_RT patches on an ARM processor.
+
+It contains a set of ports for interfacing with PWM-controlled devices, CAN bus devices, I@superscript{2}C devices, SPI devices, RS232 (serial) devices, miscellaneous digital I/O devices, relays, analog inputs, USB devices, and networked devices over Ethernet.
+
+You aren't allowed to control anything on your robot (except for nonfunctional components like LEDs) with any other controller than the roboRIO, so teams have to use it as their main controller.
+
+See below in this document for some of the devices that attach to the roboRIO.
+
+@subsubsection{Hardware access}
+
+The CCRE provides interfaces to the underlying hardware via WPILib's JNI layer, which attaches to the WPILib Hardware Abstraction Layer (in C++), which attaches to the NI ChipObject propriatary library, which attaches to the NiFPGA interface to the FPGA (field-programmable gate array) device that manages the communication between the higher-level code and the I/O ports.
+
+In other words, here's how hardware access works (CCRE at the left - other systems also shown):
+
+@define[(cellw txt width [height 40]) (let ((gen-text (text txt)))
+                            (cc-superimpose (rectangle width height) gen-text))]
+
+@vl-append[10
+ (ht-append 10
+            (vl-append 10
+                       (ht-append 10 (vl-append 10
+                                                (ht-append 10 (cellw "CCRE Hardware I/O" 150) (cellw "WPILibJ" 150))
+                                                (cellw "WPILib JNI Layer" 310))
+                                  (cellw "WPILibC++" 150 90)
+                                  (cellw "pyfrc" 150 90))
+                       (cellw "Hardware Abstraction Layer (HAL)" 630 40)
+                       (cellw "Ni ChipObject .so" 630 40)
+                       (cellw "NiFPGA interface" 630 40))
+            (cellw "FRC LabVIEW" 150 240))
+ (cellw "FPGA Hardware" 790 40)]
+
+See @secref["hardware-access"] for details on how to access hardware.
+
+@subsubsection{The cRIO}
+
+The cRIO was the previous platform used as a robot controller. It ran VxWorks instead of Linux, and the processor was PowerPC instead of ARM. This made it extremely hard to get any software for it. The only JVM we could use was the Squawk JVM, which only supported Java 1.3. (We're on Java 8 now.) The CCRE pioneered using retrotranslation technology to allow us to use some Java 5 features on the cRIO, but even with those the system was much harder to use than the modern roboRIO.
+
+@subsection{Downloading code}
+
+To download code, as we said before, you can easily deploy code to the robot:
+
+@image["deploy.png"]
+
+But how does this work behind the scenes?
+
+First, this goes through the DeploymentEngine, which dispatches to the @code{deploy()} DepTask in the default Deployment class:
+
+@codeblock|{
+    @DepTask
+    public static void deploy() throws Exception {
+        Artifact result = DepRoboRIO.buildProject(robotMain);
+
+        // code slightly abbreviated for clarity.
+
+        DepRoboRIO.RIOShell rshell = DepRoboRIO.discoverAndVerify(robot.RobotTemplate.TEAM_NUMBER);
+
+        rshell.archiveLogsTo(DepProject.root());
+
+        rshell.downloadAndStart(result);
+    }
+    }|
+
+@margin-note{To find the roboRIO, it checks @code{roboRIO-NNNN.local} (where NNNN is your team number), @code{172.22.11.2}, and @code{10.XX.YY.2} (where XXYY is your team number.)}
+This builds your robot code, discovers the roboRIO based on your team number, grabs any old logfiles from the robot, deploys the new robot code to the robot, and restarts the running code.
+
+To be able to talk to your robot to change the code, your laptop needs to be on the same network as the robot, and you need to be able to connect to the robot. (Try running @code{ping roboRIO-NNNN.local} to see if it can be reached, if you're having any problems.)
+
+@subsubsection{SSH}
+
+Sometimes, the robot breaks and you need to figure out what's going on. I'm not going to go into all of the details of this (TODO: go into all the details on this) but I'll overview how you start.
+
+You can connect to the roboRIO over SSH (aka Secure SHell) - you simply point your SSH client at roboRIO-NNNN.local (where NNNN is your team number) and enter the correct username and password.
+
+On Linux or Mac OS X, you can do this from the command line with pre-installed tools:
+
+@margin-note{On Windows, you can use PuTTY.}
+@codeblock|{
+ $ ssh admin@roboRIO-1540.local
+ Password:
+ $ do stuff on the robot
+}|
+
+The default password is the blank password, and the default username (instead of 'root') is 'admin'.
+
+Once you're on the robot, you want to look in @code{/home/lvuser}, where you should find the user program and some related files, including the most recent log files.
+
+@subsection{Speed controllers}
+
+A speed controller stands between the Power Distribution Panel (PDP) and individual motors, and varies the speed of the motor based on a signal from the roboRIO. There are two primary ways to control a motor: via PWM or via CAN.
+
+@subsubsection{PWM (Pulse-width modulation)}
+
+With PWM, you can drive Talon SRs, Talon SRXes, Victors, and Jaguars.
+
+A Victor:
+
+@image["motor-victor.jpg"]
+
+A Jaguar (also controllable over CAN):
+
+@image["motor-jaguar.jpg"]
+
+A Talon:
+
+@image["motor-talon-sr.jpg"]
+
+A Talon SRX (also controllable over CAN):
+
+@image["motor-talon-srx.jpg"]
+
+For a discussion of how PWM works, see @hyperlink["https://en.wikipedia.org/wiki/Pulse-width_modulation"]{the Wikipedia article}. The important attributes for us are:
+
+@itemlist[@item{PWM as a protocol is unidirectional. You can't get any information from a PWM device.}
+          @item{PWM ranges vary by kind of motor, so if you set up your output for a Talon, you can't run a Victor on that output.}
+          @item{PWM as a control channel is bidirectional. You can run the motor in either direction.}
+          @item{PWM is simple. It is usually easy to get to work and fixing a broken PWM connection is as easy as replacing a cable.}]
+
+See @secref["hardware-access"] for information on how to communicate with PWM speed controllers.
+
+@subsubsection{CAN (Control area network)}
+
+With CAN, you can drive Talon SRXes and CAN Jaguars.
+
+A Jaguar (also controllable over PWM):
+
+@image["motor-jaguar.jpg"]
+
+A Talon SRX (also controllable over PWM):
+
+@image["motor-talon-srx.jpg"]
+
+For a discussion of how CAN works, see @hyperlink["https://en.wikipedia.org/wiki/CAN_bus"]{the Wikipedia article}. The relevant attributes:
+
+@itemlist[@item{CAN as a protocol is bidirectional. You can get information from a CAN device about current voltage, current, faults, and more.}
+          @item{CAN needs to be specialized to the specific kind of speed controller - you have to know whether the CAN device is a CAN Jaguar or a Talon SRX, and a setup for one won't work for the other.}
+          @item{CAN can be controlled in terms of absolute voltage, fractional voltage, current, and other control modes. Fractional voltage is the easiest because it's simply -1.0 to 1.0 just like other motors.}
+          @item{Legacy CAN cables, such as those used for CAN Jaguars, are flaky and unreliable. Luckily, the newer CAN cables are much more reliable.}
+          @item{CAN is more complicated and requires more testing and configuration, but should provide more diagnostics in practice.}]
+
+See @secref["hardware-access"] for information on how to communicate with CAN speed controllers.
+
+@subsection{Sensors}
+
+Sensors can be classified by how they connect to the roboRIO.
+
+@subsubsection{Digital Inputs}
+
+  Infrared, touch, encoders, gear tooth, light sensors, magnetic switches, pressure switches
+
+@subsubsection{Analog Inputs}
+
+  Gyros, accelerometers, current sensors, pressure sensors
+
+@subsubsection{Internal Sensors to the roboRIO}
+
+  Internal accelerometers, current sensors
+
+@subsubsection{RS232 Sensors}
+
+  UM7LT
+
+@subsection{WiFi and Networking}
+
+@subsubsection{The FMS and port filtering}
+
+@subsection{Cluck & The Poultry Inspector}
+
+@subsubsection{Network Tables & Smart Dashboard}
 
 @section{Detailed guide to the CCRE}
 
@@ -439,11 +821,19 @@ In progress.
 
 In progress.
 
+@subsection[#:tag "autonomous"]{Autonomous}
+
+In progress.
+
 @subsection{Deployment}
 
 In progress.
 
 @subsection{The Cluck Pub/Sub System}
+
+In progress.
+
+@section{CCRE recipes}
 
 In progress.
 

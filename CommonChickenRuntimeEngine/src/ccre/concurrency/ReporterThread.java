@@ -69,7 +69,7 @@ public abstract class ReporterThread extends Thread {
         } catch (OutOfMemoryError oom) {
             System.err.println("OutOfMemory");
             Logger.severe("OutOfMemory");
-            throw oom; // The out-of-memory error will crash the system, at least in the Squawk VM.
+            Logger.severe("OutOfMemory", oom); // in case we can
         } catch (InterruptedIOException ex) {
             Logger.warning("Interruption (during IO) of Thread " + this.getName(), ex);
         } catch (InterruptedException ex) {

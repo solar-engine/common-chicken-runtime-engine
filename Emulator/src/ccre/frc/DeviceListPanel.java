@@ -45,6 +45,7 @@ import ccre.util.Utils;
  */
 public final class DeviceListPanel extends JPanel implements Iterable<Device> {
 
+    private static final int COLUMN_SPLIT_THRESHOLD = 900;
     private static final long serialVersionUID = 3194911460808795658L;
     /**
      * The width of the embedded scrollbar.
@@ -228,7 +229,7 @@ public final class DeviceListPanel extends JPanel implements Iterable<Device> {
     }
 
     private boolean shouldColumnsSplit() {
-        return getWidth() > 1400;
+        return getWidth() > COLUMN_SPLIT_THRESHOLD;
     }
 
     private int scrollbarRange() {

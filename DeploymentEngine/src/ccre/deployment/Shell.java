@@ -24,11 +24,13 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.InetAddress;
 import java.nio.file.Files;
+import java.security.PublicKey;
 import java.util.concurrent.TimeUnit;
 
 import net.schmizz.sshj.SSHClient;
 import net.schmizz.sshj.connection.channel.direct.Session;
 import net.schmizz.sshj.connection.channel.direct.Session.Command;
+import net.schmizz.sshj.transport.verification.HostKeyVerifier;
 import net.schmizz.sshj.xfer.FileSystemFile;
 import net.schmizz.sshj.xfer.InMemorySourceFile;
 import net.schmizz.sshj.xfer.scp.SCPFileTransfer;
@@ -38,8 +40,23 @@ public class Shell implements AutoCloseable {
 
     public Shell(InetAddress ip, String username, String password, boolean alwaysTrust) throws IOException {
         client = new SSHClient();
-        client.authPassword(username, password);
+        client.setConnectTimeout(5000);
+        client.setTimeout(5000);
+        client.addHostKeyVerifier(new HostKeyVerifier() {
+            @Override
+            public boolean verify(String hostname, int port, PublicKey key) {
+                return true; // TODO: is this a huge security hole? the official version does this too.
+            }
+        });
         client.connect(ip);
+        client.authPassword(username, password);
+    }
+
+    public void execCheck(String command) throws IOException {
+        int code = exec(command);
+        if (code != 0) {
+            throw new IOException("Command return nonzero exit code " + code + ": '" + command + "'");
+        }
     }
 
     public int exec(String command) throws IOException {
@@ -65,9 +82,13 @@ public class Shell implements AutoCloseable {
         transfer.upload(new FileSystemFile(localFile), remotePath);
     }
 
-    public void sendFileTo(InputStream stream, String name, String remotePath) throws IOException {
+    public void sendFileTo(InputStream stream, String name, String remotePath, int permissions) throws IOException {
+        if (stream == null) {
+            throw new NullPointerException("Stream is NULL!");
+        }
         SCPFileTransfer transfer = client.newSCPFileTransfer();
-        File temp = File.createTempFile("scp-", ".send");
+        File temp = File.createTempFile("scp-", ".send"); // TODO: clean this part up?
+        temp.delete();
         temp.deleteOnExit();
         Files.copy(stream, temp.toPath());
         transfer.upload(new InMemorySourceFile() {
@@ -85,11 +106,21 @@ public class Shell implements AutoCloseable {
             public InputStream getInputStream() throws IOException {
                 return new FileInputStream(temp);
             }
+
+            @Override
+            public int getPermissions() throws IOException {
+                return permissions;
+            }
         }, remotePath);
     }
 
-    public void sendResourceTo(Class<?> clazz, String resource, String remotePath) throws IOException {
-        sendFileTo(clazz.getResourceAsStream(resource), resource.substring(resource.lastIndexOf('/') + 1), remotePath);
+    public void sendResourceTo(Class<?> clazz, String resource, String remotePath, int permissions) throws IOException {
+        try (InputStream resin = clazz.getResourceAsStream(resource)) {
+            if (resin == null) {
+                throw new RuntimeException("Cannot find resource: " + resource);
+            }
+            sendFileTo(resin, resource.substring(resource.lastIndexOf('/') + 1), remotePath, permissions);
+        }
     }
 
     @Override

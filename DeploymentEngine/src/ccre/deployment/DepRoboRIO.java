@@ -24,6 +24,8 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.InetAddress;
+import java.net.InetSocketAddress;
+import java.net.Socket;
 import java.net.URL;
 import java.net.URLConnection;
 import java.net.URLEncoder;
@@ -55,12 +57,12 @@ public class DepRoboRIO {
         }
 
         public void archiveLogsTo(File destdir) throws IOException {
-            if (this.exec("ls hs_* >/dev/null 2>/dev/null") == 0) {
+            if (this.exec("ls ccre-storage/log-* >/dev/null 2>/dev/null") == 0) {
                 long name = random.nextLong();
-                this.exec("tar -czf logs-" + name + ".tgz ccre-storage/log-*");
-                this.exec("mkdir /tmp/logs-" + name + "/ && mv ccre-storage/log-* /tmp/" + name + "/");
+                this.execCheck("tar -czf logs-" + name + ".tgz ccre-storage/log-*");
+                this.execCheck("mkdir /tmp/logs-" + name + "/ && mv ccre-storage/log-* /tmp/logs-" + name + "/");
                 Files.copy(this.receiveFile("logs-" + name + ".tgz"), new File(destdir, "logs-" + name + ".tgz").toPath());
-                this.exec("rm logs-${log.file}.tgz");
+                this.execCheck("rm logs-" + name + ".tgz");
             }
         }
 
@@ -80,20 +82,21 @@ public class DepRoboRIO {
         }
 
         public void downloadCode(File jar, RIOShell adminshell) throws IOException {
-            sendFileTo(jar, "/home/lvuser/");
+            sendFileTo(jar, "/home/lvuser/FRCUserProgram.jar");
 
-            exec("rm /usr/local/frc/bin/netconsole-host");// prevent any text-busy issues
-            adminshell.sendResourceTo(DepRoboRIO.class, "edu/wpi/first/wpilibj/binaries/netconsole-host", "/usr/local/frc/bin/");
+            // prevent any text-busy issues
+            execCheck("rm /usr/local/frc/bin/netconsole-host");
+            adminshell.sendResourceTo(DepRoboRIO.class, "/edu/wpi/first/wpilibj/binaries/netconsole-host", "/usr/local/frc/bin/", 0755);
 
-            sendResourceTo(DepRoboRIO.class, "edu/wpi/first/wpilibj/binaries/robotCommand", "/home/lvuser/");
+            sendResourceTo(DepRoboRIO.class, "/edu/wpi/first/wpilibj/binaries/robotCommand", "/home/lvuser/", 0755);
         }
 
         public void stopRobot() throws IOException {
-            exec("killall netconsole-host");
+            execCheck("killall netconsole-host");
         }
 
         public void startRobot() throws IOException {
-            exec(". /etc/profile.d/natinst-path.sh; /usr/local/frc/bin/frcKillRobot.sh -t -r");
+            execCheck(". /etc/profile.d/natinst-path.sh; /usr/local/frc/bin/frcKillRobot.sh -t -r");
         }
 
         public void downloadAndStart(File code) throws IOException {
@@ -133,7 +136,9 @@ public class DepRoboRIO {
     }
 
     public static Manifest manifest(Class<? extends FRCApplication> main) {
-        return manifest(main.asSubclass(FRCApplication.class).getName());// repeated FRCApplication check just to avoid getting around it at runtime.
+        // repeated FRCApplication check just to avoid getting around it at
+        // runtime.
+        return manifest(main.asSubclass(FRCApplication.class).getName());
     }
 
     public static RIOShell discoverAndVerify(int team_number) throws IOException {
@@ -175,7 +180,14 @@ public class DepRoboRIO {
         }
         try {
             if (!inaddr.isReachable(1000)) {
-                return null;
+                try {
+                    try (Socket sock = new Socket()) {
+                        sock.connect(new InetSocketAddress(inaddr, 22), 1000);
+                    }
+                } catch (IOException e) {
+                    return null;
+                }
+                // otherwise, we were able to connect... so assume we're good!
             }
         } catch (IOException e) {
             return null;
@@ -202,7 +214,7 @@ public class DepRoboRIO {
     }
 
     public int getRIOImage() throws IOException {
-        URLConnection connection = new URL("http://${target}/nisysapi/server").openConnection();
+        URLConnection connection = new URL("http://" + ip.getHostAddress() + "/nisysapi/server").openConnection();
         connection.setDoInput(true);
         connection.setDoOutput(true);
         connection.setUseCaches(false);
@@ -225,7 +237,7 @@ public class DepRoboRIO {
             outputStream.flush();
         }
         StringBuilder file = new StringBuilder();
-        try (BufferedReader rin = new BufferedReader(new InputStreamReader(connection.getInputStream()))) {
+        try (BufferedReader rin = new BufferedReader(new InputStreamReader(connection.getInputStream(), "UTF-16LE"))) {
             String line;
             while ((line = rin.readLine()) != null) {
                 file.append(line);

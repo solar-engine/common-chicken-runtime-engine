@@ -33,6 +33,10 @@ public class RebuildBuilders {
             System.out.println("Not building launchers for TemplateRobot.");
             return;
         }
+        File launches = DepProject.directory("launches");
+        for (File f : launches.listFiles()) {
+            f.delete();
+        }
         System.out.println("Rebuilding launchers...");
         try {
             rebuild(Class.forName("deployment.Deployment"));

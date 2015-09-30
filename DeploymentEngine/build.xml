@@ -30,6 +30,19 @@
 			<fileset dir="bin" includes="**/*" />
 			<zipfileset src="libs/sshj-0.13.0.jar">
 				<include name="**/*" />
+				<exclude name="META-INF/*" />
+			</zipfileset>
+			<zipfileset src="libs/slf4j-api-1.7.12.jar">
+				<include name="**/*" />
+				<exclude name="META-INF/*" />
+			</zipfileset>
+			<zipfileset src="libs/slf4j-simple-1.7.12.jar">
+				<include name="**/*" />
+				<exclude name="META-INF/*" />
+			</zipfileset>
+			<zipfileset src="libs/bcprov-jdk15on-152.jar">
+				<include name="**/*" />
+				<exclude name="META-INF/*" />
 			</zipfileset>
 		</jar>
 	</target>

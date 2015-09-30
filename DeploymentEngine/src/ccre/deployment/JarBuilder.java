@@ -54,7 +54,7 @@ public class JarBuilder {
     }
 
     public void addClass(String elem, InputStream is) throws IOException {
-        addResource("/" + elem.replace('.', '/') + ".class", is);
+        addResource(elem.replace('.', '/') + ".class", is);
     }
 
     public void addResource(String name, InputStream is) throws IOException {

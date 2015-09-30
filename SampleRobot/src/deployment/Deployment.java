@@ -15,11 +15,11 @@ public class Deployment {
     public static void deploy() throws Exception {
         Artifact result = DepRoboRIO.buildProject(robot);
 
-        DepRoboRIO.RIOShell rshell = DepRoboRIO.discoverAndVerify(1540);
+        try (DepRoboRIO.RIOShell rshell = DepRoboRIO.discoverAndVerify(1540)) {
+            rshell.archiveLogsTo(DepProject.root());
 
-        rshell.archiveLogsTo(DepProject.root());
-
-        rshell.downloadAndStart(result);
+            rshell.downloadAndStart(result);
+        }
     }
 
     @DepTask(fork=true)

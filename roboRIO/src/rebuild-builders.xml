@@ -32,6 +32,7 @@
 	<property name="project.dir" value="${rebuilder-target}" />
 	<property name="class.name" value="ccre.deployment.RebuildBuilders" />
 	<property name="method.name" value="rebuild" />
+	<property name="fork-needed" value="false" />
 
 	<ant antfile="dispatch_build.xml" inheritall="true" />
 </project>

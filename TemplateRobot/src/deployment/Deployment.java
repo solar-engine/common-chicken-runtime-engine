@@ -17,17 +17,18 @@ public class Deployment {
 
         int number = robot.RobotTemplate.TEAM_NUMBER;
 
-        // this seems strange, but it handles the different uses of this file well:
-        //  it can be part of a new project or part of an autoupdated project.
+        // this seems strange, but it handles the different uses of this file
+        // well:
+        // it can be part of a new project or part of an autoupdated project.
         if (number == 0 && "robot.RobotTemplate.TEAM_NUMBER".startsWith("robot.")) {
             throw new RuntimeException("You need to change your TEAM_NUMBER in RobotTemplate.java!");
         }
 
-        DepRoboRIO.RIOShell rshell = DepRoboRIO.discoverAndVerify(number);
+        try (DepRoboRIO.RIOShell rshell = DepRoboRIO.discoverAndVerify(number)) {
+            rshell.archiveLogsTo(DepProject.root());
 
-        rshell.archiveLogsTo(DepProject.root());
-
-        rshell.downloadAndStart(result);
+            rshell.downloadAndStart(result);
+        }
     }
 
     @DepTask(fork = true)

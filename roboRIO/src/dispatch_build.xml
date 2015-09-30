@@ -34,14 +34,16 @@
 	<property name="build.dir" value="${project.dir}/bin" />
 
 	<target name="dispatch">
-		<echo>${build.dir}</echo>
+		<!-- <echo>${build.dir} ${ccre-root.dir}/roboRIO/roboRIO.jar</echo> -->
 		<java classname="ccre.deployment.DispatchEntry" failonerror="true" fork="${fork-needed}">
 			<arg value="${ccre-root.dir}" />
 			<arg value="${project.dir}" />
 			<arg value="${class.name}" />
 			<arg value="${method.name}" />
-			<classpath path="${build.dir}" />
-			<classpath path="${ccre-root.dir}/roboRIO/roboRIO.jar" />
+			<classpath>
+				<pathelement location="${build.dir}" />
+				<pathelement path="${ccre-root.dir}/roboRIO/roboRIO.jar" />
+			</classpath>
 		</java>
 	</target>
 </project>

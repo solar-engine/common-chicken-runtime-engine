@@ -948,17 +948,85 @@ This section is designed to provide a detailed guide on how to use just about ev
 
 It's organized into the following sections:
 
+ ***** TODO: talk about wireless network names ! *****
+
 @table-of-contents{}
+
+@subsection{Dataflow Channels}
+
+As touched on before, a channel represents the ability to communicate in some fashion with an implementation. Channels can either be inputs or outputs, and carry values that are either booleans, floats, or events.
+
+@defproc[new EventOutput() {
+             public void event() {
+                 // do something
+             }
+         }]{
+  Returns a sandwich given the right ingredients.
+}
+
+In progress.
+
+@subsubsection{Statuses}
+
+In progress.
+
+@subsubsection[#:tag "remixing"]{Remixing}
+
+In progress. (TODO: make a note about mutability of channels, or rather the lack thereof.)
+
+@subsection{Drive Code Implementations}
+
+In progress.
+
+@subsection[#:tag "autonomous"]{Autonomous and Instinct Modules}
+
+In progress.
+
+@subsubsection{Instinct MultiModules}
+
+In progress.
 
 @subsection[#:tag "hardware-access"]{Hardware Access}
 
 In progress.
 
-@subsection[#:tag "remixing"]{Remixing}
+@subsection{Logging Framework}
 
 In progress.
 
-@subsection[#:tag "autonomous"]{Autonomous}
+@subsection{Concurrency Best Practices}
+
+In progress.
+
+@subsection{StateMachine}
+
+In progress.
+
+@subsection{PID controllers}
+
+In progress.
+
+@subsection{Time and Timing}
+
+In progress. (Including Time, scheduling, Ticker, ExpirationTimer, PauseTimer.)
+
+@subsection{Extended Motors and CAN}
+
+In progress.
+
+@subsection{Remote Configuration}
+
+In progress.
+
+@subsection{Error Handling}
+
+In progress.
+
+@subsection{Control Bindings}
+
+In progress.
+
+@subsection{Tunable Values}
 
 In progress.
 
@@ -966,7 +1034,31 @@ In progress.
 
 In progress.
 
+@subsection{Storage Framework}
+
+In progress.
+
+@subsection{Serial I/O}
+
+In progress.
+
+@subsection{Networking Framework}
+
+In progress.
+
+@subsection{Phidget control panels}
+
+In progress.
+
+@subsection{Special sensors}
+
+(UM7LT.) In progress.
+
 @subsection[#:tag "cluck"]{The Cluck Pub/Sub System}
+
+In progress.
+
+@subsubsection{Cluck with complexity}
 
 In progress.
 

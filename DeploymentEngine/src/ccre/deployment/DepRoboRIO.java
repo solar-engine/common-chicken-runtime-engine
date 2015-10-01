@@ -92,7 +92,8 @@ public class DepRoboRIO {
         }
 
         public void stopRobot() throws IOException {
-            execCheck("killall netconsole-host");
+            // it's okay if this fails
+            exec("killall netconsole-host");
         }
 
         public void startRobot() throws IOException {

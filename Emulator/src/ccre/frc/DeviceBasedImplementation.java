@@ -254,6 +254,12 @@ public class DeviceBasedImplementation implements FRCImplementation {
         return panel.add(new SpinDevice("Encoder " + aChannel + ":" + bChannel + (reverse ? " (REVERSED)" : ""), resetWhen)).asInput();
     }
 
+    @Override
+    public FloatInput makeCounter(int aChannel, int bChannel, EventInput resetWhen, EventInput updateOn, int mode) {
+        return panel.add(new SpinDevice("Counter " + (aChannel == -1 ? "UNUSED" : ("" + aChannel)) + ":" 
+                        + (bChannel == -1 ? "UNUSED" : ("" + bChannel)), resetWhen)).asInput();
+    }
+
     private BooleanOutput[] relaysFwd;
 
     @Override

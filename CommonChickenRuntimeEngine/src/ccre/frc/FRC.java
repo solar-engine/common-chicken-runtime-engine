@@ -72,6 +72,37 @@ public class FRC {
     public static final int POWER_CHANNEL_6V = 3;
 
     /**
+     * Two pulse mode for a counter. The default mode, uses one source to count
+     * up and the other to count down.
+     */
+    public static final int TWO_PULSE_MODE = 0;
+
+    /**
+     * Uses the counter to determine the pulse width of a high pulse (rising
+     * edge to falling edge) or a low pulse (falling edge to rising edge.)
+     * 
+     * TODO: implement this fully
+     */
+    public static final int SEMIPERIOD_MODE = 1;
+
+    /**
+     * Pulse length mode for a counter. Uses the pulse width to determine if the
+     * counter should count up or down.
+     */
+    public static final int PULSE_LENGTH_MODE = 2;
+
+    /**
+     * External direction mode for a counter. Uses one source to count up and
+     * uses one source to determine direction.
+     */
+    public static final int EXTERNAL_DIRECTION_MODE = 3;
+
+    /**
+     * For unused channels for counters.
+     */
+    public static final int UNUSED = -1; 
+
+    /**
      * The FRCImplementation providing access to the robot.
      */
     public static final FRCImplementation impl = FRCImplementationHolder.getImplementation();
@@ -747,11 +778,80 @@ public class FRC {
      * @param resetWhen If provided, the Encoder's value will be reset when this
      * event is produced.
      * @param updateOn when to update the sensor value.
-     * @return the Encoder, reporting encoder ticks.
+     * @return A FloatInput that represents the count of an encoder
      */
     public static FloatInput encoder(int aChannel, int bChannel, boolean reverse, EventInput resetWhen, EventInput updateOn) {
         // TODO: check arguments; similar issue to Gyro
         return impl.makeEncoder(aChannel, bChannel, reverse, resetWhen, updateOn);
+    }
+
+    /**
+     * Creates a reference to a Counter on the specified ports with the
+     * specified number of average bits. Will count up as specified by the mode.
+     *
+     * @see FRC#EXTERNAL_DIRECTION_MODE
+     * @see FRC#PULSE_LENGTH_MODE
+     * @see FRC#SEMIPERIOD_MODE
+     * @see FRC#TWO_PULSE_MODE
+     *
+     * @param channel The channel for the counter.
+     * @param resetWhen If provided, the Counter's value will be reset when this
+     * event is produced.
+     * @param updateOn Updates the FloatInput when this event is produced.
+     * @return A FloatInput that represents the count of a counter
+     */
+    public static FloatInput counter(int upChannel, int downChannel, int mode, EventInput resetWhen, EventInput updateOn) {
+        return impl.makeCounter(upChannel, downChannel, resetWhen, updateOn, mode);
+    }
+
+    /**
+     * Creates a reference to a Counter on the specified ports with the
+     * specified number of average bits. Will count as specified by the mode.
+     *
+     * @see FRC#EXTERNAL_DIRECTION_MODE
+     * @see FRC#PULSE_LENGTH_MODE
+     * @see FRC#SEMIPERIOD_MODE
+     * @see FRC#TWO_PULSE_MODE
+     *
+     * @param channel The channel for the counter.
+     * @param resetWhen If provided, the Counter's value will be reset when this
+     * event is produced.
+     * @return A FloatInput that represents the count of a counter
+     */
+    public static FloatInput counter(int upChannel, int downChannel, int mode, EventInput resetWhen) {
+        return impl.makeCounter(upChannel, downChannel, resetWhen, sensorPeriodic, mode);
+    }
+
+    /**
+     * Creates a reference to a Counter on the specified ports with the
+     * specified number of average bits. Will count as specified by
+     * TWO_PULSE_MODE.
+     *
+     * @see FRC#TWO_PULSE_MODE
+     *
+     * @param channel The channel for the counter.
+     * @param resetWhen If provided, the Counter's value will be reset when this
+     * event is produced.
+     * @param updateOn Updates the FloatInput when this event is produced.
+     * @return A FloatInput that represents the count of a counter
+     */
+    public static FloatInput counter(int upChannel, int downChannel, EventInput resetWhen, EventInput updateOn) {
+        return impl.makeCounter(upChannel, downChannel, resetWhen, updateOn, TWO_PULSE_MODE);
+    }
+
+    /**
+     * Creates a reference to a Counter on the specified ports. Will count as
+     * specified by TWO_PULSE_MODE.
+     *
+     * @see FRC#TWO_PULSE_MODE
+     *
+     * @param channel The channel for the counter.
+     * @param resetWhen If provided, the Counter's value will be reset when this
+     * event is produced.
+     * @return A FloatInput that represents the count of a counter
+     */
+    public static FloatInput counter(int upChannel, int downChannel, EventInput resetWhen) {
+        return impl.makeCounter(upChannel, downChannel, resetWhen, sensorPeriodic, TWO_PULSE_MODE);
     }
 
     /**

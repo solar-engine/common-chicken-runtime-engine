@@ -39,6 +39,7 @@ import java.util.Random;
 import java.util.jar.Manifest;
 
 import ccre.frc.FRCApplication;
+import ccre.log.Logger;
 
 public class DepRoboRIO {
 
@@ -82,13 +83,15 @@ public class DepRoboRIO {
         }
 
         public void downloadCode(File jar, RIOShell adminshell) throws IOException {
+            Logger.info("Starting deployment...");
             sendFileTo(jar, "/home/lvuser/FRCUserProgram.jar");
+            Logger.info("Primary deployment complete.");
 
             // prevent any text-busy issues
             execCheck("rm /usr/local/frc/bin/netconsole-host");
             adminshell.sendResourceTo(DepRoboRIO.class, "/edu/wpi/first/wpilibj/binaries/netconsole-host", "/usr/local/frc/bin/", 0755);
-
             sendResourceTo(DepRoboRIO.class, "/edu/wpi/first/wpilibj/binaries/robotCommand", "/home/lvuser/", 0755);
+            Logger.info("Download complete.");
         }
 
         public void stopRobot() throws IOException {
@@ -120,16 +123,16 @@ public class DepRoboRIO {
     private static final String DEFAULT_ADMIN_PASSWORD = "";
     private static final boolean DEFAULT_TRUST = true;
 
-    public static File getJarFile() {
-        File out = new File(DepProject.ccreProject("roboRIO"), "roboRIO.jar");
+    public static File getJarFile(boolean thick) {
+        File out = new File(DepProject.ccreProject("roboRIO"), thick ? "roboRIO.jar" : "roboRIO-lite.jar");
         if (!out.exists() || !out.isFile()) {
             throw new RuntimeException("roboRIO Jar cannot be found!");
         }
         return out;
     }
 
-    public static Jar getJar() throws IOException {
-        return new Jar(getJarFile());
+    public static Jar getJar(boolean thick) throws IOException {
+        return new Jar(getJarFile(thick));
     }
 
     public static Manifest manifest(String main) {
@@ -261,8 +264,8 @@ public class DepRoboRIO {
     }
 
     public static Artifact build(File source, Class<? extends FRCApplication> main) throws IOException {
-        Artifact newcode = DepJava.build(source, DepRoboRIO.getJarFile());
-        return DepJar.combine(DepRoboRIO.manifest(main), JarBuilder.DELETE, newcode, DepRoboRIO.getJar());
+        Artifact newcode = DepJava.build(source, DepRoboRIO.getJarFile(true));
+        return DepJar.combine(DepRoboRIO.manifest(main), JarBuilder.DELETE, newcode, DepRoboRIO.getJar(false));
     }
 
     public static Artifact buildProject(Class<? extends FRCApplication> main) throws IOException {

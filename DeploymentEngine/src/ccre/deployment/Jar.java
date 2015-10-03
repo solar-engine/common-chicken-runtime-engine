@@ -76,6 +76,7 @@ public class Jar extends Artifact {
     public Jar toJar(boolean preserve) throws IOException {
         if (preserve && preserved == null) {
             File out = File.createTempFile("jar-", ".jar");
+            out.delete(); // TODO: do this better
             Files.copy(f.toPath(), out.toPath());
             this.preserved = out;
         }

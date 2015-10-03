@@ -67,11 +67,7 @@ public class RebuildBuilders {
     }
 
     public static void rebuild(Class<?> deployment, String displayName, String methodName, boolean fork) throws IOException {
-        File launches = DepProject.directory("launches");
-        File launcher = new File(launches, DepProject.name() + " " + displayName + ".launch");
-        if (!launches.exists() && !launches.mkdir()) {
-            throw new IOException("Could not created directory: " + launches);
-        }
+        File launcher = new File(DepProject.directoryOrCreate("launches"), DepProject.name() + " " + displayName + ".launch");
         try (BufferedReader in = new BufferedReader(new InputStreamReader(RebuildBuilders.class.getResourceAsStream("/ccre/deployment/invocation-template.xml")))) {
             try (BufferedWriter out = new BufferedWriter(new FileWriter(launcher))) {
                 String line;

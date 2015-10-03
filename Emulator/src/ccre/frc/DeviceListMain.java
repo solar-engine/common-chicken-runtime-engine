@@ -19,8 +19,6 @@
 package ccre.frc;
 
 import java.io.File;
-import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.jar.JarFile;
@@ -32,6 +30,7 @@ import ccre.cluck.Cluck;
 import ccre.log.FileLogger;
 import ccre.log.Logger;
 import ccre.log.NetworkAutologger;
+import ccre.storage.Storage;
 
 /**
  * The launcher for the DeviceList system.
@@ -43,24 +42,13 @@ public class DeviceListMain {
     /**
      * Start the emulator.
      *
-     * @param args a single-element array containing only the path to the main
-     * Jar file for the emulated program.
-     * @throws IOException if the jar file cannot be properly accessed
-     * @throws ClassNotFoundException if a reflection error occurs
-     * @throws InstantiationException if a reflection error occurs
-     * @throws NoSuchMethodException if a reflection error occurs
-     * @throws IllegalAccessException if a reflection error occurs
-     * @throws InvocationTargetException if a reflection error occurs
-     * @throws InterruptedException if the main thread is somehow interrupted.
+     * @param jarFile the program Jar.
+     * @param storageDir the storage directory for logs, etc.
+     * @throws Exception
      */
-    public static void main(String[] args) throws IOException, ClassNotFoundException, InstantiationException, NoSuchMethodException, IllegalAccessException, InvocationTargetException, InterruptedException {
-        if (args.length != 1) {
-            System.err.println("Expected arguments: <FRC-Jar>");
-            System.exit(-1);
-            return;
-        }
-        File jarFile = new File(args[0]);
+    public static void startEmulator(File jarFile, File storageDir) throws Exception {
         JarFile frcJar = new JarFile(jarFile);
+        Storage.setBaseDir(storageDir);
         String mainClass;
         try {
             mainClass = frcJar.getManifest().getMainAttributes().getValue("CCRE-Main");
@@ -79,21 +67,17 @@ public class DeviceListMain {
         DeviceBasedImplementation impl = new DeviceBasedImplementation(onInit);
         main.setContentPane(impl.panel);
         main.setSize(1024, 768);
-        java.awt.EventQueue.invokeLater(new Runnable() {
-            @Override
-            public void run() {
-                main.setVisible(true);
-            }
-        });
+        java.awt.EventQueue.invokeLater(() -> main.setVisible(true));
         NetworkAutologger.register();
         FileLogger.register();
         FRCImplementationHolder.setImplementation(impl);
         if (!System.getProperty("os.name").toLowerCase().contains("linux") && !System.getProperty("os.name").toLowerCase().contains("mac os")) {
-            // Don't try to bind to port 80 on Mac or Linux - only sadness will ensue.
+            // Don't try to bind port 80 on Mac/Linux. Only sadness will ensue.
             Cluck.setupServer();
         }
         Cluck.setupServer(1540);
-        Thread.sleep(500);// give a bit of time for network stuff to try to set itself up.
+        // give a bit of time for network stuff to try to set itself up.
+        Thread.sleep(500);
         try {
             impl.clearLoggingPane();
             Logger.info("Starting application: " + mainClass);

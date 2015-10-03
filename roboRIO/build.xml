@@ -52,5 +52,12 @@
 				<include name="**/*" />
 			</zipfileset>
 		</jar>
+		<!-- LITE jar: for actual use on robot. The other one is used in emulation and includes stuff like the Emulator and the Deployment framework. -->
+		<jar destfile="roboRIO-lite.jar" update="false">
+			<fileset dir="bin" includes="**/*.class" />
+			<fileset dir="bin" includes="edu/wpi/first/wpilibj/binaries/*" />
+			<fileset dir="bin" includes="version.properties" />
+			<fileset dir="../CommonChickenRuntimeEngine/bin" includes="**/*.class" />
+		</jar>
 	</target>
 </project>

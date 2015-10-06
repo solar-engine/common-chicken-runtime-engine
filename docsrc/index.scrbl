@@ -416,6 +416,8 @@ See @secref["remixing"] for more info.
 
 @subsection{Status cells}
 
+**** TODO: explain Status cells in an easier way ****
+
 Sometimes, you want to connect together methods that aren't easy to connect together. For example, you might have:
 
 @codeblock|{
@@ -517,7 +519,21 @@ You can now simply say:
      };
      }|
 
-(Also, if you only have a single statement in the lambda, you can omit the @code|{{}}| and the semicolon around the statement.)
+Also, if you only have a single statement in the lambda, you can omit the @code|{{}}| and the semicolon around the statement:
+
+@codeblock|{
+            EventOutput pet_fluffy = () -> {
+              do_pet_fluffy();
+            };
+            }|
+
+can become:
+
+@codeblock|{
+            EventOutput pet_fluffy = () -> do_pet_fluffy();
+            }|
+
+Even nicer!
 
 @section{The software environment}
 
@@ -595,7 +611,7 @@ This? Another Joystick. Not two Joysticks - just one.
 
 @image["joystick-xbox.jpg"]
 
-Each Joystick has some number of @italic{axes} - each axis measures a value from -1.0 to 1.0. It also has some number of @italic{buttons} - each button can be either pressed or unpressed.
+Each Joystick has some number of @italic{axes} - each axis measures a value from -1.0 to 1.0. It also has some number of @italic{buttons} - each button can be either pressed or released.
 
 Standard axes are the position of a Joystick on the forward-backward (Y) axis and the left-right (X) axis.
 
@@ -603,7 +619,10 @@ For example, a trigger on a Joystick is a button, and an altitude control wheel 
 
 The X axis on a Joystick is usually axis #1, and the Y axis is usually axis #2.
 
-If you work with something with multiple XY sticks, this may vary. On an xbox controller, for example, this is the left stick, but for the right stick, the X axis is #5 and the Y axis is #6. (And the triggers are #3 (left) and #4 (right.))
+If you work with something with multiple XY sticks, this may vary.
+
+On an xbox controller, for example, #1 & #2 are the axes on left stick, and for the right stick, the X axis is #5 and the Y axis is #6.
+The trigger axes are #3 (left) and #4 (right.)
 
 @subsection{The match sequence}
 
@@ -648,31 +667,6 @@ You aren't allowed to control anything on your robot (except for nonfunctional c
 
 See below in this document for some of the devices that attach to the roboRIO.
 
-@subsubsection{Hardware access}
-
-The CCRE provides interfaces to the underlying hardware via WPILib's JNI layer, which attaches to the WPILib Hardware Abstraction Layer (in C++), which attaches to the NI ChipObject propriatary library, which attaches to the NiFPGA interface to the FPGA (field-programmable gate array) device that manages the communication between the higher-level code and the I/O ports.
-
-In other words, here's how hardware access works (CCRE at the left - other systems also shown):
-
-@define[(cellw txt width [height 40]) (let ((gen-text (text txt)))
-                            (cc-superimpose (rectangle width height) gen-text))]
-
-@vl-append[10
- (ht-append 10
-            (vl-append 10
-                       (ht-append 10 (vl-append 10
-                                                (ht-append 10 (cellw "CCRE Hardware I/O" 150) (cellw "WPILibJ" 150))
-                                                (cellw "WPILib JNI Layer" 310))
-                                  (cellw "WPILibC++" 150 90)
-                                  (cellw "pyfrc" 150 90))
-                       (cellw "Hardware Abstraction Layer (HAL)" 630 40)
-                       (cellw "Ni ChipObject .so" 630 40)
-                       (cellw "NiFPGA interface" 630 40))
-            (cellw "FRC LabVIEW" 150 240))
- (cellw "FPGA Hardware" 790 40)]
-
-See @secref["hardware-access"] for details on how to access hardware.
-
 @subsubsection{The cRIO}
 
 The cRIO was the previous platform used as a robot controller. It ran VxWorks instead of Linux, and the processor was PowerPC instead of ARM. This made it extremely hard to get any software for it. The only JVM we could use was the Squawk JVM, which only supported Java 1.3. (We're on Java 8 now.) The CCRE pioneered using retrotranslation technology to allow us to use some Java 5 features on the cRIO, but even with those the system was much harder to use than the modern roboRIO.
@@ -683,48 +677,7 @@ To download code, as we said before, you can easily deploy code to the robot:
 
 @image["deploy.png"]
 
-But how does this work behind the scenes?
-
-First, this goes through the DeploymentEngine, which dispatches to the @code{deploy()} DepTask in the default Deployment class:
-
-@codeblock|{
-    @DepTask
-    public static void deploy() throws Exception {
-        Artifact result = DepRoboRIO.buildProject(robotMain);
-
-        // code slightly abbreviated for clarity.
-
-        DepRoboRIO.RIOShell rshell = DepRoboRIO.discoverAndVerify(robot.RobotTemplate.TEAM_NUMBER);
-
-        rshell.archiveLogsTo(DepProject.root());
-
-        rshell.downloadAndStart(result);
-    }
-    }|
-
-@margin-note{To find the roboRIO, it checks @code{roboRIO-NNNN.local} (where NNNN is your team number), @code{172.22.11.2}, and @code{10.XX.YY.2} (where XXYY is your team number.)}
-This builds your robot code, discovers the roboRIO based on your team number, grabs any old logfiles from the robot, deploys the new robot code to the robot, and restarts the running code.
-
-To be able to talk to your robot to change the code, your laptop needs to be on the same network as the robot, and you need to be able to connect to the robot. (Try running @code{ping roboRIO-NNNN.local} to see if it can be reached, if you're having any problems.)
-
-@subsubsection{SSH}
-
-Sometimes, the robot breaks and you need to figure out what's going on. I'm not going to go into all of the details of this (TODO: go into all the details on this) but I'll overview how you start.
-
-You can connect to the roboRIO over SSH (aka Secure SHell) - you simply point your SSH client at roboRIO-NNNN.local (where NNNN is your team number) and enter the correct username and password.
-
-On Linux or Mac OS X, you can do this from the command line with pre-installed tools:
-
-@margin-note{On Windows, you can use PuTTY.}
-@codeblock|{
- $ ssh admin@roboRIO-1540.local
- Password:
- $ do stuff on the robot
-}|
-
-The default password is the blank password, and the default username (instead of 'root') is 'admin'.
-
-Once you're on the robot, you want to look in @code{/home/lvuser}, where you should find the user program and some related files, including the most recent log files.
+To see how this works behind the scenes, see @secref["deployment"].
 
 @subsection{Speed controllers}
 
@@ -752,7 +705,7 @@ A Talon SRX (also controllable over CAN):
 
 For a discussion of how PWM works, see @hyperlink["https://en.wikipedia.org/wiki/Pulse-width_modulation"]{the Wikipedia article}. The important attributes for us are:
 
-@itemlist[@item{PWM as a protocol is unidirectional. You can't get any information from a PWM device.}
+@itemlist[@item{A PWM device can't send you any data.}
           @item{PWM ranges vary by kind of motor, so if you set up your output for a Talon, you can't run a Victor on that output.}
           @item{PWM as a control channel is bidirectional. You can run the motor in either direction.}
           @item{PWM is simple. It is usually easy to get to work and fixing a broken PWM connection is as easy as replacing a cable.}]
@@ -956,13 +909,7 @@ It's organized into the following sections:
 
 As touched on before, a channel represents the ability to communicate in some fashion with an implementation. Channels can either be inputs or outputs, and carry values that are either booleans, floats, or events.
 
-@defproc[new EventOutput() {
-             public void event() {
-                 // do something
-             }
-         }]{
-  Returns a sandwich given the right ingredients.
-}
+(Working on autodocs here.)
 
 In progress.
 
@@ -1030,7 +977,54 @@ In progress.
 
 In progress.
 
-@subsection{Deployment}
+@subsection[#:tag "deployment"]{Deployment}
+
+How does this work behind the scenes?
+
+First, this goes through the DeploymentEngine, which dispatches to the @code{deploy()} DepTask in the default Deployment class:
+
+@codeblock|{
+    @DepTask
+    public static void deploy() throws Exception {
+        Artifact result = DepRoboRIO.buildProject(robotMain);
+
+        // code slightly abbreviated for clarity.
+
+        DepRoboRIO.RIOShell rshell = DepRoboRIO.discoverAndVerify(robot.RobotTemplate.TEAM_NUMBER);
+
+        rshell.archiveLogsTo(DepProject.root());
+
+        rshell.downloadAndStart(result);
+    }
+    }|
+
+@margin-note{To find the roboRIO, it checks @code{roboRIO-NNNN.local} (where NNNN is your team number), @code{172.22.11.2}, and @code{10.XX.YY.2} (where XXYY is your team number.)}
+This builds your robot code, discovers the roboRIO based on your team number, grabs any old logfiles from the robot, deploys the new robot code to the robot, and restarts the running code.
+
+To be able to talk to your robot to change the code, your laptop needs to be on the same network as the robot, and you need to be able to connect to the robot. (Try running @code{ping roboRIO-NNNN.local} to see if it can be reached, if you're having any problems.)
+
+@subsubsection{SSH}
+
+Sometimes, the robot breaks and you need to figure out what's going on. I'm not going to go into all of the details of this (TODO: go into all the details on this) but I'll overview how you start.
+
+You can connect to the roboRIO over SSH (aka Secure SHell) - you simply point your SSH client at roboRIO-NNNN.local (where NNNN is your team number) and enter the correct username and password.
+
+On Linux or Mac OS X, you can do this from the command line with pre-installed tools:
+
+@margin-note{On Windows, you can use PuTTY.}
+@codeblock|{
+ $ ssh admin@roboRIO-1540.local
+ Password:
+ $ do stuff on the robot
+}|
+
+@margin-note{If you are familiar with nix-like systems, it may surprise you that the superuser account (uid 0) is named 'admin', not 'root'.}
+
+The default password is the blank password, and the username is either 'admin' or 'lvuser'.
+
+Once you're on the robot, you want to look in @code{/home/lvuser}, where you should find the user program and some related files, including the most recent log files.
+
+@subsubsection{Deployment API}
 
 In progress.
 
@@ -1078,13 +1072,36 @@ In progress.
 
 In progress.
 
-@section{API reference}
+@section{Javadoc Link}
 
-In progress.
+You can @link["http://cgscomwww.catlin.edu/~skeggsc/ccre-javadoc/"]{browse the Javadoc}. Disclaimer: until the official release of v3.0.0, this site might not get updated. We're working on it!
 
 @section{Maintainer's guide}
 
 In progress.
+
+@subsection{Hardware access}
+
+The CCRE provides interfaces to the underlying hardware via WPILib's JNI layer, which attaches to the WPILib Hardware Abstraction Layer (in C++), which attaches to the NI ChipObject propriatary library, which attaches to the NiFPGA interface to the FPGA (field-programmable gate array) device that manages the communication between the higher-level code and the I/O ports.
+
+In other words, here's how hardware access works (CCRE at the left - other systems also shown):
+
+@define[(cellw txt width [height 40]) (let ((gen-text (text txt)))
+                            (cc-superimpose (rectangle width height) gen-text))]
+
+@vl-append[10
+ (ht-append 10
+            (vl-append 10
+                       (ht-append 10 (vl-append 10
+                                                (ht-append 10 (cellw "CCRE Hardware I/O" 150) (cellw "WPILibJ" 150))
+                                                (cellw "WPILib JNI Layer" 310))
+                                  (cellw "WPILibC++" 150 90)
+                                  (cellw "pyfrc" 150 90))
+                       (cellw "Hardware Abstraction Layer (HAL)" 630 40)
+                       (cellw "Ni ChipObject .so" 630 40)
+                       (cellw "NiFPGA interface" 630 40))
+            (cellw "FRC LabVIEW" 150 240))
+ (cellw "FPGA Hardware" 790 40)]
 
 @subsection{CCRE Philosophy}
 

@@ -47,6 +47,9 @@ public class DeviceListMain {
      * @throws Exception
      */
     public static void startEmulator(File jarFile, File storageDir) throws Exception {
+        if (!jarFile.isFile()) {
+            throw new IllegalArgumentException("File is either not a file or does not exist: " + jarFile);
+        }
         JarFile frcJar = new JarFile(jarFile);
         Storage.setBaseDir(storageDir);
         String mainClass;

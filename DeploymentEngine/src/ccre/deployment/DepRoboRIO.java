@@ -44,6 +44,8 @@ import ccre.log.Logger;
 public class DepRoboRIO {
 
     public static final int EXPECTED_IMAGE = 23;
+    public static final boolean LIBS_THIN = false;
+    public static final boolean LIBS_THICK = true;
 
     private static final Random random = new Random();
 
@@ -264,8 +266,10 @@ public class DepRoboRIO {
     }
 
     public static Artifact build(File source, Class<? extends FRCApplication> main) throws IOException {
-        Artifact newcode = DepJava.build(source, DepRoboRIO.getJarFile(true));
-        return DepJar.combine(DepRoboRIO.manifest(main), JarBuilder.DELETE, newcode, DepRoboRIO.getJar(false));
+        // we need to compile against all the libraries because, if we don't, the Deployment class won't build.
+        // TODO: could there be a better solution for this?
+        Artifact newcode = DepJava.build(source, DepRoboRIO.getJarFile(LIBS_THICK));
+        return DepJar.combine(DepRoboRIO.manifest(main), JarBuilder.DELETE, newcode, DepRoboRIO.getJar(LIBS_THIN));
     }
 
     public static Artifact buildProject(Class<? extends FRCApplication> main) throws IOException {

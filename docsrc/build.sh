@@ -12,6 +12,7 @@ rm -rf $BUILD
 mkdir $BUILD
 
 cp *.png $BUILD
+cp *.jpg $BUILD
 cp *.html $BUILD
 cp *.css $BUILD
 cp *.js $BUILD

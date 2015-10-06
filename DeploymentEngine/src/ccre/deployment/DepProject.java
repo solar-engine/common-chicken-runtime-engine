@@ -54,8 +54,22 @@ public class DepProject {
         return ccreRoot;
     }
 
+    public static File directoryOrCreate(String name) {
+        File f = directory(name);
+        if (!f.exists()) {
+            if (!f.mkdir()) {
+                throw new RuntimeException("Could not create missing directory: " + f);
+            }
+        }
+        return f;
+    }
+
     public static File directory(String name) {
-        return new File(root(), name);
+        File f = new File(root(), name);
+        if (f.exists() && !f.isDirectory()) {
+            throw new RuntimeException("Directory is not a directory: " + f);
+        }
+        return f;
     }
 
     public static File ccreProject(String name) {

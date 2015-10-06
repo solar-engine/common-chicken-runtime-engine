@@ -28,6 +28,10 @@
 	<target name="build-jar" depends="clean">
 		<jar destfile="DepEngine.jar" update="false">
 			<fileset dir="bin" includes="**/*" />
+			<zipfileset src="../Emulator/Emulator.jar">
+				<include name="**/*" />
+				<exclude name="META-INF/*" />
+			</zipfileset>
 			<zipfileset src="libs/sshj-0.13.0.jar">
 				<include name="**/*" />
 				<exclude name="META-INF/*" />

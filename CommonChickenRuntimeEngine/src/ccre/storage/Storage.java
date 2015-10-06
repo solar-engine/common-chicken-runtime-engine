@@ -42,6 +42,10 @@ public class Storage {
      * @param basedir the directory to store CCRE data in.
      */
     public static void setBaseDir(File basedir) {
+        // implicitly checks for null
+        if (!basedir.exists() || !basedir.isDirectory()) {
+            throw new IllegalArgumentException("basedir must be a directory that exists!");
+        }
         Storage.basedir = basedir;
     }
 

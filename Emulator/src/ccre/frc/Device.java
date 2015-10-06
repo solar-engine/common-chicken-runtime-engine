@@ -83,7 +83,7 @@ public class Device {
      * @return the height, in pixels.
      */
     public int getHeight() {
-        return 50;
+        return 30;
     }
 
     /**

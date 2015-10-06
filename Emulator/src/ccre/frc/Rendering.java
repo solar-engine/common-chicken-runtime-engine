@@ -38,7 +38,7 @@ public class Rendering {
     /**
      * The label font. Reasonably large and monospaced.
      */
-    public static final Font labels = new Font("Monospaced", Font.BOLD, 30);
+    public static final Font labels = new Font("Monospaced", Font.BOLD, 20);
 
     /**
      * Blend the specified colors using the specified fraction. 0 means all

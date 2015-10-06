@@ -283,5 +283,4 @@ public interface BooleanInput extends UpdatingInput {
             }
         };
     }
-
 }

@@ -808,7 +808,7 @@ Within that range, certain addresses are reserved: (for this example, we use tea
 10.15.40.0 is reserved (addresses ending in 0 usually are) - don't use it.
 10.15.40.1 is the IP address of the robot's wireless access point. This is usually a D-Link DAP-1522 Rev B wireless radio.
 10.15.40.2 used to be reserved for the cRIO. It can be used by the roboRIO if you wish.
-10.15.40.2 through 10.15.40.19: unused.
+10.15.40.3 through 10.15.40.19: unused.
 10.15.40.20 through 10.15.40.199: assigned by the DHCP server on the roboRIO. (see below.)
 10.15.40.200 through 10.15.40.254: unused.
 10.15.40.255 is reserved (addresses ending in 255 usually are) - don't use it.

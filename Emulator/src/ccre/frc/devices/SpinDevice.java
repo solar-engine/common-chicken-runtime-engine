@@ -40,6 +40,7 @@ public class SpinDevice extends Device {
     private FloatStatus ticks = new FloatStatus();
     private int velocity = 0;
     private BooleanTextComponent isVelocityMode = new BooleanTextComponent("POSITION", "VELOCITY") {
+        @Override
         public void onPress(int x, int y) {
             super.onPress(x, y);
             velocity = 0;
@@ -60,6 +61,7 @@ public class SpinDevice extends Device {
         add(new TextComponent(title));
         if (resetWhen != null) {
             resetWhen.send(new EventOutput() {
+                @Override
                 public void event() {
                     setTicks(0);
                 }
@@ -67,32 +69,38 @@ public class SpinDevice extends Device {
         }
         add(isVelocityMode);
         add(new TextComponent("-") {
+            @Override
             public void onPress(int x, int y) {
                 pressButton(-15);
             }
         });
         add(new TextComponent("-") {
+            @Override
             public void onPress(int x, int y) {
                 pressButton(-5);
             }
         });
         add(new TextComponent("-") {
+            @Override
             public void onPress(int x, int y) {
                 pressButton(-1);
             }
         });
         add(positionView);
         add(new TextComponent("+") {
+            @Override
             public void onPress(int x, int y) {
                 pressButton(1);
             }
         });
         add(new TextComponent("+") {
+            @Override
             public void onPress(int x, int y) {
                 pressButton(5);
             }
         });
         add(new TextComponent("+") {
+            @Override
             public void onPress(int x, int y) {
                 pressButton(15);
             }
@@ -101,6 +109,7 @@ public class SpinDevice extends Device {
         new Ticker(100).send(new EventOutput() {
             private int partials = 0;
 
+            @Override
             public void event() {
                 partials += velocity;
                 while (partials >= 10) {

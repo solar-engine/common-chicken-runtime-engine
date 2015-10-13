@@ -40,6 +40,7 @@ public class Test implements FRCApplication {
      * Set up the test robot. This includes tank drive, high gear/low gear, a
      * compressor, and a simple autonomous.
      */
+    @Override
     public void setupRobot() {
         Cluck.publishRConf("drive-code", new DriveCode());
         // Shifting

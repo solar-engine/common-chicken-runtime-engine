@@ -44,10 +44,10 @@ public class CluckControlBinder implements RConfable {
     // From sink to source.
     private final HashMap<String, String> boolLinkage = new HashMap<String, String>();
     private final HashMap<String, String> floatLinkage = new HashMap<String, String>();
-    
+
     private final HashMap<String, EventOutput> boolUnbinds = new HashMap<String, EventOutput>();
     private final HashMap<String, EventOutput> floatUnbinds = new HashMap<String, EventOutput>();
-    
+
     private final String name;
     private boolean dirty = false;
     private final StorageSegment storage;
@@ -96,11 +96,7 @@ public class CluckControlBinder implements RConfable {
         if (load == null) {
             throw new IllegalArgumentException("makeCreator expects a 'load' event because, otherwise, it doesn't actually know when to load the settings!");
         } else {
-            load.send(new EventOutput() {
-                public void event() {
-                    binder.load();
-                }
-            });
+            load.send(() -> binder.load());
         }
         return sink;
     }

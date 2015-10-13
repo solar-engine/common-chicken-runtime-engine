@@ -139,10 +139,12 @@ public class BooleanDisplayComponent extends BaseChannelComponent<BooleanDisplay
         activeView = View.RED_GREEN_LIGHT;
     }
 
+    @Override
     public Entry[] queryRConf() throws InterruptedException {
         return rconfBase(RConf.string("invert"), RConf.fieldBoolean(inverted));
     }
 
+    @Override
     public boolean signalRConf(int field, byte[] data) throws InterruptedException {
         switch (rconfBase(field, data)) {
         case 1:

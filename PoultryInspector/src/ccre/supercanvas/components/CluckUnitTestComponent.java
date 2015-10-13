@@ -60,23 +60,13 @@ public class CluckUnitTestComponent extends DraggableBoxComponent {
         LoggingTarget lt = Cluck.subscribeLT("robot/utest-lt0", LogLevel.FINEST);
         OutputStream os = Cluck.subscribeOS("robot/utest-os0");
         private int ctr;
+
         {
-            bi.send(new BooleanOutput() {
-                public void set(boolean b) {
-                    ctr++;
-                }
-            });
-            ei.send(new EventOutput() {
-                public void event() {
-                    ctr++;
-                }
-            });
-            fi.send(new FloatOutput() {
-                public void set(float f) {
-                    ctr++;
-                }
-            });
+            bi.send(b -> ctr++);
+            ei.send(() -> ctr++);
+            fi.send(f -> ctr++);
             Cluck.publish("utest-lt1", new LoggingTarget() {
+                @Override
                 public void log(LogLevel level, String message, String extended) {
                     // TODO: Do more with other possible logging messages (with throwables or extended)
                     if (level == LogLevel.FINER && message.equals(testMessage0) && extended == null) {
@@ -87,6 +77,7 @@ public class CluckUnitTestComponent extends DraggableBoxComponent {
                     }
                 }
 
+                @Override
                 public void log(LogLevel level, String message, Throwable throwable) {
                     Logger.warning("Wrong log event called!");
                     success = false;
@@ -104,6 +95,7 @@ public class CluckUnitTestComponent extends DraggableBoxComponent {
                 }
             });
         }
+
         private static final String testMessage0 = "{}{}{}[][][]()()() TESTING 1234567890____!";
         private boolean success = false;
 
@@ -195,7 +187,7 @@ public class CluckUnitTestComponent extends DraggableBoxComponent {
             checkSendLog();
             checkSetBoolean(true, true);
             checkSetFloat(0.0f, true);
-            //checkSetFloat(Float.NaN, true);
+            // checkSetFloat(Float.NaN, true);
             checkSetEvent();
             checkSetFloat(7.2f, true);
             checkSetFloat(Float.NEGATIVE_INFINITY, true);

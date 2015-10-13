@@ -92,11 +92,13 @@ public class ControlBarComponent extends DeviceComponent {
         return this;
     }
 
+    @Override
     public void onPress(int x, int y) {
         dragging = true;
         onMouseMove(x, y);
     }
 
+    @Override
     public void onMouseMove(int x, int y) {
         if (dragging) {
             Rectangle rect = hitzone.getBounds();
@@ -108,10 +110,12 @@ public class ControlBarComponent extends DeviceComponent {
         }
     }
 
+    @Override
     public void onMouseExit(int x, int y) {
         dragging = false;
     }
 
+    @Override
     public void onRelease(int x, int y) {
         dragging = false;
     }

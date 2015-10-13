@@ -165,5 +165,4 @@ public class EventStatus implements EventInput, EventOutput, Serializable {
     public EventInput asInput() {
         return this;
     }
-
 }

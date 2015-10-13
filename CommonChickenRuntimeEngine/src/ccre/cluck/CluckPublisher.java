@@ -97,11 +97,7 @@ public class CluckPublisher {
             protected void receiveBroadcast(String source, byte[] data) {
             }
         }.attach(local);
-        return new EventOutput() {
-            public void event() {
-                node.broadcast(local, new byte[] { RMT_PING }, null);
-            }
-        };
+        return () -> node.broadcast(local, new byte[] { RMT_PING }, null);
     }
 
     /**

@@ -43,10 +43,12 @@ public class DriveCode implements RConfable {
         DriverImpls.tankDrive(leftAxis, rightAxis, leftOut.filter(shouldBeRunning), rightOut.filter(shouldBeRunning));
     }
 
+    @Override
     public Entry[] queryRConf() throws InterruptedException {
         return new Entry[] { RConf.title("Drive Code"), RConf.string("Axes:"), RConf.fieldFloat(leftAxis.get()), RConf.fieldFloat(rightAxis.get()), RConf.string("Allow To Run:"), RConf.fieldBoolean(allowToRun.get()), RConf.string("Force To Run:"), RConf.fieldBoolean(forceEnabled.get()) };
     }
 
+    @Override
     public boolean signalRConf(int field, byte[] data) throws InterruptedException {
 
         switch (field) {

@@ -101,7 +101,7 @@ public class TickerTest {
         if (ctr != counter) {
             fail("expected <" + ctr + "> but got <" + counter + "> in " + period);
         }
-        //assertEquals(ctr, counter);
+        // assertEquals(ctr, counter);
     }
 
     @Test

@@ -129,10 +129,12 @@ public class EventDisplayComponent extends BaseChannelComponent<EventDisplayComp
         activeView = View.FLASHING_LIGHT;
     }
 
+    @Override
     public Entry[] queryRConf() throws InterruptedException {
         return rconfBase();
     }
 
+    @Override
     public boolean signalRConf(int field, byte[] data) throws InterruptedException {
         return rconfBase(field, data) == BASE_VALID;
     }

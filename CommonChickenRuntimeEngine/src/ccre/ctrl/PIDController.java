@@ -75,8 +75,7 @@ public class PIDController implements FloatInput, EventOutput {
      * current value.
      */
     public static PIDController createFixed(EventInput trigger, FloatInput input, FloatInput setpoint, float p, float i, float d) {
-        PIDController ctrl = new PIDController(input, setpoint,
-                FloatInput.always(p), FloatInput.always(i), FloatInput.always(d));
+        PIDController ctrl = new PIDController(input, setpoint, FloatInput.always(p), FloatInput.always(i), FloatInput.always(d));
         ctrl.updateWhen(trigger);
         return ctrl;
     }

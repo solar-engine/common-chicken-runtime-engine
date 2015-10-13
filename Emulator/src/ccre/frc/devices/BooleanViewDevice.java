@@ -60,6 +60,7 @@ public class BooleanViewDevice extends Device implements BooleanOutput, Disablea
         return this;
     }
 
+    @Override
     public void set(boolean value) {
         savedValue = value;
         if (!disabled) {

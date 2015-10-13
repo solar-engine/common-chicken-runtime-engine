@@ -79,12 +79,9 @@ public interface BooleanOutput {
             private boolean lastValue, anyValue;
 
             {
-                update.send(new EventOutput() {
-                    @Override
-                    public void event() {
-                        if (anyValue) {
-                            original.set(lastValue);
-                        }
+                update.send(() -> {
+                    if (anyValue) {
+                        original.set(lastValue);
                     }
                 });
             }

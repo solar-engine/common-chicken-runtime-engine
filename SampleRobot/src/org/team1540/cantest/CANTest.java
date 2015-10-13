@@ -22,9 +22,9 @@ import ccre.cluck.Cluck;
 import ccre.ctrl.ExtendedMotor;
 import ccre.ctrl.ExtendedMotor.DiagnosticType;
 import ccre.ctrl.ExtendedMotor.OutputControlMode;
+import ccre.ctrl.ExtendedMotorFailureException;
 import ccre.frc.FRC;
 import ccre.frc.FRCApplication;
-import ccre.ctrl.ExtendedMotorFailureException;
 import ccre.log.Logger;
 
 /**
@@ -36,6 +36,7 @@ public class CANTest implements FRCApplication {
 
     // WARNING: This has never actually been tested on a real robot.
 
+    @Override
     public void setupRobot() {
         try {
             ExtendedMotor motor = FRC.makeCANJaguar(0);

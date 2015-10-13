@@ -88,12 +88,12 @@ public interface BooleanInput extends UpdatingInput {
      * @see BooleanOutput#set(boolean)
      */
     public default void send(BooleanOutput output) {
-        output.set(get());
+        output.safeSet(get());
         onUpdate(() -> output.set(get()));
     }
 
     public default EventOutput sendR(BooleanOutput output) {
-        output.safeSet(get()); // TODO: should this be inconsistent like this?
+        output.safeSet(get());
         return onUpdateR(() -> output.set(get()));
     }
 

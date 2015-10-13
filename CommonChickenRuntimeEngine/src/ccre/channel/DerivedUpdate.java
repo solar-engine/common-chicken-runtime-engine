@@ -21,17 +21,7 @@ package ccre.channel;
 public abstract class DerivedUpdate {
 
     public DerivedUpdate(UpdatingInput[] updates, UpdatingInput... moreUpdates) {
-        EventOutput doUpdate = new EventOutput() {
-            @Override
-            public void event() {
-                update();
-            }
-
-            @Override
-            public boolean eventWithRecovery() {
-                return updateWithRecovery();
-            }
-        };
+        EventOutput doUpdate = this::update;
         if (updates.length == 0) {
             throw new IllegalArgumentException("Must be at least one update source!");
         }
@@ -48,9 +38,4 @@ public abstract class DerivedUpdate {
     }
 
     protected abstract void update();
-
-    protected boolean updateWithRecovery() {
-        update();
-        return false;
-    }
 }

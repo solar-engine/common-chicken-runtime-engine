@@ -88,7 +88,7 @@ public interface FloatInput extends UpdatingInput {
     }
 
     public default EventOutput sendR(FloatOutput output) {
-        output.set(get());
+        output.safeSet(get());
         return onUpdateR(() -> output.set(get()));
     }
 

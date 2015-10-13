@@ -170,7 +170,12 @@ public class CluckControlBinder implements RConfable {
             return true;
         }
         if (field == 4 && dirty) {
-            load();
+            try {
+                load();
+            } catch (Throwable e) {
+                Logger.severe("Error while updating controls", e);
+                return false;
+            }
             return true;
         }
         String[] boolSinks = sinkSet.listBooleans();
@@ -204,7 +209,7 @@ public class CluckControlBinder implements RConfable {
     private void rebindBoolean(String sink, String source) {
         EventOutput unbind = boolUnbinds.get(sink);
         if (unbind != null) {
-            unbind.event();
+            unbind.safeEvent();
         }
 
         if (source == null) {
@@ -220,7 +225,7 @@ public class CluckControlBinder implements RConfable {
     private void rebindFloat(String sink, String source) {
         EventOutput unbind = floatUnbinds.get(sink);
         if (unbind != null) {
-            unbind.event();
+            unbind.safeEvent();
         }
 
         if (source == null) {

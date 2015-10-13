@@ -83,7 +83,7 @@ public class BooleanTextComponent extends TextComponent implements BooleanOutput
     @Override
     public void onPress(int x, int y) {
         if (editable) {
-            set(!state.get());
+            safeSet(!state.get());
             repaint();
         }
     }

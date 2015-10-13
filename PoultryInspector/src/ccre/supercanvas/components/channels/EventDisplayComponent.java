@@ -109,7 +109,7 @@ public class EventDisplayComponent extends BaseChannelComponent<EventDisplayComp
         boolean hasPanel = panel != null;
         if (inp != null && hasPanel != subscribed) {
             if (unsubscribe != null) {
-                unsubscribe.event();
+                unsubscribe.safeEvent();
                 unsubscribe = null;
             }
             if (hasPanel) {

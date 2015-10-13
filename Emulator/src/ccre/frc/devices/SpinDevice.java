@@ -135,13 +135,13 @@ public class SpinDevice extends Device {
     public FloatInput asInput() {
         return ticks;
     }
-    
+
     private void addTicks(int ticks) {
         setTicks(this.ticks.get() + ticks);
     }
 
     private void setTicks(float ticks) {
-        this.ticks.set(ticks);
+        this.ticks.safeSet(ticks);
         positionView.setLabel(String.valueOf(ticks));
     }
 }

@@ -500,7 +500,15 @@ public class CluckPublisher {
                     byte[] data = new byte[in.length - 2];
                     System.arraycopy(in, 2, data, 0, data.length);
                     try {
-                        boolean success = device.signalRConf(((in[0] & 0xFF) << 8) | (in[1] & 0xFF), data);
+                        boolean success;
+                        try {
+                            success = device.signalRConf(((in[0] & 0xFF) << 8) | (in[1] & 0xFF), data);
+                        } catch (InterruptedException ex) {
+                            throw ex;
+                        } catch (Throwable thr) {
+                            Logger.severe("RConf signal failed", thr);
+                            success = false;
+                        }
                         try {
                             out.write(success ? (byte) 1 : (byte) 0);
                         } catch (IOException e) {
@@ -973,7 +981,7 @@ public class CluckPublisher {
             if (!path.equals(src)) {
                 Logger.warning("Bad source to " + linkName + ": " + src + " instead of " + path);
             } else {
-                result.produce();
+                result.event();
             }
         }
 

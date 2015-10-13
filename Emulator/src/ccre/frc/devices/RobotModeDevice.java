@@ -93,9 +93,9 @@ public class RobotModeDevice extends Device {
             return;// Can't change mode while enabled.
         }
         this.selectedMode = mode;
-        autoLight.set(mode == RobotMode.AUTONOMOUS);
-        teleLight.set(mode == RobotMode.TELEOPERATED);
-        testLight.set(mode == RobotMode.TESTING);
+        autoLight.safeSet(mode == RobotMode.AUTONOMOUS);
+        teleLight.safeSet(mode == RobotMode.TELEOPERATED);
+        testLight.safeSet(mode == RobotMode.TESTING);
     }
 
     /**

@@ -200,14 +200,17 @@ public class PIDController implements FloatInput, EventOutput {
             if (maxAbsIntegral != null && Math.abs(newTotal) > maxAbsIntegral.get()) {
                 newTotal = newTotal < 0 ? -maxAbsIntegral.get() : maxAbsIntegral.get();
             }
-            integralTotal.set(newTotal);
-            float slope = Time.MILLISECONDS_PER_SECOND * (error - previousError) / timeDelta;
-            float valueOut = error * P.get() + integralTotal.get() * I.get() + slope * D.get();
-            previousError = error;
-            if (maxAbsOutput != null && Math.abs(valueOut) > maxAbsOutput.get()) {
-                valueOut = valueOut < 0 ? -maxAbsOutput.get() : maxAbsOutput.get();
+            try {
+                integralTotal.set(newTotal);
+            } finally {
+                float slope = Time.MILLISECONDS_PER_SECOND * (error - previousError) / timeDelta;
+                float valueOut = error * P.get() + integralTotal.get() * I.get() + slope * D.get();
+                previousError = error;
+                if (maxAbsOutput != null && Math.abs(valueOut) > maxAbsOutput.get()) {
+                    valueOut = valueOut < 0 ? -maxAbsOutput.get() : maxAbsOutput.get();
+                }
+                output.set(valueOut);
             }
-            output.set(valueOut);
         }
     }
 

@@ -23,7 +23,6 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-import ccre.log.Logger;
 import ccre.util.Utils;
 
 /**
@@ -88,15 +87,6 @@ public class EventStatus implements EventInput, EventOutput, Serializable {
         return !consumers.isEmpty();
     }
 
-    /**
-     * Produce this event - fire all listening events.
-     */
-    public void produce() {
-        for (EventOutput ec : consumers) {
-            ec.event();
-        }
-    }
-
     public void onUpdate(EventOutput client) {
         if (client == null) {
             throw new NullPointerException();
@@ -108,34 +98,24 @@ public class EventStatus implements EventInput, EventOutput, Serializable {
         return Utils.addR(consumers, client);
     }
 
+    @Override
     public void event() {
-        produce();
-    }
-
-    public boolean eventWithRecovery() {
-        return produceWithFailureRecovery();
-    }
-
-    /**
-     * Same as produce, but if an exception is thrown, the event will be
-     * DETACHED and reported as such!
-     *
-     * @return If anything was detached.
-     * @see #produce()
-     */
-    public boolean produceWithFailureRecovery() {
-        boolean found = false;
-        for (Iterator<EventOutput> it = consumers.iterator(); it.hasNext();) {
-            EventOutput ec = it.next();
+        for (Iterator<EventOutput> iterator = consumers.iterator(); iterator.hasNext();) {
+            EventOutput output = iterator.next();
             try {
-                found |= ec.eventWithRecovery();
-            } catch (Throwable thr) {
-                Logger.severe("Event Subscriber Detached: " + ec, thr);
-                consumers.remove(ec);
-                found = true;
+                output.event();
+            } catch (Throwable e) {
+                while (iterator.hasNext()) {
+                    EventOutput out2 = iterator.next();
+                    try {
+                        out2.event();
+                    } catch (Throwable ex) {
+                        e.addSuppressed(ex);
+                    }
+                }
+                throw e;
             }
         }
-        return found;
     }
 
     /**

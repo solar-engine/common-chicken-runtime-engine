@@ -156,12 +156,6 @@ public final class DirectFRCImplementation implements FRCImplementation {
     private static final EventStatus globalPeriodic = new EventStatus();
 
     /**
-     * The number of recent code failures - used to determine when to get
-     * annoyed and start detaching broken code modules.
-     */
-    private static int countFails = 0;
-
-    /**
      * Initialized by usePCMCompressor if needed.
      */
     private ByteBuffer pcmCompressor;
@@ -220,34 +214,16 @@ public final class DirectFRCImplementation implements FRCImplementation {
         private void start(DirectFRCImplementation impl, boolean onFMS) {
             try {
                 Logger.fine("Began " + name + (onFMS ? " on FMS" : " mode"));
-                impl.onChangeMode.produce();
-                getStart(impl).produce();
+                impl.onChangeMode.event();
+                getStart(impl).event();
             } catch (Throwable thr) {
                 Logger.severe("Critical Code Failure in " + name + " init", thr);
             }
         }
 
         private void periodic(DirectFRCImplementation impl) {
-            try {
-                if (countFails >= 50) {
-                    countFails--;
-                    if (getDuring(impl).produceWithFailureRecovery()) {
-                        countFails = 0;
-                    }
-                    if (globalPeriodic.produceWithFailureRecovery()) {
-                        countFails = 0;
-                    }
-                } else {
-                    getDuring(impl).produce();
-                    globalPeriodic.produce();
-                    if (countFails > 0) {
-                        countFails--;
-                    }
-                }
-            } catch (Throwable thr) {
-                Logger.severe("Critical Code Failure in " + name + " periodic", thr);
-                countFails += 10;
-            }
+            getDuring(impl).safeEvent();
+            globalPeriodic.safeEvent();
         }
     }
 
@@ -336,7 +312,7 @@ public final class DirectFRCImplementation implements FRCImplementation {
                 while (true) {
                     // TODO: use this return value for optimization
                     boolean n = DirectDigital.waitForInterrupt(id, 10.0f, false);
-                    out.set(DirectDigital.get(id));
+                    out.safeSet(DirectDigital.get(id));
                 }
             }
         }.start();

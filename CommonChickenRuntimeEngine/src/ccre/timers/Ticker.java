@@ -22,7 +22,6 @@ import ccre.channel.EventInput;
 import ccre.channel.EventOutput;
 import ccre.channel.EventStatus;
 import ccre.concurrency.ReporterThread;
-import ccre.log.Logger;
 import ccre.time.Time;
 
 /**
@@ -87,7 +86,6 @@ public final class Ticker implements EventInput {
 
         private final boolean fixedRate;
         private final int interval;
-        private int countFails = 0;
 
         MainTickerThread(String name, boolean fixedRate, int interval) {
             super(name);
@@ -116,7 +114,7 @@ public final class Ticker implements EventInput {
                             break;
                         }
                     }
-                    cycle();
+                    producer.safeEvent();
                     next += interval;
                 }
             } else {
@@ -134,28 +132,9 @@ public final class Ticker implements EventInput {
                             break;
                         }
                     }
-                    cycle();
+                    producer.safeEvent();
                     lastTime = Time.currentTimeMillis();
                 }
-            }
-        }
-
-        private void cycle() {
-            try {
-                if (countFails >= 50) {
-                    countFails--;
-                    if (producer.produceWithFailureRecovery()) {
-                        countFails = 0;
-                    }
-                } else {
-                    producer.produce();
-                    if (countFails > 0) {
-                        countFails--;
-                    }
-                }
-            } catch (Throwable thr) {
-                Logger.severe("Exception in Ticker main loop!", thr);
-                countFails += 10;
             }
         }
     }

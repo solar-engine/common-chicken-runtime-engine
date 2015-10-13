@@ -242,7 +242,7 @@ public class FloatControlComponent extends BaseChannelComponent<FloatControlComp
         if (!(requireDifferent && value == getDele() && hasSentInitial)) {
             lastSentValue = value;
             if (rawOut != null) {
-                rawOut.set(value);
+                rawOut.safeSet(value);
                 hasSentInitial = true;
             }
         }
@@ -305,7 +305,7 @@ public class FloatControlComponent extends BaseChannelComponent<FloatControlComp
         boolean hasPanel = panel != null;
         if (alternateSource != null && hasPanel != isFakeSubscribed) {
             if (unsubscribe != null) {
-                unsubscribe.event();
+                unsubscribe.safeEvent();
                 unsubscribe = null;
             }
             if (hasPanel) {

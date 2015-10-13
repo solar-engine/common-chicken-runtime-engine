@@ -253,7 +253,7 @@ public class NetworkPaletteComponent extends PaletteComponent<Collection<Network
             searcher.event();
         });
         Cluck.getNode().subscribeToStructureNotifications(UniqueIds.global.nextHexId("notification-subscriber"), researcher);
-        searcher.event();
+        searcher.safeEvent();
     }
 
     /**

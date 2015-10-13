@@ -18,23 +18,12 @@
  */
 package ccre.channel;
 
-import java.util.concurrent.CopyOnWriteArrayList;
+public abstract class DerivedFloatInput extends DerivedUpdatingInput implements FloatInput {
 
-import ccre.util.Utils;
+    private float value = apply();
 
-public abstract class DerivedFloatInput extends DerivedUpdate implements FloatInput {
-
-    private float value;
-    private final CopyOnWriteArrayList<EventOutput> consumers = new CopyOnWriteArrayList<>();
-    
     public DerivedFloatInput(UpdatingInput... updates) {
         super(updates);
-        value = apply();
-    }
-
-    public DerivedFloatInput(UpdatingInput[] updates, UpdatingInput... moreUpdates) {
-        super(updates, moreUpdates);
-        value = apply();
     }
 
     @Override
@@ -42,24 +31,8 @@ public abstract class DerivedFloatInput extends DerivedUpdate implements FloatIn
         float newvalue = apply();
         if (newvalue != value) {
             value = newvalue;
-            for (EventOutput consumer : consumers) {
-                consumer.event();
-            }
+            super.update();
         }
-    }
-
-
-    @Override
-    protected final boolean updateWithRecovery() {
-        float newvalue = apply();
-        boolean recovered = false;
-        if (newvalue != value) {
-            value = newvalue;
-            for (EventOutput consumer : consumers) {
-                recovered |= consumer.eventWithRecovery();
-            }
-        }
-        return recovered;
     }
 
     public final float get() {
@@ -67,14 +40,4 @@ public abstract class DerivedFloatInput extends DerivedUpdate implements FloatIn
     }
 
     protected abstract float apply();
-
-    @Override
-    public void onUpdate(EventOutput notify) {
-        consumers.add(notify);
-    }
-    
-    @Override
-    public EventOutput onUpdateR(EventOutput notify) {
-        return Utils.addR(consumers, notify);
-    }
 }

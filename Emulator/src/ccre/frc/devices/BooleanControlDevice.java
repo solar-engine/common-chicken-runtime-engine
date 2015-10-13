@@ -41,7 +41,7 @@ public class BooleanControlDevice extends Device {
             boolean wasDown = get();
             super.onPress(x, y);
             if (!wasDown && get()) {
-                pressEvent.produce();
+                pressEvent.safeEvent();
                 repaint();
             }
         }

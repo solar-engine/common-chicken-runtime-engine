@@ -82,15 +82,6 @@ public class EventOutputTest { // TODO: should I be checking propagation of with
     }
 
     @Test
-    public void testEventWithRecovery() {
-        for (int i = 0; i < 10; i++) {
-            ceo.ifExpected = true;
-            assertFalse(ceo.eventWithRecovery());
-            ceo.check();
-        }
-    }
-
-    @Test
     public void testCombine() {
         EventOutput eo = ceo.combine(ceo2);
         for (int i = 0; i < 10; i++) {

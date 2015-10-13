@@ -195,7 +195,7 @@ public class FloatDisplayComponent extends BaseChannelComponent<FloatDisplayComp
         boolean hasPanel = panel != null;
         if (inp != null && hasPanel != subscribed) {
             if (unsubscribe != null) {
-                unsubscribe.event();
+                unsubscribe.safeEvent();
                 unsubscribe = null;
             }
             if (hasPanel) {

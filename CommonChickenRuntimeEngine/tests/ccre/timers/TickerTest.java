@@ -101,7 +101,6 @@ public class TickerTest {
         if (ctr != counter) {
             fail("expected <" + ctr + "> but got <" + counter + "> in " + period);
         }
-        // assertEquals(ctr, counter);
     }
 
     @Test
@@ -168,25 +167,6 @@ public class TickerTest {
             fake.forward(period);
         }
         check(5);
-    }
-
-    @Test
-    public void testLoopTooManyErrors() throws InterruptedException {
-        Logger.info("The following ticker main loop errors are purposeful.");
-        start(() -> {
-            synchronized (TickerTest.this) {
-                counter++;
-            }
-            throw new RuntimeException("Ticker purposeful failure.");
-        });
-        for (int i = 0; i < 20; i++) {
-            fake.forward(period);
-        }
-        check(6);// only the first six would have occurred: after the exception gets thrown on that last time, it gets detached.
-        for (int i = 0; i < 10; i++) {
-            fake.forward(period);
-        }
-        check(6);// nothing more, preferably
     }
 
     @Test

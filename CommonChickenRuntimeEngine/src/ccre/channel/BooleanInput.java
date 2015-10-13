@@ -93,7 +93,7 @@ public interface BooleanInput extends UpdatingInput {
     }
 
     public default EventOutput sendR(BooleanOutput output) {
-        output.set(get());
+        output.safeSet(get()); // TODO: should this be inconsistent like this?
         return onUpdateR(() -> output.set(get()));
     }
 

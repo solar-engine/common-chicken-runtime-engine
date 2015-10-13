@@ -102,10 +102,7 @@ public class ControlBarComponent extends DeviceComponent {
     public void onMouseMove(int x, int y) {
         if (dragging) {
             Rectangle rect = hitzone.getBounds();
-            // value == ((x - startX) / barWidth) * (max - min) + min
-            // (value - min) / (max - min) == (x - startX) / barWidth
-            // startX + barWidth * (value - min) / (max - min) == x
-            value.set(Math.min(1, Math.max(0, ((x - rect.x) / (float) rect.width))) * (max - min) + min);
+            value.safeSet(Math.min(1, Math.max(0, ((x - rect.x) / (float) rect.width))) * (max - min) + min);
             repaint();
         }
     }

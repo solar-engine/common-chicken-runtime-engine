@@ -19,6 +19,7 @@
 package ccre.channel;
 
 import java.io.Serializable;
+import java.util.Iterator;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import ccre.util.Utils;
@@ -59,7 +60,7 @@ public class BooleanStatus implements BooleanOutput, BooleanInput, Serializable 
      * @param default_ The default value.
      */
     public BooleanStatus(boolean default_) {
-        this.set(default_);
+        this.value = default_;
     }
 
     /**
@@ -139,8 +140,21 @@ public class BooleanStatus implements BooleanOutput, BooleanInput, Serializable 
             return;
         }
         this.value = value;
-        for (EventOutput output : consumers) {
-            output.event();
+        for (Iterator<EventOutput> iterator = consumers.iterator(); iterator.hasNext();) {
+            EventOutput output = iterator.next();
+            try {
+                output.event();
+            } catch (Throwable e) {
+                while (iterator.hasNext()) {
+                    EventOutput out2 = iterator.next();
+                    try {
+                        out2.event();
+                    } catch (Throwable ex) {
+                        e.addSuppressed(ex);
+                    }
+                }
+                throw e;
+            }
         }
     }
 

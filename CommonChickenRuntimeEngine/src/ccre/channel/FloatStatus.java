@@ -19,6 +19,7 @@
 package ccre.channel;
 
 import java.io.Serializable;
+import java.util.Iterator;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import ccre.util.Utils;
@@ -66,7 +67,7 @@ public class FloatStatus implements FloatOutput, FloatInput, Serializable {
      * @param value The default value.
      */
     public FloatStatus(float value) {
-        this.set(value);
+        this.value = value;
     }
 
     /**
@@ -118,8 +119,21 @@ public class FloatStatus implements FloatOutput, FloatInput, Serializable {
             return; // Do nothing. We want to ignore the value if it's the same.
         }
         value = newValue;
-        for (EventOutput evt : consumers) {
-            evt.event();
+        for (Iterator<EventOutput> iterator = consumers.iterator(); iterator.hasNext();) {
+            EventOutput output = iterator.next();
+            try {
+                output.event();
+            } catch (Throwable e) {
+                while (iterator.hasNext()) {
+                    EventOutput out2 = iterator.next();
+                    try {
+                        out2.event();
+                    } catch (Throwable ex) {
+                        e.addSuppressed(ex);
+                    }
+                }
+                throw e;
+            }
         }
     }
 

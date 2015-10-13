@@ -18,51 +18,18 @@
  */
 package ccre.channel;
 
-import java.util.concurrent.CopyOnWriteArrayList;
-
-import ccre.util.Utils;
-
-public abstract class DerivedEventInput extends DerivedUpdate implements EventInput {
-
-    private final CopyOnWriteArrayList<EventOutput> consumers = new CopyOnWriteArrayList<>();
+public abstract class DerivedEventInput extends DerivedUpdatingInput implements EventInput {
 
     public DerivedEventInput(UpdatingInput... updates) {
         super(updates);
     }
 
-    public DerivedEventInput(UpdatingInput[] updates, UpdatingInput... moreUpdates) {
-        super(updates, moreUpdates);
-    }
-
     @Override
     protected final void update() {
         if (shouldProduce()) {
-            for (EventOutput consumer : consumers) {
-                consumer.event();
-            }
+            super.update();
         }
-    }
-
-    @Override
-    protected final boolean updateWithRecovery() {
-        boolean recovered = false;
-        if (shouldProduce()) {
-            for (EventOutput consumer : consumers) {
-                recovered |= consumer.eventWithRecovery();
-            }
-        }
-        return recovered;
     }
 
     protected abstract boolean shouldProduce();
-
-    @Override
-    public void onUpdate(EventOutput notify) {
-        consumers.add(notify);
-    }
-
-    @Override
-    public EventOutput onUpdateR(EventOutput notify) {
-        return Utils.addR(consumers, notify);
-    }
 }

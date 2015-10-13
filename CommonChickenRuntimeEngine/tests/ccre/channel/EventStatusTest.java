@@ -237,33 +237,4 @@ public class EventStatusTest {
     public void testAsInput() {
         assertEquals(status, status.asInput());
     }
-
-    @Test
-    public void testEventWithRecovery() {
-        CountingEventOutput normal = new CountingEventOutput();
-        CountingEventOutput recovery = new CountingEventOutput();
-        EventOutput eo = new EventOutput() {
-            @Override
-            public void event() {
-                normal.event();
-            }
-
-            @Override
-            public boolean eventWithRecovery() {
-                return recovery.eventWithRecovery();
-            }
-        };
-        Random rand = new Random();
-        for (int i = 0; i < 20; i++) {
-            if (i % 3 == 1 ? rand.nextBoolean() : i % 3 == 2) {
-                recovery.ifExpected = true;
-                eo.eventWithRecovery();
-                recovery.check();
-            } else {
-                normal.ifExpected = true;
-                eo.event();
-                normal.check();
-            }
-        }
-    }
 }

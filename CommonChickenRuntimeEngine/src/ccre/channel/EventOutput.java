@@ -45,8 +45,7 @@ public interface EventOutput {
     public default void safeEvent() {
         try {
             event();
-            // let Errors bubble up: they're probably important.
-        } catch (Exception ex) {
+        } catch (Throwable ex) {
             Logger.severe("Error during event propagation", ex);
         }
     }

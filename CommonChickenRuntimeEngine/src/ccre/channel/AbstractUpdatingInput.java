@@ -70,7 +70,11 @@ public abstract class AbstractUpdatingInput implements UpdatingInput {
 
     @Override
     public EventOutput onUpdateR(EventOutput notify) {
-        return Utils.addR(consumers, notify);
+        if (notify == null) {
+            throw new NullPointerException();
+        }
+        consumers.add(notify);
+        return () -> consumers.remove(notify);
     }
 
     /**

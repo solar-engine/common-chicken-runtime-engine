@@ -49,8 +49,7 @@ public interface BooleanOutput {
     public default void safeSet(boolean value) {
         try {
             set(value);
-            // let Errors bubble up: they're probably important.
-        } catch (Exception ex) {
+        } catch (Throwable ex) {
             Logger.severe("Error during channel propagation", ex);
         }
     }

@@ -55,8 +55,7 @@ public interface FloatOutput {
     public default void safeSet(float value) {
         try {
             set(value);
-            // let Errors bubble up: they're probably important.
-        } catch (Exception ex) {
+        } catch (Throwable ex) {
             Logger.severe("Error during channel propagation", ex);
         }
     }

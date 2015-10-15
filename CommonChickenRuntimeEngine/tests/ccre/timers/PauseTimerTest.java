@@ -192,4 +192,36 @@ public class PauseTimerTest {
         fake.forward(10);
         assertFalse(pt.get());
     }
+
+    @Test
+    public void testStartError() {
+        CountingEventOutput ceo = new CountingEventOutput();
+        pt.triggerAtStart(() -> {
+            ceo.event();
+            // TODO: test logging
+            throw new RuntimeException("Purposeful failure.");
+        });
+        ceo.ifExpected = true;
+        pt.event();
+        ceo.check();
+    }
+
+    @Test
+    public void testEndError() throws InterruptedException {
+        CountingEventOutput ceo = new CountingEventOutput();
+        pt.triggerAtEnd(() -> {
+            ceo.event();
+            // TODO: test logging
+            throw new RuntimeException("Purposeful failure.");
+        });
+        for (int i = 0; i < 10; i++) {
+            // if something breaks internally, this loop will stop succeeding.
+            pt.event();
+            fake.forward(990);
+            ceo.ifExpected = true;
+            fake.forward(10);
+            Thread.sleep(2);
+            ceo.check();
+        }
+    }
 }

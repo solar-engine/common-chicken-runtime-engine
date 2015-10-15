@@ -20,10 +20,12 @@ package ccre.timers;
 
 import java.util.concurrent.CopyOnWriteArrayList;
 
+import ccre.channel.AbstractUpdatingInput;
 import ccre.channel.BooleanInput;
 import ccre.channel.BooleanOutput;
 import ccre.channel.EventOutput;
 import ccre.concurrency.ReporterThread;
+import ccre.log.Logger;
 import ccre.time.Time;
 
 /**
@@ -36,12 +38,11 @@ import ccre.time.Time;
  *
  * @author skeggsc
  */
-public class PauseTimer implements BooleanInput, EventOutput {
+public class PauseTimer extends AbstractUpdatingInput implements BooleanInput, EventOutput {
 
     private volatile long endAt;
     private final long timeout;
     private final Object lock = new Object();
-    private final CopyOnWriteArrayList<EventOutput> consumers = new CopyOnWriteArrayList<EventOutput>();
     private boolean isRunning = true;
     private final ReporterThread main = new ReporterThread("PauseTimer") {
         @Override
@@ -113,7 +114,7 @@ public class PauseTimer implements BooleanInput, EventOutput {
         boolean enabling = endAt != 0;
         if (enabling && !main.isAlive()) {
             synchronized (lock) {
-                main.start();
+                main.start(); // if this fails, it means that the internal thread exited due to an exception
                 try {
                     lock.wait();
                 } catch (InterruptedException e) {
@@ -125,8 +126,10 @@ public class PauseTimer implements BooleanInput, EventOutput {
         if (disabled == !enabling) {
             return;
         }
-        for (EventOutput c : consumers) {
-            c.safeEvent();
+        try {
+            perform();
+        } catch (Throwable thr) {
+            Logger.severe("Error in PauseTimer notification", thr);
         }
     }
 
@@ -157,15 +160,5 @@ public class PauseTimer implements BooleanInput, EventOutput {
      */
     public void triggerAtChanges(EventOutput start, EventOutput end) {
         send(BooleanOutput.onChange(end, start));
-    }
-    
-    public void onUpdate(EventOutput notify) {
-        consumers.add(notify);
-    }
-
-    @Override
-    public EventOutput onUpdateR(EventOutput notify) {
-        consumers.add(notify);
-        return () -> consumers.remove(notify);
     }
 }

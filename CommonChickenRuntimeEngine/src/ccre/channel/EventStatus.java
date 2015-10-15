@@ -19,11 +19,6 @@
 package ccre.channel;
 
 import java.io.Serializable;
-import java.util.Arrays;
-import java.util.Iterator;
-import java.util.concurrent.CopyOnWriteArrayList;
-
-import ccre.util.Utils;
 
 /**
  * An implementation of an EventInput. This can be fired using the .produce()
@@ -31,34 +26,9 @@ import ccre.util.Utils;
  *
  * @author skeggsc
  */
-public class EventStatus implements EventInput, EventOutput, Serializable {
+public class EventStatus extends AbstractUpdatingInput implements EventInput, EventOutput, Serializable {
 
-    private static final long serialVersionUID = 115846451690403376L;
-
-    /**
-     * The events to fire when this event is fired.
-     */
-    private final CopyOnWriteArrayList<EventOutput> consumers = new CopyOnWriteArrayList<EventOutput>();
-
-    /**
-     * Create a new Event.
-     */
-    public EventStatus() {
-    }
-
-    /**
-     * Create a new Event that fires the specified event when fired. This is
-     * equivalent to adding the event as a listener.
-     *
-     * @param event the event to fire when this event is fired.
-     * @see #send(ccre.channel.EventOutput)
-     */
-    public EventStatus(EventOutput event) {
-        if (event == null) {
-            throw new NullPointerException();
-        }
-        consumers.add(event);
-    }
+    private static final long serialVersionUID = -1536503261547524049L;
 
     /**
      * Create a new Event that fires the specified events when fired. This is
@@ -68,62 +38,14 @@ public class EventStatus implements EventInput, EventOutput, Serializable {
      * @see #send(ccre.channel.EventOutput)
      */
     public EventStatus(EventOutput... events) {
-        for (EventOutput e : events) {
-            if (e == null) {
-                throw new NullPointerException();
-            }
+        for (EventOutput event : events) {
+            onUpdate(event);
         }
-        consumers.addAllAbsent(Arrays.asList(events));
-    }
-
-    /**
-     * Returns whether or not this has any consumers that will get fired. If
-     * this returns false, the produce() method will do nothing.
-     *
-     * @return whether or not the produce method would do anything.
-     * @see #produce()
-     */
-    public boolean hasConsumers() {
-        return !consumers.isEmpty();
-    }
-
-    public void onUpdate(EventOutput client) {
-        if (client == null) {
-            throw new NullPointerException();
-        }
-        consumers.add(client);
-    }
-    
-    public EventOutput onUpdateR(EventOutput client) {
-        return Utils.addR(consumers, client);
     }
 
     @Override
     public void event() {
-        for (Iterator<EventOutput> iterator = consumers.iterator(); iterator.hasNext();) {
-            EventOutput output = iterator.next();
-            try {
-                output.event();
-            } catch (Throwable e) {
-                while (iterator.hasNext()) {
-                    EventOutput out2 = iterator.next();
-                    try {
-                        out2.event();
-                    } catch (Throwable ex) {
-                        e.addSuppressed(ex);
-                    }
-                }
-                throw e;
-            }
-        }
-    }
-
-    /**
-     * Clear all listeners on this EventStatus. Only do this if you have a very
-     * good reason!
-     */
-    public void __UNSAFE_clearListeners() {
-        consumers.clear();
+        perform();
     }
 
     /**

@@ -18,17 +18,14 @@
  */
 package ccre.channel;
 
-public abstract class DerivedEventInput extends DerivedUpdatingInput implements EventInput {
+public abstract class DerivedEventInput extends AbstractUpdatingInput implements EventInput {
 
     public DerivedEventInput(UpdatingInput... updates) {
-        super(updates);
-    }
-
-    @Override
-    protected final void update() {
-        if (shouldProduce()) {
-            super.update();
-        }
+        DerivedUpdate.onUpdates(updates, () -> {
+            if (shouldProduce()) {
+                super.perform();
+            }
+        });
     }
 
     protected abstract boolean shouldProduce();

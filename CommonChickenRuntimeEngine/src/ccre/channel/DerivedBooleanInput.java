@@ -18,21 +18,18 @@
  */
 package ccre.channel;
 
-public abstract class DerivedBooleanInput extends DerivedUpdatingInput implements BooleanInput {
+public abstract class DerivedBooleanInput extends AbstractUpdatingInput implements BooleanInput {
 
     private boolean value = apply();
 
     public DerivedBooleanInput(UpdatingInput... updates) {
-        super(updates);
-    }
-
-    @Override
-    protected final void update() {
-        boolean newvalue = apply();
-        if (newvalue != value) {
-            value = newvalue;
-            super.update();
-        }
+        DerivedUpdate.onUpdates(updates, () -> {
+            boolean newvalue = apply();
+            if (newvalue != value) {
+                value = newvalue;
+                super.perform();
+            }
+        });
     }
 
     public final boolean get() {

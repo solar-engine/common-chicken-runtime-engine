@@ -738,7 +738,7 @@ public class CluckPublisher {
             }
             return base.combine(() -> {
                 synchronized (SubscribedFloatInput.this) {
-                    if (canUnsubscribe && sent && !this.hasConsumers()) {
+                    if (canUnsubscribe && sent && !this.hasListeners()) {
                         sent = false;
                         node.transmit(path, linkName, new byte[] { RMT_NEGATIVE_ACK });
                     }
@@ -840,7 +840,7 @@ public class CluckPublisher {
             }
             return base.combine(() -> {
                 synchronized (SubscribedBooleanInput.this) {
-                    if (canUnsubscribe && sent && !this.hasConsumers()) {
+                    if (canUnsubscribe && sent && !this.hasListeners()) {
                         sent = false;
                         node.transmit(path, linkName, new byte[] { RMT_NEGATIVE_ACK });
                     }
@@ -936,7 +936,7 @@ public class CluckPublisher {
             }
             return base.combine(() -> {
                 synchronized (SubscribedEventInput.this) {
-                    if (sent && !this.hasConsumers()) {
+                    if (sent && !this.hasListeners()) {
                         sent = false;
                         node.transmit(path, linkName, new byte[] { RMT_NEGATIVE_ACK });
                     }

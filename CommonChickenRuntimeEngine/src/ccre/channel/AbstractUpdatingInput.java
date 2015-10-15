@@ -23,16 +23,25 @@ import java.util.concurrent.CopyOnWriteArrayList;
 
 import ccre.util.Utils;
 
-public abstract class DerivedUpdatingInput extends DerivedUpdate implements UpdatingInput {
+/**
+ * An UpdatingInput that simplifies updating sending to simply calling
+ * {@link #perform()}.
+ *
+ * @author skeggsc
+ */
+public abstract class AbstractUpdatingInput implements UpdatingInput {
 
+    /**
+     * The list of consumers that will be notified when this UpdatingInput
+     * updates.
+     */
     private final CopyOnWriteArrayList<EventOutput> consumers = new CopyOnWriteArrayList<>();
 
-    public DerivedUpdatingInput(UpdatingInput... updates) {
-        super(updates);
-    }
-
-    @Override
-    protected void update() {
+    /**
+     * Tell all of the listeners that whatever this UpdatingInput represents has
+     * updated.
+     */
+    protected final void perform() {
         for (Iterator<EventOutput> iterator = consumers.iterator(); iterator.hasNext();) {
             EventOutput output = iterator.next();
             try {
@@ -62,5 +71,24 @@ public abstract class DerivedUpdatingInput extends DerivedUpdate implements Upda
     @Override
     public EventOutput onUpdateR(EventOutput notify) {
         return Utils.addR(consumers, notify);
+    }
+
+    /**
+     * Returns whether or not this has any listeners that will get fired. If
+     * this returns false, the perform() method will do nothing.
+     *
+     * @return whether or not the perform method would do anything.
+     * @see #perform()
+     */
+    public boolean hasListeners() {
+        return !consumers.isEmpty();
+    }
+
+    /**
+     * Clear all listeners on this DerivedUpdatingInput. Only do this if you
+     * have a very good reason!
+     */
+    public void __UNSAFE_clearListeners() {
+        consumers.clear();
     }
 }

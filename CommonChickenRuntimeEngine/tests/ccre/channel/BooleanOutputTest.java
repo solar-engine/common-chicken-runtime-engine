@@ -20,6 +20,7 @@ package ccre.channel;
 
 import static org.junit.Assert.*;
 
+import java.util.NoSuchElementException;
 import java.util.Random;
 
 import org.junit.After;
@@ -32,6 +33,9 @@ import ccre.util.Values;
 
 public class BooleanOutputTest {
 
+    private final BooleanOutput evil = (v) -> {
+        throw new NoSuchElementException("safeSet purposeful failure.");
+    };
     private CountingBooleanOutput cbo, cbo2;
 
     @Before
@@ -317,5 +321,64 @@ public class BooleanOutputTest {
     @Test(expected = NullPointerException.class)
     public void testFilterNotNull() {
         cbo.filterNot(null);
+    }
+
+    @Test
+    public void testSafeSet() {
+        evil.safeSet(false);
+        evil.safeSet(true);
+    }
+
+    @Test(expected = NoSuchElementException.class)
+    public void testExceptionPropagationFalse() {
+        evil.set(false);
+    }
+
+    @Test(expected = NoSuchElementException.class)
+    public void testExceptionPropagationTrue() {
+        evil.set(true);
+    }
+
+    @Test(expected = NoSuchElementException.class)
+    public void testCombineWithError1CausesError() {
+        cbo.ifExpected = true;
+        cbo.valueExpected = true;
+        cbo.combine(evil).set(true);
+    }
+
+    @Test(expected = NoSuchElementException.class)
+    public void testCombineWithError2CausesError() {
+        cbo.ifExpected = true;
+        cbo.valueExpected = true;
+        evil.combine(cbo).set(true);
+    }
+
+    @Test
+    public void testCombineWithError1Succeeds() {
+        cbo.ifExpected = true;
+        cbo.valueExpected = true;
+        cbo.combine(evil).safeSet(true);
+        cbo.check();
+    }
+
+    @Test
+    public void testCombineWithError2Succeeds() {
+        cbo.ifExpected = true;
+        cbo.valueExpected = true;
+        evil.combine(cbo).safeSet(true);
+        cbo.check();
+    }
+
+    @Test
+    public void testCombineWithError3CausesError() {
+        boolean errored = false;
+        try {
+            evil.combine(evil).set(true);
+        } catch (NoSuchElementException ex) {
+            errored = true;
+            assertEquals(ex.getSuppressed().length, 1);
+            assertTrue(ex.getSuppressed()[0] instanceof NoSuchElementException);
+        }
+        assertTrue(errored);
     }
 }

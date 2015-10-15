@@ -58,7 +58,7 @@ public class FloatStatusTest {
         cfo.valueExpected = 0;
         status = new FloatStatus(cfo);
         cfo.check();
-        assertTrue(status.hasConsumers());
+        assertTrue(status.hasListeners());
         for (float f : Values.interestingFloats) {
             cfo.ifExpected = true;
             cfo.valueExpected = f;
@@ -81,7 +81,7 @@ public class FloatStatusTest {
         status = new FloatStatus(cfo1, cfo2);
         cfo1.check();
         cfo2.check();
-        assertTrue(status.hasConsumers());
+        assertTrue(status.hasListeners());
         for (float f : Values.interestingFloats) {
             cfo1.ifExpected = cfo2.ifExpected = true;
             cfo1.valueExpected = cfo2.valueExpected = f;
@@ -103,20 +103,20 @@ public class FloatStatusTest {
 
     @Test
     public void testHasConsumers() {
-        assertFalse(status.hasConsumers());
+        assertFalse(status.hasListeners());
         for (int i = 0; i < 5; i++) {
             EventOutput eo = status.sendR(FloatOutput.ignored);
-            assertTrue(status.hasConsumers());
+            assertTrue(status.hasListeners());
             eo.event();
-            assertFalse(status.hasConsumers());
+            assertFalse(status.hasListeners());
             EventOutput eo1 = status.sendR(FloatOutput.ignored);
-            assertTrue(status.hasConsumers());
+            assertTrue(status.hasListeners());
             EventOutput eo2 = status.sendR(FloatOutput.ignored);
-            assertTrue(status.hasConsumers());
+            assertTrue(status.hasListeners());
             eo1.event();
-            assertTrue(status.hasConsumers());
+            assertTrue(status.hasListeners());
             eo2.event();
-            assertFalse(status.hasConsumers());
+            assertFalse(status.hasListeners());
         }
     }
 
@@ -171,7 +171,7 @@ public class FloatStatusTest {
     public void testOnUpdate() {
         CountingEventOutput ceo = new CountingEventOutput();
         status.onUpdate(ceo);
-        assertTrue(status.hasConsumers());
+        assertTrue(status.hasListeners());
         for (float f : Values.interestingFloats) {
             ceo.ifExpected = true;
             status.set(f);
@@ -188,44 +188,44 @@ public class FloatStatusTest {
     public void testOnUpdateR() {
         CountingEventOutput ceo = new CountingEventOutput();
         EventOutput unbind = status.onUpdateR(ceo);
-        assertTrue(status.hasConsumers());
+        assertTrue(status.hasListeners());
         for (float f : Values.interestingFloats) {
             ceo.ifExpected = true;
             status.set(f);
             ceo.check();
         }
-        assertTrue(status.hasConsumers());
+        assertTrue(status.hasListeners());
         unbind.event();
-        assertFalse(status.hasConsumers());
+        assertFalse(status.hasListeners());
         for (float f : Values.interestingFloats) {
             status.set(f);
             ceo.check();
         }
-        assertFalse(status.hasConsumers());
+        assertFalse(status.hasListeners());
     }
 
     @Test
     public void testOnUpdateAndOnUpdateR() {
-        assertFalse(status.hasConsumers());
+        assertFalse(status.hasListeners());
         EventOutput unbind = status.onUpdateR(EventOutput.ignored);
-        assertTrue(status.hasConsumers());
+        assertTrue(status.hasListeners());
         status.onUpdate(EventOutput.ignored);
-        assertTrue(status.hasConsumers());
+        assertTrue(status.hasListeners());
         unbind.event();
-        assertTrue(status.hasConsumers());
+        assertTrue(status.hasListeners());
     }
 
     @Test
     public void testOnUpdateRTwice() {
-        assertFalse(status.hasConsumers());
+        assertFalse(status.hasListeners());
         EventOutput unbind1 = status.onUpdateR(EventOutput.ignored);
-        assertTrue(status.hasConsumers());
+        assertTrue(status.hasListeners());
         EventOutput unbind2 = status.onUpdateR(EventOutput.ignored);
-        assertTrue(status.hasConsumers());
+        assertTrue(status.hasListeners());
         unbind1.event();
-        assertTrue(status.hasConsumers());
+        assertTrue(status.hasListeners());
         unbind2.event();
-        assertFalse(status.hasConsumers());
+        assertFalse(status.hasListeners());
     }
 
     @Test(expected = NullPointerException.class)

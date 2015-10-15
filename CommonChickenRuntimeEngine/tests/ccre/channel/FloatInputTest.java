@@ -25,6 +25,7 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import java.util.NoSuchElementException;
 import java.util.Random;
 
 import org.junit.After;
@@ -877,6 +878,45 @@ public class FloatInputTest {
                 assertEquals(1000 * delta / timeDelta, fi.get(), 0.00001f * (1000 * delta / timeDelta));
             }
             fake.forward(1000);
+        }
+    }
+
+    @Test
+    public void testSendError() {
+        for (boolean useR : new boolean[] { false, true }) {
+            CountingEventOutput expected = new CountingEventOutput();
+            CountingEventOutput expected2 = new CountingEventOutput();
+            fi = new FloatInput() {
+                @Override
+                public EventOutput onUpdateR(EventOutput notify) {
+                    expected.event();
+                    return EventOutput.ignored;
+                }
+
+                @Override
+                public float get() {
+                    expected2.event();
+                    return 3;
+                }
+            };
+            FloatOutput evil = new FloatOutput() {
+                @Override
+                public void set(float value) {
+                    cfo.set(value);
+                    // TODO: check logging.
+                    throw new NoSuchElementException("Purposeful failure.");
+                }
+            };
+            expected.ifExpected = expected2.ifExpected = cfo.ifExpected = true;
+            cfo.valueExpected = 3;
+            if (useR) {
+                fi.sendR(evil);
+            } else {
+                fi.send(evil);
+            }
+            expected.check();
+            expected2.check();
+            cfo.check();
         }
     }
 }

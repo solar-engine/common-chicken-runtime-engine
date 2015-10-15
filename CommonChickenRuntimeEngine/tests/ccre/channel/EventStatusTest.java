@@ -20,8 +20,6 @@ package ccre.channel;
 
 import static org.junit.Assert.*;
 
-import java.util.Random;
-
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -85,36 +83,36 @@ public class EventStatusTest {
 
     @Test
     public void testHasConsumersInitSingle() {
-        assertTrue(new EventStatus(EventOutput.ignored).hasConsumers());
+        assertTrue(new EventStatus(EventOutput.ignored).hasListeners());
     }
 
     @Test
     public void testHasConsumersInitMany() {
-        assertTrue(new EventStatus(EventOutput.ignored, EventOutput.ignored).hasConsumers());
+        assertTrue(new EventStatus(EventOutput.ignored, EventOutput.ignored).hasListeners());
     }
 
     @Test
     public void testHasConsumersLingering() {
-        assertFalse(status.hasConsumers());
+        assertFalse(status.hasListeners());
         status.onUpdate(EventOutput.ignored);
-        assertTrue(status.hasConsumers());
+        assertTrue(status.hasListeners());
         EventOutput unbind = status.onUpdateR(EventOutput.ignored);
-        assertTrue(status.hasConsumers());
+        assertTrue(status.hasListeners());
         unbind.event();
-        assertTrue(status.hasConsumers());// should STILL have one left
+        assertTrue(status.hasListeners());// should STILL have one left
     }
 
     @Test
     public void testHasConsumers() {
-        assertFalse(status.hasConsumers());
+        assertFalse(status.hasListeners());
         EventOutput unbind1 = status.onUpdateR(EventOutput.ignored);
-        assertTrue(status.hasConsumers());
+        assertTrue(status.hasListeners());
         EventOutput unbind2 = status.onUpdateR(EventOutput.ignored);
-        assertTrue(status.hasConsumers());
+        assertTrue(status.hasListeners());
         unbind1.event();
-        assertTrue(status.hasConsumers());// should STILL have one left
+        assertTrue(status.hasListeners());// should STILL have one left
         unbind2.event();
-        assertFalse(status.hasConsumers());
+        assertFalse(status.hasListeners());
     }
 
     @Test

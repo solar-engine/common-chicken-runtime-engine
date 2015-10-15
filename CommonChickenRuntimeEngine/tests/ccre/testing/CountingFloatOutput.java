@@ -65,7 +65,6 @@ public class CountingFloatOutput implements FloatOutput {
         if (!ifExpected && !allowExtras) {
             throw new RuntimeException("Unexpected set!");
         }
-        ifExpected = false;
         boolean correct = false;
         if (Float.isNaN(valueExpected)) {
             correct = Float.isNaN(value);
@@ -75,6 +74,7 @@ public class CountingFloatOutput implements FloatOutput {
         if (!correct) {
             throw new RuntimeException("Incorrect set: " + value + " instead of " + valueExpected);
         }
+        ifExpected = false;
     }
 
     /**

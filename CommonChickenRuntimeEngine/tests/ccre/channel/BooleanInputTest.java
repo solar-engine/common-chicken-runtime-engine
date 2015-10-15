@@ -20,6 +20,8 @@ package ccre.channel;
 
 import static org.junit.Assert.*;
 
+import java.util.NoSuchElementException;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -641,5 +643,43 @@ public class BooleanInputTest {
         gotProperly = false;
         bi.onUpdate(ceo);
         assertTrue(gotProperly);
+    }
+
+    @Test
+    public void testSendError() {
+        for (boolean useR : new boolean[] { false, true }) {
+            bi = new BooleanInput() {
+                @Override
+                public EventOutput onUpdateR(EventOutput notify) {
+                    expected.event();
+                    return EventOutput.ignored;
+                }
+
+                @Override
+                public boolean get() {
+                    expected2.event();
+                    return true;
+                }
+            };
+            CountingBooleanOutput cbo = new CountingBooleanOutput();
+            BooleanOutput evil = new BooleanOutput() {
+                @Override
+                public void set(boolean value) {
+                    cbo.set(value);
+                    // TODO: check logging.
+                    throw new NoSuchElementException("Purposeful failure.");
+                }
+            };
+            expected.ifExpected = expected2.ifExpected = cbo.ifExpected = true;
+            cbo.valueExpected = true;
+            if (useR) {
+                bi.sendR(evil);
+            } else {
+                bi.send(evil);
+            }
+            expected.check();
+            expected2.check();
+            cbo.check();
+        }
     }
 }

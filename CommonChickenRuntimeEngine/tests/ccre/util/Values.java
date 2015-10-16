@@ -31,6 +31,32 @@ public class Values {
         return new String(chrs);
     }
 
+    public static String[] getRandomStrings(int n) {
+        String[] strs = new String[n];
+        for (int i = 0; i < n; i++) {
+            strs[i] = getRandomString();
+        }
+        return strs;
+    }
+
+    public static byte[] getRandomBytes(int length) {
+        byte[] bytes = new byte[length];
+        random.nextBytes(bytes);
+        return bytes;
+    }
+
+    public static byte[] getRandomBytes(int minlen, int maxlen) {
+        return getRandomBytes(random.nextInt(maxlen - minlen + 1) + minlen);
+    }
+
+    public static byte[][] getRandomByteses(int count, int minlen, int maxlen) {
+        byte[][] byteses = new byte[count][];
+        for (int i = 0; i < count; i++) {
+            byteses[i] = getRandomBytes(minlen, maxlen);
+        }
+        return byteses;
+    }
+
     /**
      * A sequence of interesting floats for testing edge cases: things like
      * negative infinity, NaN, MAX_VALUE, -MAX_VALUE, 0, 1, -1, etc.

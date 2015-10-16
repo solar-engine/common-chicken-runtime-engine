@@ -442,7 +442,7 @@ public class ExpirationTimerTest {
         ceo.ifExpected = true;
         fake.forward(10);
         Thread.sleep(2);
-        ceo.check();
+        ceo.check(); // NOTE: flaky here: 1 nonoccurrence.
         fake.forward(490);
         stop.event();
         Thread.sleep(2);

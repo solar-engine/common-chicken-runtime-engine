@@ -97,6 +97,7 @@ public class CluckNode implements Serializable {
      * @param denyLink The link for broadcasts to not follow.
      */
     public void transmit(String target, String source, byte[] data, CluckLink denyLink) {
+        // TODO: outlaw empty messages here.
         if (target == null) {
             if (data.length == 0 || data[0] != CluckConstants.RMT_NEGATIVE_ACK) {
                 Logger.warning("Received message addressed to unreceving node (source: " + source + ")");
@@ -164,12 +165,15 @@ public class CluckNode implements Serializable {
         // are annoying, so don't send these, and don't warn about the same
         // message path too quickly.
 
-        // We use System.currentTimeMillis() instead of Time.currentTimeMillis() because this is only to prevent message spam.
-        if ((data.length == 0 || data[0] != RMT_NEGATIVE_ACK) && !target.contains("/rsch-") && (!direct.equals(lastMissingLink) || System.currentTimeMillis() >= lastMissingLinkError + 1000)) {
-            lastMissingLink = direct;
-            lastMissingLinkError = System.currentTimeMillis();
-            Logger.warning("No link for " + target + "(" + direct + ") from " + source + "!");
-            transmit(source, target, new byte[] { RMT_NEGATIVE_ACK });
+        // We use System.currentTimeMillis() instead of Time.currentTimeMillis()
+        // because this is only to prevent message spam.
+        if ((data.length == 0 || data[0] != CluckConstants.RMT_NEGATIVE_ACK) && !target.contains("/rsch-")) {
+            if (!direct.equals(lastMissingLink) || System.currentTimeMillis() >= lastMissingLinkError + 1000) {
+                lastMissingLink = direct;
+                lastMissingLinkError = System.currentTimeMillis();
+                Logger.warning("No link for " + target + "(" + direct + ") from " + source + "!");
+            }
+            transmit(source, target, new byte[] { CluckConstants.RMT_NEGATIVE_ACK });
         }
     }
 
@@ -184,6 +188,7 @@ public class CluckNode implements Serializable {
         new CluckSubscriber(this) {
             @Override
             protected void receive(String source, byte[] data) {
+                // Ignore it.
             }
 
             @Override
@@ -199,9 +204,10 @@ public class CluckNode implements Serializable {
      * Get the name of the specified link.
      *
      * @param link The link to get the name for.
+     * @throws IllegalArgumentException if the link isn't directly attached.
      * @return The link name.
      */
-    public String getLinkName(CluckLink link) {
+    public String getLinkName(CluckLink link) throws IllegalArgumentException {
         if (link == null) {
             throw new NullPointerException();
         }
@@ -210,7 +216,7 @@ public class CluckNode implements Serializable {
                 return key;
             }
         }
-        throw new RuntimeException("No such link!");
+        throw new IllegalArgumentException("No such link!");
     }
 
     /**
@@ -221,13 +227,23 @@ public class CluckNode implements Serializable {
      * @throws IllegalStateException if the specified link name is already used.
      */
     public void addLink(CluckLink link, String linkName) throws IllegalStateException {
-        if (link == null) {
+        if (link == null || linkName == null) {
             throw new NullPointerException();
         }
         if (links.get(linkName) != null) {
             throw new IllegalStateException("Link name already used: " + linkName + " for " + links.get(linkName) + " not " + link);
         }
         links.put(linkName, link);
+    }
+
+    /**
+     * Check if a target exists for the specified link name.
+     *
+     * @param string
+     * @return
+     */
+    public boolean hasLink(String linkName) {
+        return links.containsKey(linkName);
     }
 
     /**
@@ -248,7 +264,7 @@ public class CluckNode implements Serializable {
      * @param linkName The link name.
      */
     public void addOrReplaceLink(CluckLink link, String linkName) {
-        if (link == null) {
+        if (link == null || linkName == null) {
             throw new NullPointerException();
         }
         if (links.get(linkName) != null) {

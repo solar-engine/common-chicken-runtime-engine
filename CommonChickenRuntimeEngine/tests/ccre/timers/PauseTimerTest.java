@@ -218,6 +218,7 @@ public class PauseTimerTest {
             // if something breaks internally, this loop will stop succeeding.
             pt.event();
             fake.forward(990);
+            Thread.sleep(2);
             ceo.ifExpected = true;
             fake.forward(10);
             Thread.sleep(2);

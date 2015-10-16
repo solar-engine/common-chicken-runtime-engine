@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2014 Colby Skeggs
+ * Copyright 2013-2015 Colby Skeggs
  *
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  *
@@ -24,7 +24,14 @@ import ccre.log.Logger;
  * A helper class for objects shared on a CluckNode, by providing lots of basic
  * implementation for links.
  *
+ * This provides sorting of messages into direct messages, broadcast messages,
+ * and side-channel messages, provides easy ways to attach to a node, provides
+ * reasonable default handling for side-channel messages, provides helpers for
+ * responding to Cluck pings, and provides helpers for validating and sorting
+ * based on Cluck message headers.
+ *
  * @author skeggsc
+ * @see CluckRMTSubscriber
  */
 public abstract class CluckSubscriber implements CluckLink {
 
@@ -49,13 +56,22 @@ public abstract class CluckSubscriber implements CluckLink {
         this.node = node;
     }
 
+    /**
+     * A default implementation of {@link #send(String, String, byte[])} that
+     * automatically sorts messages into direct messages (to null), broadcast
+     * messages (to *), and side-channel messages (to a subpath.)
+     *
+     * @see #receive(String, byte[])
+     * @see #receiveBroadcast(String, byte[])
+     * @see #receiveSideChannel(String, String, byte[])
+     */
     public final boolean send(String dest, String source, byte[] data) {
         if (dest == null) {
             receive(source, data);
         } else if (CluckConstants.BROADCAST_DESTINATION.equals(dest)) {
             receiveBroadcast(source, data);
         } else {
-            handleOther(dest, source, data);
+            receiveSideChannel(dest, source, data);
         }
         return true;
     }
@@ -85,7 +101,7 @@ public abstract class CluckSubscriber implements CluckLink {
      * @param source The source path.
      * @param data The message data.
      */
-    protected void handleOther(String dest, String source, byte[] data) {
+    protected void receiveSideChannel(String dest, String source, byte[] data) {
         Logger.warning("Unhandled side-channel message sent to " + linkName + " / " + dest + " from " + source + "!");
     }
 

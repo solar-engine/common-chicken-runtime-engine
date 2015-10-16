@@ -52,7 +52,7 @@ public abstract class CluckSubscriber implements CluckLink {
     public final boolean send(String dest, String source, byte[] data) {
         if (dest == null) {
             receive(source, data);
-        } else if ("*".equals(dest)) {
+        } else if (CluckConstants.BROADCAST_DESTINATION.equals(dest)) {
             receiveBroadcast(source, data);
         } else {
             handleOther(dest, source, data);
@@ -118,12 +118,12 @@ public abstract class CluckSubscriber implements CluckLink {
     protected boolean requireRMT(String source, byte[] data, byte rmt, int minLength) {
         if (data.length == 0) {
             Logger.warning("Received null message from " + source);
-        } else if (data[0] == CluckNode.RMT_PING && data.length == 1) {
-            node.transmit(source, linkName, new byte[] { CluckNode.RMT_PING, rmt });
-        } else if (data[0] == CluckNode.RMT_NEGATIVE_ACK) { // Discard messages saying that the link is closed.
-            // Discard.
+        } else if (data[0] == CluckConstants.RMT_PING && data.length == 1) {
+            node.transmit(source, linkName, new byte[] { CluckConstants.RMT_PING, rmt });
+        } else if (data[0] == CluckConstants.RMT_NEGATIVE_ACK) {
+            // Discard messages saying that the link is closed.
         } else if (data[0] != rmt) {
-            Logger.warning("Received wrong RMT: " + CluckNode.rmtToString(data[0]) + " from " + source + " (expected " + CluckNode.rmtToString(rmt) + ") addressed to " + linkName);
+            Logger.warning("Received wrong RMT: " + CluckConstants.rmtToString(data[0]) + " from " + source + " (expected " + CluckConstants.rmtToString(rmt) + ") addressed to " + linkName);
         } else if (data.length < minLength) {
             Logger.warning("Received too-short message from " + source);
         } else {
@@ -141,8 +141,8 @@ public abstract class CluckSubscriber implements CluckLink {
      * @param rmt The remote type of this subscriber.
      */
     protected void defaultBroadcastHandle(String source, byte[] data, byte rmt) {
-        if (data.length == 1 && data[0] == CluckNode.RMT_PING) {
-            node.transmit(source, linkName, new byte[] { CluckNode.RMT_PING, rmt });
+        if (data.length == 1 && data[0] == CluckConstants.RMT_PING) {
+            node.transmit(source, linkName, new byte[] { CluckConstants.RMT_PING, rmt });
         }
     }
 

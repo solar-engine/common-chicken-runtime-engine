@@ -23,6 +23,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 
 import ccre.channel.EventOutput;
 import ccre.cluck.Cluck;
+import ccre.cluck.CluckConstants;
 import ccre.cluck.CluckNode;
 import ccre.cluck.CluckPublisher;
 import ccre.cluck.CluckRemoteListener;
@@ -132,7 +133,7 @@ public final class NetworkAutologger implements LoggingTarget, CluckRemoteListen
     }
 
     public void handle(String remote, int remoteType) {
-        if (remoteType != CluckNode.RMT_LOGTARGET) {
+        if (remoteType != CluckConstants.RMT_LOGTARGET) {
             return;
         }
         if (remote.contains("auto-") && !localpath.equals(remote) && targetCache.get(remote) == null) {

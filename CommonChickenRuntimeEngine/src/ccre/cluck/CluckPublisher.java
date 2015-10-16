@@ -18,23 +18,6 @@
  */
 package ccre.cluck;
 
-import static ccre.cluck.CluckNode.RMT_BOOLINPUT;
-import static ccre.cluck.CluckNode.RMT_BOOLINPUTRESP;
-import static ccre.cluck.CluckNode.RMT_BOOLOUTP;
-import static ccre.cluck.CluckNode.RMT_EVENTINPUT;
-import static ccre.cluck.CluckNode.RMT_EVENTINPUTRESP;
-import static ccre.cluck.CluckNode.RMT_EVENTOUTP;
-import static ccre.cluck.CluckNode.RMT_FLOATINPUT;
-import static ccre.cluck.CluckNode.RMT_FLOATINPUTRESP;
-import static ccre.cluck.CluckNode.RMT_FLOATOUTP;
-import static ccre.cluck.CluckNode.RMT_LEGACY_BOOLINPUT_UNSUB;
-import static ccre.cluck.CluckNode.RMT_LEGACY_EVENTINPUT_UNSUB;
-import static ccre.cluck.CluckNode.RMT_LEGACY_FLOATINPUT_UNSUB;
-import static ccre.cluck.CluckNode.RMT_LOGTARGET;
-import static ccre.cluck.CluckNode.RMT_NEGATIVE_ACK;
-import static ccre.cluck.CluckNode.RMT_OUTSTREAM;
-import static ccre.cluck.CluckNode.RMT_PING;
-
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.OutputStream;
@@ -88,7 +71,7 @@ public class CluckPublisher {
         new CluckSubscriber(node) {
             @Override
             protected void receive(String source, byte[] data) {
-                if (data.length == 2 && data[0] == RMT_PING) {
+                if (data.length == 2 && data[0] == CluckConstants.RMT_PING) {
                     listener.handle(source, data[1]);
                 }
             }
@@ -97,7 +80,7 @@ public class CluckPublisher {
             protected void receiveBroadcast(String source, byte[] data) {
             }
         }.attach(local);
-        return () -> node.broadcast(local, new byte[] { RMT_PING }, null);
+        return () -> node.broadcast(local, new byte[] { CluckConstants.RMT_PING }, null);
     }
 
     /**
@@ -108,7 +91,7 @@ public class CluckPublisher {
      * @param consumer The EventOutput.
      */
     public static void publish(final CluckNode node, String name, final EventOutput consumer) {
-        new CluckRMTSubscriber(node, RMT_EVENTOUTP) {
+        new CluckRMTSubscriber(node, CluckConstants.RMT_EVENTOUTP) {
             @Override
             protected void receiveValid(String source, byte[] data) {
                 consumer.event();
@@ -139,27 +122,27 @@ public class CluckPublisher {
         input.send(new EventOutput() {
             public void event() {
                 for (String remote : remotes) {
-                    node.transmit(remote, name, new byte[] { RMT_EVENTINPUTRESP });
+                    node.transmit(remote, name, new byte[] { CluckConstants.RMT_EVENTINPUTRESP });
                 }
             }
         });
         new CluckSubscriber(node) {
             @Override
             protected void receive(String src, byte[] data) {
-                if (data.length != 0 && (data[0] == RMT_NEGATIVE_ACK || data[0] == RMT_LEGACY_EVENTINPUT_UNSUB)) {
+                if (data.length != 0 && (data[0] == CluckConstants.RMT_NEGATIVE_ACK || data[0] == CluckConstants.RMT_LEGACY_EVENTINPUT_UNSUB)) {
                     if (remotes.remove(src)) {
                         Logger.warning("Connection cancelled to " + src + " on " + name);
                     } else {
                         Logger.warning("Received cancellation to nonexistent " + src + " on " + name);
                     }
-                } else if (requireRMT(src, data, RMT_EVENTINPUT) && !remotes.contains(src)) {
+                } else if (requireRMT(src, data, CluckConstants.RMT_EVENTINPUT) && !remotes.contains(src)) {
                     remotes.add(src);
                 }
             }
 
             @Override
             protected void receiveBroadcast(String source, byte[] data) {
-                defaultBroadcastHandle(source, data, RMT_EVENTINPUT);
+                defaultBroadcastHandle(source, data, CluckConstants.RMT_EVENTINPUT);
             }
         }.attach(name);
     }
@@ -185,7 +168,7 @@ public class CluckPublisher {
      * @param lt The LoggingTarget.
      */
     public static void publish(final CluckNode node, String name, final LoggingTarget lt) {
-        new CluckRMTSubscriber(node, RMT_LOGTARGET, 10) {
+        new CluckRMTSubscriber(node, CluckConstants.RMT_LOGTARGET, 10) {
             @Override
             protected void receiveValid(String source, byte[] data) {
                 int len1 = Utils.bytesToInt(data, 2);
@@ -228,21 +211,21 @@ public class CluckPublisher {
         new CluckSubscriber(node) {
             @Override
             protected void receive(String src, byte[] data) {
-                if (data.length != 0 && (data[0] == RMT_NEGATIVE_ACK || data[0] == RMT_LEGACY_BOOLINPUT_UNSUB)) {
+                if (data.length != 0 && (data[0] == CluckConstants.RMT_NEGATIVE_ACK || data[0] == CluckConstants.RMT_LEGACY_BOOLINPUT_UNSUB)) {
                     if (remotes.remove(src)) {
                         Logger.warning("Connection cancelled to " + src + " on " + name);
                     } else {
                         Logger.warning("Received cancellation to nonexistent " + src + " on " + name);
                     }
-                } else if (requireRMT(src, data, RMT_BOOLINPUT)) {
+                } else if (requireRMT(src, data, CluckConstants.RMT_BOOLINPUT)) {
                     remotes.add(src);
-                    node.transmit(src, name, new byte[] { RMT_BOOLINPUTRESP, input.get() ? (byte) 1 : 0 });
+                    node.transmit(src, name, new byte[] { CluckConstants.RMT_BOOLINPUTRESP, input.get() ? (byte) 1 : 0 });
                 }
             }
 
             @Override
             protected void receiveBroadcast(String source, byte[] data) {
-                defaultBroadcastHandle(source, data, RMT_BOOLINPUT);
+                defaultBroadcastHandle(source, data, CluckConstants.RMT_BOOLINPUT);
             }
         }.attach(name);
     }
@@ -271,7 +254,7 @@ public class CluckPublisher {
      * @param output The BooleanOutput.
      */
     public static void publish(final CluckNode node, String name, final BooleanOutput output) {
-        new CluckRMTSubscriber(node, RMT_BOOLOUTP, 2) {
+        new CluckRMTSubscriber(node, CluckConstants.RMT_BOOLOUTP, 2) {
             @Override
             protected void receiveValid(String source, byte[] data) {
                 output.set(data[1] != 0);
@@ -304,22 +287,22 @@ public class CluckPublisher {
         new CluckSubscriber(node) {
             @Override
             protected void receive(String src, byte[] data) {
-                if (data.length != 0 && (data[0] == RMT_NEGATIVE_ACK || data[0] == RMT_LEGACY_FLOATINPUT_UNSUB)) {
+                if (data.length != 0 && (data[0] == CluckConstants.RMT_NEGATIVE_ACK || data[0] == CluckConstants.RMT_LEGACY_FLOATINPUT_UNSUB)) {
                     if (remotes.remove(src)) {
                         Logger.warning("Connection cancelled to " + src + " on " + name);
                     } else {
                         Logger.warning("Received cancellation to nonexistent " + src + " on " + name);
                     }
-                } else if (requireRMT(src, data, RMT_FLOATINPUT)) {
+                } else if (requireRMT(src, data, CluckConstants.RMT_FLOATINPUT)) {
                     remotes.add(src);
                     int iver = Float.floatToIntBits(input.get());
-                    node.transmit(src, name, new byte[] { RMT_FLOATINPUTRESP, (byte) (iver >> 24), (byte) (iver >> 16), (byte) (iver >> 8), (byte) iver });
+                    node.transmit(src, name, new byte[] { CluckConstants.RMT_FLOATINPUTRESP, (byte) (iver >> 24), (byte) (iver >> 16), (byte) (iver >> 8), (byte) iver });
                 }
             }
 
             @Override
             protected void receiveBroadcast(String source, byte[] data) {
-                defaultBroadcastHandle(source, data, RMT_FLOATINPUT);
+                defaultBroadcastHandle(source, data, CluckConstants.RMT_FLOATINPUT);
             }
         }.attach(name);
     }
@@ -348,7 +331,7 @@ public class CluckPublisher {
      * @param out The FloatOutput.
      */
     public static void publish(final CluckNode node, String name, final FloatOutput out) {
-        new CluckRMTSubscriber(node, RMT_FLOATOUTP, 5) {
+        new CluckRMTSubscriber(node, CluckConstants.RMT_FLOATOUTP, 5) {
             @Override
             protected void receiveValid(String source, byte[] data) {
                 out.set(Utils.bytesToFloat(data, 1));
@@ -423,7 +406,7 @@ public class CluckPublisher {
      * @param out The OutputStream.
      */
     public static void publish(final CluckNode node, String name, final OutputStream out) {
-        new CluckRMTSubscriber(node, RMT_OUTSTREAM) {
+        new CluckRMTSubscriber(node, CluckConstants.RMT_OUTSTREAM) {
             @Override
             protected void receiveValid(String source, byte[] data) {
                 if (data.length > 1) {
@@ -474,7 +457,8 @@ public class CluckPublisher {
                     try {
                         out.write(new byte[] { (byte) (count >> 8), (byte) count });
                         for (int i = 0; i < count; i++) {
-                            int len = data[i].contents.length + 1;// plus one for the type
+                            // plus one for the type header
+                            int len = data[i].contents.length + 1;
                             out.write(new byte[] { (byte) (len >> 24), (byte) (len >> 16), (byte) (len >> 8), (byte) len, data[i].type });
                             out.write(data[i].contents);
                         }
@@ -626,7 +610,7 @@ public class CluckPublisher {
         public void set(float value) {
             for (String remote : remotes) {
                 int iver = Float.floatToIntBits(value);
-                node.transmit(remote, name, new byte[] { RMT_FLOATINPUTRESP, (byte) (iver >> 24), (byte) (iver >> 16), (byte) (iver >> 8), (byte) iver });
+                node.transmit(remote, name, new byte[] { CluckConstants.RMT_FLOATINPUTRESP, (byte) (iver >> 24), (byte) (iver >> 16), (byte) (iver >> 8), (byte) iver });
             }
         }
     }
@@ -645,7 +629,7 @@ public class CluckPublisher {
 
         public void set(boolean value) {
             for (String remote : remotes) {
-                node.transmit(remote, name, new byte[] { RMT_BOOLINPUTRESP, value ? (byte) 1 : 0 });
+                node.transmit(remote, name, new byte[] { CluckConstants.RMT_BOOLINPUTRESP, value ? (byte) 1 : 0 });
             }
         }
     }
@@ -673,7 +657,7 @@ public class CluckPublisher {
                     byte[] msg = message.getBytes();
                     byte[] ext = extended == null ? new byte[0] : extended.getBytes();
                     byte[] out = new byte[10 + msg.length + ext.length];
-                    out[0] = RMT_LOGTARGET;
+                    out[0] = CluckConstants.RMT_LOGTARGET;
                     out[1] = LogLevel.toByte(level);
                     int lm = msg.length;
                     out[2] = (byte) (lm >> 24);
@@ -690,7 +674,9 @@ public class CluckPublisher {
                     node.transmit(path, null, out);
                 }
             } catch (Throwable thr) {
-                // We use System.currentTimeMillis() instead of Time.currentTimeMillis() because this is only to prevent message spam.
+                // We use System.currentTimeMillis() instead of
+                // Time.currentTimeMillis() because this is only to prevent
+                // message spam.
                 if (System.currentTimeMillis() - lastReportedRemoteLoggingError > 500) {
                     Logger.severe("[LOCAL] Error during remote log", thr);
                     lastReportedRemoteLoggingError = System.currentTimeMillis();
@@ -716,7 +702,7 @@ public class CluckPublisher {
             generateLinkName();
             this.canUnsubscribe = !subscribeByDefault;
             if (subscribeByDefault) {
-                node.transmit(path, linkName, new byte[] { RMT_FLOATINPUT });
+                node.transmit(path, linkName, new byte[] { CluckConstants.RMT_FLOATINPUT });
             }
         }
 
@@ -725,7 +711,7 @@ public class CluckPublisher {
             super.onUpdate(out);
             if (!sent) {
                 sent = true;
-                node.transmit(path, linkName, new byte[] { RMT_FLOATINPUT });
+                node.transmit(path, linkName, new byte[] { CluckConstants.RMT_FLOATINPUT });
             }
         }
 
@@ -734,13 +720,13 @@ public class CluckPublisher {
             EventOutput base = super.onUpdateR(out);
             if (!sent) {
                 sent = true;
-                node.transmit(path, linkName, new byte[] { RMT_FLOATINPUT });
+                node.transmit(path, linkName, new byte[] { CluckConstants.RMT_FLOATINPUT });
             }
             return base.combine(() -> {
                 synchronized (SubscribedFloatInput.this) {
                     if (canUnsubscribe && sent && !this.hasListeners()) {
                         sent = false;
-                        node.transmit(path, linkName, new byte[] { RMT_NEGATIVE_ACK });
+                        node.transmit(path, linkName, new byte[] { CluckConstants.RMT_NEGATIVE_ACK });
                     }
                 }
             });
@@ -772,7 +758,7 @@ public class CluckPublisher {
         private final String linkName;
 
         FloatInputReceiver(CluckNode node, SubscribedFloatInput result, String path) {
-            super(node, RMT_FLOATINPUTRESP, 5);
+            super(node, CluckConstants.RMT_FLOATINPUTRESP, 5);
             this.result = result;
             this.path = path;
             this.linkName = result.getLinkName();
@@ -789,9 +775,9 @@ public class CluckPublisher {
 
         @Override
         protected void receiveBroadcast(String source, byte[] data) {
-            if (data.length == 1 && data[0] == CluckNode.RMT_NOTIFY) {
+            if (data.length == 1 && data[0] == CluckConstants.RMT_NOTIFY) {
                 if (result.shouldResend()) {
-                    node.transmit(path, linkName, new byte[] { RMT_FLOATINPUT });
+                    node.transmit(path, linkName, new byte[] { CluckConstants.RMT_FLOATINPUT });
                 }
             }
         }
@@ -818,7 +804,7 @@ public class CluckPublisher {
             this.canUnsubscribe = !subscribeByDefault;
             generateLinkName();
             if (subscribeByDefault) {
-                node.transmit(path, linkName, new byte[] { RMT_BOOLINPUT });
+                node.transmit(path, linkName, new byte[] { CluckConstants.RMT_BOOLINPUT });
             }
         }
 
@@ -827,7 +813,7 @@ public class CluckPublisher {
             super.onUpdate(out);
             if (!sent) {
                 sent = true;
-                node.transmit(path, linkName, new byte[] { RMT_BOOLINPUT });
+                node.transmit(path, linkName, new byte[] { CluckConstants.RMT_BOOLINPUT });
             }
         }
 
@@ -836,13 +822,13 @@ public class CluckPublisher {
             EventOutput base = super.onUpdateR(cns);
             if (!sent) {
                 sent = true;
-                node.transmit(path, linkName, new byte[] { RMT_BOOLINPUT });
+                node.transmit(path, linkName, new byte[] { CluckConstants.RMT_BOOLINPUT });
             }
             return base.combine(() -> {
                 synchronized (SubscribedBooleanInput.this) {
                     if (canUnsubscribe && sent && !this.hasListeners()) {
                         sent = false;
-                        node.transmit(path, linkName, new byte[] { RMT_NEGATIVE_ACK });
+                        node.transmit(path, linkName, new byte[] { CluckConstants.RMT_NEGATIVE_ACK });
                     }
                 }
             });
@@ -874,7 +860,7 @@ public class CluckPublisher {
         private final String linkName;
 
         BooleanInputReceiver(CluckNode node, SubscribedBooleanInput result, String path) {
-            super(node, RMT_BOOLINPUTRESP, 2);
+            super(node, CluckConstants.RMT_BOOLINPUTRESP, 2);
             this.result = result;
             this.path = path;
             this.linkName = result.getLinkName();
@@ -891,9 +877,9 @@ public class CluckPublisher {
 
         @Override
         protected void receiveBroadcast(String source, byte[] data) {
-            if (data.length == 1 && data[0] == CluckNode.RMT_NOTIFY) {
+            if (data.length == 1 && data[0] == CluckConstants.RMT_NOTIFY) {
                 if (result.shouldResend()) {
-                    node.transmit(path, linkName, new byte[] { RMT_BOOLINPUT });
+                    node.transmit(path, linkName, new byte[] { CluckConstants.RMT_BOOLINPUT });
                 }
             }
         }
@@ -923,7 +909,7 @@ public class CluckPublisher {
             super.onUpdate(cns);
             if (!sent) {
                 sent = true;
-                node.transmit(path, linkName, new byte[] { RMT_EVENTINPUT });
+                node.transmit(path, linkName, new byte[] { CluckConstants.RMT_EVENTINPUT });
             }
         }
 
@@ -932,13 +918,13 @@ public class CluckPublisher {
             EventOutput base = super.onUpdateR(cns);
             if (!sent) {
                 sent = true;
-                node.transmit(path, linkName, new byte[] { RMT_EVENTINPUT });
+                node.transmit(path, linkName, new byte[] { CluckConstants.RMT_EVENTINPUT });
             }
             return base.combine(() -> {
                 synchronized (SubscribedEventInput.this) {
                     if (sent && !this.hasListeners()) {
                         sent = false;
-                        node.transmit(path, linkName, new byte[] { RMT_NEGATIVE_ACK });
+                        node.transmit(path, linkName, new byte[] { CluckConstants.RMT_NEGATIVE_ACK });
                     }
                 }
             });
@@ -970,7 +956,7 @@ public class CluckPublisher {
         private final String linkName;
 
         EventInputReceiver(CluckNode node, SubscribedEventInput result, String path) {
-            super(node, RMT_EVENTINPUTRESP);
+            super(node, CluckConstants.RMT_EVENTINPUTRESP);
             this.result = result;
             this.path = path;
             this.linkName = result.getLinkName();
@@ -987,9 +973,9 @@ public class CluckPublisher {
 
         @Override
         protected void receiveBroadcast(String source, byte[] data) {
-            if (data.length == 1 && data[0] == CluckNode.RMT_NOTIFY) {
+            if (data.length == 1 && data[0] == CluckConstants.RMT_NOTIFY) {
                 if (result.shouldResend()) {
-                    node.transmit(path, linkName, new byte[] { RMT_EVENTINPUT });
+                    node.transmit(path, linkName, new byte[] { CluckConstants.RMT_EVENTINPUT });
                 }
             }
         }
@@ -1011,7 +997,7 @@ public class CluckPublisher {
         }
 
         public void event() {
-            node.transmit(path, null, new byte[] { RMT_EVENTOUTP });
+            node.transmit(path, null, new byte[] { CluckConstants.RMT_EVENTOUTP });
         }
     }
 
@@ -1027,7 +1013,7 @@ public class CluckPublisher {
         }
 
         public void set(boolean b) {
-            node.transmit(path, null, new byte[] { RMT_BOOLOUTP, b ? (byte) 1 : 0 });
+            node.transmit(path, null, new byte[] { CluckConstants.RMT_BOOLOUTP, b ? (byte) 1 : 0 });
         }
     }
 
@@ -1044,7 +1030,7 @@ public class CluckPublisher {
 
         public void set(float f) {
             int iver = Float.floatToIntBits(f);
-            node.transmit(path, null, new byte[] { RMT_FLOATOUTP, (byte) (iver >> 24), (byte) (iver >> 16), (byte) (iver >> 8), (byte) iver });
+            node.transmit(path, null, new byte[] { CluckConstants.RMT_FLOATOUTP, (byte) (iver >> 24), (byte) (iver >> 16), (byte) (iver >> 8), (byte) iver });
         }
     }
 
@@ -1061,13 +1047,13 @@ public class CluckPublisher {
 
         @Override
         public void write(int b) throws IOException {
-            node.transmit(path, null, new byte[] { RMT_OUTSTREAM, (byte) b });
+            node.transmit(path, null, new byte[] { CluckConstants.RMT_OUTSTREAM, (byte) b });
         }
 
         @Override
         public void write(byte b[], int off, int len) throws IOException {
             byte[] newbyteout = new byte[len + 1];
-            newbyteout[0] = RMT_OUTSTREAM;
+            newbyteout[0] = CluckConstants.RMT_OUTSTREAM;
             System.arraycopy(b, off, newbyteout, 1, len);
             node.transmit(path, null, newbyteout);
         }

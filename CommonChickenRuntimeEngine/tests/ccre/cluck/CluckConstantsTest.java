@@ -52,7 +52,7 @@ public class CluckConstantsTest {
             assertTrue(CluckConstants.rmtToString(i).toLowerCase().contains("unknown"));
         }
     }
-    
+
     @Test
     public void testRmtToStringUnknownsLarge() {
         for (int i = CluckConstants.COUNT_RMTS; i < 500; i++) {

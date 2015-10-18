@@ -88,6 +88,19 @@ public class CluckSubscriberTest {
         }.attach(null);
     }
 
+    @Test(expected = IllegalArgumentException.class)
+    public void testAttachSlash() {
+        new CluckSubscriber(node) {
+            @Override
+            protected void receiveBroadcast(String source, byte[] data) {
+            }
+
+            @Override
+            protected void receive(String source, byte[] data) {
+            }
+        }.attach("hello/side-channel");
+    }
+
     @Test(expected = IllegalStateException.class)
     public void testAttachTwice() {
         CluckSubscriber sub = new CluckSubscriber(node) {

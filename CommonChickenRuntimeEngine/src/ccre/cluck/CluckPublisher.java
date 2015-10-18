@@ -51,6 +51,9 @@ import ccre.util.Utils;
  */
 public class CluckPublisher {
 
+    // TODO: publishR? For detachable publishes?
+    // TODO: reorder the members of this class?
+
     private static long lastReportedRemoteLoggingError = 0;
 
     /**
@@ -91,6 +94,9 @@ public class CluckPublisher {
      * @param consumer The EventOutput.
      */
     public static void publish(final CluckNode node, String name, final EventOutput consumer) {
+        if (consumer == null) {
+            throw new NullPointerException();
+        }
         new CluckRMTSubscriber(node, CluckConstants.RMT_EVENTOUTP) {
             @Override
             protected void receiveValid(String source, byte[] data) {
@@ -107,6 +113,9 @@ public class CluckPublisher {
      * @return the EventOutput.
      */
     public static EventOutput subscribeEO(final CluckNode node, final String path) {
+        if (node == null || path == null) {
+            throw new NullPointerException();
+        }
         return new SubscribedEventOutput(node, path);
     }
 
@@ -155,6 +164,9 @@ public class CluckPublisher {
      * @return the EventInput.
      */
     public static EventInput subscribeEI(final CluckNode node, final String path) {
+        if (node == null || path == null) {
+            throw new NullPointerException();
+        }
         final SubscribedEventInput result = new SubscribedEventInput(node, path);
         new EventInputReceiver(node, result, path).attach();
         return result;
@@ -240,7 +252,10 @@ public class CluckPublisher {
      * then readValue() won't work until you run addTarget().
      * @return the BooleanInput.
      */
-    public static BooleanInput subscribeBI(final CluckNode node, final String path, final boolean subscribeByDefault) {
+    public static BooleanInput subscribeBI(CluckNode node, String path, boolean subscribeByDefault) {
+        if (node == null || path == null) {
+            throw new NullPointerException();
+        }
         final SubscribedBooleanInput result = new SubscribedBooleanInput(node, path, subscribeByDefault);
         new BooleanInputReceiver(node, result, path).attach();
         return result;
@@ -254,6 +269,9 @@ public class CluckPublisher {
      * @param output The BooleanOutput.
      */
     public static void publish(final CluckNode node, String name, final BooleanOutput output) {
+        if (output == null) {
+            throw new NullPointerException();
+        }
         new CluckRMTSubscriber(node, CluckConstants.RMT_BOOLOUTP, 2) {
             @Override
             protected void receiveValid(String source, byte[] data) {
@@ -270,6 +288,9 @@ public class CluckPublisher {
      * @return the BooleanOutput.
      */
     public static BooleanOutput subscribeBO(final CluckNode node, final String path) {
+        if (node == null || path == null) {
+            throw new NullPointerException();
+        }
         return new SubscribedBooleanOutput(node, path);
     }
 

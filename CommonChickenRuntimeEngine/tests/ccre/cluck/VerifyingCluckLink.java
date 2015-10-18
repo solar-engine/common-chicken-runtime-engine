@@ -35,10 +35,10 @@ final class VerifyingCluckLink implements CluckLink {
     public boolean send(String dest, String source, byte[] data) {
         try {
             assertTrue("Not expected!", ifExpected);
-            ifExpected = false;
             assertEquals(expectedDestination, dest);
             assertEquals(expectedSource, source);
             assertArrayEquals(expectedMessage, data);
+            ifExpected = false;
         } catch (Throwable thr) {
             errored = true;
             throw thr;

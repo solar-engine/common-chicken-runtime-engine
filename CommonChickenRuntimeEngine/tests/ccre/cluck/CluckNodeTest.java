@@ -464,6 +464,11 @@ public class CluckNodeTest {
         node.addLink(null, "example-1");
     }
 
+    @Test(expected = IllegalArgumentException.class)
+    public void testAddLinkSlash() {
+        node.addLink(new VerifyingCluckLink(), "example-1/side-channel");
+    }
+
     @Test
     public void testAddOrReplaceLinkHasLink() {
         assertFalse(node.hasLink("test-1"));
@@ -494,6 +499,11 @@ public class CluckNodeTest {
     @Test(expected = NullPointerException.class)
     public void testAddOrReplaceLinkNullB() {
         node.addOrReplaceLink(null, "example-1");
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testAddOrReplaceLinkSlash() {
+        node.addOrReplaceLink(new VerifyingCluckLink(), "example-1/side-channel");
     }
 
     @Test

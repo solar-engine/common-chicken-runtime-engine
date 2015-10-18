@@ -108,7 +108,7 @@ public class ExpirationTimerTest {
         ceo.ifExpected = true;
         fake.forward(10);
         Thread.sleep(2);
-        ceo.check();
+        ceo.check(); // FLAKY: failed 1 time
         timer.feed();
         Thread.sleep(2);
         fake.forward(990);

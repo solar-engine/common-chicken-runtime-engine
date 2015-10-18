@@ -230,6 +230,9 @@ public class CluckNode implements Serializable {
         if (link == null || linkName == null) {
             throw new NullPointerException();
         }
+        if (linkName.contains("/")) {
+            throw new IllegalArgumentException("Link name cannot contain slashes: " + linkName);
+        }
         if (links.get(linkName) != null) {
             throw new IllegalStateException("Link name already used: " + linkName + " for " + links.get(linkName) + " not " + link);
         }
@@ -266,6 +269,9 @@ public class CluckNode implements Serializable {
     public void addOrReplaceLink(CluckLink link, String linkName) {
         if (link == null || linkName == null) {
             throw new NullPointerException();
+        }
+        if (linkName.contains("/")) {
+            throw new IllegalArgumentException("Link name cannot contain slashes: " + linkName);
         }
         if (links.get(linkName) != null) {
             Logger.fine("Replaced current link on: " + linkName);

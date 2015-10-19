@@ -18,8 +18,6 @@
  */
 package ccre.timers;
 
-import java.util.concurrent.CopyOnWriteArrayList;
-
 import ccre.channel.AbstractUpdatingInput;
 import ccre.channel.BooleanInput;
 import ccre.channel.BooleanOutput;

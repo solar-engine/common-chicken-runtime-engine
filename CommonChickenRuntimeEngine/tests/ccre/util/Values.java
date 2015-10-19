@@ -57,6 +57,10 @@ public class Values {
         return byteses;
     }
 
+    public static boolean getRandomBoolean() {
+        return random.nextBoolean();
+    }
+
     /**
      * A sequence of interesting floats for testing edge cases: things like
      * negative infinity, NaN, MAX_VALUE, -MAX_VALUE, 0, 1, -1, etc.

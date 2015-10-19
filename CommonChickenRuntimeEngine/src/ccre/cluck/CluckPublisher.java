@@ -180,6 +180,9 @@ public class CluckPublisher {
      * @param lt The LoggingTarget.
      */
     public static void publish(final CluckNode node, String name, final LoggingTarget lt) {
+        if (lt == null) {
+            throw new NullPointerException();
+        }
         new CluckRMTSubscriber(node, CluckConstants.RMT_LOGTARGET, 10) {
             @Override
             protected void receiveValid(String source, byte[] data) {
@@ -200,13 +203,19 @@ public class CluckPublisher {
      * Subscribe to a LoggingTarget from the network at the specified path, with
      * only sending data for at least a minimum logging level.
      *
+     * Note that, if you send an empty string as an 'extra' to the logging
+     * target, it will be replaced with null.
+     *
      * @param node The node to subscribe from.
      * @param path The path to subscribe to.
      * @param minimum The minimum logging level to send over the network.
      * @return the LoggingTarget.
      */
-    public static LoggingTarget subscribeLT(final CluckNode node, final String path, final LogLevel minimum) {
-        return new SubscribedLoggingTarget(minimum, node, path);
+    public static LoggingTarget subscribeLT(final CluckNode node, final String path) {
+        if (node == null || path == null) {
+            throw new NullPointerException();
+        }
+        return new SubscribedLoggingTarget(node, path);
     }
 
     /**
@@ -339,6 +348,9 @@ public class CluckPublisher {
      * @return the FloatInput.
      */
     public static FloatInput subscribeFI(final CluckNode node, final String path, final boolean subscribeByDefault) {
+        if (node == null || path == null) {
+            throw new NullPointerException();
+        }
         final SubscribedFloatInput result = new SubscribedFloatInput(node, path, subscribeByDefault);
         new FloatInputReceiver(node, result, path).attach();
         return result;
@@ -352,6 +364,9 @@ public class CluckPublisher {
      * @param out The FloatOutput.
      */
     public static void publish(final CluckNode node, String name, final FloatOutput out) {
+        if (out == null) {
+            throw new NullPointerException();
+        }
         new CluckRMTSubscriber(node, CluckConstants.RMT_FLOATOUTP, 5) {
             @Override
             protected void receiveValid(String source, byte[] data) {
@@ -368,6 +383,9 @@ public class CluckPublisher {
      * @return the FloatOutput.
      */
     public static FloatOutput subscribeFO(final CluckNode node, final String path) {
+        if (node == null || path == null) {
+            throw new NullPointerException();
+        }
         return new SubscribedFloatOutput(node, path);
     }
 
@@ -658,12 +676,10 @@ public class CluckPublisher {
     private static class SubscribedLoggingTarget implements LoggingTarget, Serializable {
 
         private static final long serialVersionUID = 5342629979840268661L;
-        private final LogLevel minimum;
         private final CluckNode node;
         private final String path;
 
-        SubscribedLoggingTarget(LogLevel minimum, CluckNode node, String path) {
-            this.minimum = minimum;
+        SubscribedLoggingTarget(CluckNode node, String path) {
             this.node = node;
             this.path = path;
         }
@@ -674,26 +690,24 @@ public class CluckPublisher {
 
         public void log(LogLevel level, String message, String extended) {
             try {
-                if (level.atLeastAsImportant(minimum)) {
-                    byte[] msg = message.getBytes();
-                    byte[] ext = extended == null ? new byte[0] : extended.getBytes();
-                    byte[] out = new byte[10 + msg.length + ext.length];
-                    out[0] = CluckConstants.RMT_LOGTARGET;
-                    out[1] = LogLevel.toByte(level);
-                    int lm = msg.length;
-                    out[2] = (byte) (lm >> 24);
-                    out[3] = (byte) (lm >> 16);
-                    out[4] = (byte) (lm >> 8);
-                    out[5] = (byte) (lm);
-                    int le = ext.length;
-                    out[6] = (byte) (le >> 24);
-                    out[7] = (byte) (le >> 16);
-                    out[8] = (byte) (le >> 8);
-                    out[9] = (byte) (le);
-                    System.arraycopy(msg, 0, out, 10, msg.length);
-                    System.arraycopy(ext, 0, out, 10 + msg.length, ext.length);
-                    node.transmit(path, null, out);
-                }
+                byte[] msg = message.getBytes();
+                byte[] ext = extended == null ? new byte[0] : extended.getBytes();
+                byte[] out = new byte[10 + msg.length + ext.length];
+                out[0] = CluckConstants.RMT_LOGTARGET;
+                out[1] = LogLevel.toByte(level);
+                int lm = msg.length;
+                out[2] = (byte) (lm >> 24);
+                out[3] = (byte) (lm >> 16);
+                out[4] = (byte) (lm >> 8);
+                out[5] = (byte) (lm);
+                int le = ext.length;
+                out[6] = (byte) (le >> 24);
+                out[7] = (byte) (le >> 16);
+                out[8] = (byte) (le >> 8);
+                out[9] = (byte) (le);
+                System.arraycopy(msg, 0, out, 10, msg.length);
+                System.arraycopy(ext, 0, out, 10 + msg.length, ext.length);
+                node.transmit(path, null, out);
             } catch (Throwable thr) {
                 // We use System.currentTimeMillis() instead of
                 // Time.currentTimeMillis() because this is only to prevent

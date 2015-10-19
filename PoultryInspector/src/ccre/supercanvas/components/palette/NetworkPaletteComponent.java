@@ -130,7 +130,7 @@ public class NetworkPaletteComponent extends PaletteComponent<Collection<Network
         case CluckConstants.RMT_INVOKE:
             return Cluck.getNode().getRPCManager().subscribe(path, 500); // Is this a good amount of time?
         case CluckConstants.RMT_LOGTARGET:
-            return Cluck.subscribeLT(path, LogLevel.FINEST); // Is this a good level?
+            return Cluck.subscribeLT(path);
         case CluckConstants.RMT_OUTSTREAM:
             return Cluck.subscribeOS(path);
         default:

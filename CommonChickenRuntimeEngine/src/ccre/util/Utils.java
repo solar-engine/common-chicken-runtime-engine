@@ -20,9 +20,6 @@ package ccre.util;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
-import java.util.Collection;
-
-import ccre.channel.EventOutput;
 
 /**
  * A class for utilities that don't fit anywhere else.

@@ -137,7 +137,7 @@ public final class NetworkAutologger implements LoggingTarget, CluckRemoteListen
             return;
         }
         if (remote.contains("auto-") && !localpath.equals(remote) && targetCache.get(remote) == null) {
-            targetCache.put(remote, CluckPublisher.subscribeLT(node, remote, LogLevel.FINEST));
+            targetCache.put(remote, CluckPublisher.subscribeLT(node, remote));
             Logger.config("[LOCAL] Loaded logger: " + remote);
         }
         remotes.addIfAbsent(remote);

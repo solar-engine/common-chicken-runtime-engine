@@ -28,8 +28,16 @@ import ccre.channel.BooleanStatus;
 import ccre.channel.EventInput;
 import ccre.channel.EventOutput;
 import ccre.channel.EventStatus;
+import ccre.channel.FloatInput;
+import ccre.channel.FloatOutput;
+import ccre.channel.FloatStatus;
+import ccre.log.LogLevel;
+import ccre.log.LoggingTarget;
+import ccre.log.VerifyingLoggingTarget;
 import ccre.testing.CountingBooleanOutput;
 import ccre.testing.CountingEventOutput;
+import ccre.testing.CountingFloatOutput;
+import ccre.util.Utils;
 import ccre.util.Values;
 
 public class CluckPublisherTest {
@@ -248,49 +256,179 @@ public class CluckPublisherTest {
         CluckPublisher.subscribeBI(node, null, false);
     }
 
+    @Test
+    public void testFloatOutput() {
+        for (int i = 0; i < 20; i++) {
+            String name = Values.getRandomString();
+            if (name.contains("/") || node.hasLink(name)) {
+                i--;
+                continue;
+            }
+            CountingFloatOutput cfo = new CountingFloatOutput();
+            CluckPublisher.publish(node, name, cfo);
+            FloatOutput proxy = CluckPublisher.subscribeFO(node, name);
+            for (float f : Values.interestingFloats) {
+                cfo.valueExpected = f;
+                cfo.ifExpected = true;
+                proxy.set(f);
+                cfo.check();
+            }
+        }
+    }
+
+    @Test(expected = NullPointerException.class)
+    public void testFloatOutputNullA() {
+        CluckPublisher.publish(null, "hello", FloatOutput.ignored);
+    }
+
+    @Test(expected = NullPointerException.class)
+    public void testFloatOutputNullB() {
+        CluckPublisher.publish(node, null, FloatOutput.ignored);
+    }
+
+    @Test(expected = NullPointerException.class)
+    public void testFloatOutputNullC() {
+        CluckPublisher.publish(node, "hello", (FloatOutput) null);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testFloatOutputWithSlash() {
+        CluckPublisher.publish(node, "hello/other", FloatOutput.ignored);
+    }
+
+    @Test(expected = NullPointerException.class)
+    public void testSubscribeFONullA() {
+        CluckPublisher.subscribeFO(null, "hello");
+    }
+
+    @Test(expected = NullPointerException.class)
+    public void testSubscribeFONullB() {
+        CluckPublisher.subscribeFO(node, null);
+    }
+
+    @Test
+    public void testFloatInput() {
+        for (int i = 0; i < 20; i++) {
+            String name = Values.getRandomString();
+            if (name.contains("/") || node.hasLink(name)) {
+                i--;
+                continue;
+            }
+            CountingFloatOutput cfo = new CountingFloatOutput();
+            FloatStatus fs = new FloatStatus();
+            CluckPublisher.publish(node, name, fs.asInput());
+            CluckPublisher.subscribeFI(node, name, false).send(cfo);
+            for (float f : Values.interestingFloats) {
+                cfo.valueExpected = f;
+                cfo.ifExpected = true;
+                fs.set(f);
+                cfo.check();
+            }
+        }
+    }
+
+    @Test(expected = NullPointerException.class)
+    public void testFloatInputNullA() {
+        CluckPublisher.publish(null, "hello", FloatInput.zero);
+    }
+
+    @Test(expected = NullPointerException.class)
+    public void testFloatInputNullB() {
+        CluckPublisher.publish(node, null, FloatInput.zero);
+    }
+
+    @Test(expected = NullPointerException.class)
+    public void testFloatInputNullC() {
+        CluckPublisher.publish(node, "hello", (FloatInput) null);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testFloatInputWithSlash() {
+        CluckPublisher.publish(node, "hello/other", FloatInput.zero);
+    }
+
+    @Test(expected = NullPointerException.class)
+    public void testSubscribeFINullA() {
+        CluckPublisher.subscribeFI(null, "hello", false);
+    }
+
+    @Test(expected = NullPointerException.class)
+    public void testSubscribeFINullB() {
+        CluckPublisher.subscribeFI(node, null, false);
+    }
+
+    @Test
+    public void testLoggingTarget() {
+        for (int i = 0; i < 10; i++) {
+            String name = Values.getRandomString();
+            if (name.contains("/") || node.hasLink(name)) {
+                i--;
+                continue;
+            }
+            VerifyingLoggingTarget vlt = new VerifyingLoggingTarget();
+            CluckPublisher.publish(node, name, vlt);
+            LoggingTarget lt = CluckPublisher.subscribeLT(node, name);
+            for (LogLevel level : LogLevel.allLevels) {
+                for (String message : Values.getRandomStrings(5)) {
+                    if (Values.getRandomBoolean()) {
+                        String extra = Values.getRandomBoolean() ? Values.getRandomString() : null;
+                        if (extra != null && extra.isEmpty()) {
+                            extra = null;
+                        }
+                        vlt.ifExpected = true;
+                        vlt.isThrowableExpected = false;
+                        vlt.levelExpected = level;
+                        vlt.messageExpected = message;
+                        vlt.stringExpected = extra;
+                        lt.log(level, message, extra);
+                        vlt.check();
+                    } else {
+                        Throwable thr = Values.getRandomBoolean() ? new Throwable("A STRING") : null;
+                        vlt.ifExpected = true;
+                        vlt.isThrowableExpected = false;
+                        vlt.levelExpected = level;
+                        vlt.messageExpected = message;
+                        vlt.stringExpected = Utils.toStringThrowable(thr);
+                        lt.log(level, message, thr);
+                        vlt.check();
+                    }
+                }
+            }
+        }
+    }
+
+    @Test(expected = NullPointerException.class)
+    public void testLoggingTargetNullA() {
+        CluckPublisher.publish(null, "hello", LoggingTarget.ignored);
+    }
+
+    @Test(expected = NullPointerException.class)
+    public void testLoggingTargetNullB() {
+        CluckPublisher.publish(node, null, LoggingTarget.ignored);
+    }
+
+    @Test(expected = NullPointerException.class)
+    public void testLoggingTargetNullC() {
+        CluckPublisher.publish(node, "hello", (LoggingTarget) null);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testLoggingTargetWithSlash() {
+        CluckPublisher.publish(node, "hello/other", LoggingTarget.ignored);
+    }
+
+    @Test(expected = NullPointerException.class)
+    public void testSubscribeLTNullA() {
+        CluckPublisher.subscribeLT(null, "hello");
+    }
+
+    @Test(expected = NullPointerException.class)
+    public void testSubscribeLTNullB() {
+        CluckPublisher.subscribeLT(node, null);
+    }
+
 //    @Test
 //    public void testSetupSearching() {
-//        fail("Not yet implemented");
-//    }
-//
-//
-//    @Test
-//    public void testPublishCluckNodeStringLoggingTarget() {
-//        fail("Not yet implemented");
-//    }
-//
-//    @Test
-//    public void testSubscribeLT() {
-//        fail("Not yet implemented");
-//    }
-//
-//    @Test
-//    public void testPublishCluckNodeStringBooleanInput() {
-//        fail("Not yet implemented");
-//    }
-//
-//    @Test
-//    public void testSubscribeBI() {
-//        fail("Not yet implemented");
-//    }
-//
-//    @Test
-//    public void testPublishCluckNodeStringFloatInput() {
-//        fail("Not yet implemented");
-//    }
-//
-//    @Test
-//    public void testSubscribeFI() {
-//        fail("Not yet implemented");
-//    }
-//
-//    @Test
-//    public void testPublishCluckNodeStringFloatOutput() {
-//        fail("Not yet implemented");
-//    }
-//
-//    @Test
-//    public void testSubscribeFO() {
 //        fail("Not yet implemented");
 //    }
 //

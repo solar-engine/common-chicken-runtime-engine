@@ -172,4 +172,13 @@ public class Utils {
             throw new RuntimeException("UTF-8 not available", e);
         }
     }
+
+    public static String fromBytes(byte[] data, int start, int end) {
+        try {
+            return new String(data, start, end, "UTF-8");
+        } catch (UnsupportedEncodingException e) {
+            // TODO: handle this more gracefully?
+            throw new RuntimeException("UTF-8 not available", e);
+        }
+    }
 }

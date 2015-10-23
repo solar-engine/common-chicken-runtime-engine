@@ -122,7 +122,7 @@ public class RConf {
             if (type != F_TITLE && type != F_STRING && type != F_BUTTON && type != F_CLUCK_REF) {
                 throw new IllegalStateException("Invalid type of Entry in parseTextual: " + type);
             }
-            return new String(contents, 0, contents.length);
+            return Utils.fromBytes(contents, 0, contents.length);
         }
 
         /**

@@ -192,8 +192,8 @@ public class CluckPublisher {
                     Logger.warning("Bad data length to Logging Target!");
                     return;
                 }
-                String message = new String(data, 10, len1);
-                String extended = len2 == 0 ? null : new String(data, 10 + len1, len2);
+                String message = Utils.fromBytes(data, 10, len1);
+                String extended = len2 == 0 ? null : Utils.fromBytes(data, 10 + len1, len2);
                 lt.log(LogLevel.fromByte(data[1]), message, extended);
             }
         }.attach(name);

@@ -107,7 +107,7 @@ public class Webcam extends Thread {
             }
             buffer[i] = (byte) b;
             if (i > 0 && b == 10 && buffer[i - 1] == 13) {
-                return new String(buffer, 0, i - 1);
+                return new String(buffer, 0, i - 1, "UTF-8");
             } else {
                 i++;
                 if (i >= BUFSIZE) {

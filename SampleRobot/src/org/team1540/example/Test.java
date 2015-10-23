@@ -54,6 +54,7 @@ public class Test {
         FRC.useCompressor(1, 1);
         // Autonomous
         FRC.registerAutonomous(new InstinctModule() {
+            @Override
             protected void autonomousMain() throws AutonomousModeOverException, InterruptedException {
                 leftOut.set(-1);
                 rightOut.set(-1);

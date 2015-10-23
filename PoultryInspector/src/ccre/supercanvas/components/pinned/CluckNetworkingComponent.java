@@ -147,8 +147,8 @@ public class CluckNetworkingComponent extends SuperCanvasComponent {
             }
         } else if (client == null) {
             client = useLoggingConnection
-                    ? new TracingCluckTCPClient(remote, Cluck.getNode(), "robot", "phidget")
-                    : new CluckTCPClient(remote, Cluck.getNode(), "robot", "phidget");
+                    ? new TracingCluckTCPClient(remote, Cluck.getNode(), "robot", null)
+                    : new CluckTCPClient(remote, Cluck.getNode(), "robot", null);
             client.setReconnectDelay(1000);
             client.setLogDuringNormalOperation(false);
             client.start();

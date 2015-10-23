@@ -69,7 +69,7 @@ public class UM7LT {
             int newEuler = internal.dregs[InternalUM7LT.DREG_EULER_TIME - InternalUM7LT.DREG_BASE];
             if (lastEuler != newEuler) {
                 lastEuler = newEuler;
-                eulerUpdateStatus.produce();
+                eulerUpdateStatus.safeEvent();
             }
             int newHealth = getHealth();
             if (lastHealth != newHealth) {
@@ -89,7 +89,7 @@ public class UM7LT {
                         Logger.fine("UM7LT GYRO: " + ((newHealth & 0x4) != 0 ? " FAULT" : "nominal"));
                     }
                 }
-                healthUpdateStatus.produce();
+                healthUpdateStatus.event();
             }
         }
     };

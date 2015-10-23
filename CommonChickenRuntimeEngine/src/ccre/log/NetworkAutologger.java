@@ -94,12 +94,10 @@ public final class NetworkAutologger implements LoggingTarget, CluckRemoteListen
      */
     public void start() {
         final EventOutput searcher = CluckPublisher.setupSearching(node, this);
-        searcher.event();
-        node.subscribeToStructureNotifications("netwatch-" + hereID, new EventOutput() {
-            public void event() {
-                Logger.fine("[LOCAL] Rechecking logging...");
-                searcher.event();
-            }
+        searcher.safeEvent();
+        node.subscribeToStructureNotifications("netwatch-" + hereID, () -> {
+            Logger.fine("[LOCAL] Rechecking logging...");
+            searcher.event();
         });
     }
 

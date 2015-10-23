@@ -18,46 +18,18 @@
  */
 package ccre.channel;
 
-import java.util.concurrent.CopyOnWriteArrayList;
+public abstract class DerivedBooleanInput extends AbstractUpdatingInput implements BooleanInput {
 
-import ccre.util.Utils;
-
-public abstract class DerivedBooleanInput extends DerivedUpdate implements BooleanInput {
-
-    private boolean value;
-    private final CopyOnWriteArrayList<EventOutput> consumers = new CopyOnWriteArrayList<>();
+    private boolean value = apply();
 
     public DerivedBooleanInput(UpdatingInput... updates) {
-        super(updates);
-        value = apply();
-    }
-
-    public DerivedBooleanInput(UpdatingInput[] updates, UpdatingInput... moreUpdates) {
-        super(updates, moreUpdates);
-        value = apply();
-    }
-
-    @Override
-    protected final void update() {
-        boolean newvalue = apply();
-        if (newvalue != value) {
-            value = newvalue;
-            for (EventOutput consumer : consumers) {
-                consumer.event();
+        DerivedUpdate.onUpdates(updates, () -> {
+            boolean newvalue = apply();
+            if (newvalue != value) {
+                value = newvalue;
+                super.perform();
             }
-        }
-    }
-
-    protected final boolean updateWithRecovery() {
-        boolean newvalue = apply();
-        boolean recovered = false;
-        if (newvalue != value) {
-            value = newvalue;
-            for (EventOutput consumer : consumers) {
-                recovered |= consumer.eventWithRecovery();
-            }
-        }
-        return recovered;
+        });
     }
 
     public final boolean get() {
@@ -65,14 +37,4 @@ public abstract class DerivedBooleanInput extends DerivedUpdate implements Boole
     }
 
     protected abstract boolean apply();
-
-    @Override
-    public void onUpdate(EventOutput notify) {
-        consumers.add(notify);
-    }
-
-    @Override
-    public EventOutput onUpdateR(EventOutput notify) {
-        return Utils.addR(consumers, notify);
-    }
 }

@@ -65,8 +65,7 @@ public class DriverImpls {
     }
 
     /**
-     * Run extended tank drive on the given three FloatInputs and
-     * FloatOutputs.
+     * Run extended tank drive on the given three FloatInputs and FloatOutputs.
      *
      * @param leftIn the left control axis.
      * @param rightIn the right control axis.

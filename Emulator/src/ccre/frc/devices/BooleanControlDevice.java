@@ -36,11 +36,12 @@ public class BooleanControlDevice extends Device {
 
     private final EventStatus pressEvent = new EventStatus();
     private final BooleanTextComponent actuated = new BooleanTextComponent("INACTIVE", "ACTIVE") {
+        @Override
         public void onPress(int x, int y) {
             boolean wasDown = get();
             super.onPress(x, y);
             if (!wasDown && get()) {
-                pressEvent.produce();
+                pressEvent.safeEvent();
                 repaint();
             }
         }
@@ -65,7 +66,7 @@ public class BooleanControlDevice extends Device {
     public EventInput whenPressed() {
         return pressEvent;
     }
-    
+
     public BooleanInput asInput() {
         return actuated.asInput();
     }

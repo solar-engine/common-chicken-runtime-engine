@@ -1,4 +1,3 @@
-package ccre.timers;
 /*
  * Copyright 2015 Colby Skeggs
  *
@@ -17,6 +16,7 @@ package ccre.timers;
  * You should have received a copy of the GNU Lesser General Public License
  * along with the CCRE.  If not, see <http://www.gnu.org/licenses/>.
  */
+package ccre.timers;
 
 import static org.junit.Assert.*;
 

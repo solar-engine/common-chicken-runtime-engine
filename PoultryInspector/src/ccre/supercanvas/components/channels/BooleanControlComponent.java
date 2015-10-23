@@ -189,7 +189,7 @@ public class BooleanControlComponent extends BaseChannelComponent<BooleanControl
             return false;
         }
         if (rawOut != null) {
-            rawOut.set(lastSentValue);
+            rawOut.safeSet(lastSentValue);
         }
         return true;
     }
@@ -207,7 +207,7 @@ public class BooleanControlComponent extends BaseChannelComponent<BooleanControl
         boolean hasPanel = panel != null;
         if (alternateSource != null && hasPanel != isFakeSubscribed) {
             if (unsubscribe != null) {
-                unsubscribe.event();
+                unsubscribe.safeEvent();
                 unsubscribe = null;
             }
             if (hasPanel) {

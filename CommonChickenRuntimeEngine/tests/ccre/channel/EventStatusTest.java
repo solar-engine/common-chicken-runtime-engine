@@ -20,8 +20,6 @@ package ccre.channel;
 
 import static org.junit.Assert.*;
 
-import java.util.Random;
-
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -85,36 +83,36 @@ public class EventStatusTest {
 
     @Test
     public void testHasConsumersInitSingle() {
-        assertTrue(new EventStatus(EventOutput.ignored).hasConsumers());
+        assertTrue(new EventStatus(EventOutput.ignored).hasListeners());
     }
 
     @Test
     public void testHasConsumersInitMany() {
-        assertTrue(new EventStatus(EventOutput.ignored, EventOutput.ignored).hasConsumers());
+        assertTrue(new EventStatus(EventOutput.ignored, EventOutput.ignored).hasListeners());
     }
 
     @Test
     public void testHasConsumersLingering() {
-        assertFalse(status.hasConsumers());
+        assertFalse(status.hasListeners());
         status.onUpdate(EventOutput.ignored);
-        assertTrue(status.hasConsumers());
+        assertTrue(status.hasListeners());
         EventOutput unbind = status.onUpdateR(EventOutput.ignored);
-        assertTrue(status.hasConsumers());
+        assertTrue(status.hasListeners());
         unbind.event();
-        assertTrue(status.hasConsumers());// should STILL have one left
+        assertTrue(status.hasListeners());// should STILL have one left
     }
 
     @Test
     public void testHasConsumers() {
-        assertFalse(status.hasConsumers());
+        assertFalse(status.hasListeners());
         EventOutput unbind1 = status.onUpdateR(EventOutput.ignored);
-        assertTrue(status.hasConsumers());
+        assertTrue(status.hasListeners());
         EventOutput unbind2 = status.onUpdateR(EventOutput.ignored);
-        assertTrue(status.hasConsumers());
+        assertTrue(status.hasListeners());
         unbind1.event();
-        assertTrue(status.hasConsumers());// should STILL have one left
+        assertTrue(status.hasListeners());// should STILL have one left
         unbind2.event();
-        assertFalse(status.hasConsumers());
+        assertFalse(status.hasListeners());
     }
 
     @Test
@@ -236,34 +234,5 @@ public class EventStatusTest {
     @Test
     public void testAsInput() {
         assertEquals(status, status.asInput());
-    }
-
-    @Test
-    public void testEventWithRecovery() {
-        CountingEventOutput normal = new CountingEventOutput();
-        CountingEventOutput recovery = new CountingEventOutput();
-        EventOutput eo = new EventOutput() {
-            @Override
-            public void event() {
-                normal.event();
-            }
-
-            @Override
-            public boolean eventWithRecovery() {
-                return recovery.eventWithRecovery();
-            }
-        };
-        Random rand = new Random();
-        for (int i = 0; i < 20; i++) {
-            if (i % 3 == 1 ? rand.nextBoolean() : i % 3 == 2) {
-                recovery.ifExpected = true;
-                eo.eventWithRecovery();
-                recovery.check();
-            } else {
-                normal.ifExpected = true;
-                eo.event();
-                normal.check();
-            }
-        }
     }
 }

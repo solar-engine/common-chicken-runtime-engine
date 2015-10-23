@@ -18,6 +18,7 @@
  */
 package ccre.channel;
 
+import ccre.log.Logger;
 import ccre.util.Utils;
 
 /**
@@ -45,6 +46,14 @@ public interface BooleanOutput {
      */
     public void set(boolean value);
 
+    public default void safeSet(boolean value) {
+        try {
+            set(value);
+        } catch (Throwable ex) {
+            Logger.severe("Error during channel propagation", ex);
+        }
+    }
+
     public default BooleanOutput invert() {
         BooleanOutput original = this;
         return new BooleanOutput() {
@@ -63,12 +72,18 @@ public interface BooleanOutput {
     public default BooleanOutput combine(BooleanOutput other) {
         Utils.checkNull(other);
         BooleanOutput self = this;
-        return new BooleanOutput() {
-            @Override
-            public void set(boolean value) {
+        return value -> {
+            try {
                 self.set(value);
-                other.set(value);
+            } catch (Throwable thr) {
+                try {
+                    other.set(value);
+                } catch (Throwable thr2) {
+                    thr.addSuppressed(thr2);
+                }
+                throw thr;
             }
+            other.set(value);
         };
     }
 
@@ -79,12 +94,9 @@ public interface BooleanOutput {
             private boolean lastValue, anyValue;
 
             {
-                update.send(new EventOutput() {
-                    @Override
-                    public void event() {
-                        if (anyValue) {
-                            original.set(lastValue);
-                        }
+                update.send(() -> {
+                    if (anyValue) {
+                        original.set(lastValue);
                     }
                 });
             }

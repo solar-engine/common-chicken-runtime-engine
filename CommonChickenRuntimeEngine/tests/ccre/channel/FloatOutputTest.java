@@ -20,6 +20,7 @@ package ccre.channel;
 
 import static org.junit.Assert.*;
 
+import java.util.NoSuchElementException;
 import java.util.Random;
 
 import org.junit.After;
@@ -36,6 +37,9 @@ import ccre.util.Values;
 
 public class FloatOutputTest {
 
+    private final FloatOutput evil = (v) -> {
+        throw new NoSuchElementException("safeSet purposeful failure.");
+    };
     private CountingFloatOutput cfo1, cfo2;
     private FloatStatus fs;
 
@@ -345,19 +349,18 @@ public class FloatOutputTest {
         for (float off : Values.interestingFloats) {
             Boolean lastSent = null;
             FloatStatus onV = new FloatStatus();
-            CountingFloatOutput cfo = new CountingFloatOutput();
-            BooleanOutput b1 = cfo.fromBoolean(off, onV);
+            BooleanOutput b1 = cfo1.fromBoolean(off, onV);
             for (float on : Values.interestingFloats) {
-                cfo.ifExpected = (lastSent != null && lastSent);
-                cfo.valueExpected = on;
+                cfo1.ifExpected = (lastSent != null && lastSent);
+                cfo1.valueExpected = on;
                 onV.set(on);
-                cfo.check();
+                cfo1.check();
                 for (boolean b : Values.interestingBooleans) {
-                    cfo.valueExpected = b ? on : off;
+                    cfo1.valueExpected = b ? on : off;
 
-                    cfo.ifExpected = (lastSent == null || lastSent != b);
+                    cfo1.ifExpected = (lastSent == null || lastSent != b);
                     b1.set(b);
-                    cfo.check();
+                    cfo1.check();
 
                     lastSent = b;
                 }
@@ -375,19 +378,18 @@ public class FloatOutputTest {
         for (float on : Values.interestingFloats) {
             Boolean lastSent = null;
             FloatStatus offV = new FloatStatus();
-            CountingFloatOutput cfo = new CountingFloatOutput();
-            BooleanOutput b1 = cfo.fromBoolean(offV, on);
+            BooleanOutput b1 = cfo1.fromBoolean(offV, on);
             for (float off : Values.interestingFloats) {
-                cfo.ifExpected = (lastSent != null && !lastSent);
-                cfo.valueExpected = on;
+                cfo1.ifExpected = (lastSent != null && !lastSent);
+                cfo1.valueExpected = on;
                 offV.set(off);
-                cfo.check();
+                cfo1.check();
                 for (boolean b : Values.interestingBooleans) {
-                    cfo.valueExpected = b ? on : off;
+                    cfo1.valueExpected = b ? on : off;
 
-                    cfo.ifExpected = (lastSent == null || lastSent != b);
+                    cfo1.ifExpected = (lastSent == null || lastSent != b);
                     b1.set(b);
-                    cfo.check();
+                    cfo1.check();
 
                     lastSent = b;
                 }
@@ -405,18 +407,71 @@ public class FloatOutputTest {
         for (float off : Values.interestingFloats) {
             for (float on : Values.interestingFloats) {
                 Boolean lastSent = null;
-                CountingFloatOutput cfo = new CountingFloatOutput();
-                BooleanOutput b1 = cfo.fromBoolean(off, on);
+                BooleanOutput b1 = cfo1.fromBoolean(off, on);
                 for (boolean b : Values.interestingBooleans) {
-                    cfo.valueExpected = b ? on : off;
+                    cfo1.valueExpected = b ? on : off;
 
-                    cfo.ifExpected = (lastSent == null || lastSent != b);
+                    cfo1.ifExpected = (lastSent == null || lastSent != b);
                     b1.set(b);
-                    cfo.check();
+                    cfo1.check();
 
                     lastSent = b;
                 }
             }
         }
+    }
+
+    @Test
+    public void testSafeSet() {
+        evil.safeSet(0);
+        evil.safeSet(1);
+    }
+
+    @Test(expected = NoSuchElementException.class)
+    public void testExceptionPropagationFalse() {
+        evil.set(1);
+    }
+
+    @Test(expected = NoSuchElementException.class)
+    public void testCombineWithError1CausesError() {
+        cfo1.ifExpected = true;
+        cfo1.valueExpected = 1.2f;
+        cfo1.combine(evil).set(1.2f);
+    }
+
+    @Test(expected = NoSuchElementException.class)
+    public void testCombineWithError2CausesError() {
+        cfo1.ifExpected = true;
+        cfo1.valueExpected = 1;
+        evil.combine(cfo1).set(1);
+    }
+
+    @Test
+    public void testCombineWithError1Succeeds() {
+        cfo1.ifExpected = true;
+        cfo1.valueExpected = 1;
+        cfo1.combine(evil).safeSet(1);
+        cfo1.check();
+    }
+
+    @Test
+    public void testCombineWithError2Succeeds() {
+        cfo1.ifExpected = true;
+        cfo1.valueExpected = 1;
+        evil.combine(cfo1).safeSet(1);
+        cfo1.check();
+    }
+
+    @Test
+    public void testCombineWithError3CausesError() {
+        boolean errored = false;
+        try {
+            evil.combine(evil).set(1);
+        } catch (NoSuchElementException ex) {
+            errored = true;
+            assertEquals(ex.getSuppressed().length, 1);
+            assertTrue(ex.getSuppressed()[0] instanceof NoSuchElementException);
+        }
+        assertTrue(errored);
     }
 }

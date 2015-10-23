@@ -195,7 +195,7 @@ public class FloatDisplayComponent extends BaseChannelComponent<FloatDisplayComp
         boolean hasPanel = panel != null;
         if (inp != null && hasPanel != subscribed) {
             if (unsubscribe != null) {
-                unsubscribe.event();
+                unsubscribe.safeEvent();
                 unsubscribe = null;
             }
             if (hasPanel) {
@@ -215,10 +215,12 @@ public class FloatDisplayComponent extends BaseChannelComponent<FloatDisplayComp
         activeView = View.HORIZONTAL_POINTER;
     }
 
+    @Override
     public Entry[] queryRConf() throws InterruptedException {
         return rconfBase(RConf.string("minimum"), RConf.fieldFloat(minimum), RConf.string("maximum"), RConf.fieldFloat(maximum));
     }
 
+    @Override
     public boolean signalRConf(int field, byte[] data) throws InterruptedException {
         switch (rconfBase(field, data)) {
         case 1:

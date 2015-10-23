@@ -125,9 +125,9 @@ public class StateMachine {
         if (state == currentState) {
             return;
         }
-        onExit.produce();
+        onExit.safeEvent();
         currentState = state;
-        onEnter.produce();
+        onEnter.safeEvent();
     }
 
     /**
@@ -172,24 +172,11 @@ public class StateMachine {
         if (state < 0 || state >= getNumberOfStates()) {
             throw new IllegalArgumentException("Invalid state ID: " + state);
         }
-        return new EventOutput() {
-            public void event() {
-                if (state == currentState) {
-                    return;
-                }
-                onExit.produce();
+        return () -> {
+            if (state != currentState) {
+                onExit.safeEvent();
                 currentState = state;
-                onEnter.produce();
-            }
-
-            public boolean eventWithRecovery() {
-                if (state == currentState) {
-                    return false;
-                }
-                boolean out = onExit.produceWithFailureRecovery();
-                currentState = state;
-                out |= onEnter.produceWithFailureRecovery();
-                return out;
+                onEnter.safeEvent();
             }
         };
     }

@@ -39,8 +39,9 @@ import ccre.log.LogLevel;
  */
 public class UnitTestBot implements FRCApplication {
 
+    @Override
     public void setupRobot() {
-        String targetRoot = "phidget/";
+        String targetRoot = "pinspector/"; // TODO: make this work again.
         // Note: currently incomplete.
         BooleanStatus b = new BooleanStatus();
         FloatStatus f = new FloatStatus();

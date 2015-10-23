@@ -24,7 +24,6 @@ import ccre.channel.BooleanInput;
 import ccre.channel.BooleanOutput;
 import ccre.channel.EventOutput;
 import ccre.concurrency.ReporterThread;
-import ccre.log.Logger;
 import ccre.time.Time;
 
 /**
@@ -127,11 +126,7 @@ public class PauseTimer implements BooleanInput, EventOutput {
             return;
         }
         for (EventOutput c : consumers) {
-            try {
-                c.event();
-            } catch (Throwable thr) {
-                Logger.severe("Exception in PauseTimer dispatch!", thr);
-            }
+            c.safeEvent();
         }
     }
 

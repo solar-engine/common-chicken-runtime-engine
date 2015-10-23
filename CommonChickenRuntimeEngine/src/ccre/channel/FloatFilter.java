@@ -73,11 +73,7 @@ public abstract class FloatFilter {
         if (output == null) {
             throw new NullPointerException();
         }
-        return new FloatOutput() {
-            public void set(float value) {
-                output.set(FloatFilter.this.filter(value));
-            }
-        };
+        return value -> output.set(FloatFilter.this.filter(value));
     }
 
     /**

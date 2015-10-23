@@ -20,6 +20,8 @@ package ccre.channel;
 
 import static org.junit.Assert.*;
 
+import java.util.NoSuchElementException;
+
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -33,6 +35,9 @@ import ccre.util.Values;
 
 public class EventOutputTest { // TODO: should I be checking propagation of withRecovery messages?
 
+    private final EventOutput evil = () -> {
+        throw new NoSuchElementException("safeEvent purposeful failure.");
+    };
     private CountingEventOutput ceo, ceo2;
 
     @Before
@@ -77,15 +82,6 @@ public class EventOutputTest { // TODO: should I be checking propagation of with
         for (int i = 0; i < 10; i++) {
             ceo.ifExpected = true;
             ceo.event();
-            ceo.check();
-        }
-    }
-
-    @Test
-    public void testEventWithRecovery() {
-        for (int i = 0; i < 10; i++) {
-            ceo.ifExpected = true;
-            assertFalse(ceo.eventWithRecovery());
             ceo.check();
         }
     }
@@ -192,5 +188,54 @@ public class EventOutputTest { // TODO: should I be checking propagation of with
     @Test(expected = NullPointerException.class)
     public void testOnNull() {
         ceo.on(null);
+    }
+
+    @Test
+    public void testSafeSet() {
+        evil.safeEvent();
+    }
+
+    @Test(expected = NoSuchElementException.class)
+    public void testExceptionPropagation() {
+        evil.event();
+    }
+
+    @Test(expected = NoSuchElementException.class)
+    public void testCombineWithError1CausesError() {
+        ceo.ifExpected = true;
+        ceo.combine(evil).event();
+    }
+
+    @Test(expected = NoSuchElementException.class)
+    public void testCombineWithError2CausesError() {
+        ceo.ifExpected = true;
+        evil.combine(ceo).event();
+    }
+
+    @Test
+    public void testCombineWithError1Succeeds() {
+        ceo.ifExpected = true;
+        ceo.combine(evil).safeEvent();
+        ceo.check();
+    }
+
+    @Test
+    public void testCombineWithError2Succeeds() {
+        ceo.ifExpected = true;
+        evil.combine(ceo).safeEvent();
+        ceo.check();
+    }
+
+    @Test
+    public void testCombineWithError3CausesError() {
+        boolean errored = false;
+        try {
+            evil.combine(evil).event();
+        } catch (NoSuchElementException ex) {
+            errored = true;
+            assertEquals(ex.getSuppressed().length, 1);
+            assertTrue(ex.getSuppressed()[0] instanceof NoSuchElementException);
+        }
+        assertTrue(errored);
     }
 }

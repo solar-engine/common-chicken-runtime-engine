@@ -51,10 +51,10 @@ public class CountingBooleanOutput implements BooleanOutput {
         if (!ifExpected) {
             throw new RuntimeException("Unexpected set!");
         }
-        ifExpected = false;
         if (value != valueExpected) {
             throw new RuntimeException("Incorrect set!");
         }
+        ifExpected = false;
     }
 
     /**

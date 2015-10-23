@@ -92,26 +92,27 @@ public class ControlBarComponent extends DeviceComponent {
         return this;
     }
 
+    @Override
     public void onPress(int x, int y) {
         dragging = true;
         onMouseMove(x, y);
     }
 
+    @Override
     public void onMouseMove(int x, int y) {
         if (dragging) {
             Rectangle rect = hitzone.getBounds();
-            // value == ((x - startX) / barWidth) * (max - min) + min
-            // (value - min) / (max - min) == (x - startX) / barWidth
-            // startX + barWidth * (value - min) / (max - min) == x
-            value.set(Math.min(1, Math.max(0, ((x - rect.x) / (float) rect.width))) * (max - min) + min);
+            value.safeSet(Math.min(1, Math.max(0, ((x - rect.x) / (float) rect.width))) * (max - min) + min);
             repaint();
         }
     }
 
+    @Override
     public void onMouseExit(int x, int y) {
         dragging = false;
     }
 
+    @Override
     public void onRelease(int x, int y) {
         dragging = false;
     }

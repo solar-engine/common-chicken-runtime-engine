@@ -115,7 +115,7 @@ public abstract class InstinctBaseModule {
                 }
             }
         } finally {
-            unbind.event();
+            unbind.safeEvent();
         }
     }
 

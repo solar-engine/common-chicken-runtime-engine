@@ -19,9 +19,6 @@
 package ccre.channel;
 
 import java.io.Serializable;
-import java.util.concurrent.CopyOnWriteArrayList;
-
-import ccre.util.Utils;
 
 /**
  * A virtual node that is both a FloatOutput and a FloatInput. You can modify
@@ -33,9 +30,9 @@ import ccre.util.Utils;
  *
  * @author skeggsc
  */
-public class FloatStatus implements FloatOutput, FloatInput, Serializable {
+public class FloatStatus extends AbstractUpdatingInput implements FloatOutput, FloatInput, Serializable {
 
-    private static final long serialVersionUID = -579209218982597622L;
+    private static final long serialVersionUID = 4452265093224394680L;
 
     /**
      * The current state of this FloatStatus. Do not directly modify this field.
@@ -49,12 +46,6 @@ public class FloatStatus implements FloatOutput, FloatInput, Serializable {
     private float value = 0;
 
     /**
-     * The list of all the FloatOutputs to modify when this FloatStatus changes
-     * value.
-     */
-    private final CopyOnWriteArrayList<EventOutput> consumers = new CopyOnWriteArrayList<>();
-
-    /**
      * Create a new FloatStatus with a value of zero.
      */
     public FloatStatus() {
@@ -66,20 +57,7 @@ public class FloatStatus implements FloatOutput, FloatInput, Serializable {
      * @param value The default value.
      */
     public FloatStatus(float value) {
-        this.set(value);
-    }
-
-    /**
-     * Create a new FloatStatus that automatically updates the specified
-     * FloatOutput with the current state of this FloatStatus. This is the same
-     * as creating a new FloatStatus and then adding the FloatOutput as a
-     * target.
-     *
-     * @see FloatStatus#send(ccre.channel.FloatOutput)
-     * @param target The FloatOutput to automatically update.
-     */
-    public FloatStatus(FloatOutput target) {
-        send(target);
+        this.value = value;
     }
 
     /**
@@ -101,25 +79,12 @@ public class FloatStatus implements FloatOutput, FloatInput, Serializable {
         return value;
     }
 
-    /**
-     * Returns whether or not this has any targets that will get modified when
-     * the value changes If this returns false, the set() method will not notify
-     * anyone.
-     *
-     * @return whether or not the set() method would notify any targets.
-     * @see #set(float)
-     */
-    public boolean hasConsumers() {
-        return !consumers.isEmpty();
-    }
-
     public final synchronized void set(float newValue) {
-        if (Float.floatToIntBits(value) == Float.floatToIntBits(newValue)) {
-            return; // Do nothing. We want to ignore the value if it's the same.
-        }
-        value = newValue;
-        for (EventOutput evt : consumers) {
-            evt.event();
+        if (Float.floatToIntBits(value) != Float.floatToIntBits(newValue)) {
+            value = newValue;
+            perform();
+        } else {
+            // Do nothing; we want to ignore the value if it's the same.
         }
     }
 
@@ -141,18 +106,5 @@ public class FloatStatus implements FloatOutput, FloatInput, Serializable {
      */
     public FloatInput asInput() {
         return this;
-    }
-    
-    @Override
-    public void onUpdate(EventOutput notify) {
-        if (notify == null) {
-            throw new NullPointerException();
-        }
-        consumers.add(notify);
-    }
-
-    @Override
-    public EventOutput onUpdateR(EventOutput notify) {
-        return Utils.addR(consumers, notify);
     }
 }

@@ -228,7 +228,7 @@ public class PIDControllerTest {
     public void testUpdateNegative() {
         pid.update(-1);
     }
-    
+
     @Test
     public void testEvent() throws InterruptedException {
         setpoint.set(1);
@@ -334,7 +334,7 @@ public class PIDControllerTest {
         pid.update(100);
         assertTrue(pid.getPreviousError() == setpoint.get() - input.get());
     }
-    
+
     @Test
     public void testForNaNs() {
         input.set(Float.NaN);
@@ -351,7 +351,7 @@ public class PIDControllerTest {
         pid.update(100);
         assertEquals(pid.get(), 0, 0);
     }
-    
+
     @Test
     public void testZeroLengthInfo() {
         input.set(1000000);

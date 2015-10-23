@@ -139,7 +139,7 @@ public class EventControlComponent extends BaseChannelComponent<EventControlComp
 
     @Override
     public boolean onInteract(int x, int y) {
-        stat.event();
+        stat.safeEvent();
         return true;
     }
 
@@ -156,7 +156,7 @@ public class EventControlComponent extends BaseChannelComponent<EventControlComp
         boolean hasPanel = panel != null;
         if (alternateSource != null && hasPanel != isFakeSubscribed) {
             if (unsubscribe != null) {
-                unsubscribe.event();
+                unsubscribe.safeEvent();
                 unsubscribe = null;
             }
             if (hasPanel) {

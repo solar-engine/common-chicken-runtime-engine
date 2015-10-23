@@ -60,10 +60,11 @@ public class BooleanViewDevice extends Device implements BooleanOutput, Disablea
         return this;
     }
 
+    @Override
     public void set(boolean value) {
         savedValue = value;
         if (!disabled) {
-            actuated.set(value);
+            actuated.safeSet(value);
         }
     }
 
@@ -74,9 +75,9 @@ public class BooleanViewDevice extends Device implements BooleanOutput, Disablea
         }
         this.disabled = disabled;
         if (disabled) {
-            actuated.set(false);
+            actuated.safeSet(false);
         } else {
-            actuated.set(savedValue);
+            actuated.safeSet(savedValue);
         }
     }
 

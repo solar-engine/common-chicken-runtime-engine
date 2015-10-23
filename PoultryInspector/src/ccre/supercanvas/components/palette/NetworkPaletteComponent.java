@@ -248,15 +248,12 @@ public class NetworkPaletteComponent extends PaletteComponent<Collection<Network
                 }
             }
         });
-        researcher.triggerAtEnd(new EventOutput() {
-            @Override
-            public void event() {
-                entries.clear();
-                searcher.event();
-            }
+        researcher.triggerAtEnd(() -> {
+            entries.clear();
+            searcher.event();
         });
         Cluck.getNode().subscribeToStructureNotifications(UniqueIds.global.nextHexId("notification-subscriber"), researcher);
-        searcher.event();
+        searcher.safeEvent();
     }
 
     /**

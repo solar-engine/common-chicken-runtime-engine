@@ -38,8 +38,7 @@ public class PIDTest implements FRCApplication {
     @Override
     public void setupRobot() {
         TuningContext context = new TuningContext("pid_control").publishSavingEvent();
-        PIDController controller = new PIDController(FloatInput.zero, FRC.joystick1.axisY(),
-                context.getFloat("P", 1), context.getFloat("I", 0), context.getFloat("D", 0));
+        PIDController controller = new PIDController(FloatInput.zero, FRC.joystick1.axisY(), context.getFloat("P", 1), context.getFloat("I", 0), context.getFloat("D", 0));
         controller.send(FRC.makeTalonMotor(1, false, 0));
         controller.updateWhen(FRC.duringTele);
     }

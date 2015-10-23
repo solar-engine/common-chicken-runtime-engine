@@ -18,39 +18,53 @@
  */
 package ccre.channel;
 
+/**
+ * Provides a way to do something when an input changes. Override
+ * {@link #update()} for the action to perform, and pass the inputs to watch to
+ * the constructor.
+ *
+ * Inputs are checked for changes with the
+ * {@link UpdatingInput#onUpdate(EventOutput)} method.
+ *
+ * @author skeggsc
+ */
 public abstract class DerivedUpdate {
 
-    public DerivedUpdate(UpdatingInput[] updates, UpdatingInput... moreUpdates) {
-        EventOutput doUpdate = new EventOutput() {
-            @Override
-            public void event() {
-                update();
-            }
+    /**
+     * Create a new DerivedUpdate that calls {@link #update()} when any of the
+     * specified inputs update.
+     *
+     * This is equivalent to calling {@link UpdatingInput#onUpdate(EventOutput)}
+     * on all of these with an action that calls {@link #update()}.
+     *
+     * @param updates the inputs to watch.
+     */
+    public DerivedUpdate(UpdatingInput... updates) {
+        onUpdates(updates, this::update);
+    }
 
-            @Override
-            public boolean eventWithRecovery() {
-                return updateWithRecovery();
-            }
-        };
-        if (updates.length == 0) {
+    /**
+     * An extracted version of the constructor implementation. When any of the
+     * specified UpdatingInputs are updated, then fire the EventOutput.
+     *
+     * @param output the output to fire
+     * @param inputs the inputs to monitor
+     */
+    public static void onUpdates(UpdatingInput[] inputs, EventOutput output) {
+        if (inputs.length == 0) {
             throw new IllegalArgumentException("Must be at least one update source!");
         }
-        for (int i = 0; i < updates.length; i++) {
-            if (updates[i] == null) {
+        for (int i = 0; i < inputs.length; i++) {
+            if (inputs[i] == null) {
                 throw new NullPointerException();
             }
-            updates[i].onUpdate(doUpdate);
+            inputs[i].onUpdate(output);
         }
     }
 
-    public DerivedUpdate(UpdatingInput... updates) {
-        this(updates, new UpdatingInput[0]);
-    }
-
+    /**
+     * Perform an action. This is called when any of the inputs specified in the
+     * constructor are updated.
+     */
     protected abstract void update();
-
-    protected boolean updateWithRecovery() {
-        update();
-        return false;
-    }
 }

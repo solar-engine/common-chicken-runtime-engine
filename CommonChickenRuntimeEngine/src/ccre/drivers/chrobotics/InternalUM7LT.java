@@ -278,7 +278,7 @@ public class InternalUM7LT { // default rate: 115200 baud.
             }
             lastUpdateId = nextUpdateId;
             lastUpdateTime = Time.currentTimeMillis();
-            onUpdate.event();
+            onUpdate.safeEvent();
         } else if (address == 0xAA) {
             Logger.info("UM7LT firmware revision: " + new String(new char[] { (char) ((data[0] >> 24) & 0xFF), (char) ((data[0] >> 16) & 0xFF), (char) ((data[0] >> 8) & 0xFF), (char) (data[0] & 0xFF) }));
         } else if (address == 0xAD) {

@@ -22,7 +22,6 @@ import java.util.LinkedList;
 import java.util.PriorityQueue;
 
 import ccre.channel.EventOutput;
-import ccre.log.Logger;
 
 // NOTE: this contains complex and likely slightly broken synchronization code. do not use it in production!
 public class FakeTime extends Time {
@@ -58,11 +57,7 @@ public class FakeTime extends Time {
                     break;
                 }
             }
-            try {
-                entry.target.event();
-            } catch (Throwable thr) {
-                Logger.severe("Schedule entry threw exception!", thr);
-            }
+            entry.target.safeEvent();
         }
         synchronized (this) {
             osl = otherSleepers.toArray();
@@ -190,7 +185,7 @@ public class FakeTime extends Time {
                 }
                 now = ent.expirationAt;
             }
-            ent.target.event();
+            ent.target.safeEvent();
         }
         synchronized (this) {
             now = 0;

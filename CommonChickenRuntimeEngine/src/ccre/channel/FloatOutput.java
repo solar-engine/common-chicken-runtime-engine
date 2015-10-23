@@ -18,6 +18,7 @@
  */
 package ccre.channel;
 
+import ccre.log.Logger;
 import ccre.time.Time;
 import ccre.util.Utils;
 
@@ -51,6 +52,14 @@ public interface FloatOutput {
      */
     public void set(float value);
 
+    public default void safeSet(float value) {
+        try {
+            set(value);
+        } catch (Throwable ex) {
+            Logger.severe("Error during channel propagation", ex);
+        }
+    }
+
     public default EventOutput getSetEvent(final float value) {
         return () -> set(value);
     }
@@ -77,12 +86,18 @@ public interface FloatOutput {
             throw new NullPointerException();
         }
         FloatOutput original = this;
-        return new FloatOutput() {
-            @Override
-            public void set(float value) {
+        return value -> {
+            try {
                 original.set(value);
-                other.set(value);
+            } catch (Throwable thr) {
+                try {
+                    other.set(value);
+                } catch (Throwable thr2) {
+                    thr.addSuppressed(thr2);
+                }
+                throw thr;
             }
+            other.set(value);
         };
     }
 
@@ -119,9 +134,10 @@ public interface FloatOutput {
                 if (lastUpdateNanos == timeNanos) {
                     return; // extremely unlikely... but just in case.
                 }
-                original.set(Time.NANOSECONDS_PER_SECOND * (value - lastValue) / (timeNanos - lastUpdateNanos));
+                float f = Time.NANOSECONDS_PER_SECOND * (value - lastValue) / (timeNanos - lastUpdateNanos);
                 lastValue = value;
                 lastUpdateNanos = timeNanos;
+                original.set(f);
             }
         };
     }

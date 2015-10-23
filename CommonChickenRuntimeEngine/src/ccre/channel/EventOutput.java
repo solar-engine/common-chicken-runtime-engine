@@ -18,6 +18,7 @@
  */
 package ccre.channel;
 
+import ccre.log.Logger;
 import ccre.time.Time;
 import ccre.util.Utils;
 
@@ -33,39 +34,37 @@ public interface EventOutput {
     /**
      * An EventOutput that, when fired, does absolutely nothing.
      */
-    public static final EventOutput ignored = () -> {};
+    public static final EventOutput ignored = () -> {
+    };
 
     /**
      * Fire the event.
      */
     public void event();
 
-    /**
-     * Fire the event with recovery: try to recover instead of throwing an
-     * exception.
-     * 
-     * @return if anything was changed to recover from an error.
-     */
-    public default boolean eventWithRecovery() {
-        event();
-        return false;
+    public default void safeEvent() {
+        try {
+            event();
+        } catch (Throwable ex) {
+            Logger.severe("Error during event propagation", ex);
+        }
     }
 
     public default EventOutput combine(EventOutput other) {
         Utils.checkNull(other);
         EventOutput original = this;
-        return new EventOutput() {
-            @Override
-            public void event() {
+        return () -> {
+            try {
                 original.event();
-                other.event();
+            } catch (Throwable thr) {
+                try {
+                    other.event();
+                } catch (Throwable thr2) {
+                    thr.addSuppressed(thr2);
+                }
+                throw thr;
             }
-
-            @Override
-            public boolean eventWithRecovery() {
-                // uses '|' instead of '||' to avoid short-circuiting.
-                return original.eventWithRecovery() | other.eventWithRecovery();
-            }
+            other.event();
         };
     }
 
@@ -74,45 +73,15 @@ public interface EventOutput {
             throw new NullPointerException();
         }
         EventOutput original = this;
-        return new EventOutput() {
-            @Override
-            public void event() {
-                if (allow.get()) {
-                    original.event();
-                }
-            }
-
-            @Override
-            public boolean eventWithRecovery() {
-                if (allow.get()) {
-                    return original.eventWithRecovery();
-                }
-                return false;
+        return () -> {
+            if (allow.get()) {
+                original.event();
             }
         };
     }
 
     public default EventOutput filterNot(BooleanInput deny) {
-        if (deny == null) {
-            throw new NullPointerException();
-        }
-        EventOutput original = this;
-        return new EventOutput() {
-            @Override
-            public void event() {
-                if (!deny.get()) {
-                    original.event();
-                }
-            }
-
-            @Override
-            public boolean eventWithRecovery() {
-                if (!deny.get()) {
-                    return original.eventWithRecovery();
-                }
-                return false;
-            }
-        };
+        return this.filter(deny.not());
     }
 
     public default EventOutput debounce(final long minMillis) {
@@ -126,19 +95,10 @@ public interface EventOutput {
             public synchronized void event() {
                 long now = Time.currentTimeMillis();
                 if (now < nextFire) {
-                    return;// Ignore event.
+                    return; // Ignore event.
                 }
                 nextFire = now + minMillis;
                 original.event();
-            }
-
-            public boolean eventWithRecovery() {
-                long now = Time.currentTimeMillis();
-                if (now < nextFire) {
-                    return false;// Ignore event.
-                }
-                nextFire = now + minMillis;
-                return original.eventWithRecovery();
             }
         };
     }

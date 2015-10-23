@@ -19,9 +19,6 @@
 package ccre.channel;
 
 import java.io.Serializable;
-import java.util.concurrent.CopyOnWriteArrayList;
-
-import ccre.util.Utils;
 
 /**
  * A virtual node that is both a BooleanOutput and a BooleanInput. You can
@@ -30,9 +27,9 @@ import ccre.util.Utils;
  *
  * @author skeggsc
  */
-public class BooleanStatus implements BooleanOutput, BooleanInput, Serializable {
+public class BooleanStatus extends AbstractUpdatingInput implements BooleanOutput, BooleanInput, Serializable {
 
-    private static final long serialVersionUID = 2573411070442038676L;
+    private static final long serialVersionUID = 4843658543933463459L;
 
     /**
      * The current state (true or false) of this BooleanStatus. Do not directly
@@ -41,11 +38,6 @@ public class BooleanStatus implements BooleanOutput, BooleanInput, Serializable 
      * @see #set(boolean)
      */
     private boolean value;
-    /**
-     * The list of all the BooleanOutputs to modify when this BooleanStatus
-     * changes value.
-     */
-    private final CopyOnWriteArrayList<EventOutput> consumers = new CopyOnWriteArrayList<EventOutput>();
 
     /**
      * Create a new BooleanStatus with the value of false.
@@ -59,20 +51,7 @@ public class BooleanStatus implements BooleanOutput, BooleanInput, Serializable 
      * @param default_ The default value.
      */
     public BooleanStatus(boolean default_) {
-        this.set(default_);
-    }
-
-    /**
-     * Create a new BooleanStatus with the value of false that automatically
-     * updates the specified BooleanOutput with the current state of this
-     * BooleanStatus. This is the same as creating a new BooleanStatus and then
-     * adding the BooleanOutput as a target.
-     *
-     * @see BooleanStatus#send(ccre.channel.BooleanOutput)
-     * @param target The BooleanOutput to automatically update.
-     */
-    public BooleanStatus(BooleanOutput target) {
-        send(target);
+        this.value = default_;
     }
 
     /**
@@ -122,25 +101,10 @@ public class BooleanStatus implements BooleanOutput, BooleanInput, Serializable 
         set(!get());
     }
 
-    /**
-     * Returns whether or not this has any targets that will get modified when
-     * the value changes If this returns false, the set() method will not notify
-     * anyone.
-     *
-     * @return whether or not the set() method would notify any targets.
-     * @see #set(boolean)
-     */
-    public boolean hasConsumers() {
-        return !consumers.isEmpty();
-    }
-
     public final synchronized void set(boolean value) {
-        if (this.value == value) {
-            return;
-        }
-        this.value = value;
-        for (EventOutput output : consumers) {
-            output.event();
+        if (this.value != value) {
+            this.value = value;
+            perform();
         }
     }
 
@@ -166,18 +130,5 @@ public class BooleanStatus implements BooleanOutput, BooleanInput, Serializable 
      */
     public BooleanInput asInput() {
         return this;
-    }
-    
-    @Override
-    public void onUpdate(EventOutput notify) {
-        if (notify == null) {
-            throw new NullPointerException();
-        }
-        consumers.add(notify);
-    }
-
-    @Override
-    public EventOutput onUpdateR(EventOutput notify) {
-        return Utils.addR(consumers, notify);
     }
 }

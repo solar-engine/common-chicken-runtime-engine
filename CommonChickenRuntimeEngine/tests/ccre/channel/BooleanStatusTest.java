@@ -56,7 +56,7 @@ public class BooleanStatusTest {
         cbo.valueExpected = false;
         status = new BooleanStatus(cbo);
         cbo.check();
-        assertTrue(status.hasConsumers());
+        assertTrue(status.hasListeners());
         Random random = new Random();
         boolean lastValue = false;
         for (int i = 0; i < 20; i++) {
@@ -83,7 +83,7 @@ public class BooleanStatusTest {
         status = new BooleanStatus(c1, c2);
         c1.check();
         c2.check();
-        assertTrue(status.hasConsumers());
+        assertTrue(status.hasListeners());
         Random random = new Random();
         boolean lastValue = false;
         for (int i = 0; i < 20; i++) {
@@ -139,20 +139,20 @@ public class BooleanStatusTest {
 
     @Test
     public void testHasConsumers() {
-        assertFalse(status.hasConsumers());
+        assertFalse(status.hasListeners());
         for (int i = 0; i < 5; i++) {
             EventOutput eo = status.sendR(BooleanOutput.ignored);
-            assertTrue(status.hasConsumers());
+            assertTrue(status.hasListeners());
             eo.event();
-            assertFalse(status.hasConsumers());
+            assertFalse(status.hasListeners());
             EventOutput eo1 = status.sendR(BooleanOutput.ignored);
-            assertTrue(status.hasConsumers());
+            assertTrue(status.hasListeners());
             EventOutput eo2 = status.sendR(BooleanOutput.ignored);
-            assertTrue(status.hasConsumers());
+            assertTrue(status.hasListeners());
             eo1.event();
-            assertTrue(status.hasConsumers());
+            assertTrue(status.hasListeners());
             eo2.event();
-            assertFalse(status.hasConsumers());
+            assertFalse(status.hasListeners());
         }
     }
 
@@ -213,7 +213,7 @@ public class BooleanStatusTest {
     public void testOnUpdate() {
         CountingEventOutput ceo = new CountingEventOutput();
         status.onUpdate(ceo);
-        assertTrue(status.hasConsumers());
+        assertTrue(status.hasListeners());
         Random rand = new Random();
         boolean lastValue = false;
         for (int i = 0; i < 20; i++) {
@@ -234,7 +234,7 @@ public class BooleanStatusTest {
     public void testOnUpdateR() {
         CountingEventOutput ceo = new CountingEventOutput();
         EventOutput unbind = status.onUpdateR(ceo);
-        assertTrue(status.hasConsumers());
+        assertTrue(status.hasListeners());
         Random rand = new Random();
         boolean lastValue = false;
         for (int i = 0; i < 20; i++) {
@@ -244,38 +244,38 @@ public class BooleanStatusTest {
             ceo.check();
             lastValue = value;
         }
-        assertTrue(status.hasConsumers());
+        assertTrue(status.hasListeners());
         unbind.event();
-        assertFalse(status.hasConsumers());
+        assertFalse(status.hasListeners());
         for (int i = 0; i < 20; i++) {
             status.set(i % 3 == 1 ? rand.nextBoolean() : i % 3 == 0);
             ceo.check();
         }
-        assertFalse(status.hasConsumers());
+        assertFalse(status.hasListeners());
     }
 
     @Test
     public void testOnUpdateAndOnUpdateR() {
-        assertFalse(status.hasConsumers());
+        assertFalse(status.hasListeners());
         EventOutput unbind = status.onUpdateR(EventOutput.ignored);
-        assertTrue(status.hasConsumers());
+        assertTrue(status.hasListeners());
         status.onUpdate(EventOutput.ignored);
-        assertTrue(status.hasConsumers());
+        assertTrue(status.hasListeners());
         unbind.event();
-        assertTrue(status.hasConsumers());
+        assertTrue(status.hasListeners());
     }
 
     @Test
     public void testOnUpdateRTwice() {
-        assertFalse(status.hasConsumers());
+        assertFalse(status.hasListeners());
         EventOutput unbind1 = status.onUpdateR(EventOutput.ignored);
-        assertTrue(status.hasConsumers());
+        assertTrue(status.hasListeners());
         EventOutput unbind2 = status.onUpdateR(EventOutput.ignored);
-        assertTrue(status.hasConsumers());
+        assertTrue(status.hasListeners());
         unbind1.event();
-        assertTrue(status.hasConsumers());
+        assertTrue(status.hasListeners());
         unbind2.event();
-        assertFalse(status.hasConsumers());
+        assertFalse(status.hasListeners());
     }
 
     @Test(expected = NullPointerException.class)

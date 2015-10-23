@@ -97,11 +97,7 @@ public class CluckPublisher {
             protected void receiveBroadcast(String source, byte[] data) {
             }
         }.attach(local);
-        return new EventOutput() {
-            public void event() {
-                node.broadcast(local, new byte[] { RMT_PING }, null);
-            }
-        };
+        return () -> node.broadcast(local, new byte[] { RMT_PING }, null);
     }
 
     /**
@@ -504,7 +500,15 @@ public class CluckPublisher {
                     byte[] data = new byte[in.length - 2];
                     System.arraycopy(in, 2, data, 0, data.length);
                     try {
-                        boolean success = device.signalRConf(((in[0] & 0xFF) << 8) | (in[1] & 0xFF), data);
+                        boolean success;
+                        try {
+                            success = device.signalRConf(((in[0] & 0xFF) << 8) | (in[1] & 0xFF), data);
+                        } catch (InterruptedException ex) {
+                            throw ex;
+                        } catch (Throwable thr) {
+                            Logger.severe("RConf signal failed", thr);
+                            success = false;
+                        }
                         try {
                             out.write(success ? (byte) 1 : (byte) 0);
                         } catch (IOException e) {
@@ -734,7 +738,7 @@ public class CluckPublisher {
             }
             return base.combine(() -> {
                 synchronized (SubscribedFloatInput.this) {
-                    if (canUnsubscribe && sent && !this.hasConsumers()) {
+                    if (canUnsubscribe && sent && !this.hasListeners()) {
                         sent = false;
                         node.transmit(path, linkName, new byte[] { RMT_NEGATIVE_ACK });
                     }
@@ -836,7 +840,7 @@ public class CluckPublisher {
             }
             return base.combine(() -> {
                 synchronized (SubscribedBooleanInput.this) {
-                    if (canUnsubscribe && sent && !this.hasConsumers()) {
+                    if (canUnsubscribe && sent && !this.hasListeners()) {
                         sent = false;
                         node.transmit(path, linkName, new byte[] { RMT_NEGATIVE_ACK });
                     }
@@ -932,7 +936,7 @@ public class CluckPublisher {
             }
             return base.combine(() -> {
                 synchronized (SubscribedEventInput.this) {
-                    if (sent && !this.hasConsumers()) {
+                    if (sent && !this.hasListeners()) {
                         sent = false;
                         node.transmit(path, linkName, new byte[] { RMT_NEGATIVE_ACK });
                     }
@@ -977,7 +981,7 @@ public class CluckPublisher {
             if (!path.equals(src)) {
                 Logger.warning("Bad source to " + linkName + ": " + src + " instead of " + path);
             } else {
-                result.produce();
+                result.event();
             }
         }
 

@@ -29,7 +29,6 @@ import ccre.channel.EventOutput;
 import ccre.channel.EventStatus;
 import ccre.channel.FloatInput;
 import ccre.concurrency.ReporterThread;
-import ccre.log.Logger;
 import ccre.time.Time;
 
 /**
@@ -134,7 +133,7 @@ public final class ExpirationTimer {
         if (isStarted.get()) {
             throw new IllegalStateException("Timer is running!");
         }
-        isStarted.set(true);
+        isStarted.safeSet(true);
         if (!main.isAlive()) {
             main.start();
         }
@@ -166,11 +165,7 @@ public final class ExpirationTimer {
                 Time.wait(this, rel);
                 rel = startAt + t.delay - Time.currentTimeMillis();
             }
-            try {
-                t.cnsm.event();
-            } catch (Throwable thr) {
-                Logger.severe("Exception in ExpirationTimer dispatch!", thr);
-            }
+            t.cnsm.safeEvent();
         }
     }
 
@@ -223,7 +218,7 @@ public final class ExpirationTimer {
         if (!isStarted.get()) {
             throw new IllegalStateException("Timer is not running!");
         }
-        isStarted.set(false);
+        isStarted.safeSet(false);
         main.interrupt();
     }
 

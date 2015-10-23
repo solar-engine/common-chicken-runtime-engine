@@ -54,7 +54,7 @@ public class Scheduler {
                     continue;
                 }
                 try {
-                    ent.target.event();
+                    ent.target.safeEvent();
                 } catch (Throwable throwable) {
                     Logger.severe("Scheduler target threw an exception!", throwable);
                 }

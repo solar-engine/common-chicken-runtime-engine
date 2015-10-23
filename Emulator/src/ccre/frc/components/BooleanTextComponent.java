@@ -73,6 +73,7 @@ public class BooleanTextComponent extends TextComponent implements BooleanOutput
         return this;
     }
 
+    @Override
     public void set(boolean value) {
         this.setLabel(value ? on : off);
         this.setColor(value ? Color.green : Color.RED.darker());
@@ -82,7 +83,7 @@ public class BooleanTextComponent extends TextComponent implements BooleanOutput
     @Override
     public void onPress(int x, int y) {
         if (editable) {
-            set(!state.get());
+            safeSet(!state.get());
             repaint();
         }
     }

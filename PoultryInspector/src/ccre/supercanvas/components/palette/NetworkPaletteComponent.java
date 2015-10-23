@@ -36,7 +36,6 @@ import ccre.cluck.CluckConstants;
 import ccre.cluck.CluckPublisher;
 import ccre.cluck.CluckRemoteListener;
 import ccre.cluck.rpc.RemoteProcedure;
-import ccre.log.LogLevel;
 import ccre.log.Logger;
 import ccre.log.LoggingTarget;
 import ccre.rconf.RConfable;

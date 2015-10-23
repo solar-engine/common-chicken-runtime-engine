@@ -690,8 +690,8 @@ public class CluckPublisher {
 
         public void log(LogLevel level, String message, String extended) {
             try {
-                byte[] msg = message.getBytes();
-                byte[] ext = extended == null ? new byte[0] : extended.getBytes();
+                byte[] msg = message.getBytes("UTF-8");
+                byte[] ext = extended == null ? new byte[0] : extended.getBytes("UTF-8");
                 byte[] out = new byte[10 + msg.length + ext.length];
                 out[0] = CluckConstants.RMT_LOGTARGET;
                 out[1] = LogLevel.toByte(level);

@@ -189,7 +189,7 @@ public class Webcam extends Thread {
         try {
             socketInputStream = new BufferedInputStream(socket.getInputStream());
             socketOutputStream = new BufferedOutputStream(socket.getOutputStream());
-            socketOutputStream.write(requestString.getBytes());
+            socketOutputStream.write(requestString.getBytes("UTF-8"));
             socketOutputStream.flush();
             String header;
             assertLine(socketInputStream, "HTTP/1.0 200 OK");

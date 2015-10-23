@@ -37,7 +37,7 @@ public class StorageTest {
     public void testReadWrite() throws IOException {
         String string = "Testing " + System.currentTimeMillis();
         try (OutputStream out = Storage.openOutput(FILENAME)) {
-            out.write((string + "\n").getBytes());
+            out.write((string + "\n").getBytes("UTF-8"));
         }
         try (BufferedReader bread = new BufferedReader(new InputStreamReader(Storage.openInput(FILENAME)))) {
             assertEquals(string, bread.readLine());

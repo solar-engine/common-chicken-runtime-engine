@@ -115,7 +115,7 @@ public class CluckUnitTestComponent extends DraggableBoxComponent {
 
         private void checkSendData() throws InterruptedException, IOException {
             int start = ctr;
-            os.write("THIS IS THE CCRE TALKING.\0 send properly. DO IT.\n".getBytes());
+            os.write("THIS IS THE CCRE TALKING.\0 send properly. DO IT.\n".getBytes("UTF-8"));
             this.wait(200);
             if (ctr != start + 1) {
                 Logger.warning("Unit testing failed - send data failed.");

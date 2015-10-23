@@ -29,6 +29,7 @@ import ccre.cluck.rpc.RemoteProcedure;
 import ccre.log.Logger;
 import ccre.supercanvas.DraggableBoxComponent;
 import ccre.supercanvas.Rendering;
+import ccre.util.Utils;
 
 /**
  * A component allowing for invoking an arbitrary RPC target, in either textual
@@ -185,7 +186,7 @@ public class RPCControlComponent extends DraggableBoxComponent {
             if (inBinaryMode) {
                 out.invoke(decodeHex(), this.receiverStream);
             } else {
-                out.invoke(contents.toString().getBytes(), this.receiverStream);
+                out.invoke(Utils.getBytes(contents.toString()), this.receiverStream);
             }
             contents.setLength(0);
             getPanel().editing = null;

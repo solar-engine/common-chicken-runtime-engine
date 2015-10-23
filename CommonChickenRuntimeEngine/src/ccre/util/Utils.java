@@ -20,6 +20,9 @@ package ccre.util;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
+import java.io.UnsupportedEncodingException;
+
+import ccre.log.Logger;
 
 /**
  * A class for utilities that don't fit anywhere else.
@@ -158,6 +161,15 @@ public class Utils {
         } else {
             StackTraceElement elem = trace[traceIndex];
             return new CallerInfo(elem.getClassName(), elem.getMethodName(), elem.getFileName(), elem.getLineNumber());
+        }
+    }
+
+    public static byte[] getBytes(String title) {
+        try {
+            return title.getBytes("UTF-8");
+        } catch (UnsupportedEncodingException e) {
+            // TODO: handle this more gracefully?
+            throw new RuntimeException("UTF-8 not available", e);
         }
     }
 }

@@ -20,18 +20,17 @@ package ccre.cluck;
 
 import java.io.OutputStream;
 
+import ccre.channel.BooleanCell;
 import ccre.channel.BooleanInput;
 import ccre.channel.BooleanOutput;
-import ccre.channel.BooleanCell;
+import ccre.channel.EventCell;
 import ccre.channel.EventInput;
 import ccre.channel.EventOutput;
-import ccre.channel.EventCell;
+import ccre.channel.FloatCell;
 import ccre.channel.FloatInput;
 import ccre.channel.FloatOutput;
-import ccre.channel.FloatCell;
 import ccre.cluck.tcp.CluckTCPClient;
 import ccre.cluck.tcp.CluckTCPServer;
-import ccre.log.LogLevel;
 import ccre.log.LoggingTarget;
 import ccre.rconf.RConfable;
 

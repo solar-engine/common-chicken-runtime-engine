@@ -20,6 +20,8 @@ package ccre.rconf;
 
 import java.io.Serializable;
 
+import ccre.util.Utils;
+
 /**
  * The RConf subsystem's utility class.
  *
@@ -208,7 +210,7 @@ public class RConf {
      * @return the new RConf entry.
      */
     public static Entry title(String title) {
-        return new Entry(F_TITLE, title.getBytes());
+        return new Entry(F_TITLE, Utils.getBytes(title));
     }
 
     /**
@@ -218,7 +220,7 @@ public class RConf {
      * @return the new RConf entry.
      */
     public static Entry string(String data) {
-        return new Entry(F_STRING, data.getBytes());
+        return new Entry(F_STRING, Utils.getBytes(data));
     }
 
     /**
@@ -228,7 +230,7 @@ public class RConf {
      * @return the new RConf entry.
      */
     public static Entry button(String label) {
-        return new Entry(F_BUTTON, label.getBytes());
+        return new Entry(F_BUTTON, Utils.getBytes(label));
     }
 
     /**
@@ -239,7 +241,7 @@ public class RConf {
      * @return the new RConf entry.
      */
     public static Entry cluckRef(String ref) {
-        return new Entry(F_CLUCK_REF, ref.getBytes());
+        return new Entry(F_CLUCK_REF, Utils.getBytes(ref));
     }
 
     /**

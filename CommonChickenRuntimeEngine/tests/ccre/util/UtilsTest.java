@@ -18,8 +18,7 @@
  */
 package ccre.util;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import static org.junit.Assert.*;
 
 import java.util.Random;
 
@@ -125,7 +124,7 @@ public class UtilsTest {
             }
         }
     }
-    
+
     @Test
     public void testMethodCaller() {
         CallerInfo info = Utils.getMethodCaller(0);
@@ -133,14 +132,14 @@ public class UtilsTest {
         assertEquals("UtilsTest.java", info.getFileName());
         assertEquals("testMethodCaller", info.getMethodName());
     }
-    
+
     @Test
     public void testMethodCallerLineNumber() {
         CallerInfo info = Utils.getMethodCaller(0);
         CallerInfo info2 = Utils.getMethodCaller(0);
         assertEquals(info2.getLineNum() - 1, info.getLineNum());
     }
-    
+
     @Test
     public void testMethodCallerInvalid() {
         for (int i = -10; i < 0; i++) {
@@ -154,11 +153,14 @@ public class UtilsTest {
         CallerInfo info = Utils.getMethodCaller(0);
         String got = Utils.toStringThrowable(new Throwable("Example"));
         String[] pts = got.split("\n");
+        assertNotNull(info.getFileName());
+        assertNotNull(info.getMethodName());
+        assertTrue(info.getLineNum() > 0);
         assertEquals("java.lang.Throwable: Example", pts[0]);
         int expectedLine = info.getLineNum() + 1;
         assertEquals("\tat " + info.getClassName() + "." + info.getMethodName() + "(" + info.getFileName() + ":" + expectedLine + ")", pts[1]);
     }
-    
+
     @Test
     public void testNullToStringThrowable() {
         assertNull(Utils.toStringThrowable(null));

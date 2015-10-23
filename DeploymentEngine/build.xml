@@ -21,30 +21,31 @@
  */
  -->
 
-<project name="Build Jar">
+<project name="Build Jar" default="build-jar">
+	<property name="src.dir" value="src" />
+	<property name="build.dir" value="build" />
 	<target name="clean">
 		<delete file="DepEngine.jar" />
 	</target>
-	<target name="build-jar" depends="clean">
+	<target name="deps">
+		<delete file="Dependencies.jar" />
+		<jar destfile="Dependencies.jar" update="false">
+			<zipfileset src="libs/sshj-0.13.0.jar" />
+			<zipfileset src="libs/slf4j-api-1.7.12.jar" />
+			<zipfileset src="libs/slf4j-simple-1.7.12.jar" />
+			<zipfileset src="libs/bcprov-jdk15on-152.jar" />
+			<zipfileset src="../CommonChickenRuntimeEngine/CCRE.jar" />
+			<zipfileset src="../Emulator/Emulator.jar" />
+		</jar>
+	</target>
+	<target name="compile" depends="clean,deps">
+		<mkdir dir="${build.dir}" />
+		<javac destdir="${build.dir}" srcdir="${src.dir}" includeantruntime="false" classpath="Dependencies.jar" />
+	</target>
+	<target name="build-jar" depends="compile,deps">
 		<jar destfile="DepEngine.jar" update="false">
-			<fileset dir="bin" includes="**/*" />
-			<zipfileset src="../Emulator/Emulator.jar">
-				<include name="**/*" />
-				<exclude name="META-INF/*" />
-			</zipfileset>
-			<zipfileset src="libs/sshj-0.13.0.jar">
-				<include name="**/*" />
-				<exclude name="META-INF/*" />
-			</zipfileset>
-			<zipfileset src="libs/slf4j-api-1.7.12.jar">
-				<include name="**/*" />
-				<exclude name="META-INF/*" />
-			</zipfileset>
-			<zipfileset src="libs/slf4j-simple-1.7.12.jar">
-				<include name="**/*" />
-				<exclude name="META-INF/*" />
-			</zipfileset>
-			<zipfileset src="libs/bcprov-jdk15on-152.jar">
+			<fileset dir="${build.dir}" includes="**/*" />
+			<zipfileset src="Dependencies.jar">
 				<include name="**/*" />
 				<exclude name="META-INF/*" />
 			</zipfileset>

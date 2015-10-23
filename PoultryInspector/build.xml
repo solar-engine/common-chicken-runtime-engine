@@ -22,14 +22,29 @@
 -->
 
 <project name="Build Jar" default="build-jar">
-	<target name="build-jar">
+	<property name="src.dir" value="src" />
+	<property name="build.dir" value="build" />
+	<target name="clean">
+		<delete file="PoultryInspector.jar" />
+	</target>
+	<target name="deps">
+		<delete file="Dependencies.jar" />
+		<jar destfile="Dependencies.jar" update="false">
+			<zipfileset src="../CommonChickenRuntimeEngine/CCRE.jar" />
+			<zipgroupfileset includes="*.jar" dir="lib" />
+		</jar>
+	</target>
+	<target name="compile" depends="clean,deps">
+		<mkdir dir="${build.dir}" />
+		<javac destdir="${build.dir}" srcdir="${src.dir}" includeantruntime="false" classpath="Dependencies.jar" />
+	</target>
+	<target name="build-jar" depends="compile">
 		<jar destfile="PoultryInspector.jar" update="false">
 			<manifest>
 				<attribute name="Main-Class" value="ccre.supercanvas.SuperCanvasMain" />
 			</manifest>
-			<fileset dir="bin" includes="**/*.class" />
-			<fileset dir="../CommonChickenRuntimeEngine/bin" includes="**/*.class" />
-			<zipgroupfileset includes="*.jar" dir="lib" />
+			<fileset dir="${build.dir}" includes="**/*.class" />
+			<zipfileset src="Dependencies.jar" />
 		</jar>
 	</target>
 	<target name="build-release-jar" depends="build-jar">

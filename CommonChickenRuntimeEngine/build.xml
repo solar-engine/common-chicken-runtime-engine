@@ -21,7 +21,7 @@
  */
  -->
 
-<project name="Build Jar">
+<project name="Build Jar" default="build-jar">
 	<property name="src.dir" value="src" />
 	<property name="build.dir" value="build" />
 	<target name="clean">
@@ -44,7 +44,7 @@
 	</target>
 	<target name="compile">
 		<mkdir dir="${build.dir}" />
-		<javac destdir="${build.dir}" srcdir="${src.dir}" includeantruntime="false" />
+		<javac destdir="${build.dir}" srcdir="${src.dir}" includeantruntime="false" debug="true" />
 	</target>
 	<target name="build-jar" depends="clean,find-version,find-version-backup,compile">
 		<echo level="info" message="CCRE version: ${git-desc}" />
@@ -56,5 +56,34 @@
 			<fileset dir="${build.dir}" includes="**/*.class" />
 			<fileset dir="${build.dir}" includes="version.properties" />
 		</jar>
+	</target>
+
+	<property name="test-src.dir" value="tests" />
+	<property name="test-build.dir" value="test-build" />
+	<target name="test-main" depends="build-jar">
+		<fail unless="junit.dir">junit.dir must be set!</fail>
+		<path id="test.path">
+			<pathelement location="CCRE.jar" />
+			<pathelement location="${junit.dir}/junit-4.12.jar" />
+			<pathelement location="${junit.dir}/hamcrest-core-1.3.jar" />
+		</path>
+
+		<delete dir="${test-build.dir}" />
+		<mkdir dir="${test-build.dir}" />
+		<javac destdir="${test-build.dir}" srcdir="${test-src.dir}" includeantruntime="false" classpathref="test.path" debug="true" />
+
+		<junit printsummary="true" fork="true" forkmode="once" timeout="60000" showoutput="false" logfailedtests="true" failureproperty="tests-failed">
+			<formatter type="plain" />
+			<classpath>
+				<pathelement location="${test-build.dir}" />
+				<path refid="test.path" />
+			</classpath>
+			<batchtest todir="${junit-output.dir}" haltonfailure="false">
+				<fileset dir="${test-src.dir}" includes="**/*Test.java" />
+			</batchtest>
+		</junit>
+	</target>
+	<target name="test" depends="test-main" if="tests-failed">
+		<fail>Tests failed!</fail>
 	</target>
 </project>

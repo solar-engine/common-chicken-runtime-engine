@@ -164,12 +164,13 @@ public class Utils {
         }
     }
 
+    // http://stackoverflow.com/questions/6030059/url-decoding-unsupportedencodingexception-in-java
+
     public static byte[] getBytes(String title) {
         try {
             return title.getBytes("UTF-8");
         } catch (UnsupportedEncodingException e) {
-            // TODO: handle this more gracefully?
-            throw new RuntimeException("UTF-8 not available", e);
+            throw new AssertionError("UTF-8 is unknown", e);
         }
     }
 
@@ -177,8 +178,7 @@ public class Utils {
         try {
             return new String(data, start, end, "UTF-8");
         } catch (UnsupportedEncodingException e) {
-            // TODO: handle this more gracefully?
-            throw new RuntimeException("UTF-8 not available", e);
+            throw new AssertionError("UTF-8 is unknown", e);
         }
     }
 }

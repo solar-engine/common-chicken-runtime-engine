@@ -1,6 +1,6 @@
 #!/bin/bash -e
 
-DIRS="CommonChickenRuntimeEngine DeploymentEngine Emulator PoultryInspector roboRIO"
+DIRS="CommonChickenRuntimeEngine Emulator DeploymentEngine PoultryInspector roboRIO"
 HERE=$(pwd)
 
 for dir in $DIRS

@@ -26,7 +26,7 @@
 	<property name="build.dir" value="build" />
 	<target name="clean">
 		<delete file="roboRIO.jar" />
-		<delete file="bin/version.properties" />
+		<delete file="${build.dir}/version.properties" />
 	</target>
 	<target name="find-version">
 		<exec executable="git" outputproperty="git-desc" failonerror="false" failifexecutionfails="false">
@@ -60,13 +60,14 @@
 			<fileset dir="${build.dir}" includes="**/*.class" />
 			<fileset dir="${build.dir}" includes="edu/wpi/first/wpilibj/binaries/*" />
 			<fileset dir="${build.dir}" includes="version.properties" />
+			<zipfileset src="Dependencies.jar" />
 		</jar>
 		<!-- LITE jar: for actual use on robot. The other one is used in emulation and includes stuff like the Emulator and the Deployment framework. -->
 		<jar destfile="roboRIO-lite.jar" update="false">
-			<fileset dir="bin" includes="**/*.class" />
-			<fileset dir="bin" includes="edu/wpi/first/wpilibj/binaries/*" />
-			<fileset dir="bin" includes="version.properties" />
-			<fileset dir="../CommonChickenRuntimeEngine/bin" includes="**/*.class" />
+			<fileset dir="${build.dir}" includes="**/*.class" />
+			<fileset dir="${build.dir}" includes="edu/wpi/first/wpilibj/binaries/*" />
+			<fileset dir="${build.dir}" includes="version.properties" />
+			<zipfileset src="../CommonChickenRuntimeEngine/CCRE.jar" includes="**/*.class" />
 		</jar>
 	</target>
 </project>

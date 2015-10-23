@@ -24,7 +24,7 @@ import java.awt.Graphics2D;
 import java.awt.Rectangle;
 
 import ccre.channel.FloatInput;
-import ccre.channel.FloatStatus;
+import ccre.channel.FloatCell;
 import ccre.frc.DeviceComponent;
 
 /**
@@ -36,7 +36,7 @@ public class ControlBarComponent extends DeviceComponent {
 
     private boolean dragging = false;
     private int maxWidth = 0; // zero means no maximum
-    private final FloatStatus value;
+    private final FloatCell value;
     private final float min, max, originValue;
 
     /**
@@ -50,7 +50,7 @@ public class ControlBarComponent extends DeviceComponent {
     public ControlBarComponent(float min, float max, float defaultValue, float originValue) {
         this.max = max;
         this.min = min;
-        this.value = new FloatStatus(defaultValue);
+        this.value = new FloatCell(defaultValue);
         this.originValue = originValue;
     }
 

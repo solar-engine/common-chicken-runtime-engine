@@ -24,13 +24,13 @@ import org.junit.Test;
 
 import ccre.channel.BooleanInput;
 import ccre.channel.BooleanOutput;
-import ccre.channel.BooleanStatus;
+import ccre.channel.BooleanCell;
 import ccre.channel.EventInput;
 import ccre.channel.EventOutput;
-import ccre.channel.EventStatus;
+import ccre.channel.EventCell;
 import ccre.channel.FloatInput;
 import ccre.channel.FloatOutput;
-import ccre.channel.FloatStatus;
+import ccre.channel.FloatCell;
 import ccre.log.LogLevel;
 import ccre.log.LoggingTarget;
 import ccre.log.VerifyingLoggingTarget;
@@ -114,7 +114,7 @@ public class CluckPublisherTest {
                 continue;
             }
             CountingEventOutput ceo = new CountingEventOutput();
-            EventStatus es = new EventStatus();
+            EventCell es = new EventCell();
             CluckPublisher.publish(node, name, es.asInput());
             CluckPublisher.subscribeEI(node, name).send(ceo);
             for (int j = 0; j < 10; j++) {
@@ -214,7 +214,7 @@ public class CluckPublisherTest {
                 continue;
             }
             CountingBooleanOutput cbo = new CountingBooleanOutput();
-            BooleanStatus bs = new BooleanStatus();
+            BooleanCell bs = new BooleanCell();
             CluckPublisher.publish(node, name, bs.asInput());
             CluckPublisher.subscribeBI(node, name, false).send(cbo);
             for (boolean b : Values.interestingBooleans) {
@@ -315,7 +315,7 @@ public class CluckPublisherTest {
                 continue;
             }
             CountingFloatOutput cfo = new CountingFloatOutput();
-            FloatStatus fs = new FloatStatus();
+            FloatCell fs = new FloatCell();
             CluckPublisher.publish(node, name, fs.asInput());
             CluckPublisher.subscribeFI(node, name, false).send(cfo);
             for (float f : Values.interestingFloats) {

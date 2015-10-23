@@ -20,13 +20,13 @@ package org.team1540.unittestee;
 
 import ccre.channel.BooleanInput;
 import ccre.channel.BooleanOutput;
-import ccre.channel.BooleanStatus;
+import ccre.channel.BooleanCell;
 import ccre.channel.EventInput;
 import ccre.channel.EventOutput;
-import ccre.channel.EventStatus;
+import ccre.channel.EventCell;
 import ccre.channel.FloatInput;
 import ccre.channel.FloatOutput;
-import ccre.channel.FloatStatus;
+import ccre.channel.FloatCell;
 import ccre.cluck.Cluck;
 import ccre.frc.FRCApplication;
 import ccre.log.LogLevel;
@@ -43,9 +43,9 @@ public class UnitTestBot implements FRCApplication {
     public void setupRobot() {
         String targetRoot = "pinspector/"; // TODO: make this work again.
         // Note: currently incomplete.
-        BooleanStatus b = new BooleanStatus();
-        FloatStatus f = new FloatStatus();
-        EventStatus e = new EventStatus();
+        BooleanCell b = new BooleanCell();
+        FloatCell f = new FloatCell();
+        EventCell e = new EventCell();
         Cluck.publish("utest-os0", Cluck.subscribeOS(targetRoot + "utest-os1"));
         Cluck.publish("utest-lt0", Cluck.subscribeLT(targetRoot + "utest-lt1"));
         Cluck.publish("utest-fo0", (FloatOutput) f);

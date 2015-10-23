@@ -33,7 +33,7 @@ import net.java.games.input.ControllerEnvironment;
 import ccre.channel.EventInput;
 import ccre.channel.EventOutput;
 import ccre.ctrl.AbstractJoystick;
-import ccre.ctrl.IJoystick;
+import ccre.ctrl.Joystick;
 import ccre.log.Logger;
 
 /**
@@ -132,7 +132,7 @@ public class JoystickHandler {
          * @param check when to update the Joystick.
          * @return the Joystick interface.
          */
-        public IJoystick getJoystick(EventInput check) {
+        public Joystick getJoystick(EventInput check) {
             check.send(new EventOutput() {
                 @Override
                 public void event() {

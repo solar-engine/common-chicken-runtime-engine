@@ -60,11 +60,11 @@ public interface FloatOutput {
         }
     }
 
-    public default EventOutput getSetEvent(final float value) {
+    public default EventOutput eventSet(final float value) {
         return () -> set(value);
     }
 
-    public default EventOutput getSetEvent(final FloatInput value) {
+    public default EventOutput eventSet(final FloatInput value) {
         if (value == null) {
             throw new NullPointerException();
         }
@@ -73,12 +73,12 @@ public interface FloatOutput {
 
     public default void setWhen(float value, EventInput when) {
         Utils.checkNull(when);
-        when.send(getSetEvent(value));
+        when.send(eventSet(value));
     }
 
     public default void setWhen(FloatInput value, EventInput when) {
         Utils.checkNull(when, value);
-        when.send(getSetEvent(value));
+        when.send(eventSet(value));
     }
 
     public default FloatOutput combine(FloatOutput other) {
@@ -111,7 +111,7 @@ public interface FloatOutput {
 
     public default FloatOutput addRamping(final float limit, EventInput updateWhen) {
         Utils.checkNull(updateWhen);
-        FloatStatus temp = new FloatStatus();
+        FloatCell temp = new FloatCell();
         updateWhen.send(temp.createRampingEvent(limit, this));
         return temp;
     }

@@ -28,11 +28,11 @@ import ccre.testing.CountingEventOutput;
 
 public class EventStatusTest {
 
-    private EventStatus status;
+    private EventCell status;
 
     @Before
     public void setUp() throws Exception {
-        status = new EventStatus();
+        status = new EventCell();
     }
 
     @After
@@ -42,13 +42,13 @@ public class EventStatusTest {
 
     @Test
     public void testEventStatus() {
-        new EventStatus().event();
+        new EventCell().event();
     }
 
     @Test
     public void testEventStatusEventOutput() {
         CountingEventOutput ceo = new CountingEventOutput();
-        status = new EventStatus(ceo);
+        status = new EventCell(ceo);
         ceo.ifExpected = true;
         status.event();
         ceo.check();
@@ -56,14 +56,14 @@ public class EventStatusTest {
 
     @Test(expected = NullPointerException.class)
     public void testEventStatusEventOutputNull() {
-        new EventStatus((EventOutput) null);
+        new EventCell((EventOutput) null);
     }
 
     @Test
     public void testEventStatusEventOutputArray() {
         CountingEventOutput c1 = new CountingEventOutput();
         CountingEventOutput c2 = new CountingEventOutput();
-        status = new EventStatus(c1, c2);
+        status = new EventCell(c1, c2);
         c1.ifExpected = true;
         c2.ifExpected = true;
         status.event();
@@ -73,22 +73,22 @@ public class EventStatusTest {
 
     @Test(expected = NullPointerException.class)
     public void testEventStatusEventOutputArrayNull() {
-        new EventStatus((EventOutput[]) null);
+        new EventCell((EventOutput[]) null);
     }
 
     @Test(expected = NullPointerException.class)
     public void testEventStatusEventOutputArrayNulls() {
-        new EventStatus(EventOutput.ignored, null);
+        new EventCell(EventOutput.ignored, null);
     }
 
     @Test
     public void testHasConsumersInitSingle() {
-        assertTrue(new EventStatus(EventOutput.ignored).hasListeners());
+        assertTrue(new EventCell(EventOutput.ignored).hasListeners());
     }
 
     @Test
     public void testHasConsumersInitMany() {
-        assertTrue(new EventStatus(EventOutput.ignored, EventOutput.ignored).hasListeners());
+        assertTrue(new EventCell(EventOutput.ignored, EventOutput.ignored).hasListeners());
     }
 
     @Test

@@ -44,7 +44,7 @@ public class FloatInputTest {
 
     private CountingFloatOutput cfo;
     private FloatInput fi;
-    private FloatStatus fs, fs2;
+    private FloatCell fs, fs2;
 
     private static Time oldProvider;
     private static FakeTime fake;
@@ -70,8 +70,8 @@ public class FloatInputTest {
     public void setUp() throws Exception {
         cfo = new CountingFloatOutput();
         fi = FloatInput.always(7.3f);
-        fs = new FloatStatus();
-        fs2 = new FloatStatus();
+        fs = new FloatCell();
+        fs2 = new FloatCell();
     }
 
     @After
@@ -331,7 +331,7 @@ public class FloatInputTest {
                 continue;
             }
             BooleanInput bi = fs.atLeast(threshold);
-            BooleanStatus bs = new BooleanStatus();
+            BooleanCell bs = new BooleanCell();
             bi.send(bs);
             for (float test : Values.interestingFloats) {
                 fs.set(test);
@@ -348,9 +348,9 @@ public class FloatInputTest {
 
     @Test
     public void testAtLeastFloatInput() {
-        FloatStatus ts = new FloatStatus();
+        FloatCell ts = new FloatCell();
         BooleanInput bi = fs.atLeast(ts);
-        BooleanStatus bs = new BooleanStatus();
+        BooleanCell bs = new BooleanCell();
         bi.send(bs);
         for (float threshold : Values.interestingFloats) {
             ts.set(threshold);
@@ -374,7 +374,7 @@ public class FloatInputTest {
                 continue;
             }
             BooleanInput bi = fs.atMost(threshold);
-            BooleanStatus bs = new BooleanStatus();
+            BooleanCell bs = new BooleanCell();
             bi.send(bs);
             for (float test : Values.interestingFloats) {
                 fs.set(test);
@@ -391,9 +391,9 @@ public class FloatInputTest {
 
     @Test
     public void testAtMostFloatInput() {
-        FloatStatus ts = new FloatStatus();
+        FloatCell ts = new FloatCell();
         BooleanInput bi = fs.atMost(ts);
-        BooleanStatus bs = new BooleanStatus();
+        BooleanCell bs = new BooleanCell();
         bi.send(bs);
         for (float threshold : Values.interestingFloats) {
             ts.set(threshold);
@@ -412,7 +412,7 @@ public class FloatInputTest {
 
     @Test
     public void testOutsideRangeFloatFloat() {
-        BooleanStatus bs = new BooleanStatus();
+        BooleanCell bs = new BooleanCell();
         for (float min : Values.interestingFloats) {
             if (Float.isNaN(min)) {
                 continue;
@@ -445,9 +445,9 @@ public class FloatInputTest {
 
     @Test
     public void testOutsideRangeFloatInputFloatInput() {
-        FloatStatus min = new FloatStatus(), max = new FloatStatus();
+        FloatCell min = new FloatCell(), max = new FloatCell();
         BooleanInput bi = fs.outsideRange(min, max);
-        BooleanStatus bs = new BooleanStatus();
+        BooleanCell bs = new BooleanCell();
         bi.send(bs);
         for (float minv : Values.interestingFloats) {
             min.set(minv);
@@ -483,7 +483,7 @@ public class FloatInputTest {
                     continue;
                 }
                 BooleanInput bi = fs.inRange(min, max);
-                BooleanStatus bs = new BooleanStatus();
+                BooleanCell bs = new BooleanCell();
                 bi.send(bs);
                 for (float test : Values.interestingFloats) {
                     fs.set(test);
@@ -506,9 +506,9 @@ public class FloatInputTest {
 
     @Test
     public void testInRangeFloatInputFloatInput() {
-        FloatStatus min = new FloatStatus(), max = new FloatStatus();
+        FloatCell min = new FloatCell(), max = new FloatCell();
         BooleanInput bi = fs.inRange(min, max);
-        BooleanStatus bs = new BooleanStatus();
+        BooleanCell bs = new BooleanCell();
         bi.send(bs);
         for (float minv : Values.interestingFloats) {
             min.set(minv);
@@ -561,7 +561,7 @@ public class FloatInputTest {
             if (Float.isNaN(d) || d < 0) {
                 continue;
             }
-            FloatStatus fs = new FloatStatus();
+            FloatCell fs = new FloatCell();
             CountingEventOutput ceo = new CountingEventOutput();
             fs.onChangeBy(d).send(ceo);
             float last = 0;
@@ -644,7 +644,7 @@ public class FloatInputTest {
 
     @Test
     public void testNormalize() {
-        FloatStatus zs = new FloatStatus(), os = new FloatStatus();
+        FloatCell zs = new FloatCell(), os = new FloatCell();
         FloatInput fin1 = fs.normalize(zs, os);
         for (float zero : Values.interestingFloats) {
             if (!Float.isFinite(zero)) {
@@ -763,8 +763,8 @@ public class FloatInputTest {
     @Test
     public void testFilterUpdates() {
         for (boolean not : new boolean[] { false, true }) {
-            FloatStatus a = new FloatStatus(), out = new FloatStatus();
-            BooleanStatus allowDeny = new BooleanStatus(true);
+            FloatCell a = new FloatCell(), out = new FloatCell();
+            BooleanCell allowDeny = new BooleanCell(true);
             fi = not ? a.filterUpdatesNot(allowDeny) : a.filterUpdates(allowDeny);
             fi.send(out);
             float expect = 0;
@@ -795,7 +795,7 @@ public class FloatInputTest {
 
     @Test
     public void testWithRamping() {
-        EventStatus update = new EventStatus();
+        EventCell update = new EventCell();
         FloatInput fi = fs.withRamping(0.2f, update);
         for (float i = -5f; i < 5f; i++) {
             float a = fi.get();
@@ -830,7 +830,7 @@ public class FloatInputTest {
 
     @Test
     public void testCreateRampingEvent() {// TODO: perhaps flesh these tests out a bit more?
-        FloatStatus fi = new FloatStatus();
+        FloatCell fi = new FloatCell();
         EventOutput update = fs.createRampingEvent(0.2f, fi);
         for (float i = -5f; i < 5f; i++) {
             float a = fi.get();

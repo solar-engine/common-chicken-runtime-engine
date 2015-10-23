@@ -30,12 +30,12 @@ import ccre.util.Values;
 
 public class DerivedBooleanInputTest {
 
-    private EventStatus es;
+    private EventCell es;
     private CountingBooleanOutput cbo;
 
     @Before
     public void setUp() {
-        es = new EventStatus();
+        es = new EventCell();
         cbo = new CountingBooleanOutput();
     }
 
@@ -67,7 +67,7 @@ public class DerivedBooleanInputTest {
     @Test
     public void testGet() {
         for (boolean base : new boolean[] { false, true }) {
-            BooleanStatus v = new BooleanStatus(base);
+            BooleanCell v = new BooleanCell(base);
             BooleanInput bi = new DerivedBooleanInput(es) {
                 @Override
                 protected boolean apply() {
@@ -89,7 +89,7 @@ public class DerivedBooleanInputTest {
 
     @Test
     public void testApplyChange() {
-        BooleanStatus v = new BooleanStatus();
+        BooleanCell v = new BooleanCell();
         BooleanInput bi = new DerivedBooleanInput(es) {
             @Override
             protected boolean apply() {

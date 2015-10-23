@@ -26,13 +26,13 @@ import java.util.concurrent.CopyOnWriteArrayList;
 
 import ccre.channel.BooleanInput;
 import ccre.channel.BooleanOutput;
-import ccre.channel.BooleanStatus;
+import ccre.channel.BooleanCell;
 import ccre.channel.EventInput;
 import ccre.channel.EventOutput;
-import ccre.channel.EventStatus;
+import ccre.channel.EventCell;
 import ccre.channel.FloatInput;
 import ccre.channel.FloatOutput;
-import ccre.channel.FloatStatus;
+import ccre.channel.FloatCell;
 import ccre.cluck.rpc.RemoteProcedure;
 import ccre.cluck.rpc.SimpleProcedure;
 import ccre.log.LogLevel;
@@ -398,7 +398,7 @@ public class CluckPublisher {
      * @param name The name for the FloatStatus.
      * @param stat The FloatStatus.
      */
-    public static void publish(final CluckNode node, final String name, final FloatStatus stat) {
+    public static void publish(final CluckNode node, final String name, final FloatCell stat) {
         FloatInput statInput = stat;
         FloatOutput statOutput = stat;
         publish(node, name + ".input", statInput);
@@ -414,7 +414,7 @@ public class CluckPublisher {
      * @param name The name for the BooleanStatus.
      * @param stat The BooleanStatus to publish.
      */
-    public static void publish(final CluckNode node, final String name, BooleanStatus stat) {
+    public static void publish(final CluckNode node, final String name, BooleanCell stat) {
         BooleanInput statInput = stat;
         BooleanOutput statOutput = stat;
         publish(node, name + ".input", statInput);
@@ -430,7 +430,7 @@ public class CluckPublisher {
      * @param name The name for the EventStatus.
      * @param stat The EventStatus to publish.
      */
-    public static void publish(final CluckNode node, final String name, EventStatus stat) {
+    public static void publish(final CluckNode node, final String name, EventCell stat) {
         EventInput statInput = stat;
         EventOutput statOutput = stat;
         publish(node, name + ".input", statInput);
@@ -720,7 +720,7 @@ public class CluckPublisher {
         }
     }
 
-    private static class SubscribedFloatInput extends FloatStatus {
+    private static class SubscribedFloatInput extends FloatCell {
 
         private static final long serialVersionUID = 1031666017588055705L;
 
@@ -822,7 +822,7 @@ public class CluckPublisher {
         }
     }
 
-    private static class SubscribedBooleanInput extends BooleanStatus {
+    private static class SubscribedBooleanInput extends BooleanCell {
 
         private static final long serialVersionUID = 6685907502662588221L;
 
@@ -924,7 +924,7 @@ public class CluckPublisher {
         }
     }
 
-    private static class SubscribedEventInput extends EventStatus {
+    private static class SubscribedEventInput extends EventCell {
 
         private static final long serialVersionUID = -4051785233205840392L;
 

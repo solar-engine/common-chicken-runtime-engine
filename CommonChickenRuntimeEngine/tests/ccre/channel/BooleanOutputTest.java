@@ -92,7 +92,7 @@ public class BooleanOutputTest {
 
     @Test
     public void testLimitUpdatesTo() {
-        EventStatus es = new EventStatus();
+        EventCell es = new EventCell();
         BooleanOutput ob = cbo.limitUpdatesTo(es);
 
         es.event();
@@ -124,8 +124,8 @@ public class BooleanOutputTest {
 
     @Test
     public void testGetSetEventBoolean() {
-        trySet(cbo.getSetEvent(false), false);
-        trySet(cbo.getSetEvent(true), true);
+        trySet(cbo.eventSet(false), false);
+        trySet(cbo.eventSet(true), true);
     }
 
     private void trySet(EventOutput doSet, boolean expect) {
@@ -139,8 +139,8 @@ public class BooleanOutputTest {
 
     @Test
     public void testGetSetEventBooleanInput() {
-        BooleanStatus bs = new BooleanStatus();
-        EventOutput evt = cbo.getSetEvent(bs);
+        BooleanCell bs = new BooleanCell();
+        EventOutput evt = cbo.eventSet(bs);
         for (int i = 0; i < 10; i++) {
             cbo.ifExpected = true;
             bs.set(cbo.valueExpected = (i % 2) == 0);
@@ -151,22 +151,22 @@ public class BooleanOutputTest {
 
     @Test(expected = NullPointerException.class)
     public void testGetSetEventBooleanInputNull() {
-        cbo.getSetEvent(null);
+        cbo.eventSet(null);
     }
 
     @Test
     public void testGetSetTrueEvent() {
-        trySet(cbo.getSetTrueEvent(), true);
+        trySet(cbo.eventSetTrue(), true);
     }
 
     @Test
     public void testGetSetFalseEvent() {
-        trySet(cbo.getSetFalseEvent(), false);
+        trySet(cbo.eventSetFalse(), false);
     }
 
     @Test
     public void testSetWhenBooleanEventInputFalse() {
-        EventStatus set = new EventStatus();
+        EventCell set = new EventCell();
         cbo.setWhen(false, set);
         trySet(set, false);
     }
@@ -178,7 +178,7 @@ public class BooleanOutputTest {
 
     @Test
     public void testSetWhenBooleanEventInputTrue() {
-        EventStatus set = new EventStatus();
+        EventCell set = new EventCell();
         cbo.setWhen(true, set);
         trySet(set, true);
     }
@@ -190,8 +190,8 @@ public class BooleanOutputTest {
 
     @Test
     public void testSetWhenBooleanInputEventInput() {
-        BooleanStatus bs = new BooleanStatus();
-        EventStatus evt = new EventStatus();
+        BooleanCell bs = new BooleanCell();
+        EventCell evt = new EventCell();
         cbo.setWhen(bs, evt);
         for (int i = 0; i < 10; i++) {
             cbo.ifExpected = true;
@@ -213,7 +213,7 @@ public class BooleanOutputTest {
 
     @Test
     public void testSetTrueWhen() {
-        EventStatus set = new EventStatus();
+        EventCell set = new EventCell();
         cbo.setTrueWhen(set);
         trySet(set, true);
     }
@@ -225,7 +225,7 @@ public class BooleanOutputTest {
 
     @Test
     public void testSetFalseWhen() {
-        EventStatus set = new EventStatus();
+        EventCell set = new EventCell();
         cbo.setFalseWhen(set);
         trySet(set, false);
     }
@@ -283,7 +283,7 @@ public class BooleanOutputTest {
     @Test
     public void testFilter() {
         for (boolean not : new boolean[] { false, true }) {
-            BooleanStatus allowDeny = new BooleanStatus(true), out = new BooleanStatus();
+            BooleanCell allowDeny = new BooleanCell(true), out = new BooleanCell();
             BooleanOutput bo = not ? out.filterNot(allowDeny) : out.filter(allowDeny);
             boolean expect = false, next = false;
             for (int i = 0; i < 110; i++) {

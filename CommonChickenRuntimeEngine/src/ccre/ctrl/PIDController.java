@@ -21,7 +21,7 @@ package ccre.ctrl;
 import ccre.channel.EventInput;
 import ccre.channel.EventOutput;
 import ccre.channel.FloatInput;
-import ccre.channel.FloatStatus;
+import ccre.channel.FloatCell;
 import ccre.time.Time;
 
 /**
@@ -37,9 +37,6 @@ import ccre.time.Time;
  * value. This is also a FloatInput, representing the current output from the
  * PID controller.
  *
- * Note: PIDControl is a variant of PIDController with the output sign switched.
- * It exists only for backwards compatibility and will be removed soon.
- *
  * @author skeggsc
  */
 public class PIDController implements FloatInput, EventOutput {
@@ -53,8 +50,8 @@ public class PIDController implements FloatInput, EventOutput {
     /**
      * The running total from the integral term.
      */
-    public final FloatStatus integralTotal = new FloatStatus();
-    private final FloatStatus output = new FloatStatus();
+    public final FloatCell integralTotal = new FloatCell();
+    private final FloatCell output = new FloatCell();
     /**
      * If two executions of the PIDController differ by more than this much, the
      * controller will pretend it only differed by this much.

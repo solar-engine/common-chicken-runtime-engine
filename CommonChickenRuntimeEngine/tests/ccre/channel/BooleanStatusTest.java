@@ -31,11 +31,11 @@ import ccre.testing.CountingEventOutput;
 
 public class BooleanStatusTest {
 
-    private BooleanStatus status;
+    private BooleanCell status;
 
     @Before
     public void setUp() throws Exception {
-        this.status = new BooleanStatus();
+        this.status = new BooleanCell();
     }
 
     @After
@@ -45,8 +45,8 @@ public class BooleanStatusTest {
 
     @Test
     public void testBooleanStatusBoolean() {
-        assertFalse(new BooleanStatus(false).get());
-        assertTrue(new BooleanStatus(true).get());
+        assertFalse(new BooleanCell(false).get());
+        assertTrue(new BooleanCell(true).get());
     }
 
     @Test
@@ -54,7 +54,7 @@ public class BooleanStatusTest {
         CountingBooleanOutput cbo = new CountingBooleanOutput();
         cbo.ifExpected = true;
         cbo.valueExpected = false;
-        status = new BooleanStatus(cbo);
+        status = new BooleanCell(cbo);
         cbo.check();
         assertTrue(status.hasListeners());
         Random random = new Random();
@@ -71,7 +71,7 @@ public class BooleanStatusTest {
 
     @Test(expected = NullPointerException.class)
     public void testBooleanStatusBooleanOutputNull() {
-        new BooleanStatus((BooleanOutput) null);
+        new BooleanCell((BooleanOutput) null);
     }
 
     @Test
@@ -80,7 +80,7 @@ public class BooleanStatusTest {
         CountingBooleanOutput c2 = new CountingBooleanOutput();
         c1.ifExpected = c2.ifExpected = true;
         c1.valueExpected = c2.valueExpected = false;
-        status = new BooleanStatus(c1, c2);
+        status = new BooleanCell(c1, c2);
         c1.check();
         c2.check();
         assertTrue(status.hasListeners());
@@ -99,17 +99,17 @@ public class BooleanStatusTest {
 
     @Test(expected = NullPointerException.class)
     public void testBooleanStatusBooleanOutputArrayNull() {
-        new BooleanStatus((BooleanOutput[]) null);
+        new BooleanCell((BooleanOutput[]) null);
     }
 
     @Test(expected = NullPointerException.class)
     public void testBooleanStatusBooleanOutputArrayNulls() {
-        new BooleanStatus(BooleanOutput.ignored, null);
+        new BooleanCell(BooleanOutput.ignored, null);
     }
 
     @Test
     public void testToggleWhen() {
-        EventStatus toggleEvent = new EventStatus();
+        EventCell toggleEvent = new EventCell();
         status.toggleWhen(toggleEvent);
         tryToggleEvent(toggleEvent);
     }

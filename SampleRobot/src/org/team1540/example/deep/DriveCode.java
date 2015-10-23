@@ -19,7 +19,7 @@
 package org.team1540.example.deep;
 
 import ccre.channel.BooleanInput;
-import ccre.channel.BooleanStatus;
+import ccre.channel.BooleanCell;
 import ccre.channel.FloatInput;
 import ccre.channel.FloatOutput;
 import ccre.ctrl.DriverImpls;
@@ -32,12 +32,12 @@ public class DriveCode implements RConfable {
 
     private final FloatInput leftAxis = Test.driveControls.addFloat("Drive Axis Left").deadzone(0.1f);
     private final FloatInput rightAxis = Test.driveControls.addFloat("Drive Axis Right").deadzone(0.1f);
-    private final FloatOutput leftOut = FRC.makeTalonMotor(1, FRC.MOTOR_REVERSE, 0.1f);
-    private final FloatOutput rightOut = FRC.makeTalonMotor(2, FRC.MOTOR_FORWARD, 0.1f);
-    private final BooleanStatus allowToRun = new BooleanStatus(true),
-            forceEnabled = new BooleanStatus();
+    private final FloatOutput leftOut = FRC.talon(1, FRC.MOTOR_REVERSE, 0.1f);
+    private final FloatOutput rightOut = FRC.talon(2, FRC.MOTOR_FORWARD, 0.1f);
+    private final BooleanCell allowToRun = new BooleanCell(true),
+            forceEnabled = new BooleanCell();
 
-    private final BooleanInput shouldBeRunning = allowToRun.and(FRC.getIsTeleop().or(forceEnabled));
+    private final BooleanInput shouldBeRunning = allowToRun.and(FRC.isTeleopMode().or(forceEnabled));
 
     public DriveCode() {
         DriverImpls.tankDrive(leftAxis, rightAxis, leftOut.filter(shouldBeRunning), rightOut.filter(shouldBeRunning));

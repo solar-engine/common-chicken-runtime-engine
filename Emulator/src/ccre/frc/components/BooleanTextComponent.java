@@ -22,7 +22,7 @@ import java.awt.Color;
 
 import ccre.channel.BooleanInput;
 import ccre.channel.BooleanOutput;
-import ccre.channel.BooleanStatus;
+import ccre.channel.BooleanCell;
 
 /**
  * A textual display component that displays one of two strings based on whether
@@ -34,7 +34,7 @@ import ccre.channel.BooleanStatus;
 public class BooleanTextComponent extends TextComponent implements BooleanOutput {
 
     private final String off, on;
-    private final BooleanStatus state = new BooleanStatus();
+    private final BooleanCell state = new BooleanCell();
     private boolean editable = false;
 
     /**

@@ -22,10 +22,10 @@ import java.util.HashMap;
 
 import ccre.channel.BooleanInput;
 import ccre.channel.BooleanOutput;
-import ccre.channel.BooleanStatus;
+import ccre.channel.BooleanCell;
 import ccre.channel.FloatInput;
 import ccre.channel.FloatOutput;
-import ccre.channel.FloatStatus;
+import ccre.channel.FloatCell;
 
 /**
  * A ControlBindingDataSinkBuildable allows a program to easily fill out a
@@ -72,7 +72,7 @@ public class ControlBindingDataSinkBuildable implements ControlBindingDataSink, 
     }
 
     public BooleanInput addBoolean(String name) {
-        BooleanStatus status = new BooleanStatus();
+        BooleanCell status = new BooleanCell();
         addBoolean(name, status.asOutput());
         return status.asInput();
     }
@@ -85,7 +85,7 @@ public class ControlBindingDataSinkBuildable implements ControlBindingDataSink, 
     }
 
     public FloatInput addFloat(String name) {
-        FloatStatus status = new FloatStatus();
+        FloatCell status = new FloatCell();
         addFloat(name, status.asOutput());
         return status.asInput();
     }

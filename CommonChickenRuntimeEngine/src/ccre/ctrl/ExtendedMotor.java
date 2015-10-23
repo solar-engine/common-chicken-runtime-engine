@@ -278,4 +278,16 @@ public abstract class ExtendedMotor {
      * @throws ExtendedMotorFailureException if the PID cannot be set.
      */
     public abstract void setInternalPID(float P, float I, float D) throws ExtendedMotorFailureException;
+
+    public FloatOutput simpleControl() throws ExtendedMotorFailureException {
+        return asMode(OutputControlMode.GENERIC_FRACTIONAL);
+    }
+
+    public FloatOutput simpleControl(boolean direction) throws ExtendedMotorFailureException {
+        FloatOutput motor = simpleControl();
+        if (direction != FRC.MOTOR_FORWARD) {
+            motor = motor.negate();
+        }
+        return motor;
+    }
 }

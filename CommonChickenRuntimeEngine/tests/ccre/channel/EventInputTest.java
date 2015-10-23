@@ -129,7 +129,7 @@ public class EventInputTest { // TODO: should I be checking propagation of withR
 
     @Test
     public void testOr() {
-        EventStatus a = new EventStatus(), b = new EventStatus();
+        EventCell a = new EventCell(), b = new EventCell();
         a.or(b).send(ceo);
         for (boolean c : Values.interestingBooleans) {
             ceo.ifExpected = true;
@@ -146,8 +146,8 @@ public class EventInputTest { // TODO: should I be checking propagation of withR
 
     @Test
     public void testAnd() {
-        EventStatus a = new EventStatus();
-        BooleanStatus on = new BooleanStatus();
+        EventCell a = new EventCell();
+        BooleanCell on = new BooleanCell();
         a.and(on).send(ceo);
         for (boolean c : Values.interestingBooleans) {
             on.set(c);
@@ -167,8 +167,8 @@ public class EventInputTest { // TODO: should I be checking propagation of withR
 
     @Test
     public void testAndNot() {
-        EventStatus a = new EventStatus();
-        BooleanStatus off = new BooleanStatus();
+        EventCell a = new EventCell();
+        BooleanCell off = new BooleanCell();
         a.andNot(off).send(ceo);
         for (boolean c : Values.interestingBooleans) {
             off.set(c);
@@ -189,7 +189,7 @@ public class EventInputTest { // TODO: should I be checking propagation of withR
     @Test
     public void testDebounced() throws InterruptedException {
         long millis = 72;
-        EventStatus db = new EventStatus();
+        EventCell db = new EventCell();
         db.debounced(millis).send(ceo);
         for (int i = 0; i < 100; i++) {
             ceo.ifExpected = (i % 6 == 0);

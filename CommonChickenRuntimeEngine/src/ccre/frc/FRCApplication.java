@@ -30,5 +30,5 @@ public interface FRCApplication {
     /**
      * Set up the robot. This is called exactly once by the CCRE runtime.
      */
-    public void setupRobot();
+    public void setupRobot() throws Throwable;
 }

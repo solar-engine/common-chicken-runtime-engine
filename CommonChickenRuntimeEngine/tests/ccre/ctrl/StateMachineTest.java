@@ -27,11 +27,11 @@ import org.junit.Before;
 import org.junit.Test;
 
 import ccre.channel.BooleanInput;
-import ccre.channel.BooleanStatus;
+import ccre.channel.BooleanCell;
 import ccre.channel.EventInput;
 import ccre.channel.EventOutput;
-import ccre.channel.EventStatus;
-import ccre.channel.FloatStatus;
+import ccre.channel.EventCell;
+import ccre.channel.FloatCell;
 import ccre.testing.CountingEventOutput;
 
 public class StateMachineTest {
@@ -190,9 +190,9 @@ public class StateMachineTest {
 
     @Test
     public void testSetStateWhenStringEventInput() {
-        EventStatus[] events = new EventStatus[names.length];
+        EventCell[] events = new EventCell[names.length];
         for (int i = 0; i < names.length; i++) {
-            events[i] = new EventStatus();
+            events[i] = new EventCell();
             machine.setStateWhen(names[i], events[i]);
         }
         tryStateSetters(events);
@@ -205,9 +205,9 @@ public class StateMachineTest {
 
     @Test
     public void testSetStateWhenIntEventInput() {
-        EventStatus[] events = new EventStatus[names.length];
+        EventCell[] events = new EventCell[names.length];
         for (int i = 0; i < names.length; i++) {
-            events[i] = new EventStatus();
+            events[i] = new EventCell();
             machine.setStateWhen(i, events[i]);
         }
         tryStateSetters(events);
@@ -401,10 +401,10 @@ public class StateMachineTest {
 
     @Test
     public void testTransitionStateWhenStringStringEventInput() {
-        EventStatus[] events = new EventStatus[names.length * names.length];
+        EventCell[] events = new EventCell[names.length * names.length];
         for (int i = 0; i < names.length; i++) {
             for (int j = 0; j < names.length; j++) {
-                events[i + j * 4] = new EventStatus();
+                events[i + j * 4] = new EventCell();
                 machine.transitionStateWhen(names[i], names[j], events[i + j * 4]);
             }
         }
@@ -423,10 +423,10 @@ public class StateMachineTest {
 
     @Test
     public void testTransitionStateWhenIntIntEventInput() {
-        EventStatus[] events = new EventStatus[names.length * names.length];
+        EventCell[] events = new EventCell[names.length * names.length];
         for (int i = 0; i < names.length; i++) {
             for (int j = 0; j < names.length; j++) {
-                events[i + j * 4] = new EventStatus();
+                events[i + j * 4] = new EventCell();
                 machine.transitionStateWhen(i, j, events[i + j * 4]);
             }
         }
@@ -464,7 +464,7 @@ public class StateMachineTest {
 
     @Test
     public void testOnStateExitEnter() {
-        EventStatus exit = new EventStatus(), enter = new EventStatus();
+        EventCell exit = new EventCell(), enter = new EventCell();
         machine.onStateExit(exit);
         machine.onStateEnter(enter);
         tryStateEnterExit(exit, enter);
@@ -502,8 +502,8 @@ public class StateMachineTest {
                 }
 
                 // this is hacky, but it works!
-                ((EventStatus) machine.getStateEnterEvent()).__UNSAFE_clearListeners();
-                ((EventStatus) machine.getStateExitEvent()).__UNSAFE_clearListeners();
+                ((EventCell) machine.getStateEnterEvent()).__UNSAFE_clearListeners();
+                ((EventCell) machine.getStateExitEvent()).__UNSAFE_clearListeners();
                 // the point is that otherwise, the CountingEventOutputs will start being annoyed next cycle around
 
                 final int ftarget = target;
@@ -567,8 +567,8 @@ public class StateMachineTest {
                 }
 
                 // this is hacky, but it works!
-                ((EventStatus) machine.getStateEnterEvent()).__UNSAFE_clearListeners();
-                ((EventStatus) machine.getStateExitEvent()).__UNSAFE_clearListeners();
+                ((EventCell) machine.getStateEnterEvent()).__UNSAFE_clearListeners();
+                ((EventCell) machine.getStateExitEvent()).__UNSAFE_clearListeners();
                 // the point is that otherwise, the CountingEventOutputs will start being annoyed next cycle around
 
                 final int ftarget = target;
@@ -651,7 +651,7 @@ public class StateMachineTest {
         StateMachine door = new StateMachine(0, "CLOSED", "OPEN", "EXPLODED");
 
         BooleanInput isOpen = door.getIsState("OPEN");
-        EventStatus doOpen = new EventStatus(), doClose = new EventStatus();
+        EventCell doOpen = new EventCell(), doClose = new EventCell();
         door.setStateWhen("OPEN", doOpen);
         door.setStateWhen("CLOSED", doClose);
 
@@ -673,14 +673,14 @@ public class StateMachineTest {
 
         EventOutput txv = door.getStateTransitionEvent("CLOSED", "EXPLODED");
 
-        BooleanStatus hasExplodedEver = new BooleanStatus();
-        BooleanStatus hasNotUnexplodedEver = new BooleanStatus(true);
-        FloatStatus timeDilationConstant = new FloatStatus(1.0f);
+        BooleanCell hasExplodedEver = new BooleanCell();
+        BooleanCell hasNotUnexplodedEver = new BooleanCell(true);
+        FloatCell timeDilationConstant = new FloatCell(1.0f);
 
-        door.onEnterState("EXPLODED", hasExplodedEver.getSetTrueEvent());
-        door.onExitState("EXPLODED", hasNotUnexplodedEver.getSetFalseEvent());
-        door.onEnterState("EXPLODED", timeDilationConstant.getSetEvent(0.1f));
-        door.onExitState("EXPLODED", timeDilationConstant.getSetEvent(1.0f));
+        door.onEnterState("EXPLODED", hasExplodedEver.eventSetTrue());
+        door.onExitState("EXPLODED", hasNotUnexplodedEver.eventSetFalse());
+        door.onEnterState("EXPLODED", timeDilationConstant.eventSet(0.1f));
+        door.onExitState("EXPLODED", timeDilationConstant.eventSet(1.0f));
 
         assertFalse(door.isState("EXPLODED"));
         assertFalse(hasExplodedEver.get());
@@ -713,16 +713,16 @@ public class StateMachineTest {
         // Setup turnstile
         StateMachine turnstile = new StateMachine("LOCKED", "LOCKED", "UNLOCKED");
 
-        EventStatus insertCoin = new EventStatus();
-        EventStatus pushThrough = new EventStatus();
-        BooleanStatus isLocked = new BooleanStatus(true);
-        BooleanStatus gotThrough = new BooleanStatus();
+        EventCell insertCoin = new EventCell();
+        EventCell pushThrough = new EventCell();
+        BooleanCell isLocked = new BooleanCell(true);
+        BooleanCell gotThrough = new BooleanCell();
 
         gotThrough.setTrueWhen(pushThrough.andNot(isLocked));
         turnstile.transitionStateWhen("LOCKED", "UNLOCKED", insertCoin);
         turnstile.transitionStateWhen("UNLOCKED", "LOCKED", pushThrough);
-        turnstile.onEnterState("UNLOCKED", isLocked.getSetFalseEvent());
-        turnstile.onExitState("UNLOCKED", isLocked.getSetTrueEvent());
+        turnstile.onEnterState("UNLOCKED", isLocked.eventSetFalse());
+        turnstile.onExitState("UNLOCKED", isLocked.eventSetTrue());
 
         final int[] totalEntriesExits = new int[4];
         turnstile.onEnterState("LOCKED").send(new EventOutput() {
@@ -808,9 +808,9 @@ public class StateMachineTest {
     public void testGandalf() {
         StateMachine gandalf = new StateMachine(0, "ALIVE", "MIA", "DEAD");
 
-        BooleanStatus died = new BooleanStatus();
-        BooleanStatus missing = new BooleanStatus();
-        BooleanStatus alive = new BooleanStatus();
+        BooleanCell died = new BooleanCell();
+        BooleanCell missing = new BooleanCell();
+        BooleanCell alive = new BooleanCell();
 
         final int[] changes = new int[4];
 
@@ -836,10 +836,10 @@ public class StateMachineTest {
         });
 
         gandalf.getIsState("DEAD").send(died);
-        gandalf.onEnterState("MIA", missing.getSetTrueEvent());
-        gandalf.onExitState("MIA", missing.getSetFalseEvent());
-        gandalf.onEnterState("ALIVE", alive.getSetTrueEvent());
-        gandalf.onExitState("ALIVE", alive.getSetFalseEvent());
+        gandalf.onEnterState("MIA", missing.eventSetTrue());
+        gandalf.onExitState("MIA", missing.eventSetFalse());
+        gandalf.onEnterState("ALIVE", alive.eventSetTrue());
+        gandalf.onExitState("ALIVE", alive.eventSetFalse());
 
         assertEquals(gandalf.getStateName(0), "ALIVE");
         assertEquals(gandalf.getStateName(1), "MIA");

@@ -42,16 +42,16 @@ public class Test {
         // Driving
         FloatInput leftAxis = FRC.joystick1.axis(2);
         FloatInput rightAxis = FRC.joystick1.axis(5);
-        final FloatOutput leftOut = FRC.makeTalonMotor(2, FRC.MOTOR_FORWARD, 0.1f);
-        final FloatOutput rightOut = FRC.makeTalonMotor(1, FRC.MOTOR_REVERSE, 0.1f);
+        final FloatOutput leftOut = FRC.talon(2, FRC.MOTOR_FORWARD, 0.1f);
+        final FloatOutput rightOut = FRC.talon(1, FRC.MOTOR_REVERSE, 0.1f);
         DriverImpls.tankDrive(leftAxis, rightAxis, leftOut, rightOut);
         // Shifting
-        BooleanOutput shifter = FRC.makeSolenoid(2);
+        BooleanOutput shifter = FRC.solenoid(2);
         shifter.setFalseWhen(FRC.startTele);
         shifter.setTrueWhen(FRC.joystick1.onPress(3));
         shifter.setFalseWhen(FRC.joystick1.onPress(1));
         // Compressor
-        FRC.useCompressor(1, 1);
+        FRC.compressor(1, 1);
         // Autonomous
         FRC.registerAutonomous(new InstinctModule() {
             @Override

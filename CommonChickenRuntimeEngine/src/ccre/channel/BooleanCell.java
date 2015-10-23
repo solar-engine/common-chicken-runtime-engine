@@ -27,7 +27,7 @@ import java.io.Serializable;
  *
  * @author skeggsc
  */
-public class BooleanStatus extends AbstractUpdatingInput implements BooleanOutput, BooleanInput, Serializable {
+public class BooleanCell extends AbstractUpdatingInput implements BooleanOutput, BooleanInput, Serializable {
 
     private static final long serialVersionUID = 4843658543933463459L;
 
@@ -42,7 +42,7 @@ public class BooleanStatus extends AbstractUpdatingInput implements BooleanOutpu
     /**
      * Create a new BooleanStatus with the value of false.
      */
-    public BooleanStatus() {
+    public BooleanCell() {
     }
 
     /**
@@ -50,7 +50,7 @@ public class BooleanStatus extends AbstractUpdatingInput implements BooleanOutpu
      *
      * @param default_ The default value.
      */
-    public BooleanStatus(boolean default_) {
+    public BooleanCell(boolean default_) {
         this.value = default_;
     }
 
@@ -60,10 +60,10 @@ public class BooleanStatus extends AbstractUpdatingInput implements BooleanOutpu
      * this BooleanStatus. This is the same as creating a new BooleanStatus and
      * then adding all of the BooleanOutputs as targets.
      *
-     * @see BooleanStatus#send(ccre.channel.BooleanOutput)
+     * @see BooleanCell#send(ccre.channel.BooleanOutput)
      * @param targets The BooleanOutputs to automatically update.
      */
-    public BooleanStatus(BooleanOutput... targets) {
+    public BooleanCell(BooleanOutput... targets) {
         for (BooleanOutput out : targets) {
             send(out);
         }

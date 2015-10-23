@@ -20,11 +20,11 @@ package ccre.drivers.chrobotics;
 
 import java.io.IOException;
 
-import ccre.channel.BooleanStatus;
+import ccre.channel.BooleanCell;
 import ccre.channel.DerivedFloatInput;
 import ccre.channel.EventInput;
 import ccre.channel.EventOutput;
-import ccre.channel.EventStatus;
+import ccre.channel.EventCell;
 import ccre.channel.FloatInput;
 import ccre.channel.SerialIO;
 import ccre.concurrency.CollapsingWorkerThread;
@@ -42,13 +42,13 @@ import ccre.log.Logger;
 public class UM7LT {
     private final InternalUM7LT internal;
 
-    private final EventStatus eulerUpdateStatus = new EventStatus();
+    private final EventCell eulerUpdateStatus = new EventCell();
     /**
      * An event that fires whenever new data for the Euler angles becomes
      * available.
      */
     public final EventInput onEulerUpdate = eulerUpdateStatus;
-    private final EventStatus healthUpdateStatus = new EventStatus();
+    private final EventCell healthUpdateStatus = new EventCell();
     /**
      * An event that fires whenever new data for the Health sensor becomes
      * available.
@@ -57,7 +57,7 @@ public class UM7LT {
     /**
      * Whether or not faults should be automatically logged.
      */
-    public final BooleanStatus autoreportFaults = new BooleanStatus(true);
+    public final BooleanCell autoreportFaults = new BooleanCell(true);
 
     private final CollapsingWorkerThread worker = new CollapsingWorkerThread("UM7LT-dispatcher") {
 

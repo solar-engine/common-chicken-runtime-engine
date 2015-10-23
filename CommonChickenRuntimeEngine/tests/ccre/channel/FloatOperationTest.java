@@ -29,13 +29,13 @@ import ccre.util.Values;
 
 public class FloatOperationTest {
 
-    private FloatStatus sa, sb;
+    private FloatCell sa, sb;
     private CountingFloatOutput cfo;
 
     @Before
     public void setUp() throws Exception {
-        sa = new FloatStatus();
-        sb = new FloatStatus();
+        sa = new FloatCell();
+        sb = new FloatCell();
         cfo = new CountingFloatOutput();
     }
 

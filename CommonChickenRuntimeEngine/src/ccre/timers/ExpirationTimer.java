@@ -23,10 +23,10 @@ import java.util.Collections;
 
 import ccre.channel.BooleanInput;
 import ccre.channel.BooleanOutput;
-import ccre.channel.BooleanStatus;
+import ccre.channel.BooleanCell;
 import ccre.channel.EventInput;
 import ccre.channel.EventOutput;
-import ccre.channel.EventStatus;
+import ccre.channel.EventCell;
 import ccre.channel.FloatInput;
 import ccre.concurrency.ReporterThread;
 import ccre.time.Time;
@@ -51,7 +51,7 @@ public final class ExpirationTimer {
     /**
      * Is this timer running?
      */
-    private final BooleanStatus isStarted = new BooleanStatus();
+    private final BooleanCell isStarted = new BooleanCell();
     /**
      * When did this timer get started? Delays get computer from this point.
      */
@@ -106,7 +106,7 @@ public final class ExpirationTimer {
      * @throws IllegalStateException if the timer is already running.
      */
     public EventInput schedule(long delay) throws IllegalStateException {
-        EventStatus evt = new EventStatus();
+        EventCell evt = new EventCell();
         schedule(delay, evt);
         return evt;
     }
@@ -119,7 +119,7 @@ public final class ExpirationTimer {
      * @throws IllegalStateException if the timer is already running.
      */
     public EventInput schedule(FloatInput delay) throws IllegalStateException {
-        EventStatus evt = new EventStatus();
+        EventCell evt = new EventCell();
         schedule(delay, evt);
         return evt;
     }

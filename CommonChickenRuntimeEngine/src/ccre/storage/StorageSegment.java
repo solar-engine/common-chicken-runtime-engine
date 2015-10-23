@@ -26,9 +26,9 @@ import java.io.PrintStream;
 import java.util.HashMap;
 
 import ccre.channel.BooleanOutput;
-import ccre.channel.BooleanStatus;
+import ccre.channel.BooleanCell;
 import ccre.channel.FloatOutput;
-import ccre.channel.FloatStatus;
+import ccre.channel.FloatCell;
 import ccre.log.Logger;
 import ccre.util.UniqueIds;
 
@@ -187,7 +187,7 @@ public final class StorageSegment {
      * @param name the name to save the holder under.
      * @param holder the holder to save.
      */
-    public void attachFloatHolder(String name, final FloatStatus holder) {
+    public void attachFloatHolder(String name, final FloatCell holder) {
         final String key = "float_holder_" + name, default_key = "float_holder_default_" + name;
         final float originalValue = holder.get();
         String vraw = getStringForKey(key);
@@ -224,7 +224,7 @@ public final class StorageSegment {
      * @param name the name to save the holder under.
      * @param holder the holder to save.
      */
-    public void attachBooleanHolder(String name, final BooleanStatus holder) {
+    public void attachBooleanHolder(String name, final BooleanCell holder) {
         final String key = "boolean_holder_" + name, default_key = "boolean_holder_default_" + name;
         final boolean originalValue = holder.get();
         String vraw = getStringForKey(key);

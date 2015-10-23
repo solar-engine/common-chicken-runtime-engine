@@ -25,7 +25,7 @@ import java.util.jar.JarFile;
 
 import javax.swing.JFrame;
 
-import ccre.channel.EventStatus;
+import ccre.channel.EventCell;
 import ccre.cluck.Cluck;
 import ccre.log.FileLogger;
 import ccre.log.Logger;
@@ -66,7 +66,7 @@ public class DeviceListMain {
         Class<? extends FRCApplication> asSubclass = classLoader.loadClass(mainClass).asSubclass(FRCApplication.class);
         final JFrame main = new JFrame("CCRE DeviceList-Based Emulator for roboRIO");
         main.setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
-        EventStatus onInit = new EventStatus();
+        EventCell onInit = new EventCell();
         DeviceBasedImplementation impl = new DeviceBasedImplementation(onInit);
         main.setContentPane(impl.panel);
         main.setSize(1024, 768);

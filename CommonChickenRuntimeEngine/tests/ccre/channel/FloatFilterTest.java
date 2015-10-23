@@ -61,7 +61,7 @@ public class FloatFilterTest {
 
     @Test
     public void testWrapFloatInput() {
-        FloatStatus fs = new FloatStatus();
+        FloatCell fs = new FloatCell();
         FloatInput fin = ff.wrap(fs.asInput());
         CountingFloatOutput cfo = new CountingFloatOutput();
         cfo.valueExpected = ff.filter(0);

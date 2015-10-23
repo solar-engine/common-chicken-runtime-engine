@@ -101,7 +101,7 @@ public class DriverImpls {
      * @param rightOut the right motor.
      * @see DriverImpls
      */
-    public static void arcadeDrive(final IJoystick joystick, final FloatOutput leftOut, final FloatOutput rightOut) {
+    public static void arcadeDrive(final Joystick joystick, final FloatOutput leftOut, final FloatOutput rightOut) {
         arcadeDrive(joystick.axisX(), joystick.axisY(), leftOut, rightOut);
     }
 

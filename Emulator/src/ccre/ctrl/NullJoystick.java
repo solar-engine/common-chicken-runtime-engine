@@ -26,7 +26,7 @@ import ccre.channel.FloatInput;
  *
  * @author skeggsc
  */
-public class NullJoystick implements IJoystick {
+public class NullJoystick implements Joystick {
 
     @Override
     public BooleanInput button(int btn) {

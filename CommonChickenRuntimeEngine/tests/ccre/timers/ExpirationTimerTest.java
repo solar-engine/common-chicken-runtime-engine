@@ -29,8 +29,8 @@ import org.junit.Test;
 import ccre.channel.BooleanInput;
 import ccre.channel.BooleanOutput;
 import ccre.channel.EventOutput;
-import ccre.channel.EventStatus;
-import ccre.channel.FloatStatus;
+import ccre.channel.EventCell;
+import ccre.channel.FloatCell;
 import ccre.testing.CountingEventOutput;
 import ccre.time.FakeTime;
 import ccre.time.Time;
@@ -126,7 +126,7 @@ public class ExpirationTimerTest {
     @Test
     public void testScheduleFloatInputEventOutput() throws InterruptedException {
         CountingEventOutput ceo = new CountingEventOutput();
-        FloatStatus fs = new FloatStatus(1.0f);
+        FloatCell fs = new FloatCell(1.0f);
         timer.schedule(fs, ceo);
         tryVariableScheduling(ceo, fs);
     }
@@ -134,12 +134,12 @@ public class ExpirationTimerTest {
     @Test
     public void testScheduleFloatInput() throws InterruptedException {
         CountingEventOutput ceo = new CountingEventOutput();
-        FloatStatus fs = new FloatStatus(1.0f);
+        FloatCell fs = new FloatCell(1.0f);
         timer.schedule(fs).send(ceo);
         tryVariableScheduling(ceo, fs);
     }
 
-    private void tryVariableScheduling(CountingEventOutput ceo, FloatStatus fs) throws InterruptedException {
+    private void tryVariableScheduling(CountingEventOutput ceo, FloatCell fs) throws InterruptedException {
         fake.forward(1500);
         timer.start();
         Thread.sleep(2);
@@ -294,7 +294,7 @@ public class ExpirationTimerTest {
 
     @Test
     public void testStartWhen() throws InterruptedException {
-        EventStatus start = new EventStatus();
+        EventCell start = new EventCell();
         timer.startWhen(start);
         tryStartEvent(start);
     }
@@ -325,7 +325,7 @@ public class ExpirationTimerTest {
 
     @Test
     public void testStartOrFeedWhen() throws InterruptedException {
-        EventStatus startOrFeed = new EventStatus();
+        EventCell startOrFeed = new EventCell();
         timer.startOrFeedWhen(startOrFeed);
         tryStartOrFeedEvent(startOrFeed);
     }
@@ -357,7 +357,7 @@ public class ExpirationTimerTest {
 
     @Test
     public void testFeedWhenNotRunning() throws InterruptedException {
-        EventStatus feed = new EventStatus();
+        EventCell feed = new EventCell();
         timer.feedWhen(feed);
         tryFeedEventNotRunning(feed);
     }
@@ -389,7 +389,7 @@ public class ExpirationTimerTest {
 
     @Test
     public void testFeedWhenRunning() throws InterruptedException {
-        EventStatus feed = new EventStatus();
+        EventCell feed = new EventCell();
         timer.feedWhen(feed);
         tryFeedEventRunning(feed);
     }
@@ -426,7 +426,7 @@ public class ExpirationTimerTest {
 
     @Test
     public void testStopWhen() throws InterruptedException {
-        EventStatus stop = new EventStatus();
+        EventCell stop = new EventCell();
         timer.stopWhen(stop);
         tryStopEvent(stop);
     }

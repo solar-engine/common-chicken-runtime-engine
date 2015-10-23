@@ -57,7 +57,7 @@ public abstract class FloatFilter {
         if (input == null) {
             throw new NullPointerException();
         }
-        FloatStatus out = new FloatStatus(filter(input.get()));
+        FloatCell out = new FloatCell(filter(input.get()));
         input.send(wrap((FloatOutput) out));
         return out;
     }

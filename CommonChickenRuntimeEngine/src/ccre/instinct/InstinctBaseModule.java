@@ -238,8 +238,9 @@ public abstract class InstinctBaseModule {
      * any waiting method.
      * @throws InterruptedException Propagate this up here when thrown by any
      * waiting method.
+     * @throws Throwable If you want to fail for some other reason.
      */
-    protected abstract void autonomousMain() throws AutonomousModeOverException, InterruptedException;
+    protected abstract void autonomousMain() throws Throwable;
 
     /**
      * Wait until the next time that this module should update.

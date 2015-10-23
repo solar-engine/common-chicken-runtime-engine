@@ -18,9 +18,9 @@
  */
 package ccre.tuning;
 
-import ccre.channel.BooleanStatus;
+import ccre.channel.BooleanCell;
 import ccre.channel.EventOutput;
-import ccre.channel.FloatStatus;
+import ccre.channel.FloatCell;
 import ccre.cluck.Cluck;
 import ccre.cluck.CluckNode;
 import ccre.cluck.CluckPublisher;
@@ -115,8 +115,8 @@ public final class TuningContext {
      * @param default_ the default value.
      * @return the FloatStatus representing the current value.
      */
-    public FloatStatus getFloat(String name, float default_) {
-        FloatStatus out = new FloatStatus(default_);
+    public FloatCell getFloat(String name, float default_) {
+        FloatCell out = new FloatCell(default_);
         segment.attachFloatHolder(name, out);
         CluckPublisher.publish(node, name, out);
         return out;
@@ -130,8 +130,8 @@ public final class TuningContext {
      * @param default_ the default value.
      * @return the BooleanStatus representing the current value.
      */
-    public BooleanStatus getBoolean(String name, boolean default_) {
-        BooleanStatus out = new BooleanStatus(default_);
+    public BooleanCell getBoolean(String name, boolean default_) {
+        BooleanCell out = new BooleanCell(default_);
         segment.attachBooleanHolder(name, out);
         CluckPublisher.publish(node, name, out);
         return out;

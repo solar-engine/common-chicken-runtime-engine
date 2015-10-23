@@ -41,7 +41,7 @@ public class FloatOutputTest {
         throw new NoSuchElementException("safeSet purposeful failure.");
     };
     private CountingFloatOutput cfo1, cfo2;
-    private FloatStatus fs;
+    private FloatCell fs;
 
     private static Time oldProvider;
     private static FakeTime fake;
@@ -65,7 +65,7 @@ public class FloatOutputTest {
 
     @Before
     public void setUp() throws Exception {
-        fs = new FloatStatus();
+        fs = new FloatCell();
         cfo1 = new CountingFloatOutput();
         cfo2 = new CountingFloatOutput();
     }
@@ -85,7 +85,7 @@ public class FloatOutputTest {
     @Test
     public void testGetSetEventFloat() {
         for (float f : Values.interestingFloats) {
-            EventOutput setE = cfo1.getSetEvent(f);
+            EventOutput setE = cfo1.eventSet(f);
             cfo1.ifExpected = true;
             cfo1.valueExpected = f;
             setE.event();
@@ -95,7 +95,7 @@ public class FloatOutputTest {
 
     @Test
     public void testGetSetEventFloatInput() {
-        EventOutput setE = cfo1.getSetEvent(fs);
+        EventOutput setE = cfo1.eventSet(fs);
         for (float f : Values.interestingFloats) {
             fs.set(f);
             cfo1.ifExpected = true;
@@ -107,13 +107,13 @@ public class FloatOutputTest {
 
     @Test(expected = NullPointerException.class)
     public void testGetSetEventFloatInputNull() {
-        cfo1.getSetEvent(null);
+        cfo1.eventSet(null);
     }
 
     @Test
     public void testSetWhenFloatEventInput() {
         for (float f : Values.interestingFloats) {
-            EventStatus es = new EventStatus();
+            EventCell es = new EventCell();
             cfo1.setWhen(f, es);
             cfo1.ifExpected = true;
             cfo1.valueExpected = f;
@@ -129,7 +129,7 @@ public class FloatOutputTest {
 
     @Test
     public void testSetWhenFloatInputEventInput() {
-        EventStatus setE = new EventStatus();
+        EventCell setE = new EventCell();
         cfo1.setWhen(fs, setE);
         for (float f : Values.interestingFloats) {
             fs.set(f);
@@ -218,7 +218,7 @@ public class FloatOutputTest {
 
     @Test
     public void testAddRamping() { // TODO: flesh this out a bit more
-        EventStatus update = new EventStatus();
+        EventCell update = new EventCell();
         FloatOutput fo = cfo1.addRamping(0.2f, update);
         for (int i = 0; i < 5; i++) {
             cfo1.ifExpected = true;
@@ -279,7 +279,7 @@ public class FloatOutputTest {
     @Test
     public void testFilter() {
         for (boolean not : new boolean[] { false, true }) {
-            BooleanStatus allowDeny = new BooleanStatus();
+            BooleanCell allowDeny = new BooleanCell();
             FloatOutput fo = not ? cfo1.filterNot(allowDeny) : cfo1.filter(allowDeny);
             int j = 0;
             for (int i = 0; i < 10; i++) {
@@ -307,8 +307,8 @@ public class FloatOutputTest {
 
     @Test
     public void testFromBoolean1() {
-        FloatStatus offV = new FloatStatus();
-        FloatStatus onV = new FloatStatus();
+        FloatCell offV = new FloatCell();
+        FloatCell onV = new FloatCell();
         Boolean lastSent = null;
         BooleanOutput b1 = cfo1.fromBoolean(offV, onV);
         for (float off : Values.interestingFloats) {
@@ -348,7 +348,7 @@ public class FloatOutputTest {
     public void testFromBoolean2() {
         for (float off : Values.interestingFloats) {
             Boolean lastSent = null;
-            FloatStatus onV = new FloatStatus();
+            FloatCell onV = new FloatCell();
             BooleanOutput b1 = cfo1.fromBoolean(off, onV);
             for (float on : Values.interestingFloats) {
                 cfo1.ifExpected = (lastSent != null && lastSent);
@@ -377,7 +377,7 @@ public class FloatOutputTest {
     public void testFromBoolean3() {
         for (float on : Values.interestingFloats) {
             Boolean lastSent = null;
-            FloatStatus offV = new FloatStatus();
+            FloatCell offV = new FloatCell();
             BooleanOutput b1 = cfo1.fromBoolean(offV, on);
             for (float off : Values.interestingFloats) {
                 cfo1.ifExpected = (lastSent != null && !lastSent);

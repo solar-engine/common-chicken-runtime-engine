@@ -30,7 +30,7 @@ import java.io.Serializable;
  *
  * @author skeggsc
  */
-public class FloatStatus extends AbstractUpdatingInput implements FloatOutput, FloatInput, Serializable {
+public class FloatCell extends AbstractUpdatingInput implements FloatOutput, FloatInput, Serializable {
 
     private static final long serialVersionUID = 4452265093224394680L;
 
@@ -48,7 +48,7 @@ public class FloatStatus extends AbstractUpdatingInput implements FloatOutput, F
     /**
      * Create a new FloatStatus with a value of zero.
      */
-    public FloatStatus() {
+    public FloatCell() {
     }
 
     /**
@@ -56,7 +56,7 @@ public class FloatStatus extends AbstractUpdatingInput implements FloatOutput, F
      *
      * @param value The default value.
      */
-    public FloatStatus(float value) {
+    public FloatCell(float value) {
         this.value = value;
     }
 
@@ -66,10 +66,10 @@ public class FloatStatus extends AbstractUpdatingInput implements FloatOutput, F
      * as creating a new FloatStatus and then adding all of the FloatOutputs as
      * targets.
      *
-     * @see FloatStatus#send(ccre.channel.FloatOutput)
+     * @see FloatCell#send(ccre.channel.FloatOutput)
      * @param targets The FloatOutputs to automatically update.
      */
-    public FloatStatus(FloatOutput... targets) {
+    public FloatCell(FloatOutput... targets) {
         for (FloatOutput o : targets) {
             send(o);
         }

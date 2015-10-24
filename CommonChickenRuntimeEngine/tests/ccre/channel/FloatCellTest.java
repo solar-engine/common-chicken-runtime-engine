@@ -30,18 +30,18 @@ import ccre.testing.CountingEventOutput;
 import ccre.testing.CountingFloatOutput;
 import ccre.util.Values;
 
-public class FloatStatusTest {
+public class FloatCellTest {
 
-    private FloatCell status;
+    private FloatCell cell;
 
     @Before
     public void setUp() throws Exception {
-        this.status = new FloatCell();
+        this.cell = new FloatCell();
     }
 
     @After
     public void tearDown() throws Exception {
-        this.status = null;
+        this.cell = null;
     }
 
     @Test
@@ -56,13 +56,13 @@ public class FloatStatusTest {
         CountingFloatOutput cfo = new CountingFloatOutput();
         cfo.ifExpected = true;
         cfo.valueExpected = 0;
-        status = new FloatCell(cfo);
+        cell = new FloatCell(cfo);
         cfo.check();
-        assertTrue(status.hasListeners());
+        assertTrue(cell.hasListeners());
         for (float f : Values.interestingFloats) {
             cfo.ifExpected = true;
             cfo.valueExpected = f;
-            status.set(f);
+            cell.set(f);
             cfo.check();
         }
     }
@@ -78,14 +78,14 @@ public class FloatStatusTest {
         CountingFloatOutput cfo2 = new CountingFloatOutput();
         cfo1.ifExpected = cfo2.ifExpected = true;
         cfo1.valueExpected = cfo2.valueExpected = 0;
-        status = new FloatCell(cfo1, cfo2);
+        cell = new FloatCell(cfo1, cfo2);
         cfo1.check();
         cfo2.check();
-        assertTrue(status.hasListeners());
+        assertTrue(cell.hasListeners());
         for (float f : Values.interestingFloats) {
             cfo1.ifExpected = cfo2.ifExpected = true;
             cfo1.valueExpected = cfo2.valueExpected = f;
-            status.set(f);
+            cell.set(f);
             cfo1.check();
             cfo2.check();
         }
@@ -103,20 +103,20 @@ public class FloatStatusTest {
 
     @Test
     public void testHasConsumers() {
-        assertFalse(status.hasListeners());
+        assertFalse(cell.hasListeners());
         for (int i = 0; i < 5; i++) {
-            EventOutput eo = status.sendR(FloatOutput.ignored);
-            assertTrue(status.hasListeners());
+            EventOutput eo = cell.sendR(FloatOutput.ignored);
+            assertTrue(cell.hasListeners());
             eo.event();
-            assertFalse(status.hasListeners());
-            EventOutput eo1 = status.sendR(FloatOutput.ignored);
-            assertTrue(status.hasListeners());
-            EventOutput eo2 = status.sendR(FloatOutput.ignored);
-            assertTrue(status.hasListeners());
+            assertFalse(cell.hasListeners());
+            EventOutput eo1 = cell.sendR(FloatOutput.ignored);
+            assertTrue(cell.hasListeners());
+            EventOutput eo2 = cell.sendR(FloatOutput.ignored);
+            assertTrue(cell.hasListeners());
             eo1.event();
-            assertTrue(status.hasListeners());
+            assertTrue(cell.hasListeners());
             eo2.event();
-            assertFalse(status.hasListeners());
+            assertFalse(cell.hasListeners());
         }
     }
 
@@ -125,12 +125,12 @@ public class FloatStatusTest {
         CountingFloatOutput cbo = new CountingFloatOutput();
         cbo.ifExpected = true;
         cbo.valueExpected = 0;
-        status.send(cbo);
+        cell.send(cbo);
         for (float f : Values.interestingFloats) {
             cbo.ifExpected = true;
             cbo.valueExpected = f;
-            status.set(f);
-            assertEquals(f, status.get(), 0);
+            cell.set(f);
+            assertEquals(f, cell.get(), 0);
             cbo.check();
         }
     }
@@ -141,8 +141,8 @@ public class FloatStatusTest {
         CountingFloatOutput ceo2 = new CountingFloatOutput();
         ceo.ifExpected = ceo2.ifExpected = true;
         ceo.valueExpected = ceo2.valueExpected = 0;
-        status.send((value) -> {
-            ceo.set(status.get());
+        cell.send((value) -> {
+            ceo.set(cell.get());
             ceo2.set(value);
         });
         ceo.check();
@@ -150,86 +150,76 @@ public class FloatStatusTest {
         for (float f : Values.interestingFloats) {
             ceo.ifExpected = ceo2.ifExpected = true;
             ceo.valueExpected = ceo2.valueExpected = f;
-            status.set(f);
-            assertEquals(f, status.get(), 0);
+            cell.set(f);
+            assertEquals(f, cell.get(), 0);
             ceo.check();
             ceo2.check();
         }
     }
 
     @Test
-    public void testAsOutput() {
-        assertEquals(status, status.asOutput());
-    }
-
-    @Test
-    public void testAsInput() {
-        assertEquals(status, status.asInput());
-    }
-
-    @Test
     public void testOnUpdate() {
         CountingEventOutput ceo = new CountingEventOutput();
-        status.onUpdate(ceo);
-        assertTrue(status.hasListeners());
+        cell.onUpdate(ceo);
+        assertTrue(cell.hasListeners());
         for (float f : Values.interestingFloats) {
             ceo.ifExpected = true;
-            status.set(f);
+            cell.set(f);
             ceo.check();
         }
     }
 
     @Test(expected = NullPointerException.class)
     public void testOnUpdateNull() {
-        status.onUpdate(null);
+        cell.onUpdate(null);
     }
 
     @Test
     public void testOnUpdateR() {
         CountingEventOutput ceo = new CountingEventOutput();
-        EventOutput unbind = status.onUpdateR(ceo);
-        assertTrue(status.hasListeners());
+        EventOutput unbind = cell.onUpdateR(ceo);
+        assertTrue(cell.hasListeners());
         for (float f : Values.interestingFloats) {
             ceo.ifExpected = true;
-            status.set(f);
+            cell.set(f);
             ceo.check();
         }
-        assertTrue(status.hasListeners());
+        assertTrue(cell.hasListeners());
         unbind.event();
-        assertFalse(status.hasListeners());
+        assertFalse(cell.hasListeners());
         for (float f : Values.interestingFloats) {
-            status.set(f);
+            cell.set(f);
             ceo.check();
         }
-        assertFalse(status.hasListeners());
+        assertFalse(cell.hasListeners());
     }
 
     @Test
     public void testOnUpdateAndOnUpdateR() {
-        assertFalse(status.hasListeners());
-        EventOutput unbind = status.onUpdateR(EventOutput.ignored);
-        assertTrue(status.hasListeners());
-        status.onUpdate(EventOutput.ignored);
-        assertTrue(status.hasListeners());
+        assertFalse(cell.hasListeners());
+        EventOutput unbind = cell.onUpdateR(EventOutput.ignored);
+        assertTrue(cell.hasListeners());
+        cell.onUpdate(EventOutput.ignored);
+        assertTrue(cell.hasListeners());
         unbind.event();
-        assertTrue(status.hasListeners());
+        assertTrue(cell.hasListeners());
     }
 
     @Test
     public void testOnUpdateRTwice() {
-        assertFalse(status.hasListeners());
-        EventOutput unbind1 = status.onUpdateR(EventOutput.ignored);
-        assertTrue(status.hasListeners());
-        EventOutput unbind2 = status.onUpdateR(EventOutput.ignored);
-        assertTrue(status.hasListeners());
+        assertFalse(cell.hasListeners());
+        EventOutput unbind1 = cell.onUpdateR(EventOutput.ignored);
+        assertTrue(cell.hasListeners());
+        EventOutput unbind2 = cell.onUpdateR(EventOutput.ignored);
+        assertTrue(cell.hasListeners());
         unbind1.event();
-        assertTrue(status.hasListeners());
+        assertTrue(cell.hasListeners());
         unbind2.event();
-        assertFalse(status.hasListeners());
+        assertFalse(cell.hasListeners());
     }
 
     @Test(expected = NullPointerException.class)
     public void testOnUpdateRNull() {
-        status.onUpdateR(null);
+        cell.onUpdateR(null);
     }
 }

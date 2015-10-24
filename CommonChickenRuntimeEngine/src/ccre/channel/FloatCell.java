@@ -30,26 +30,11 @@ import java.io.Serializable;
  *
  * @author skeggsc
  */
-public class FloatCell extends AbstractUpdatingInput implements FloatOutput, FloatInput, Serializable {
+public class FloatCell extends AbstractUpdatingInput implements FloatIO, Serializable {
 
     private static final long serialVersionUID = 4452265093224394680L;
 
-    /**
-     * The current state of this FloatStatus. Do not directly modify this field.
-     * Use the writeValue method instead.
-     *
-     * By convention, most float inputs and outputs have states that range from
-     * -1.0f to 1.0f.
-     *
-     * @see #set(float)
-     */
     private float value = 0;
-
-    /**
-     * Create a new FloatStatus with a value of zero.
-     */
-    public FloatCell() {
-    }
 
     /**
      * Create a new FloatStatus with the specified default value.
@@ -65,6 +50,8 @@ public class FloatCell extends AbstractUpdatingInput implements FloatOutput, Flo
      * FloatOutputs with the current state of this FloatStatus. This is the same
      * as creating a new FloatStatus and then adding all of the FloatOutputs as
      * targets.
+     *
+     * The default value is zero.
      *
      * @see FloatCell#send(ccre.channel.FloatOutput)
      * @param targets The FloatOutputs to automatically update.
@@ -86,25 +73,5 @@ public class FloatCell extends AbstractUpdatingInput implements FloatOutput, Flo
         } else {
             // Do nothing; we want to ignore the value if it's the same.
         }
-    }
-
-    /**
-     * Returns a version of this status as an output. This is equivalent to
-     * upcasting to FloatOutput.
-     *
-     * @return this status, as an output.
-     */
-    public FloatOutput asOutput() {
-        return this;
-    }
-
-    /**
-     * Returns a version of this status as an input. This is equivalent to
-     * upcasting to FloatInput.
-     *
-     * @return this status, as an input.
-     */
-    public FloatInput asInput() {
-        return this;
     }
 }

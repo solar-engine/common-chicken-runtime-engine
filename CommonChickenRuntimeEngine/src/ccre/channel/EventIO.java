@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2015 Colby Skeggs
+ * Copyright 2015 Colby Skeggs
  *
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  *
@@ -18,33 +18,30 @@
  */
 package ccre.channel;
 
-import java.io.Serializable;
-
 /**
- * An implementation of an EventInput. This can be fired using the .produce()
- * method or by firing this event as an EventOutput.
- *
+ * A EventIO is both a EventInput and a EventOutput.
+ * 
  * @author skeggsc
  */
-public class EventCell extends AbstractUpdatingInput implements EventIO, Serializable {
-
-    private static final long serialVersionUID = -1536503261547524049L;
+public interface EventIO extends EventInput, EventOutput {
 
     /**
-     * Create a new Event that fires the specified events when fired. This is
-     * equivalent to adding the events as listeners.
+     * Returns the output side of this EventIO. This is equivalent to upcasting
+     * to EventOutput.
      *
-     * @param events the events to fire when this event is fired.
-     * @see #send(ccre.channel.EventOutput)
+     * @return this status, as an output.
      */
-    public EventCell(EventOutput... events) {
-        for (EventOutput event : events) {
-            onUpdate(event);
-        }
+    public default EventOutput asOutput() {
+        return this;
     }
 
-    @Override
-    public void event() {
-        perform();
+    /**
+     * Returns the input side of this EventIO. This is equivalent to upcasting
+     * to EventInput.
+     *
+     * @return this status, as an input.
+     */
+    public default EventInput asInput() {
+        return this;
     }
 }

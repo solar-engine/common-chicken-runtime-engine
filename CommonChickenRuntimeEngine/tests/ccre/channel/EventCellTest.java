@@ -26,18 +26,18 @@ import org.junit.Test;
 
 import ccre.testing.CountingEventOutput;
 
-public class EventStatusTest {
+public class EventCellTest {
 
-    private EventCell status;
+    private EventCell cell;
 
     @Before
     public void setUp() throws Exception {
-        status = new EventCell();
+        cell = new EventCell();
     }
 
     @After
     public void tearDown() throws Exception {
-        status = null;
+        cell = null;
     }
 
     @Test
@@ -48,9 +48,9 @@ public class EventStatusTest {
     @Test
     public void testEventStatusEventOutput() {
         CountingEventOutput ceo = new CountingEventOutput();
-        status = new EventCell(ceo);
+        cell = new EventCell(ceo);
         ceo.ifExpected = true;
-        status.event();
+        cell.event();
         ceo.check();
     }
 
@@ -63,10 +63,10 @@ public class EventStatusTest {
     public void testEventStatusEventOutputArray() {
         CountingEventOutput c1 = new CountingEventOutput();
         CountingEventOutput c2 = new CountingEventOutput();
-        status = new EventCell(c1, c2);
+        cell = new EventCell(c1, c2);
         c1.ifExpected = true;
         c2.ifExpected = true;
-        status.event();
+        cell.event();
         c1.check();
         c2.check();
     }
@@ -93,57 +93,57 @@ public class EventStatusTest {
 
     @Test
     public void testHasConsumersLingering() {
-        assertFalse(status.hasListeners());
-        status.onUpdate(EventOutput.ignored);
-        assertTrue(status.hasListeners());
-        EventOutput unbind = status.onUpdateR(EventOutput.ignored);
-        assertTrue(status.hasListeners());
+        assertFalse(cell.hasListeners());
+        cell.onUpdate(EventOutput.ignored);
+        assertTrue(cell.hasListeners());
+        EventOutput unbind = cell.onUpdateR(EventOutput.ignored);
+        assertTrue(cell.hasListeners());
         unbind.event();
-        assertTrue(status.hasListeners());// should STILL have one left
+        assertTrue(cell.hasListeners());// should STILL have one left
     }
 
     @Test
     public void testHasConsumers() {
-        assertFalse(status.hasListeners());
-        EventOutput unbind1 = status.onUpdateR(EventOutput.ignored);
-        assertTrue(status.hasListeners());
-        EventOutput unbind2 = status.onUpdateR(EventOutput.ignored);
-        assertTrue(status.hasListeners());
+        assertFalse(cell.hasListeners());
+        EventOutput unbind1 = cell.onUpdateR(EventOutput.ignored);
+        assertTrue(cell.hasListeners());
+        EventOutput unbind2 = cell.onUpdateR(EventOutput.ignored);
+        assertTrue(cell.hasListeners());
         unbind1.event();
-        assertTrue(status.hasListeners());// should STILL have one left
+        assertTrue(cell.hasListeners());// should STILL have one left
         unbind2.event();
-        assertFalse(status.hasListeners());
+        assertFalse(cell.hasListeners());
     }
 
     @Test
     public void testOnUpdate() {
         CountingEventOutput ceo = new CountingEventOutput();
-        status.onUpdate(ceo);
+        cell.onUpdate(ceo);
         for (int i = 0; i < 10; i++) {
             ceo.ifExpected = true;
-            status.event();
+            cell.event();
             ceo.check();
         }
     }
 
     @Test(expected = NullPointerException.class)
     public void testOnUpdateNull() {
-        status.onUpdate(null);
+        cell.onUpdate(null);
     }
 
     @Test
     public void testOnUpdateR() {
         CountingEventOutput ceo = new CountingEventOutput();
         for (int i = 0; i < 4; i++) {
-            EventOutput unbind = status.onUpdateR(ceo);
+            EventOutput unbind = cell.onUpdateR(ceo);
             for (int j = 0; j < 10; j++) {
                 ceo.ifExpected = true;
-                status.event();
+                cell.event();
                 ceo.check();
             }
             unbind.event();
             for (int j = 0; j < 10; j++) {
-                status.event();// expect no events after unbinding
+                cell.event();// expect no events after unbinding
             }
             ceo.check();
         }
@@ -151,7 +151,7 @@ public class EventStatusTest {
 
     @Test(expected = NullPointerException.class)
     public void testOnUpdateRNull() {
-        status.onUpdateR(null);
+        cell.onUpdateR(null);
     }
 
     @Test
@@ -162,13 +162,13 @@ public class EventStatusTest {
         }
         EventOutput[] unbinds = new EventOutput[cs.length];
         for (int i = 0; i < cs.length; i++) {
-            unbinds[i] = status.onUpdateR(cs[i]);
+            unbinds[i] = cell.onUpdateR(cs[i]);
         }
         for (int r = 0; r < 5; r++) {
             for (int i = 0; i < cs.length; i++) {
                 cs[i].ifExpected = true;
             }
-            status.event();
+            cell.event();
             for (int i = 0; i < cs.length; i++) {
                 cs[i].check();
             }
@@ -181,7 +181,7 @@ public class EventStatusTest {
             for (int i = 0; i < cs.length; i++) {
                 cs[i].ifExpected = (unbinds[i] != null);
             }
-            status.event();
+            cell.event();
             for (int i = 0; i < cs.length; i++) {
                 cs[i].check();
             }
@@ -190,7 +190,7 @@ public class EventStatusTest {
             unbinds[i].event();
             unbinds[i] = null;
         }
-        status.event();
+        cell.event();
         for (int i = 0; i < cs.length; i++) {
             cs[i].check();
         }
@@ -201,38 +201,28 @@ public class EventStatusTest {
         CountingEventOutput[] cs = new CountingEventOutput[10];
         for (int i = 0; i < cs.length; i++) {
             cs[i] = new CountingEventOutput();
-            status.onUpdate(cs[i]);
+            cell.onUpdate(cs[i]);
         }
         for (int r = 0; r < 5; r++) {
             for (int i = 0; i < cs.length; i++) {
                 cs[i].ifExpected = true;
             }
-            status.event();
+            cell.event();
             for (int i = 0; i < cs.length; i++) {
                 cs[i].check();
             }
         }
-        status.__UNSAFE_clearListeners();
+        cell.__UNSAFE_clearListeners();
         for (int r = 0; r < 5; r++) {
-            status.event();
+            cell.event();
             for (int i = 0; i < cs.length; i++) {
                 cs[i].check();
             }
         }
         CountingEventOutput tempc = new CountingEventOutput();
-        status.onUpdate(tempc);
+        cell.onUpdate(tempc);
         tempc.ifExpected = true;
-        status.event();
+        cell.event();
         tempc.check();
-    }
-
-    @Test
-    public void testAsOutput() {
-        assertEquals(status, status.asOutput());
-    }
-
-    @Test
-    public void testAsInput() {
-        assertEquals(status, status.asInput());
     }
 }

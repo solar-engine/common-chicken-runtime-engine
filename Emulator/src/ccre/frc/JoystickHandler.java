@@ -64,6 +64,7 @@ public class JoystickHandler {
                 String[] natives = ((String) str).split(";");
                 for (String s : natives) {
                     File out = new File(f, s);
+                    out.deleteOnExit();
                     InputStream inp = JoystickHandler.class.getResourceAsStream("/" + s);
                     if (inp == null) {
                         throw new IOException("Could not find resource: /" + s);

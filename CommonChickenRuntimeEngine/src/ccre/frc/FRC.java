@@ -913,6 +913,28 @@ public class FRC {
         return controlBinding(name, false);
     }
 
+    private static ControlBindingCreator creator;
+
+    /**
+     * Get a ControlBindingCreator that the user can bind, over Cluck, to any
+     * Joystick inputs.
+     *
+     * If you're running in the emulator, then the Emulator will skip over
+     * including Joysticks at all and just show you your control bindings
+     * directly. Much easier to work with!
+     *
+     * @return the ControlBindingCreator that you can make your controls
+     * available over.
+     * @see #controlBinding(String) if you want to change the name of the
+     * module.
+     */
+    public static ControlBindingCreator controlBinding() {
+        if (creator == null) {
+            creator = controlBinding("Robot");
+        }
+        return creator;
+    }
+
     private static ControlBindingDataSource builtControlSource;
 
     /**

@@ -32,11 +32,11 @@ import ccre.util.Values;
 
 public class FloatStatusTest {
 
-    private FloatStatus status;
+    private FloatCell status;
 
     @Before
     public void setUp() throws Exception {
-        this.status = new FloatStatus();
+        this.status = new FloatCell();
     }
 
     @After
@@ -47,7 +47,7 @@ public class FloatStatusTest {
     @Test
     public void testFloatStatusFloat() {
         for (float f : Values.interestingFloats) {
-            assertEquals(f, new FloatStatus(f).get(), 0);
+            assertEquals(f, new FloatCell(f).get(), 0);
         }
     }
 
@@ -56,7 +56,7 @@ public class FloatStatusTest {
         CountingFloatOutput cfo = new CountingFloatOutput();
         cfo.ifExpected = true;
         cfo.valueExpected = 0;
-        status = new FloatStatus(cfo);
+        status = new FloatCell(cfo);
         cfo.check();
         assertTrue(status.hasListeners());
         for (float f : Values.interestingFloats) {
@@ -69,7 +69,7 @@ public class FloatStatusTest {
 
     @Test(expected = NullPointerException.class)
     public void testFloatStatusFloatOutputNull() {
-        new FloatStatus((FloatOutput) null);
+        new FloatCell((FloatOutput) null);
     }
 
     @Test
@@ -78,7 +78,7 @@ public class FloatStatusTest {
         CountingFloatOutput cfo2 = new CountingFloatOutput();
         cfo1.ifExpected = cfo2.ifExpected = true;
         cfo1.valueExpected = cfo2.valueExpected = 0;
-        status = new FloatStatus(cfo1, cfo2);
+        status = new FloatCell(cfo1, cfo2);
         cfo1.check();
         cfo2.check();
         assertTrue(status.hasListeners());
@@ -93,12 +93,12 @@ public class FloatStatusTest {
 
     @Test(expected = NullPointerException.class)
     public void testFloatStatusFloatOutputArrayNull() {
-        new FloatStatus((FloatOutput[]) null);
+        new FloatCell((FloatOutput[]) null);
     }
 
     @Test(expected = NullPointerException.class)
     public void testFloatStatusFloatOutputArrayNulls() {
-        new FloatStatus(FloatOutput.ignored, null);
+        new FloatCell(FloatOutput.ignored, null);
     }
 
     @Test

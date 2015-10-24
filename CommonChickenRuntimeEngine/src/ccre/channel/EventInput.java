@@ -27,7 +27,7 @@ import ccre.util.Utils;
  * ccre.event.EventStatus is a good implementation of this so that you don't
  * have to write your own listener management code.
  *
- * @see EventStatus
+ * @see EventCell
  * @author skeggsc
  */
 public interface EventInput extends UpdatingInput {

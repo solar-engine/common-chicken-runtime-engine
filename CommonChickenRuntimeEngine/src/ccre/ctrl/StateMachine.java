@@ -22,7 +22,7 @@ import ccre.channel.BooleanInput;
 import ccre.channel.DerivedBooleanInput;
 import ccre.channel.EventInput;
 import ccre.channel.EventOutput;
-import ccre.channel.EventStatus;
+import ccre.channel.EventCell;
 import ccre.log.LogLevel;
 import ccre.log.Logger;
 
@@ -40,8 +40,8 @@ import ccre.log.Logger;
 public class StateMachine {
     private int currentState;
     private final int numberOfStates;
-    private final EventStatus onExit = new EventStatus();
-    private final EventStatus onEnter = new EventStatus();
+    private final EventCell onExit = new EventCell();
+    private final EventCell onEnter = new EventCell();
     private final String[] stateNames;
 
     /**
@@ -367,7 +367,7 @@ public class StateMachine {
      * @return the event input.
      */
     public EventInput onEnterState(int state) {
-        final EventStatus out = new EventStatus();
+        final EventCell out = new EventCell();
         onEnterState(state, out);
         return out;
     }
@@ -430,7 +430,7 @@ public class StateMachine {
      * @return the event input.
      */
     public EventInput onExitState(int state) {
-        final EventStatus out = new EventStatus();
+        final EventCell out = new EventCell();
         onExitState(state, out);
         return out;
     }

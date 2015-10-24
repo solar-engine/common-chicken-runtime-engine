@@ -18,8 +18,7 @@
  */
 package ccre.util;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import static org.junit.Assert.*;
 
 import java.util.Random;
 
@@ -30,8 +29,8 @@ public class UtilsTest {
     private void checkBytesToFloatFor(float f) {
         int ibits = Float.floatToIntBits(f);
         byte[] d = new byte[] { (byte) (ibits >> 24), (byte) (ibits >> 16), (byte) (ibits >> 8), (byte) ibits };
-        assertEquals(Utils.bytesToInt(d, 0), ibits);
-        assertEquals(Float.floatToIntBits(Utils.bytesToFloat(d, 0)), ibits);
+        assertEquals(ibits, Utils.bytesToInt(d, 0));
+        assertEquals(ibits, Float.floatToIntBits(Utils.bytesToFloat(d, 0)));
     }
 
     @Test
@@ -44,8 +43,8 @@ public class UtilsTest {
         int ibits = Float.floatToIntBits(17.77f);
         // junk data at start
         byte[] d = new byte[] { 3, 3, 3, 8, 1, 2, 5, (byte) (ibits >> 24), (byte) (ibits >> 16), (byte) (ibits >> 8), (byte) ibits };
-        assertEquals(Utils.bytesToInt(d, 7), ibits);
-        assertEquals(Float.floatToIntBits(Utils.bytesToFloat(d, 7)), ibits);
+        assertEquals(ibits, Utils.bytesToInt(d, 7));
+        assertEquals(ibits, Float.floatToIntBits(Utils.bytesToFloat(d, 7)));
     }
 
     @Test
@@ -69,14 +68,14 @@ public class UtilsTest {
 
     @Test
     public void testBytesToIntSimple() {
-        assertEquals(Utils.bytesToInt(new byte[] { 1, 0, 2, 3 }, 0), 0x1000203);
+        assertEquals(0x1000203, Utils.bytesToInt(new byte[] { 1, 0, 2, 3 }, 0));
     }
 
     @Test
     public void testBytesToInt() {
         for (int[] line : bytesToIntTests) {// MSB, B, B, LSB, EXPECTED
             byte a = (byte) line[0], b = (byte) line[1], c = (byte) line[2], d = (byte) line[3];
-            assertEquals(Utils.bytesToInt(new byte[] { a, b, c, d }, 0), line[4]);
+            assertEquals(line[4], Utils.bytesToInt(new byte[] { a, b, c, d }, 0));
         }
     }
 
@@ -84,7 +83,7 @@ public class UtilsTest {
     public void testBytesToIntOffset() {
         for (int[] line : bytesToIntTests) {// MSB, B, B, LSB, EXPECTED
             byte a = (byte) line[0], b = (byte) line[1], c = (byte) line[2], d = (byte) line[3];
-            assertEquals(Utils.bytesToInt(new byte[] { 0, 0, 0, a, b, c, d }, 3), line[4]);
+            assertEquals(line[4], Utils.bytesToInt(new byte[] { 0, 0, 0, a, b, c, d }, 3));
         }
     }
 
@@ -92,24 +91,24 @@ public class UtilsTest {
     public void testUpdateRamping() {
         for (float base : new float[] { -1, 0, 1, 0.5f, -0.5f, 0.1f, -0.1f, 0.001f, -0.001f, 0.7f, -0.7f, 56, -56, -1.3f, 1.3f }) {
             for (float limit : new float[] { 0.1f, 0.2f, 0.3f, 0.4f, 0.5f, 0.6f, 0.7f, 1f, 2f, 2.5f, 6f, 10f }) {
-                assertEquals(Utils.updateRamping(base, base, limit), base, 0);
-                assertEquals(Utils.updateRamping(base, base, -limit), base, 0);
+                assertEquals(base, Utils.updateRamping(base, base, limit), 0);
+                assertEquals(base, Utils.updateRamping(base, base, -limit), 0);
                 for (float rel : new float[] { 0f, 0.01f, 0.1f, 0.2f, 0.3f, 0.5f, 1f, 2f, 30f }) {
                     if (rel >= limit) {
-                        assertEquals(Utils.updateRamping(base, base + rel, limit), (base + limit), 0);
-                        assertEquals(Utils.updateRamping(base, base + rel, -limit), (base + limit), 0);
-                        assertEquals(Utils.updateRamping(base, base - rel, limit), (base - limit), 0);
-                        assertEquals(Utils.updateRamping(base, base - rel, -limit), (base - limit), 0);
+                        assertEquals((base + limit), Utils.updateRamping(base, base + rel, limit), 0);
+                        assertEquals((base + limit), Utils.updateRamping(base, base + rel, -limit), 0);
+                        assertEquals((base - limit), Utils.updateRamping(base, base - rel, limit), 0);
+                        assertEquals((base - limit), Utils.updateRamping(base, base - rel, -limit), 0);
                     } else {
-                        assertEquals(Utils.updateRamping(base, base + rel, limit), (base + rel), 0);
-                        assertEquals(Utils.updateRamping(base, base + rel, -limit), (base + rel), 0);
-                        assertEquals(Utils.updateRamping(base, base - rel, limit), (base - rel), 0);
-                        assertEquals(Utils.updateRamping(base, base - rel, -limit), (base - rel), 0);
+                        assertEquals((base + rel), Utils.updateRamping(base, base + rel, limit), 0);
+                        assertEquals((base + rel), Utils.updateRamping(base, base + rel, -limit), 0);
+                        assertEquals((base - rel), Utils.updateRamping(base, base - rel, limit), 0);
+                        assertEquals((base - rel), Utils.updateRamping(base, base - rel, -limit), 0);
                     }
                 }
             }
             for (float rel : new float[] { 0f, 0.01f, 0.1f, 0.2f, 0.3f, 0.5f, 1f, 2f, 30f }) {
-                assertEquals(Utils.updateRamping(base, base + rel, 0), (base + rel), 0);
+                assertEquals((base + rel), Utils.updateRamping(base, base + rel, 0), 0);
             }
         }
     }
@@ -119,28 +118,28 @@ public class UtilsTest {
         for (float i = -17.6f; i <= 17.6f; i += 0.1f) {
             float dz = Utils.deadzone(i, 7.2f);
             if (i >= -7.2f && i <= 7.2f) {
-                assertEquals(dz, 0f, 0);
+                assertEquals(0f, dz, 0);
             } else {
-                assertEquals(dz, i, 0);
+                assertEquals(i, dz, 0);
             }
         }
     }
-    
+
     @Test
     public void testMethodCaller() {
         CallerInfo info = Utils.getMethodCaller(0);
-        assertEquals(info.getClassName(), "ccre.util.UtilsTest");
-        assertEquals(info.getFileName(), "UtilsTest.java");
-        assertEquals(info.getMethodName(), "testMethodCaller");
+        assertEquals("ccre.util.UtilsTest", info.getClassName());
+        assertEquals("UtilsTest.java", info.getFileName());
+        assertEquals("testMethodCaller", info.getMethodName());
     }
-    
+
     @Test
     public void testMethodCallerLineNumber() {
         CallerInfo info = Utils.getMethodCaller(0);
         CallerInfo info2 = Utils.getMethodCaller(0);
-        assertEquals(info.getLineNum(), info2.getLineNum() - 1);
+        assertEquals(info2.getLineNum() - 1, info.getLineNum());
     }
-    
+
     @Test
     public void testMethodCallerInvalid() {
         for (int i = -10; i < 0; i++) {
@@ -154,11 +153,14 @@ public class UtilsTest {
         CallerInfo info = Utils.getMethodCaller(0);
         String got = Utils.toStringThrowable(new Throwable("Example"));
         String[] pts = got.split("\n");
-        assertEquals(pts[0], "java.lang.Throwable: Example");
+        assertNotNull(info.getFileName());
+        assertNotNull(info.getMethodName());
+        assertTrue(info.getLineNum() > 0);
+        assertEquals("java.lang.Throwable: Example", pts[0]);
         int expectedLine = info.getLineNum() + 1;
-        assertEquals(pts[1], "\tat " + info.getClassName() + "." + info.getMethodName() + "(" + info.getFileName() + ":" + expectedLine + ")");
+        assertEquals("\tat " + info.getClassName() + "." + info.getMethodName() + "(" + info.getFileName() + ":" + expectedLine + ")", pts[1]);
     }
-    
+
     @Test
     public void testNullToStringThrowable() {
         assertNull(Utils.toStringThrowable(null));

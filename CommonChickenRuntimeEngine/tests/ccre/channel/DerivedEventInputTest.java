@@ -27,12 +27,12 @@ import ccre.util.Values;
 
 public class DerivedEventInputTest {
 
-    private EventStatus es;
+    private EventCell es;
     private CountingEventOutput ceo;
 
     @Before
     public void setUp() {
-        es = new EventStatus();
+        es = new EventCell();
         ceo = new CountingEventOutput();
     }
 
@@ -61,7 +61,7 @@ public class DerivedEventInputTest {
 
     @Test
     public void testProduced() {
-        BooleanStatus v = new BooleanStatus();
+        BooleanCell v = new BooleanCell();
         EventInput ei = new DerivedEventInput(es) {
             @Override
             protected boolean shouldProduce() {

@@ -52,13 +52,13 @@ public class LineCollectorOutputStreamTest {
 
     @Test
     public void testSimpleUsage() throws IOException {
-        stream.write(("hello world\n").getBytes());
+        stream.write(("hello world\n").getBytes("UTF-8"));
         check("hello world");
     }
     
     @Test
     public void testPartialResult() throws IOException {
-        stream.write("hello world".getBytes());
+        stream.write("hello world".getBytes("UTF-8"));
         stream.flush();
         assertEquals(count, lastCount); // nothing yet
         stream.write('\n');
@@ -72,7 +72,7 @@ public class LineCollectorOutputStreamTest {
             if (str.contains("\n")) {
                 continue;
             }
-            stream.write((str + "\n").getBytes());
+            stream.write((str + "\n").getBytes("UTF-8"));
             check(str);
         }
     }

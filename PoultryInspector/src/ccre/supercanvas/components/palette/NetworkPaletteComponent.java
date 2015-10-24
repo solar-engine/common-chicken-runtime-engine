@@ -32,11 +32,10 @@ import ccre.channel.EventOutput;
 import ccre.channel.FloatInput;
 import ccre.channel.FloatOutput;
 import ccre.cluck.Cluck;
-import ccre.cluck.CluckNode;
+import ccre.cluck.CluckConstants;
 import ccre.cluck.CluckPublisher;
 import ccre.cluck.CluckRemoteListener;
 import ccre.cluck.rpc.RemoteProcedure;
-import ccre.log.LogLevel;
 import ccre.log.Logger;
 import ccre.log.LoggingTarget;
 import ccre.rconf.RConfable;
@@ -81,17 +80,17 @@ public class NetworkPaletteComponent extends PaletteComponent<Collection<Network
 
     static SuperCanvasComponent createComponent(String name, Object target, int type, int x, int y) {
         switch (type) {
-        case CluckNode.RMT_BOOLOUTP:
+        case CluckConstants.RMT_BOOLOUTP:
             return new BooleanControlComponent(x, y, name, (BooleanOutput) target);
-        case CluckNode.RMT_BOOLINPUT:
+        case CluckConstants.RMT_BOOLINPUT:
             return new BooleanDisplayComponent(x, y, name, (BooleanInput) target);
-        case CluckNode.RMT_EVENTOUTP:
+        case CluckConstants.RMT_EVENTOUTP:
             return new EventControlComponent(x, y, name, (EventOutput) target);
-        case CluckNode.RMT_EVENTINPUT:
+        case CluckConstants.RMT_EVENTINPUT:
             return new EventDisplayComponent(x, y, name, (EventInput) target);
-        case CluckNode.RMT_FLOATOUTP:
+        case CluckConstants.RMT_FLOATOUTP:
             return new FloatControlComponent(x, y, name, (FloatOutput) target);
-        case CluckNode.RMT_FLOATINPUT:
+        case CluckConstants.RMT_FLOATINPUT:
             return new FloatDisplayComponent(x, y, name, (FloatInput) target);
         case F_RMT_EVENTS:
             return new EventControlComponent(x, y, name, (EventInput) ((Object[]) target)[0], (EventOutput) ((Object[]) target)[1]);
@@ -101,40 +100,40 @@ public class NetworkPaletteComponent extends PaletteComponent<Collection<Network
             return new BooleanControlComponent(x, y, name, (BooleanInput) ((Object[]) target)[0], (BooleanOutput) ((Object[]) target)[1]);
         case F_RMT_RCONF:
             return new RConfComponent(x, y, name, (RConfable) target);
-        case CluckNode.RMT_OUTSTREAM:
+        case CluckConstants.RMT_OUTSTREAM:
             return new OutputStreamControlComponent(x, y, name, (OutputStream) target);
-        case CluckNode.RMT_LOGTARGET:
+        case CluckConstants.RMT_LOGTARGET:
             return new LoggingTargetControlComponent(x, y, name, (LoggingTarget) target);
-        case CluckNode.RMT_INVOKE:
+        case CluckConstants.RMT_INVOKE:
             return new RPCControlComponent(x, y, name, (RemoteProcedure) target);
         default:
-            Logger.warning("Could not display RMT of " + CluckNode.rmtToString(type));
+            Logger.warning("Could not display RMT of " + CluckConstants.rmtToString(type));
             return null;
         }
     }
 
     private static Object subscribeByType(String path, int type) {
         switch (type) {
-        case CluckNode.RMT_BOOLOUTP:
+        case CluckConstants.RMT_BOOLOUTP:
             return Cluck.subscribeBO(path);
-        case CluckNode.RMT_BOOLINPUT:
+        case CluckConstants.RMT_BOOLINPUT:
             return Cluck.subscribeBI(path, false);
-        case CluckNode.RMT_EVENTOUTP:
+        case CluckConstants.RMT_EVENTOUTP:
             return Cluck.subscribeEO(path);
-        case CluckNode.RMT_EVENTINPUT:
+        case CluckConstants.RMT_EVENTINPUT:
             return Cluck.subscribeEI(path);
-        case CluckNode.RMT_FLOATOUTP:
+        case CluckConstants.RMT_FLOATOUTP:
             return Cluck.subscribeFO(path);
-        case CluckNode.RMT_FLOATINPUT:
+        case CluckConstants.RMT_FLOATINPUT:
             return Cluck.subscribeFI(path, false);
-        case CluckNode.RMT_INVOKE:
+        case CluckConstants.RMT_INVOKE:
             return Cluck.getNode().getRPCManager().subscribe(path, 500); // Is this a good amount of time?
-        case CluckNode.RMT_LOGTARGET:
-            return Cluck.subscribeLT(path, LogLevel.FINEST); // Is this a good level?
-        case CluckNode.RMT_OUTSTREAM:
+        case CluckConstants.RMT_LOGTARGET:
+            return Cluck.subscribeLT(path);
+        case CluckConstants.RMT_OUTSTREAM:
             return Cluck.subscribeOS(path);
         default:
-            Logger.warning("Could not subscribe to RMT of " + CluckNode.rmtToString(type));
+            Logger.warning("Could not subscribe to RMT of " + CluckConstants.rmtToString(type));
             return null;
         }
     }
@@ -188,16 +187,16 @@ public class NetworkPaletteComponent extends PaletteComponent<Collection<Network
                     base = remote.substring(0, remote.length() - 6);
                     pairName = base + ".output";
                     switch (remoteType) {
-                    case CluckNode.RMT_BOOLINPUT:
-                        expect = CluckNode.RMT_BOOLOUTP;
+                    case CluckConstants.RMT_BOOLINPUT:
+                        expect = CluckConstants.RMT_BOOLOUTP;
                         type = F_RMT_BOOLEANS;
                         break;
-                    case CluckNode.RMT_FLOATINPUT:
-                        expect = CluckNode.RMT_FLOATOUTP;
+                    case CluckConstants.RMT_FLOATINPUT:
+                        expect = CluckConstants.RMT_FLOATOUTP;
                         type = F_RMT_FLOATS;
                         break;
-                    case CluckNode.RMT_EVENTINPUT:
-                        expect = CluckNode.RMT_EVENTOUTP;
+                    case CluckConstants.RMT_EVENTINPUT:
+                        expect = CluckConstants.RMT_EVENTOUTP;
                         type = F_RMT_EVENTS;
                         break;
                     default:
@@ -208,27 +207,27 @@ public class NetworkPaletteComponent extends PaletteComponent<Collection<Network
                     base = remote.substring(0, remote.length() - 7);
                     pairName = base + ".input";
                     switch (remoteType) {
-                    case CluckNode.RMT_BOOLOUTP:
-                        expect = CluckNode.RMT_BOOLINPUT;
+                    case CluckConstants.RMT_BOOLOUTP:
+                        expect = CluckConstants.RMT_BOOLINPUT;
                         type = F_RMT_BOOLEANS;
                         break;
-                    case CluckNode.RMT_FLOATOUTP:
-                        expect = CluckNode.RMT_FLOATINPUT;
+                    case CluckConstants.RMT_FLOATOUTP:
+                        expect = CluckConstants.RMT_FLOATINPUT;
                         type = F_RMT_FLOATS;
                         break;
-                    case CluckNode.RMT_EVENTOUTP:
-                        expect = CluckNode.RMT_EVENTINPUT;
+                    case CluckConstants.RMT_EVENTOUTP:
+                        expect = CluckConstants.RMT_EVENTINPUT;
                         type = F_RMT_EVENTS;
                         break;
                     default:
                         return;
                     }
                 } else {
-                    if ((remote.endsWith("-rpcq") || remote.endsWith("-rpcs")) && remoteType == CluckNode.RMT_INVOKE) {
+                    if ((remote.endsWith("-rpcq") || remote.endsWith("-rpcs")) && remoteType == CluckConstants.RMT_INVOKE) {
                         base = remote.substring(0, remote.length() - 5);
                         pairName = base + (remote.endsWith("s") ? "-rpcq" : "-rpcs");
                         for (NetworkPaletteElement e : entries) {
-                            if (pairName.equals(e.getName()) && e.type == CluckNode.RMT_INVOKE) {
+                            if (pairName.equals(e.getName()) && e.type == CluckConstants.RMT_INVOKE) {
                                 entries.add(new NetworkPaletteElement(base, Cluck.subscribeRConf(base, 500), F_RMT_RCONF));
                                 break;
                             }

@@ -27,9 +27,9 @@ import ccre.channel.FloatInput;
  *
  * @author skeggsc
  */
-public class CombinationJoystickWithPOV implements IJoystick {
+public class CombinationJoystickWithPOV implements Joystick {
 
-    private final IJoystick alpha, beta;
+    private final Joystick alpha, beta;
 
     /**
      * Combine two Joysticks into one.
@@ -37,7 +37,7 @@ public class CombinationJoystickWithPOV implements IJoystick {
      * @param alpha the first Joystick.
      * @param beta the second Joystick.
      */
-    public CombinationJoystickWithPOV(IJoystick alpha, IJoystick beta) {
+    public CombinationJoystickWithPOV(Joystick alpha, Joystick beta) {
         this.alpha = alpha;
         this.beta = beta;
     }

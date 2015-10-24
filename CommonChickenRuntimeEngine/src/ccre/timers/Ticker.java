@@ -18,10 +18,11 @@
  */
 package ccre.timers;
 
+import ccre.channel.AbstractUpdatingInput;
 import ccre.channel.EventInput;
 import ccre.channel.EventOutput;
-import ccre.channel.EventStatus;
 import ccre.concurrency.ReporterThread;
+import ccre.log.Logger;
 import ccre.time.Time;
 
 /**
@@ -30,9 +31,8 @@ import ccre.time.Time;
  *
  * @author MillerV, SkeggsC
  */
-public final class Ticker implements EventInput {
+public final class Ticker extends AbstractUpdatingInput implements EventInput {
 
-    private final EventStatus producer = new EventStatus();
     private final ReporterThread main;
     private boolean isKilled = false;
     private final Object lock = new Object();
@@ -76,7 +76,7 @@ public final class Ticker implements EventInput {
      */
     public void terminate() {
         isKilled = true;
-        producer.__UNSAFE_clearListeners();
+        this.__UNSAFE_clearListeners();
         synchronized (lock) {
             lock.notifyAll();
         }
@@ -114,7 +114,11 @@ public final class Ticker implements EventInput {
                             break;
                         }
                     }
-                    producer.safeEvent();
+                    try {
+                        perform();
+                    } catch (Throwable thr) {
+                        Logger.severe("Top-level failure in Ticker event", thr);
+                    }
                     next += interval;
                 }
             } else {
@@ -132,7 +136,11 @@ public final class Ticker implements EventInput {
                             break;
                         }
                     }
-                    producer.safeEvent();
+                    try {
+                        perform();
+                    } catch (Throwable thr) {
+                        Logger.severe("Top-level failure in Ticker event", thr);
+                    }
                     lastTime = Time.currentTimeMillis();
                 }
             }
@@ -147,7 +155,7 @@ public final class Ticker implements EventInput {
         if (!main.isAlive()) {
             start();
         }
-        producer.onUpdate(notify);
+        super.onUpdate(notify);
     }
 
     private void start() {
@@ -169,6 +177,6 @@ public final class Ticker implements EventInput {
         if (!main.isAlive()) {
             start();
         }
-        return producer.onUpdateR(notify);
+        return super.onUpdateR(notify);
     }
 }

@@ -21,8 +21,6 @@ package ccre.channel;
 import java.util.Iterator;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-import ccre.util.Utils;
-
 /**
  * An UpdatingInput that simplifies updating sending to simply calling
  * {@link #perform()}.

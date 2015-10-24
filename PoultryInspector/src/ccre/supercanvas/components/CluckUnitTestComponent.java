@@ -57,7 +57,7 @@ public class CluckUnitTestComponent extends DraggableBoxComponent {
         EventInput ei = Cluck.subscribeEI("robot/utest-ei0");
         FloatOutput fo = Cluck.subscribeFO("robot/utest-fo0");
         FloatInput fi = Cluck.subscribeFI("robot/utest-fi0", false);
-        LoggingTarget lt = Cluck.subscribeLT("robot/utest-lt0", LogLevel.FINEST);
+        LoggingTarget lt = Cluck.subscribeLT("robot/utest-lt0");
         OutputStream os = Cluck.subscribeOS("robot/utest-os0");
         private int ctr;
 
@@ -115,7 +115,7 @@ public class CluckUnitTestComponent extends DraggableBoxComponent {
 
         private void checkSendData() throws InterruptedException, IOException {
             int start = ctr;
-            os.write("THIS IS THE CCRE TALKING.\0 send properly. DO IT.\n".getBytes());
+            os.write("THIS IS THE CCRE TALKING.\0 send properly. DO IT.\n".getBytes("UTF-8"));
             this.wait(200);
             if (ctr != start + 1) {
                 Logger.warning("Unit testing failed - send data failed.");

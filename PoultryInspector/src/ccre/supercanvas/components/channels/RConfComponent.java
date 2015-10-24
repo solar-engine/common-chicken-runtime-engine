@@ -36,6 +36,7 @@ import ccre.supercanvas.SuperCanvasComponent;
 import ccre.supercanvas.SuperCanvasPanel;
 import ccre.supercanvas.components.palette.NetworkPaletteComponent;
 import ccre.timers.Ticker;
+import ccre.util.Utils;
 
 /**
  * A SuperCanvas-based component to allow interaction with RConf data.
@@ -349,7 +350,7 @@ public class RConfComponent extends DraggableBoxComponent {
                         String oldString = e.parseTextual();
                         asked = JOptionPane.showInputDialog("Enter string", oldString == null ? "" : oldString);
                         if (asked != null) {
-                            payload = asked.getBytes();
+                            payload = Utils.getBytes(asked);
                         }
                         break;
                     case RConf.F_CLUCK_REF:

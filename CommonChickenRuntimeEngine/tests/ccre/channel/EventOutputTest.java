@@ -104,7 +104,7 @@ public class EventOutputTest { // TODO: should I be checking propagation of with
 
     @Test
     public void testFilter() {
-        BooleanStatus allow = new BooleanStatus();
+        BooleanCell allow = new BooleanCell();
         EventOutput eo = ceo.filter(allow);
         for (boolean b : Values.interestingBooleans) {
             allow.set(b);
@@ -123,7 +123,7 @@ public class EventOutputTest { // TODO: should I be checking propagation of with
 
     @Test
     public void testFilterNot() {
-        BooleanStatus deny = new BooleanStatus();
+        BooleanCell deny = new BooleanCell();
         EventOutput eo = ceo.filterNot(deny);
         for (boolean b : Values.interestingBooleans) {
             deny.set(b);

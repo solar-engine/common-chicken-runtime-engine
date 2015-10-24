@@ -184,6 +184,7 @@ public class TickerTest {
         for (int i = 0; i < 20; i++) {
             fake.forward(period);
         }
+        Thread.sleep(2);
         check(20);
     }
 
@@ -202,6 +203,7 @@ public class TickerTest {
         for (int i = 0; i < 70; i++) {
             fake.forward(period);
         }
+        Thread.sleep(2);
         check(70);
     }
 }

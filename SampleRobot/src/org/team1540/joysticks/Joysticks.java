@@ -19,7 +19,7 @@
 package org.team1540.joysticks;
 
 import ccre.cluck.Cluck;
-import ccre.ctrl.IJoystick;
+import ccre.ctrl.Joystick;
 import ccre.frc.FRC;
 import ccre.frc.FRCApplication;
 
@@ -41,14 +41,14 @@ public class Joysticks implements FRCApplication {
         publishJoystick(4, FRC.joystick4);
     }
 
-    private void publishJoystick(int id, IJoystick joy) {
+    private void publishJoystick(int id, Joystick joy) {
         for (int axis = 1; axis <= 6; axis++) {
             Cluck.publish("Joystick " + id + " Axis " + axis, joy.axis(axis));
         }
         for (int button = 1; button <= 12; button++) {
             Cluck.publish("Joystick " + id + " Button " + button, joy.button(button));
         }
-        for (int direction : IJoystick.POV_DIRECTIONS) {
+        for (int direction : Joystick.POV_DIRECTIONS) {
             Cluck.publish("Joystick " + id + " POV Pressed (" + direction + ")", joy.isPOV(direction));
         }
     }

@@ -26,7 +26,7 @@ import ccre.channel.FloatOutput;
 import ccre.channel.SerialIO;
 import ccre.ctrl.DisconnectedSerialIO;
 import ccre.ctrl.ExtendedMotor;
-import ccre.ctrl.IJoystick;
+import ccre.ctrl.Joystick;
 import ccre.ctrl.LoopbackSerialIO;
 import ccre.ctrl.binding.ControlBindingCreator;
 import ccre.frc.devices.BooleanControlDevice;
@@ -66,7 +66,7 @@ public class DeviceBasedImplementation implements FRCImplementation {
      */
     public DeviceBasedImplementation(EventInput onInitComplete) {
         this.onInitComplete = onInitComplete;
-        joysticks = new IJoystick[6];
+        joysticks = new Joystick[6];
         motors = new FloatOutput[20];
         solenoids = new BooleanOutput[64][8];
         digitalOutputs = new BooleanOutput[26];
@@ -105,10 +105,10 @@ public class DeviceBasedImplementation implements FRCImplementation {
     private final LoggingDevice logger;
     private EventInput masterPeriodic = new Ticker(20);
 
-    private IJoystick[] joysticks;
+    private Joystick[] joysticks;
 
     @Override
-    public IJoystick getJoystick(int id) {
+    public Joystick getJoystick(int id) {
         if (id < 1 || id > joysticks.length) {
             throw new IllegalArgumentException("Invalid Joystick #" + id + "!");
         }

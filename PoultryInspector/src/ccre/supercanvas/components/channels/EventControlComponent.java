@@ -25,7 +25,7 @@ import java.io.Serializable;
 
 import ccre.channel.EventInput;
 import ccre.channel.EventOutput;
-import ccre.channel.EventStatus;
+import ccre.channel.EventCell;
 import ccre.rconf.RConf.Entry;
 import ccre.supercanvas.BaseChannelComponent;
 import ccre.supercanvas.Rendering;
@@ -45,7 +45,7 @@ public class EventControlComponent extends BaseChannelComponent<EventControlComp
     private static final long serialVersionUID = 5604099540525088534L;
     private transient long countStart;
     private final EventInput alternateSource;
-    private final EventStatus stat = new EventStatus();
+    private final EventCell stat = new EventCell();
     private EventOutput unsubscribe;
 
     /**

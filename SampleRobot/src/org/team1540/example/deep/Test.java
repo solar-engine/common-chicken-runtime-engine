@@ -18,7 +18,7 @@
  */
 package org.team1540.example.deep;
 
-import ccre.channel.BooleanStatus;
+import ccre.channel.BooleanCell;
 import ccre.cluck.Cluck;
 import ccre.ctrl.binding.ControlBindingCreator;
 import ccre.frc.FRC;
@@ -34,7 +34,7 @@ import ccre.frc.FRCApplication;
  */
 public class Test implements FRCApplication {
 
-    public static final ControlBindingCreator driveControls = FRC.makeControlBindingCreator("Drive Code");
+    public static final ControlBindingCreator driveControls = FRC.controlBinding("Drive Code");
 
     /**
      * Set up the test robot. This includes tank drive, high gear/low gear, a
@@ -44,12 +44,12 @@ public class Test implements FRCApplication {
     public void setupRobot() {
         Cluck.publishRConf("drive-code", new DriveCode());
         // Shifting
-        BooleanStatus shifter = new BooleanStatus(FRC.makeSolenoid(3));
+        BooleanCell shifter = new BooleanCell(FRC.solenoid(3));
         shifter.setFalseWhen(FRC.startTele);
         shifter.setTrueWhen(driveControls.addBoolean("High Gear").onPress());
         shifter.setFalseWhen(driveControls.addBoolean("Low Gear").onPress());
         // Compressor
-        FRC.useCompressor(1, 1);
+        FRC.compressor(1, 1);
         // Autonomous
         /* FRC.registerAutonomous(new InstinctModule() {
             protected void autonomousMain() throws AutonomousModeOverException, InterruptedException {

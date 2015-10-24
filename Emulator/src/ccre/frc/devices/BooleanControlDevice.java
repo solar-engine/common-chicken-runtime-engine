@@ -20,7 +20,7 @@ package ccre.frc.devices;
 
 import ccre.channel.BooleanInput;
 import ccre.channel.EventInput;
-import ccre.channel.EventStatus;
+import ccre.channel.EventCell;
 import ccre.frc.Device;
 import ccre.frc.components.BooleanTextComponent;
 import ccre.frc.components.SpacingComponent;
@@ -34,7 +34,7 @@ import ccre.frc.components.TextComponent;
  */
 public class BooleanControlDevice extends Device {
 
-    private final EventStatus pressEvent = new EventStatus();
+    private final EventCell pressEvent = new EventCell();
     private final BooleanTextComponent actuated = new BooleanTextComponent("INACTIVE", "ACTIVE") {
         @Override
         public void onPress(int x, int y) {

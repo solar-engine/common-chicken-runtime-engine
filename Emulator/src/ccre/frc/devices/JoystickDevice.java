@@ -22,7 +22,7 @@ import ccre.channel.BooleanInput;
 import ccre.channel.EventInput;
 import ccre.channel.FloatInput;
 import ccre.ctrl.CombinationJoystickWithPOV;
-import ccre.ctrl.IJoystick;
+import ccre.ctrl.Joystick;
 import ccre.frc.Device;
 import ccre.frc.DeviceGroup;
 import ccre.frc.DeviceListPanel;
@@ -133,8 +133,8 @@ public class JoystickDevice extends DeviceGroup {
      * @param check when to update the Joystick's sources.
      * @return the Joystick.
      */
-    public IJoystick getJoystick(EventInput check) {
-        return new CombinationJoystickWithPOV(joystickHolder.getJoystick(check), new IJoystick() {
+    public Joystick getJoystick(EventInput check) {
+        return new CombinationJoystickWithPOV(joystickHolder.getJoystick(check), new Joystick() {
             public BooleanInput button(int id) {
                 if (id < 1 || id > buttons.length) {
                     throw new IllegalArgumentException("Invalid button number: " + id);

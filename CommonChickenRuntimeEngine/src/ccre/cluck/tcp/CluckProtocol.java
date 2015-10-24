@@ -27,6 +27,7 @@ import java.util.LinkedList;
 import java.util.Random;
 
 import ccre.cluck.CluckLink;
+import ccre.cluck.CluckConstants;
 import ccre.cluck.CluckNode;
 import ccre.concurrency.ReporterThread;
 import ccre.log.Logger;
@@ -130,7 +131,7 @@ public class CluckProtocol {
                     if (din.readLong() != checksum(data, checksumBase)) {
                         throw new IOException("Checksums did not match!");
                     }
-                    if (!expectKeepAlives && "KEEPALIVE".equals(dest) && source == null && data.length >= 2 && data[0] == CluckNode.RMT_NEGATIVE_ACK && data[1] == 0x6D) {
+                    if (!expectKeepAlives && "KEEPALIVE".equals(dest) && source == null && data.length >= 2 && data[0] == CluckConstants.RMT_NEGATIVE_ACK && data[1] == 0x6D) {
                         expectKeepAlives = true;
                         Logger.info("Detected KEEPALIVE message. Expecting future keepalives on " + linkName + ".");
                     }
@@ -282,7 +283,7 @@ public class CluckProtocol {
                         }
                         if (queue.isEmpty()) {
                             // Send a "keep-alive" message. RMT_NEGATIVE_ACK will never be complained about, so it works.
-                            ent = new SendableEntry(null, "KEEPALIVE", new byte[] { CluckNode.RMT_NEGATIVE_ACK, 0x6D });
+                            ent = new SendableEntry(null, "KEEPALIVE", new byte[] { CluckConstants.RMT_NEGATIVE_ACK, 0x6D });
                         } else {
                             ent = queue.removeFirst();
                         }

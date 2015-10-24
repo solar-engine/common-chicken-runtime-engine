@@ -27,25 +27,25 @@ import org.junit.Test;
 
 import ccre.channel.EventInput;
 import ccre.channel.EventOutput;
-import ccre.channel.EventStatus;
+import ccre.channel.EventCell;
 import ccre.channel.FloatInput;
-import ccre.channel.FloatStatus;
+import ccre.channel.FloatCell;
 import ccre.testing.CountingEventOutput;
 import ccre.time.FakeTime;
 import ccre.time.Time;
 
 public class PIDControllerTest {
 
-    private FloatStatus input, setpoint, P, I, D;
+    private FloatCell input, setpoint, P, I, D;
     private PIDController pid;
 
     @Before
     public void setUp() throws Exception {
-        input = new FloatStatus(0);
-        setpoint = new FloatStatus(0);
-        P = new FloatStatus(1);
-        I = new FloatStatus(0.1f);
-        D = new FloatStatus(0.01f);
+        input = new FloatCell(0);
+        setpoint = new FloatCell(0);
+        P = new FloatCell(1);
+        I = new FloatCell(0.1f);
+        D = new FloatCell(0.01f);
         pid = new PIDController(input, setpoint, P, I, D);
     }
 
@@ -57,7 +57,7 @@ public class PIDControllerTest {
 
     @Test
     public void testCreateFixed() {
-        EventStatus updateOn = new EventStatus();
+        EventCell updateOn = new EventCell();
         setpoint.set(0);
         PIDController cf = PIDController.createFixed(updateOn, input, setpoint, P.get(), I.get(), D.get());
         setpoint.set(1);
@@ -139,7 +139,7 @@ public class PIDControllerTest {
     public void testSetOutputBoundsFloatInput() {
         input.set(0);
         setpoint.set(100);
-        FloatStatus bound = new FloatStatus(0.4f);
+        FloatCell bound = new FloatCell(0.4f);
         pid.setOutputBounds(bound);
         pid.update(1000);
         assertTrue(Math.abs(pid.get()) == 0.4f);
@@ -178,7 +178,7 @@ public class PIDControllerTest {
         setpoint.set(0);
         pid.update(1000);
         assertTrue(pid.integralTotal.get() == 0);
-        FloatStatus ib = new FloatStatus(1.7f);
+        FloatCell ib = new FloatCell(1.7f);
         pid.setIntegralBounds(ib);
         setpoint.set(1000);
         pid.update(1000);
@@ -208,7 +208,7 @@ public class PIDControllerTest {
 
     @Test
     public void testSetMaximumTimeDeltaFloatInput() {
-        FloatStatus max = new FloatStatus(0.1f);
+        FloatCell max = new FloatCell(0.1f);
         pid = new PIDController(input, setpoint, FloatInput.zero, I, FloatInput.zero);
         pid.setMaximumTimeDelta(max);
         setpoint.set(1);

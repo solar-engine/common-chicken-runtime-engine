@@ -25,6 +25,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import ccre.cluck.CluckConstants;
 import ccre.cluck.CluckNode;
 import ccre.cluck.CluckSubscriber;
 import ccre.log.Logger;
@@ -65,8 +66,8 @@ public final class RPCManager implements Serializable {
             }
 
             @Override
-            protected void handleOther(String dest, String source, byte[] data) {
-                if (requireRMT(source, data, CluckNode.RMT_INVOKE_REPLY)) {
+            protected void receiveSideChannel(String dest, String source, byte[] data) {
+                if (requireRMT(source, data, CluckConstants.RMT_INVOKE_REPLY)) {
                     checkRPCTimeouts();
                     OutputStream stream;
                     synchronized (RPCManager.this) {
@@ -105,7 +106,7 @@ public final class RPCManager implements Serializable {
         new CluckSubscriber(node) {
             @Override
             protected void receive(final String source, byte[] data) {
-                if (requireRMT(source, data, CluckNode.RMT_INVOKE)) {
+                if (requireRMT(source, data, CluckConstants.RMT_INVOKE)) {
                     checkRPCTimeouts();
                     byte[] sdata = new byte[data.length - 1];
                     System.arraycopy(data, 1, sdata, 0, sdata.length);
@@ -121,14 +122,14 @@ public final class RPCManager implements Serializable {
                             node.transmit(source, name, toByteArray());
                         }
                     };
-                    baos.write(CluckNode.RMT_INVOKE_REPLY);
+                    baos.write(CluckConstants.RMT_INVOKE_REPLY);
                     proc.invoke(sdata, baos);
                 }
             }
 
             @Override
             protected void receiveBroadcast(String source, byte[] data) {
-                defaultBroadcastHandle(source, data, CluckNode.RMT_INVOKE);
+                defaultBroadcastHandle(source, data, CluckConstants.RMT_INVOKE);
             }
         }.attach(name);
     }
@@ -194,7 +195,7 @@ public final class RPCManager implements Serializable {
             checkRPCTimeouts();
             String localname = UniqueIds.global.nextHexId(path);
             byte[] toSend = new byte[in.length + 1];
-            toSend[0] = CluckNode.RMT_INVOKE;
+            toSend[0] = CluckConstants.RMT_INVOKE;
             System.arraycopy(in, 0, toSend, 1, in.length);
             putNewInvokeBinding(path, localname, timeoutAfter, out, toSend);
         }

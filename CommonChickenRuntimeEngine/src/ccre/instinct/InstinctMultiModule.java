@@ -278,7 +278,7 @@ public class InstinctMultiModule extends InstinctModule {
     }
 
     @Override
-    protected final void autonomousMain() throws AutonomousModeOverException, InterruptedException {
+    protected final void autonomousMain() throws Throwable {
         if (mode == null) {
             Logger.severe("No autonomous mode found! Did you remember to call InstinctMultiModule.loadSettings()?");
         } else {

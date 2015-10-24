@@ -22,7 +22,7 @@ import java.util.HashMap;
 
 import ccre.channel.BooleanInput;
 import ccre.channel.FloatInput;
-import ccre.ctrl.IJoystick;
+import ccre.ctrl.Joystick;
 
 /**
  * A ControlBindingDataSourceBuildable is an easy way to define a
@@ -45,19 +45,19 @@ public class ControlBindingDataSourceBuildable implements ControlBindingDataSour
      * @param joy the Joystick.
      * @param buttonCount the number of buttons.
      * @param axisCount the number of axes.
-     * @see #addJoystick(String, IJoystick, int, int)
+     * @see #addJoystick(String, Joystick, int, int)
      */
-    public void addJoystick(String name, IJoystick joy, int buttonCount, int axisCount) {
+    public void addJoystick(String name, Joystick joy, int buttonCount, int axisCount) {
         for (int i = 1; i <= buttonCount; i++) {
             addButton(name + " BTN " + i, joy.button(i));
         }
         for (int i = 1; i <= axisCount; i++) {
             addAxis(name + " AXIS " + i, joy.axis(i));
         }
-        addButton(name + " POV UP", joy.isPOV(IJoystick.POV_NORTH));
-        addButton(name + " POV DOWN", joy.isPOV(IJoystick.POV_SOUTH));
-        addButton(name + " POV LEFT", joy.isPOV(IJoystick.POV_WEST));
-        addButton(name + " POV RIGHT", joy.isPOV(IJoystick.POV_EAST));
+        addButton(name + " POV UP", joy.isPOV(Joystick.POV_NORTH));
+        addButton(name + " POV DOWN", joy.isPOV(Joystick.POV_SOUTH));
+        addButton(name + " POV LEFT", joy.isPOV(Joystick.POV_WEST));
+        addButton(name + " POV RIGHT", joy.isPOV(Joystick.POV_EAST));
     }
 
     /**

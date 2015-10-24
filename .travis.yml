@@ -1,0 +1,8 @@
+language: java
+jdk:
+- oraclejdk8
+sudo: false
+script: cd ci && ./build-shell.sh
+notifications:
+  slack:
+    secure: QHYkPTjA1v9Ml9Tr4Oc9GC/tQYxNNvf7uFKUZmpHhcH9zhlFwM8z4dXrNllYoq7R5sgQga9+bKr69zIwDOiFDQ/EQK6QNL7T66hKbpStuM+GqZ+PS+px/CpmiErpk7A8gvXAqBKLU82kswTxafjW0g8dlmbVEFctyykf3nOYQjY=

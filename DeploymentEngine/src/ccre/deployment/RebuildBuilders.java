@@ -21,8 +21,10 @@ package ccre.deployment;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
@@ -67,8 +69,12 @@ public class RebuildBuilders {
     }
 
     public static void rebuild(Class<?> deployment, String displayName, String methodName, boolean fork) throws IOException {
+        InputStream resource = RebuildBuilders.class.getResourceAsStream("/ccre/deployment/invocation-template.xml");
+        if (resource == null) {
+            throw new FileNotFoundException("Cannot find /ccre/deployment/invocation-template.xml!");
+        }
         File launcher = new File(DepProject.directoryOrCreate("launches"), DepProject.name() + " " + displayName + ".launch");
-        try (BufferedReader in = new BufferedReader(new InputStreamReader(RebuildBuilders.class.getResourceAsStream("/ccre/deployment/invocation-template.xml")))) {
+        try (BufferedReader in = new BufferedReader(new InputStreamReader(resource))) {
             try (BufferedWriter out = new BufferedWriter(new FileWriter(launcher))) {
                 String line;
                 while ((line = in.readLine()) != null) {

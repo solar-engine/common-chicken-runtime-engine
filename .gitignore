@@ -1,11 +1,14 @@
 /CommonChickenRuntimeEngine/bin/
 /CommonChickenRuntimeEngine/build/
+/CommonChickenRuntimeEngine/test-build/
 /CommonChickenRuntimeEngine/cobertura-instrumented/
 /CommonChickenRuntimeEngine/coverage/
 /CommonChickenRuntimeEngine/CCRE.jar
 /CommonChickenRuntimeEngine/cobertura.ser
 /CommonChickenRuntimeEngine/unit_testing_test.txt
 /Emulator/bin/
+/Emulator/build/
+/Emulator/Dependencies.jar
 /Emulator/Emulator.jar
 /SampleRobot/bin/
 /SampleRobot/dist/
@@ -15,11 +18,15 @@
 /SampleRobot/logs-*
 /SampleRobot/emulator-logs/
 /PoultryInspector/bin/
+/PoultryInspector/build/
+/PoultryInspector/Dependencies.jar
 /PoultryInspector/PoultryInspector*.jar
 /PoultryInspector/log-*
 /PoultryInspector/*.ser
 /roboRIO/bin/
+/roboRIO/build/
 /roboRIO/roboRIO*.jar
+/roboRIO/Dependencies.jar
 /TemplateRobot/bin/
 /CCRE_Examples/bin/
 /.metadata
@@ -29,6 +36,8 @@
 /javadoc.tgz
 /CCRE_Igneous_cRIO/bin
 /DeploymentEngine/DepEngine.jar
+/DeploymentEngine/Dependencies.jar
+/DeploymentEngine/build/
 /docsrc/*.css
 /docsrc/*.html
 /docsrc/*.js
@@ -36,3 +45,4 @@
 /docsrc/pict*.png
 /docsrc/ccre-docs-*
 /docsrc/*~
+/ci/junit-output

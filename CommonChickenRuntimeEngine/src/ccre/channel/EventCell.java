@@ -26,7 +26,7 @@ import java.io.Serializable;
  *
  * @author skeggsc
  */
-public class EventStatus extends AbstractUpdatingInput implements EventInput, EventOutput, Serializable {
+public class EventCell extends AbstractUpdatingInput implements EventInput, EventOutput, Serializable {
 
     private static final long serialVersionUID = -1536503261547524049L;
 
@@ -37,7 +37,7 @@ public class EventStatus extends AbstractUpdatingInput implements EventInput, Ev
      * @param events the events to fire when this event is fired.
      * @see #send(ccre.channel.EventOutput)
      */
-    public EventStatus(EventOutput... events) {
+    public EventCell(EventOutput... events) {
         for (EventOutput event : events) {
             onUpdate(event);
         }

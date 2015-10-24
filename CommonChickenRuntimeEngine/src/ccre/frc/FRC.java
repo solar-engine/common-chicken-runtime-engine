@@ -25,7 +25,8 @@ import ccre.channel.FloatInput;
 import ccre.channel.FloatOutput;
 import ccre.channel.SerialIO;
 import ccre.ctrl.ExtendedMotor;
-import ccre.ctrl.IJoystick;
+import ccre.ctrl.ExtendedMotorFailureException;
+import ccre.ctrl.Joystick;
 import ccre.ctrl.binding.CluckControlBinder;
 import ccre.ctrl.binding.ControlBindingCreator;
 import ccre.ctrl.binding.ControlBindingDataSource;
@@ -78,27 +79,27 @@ public class FRC {
     /**
      * Joystick 1 on the Driver Station.
      */
-    public static final IJoystick joystick1 = impl.getJoystick(1);
+    public static final Joystick joystick1 = impl.getJoystick(1);
     /**
      * Joystick 2 on the Driver Station.
      */
-    public static final IJoystick joystick2 = impl.getJoystick(2);
+    public static final Joystick joystick2 = impl.getJoystick(2);
     /**
      * Joystick 3 on the Driver Station.
      */
-    public static final IJoystick joystick3 = impl.getJoystick(3);
+    public static final Joystick joystick3 = impl.getJoystick(3);
     /**
      * Joystick 4 on the Driver Station.
      */
-    public static final IJoystick joystick4 = impl.getJoystick(4);
+    public static final Joystick joystick4 = impl.getJoystick(4);
     /**
      * Joystick 5 on the Driver Station.
      */
-    public static final IJoystick joystick5 = impl.getJoystick(5);
+    public static final Joystick joystick5 = impl.getJoystick(5);
     /**
      * Joystick 6 on the Driver Station.
      */
-    public static final IJoystick joystick6 = impl.getJoystick(6);
+    public static final Joystick joystick6 = impl.getJoystick(6);
     /**
      * Produced during every mode if the driver station is attached.
      */
@@ -163,7 +164,7 @@ public class FRC {
      * @see #MOTOR_FORWARD
      * @see #MOTOR_REVERSE
      */
-    public static FloatOutput makeJaguarMotor(int id, boolean negate, float ramping) {
+    public static FloatOutput jaguar(int id, boolean negate, float ramping) {
         FloatOutput motor = impl.makeMotor(id, FRCImplementation.JAGUAR);
         FloatOutput ramped = (negate ? motor.negate() : motor).addRamping(ramping, constantPeriodic);
         ramped.setWhen(0.0f, startDisabled);
@@ -182,8 +183,8 @@ public class FRC {
      * @see #MOTOR_FORWARD
      * @see #MOTOR_REVERSE
      */
-    public static FloatOutput makeJaguarMotor(int id, boolean negate) {
-        return makeJaguarMotor(id, negate, 0.1f);
+    public static FloatOutput jaguar(int id, boolean negate) {
+        return jaguar(id, negate, 0.1f);
     }
 
     /**
@@ -204,7 +205,7 @@ public class FRC {
      * @see #MOTOR_FORWARD
      * @see #MOTOR_REVERSE
      */
-    public static FloatOutput makeVictorMotor(int id, boolean negate, float ramping) {
+    public static FloatOutput victor(int id, boolean negate, float ramping) {
         FloatOutput motor = impl.makeMotor(id, FRCImplementation.VICTOR);
         FloatOutput ramped = (negate ? motor.negate() : motor).addRamping(ramping, constantPeriodic);
         ramped.setWhen(0.0f, startDisabled);
@@ -223,8 +224,8 @@ public class FRC {
      * @see #MOTOR_FORWARD
      * @see #MOTOR_REVERSE
      */
-    public static FloatOutput makeVictorMotor(int id, boolean negate) {
-        return makeVictorMotor(id, negate, 0.1f);
+    public static FloatOutput victor(int id, boolean negate) {
+        return victor(id, negate, 0.1f);
     }
 
     /**
@@ -245,7 +246,7 @@ public class FRC {
      * @see #MOTOR_FORWARD
      * @see #MOTOR_REVERSE
      */
-    public static FloatOutput makeTalonMotor(int id, boolean negate, float ramping) {
+    public static FloatOutput talon(int id, boolean negate, float ramping) {
         FloatOutput motor = impl.makeMotor(id, FRCImplementation.TALON);
         FloatOutput ramped = (negate ? motor.negate() : motor).addRamping(ramping, constantPeriodic);
         ramped.setWhen(0.0f, startDisabled);
@@ -264,8 +265,8 @@ public class FRC {
      * @see #MOTOR_FORWARD
      * @see #MOTOR_REVERSE
      */
-    public static FloatOutput makeTalonMotor(int id, boolean negate) {
-        return makeTalonMotor(id, negate, 0.1f);
+    public static FloatOutput talon(int id, boolean negate) {
+        return talon(id, negate, 0.1f);
     }
 
     /**
@@ -276,9 +277,24 @@ public class FRC {
      * @param deviceNumber the device number to connect to.
      * @return the ExtendedMotor representing this output.
      */
-    public static ExtendedMotor makeCANJaguar(int deviceNumber) {
+    public static ExtendedMotor jaguarCAN(int deviceNumber) {
         Logger.warning("The CCRE CAN Jaguar functionality is NOT yet complete and is UNTESTED! Use with your own risk.");
         return impl.makeCANJaguar(deviceNumber);
+    }
+
+    /**
+     * Create a reference to a CAN Jaguar speed controller with the specified
+     * CAN device number. This may, of course, fail, if the Jaguar cannot be
+     * found.
+     *
+     * @param deviceNumber the device number to connect to.
+     * @param negate MOTOR_FORWARD if the motor direction should be unmodified,
+     * MOTOR_REVERSE if the motor direction should be reversed.
+     * @return the output that will output to the specified motor.
+     * @throws ExtendedMotorFailureException if control cannot be established.
+     */
+    public static FloatOutput jaguarSimpleCAN(int deviceNumber, boolean negate) throws ExtendedMotorFailureException {
+        return jaguarCAN(deviceNumber).simpleControl(negate);
     }
 
     /**
@@ -288,8 +304,22 @@ public class FRC {
      * @param deviceNumber the device number to connect to.
      * @return the ExtendedMotor representing this output.
      */
-    public static ExtendedMotor makeCANTalon(int deviceNumber) {
+    public static ExtendedMotor talonCAN(int deviceNumber) {
         return impl.makeCANTalon(deviceNumber);
+    }
+
+    /**
+     * Create a reference to a CAN Talon speed controller with the specified CAN
+     * device number. This may, of course, fail, if the Talon cannot be found.
+     *
+     * @param deviceNumber the device number to connect to.
+     * @param negate MOTOR_FORWARD if the motor direction should be unmodified,
+     * MOTOR_REVERSE if the motor direction should be reversed.
+     * @return the output that will output to the specified motor.
+     * @throws ExtendedMotorFailureException if control cannot be established.
+     */
+    public static FloatOutput talonSimpleCAN(int deviceNumber, boolean negate) throws ExtendedMotorFailureException {
+        return talonCAN(deviceNumber).simpleControl(negate);
     }
 
     /**
@@ -299,7 +329,7 @@ public class FRC {
      * @param id the port of the solenoid.
      * @return the output that will control the solenoid.
      */
-    public static BooleanOutput makeSolenoid(int id) {
+    public static BooleanOutput solenoid(int id) {
         return impl.makeSolenoid(0, id);
     }
 
@@ -310,7 +340,7 @@ public class FRC {
      * @param id the port of the solenoid.
      * @return the output that will control the solenoid.
      */
-    public static BooleanOutput makeSolenoid(int module, int id) {
+    public static BooleanOutput solenoid(int module, int id) {
         return impl.makeSolenoid(module, id);
     }
 
@@ -320,7 +350,7 @@ public class FRC {
      * @param id the port of the digital output.
      * @return the output that will control the digital output.
      */
-    public static BooleanOutput makeDigitalOutput(int id) {
+    public static BooleanOutput digitalOutput(int id) {
         return impl.makeDigitalOutput(id);
     }
 
@@ -330,7 +360,7 @@ public class FRC {
      *
      * @return The current battery voltage.
      */
-    public static FloatInput getBatteryVoltage() {
+    public static FloatInput batteryVoltage() {
         return impl.getBatteryVoltage(sensorPeriodic);
     }
 
@@ -341,7 +371,7 @@ public class FRC {
      * @param updateOn when to update the sensor value.
      * @return The current battery voltage.
      */
-    public static FloatInput getBatteryVoltage(EventInput updateOn) {
+    public static FloatInput batteryVoltage(EventInput updateOn) {
         return impl.getBatteryVoltage(updateOn);
     }
 
@@ -351,7 +381,7 @@ public class FRC {
      * @param id the port number.
      * @return the analog input, reporting in voltage.
      */
-    public static FloatInput makeAnalogInput(int id) {
+    public static FloatInput analogInput(int id) {
         return impl.makeAnalogInput(id, sensorPeriodic);
     }
 
@@ -362,7 +392,7 @@ public class FRC {
      * @param updateOn when to update the sensor value.
      * @return the analog input, reporting in voltage.
      */
-    public static FloatInput makeAnalogInput(int id, EventInput updateOn) {
+    public static FloatInput analogInput(int id, EventInput updateOn) {
         return impl.makeAnalogInput(id, updateOn);
     }
 
@@ -374,7 +404,7 @@ public class FRC {
      * @param averageBits the number of averaging bits.
      * @return the analog input, reporting in voltage.
      */
-    public static FloatInput makeAnalogInput(int id, int averageBits) {
+    public static FloatInput analogInput(int id, int averageBits) {
         return impl.makeAnalogInput(id, averageBits, sensorPeriodic);
     }
 
@@ -387,7 +417,7 @@ public class FRC {
      * @param updateOn when to update the sensor value.
      * @return the analog input, reporting in voltage.
      */
-    public static FloatInput makeAnalogInput(int id, int averageBits, EventInput updateOn) {
+    public static FloatInput analogInput(int id, int averageBits, EventInput updateOn) {
         return impl.makeAnalogInput(id, averageBits, updateOn);
     }
 
@@ -397,7 +427,7 @@ public class FRC {
      * @param id the port number.
      * @return the digital input.
      */
-    public static BooleanInput makeDigitalInput(int id) {
+    public static BooleanInput digitalInput(int id) {
         return impl.makeDigitalInput(id, sensorPeriodic);
     }
 
@@ -408,7 +438,7 @@ public class FRC {
      * @param updateOn when to update the sensor value.
      * @return the digital input.
      */
-    public static BooleanInput makeDigitalInput(int id, EventInput updateOn) {
+    public static BooleanInput digitalInput(int id, EventInput updateOn) {
         return impl.makeDigitalInput(id, updateOn);
     }
 
@@ -421,7 +451,7 @@ public class FRC {
      * @param id the port number.
      * @return the digital input.
      */
-    public static BooleanInput makeDigitalInputByInterrupt(int id) {
+    public static BooleanInput digitalInputByInterrupt(int id) {
         return impl.makeDigitalInputByInterrupt(id);
     }
 
@@ -436,7 +466,7 @@ public class FRC {
      * servo's maximum position.
      * @return the FloatOutput that controls the servo.
      */
-    public static FloatOutput makeServo(int id, float minInput, float maxInput) {
+    public static FloatOutput servo(int id, float minInput, float maxInput) {
         return impl.makeServo(id, minInput, maxInput);
     }
 
@@ -445,7 +475,7 @@ public class FRC {
      *
      * @return the input.
      */
-    public static BooleanInput getIsDisabled() {
+    public static BooleanInput robotDisabled() {
         return impl.getIsDisabled();
     }
 
@@ -454,7 +484,7 @@ public class FRC {
      *
      * @return the input.
      */
-    public static BooleanInput getIsEnabled() {
+    public static BooleanInput robotEnabled() {
         return impl.getIsDisabled().not();
     }
 
@@ -464,7 +494,7 @@ public class FRC {
      *
      * @return the input.
      */
-    public static BooleanInput getIsAutonomous() {
+    public static BooleanInput inAutonomousMode() {
         return impl.getIsAutonomous();
     }
 
@@ -474,7 +504,7 @@ public class FRC {
      *
      * @return the input.
      */
-    public static BooleanInput getIsTest() {
+    public static BooleanInput inTestMode() {
         return impl.getIsTest();
     }
 
@@ -484,7 +514,7 @@ public class FRC {
      *
      * @return the input.
      */
-    public static BooleanInput getIsTeleop() {
+    public static BooleanInput isTeleopMode() {
         return impl.getIsTest().or(impl.getIsAutonomous()).not();
     }
 
@@ -494,7 +524,7 @@ public class FRC {
      *
      * @return the input.
      */
-    public static BooleanInput getIsFMS() {
+    public static BooleanInput isOnFMS() {
         return impl.getIsFMS();
     }
 
@@ -506,8 +536,8 @@ public class FRC {
      * input.
      * @param compressorRelayChannel the channel of the compressor's relay.
      */
-    public static void useCompressor(int pressureSwitchChannel, int compressorRelayChannel) {
-        useCustomCompressor(makeDigitalInput(pressureSwitchChannel), compressorRelayChannel);
+    public static void compressor(int pressureSwitchChannel, int compressorRelayChannel) {
+        customCompressor(digitalInput(pressureSwitchChannel), compressorRelayChannel);
     }
 
     /**
@@ -516,7 +546,7 @@ public class FRC {
      *
      * @return a BooleanOutput that can turn closed loop control on and off.
      */
-    public static BooleanOutput usePCMCompressor() {
+    public static BooleanOutput compressorPCM() {
         return impl.usePCMCompressor();
     }
 
@@ -525,7 +555,7 @@ public class FRC {
      *
      * @return the pressure switch status.
      */
-    public static BooleanInput getPCMPressureSwitch() {
+    public static BooleanInput pressureSwitchPCM() {
         return impl.getPCMPressureSwitch(sensorPeriodic);
     }
 
@@ -535,7 +565,7 @@ public class FRC {
      * @param updateOn when to update the sensor value.
      * @return the pressure switch status.
      */
-    public static BooleanInput getPCMPressureSwitch(EventInput updateOn) {
+    public static BooleanInput pressureSwitchPCM(EventInput updateOn) {
         return impl.getPCMPressureSwitch(updateOn);
     }
 
@@ -544,7 +574,7 @@ public class FRC {
      *
      * @return the compressor enable output.
      */
-    public static BooleanInput getPCMCompressorRunning() {
+    public static BooleanInput compressorRunningPCM() {
         return impl.getPCMCompressorRunning(sensorPeriodic);
     }
 
@@ -554,7 +584,7 @@ public class FRC {
      * @param updateOn when to update the sensor value.
      * @return the compressor enable output.
      */
-    public static BooleanInput getPCMCompressorRunning(EventInput updateOn) {
+    public static BooleanInput compressorRunningPCM(EventInput updateOn) {
         return impl.getPCMCompressorRunning(updateOn);
     }
 
@@ -563,7 +593,7 @@ public class FRC {
      *
      * @return the current being used by the compressor.
      */
-    public static FloatInput getPCMCompressorCurrent() {
+    public static FloatInput compressorCurrentPCM() {
         return impl.getPCMCompressorCurrent(sensorPeriodic);
     }
 
@@ -573,7 +603,7 @@ public class FRC {
      * @param updateOn when to update the sensor value.
      * @return the current being used by the compressor.
      */
-    public static FloatInput getPCMCompressorCurrent(EventInput updateOn) {
+    public static FloatInput compressorCurrentPCM(EventInput updateOn) {
         return impl.getPCMCompressorCurrent(updateOn);
     }
 
@@ -583,7 +613,7 @@ public class FRC {
      * @param channel the channel to monitor
      * @return the current being used by the specified channel.
      */
-    public static FloatInput getPDPChannelCurrent(int channel) {
+    public static FloatInput channelCurrentPDP(int channel) {
         return impl.getPDPChannelCurrent(channel, sensorPeriodic);
     }
 
@@ -594,7 +624,7 @@ public class FRC {
      * @param updateOn when to update the sensor value.
      * @return the current being used by the specified channel.
      */
-    public static FloatInput getPDPChannelCurrent(int channel, EventInput updateOn) {
+    public static FloatInput channelCurrentPDP(int channel, EventInput updateOn) {
         return impl.getPDPChannelCurrent(channel, updateOn);
     }
 
@@ -603,7 +633,7 @@ public class FRC {
      *
      * @return the voltage being measured by the PDP.
      */
-    public static FloatInput getPDPVoltage() {
+    public static FloatInput voltagePDP() {
         return impl.getPDPVoltage(sensorPeriodic);
     }
 
@@ -613,7 +643,7 @@ public class FRC {
      * @param updateOn when to update the sensor value.
      * @return the voltage being measured by the PDP.
      */
-    public static FloatInput getPDPVoltage(EventInput updateOn) {
+    public static FloatInput voltagePDP(EventInput updateOn) {
         return impl.getPDPVoltage(updateOn);
     }
 
@@ -623,7 +653,7 @@ public class FRC {
      * @param powerChannel the power channel to read from.
      * @return the voltage being measured.
      */
-    public static FloatInput getChannelVoltage(int powerChannel) {
+    public static FloatInput voltageChannel(int powerChannel) {
         return impl.getChannelVoltage(powerChannel, sensorPeriodic);
     }
 
@@ -634,7 +664,7 @@ public class FRC {
      * @param updateOn when to update the sensor value.
      * @return the voltage being measured.
      */
-    public static FloatInput getChannelVoltage(int powerChannel, EventInput updateOn) {
+    public static FloatInput voltageChannel(int powerChannel, EventInput updateOn) {
         return impl.getChannelVoltage(powerChannel, updateOn);
     }
 
@@ -644,7 +674,7 @@ public class FRC {
      * @param powerChannel the power channel to read from.
      * @return the current being measured.
      */
-    public static FloatInput getChannelCurrent(int powerChannel) {
+    public static FloatInput currentChannel(int powerChannel) {
         return impl.getChannelCurrent(powerChannel, sensorPeriodic);
     }
 
@@ -655,7 +685,7 @@ public class FRC {
      * @param updateOn when to update the sensor value.
      * @return the current being measured.
      */
-    public static FloatInput getChannelCurrent(int powerChannel, EventInput updateOn) {
+    public static FloatInput currentChannel(int powerChannel, EventInput updateOn) {
         return impl.getChannelCurrent(powerChannel, updateOn);
     }
 
@@ -665,7 +695,7 @@ public class FRC {
      * @param powerChannel the power channel to read from.
      * @return if the channel is enabled.
      */
-    public static BooleanInput getChannelEnabled(int powerChannel) {
+    public static BooleanInput enabledChannel(int powerChannel) {
         return impl.getChannelEnabled(powerChannel, sensorPeriodic);
     }
 
@@ -676,7 +706,7 @@ public class FRC {
      * @param updateOn when to update the sensor value.
      * @return if the channel is enabled.
      */
-    public static BooleanInput getChannelEnabled(int powerChannel, EventInput updateOn) {
+    public static BooleanInput enabledChannel(int powerChannel, EventInput updateOn) {
         return impl.getChannelEnabled(powerChannel, updateOn);
     }
 
@@ -687,9 +717,9 @@ public class FRC {
      * @param shouldDisable should the compressor be turned off.
      * @param compressorRelayChannel the channel of the compressor's relay.
      */
-    public static void useCustomCompressor(BooleanInput shouldDisable, int compressorRelayChannel) {
+    public static void customCompressor(BooleanInput shouldDisable, int compressorRelayChannel) {
         // TODO: do this without an extra Ticker?
-        shouldDisable.send(makeForwardRelay(compressorRelayChannel).invert().limitUpdatesTo(new Ticker(500)));
+        shouldDisable.send(relayForward(compressorRelayChannel).invert().limitUpdatesTo(new Ticker(500)));
     }
 
     /**
@@ -703,7 +733,7 @@ public class FRC {
      * event is produced.
      * @return the Encoder, reporting encoder ticks.
      */
-    public static FloatInput makeEncoder(int aChannel, int bChannel, boolean reverse, EventInput resetWhen) {
+    public static FloatInput encoder(int aChannel, int bChannel, boolean reverse, EventInput resetWhen) {
         return impl.makeEncoder(aChannel, bChannel, reverse, resetWhen, sensorPeriodic);
     }
 
@@ -719,7 +749,7 @@ public class FRC {
      * @param updateOn when to update the sensor value.
      * @return the Encoder, reporting encoder ticks.
      */
-    public static FloatInput makeEncoder(int aChannel, int bChannel, boolean reverse, EventInput resetWhen, EventInput updateOn) {
+    public static FloatInput encoder(int aChannel, int bChannel, boolean reverse, EventInput resetWhen, EventInput updateOn) {
         // TODO: check arguments; similar issue to Gyro
         return impl.makeEncoder(aChannel, bChannel, reverse, resetWhen, updateOn);
     }
@@ -731,7 +761,7 @@ public class FRC {
      * @param channel The relay channel.
      * @return the output that will modify the forward side of the channel.
      */
-    public static BooleanOutput makeForwardRelay(int channel) {
+    public static BooleanOutput relayForward(int channel) {
         return impl.makeRelayForwardOutput(channel);
     }
 
@@ -742,7 +772,7 @@ public class FRC {
      * @param channel The relay channel.
      * @return the output that will modify the reverse side of the channel.
      */
-    public static BooleanOutput makeReverseRelay(int channel) {
+    public static BooleanOutput relayReverse(int channel) {
         return impl.makeRelayReverseOutput(channel);
     }
 
@@ -762,7 +792,7 @@ public class FRC {
      * @param evt When to reset the Gyro.
      * @return The reference to the Gyro's current value.
      */
-    public static FloatInput makeGyro(int port, double sensitivity, EventInput evt) {
+    public static FloatInput gyro(int port, double sensitivity, EventInput evt) {
         return impl.makeGyro(port, sensitivity, evt, sensorPeriodic);
     }
 
@@ -783,8 +813,10 @@ public class FRC {
      * @param updateOn when to update the sensor value.
      * @return The reference to the Gyro's current value.
      */
-    public static FloatInput makeGyro(int port, double sensitivity, EventInput evt, EventInput updateOn) {
-        // TODO: Figure out if anything should change about makeGyro's arguments now that I got rid of the no-event versions due to argument list conflicts.
+    public static FloatInput gyro(int port, double sensitivity, EventInput evt, EventInput updateOn) {
+        // TODO: Figure out if anything should change about makeGyro's arguments
+        // now that I got rid of the no-event versions due to argument list
+        // conflicts.
         return impl.makeGyro(port, sensitivity, evt, updateOn);
     }
 
@@ -795,7 +827,7 @@ public class FRC {
      * @param module the InstinctModule to register.
      */
     public static void registerAutonomous(InstinctModule module) {
-        module.setShouldBeRunning(getIsEnabled().and(getIsAutonomous()));
+        module.setShouldBeRunning(robotEnabled().and(inAutonomousMode()));
     }
 
     /**
@@ -806,7 +838,7 @@ public class FRC {
      * (used for debugging and the emulator.)
      * @return a SerialIO interface to the port.
      */
-    public static SerialIO makeRS232_Onboard(int baudRate, String deviceName) {
+    public static SerialIO onboardRS232(int baudRate, String deviceName) {
         return impl.makeRS232_Onboard(baudRate, deviceName);
     }
 
@@ -818,7 +850,7 @@ public class FRC {
      * (used for debugging and the emulator.)
      * @return a SerialIO interface to the port.
      */
-    public static SerialIO makeRS232_MXP(int baudRate, String deviceName) {
+    public static SerialIO mxpRS232(int baudRate, String deviceName) {
         return impl.makeRS232_MXP(baudRate, deviceName);
     }
 
@@ -830,29 +862,11 @@ public class FRC {
      * (used for debugging and the emulator.)
      * @return a SerialIO interface to the port.
      */
-    public static SerialIO makeRS232_USB(int baudRate, String deviceName) {
+    public static SerialIO usbRS232(int baudRate, String deviceName) {
         return impl.makeRS232_USB(baudRate, deviceName);
     }
 
     FRC() {
-    }
-
-    private static ControlBindingDataSource builtControlSource;
-
-    /**
-     * Get a ControlBindingDataSource for the six Joysticks.
-     *
-     * @return the data source.
-     * @see #getControlBindingDataSource(String...) if you want to provide your
-     * own names, or use a different number of Joysticks.
-     * @see #makeControlBindingCreator(String) if you just want to bind
-     * controls.
-     */
-    public static synchronized ControlBindingDataSource getControlBindingDataSource() {
-        if (builtControlSource == null) {
-            builtControlSource = getControlBindingDataSource("Joystick 1", "Joystick 2", "Joystick 3", "Joystick 4", "Joystick 5", "Joystick 6");
-        }
-        return builtControlSource;
     }
 
     /**
@@ -870,14 +884,14 @@ public class FRC {
      * @return the ControlBindingCreator that you can make your controls
      * available over.
      */
-    public static ControlBindingCreator makeControlBindingCreator(String name, boolean bypassEmulation) {
+    public static ControlBindingCreator controlBinding(String name, boolean bypassEmulation) {
         if (!bypassEmulation) {
             ControlBindingCreator out = impl.tryMakeControlBindingCreator(name);
             if (out != null) {
                 return out;
             }
         }
-        return CluckControlBinder.makeCreator(name, getControlBindingDataSource(), impl.getOnInitComplete());
+        return CluckControlBinder.makeCreator(name, controlBindingSource(), impl.getOnInitComplete());
     }
 
     /**
@@ -892,22 +906,61 @@ public class FRC {
      * "Drive Code".
      * @return the ControlBindingCreator that you can make your controls
      * available over.
-     * @see #makeControlBindingCreator(String, boolean) if you want to choose
-     * whether or not the emulator emulates control bindings directly.
+     * @see #controlBinding(String, boolean) if you want to choose whether or
+     * not the emulator emulates control bindings directly.
      */
-    public static ControlBindingCreator makeControlBindingCreator(String name) {
-        return makeControlBindingCreator(name, false);
+    public static ControlBindingCreator controlBinding(String name) {
+        return controlBinding(name, false);
+    }
+
+    private static ControlBindingCreator creator;
+
+    /**
+     * Get a ControlBindingCreator that the user can bind, over Cluck, to any
+     * Joystick inputs.
+     *
+     * If you're running in the emulator, then the Emulator will skip over
+     * including Joysticks at all and just show you your control bindings
+     * directly. Much easier to work with!
+     *
+     * @return the ControlBindingCreator that you can make your controls
+     * available over.
+     * @see #controlBinding(String) if you want to change the name of the
+     * module.
+     */
+    public static ControlBindingCreator controlBinding() {
+        if (creator == null) {
+            creator = controlBinding("Robot");
+        }
+        return creator;
+    }
+
+    private static ControlBindingDataSource builtControlSource;
+
+    /**
+     * Get a ControlBindingDataSource for the six Joysticks.
+     *
+     * @return the data source.
+     * @see #controlBindingSource(String...) if you want to provide your own
+     * names, or use a different number of Joysticks.
+     * @see #controlBinding(String) if you just want to bind controls.
+     */
+    public static synchronized ControlBindingDataSource controlBindingSource() {
+        if (builtControlSource == null) {
+            builtControlSource = controlBindingSource("Joystick 1", "Joystick 2", "Joystick 3", "Joystick 4", "Joystick 5", "Joystick 6");
+        }
+        return builtControlSource;
     }
 
     /**
-     * This is similar to {@link #getControlBindingDataSource()} but lets you
-     * give better names to your Joysticks. For example, you could say
+     * This is similar to {@link #controlBindingSource()} but lets you give
+     * better names to your Joysticks. For example, you could say
      * <code>FRC.getControlBindingDataSource("Drive Joystick", "Copilot Joystick");</code>
      *
      * @param names the names of the Joysticks to attach to, in order.
      * @return the generated control binding source.
      */
-    public static ControlBindingDataSource getControlBindingDataSource(String... names) {
+    public static ControlBindingDataSource controlBindingSource(String... names) {
         ControlBindingDataSourceBuildable ds = new ControlBindingDataSourceBuildable();
         for (int i = 0; i < names.length; i++) {
             ds.addJoystick(names[i], impl.getJoystick(i + 1), 12, 6);

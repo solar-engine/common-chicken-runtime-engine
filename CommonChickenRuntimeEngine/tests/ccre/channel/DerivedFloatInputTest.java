@@ -30,12 +30,12 @@ import ccre.util.Values;
 
 public class DerivedFloatInputTest {
 
-    private EventStatus es;
+    private EventCell es;
     private CountingFloatOutput cfo;
 
     @Before
     public void setUp() {
-        es = new EventStatus();
+        es = new EventCell();
         cfo = new CountingFloatOutput();
     }
 
@@ -67,7 +67,7 @@ public class DerivedFloatInputTest {
     @Test
     public void testGet() {
         for (float base : Values.interestingFloats) {
-            FloatStatus v = new FloatStatus(base);
+            FloatCell v = new FloatCell(base);
             FloatInput fi = new DerivedFloatInput(es) {
                 @Override
                 protected float apply() {
@@ -89,7 +89,7 @@ public class DerivedFloatInputTest {
 
     @Test
     public void testApplyChange() {
-        FloatStatus v = new FloatStatus();
+        FloatCell v = new FloatCell();
         FloatInput bi = new DerivedFloatInput(es) {
             @Override
             protected float apply() {

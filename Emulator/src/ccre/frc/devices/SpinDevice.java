@@ -21,7 +21,7 @@ package ccre.frc.devices;
 import ccre.channel.EventInput;
 import ccre.channel.EventOutput;
 import ccre.channel.FloatInput;
-import ccre.channel.FloatStatus;
+import ccre.channel.FloatCell;
 import ccre.frc.Device;
 import ccre.frc.components.BooleanTextComponent;
 import ccre.frc.components.SpacingComponent;
@@ -37,7 +37,7 @@ import ccre.timers.Ticker;
  */
 public class SpinDevice extends Device {
 
-    private FloatStatus ticks = new FloatStatus();
+    private FloatCell ticks = new FloatCell();
     private int velocity = 0;
     private BooleanTextComponent isVelocityMode = new BooleanTextComponent("POSITION", "VELOCITY") {
         @Override

@@ -52,7 +52,7 @@ public class DepJava {
         File destdir = Files.createTempDirectory("jclasses").toFile();
         Runtime.getRuntime().addShutdownHook(new DirectoryDeleterThread(destdir));
 
-        JavaCompiler.CompilationTask task = javac.getTask(null, null, null, Arrays.asList("-classpath", classpathToOption(destdir, classpath), "-d", destdir.getAbsolutePath(), "-source", JAVA_SOURCE_VERSION_OPTION, "-target", JAVA_TARGET_VERSION_OPTION), null, compilationUnits);
+        JavaCompiler.CompilationTask task = javac.getTask(null, null, null, Arrays.asList("-classpath", classpathToOption(destdir, classpath), "-d", destdir.getAbsolutePath(), "-source", JAVA_SOURCE_VERSION_OPTION, "-target", JAVA_TARGET_VERSION_OPTION, "-g"), null, compilationUnits);
 
         if (!task.call()) {
             throw new RuntimeException("Could not complete compilation! See output for details.");

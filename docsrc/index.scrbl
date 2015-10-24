@@ -7,21 +7,21 @@ The CCRE solves the problem of writing elegant and maintainable robot software
 by using a dataflow model and taking care of the infrastructure for your
 project so that you can focus on the important parts of your code.
 
-Here's an example of a robot piloted with Tank Drive:
+Here's an example of a robot piloted with Arcade Drive:
 
 @codeblock|{
-    DriverImpls.arcadeDrive(Igneous.joystick1,
-                            Igneous.makeTalonMotor(1, MOTOR_FORWARD),
-                            Igneous.makeTalonMotor(2, MOTOR_REVERSE));
+    DriverImpls.arcadeDrive(FRC.joystick1,
+                            FRC.talon(1, FRC.MOTOR_FORWARD),
+                            FRC.talon(2, FRC.MOTOR_REVERSE));
 }|
 
 Or, something more interesting: an example of a shifting drive train:
 
 @codeblock|{
-    BooleanOutput shifter = Igneous.makeSolenoid(2);
-    shifter.setFalseWhen(Igneous.startTele);
-    shifter.setTrueWhen(Igneous.joystick1.onPress(3));
-    shifter.setFalseWhen(Igneous.joystick1.onPress(1));
+    BooleanOutput shifter = FRC.makeSolenoid(2);
+    shifter.setFalseWhen(FRC.startTele);
+    shifter.setTrueWhen(FRC.joystick1.onPress(3));
+    shifter.setFalseWhen(FRC.joystick1.onPress(1));
 }|
 
 @author{Colby Skeggs <robotics [at] colbyskeggs [dot] com>}
@@ -128,7 +128,7 @@ Of course, that's not particularly interesting, so let's move on to actual motor
 Let's set up a Talon speed controller and control it with the Y axis of a Joystick.
 
 @codeblock|{
-  FloatOutput motor = FRC.makeTalonMotor(0, FRC.MOTOR_FORWARD);
+  FloatOutput motor = FRC.talon(0, FRC.MOTOR_FORWARD);
   FloatInput yAxis = FRC.joystick1.axisY();
   yAxis.send(motor);
 }|
@@ -168,7 +168,7 @@ and figure out its port number and which kind of speed controller it uses.
 CAN motors are harder to deal with. Don't worry, we'll get to CAN motors later.}
 
 Once you know which kind of speed controller you're using (Talon, Victor, Jaguar), you may need to replace
-@code{makeTalonMotor} with @code{makeVictorMotor} or @code{makeJaguarMotor}. You may also need to replace the @code{0}
+@code{talon} with @code{victor} or @code{jaguar}. You may also need to replace the @code{0}
 with the correct port number.
 
 Once you have the configuration correct, open the dropdown next to the External Tools button and select "MyFirstRobot Deploy."
@@ -373,7 +373,7 @@ For example:
 
 @codeblock|{
             BooleanOutput led = FRC.makeDigitalOutput(7);
-            FloatOutput test_motor = FRC.makeTalonMotor(3, FRC.MOTOR_FORWARD, 0.2f);
+            FloatOutput test_motor = FRC.talon(3, FRC.MOTOR_FORWARD, 0.2f);
             EventInput start_match = FRC.startTele;
             BooleanInput button = FRC.joystick1.button(3);
             FloatInput axis = FRC.joystick6.axis(3);

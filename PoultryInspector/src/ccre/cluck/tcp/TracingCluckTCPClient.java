@@ -25,6 +25,7 @@ import java.net.SocketException;
 import java.net.SocketTimeoutException;
 
 import ccre.cluck.CluckLink;
+import ccre.cluck.CluckConstants;
 import ccre.cluck.CluckNode;
 import ccre.drivers.ByteFiddling;
 import ccre.log.Logger;
@@ -62,9 +63,9 @@ public class TracingCluckTCPClient extends CluckTCPClient {
             if (data.length == 0) {
                 Logger.finest("[LOCAL] SEND " + source + " -> " + dest + ": EMPTY");
             } else if (data.length == 1) {
-                Logger.finest("[LOCAL] SEND " + source + " -> " + dest + ": " + CluckNode.rmtToString(data[0]));
+                Logger.finest("[LOCAL] SEND " + source + " -> " + dest + ": " + CluckConstants.rmtToString(data[0]));
             } else {
-                Logger.finest("[LOCAL] SEND " + source + " -> " + dest + ": " + CluckNode.rmtToString(data[0]) + " <" + ByteFiddling.toHex(data, 1, data.length) + ">");
+                Logger.finest("[LOCAL] SEND " + source + " -> " + dest + ": " + CluckConstants.rmtToString(data[0]) + " <" + ByteFiddling.toHex(data, 1, data.length) + ">");
             }
             return link.send(dest, source, data);
         }
@@ -112,7 +113,7 @@ public class TracingCluckTCPClient extends CluckTCPClient {
                     if (din.readLong() != CluckProtocol.checksum(data, checksumBase)) {
                         throw new IOException("Checksums did not match!");
                     }
-                    if (!expectKeepAlives && "KEEPALIVE".equals(dest) && source == null && data.length >= 2 && data[0] == CluckNode.RMT_NEGATIVE_ACK && data[1] == 0x6D) {
+                    if (!expectKeepAlives && "KEEPALIVE".equals(dest) && source == null && data.length >= 2 && data[0] == CluckConstants.RMT_NEGATIVE_ACK && data[1] == 0x6D) {
                         expectKeepAlives = true;
                         Logger.info("Detected KEEPALIVE message. Expecting future keepalives on " + linkName + ".");
                     }
@@ -148,10 +149,10 @@ public class TracingCluckTCPClient extends CluckTCPClient {
         if (data.length == 0) {
             Logger.finest("[LOCAL] RECV " + source + " -> " + dest + ": EMPTY");
         } else if (data.length == 1) {
-            Logger.finest("[LOCAL] RECV " + source + " -> " + dest + ": " + CluckNode.rmtToString(data[0]));
+            Logger.finest("[LOCAL] RECV " + source + " -> " + dest + ": " + CluckConstants.rmtToString(data[0]));
         } else if (!dest.equals("KEEPALIVE")) {
             Logger.finest("[LOCAL] RECV: " + data.length);
-            Logger.finest("[LOCAL] RECV " + source + " -> " + dest + ": " + CluckNode.rmtToString(data[0]) + " <" + ByteFiddling.toHex(data, 1, data.length) + ">");
+            Logger.finest("[LOCAL] RECV " + source + " -> " + dest + ": " + CluckConstants.rmtToString(data[0]) + " <" + ByteFiddling.toHex(data, 1, data.length) + ">");
         }
     }
 }

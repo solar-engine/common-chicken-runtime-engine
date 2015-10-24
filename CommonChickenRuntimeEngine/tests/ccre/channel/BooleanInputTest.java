@@ -34,7 +34,7 @@ public class BooleanInputTest {
 
     private CountingEventOutput expected, expected2;
 
-    private EventStatus es = null;
+    private EventCell es = null;
     private BooleanInput bi = null;
     private boolean result;// temporary variable
 
@@ -42,7 +42,7 @@ public class BooleanInputTest {
     public void setUp() throws Exception {
         expected = new CountingEventOutput();
         expected2 = new CountingEventOutput();
-        es = new EventStatus();
+        es = new EventCell();
         bi = new BooleanInput() {
             @Override
             public EventOutput onUpdateR(EventOutput notify) {
@@ -275,8 +275,8 @@ public class BooleanInputTest {
 
     @Test
     public void testAnd() {
-        BooleanStatus alpha = new BooleanStatus(), beta = new BooleanStatus();
-        BooleanStatus abi = new BooleanStatus(), bai = new BooleanStatus();
+        BooleanCell alpha = new BooleanCell(), beta = new BooleanCell();
+        BooleanCell abi = new BooleanCell(), bai = new BooleanCell();
         BooleanInput ab = alpha.and(beta), ba = beta.and(alpha);
         ab.send(abi);
         ba.send(bai);
@@ -299,8 +299,8 @@ public class BooleanInputTest {
 
     @Test
     public void testAndNot() {
-        BooleanStatus alpha = new BooleanStatus(), beta = new BooleanStatus();
-        BooleanStatus abi = new BooleanStatus(), bai = new BooleanStatus();
+        BooleanCell alpha = new BooleanCell(), beta = new BooleanCell();
+        BooleanCell abi = new BooleanCell(), bai = new BooleanCell();
         BooleanInput ab = alpha.andNot(beta), ba = beta.andNot(alpha);
         ab.send(abi);
         ba.send(bai);
@@ -323,8 +323,8 @@ public class BooleanInputTest {
 
     @Test
     public void testXor() {
-        BooleanStatus alpha = new BooleanStatus(), beta = new BooleanStatus();
-        BooleanStatus abi = new BooleanStatus(), bai = new BooleanStatus();
+        BooleanCell alpha = new BooleanCell(), beta = new BooleanCell();
+        BooleanCell abi = new BooleanCell(), bai = new BooleanCell();
         BooleanInput ab = alpha.xor(beta), ba = beta.xor(alpha);
         ab.send(abi);
         ba.send(bai);
@@ -347,8 +347,8 @@ public class BooleanInputTest {
 
     @Test
     public void testOr() {
-        BooleanStatus alpha = new BooleanStatus(), beta = new BooleanStatus();
-        BooleanStatus abi = new BooleanStatus(), bai = new BooleanStatus();
+        BooleanCell alpha = new BooleanCell(), beta = new BooleanCell();
+        BooleanCell abi = new BooleanCell(), bai = new BooleanCell();
         BooleanInput ab = alpha.or(beta), ba = beta.or(alpha);
         ab.send(abi);
         ba.send(bai);
@@ -371,8 +371,8 @@ public class BooleanInputTest {
 
     @Test
     public void testOrNot() {
-        BooleanStatus alpha = new BooleanStatus(), beta = new BooleanStatus();
-        BooleanStatus abi = new BooleanStatus(), bai = new BooleanStatus();
+        BooleanCell alpha = new BooleanCell(), beta = new BooleanCell();
+        BooleanCell abi = new BooleanCell(), bai = new BooleanCell();
         BooleanInput ab = alpha.orNot(beta), ba = beta.orNot(alpha);
         ab.send(abi);
         ba.send(bai);
@@ -396,7 +396,7 @@ public class BooleanInputTest {
     @Test
     public void testOnPress() {
         for (boolean b : new boolean[] { false, true }) {
-            BooleanStatus a = new BooleanStatus(b);
+            BooleanCell a = new BooleanCell(b);
             CountingEventOutput ceo = new CountingEventOutput();
             a.onPress().send(ceo);
             for (int i = 0; i < 5; i++) {
@@ -438,7 +438,7 @@ public class BooleanInputTest {
     @Test
     public void testOnRelease() {
         for (boolean b : new boolean[] { false, true }) {
-            BooleanStatus a = new BooleanStatus(b);
+            BooleanCell a = new BooleanCell(b);
             CountingEventOutput ceo = new CountingEventOutput();
             a.onRelease().send(ceo);
             for (int i = 0; i < 5; i++) {
@@ -500,8 +500,8 @@ public class BooleanInputTest {
     @Test
     public void testFilterUpdates() {
         for (boolean not : new boolean[] { false, true }) {
-            BooleanStatus a = new BooleanStatus(), allowDeny = new BooleanStatus(true);
-            BooleanStatus out = new BooleanStatus();
+            BooleanCell a = new BooleanCell(), allowDeny = new BooleanCell(true);
+            BooleanCell out = new BooleanCell();
             bi = not ? a.filterUpdatesNot(allowDeny) : a.filterUpdates(allowDeny);
             bi.send(out);
             boolean expect = false;
@@ -529,8 +529,8 @@ public class BooleanInputTest {
 
     @Test
     public void testToFloatFloatFloat() {
-        BooleanStatus bs = new BooleanStatus();
-        FloatStatus out = new FloatStatus();
+        BooleanCell bs = new BooleanCell();
+        FloatCell out = new FloatCell();
         FloatInput fi = bs.toFloat(6.4f, 3.2f);
         fi.send(out);
         assertEquals(6.4f, fi.get(), 0);
@@ -544,8 +544,8 @@ public class BooleanInputTest {
 
     @Test
     public void testToFloatFloatFloatInput() {
-        BooleanStatus bs = new BooleanStatus();
-        FloatStatus out = new FloatStatus(), tru = new FloatStatus();
+        BooleanCell bs = new BooleanCell();
+        FloatCell out = new FloatCell(), tru = new FloatCell();
         FloatInput fi = bs.toFloat(6.4f, tru);
         fi.send(out);
         assertEquals(6.4f, fi.get(), 0);
@@ -570,8 +570,8 @@ public class BooleanInputTest {
 
     @Test
     public void testToFloatFloatInputFloat() {
-        BooleanStatus bs = new BooleanStatus();
-        FloatStatus out = new FloatStatus(), fals = new FloatStatus(6.4f);
+        BooleanCell bs = new BooleanCell();
+        FloatCell out = new FloatCell(), fals = new FloatCell(6.4f);
         FloatInput fi = bs.toFloat(fals, 3.2f);
         fi.send(out);
         assertEquals(6.4f, fi.get(), 0);
@@ -596,8 +596,8 @@ public class BooleanInputTest {
 
     @Test
     public void testToFloatFloatInputFloatInput() {
-        BooleanStatus bs = new BooleanStatus();
-        FloatStatus out = new FloatStatus(), tru = new FloatStatus(), fals = new FloatStatus(6.4f);
+        BooleanCell bs = new BooleanCell();
+        FloatCell out = new FloatCell(), tru = new FloatCell(), fals = new FloatCell(6.4f);
         FloatInput fi = bs.toFloat(fals, tru);
         fi.send(out);
         assertEquals(6.4f, fi.get(), 0);
@@ -608,7 +608,7 @@ public class BooleanInputTest {
             bs.toggle();
             assertEquals(bs.get() ? tru.get() : fals.get(), fi.get(), 0);
             assertEquals(bs.get() ? tru.get() : fals.get(), out.get(), 0);
-            FloatStatus var = i % 2 == 0 ? tru : fals;
+            FloatCell var = i % 2 == 0 ? tru : fals;
             for (float f : Values.interestingFloats) {
                 var.set(f);// switch which one we vary each time outside
                 assertEquals(bs.get() ? tru.get() : fals.get(), fi.get(), 0);

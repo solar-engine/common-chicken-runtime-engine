@@ -32,11 +32,11 @@ import java.util.jar.Manifest;
 
 import ccre.channel.BooleanInput;
 import ccre.channel.BooleanOutput;
-import ccre.channel.BooleanStatus;
+import ccre.channel.BooleanCell;
 import ccre.channel.DerivedBooleanInput;
 import ccre.channel.DerivedFloatInput;
 import ccre.channel.EventInput;
-import ccre.channel.EventStatus;
+import ccre.channel.EventCell;
 import ccre.channel.FloatInput;
 import ccre.channel.FloatOutput;
 import ccre.channel.SerialIO;
@@ -45,7 +45,7 @@ import ccre.concurrency.ReporterThread;
 import ccre.ctrl.CommunicationFailureExtendedMotor;
 import ccre.ctrl.ExtendedMotor;
 import ccre.ctrl.ExtendedMotorFailureException;
-import ccre.ctrl.IJoystick;
+import ccre.ctrl.Joystick;
 import ccre.ctrl.binding.ControlBindingCreator;
 import ccre.log.FileLogger;
 import ccre.log.Logger;
@@ -79,7 +79,7 @@ public final class DirectFRCImplementation implements FRCImplementation {
                 version.delete();
             }
             try (FileOutputStream output = new FileOutputStream(version)) {
-                output.write(("CCRE " + Version.getShortVersion() + ": 2015 Java 1.0.0").getBytes());
+                output.write(("CCRE " + Version.getShortVersion() + ": 2015 Java 1.0.0").getBytes("UTF-8"));
             }
         } catch (IOException ex) {
             Logger.warning("Could not write version file", ex);
@@ -153,7 +153,7 @@ public final class DirectFRCImplementation implements FRCImplementation {
         }
     }
 
-    private static final EventStatus globalPeriodic = new EventStatus();
+    private static final EventCell globalPeriodic = new EventCell();
 
     /**
      * Initialized by usePCMCompressor if needed.
@@ -164,19 +164,19 @@ public final class DirectFRCImplementation implements FRCImplementation {
 
     private boolean onFMS = false;
 
-    private final EventStatus[] startEvents, duringEvents;
+    private final EventCell[] startEvents, duringEvents;
 
-    private final EventStatus onInitComplete = new EventStatus();
+    private final EventCell onInitComplete = new EventCell();
 
-    private final EventStatus onChangeMode = new EventStatus();
+    private final EventCell onChangeMode = new EventCell();
 
     {
         int count = Mode.values().length;
-        startEvents = new EventStatus[count];
-        duringEvents = new EventStatus[count];
+        startEvents = new EventCell[count];
+        duringEvents = new EventCell[count];
         for (int i = 0; i < count; i++) {
-            startEvents[i] = new EventStatus();
-            duringEvents[i] = new EventStatus();
+            startEvents[i] = new EventCell();
+            duringEvents[i] = new EventCell();
         }
     }
 
@@ -203,11 +203,11 @@ public final class DirectFRCImplementation implements FRCImplementation {
 
         public final String name;
 
-        private EventStatus getStart(DirectFRCImplementation impl) {
+        private EventCell getStart(DirectFRCImplementation impl) {
             return impl.startEvents[ordinal()];
         }
 
-        private EventStatus getDuring(DirectFRCImplementation impl) {
+        private EventCell getDuring(DirectFRCImplementation impl) {
             return impl.duringEvents[ordinal()];
         }
 
@@ -305,7 +305,7 @@ public final class DirectFRCImplementation implements FRCImplementation {
     public BooleanInput makeDigitalInputByInterrupt(int id) {
         DirectDigital.init(id, true);
         DirectDigital.initInterruptsSynchronous(id, true, true);
-        BooleanStatus out = new BooleanStatus(DirectDigital.get(id));
+        BooleanCell out = new BooleanCell(DirectDigital.get(id));
         new ReporterThread("Interrupt-Handler") {
             @Override
             protected void threadBody() {
@@ -565,7 +565,7 @@ public final class DirectFRCImplementation implements FRCImplementation {
     }
 
     @Override
-    public IJoystick getJoystick(int id) {
+    public Joystick getJoystick(int id) {
         if (id < 1 || id > 6) {
             throw new IllegalArgumentException("Joystick " + id + " is not a valid joystick number.");
         }

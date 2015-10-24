@@ -107,7 +107,7 @@ public class Webcam extends Thread {
             }
             buffer[i] = (byte) b;
             if (i > 0 && b == 10 && buffer[i - 1] == 13) {
-                return new String(buffer, 0, i - 1);
+                return new String(buffer, 0, i - 1, "UTF-8");
             } else {
                 i++;
                 if (i >= BUFSIZE) {
@@ -189,7 +189,7 @@ public class Webcam extends Thread {
         try {
             socketInputStream = new BufferedInputStream(socket.getInputStream());
             socketOutputStream = new BufferedOutputStream(socket.getOutputStream());
-            socketOutputStream.write(requestString.getBytes());
+            socketOutputStream.write(requestString.getBytes("UTF-8"));
             socketOutputStream.flush();
             String header;
             assertLine(socketInputStream, "HTTP/1.0 200 OK");

@@ -345,7 +345,7 @@ public interface FloatInput extends UpdatingInput {
 
     public default FloatInput withRamping(final float limit, EventInput updateWhen) {
         Utils.checkNull(updateWhen);
-        FloatStatus temp = new FloatStatus();
+        FloatCell temp = new FloatCell();
         updateWhen.send(this.createRampingEvent(limit, temp));
         return temp;
     }
@@ -366,7 +366,7 @@ public interface FloatInput extends UpdatingInput {
     }
 
     public default FloatInput derivative() {
-        final FloatStatus out = new FloatStatus();
+        FloatCell out = new FloatCell();
         FloatOutput deriv = out.viaDerivative();
         onUpdate(() -> deriv.set(get()));
         return out;

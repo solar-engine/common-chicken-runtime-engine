@@ -18,7 +18,7 @@
  */
 package ccre.supercanvas.components.palette;
 
-import ccre.cluck.CluckNode;
+import ccre.cluck.CluckConstants;
 import ccre.supercanvas.SuperCanvasComponent;
 import ccre.supercanvas.components.channels.FictionalChannelComponent;
 
@@ -49,7 +49,7 @@ class NetworkPaletteElement implements PaletteEntry, Comparable<NetworkPaletteEl
     public SuperCanvasComponent fetch(int x, int y) {
         SuperCanvasComponent out = NetworkPaletteComponent.createComponent(name, target, type, x, y);
         if (out == null) {
-            return new FictionalChannelComponent(x, y, name, CluckNode.rmtToString(type));
+            return new FictionalChannelComponent(x, y, name, CluckConstants.rmtToString(type));
         }
         return out;
     }

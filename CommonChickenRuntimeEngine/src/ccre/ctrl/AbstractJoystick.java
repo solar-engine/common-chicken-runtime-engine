@@ -21,12 +21,12 @@ package ccre.ctrl;
 import java.util.HashMap;
 
 import ccre.channel.BooleanInput;
-import ccre.channel.BooleanStatus;
+import ccre.channel.BooleanCell;
 import ccre.channel.EventInput;
 import ccre.channel.FloatInput;
-import ccre.channel.FloatStatus;
+import ccre.channel.FloatCell;
 
-public abstract class AbstractJoystick implements IJoystick {
+public abstract class AbstractJoystick implements Joystick {
 
     private final EventInput check;
     private final int axisCount, buttonCount;
@@ -37,20 +37,20 @@ public abstract class AbstractJoystick implements IJoystick {
         this.buttonCount = buttonCount;
     }
     
-    private final HashMap<Integer, BooleanStatus> buttons = new HashMap<>();
-    private final HashMap<Integer, FloatStatus> floats = new HashMap<>();
-    private final HashMap<Integer, BooleanStatus> povs = new HashMap<>();
+    private final HashMap<Integer, BooleanCell> buttons = new HashMap<>();
+    private final HashMap<Integer, FloatCell> floats = new HashMap<>();
+    private final HashMap<Integer, BooleanCell> povs = new HashMap<>();
     
     @Override
     public BooleanInput button(int btn) {
-        BooleanStatus old = buttons.get(btn);
+        BooleanCell old = buttons.get(btn);
         if (old != null) {
             return old;
         }
         if (btn < 1 || btn > buttonCount) {
             throw new IllegalArgumentException("button index must be in range of 1 ... " + buttonCount);
         }
-        BooleanStatus out = new BooleanStatus();
+        BooleanCell out = new BooleanCell();
         check.send(() -> out.set(getButton(btn)));
         buttons.put(btn, out);
         return out;
@@ -60,14 +60,14 @@ public abstract class AbstractJoystick implements IJoystick {
 
     @Override
     public FloatInput axis(int axis) {
-        FloatStatus old = floats.get(axis);
+        FloatCell old = floats.get(axis);
         if (old != null) {
             return old;
         }
         if (axis < 1 || axis > axisCount) {
             throw new IllegalArgumentException("axis index must be in range of 1 ... " + axisCount);
         }
-        FloatStatus out = new FloatStatus();
+        FloatCell out = new FloatCell();
         check.send(() -> out.set(getAxis(axis)));
         floats.put(axis, out);
         return out;
@@ -77,14 +77,14 @@ public abstract class AbstractJoystick implements IJoystick {
 
     @Override
     public BooleanInput isPOV(int direction) {
-        BooleanStatus old = povs.get(direction);
+        BooleanCell old = povs.get(direction);
         if (old != null) {
             return old;
         }
         if (direction < 0 || direction >= 360) {
             throw new IllegalArgumentException("isPOV index must be in range of 0 ... 359");
         }
-        BooleanStatus out = new BooleanStatus();
+        BooleanCell out = new BooleanCell();
         check.send(() -> out.set(getPOV(direction)));
         povs.put(direction, out);
         return out;

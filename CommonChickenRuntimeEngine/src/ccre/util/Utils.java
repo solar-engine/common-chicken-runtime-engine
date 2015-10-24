@@ -20,9 +20,7 @@ package ccre.util;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
-import java.util.Collection;
-
-import ccre.channel.EventOutput;
+import java.io.UnsupportedEncodingException;
 
 /**
  * A class for utilities that don't fit anywhere else.
@@ -161,6 +159,24 @@ public class Utils {
         } else {
             StackTraceElement elem = trace[traceIndex];
             return new CallerInfo(elem.getClassName(), elem.getMethodName(), elem.getFileName(), elem.getLineNumber());
+        }
+    }
+
+    // http://stackoverflow.com/questions/6030059/url-decoding-unsupportedencodingexception-in-java
+
+    public static byte[] getBytes(String title) {
+        try {
+            return title.getBytes("UTF-8");
+        } catch (UnsupportedEncodingException e) {
+            throw new AssertionError("UTF-8 is unknown", e);
+        }
+    }
+
+    public static String fromBytes(byte[] data, int start, int end) {
+        try {
+            return new String(data, start, end, "UTF-8");
+        } catch (UnsupportedEncodingException e) {
+            throw new AssertionError("UTF-8 is unknown", e);
         }
     }
 }

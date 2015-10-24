@@ -33,7 +33,7 @@ import net.java.games.input.ControllerEnvironment;
 import ccre.channel.EventInput;
 import ccre.channel.EventOutput;
 import ccre.ctrl.AbstractJoystick;
-import ccre.ctrl.IJoystick;
+import ccre.ctrl.Joystick;
 import ccre.log.Logger;
 
 /**
@@ -64,6 +64,7 @@ public class JoystickHandler {
                 String[] natives = ((String) str).split(";");
                 for (String s : natives) {
                     File out = new File(f, s);
+                    out.deleteOnExit();
                     InputStream inp = JoystickHandler.class.getResourceAsStream("/" + s);
                     if (inp == null) {
                         throw new IOException("Could not find resource: /" + s);
@@ -132,7 +133,7 @@ public class JoystickHandler {
          * @param check when to update the Joystick.
          * @return the Joystick interface.
          */
-        public IJoystick getJoystick(EventInput check) {
+        public Joystick getJoystick(EventInput check) {
             check.send(new EventOutput() {
                 @Override
                 public void event() {

@@ -18,18 +18,17 @@
  */
 package org.team1540.unittestee;
 
+import ccre.channel.BooleanCell;
 import ccre.channel.BooleanInput;
 import ccre.channel.BooleanOutput;
-import ccre.channel.BooleanStatus;
+import ccre.channel.EventCell;
 import ccre.channel.EventInput;
 import ccre.channel.EventOutput;
-import ccre.channel.EventStatus;
+import ccre.channel.FloatCell;
 import ccre.channel.FloatInput;
 import ccre.channel.FloatOutput;
-import ccre.channel.FloatStatus;
 import ccre.cluck.Cluck;
 import ccre.frc.FRCApplication;
-import ccre.log.LogLevel;
 
 /**
  * A deployable robot used for Cluck autotesting. Works with the associated
@@ -43,11 +42,11 @@ public class UnitTestBot implements FRCApplication {
     public void setupRobot() {
         String targetRoot = "pinspector/"; // TODO: make this work again.
         // Note: currently incomplete.
-        BooleanStatus b = new BooleanStatus();
-        FloatStatus f = new FloatStatus();
-        EventStatus e = new EventStatus();
+        BooleanCell b = new BooleanCell();
+        FloatCell f = new FloatCell();
+        EventCell e = new EventCell();
         Cluck.publish("utest-os0", Cluck.subscribeOS(targetRoot + "utest-os1"));
-        Cluck.publish("utest-lt0", Cluck.subscribeLT(targetRoot + "utest-lt1", LogLevel.FINEST));
+        Cluck.publish("utest-lt0", Cluck.subscribeLT(targetRoot + "utest-lt1"));
         Cluck.publish("utest-fo0", (FloatOutput) f);
         Cluck.publish("utest-fi0", (FloatInput) f);
         Cluck.publish("utest-bo0", (BooleanOutput) b);

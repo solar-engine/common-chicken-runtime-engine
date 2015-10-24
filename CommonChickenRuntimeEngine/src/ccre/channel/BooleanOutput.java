@@ -109,31 +109,31 @@ public interface BooleanOutput {
         };
     }
 
-    public default EventOutput getSetEvent(boolean value) {
-        return value ? getSetTrueEvent() : getSetFalseEvent();
+    public default EventOutput eventSet(boolean value) {
+        return value ? eventSetTrue() : eventSetFalse();
     }
 
-    public default EventOutput getSetEvent(BooleanInput value) {
+    public default EventOutput eventSet(BooleanInput value) {
         if (value == null) {
             throw new NullPointerException();
         }
         return () -> set(value.get());
     }
 
-    public default EventOutput getSetTrueEvent() {
+    public default EventOutput eventSetTrue() {
         return () -> set(true);
     }
 
-    public default EventOutput getSetFalseEvent() {
+    public default EventOutput eventSetFalse() {
         return () -> set(false);
     }
 
     public default void setWhen(boolean value, EventInput when) {
-        when.send(this.getSetEvent(value));
+        when.send(this.eventSet(value));
     }
 
     public default void setWhen(BooleanInput value, EventInput when) {
-        when.send(this.getSetEvent(value));
+        when.send(this.eventSet(value));
     }
 
     public default void setTrueWhen(EventInput when) {

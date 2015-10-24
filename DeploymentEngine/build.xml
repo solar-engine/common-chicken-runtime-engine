@@ -39,12 +39,14 @@
 		</jar>
 	</target>
 	<target name="compile" depends="clean,deps">
+		<delete dir="${build.dir}" />
 		<mkdir dir="${build.dir}" />
-		<javac destdir="${build.dir}" srcdir="${src.dir}" includeantruntime="false" classpath="Dependencies.jar" />
+		<javac destdir="${build.dir}" srcdir="${src.dir}" includeantruntime="false" classpath="Dependencies.jar" debug="true" />
 	</target>
 	<target name="build-jar" depends="compile,deps">
 		<jar destfile="DepEngine.jar" update="false">
 			<fileset dir="${build.dir}" includes="**/*" />
+			<fileset dir="${src.dir}" excludes="**/*.java" />
 			<zipfileset src="Dependencies.jar">
 				<include name="**/*" />
 				<exclude name="META-INF/*" />

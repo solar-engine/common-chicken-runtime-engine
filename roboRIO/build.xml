@@ -49,7 +49,7 @@
 	</target>
 	<target name="compile" depends="deps">
 		<mkdir dir="${build.dir}" />
-		<javac destdir="${build.dir}" srcdir="${src.dir}" includeantruntime="false" classpath="Dependencies.jar" />
+		<javac destdir="${build.dir}" srcdir="${src.dir}" includeantruntime="false" classpath="Dependencies.jar" debug="true" />
 	</target>
 	<target name="build-jar" depends="clean,find-version,find-version-backup,compile">
 		<echo level="info" message="CCRE version: ${git-desc}" />
@@ -58,14 +58,14 @@
 		</propertyfile>
 		<jar destfile="roboRIO.jar" update="false">
 			<fileset dir="${build.dir}" includes="**/*.class" />
-			<fileset dir="${build.dir}" includes="edu/wpi/first/wpilibj/binaries/*" />
+			<fileset dir="${src.dir}" includes="edu/wpi/first/wpilibj/binaries/*" />
 			<fileset dir="${build.dir}" includes="version.properties" />
 			<zipfileset src="Dependencies.jar" />
 		</jar>
 		<!-- LITE jar: for actual use on robot. The other one is used in emulation and includes stuff like the Emulator and the Deployment framework. -->
 		<jar destfile="roboRIO-lite.jar" update="false">
 			<fileset dir="${build.dir}" includes="**/*.class" />
-			<fileset dir="${build.dir}" includes="edu/wpi/first/wpilibj/binaries/*" />
+			<fileset dir="${src.dir}" includes="edu/wpi/first/wpilibj/binaries/*" />
 			<fileset dir="${build.dir}" includes="version.properties" />
 			<zipfileset src="../CommonChickenRuntimeEngine/CCRE.jar" includes="**/*.class" />
 		</jar>

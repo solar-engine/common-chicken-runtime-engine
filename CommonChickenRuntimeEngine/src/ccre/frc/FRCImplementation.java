@@ -203,7 +203,7 @@ public interface FRCImplementation {
     /**
      * Creates a reference to a Counter on the specified port. When the channel
      * is pulsed the counter will count up.
-     * 
+     *
      * @param upChannel The DIO channel that will count up
      * @param downChannel The DIO channel that will count down
      * @param resetWhen If provided, the Counter's value will be reset when this

@@ -49,7 +49,10 @@ public interface FloatInput extends UpdatingInput {
             }
 
             @Override
-            public EventOutput onUpdateR(EventOutput notify) {
+            public EventOutput onUpdate(EventOutput notify) {
+                if (notify == null) {
+                    throw new NullPointerException();
+                }
                 return EventOutput.ignored;
             }
         };
@@ -82,14 +85,9 @@ public interface FloatInput extends UpdatingInput {
      * @param output The float output to notify when the value changes.
      * @see FloatOutput#set(float)
      */
-    public default void send(FloatOutput output) {
+    public default EventOutput send(FloatOutput output) {
         output.safeSet(get());
-        onUpdate(() -> output.set(get()));
-    }
-
-    public default EventOutput sendR(FloatOutput output) {
-        output.safeSet(get());
-        return onUpdateR(() -> output.set(get()));
+        return onUpdate(() -> output.set(get()));
     }
 
     public default FloatInput plus(FloatInput other) {

@@ -96,7 +96,7 @@ public class EventCellTest {
         assertFalse(cell.hasListeners());
         cell.onUpdate(EventOutput.ignored);
         assertTrue(cell.hasListeners());
-        EventOutput unbind = cell.onUpdateR(EventOutput.ignored);
+        EventOutput unbind = cell.onUpdate(EventOutput.ignored);
         assertTrue(cell.hasListeners());
         unbind.event();
         assertTrue(cell.hasListeners());// should STILL have one left
@@ -105,9 +105,9 @@ public class EventCellTest {
     @Test
     public void testHasConsumers() {
         assertFalse(cell.hasListeners());
-        EventOutput unbind1 = cell.onUpdateR(EventOutput.ignored);
+        EventOutput unbind1 = cell.onUpdate(EventOutput.ignored);
         assertTrue(cell.hasListeners());
-        EventOutput unbind2 = cell.onUpdateR(EventOutput.ignored);
+        EventOutput unbind2 = cell.onUpdate(EventOutput.ignored);
         assertTrue(cell.hasListeners());
         unbind1.event();
         assertTrue(cell.hasListeners());// should STILL have one left
@@ -135,7 +135,7 @@ public class EventCellTest {
     public void testOnUpdateR() {
         CountingEventOutput ceo = new CountingEventOutput();
         for (int i = 0; i < 4; i++) {
-            EventOutput unbind = cell.onUpdateR(ceo);
+            EventOutput unbind = cell.onUpdate(ceo);
             for (int j = 0; j < 10; j++) {
                 ceo.ifExpected = true;
                 cell.event();
@@ -151,7 +151,7 @@ public class EventCellTest {
 
     @Test(expected = NullPointerException.class)
     public void testOnUpdateRNull() {
-        cell.onUpdateR(null);
+        cell.onUpdate(null);
     }
 
     @Test
@@ -162,7 +162,7 @@ public class EventCellTest {
         }
         EventOutput[] unbinds = new EventOutput[cs.length];
         for (int i = 0; i < cs.length; i++) {
-            unbinds[i] = cell.onUpdateR(cs[i]);
+            unbinds[i] = cell.onUpdate(cs[i]);
         }
         for (int r = 0; r < 5; r++) {
             for (int i = 0; i < cs.length; i++) {

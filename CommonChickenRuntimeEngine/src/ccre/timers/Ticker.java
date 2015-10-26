@@ -148,14 +148,14 @@ public final class Ticker extends AbstractUpdatingInput implements EventInput {
     }
 
     @Override
-    public void onUpdate(EventOutput notify) {
+    public EventOutput onUpdate(EventOutput notify) {
         if (isKilled) {
             throw new IllegalStateException("Terminated!");
         }
         if (!main.isAlive()) {
             start();
         }
-        super.onUpdate(notify);
+        return super.onUpdate(notify);
     }
 
     private void start() {
@@ -167,16 +167,5 @@ public final class Ticker extends AbstractUpdatingInput implements EventInput {
                 throw new RuntimeException(e);
             }
         }
-    }
-
-    @Override
-    public EventOutput onUpdateR(EventOutput notify) {
-        if (isKilled) {
-            throw new IllegalStateException("Terminated!");
-        }
-        if (!main.isAlive()) {
-            start();
-        }
-        return super.onUpdateR(notify);
     }
 }

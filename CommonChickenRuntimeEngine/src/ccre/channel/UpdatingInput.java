@@ -27,27 +27,13 @@ package ccre.channel;
 public interface UpdatingInput {
 
     /**
-     * Permanently register the specified listener. Once this is called, then
-     * whenever the represented data source updates, the specified EventOutput
-     * will be fired.
+     * Register the specified listener. Once this is called, then whenever the
+     * represented data source updates, the specified EventOutput will be fired.
      *
-     * @param notify the EventOutput to fire when this UpdatingInput updates.
-     */
-    public default void onUpdate(EventOutput notify) {
-        if (notify == null) {
-            throw new NullPointerException();
-        }
-        onUpdateR(notify);
-    }
-
-    /**
-     * Temporarily register the specified listener. Once this is called, then
-     * whenever the represented data source updates, the specified EventOutput
-     * will be fired.
-     *
-     * However, unlike {@link #onUpdate(EventOutput)}, this returns an
-     * EventOutput to deregister the EventOutput registered by this method. DO
-     * NOT FIRE THIS EVENT MORE THAN ONCE: UNDEFINED BEHAVIOR MAY RESULT.
+     * This returns an EventOutput to deregister the EventOutput registered by
+     * this method. DO NOT FIRE THIS EVENT MORE THAN ONCE: UNDEFINED BEHAVIOR
+     * MAY RESULT. You do not have to fire this at all, of course, and will
+     * usually just ignore it.
      *
      * Once deregistered, the EventOutput will receive no further notifications
      * and no further reference will be held to it as part of the registration,
@@ -58,5 +44,5 @@ public interface UpdatingInput {
      * NOT FIRE THIS RETURNED EVENT MORE THAN ONCE: UNDEFINED BEHAVIOR MAY
      * RESULT.
      */
-    public EventOutput onUpdateR(EventOutput notify);
+    public EventOutput onUpdate(EventOutput notify);
 }

@@ -45,8 +45,8 @@ public class BooleanInputTest {
         es = new EventCell();
         bi = new BooleanInput() {
             @Override
-            public EventOutput onUpdateR(EventOutput notify) {
-                return es.onUpdateR(notify);
+            public EventOutput onUpdate(EventOutput notify) {
+                return es.onUpdate(notify);
             }
 
             @Override
@@ -94,62 +94,7 @@ public class BooleanInputTest {
         gotProperly = false;
         bi = new BooleanInput() {
             @Override
-            public void onUpdate(EventOutput notify) {
-                assertFalse(gotProperly);
-                cbo.check();// the earlier setup from outside this
-                for (boolean b : new boolean[] { false, true }) {
-                    result = b;
-                    cbo.ifExpected = true;
-                    cbo.valueExpected = b;
-                    notify.event();
-                    cbo.check();
-                }
-                gotProperly = true;
-            }
-
-            @Override
-            public EventOutput onUpdateR(EventOutput notify) {
-                fail();
-                return null;
-            }
-
-            @Override
-            public boolean get() {
-                return result;
-            }
-        };
-        for (boolean b : new boolean[] { false, true }) {
-            result = b;
-            assertEquals(b, bi.get());
-        }
-        for (boolean initial : new boolean[] { false, true }) {
-            cbo.ifExpected = true;
-            cbo.valueExpected = result = initial;
-            assertFalse(gotProperly);
-            bi.send(cbo);
-            assertTrue(gotProperly);
-            gotProperly = false;
-            cbo.check();// the real check is in onUpdateR above
-        }
-    }
-
-    @Test(expected = NullPointerException.class)
-    public void testSendNull() {
-        bi.send(null);
-    }
-
-    @Test
-    public void testSendR() {
-        final CountingBooleanOutput cbo = new CountingBooleanOutput();
-        gotProperly = false;
-        bi = new BooleanInput() {
-            @Override
-            public void onUpdate(EventOutput notify) {
-                fail();
-            }
-
-            @Override
-            public EventOutput onUpdateR(EventOutput notify) {
+            public EventOutput onUpdate(EventOutput notify) {
                 assertFalse(gotProperly);
                 cbo.check();// the earlier setup from outside this
                 for (boolean b : new boolean[] { false, true }) {
@@ -176,7 +121,7 @@ public class BooleanInputTest {
             cbo.ifExpected = true;
             cbo.valueExpected = result = initial;
             assertFalse(gotProperly);
-            assertEquals(expected, bi.sendR(cbo));
+            assertEquals(expected, bi.send(cbo));
             assertTrue(gotProperly);
             gotProperly = false;
             cbo.check();// the real check is in onUpdateR above
@@ -184,15 +129,15 @@ public class BooleanInputTest {
     }
 
     @Test(expected = NullPointerException.class)
-    public void testSendRNull() {
-        bi.sendR(null);
+    public void testSendNull() {
+        bi.send(null);
     }
 
     @Test
     public void testNotRule1() {
         bi = new BooleanInput() {
             @Override
-            public EventOutput onUpdateR(EventOutput notify) {
+            public EventOutput onUpdate(EventOutput notify) {
                 fail();
                 return null;
             }
@@ -203,29 +148,21 @@ public class BooleanInputTest {
             }
         };
         BooleanInput bi2 = bi.not();
-        result = false;// no update fired because not() is required to work without that.
+        // no update fired because not() is required to work without that.
+        result = false;
         assertTrue(bi2.get());
         result = true;
         assertFalse(bi2.get());
     }
 
-    private boolean gotProperlyB;
-
     @Test
     public void testNotRule2() {
         bi = new BooleanInput() {
             @Override
-            public void onUpdate(EventOutput notify) {
+            public EventOutput onUpdate(EventOutput notify) {
                 assertFalse(gotProperly);
-                assertEquals(expected2, notify);
-                gotProperly = true;
-            }
-
-            @Override
-            public EventOutput onUpdateR(EventOutput notify) {
-                assertFalse(gotProperlyB);
                 assertEquals(expected, notify);
-                gotProperlyB = true;
+                gotProperly = true;
                 return expected2;
             }
 
@@ -236,31 +173,22 @@ public class BooleanInputTest {
             }
         };
         BooleanInput bi2 = bi.not();
-        gotProperly = gotProperlyB = false;
-        bi2.onUpdate(expected2);
-        assertTrue(gotProperly);
-        assertFalse(gotProperlyB);
         gotProperly = false;
-        assertEquals(expected2, bi2.onUpdateR(expected));
-        assertFalse(gotProperly);
-        assertTrue(gotProperlyB);
+        bi2.onUpdate(expected);
+        assertTrue(gotProperly);
+        gotProperly = false;
+        assertEquals(expected2, bi2.onUpdate(expected));
+        assertTrue(gotProperly);
     }
 
     @Test
     public void testNotNot() {
         bi = new BooleanInput() {
             @Override
-            public void onUpdate(EventOutput notify) {
+            public EventOutput onUpdate(EventOutput notify) {
                 assertFalse(gotProperly);
-                assertEquals(expected2, notify);
-                gotProperly = true;
-            }
-
-            @Override
-            public EventOutput onUpdateR(EventOutput notify) {
-                assertFalse(gotProperlyB);
                 assertEquals(expected, notify);
-                gotProperlyB = true;
+                gotProperly = true;
                 return expected2;
             }
 
@@ -627,7 +555,7 @@ public class BooleanInputTest {
         CountingEventOutput ceo = new CountingEventOutput();
         bi = new BooleanInput() {
             @Override
-            public EventOutput onUpdateR(EventOutput notify) {
+            public EventOutput onUpdate(EventOutput notify) {
                 assertFalse(gotProperly);
                 assertEquals(notify, ceo);
                 gotProperly = true;
@@ -647,39 +575,33 @@ public class BooleanInputTest {
 
     @Test
     public void testSendError() {
-        for (boolean useR : new boolean[] { false, true }) {
-            bi = new BooleanInput() {
-                @Override
-                public EventOutput onUpdateR(EventOutput notify) {
-                    expected.event();
-                    return EventOutput.ignored;
-                }
-
-                @Override
-                public boolean get() {
-                    expected2.event();
-                    return true;
-                }
-            };
-            CountingBooleanOutput cbo = new CountingBooleanOutput();
-            BooleanOutput evil = new BooleanOutput() {
-                @Override
-                public void set(boolean value) {
-                    cbo.set(value);
-                    // TODO: check logging.
-                    throw new NoSuchElementException("Purposeful failure.");
-                }
-            };
-            expected.ifExpected = expected2.ifExpected = cbo.ifExpected = true;
-            cbo.valueExpected = true;
-            if (useR) {
-                bi.sendR(evil);
-            } else {
-                bi.send(evil);
+        bi = new BooleanInput() {
+            @Override
+            public EventOutput onUpdate(EventOutput notify) {
+                expected.event();
+                return EventOutput.ignored;
             }
-            expected.check();
-            expected2.check();
-            cbo.check();
-        }
+
+            @Override
+            public boolean get() {
+                expected2.event();
+                return true;
+            }
+        };
+        CountingBooleanOutput cbo = new CountingBooleanOutput();
+        BooleanOutput evil = new BooleanOutput() {
+            @Override
+            public void set(boolean value) {
+                cbo.set(value);
+                // TODO: check logging.
+                throw new NoSuchElementException("Purposeful failure.");
+            }
+        };
+        expected.ifExpected = expected2.ifExpected = cbo.ifExpected = true;
+        cbo.valueExpected = true;
+        bi.send(evil);
+        expected.check();
+        expected2.check();
+        cbo.check();
     }
 }

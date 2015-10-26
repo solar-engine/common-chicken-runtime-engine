@@ -112,13 +112,13 @@ public class BooleanCellTest {
     public void testHasConsumers() {
         assertFalse(cell.hasListeners());
         for (int i = 0; i < 5; i++) {
-            EventOutput eo = cell.sendR(BooleanOutput.ignored);
+            EventOutput eo = cell.send(BooleanOutput.ignored);
             assertTrue(cell.hasListeners());
             eo.event();
             assertFalse(cell.hasListeners());
-            EventOutput eo1 = cell.sendR(BooleanOutput.ignored);
+            EventOutput eo1 = cell.send(BooleanOutput.ignored);
             assertTrue(cell.hasListeners());
-            EventOutput eo2 = cell.sendR(BooleanOutput.ignored);
+            EventOutput eo2 = cell.send(BooleanOutput.ignored);
             assertTrue(cell.hasListeners());
             eo1.event();
             assertTrue(cell.hasListeners());
@@ -194,7 +194,7 @@ public class BooleanCellTest {
     @Test
     public void testOnUpdateR() {
         CountingEventOutput ceo = new CountingEventOutput();
-        EventOutput unbind = cell.onUpdateR(ceo);
+        EventOutput unbind = cell.onUpdate(ceo);
         assertTrue(cell.hasListeners());
         Random rand = new Random();
         boolean lastValue = false;
@@ -218,7 +218,7 @@ public class BooleanCellTest {
     @Test
     public void testOnUpdateAndOnUpdateR() {
         assertFalse(cell.hasListeners());
-        EventOutput unbind = cell.onUpdateR(EventOutput.ignored);
+        EventOutput unbind = cell.onUpdate(EventOutput.ignored);
         assertTrue(cell.hasListeners());
         cell.onUpdate(EventOutput.ignored);
         assertTrue(cell.hasListeners());
@@ -229,9 +229,9 @@ public class BooleanCellTest {
     @Test
     public void testOnUpdateRTwice() {
         assertFalse(cell.hasListeners());
-        EventOutput unbind1 = cell.onUpdateR(EventOutput.ignored);
+        EventOutput unbind1 = cell.onUpdate(EventOutput.ignored);
         assertTrue(cell.hasListeners());
-        EventOutput unbind2 = cell.onUpdateR(EventOutput.ignored);
+        EventOutput unbind2 = cell.onUpdate(EventOutput.ignored);
         assertTrue(cell.hasListeners());
         unbind1.event();
         assertTrue(cell.hasListeners());
@@ -241,6 +241,6 @@ public class BooleanCellTest {
 
     @Test(expected = NullPointerException.class)
     public void testOnUpdateRNull() {
-        cell.onUpdateR(null);
+        cell.onUpdate(null);
     }
 }

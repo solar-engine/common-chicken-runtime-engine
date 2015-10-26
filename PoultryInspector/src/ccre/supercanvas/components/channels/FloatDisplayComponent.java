@@ -199,7 +199,7 @@ public class FloatDisplayComponent extends BaseChannelComponent<FloatDisplayComp
                 unsubscribe = null;
             }
             if (hasPanel) {
-                unsubscribe = inp.sendR(this);
+                unsubscribe = inp.send(this);
             }
             subscribed = hasPanel;
         }

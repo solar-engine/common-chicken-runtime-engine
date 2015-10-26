@@ -18,6 +18,8 @@
  */
 package ccre.channel;
 
+import static org.junit.Assert.*;
+
 import org.junit.Test;
 
 import ccre.testing.CountingEventOutput;
@@ -31,30 +33,22 @@ public class DerivedUpdateTest {
         CountingEventOutput target = new CountingEventOutput();
         UpdatingInput vi1 = new UpdatingInput() {
             @Override
-            public void onUpdate(EventOutput notify) {
+            public EventOutput onUpdate(EventOutput notify) {
                 target.ifExpected = true;
                 notify.event();
                 target.check();
                 ceo1.event();
-            }
-
-            @Override
-            public EventOutput onUpdateR(EventOutput notify) {
-                throw new RuntimeException("DerivedUpdate should not need to call onUpdateR!");
+                return () -> fail("Unbind should not have been called.");
             }
         };
         UpdatingInput vi2 = new UpdatingInput() {
             @Override
-            public void onUpdate(EventOutput notify) {
+            public EventOutput onUpdate(EventOutput notify) {
                 target.ifExpected = true;
                 notify.event();
                 target.check();
                 ceo2.event();
-            }
-
-            @Override
-            public EventOutput onUpdateR(EventOutput notify) {
-                throw new RuntimeException("DerivedUpdate should not need to call onUpdateR!");
+                return () -> fail("Unbind should not have been called.");
             }
         };
         ceo1.ifExpected = ceo2.ifExpected = true;

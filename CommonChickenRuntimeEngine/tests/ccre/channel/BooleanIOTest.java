@@ -39,7 +39,7 @@ public class BooleanIOTest {
             }
 
             @Override
-            public EventOutput onUpdateR(EventOutput notify) {
+            public EventOutput onUpdate(EventOutput notify) {
                 fail();
                 return null;
             }

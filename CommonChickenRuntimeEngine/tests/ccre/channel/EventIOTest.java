@@ -32,7 +32,7 @@ public class EventIOTest {
     public void setUp() throws Exception {
         io = new EventIO() {
             @Override
-            public EventOutput onUpdateR(EventOutput notify) {
+            public EventOutput onUpdate(EventOutput notify) {
                 fail();
                 return null;
             }

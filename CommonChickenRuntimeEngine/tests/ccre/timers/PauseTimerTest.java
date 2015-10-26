@@ -222,7 +222,7 @@ public class PauseTimerTest {
             ceo.ifExpected = true;
             fake.forward(10);
             Thread.sleep(2);
-            ceo.check();
+            ceo.check(); // flaky; 2 failures
         }
     }
 }

@@ -265,7 +265,7 @@ public class PIDControllerTest {
     public void testOnUpdateR() {
         setpoint.set(1);
         CountingEventOutput ceo = new CountingEventOutput();
-        EventOutput unbind = pid.onUpdateR(ceo);
+        EventOutput unbind = pid.onUpdate(ceo);
         ceo.ifExpected = true;
         pid.update(1000);
         ceo.check();

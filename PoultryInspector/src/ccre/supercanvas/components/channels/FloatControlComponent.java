@@ -309,7 +309,7 @@ public class FloatControlComponent extends BaseChannelComponent<FloatControlComp
                 unsubscribe = null;
             }
             if (hasPanel) {
-                unsubscribe = alternateSource.sendR(fakeOut);
+                unsubscribe = alternateSource.send(fakeOut);
             }
             isFakeSubscribed = hasPanel;
         }

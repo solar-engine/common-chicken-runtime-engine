@@ -37,7 +37,10 @@ public interface EventInput extends UpdatingInput {
      */
     public static EventInput never = new EventInput() {
         @Override
-        public EventOutput onUpdateR(EventOutput notify) {
+        public EventOutput onUpdate(EventOutput notify) {
+            if (notify == null) {
+                throw new NullPointerException();
+            }
             return EventOutput.ignored;
         }
     };
@@ -52,18 +55,11 @@ public interface EventInput extends UpdatingInput {
      * @param listener the listener to add.
      * @see #unsend(EventOutput)
      */
-    public default void send(EventOutput output) {// TODO: rename this to 'then'?
+    public default EventOutput send(EventOutput output) {
         if (output == null) {
             throw new NullPointerException();
         }
-        onUpdate(output);
-    }
-
-    public default EventOutput sendR(EventOutput output) {
-        if (output == null) {
-            throw new NullPointerException();
-        }
-        return onUpdateR(output);
+        return onUpdate(output);
     }
 
     public default EventInput or(EventInput other) {
@@ -71,14 +67,8 @@ public interface EventInput extends UpdatingInput {
         EventInput original = this;
         return new EventInput() {
             @Override
-            public EventOutput onUpdateR(EventOutput notify) {
-                return original.onUpdateR(notify).combine(other.onUpdateR(notify));
-            }
-
-            @Override
-            public void onUpdate(EventOutput notify) {
-                original.onUpdate(notify);
-                other.onUpdate(notify);
+            public EventOutput onUpdate(EventOutput notify) {
+                return original.onUpdate(notify).combine(other.onUpdate(notify));
             }
         };
     }

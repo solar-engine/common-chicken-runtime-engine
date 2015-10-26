@@ -211,7 +211,7 @@ public class BooleanControlComponent extends BaseChannelComponent<BooleanControl
                 unsubscribe = null;
             }
             if (hasPanel) {
-                unsubscribe = alternateSource.sendR(fakeOut);
+                unsubscribe = alternateSource.send(fakeOut);
             }
             isFakeSubscribed = hasPanel;
         }

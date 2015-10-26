@@ -742,17 +742,8 @@ public class CluckPublisher {
         }
 
         @Override
-        public synchronized void onUpdate(EventOutput out) {
-            super.onUpdate(out);
-            if (!sent) {
-                sent = true;
-                node.transmit(path, linkName, new byte[] { CluckConstants.RMT_FLOATINPUT });
-            }
-        }
-
-        @Override
-        public synchronized EventOutput onUpdateR(EventOutput out) {
-            EventOutput base = super.onUpdateR(out);
+        public synchronized EventOutput onUpdate(EventOutput out) {
+            EventOutput base = super.onUpdate(out);
             if (!sent) {
                 sent = true;
                 node.transmit(path, linkName, new byte[] { CluckConstants.RMT_FLOATINPUT });
@@ -844,17 +835,8 @@ public class CluckPublisher {
         }
 
         @Override
-        public synchronized void onUpdate(EventOutput out) {
-            super.onUpdate(out);
-            if (!sent) {
-                sent = true;
-                node.transmit(path, linkName, new byte[] { CluckConstants.RMT_BOOLINPUT });
-            }
-        }
-
-        @Override
-        public synchronized EventOutput onUpdateR(EventOutput cns) {
-            EventOutput base = super.onUpdateR(cns);
+        public synchronized EventOutput onUpdate(EventOutput cns) {
+            EventOutput base = super.onUpdate(cns);
             if (!sent) {
                 sent = true;
                 node.transmit(path, linkName, new byte[] { CluckConstants.RMT_BOOLINPUT });
@@ -940,17 +922,8 @@ public class CluckPublisher {
         }
 
         @Override
-        public synchronized void onUpdate(EventOutput cns) {
-            super.onUpdate(cns);
-            if (!sent) {
-                sent = true;
-                node.transmit(path, linkName, new byte[] { CluckConstants.RMT_EVENTINPUT });
-            }
-        }
-
-        @Override
-        public synchronized EventOutput onUpdateR(EventOutput cns) {
-            EventOutput base = super.onUpdateR(cns);
+        public synchronized EventOutput onUpdate(EventOutput cns) {
+            EventOutput base = super.onUpdate(cns);
             if (!sent) {
                 sent = true;
                 node.transmit(path, linkName, new byte[] { CluckConstants.RMT_EVENTINPUT });

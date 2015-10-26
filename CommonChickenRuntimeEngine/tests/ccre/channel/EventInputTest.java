@@ -70,7 +70,12 @@ public class EventInputTest { // TODO: should I be checking propagation of withR
 
     @Test
     public void testNever() {
-        assertEquals(EventOutput.ignored, EventInput.never.onUpdateR(() -> fail("should not be fired!")));
+        assertEquals(EventOutput.ignored, EventInput.never.onUpdate(() -> fail("should not be fired!")));
+    }
+
+    @Test(expected = NullPointerException.class)
+    public void testNeverNull() {
+        EventInput.never.onUpdate(null);
     }
 
     private boolean gotProperly = false;
@@ -80,18 +85,13 @@ public class EventInputTest { // TODO: should I be checking propagation of withR
         gotProperly = false;
         ei = new EventInput() {
             @Override
-            public void onUpdate(EventOutput notify) {
+            public EventOutput onUpdate(EventOutput notify) {
                 assertEquals(ceo, notify);
                 gotProperly = true;
-            }
-
-            @Override
-            public EventOutput onUpdateR(EventOutput notify) {
-                fail("expected onUpdate, not onUpdateR!");
-                return null;
+                return ceo2;
             }
         };
-        ei.send(ceo);
+        assertEquals(ceo2, ei.send(ceo));
         assertTrue(gotProperly);
     }
 
@@ -99,32 +99,6 @@ public class EventInputTest { // TODO: should I be checking propagation of withR
     public void testSendNull() {
         ei = (notify) -> notify;
         ei.send(null);
-    }
-
-    @Test
-    public void testSendR() {
-        gotProperly = false;
-        ei = new EventInput() {
-            @Override
-            public void onUpdate(EventOutput notify) {
-                fail("expected onUpdateR, not onUpdate!");
-            }
-
-            @Override
-            public EventOutput onUpdateR(EventOutput notify) {
-                assertEquals(ceo, notify);
-                gotProperly = true;
-                return ceo2;
-            }
-        };
-        assertEquals(ceo2, ei.sendR(ceo));
-        assertTrue(gotProperly);
-    }
-
-    @Test(expected = NullPointerException.class)
-    public void testSendRNull() {
-        ei = (notify) -> notify;
-        ei.sendR(null);
     }
 
     @Test
@@ -223,11 +197,5 @@ public class EventInputTest { // TODO: should I be checking propagation of withR
         };
         ei.onUpdate(ceo);
         assertTrue(gotProperly);
-    }
-
-    @Test(expected = NullPointerException.class)
-    public void testOnUpdateNull() {
-        ei = (notify) -> notify;
-        ei.onUpdate(null);
     }
 }

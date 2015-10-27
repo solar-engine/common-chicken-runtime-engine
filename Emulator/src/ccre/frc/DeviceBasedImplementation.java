@@ -256,8 +256,8 @@ public class DeviceBasedImplementation implements FRCImplementation {
 
     @Override
     public FloatInput makeCounter(int aChannel, int bChannel, EventInput resetWhen, EventInput updateOn, int mode) {
-        return panel.add(new SpinDevice("Counter " + (aChannel == -1 ? "UNUSED" : ("" + aChannel)) + ":" 
-                        + (bChannel == -1 ? "UNUSED" : ("" + bChannel)), resetWhen)).asInput();
+        return panel.add(new SpinDevice("Counter " + (aChannel == FRC.UNUSED ? "UNUSED" : ("" + aChannel)) + ":" 
+                        + (bChannel == FRC.UNUSED ? "UNUSED" : ("" + bChannel)), resetWhen)).asInput();
     }
 
     private BooleanOutput[] relaysFwd;

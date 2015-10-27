@@ -7,8 +7,8 @@ import edu.wpi.first.wpilibj.hal.CounterJNI;
 
 public class DirectCounter {
 
-    public static byte ANALOG_INPUT = 1;
-    public static byte DIGITAL_INPUT = 0;
+    public static final byte ANALOG_INPUT = 1;
+    public static final byte DIGITAL_INPUT = 0;
     
     public static ByteBuffer init(int channelUp, int channelDown, int mode) {
         IntBuffer status = Common.getCheckBuffer();
@@ -49,7 +49,7 @@ public class DirectCounter {
             throw new RuntimeException("Digital source has not been allocated yet");
         }
         if (!DirectDigital.isDigitalSourceInput(channel)) {
-            throw new RuntimeException("Cannot set up source as a digital output");
+            throw new RuntimeException("Channel " + channel + " is a digital output when it needs to be a digital input");
         }
 
         // the third argument is a c++ bool that represents if the counter
@@ -64,7 +64,7 @@ public class DirectCounter {
             throw new RuntimeException("Digital source has not been allocated yet");
         }
         if (!DirectDigital.isDigitalSourceInput(channel)) {
-            throw new RuntimeException("Cannot set up source as a digital output");
+            throw new RuntimeException("Channel " + channel + " is a digital output when it needs to be a digital input");
         }
 
         // the third argument is a c++ bool that represents if the counter

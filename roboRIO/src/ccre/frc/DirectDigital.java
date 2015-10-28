@@ -34,6 +34,11 @@ class DirectDigital {
 
     static final byte WATCH_ASYNCHRONOUS = 0, WATCH_SYNCHRONOUS = 1;
     static final byte TRIGGER_DIGITAL = 0, TRIGGER_ANALOG = 1;
+    
+    /**
+     * Number of digital pins on a roboRIO.
+     */
+    static final int DIGITAL_PINS = 26;
 
     static {
         IntBuffer status = Common.getCheckBuffer();
@@ -140,5 +145,18 @@ class DirectDigital {
         int irqs = InterruptJNI.waitForInterrupt(interrupts[interruptMap[id]], timeout, ignorePrevious, status);
         Common.check(status);
         return irqs == 0;
+    }
+    
+    /**
+     * Returns a pointer to the digital source port on the
+     * specified channel. Will return null if digital
+     * source has not been initialized.
+     */
+    public static ByteBuffer getDigitalSource(int channel) {
+        return digitals[channel];
+    }
+    
+    public static boolean isDigitalSourceInput(int channel) {
+        return asInputs[channel];
     }
 }

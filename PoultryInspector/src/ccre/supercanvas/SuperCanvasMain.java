@@ -63,6 +63,7 @@ public class SuperCanvasMain extends JFrame {
     private final SuperCanvasPanel canvas = new SuperCanvasPanel();
 
     private SuperCanvasMain() {
+        super("Poultry Inspector");
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         this.setContentPane(canvas);
         this.setSize(640, 480);

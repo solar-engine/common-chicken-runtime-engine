@@ -196,10 +196,23 @@ public interface FRCImplementation {
      * @param reverse Should the result of the encoder be negated?
      * @param resetWhen If provided, the Encoder's value will be reset when this
      * event is produced.
-     * @return the Encoder, reporting encoder ticks.
+     * @return a FloatInput that represents the current encoder value
      */
     public FloatInput makeEncoder(int aChannel, int bChannel, boolean reverse, EventInput resetWhen, EventInput updateOn);
 
+    /**
+     * Creates a reference to a Counter on the specified port. When the channel
+     * is pulsed the counter will count up.
+     *
+     * @param upChannel The DIO channel that will count up
+     * @param downChannel The DIO channel that will count down
+     * @param resetWhen If provided, the Counter's value will be reset when this
+     * event is produced.
+     * @param updateOn Updates the FloatInput when this event is produced.
+     * @return a FloatInput that represents the current counter value
+     */
+    public FloatInput makeCounter(int upChannel, int downChannel, EventInput resetWhen, EventInput updateOn, int mode);
+    
     /**
      * Create a reference to the Forward side of the relay on the specified
      * channel - this side can be turned on and off.

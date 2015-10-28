@@ -383,6 +383,36 @@ public final class DirectFRCImplementation implements FRCImplementation {
     }
 
     @Override
+    public FloatInput makeCounter(int channelUp, int channelDown, EventInput resetWhen, EventInput updateOn, int mode) {
+        // unused happens to be -1, but this makes more sense than comparing with -1
+        if (channelUp == FRC.UNUSED && channelDown == FRC.UNUSED) {
+            Logger.warning("Neither channelUp nor channelDown was provided to makeCounter.");
+            return FloatInput.zero;
+        }
+
+        if (channelUp != FRC.UNUSED && (channelUp < 0 || channelUp >= DirectDigital.DIGITAL_PINS)) {
+            throw new RuntimeException("Invalid up channel: " + channelUp);
+        }
+        if (channelDown != FRC.UNUSED && (channelDown < 0 || channelDown >= DirectDigital.DIGITAL_PINS)) {
+            throw new RuntimeException("Invalid down channel: " + channelDown);
+        }
+
+        ByteBuffer counter = DirectCounter.init(channelUp, channelDown, mode);
+        if (resetWhen != null) {
+            resetWhen.send(() -> {
+                DirectCounter.clearDownSource(counter);
+                DirectCounter.clearUpSource(counter);
+            });
+        }
+        return new DerivedFloatInput(updateOn) {
+            @Override
+            protected float apply() {
+                return DirectCounter.get(counter);
+            }
+        };
+    }
+
+    @Override
     public BooleanOutput makeRelayForwardOutput(int channel) {
         ByteBuffer relay = DirectRelay.init(channel);
         return (bln) -> DirectRelay.setForward(relay, bln);
@@ -478,7 +508,8 @@ public final class DirectFRCImplementation implements FRCImplementation {
 
     private synchronized ByteBuffer getPCMCompressor() {
         if (pcmCompressor == null) {
-            pcmCompressor = DirectCompressor.init(0);// TODO: Provide all PCM ids
+            // TODO: Provide all PCM ids
+            pcmCompressor = DirectCompressor.init(0);
         }
         return pcmCompressor;
     }

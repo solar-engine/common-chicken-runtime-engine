@@ -42,19 +42,19 @@ public class CallerInfoTest {
         assertEquals(info.getFileName(), null);
         assertEquals(info.getLineNum(), -1);
     }
-    
+
     @Test
     public void testToStringCallerInfo() {
         assertEquals(new CallerInfo("class", "method", "file", 10).toString(), "class.method(file:10)");
         assertEquals(new CallerInfo("class", null, null, -1).toString(), "class.<unknown>(<unknown>:?)");
     }
-    
-    @Test(expected=IllegalArgumentException.class)
+
+    @Test(expected = IllegalArgumentException.class)
     public void testNullClassCallerInfo() {
         new CallerInfo(null, "method", "file", 10);
     }
-    
-    @Test(expected=IllegalArgumentException.class)
+
+    @Test(expected = IllegalArgumentException.class)
     public void testNullCallerInfo() {
         new CallerInfo(null, null, null, -1);
     }

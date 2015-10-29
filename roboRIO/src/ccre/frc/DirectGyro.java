@@ -39,7 +39,9 @@ class DirectGyro {
             DirectAnalog.configure(analog, AVERAGE_BITS, OVERSAMPLE_BITS);
             DirectAnalog.setGlobalSampleRate(50.0 * (1 << (AVERAGE_BITS + OVERSAMPLE_BITS)));
 
-            Thread.sleep(1000); // TODO: Don't do it like this. This is just for WPILib compatibility.
+            // TODO: Don't do it like this. This is just for WPILib
+            // compatibility.
+            Thread.sleep(1000);
 
             DirectAnalog.resetAccumulator(analog);
 

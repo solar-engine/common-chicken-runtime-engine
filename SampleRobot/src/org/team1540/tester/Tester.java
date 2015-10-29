@@ -43,7 +43,8 @@ public class Tester implements FRCApplication {
         for (int i = 0; i < 20; i++) {
             Cluck.publish("talon-" + i, outs[i] = FRC.talon(i, false, 0.1f));
         }
-        Cluck.publish("talon-all", (FloatOutput) value -> {// TODO: make this work better. should be standard library!
+        // TODO: make this work better. should be standard library!
+        Cluck.publish("talon-all", (FloatOutput) value -> {
             for (FloatOutput out : outs) {
                 out.set(value);
             }

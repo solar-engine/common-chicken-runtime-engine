@@ -40,11 +40,15 @@ import ccre.net.ClientSocket;
  */
 public class CluckProtocol {
 
-    static final int CURRENT_VERSION = 0;// NOTE: changing this will break compatibility with anything older than CCRE v3!
+    // NOTE: changing this will break compatibility with anything older than
+    // CCRE v3!
+    static final int CURRENT_VERSION = 0;
     // also, it can only be, at most, 0xFF.
 
-    static final int TIMEOUT_PERIOD = 600;// milliseconds
-    static final int KEEPALIVE_INTERVAL = 200;// milliseconds, should always be noticeably less than TIMEOUT_PERIOD
+    // milliseconds
+    static final int TIMEOUT_PERIOD = 600;
+    // milliseconds, should always be noticeably less than TIMEOUT_PERIOD
+    static final int KEEPALIVE_INTERVAL = 200;
 
     /**
      * Sets the appropriate timeout on sock, for disconnection reporting.
@@ -78,7 +82,9 @@ public class CluckProtocol {
         }
         int version = (raw_magic & 0x0000FF00) >> 8;// always in [0, 255]
         if (version < CURRENT_VERSION) {
-            // The side with the higher version (if they differ) is responsible for providing a transformer to be compatible with the older version.
+            // The side with the higher version (if they differ) is responsible
+            // for providing a transformer to be compatible with the older
+            // version.
             // But so far, we're still on version 0, so this shouldn't happen!
             throw new IOException("Remote end is on an older version of Cluck! I don't quite know how to deal with this.");
         }
@@ -147,7 +153,8 @@ public class CluckProtocol {
                     if (expectKeepAlives && System.currentTimeMillis() - lastReceive > TIMEOUT_PERIOD) {
                         throw ex;
                     } else {
-                        // otherwise, don't do anything - we don't know if this is a timeout.
+                        // otherwise, don't do anything - we don't know if this
+                        // is a timeout.
                     }
                 }
             }
@@ -282,7 +289,8 @@ public class CluckProtocol {
                             queue.wait(200);
                         }
                         if (queue.isEmpty()) {
-                            // Send a "keep-alive" message. RMT_NEGATIVE_ACK will never be complained about, so it works.
+                            // Send a "keep-alive" message. RMT_NEGATIVE_ACK
+                            // will never be complained about, so it works.
                             ent = new SendableEntry(null, "KEEPALIVE", new byte[] { CluckConstants.RMT_NEGATIVE_ACK, 0x6D });
                         } else {
                             ent = queue.removeFirst();

@@ -29,17 +29,19 @@ public abstract class Time {
     public static final int NANOSECONDS_PER_MILLISECOND = 1000000;
     public static final int NANOSECONDS_PER_MICROSECOND = 1000;
 
-    private static Time time = new NormalTime(0);// allows for replacement as necessary. for example while testing.
+    // allows for replacement as necessary. for example while testing.
+    private static Time time = new NormalTime(0);
 
-    public static void setTimeProvider(Time time) {// TODO: not thread safe - does this need to be?
+    // TODO: not thread safe - does this need to be?
+    public static void setTimeProvider(Time time) {
         if (time == null) {
             throw new NullPointerException();
         }
         Time old = Time.time;
-        //Logger.info("Replacing time provider " + old + " with " + time);
         Time.time = time;
-        //Logger.info("Replaced time provider!");
-        old.close();// we do it afterwards so that anything new will get sent to the new time provider
+        // we do it afterwards so that anything new will get sent to the new
+        // time provider
+        old.close();
     }
 
     public static Time getTimeProvider() {
@@ -53,7 +55,7 @@ public abstract class Time {
     public static long currentTimeNanos() {
         return time.nowNanos();
     }
-    
+
     // TODO: fix tests
 
     public static void sleep(long millis) throws InterruptedException {

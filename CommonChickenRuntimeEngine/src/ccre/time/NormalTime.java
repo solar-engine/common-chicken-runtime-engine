@@ -21,13 +21,14 @@ package ccre.time;
 import ccre.channel.EventOutput;
 
 public final class NormalTime extends Time {
-    
+
     private final long baseCurrentMillis;
     private final long baseTimeNanos;
     private final Scheduler scheduler = new Scheduler(this);
 
     public NormalTime(int startTime) {
-        // startTime is usually zero, which means that nowMillis() would return zero at first.
+        // startTime is usually zero, which means that nowMillis() would return
+        // zero at first.
         baseCurrentMillis = System.currentTimeMillis() - startTime;
         baseTimeNanos = System.nanoTime() - startTime * 1000000;
     }

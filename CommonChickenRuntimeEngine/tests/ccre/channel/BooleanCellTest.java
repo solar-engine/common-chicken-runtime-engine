@@ -107,7 +107,6 @@ public class BooleanCellTest {
         new BooleanCell(BooleanOutput.ignored, null);
     }
 
-
     @Test
     public void testHasConsumers() {
         assertFalse(cell.hasListeners());

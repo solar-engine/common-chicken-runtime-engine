@@ -112,7 +112,9 @@ public class PauseTimer extends AbstractUpdatingInput implements BooleanInput, E
         boolean enabling = endAt != 0;
         if (enabling && !main.isAlive()) {
             synchronized (lock) {
-                main.start(); // if this fails, it means that the internal thread exited due to an exception
+                // if this fails, it means that the internal thread exited due
+                // to an exception
+                main.start();
                 try {
                     lock.wait();
                 } catch (InterruptedException e) {

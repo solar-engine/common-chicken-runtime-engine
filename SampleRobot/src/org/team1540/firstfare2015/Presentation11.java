@@ -15,7 +15,7 @@ public class Presentation11 implements FRCApplication {
         EventInput joystickControl = FRC.globalPeriodic;
         // every 300 milliseconds
         EventInput customConstant = new Ticker(300);
-        
+
         BooleanInput input0 = FRC.digitalInput(0, constant);
         BooleanInput input1 = FRC.digitalInput(1, joystickControl);
         BooleanInput input2 = FRC.digitalInput(2, customConstant);

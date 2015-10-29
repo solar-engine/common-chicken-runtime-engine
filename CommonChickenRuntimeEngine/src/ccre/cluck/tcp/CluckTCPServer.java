@@ -76,7 +76,8 @@ public class CluckTCPServer extends ConnectionReceiverThread {
                     CluckProtocol.setTimeoutOnSocket(conn);
                     CluckLink deny = CluckProtocol.handleSend(dout, linkName, node);
                     CluckProtocol.handleRecv(din, linkName, node, deny);
-                    // node.notifyNetworkModified(); - sent by client, not needed here.
+                    // node.notifyNetworkModified(); - sent by client, not
+                    // needed here.
                 } finally {
                     dout.close();
                 }

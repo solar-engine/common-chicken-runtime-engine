@@ -21,6 +21,6 @@ public class Presentation17 implements FRCApplication {
         EventOutput blow_up_world = WorldDestruction.eventBlowUp();
         Cluck.publish("blow-up", blow_up_world);
     }
-    
+
     // This actually works! Well, except for the explosive part.
 }

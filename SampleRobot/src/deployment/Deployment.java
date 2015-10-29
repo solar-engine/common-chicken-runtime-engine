@@ -22,7 +22,7 @@ public class Deployment {
         }
     }
 
-    @DepTask(fork=true)
+    @DepTask(fork = true)
     public static void emulate() throws Exception {
         Artifact result = DepRoboRIO.buildProject(robot);
         DepEmulator.emulate(result);

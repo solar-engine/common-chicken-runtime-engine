@@ -15,8 +15,6 @@ public class Presentation20 implements FRCApplication {
         shifting.setTrueWhen(bindings.addBoolean("Shift High Gear").onPress());
         shifting.setFalseWhen(bindings.addBoolean("Shift Low Gear").onPress());
 
-        DriverImpls.tankDrive(
-                bindings.addFloat("Left Drive Axis"), bindings.addFloat("Right Drive Axis"),
-                FRC.talon(0, FRC.MOTOR_FORWARD), FRC.talon(1, FRC.MOTOR_REVERSE));
+        DriverImpls.tankDrive(bindings.addFloat("Left Drive Axis"), bindings.addFloat("Right Drive Axis"), FRC.talon(0, FRC.MOTOR_FORWARD), FRC.talon(1, FRC.MOTOR_REVERSE));
     }
 }

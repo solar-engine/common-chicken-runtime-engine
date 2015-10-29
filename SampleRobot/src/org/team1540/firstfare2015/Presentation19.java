@@ -19,7 +19,7 @@ public class Presentation19 implements FRCApplication {
         setpoint.setWhen(0, FRC.joystick1.onPress(1));
         setpoint.setWhen(0.4f, FRC.joystick1.onPress(2));
         setpoint.setWhen(1.0f, FRC.joystick1.onPress(3));
-        
+
         EventCell link = new EventCell();
         state.setTrueWhen(link);
         FRC.joystick1.onPress(4).debounced(1000).send(link);

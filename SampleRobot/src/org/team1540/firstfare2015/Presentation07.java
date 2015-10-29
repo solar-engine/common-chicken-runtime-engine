@@ -13,7 +13,7 @@ public class Presentation07 implements FRCApplication {
         FloatInput axis = FRC.joystick1.axisY();
         BooleanInput bumper = FRC.digitalInput(0);
         EventInput button = FRC.joystick1.onPress(1);
-        
+
         axis.send((float_value) -> doSomethingWith(float_value));
         bumper.send((boolean_value) -> doSomethingWith(boolean_value));
         button.send(() -> doSomething());

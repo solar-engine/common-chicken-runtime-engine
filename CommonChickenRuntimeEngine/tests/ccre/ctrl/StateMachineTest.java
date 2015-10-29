@@ -474,12 +474,16 @@ public class StateMachineTest {
         CountingEventOutput cexit = new CountingEventOutput();
         CountingEventOutput center = new CountingEventOutput();
         exit.send(cexit);
-        exit.send(() -> center.ifExpected = true);// expect enter AFTER exit
-        exit.send(() -> assertEquals(expectedOld, machine.getState()));// expect state is still the old state
+        // expect enter AFTER exit
+        exit.send(() -> center.ifExpected = true);
+        // expect state is still the old state
+        exit.send(() -> assertEquals(expectedOld, machine.getState()));
         enter.send(center);
-        enter.send(() -> assertEquals(expectedNew, machine.getState()));// expect state is nstate
+        // expect state is nstate
+        enter.send(() -> assertEquals(expectedNew, machine.getState()));
         for (int i = 0; i < names.length * 4; i++) {
-            int state = (i + 1) % names.length;// +1 is to make sure that we don't start with zero
+            // +1 is to make sure that we don't start with zero
+            int state = (i + 1) % names.length;
 
             expectedOld = machine.getState();
             expectedNew = state;
@@ -504,7 +508,8 @@ public class StateMachineTest {
                 // this is hacky, but it works!
                 ((EventCell) machine.getStateEnterEvent()).__UNSAFE_clearListeners();
                 ((EventCell) machine.getStateExitEvent()).__UNSAFE_clearListeners();
-                // the point is that otherwise, the CountingEventOutputs will start being annoyed next cycle around
+                // the point is that otherwise, the CountingEventOutputs will
+                // start being annoyed next cycle around
 
                 final int ftarget = target;
                 CountingEventOutput center1 = new CountingEventOutput();
@@ -569,7 +574,8 @@ public class StateMachineTest {
                 // this is hacky, but it works!
                 ((EventCell) machine.getStateEnterEvent()).__UNSAFE_clearListeners();
                 ((EventCell) machine.getStateExitEvent()).__UNSAFE_clearListeners();
-                // the point is that otherwise, the CountingEventOutputs will start being annoyed next cycle around
+                // the point is that otherwise, the CountingEventOutputs will
+                // start being annoyed next cycle around
 
                 final int ftarget = target;
                 CountingEventOutput center1 = new CountingEventOutput();
@@ -848,7 +854,8 @@ public class StateMachineTest {
         assertFalse(died.get());
         assertFalse(missing.get());
         assertFalse(alive.get());
-        gandalf.setState(0);// try to retrigger events... but already in that state.
+        // try to retrigger events... but already in that state.
+        gandalf.setState(0);
         assertFalse(died.get());
         assertFalse(missing.get());
         assertFalse(alive.get());

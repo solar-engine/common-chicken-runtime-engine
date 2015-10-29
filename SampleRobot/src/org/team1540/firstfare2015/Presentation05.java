@@ -13,7 +13,7 @@ public class Presentation05 implements FRCApplication {
         FloatOutput motor = FRC.talon(0, FRC.MOTOR_FORWARD);
         BooleanOutput solenoid = FRC.solenoid(3);
         EventOutput actuate = solenoid.eventSetTrue();
-        
+
         motor.set(+1.0f);
         solenoid.set(true);
         actuate.event();

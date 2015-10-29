@@ -162,7 +162,8 @@ public class FRCNetworkCommunicationsLibrary extends JNIWrapper {
         return new HALControlWord((word & 1) != 0, ((word >> 1) & 1) != 0, ((word >> 2) & 1) != 0, ((word >> 3) & 1) != 0, ((word >> 4) & 1) != 0, ((word >> 5) & 1) != 0);
     }
 
-    public static native int NativeHALGetAllianceStation();// Red1, Red2, Red3, Blue1, Blue2, Blue3, else null
+    // Red1, Red2, Red3, Blue1, Blue2, Blue3, else null
+    public static native int NativeHALGetAllianceStation();
 
     public static int kMaxJoystickAxes = 12;
     public static int kMaxJoystickPOVs = 12;

@@ -14,10 +14,10 @@ public class Presentation04 implements FRCApplication {
     public void setupRobot() {
         FloatInput axis = FRC.joystick1.axisY();
         FloatOutput motor = FRC.talon(0, FRC.MOTOR_FORWARD);
-        
+
         BooleanInput bumper = FRC.digitalInput(0);
         BooleanOutput solenoid = FRC.solenoid(3);
-        
+
         EventInput button = FRC.joystick1.onPress(1);
         EventOutput actuate = solenoid.eventSetTrue();
     }

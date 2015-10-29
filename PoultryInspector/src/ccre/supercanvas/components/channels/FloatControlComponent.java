@@ -193,8 +193,7 @@ public class FloatControlComponent extends BaseChannelComponent<FloatControlComp
     private int[] boundingBoxes;
 
     private boolean mouseInBox(int boxId, int mouseX, int mouseY) {
-        return boundingBoxes[boxId * 4 + 0] <= mouseX && mouseX < boundingBoxes[boxId * 4 + 1] &&
-                boundingBoxes[boxId * 4 + 2] <= mouseY && mouseY < boundingBoxes[boxId * 4 + 3];
+        return boundingBoxes[boxId * 4 + 0] <= mouseX && mouseX < boundingBoxes[boxId * 4 + 1] && boundingBoxes[boxId * 4 + 2] <= mouseY && mouseY < boundingBoxes[boxId * 4 + 3];
     }
 
     private void paintBox(Graphics g, FontMetrics fontMetrics, int mouseX, int mouseY, boolean isRight, int rowId) {
@@ -257,7 +256,8 @@ public class FloatControlComponent extends BaseChannelComponent<FloatControlComp
         switch (activeView) {
         case HORIZONTAL_POINTER:
             value = (x - centerX - 1) / (halfWidth * 2 / 3f);
-            value = minimum + ((value + 1) / 2) * (maximum - minimum); // min to max, incl
+            // min to max, inclusive
+            value = minimum + ((value + 1) / 2) * (maximum - minimum);
             value = Math.min(maximum, Math.max(minimum, value));
             if (-0.1 < value && value < 0.1) {
                 value = 0;
@@ -320,7 +320,8 @@ public class FloatControlComponent extends BaseChannelComponent<FloatControlComp
 
         @Override
         public void set(float f) {
-            // Do nothing. This is just so that we can make the remote end send us data by subscribing.
+            // Do nothing. This is just so that we can make the remote end send
+            // us data by subscribing.
         }
     }
 

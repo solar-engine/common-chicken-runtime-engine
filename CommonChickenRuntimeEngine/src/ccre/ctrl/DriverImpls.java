@@ -138,9 +138,7 @@ public class DriverImpls {
                 double rightBack = sin + rotationspeed;
                 double leftBack = cos - rotationspeed;
                 double rightFront = cos + rotationspeed;
-                double normalize = Math.max(
-                        Math.max(Math.abs(leftFront), Math.abs(rightFront)),
-                        Math.max(Math.abs(leftBack), Math.abs(rightBack)));
+                double normalize = Math.max(Math.max(Math.abs(leftFront), Math.abs(rightFront)), Math.max(Math.abs(leftBack), Math.abs(rightBack)));
                 double mul;
                 if (normalize > 1) {
                     mul = 1 / normalize;

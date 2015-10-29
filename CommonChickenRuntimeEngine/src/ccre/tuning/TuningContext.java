@@ -124,7 +124,8 @@ public final class TuningContext {
 
     /**
      * Get a BooleanStatus with the specified name and default value. This will
-     * be tunable over the network and saved on the roboRIO once flush() is called.
+     * be tunable over the network and saved on the roboRIO once flush() is
+     * called.
      *
      * @param name the name of the tunable value.
      * @param default_ the default value.

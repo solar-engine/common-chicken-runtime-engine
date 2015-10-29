@@ -12,9 +12,9 @@ public class Presentation10 implements FRCApplication {
         FloatOutput motorA = FRC.talonSimpleCAN(0, FRC.MOTOR_FORWARD);
         // Without CAN:
         FloatOutput motorB = FRC.talon(0, FRC.MOTOR_FORWARD);
-        
+
         // used exactly the same!
-        
+
         // there is a more complex interface for power users of CAN.
     }
 }

@@ -109,7 +109,8 @@ public class PIDControllerTest {
     public void testPIDControllerSignsPositive() {
         input.set(5);
         setpoint.set(10);
-        // which means that an update should yield a positive result, because we want to have a greater input!
+        // which means that an update should yield a positive result, because we
+        // want to have a greater input!
         pid.update(1000);
         assertTrue(pid.get() > 0);
     }
@@ -118,7 +119,8 @@ public class PIDControllerTest {
     public void testPIDControllerSignsNegative() {
         input.set(10);
         setpoint.set(5);
-        // which means that an update should yield a negative result, because we want to have a smaller input!
+        // which means that an update should yield a negative result, because we
+        // want to have a smaller input!
         pid.update(1000);
         assertTrue(pid.get() < 0);
     }

@@ -13,7 +13,7 @@ public class Presentation13 implements FRCApplication {
         Logger.fine("Started raising the elevator.");
         Logger.finer("Deactuated solenoid 7.");
         Logger.finest("Invoked SolenoidJNI.setSolenoid(0x7, false).");
-        
+
         // automatically saved on the robot
         // and move up to your laptop when you next deploy code!
     }

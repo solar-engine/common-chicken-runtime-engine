@@ -18,9 +18,6 @@ public class Presentation16 implements FRCApplication {
         setpoint.setWhen(0.4f, FRC.joystick1.onPress(4));
         setpoint.setWhen(1.0f, FRC.joystick1.onPress(5));
 
-        PIDController.createFixed(
-                FRC.globalPeriodic, potentiometer, setpoint,
-                0.7f, 0.01f, 0.0003f)
-            .send(motor);
+        PIDController.createFixed(FRC.globalPeriodic, potentiometer, setpoint, 0.7f, 0.01f, 0.0003f).send(motor);
     }
 }

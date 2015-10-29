@@ -15,16 +15,16 @@ public class Presentation06 implements FRCApplication {
         FloatOutput motor = FRC.talon(0, FRC.MOTOR_FORWARD);
         BooleanOutput solenoid = FRC.solenoid(3);
         EventOutput actuate = solenoid.eventSetTrue();
-        
+
         // An input channel can be sent to an output.
         FloatInput axis = FRC.joystick1.axisY();
         BooleanInput bumper = FRC.digitalInput(0);
         EventInput button = FRC.joystick1.onPress(1);
-        
+
         axis.send(motor);
         bumper.send(solenoid);
         button.send(actuate);
-        
+
         // Or, you can read it directly, if it has a value.
         float float_value = axis.get();
         boolean boolean_value = bumper.get();

@@ -48,7 +48,8 @@ class DirectRS232 {
         SerialPortJNI.serialSetStopBits(port, stopBits, status);
         Common.check(status);
 
-        SerialPortJNI.serialSetReadBufferSize(port, 1, status); // return data immediately
+        // return data immediately
+        SerialPortJNI.serialSetReadBufferSize(port, 1, status);
         Common.check(status);
 
         SerialPortJNI.serialSetTimeout(port, 5.0f, status);

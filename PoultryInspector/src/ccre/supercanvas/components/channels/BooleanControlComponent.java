@@ -114,26 +114,24 @@ public class BooleanControlComponent extends BaseChannelComponent<BooleanControl
         boolean isPressed = getDele();
         switch (activeView) {
         case RED_GREEN_SWITCH:
-            AffineTransform origO = g.getTransform();
-            {
-                g.setColor(isPressed ? Color.GREEN.darker() : Color.RED.darker());
-                AffineTransform orig = g.getTransform();
-                g.rotate(isPressed ? 10 : -10, centerX + (isPressed ? 3 : -3), centerY + 10);
-                g.fillRect(centerX - 5, centerY + 5, 10, 45);
-                g.setTransform(orig);
-                g.setColor(Color.GRAY.darker().darker());
-                g.fillRect(centerX - 20, centerY + 10, 40, 20);
-            }
-            g.translate(-5, 2);
-            {
-                g.setColor(isPressed ? Color.GREEN : Color.RED);
-                AffineTransform orig = g.getTransform();
-                g.rotate(isPressed ? 10 : -10, centerX + (isPressed ? 3 : -3), centerY + 10);
-                g.fillRect(centerX - 5, centerY + 5, 10, 45);
-                g.setTransform(orig);
-                g.setColor(Color.GRAY.darker());
-                g.fillRect(centerX - 20, centerY + 10, 40, 20);
-            }
+            AffineTransform origO = g.getTransform(); {
+            g.setColor(isPressed ? Color.GREEN.darker() : Color.RED.darker());
+            AffineTransform orig = g.getTransform();
+            g.rotate(isPressed ? 10 : -10, centerX + (isPressed ? 3 : -3), centerY + 10);
+            g.fillRect(centerX - 5, centerY + 5, 10, 45);
+            g.setTransform(orig);
+            g.setColor(Color.GRAY.darker().darker());
+            g.fillRect(centerX - 20, centerY + 10, 40, 20);
+        }
+            g.translate(-5, 2); {
+            g.setColor(isPressed ? Color.GREEN : Color.RED);
+            AffineTransform orig = g.getTransform();
+            g.rotate(isPressed ? 10 : -10, centerX + (isPressed ? 3 : -3), centerY + 10);
+            g.fillRect(centerX - 5, centerY + 5, 10, 45);
+            g.setTransform(orig);
+            g.setColor(Color.GRAY.darker());
+            g.fillRect(centerX - 20, centerY + 10, 40, 20);
+        }
             g.setTransform(origO);
             break;
         case LINEAR_ON_OFF:
@@ -222,7 +220,8 @@ public class BooleanControlComponent extends BaseChannelComponent<BooleanControl
 
         @Override
         public void set(boolean b) {
-            // Do nothing. This is just so that we can make the remote end send us data by subscribing.
+            // Do nothing. This is just so that we can make the remote end send
+            // us data by subscribing.
         }
     }
 

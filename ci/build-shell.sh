@@ -3,6 +3,9 @@
 DIRS="CommonChickenRuntimeEngine Emulator DeploymentEngine PoultryInspector roboRIO"
 HERE=$(pwd)
 
+cd $(dirname $HERE)
+./check-headers.sh
+
 for dir in $DIRS
 do
 	cd $(dirname $HERE)/$dir

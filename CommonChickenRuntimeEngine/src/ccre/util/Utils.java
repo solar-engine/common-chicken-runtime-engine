@@ -19,6 +19,8 @@
 package ccre.util;
 
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.io.PrintStream;
 import java.io.UnsupportedEncodingException;
 
@@ -178,5 +180,44 @@ public class Utils {
         } catch (UnsupportedEncodingException e) {
             throw new AssertionError("UTF-8 is unknown", e);
         }
+    }
+
+    public static InputStream stripCarriageReturns(InputStream resin) {
+        return new InputStream() {
+            @Override
+            public int read() throws IOException {
+                int b = resin.read();
+                while (b == '\r') {
+                    b = resin.read();
+                }
+                return b;
+            }
+
+            @Override
+            public int read(byte[] b, int off, int len) throws IOException {
+                byte[] temp = new byte[len];
+                int length = resin.read(temp);
+                if (length == -1) {
+                    return -1;
+                }
+                int out = off;
+                for (int i = 0; i < length; i++) {
+                    if (temp[i] != '\r') {
+                        b[out++] = temp[i];
+                    }
+                }
+                return out;
+            }
+
+            @Override
+            public void close() throws IOException {
+                resin.close();
+            }
+
+            @Override
+            public int read(byte[] b) throws IOException {
+                return this.read(b, 0, b.length);
+            }
+        };
     }
 }

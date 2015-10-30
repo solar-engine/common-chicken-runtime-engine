@@ -91,8 +91,8 @@ public class DepRoboRIO {
 
             // prevent any text-busy issues
             execCheck("rm /usr/local/frc/bin/netconsole-host");
-            adminshell.sendResourceTo(DepRoboRIO.class, "/edu/wpi/first/wpilibj/binaries/netconsole-host", "/usr/local/frc/bin/", 0755);
-            sendResourceTo(DepRoboRIO.class, "/edu/wpi/first/wpilibj/binaries/robotCommand", "/home/lvuser/", 0755);
+            adminshell.sendBinResourceTo(DepRoboRIO.class, "/edu/wpi/first/wpilibj/binaries/netconsole-host", "/usr/local/frc/bin/", 0755);
+            sendTextResourceTo(DepRoboRIO.class, "/edu/wpi/first/wpilibj/binaries/robotCommand", "/home/lvuser/", 0755);
             Logger.info("Download complete.");
         }
 
@@ -266,7 +266,8 @@ public class DepRoboRIO {
     }
 
     public static Artifact build(File source, Class<? extends FRCApplication> main) throws IOException {
-        // we need to compile against all the libraries because, if we don't, the Deployment class won't build.
+        // we need to compile against all the libraries because, if we don't,
+        // the Deployment class won't build.
         // TODO: could there be a better solution for this?
         Artifact newcode = DepJava.build(source, DepRoboRIO.getJarFile(LIBS_THICK));
         return DepJar.combine(DepRoboRIO.manifest(main), JarBuilder.DELETE, newcode, DepRoboRIO.getJar(LIBS_THIN));

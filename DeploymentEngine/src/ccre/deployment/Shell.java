@@ -27,6 +27,7 @@ import java.nio.file.Files;
 import java.security.PublicKey;
 import java.util.concurrent.TimeUnit;
 
+import ccre.util.Utils;
 import net.schmizz.sshj.SSHClient;
 import net.schmizz.sshj.connection.channel.direct.Session;
 import net.schmizz.sshj.connection.channel.direct.Session.Command;
@@ -114,12 +115,23 @@ public class Shell implements AutoCloseable {
         }, remotePath);
     }
 
-    public void sendResourceTo(Class<?> clazz, String resource, String remotePath, int permissions) throws IOException {
+    public void sendBinResourceTo(Class<?> clazz, String resource, String remotePath, int permissions) throws IOException {
         try (InputStream resin = clazz.getResourceAsStream(resource)) {
             if (resin == null) {
                 throw new RuntimeException("Cannot find resource: " + resource);
             }
             sendFileTo(resin, resource.substring(resource.lastIndexOf('/') + 1), remotePath, permissions);
+        }
+    }
+
+    public void sendTextResourceTo(Class<?> clazz, String resource, String remotePath, int permissions) throws IOException {
+        // rewrites CRLF to LF.
+        try (InputStream resin = clazz.getResourceAsStream(resource)) {
+            if (resin == null) {
+                throw new RuntimeException("Cannot find resource: " + resource);
+            }
+            InputStream stripped = Utils.stripCarriageReturns(resin);
+            sendFileTo(stripped, resource.substring(resource.lastIndexOf('/') + 1), remotePath, permissions);
         }
     }
 

@@ -9,6 +9,7 @@ import ccre.channel.FloatOutput;
 import ccre.frc.FRC;
 import ccre.frc.FRCApplication;
 
+@SuppressWarnings("unused")
 public class Presentation06 implements FRCApplication {
 
     public void setupRobot() {

@@ -5,6 +5,7 @@ import ccre.frc.FRC;
 import ccre.frc.FRCApplication;
 import ccre.timers.Ticker;
 
+@SuppressWarnings("unused")
 public class Presentation09 implements FRCApplication {
 
     public void setupRobot() {

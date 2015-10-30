@@ -5,6 +5,7 @@ import ccre.ctrl.ExtendedMotorFailureException;
 import ccre.frc.FRC;
 import ccre.frc.FRCApplication;
 
+@SuppressWarnings("unused")
 public class Presentation10 implements FRCApplication {
 
     public void setupRobot() throws ExtendedMotorFailureException {

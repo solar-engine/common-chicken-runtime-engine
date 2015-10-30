@@ -97,6 +97,7 @@ public final class DirectFRCImplementation implements FRCImplementation {
     }
 
     private static void runMain() {
+        Logger.info("I am a CCRE-powered robot with version " + Version.getVersion() + "!");
         DirectFRCImplementation robot = new DirectFRCImplementation();
         FRCImplementationHolder.setImplementation(robot);
         // Cluck de-facto off-FMS port.

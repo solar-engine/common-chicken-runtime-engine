@@ -31,6 +31,7 @@ import ccre.log.FileLogger;
 import ccre.log.Logger;
 import ccre.log.NetworkAutologger;
 import ccre.storage.Storage;
+import ccre.util.Version;
 
 /**
  * The launcher for the DeviceList system.
@@ -50,6 +51,7 @@ public class DeviceListMain {
         if (!jarFile.isFile()) {
             throw new IllegalArgumentException("File is either not a file or does not exist: " + jarFile);
         }
+        Logger.info("Starting Emulator version " + Version.getVersion());
         JarFile frcJar = new JarFile(jarFile);
         Storage.setBaseDir(storageDir);
         String mainClass;

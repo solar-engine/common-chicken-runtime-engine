@@ -44,4 +44,23 @@ public interface FloatIO extends FloatInput, FloatOutput {
     public default FloatInput asInput() {
         return this;
     }
+
+    public static FloatIO compose(FloatInput input, FloatOutput output) {
+        return new FloatIO() {
+            @Override
+            public float get() {
+                return input.get();
+            }
+
+            @Override
+            public EventOutput onUpdate(EventOutput notify) {
+                return input.onUpdate(notify);
+            }
+
+            @Override
+            public void set(float value) {
+                output.set(value);
+            }
+        };
+    }
 }

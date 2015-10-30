@@ -44,4 +44,18 @@ public interface EventIO extends EventInput, EventOutput {
     public default EventInput asInput() {
         return this;
     }
+
+    public static EventIO compose(EventInput input, EventOutput output) {
+        return new EventIO() {
+            @Override
+            public EventOutput onUpdate(EventOutput notify) {
+                return input.onUpdate(notify);
+            }
+
+            @Override
+            public void event() {
+                output.event();
+            }
+        };
+    }
 }

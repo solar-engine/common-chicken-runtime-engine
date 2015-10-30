@@ -76,4 +76,23 @@ public interface BooleanIO extends BooleanInput, BooleanOutput {
     public default BooleanInput asInput() {
         return this;
     }
+
+    public static BooleanIO compose(BooleanInput input, BooleanOutput output) {
+        return new BooleanIO() {
+            @Override
+            public boolean get() {
+                return input.get();
+            }
+
+            @Override
+            public EventOutput onUpdate(EventOutput notify) {
+                return input.onUpdate(notify);
+            }
+
+            @Override
+            public void set(boolean value) {
+                output.set(value);
+            }
+        };
+    }
 }

@@ -48,9 +48,11 @@ developer at: robotics [at] colbyskeggs [dot] com
 License
 -------
 
-The project is licensed under the LGPL, which means that you can freely use it
-as a dependency of your project without affecting the license that you use for
-your project.
+DISCLAIMER: I AM NOT A LAYWER. This does not constitute legal advice.
+
+The project is licensed under the LGPL, which means, more or less, that you can
+freely use it as a dependency of your project without affecting the license
+that you use for your project.
 
 Since this project is publicly available, you can use it for FRC robot software
 legally under the rules (as of 2015), as long as, if you make any changes

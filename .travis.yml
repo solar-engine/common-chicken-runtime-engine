@@ -1,8 +1,12 @@
 language: java
 jdk:
 - oraclejdk8
-sudo: false
+sudo: required
 dist: trusty
+install:
+  - sudo add-apt-repository ppa:git-core/ppa -y
+  - sudo apt-get update
+  - sudo apt-get install git -y
 script: cd ci && ./build-shell.sh
 notifications:
   slack:

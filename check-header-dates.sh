@@ -1,3 +1,10 @@
+if [ "$1" = "--verify" ]
+then
+	VERIFY="true"
+else
+	VERIFY="false"
+fi
+
 for file in $(find -name '*.java')
 do
 	date=$(git log -n 1 --pretty=format:%ad --date=format:%Y -- $file)
@@ -35,7 +42,15 @@ do
 				echo
 				echo "$date $author <$commit $file>"
 				echo
+
+				if $VERIFY
+				then
+					echo "Failed."
+					exit 1
+				fi
+
 				read -e -p "(b)lame/ne(w) blame/(a)uthor blame/(e)dit/(i)gnore/e(x)it/(n)ext/(!)...> " cmd
+
 				cmdc="${cmd:0:1}"
 				if [ "$cmdc" = "b" ]
 				then
@@ -71,4 +86,9 @@ do
 		fi
 	fi
 done
-echo "Done"
+if $VERIFY
+then
+	echo "Success!"
+else
+	echo "Done."
+fi

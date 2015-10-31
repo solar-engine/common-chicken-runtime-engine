@@ -4,7 +4,11 @@ DIRS="CommonChickenRuntimeEngine Emulator DeploymentEngine PoultryInspector robo
 HERE=$(pwd)
 
 cd $(dirname $HERE)
+echo Verifying headers...
+
 ./check-headers.sh
+
+echo Building...
 
 for dir in $DIRS
 do
@@ -21,6 +25,8 @@ dump_logs() {
 		cat $file
 	done
 }
+
+echo Testing...
 
 cd $(dirname $HERE)/CommonChickenRuntimeEngine
 rm -rf $HERE/junit-output

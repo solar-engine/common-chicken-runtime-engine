@@ -36,8 +36,8 @@ Please read [our documentation and quickstart guide](http://cgscomwww.catlin.edu
 Contribute
 ----------
 
-- Issue Tracker: github.com/flamingchickens1540/Common-Chicken-Runtime-Engine/issues
-- Source Code: github.com/flamingchickens1540/Common-Chicken-Runtime-Engine
+- [Issue Tracker](https://github.com/flamingchickens1540/Common-Chicken-Runtime-Engine/issues)
+- [Source Code](https://github.com/flamingchickens1540/Common-Chicken-Runtime-Engine)
 
 Support
 -------

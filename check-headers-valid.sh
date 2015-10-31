@@ -10,10 +10,11 @@ do
 	date=$(git log -n 1 --pretty=format:%ad --date=format:%Y -- $file)
 	author=$(git log -n 1 --pretty=format:%an -- $file)
 	commit=$(git log -n 1 --pretty=format:%H -- $file)
+	filesha=$(sha256sum $file)
 	headdata=$(head -n 2 -- $file | tail -n 1)
 	if echo "$headdata" | grep -q "Copyright" -
 	then
-		if grep -q "^<$commit $file>$" - <header-dates-ignore.txt
+		if grep -q "^$filesha$" - <header-dates-ignore.txt
 		then
 			# don't check
 			true
@@ -66,7 +67,7 @@ do
 					nano $file
 				elif [ "$cmdc" = "i" ]
 				then
-					echo "<$commit $file>" >>header-dates-ignore.txt
+					echo "$filesha" >>header-dates-ignore.txt
 					echo "There are now $(wc -l header-dates-ignore.txt | cut -d ' ' -f 1) ignored entries."
 					FAIL="false"
 				elif [ "$cmdc" = "x" ]

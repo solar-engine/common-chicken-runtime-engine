@@ -7,6 +7,7 @@ cd $(dirname $HERE)
 echo Verifying headers...
 
 ./check-headers.sh
+./check-headers-valid.sh --verify
 
 echo Building...
 

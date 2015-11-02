@@ -47,15 +47,7 @@ cd $HERE
 if [ "$TRAVIS_PULL_REQUEST" = "false" ]
 then
 	echo "Cloning uploader repo..."
-
-	chmod 600 ssh-keys/travis-key
-	ssh-add ssh-keys/travis-key
-
-	git clone git@github.com:flamingchickens1540/ccre-dev-releases.git
-	cd ccre-dev-releases
-
-	./add-from-repo.sh $(dirname $HERE)
-
+	ssh-agent ./upload-artifacts.sh
 	echo "Done uploading!"
 else
 	echo "Not uploading for pull request."

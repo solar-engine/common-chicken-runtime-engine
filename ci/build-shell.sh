@@ -47,7 +47,7 @@ cd $HERE
 if [ "$TRAVIS_PULL_REQUEST" = "false" ]
 then
 	echo "Cloning uploader repo..."
-	ssh-agent ./upload-artifacts.sh
+	ssh-agent ./upload-artifacts.sh $(dirname $HERE)
 	echo "Done uploading!"
 else
 	echo "Not uploading for pull request."

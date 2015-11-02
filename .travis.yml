@@ -3,10 +3,12 @@ jdk:
 - oraclejdk8
 sudo: required
 dist: trusty
+before_install:
+- openssl aes-256-cbc -K $encrypted_a7233f0128dd_key -iv $encrypted_a7233f0128dd_iv -in ci/ssh-keys/travis-key.enc -out ci/ssh-keys/travis-key -d
 install:
-  - sudo add-apt-repository ppa:git-core/ppa -y
-  - sudo apt-get update
-  - sudo apt-get install git -y
+- sudo add-apt-repository ppa:git-core/ppa -y
+- sudo apt-get update
+- sudo apt-get install git -y
 script: cd ci && ./build-shell.sh
 notifications:
   slack:

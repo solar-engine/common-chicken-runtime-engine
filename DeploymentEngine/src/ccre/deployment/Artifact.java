@@ -28,7 +28,8 @@ public abstract class Artifact implements AutoCloseable {
         for (int i = 0; i < in.length; i++) {
             String name = in[i];
             if (name.endsWith(".class")) {
-                in[i] = name.substring(name.charAt(0) == '/' ? 1 : 0, name.length() - 6).replace('/', '.');// convert resource name to class name
+                // convert resource name to class name
+                in[i] = name.substring(name.charAt(0) == '/' ? 1 : 0, name.length() - 6).replace('/', '.');
                 count++;
             } else {
                 in[i] = null;

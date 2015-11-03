@@ -33,7 +33,6 @@ public class CANExceptionFactory {
         case ERR_CANSessionMux_MessageNotFound:
         case kRIOStatusOperationTimedOut:
             throw new CANMessageNotFoundException();
-            //throw new RuntimeException("CAN Message not found. This usually just means we already have the most recent value cached locally.");
         case ERR_CANSessionMux_NotAllowed:
         case kRIOStatusFeatureNotSupported:
             throw new RuntimeException("CAN Message not allowed: MessageID = " + messageID);

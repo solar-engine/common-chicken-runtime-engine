@@ -63,7 +63,7 @@ public class VerifyingLoggingTarget implements LoggingTarget {
         }
         ifExpected = false;
     }
-    
+
     public void check() {
         assertFalse("Did not receive expected log.", ifExpected);
         assertFalse("Failed during individual log reception.", hasFailure);

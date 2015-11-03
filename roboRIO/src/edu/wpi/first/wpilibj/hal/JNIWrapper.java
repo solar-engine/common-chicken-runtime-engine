@@ -23,7 +23,8 @@ public class JNIWrapper {
             byte[] buffer = new byte[4096];
             int readBytes;
 
-            // Note: the source for this library is available in WPILib, of course.
+            // Note: the source for this library is available in WPILib, of
+            // course.
             InputStream is = JNIWrapper.class.getResourceAsStream("/edu/wpi/first/wpilibj/binaries/libwpilibJavaJNI.so");
             if (is == null) {
                 throw new RuntimeException("Could not initialize JNIWrapper: missing shared object in Jar.");

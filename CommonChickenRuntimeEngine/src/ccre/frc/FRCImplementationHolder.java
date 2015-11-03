@@ -20,7 +20,8 @@ package ccre.frc;
 
 /**
  * A class that holds the current FRCImplementation. This is done because the
- * implementation variable must be available before the FRC class is initialized.
+ * implementation variable must be available before the FRC class is
+ * initialized.
  *
  * @author skeggsc
  */

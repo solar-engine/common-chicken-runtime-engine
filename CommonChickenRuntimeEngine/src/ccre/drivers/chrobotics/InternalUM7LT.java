@@ -177,7 +177,8 @@ public class InternalUM7LT { // default rate: 115200 baud.
         while (count-- > 0) {
             int consumed = handlePacket(activeBuffer, from, to);
             if (consumed == 0) { // need more data
-                if (from != 0 && to >= activeBuffer.length - 64) { // nearing the end, or at the end - shift earlier.
+                // nearing the end, or at the end - shift earlier.
+                if (from != 0 && to >= activeBuffer.length - 64) {
                     System.arraycopy(activeBuffer, from, activeBuffer, 0, to - from);
                     to -= from;
                     from = 0;
@@ -202,7 +203,8 @@ public class InternalUM7LT { // default rate: 115200 baud.
         }
     }
 
-    // Returns the number of consumed bytes, or zero if packet needs more data to be valid.
+    // Returns the number of consumed bytes, or zero if packet needs more data
+    // to be valid.
     private int handlePacket(byte[] bytes, int from, int to) {
         // TODO: Check bounds on To.
         if (to - from < 6) { // no way for any valid packets to be ready
@@ -242,7 +244,8 @@ public class InternalUM7LT { // default rate: 115200 baud.
         }
     }
 
-    // Returns the number of consumed bytes, or zero if packet needs more data to be valid.
+    // Returns the number of consumed bytes, or zero if packet needs more data
+    // to be valid.
     private int handleBinary(byte[] bin, int from, int to) throws IOException {
         if (to - from < 7) {
             return 0;
@@ -262,10 +265,7 @@ public class InternalUM7LT { // default rate: 115200 baud.
         checkChecksum(bin, from - 3, from + 4 + data_count * 4); // -3 for snp
         int[] data = new int[data_count];
         for (int i = 0; i < data_count; i++) {
-            data[i] = ((bin[from + 2 + 4 * i + 0] & 0xFF) << 24) |
-                    ((bin[from + 2 + 4 * i + 1] & 0xFF) << 16) |
-                    ((bin[from + 2 + 4 * i + 2] & 0xFF) << 8) |
-                    ((bin[from + 2 + 4 * i + 3] & 0xFF));
+            data[i] = ((bin[from + 2 + 4 * i + 0] & 0xFF) << 24) | ((bin[from + 2 + 4 * i + 1] & 0xFF) << 16) | ((bin[from + 2 + 4 * i + 2] & 0xFF) << 8) | ((bin[from + 2 + 4 * i + 3] & 0xFF));
         }
         if (address + data_count - 1 >= DREG_BASE && address < DREG_LAST) {
             int nextUpdateId = lastUpdateId + 1;
@@ -288,7 +288,8 @@ public class InternalUM7LT { // default rate: 115200 baud.
         } else if (address != 0) {
             Logger.finest("UNHANDLED BINARY MESSAGE " + Integer.toHexString(address & 0xFF) + " [" + is_hidden + ":" + is_command_failed + "]");
         }
-        return 2 + 4 * data_count + 2 + 3; // two for checksum, three for the 'snp' that was stripped out. 
+        // two for checksum, three for the 'snp' that was stripped out.
+        return 2 + 4 * data_count + 2 + 3;
     }
 
     /**

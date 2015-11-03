@@ -274,7 +274,7 @@ public class CluckRMTSubscriberTest {
         rs.send(null, "source", new byte[] { CluckConstants.RMT_EVENTINPUT, 9, 0 });
         ceo.check();
     }
-    
+
     @Test
     public void testReceiveIgnoreInvalid() {
         CluckRMTSubscriber rs = new CluckRMTSubscriber(node, CluckConstants.RMT_INVOKE) {

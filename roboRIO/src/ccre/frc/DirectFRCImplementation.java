@@ -1,5 +1,6 @@
 /*
  * Copyright 2013-2015 Colby Skeggs
+ * Copyright 2015 Jake Springer
  *
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  *
@@ -96,12 +97,17 @@ public final class DirectFRCImplementation implements FRCImplementation {
     }
 
     private static void runMain() {
+        Logger.info("I am a CCRE-powered robot with version " + Version.getVersion() + "!");
         DirectFRCImplementation robot = new DirectFRCImplementation();
         FRCImplementationHolder.setImplementation(robot);
-        Cluck.setupServer(1540);// Cluck de-facto off-FMS port.
-        Cluck.setupServer(1735);// SmartDashboard port, since it's unused with the CCRE
-        Cluck.setupServer(5800);// First team-use port.
-        Cluck.setupServer(5805);// Another team-use port.
+        // Cluck de-facto off-FMS port.
+        Cluck.setupServer(1540);
+        // SmartDashboard port, since it's unused with the CCRE
+        Cluck.setupServer(1735);
+        // First team-use port.
+        Cluck.setupServer(5800);
+        // Another team-use port.
+        Cluck.setupServer(5805);
         try {
             robot.setupMain();
             Cluck.getNode().notifyNetworkModified();

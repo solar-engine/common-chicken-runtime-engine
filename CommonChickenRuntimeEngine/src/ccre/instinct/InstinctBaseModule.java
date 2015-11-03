@@ -106,7 +106,7 @@ public abstract class InstinctBaseModule {
                 }
             }
         };
-        EventOutput unbind = source.sendR(c);
+        EventOutput unbind = source.send(c);
         try {
             synchronized (b) {
                 while (!b[0]) {

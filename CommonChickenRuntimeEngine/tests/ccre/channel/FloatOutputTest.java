@@ -331,6 +331,12 @@ public class FloatOutputTest {
                     lastSent = b;
                 }
             }
+            boolean b = Values.getRandomBoolean();
+            cfo1.ifExpected = (lastSent != null && lastSent != b);
+            cfo1.valueExpected = b ? onV.get() : off;
+            b1.set(b);
+            cfo1.check();
+            lastSent = b;
         }
     }
 

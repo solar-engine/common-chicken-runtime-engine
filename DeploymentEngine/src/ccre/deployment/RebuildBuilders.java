@@ -45,7 +45,8 @@ public class RebuildBuilders {
         try {
             rebuild(Class.forName("deployment.Deployment"));
         } catch (ClassNotFoundException e) {
-            throw new RuntimeException("Cannot find deployment.Deployment! Perhaps you should add it...");// TODO: autoadd it?
+            // TODO: autoadd it?
+            throw new RuntimeException("Cannot find deployment.Deployment! Perhaps you should add it...");
         }
     }
 

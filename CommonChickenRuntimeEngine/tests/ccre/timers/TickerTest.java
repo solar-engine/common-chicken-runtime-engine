@@ -77,7 +77,8 @@ public class TickerTest {
     @Parameters
     public static Collection<Object[]> generateData() {
         ArrayList<Object[]> out = new ArrayList<>();
-        // the different timings here aren't really relevant - this just tests more birds with two stones.
+        // the different timings here aren't really relevant - this just tests
+        // more birds with two stones.
         out.add(new Object[] { 770, false });
         out.add(new Object[] { 760, true });
         return out;
@@ -113,7 +114,7 @@ public class TickerTest {
     }
 
     private EventOutput start(EventOutput eo) throws InterruptedException {
-        EventOutput unbind = ticker.sendR(eo);
+        EventOutput unbind = ticker.send(eo);
         Thread.sleep(5);
         return unbind;
     }
@@ -134,7 +135,8 @@ public class TickerTest {
     public void testFastCounting() throws InterruptedException {
         start(cb);
         fake.forward(period * 20);
-        // skipping time that fast doesn't work well with this version of Ticker - that's what the option is for!
+        // skipping time that fast doesn't work well with this version of Ticker
+        // - that's what the option is for!
         check(fixedRate ? 20 : 1);
     }
 
@@ -180,7 +182,6 @@ public class TickerTest {
                 }
             }
         });
-        // here, unlike above, only five failures occur - so nothing gets detached, and it keeps working.
         for (int i = 0; i < 20; i++) {
             fake.forward(period);
         }
@@ -199,7 +200,6 @@ public class TickerTest {
                 }
             }
         });
-        // here, unlike above, the failures happen infrequently enough that nothing actually gets detached, and it keeps working
         for (int i = 0; i < 70; i++) {
             fake.forward(period);
         }

@@ -53,7 +53,8 @@ public class FloatDisplayComponent extends BaseChannelComponent<FloatDisplayComp
     private float minimum = -1.0f, maximum = 1.0f;
     private boolean subscribed;
     private final FloatInput inp;
-    private EventOutput unsubscribe; // TODO: collapse subscribed and unsubscribe? here and other places?
+    // TODO: collapse subscribed and unsubscribe? here and other places?
+    private EventOutput unsubscribe;
 
     /**
      * Create a new FloatDisplayComponent with a FloatInput to read from.
@@ -199,7 +200,7 @@ public class FloatDisplayComponent extends BaseChannelComponent<FloatDisplayComp
                 unsubscribe = null;
             }
             if (hasPanel) {
-                unsubscribe = inp.sendR(this);
+                unsubscribe = inp.send(this);
             }
             subscribed = hasPanel;
         }

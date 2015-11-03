@@ -42,16 +42,18 @@ public class RobotModeDevice extends Device {
         /**
          * The DISABLED mode. Has a null selection name.
          */
-        DISABLED(null), /**
-                         * The AUTONOMOUS mode. The selection name is AUTO.
-                         */
-        AUTONOMOUS("AUTO"), /**
-                             * The TELEOPERATED mode. The selection name is
-                             * TELE.
-                             */
-        TELEOPERATED("TELE"), /**
-                               * The TESTING mode. The selection name is TEST.
-                               */
+        DISABLED(null),
+        /**
+         * The AUTONOMOUS mode. The selection name is AUTO.
+         */
+        AUTONOMOUS("AUTO"),
+        /**
+         * The TELEOPERATED mode. The selection name is TELE.
+         */
+        TELEOPERATED("TELE"),
+        /**
+         * The TESTING mode. The selection name is TEST.
+         */
         TESTING("TEST");
 
         /**
@@ -86,7 +88,8 @@ public class RobotModeDevice extends Device {
             setMode(RobotMode.TESTING);
         }
     };
-    private RobotMode selectedMode = RobotMode.TELEOPERATED;// except for DISABLED
+    // except for DISABLED
+    private RobotMode selectedMode = RobotMode.TELEOPERATED;
 
     private void setMode(RobotMode mode) {
         if (enabled.get()) {
@@ -122,8 +125,10 @@ public class RobotModeDevice extends Device {
             return enabled.asInput().not();
         } else {
             return new DerivedBooleanInput(enabled.asInput()) {
-                // updates only matter when enabled changes... the mode (and so the result) can't change when the mode is enabled.
-                // and when disabled, the result is false anyway... until enabled becomes true.
+                // updates only matter when enabled changes... the mode (and so
+                // the result) can't change when the mode is enabled.
+                // and when disabled, the result is false anyway... until
+                // enabled becomes true.
                 @Override
                 protected boolean apply() {
                     return enabled.get() && selectedMode == mode;

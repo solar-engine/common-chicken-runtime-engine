@@ -56,7 +56,8 @@ public class DispatchEntry {
 
         StackTraceElement[] stackTrace = e.getStackTrace();
         int last = 0;
-        // trim stack trace to only include relevant elements: nothing past this invocation!
+        // trim stack trace to only include relevant elements: nothing past this
+        // invocation!
         while (last < stackTrace.length - 1 && !(stackTrace[last].getClassName().equals(DispatchEntry.class.getName()) && stackTrace[last].getMethodName().equals("main"))) {
             last++;
         }

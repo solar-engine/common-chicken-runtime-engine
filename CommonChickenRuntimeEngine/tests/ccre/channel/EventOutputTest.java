@@ -33,7 +33,7 @@ import ccre.time.FakeTime;
 import ccre.time.Time;
 import ccre.util.Values;
 
-public class EventOutputTest { // TODO: should I be checking propagation of withRecovery messages?
+public class EventOutputTest {
 
     private final EventOutput evil = () -> {
         throw new NoSuchElementException("safeEvent purposeful failure.");
@@ -73,7 +73,8 @@ public class EventOutputTest { // TODO: should I be checking propagation of with
 
     @Test
     public void testIgnored() {
-        // nothing should happen... but we don't have much of a way to check that.
+        // nothing should happen... but we don't have much of a way to check
+        // that.
         EventOutput.ignored.event();
     }
 
@@ -169,19 +170,20 @@ public class EventOutputTest { // TODO: should I be checking propagation of with
     @Test
     public void testOn() {
         gotProperly = false;
-        ceo.on(new EventInput() {
+        assertEquals(ceo2, ceo.on(new EventInput() {
             @Override
-            public void send(EventOutput notify) {
+            public EventOutput send(EventOutput notify) {
                 assertEquals(ceo, notify);
                 gotProperly = true;
+                return ceo2;
             }
 
             @Override
-            public EventOutput onUpdateR(EventOutput notify) {
+            public EventOutput onUpdate(EventOutput notify) {
                 fail("supposed to go to send() directly!");
                 return null;
             }
-        });
+        }));
         assertTrue(gotProperly);
     }
 

@@ -130,7 +130,8 @@ public class TracingCluckTCPClient extends CluckTCPClient {
                     if (expectKeepAlives && System.currentTimeMillis() - lastReceive > CluckProtocol.TIMEOUT_PERIOD) {
                         throw ex;
                     } else {
-                        // otherwise, don't do anything - we don't know if this is a timeout.
+                        // otherwise, don't do anything - we don't know if this
+                        // is a timeout.
                     }
                 }
             }

@@ -123,7 +123,7 @@ public class BooleanDisplayComponent extends BaseChannelComponent<BooleanDisplay
                 unsubscribe = null;
             }
             if (hasPanel) {
-                unsubscribe = inp.sendR(this);
+                unsubscribe = inp.send(this);
             }
             subscribed = hasPanel;
         }

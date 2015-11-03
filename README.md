@@ -7,16 +7,16 @@ project so that you can focus on the important parts of your code.
 
 Here's an example of a robot piloted with Tank Drive:
 
-    DriverImpls.arcadeDrive(Igneous.joystick1,
-                            Igneous.makeTalonMotor(1, MOTOR_FORWARD),
-                            Igneous.makeTalonMotor(2, MOTOR_REVERSE));
+    DriverImpls.arcadeDrive(FRC.joystick1,
+                            FRC.talon(1, FRC.MOTOR_FORWARD),
+                            FRC.talon(2, FRC.MOTOR_REVERSE));
 
 Or, something more interesting: an example of a shifting drive train:
 
-    BooleanOutput shifter = Igneous.makeSolenoid(2);
-    shifter.setFalseWhen(Igneous.startTele);
-    shifter.setTrueWhen(Igneous.joystick1.onPress(3));
-    shifter.setFalseWhen(Igneous.joystick1.onPress(1));
+    BooleanOutput shifter = FRC.solenoid(2);
+    shifter.setFalseWhen(FRC.startTele);
+    shifter.setTrueWhen(FRC.joystick1.onPress(3));
+    shifter.setFalseWhen(FRC.joystick1.onPress(1));
 
 Features
 --------
@@ -31,13 +31,13 @@ Features
 Documentation and Quickstart Guide
 -----------------------------------
 
-TODO: add a link here.
+Please read [our documentation and quickstart guide](http://cgscomwww.catlin.edu/~skeggsc/ccre-docs/)!
 
 Contribute
 ----------
 
-- Issue Tracker: github.com/flamingchickens1540/Common-Chicken-Runtime-Engine/issues
-- Source Code: github.com/flamingchickens1540/Common-Chicken-Runtime-Engine
+- [Issue Tracker](https://github.com/flamingchickens1540/Common-Chicken-Runtime-Engine/issues)
+- [Source Code](https://github.com/flamingchickens1540/Common-Chicken-Runtime-Engine)
 
 Support
 -------
@@ -48,9 +48,11 @@ developer at: robotics [at] colbyskeggs [dot] com
 License
 -------
 
-The project is licensed under the LGPL, which means that you can freely use it
-as a dependency of your project without affecting the license that you use for
-your project.
+DISCLAIMER: I AM NOT A LAYWER. This does not constitute legal advice.
+
+The project is licensed under the LGPL, which means, more or less, that you can
+freely use it as a dependency of your project without affecting the license
+that you use for your project.
 
 Since this project is publicly available, you can use it for FRC robot software
 legally under the rules (as of 2015), as long as, if you make any changes

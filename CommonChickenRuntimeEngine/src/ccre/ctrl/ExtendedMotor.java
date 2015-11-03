@@ -195,8 +195,8 @@ public abstract class ExtendedMotor {
      * Gets access to one of the status readouts from the ExtendedMotor.
      *
      * @param type the type of status to get access to.
-     * @return the FloatInput representing this status readout, or null if
-     * it cannot be acquired.
+     * @return the FloatInput representing this status readout, or null if it
+     * cannot be acquired.
      */
     public FloatInput asStatus(StatusType type) {
         return asStatus(type, FRC.sensorPeriodic);
@@ -207,8 +207,8 @@ public abstract class ExtendedMotor {
      *
      * @param type the type of status to get access to.
      * @param updateOn when to update the sensor.
-     * @return the FloatInput representing this status readout, or null if
-     * it cannot be acquired.
+     * @return the FloatInput representing this status readout, or null if it
+     * cannot be acquired.
      */
     public abstract FloatInput asStatus(StatusType type, EventInput updateOn);
 

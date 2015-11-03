@@ -62,12 +62,15 @@ public class Network {
                 leaveOpen = true;
                 return new ClientSocket(sock);
             } catch (SocketTimeoutException ex) {
-                throw new ConnectException("Timed out while connecting to " + ina);// Smaller traceback.
+                // Smaller traceback.
+                throw new ConnectException("Timed out while connecting to " + ina);
             } catch (ConnectException ctc) {
                 if (ctc.getMessage().startsWith("Connection timed out")) {
-                    throw new ConnectException("Timed out while connecting to " + ina);// Smaller traceback.
+                    // Smaller traceback.
+                    throw new ConnectException("Timed out while connecting to " + ina);
                 } else if (ctc.getMessage().startsWith("Connection refused")) {
-                    throw new ConnectException("Remote server not available: " + ina);// Smaller traceback.
+                    // Smaller traceback.
+                    throw new ConnectException("Remote server not available: " + ina);
                 }
                 throw ctc;
             }

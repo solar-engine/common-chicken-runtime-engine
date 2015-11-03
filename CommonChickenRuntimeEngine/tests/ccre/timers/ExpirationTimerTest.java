@@ -370,7 +370,7 @@ public class ExpirationTimerTest {
         ceo.ifExpected = true;
         fake.forward(1000);
         Thread.sleep(2);
-        ceo.check();
+        ceo.check(); // flaky; 1 failure
         timer.stop();
         Thread.sleep(2);
         feed.event();

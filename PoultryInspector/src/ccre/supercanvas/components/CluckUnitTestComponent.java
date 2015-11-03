@@ -68,7 +68,8 @@ public class CluckUnitTestComponent extends DraggableBoxComponent {
             Cluck.publish("utest-lt1", new LoggingTarget() {
                 @Override
                 public void log(LogLevel level, String message, String extended) {
-                    // TODO: Do more with other possible logging messages (with throwables or extended)
+                    // TODO: Do more with other possible logging messages (with
+                    // throwables or extended)
                     if (level == LogLevel.FINER && message.equals(testMessage0) && extended == null) {
                         ctr++;
                     } else {

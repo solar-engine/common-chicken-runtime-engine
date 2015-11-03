@@ -78,8 +78,7 @@ public class TextBoxComponent extends DeviceComponent {
     }
 
     @Override
-    public int render(Graphics2D g, int width, int height,
-            FontMetrics fontMetrics, int mouseX, int mouseY, int lastShift) {
+    public int render(Graphics2D g, int width, int height, FontMetrics fontMetrics, int mouseX, int mouseY, int lastShift) {
         g.setColor(color);
         g.setFont(Rendering.console);
         synchronized (lines) {

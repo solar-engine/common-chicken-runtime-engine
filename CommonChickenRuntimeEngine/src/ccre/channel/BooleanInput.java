@@ -42,7 +42,10 @@ public interface BooleanInput extends UpdatingInput {
         }
 
         @Override
-        public EventOutput onUpdateR(EventOutput notify) {
+        public EventOutput onUpdate(EventOutput notify) {
+            if (notify == null) {
+                throw new NullPointerException();
+            }
             return EventOutput.ignored;
         }
     };
@@ -55,7 +58,10 @@ public interface BooleanInput extends UpdatingInput {
         }
 
         @Override
-        public EventOutput onUpdateR(EventOutput notify) {
+        public EventOutput onUpdate(EventOutput notify) {
+            if (notify == null) {
+                throw new NullPointerException();
+            }
             return EventOutput.ignored;
         }
     };
@@ -87,14 +93,9 @@ public interface BooleanInput extends UpdatingInput {
      * @param output The boolean output to notify when the value changes.
      * @see BooleanOutput#set(boolean)
      */
-    public default void send(BooleanOutput output) {
+    public default EventOutput send(BooleanOutput output) {
         output.safeSet(get());
-        onUpdate(() -> output.set(get()));
-    }
-
-    public default EventOutput sendR(BooleanOutput output) {
-        output.safeSet(get());
-        return onUpdateR(() -> output.set(get()));
+        return onUpdate(() -> output.set(get()));
     }
 
     /**
@@ -115,13 +116,8 @@ public interface BooleanInput extends UpdatingInput {
         BooleanInput original = this;
         return new BooleanInput() {
             @Override
-            public void onUpdate(EventOutput notify) {
-                original.onUpdate(notify);
-            }
-
-            @Override
-            public EventOutput onUpdateR(EventOutput notify) {
-                return original.onUpdateR(notify);
+            public EventOutput onUpdate(EventOutput notify) {
+                return original.onUpdate(notify);
             }
 
             @Override

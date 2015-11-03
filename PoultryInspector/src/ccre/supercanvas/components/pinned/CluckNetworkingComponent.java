@@ -42,12 +42,8 @@ public class CluckNetworkingComponent extends SuperCanvasComponent {
 
     private static final long serialVersionUID = 8969267415884377303L;
 
-    private static final String[] optionNames = new String[] {
-            "roboRIO (default)", "Local (default)", "roboRIO (USB)", "roboRIO (non-FMS)",
-            "roboRIO (alternate 1)", "roboRIO (alternate 2)", "Local (alternate 1)", "Local (alternate 2)", "Don't Connect" };
-    private static final String[] optionAddrs = new String[] {
-            "roboRIO-$T$E$A$M.local:5800", "127.0.0.1:1540", "172.22.11.2:1540", "roboRIO-$T$E$A$M.local:1540",
-            "roboRIO-$T$E$A$M.local:5805", "roboRIO-$T$E$A$M.local:1735", "127.0.0.1:80", "127.0.0.1:443", ":" };
+    private static final String[] optionNames = new String[] { "roboRIO (default)", "Local (default)", "roboRIO (USB)", "roboRIO (non-FMS)", "roboRIO (alternate 1)", "roboRIO (alternate 2)", "Local (alternate 1)", "Local (alternate 2)", "Don't Connect" };
+    private static final String[] optionAddrs = new String[] { "roboRIO-$T$E$A$M.local:5800", "127.0.0.1:1540", "172.22.11.2:1540", "roboRIO-$T$E$A$M.local:1540", "roboRIO-$T$E$A$M.local:5805", "roboRIO-$T$E$A$M.local:1735", "127.0.0.1:80", "127.0.0.1:443", ":" };
 
     private final StringBuilder address = new StringBuilder(optionAddrs[0]);
     private boolean expanded = false;
@@ -146,9 +142,7 @@ public class CluckNetworkingComponent extends SuperCanvasComponent {
                 client = null;
             }
         } else if (client == null) {
-            client = useLoggingConnection
-                    ? new TracingCluckTCPClient(remote, Cluck.getNode(), "robot", null)
-                    : new CluckTCPClient(remote, Cluck.getNode(), "robot", null);
+            client = useLoggingConnection ? new TracingCluckTCPClient(remote, Cluck.getNode(), "robot", null) : new CluckTCPClient(remote, Cluck.getNode(), "robot", null);
             client.setReconnectDelay(1000);
             client.setLogDuringNormalOperation(false);
             client.start();

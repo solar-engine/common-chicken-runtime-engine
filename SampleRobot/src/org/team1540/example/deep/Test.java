@@ -51,14 +51,15 @@ public class Test implements FRCApplication {
         // Compressor
         FRC.compressor(1, 1);
         // Autonomous
-        /* FRC.registerAutonomous(new InstinctModule() {
-            protected void autonomousMain() throws AutonomousModeOverException, InterruptedException {
-                leftOut.set(-1);
-                rightOut.set(-1);
-                waitForTime(5000);
-                leftOut.set(0);
-                rightOut.set(0);
-            }
-        }); */
+//        FRC.registerAutonomous(new InstinctModule() {
+//            protected void autonomousMain() throws AutonomousModeOverException, InterruptedException {
+//                leftOut.set(-1);
+//                rightOut.set(-1);
+//                waitForTime(5000);
+//                leftOut.set(0);
+//                rightOut.set(0);
+//            }
+//        });
+
     }
 }

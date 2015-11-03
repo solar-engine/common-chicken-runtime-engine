@@ -40,7 +40,10 @@ class DirectoryDeleterThread extends ReporterThread {
     private static void deleteRecursive(File dir) throws IOException {
         if (dir.exists()) {
             if (dir.isDirectory()) {
-                for (File f : dir.listFiles()) { // Note: we don't need to worry about this being NULL due to being invalid because that would have caused dir.isDirectory() to return false.
+                // Note: we don't need to worry about this being NULL due to
+                // being invalid because that would have caused
+                // dir.isDirectory() to return false.
+                for (File f : dir.listFiles()) {
                     deleteRecursive(f);
                 }
             }

@@ -36,11 +36,11 @@ public abstract class AbstractJoystick implements Joystick {
         this.axisCount = axisCount;
         this.buttonCount = buttonCount;
     }
-    
+
     private final HashMap<Integer, BooleanCell> buttons = new HashMap<>();
     private final HashMap<Integer, FloatCell> floats = new HashMap<>();
     private final HashMap<Integer, BooleanCell> povs = new HashMap<>();
-    
+
     @Override
     public BooleanInput button(int btn) {
         BooleanCell old = buttons.get(btn);
@@ -55,7 +55,7 @@ public abstract class AbstractJoystick implements Joystick {
         buttons.put(btn, out);
         return out;
     }
-    
+
     protected abstract boolean getButton(int btn);
 
     @Override
@@ -72,7 +72,7 @@ public abstract class AbstractJoystick implements Joystick {
         floats.put(axis, out);
         return out;
     }
-    
+
     protected abstract float getAxis(int axis);
 
     @Override
@@ -89,6 +89,6 @@ public abstract class AbstractJoystick implements Joystick {
         povs.put(direction, out);
         return out;
     }
-    
+
     protected abstract boolean getPOV(int direction);
 }

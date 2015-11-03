@@ -46,7 +46,9 @@ public class Shell implements AutoCloseable {
         client.addHostKeyVerifier(new HostKeyVerifier() {
             @Override
             public boolean verify(String hostname, int port, PublicKey key) {
-                return true; // TODO: is this a huge security hole? the official version does this too.
+                // TODO: is this a huge security hole? the official version does
+                // this too.
+                return true;
             }
         });
         client.connect(ip);
@@ -74,7 +76,8 @@ public class Shell implements AutoCloseable {
         SCPFileTransfer transfer = client.newSCPFileTransfer();
         File tempFile = File.createTempFile("scp-", ".recv");
         tempFile.deleteOnExit();
-        transfer.download(sourcePath, new FileSystemFile(tempFile));// TODO: does this actually tell us if it fails?
+        // TODO: does this actually tell us if it fails?
+        transfer.download(sourcePath, new FileSystemFile(tempFile));
         return new FileInputStream(tempFile);
     }
 
@@ -88,7 +91,8 @@ public class Shell implements AutoCloseable {
             throw new NullPointerException("Stream is NULL!");
         }
         SCPFileTransfer transfer = client.newSCPFileTransfer();
-        File temp = File.createTempFile("scp-", ".send"); // TODO: clean this part up?
+        // TODO: clean this part up?
+        File temp = File.createTempFile("scp-", ".send");
         temp.delete();
         temp.deleteOnExit();
         Files.copy(stream, temp.toPath());

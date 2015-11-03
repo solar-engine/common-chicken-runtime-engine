@@ -206,7 +206,8 @@ public final class DeviceListPanel extends JPanel implements Iterable<Device> {
         }
         int calcDevicesInFirstColumn = 0;
         if (shouldColumnsSplit()) {
-            int columnA = 0, columnB = totalHeight, lastScore = Math.abs(columnB - columnA); // Closer together is better, is lower score.
+            // Closer together is better, is lower score.
+            int columnA = 0, columnB = totalHeight, lastScore = Math.abs(columnB - columnA);
             for (Device comp : devices) {
                 int deviceHeight = comp.getHeight();
                 columnB -= deviceHeight;

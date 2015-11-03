@@ -20,7 +20,8 @@ package ccre.time;
 
 import ccre.channel.EventOutput;
 
-final class ScheduleEntry implements Comparable<ScheduleEntry> {// TODO: make sure that everything works with time wraparound (hint: it doesn't now)
+//TODO: make sure that everything works with time wraparound (hint: it doesn't now)
+final class ScheduleEntry implements Comparable<ScheduleEntry> {
     public final long expirationAt;
     public final EventOutput target;
 

@@ -80,8 +80,8 @@ public abstract class BaseChannelComponent<View extends Enum<View>> extends Drag
         channelRender(g, screenWidth, screenHeight, fontMetrics, mouseX, mouseY);
     }
 
-    /*
-     * Set the view to the default view.
+    /**
+     * Sets the view mode of the channel to the default view mode.
      */
     protected abstract void setDefaultView();
 

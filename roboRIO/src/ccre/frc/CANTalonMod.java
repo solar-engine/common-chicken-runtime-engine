@@ -13,6 +13,10 @@ import edu.wpi.first.wpilibj.hal.SWIGTYPE_p_CTR_Code;
 import edu.wpi.first.wpilibj.hal.SWIGTYPE_p_double;
 import edu.wpi.first.wpilibj.hal.SWIGTYPE_p_int;
 
+/**
+ * Part of the WPILib CAN implementation. This is not documented well, as it
+ * wasn't written by us.
+ */
 @SuppressWarnings({ "javadoc", "unused" })
 class CANTalonMod {
 

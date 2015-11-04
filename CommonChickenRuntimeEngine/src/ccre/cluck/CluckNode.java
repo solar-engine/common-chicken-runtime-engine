@@ -249,10 +249,12 @@ public class CluckNode implements Serializable {
     }
 
     /**
-     * Check if a target exists for the specified link name.
+     * Checks if a link exists. If it is routable, it exists. If it is not
+     * routable, it probably (but not necessarily) doesn't exist - for example,
+     * there is the case of a link pointing to a remote object.
      *
-     * @param string
-     * @return
+     * @param linkName the link name to check.
+     * @return true if the link exists, and false otherwise.
      */
     public boolean hasLink(String linkName) {
         if (linkName == null) {
@@ -262,7 +264,7 @@ public class CluckNode implements Serializable {
     }
 
     /**
-     * Remove the link attached to the specified link name.
+     * Removes the link attached to the specified link name.
      *
      * @param linkName The link name to remove.
      * @return whether or not there had been a link to remove.

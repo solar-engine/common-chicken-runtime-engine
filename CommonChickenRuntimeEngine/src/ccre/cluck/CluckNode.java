@@ -97,6 +97,9 @@ public class CluckNode implements Serializable {
      * @param denyLink The link for broadcasts to not follow.
      */
     public void transmit(String target, String source, byte[] data, CluckLink denyLink) {
+        if (data == null) {
+            throw new NullPointerException();
+        }
         // TODO: outlaw empty messages here.
         if (target == null) {
             if (data.length == 0 || data[0] != CluckConstants.RMT_NEGATIVE_ACK) {
@@ -144,6 +147,9 @@ public class CluckNode implements Serializable {
      * ccre.cluck.CluckLink)
      */
     public void broadcast(String source, byte[] data, CluckLink denyLink) {
+        if (data == null) {
+            throw new NullPointerException();
+        }
         String[] linksKeySet = links.keySet().toArray(new String[links.keySet().size()]);
         for (String link : linksKeySet) {
             CluckLink cl = links.get(link);
@@ -185,6 +191,9 @@ public class CluckNode implements Serializable {
      * @param listener The listener to notify.
      */
     public void subscribeToStructureNotifications(String localRecvName, final EventOutput listener) {
+        if (localRecvName == null || listener == null) {
+            throw new NullPointerException();
+        }
         new CluckSubscriber(this) {
             @Override
             protected void receive(String source, byte[] data) {
@@ -246,6 +255,9 @@ public class CluckNode implements Serializable {
      * @return
      */
     public boolean hasLink(String linkName) {
+        if (linkName == null) {
+            throw new NullPointerException();
+        }
         return links.containsKey(linkName);
     }
 
@@ -256,6 +268,9 @@ public class CluckNode implements Serializable {
      * @return whether or not there had been a link to remove.
      */
     public boolean removeLink(String linkName) {
+        if (linkName == null) {
+            throw new NullPointerException();
+        }
         return links.remove(linkName) != null;
     }
 

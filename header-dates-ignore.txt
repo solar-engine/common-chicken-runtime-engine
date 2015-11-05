@@ -28,8 +28,8 @@ d5e7fef0ac02f503b1eedea3f254422d3fd52ae18b74cf0fcca864c21e0fdf10  ./PoultryInspe
 1d4b749bba1536e6e6655db35c3983dcf0f95c9428339e25555604dbf75717bd  ./SampleRobot/src/org/team1540/minimal/Minimal.java
 851ce8215e1f117df582ea4a798a94f064474b6f3eb169df9ae14c6f642438bb  ./Emulator/src/ccre/frc/DeviceGroup.java
 1492ad234e23fde0d325d4cb559bfd7f56837e23c82fa256f3956d20facdc995  ./roboRIO/src/edu/wpi/first/wpilibj/can/CANMessageNotFoundException.java
-6bf78a9d56a87036002079bed34cd570ea5827adfe371846b688a1fa833cd79d  ./roboRIO/src/ccre/frc/CANJaguarMod.java
-cd27e7e01c2242daad7b5148551c4a8a5b2b06cd91c96c137d8b8ef2e1c0c9cb  ./roboRIO/src/ccre/frc/CANTalonMod.java
+e3845a05c213a87737d94c004e4e405ae27332a9d6f9b154133d1a01178a9c45  ./roboRIO/src/ccre/frc/CANJaguarMod.java
+bf32df3010ace025c5c036a4326631dad62d1d4dd59ab47c48b195e2241684dd  ./roboRIO/src/ccre/frc/CANTalonMod.java
 267f5371f921dc199542928349235b1c59cedb95be028d97e91f364d111d0ad3  ./CommonChickenRuntimeEngine/src/ccre/cluck/tcp/CluckTCPServer.java
 3da931a7e649de8e12f710b3794ac443443a1094e31df0ea549350580ef0edd9  ./PoultryInspector/src/ccre/supercanvas/components/LoggingComponent.java
 55f7d613cd4bba26d4c1fae6c6765f611e29ab068dc898eea441ac935ab1e633  ./roboRIO/src/edu/wpi/first/wpilibj/can/CANExceptionFactory.java

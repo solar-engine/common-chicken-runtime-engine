@@ -38,5 +38,5 @@ then
 	ssh-agent ./upload-artifacts.sh $(dirname $HERE)
 	echo "Done uploading!"
 else
-	echo "Not uploading for pull request."
+	echo "Not uploading for pull request or non-devel branch."
 fi

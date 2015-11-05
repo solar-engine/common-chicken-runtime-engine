@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 Colby Skeggs
+ * Copyright 2013,2015 Colby Skeggs
  *
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  *
@@ -24,6 +24,21 @@ package ccre.log;
  * @author skeggsc
  */
 public interface LoggingTarget {
+
+    /**
+     * A LoggingTarget that ignores all messages completely.
+     */
+    public static final LoggingTarget ignored = new LoggingTarget() {
+        @Override
+        public void log(LogLevel level, String message, Throwable throwable) {
+            // NAH
+        }
+
+        @Override
+        public void log(LogLevel level, String message, String extended) {
+            // NAH
+        }
+    };
 
     /**
      * Log the given message at the given level with an optional throwable (can

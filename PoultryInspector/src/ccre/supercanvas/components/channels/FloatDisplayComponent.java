@@ -27,6 +27,7 @@ import java.awt.Shape;
 import java.awt.Stroke;
 import java.awt.geom.AffineTransform;
 
+import ccre.channel.EventOutput;
 import ccre.channel.FloatInput;
 import ccre.channel.FloatOutput;
 import ccre.log.Logger;
@@ -52,6 +53,8 @@ public class FloatDisplayComponent extends BaseChannelComponent<FloatDisplayComp
     private float minimum = -1.0f, maximum = 1.0f;
     private boolean subscribed;
     private final FloatInput inp;
+    // TODO: collapse subscribed and unsubscribe? here and other places?
+    private EventOutput unsubscribe;
 
     /**
      * Create a new FloatDisplayComponent with a FloatInput to read from.
@@ -192,10 +195,12 @@ public class FloatDisplayComponent extends BaseChannelComponent<FloatDisplayComp
     protected void onChangePanel(SuperCanvasPanel panel) {
         boolean hasPanel = panel != null;
         if (inp != null && hasPanel != subscribed) {
+            if (unsubscribe != null) {
+                unsubscribe.safeEvent();
+                unsubscribe = null;
+            }
             if (hasPanel) {
-                inp.send(this);
-            } else {
-                inp.unsend(this);
+                unsubscribe = inp.send(this);
             }
             subscribed = hasPanel;
         }
@@ -211,10 +216,12 @@ public class FloatDisplayComponent extends BaseChannelComponent<FloatDisplayComp
         activeView = View.HORIZONTAL_POINTER;
     }
 
+    @Override
     public Entry[] queryRConf() throws InterruptedException {
         return rconfBase(RConf.string("minimum"), RConf.fieldFloat(minimum), RConf.string("maximum"), RConf.fieldFloat(maximum));
     }
 
+    @Override
     public boolean signalRConf(int field, byte[] data) throws InterruptedException {
         switch (rconfBase(field, data)) {
         case 1:

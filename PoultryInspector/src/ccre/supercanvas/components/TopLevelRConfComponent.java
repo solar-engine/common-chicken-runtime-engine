@@ -191,8 +191,7 @@ public class TopLevelRConfComponent extends RConfComponent {
     }
 
     private void addInspection(Object obj, Class<?> as, boolean possiblyAsList) {
-        getPanel().add(new RConfComponent(getDragRelX(0), getDragRelY(0),
-                "0x" + Integer.toHexString(System.identityHashCode(obj)), new InspectionRConfable(this, obj, as, possiblyAsList)));
+        getPanel().add(new RConfComponent(getDragRelX(0), getDragRelY(0), "0x" + Integer.toHexString(System.identityHashCode(obj)), new InspectionRConfable(this, obj, as, possiblyAsList)));
     }
 
     private void addInspection(Object obj, Class<?> as) {

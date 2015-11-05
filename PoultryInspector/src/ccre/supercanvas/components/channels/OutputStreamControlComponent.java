@@ -140,7 +140,7 @@ public class OutputStreamControlComponent extends DraggableBoxComponent {
                     out.write(decodeHex());
                     out.flush();
                 } else {
-                    out.write((contents + "\n").getBytes());
+                    out.write((contents + "\n").getBytes("UTF-8"));
                 }
             } catch (IOException e) {
                 Logger.warning("Error while writing to OutputStream " + name, e);

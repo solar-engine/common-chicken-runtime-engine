@@ -18,15 +18,16 @@
  */
 package ccre.instinct;
 
-import ccre.channel.BooleanInputPoll;
+import java.util.ArrayList;
+
+import ccre.channel.BooleanInput;
 import ccre.channel.EventOutput;
 import ccre.cluck.CluckPublisher;
-import ccre.holders.TuningContext;
 import ccre.log.Logger;
-import ccre.rconf.RConf.Entry;
 import ccre.rconf.RConf;
+import ccre.rconf.RConf.Entry;
 import ccre.rconf.RConfable;
-import ccre.util.CArrayList;
+import ccre.tuning.TuningContext;
 
 /**
  * An easy way to have multiple autonomous modes. Simply register a series of
@@ -39,7 +40,7 @@ public class InstinctMultiModule extends InstinctModule {
     /**
      * The list of modes registered with this InstinctMultiModule.
      */
-    private final CArrayList<InstinctModeModule> modes = new CArrayList<InstinctModeModule>();
+    private final ArrayList<InstinctModeModule> modes = new ArrayList<InstinctModeModule>();
     /**
      * The actively-selected mode, or null.
      */
@@ -51,13 +52,13 @@ public class InstinctMultiModule extends InstinctModule {
     private final TuningContext context;
 
     /**
-     * Create a new InstinctMultiModule with a BooleanInputPoll controlling when
+     * Create a new InstinctMultiModule with a BooleanInput controlling when
      * this module should run.
      *
      * @param shouldBeRunning The input to control the running of this module.
      * @param context the TuningContext to use in this MultiModule.
      */
-    public InstinctMultiModule(BooleanInputPoll shouldBeRunning, TuningContext context) {
+    public InstinctMultiModule(BooleanInput shouldBeRunning, TuningContext context) {
         super(shouldBeRunning);
         this.context = context;
     }
@@ -68,7 +69,7 @@ public class InstinctMultiModule extends InstinctModule {
      *
      * @param context the TuningContext to use in this MultiModule.
      *
-     * @see ccre.igneous.Igneous#registerAutonomous(InstinctModule)
+     * @see ccre.frc.FRC#registerAutonomous(InstinctModule)
      */
     public InstinctMultiModule(TuningContext context) {
         super();
@@ -149,7 +150,7 @@ public class InstinctMultiModule extends InstinctModule {
                     }
                     // Couldn't find the mode. (We would have returned earlier.)
                     Logger.warning("Mode not found while iterating: " + mode.getModeName());
-                    setActiveMode(modes.get(0)); // Just use the first mode.
+                    setActiveMode(modes.get(0));// Just use the first mode.
                     Logger.info("New autonomous mode: " + mode.getModeName());
                 }
             });
@@ -166,7 +167,7 @@ public class InstinctMultiModule extends InstinctModule {
                     }
                     // Couldn't find the mode. (We would have returned earlier.)
                     Logger.warning("Mode not found while iterating: " + mode.getModeName());
-                    setActiveMode(modes.get(0)); // Just use the first mode.
+                    setActiveMode(modes.get(0));// Just use the first mode.
                     Logger.info("New autonomous mode: " + mode.getModeName());
                 }
             });
@@ -277,7 +278,7 @@ public class InstinctMultiModule extends InstinctModule {
     }
 
     @Override
-    protected final void autonomousMain() throws AutonomousModeOverException, InterruptedException {
+    protected final void autonomousMain() throws Throwable {
         if (mode == null) {
             Logger.severe("No autonomous mode found! Did you remember to call InstinctMultiModule.loadSettings()?");
         } else {

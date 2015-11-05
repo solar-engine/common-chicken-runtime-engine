@@ -44,6 +44,7 @@ public class EventDisplayComponent extends BaseChannelComponent<EventDisplayComp
     private transient long countStart;
     private boolean subscribed;
     private final EventInput inp;
+    private EventOutput unsubscribe;
 
     /**
      * Create a new EventDisplayComponent with a EventInput to read from.
@@ -107,10 +108,12 @@ public class EventDisplayComponent extends BaseChannelComponent<EventDisplayComp
     protected void onChangePanel(SuperCanvasPanel panel) {
         boolean hasPanel = panel != null;
         if (inp != null && hasPanel != subscribed) {
+            if (unsubscribe != null) {
+                unsubscribe.safeEvent();
+                unsubscribe = null;
+            }
             if (hasPanel) {
-                inp.send(this);
-            } else {
-                inp.unsend(this);
+                unsubscribe = inp.send(this);
             }
             subscribed = hasPanel;
         }
@@ -126,10 +129,12 @@ public class EventDisplayComponent extends BaseChannelComponent<EventDisplayComp
         activeView = View.FLASHING_LIGHT;
     }
 
+    @Override
     public Entry[] queryRConf() throws InterruptedException {
         return rconfBase();
     }
 
+    @Override
     public boolean signalRConf(int field, byte[] data) throws InterruptedException {
         return rconfBase(field, data) == BASE_VALID;
     }

@@ -213,9 +213,9 @@ public class CluckTCPClient extends ReporterThread {
             try {
                 isReconnecting = true;
                 sock = Network.connectDynPort(remote, DEFAULT_PORT);
-                DataInputStream din = sock.openDataInputStream();
+                DataInputStream din = new DataInputStream(sock.openInputStream());
                 try {
-                    DataOutputStream dout = sock.openDataOutputStream();
+                    DataOutputStream dout = new DataOutputStream(sock.openOutputStream());
                     isEstablished = true;
                     try {
                         CluckLink deny = doStart(din, dout, sock);
@@ -230,8 +230,7 @@ public class CluckTCPClient extends ReporterThread {
             } catch (IOException ex) {
                 boolean uhe = "java.net.UnknownHostException".equals(ex.getClass().getName());
                 this.errorSummary = uhe ? "Unknown Host: " + ex.getMessage() : ex.getMessage();
-                if (uhe || (ex.getMessage() != null &&
-                        (ex.getMessage().startsWith("Remote server not available") || ex.getMessage().startsWith("Timed out while connecting")))) {
+                if (uhe || (ex.getMessage() != null && (ex.getMessage().startsWith("Remote server not available") || ex.getMessage().startsWith("Timed out while connecting")))) {
                     postfix = " (" + ex.getMessage() + ")";
                 } else {
                     Logger.warning("IO Error while handling connection", ex);
@@ -244,13 +243,25 @@ public class CluckTCPClient extends ReporterThread {
         return postfix;
     }
 
+    /**
+     * Starts a Cluck connection. Handshakes with the remote end, negotiates
+     * link names, and sets up socket timeouts, the sending thread, and the
+     * sending queue. Also adds the sending link to the node.
+     *
+     * @param din the input stream for the connection.
+     * @param dout the output stream for the connection.
+     * @param socket the socket for the connection, to be able to set timeouts.
+     * @return the established CluckLink.
+     * @throws IOException if something goes wrong while setting up the
+     * connection.
+     */
     protected CluckLink doStart(DataInputStream din, DataOutputStream dout, ClientSocket socket) throws IOException {
         CluckProtocol.handleHeader(din, dout, remoteNameHint);
         Logger.fine("Connected to " + remote + " at " + System.currentTimeMillis());
         CluckProtocol.setTimeoutOnSocket(socket);
-        CluckLink deny = CluckProtocol.handleSend(dout, linkName, node);
+        CluckLink establishedLink = CluckProtocol.handleSend(dout, linkName, node);
         node.notifyNetworkModified(); // Only send here, not on server.
-        return deny;
+        return establishedLink;
     }
 
     protected void doMain(DataInputStream din, DataOutputStream dout, ClientSocket socket, CluckLink deny) throws IOException {

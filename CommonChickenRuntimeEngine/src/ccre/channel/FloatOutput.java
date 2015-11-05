@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2014 Colby Skeggs
+ * Copyright 2013-2015 Colby Skeggs
  *
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  *
@@ -18,6 +18,10 @@
  */
 package ccre.channel;
 
+import ccre.log.Logger;
+import ccre.time.Time;
+import ccre.util.Utils;
+
 /**
  * A FloatOutput is an interface for anything that can be set to an analog
  * value.
@@ -31,6 +35,14 @@ package ccre.channel;
 public interface FloatOutput {
 
     /**
+     * A FloatOutput that goes nowhere. All data sent here is ignored.
+     */
+    FloatOutput ignored = new FloatOutput() {
+        public void set(float newValue) {
+        }
+    };
+
+    /**
      * Set the float value of this output.
      *
      * By convention, most float inputs and outputs have states that range from
@@ -39,4 +51,156 @@ public interface FloatOutput {
      * @param value The new value to send to this output.
      */
     public void set(float value);
+
+    public default void safeSet(float value) {
+        try {
+            set(value);
+        } catch (Throwable ex) {
+            Logger.severe("Error during channel propagation", ex);
+        }
+    }
+
+    public default EventOutput eventSet(final float value) {
+        return () -> set(value);
+    }
+
+    public default EventOutput eventSet(final FloatInput value) {
+        if (value == null) {
+            throw new NullPointerException();
+        }
+        return () -> set(value.get());
+    }
+
+    public default void setWhen(float value, EventInput when) {
+        Utils.checkNull(when);
+        when.send(eventSet(value));
+    }
+
+    public default void setWhen(FloatInput value, EventInput when) {
+        Utils.checkNull(when, value);
+        when.send(eventSet(value));
+    }
+
+    public default FloatOutput combine(FloatOutput other) {
+        if (other == null) {
+            throw new NullPointerException();
+        }
+        FloatOutput original = this;
+        return value -> {
+            try {
+                original.set(value);
+            } catch (Throwable thr) {
+                try {
+                    other.set(value);
+                } catch (Throwable thr2) {
+                    thr.addSuppressed(thr2);
+                }
+                throw thr;
+            }
+            other.set(value);
+        };
+    }
+
+    public default FloatOutput negate() {
+        return FloatFilter.negate.wrap(this);
+    }
+
+    public default FloatOutput outputDeadzone(float deadzone) {
+        return FloatFilter.deadzone(deadzone).wrap(this);
+    }
+
+    public default FloatOutput addRamping(final float limit, EventInput updateWhen) {
+        Utils.checkNull(updateWhen);
+        FloatCell temp = new FloatCell();
+        updateWhen.send(temp.createRampingEvent(limit, this));
+        return temp;
+    }
+
+    public default FloatOutput viaDerivative() {
+        FloatOutput original = this;
+        return new FloatOutput() {
+            // not zero because then FakeTime might break...
+            private static final long UNINITIALIZED = -1;
+            private long lastUpdateNanos = UNINITIALIZED;
+            private float lastValue = Float.NaN;
+
+            public synchronized void set(float value) {
+                long timeNanos = Time.currentTimeNanos();
+                if (lastUpdateNanos == UNINITIALIZED) {
+                    lastValue = value;
+                    lastUpdateNanos = timeNanos;
+                    return;
+                }
+                if (lastUpdateNanos == timeNanos) {
+                    return; // extremely unlikely... but just in case.
+                }
+                float f = Time.NANOSECONDS_PER_SECOND * (value - lastValue) / (timeNanos - lastUpdateNanos);
+                lastValue = value;
+                lastUpdateNanos = timeNanos;
+                original.set(f);
+            }
+        };
+    }
+
+    public default FloatOutput filter(BooleanInput allow) {
+        FloatOutput original = this;
+        return (value) -> {
+            if (allow.get()) {
+                original.set(value);
+            }
+        };
+    }
+
+    public default FloatOutput filterNot(BooleanInput deny) {
+        FloatOutput original = this;
+        return (value) -> {
+            if (!deny.get()) {
+                original.set(value);
+            }
+        };
+    }
+
+    public default BooleanOutput fromBoolean(final float off, final float on) {
+        return fromBoolean(FloatInput.always(off), FloatInput.always(on));
+    }
+
+    public default BooleanOutput fromBoolean(float off, FloatInput on) {
+        return fromBoolean(FloatInput.always(off), on);
+    }
+
+    public default BooleanOutput fromBoolean(FloatInput off, float on) {
+        return fromBoolean(off, FloatInput.always(on));
+    }
+
+    public default BooleanOutput fromBoolean(FloatInput off, FloatInput on) {
+        return new BooleanOutput() {
+            private boolean lastValue, anyValue = false;
+
+            {
+                off.onUpdate(() -> {
+                    if (anyValue && !lastValue) {
+                        update();
+                    }
+                });
+                on.onUpdate(() -> {
+                    if (anyValue && lastValue) {
+                        update();
+                    }
+                });
+            }
+
+            @Override
+            public synchronized void set(boolean value) {
+                if (value != lastValue || !anyValue) {
+                    lastValue = value;
+                    anyValue = true;
+                    update();
+                }
+            }
+
+            private void update() {
+                FloatOutput.this.set(lastValue ? on.get() : off.get());
+            }
+        };
+    }
 }

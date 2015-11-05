@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2014 Colby Skeggs
+ * Copyright 2013-2015 Colby Skeggs
  *
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  *
@@ -18,16 +18,32 @@
  */
 package ccre.channel;
 
+import ccre.time.Time;
+import ccre.util.Utils;
+
 /**
  * An event input or source. This produces events when it fires. A user can
  * register listeners to be called when the EventInput fires.
  * ccre.event.EventStatus is a good implementation of this so that you don't
  * have to write your own listener management code.
  *
- * @see EventStatus
+ * @see EventCell
  * @author skeggsc
  */
-public interface EventInput {
+public interface EventInput extends UpdatingInput {
+
+    /**
+     * An EventInput that will never be fired. Ever.
+     */
+    public static EventInput never = new EventInput() {
+        @Override
+        public EventOutput onUpdate(EventOutput notify) {
+            if (notify == null) {
+                throw new NullPointerException();
+            }
+            return EventOutput.ignored;
+        }
+    };
 
     /**
      * Register a listener for when this event is fired, so that whenever this
@@ -39,19 +55,62 @@ public interface EventInput {
      * @param listener the listener to add.
      * @see #unsend(EventOutput)
      */
-    void send(EventOutput listener);
+    public default EventOutput send(EventOutput output) {
+        if (output == null) {
+            throw new NullPointerException();
+        }
+        return onUpdate(output);
+    }
 
-    /**
-     * Remove a listener for when this event is fired. This reverses the actions
-     * of a previous send call.
-     *
-     * If the listener was not added previously (or had been removed), this call
-     * will do nothing.
-     *
-     * After unsend is called, a listener can be reregistered with send.
-     *
-     * @param listener the listener to remove.
-     * @see #send(EventOutput)
-     */
-    void unsend(EventOutput listener);
+    public default EventInput or(EventInput other) {
+        Utils.checkNull(other);
+        EventInput original = this;
+        return new EventInput() {
+            @Override
+            public EventOutput onUpdate(EventOutput notify) {
+                return original.onUpdate(notify).combine(other.onUpdate(notify));
+            }
+        };
+    }
+
+    public default EventInput and(BooleanInput condition) {
+        Utils.checkNull(condition);
+        EventInput original = this;
+        return new DerivedEventInput(original) {
+            @Override
+            protected boolean shouldProduce() {
+                return condition.get();
+            }
+        };
+    }
+
+    public default EventInput andNot(BooleanInput condition) {
+        Utils.checkNull(condition);
+        EventInput original = this;
+        return new DerivedEventInput(original) {
+            @Override
+            protected boolean shouldProduce() {
+                return !condition.get();
+            }
+        };
+    }
+
+    public default EventInput debounced(final long minMillis) {
+        if (minMillis <= 0) {
+            throw new IllegalArgumentException("debounced() parameter must be positive!");
+        }
+        return new DerivedEventInput(this) {
+            private long nextFire = 0;
+
+            @Override
+            protected boolean shouldProduce() {
+                long now = Time.currentTimeMillis();
+                if (now < nextFire) {
+                    return false;// Ignore event.
+                }
+                nextFire = now + minMillis;
+                return true;
+            }
+        };
+    }
 }

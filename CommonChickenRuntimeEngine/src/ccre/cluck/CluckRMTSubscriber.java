@@ -50,6 +50,9 @@ public abstract class CluckRMTSubscriber extends CluckSubscriber {
      */
     public CluckRMTSubscriber(CluckNode node, byte rmt, int minLen) {
         super(node);
+        if (minLen < 1) {
+            throw new IllegalArgumentException("Minimum length to CluckRMTSubscriber must be >= 1!");
+        }
         this.rmt = rmt;
         this.minLen = minLen;
     }

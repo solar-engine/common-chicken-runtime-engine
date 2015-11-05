@@ -23,11 +23,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 
 import ccre.supercanvas.SuperCanvasComponent;
-import ccre.supercanvas.components.CanvasPhidgetComponent;
 import ccre.supercanvas.components.CluckUnitTestComponent;
 import ccre.supercanvas.components.FolderComponent;
 import ccre.supercanvas.components.LoggingComponent;
-import ccre.supercanvas.components.PhysicalPhidgetComponent;
 import ccre.supercanvas.components.TextComponent;
 import ccre.supercanvas.components.TopLevelRConfComponent;
 import ccre.supercanvas.components.TrashComponent;
@@ -46,8 +44,6 @@ public class TopLevelPaletteComponent extends PaletteComponent<Iterable<PaletteE
     static {
         ArrayList<PaletteEntry> local = new ArrayList<PaletteEntry>();
         local.add(new AllocationPaletteEntry(LoggingComponent.class));
-        local.add(new AllocationPaletteEntry(CanvasPhidgetComponent.class));
-        local.add(new AllocationPaletteEntry(PhysicalPhidgetComponent.class));
         local.add(new AllocationPaletteEntry(NetworkPaletteComponent.class));
         local.add(new AllocationPaletteEntry(ListPaletteComponent.class));
         local.add(new AllocationPaletteEntry(FolderComponent.class));

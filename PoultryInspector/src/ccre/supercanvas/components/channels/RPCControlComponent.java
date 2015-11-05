@@ -29,6 +29,7 @@ import ccre.cluck.rpc.RemoteProcedure;
 import ccre.log.Logger;
 import ccre.supercanvas.DraggableBoxComponent;
 import ccre.supercanvas.Rendering;
+import ccre.util.Utils;
 
 /**
  * A component allowing for invoking an arbitrary RPC target, in either textual
@@ -110,9 +111,7 @@ public class RPCControlComponent extends DraggableBoxComponent {
         g.setFont(Rendering.labels);
         checkContents(true);
         String render = (inBinaryMode ? "0x" : "> ") + contents.toString();
-        setHalfWidth(5 + Math.max(g.getFontMetrics().stringWidth(render) / 2,
-                Math.max(g.getFontMetrics(Rendering.console).stringWidth(name) / 2,
-                        g.getFontMetrics(Rendering.console).charWidth('W') * 36)));
+        setHalfWidth(5 + Math.max(g.getFontMetrics().stringWidth(render) / 2, Math.max(g.getFontMetrics(Rendering.console).stringWidth(name) / 2, g.getFontMetrics(Rendering.console).charWidth('W') * 36)));
 
         int headerHeight = g.getFontMetrics().getHeight() / 2 + conHeight / 2;
         String[] lines = received.toString().split("\n");
@@ -185,7 +184,7 @@ public class RPCControlComponent extends DraggableBoxComponent {
             if (inBinaryMode) {
                 out.invoke(decodeHex(), this.receiverStream);
             } else {
-                out.invoke(contents.toString().getBytes(), this.receiverStream);
+                out.invoke(Utils.getBytes(contents.toString()), this.receiverStream);
             }
             contents.setLength(0);
             getPanel().editing = null;

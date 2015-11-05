@@ -18,6 +18,8 @@
  */
 package ccre.ctrl.binding;
 
+import java.util.HashMap;
+
 import ccre.channel.EventInput;
 import ccre.channel.EventOutput;
 import ccre.cluck.Cluck;
@@ -25,9 +27,8 @@ import ccre.log.Logger;
 import ccre.rconf.RConf;
 import ccre.rconf.RConf.Entry;
 import ccre.rconf.RConfable;
-import ccre.saver.StorageProvider;
-import ccre.saver.StorageSegment;
-import ccre.util.CHashMap;
+import ccre.storage.Storage;
+import ccre.storage.StorageSegment;
 
 /**
  * A CluckControlBinder connects together a ControlBindingDataSource (such as a
@@ -41,8 +42,12 @@ public class CluckControlBinder implements RConfable {
     private final ControlBindingDataSource sourceSet;
     private final ControlBindingDataSink sinkSet;
     // From sink to source.
-    private final CHashMap<String, String> boolLinkage = new CHashMap<String, String>();
-    private final CHashMap<String, String> floatLinkage = new CHashMap<String, String>();
+    private final HashMap<String, String> boolLinkage = new HashMap<String, String>();
+    private final HashMap<String, String> floatLinkage = new HashMap<String, String>();
+
+    private final HashMap<String, EventOutput> boolUnbinds = new HashMap<String, EventOutput>();
+    private final HashMap<String, EventOutput> floatUnbinds = new HashMap<String, EventOutput>();
+
     private final String name;
     private boolean dirty = false;
     private final StorageSegment storage;
@@ -63,7 +68,7 @@ public class CluckControlBinder implements RConfable {
         this.name = name;
         this.sourceSet = source;
         this.sinkSet = sink;
-        storage = StorageProvider.openStorage("Control Bindings: " + name);
+        storage = Storage.openStorage("Control Bindings: " + name);
         if (sink.listBooleans().length != 0 || sink.listFloats().length != 0) {
             load();
         }
@@ -91,11 +96,7 @@ public class CluckControlBinder implements RConfable {
         if (load == null) {
             throw new IllegalArgumentException("makeCreator expects a 'load' event because, otherwise, it doesn't actually know when to load the settings!");
         } else {
-            load.send(new EventOutput() {
-                public void event() {
-                    binder.load();
-                }
-            });
+            load.send(() -> binder.load());
         }
         return sink;
     }
@@ -169,7 +170,12 @@ public class CluckControlBinder implements RConfable {
             return true;
         }
         if (field == 4 && dirty) {
-            load();
+            try {
+                load();
+            } catch (Throwable e) {
+                Logger.severe("Error while updating controls", e);
+                return false;
+            }
             return true;
         }
         String[] boolSinks = sinkSet.listBooleans();
@@ -201,30 +207,34 @@ public class CluckControlBinder implements RConfable {
     }
 
     private void rebindBoolean(String sink, String source) {
-        String oldSource = boolLinkage.get(sink);
-        if (oldSource != null) {
-            sourceSet.getBoolean(oldSource).unsend(sinkSet.getBoolean(sink));
+        EventOutput unbind = boolUnbinds.get(sink);
+        if (unbind != null) {
+            unbind.safeEvent();
         }
 
         if (source == null) {
             boolLinkage.remove(sink);
+            boolUnbinds.remove(sink);
         } else {
-            sourceSet.getBoolean(source).send(sinkSet.getBoolean(sink));
+            unbind = sourceSet.getBoolean(source).send(sinkSet.getBoolean(sink));
             boolLinkage.put(sink, source);
+            boolUnbinds.put(sink, unbind);
         }
     }
 
     private void rebindFloat(String sink, String source) {
-        String oldSource = floatLinkage.get(sink);
-        if (oldSource != null) {
-            sourceSet.getFloat(oldSource).unsend(sinkSet.getFloat(sink));
+        EventOutput unbind = floatUnbinds.get(sink);
+        if (unbind != null) {
+            unbind.safeEvent();
         }
 
         if (source == null) {
             floatLinkage.remove(sink);
+            floatUnbinds.remove(sink);
         } else {
-            sourceSet.getFloat(source).send(sinkSet.getFloat(sink));
+            unbind = sourceSet.getFloat(source).send(sinkSet.getFloat(sink));
             floatLinkage.put(sink, source);
+            floatUnbinds.put(sink, unbind);
         }
     }
 

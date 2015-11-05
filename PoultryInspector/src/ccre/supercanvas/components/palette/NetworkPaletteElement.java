@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 Colby Skeggs.
+ * Copyright 2014-2015 Colby Skeggs.
  *
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  *
@@ -18,7 +18,7 @@
  */
 package ccre.supercanvas.components.palette;
 
-import ccre.cluck.CluckNode;
+import ccre.cluck.CluckConstants;
 import ccre.supercanvas.SuperCanvasComponent;
 import ccre.supercanvas.components.channels.FictionalChannelComponent;
 
@@ -49,7 +49,7 @@ class NetworkPaletteElement implements PaletteEntry, Comparable<NetworkPaletteEl
     public SuperCanvasComponent fetch(int x, int y) {
         SuperCanvasComponent out = NetworkPaletteComponent.createComponent(name, target, type, x, y);
         if (out == null) {
-            return new FictionalChannelComponent(x, y, name, CluckNode.rmtToString(type));
+            return new FictionalChannelComponent(x, y, name, CluckConstants.rmtToString(type));
         }
         return out;
     }
@@ -57,6 +57,16 @@ class NetworkPaletteElement implements PaletteEntry, Comparable<NetworkPaletteEl
     @Override
     public int compareTo(NetworkPaletteElement o) {
         return name.compareTo(o.name);
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        return obj instanceof NetworkPaletteElement && name.equals(((NetworkPaletteElement) obj).name);
+    }
+
+    @Override
+    public int hashCode() {
+        return name.hashCode();
     }
 
     /**

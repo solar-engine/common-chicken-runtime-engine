@@ -26,7 +26,7 @@ import javax.swing.JFrame;
 import ccre.log.FileLogger;
 import ccre.log.Logger;
 import ccre.log.NetworkAutologger;
-import ccre.net.CountingNetworkProvider;
+import ccre.net.TrafficCounting;
 import ccre.supercanvas.components.LoggingComponent;
 import ccre.supercanvas.components.palette.TopLevelPaletteComponent;
 import ccre.supercanvas.components.pinned.CluckNetworkingComponent;
@@ -47,8 +47,7 @@ public class SuperCanvasMain extends JFrame {
      * @param args the unused program arguments.
      */
     public static void main(String args[]) {
-        //System.setProperty("sun.io.serialization.extendedDebugInfo", "true");
-        CountingNetworkProvider.register();
+        TrafficCounting.setCountingEnabled(true);
         NetworkAutologger.register();
         FileLogger.register();
         java.awt.EventQueue.invokeLater(new Runnable() {
@@ -64,6 +63,7 @@ public class SuperCanvasMain extends JFrame {
     private final SuperCanvasPanel canvas = new SuperCanvasPanel();
 
     private SuperCanvasMain() {
+        super("Poultry Inspector");
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         this.setContentPane(canvas);
         this.setSize(640, 480);

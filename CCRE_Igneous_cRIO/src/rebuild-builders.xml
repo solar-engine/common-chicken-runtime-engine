@@ -2,7 +2,7 @@
 
 <!--
 /*
- * Copyright 2014 Colby Skeggs
+ * Copyright 2015 Colby Skeggs
  * 
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  * 
@@ -21,72 +21,38 @@
  */
  -->
 
-<project name="FRC Deployment" default="generate-all">
+<project name="FRC Fake Deployment" default="upgrade">
 
 	<!-- Specified in the builder configuration for this ANT builder. -->
-	<eclipse.convertPath filesystempath="${rebuilder-target}"
-	                     property="rebuilder.dir" />
 
-	<condition property="should-generate">
-		<equals arg1="${rebuilder.dir}" arg2="/TemplateIgneousRobot" />
-	</condition>
+	<eclipse.convertPath resourcepath="/TemplateRobot" property="template.dir" />
 
-	<target name="generate-by-template" unless="should-generate">
+	<target name="upgrade">
+		<basename file="${rebuilder-target}" property="project.name" />
 		<script language="javascript">
 			<![CDATA[
-			// Strip off the slash.
-			project.setNewProperty("rebuilder.name", project.getProperty("rebuilder.dir").substr(1));
+			if (javax.swing.JOptionPane.showConfirmDialog(null, "A project that you are trying to build (" + project.getProperty("project.name") + ") is set up for CCRE version 2, but you are using CCRE version 3.\nWould you like to upgrade the project automatically?\nIf you have any issues, please ask about them on the forum thread on Chief Delphi.", "CCRE Project Upgrade", javax.swing.JOptionPane.YES_NO_OPTION) != javax.swing.JOptionPane.YES_OPTION) {
+				throw new java.lang.Exception("Upgrade cancelled.");
+			}
+			var num = javax.swing.JOptionPane.showInputDialog("Enter your team number");
+			if (num == null) {
+				throw new java.lang.Exception("Upgrade cancelled.");
+			}
+			project.setProperty("team.number", num);
 			]]>
 		</script>
-		<property name="target.file"
-		          value="${rebuilder-target}/launches/${rebuilder.name} ${outer-name}.launch" />
-		<copy verbose="false"
-		      file="invocation-template.xml"
-		      tofile="${target.file}"
-		      overwrite="true" />
-		<replace file="${target.file}"
-		         token="PROJECT_ROOT"
-		         value="${rebuilder.name}" />
-		<replace file="${target.file}"
-		         token="LAUNCH_ANT_TARGETS"
-		         value="${targets}" />
-	</target>
-
-	<target name="generate-all">
-		<echo message="Rebuilding targets..." />
-		<delete dir="${rebuilder-target}/launches" />
-		<antcall target="generate-by-template">
-			<param name="outer-name" value="Deploy for roboRIO" />
-			<param name="targets" value="deploy" />
-		</antcall>
-		<!-- <antcall target="generate-by-template">
-			<param name="outer-name" value="QuickDeploy for roboRIO" />
-			<param name="targets" value="quick-deploy" />
-		</antcall> -->
-		<antcall target="generate-by-template">
-			<param name="outer-name" value="Deploy and Debug for roboRIO" />
-			<param name="targets" value="debug-deploy" />
-		</antcall>
-		<antcall target="generate-by-template">
-			<param name="outer-name" value="Deploy for cRIO" />
-			<param name="targets" value="deploy-2014,run-2014" />
-		</antcall>
-		<antcall target="generate-by-template">
-			<param name="outer-name" value="Emulate for roboRIO" />
-			<param name="targets" value="emulate" />
-		</antcall>
-		<antcall target="generate-by-template">
-			<param name="outer-name" value="Emulate for cRIO" />
-			<param name="targets" value="emulate-2014" />
-		</antcall>
-		<antcall target="generate-by-template">
-			<param name="outer-name" value="Take cRIO Logs" />
-			<param name="targets" value="clear-logs-2014" />
-		</antcall>
-		<antcall target="generate-by-template">
-			<param name="outer-name" value="Take roboRIO Logs" />
-			<param name="targets" value="fetch-logs" />
-		</antcall>
+		<echo>If you have any issues, please ask about them on the forum thread on Chief Delphi at http://www.chiefdelphi.com/forums/showthread.php?t=130813</echo>
+		<!-- TODO: do this next part without possibly mucking up our namespace -->
+		<!-- We do this to get igneous.main -->
+		<property file="${rebuilder-target}/src/main.properties" />
+		<copy file="${template.dir}/.externalToolBuilders/Target Rebuilder.launch" tofile="${rebuilder-target}/.externalToolBuilders/Target Rebuilder.launch" failonerror="true" overwrite="true" />
+		<copy file="${template.dir}/.classpath" tofile="${rebuilder-target}/.classpath" failonerror="true" overwrite="true" />
+		<property name="deployed" value="${rebuilder-target}/src/deployment/Deployment.java" />
+		<copy file="${template.dir}/src/deployment/Deployment.java" tofile="${deployed}" failonerror="true" overwrite="true" />
+		<replace file="${deployed}" token="robot.RobotTemplate.TEAM_NUMBER" value="${team.number}" />
+		<replace file="${deployed}" token="robot.RobotTemplate" value="${igneous.main}" />
+		<delete file="${rebuilder-target}/src/main.properties" />
+		<echo>Success!</echo>
 	</target>
 
 </project>

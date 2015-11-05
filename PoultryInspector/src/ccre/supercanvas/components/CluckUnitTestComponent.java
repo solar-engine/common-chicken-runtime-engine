@@ -57,28 +57,19 @@ public class CluckUnitTestComponent extends DraggableBoxComponent {
         EventInput ei = Cluck.subscribeEI("robot/utest-ei0");
         FloatOutput fo = Cluck.subscribeFO("robot/utest-fo0");
         FloatInput fi = Cluck.subscribeFI("robot/utest-fi0", false);
-        LoggingTarget lt = Cluck.subscribeLT("robot/utest-lt0", LogLevel.FINEST);
+        LoggingTarget lt = Cluck.subscribeLT("robot/utest-lt0");
         OutputStream os = Cluck.subscribeOS("robot/utest-os0");
         private int ctr;
+
         {
-            bi.send(new BooleanOutput() {
-                public void set(boolean b) {
-                    ctr++;
-                }
-            });
-            ei.send(new EventOutput() {
-                public void event() {
-                    ctr++;
-                }
-            });
-            fi.send(new FloatOutput() {
-                public void set(float f) {
-                    ctr++;
-                }
-            });
+            bi.send(b -> ctr++);
+            ei.send(() -> ctr++);
+            fi.send(f -> ctr++);
             Cluck.publish("utest-lt1", new LoggingTarget() {
+                @Override
                 public void log(LogLevel level, String message, String extended) {
-                    // TODO: Do more with other possible logging messages (with throwables or extended)
+                    // TODO: Do more with other possible logging messages (with
+                    // throwables or extended)
                     if (level == LogLevel.FINER && message.equals(testMessage0) && extended == null) {
                         ctr++;
                     } else {
@@ -87,6 +78,7 @@ public class CluckUnitTestComponent extends DraggableBoxComponent {
                     }
                 }
 
+                @Override
                 public void log(LogLevel level, String message, Throwable throwable) {
                     Logger.warning("Wrong log event called!");
                     success = false;
@@ -104,6 +96,7 @@ public class CluckUnitTestComponent extends DraggableBoxComponent {
                 }
             });
         }
+
         private static final String testMessage0 = "{}{}{}[][][]()()() TESTING 1234567890____!";
         private boolean success = false;
 
@@ -123,7 +116,7 @@ public class CluckUnitTestComponent extends DraggableBoxComponent {
 
         private void checkSendData() throws InterruptedException, IOException {
             int start = ctr;
-            os.write("THIS IS THE CCRE TALKING.\0 send properly. DO IT.\n".getBytes());
+            os.write("THIS IS THE CCRE TALKING.\0 send properly. DO IT.\n".getBytes("UTF-8"));
             this.wait(200);
             if (ctr != start + 1) {
                 Logger.warning("Unit testing failed - send data failed.");
@@ -195,7 +188,7 @@ public class CluckUnitTestComponent extends DraggableBoxComponent {
             checkSendLog();
             checkSetBoolean(true, true);
             checkSetFloat(0.0f, true);
-            //checkSetFloat(Float.NaN, true);
+            // checkSetFloat(Float.NaN, true);
             checkSetEvent();
             checkSetFloat(7.2f, true);
             checkSetFloat(Float.NEGATIVE_INFINITY, true);

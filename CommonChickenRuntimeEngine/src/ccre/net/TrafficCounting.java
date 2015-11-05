@@ -23,7 +23,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.concurrent.atomic.AtomicLong;
 
-import ccre.channel.EventOutput;
 import ccre.timers.Ticker;
 
 /**
@@ -57,13 +56,10 @@ public class TrafficCounting {
         if (enabled && !TrafficCounting.countingEverEnabled) {
             TrafficCounting.countingEverEnabled = true;
             // TODO: get rid of this ticker
-            new Ticker(1000).send(new EventOutput() {
-                @Override
-                public void event() {
-                    long newTotal = getTotalBytes();
-                    TrafficCounting.lastDelta = newTotal - TrafficCounting.lastTotal;
-                    TrafficCounting.lastTotal = newTotal;
-                }
+            new Ticker(1000).send(() -> {
+                long newTotal = getTotalBytes();
+                TrafficCounting.lastDelta = newTotal - TrafficCounting.lastTotal;
+                TrafficCounting.lastTotal = newTotal;
             });
         }
     }

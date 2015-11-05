@@ -40,15 +40,34 @@ import ccre.net.ClientSocket;
  */
 public class CluckProtocol {
 
-    // NOTE: changing this will break compatibility with anything older than
-    // CCRE v3!
-    static final int CURRENT_VERSION = 0;
-    // also, it can only be, at most, 0xFF.
+    /**
+     * The current version of the protocol in use. Version 0 means the same
+     * protocol as the 2.x.x Cluck.
+     *
+     * Changing this number will 100% break compatibility with anything older
+     * than CCRE v3 - the header will seem to be corrupt from the perspective of
+     * the older version.
+     *
+     * Changing this will not necessarily break compatibility with other CCRE v3
+     * versions.
+     *
+     * The side with the higher version (if they differ) is responsible for
+     * providing a transformer to be compatible with the older version.
+     *
+     * Since the version has always been zero since it was introduced, this is
+     * not currently done.
+     */
+    static final byte CURRENT_VERSION = 0;
 
-    // milliseconds
-    static final int TIMEOUT_PERIOD = 600;
-    // milliseconds, should always be noticeably less than TIMEOUT_PERIOD
-    static final int KEEPALIVE_INTERVAL = 200;
+    /**
+     * The timeout period for disconnected sockets.
+     */
+    static final int TIMEOUT_PERIOD_MILLIS = 600;
+    /**
+     * The timeout period for sending keepalives when no other data is sent.
+     * This should be set noticeably lower than {@link #TIMEOUT_PERIOD_MILLIS}.
+     */
+    static final int KEEPALIVE_INTERVAL_MILLIS = 200;
 
     /**
      * Sets the appropriate timeout on sock, for disconnection reporting.
@@ -57,7 +76,7 @@ public class CluckProtocol {
      * @throws IOException if the timeout cannot be set.
      */
     public static void setTimeoutOnSocket(ClientSocket sock) throws IOException {
-        sock.setSocketTimeout(TIMEOUT_PERIOD);
+        sock.setSocketTimeout(TIMEOUT_PERIOD_MILLIS);
     }
 
     /**
@@ -71,7 +90,7 @@ public class CluckProtocol {
      * @throws IOException If an IO error occurs.
      */
     protected static String handleHeader(DataInputStream din, DataOutputStream dout, String remoteHint) throws IOException {
-        dout.writeInt(0x154000CA | (CURRENT_VERSION << 8));
+        dout.writeInt(0x154000CA | ((CURRENT_VERSION & 0xFF) << 8));
         Random r = new Random();
         int ra = r.nextInt(), rb = r.nextInt();
         dout.writeInt(ra);
@@ -150,7 +169,7 @@ public class CluckProtocol {
                     }
                     lastReceive = System.currentTimeMillis();
                 } catch (SocketTimeoutException ex) {
-                    if (expectKeepAlives && System.currentTimeMillis() - lastReceive > TIMEOUT_PERIOD) {
+                    if (expectKeepAlives && System.currentTimeMillis() - lastReceive > TIMEOUT_PERIOD_MILLIS) {
                         throw ex;
                     } else {
                         // otherwise, don't do anything - we don't know if this
@@ -282,7 +301,7 @@ public class CluckProtocol {
         protected void threadBody() throws InterruptedException {
             try {
                 while (true) {
-                    long nextKeepAlive = System.currentTimeMillis() + KEEPALIVE_INTERVAL;
+                    long nextKeepAlive = System.currentTimeMillis() + KEEPALIVE_INTERVAL_MILLIS;
                     SendableEntry ent;
                     synchronized (queue) {
                         while (queue.isEmpty() && System.currentTimeMillis() < nextKeepAlive) {

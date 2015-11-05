@@ -160,7 +160,7 @@ public class EventControlComponent extends BaseChannelComponent<EventControlComp
                 unsubscribe = null;
             }
             if (hasPanel) {
-                unsubscribe = alternateSource.sendR(fakeOut);
+                unsubscribe = alternateSource.send(fakeOut);
             }
             isFakeSubscribed = hasPanel;
         }
@@ -171,7 +171,8 @@ public class EventControlComponent extends BaseChannelComponent<EventControlComp
 
         @Override
         public void event() {
-            // Do nothing. This is just so that we can make the remote end send us data by subscribing.
+            // Do nothing. This is just so that we can make the remote end send
+            // us data by subscribing.
         }
     }
 

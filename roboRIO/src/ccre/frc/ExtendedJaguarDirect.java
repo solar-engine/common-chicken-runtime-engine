@@ -36,7 +36,9 @@ import ccre.time.Time;
 public class ExtendedJaguarDirect extends ExtendedMotor implements FloatOutput {
 
     private final CANJaguarMod jaguar;
-    private Boolean enableMode = null; // null until something cares. This means that it's not enabled, but could be automatically.
+    // null until something cares. This means that it's not enabled, but could
+    // be automatically.
+    private Boolean enableMode = null;
     private boolean isBypassed = false;
     private long bypassUntil = 0;
 
@@ -216,7 +218,8 @@ public class ExtendedJaguarDirect extends ExtendedMotor implements FloatOutput {
                         Logger.warning("WPILib CANJaguar Failure during status: temporarily zeroing value for three seconds.", ex);
                         return (float) 0.0;
                     }
-                    throw new RuntimeException("Invalid internal asStatus setting: " + type); // should never happen as long as the lists match.
+                    // should never happen as long as the lists match.
+                    throw new RuntimeException("Invalid internal asStatus setting: " + type);
                 }
             };
         default:

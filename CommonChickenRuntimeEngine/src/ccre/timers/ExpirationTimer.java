@@ -181,11 +181,13 @@ public final class ExpirationTimer {
                 recalculateTasks();
                 long startAt = startedAt;
                 runTasks(startAt);
-                while (isStarted.get() && !terminated && startAt == startedAt) {// Once finished, wait to stop before restarting.
+                // Once finished, wait to stop before restarting.
+                while (isStarted.get() && !terminated && startAt == startedAt) {
                     try {
                         this.wait();
                     } catch (InterruptedException e) {
-                        // this is actually the expected way of notifying this thread
+                        // this is actually the expected way of notifying this
+                        // thread
                     }
                 }
             } catch (InterruptedException ex) {

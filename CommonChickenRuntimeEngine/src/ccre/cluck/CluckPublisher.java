@@ -27,12 +27,15 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import ccre.channel.BooleanInput;
 import ccre.channel.BooleanOutput;
 import ccre.channel.BooleanCell;
+import ccre.channel.BooleanIO;
 import ccre.channel.EventInput;
 import ccre.channel.EventOutput;
 import ccre.channel.EventCell;
+import ccre.channel.EventIO;
 import ccre.channel.FloatInput;
 import ccre.channel.FloatOutput;
 import ccre.channel.FloatCell;
+import ccre.channel.FloatIO;
 import ccre.cluck.rpc.RemoteProcedure;
 import ccre.cluck.rpc.SimpleProcedure;
 import ccre.log.LogLevel;
@@ -382,7 +385,7 @@ public class CluckPublisher {
      * @param path The path to subscribe to.
      * @return the FloatOutput.
      */
-    public static FloatOutput subscribeFO(final CluckNode node, final String path) {
+    public static FloatOutput subscribeFO(CluckNode node, String path) {
         if (node == null || path == null) {
             throw new NullPointerException();
         }
@@ -390,35 +393,35 @@ public class CluckPublisher {
     }
 
     /**
-     * Publish a FloatStatus on the network.
-     *
-     * No corresponding subscribe is provided yet.
+     * Publish a FloatIO on the network.
      *
      * @param node The node to publish on.
      * @param name The name for the FloatStatus.
      * @param stat The FloatStatus.
      */
-    public static void publish(final CluckNode node, final String name, final FloatCell stat) {
-        FloatInput statInput = stat;
-        FloatOutput statOutput = stat;
-        publish(node, name + ".input", statInput);
-        publish(node, name + ".output", statOutput);
+    public static void publish(CluckNode node, String name, FloatIO stat) {
+        publish(node, name + ".input", stat.asInput());
+        publish(node, name + ".output", stat.asOutput());
+    }
+
+    public static FloatIO subscribeFIO(CluckNode node, String path, boolean subscribeByDefault) {
+        return FloatIO.compose(subscribeFI(node, path, subscribeByDefault), subscribeFO(node, path));
     }
 
     /**
-     * Publish a BooleanStatus on the network.
-     *
-     * No corresponding subscribe is provided yet.
+     * Publish a BooleanIO on the network.
      *
      * @param node The node to publish on.
      * @param name The name for the BooleanStatus.
      * @param stat The BooleanStatus to publish.
      */
-    public static void publish(final CluckNode node, final String name, BooleanCell stat) {
-        BooleanInput statInput = stat;
-        BooleanOutput statOutput = stat;
-        publish(node, name + ".input", statInput);
-        publish(node, name + ".output", statOutput);
+    public static void publish(CluckNode node, String name, BooleanIO stat) {
+        publish(node, name + ".input", stat.asInput());
+        publish(node, name + ".output", stat.asOutput());
+    }
+
+    public static BooleanIO subscribeBIO(CluckNode node, String path, boolean subscribeByDefault) {
+        return BooleanIO.compose(subscribeBI(node, path, subscribeByDefault), subscribeBO(node, path));
     }
 
     /**
@@ -430,11 +433,13 @@ public class CluckPublisher {
      * @param name The name for the EventStatus.
      * @param stat The EventStatus to publish.
      */
-    public static void publish(final CluckNode node, final String name, EventCell stat) {
-        EventInput statInput = stat;
-        EventOutput statOutput = stat;
-        publish(node, name + ".input", statInput);
-        publish(node, name + ".output", statOutput);
+    public static void publish(CluckNode node, String name, EventIO stat) {
+        publish(node, name + ".input", stat.asInput());
+        publish(node, name + ".output", stat.asOutput());
+    }
+
+    public static EventIO subscribeEIO(CluckNode node, String path) {
+        return EventIO.compose(subscribeEI(node, path), subscribeEO(node, path));
     }
 
     /**
@@ -742,17 +747,8 @@ public class CluckPublisher {
         }
 
         @Override
-        public synchronized void onUpdate(EventOutput out) {
-            super.onUpdate(out);
-            if (!sent) {
-                sent = true;
-                node.transmit(path, linkName, new byte[] { CluckConstants.RMT_FLOATINPUT });
-            }
-        }
-
-        @Override
-        public synchronized EventOutput onUpdateR(EventOutput out) {
-            EventOutput base = super.onUpdateR(out);
+        public synchronized EventOutput onUpdate(EventOutput out) {
+            EventOutput base = super.onUpdate(out);
             if (!sent) {
                 sent = true;
                 node.transmit(path, linkName, new byte[] { CluckConstants.RMT_FLOATINPUT });
@@ -844,17 +840,8 @@ public class CluckPublisher {
         }
 
         @Override
-        public synchronized void onUpdate(EventOutput out) {
-            super.onUpdate(out);
-            if (!sent) {
-                sent = true;
-                node.transmit(path, linkName, new byte[] { CluckConstants.RMT_BOOLINPUT });
-            }
-        }
-
-        @Override
-        public synchronized EventOutput onUpdateR(EventOutput cns) {
-            EventOutput base = super.onUpdateR(cns);
+        public synchronized EventOutput onUpdate(EventOutput cns) {
+            EventOutput base = super.onUpdate(cns);
             if (!sent) {
                 sent = true;
                 node.transmit(path, linkName, new byte[] { CluckConstants.RMT_BOOLINPUT });
@@ -940,17 +927,8 @@ public class CluckPublisher {
         }
 
         @Override
-        public synchronized void onUpdate(EventOutput cns) {
-            super.onUpdate(cns);
-            if (!sent) {
-                sent = true;
-                node.transmit(path, linkName, new byte[] { CluckConstants.RMT_EVENTINPUT });
-            }
-        }
-
-        @Override
-        public synchronized EventOutput onUpdateR(EventOutput cns) {
-            EventOutput base = super.onUpdateR(cns);
+        public synchronized EventOutput onUpdate(EventOutput cns) {
+            EventOutput base = super.onUpdate(cns);
             if (!sent) {
                 sent = true;
                 node.transmit(path, linkName, new byte[] { CluckConstants.RMT_EVENTINPUT });

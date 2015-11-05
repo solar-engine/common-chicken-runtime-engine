@@ -196,12 +196,14 @@ public final class StorageSegment {
                 float value = Float.parseFloat(vraw);
                 String draw = getStringForKey(default_key);
                 float default_ = draw == null ? Float.NaN : Float.parseFloat(draw);
-                // If the default is the same as the holder's default, then load the value
+                // If the default is the same as the holder's default, then load
+                // the value
                 if (draw == null || Float.floatToIntBits(default_) == Float.floatToIntBits(originalValue)) {
                     Logger.config("Loaded config for " + name + ": def:" + default_ + " old:" + originalValue + " new:" + value);
                     holder.set(value);
                 }
-                // Otherwise, the default has changed from the holder, and therefore we want the updated value from the holder
+                // Otherwise, the default has changed from the holder, and
+                // therefore we want the updated value from the holder
             } catch (NumberFormatException ex) {
                 Logger.warning("Invalid float value: '" + vraw + "'!", ex);
             }
@@ -232,12 +234,14 @@ public final class StorageSegment {
             try {
                 boolean value = Boolean.parseBoolean(vraw);
                 String draw = getStringForKey(default_key);
-                // If the default is the same as the holder's default, then load the value
+                // If the default is the same as the holder's default, then load
+                // the value
                 if (draw == null || Boolean.parseBoolean(draw) == originalValue) {
                     Logger.config("Loaded config for " + name + ": def:" + draw + " old:" + originalValue + " new:" + value);
                     holder.set(value);
                 }
-                // Otherwise, the default has changed from the holder, and therefore we want the updated value from the holder
+                // Otherwise, the default has changed from the holder, and
+                // therefore we want the updated value from the holder
             } catch (NumberFormatException ex) {
                 Logger.warning("Invalid boolean value: '" + vraw + "'!", ex);
             }

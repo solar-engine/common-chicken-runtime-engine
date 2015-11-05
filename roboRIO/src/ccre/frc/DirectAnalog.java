@@ -92,21 +92,27 @@ class DirectAnalog {
 
     public static double getGlobalSampleRate() {
         IntBuffer status = Common.getCheckBuffer();
-        double value = AnalogJNI.getAnalogSampleRate(status); // only FPGA errors
+        // only FPGA errors
+        double value = AnalogJNI.getAnalogSampleRate(status);
         Common.check(status);
         return value;
     }
 
     public static void resetAccumulator(ByteBuffer analog) {
         IntBuffer status = Common.getCheckBuffer();
-        AnalogJNI.resetAccumulator(analog, status); // FPGA errors or null accumulator, which should only be a concern if the port is not 0 or 1. Not an issue.
-        Common.check(status); // if this fails with a NULL_PARAMETER, that's because the channel is not an accumulator channel.
+        // FPGA errors or null accumulator, which should only be a concern if
+        // the port is not 0 or 1. Not an issue.
+        AnalogJNI.resetAccumulator(analog, status);
+        // if this fails with a NULL_PARAMETER, that's because the channel is
+        // not an accumulator channel.
+        Common.check(status);
     }
 
     public static long readAccumulatorValue(ByteBuffer analog, IntBuffer directCount) {
         LongBuffer value = Common.allocateLong();
         IntBuffer status = Common.getCheckBuffer();
-        AnalogJNI.getAccumulatorOutput(analog, value, directCount, status); // FPGA errors, null accumulator, or null pointer. Not an issue.
+        // FPGA errors, null accumulator, or null pointer. Not an issue.
+        AnalogJNI.getAccumulatorOutput(analog, value, directCount, status);
         Common.check(status);
         return value.get(0);
     }
@@ -119,7 +125,8 @@ class DirectAnalog {
 
     public static long getLSBWeight(ByteBuffer gyro) {
         IntBuffer status = Common.getCheckBuffer();
-        long value = AnalogJNI.getAnalogLSBWeight(gyro, status); // just FRCComm-calibrate errors
+        // just FRCComm-calibrate errors
+        long value = AnalogJNI.getAnalogLSBWeight(gyro, status);
         Common.check(status);
         return value;
     }

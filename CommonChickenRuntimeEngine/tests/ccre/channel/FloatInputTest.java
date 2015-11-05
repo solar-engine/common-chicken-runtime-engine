@@ -107,66 +107,12 @@ public class FloatInputTest {
     private float result;
 
     @Test
-    public void testSend() {
-        gotProperly = false;
-        fi = new FloatInput() {
-            @Override
-            public void onUpdate(EventOutput notify) {
-                assertFalse(gotProperly);
-                cfo.check();// the earlier setup from outside this
-                for (float f : Values.interestingFloats) {
-                    result = f;
-                    cfo.ifExpected = true;
-                    cfo.valueExpected = f;
-                    notify.event();
-                    cfo.check();
-                }
-                gotProperly = true;
-            }
-
-            @Override
-            public EventOutput onUpdateR(EventOutput notify) {
-                fail();
-                return null;
-            }
-
-            @Override
-            public float get() {
-                return result;
-            }
-        };
-        for (float f : Values.interestingFloats) {
-            result = f;
-            assertEquals(f, fi.get(), 0);
-        }
-        for (float initial : Values.interestingFloats) {
-            cfo.ifExpected = true;
-            cfo.valueExpected = result = initial;
-            assertFalse(gotProperly);
-            fi.send(cfo);
-            assertTrue(gotProperly);
-            gotProperly = false;
-            cfo.check();// the real check is in onUpdateR above
-        }
-    }
-
-    @Test(expected = NullPointerException.class)
-    public void testSendNull() {
-        fi.send(null);
-    }
-
-    @Test
     public void testSendR() {
         CountingEventOutput expected = new CountingEventOutput();
         gotProperly = false;
         fi = new FloatInput() {
             @Override
-            public void onUpdate(EventOutput notify) {
-                fail();
-            }
-
-            @Override
-            public EventOutput onUpdateR(EventOutput notify) {
+            public EventOutput onUpdate(EventOutput notify) {
                 assertFalse(gotProperly);
                 cfo.check();// the earlier setup from outside this
                 for (float f : Values.interestingFloats) {
@@ -193,7 +139,7 @@ public class FloatInputTest {
             cfo.ifExpected = true;
             cfo.valueExpected = result = initial;
             assertFalse(gotProperly);
-            assertEquals(expected, fi.sendR(cfo));
+            assertEquals(expected, fi.send(cfo));
             assertTrue(gotProperly);
             gotProperly = false;
             cfo.check();// the real check is in onUpdateR above
@@ -201,8 +147,8 @@ public class FloatInputTest {
     }
 
     @Test(expected = NullPointerException.class)
-    public void testSendRNull() {
-        fi.sendR(null);
+    public void testSendNull() {
+        fi.send(null);
     }
 
     private void tryEach(FloatInput fi, FloatInput fi2) {
@@ -422,7 +368,7 @@ public class FloatInputTest {
                     continue;
                 }
                 BooleanInput bi = fs.outsideRange(min, max);
-                EventOutput unbind = bi.sendR(bs);
+                EventOutput unbind = bi.send(bs);
                 for (float test : Values.interestingFloats) {
                     fs.set(test);
                     assertEquals(test < min || test > max, bi.get());
@@ -572,7 +518,8 @@ public class FloatInputTest {
             fs.set(0);
             ceo.check();
             for (float v : Values.lessInterestingFloats) {
-                if (Math.abs(last - v) > Math.abs(d)) {// note: if onChangeBy(0), then everything should trigger this.
+                // note: if onChangeBy(0), then everything should trigger this.
+                if (Math.abs(last - v) > Math.abs(d)) {
                     last = v;
                     ceo.ifExpected = true;
                 } else {
@@ -829,7 +776,8 @@ public class FloatInputTest {
     }
 
     @Test
-    public void testCreateRampingEvent() {// TODO: perhaps flesh these tests out a bit more?
+    public void testCreateRampingEvent() {// TODO: perhaps flesh these tests out
+                                          // a bit more?
         FloatCell fi = new FloatCell();
         EventOutput update = fs.createRampingEvent(0.2f, fi);
         for (float i = -5f; i < 5f; i++) {
@@ -883,40 +831,34 @@ public class FloatInputTest {
 
     @Test
     public void testSendError() {
-        for (boolean useR : new boolean[] { false, true }) {
-            CountingEventOutput expected = new CountingEventOutput();
-            CountingEventOutput expected2 = new CountingEventOutput();
-            fi = new FloatInput() {
-                @Override
-                public EventOutput onUpdateR(EventOutput notify) {
-                    expected.event();
-                    return EventOutput.ignored;
-                }
-
-                @Override
-                public float get() {
-                    expected2.event();
-                    return 3;
-                }
-            };
-            FloatOutput evil = new FloatOutput() {
-                @Override
-                public void set(float value) {
-                    cfo.set(value);
-                    // TODO: check logging.
-                    throw new NoSuchElementException("Purposeful failure.");
-                }
-            };
-            expected.ifExpected = expected2.ifExpected = cfo.ifExpected = true;
-            cfo.valueExpected = 3;
-            if (useR) {
-                fi.sendR(evil);
-            } else {
-                fi.send(evil);
+        CountingEventOutput expected = new CountingEventOutput();
+        CountingEventOutput expected2 = new CountingEventOutput();
+        fi = new FloatInput() {
+            @Override
+            public EventOutput onUpdate(EventOutput notify) {
+                expected.event();
+                return EventOutput.ignored;
             }
-            expected.check();
-            expected2.check();
-            cfo.check();
-        }
+
+            @Override
+            public float get() {
+                expected2.event();
+                return 3;
+            }
+        };
+        FloatOutput evil = new FloatOutput() {
+            @Override
+            public void set(float value) {
+                cfo.set(value);
+                // TODO: check logging.
+                throw new NoSuchElementException("Purposeful failure.");
+            }
+        };
+        expected.ifExpected = expected2.ifExpected = cfo.ifExpected = true;
+        cfo.valueExpected = 3;
+        fi.send(evil);
+        expected.check();
+        expected2.check();
+        cfo.check();
     }
 }

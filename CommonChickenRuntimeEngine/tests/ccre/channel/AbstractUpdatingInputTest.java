@@ -100,8 +100,8 @@ public class AbstractUpdatingInputTest {
             }
         };
         enabled = enabled3 = true;
-        EventOutput dereg = dui.onUpdateR(ceo);
-        EventOutput dereg3 = dui.onUpdateR(ceo3);
+        EventOutput dereg = dui.onUpdate(ceo);
+        EventOutput dereg3 = dui.onUpdate(ceo3);
         for (int i = 0; i < 10; i++) {
             ceo2.ifExpected = true;
             update.event();
@@ -127,12 +127,6 @@ public class AbstractUpdatingInputTest {
     public void testOnUpdateNull() {
         new AbstractUpdatingInput() {
         }.onUpdate(null);
-    }
-
-    @Test(expected = NullPointerException.class)
-    public void testOnUpdateRNull() {
-        new AbstractUpdatingInput() {
-        }.onUpdateR(null);
     }
 
     @Test(expected = NoSuchElementException.class)

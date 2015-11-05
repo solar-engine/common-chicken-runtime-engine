@@ -146,8 +146,7 @@ public class CANJaguarDevice extends DeviceGroup implements Disableable {
                 return getDiagnosticChannel(type).get();
             case GENERIC_FAULT_MASK:
             case CAN_JAGUAR_FAULTS:
-                return (getDiagnosticChannel(DiagnosticType.CURRENT_FAULT).get() ? 1 : 0) | (getDiagnosticChannel(DiagnosticType.TEMPERATURE_FAULT).get() ? 2 : 0) |
-                        (getDiagnosticChannel(DiagnosticType.BUS_VOLTAGE_FAULT).get() ? 4 : 0) | (getDiagnosticChannel(DiagnosticType.GATE_DRIVER_FAULT).get() ? 8 : 0);
+                return (getDiagnosticChannel(DiagnosticType.CURRENT_FAULT).get() ? 1 : 0) | (getDiagnosticChannel(DiagnosticType.TEMPERATURE_FAULT).get() ? 2 : 0) | (getDiagnosticChannel(DiagnosticType.BUS_VOLTAGE_FAULT).get() ? 4 : 0) | (getDiagnosticChannel(DiagnosticType.GATE_DRIVER_FAULT).get() ? 8 : 0);
             default:
                 return null;
             }

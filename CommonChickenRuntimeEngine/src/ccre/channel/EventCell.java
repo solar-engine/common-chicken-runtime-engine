@@ -26,7 +26,7 @@ import java.io.Serializable;
  *
  * @author skeggsc
  */
-public class EventCell extends AbstractUpdatingInput implements EventInput, EventOutput, Serializable {
+public class EventCell extends AbstractUpdatingInput implements EventIO, Serializable {
 
     private static final long serialVersionUID = -1536503261547524049L;
 
@@ -46,25 +46,5 @@ public class EventCell extends AbstractUpdatingInput implements EventInput, Even
     @Override
     public void event() {
         perform();
-    }
-
-    /**
-     * Returns a version of this status as an output. This is equivalent to
-     * upcasting to EventOutput.
-     *
-     * @return this status, as an output.
-     */
-    public EventOutput asOutput() {
-        return this;
-    }
-
-    /**
-     * Returns a version of this status as an input. This is equivalent to
-     * upcasting to EventInput.
-     *
-     * @return this status, as an input.
-     */
-    public EventInput asInput() {
-        return this;
     }
 }

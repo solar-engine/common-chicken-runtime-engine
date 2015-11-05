@@ -30,12 +30,15 @@ import edu.wpi.first.wpilibj.hal.PowerJNI;
 class DirectPower {
 
     public static void init() {
-        getBatteryVoltage(); // mitigates any potential first-run errors from the FPGA.
+        // mitigates any potential first-run errors from the FPGA.
+        getBatteryVoltage();
     }
 
     public static float getBatteryVoltage() {
         IntBuffer status = Common.getCheckBuffer();
-        float voltage = PowerJNI.getVinVoltage(status); // just FPGA errors - maybe FPGA startup errors, but that's handled by init().
+        // just FPGA errors - maybe FPGA startup errors, but that's handled by
+        // init().
+        float voltage = PowerJNI.getVinVoltage(status);
         Common.check(status);
         return voltage;
     }

@@ -29,18 +29,18 @@ import org.junit.Test;
 import ccre.testing.CountingBooleanOutput;
 import ccre.testing.CountingEventOutput;
 
-public class BooleanStatusTest {
+public class BooleanCellTest {
 
-    private BooleanCell status;
+    private BooleanCell cell;
 
     @Before
     public void setUp() throws Exception {
-        this.status = new BooleanCell();
+        this.cell = new BooleanCell();
     }
 
     @After
     public void tearDown() throws Exception {
-        this.status = null;
+        this.cell = null;
     }
 
     @Test
@@ -54,16 +54,16 @@ public class BooleanStatusTest {
         CountingBooleanOutput cbo = new CountingBooleanOutput();
         cbo.ifExpected = true;
         cbo.valueExpected = false;
-        status = new BooleanCell(cbo);
+        cell = new BooleanCell(cbo);
         cbo.check();
-        assertTrue(status.hasListeners());
+        assertTrue(cell.hasListeners());
         Random random = new Random();
         boolean lastValue = false;
         for (int i = 0; i < 20; i++) {
             boolean value = i % 3 == 1 ? random.nextBoolean() : i % 3 == 0;
             cbo.ifExpected = (value != lastValue);
             cbo.valueExpected = value;
-            status.set(value);
+            cell.set(value);
             cbo.check();
             lastValue = value;
         }
@@ -80,17 +80,17 @@ public class BooleanStatusTest {
         CountingBooleanOutput c2 = new CountingBooleanOutput();
         c1.ifExpected = c2.ifExpected = true;
         c1.valueExpected = c2.valueExpected = false;
-        status = new BooleanCell(c1, c2);
+        cell = new BooleanCell(c1, c2);
         c1.check();
         c2.check();
-        assertTrue(status.hasListeners());
+        assertTrue(cell.hasListeners());
         Random random = new Random();
         boolean lastValue = false;
         for (int i = 0; i < 20; i++) {
             boolean value = i % 3 == 1 ? random.nextBoolean() : i % 3 == 0;
             c1.ifExpected = c2.ifExpected = (value != lastValue);
             c1.valueExpected = c2.valueExpected = value;
-            status.set(value);
+            cell.set(value);
             c1.check();
             c2.check();
             lastValue = value;
@@ -108,51 +108,21 @@ public class BooleanStatusTest {
     }
 
     @Test
-    public void testToggleWhen() {
-        EventCell toggleEvent = new EventCell();
-        status.toggleWhen(toggleEvent);
-        tryToggleEvent(toggleEvent);
-    }
-
-    @Test(expected = NullPointerException.class)
-    public void testToggleWhenNull() {
-        status.toggleWhen(null);
-    }
-
-    @Test
-    public void testGetToggleEvent() {
-        tryToggleEvent(status.getToggleEvent());
-    }
-
-    private void tryToggleEvent(EventOutput toggleEvent) {
-        for (int i = 0; i < 20; i++) {
-            boolean wanted = i % 2 == 0;
-            status.set(wanted);
-            assertEquals(wanted, status.get());
-            for (int j = 0; j < 5; j++) {
-                wanted = !wanted;
-                toggleEvent.event();
-                assertEquals(wanted, status.get());
-            }
-        }
-    }
-
-    @Test
     public void testHasConsumers() {
-        assertFalse(status.hasListeners());
+        assertFalse(cell.hasListeners());
         for (int i = 0; i < 5; i++) {
-            EventOutput eo = status.sendR(BooleanOutput.ignored);
-            assertTrue(status.hasListeners());
+            EventOutput eo = cell.send(BooleanOutput.ignored);
+            assertTrue(cell.hasListeners());
             eo.event();
-            assertFalse(status.hasListeners());
-            EventOutput eo1 = status.sendR(BooleanOutput.ignored);
-            assertTrue(status.hasListeners());
-            EventOutput eo2 = status.sendR(BooleanOutput.ignored);
-            assertTrue(status.hasListeners());
+            assertFalse(cell.hasListeners());
+            EventOutput eo1 = cell.send(BooleanOutput.ignored);
+            assertTrue(cell.hasListeners());
+            EventOutput eo2 = cell.send(BooleanOutput.ignored);
+            assertTrue(cell.hasListeners());
             eo1.event();
-            assertTrue(status.hasListeners());
+            assertTrue(cell.hasListeners());
             eo2.event();
-            assertFalse(status.hasListeners());
+            assertFalse(cell.hasListeners());
         }
     }
 
@@ -162,15 +132,15 @@ public class BooleanStatusTest {
         CountingBooleanOutput cbo = new CountingBooleanOutput();
         cbo.ifExpected = true;
         cbo.valueExpected = false;
-        status.send(cbo);
+        cell.send(cbo);
         boolean lastValue = false;
         for (int i = 0; i < 20; i++) {
             boolean value = i % 3 == 1 ? rand.nextBoolean() : i % 3 == 0;
             cbo.ifExpected = (value != lastValue);
             cbo.valueExpected = value;
-            assertEquals(lastValue, status.get());
-            status.set(value);
-            assertEquals(value, status.get());
+            assertEquals(lastValue, cell.get());
+            cell.set(value);
+            assertEquals(value, cell.get());
             cbo.check();
             lastValue = value;
         }
@@ -182,8 +152,8 @@ public class BooleanStatusTest {
         CountingBooleanOutput ceo2 = new CountingBooleanOutput();
         ceo.ifExpected = ceo2.ifExpected = true;
         ceo.valueExpected = ceo2.valueExpected = false;
-        status.send((value) -> {
-            ceo.set(status.get());
+        cell.send((value) -> {
+            ceo.set(cell.get());
             ceo2.set(value);
         });
         ceo.check();
@@ -192,34 +162,24 @@ public class BooleanStatusTest {
             boolean value = i % 2 == 0;
             ceo.ifExpected = ceo2.ifExpected = true;
             ceo.valueExpected = ceo2.valueExpected = value;
-            status.set(value);
-            assertEquals(value, status.get());
+            cell.set(value);
+            assertEquals(value, cell.get());
             ceo.check();
             ceo2.check();
         }
     }
 
     @Test
-    public void testAsOutput() {
-        assertEquals(status, status.asOutput());
-    }
-
-    @Test
-    public void testAsInput() {
-        assertEquals(status, status.asInput());
-    }
-
-    @Test
     public void testOnUpdate() {
         CountingEventOutput ceo = new CountingEventOutput();
-        status.onUpdate(ceo);
-        assertTrue(status.hasListeners());
+        cell.onUpdate(ceo);
+        assertTrue(cell.hasListeners());
         Random rand = new Random();
         boolean lastValue = false;
         for (int i = 0; i < 20; i++) {
             boolean value = i % 3 == 1 ? rand.nextBoolean() : i % 3 == 0;
             ceo.ifExpected = (value != lastValue);
-            status.set(value);
+            cell.set(value);
             ceo.check();
             lastValue = value;
         }
@@ -227,59 +187,59 @@ public class BooleanStatusTest {
 
     @Test(expected = NullPointerException.class)
     public void testOnUpdateNull() {
-        status.onUpdate(null);
+        cell.onUpdate(null);
     }
 
     @Test
     public void testOnUpdateR() {
         CountingEventOutput ceo = new CountingEventOutput();
-        EventOutput unbind = status.onUpdateR(ceo);
-        assertTrue(status.hasListeners());
+        EventOutput unbind = cell.onUpdate(ceo);
+        assertTrue(cell.hasListeners());
         Random rand = new Random();
         boolean lastValue = false;
         for (int i = 0; i < 20; i++) {
             boolean value = i % 3 == 1 ? rand.nextBoolean() : i % 3 == 0;
             ceo.ifExpected = (value != lastValue);
-            status.set(value);
+            cell.set(value);
             ceo.check();
             lastValue = value;
         }
-        assertTrue(status.hasListeners());
+        assertTrue(cell.hasListeners());
         unbind.event();
-        assertFalse(status.hasListeners());
+        assertFalse(cell.hasListeners());
         for (int i = 0; i < 20; i++) {
-            status.set(i % 3 == 1 ? rand.nextBoolean() : i % 3 == 0);
+            cell.set(i % 3 == 1 ? rand.nextBoolean() : i % 3 == 0);
             ceo.check();
         }
-        assertFalse(status.hasListeners());
+        assertFalse(cell.hasListeners());
     }
 
     @Test
     public void testOnUpdateAndOnUpdateR() {
-        assertFalse(status.hasListeners());
-        EventOutput unbind = status.onUpdateR(EventOutput.ignored);
-        assertTrue(status.hasListeners());
-        status.onUpdate(EventOutput.ignored);
-        assertTrue(status.hasListeners());
+        assertFalse(cell.hasListeners());
+        EventOutput unbind = cell.onUpdate(EventOutput.ignored);
+        assertTrue(cell.hasListeners());
+        cell.onUpdate(EventOutput.ignored);
+        assertTrue(cell.hasListeners());
         unbind.event();
-        assertTrue(status.hasListeners());
+        assertTrue(cell.hasListeners());
     }
 
     @Test
     public void testOnUpdateRTwice() {
-        assertFalse(status.hasListeners());
-        EventOutput unbind1 = status.onUpdateR(EventOutput.ignored);
-        assertTrue(status.hasListeners());
-        EventOutput unbind2 = status.onUpdateR(EventOutput.ignored);
-        assertTrue(status.hasListeners());
+        assertFalse(cell.hasListeners());
+        EventOutput unbind1 = cell.onUpdate(EventOutput.ignored);
+        assertTrue(cell.hasListeners());
+        EventOutput unbind2 = cell.onUpdate(EventOutput.ignored);
+        assertTrue(cell.hasListeners());
         unbind1.event();
-        assertTrue(status.hasListeners());
+        assertTrue(cell.hasListeners());
         unbind2.event();
-        assertFalse(status.hasListeners());
+        assertFalse(cell.hasListeners());
     }
 
     @Test(expected = NullPointerException.class)
     public void testOnUpdateRNull() {
-        status.onUpdateR(null);
+        cell.onUpdate(null);
     }
 }

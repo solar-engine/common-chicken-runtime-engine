@@ -127,10 +127,11 @@ public class TracingCluckTCPClient extends CluckTCPClient {
                     }
                     lastReceive = System.currentTimeMillis();
                 } catch (SocketTimeoutException ex) {
-                    if (expectKeepAlives && System.currentTimeMillis() - lastReceive > CluckProtocol.TIMEOUT_PERIOD) {
+                    if (expectKeepAlives && System.currentTimeMillis() - lastReceive > CluckProtocol.TIMEOUT_PERIOD_MILLIS) {
                         throw ex;
                     } else {
-                        // otherwise, don't do anything - we don't know if this is a timeout.
+                        // otherwise, don't do anything - we don't know if this
+                        // is a timeout.
                     }
                 }
             }

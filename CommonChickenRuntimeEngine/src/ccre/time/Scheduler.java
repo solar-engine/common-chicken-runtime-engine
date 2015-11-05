@@ -26,7 +26,8 @@ import ccre.log.Logger;
 
 public class Scheduler {
 
-    private static final long MAXIMUM_REASONABLE_DELAY = 3;// warn if more than 3 milliseconds are spent handling anything
+    // warn if more than 3 milliseconds are spent handling anything
+    private static final long MAXIMUM_REASONABLE_DELAY = 3;
     private final Time provider;
     private final ReporterThread scheduler = new ReporterThread("Scheduler") {
         @Override
@@ -64,7 +65,9 @@ public class Scheduler {
                 }
             }
         } catch (InterruptedException ex) {
-            if (!stop) {// if we're SUPPOSED to stop... then let's just stop, quietly. but otherwise, it's an issue and we should be LOUD!
+            // if we're SUPPOSED to stop... then let's just stop, quietly. but
+            // otherwise, it's an issue and we should be LOUD!
+            if (!stop) {
                 throw ex;
             }
         }

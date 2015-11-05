@@ -230,8 +230,7 @@ public class CluckTCPClient extends ReporterThread {
             } catch (IOException ex) {
                 boolean uhe = "java.net.UnknownHostException".equals(ex.getClass().getName());
                 this.errorSummary = uhe ? "Unknown Host: " + ex.getMessage() : ex.getMessage();
-                if (uhe || (ex.getMessage() != null &&
-                        (ex.getMessage().startsWith("Remote server not available") || ex.getMessage().startsWith("Timed out while connecting")))) {
+                if (uhe || (ex.getMessage() != null && (ex.getMessage().startsWith("Remote server not available") || ex.getMessage().startsWith("Timed out while connecting")))) {
                     postfix = " (" + ex.getMessage() + ")";
                 } else {
                     Logger.warning("IO Error while handling connection", ex);

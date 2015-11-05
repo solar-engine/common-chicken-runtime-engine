@@ -87,7 +87,7 @@ public class FloatOperationTest {
             FloatInput fi = FloatOperation.subtraction.of(sa.asInput(), b);
             cfo.ifExpected = true;
             cfo.valueExpected = FloatOperation.subtraction.of(sa.get(), b);
-            EventOutput unbind = fi.sendR(cfo);
+            EventOutput unbind = fi.send(cfo);
             cfo.check();
             for (float a : Values.interestingFloats) {
                 float lastExpected = cfo.valueExpected;
@@ -112,7 +112,7 @@ public class FloatOperationTest {
             FloatInput fi = FloatOperation.subtraction.of(a, sb.asInput());
             cfo.ifExpected = true;
             cfo.valueExpected = FloatOperation.subtraction.of(a, sb.get());
-            EventOutput unbind = fi.sendR(cfo);
+            EventOutput unbind = fi.send(cfo);
             cfo.check();
             for (float b : Values.interestingFloats) {
                 float lastExpected = cfo.valueExpected;

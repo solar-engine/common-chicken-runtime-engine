@@ -113,7 +113,7 @@ public class EventDisplayComponent extends BaseChannelComponent<EventDisplayComp
                 unsubscribe = null;
             }
             if (hasPanel) {
-                unsubscribe = inp.sendR(this);
+                unsubscribe = inp.send(this);
             }
             subscribed = hasPanel;
         }

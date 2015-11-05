@@ -49,7 +49,9 @@ final class SerialPortDirect implements SerialIO {
         if (ready <= 0) {
             byte[] gotten = DirectRS232.read(port, 1);
             while (gotten.length == 0) {
-                gotten = DirectRS232.read(port, 1); // block for minimal amount of time if any data has been received
+                // block for minimal amount of time if any data has been
+                // received
+                gotten = DirectRS232.read(port, 1);
             }
             ready = DirectRS232.getBytesReceived(port);
             if (max == 1 || ready <= 0) {

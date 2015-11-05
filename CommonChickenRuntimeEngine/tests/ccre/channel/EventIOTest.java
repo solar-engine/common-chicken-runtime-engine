@@ -20,36 +20,42 @@ package ccre.channel;
 
 import static org.junit.Assert.*;
 
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 
-import ccre.testing.CountingEventOutput;
+public class EventIOTest {
 
-public class UpdatingInputTest {
+    private EventIO io;
 
-    @Test
-    public void testOnUpdate() {
-        CountingEventOutput ceo = new CountingEventOutput();
-        UpdatingInput ui = new UpdatingInput() {
+    @Before
+    public void setUp() throws Exception {
+        io = new EventIO() {
             @Override
-            public EventOutput onUpdateR(EventOutput notify) {
-                assertEquals(notify, EventOutput.ignored);
-                ceo.event();
+            public EventOutput onUpdate(EventOutput notify) {
+                fail();
                 return null;
             }
-        };
-        ceo.ifExpected = true;
-        ui.onUpdate(EventOutput.ignored);
-        ceo.check();
-    }
 
-    @Test(expected = NullPointerException.class)
-    public void testOnUpdateNull() {
-        new UpdatingInput() {
             @Override
-            public EventOutput onUpdateR(EventOutput notify) {
-                throw new IllegalStateException("oops");
+            public void event() {
+                fail();
             }
-        }.onUpdate(null);
+        };
     }
 
+    @After
+    public void tearDown() throws Exception {
+        io = null;
+    }
+
+    @Test
+    public void testAsOutput() {
+        assertEquals(io, io.asOutput());
+    }
+
+    @Test
+    public void testAsInput() {
+        assertEquals(io, io.asInput());
+    }
 }

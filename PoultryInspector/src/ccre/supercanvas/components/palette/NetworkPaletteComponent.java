@@ -127,7 +127,8 @@ public class NetworkPaletteComponent extends PaletteComponent<Collection<Network
         case CluckConstants.RMT_FLOATINPUT:
             return Cluck.subscribeFI(path, false);
         case CluckConstants.RMT_INVOKE:
-            return Cluck.getNode().getRPCManager().subscribe(path, 500); // Is this a good amount of time?
+            // Is this a good amount of time?
+            return Cluck.getNode().getRPCManager().subscribe(path, 500);
         case CluckConstants.RMT_LOGTARGET:
             return Cluck.subscribeLT(path);
         case CluckConstants.RMT_OUTSTREAM:

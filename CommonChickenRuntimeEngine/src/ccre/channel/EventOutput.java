@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2014 Colby Skeggs
+ * Copyright 2013-2015 Colby Skeggs
  *
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  *
@@ -110,7 +110,7 @@ public interface EventOutput {
      *
      * @param when when to fire this event.
      */
-    public default void on(EventInput when) {
-        when.send(this);
+    public default EventOutput on(EventInput when) {
+        return when.send(this);
     }
 }

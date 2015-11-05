@@ -82,8 +82,8 @@ public class Version {
         String version = getVersion();
         String[] parts = version.split("-");
         if (parts.length >= 2 && "ccre".equals(parts[0]) && parts[1].startsWith("v")) {
-            if (parts.length >= 3 && !"0".equals(parts[2]) || version.contains("dirty")) {
-                return parts[1].substring(1) + "+M";
+            if (version.contains("-dev") || version.contains("-pre")) {
+                return parts[1].substring(1) + "+D";
             } else {
                 return parts[1].substring(1);
             }

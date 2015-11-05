@@ -212,8 +212,6 @@ public class LoggingComponent extends DraggableBoxComponent {
         } else if (frac > 1) {
             frac = 1;
         }
-        //g.setColor(scroll == 0 ? Color.GREEN : Color.BLACK);
-        //g.fillOval(centerX - halfWidth + 4, centerY - halfHeight + 8 + (int) ((2 * halfHeight - 24) * frac), 8, 8);
         Rendering.drawScrollbar(g, scroll != 0, centerX - halfWidth + 8, centerY - halfHeight + 12 + (int) ((2 * halfHeight - 24) * frac));
     }
 

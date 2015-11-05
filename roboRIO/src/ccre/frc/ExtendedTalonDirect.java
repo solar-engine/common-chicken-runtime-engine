@@ -36,7 +36,9 @@ import ccre.time.Time;
 public class ExtendedTalonDirect extends ExtendedMotor implements FloatOutput {
 
     private final CANTalonMod talon;
-    private Boolean enableMode = null; // null until something cares. This means that it's not enabled, but could be automatically.
+    // null until something cares. This means that it's not enabled, but could
+    // be automatically.
+    private Boolean enableMode = null;
     private boolean isBypassed = false;
     private long bypassUntil = 0;
 
@@ -154,7 +156,7 @@ public class ExtendedTalonDirect extends ExtendedMotor implements FloatOutput {
             case VOLTAGE_FRACTIONAL:
                 talon.changeControlMode(CANTalonMod.ControlMode.PercentVbus);
                 return this;
-                // TODO: Support more modes.
+            // TODO: Support more modes.
             default:
                 return null;
             }
@@ -207,7 +209,7 @@ public class ExtendedTalonDirect extends ExtendedMotor implements FloatOutput {
                             return (float) talon.getOutputCurrent();
                         case TEMPERATURE:
                             return (float) talon.getTemp();
-                            // TODO: Provide the rest of the options.
+                        // TODO: Provide the rest of the options.
                         }
                     } catch (RuntimeException ex) {
                         zeroed = true;
@@ -215,7 +217,8 @@ public class ExtendedTalonDirect extends ExtendedMotor implements FloatOutput {
                         Logger.warning("WPILib CANTalon Failure during status: temporarily zeroing value for three seconds.", ex);
                         return (float) 0.0;
                     }
-                    throw new RuntimeException("Invalid internal asStatus setting: " + type); // should never happen as long as the lists match.
+                    // should never happen as long as the lists match.
+                    throw new RuntimeException("Invalid internal asStatus setting: " + type);
                 }
             };
         default:

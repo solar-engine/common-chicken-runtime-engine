@@ -216,13 +216,8 @@ public class PIDController implements FloatInput, EventOutput {
     }
 
     @Override
-    public void onUpdate(EventOutput notify) {
-        output.onUpdate(notify);
-    }
-
-    @Override
-    public EventOutput onUpdateR(EventOutput notify) {
-        return output.onUpdateR(notify);
+    public EventOutput onUpdate(EventOutput notify) {
+        return output.onUpdate(notify);
     }
 
     /**

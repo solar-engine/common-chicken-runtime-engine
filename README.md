@@ -7,16 +7,16 @@ project so that you can focus on the important parts of your code.
 
 Here's an example of a robot piloted with Tank Drive:
 
-    DriverImpls.arcadeDrive(Igneous.joystick1,
-                            Igneous.makeTalonMotor(1, MOTOR_FORWARD),
-                            Igneous.makeTalonMotor(2, MOTOR_REVERSE));
+    DriverImpls.arcadeDrive(FRC.joystick1,
+                            FRC.talon(1, FRC.MOTOR_FORWARD),
+                            FRC.talon(2, FRC.MOTOR_REVERSE));
 
 Or, something more interesting: an example of a shifting drive train:
 
-    BooleanOutput shifter = Igneous.makeSolenoid(2);
-    shifter.setFalseWhen(Igneous.startTele);
-    shifter.setTrueWhen(Igneous.joystick1.onPress(3));
-    shifter.setFalseWhen(Igneous.joystick1.onPress(1));
+    BooleanOutput shifter = FRC.solenoid(2);
+    shifter.setFalseWhen(FRC.startTele);
+    shifter.setTrueWhen(FRC.joystick1.onPress(3));
+    shifter.setFalseWhen(FRC.joystick1.onPress(1));
 
 Features
 --------
@@ -31,7 +31,7 @@ Features
 Documentation and Quickstart Guide
 -----------------------------------
 
-TODO: add a link here.
+Please read [our documentation and quickstart guide](http://cgscomwww.catlin.edu/~skeggsc/ccre-docs/)!
 
 Contribute
 ----------

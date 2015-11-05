@@ -56,7 +56,9 @@ public class RConfComponent extends DraggableBoxComponent {
             if (out == null) {
                 lastSignalSucceeded = false;
                 consecutiveUpdateFailures++;
-                setAutoRefreshDelay(autoRefreshDelay); // refresh it because the additional failures may have made it slower.
+                // refresh it because the additional failures may have made it
+                // slower.
+                setAutoRefreshDelay(autoRefreshDelay);
             } else {
                 lastSignalSucceeded = true;
                 entries = out;

@@ -1,5 +1,6 @@
 /*
  * Copyright 2015 Colby Skeggs
+ * Copyright 2015 Jake Springer
  *
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  *
@@ -111,7 +112,8 @@ class DirectDigital {
             if (interrupts[i] == null) {
                 IntBuffer status = Common.getCheckBuffer();
                 ByteBuffer intr = InterruptJNI.initializeInterrupts(i, WATCH_SYNCHRONOUS, status);
-                Common.check(status); // TODO: what if this fails? intr is leaked.
+                // TODO: what if this fails? intr is leaked.
+                Common.check(status);
                 interrupts[i] = intr;
                 return i;
             }

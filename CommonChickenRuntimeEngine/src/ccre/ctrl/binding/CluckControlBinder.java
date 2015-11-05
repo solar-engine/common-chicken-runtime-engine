@@ -216,7 +216,7 @@ public class CluckControlBinder implements RConfable {
             boolLinkage.remove(sink);
             boolUnbinds.remove(sink);
         } else {
-            unbind = sourceSet.getBoolean(source).sendR(sinkSet.getBoolean(sink));
+            unbind = sourceSet.getBoolean(source).send(sinkSet.getBoolean(sink));
             boolLinkage.put(sink, source);
             boolUnbinds.put(sink, unbind);
         }
@@ -232,7 +232,7 @@ public class CluckControlBinder implements RConfable {
             floatLinkage.remove(sink);
             floatUnbinds.remove(sink);
         } else {
-            unbind = sourceSet.getFloat(source).sendR(sinkSet.getFloat(sink));
+            unbind = sourceSet.getFloat(source).send(sinkSet.getFloat(sink));
             floatLinkage.put(sink, source);
             floatUnbinds.put(sink, unbind);
         }

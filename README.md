@@ -36,8 +36,8 @@ Please read [our documentation and quickstart guide](http://cgscomwww.catlin.edu
 Contribute
 ----------
 
-- Issue Tracker: github.com/flamingchickens1540/Common-Chicken-Runtime-Engine/issues
-- Source Code: github.com/flamingchickens1540/Common-Chicken-Runtime-Engine
+- [Issue Tracker](https://github.com/flamingchickens1540/Common-Chicken-Runtime-Engine/issues)
+- [Source Code](https://github.com/flamingchickens1540/Common-Chicken-Runtime-Engine)
 
 Support
 -------
@@ -50,7 +50,8 @@ License
 
 The project is licensed under the LGPL, which means that you can freely use it
 as a dependency of your project without affecting the license that you use for
-your project.
+your project. This is approximate: you should review the terms of the license,
+which can be found in COPYING and COPYING.LESSER.
 
 Since this project is publicly available, you can use it for FRC robot software
 legally under the rules (as of 2015), as long as, if you make any changes

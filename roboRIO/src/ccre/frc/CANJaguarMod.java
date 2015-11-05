@@ -16,9 +16,8 @@ import edu.wpi.first.wpilibj.can.CANJNI;
 import edu.wpi.first.wpilibj.can.CANMessageNotFoundException;
 
 /**
- * Texas Instruments Jaguar Speed Controller as a CAN device.
- *
- * @author Thomas Clark
+ * Part of the WPILib CAN implementation. This is not documented well, as it
+ * wasn't written by us.
  */
 @SuppressWarnings("javadoc")
 class CANJaguarMod {

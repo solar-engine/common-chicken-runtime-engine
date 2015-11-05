@@ -35,6 +35,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
+import ccre.channel.EventOutput;
 import ccre.testing.CountingEventOutput;
 import ccre.util.Values;
 
@@ -145,6 +146,11 @@ public class CluckNodeTest {
         }
     }
 
+    @Test(expected = NullPointerException.class)
+    public void testTransmitNull() {
+        node.transmit("target", "source", null);
+    }
+
     @Test
     public void testBroadcastDetach() {
         VerifyingCluckLink[] vcls = new VerifyingCluckLink[10];
@@ -209,6 +215,11 @@ public class CluckNodeTest {
                 vcls[i].check();
             }
         }
+    }
+
+    @Test(expected = NullPointerException.class)
+    public void testBroadcastNull() {
+        node.broadcast("source", null, new VerifyingCluckLink());
     }
 
     @Test
@@ -380,6 +391,16 @@ public class CluckNodeTest {
         }
     }
 
+    @Test(expected = NullPointerException.class)
+    public void testSubscribeToStructureNotificationsNullA() {
+        node.subscribeToStructureNotifications(null, EventOutput.ignored);
+    }
+
+    @Test(expected = NullPointerException.class)
+    public void testSubscribeToStructureNotificationsNullB() {
+        node.subscribeToStructureNotifications("test", null);
+    }
+
     private boolean failInvoke = false;
 
     @Test
@@ -436,6 +457,11 @@ public class CluckNodeTest {
         }
     }
 
+    @Test(expected = NullPointerException.class)
+    public void testHasLinkNull() {
+        node.hasLink(null);
+    }
+
     @Test
     public void testAddLinkHasLink() {
         assertFalse(node.hasLink("test-1"));
@@ -456,12 +482,12 @@ public class CluckNodeTest {
 
     @Test(expected = NullPointerException.class)
     public void testAddLinkNullA() {
-        node.addLink(new VerifyingCluckLink(), null);
+        node.addLink(null, "example-1");
     }
 
     @Test(expected = NullPointerException.class)
     public void testAddLinkNullB() {
-        node.addLink(null, "example-1");
+        node.addLink(new VerifyingCluckLink(), null);
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -539,6 +565,11 @@ public class CluckNodeTest {
         assertFalse(node.hasLink("test-1"));
         assertFalse(node.removeLink("test-1"));
         assertFalse(node.hasLink("test-1"));
+    }
+
+    @Test(expected = NullPointerException.class)
+    public void testRemoveLinkNull() {
+        node.removeLink(null);
     }
 
     @Test

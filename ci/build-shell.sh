@@ -32,7 +32,7 @@ fi
 
 cd $HERE
 
-if [ "$TRAVIS_PULL_REQUEST" = "false" ]
+if [ "$TRAVIS_PULL_REQUEST" = "false" -a "$TRAVIS_BRANCH" = "devel-3.x.x" ]
 then
 	echo "Cloning uploader repo..."
 	ssh-agent ./upload-artifacts.sh $(dirname $HERE)

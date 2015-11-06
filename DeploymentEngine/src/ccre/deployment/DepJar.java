@@ -45,7 +45,7 @@ public class DepJar {
         HashMap<String, String> hm = new HashMap<>();
         for (int i = 0; i < kvs.length; i += 2) {
             if (kvs[i] == null || kvs[i + 1] == null) {
-                throw new IllegalArgumentException("Keys and values cannot be null!");
+                throw new NullPointerException("Keys and values cannot be null!");
             }
             hm.put(kvs[i], kvs[i + 1]);
         }

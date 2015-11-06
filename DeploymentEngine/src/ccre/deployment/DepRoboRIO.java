@@ -51,8 +51,8 @@ public class DepRoboRIO {
 
     public class RIOShell extends Shell {
 
-        private RIOShell(InetAddress ip, String username, String password, boolean alwaysTrust) throws IOException {
-            super(ip, username, password, alwaysTrust);
+        private RIOShell(InetAddress ip, String username, String password) throws IOException {
+            super(ip, username, password);
         }
 
         public boolean checkJRE() throws IOException {
@@ -76,7 +76,7 @@ public class DepRoboRIO {
         public void verifyRIO(int expected_image) throws IOException {
             int image = getRIOImage();
             if (image != expected_image) {
-                throw new RuntimeException("Unsupported roboRIO image number! You need to have " + EXPECTED_IMAGE + " instead of " + image);
+                throw new RuntimeException("Unsupported roboRIO image number! You need to have " + expected_image + " instead of " + image);
             }
 
             if (!checkJRE()) {
@@ -123,7 +123,6 @@ public class DepRoboRIO {
     private static final String DEFAULT_PASSWORD = "";
     private static final String DEFAULT_ADMIN_USERNAME = "admin";
     private static final String DEFAULT_ADMIN_PASSWORD = "";
-    private static final boolean DEFAULT_TRUST = true;
 
     public static File getJarFile(boolean thick) {
         File out = new File(DepProject.ccreProject("roboRIO"), thick ? "roboRIO.jar" : "roboRIO-lite.jar");
@@ -207,16 +206,16 @@ public class DepRoboRIO {
         this.ip = ip;
     }
 
-    public RIOShell openShell(String username, String password, boolean alwaysTrust) throws IOException {
-        return new RIOShell(ip, username, password, alwaysTrust);
+    public RIOShell openShell(String username, String password) throws IOException {
+        return new RIOShell(ip, username, password);
     }
 
     public RIOShell openDefaultShell() throws IOException {
-        return openShell(DEFAULT_USERNAME, DEFAULT_PASSWORD, DEFAULT_TRUST);
+        return openShell(DEFAULT_USERNAME, DEFAULT_PASSWORD);
     }
 
     public RIOShell openAdminShell() throws IOException {
-        return openShell(DEFAULT_ADMIN_USERNAME, DEFAULT_ADMIN_PASSWORD, DEFAULT_TRUST);
+        return openShell(DEFAULT_ADMIN_USERNAME, DEFAULT_ADMIN_PASSWORD);
     }
 
     public int getRIOImage() throws IOException {

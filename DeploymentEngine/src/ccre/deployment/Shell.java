@@ -39,7 +39,7 @@ import net.schmizz.sshj.xfer.scp.SCPFileTransfer;
 public class Shell implements AutoCloseable {
     private final SSHClient client;
 
-    public Shell(InetAddress ip, String username, String password, boolean alwaysTrust) throws IOException {
+    public Shell(InetAddress ip, String username, String password) throws IOException {
         client = new SSHClient();
         client.setConnectTimeout(5000);
         client.setTimeout(5000);

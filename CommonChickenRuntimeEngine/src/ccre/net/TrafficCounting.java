@@ -51,6 +51,13 @@ public class TrafficCounting {
         return TrafficCounting.totalBytesReceived.get() + TrafficCounting.totalBytesSent.get();
     }
 
+    /**
+     * Enables or disables traffic counting. Counting has to be on when a socket
+     * is created for the analytics to work.
+     *
+     * @param enabled true if traffic counting should be on, false if it should
+     * be off.
+     */
     public static synchronized void setCountingEnabled(boolean enabled) {
         TrafficCounting.countingEnabled = enabled;
         if (enabled && !TrafficCounting.countingEverEnabled) {

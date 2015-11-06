@@ -132,6 +132,11 @@ public class SpinDevice extends Device {
         }
     }
 
+    /**
+     * Provides an input that represents the current value on this SpinDevice.
+     *
+     * @return the FloatInput representing the value on this SpinDevice.
+     */
     public FloatInput asInput() {
         return ticks;
     }

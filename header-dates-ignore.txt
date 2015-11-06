@@ -33,4 +33,4 @@ bf32df3010ace025c5c036a4326631dad62d1d4dd59ab47c48b195e2241684dd  ./roboRIO/src/
 267f5371f921dc199542928349235b1c59cedb95be028d97e91f364d111d0ad3  ./CommonChickenRuntimeEngine/src/ccre/cluck/tcp/CluckTCPServer.java
 3da931a7e649de8e12f710b3794ac443443a1094e31df0ea549350580ef0edd9  ./PoultryInspector/src/ccre/supercanvas/components/LoggingComponent.java
 821750e371a80041623db4f62994275a9243d174de6735807330f74406eb0176  ./roboRIO/src/edu/wpi/first/wpilibj/can/CANExceptionFactory.java
-87c1faf4b655eac8b85140b0b160e2f9160df8909034dc2f9c703b30e97d0a09  ./roboRIO/src/ccre/frc/DirectCounter.java
+9c074d2cb9afdf9da023e4ae0fc0a3720442315e6863786ca579d5d971f8ec10  ./roboRIO/src/ccre/frc/DirectCounter.java

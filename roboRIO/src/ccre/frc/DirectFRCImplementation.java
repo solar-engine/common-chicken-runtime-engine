@@ -582,10 +582,6 @@ public final class DirectFRCImplementation implements FRCImplementation {
         };
     }
 
-    public boolean isRoboRIO() {
-        return true;
-    }
-
     @Override
     public SerialIO makeRS232_Onboard(int baudRate, String deviceName) {
         return new SerialPortDirect(DirectRS232.PORT_ONBOARD, baudRate);

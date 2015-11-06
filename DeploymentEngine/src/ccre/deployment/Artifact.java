@@ -125,9 +125,9 @@ public abstract class Artifact implements AutoCloseable {
 
     /**
      * Coerce this artifact into a Jar, which may be optionally marked for
-     * preservation. Preservation means that the Jar should stay around after
-     * the program has ended. However, it can be removed automatically when the
-     * temporary directory is next cleaned by you or your operating system.
+     * preservation.
+     *
+     * See {@link Jar} for a discussion of what Jar preservation means.
      *
      * If this is already a Jar, we just return the Jar, possibly modified for
      * preservation reasons.

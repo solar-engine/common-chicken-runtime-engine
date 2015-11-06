@@ -67,6 +67,11 @@ public interface FloatInput extends UpdatingInput {
      */
     public static final FloatInput zero = always(0);
 
+    /**
+     * Gets the current value of this float input.
+     *
+     * @return The current value.
+     */
     public float get();
 
     /**
@@ -83,7 +88,9 @@ public interface FloatInput extends UpdatingInput {
      * if it was added once.
      *
      * @param output The float output to notify when the value changes.
-     * @see FloatOutput#set(float)
+     * @return an EventOutput that deregisters the registered EventOutput. DO
+     * NOT FIRE THIS RETURNED EVENT MORE THAN ONCE: UNDEFINED BEHAVIOR MAY
+     * RESULT.
      */
     public default EventOutput send(FloatOutput output) {
         output.safeSet(get());

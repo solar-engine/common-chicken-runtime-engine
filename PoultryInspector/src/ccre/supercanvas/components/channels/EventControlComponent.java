@@ -195,6 +195,11 @@ public class EventControlComponent extends BaseChannelComponent<EventControlComp
         return rconfBase(field, data) == BASE_VALID;
     }
 
+    /**
+     * Provides an input that is fired when this button is pressed.
+     *
+     * @return the EventInput.
+     */
     public EventInput asInput() {
         return stat;
     }

@@ -211,7 +211,6 @@ public class CluckPublisher {
      *
      * @param node The node to subscribe from.
      * @param path The path to subscribe to.
-     * @param minimum The minimum logging level to send over the network.
      * @return the LoggingTarget.
      */
     public static LoggingTarget subscribeLT(final CluckNode node, final String path) {
@@ -347,7 +346,8 @@ public class CluckPublisher {
      * @param path The path to subscribe to.
      * @param subscribeByDefault Should this request the value from the remote
      * by default, as opposed to waiting until this is needed. If this is false,
-     * then readValue() won't work until you run addTarget().
+     * then <code>get()</code> won't work until you run <code>send()</code> or
+     * <code>onUpdate</code>.
      * @return the FloatInput.
      */
     public static FloatInput subscribeFI(final CluckNode node, final String path, final boolean subscribeByDefault) {
@@ -404,6 +404,17 @@ public class CluckPublisher {
         publish(node, name + ".output", stat.asOutput());
     }
 
+    /**
+     * Subscribe to a FloatIO from the network at the specified path.
+     *
+     * @param node The node to subscribe from.
+     * @param path The path to subscribe to.
+     * @param subscribeByDefault Should this request the value from the remote
+     * by default, as opposed to waiting until this is needed. If this is false,
+     * then <code>get()</code> won't work until you run <code>send()</code> or
+     * <code>onUpdate</code>.
+     * @return the FloatIO.
+     */
     public static FloatIO subscribeFIO(CluckNode node, String path, boolean subscribeByDefault) {
         return FloatIO.compose(subscribeFI(node, path, subscribeByDefault), subscribeFO(node, path));
     }
@@ -420,6 +431,17 @@ public class CluckPublisher {
         publish(node, name + ".output", stat.asOutput());
     }
 
+    /**
+     * Subscribe to a BooleanIO from the network at the specified path.
+     *
+     * @param node The node to subscribe from.
+     * @param path The path to subscribe to.
+     * @param subscribeByDefault Should this request the value from the remote
+     * by default, as opposed to waiting until this is needed. If this is false,
+     * then <code>get()</code> won't work until you run <code>send()</code> or
+     * <code>onUpdate</code>.
+     * @return the BooleanIO.
+     */
     public static BooleanIO subscribeBIO(CluckNode node, String path, boolean subscribeByDefault) {
         return BooleanIO.compose(subscribeBI(node, path, subscribeByDefault), subscribeBO(node, path));
     }
@@ -438,6 +460,13 @@ public class CluckPublisher {
         publish(node, name + ".output", stat.asOutput());
     }
 
+    /**
+     * Subscribe to a EventIO from the network at the specified path.
+     *
+     * @param node The node to subscribe from.
+     * @param path The path to subscribe to.
+     * @return the EventIO.
+     */
     public static EventIO subscribeEIO(CluckNode node, String path) {
         return EventIO.compose(subscribeEI(node, path), subscribeEO(node, path));
     }

@@ -28,6 +28,18 @@ import java.util.Collections;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
+/**
+ * A collection of class files and resources inside a Jar file.
+ *
+ * A number of methods that construct or work with Jars have an option for
+ * preservation. Preservation means that the Jar should stay around after the
+ * program has ended. However, it can be removed automatically when the
+ * temporary directory is next cleaned by you or your operating system. If you
+ * don't specify preservation, then a best-effort attempt will be made to delete
+ * the Jar when the JVM exits.
+ *
+ * @author skeggsc
+ */
 public class Jar extends Artifact {
 
     private final JarFile jf;

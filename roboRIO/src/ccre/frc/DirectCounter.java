@@ -23,7 +23,8 @@ import java.nio.IntBuffer;
 
 import edu.wpi.first.wpilibj.hal.CounterJNI;
 
-public class DirectCounter {
+// TODO: document all the Direct* classes.
+class DirectCounter {
 
     public static final byte ANALOG_INPUT = 1;
     public static final byte DIGITAL_INPUT = 0;

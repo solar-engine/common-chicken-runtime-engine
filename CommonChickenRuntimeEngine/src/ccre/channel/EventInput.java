@@ -52,8 +52,10 @@ public interface EventInput extends UpdatingInput {
      * If the same listener is added multiple times, it has the same effect as
      * if it was added once.
      *
-     * @param listener the listener to add.
-     * @see #unsend(EventOutput)
+     * @param output the listener to add.
+     * @return an EventOutput that deregisters the registered EventOutput. DO
+     * NOT FIRE THIS RETURNED EVENT MORE THAN ONCE: UNDEFINED BEHAVIOR MAY
+     * RESULT.
      */
     public default EventOutput send(EventOutput output) {
         if (output == null) {

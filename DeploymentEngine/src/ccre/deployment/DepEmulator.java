@@ -20,7 +20,19 @@ package ccre.deployment;
 
 import ccre.frc.DeviceListMain;
 
+/**
+ * An interface to the Emulator that allows for running an emulator instance on
+ * user code.
+ *
+ * @author skeggsc
+ */
 public class DepEmulator {
+    /**
+     * Emulate the specified user code.
+     *
+     * @param userCode the Artifact for the user code.
+     * @throws Exception if an error occurs while setting up emulation.
+     */
     public static void emulate(Artifact userCode) throws Exception {
         DeviceListMain.startEmulator(userCode.toJar(false).toFile(), DepProject.directoryOrCreate("emulator-logs"));
     }

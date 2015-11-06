@@ -174,6 +174,13 @@ public interface BooleanOutput {
         }
     }
 
+    /**
+     * Provides an EventOutput that, when fired, will set this BooleanOutput to
+     * the current value of <code>value</code>.
+     *
+     * @param value the input to set this BooleanOutput to.
+     * @return the EventOutput that modifies this BooleanOutput.
+     */
     public default EventOutput eventSet(BooleanInput value) {
         if (value == null) {
             throw new NullPointerException();
@@ -181,18 +188,42 @@ public interface BooleanOutput {
         return () -> set(value.get());
     }
 
+    /**
+     * Sets this BooleanOutput to <code>value</code> when <code>when</code> is
+     * produced.
+     *
+     * @param value the value to set this BooleanOutput to.
+     * @param when when to modify this BooleanOutput.
+     */
     public default void setWhen(boolean value, EventInput when) {
         when.send(this.eventSet(value));
     }
 
+    /**
+     * Sets this BooleanOutput to the value of <code>value</code> when
+     * <code>when</code> fires.
+     *
+     * @param value the input to set this BooleanOutput to.
+     * @param when when to modify this BooleanOutput.
+     */
     public default void setWhen(BooleanInput value, EventInput when) {
         when.send(this.eventSet(value));
     }
 
+    /**
+     * Sets this BooleanOutput to true when <code>when</code> fires.
+     *
+     * @param when when to modify this BooleanOutput.
+     */
     public default void setTrueWhen(EventInput when) {
         setWhen(true, when);
     }
 
+    /**
+     * Sets this BooleanOutput to false when <code>when</code> fires.
+     *
+     * @param when when to modify this BooleanOutput.
+     */
     public default void setFalseWhen(EventInput when) {
         setWhen(false, when);
     }
@@ -236,6 +267,17 @@ public interface BooleanOutput {
         };
     }
 
+    /**
+     * Provides a version of this BooleanOutput that only propagates changes if
+     * <code>allow</code> is currently true.
+     *
+     * When <code>allow</code> changes to false, the output is locked, and when
+     * <code>allow</code> changes to true, the output is unlocked and this
+     * BooleanOutput is set to its last received value.
+     *
+     * @param allow when to allow changing of the result.
+     * @return the lockable version of this BooleanInput.
+     */
     public default BooleanOutput filter(BooleanInput allow) {
         BooleanOutput original = this;
         return new BooleanOutput() {
@@ -260,6 +302,17 @@ public interface BooleanOutput {
         };
     }
 
+    /**
+     * Provides a version of this BooleanOutput that only propagates changes if
+     * <code>deny</code> is currently false.
+     *
+     * When <code>deny</code> changes to true, the output is locked, and when
+     * <code>deny</code> changes to false, the output is unlocked and this
+     * BooleanOutput is set to its last received value.
+     *
+     * @param deny when to deny changing of the result.
+     * @return the lockable version of this BooleanInput.
+     */
     public default BooleanOutput filterNot(BooleanInput deny) {
         BooleanOutput original = this;
         return new BooleanOutput() {

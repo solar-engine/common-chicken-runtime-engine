@@ -45,6 +45,14 @@ public interface FloatIO extends FloatInput, FloatOutput {
         return this;
     }
 
+    /**
+     * Compose a FloatInput and a FloatOutput into a single FloatIO, which
+     * dispatches to the two implementations.
+     *
+     * @param input the input to dispatch to.
+     * @param output the output to dispatch to.
+     * @return the composed FloatIO.
+     */
     public static FloatIO compose(FloatInput input, FloatOutput output) {
         return new FloatIO() {
             @Override

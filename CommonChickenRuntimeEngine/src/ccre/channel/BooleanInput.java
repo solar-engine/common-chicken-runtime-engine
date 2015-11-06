@@ -103,7 +103,6 @@ public interface BooleanInput extends UpdatingInput {
      * @return an EventOutput that deregisters the registered EventOutput. DO
      * NOT FIRE THIS RETURNED EVENT MORE THAN ONCE: UNDEFINED BEHAVIOR MAY
      * RESULT.
-     * @see BooleanOutput#set(boolean)
      */
     public default EventOutput send(BooleanOutput output) {
         output.safeSet(get());

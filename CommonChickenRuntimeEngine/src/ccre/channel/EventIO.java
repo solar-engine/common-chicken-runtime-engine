@@ -45,6 +45,14 @@ public interface EventIO extends EventInput, EventOutput {
         return this;
     }
 
+    /**
+     * Compose an EventInput and an EventOutput into a single EventIO, which
+     * dispatches to the two implementations.
+     *
+     * @param input the input to dispatch to.
+     * @param output the output to dispatch to.
+     * @return the composed EventIO.
+     */
     public static EventIO compose(EventInput input, EventOutput output) {
         return new EventIO() {
             @Override

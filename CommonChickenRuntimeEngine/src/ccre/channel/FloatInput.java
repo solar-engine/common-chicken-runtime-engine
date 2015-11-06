@@ -499,7 +499,9 @@ public interface FloatInput extends UpdatingInput {
      * @throws IllegalArgumentException if zeroV is infinite or NaN.
      */
     public default FloatInput normalize(final float zeroV, final FloatInput oneV) {
-        Utils.checkNull(oneV);
+        if (oneV == null) {
+            throw new NullPointerException();
+        }
         if (!Float.isFinite(zeroV)) {
             throw new IllegalArgumentException("Infinite or NaN zero bound to normalize: " + zeroV);
         }
@@ -529,7 +531,9 @@ public interface FloatInput extends UpdatingInput {
      * @throws IllegalArgumentException if oneV is infinite or NaN.
      */
     public default FloatInput normalize(final FloatInput zeroV, final float oneV) {
-        Utils.checkNull(zeroV);
+        if (zeroV == null) {
+            throw new NullPointerException();
+        }
         if (!Float.isFinite(oneV)) {
             throw new IllegalArgumentException("Infinite or NaN one bound to normalize: " + oneV);
         }
@@ -558,7 +562,9 @@ public interface FloatInput extends UpdatingInput {
      * @return the translated and scaled version of this FloatInput.
      */
     public default FloatInput normalize(final FloatInput zeroV, final FloatInput oneV) {
-        Utils.checkNull(zeroV, oneV);
+        if (zeroV == null || oneV == null) {
+            throw new NullPointerException();
+        }
         FloatInput original = this;
         return new DerivedFloatInput(original, zeroV, oneV) {
             protected float apply() {
@@ -581,7 +587,9 @@ public interface FloatInput extends UpdatingInput {
      * @return a ramped version of this FloatInput.
      */
     public default FloatInput withRamping(final float limit, EventInput updateWhen) {
-        Utils.checkNull(updateWhen);
+        if (updateWhen == null) {
+            throw new NullPointerException();
+        }
         FloatCell temp = new FloatCell();
         updateWhen.send(this.createRampingEvent(limit, temp));
         return temp;
@@ -596,7 +604,9 @@ public interface FloatInput extends UpdatingInput {
      * @return an event that continues ramping.
      */
     public default EventOutput createRampingEvent(final float limit, final FloatOutput target) {
-        Utils.checkNull(target);
+        if (target == null) {
+            throw new NullPointerException();
+        }
         if (Float.isNaN(limit)) {
             throw new IllegalArgumentException("Ramping rate cannot be NaN!");
         }

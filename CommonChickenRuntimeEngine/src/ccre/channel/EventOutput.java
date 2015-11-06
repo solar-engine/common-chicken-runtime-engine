@@ -20,7 +20,6 @@ package ccre.channel;
 
 import ccre.log.Logger;
 import ccre.time.Time;
-import ccre.util.Utils;
 
 /**
  * An event output or consumer. This can be fired (or produced or triggered or
@@ -77,7 +76,9 @@ public interface EventOutput {
      * @return the combined version of the EventOutputs.
      */
     public default EventOutput combine(EventOutput other) {
-        Utils.checkNull(other);
+        if (other == null) {
+            throw new NullPointerException();
+        }
         EventOutput original = this;
         return () -> {
             try {

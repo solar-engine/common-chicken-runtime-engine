@@ -112,14 +112,6 @@ public class Utils {
     private Utils() {
     }
 
-    public static void checkNull(Object... objs) {
-        for (Object obj : objs) {
-            if (obj == null) {
-                throw new NullPointerException();
-            }
-        }
-    }
-
     /**
      * Convert the specified Throwable to a String that contains what would have
      * been printed by printThrowable.

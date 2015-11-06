@@ -19,7 +19,6 @@
 package ccre.channel;
 
 import ccre.time.Time;
-import ccre.util.Utils;
 
 /**
  * An event input or source. This produces events when it fires. A user can
@@ -72,7 +71,9 @@ public interface EventInput extends UpdatingInput {
      * @return the combined EventInput.
      */
     public default EventInput or(EventInput other) {
-        Utils.checkNull(other);
+        if (other == null) {
+            throw new NullPointerException();
+        }
         EventInput original = this;
         return new EventInput() {
             @Override
@@ -90,7 +91,9 @@ public interface EventInput extends UpdatingInput {
      * @return the restricted EventInput.
      */
     public default EventInput and(BooleanInput allow) {
-        Utils.checkNull(allow);
+        if (allow == null) {
+            throw new NullPointerException();
+        }
         EventInput original = this;
         return new DerivedEventInput(original) {
             @Override
@@ -108,7 +111,9 @@ public interface EventInput extends UpdatingInput {
      * @return the restricted EventInput.
      */
     public default EventInput andNot(BooleanInput deny) {
-        Utils.checkNull(deny);
+        if (deny == null) {
+            throw new NullPointerException();
+        }
         EventInput original = this;
         return new DerivedEventInput(original) {
             @Override

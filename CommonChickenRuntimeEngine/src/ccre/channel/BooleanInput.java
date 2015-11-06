@@ -18,8 +18,6 @@
  */
 package ccre.channel;
 
-import ccre.util.Utils;
-
 /**
  * A BooleanInput is a way to get the current state of a boolean input, and to
  * subscribe to notifications of changes in the boolean input's value.
@@ -151,7 +149,9 @@ public interface BooleanInput extends UpdatingInput {
      * @return the combined BooleanInput.
      */
     public default BooleanInput and(final BooleanInput b) {
-        Utils.checkNull(b);
+        if (b == null) {
+            throw new NullPointerException();
+        }
         final BooleanInput a = this;
         return new DerivedBooleanInput(a, b) {
             @Override
@@ -169,7 +169,9 @@ public interface BooleanInput extends UpdatingInput {
      * @return the combined BooleanInput.
      */
     public default BooleanInput andNot(final BooleanInput b) {
-        Utils.checkNull(b);
+        if (b == null) {
+            throw new NullPointerException();
+        }
         final BooleanInput a = this;
         return new DerivedBooleanInput(a, b) {
             @Override
@@ -187,7 +189,9 @@ public interface BooleanInput extends UpdatingInput {
      * @return the combined BooleanInput.
      */
     public default BooleanInput xor(final BooleanInput b) {
-        Utils.checkNull(b);
+        if (b == null) {
+            throw new NullPointerException();
+        }
         final BooleanInput a = this;
         return new DerivedBooleanInput(a, b) {
             @Override
@@ -205,7 +209,9 @@ public interface BooleanInput extends UpdatingInput {
      * @return the combined BooleanInput.
      */
     public default BooleanInput or(final BooleanInput b) {
-        Utils.checkNull(b);
+        if (b == null) {
+            throw new NullPointerException();
+        }
         final BooleanInput a = this;
         return new DerivedBooleanInput(a, b) {
             @Override
@@ -223,7 +229,9 @@ public interface BooleanInput extends UpdatingInput {
      * @return the combined BooleanInput.
      */
     public default BooleanInput orNot(final BooleanInput b) {
-        Utils.checkNull(b);
+        if (b == null) {
+            throw new NullPointerException();
+        }
         final BooleanInput a = this;
         return new DerivedBooleanInput(a, b) {
             @Override

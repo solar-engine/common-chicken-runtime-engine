@@ -19,7 +19,6 @@
 package ccre.channel;
 
 import ccre.log.Logger;
-import ccre.util.Utils;
 
 /**
  * A BooleanOutput is an interface for anything that can be turned on or off. It
@@ -106,7 +105,9 @@ public interface BooleanOutput {
      * @return the combined BooleanOutput.
      */
     public default BooleanOutput combine(BooleanOutput other) {
-        Utils.checkNull(other);
+        if (other == null) {
+            throw new NullPointerException();
+        }
         BooleanOutput self = this;
         return value -> {
             try {
@@ -138,7 +139,9 @@ public interface BooleanOutput {
      * @return the update-limited version of this BooleanOutput.
      */
     public default BooleanOutput limitUpdatesTo(EventInput update) {
-        Utils.checkNull(update);
+        if (update == null) {
+            throw new NullPointerException();
+        }
         BooleanOutput original = this;
         return new BooleanOutput() {
             private boolean lastValue, anyValue;

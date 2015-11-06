@@ -20,7 +20,6 @@ package ccre.channel;
 
 import ccre.log.Logger;
 import ccre.time.Time;
-import ccre.util.Utils;
 
 /**
  * A FloatOutput is an interface for anything that can be set to an analog
@@ -110,7 +109,9 @@ public interface FloatOutput {
      * @param when when to set the value.
      */
     public default void setWhen(float value, EventInput when) {
-        Utils.checkNull(when);
+        if (when == null) {
+            throw new NullPointerException();
+        }
         when.send(eventSet(value));
     }
 
@@ -122,7 +123,9 @@ public interface FloatOutput {
      * @param when when to set the value.
      */
     public default void setWhen(FloatInput value, EventInput when) {
-        Utils.checkNull(when, value);
+        if (value == null || when == null) {
+            throw new NullPointerException();
+        }
         when.send(eventSet(value));
     }
 
@@ -190,7 +193,9 @@ public interface FloatOutput {
      * @return a ramped version of this FloatOutput.
      */
     public default FloatOutput addRamping(final float limit, EventInput updateWhen) {
-        Utils.checkNull(updateWhen);
+        if (updateWhen == null) {
+            throw new NullPointerException();
+        }
         FloatCell temp = new FloatCell();
         updateWhen.send(temp.createRampingEvent(limit, this));
         return temp;

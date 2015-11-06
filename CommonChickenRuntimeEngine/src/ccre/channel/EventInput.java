@@ -64,6 +64,13 @@ public interface EventInput extends UpdatingInput {
         return onUpdate(output);
     }
 
+    /**
+     * Provides an EventInput that fires when either this EventInput or
+     * <code>other</code> fires.
+     *
+     * @param other the other EventInput.
+     * @return the combined EventInput.
+     */
     public default EventInput or(EventInput other) {
         Utils.checkNull(other);
         EventInput original = this;
@@ -75,28 +82,53 @@ public interface EventInput extends UpdatingInput {
         };
     }
 
-    public default EventInput and(BooleanInput condition) {
-        Utils.checkNull(condition);
+    /**
+     * Provides an EventInput that fires only when this EventInput fires and the
+     * current value of <code>allow</code> is true.
+     *
+     * @param allow if events should be allowed through.
+     * @return the restricted EventInput.
+     */
+    public default EventInput and(BooleanInput allow) {
+        Utils.checkNull(allow);
         EventInput original = this;
         return new DerivedEventInput(original) {
             @Override
             protected boolean shouldProduce() {
-                return condition.get();
+                return allow.get();
             }
         };
     }
 
-    public default EventInput andNot(BooleanInput condition) {
-        Utils.checkNull(condition);
+    /**
+     * Provides an EventInput that fires only when this EventInput fires and the
+     * current value of <code>deny</code> is false.
+     *
+     * @param deny if events should be allowed through.
+     * @return the restricted EventInput.
+     */
+    public default EventInput andNot(BooleanInput deny) {
+        Utils.checkNull(deny);
         EventInput original = this;
         return new DerivedEventInput(original) {
             @Override
             protected boolean shouldProduce() {
-                return !condition.get();
+                return !deny.get();
             }
         };
     }
 
+    /**
+     * Provides a debounced version of this EventInput, such that any events
+     * that occur within <code>minMillis</code> of the last event will be
+     * dropped.
+     *
+     * Only events that are propagated reset the timer: if an event is ignored,
+     * it does not extend the reactivation deadline.
+     *
+     * @param minMillis the minimum spacing between events.
+     * @return the debounced version of this EventInput.
+     */
     public default EventInput debounced(final long minMillis) {
         if (minMillis <= 0) {
             throw new IllegalArgumentException("debounced() parameter must be positive!");

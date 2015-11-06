@@ -28,7 +28,9 @@ package ccre.frc;
 public interface FRCApplication {
 
     /**
-     * Set up the robot. This is called exactly once by the CCRE runtime.
+     * Sets up the robot. This is called exactly once by the CCRE runtime.
+     *
+     * @throws Throwable if something fails during setup.
      */
     public void setupRobot() throws Throwable;
 }

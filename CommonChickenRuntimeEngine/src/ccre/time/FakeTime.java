@@ -20,7 +20,18 @@ package ccre.time;
 
 import java.util.LinkedList;
 
-// NOTE: this contains complex and likely slightly broken synchronization code. do not use it in production!
+/**
+ * A "fake" implementation of time, in which the current time is controlled by
+ * the {@link #forward(long)} method of this instance.
+ *
+ * WARNING: this contains complex and likely slightly broken synchronization
+ * code. Do not use it in production!
+ *
+ * A time may be specified so that transitioning between fake time and real time
+ * can be made seamless to the users.
+ *
+ * @author skeggsc
+ */
 public class FakeTime extends Time {
 
     private static final boolean debug = false;
@@ -29,6 +40,14 @@ public class FakeTime extends Time {
     private int adds = 0;
     private final LinkedList<Object> otherSleepers = new LinkedList<>();
 
+    /**
+     * Fast-forward time by the specified number of milliseconds, including
+     * waiting to attempt to synchronize threads.
+     *
+     * @param millis how far forward to send time.
+     * @throws InterruptedException if the thread is interrupted while
+     * synchronizing with other threads.
+     */
     public void forward(long millis) throws InterruptedException {
         if (closing) {
             throw new IllegalStateException("The FakeTime is closing! Don't try to control it!");

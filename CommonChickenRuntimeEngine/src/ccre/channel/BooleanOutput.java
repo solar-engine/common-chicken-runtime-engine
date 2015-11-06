@@ -43,8 +43,8 @@ public interface BooleanOutput {
      * Sets the boolean value of this output. In other words, turns it on or
      * off.
      *
-     * If any exception occurs during the propagation of the changes, they will
-     * be thrown by <code>set</code>.
+     * If any exception occurs during the propagation of the changes, it will be
+     * passed on by <code>set</code>.
      *
      * @param value the new value to send to this output.
      * @see #safeSet(boolean) for a version that catches any errors that occur.
@@ -99,8 +99,8 @@ public interface BooleanOutput {
      *
      * If any error occurs during propagation of changes to either
      * BooleanOutput, the other target will still be modified. If both throw
-     * exceptions, then one of them will be added as a suppress exception to the
-     * other.
+     * exceptions, then one of the exceptions will be added as a suppressed
+     * exception to the other.
      *
      * @param other the BooleanOutput to combine this BooleanOutput with.
      * @return the combined BooleanOutput.

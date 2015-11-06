@@ -279,13 +279,36 @@ public abstract class ExtendedMotor {
      */
     public abstract void setInternalPID(float P, float I, float D) throws ExtendedMotorFailureException;
 
+    /**
+     * Opens the controller in a simple output mode:
+     * {@link OutputControlMode#GENERIC_FRACTIONAL}.
+     *
+     * @return the output representing the controller, which can be varied from
+     * -1.0 to +1.0 to control the speed.
+     * @throws ExtendedMotorFailureException if an error occurs while setting up
+     * the motor.
+     * @see #asMode(OutputControlMode) for how this works.
+     */
     public FloatOutput simpleControl() throws ExtendedMotorFailureException {
         return asMode(OutputControlMode.GENERIC_FRACTIONAL);
     }
 
-    public FloatOutput simpleControl(boolean direction) throws ExtendedMotorFailureException {
+    /**
+     * Opens the controller in a simple output mode:
+     * {@link OutputControlMode#GENERIC_FRACTIONAL}, optionally reversed.
+     *
+     * @param reversed if the values sent to this motor should be negated. You
+     * can use {@link FRC#MOTOR_FORWARD} and {@link FRC#MOTOR_REVERSE} for
+     * clarity.
+     * @return the output representing the controller, which can be varied from
+     * -1.0 to +1.0 to control the speed.
+     * @throws ExtendedMotorFailureException if an error occurs while setting up
+     * the motor.
+     * @see #asMode(OutputControlMode) for how this works.
+     */
+    public FloatOutput simpleControl(boolean reversed) throws ExtendedMotorFailureException {
         FloatOutput motor = simpleControl();
-        if (direction != FRC.MOTOR_FORWARD) {
+        if (reversed != FRC.MOTOR_FORWARD) {
             motor = motor.negate();
         }
         return motor;

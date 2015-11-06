@@ -46,6 +46,12 @@ public class Jar extends Artifact {
     private final File f;
     private File preserved;
 
+    /**
+     * Wraps the Jar in the specified file.
+     *
+     * @param f the file to wrap.
+     * @throws IOException
+     */
     public Jar(File f) throws IOException {
         this.jf = new JarFile(f);
         this.f = f;
@@ -95,6 +101,11 @@ public class Jar extends Artifact {
         return this;
     }
 
+    /**
+     * Converts this Jar to a backing file on the filesystem.
+     *
+     * @return a file version of this Jar.
+     */
     public File toFile() {
         return preserved != null ? preserved : f;
     }

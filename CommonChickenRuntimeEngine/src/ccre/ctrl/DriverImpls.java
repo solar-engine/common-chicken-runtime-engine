@@ -43,9 +43,6 @@ import ccre.channel.FloatOutput;
  *
  * Other types to come later.
  *
- * Mixing contains many more generic methods to work with channels.
- *
- * @see Mixing
  * @author skeggsc
  */
 public class DriverImpls {
@@ -116,7 +113,6 @@ public class DriverImpls {
      * @param leftBackMotor the left back motor.
      * @param rightFrontMotor the right front motor.
      * @param rightBackMotor the right back motor.
-     * @return the EventOutput that will update the motors.
      * @see DriverImpls
      */
     public static void mecanumDrive(final FloatInput forward, final FloatInput strafe, final FloatInput rotate, final FloatOutput leftFrontMotor, final FloatOutput leftBackMotor, final FloatOutput rightFrontMotor, final FloatOutput rightBackMotor) {

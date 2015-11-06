@@ -54,7 +54,10 @@ public abstract class InstinctBaseModule {
      * Wait until the specified BooleanInput becomes true before returning, or
      * for a timeout to elapse.
      *
-     * @param waitFor The condition to wait until.
+     * @param timeout the maximum amount of time to wait, in milliseconds.
+     * @param waitFor the condition to wait until.
+     * @return true if the condition became true, or false if the timeout
+     * elapsed.
      * @throws AutonomousModeOverException If the autonomous mode has ended.
      * @throws InterruptedException Possibly also if autonomous mode has ended.
      */
@@ -123,8 +126,9 @@ public abstract class InstinctBaseModule {
      * Wait for one of the specified conditions to become true before returning,
      * or for the timeout to elapse.
      *
+     * @param timeout the maximum amount of time to wait, in milliseconds.
      * @param waitFor The conditions to check.
-     * @return The index of the first condition that became true, or -1 if this
+     * @return the index of the first condition that became true, or -1 if this
      * method timed out.
      * @throws AutonomousModeOverException If the autonomous mode has ended.
      * @throws InterruptedException Possibly also if autonomous mode has ended.

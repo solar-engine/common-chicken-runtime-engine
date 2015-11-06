@@ -156,31 +156,60 @@ public class Utils {
         }
     }
 
-    // http://stackoverflow.com/questions/6030059/url-decoding-unsupportedencodingexception-in-java
-
-    public static byte[] getBytes(String title) {
+    /**
+     * Convert <code>string</code> to UTF-8 bytes.
+     *
+     * This method is useful so that one doesn't have to handle throwing of
+     * {@link UnsupportedEncodingException}, which should never practically
+     * happen.
+     *
+     * @param string the string to convert.
+     * @return the UTF-8 bytes for <code>string</code>.
+     */
+    public static byte[] getBytes(String string) {
         try {
-            return title.getBytes("UTF-8");
+            return string.getBytes("UTF-8");
+        } catch (UnsupportedEncodingException e) {
+            // http://stackoverflow.com/questions/6030059/url-decoding-unsupportedencodingexception-in-java
+            throw new AssertionError("UTF-8 is unknown", e);
+        }
+    }
+
+    /**
+     * Convert UTF-8 bytes to a String.
+     *
+     * This method is useful so that one doesn't have to handle throwing of
+     * {@link UnsupportedEncodingException}, which should never practically
+     * happen.
+     *
+     * @param data the UTF-8 bytes to convert.
+     * @param offset the location in <code>bytes</code> to start at.
+     * @param count the number of bytes to process.
+     * @return the UTF-8 bytes for <code>string</code>.
+     */
+    public static String fromBytes(byte[] data, int offset, int count) {
+        try {
+            return new String(data, offset, count, "UTF-8");
         } catch (UnsupportedEncodingException e) {
             throw new AssertionError("UTF-8 is unknown", e);
         }
     }
 
-    public static String fromBytes(byte[] data, int start, int end) {
-        try {
-            return new String(data, start, end, "UTF-8");
-        } catch (UnsupportedEncodingException e) {
-            throw new AssertionError("UTF-8 is unknown", e);
-        }
-    }
-
-    public static InputStream stripCarriageReturns(InputStream resin) {
+    /**
+     * Convert an InputStream that may include carriage returns into an
+     * InputStream that does not. This is often useful for converting from
+     * windows-style line endings to unix-style line endings.
+     *
+     * @param in the InputStream to process
+     * @return the processed InputStream.
+     */
+    public static InputStream stripCarriageReturns(InputStream in) {
         return new InputStream() {
             @Override
             public int read() throws IOException {
-                int b = resin.read();
+                int b = in.read();
                 while (b == '\r') {
-                    b = resin.read();
+                    b = in.read();
                 }
                 return b;
             }
@@ -188,7 +217,7 @@ public class Utils {
             @Override
             public int read(byte[] b, int off, int len) throws IOException {
                 byte[] temp = new byte[len];
-                int length = resin.read(temp);
+                int length = in.read(temp);
                 if (length == -1) {
                     return -1;
                 }
@@ -203,7 +232,7 @@ public class Utils {
 
             @Override
             public void close() throws IOException {
-                resin.close();
+                in.close();
             }
 
             @Override

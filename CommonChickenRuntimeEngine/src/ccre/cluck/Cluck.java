@@ -165,7 +165,6 @@ public final class Cluck {
      * only sending data for at least a minimum logging level.
      *
      * @param path The path to subscribe to.
-     * @param minimum The minimum logging level to send over the network.
      * @return the LoggingTarget.
      */
     public static LoggingTarget subscribeLT(final String path) {

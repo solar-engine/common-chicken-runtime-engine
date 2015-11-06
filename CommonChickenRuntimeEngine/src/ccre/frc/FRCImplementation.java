@@ -111,6 +111,7 @@ public interface FRCImplementation {
      * default number of average bits.
      *
      * @param id the port number.
+     * @param updateOn when the analog input should be polled.
      * @return the analog input, reporting in voltage.
      */
     public FloatInput makeAnalogInput(int id, EventInput updateOn);
@@ -121,6 +122,7 @@ public interface FRCImplementation {
      *
      * @param id the port number.
      * @param averageBits the number of averaging bits.
+     * @param updateOn when the analog input should be polled.
      * @return the analog input, reporting in voltage.
      */
     public FloatInput makeAnalogInput(int id, int averageBits, EventInput updateOn);
@@ -129,6 +131,7 @@ public interface FRCImplementation {
      * Create a reference to a digital input on the specified port.
      *
      * @param id the port number.
+     * @param updateOn when the digital input should be polled.
      * @return the digital input.
      */
     public BooleanInput makeDigitalInput(int id, EventInput updateOn);
@@ -197,6 +200,7 @@ public interface FRCImplementation {
      * @param reverse Should the result of the encoder be negated?
      * @param resetWhen If provided, the Encoder's value will be reset when this
      * event is produced.
+     * @param updateOn when the encoder should be polled.
      * @return a FloatInput that represents the current encoder value
      */
     public FloatInput makeEncoder(int aChannel, int bChannel, boolean reverse, EventInput resetWhen, EventInput updateOn);
@@ -209,11 +213,12 @@ public interface FRCImplementation {
      * @param downChannel The DIO channel that will count down
      * @param resetWhen If provided, the Counter's value will be reset when this
      * event is produced.
-     * @param updateOn Updates the FloatInput when this event is produced.
+     * @param updateOn when the counter should be polled.
+     * @param mode the pulse counting mode for the counter.
      * @return a FloatInput that represents the current counter value
      */
     public FloatInput makeCounter(int upChannel, int downChannel, EventInput resetWhen, EventInput updateOn, int mode);
-    
+
     /**
      * Create a reference to the Forward side of the relay on the specified
      * channel - this side can be turned on and off.
@@ -246,6 +251,7 @@ public interface FRCImplementation {
      * to allow the code to work with multiple gyros. 0.007 is a good default
      * value.
      * @param resetWhen When to reset the Gyro.
+     * @param updateOn when the gyro should be polled.
      * @return The reference to the Gyro's current value.
      */
     public FloatInput makeGyro(int port, double sensitivity, EventInput resetWhen, EventInput updateOn);
@@ -254,6 +260,7 @@ public interface FRCImplementation {
      * Get a reference to the analog input that reads the current battery
      * voltage, scaled to represent the real battery voltage.
      *
+     * @param updateOn when the battery should be polled.
      * @return The current battery voltage.
      */
     public FloatInput getBatteryVoltage(EventInput updateOn);
@@ -311,27 +318,32 @@ public interface FRCImplementation {
     public BooleanOutput usePCMCompressor();
 
     /**
+     * @param updateOn when the PCM should be polled.
      * @return the status of the PCM pressure switch.
      */
     public BooleanInput getPCMPressureSwitch(EventInput updateOn);
 
     /**
+     * @param updateOn when the PCM should be polled.
      * @return the status of the PCM compressor enable.
      */
     public BooleanInput getPCMCompressorRunning(EventInput updateOn);
 
     /**
+     * @param updateOn when the PCM should be polled.
      * @return the current draw of the PCM compressor.
      */
     public FloatInput getPCMCompressorCurrent(EventInput updateOn);
 
     /**
      * @param channel the channel to monitor.
+     * @param updateOn when the PCM should be polled.
      * @return the current draw of the specified PDP channel.
      */
     public FloatInput getPDPChannelCurrent(int channel, EventInput updateOn);
 
     /**
+     * @param updateOn when the PDP should be polled.
      * @return the voltage measured at the PDP.
      */
     public FloatInput getPDPVoltage(EventInput updateOn);
@@ -362,18 +374,21 @@ public interface FRCImplementation {
 
     /**
      * @param powerChannel the power channel to monitor.
+     * @param updateOn when the channel should be polled.
      * @return the active voltage of the channel.
      */
     public FloatInput getChannelVoltage(int powerChannel, EventInput updateOn);
 
     /**
      * @param powerChannel the power channel to monitor.
+     * @param updateOn when the channel should be polled.
      * @return the active current of the channel.
      */
     public FloatInput getChannelCurrent(int powerChannel, EventInput updateOn);
 
     /**
      * @param powerChannel the power channel to monitor.
+     * @param updateOn when the channel should be polled.
      * @return whether or not the channel is enabled.
      */
     public BooleanInput getChannelEnabled(int powerChannel, EventInput updateOn);

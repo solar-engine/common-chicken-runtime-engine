@@ -4,6 +4,7 @@ import java.nio.IntBuffer;
 import java.nio.ByteBuffer;
 import java.nio.LongBuffer;
 
+@SuppressWarnings("javadoc")
 public class AnalogJNI extends JNIWrapper {
     /**
      * <i>native declaration :

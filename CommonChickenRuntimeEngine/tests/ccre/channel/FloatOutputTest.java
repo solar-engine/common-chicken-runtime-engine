@@ -35,6 +35,7 @@ import ccre.time.Time;
 import ccre.util.Utils;
 import ccre.util.Values;
 
+@SuppressWarnings("javadoc")
 public class FloatOutputTest {
 
     private final FloatOutput evil = (v) -> {

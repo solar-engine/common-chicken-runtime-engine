@@ -24,6 +24,7 @@ import org.junit.Test;
 
 import ccre.testing.CountingEventOutput;
 
+@SuppressWarnings("javadoc")
 public class DerivedUpdateTest {
 
     @Test

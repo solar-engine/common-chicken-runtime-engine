@@ -39,6 +39,7 @@ import ccre.log.Logger;
 import ccre.time.FakeTime;
 import ccre.time.Time;
 
+@SuppressWarnings("javadoc")
 @RunWith(Parameterized.class)
 public class TickerTest {
 

@@ -34,6 +34,7 @@ import ccre.channel.EventCell;
 import ccre.channel.FloatCell;
 import ccre.testing.CountingEventOutput;
 
+@SuppressWarnings("javadoc")
 public class StateMachineTest {
 
     private StateMachine machine;

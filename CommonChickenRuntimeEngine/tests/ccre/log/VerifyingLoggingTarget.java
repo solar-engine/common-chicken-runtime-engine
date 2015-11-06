@@ -20,6 +20,7 @@ package ccre.log;
 
 import static org.junit.Assert.*;
 
+@SuppressWarnings("javadoc")
 public class VerifyingLoggingTarget implements LoggingTarget {
 
     public boolean ifExpected;

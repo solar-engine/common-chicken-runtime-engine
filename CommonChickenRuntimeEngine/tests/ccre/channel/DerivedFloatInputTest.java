@@ -28,6 +28,7 @@ import ccre.testing.CountingFloatOutput;
 import ccre.testing.CountingEventOutput;
 import ccre.util.Values;
 
+@SuppressWarnings("javadoc")
 public class DerivedFloatInputTest {
 
     private EventCell es;

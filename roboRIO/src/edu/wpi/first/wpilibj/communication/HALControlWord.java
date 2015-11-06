@@ -3,6 +3,7 @@ package edu.wpi.first.wpilibj.communication;
 /**
  * A wrapper for the HALControlWord bitfield
  */
+@SuppressWarnings("javadoc")
 public class HALControlWord {
     private boolean m_enabled;
     private boolean m_autonomous;

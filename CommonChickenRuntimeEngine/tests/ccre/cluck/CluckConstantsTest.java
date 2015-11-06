@@ -22,6 +22,7 @@ import static org.junit.Assert.*;
 
 import org.junit.Test;
 
+@SuppressWarnings("javadoc")
 public class CluckConstantsTest {
 
     // There's not much to test in this class, so we just check for off-by-one

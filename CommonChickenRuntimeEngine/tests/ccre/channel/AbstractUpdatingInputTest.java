@@ -28,6 +28,7 @@ import org.junit.Test;
 
 import ccre.testing.CountingEventOutput;
 
+@SuppressWarnings("javadoc")
 public class AbstractUpdatingInputTest {
 
     private final EventOutput evil = new EventOutput() {

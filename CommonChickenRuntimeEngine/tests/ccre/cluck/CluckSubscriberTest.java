@@ -29,6 +29,7 @@ import org.junit.Test;
 import ccre.testing.CountingEventOutput;
 import ccre.util.Values;
 
+@SuppressWarnings("javadoc")
 public class CluckSubscriberTest {
 
     private CluckNode node;

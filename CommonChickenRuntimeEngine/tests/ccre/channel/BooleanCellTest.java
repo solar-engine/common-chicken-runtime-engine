@@ -29,6 +29,7 @@ import org.junit.Test;
 import ccre.testing.CountingBooleanOutput;
 import ccre.testing.CountingEventOutput;
 
+@SuppressWarnings("javadoc")
 public class BooleanCellTest {
 
     private BooleanCell cell;

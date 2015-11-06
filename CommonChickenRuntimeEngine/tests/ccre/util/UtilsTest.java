@@ -24,6 +24,7 @@ import java.util.Random;
 
 import org.junit.Test;
 
+@SuppressWarnings("javadoc")
 public class UtilsTest {
 
     private void checkBytesToFloatFor(float f) {

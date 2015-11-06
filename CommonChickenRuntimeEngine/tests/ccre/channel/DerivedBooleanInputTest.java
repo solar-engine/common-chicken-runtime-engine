@@ -28,6 +28,8 @@ import ccre.testing.CountingBooleanOutput;
 import ccre.testing.CountingEventOutput;
 import ccre.util.Values;
 
+
+@SuppressWarnings("javadoc")
 public class DerivedBooleanInputTest {
 
     private EventCell es;

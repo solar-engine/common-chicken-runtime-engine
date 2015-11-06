@@ -34,6 +34,7 @@ import ccre.testing.CountingEventOutput;
 import ccre.time.FakeTime;
 import ccre.time.Time;
 
+@SuppressWarnings("javadoc")
 public class PIDControllerTest {
 
     private FloatCell input, setpoint, P, I, D;

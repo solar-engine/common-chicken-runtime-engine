@@ -27,6 +27,7 @@ import org.junit.Test;
 import ccre.testing.CountingFloatOutput;
 import ccre.util.Values;
 
+@SuppressWarnings("javadoc")
 public class FloatOperationTest {
 
     private FloatCell sa, sb;

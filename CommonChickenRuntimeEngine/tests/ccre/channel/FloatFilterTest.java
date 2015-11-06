@@ -28,6 +28,7 @@ import ccre.testing.CountingFloatOutput;
 import ccre.util.Utils;
 import ccre.util.Values;
 
+@SuppressWarnings("javadoc")
 public class FloatFilterTest {
 
     private FloatFilter ff;

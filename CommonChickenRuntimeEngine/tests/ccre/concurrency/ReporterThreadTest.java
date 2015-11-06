@@ -27,6 +27,7 @@ import org.junit.Test;
 
 import ccre.time.Time;
 
+@SuppressWarnings("javadoc")
 public class ReporterThreadTest {
 
     private boolean executed;

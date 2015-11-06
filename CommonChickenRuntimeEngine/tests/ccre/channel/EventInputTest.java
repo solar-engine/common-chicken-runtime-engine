@@ -31,6 +31,7 @@ import ccre.time.FakeTime;
 import ccre.time.Time;
 import ccre.util.Values;
 
+@SuppressWarnings("javadoc")
 public class EventInputTest {
 
     private EventInput ei;

@@ -39,6 +39,7 @@ import ccre.channel.EventOutput;
 import ccre.testing.CountingEventOutput;
 import ccre.util.Values;
 
+@SuppressWarnings("javadoc")
 public class CluckNodeTest {
 
     private CluckNode node;

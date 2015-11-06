@@ -33,6 +33,7 @@ import ccre.testing.CountingEventOutput;
 import ccre.time.FakeTime;
 import ccre.time.Time;
 
+@SuppressWarnings("javadoc")
 public class PauseTimerTest {
 
     private static Time oldProvider;

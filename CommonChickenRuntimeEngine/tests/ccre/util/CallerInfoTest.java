@@ -22,6 +22,7 @@ import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 
+@SuppressWarnings("javadoc")
 public class CallerInfoTest {
 
     @Test

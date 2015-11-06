@@ -24,6 +24,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+@SuppressWarnings("javadoc")
 public class BooleanIOTest {
 
     private BooleanIO io;

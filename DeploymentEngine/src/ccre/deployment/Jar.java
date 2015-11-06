@@ -42,33 +42,33 @@ import java.util.jar.JarFile;
  */
 public class Jar extends Artifact {
 
-    private final JarFile jf;
-    private final File f;
+    private final JarFile jarfile;
+    private final File jar;
     private File preserved;
 
     /**
      * Wraps the Jar in the specified file.
      *
-     * @param f the file to wrap.
+     * @param jar the file to wrap.
      * @throws IOException
      */
-    public Jar(File f) throws IOException {
-        this.jf = new JarFile(f);
-        this.f = f;
+    public Jar(File jar) throws IOException {
+        this.jarfile = new JarFile(jar);
+        this.jar = jar;
     }
 
-    Jar(File f, boolean preserved) throws IOException {
-        this.jf = new JarFile(f);
-        this.f = f;
+    Jar(File jar, boolean preserved) throws IOException {
+        this.jarfile = new JarFile(jar);
+        this.jar = jar;
         if (preserved) {
-            this.preserved = f;
+            this.preserved = jar;
         }
     }
 
     @Override
-    public String[] listClassesAndResources() {
+    protected String[] listClassesAndResources() {
         ArrayList<String> out = new ArrayList<>();
-        for (JarEntry entry : Collections.list(jf.entries())) {
+        for (JarEntry entry : Collections.list(jarfile.entries())) {
             if (!entry.isDirectory()) {
                 out.add(entry.getName());
             }
@@ -78,16 +78,16 @@ public class Jar extends Artifact {
 
     @Override
     public InputStream loadResource(String name) throws IOException {
-        JarEntry ent = jf.getJarEntry(name.startsWith("/") ? name.substring(1) : name);
+        JarEntry ent = jarfile.getJarEntry(name.startsWith("/") ? name.substring(1) : name);
         if (ent == null) {
             throw new NoSuchFileException("Cannot find JAR entry: " + name);
         }
-        return jf.getInputStream(ent);
+        return jarfile.getInputStream(ent);
     }
 
     @Override
     public void close() throws Exception {
-        jf.close();
+        jarfile.close();
     }
 
     @Override
@@ -95,7 +95,7 @@ public class Jar extends Artifact {
         if (preserve && preserved == null) {
             File out = File.createTempFile("jar-", ".jar");
             out.delete(); // TODO: do this better
-            Files.copy(f.toPath(), out.toPath());
+            Files.copy(jar.toPath(), out.toPath());
             this.preserved = out;
         }
         return this;
@@ -107,6 +107,6 @@ public class Jar extends Artifact {
      * @return a file version of this Jar.
      */
     public File toFile() {
-        return preserved != null ? preserved : f;
+        return preserved != null ? preserved : jar;
     }
 }

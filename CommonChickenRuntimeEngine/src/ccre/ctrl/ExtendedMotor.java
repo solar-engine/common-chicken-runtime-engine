@@ -290,7 +290,11 @@ public abstract class ExtendedMotor {
      * @see #asMode(OutputControlMode) for how this works.
      */
     public FloatOutput simpleControl() throws ExtendedMotorFailureException {
-        return asMode(OutputControlMode.GENERIC_FRACTIONAL);
+        FloatOutput output = asMode(OutputControlMode.GENERIC_FRACTIONAL);
+        if (output == null) {
+            throw new ExtendedMotorFailureException("GENERIC_FRACTIONAL mode not supported!");
+        }
+        return output;
     }
 
     /**

@@ -56,7 +56,7 @@ public class Folder extends Artifact {
     }
 
     @Override
-    public String[] listClassesAndResources() {
+    protected String[] listClassesAndResources() {
         if (!folder.exists() || !folder.isDirectory()) {
             throw new RuntimeException("Folder is no longer valid!");
         }

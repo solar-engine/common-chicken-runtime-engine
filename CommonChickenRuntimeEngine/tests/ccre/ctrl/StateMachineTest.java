@@ -684,8 +684,8 @@ public class StateMachineTest {
         BooleanCell hasNotUnexplodedEver = new BooleanCell(true);
         FloatCell timeDilationConstant = new FloatCell(1.0f);
 
-        door.onEnterState("EXPLODED", hasExplodedEver.eventSetTrue());
-        door.onExitState("EXPLODED", hasNotUnexplodedEver.eventSetFalse());
+        door.onEnterState("EXPLODED", hasExplodedEver.eventSet(true));
+        door.onExitState("EXPLODED", hasNotUnexplodedEver.eventSet(false));
         door.onEnterState("EXPLODED", timeDilationConstant.eventSet(0.1f));
         door.onExitState("EXPLODED", timeDilationConstant.eventSet(1.0f));
 
@@ -728,8 +728,8 @@ public class StateMachineTest {
         gotThrough.setTrueWhen(pushThrough.andNot(isLocked));
         turnstile.transitionStateWhen("LOCKED", "UNLOCKED", insertCoin);
         turnstile.transitionStateWhen("UNLOCKED", "LOCKED", pushThrough);
-        turnstile.onEnterState("UNLOCKED", isLocked.eventSetFalse());
-        turnstile.onExitState("UNLOCKED", isLocked.eventSetTrue());
+        turnstile.onEnterState("UNLOCKED", isLocked.eventSet(false));
+        turnstile.onExitState("UNLOCKED", isLocked.eventSet(true));
 
         final int[] totalEntriesExits = new int[4];
         turnstile.onEnterState("LOCKED").send(new EventOutput() {
@@ -843,10 +843,10 @@ public class StateMachineTest {
         });
 
         gandalf.getIsState("DEAD").send(died);
-        gandalf.onEnterState("MIA", missing.eventSetTrue());
-        gandalf.onExitState("MIA", missing.eventSetFalse());
-        gandalf.onEnterState("ALIVE", alive.eventSetTrue());
-        gandalf.onExitState("ALIVE", alive.eventSetFalse());
+        gandalf.onEnterState("MIA", missing.eventSet(true));
+        gandalf.onExitState("MIA", missing.eventSet(false));
+        gandalf.onEnterState("ALIVE", alive.eventSet(true));
+        gandalf.onExitState("ALIVE", alive.eventSet(false));
 
         assertEquals(gandalf.getStateName(0), "ALIVE");
         assertEquals(gandalf.getStateName(1), "MIA");

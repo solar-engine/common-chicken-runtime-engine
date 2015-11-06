@@ -167,7 +167,11 @@ public interface BooleanOutput {
      * @return the EventOutput that modifies this BooleanOutput.
      */
     public default EventOutput eventSet(boolean value) {
-        return value ? eventSetTrue() : eventSetFalse();
+        if (value) {
+            return () -> set(true);
+        } else {
+            return () -> set(false);
+        }
     }
 
     public default EventOutput eventSet(BooleanInput value) {
@@ -175,14 +179,6 @@ public interface BooleanOutput {
             throw new NullPointerException();
         }
         return () -> set(value.get());
-    }
-
-    public default EventOutput eventSetTrue() {
-        return () -> set(true);
-    }
-
-    public default EventOutput eventSetFalse() {
-        return () -> set(false);
     }
 
     public default void setWhen(boolean value, EventInput when) {

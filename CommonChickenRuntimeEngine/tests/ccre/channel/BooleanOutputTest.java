@@ -124,7 +124,7 @@ public class BooleanOutputTest {
     }
 
     @Test
-    public void testGetSetEventBoolean() {
+    public void testEventSetBoolean() {
         trySet(cbo.eventSet(false), false);
         trySet(cbo.eventSet(true), true);
     }
@@ -139,7 +139,7 @@ public class BooleanOutputTest {
     }
 
     @Test
-    public void testGetSetEventBooleanInput() {
+    public void testEventSetBooleanInput() {
         BooleanCell bs = new BooleanCell();
         EventOutput evt = cbo.eventSet(bs);
         for (int i = 0; i < 10; i++) {
@@ -151,18 +151,8 @@ public class BooleanOutputTest {
     }
 
     @Test(expected = NullPointerException.class)
-    public void testGetSetEventBooleanInputNull() {
+    public void testEventSetBooleanInputNull() {
         cbo.eventSet(null);
-    }
-
-    @Test
-    public void testGetSetTrueEvent() {
-        trySet(cbo.eventSetTrue(), true);
-    }
-
-    @Test
-    public void testGetSetFalseEvent() {
-        trySet(cbo.eventSetFalse(), false);
     }
 
     @Test

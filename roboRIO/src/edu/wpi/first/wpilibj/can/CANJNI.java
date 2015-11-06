@@ -23,6 +23,7 @@ import java.nio.IntBuffer;
  * <a href="http://rococoa.dev.java.net/">Rococoa</a>, or
  * <a href="http://jna.dev.java.net/">JNA</a>.
  */
+@SuppressWarnings("javadoc")
 public class CANJNI extends JNIWrapper {
     /** <i>native declaration : src\main\include\CAN\can_proto.h</i> */
     public static final int LM_STATUS_LIMIT_REV = 0x02;

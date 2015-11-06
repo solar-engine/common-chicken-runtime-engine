@@ -3,6 +3,7 @@ package edu.wpi.first.wpilibj.hal;
 import java.nio.IntBuffer;
 import java.nio.ByteBuffer;
 
+@SuppressWarnings("javadoc")
 public class DIOJNI extends JNIWrapper {
     public static native ByteBuffer initializeDigitalPort(ByteBuffer port_pointer, IntBuffer status);
 

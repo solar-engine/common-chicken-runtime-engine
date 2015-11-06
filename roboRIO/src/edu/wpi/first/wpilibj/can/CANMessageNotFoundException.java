@@ -12,6 +12,7 @@ package edu.wpi.first.wpilibj.can;
  * Communications. This usually just means we already have the most recent value
  * cached locally.
  */
+@SuppressWarnings({ "javadoc", "serial" })
 public class CANMessageNotFoundException extends RuntimeException {
     public CANMessageNotFoundException() {
         super();

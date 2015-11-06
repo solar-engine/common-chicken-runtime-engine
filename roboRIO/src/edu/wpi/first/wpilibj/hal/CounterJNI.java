@@ -3,6 +3,7 @@ package edu.wpi.first.wpilibj.hal;
 import java.nio.IntBuffer;
 import java.nio.ByteBuffer;
 
+@SuppressWarnings("javadoc")
 public class CounterJNI extends JNIWrapper {
     public static native ByteBuffer initializeCounter(int mode, IntBuffer index, IntBuffer status);
 

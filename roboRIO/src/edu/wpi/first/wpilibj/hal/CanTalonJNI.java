@@ -8,6 +8,7 @@
 
 package edu.wpi.first.wpilibj.hal;
 
+@SuppressWarnings("javadoc")
 public class CanTalonJNI {
     public final static native long new_doublep();
 

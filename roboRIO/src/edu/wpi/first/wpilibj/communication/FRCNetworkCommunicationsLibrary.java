@@ -8,6 +8,7 @@ import java.nio.IntBuffer;
 
 import edu.wpi.first.wpilibj.hal.JNIWrapper;
 
+@SuppressWarnings("javadoc")
 public class FRCNetworkCommunicationsLibrary extends JNIWrapper {
 
     public static interface tTargetClass {

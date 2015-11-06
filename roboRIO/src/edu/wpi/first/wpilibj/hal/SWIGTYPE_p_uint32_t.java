@@ -8,6 +8,7 @@
 
 package edu.wpi.first.wpilibj.hal;
 
+@SuppressWarnings("javadoc")
 public class SWIGTYPE_p_uint32_t {
     private long swigCPtr;
 

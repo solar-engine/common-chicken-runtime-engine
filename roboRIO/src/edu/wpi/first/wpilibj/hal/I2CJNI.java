@@ -3,6 +3,7 @@ package edu.wpi.first.wpilibj.hal;
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
 
+@SuppressWarnings("javadoc")
 public class I2CJNI extends JNIWrapper {
     public static native void i2CInitialize(byte port, IntBuffer status);
 

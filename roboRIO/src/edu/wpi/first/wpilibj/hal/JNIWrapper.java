@@ -12,6 +12,7 @@ import java.nio.ByteBuffer;
 /**
  * base class for all JNI wrappers
  */
+@SuppressWarnings("javadoc")
 public class JNIWrapper {
     static File jniLibrary = null;
 

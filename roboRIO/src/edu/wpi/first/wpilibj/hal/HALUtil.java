@@ -3,6 +3,7 @@ package edu.wpi.first.wpilibj.hal;
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
 
+@SuppressWarnings("javadoc")
 public class HALUtil extends JNIWrapper {
     public static final int NULL_PARAMETER = -1005;
     public static final int SAMPLE_RATE_TOO_HIGH = 1001;

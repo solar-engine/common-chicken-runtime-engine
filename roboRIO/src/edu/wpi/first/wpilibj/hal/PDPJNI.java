@@ -2,6 +2,7 @@ package edu.wpi.first.wpilibj.hal;
 
 import java.nio.IntBuffer;
 
+@SuppressWarnings("javadoc")
 public class PDPJNI extends JNIWrapper {
     public static native double getPDPTemperature(IntBuffer status);
 

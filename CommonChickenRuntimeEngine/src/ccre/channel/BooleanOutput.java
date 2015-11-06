@@ -40,12 +40,28 @@ public interface BooleanOutput {
     };
 
     /**
-     * Set the boolean value of this output. In other words, turn it on or off.
+     * Sets the boolean value of this output. In other words, turns it on or
+     * off.
      *
-     * @param value The new value to send to this output.
+     * If any exception occurs during the propagation of the changes, they will
+     * be thrown by <code>set</code>.
+     *
+     * @param value the new value to send to this output.
+     * @see #safeSet(boolean) for a version that catches any errors that occur.
      */
     public void set(boolean value);
 
+    /**
+     * Sets the boolean value of this output. In other words, turns it on or
+     * off.
+     *
+     * If any exception occurs during the propagation of the changes,
+     * <code>safeSet</code> will catch and log it as a
+     * {@link ccre.log.LogLevel#SEVERE} error.
+     *
+     * @param value the new value to send to this output.
+     * @see #set(boolean) for a version that throws any errors that occur.
+     */
     public default void safeSet(boolean value) {
         try {
             set(value);
@@ -54,6 +70,12 @@ public interface BooleanOutput {
         }
     }
 
+    /**
+     * Provides a version of this BooleanOutput that is inverted: when it is set
+     * to true, this output will be set to false, and vice versa.
+     *
+     * @return the inverted version of this BooleanOutput.
+     */
     public default BooleanOutput invert() {
         BooleanOutput original = this;
         return new BooleanOutput() {
@@ -69,6 +91,20 @@ public interface BooleanOutput {
         };
     }
 
+    /**
+     * Provides a BooleanOutput that controls both this BooleanOutput and
+     * <code>other</code>. When the new BooleanOutput is set to true, both this
+     * BooleanOutput and <code>other</code> will be set to true, and the same
+     * for false.
+     *
+     * If any error occurs during propagation of changes to either
+     * BooleanOutput, the other target will still be modified. If both throw
+     * exceptions, then one of them will be added as a suppress exception to the
+     * other.
+     *
+     * @param other the BooleanOutput to combine this BooleanOutput with.
+     * @return the combined BooleanOutput.
+     */
     public default BooleanOutput combine(BooleanOutput other) {
         Utils.checkNull(other);
         BooleanOutput self = this;
@@ -87,6 +123,20 @@ public interface BooleanOutput {
         };
     }
 
+    /**
+     * Provides a version of this BooleanOutput that only propagates to this
+     * BooleanOutput when <code>update</code> is fired.
+     *
+     * When <code>update</code> is fired, and the provided BooleanOutput has had
+     * a value set, the most recent value set on that BooleanOutput will be sent
+     * to this BooleanOutput.
+     *
+     * The value of this BooleanOutput will not change when the provided
+     * BooleanOutput changes.
+     *
+     * @param update when to pass values through.
+     * @return the update-limited version of this BooleanOutput.
+     */
     public default BooleanOutput limitUpdatesTo(EventInput update) {
         Utils.checkNull(update);
         BooleanOutput original = this;
@@ -109,6 +159,13 @@ public interface BooleanOutput {
         };
     }
 
+    /**
+     * Provides an EventOutput that, when fired, will set this BooleanOutput to
+     * <code>value</code>.
+     *
+     * @param value the value to set this BooleanOutput to.
+     * @return the EventOutput that modifies this BooleanOutput.
+     */
     public default EventOutput eventSet(boolean value) {
         return value ? eventSetTrue() : eventSetFalse();
     }

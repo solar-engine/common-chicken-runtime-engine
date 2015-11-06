@@ -20,12 +20,31 @@ package ccre.time;
 
 import ccre.channel.EventOutput;
 
+/**
+ * A "normal" implementation of time, which is tied to changes in
+ * {@link System#currentTimeMillis()} and {@link System#nanoTime()}.
+ *
+ * A time may be specified so that transitioning back to real time can be made
+ * seamless to the users.
+ *
+ * @author skeggsc
+ */
 public final class NormalTime extends Time {
 
     private final long baseCurrentMillis;
     private final long baseTimeNanos;
     private final Scheduler scheduler = new Scheduler(this);
 
+    /**
+     * Sets up a new NormalTime time provider, with the number of milliseconds
+     * that {@link #nowMillis()} should return at this exact moment. A similar
+     * effect is established for {@link #nowNanos()}, which would be
+     * <code>startTime * 1000000</code> at this exact time. Note, however, that
+     * the two are not guaranteed to be synchronized.
+     *
+     * @param startTime the number of milliseconds that the current time should
+     * appear to be.
+     */
     public NormalTime(int startTime) {
         // startTime is usually zero, which means that nowMillis() would return
         // zero at first.

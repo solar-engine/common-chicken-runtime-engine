@@ -67,6 +67,11 @@ public class BooleanControlDevice extends Device {
         return pressEvent;
     }
 
+    /**
+     * Access the BooleanInput side of this BooleanControlDevice.
+     *
+     * @return a boolean input representing the current state of this device.
+     */
     public BooleanInput asInput() {
         return actuated.asInput();
     }

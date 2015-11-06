@@ -53,10 +53,21 @@ public class CountingFloatOutput implements FloatOutput {
 
     private final boolean allowExtras;
 
+    /**
+     * Creates a new CountingFloatOutput that doesn't allow values to be sent
+     * multiple times.
+     */
     public CountingFloatOutput() {
         this(false);
     }
 
+    /**
+     * Creates a new CountingFloatOutput that might or might not allow values to
+     * be sent multiple times.
+     *
+     * @param allowExtras if multiple set events in a row should be tolerated,
+     * rather than throw an exception.
+     */
     public CountingFloatOutput(boolean allowExtras) {
         this.allowExtras = allowExtras;
     }

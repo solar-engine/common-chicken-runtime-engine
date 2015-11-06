@@ -98,7 +98,7 @@ public abstract class Artifact implements AutoCloseable {
      *
      * @return the array of filenames.
      */
-    public abstract String[] listClassesAndResources();
+    protected abstract String[] listClassesAndResources();
 
     /**
      * Open an InputStream that reads the named class, which can be either in

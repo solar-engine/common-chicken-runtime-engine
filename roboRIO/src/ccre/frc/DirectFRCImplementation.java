@@ -390,7 +390,8 @@ public final class DirectFRCImplementation implements FRCImplementation {
 
     @Override
     public FloatInput makeCounter(int channelUp, int channelDown, EventInput resetWhen, EventInput updateOn, int mode) {
-        // unused happens to be -1, but this makes more sense than comparing with -1
+        // unused happens to be -1, but this makes more sense than comparing
+        // with -1
         if (channelUp == FRC.UNUSED && channelDown == FRC.UNUSED) {
             Logger.warning("Neither channelUp nor channelDown was provided to makeCounter.");
             return FloatInput.zero;

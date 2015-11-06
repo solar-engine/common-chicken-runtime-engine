@@ -101,7 +101,7 @@ public class FRC {
     /**
      * For unused channels for counters.
      */
-    public static final int UNUSED = -1; 
+    public static final int UNUSED = -1;
 
     /**
      * The FRCImplementation providing access to the robot.

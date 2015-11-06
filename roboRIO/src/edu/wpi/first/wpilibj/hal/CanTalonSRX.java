@@ -9,7 +9,8 @@
 package edu.wpi.first.wpilibj.hal;
 
 /**
- * Part of the WPILib CAN implementation. This is not documented well, as it wasn't written by us.
+ * Part of the WPILib CAN implementation. This is not documented well, as it
+ * wasn't written by us.
  */
 @SuppressWarnings("javadoc")
 public class CanTalonSRX extends CtreCanNode {

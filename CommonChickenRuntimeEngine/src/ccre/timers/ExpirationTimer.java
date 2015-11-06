@@ -21,12 +21,12 @@ package ccre.timers;
 import java.util.ArrayList;
 import java.util.Collections;
 
+import ccre.channel.BooleanCell;
 import ccre.channel.BooleanInput;
 import ccre.channel.BooleanOutput;
-import ccre.channel.BooleanCell;
+import ccre.channel.EventCell;
 import ccre.channel.EventInput;
 import ccre.channel.EventOutput;
-import ccre.channel.EventCell;
 import ccre.channel.FloatInput;
 import ccre.concurrency.ReporterThread;
 import ccre.time.Time;

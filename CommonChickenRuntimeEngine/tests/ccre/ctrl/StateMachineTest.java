@@ -26,11 +26,11 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import ccre.channel.BooleanInput;
 import ccre.channel.BooleanCell;
+import ccre.channel.BooleanInput;
+import ccre.channel.EventCell;
 import ccre.channel.EventInput;
 import ccre.channel.EventOutput;
-import ccre.channel.EventCell;
 import ccre.channel.FloatCell;
 import ccre.testing.CountingEventOutput;
 

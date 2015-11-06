@@ -20,8 +20,8 @@ package ccre.frc.devices;
 
 import ccre.channel.EventInput;
 import ccre.channel.EventOutput;
-import ccre.channel.FloatInput;
 import ccre.channel.FloatCell;
+import ccre.channel.FloatInput;
 import ccre.frc.Device;
 import ccre.frc.components.BooleanTextComponent;
 import ccre.frc.components.SpacingComponent;

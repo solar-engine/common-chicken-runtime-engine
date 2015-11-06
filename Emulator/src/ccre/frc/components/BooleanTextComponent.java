@@ -20,9 +20,9 @@ package ccre.frc.components;
 
 import java.awt.Color;
 
+import ccre.channel.BooleanCell;
 import ccre.channel.BooleanInput;
 import ccre.channel.BooleanOutput;
-import ccre.channel.BooleanCell;
 
 /**
  * A textual display component that displays one of two strings based on whether

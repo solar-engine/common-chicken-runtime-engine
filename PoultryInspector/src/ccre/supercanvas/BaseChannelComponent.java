@@ -24,8 +24,8 @@ import java.awt.Graphics2D;
 
 import ccre.log.Logger;
 import ccre.rconf.RConf;
-import ccre.rconf.RConfable;
 import ccre.rconf.RConf.Entry;
+import ccre.rconf.RConfable;
 import ccre.supercanvas.components.channels.RConfComponent;
 
 /**

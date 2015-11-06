@@ -18,8 +18,8 @@
  */
 package org.team1540.example.deep;
 
-import ccre.channel.BooleanInput;
 import ccre.channel.BooleanCell;
+import ccre.channel.BooleanInput;
 import ccre.channel.FloatInput;
 import ccre.channel.FloatOutput;
 import ccre.ctrl.DriverImpls;

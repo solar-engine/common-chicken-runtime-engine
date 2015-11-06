@@ -18,8 +18,8 @@
  */
 package ccre.concurrency;
 
-import ccre.channel.BooleanInput;
 import ccre.channel.BooleanCell;
+import ccre.channel.BooleanInput;
 import ccre.channel.EventInput;
 import ccre.channel.EventOutput;
 import ccre.log.Logger;

@@ -25,10 +25,10 @@ import java.io.InputStreamReader;
 import java.io.PrintStream;
 import java.util.HashMap;
 
-import ccre.channel.BooleanOutput;
 import ccre.channel.BooleanCell;
-import ccre.channel.FloatOutput;
+import ccre.channel.BooleanOutput;
 import ccre.channel.FloatCell;
+import ccre.channel.FloatOutput;
 import ccre.log.Logger;
 import ccre.util.UniqueIds;
 

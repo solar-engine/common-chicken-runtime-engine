@@ -1,8 +1,8 @@
 package org.team1540.firstfare2015;
 
+import ccre.channel.FloatCell;
 import ccre.channel.FloatInput;
 import ccre.channel.FloatOutput;
-import ccre.channel.FloatCell;
 import ccre.ctrl.PIDController;
 import ccre.frc.FRC;
 import ccre.frc.FRCApplication;

@@ -18,7 +18,11 @@
  */
 package ccre.timers;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 import org.junit.After;
 import org.junit.AfterClass;
@@ -28,8 +32,8 @@ import org.junit.Test;
 
 import ccre.channel.BooleanInput;
 import ccre.channel.BooleanOutput;
-import ccre.channel.EventOutput;
 import ccre.channel.EventCell;
+import ccre.channel.EventOutput;
 import ccre.channel.FloatCell;
 import ccre.testing.CountingEventOutput;
 import ccre.time.FakeTime;

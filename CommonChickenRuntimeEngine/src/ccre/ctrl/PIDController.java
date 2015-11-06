@@ -20,8 +20,8 @@ package ccre.ctrl;
 
 import ccre.channel.EventInput;
 import ccre.channel.EventOutput;
-import ccre.channel.FloatInput;
 import ccre.channel.FloatCell;
+import ccre.channel.FloatInput;
 import ccre.time.Time;
 
 /**

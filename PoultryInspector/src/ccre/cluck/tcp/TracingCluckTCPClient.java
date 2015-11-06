@@ -24,8 +24,8 @@ import java.io.IOException;
 import java.net.SocketException;
 import java.net.SocketTimeoutException;
 
-import ccre.cluck.CluckLink;
 import ccre.cluck.CluckConstants;
+import ccre.cluck.CluckLink;
 import ccre.cluck.CluckNode;
 import ccre.drivers.ByteFiddling;
 import ccre.log.Logger;

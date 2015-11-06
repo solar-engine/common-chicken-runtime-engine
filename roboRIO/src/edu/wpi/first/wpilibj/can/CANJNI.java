@@ -1,5 +1,8 @@
 package edu.wpi.first.wpilibj.can;
 
+import java.nio.ByteBuffer;
+import java.nio.IntBuffer;
+
 //import com.ochafik.lang.jnaerator.runtime.LibraryExtractor;
 //import com.ochafik.lang.jnaerator.runtime.MangledFunctionMapper;
 //import com.sun.jna.Library;
@@ -8,8 +11,6 @@ package edu.wpi.first.wpilibj.can;
 //import com.sun.jna.Pointer;
 //import com.sun.jna.ptr.IntByReference;
 import edu.wpi.first.wpilibj.hal.JNIWrapper;
-import java.nio.ByteBuffer;
-import java.nio.IntBuffer;
 
 /**
  * JNA Wrapper for library <b>CAN</b><br>

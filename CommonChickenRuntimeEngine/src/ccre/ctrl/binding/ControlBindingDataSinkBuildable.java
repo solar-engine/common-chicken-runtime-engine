@@ -20,12 +20,12 @@ package ccre.ctrl.binding;
 
 import java.util.HashMap;
 
+import ccre.channel.BooleanCell;
 import ccre.channel.BooleanInput;
 import ccre.channel.BooleanOutput;
-import ccre.channel.BooleanCell;
+import ccre.channel.FloatCell;
 import ccre.channel.FloatInput;
 import ccre.channel.FloatOutput;
-import ccre.channel.FloatCell;
 
 /**
  * A ControlBindingDataSinkBuildable allows a program to easily fill out a

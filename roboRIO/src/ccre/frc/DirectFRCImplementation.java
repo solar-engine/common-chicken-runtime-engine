@@ -31,13 +31,13 @@ import java.nio.ByteBuffer;
 import java.util.Enumeration;
 import java.util.jar.Manifest;
 
+import ccre.channel.BooleanCell;
 import ccre.channel.BooleanInput;
 import ccre.channel.BooleanOutput;
-import ccre.channel.BooleanCell;
 import ccre.channel.DerivedBooleanInput;
 import ccre.channel.DerivedFloatInput;
-import ccre.channel.EventInput;
 import ccre.channel.EventCell;
+import ccre.channel.EventInput;
 import ccre.channel.FloatInput;
 import ccre.channel.FloatOutput;
 import ccre.channel.SerialIO;

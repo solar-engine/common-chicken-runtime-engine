@@ -23,8 +23,8 @@ import java.awt.FontMetrics;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
 
-import ccre.channel.FloatInput;
 import ccre.channel.FloatCell;
+import ccre.channel.FloatInput;
 import ccre.frc.DeviceComponent;
 
 /**

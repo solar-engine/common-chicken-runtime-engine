@@ -20,9 +20,9 @@ package ccre.ctrl;
 
 import ccre.channel.BooleanInput;
 import ccre.channel.DerivedBooleanInput;
+import ccre.channel.EventCell;
 import ccre.channel.EventInput;
 import ccre.channel.EventOutput;
-import ccre.channel.EventCell;
 import ccre.log.LogLevel;
 import ccre.log.Logger;
 

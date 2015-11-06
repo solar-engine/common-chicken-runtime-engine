@@ -23,9 +23,9 @@ import java.awt.FontMetrics;
 import java.awt.Graphics2D;
 import java.io.Serializable;
 
+import ccre.channel.EventCell;
 import ccre.channel.EventInput;
 import ccre.channel.EventOutput;
-import ccre.channel.EventCell;
 import ccre.rconf.RConf.Entry;
 import ccre.supercanvas.BaseChannelComponent;
 import ccre.supercanvas.Rendering;

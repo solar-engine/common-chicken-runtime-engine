@@ -18,8 +18,6 @@
  */
 package ccre.time;
 
-import ccre.channel.EventOutput;
-
 /**
  * A "normal" implementation of time, which is tied to changes in
  * {@link System#currentTimeMillis()} and {@link System#nanoTime()}.
@@ -33,7 +31,6 @@ public final class NormalTime extends Time {
 
     private final long baseCurrentMillis;
     private final long baseTimeNanos;
-    private final Scheduler scheduler = new Scheduler(this);
 
     /**
      * Sets up a new NormalTime time provider, with the number of milliseconds
@@ -73,12 +70,7 @@ public final class NormalTime extends Time {
     }
 
     @Override
-    protected void scheduleTimer(long millis, EventOutput update) {
-        scheduler.schedule(millis, update);
-    }
-
-    @Override
     protected void close() {
-        scheduler.close();
+        // nothing necessary
     }
 }

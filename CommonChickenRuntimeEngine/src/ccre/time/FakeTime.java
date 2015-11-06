@@ -19,9 +19,6 @@
 package ccre.time;
 
 import java.util.LinkedList;
-import java.util.PriorityQueue;
-
-import ccre.channel.EventOutput;
 
 // NOTE: this contains complex and likely slightly broken synchronization code. do not use it in production!
 public class FakeTime extends Time {
@@ -31,7 +28,6 @@ public class FakeTime extends Time {
     private long now = 0;
     private int adds = 0;
     private final LinkedList<Object> otherSleepers = new LinkedList<>();
-    private final PriorityQueue<ScheduleEntry> executionTimes = new PriorityQueue<>();
 
     public void forward(long millis) throws InterruptedException {
         if (closing) {
@@ -45,20 +41,6 @@ public class FakeTime extends Time {
             this.notifyAll();
         }
         Object[] osl;
-        while (true) {
-            ScheduleEntry entry;
-            synchronized (this) {
-                entry = executionTimes.poll();
-                if (entry == null) {
-                    break;
-                }
-                if (entry.expirationAt > now) {
-                    executionTimes.add(entry);
-                    break;
-                }
-            }
-            entry.target.safeEvent();
-        }
         synchronized (this) {
             osl = otherSleepers.toArray();
             adds = 0;
@@ -166,14 +148,6 @@ public class FakeTime extends Time {
     private boolean closing = false;
 
     @Override
-    protected synchronized void scheduleTimer(long millis, EventOutput update) {
-        if (closing) {
-            throw new IllegalStateException("This FakeTime instance is shutting down! Don't try to schedule more events!");
-        }
-        executionTimes.add(new ScheduleEntry(now + millis, update));
-    }
-
-    @Override
     protected void close() {
         Object[] others;
         synchronized (this) {
@@ -181,26 +155,17 @@ public class FakeTime extends Time {
             others = otherSleepers.toArray();
             otherSleepers.clear();
         }
-        for (Object o : others) {// wake up, everyone!
+        // wake up, everyone!
+        for (Object o : others) {
             synchronized (o) {
                 o.notifyAll();
             }
         }
-        while (true) {
-            ScheduleEntry ent;
-            synchronized (this) {
-                ent = executionTimes.poll();
-                if (ent == null) {
-                    break;
-                }
-                now = ent.expirationAt;
-            }
-            ent.target.safeEvent();
-        }
         synchronized (this) {
             now = 0;
             closing = false;
-            this.notifyAll();// just in case something's still waiting on us
+            // just in case something's still waiting on us
+            this.notifyAll();
         }
     }
 }

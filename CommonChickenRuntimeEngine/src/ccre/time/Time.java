@@ -18,8 +18,6 @@
  */
 package ccre.time;
 
-import ccre.channel.EventOutput;
-
 /**
  * An abstraction of time that allows multiple implementations to be used. For
  * example, time can be faked during execution of JUnit tests.
@@ -157,10 +155,6 @@ public abstract class Time {
         time.waitOn(object, timeout);
     }
 
-    public static void scheduleLightweight(long millis, EventOutput update) {
-        time.scheduleTimer(millis, update);
-    }
-
     /**
      * Queries the current time based on an unspecified zero point. This is not
      * suitable for determining the time of day, but is suitable for tracking
@@ -209,8 +203,6 @@ public abstract class Time {
      * @throws InterruptedException if the thread is interrupted while waiting.
      */
     protected abstract void waitOn(Object object, long timeout) throws InterruptedException;
-
-    protected abstract void scheduleTimer(long millis, EventOutput update);
 
     /**
      * This provider has been replaced; transition to the new one. For example,

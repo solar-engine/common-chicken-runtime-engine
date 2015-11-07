@@ -3,6 +3,7 @@ package edu.wpi.first.wpilibj.hal;
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
 
+@SuppressWarnings("javadoc")
 public class CompressorJNI extends JNIWrapper {
     public static native ByteBuffer initializeCompressor(byte module);
 

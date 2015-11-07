@@ -18,7 +18,7 @@
  */
 package ccre.channel;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 import org.junit.After;
 import org.junit.Before;
@@ -28,6 +28,7 @@ import ccre.testing.CountingBooleanOutput;
 import ccre.testing.CountingEventOutput;
 import ccre.util.Values;
 
+@SuppressWarnings("javadoc")
 public class DerivedBooleanInputTest {
 
     private EventCell es;

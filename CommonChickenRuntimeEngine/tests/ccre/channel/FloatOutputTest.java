@@ -18,7 +18,11 @@
  */
 package ccre.channel;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import java.util.NoSuchElementException;
 import java.util.Random;
@@ -35,6 +39,7 @@ import ccre.time.Time;
 import ccre.util.Utils;
 import ccre.util.Values;
 
+@SuppressWarnings("javadoc")
 public class FloatOutputTest {
 
     private final FloatOutput evil = (v) -> {

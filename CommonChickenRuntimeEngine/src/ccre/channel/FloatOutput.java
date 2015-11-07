@@ -20,7 +20,6 @@ package ccre.channel;
 
 import ccre.log.Logger;
 import ccre.time.Time;
-import ccre.util.Utils;
 
 /**
  * A FloatOutput is an interface for anything that can be set to an analog
@@ -43,15 +42,32 @@ public interface FloatOutput {
     };
 
     /**
-     * Set the float value of this output.
+     * Sets the float value of this output.
      *
      * By convention, most float inputs and outputs have states that range from
      * -1.0f to 1.0f.
      *
-     * @param value The new value to send to this output.
+     * If any exception occurs during the propagation of the changes, it will be
+     * passed on by <code>set</code>.
+     *
+     * @param value the new value to send to this output.
+     * @see #safeSet(float) for a version that catches any errors that occur.
      */
     public void set(float value);
 
+    /**
+     * Sets the float value of this output.
+     *
+     * By convention, most float inputs and outputs have states that range from
+     * -1.0f to 1.0f.
+     *
+     * If any exception occurs during the propagation of the changes,
+     * <code>safeSet</code> will catch and log it as a
+     * {@link ccre.log.LogLevel#SEVERE} error.
+     *
+     * @param value the new value to send to this output.
+     * @see #set(float) for a version that throws any errors that occur.
+     */
     public default void safeSet(float value) {
         try {
             set(value);
@@ -60,27 +76,72 @@ public interface FloatOutput {
         }
     }
 
-    public default EventOutput eventSet(final float value) {
+    /**
+     * Provides an EventOutput that sets the value of this FloatOutput to
+     * <code>value</code>.
+     *
+     * @param value the value to use.
+     * @return an event that sets the value.
+     */
+    public default EventOutput eventSet(float value) {
         return () -> set(value);
     }
 
-    public default EventOutput eventSet(final FloatInput value) {
+    /**
+     * Provides an EventOutput that sets the value of this FloatOutput to the
+     * value of <code>value</code>.
+     *
+     * @param value the input to read the new value from.
+     * @return an event that sets the value.
+     */
+    public default EventOutput eventSet(FloatInput value) {
         if (value == null) {
             throw new NullPointerException();
         }
         return () -> set(value.get());
     }
 
+    /**
+     * Sets the value of this FloatOutput to <code>value</code> when
+     * <code>when</code> is fired.
+     *
+     * @param value the value to set.
+     * @param when when to set the value.
+     */
     public default void setWhen(float value, EventInput when) {
-        Utils.checkNull(when);
+        if (when == null) {
+            throw new NullPointerException();
+        }
         when.send(eventSet(value));
     }
 
+    /**
+     * Sets the value of this FloatOutput to the value of <code>value</code>
+     * when <code>when</code> is fired.
+     *
+     * @param value the input to read the new value from.
+     * @param when when to set the value.
+     */
     public default void setWhen(FloatInput value, EventInput when) {
-        Utils.checkNull(when, value);
+        if (value == null || when == null) {
+            throw new NullPointerException();
+        }
         when.send(eventSet(value));
     }
 
+    /**
+     * Provides a FloatOutput that controls both this FloatOutput and
+     * <code>other</code>. When the new FloatOutput is set to any number, both
+     * this FloatOutput and <code>other</code> will be set to that value.
+     *
+     * If any error occurs during propagation of changes to either EventOutput,
+     * the other target will still be modified. If both throw exceptions, then
+     * one of the exceptions will be added as a suppressed exception to the
+     * other.
+     *
+     * @param other the EventOutput to combine this EventOutput with.
+     * @return the combined EventOutput.
+     */
     public default FloatOutput combine(FloatOutput other) {
         if (other == null) {
             throw new NullPointerException();
@@ -101,21 +162,53 @@ public interface FloatOutput {
         };
     }
 
+    /**
+     * Provide a negated version of this FloatOutput, such that every value is
+     * negated before being propagated to this FloatOutput.
+     *
+     * @return the negated version of this FloatOutput.
+     */
     public default FloatOutput negate() {
         return FloatFilter.negate.wrap(this);
     }
 
+    /**
+     * Provides a version of this FloatOutput with a deadzone: if a set value is
+     * within <code>deadzone</code> of zero, then this FloatInput will be set to
+     * zero. Otherwise, this FloatInput will be set to the original value.
+     *
+     * @param deadzone the size of the deadzone to apply.
+     * @return the deadzoned version of this FloatOutput.
+     */
     public default FloatOutput outputDeadzone(float deadzone) {
         return FloatFilter.deadzone(deadzone).wrap(this);
     }
 
+    /**
+     * Provides a version of this FloatOutput with ramping applied.
+     *
+     * @param limit the maximum delta value per time when
+     * <code>updateWhen</code> is fired.
+     * @param updateWhen when the ramping should update.
+     * @return a ramped version of this FloatOutput.
+     */
     public default FloatOutput addRamping(final float limit, EventInput updateWhen) {
-        Utils.checkNull(updateWhen);
+        if (updateWhen == null) {
+            throw new NullPointerException();
+        }
         FloatCell temp = new FloatCell();
         updateWhen.send(temp.createRampingEvent(limit, this));
         return temp;
     }
 
+    /**
+     * Sets this FloatOutput to the derivative of the provided FloatOutput. The
+     * values sent to this FloatOutput will be based on the change in value of
+     * the provided FloatOutput and the amount of time that it took for the
+     * value to change.
+     *
+     * @return the FloatOutput to take the derivative of.
+     */
     public default FloatOutput viaDerivative() {
         FloatOutput original = this;
         return new FloatOutput() {
@@ -142,6 +235,13 @@ public interface FloatOutput {
         };
     }
 
+    /**
+     * Provides a filtered version of this FloatOutput such that values sent to
+     * it will be ignored when the value of <code>allow</code> is false.
+     *
+     * @param allow if values should be allowed through.
+     * @return the filtered FloatOutput.
+     */
     public default FloatOutput filter(BooleanInput allow) {
         FloatOutput original = this;
         return (value) -> {
@@ -151,6 +251,13 @@ public interface FloatOutput {
         };
     }
 
+    /**
+     * Provides a filtered version of this FloatOutput such that values sent to
+     * it will be ignored when the value of <code>deny</code> is true.
+     *
+     * @param deny if values should be disallowed through.
+     * @return the filtered FloatOutput.
+     */
     public default FloatOutput filterNot(BooleanInput deny) {
         FloatOutput original = this;
         return (value) -> {
@@ -160,18 +267,56 @@ public interface FloatOutput {
         };
     }
 
+    /**
+     * Provides a BooleanOutput that controls this FloatOutput by choosing
+     * between a value for true and a value for false.
+     *
+     * @param off the value for this FloatOutput when the BooleanOutput is
+     * false.
+     * @param on the value for this FloatOutput when the BooleanOutput is true.
+     * @return the BooleanOutput that controls this FloatOutput.
+     */
     public default BooleanOutput fromBoolean(final float off, final float on) {
         return fromBoolean(FloatInput.always(off), FloatInput.always(on));
     }
 
+    /**
+     * Provides a BooleanOutput that controls this FloatOutput by choosing
+     * between a value for true and a value for false.
+     *
+     * @param off the value for this FloatOutput when the BooleanOutput is
+     * false.
+     * @param on the input representing the value for this FloatOutput when the
+     * BooleanOutput is true.
+     * @return the BooleanOutput that controls this FloatOutput.
+     */
     public default BooleanOutput fromBoolean(float off, FloatInput on) {
         return fromBoolean(FloatInput.always(off), on);
     }
 
+    /**
+     * Provides a BooleanOutput that controls this FloatOutput by choosing
+     * between a value for true and a value for false.
+     *
+     * @param off the input representing the value for this FloatOutput when the
+     * BooleanOutput is false.
+     * @param on the value for this FloatOutput when the BooleanOutput is true.
+     * @return the BooleanOutput that controls this FloatOutput.
+     */
     public default BooleanOutput fromBoolean(FloatInput off, float on) {
         return fromBoolean(off, FloatInput.always(on));
     }
 
+    /**
+     * Provides a BooleanOutput that controls this FloatOutput by choosing
+     * between a value for true and a value for false.
+     *
+     * @param off the input representing the value for this FloatOutput when the
+     * BooleanOutput is false.
+     * @param on the input representing the value for this FloatOutput when the
+     * BooleanOutput is true.
+     * @return the BooleanOutput that controls this FloatOutput.
+     */
     public default BooleanOutput fromBoolean(FloatInput off, FloatInput on) {
         return new BooleanOutput() {
             private boolean lastValue, anyValue = false;

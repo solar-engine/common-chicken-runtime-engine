@@ -20,8 +20,8 @@ package ccre.frc.devices;
 
 import ccre.channel.EventInput;
 import ccre.channel.EventOutput;
-import ccre.channel.FloatInput;
 import ccre.channel.FloatCell;
+import ccre.channel.FloatInput;
 import ccre.frc.Device;
 import ccre.frc.components.BooleanTextComponent;
 import ccre.frc.components.SpacingComponent;
@@ -132,6 +132,11 @@ public class SpinDevice extends Device {
         }
     }
 
+    /**
+     * Provides an input that represents the current value on this SpinDevice.
+     *
+     * @return the FloatInput representing the value on this SpinDevice.
+     */
     public FloatInput asInput() {
         return ticks;
     }

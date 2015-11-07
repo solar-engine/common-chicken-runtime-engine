@@ -40,6 +40,7 @@ import ccre.time.FakeTime;
 import ccre.time.Time;
 import ccre.util.Values;
 
+@SuppressWarnings("javadoc")
 public class FloatInputTest {
 
     private CountingFloatOutput cfo;

@@ -25,11 +25,25 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * A collection of class files and resources inside a folder on the filesystem,
+ * often a temporary folder.
+ *
+ * @author skeggsc
+ */
 public class Folder extends Artifact {
 
     private final File folder;
 
-    public Folder(File folder) {
+    /**
+     * Creates a new Folder that wraps the folder specified by
+     * <code>folder</code>.
+     *
+     * @param folder the folder on the filesystem to wrap.
+     * @throws IllegalArgumentException if <code>folder</code> does not exist or
+     * is not a directory.
+     */
+    public Folder(File folder) throws IllegalArgumentException {
         if (!folder.exists() || !folder.isDirectory()) {
             throw new IllegalArgumentException("Not a valid folder: " + folder);
         }
@@ -42,7 +56,7 @@ public class Folder extends Artifact {
     }
 
     @Override
-    public String[] listClassesAndResources() {
+    protected String[] listClassesAndResources() {
         if (!folder.exists() || !folder.isDirectory()) {
             throw new RuntimeException("Folder is no longer valid!");
         }

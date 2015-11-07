@@ -31,11 +31,30 @@ import javax.tools.JavaFileObject;
 import javax.tools.StandardJavaFileManager;
 import javax.tools.ToolProvider;
 
+/**
+ * Provides utilities for compiling Java sources into class files.
+ *
+ * @author skeggsc
+ */
 public class DepJava {
     private static final SourceVersion JAVA_SOURCE_VERSION = SourceVersion.RELEASE_8;
     private static final String JAVA_SOURCE_VERSION_OPTION = "1.8";
     private static final String JAVA_TARGET_VERSION_OPTION = "1.8";
 
+    /**
+     * Compiles the source files in <code>folder</code> into a new artifact. The
+     * files contained in <code>classpath</code> will be used when resolving
+     * references in the Java class files, but will not be included in the
+     * generated artifact.
+     *
+     * The Java class library is automatically included in the classpath.
+     *
+     * @param folder the folder containing the source files.
+     * @param classpath the folders containing the classes that can be linked to
+     * from the compiled code.
+     * @return the generated Artifact of the compiled classes.
+     * @throws IOException
+     */
     public static Artifact build(File folder, File... classpath) throws IOException {
         JavaCompiler javac = ToolProvider.getSystemJavaCompiler();
         if (javac == null) {

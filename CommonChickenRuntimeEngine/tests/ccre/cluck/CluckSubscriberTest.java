@@ -18,7 +18,10 @@
  */
 package ccre.cluck;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import java.util.NoSuchElementException;
 
@@ -29,6 +32,7 @@ import org.junit.Test;
 import ccre.testing.CountingEventOutput;
 import ccre.util.Values;
 
+@SuppressWarnings("javadoc")
 public class CluckSubscriberTest {
 
     private CluckNode node;

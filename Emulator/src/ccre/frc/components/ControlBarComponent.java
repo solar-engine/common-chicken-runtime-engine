@@ -23,8 +23,8 @@ import java.awt.FontMetrics;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
 
-import ccre.channel.FloatInput;
 import ccre.channel.FloatCell;
+import ccre.channel.FloatInput;
 import ccre.frc.DeviceComponent;
 
 /**
@@ -117,10 +117,20 @@ public class ControlBarComponent extends DeviceComponent {
         dragging = false;
     }
 
+    /**
+     * Gets the current value set on this slider.
+     *
+     * @return the current value.
+     */
     public float get() {
         return value.get();
     }
 
+    /**
+     * Provides a FloatInput representing the current value set on this slider.
+     *
+     * @return the FloatInput.
+     */
     public FloatInput asInput() {
         return value;
     }

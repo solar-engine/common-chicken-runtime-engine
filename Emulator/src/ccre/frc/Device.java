@@ -38,12 +38,24 @@ public class Device {
         this.parent = parent;
     }
 
+    /**
+     * Add a component to this device, to the right of existing components. This
+     * changes the component to point to this device (so a component cannot be
+     * used on multiple devices) and causes the display to be repainted if the
+     * device is currently attached to a window.
+     *
+     * @param component the component to add to this component.
+     */
     protected void add(DeviceComponent component) {
         component.setDevice(this);
         components.add(component);
         this.repaint();
     }
 
+    /**
+     * Notify this Device, and thereby the containing window, that something has
+     * changed, and the screen should refresh.
+     */
     protected void repaint() {
         if (parent != null) {
             parent.repaint();
@@ -71,6 +83,11 @@ public class Device {
         }
     }
 
+    /**
+     * Determine the background color to display for this device.
+     *
+     * @return the color to display, {@link Color#GRAY} by default.
+     */
     protected Color getBackgroundColor() {
         return Color.GRAY;
     }

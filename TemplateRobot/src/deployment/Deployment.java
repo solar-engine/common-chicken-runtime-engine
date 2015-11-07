@@ -7,10 +7,25 @@ import ccre.deployment.DepRoboRIO;
 import ccre.deployment.DepTask;
 import ccre.frc.FRCApplication;
 
+/**
+ * The Deployment class of your project. When your project is built, the static
+ * methods in this class that are annotated with <code>@DepTask</code> will be
+ * available as options in the Eclipse External Tools menu.
+ */
 public class Deployment {
 
+    /**
+     * The reference to your main class. When you change which class is the main
+     * class of your project, make sure to change this line.
+     */
     public static final Class<? extends FRCApplication> robotMain = robot.RobotTemplate.class;
 
+    /**
+     * A deployment task that downloads your robot code to a roboRIO found based
+     * on your team number.
+     *
+     * @throws Exception
+     */
     @DepTask
     public static void deploy() throws Exception {
         Artifact result = DepRoboRIO.buildProject(robotMain);
@@ -31,6 +46,11 @@ public class Deployment {
         }
     }
 
+    /**
+     * A deployment task that runs your robot code in the CCRE's emulator.
+     *
+     * @throws Exception
+     */
     @DepTask(fork = true)
     public static void emulate() throws Exception {
         Artifact result = DepRoboRIO.buildProject(robotMain);

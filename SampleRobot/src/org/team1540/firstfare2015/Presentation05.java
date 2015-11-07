@@ -12,7 +12,7 @@ public class Presentation05 implements FRCApplication {
         // An output channel can receive signals.
         FloatOutput motor = FRC.talon(0, FRC.MOTOR_FORWARD);
         BooleanOutput solenoid = FRC.solenoid(3);
-        EventOutput actuate = solenoid.eventSetTrue();
+        EventOutput actuate = solenoid.eventSet(true);
 
         motor.set(+1.0f);
         solenoid.set(true);

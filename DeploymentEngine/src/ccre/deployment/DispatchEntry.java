@@ -22,10 +22,30 @@ import java.io.File;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
 
+/**
+ * This class is an entry-point for the Deployment Engine: it allows setting up
+ * the Deployment Engine infrastructure and then invoking an arbitrary static
+ * method on an arbitrary class.
+ *
+ * @author skeggsc
+ */
 public class DispatchEntry {
+    /**
+     * The main method of the Deployment Engine. This is passed the CCRE root
+     * directory and the project root directory, and it is passed a class and
+     * method reference for the method to invoke as the main DeploymentEngine
+     * method.
+     *
+     * This is often originally something in
+     * {@link ccre.deployment.RebuildBuilders}, which then builds Eclipse
+     * External Tools that use this same entrypoint to run individual target
+     * tasks.
+     *
+     * @param args the arguments for the program.
+     */
     public static void main(String[] args) {
         if (args.length != 4) {
-            throw new IllegalArgumentException("DispatchEntry expects four parameters: CCRE root, Project root, class name, method name.");
+            throw new IllegalArgumentException("DispatchEntry expects four parameters: CCRE root, project root, class name, method name.");
         }
         DepProject.setRoots(new File(args[1]), new File(args[0]));
         try {

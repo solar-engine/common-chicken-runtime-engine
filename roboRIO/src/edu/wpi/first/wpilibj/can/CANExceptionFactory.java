@@ -7,6 +7,7 @@
 
 package edu.wpi.first.wpilibj.can;
 
+@SuppressWarnings("javadoc")
 public class CANExceptionFactory {
     // From NIRioStatus
     public static final int kRioStatusOffset = -63000;

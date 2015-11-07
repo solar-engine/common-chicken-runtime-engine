@@ -58,10 +58,20 @@ public class FloatControlDevice extends Device {
         add(value = new ControlBarComponent(min, max, defaultValue, originValue).setMaxWidth(200));
     }
 
+    /**
+     * Queries the current value of this FloatControlDevice.
+     *
+     * @return the current value.
+     */
     public float get() {
         return value.get();
     }
 
+    /**
+     * Provides access to this FloatControlDevice as a FloatInput.
+     *
+     * @return the FloatInput representing the value of this device.
+     */
     public FloatInput asInput() {
         return value.asInput();
     }

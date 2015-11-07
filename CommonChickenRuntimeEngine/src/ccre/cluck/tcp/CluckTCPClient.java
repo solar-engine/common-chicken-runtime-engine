@@ -264,6 +264,20 @@ public class CluckTCPClient extends ReporterThread {
         return establishedLink;
     }
 
+    /**
+     * Run the "main loop" of receiving data over Cluck. This only takes care of
+     * receiving - use
+     * {@link #doStart(DataInputStream, DataOutputStream, ClientSocket)} first
+     * to set up sending. This needs the CluckLink returned by doStart to run
+     * properly and avoid network loops.
+     *
+     * @param din the input stream for the connection.
+     * @param dout the output stream for the connection.
+     * @param socket the socket for the connection, to be able to set timeouts.
+     * @param deny the established CluckLink returned by
+     * {@link #doStart(DataInputStream, DataOutputStream, ClientSocket)}.
+     * @throws IOException
+     */
     protected void doMain(DataInputStream din, DataOutputStream dout, ClientSocket socket, CluckLink deny) throws IOException {
         CluckProtocol.handleRecv(din, linkName, node, deny);
     }

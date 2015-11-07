@@ -19,8 +19,8 @@
 package ccre.frc.devices;
 
 import ccre.channel.BooleanInput;
-import ccre.channel.EventInput;
 import ccre.channel.EventCell;
+import ccre.channel.EventInput;
 import ccre.frc.Device;
 import ccre.frc.components.BooleanTextComponent;
 import ccre.frc.components.SpacingComponent;
@@ -67,6 +67,11 @@ public class BooleanControlDevice extends Device {
         return pressEvent;
     }
 
+    /**
+     * Access the BooleanInput side of this BooleanControlDevice.
+     *
+     * @return a boolean input representing the current state of this device.
+     */
     public BooleanInput asInput() {
         return actuated.asInput();
     }

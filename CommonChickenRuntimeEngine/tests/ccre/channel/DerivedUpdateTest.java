@@ -18,12 +18,13 @@
  */
 package ccre.channel;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.fail;
 
 import org.junit.Test;
 
 import ccre.testing.CountingEventOutput;
 
+@SuppressWarnings("javadoc")
 public class DerivedUpdateTest {
 
     @Test

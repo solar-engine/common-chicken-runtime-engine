@@ -22,9 +22,9 @@ import java.io.IOException;
 
 import ccre.channel.BooleanCell;
 import ccre.channel.DerivedFloatInput;
+import ccre.channel.EventCell;
 import ccre.channel.EventInput;
 import ccre.channel.EventOutput;
-import ccre.channel.EventCell;
 import ccre.channel.FloatInput;
 import ccre.channel.SerialIO;
 import ccre.concurrency.CollapsingWorkerThread;

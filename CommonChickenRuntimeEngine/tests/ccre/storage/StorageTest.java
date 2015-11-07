@@ -28,6 +28,7 @@ import java.io.OutputStream;
 
 import org.junit.Test;
 
+@SuppressWarnings("javadoc")
 public class StorageTest {
 
     private static final String FILENAME = "unit_testing_test.txt";

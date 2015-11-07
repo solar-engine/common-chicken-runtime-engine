@@ -18,7 +18,9 @@
  */
 package ccre.cluck;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
 import org.junit.After;
 import org.junit.Before;
@@ -26,6 +28,7 @@ import org.junit.Test;
 
 import ccre.testing.CountingEventOutput;
 
+@SuppressWarnings("javadoc")
 public class CluckRMTSubscriberTest {
 
     private CluckNode node;

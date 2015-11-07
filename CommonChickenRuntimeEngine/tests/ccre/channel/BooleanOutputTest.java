@@ -18,7 +18,8 @@
  */
 package ccre.channel;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import java.util.NoSuchElementException;
 import java.util.Random;
@@ -31,6 +32,7 @@ import ccre.testing.CountingBooleanOutput;
 import ccre.testing.CountingEventOutput;
 import ccre.util.Values;
 
+@SuppressWarnings("javadoc")
 public class BooleanOutputTest {
 
     private final BooleanOutput evil = (v) -> {
@@ -123,7 +125,7 @@ public class BooleanOutputTest {
     }
 
     @Test
-    public void testGetSetEventBoolean() {
+    public void testEventSetBoolean() {
         trySet(cbo.eventSet(false), false);
         trySet(cbo.eventSet(true), true);
     }
@@ -138,7 +140,7 @@ public class BooleanOutputTest {
     }
 
     @Test
-    public void testGetSetEventBooleanInput() {
+    public void testEventSetBooleanInput() {
         BooleanCell bs = new BooleanCell();
         EventOutput evt = cbo.eventSet(bs);
         for (int i = 0; i < 10; i++) {
@@ -150,18 +152,8 @@ public class BooleanOutputTest {
     }
 
     @Test(expected = NullPointerException.class)
-    public void testGetSetEventBooleanInputNull() {
+    public void testEventSetBooleanInputNull() {
         cbo.eventSet(null);
-    }
-
-    @Test
-    public void testGetSetTrueEvent() {
-        trySet(cbo.eventSetTrue(), true);
-    }
-
-    @Test
-    public void testGetSetFalseEvent() {
-        trySet(cbo.eventSetFalse(), false);
     }
 
     @Test

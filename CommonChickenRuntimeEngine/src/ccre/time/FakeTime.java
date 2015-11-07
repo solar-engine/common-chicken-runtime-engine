@@ -19,11 +19,19 @@
 package ccre.time;
 
 import java.util.LinkedList;
-import java.util.PriorityQueue;
 
-import ccre.channel.EventOutput;
-
-// NOTE: this contains complex and likely slightly broken synchronization code. do not use it in production!
+/**
+ * A "fake" implementation of time, in which the current time is controlled by
+ * the {@link #forward(long)} method of this instance.
+ *
+ * WARNING: this contains complex and likely slightly broken synchronization
+ * code. Do not use it in production!
+ *
+ * A time may be specified so that transitioning between fake time and real time
+ * can be made seamless to the users.
+ *
+ * @author skeggsc
+ */
 public class FakeTime extends Time {
 
     private static final boolean debug = false;
@@ -31,8 +39,15 @@ public class FakeTime extends Time {
     private long now = 0;
     private int adds = 0;
     private final LinkedList<Object> otherSleepers = new LinkedList<>();
-    private final PriorityQueue<ScheduleEntry> executionTimes = new PriorityQueue<>();
 
+    /**
+     * Fast-forward time by the specified number of milliseconds, including
+     * waiting to attempt to synchronize threads.
+     *
+     * @param millis how far forward to send time.
+     * @throws InterruptedException if the thread is interrupted while
+     * synchronizing with other threads.
+     */
     public void forward(long millis) throws InterruptedException {
         if (closing) {
             throw new IllegalStateException("The FakeTime is closing! Don't try to control it!");
@@ -45,20 +60,6 @@ public class FakeTime extends Time {
             this.notifyAll();
         }
         Object[] osl;
-        while (true) {
-            ScheduleEntry entry;
-            synchronized (this) {
-                entry = executionTimes.poll();
-                if (entry == null) {
-                    break;
-                }
-                if (entry.expirationAt > now) {
-                    executionTimes.add(entry);
-                    break;
-                }
-            }
-            entry.target.safeEvent();
-        }
         synchronized (this) {
             osl = otherSleepers.toArray();
             adds = 0;
@@ -166,14 +167,6 @@ public class FakeTime extends Time {
     private boolean closing = false;
 
     @Override
-    protected synchronized void scheduleTimer(long millis, EventOutput update) {
-        if (closing) {
-            throw new IllegalStateException("This FakeTime instance is shutting down! Don't try to schedule more events!");
-        }
-        executionTimes.add(new ScheduleEntry(now + millis, update));
-    }
-
-    @Override
     protected void close() {
         Object[] others;
         synchronized (this) {
@@ -181,26 +174,17 @@ public class FakeTime extends Time {
             others = otherSleepers.toArray();
             otherSleepers.clear();
         }
-        for (Object o : others) {// wake up, everyone!
+        // wake up, everyone!
+        for (Object o : others) {
             synchronized (o) {
                 o.notifyAll();
             }
         }
-        while (true) {
-            ScheduleEntry ent;
-            synchronized (this) {
-                ent = executionTimes.poll();
-                if (ent == null) {
-                    break;
-                }
-                now = ent.expirationAt;
-            }
-            ent.target.safeEvent();
-        }
         synchronized (this) {
             now = 0;
             closing = false;
-            this.notifyAll();// just in case something's still waiting on us
+            // just in case something's still waiting on us
+            this.notifyAll();
         }
     }
 }

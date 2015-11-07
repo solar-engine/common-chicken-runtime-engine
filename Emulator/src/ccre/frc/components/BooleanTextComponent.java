@@ -20,9 +20,9 @@ package ccre.frc.components;
 
 import java.awt.Color;
 
+import ccre.channel.BooleanCell;
 import ccre.channel.BooleanInput;
 import ccre.channel.BooleanOutput;
-import ccre.channel.BooleanCell;
 
 /**
  * A textual display component that displays one of two strings based on whether
@@ -88,10 +88,21 @@ public class BooleanTextComponent extends TextComponent implements BooleanOutput
         }
     }
 
+    /**
+     * Provides a BooleanInput that represents the current state of this
+     * BooleanTextComponent.
+     *
+     * @return the BooleanInput.
+     */
     public BooleanInput asInput() {
         return state;
     }
 
+    /**
+     * Gets the current state of this BooleanTextComponent.
+     *
+     * @return the current value.
+     */
     public boolean get() {
         return state.get();
     }

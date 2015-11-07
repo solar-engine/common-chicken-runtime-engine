@@ -22,15 +22,15 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import ccre.channel.BooleanCell;
 import ccre.channel.BooleanInput;
 import ccre.channel.BooleanOutput;
-import ccre.channel.BooleanCell;
+import ccre.channel.EventCell;
 import ccre.channel.EventInput;
 import ccre.channel.EventOutput;
-import ccre.channel.EventCell;
+import ccre.channel.FloatCell;
 import ccre.channel.FloatInput;
 import ccre.channel.FloatOutput;
-import ccre.channel.FloatCell;
 import ccre.log.LogLevel;
 import ccre.log.LoggingTarget;
 import ccre.log.VerifyingLoggingTarget;
@@ -40,6 +40,7 @@ import ccre.testing.CountingFloatOutput;
 import ccre.util.Utils;
 import ccre.util.Values;
 
+@SuppressWarnings("javadoc")
 public class CluckPublisherTest {
 
     private CluckNode node;

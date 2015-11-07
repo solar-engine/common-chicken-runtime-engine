@@ -25,10 +25,10 @@ import java.io.InputStreamReader;
 import java.io.PrintStream;
 import java.util.HashMap;
 
-import ccre.channel.BooleanOutput;
 import ccre.channel.BooleanCell;
-import ccre.channel.FloatOutput;
+import ccre.channel.BooleanOutput;
 import ccre.channel.FloatCell;
+import ccre.channel.FloatOutput;
 import ccre.log.Logger;
 import ccre.util.UniqueIds;
 
@@ -123,11 +123,11 @@ public final class StorageSegment {
      * @param key the key to put the String under.
      * @param value the String to store under this key.
      */
-    public synchronized void setStringForKey(String key, String bytes) {
-        if (bytes == null) {
+    public synchronized void setStringForKey(String key, String value) {
+        if (value == null) {
             data.remove(key);
         } else {
-            data.put(key, bytes);
+            data.put(key, value);
         }
         modified = true;
     }

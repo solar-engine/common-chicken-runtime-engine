@@ -26,8 +26,8 @@ import java.net.SocketTimeoutException;
 import java.util.LinkedList;
 import java.util.Random;
 
-import ccre.cluck.CluckLink;
 import ccre.cluck.CluckConstants;
+import ccre.cluck.CluckLink;
 import ccre.cluck.CluckNode;
 import ccre.concurrency.ReporterThread;
 import ccre.log.Logger;

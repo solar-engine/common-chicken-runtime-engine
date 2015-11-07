@@ -23,11 +23,12 @@ import java.nio.IntBuffer;
 
 import edu.wpi.first.wpilibj.hal.CounterJNI;
 
-public class DirectCounter {
+// TODO: document all the Direct* classes.
+class DirectCounter {
 
     public static final byte ANALOG_INPUT = 1;
     public static final byte DIGITAL_INPUT = 0;
-    
+
     public static ByteBuffer init(int channelUp, int channelDown, int mode) {
         IntBuffer status = Common.getCheckBuffer();
         IntBuffer index = Common.allocateInt();
@@ -105,15 +106,13 @@ public class DirectCounter {
 
     public static void setUpSourceEdge(ByteBuffer counter, boolean risingEdge, boolean fallingEdge) {
         IntBuffer status = Common.getCheckBuffer();
-        CounterJNI.setCounterUpSourceEdge(counter, (byte) (risingEdge ? 1 : 0),
-                (byte) (fallingEdge ? 1 : 0), status);
+        CounterJNI.setCounterUpSourceEdge(counter, (byte) (risingEdge ? 1 : 0), (byte) (fallingEdge ? 1 : 0), status);
         Common.check(status);
     }
 
     public static void setDownSourceEdge(ByteBuffer counter, boolean risingEdge, boolean fallingEdge) {
         IntBuffer status = Common.getCheckBuffer();
-        CounterJNI.setCounterDownSourceEdge(counter, (byte) (risingEdge ? 1 : 0),
-                (byte) (fallingEdge ? 1 : 0), status);
+        CounterJNI.setCounterDownSourceEdge(counter, (byte) (risingEdge ? 1 : 0), (byte) (fallingEdge ? 1 : 0), status);
         Common.check(status);
     }
 

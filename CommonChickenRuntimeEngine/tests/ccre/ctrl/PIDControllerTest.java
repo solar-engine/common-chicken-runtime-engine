@@ -25,15 +25,16 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import ccre.channel.EventCell;
 import ccre.channel.EventInput;
 import ccre.channel.EventOutput;
-import ccre.channel.EventCell;
-import ccre.channel.FloatInput;
 import ccre.channel.FloatCell;
+import ccre.channel.FloatInput;
 import ccre.testing.CountingEventOutput;
 import ccre.time.FakeTime;
 import ccre.time.Time;
 
+@SuppressWarnings("javadoc")
 public class PIDControllerTest {
 
     private FloatCell input, setpoint, P, I, D;

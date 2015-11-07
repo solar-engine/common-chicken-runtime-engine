@@ -3,6 +3,7 @@ package edu.wpi.first.wpilibj.hal;
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
 
+@SuppressWarnings("javadoc")
 public class InterruptJNI extends JNIWrapper {
     public interface InterruptJNIHandlerFunction {
         void apply(int interruptAssertedMask, Object param);

@@ -18,8 +18,27 @@
  */
 package ccre.channel;
 
+/**
+ * A utility class that lets users define derived dataflow channels based on
+ * other channels.
+ *
+ * <code>EventInput input = new DerivedEventInput(... some other inputs to watch ...) {<br>&nbsp;&nbsp;&nbsp;&nbsp;protected boolean shouldProduce() {<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return // some condition<br>&nbsp;&nbsp;&nbsp;&nbsp;}<br>}</code>
+ *
+ * Any other inputs may be specified in the constructor, which should be the
+ * inputs that, when updated, might cause this to also update (as in, fire.)
+ * When one of these updates, <code>shouldProduce()</code> is evaluated and, if
+ * the result has changed, the value of the BooleanInput is updated.
+ *
+ * @author skeggsc
+ */
 public abstract class DerivedEventInput extends AbstractUpdatingInput implements EventInput {
 
+    /**
+     * Creates a derived EventInput that may update when anything in
+     * <code>updates</code> is changed.
+     *
+     * @param updates the UpdatingInputs to monitor.
+     */
     public DerivedEventInput(UpdatingInput... updates) {
         DerivedUpdate.onUpdates(updates, () -> {
             if (shouldProduce()) {
@@ -28,5 +47,12 @@ public abstract class DerivedEventInput extends AbstractUpdatingInput implements
         });
     }
 
+    /**
+     * Implement this to specify when the EventInput should be fired. This is
+     * checked once for each time any input updates that this input is derived
+     * from.
+     *
+     * @return if the EventInput should be fired/produced.
+     */
     protected abstract boolean shouldProduce();
 }

@@ -15,7 +15,7 @@ public class Presentation06 implements FRCApplication {
     public void setupRobot() {
         FloatOutput motor = FRC.talon(0, FRC.MOTOR_FORWARD);
         BooleanOutput solenoid = FRC.solenoid(3);
-        EventOutput actuate = solenoid.eventSetTrue();
+        EventOutput actuate = solenoid.eventSet(true);
 
         // An input channel can be sent to an output.
         FloatInput axis = FRC.joystick1.axisY();

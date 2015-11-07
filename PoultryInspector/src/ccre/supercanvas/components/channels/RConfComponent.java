@@ -114,6 +114,9 @@ public class RConfComponent extends DraggableBoxComponent {
     private static final int SIGNAL_SUCCESS_FLASH_TIME = 500;
 
     private RConf.Entry[] entries = new RConf.Entry[0];
+    /**
+     * The RConfable accessed by this RConfComponent.
+     */
     protected final RConfable device;
 
     private boolean lastSignalSucceeded = false;

@@ -2,6 +2,7 @@ package edu.wpi.first.wpilibj.hal;
 
 import java.nio.IntBuffer;
 
+@SuppressWarnings("javadoc")
 public class PowerJNI extends JNIWrapper {
     public static native float getVinVoltage(IntBuffer status);
 

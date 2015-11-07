@@ -18,7 +18,9 @@
  */
 package ccre.channel;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 import java.util.Random;
 
@@ -29,6 +31,7 @@ import org.junit.Test;
 import ccre.testing.CountingBooleanOutput;
 import ccre.testing.CountingEventOutput;
 
+@SuppressWarnings("javadoc")
 public class BooleanCellTest {
 
     private BooleanCell cell;

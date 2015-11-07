@@ -144,11 +144,9 @@ public abstract class InstinctModule extends InstinctBaseModule {
     }
 
     /**
-     * Sets this module to run when the specified BooleanInput is true. You also
-     * need to fire the InstinctModule's event - likely with updateWhen().
+     * Sets this module to run when the specified BooleanInput is true.
      *
      * @param when When this should be running.
-     * @see #updateWhen(ccre.channel.EventInput)
      */
     public void setShouldBeRunning(BooleanInput when) {
         if (this.shouldBeRunning != null) {

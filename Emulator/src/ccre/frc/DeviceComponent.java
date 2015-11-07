@@ -31,12 +31,25 @@ import java.awt.Shape;
 public abstract class DeviceComponent {
 
     private Device parent;
+    /**
+     * The zone checked by the default {@link #checkPress(int, int)}
+     * implementation to see if {@link #onPress(int, int)} should be called.
+     * Specifically, <code>onPress</code> is only called if the mouse was in
+     * this zone.
+     *
+     * If null (the default), this means that no mouse presses will translate
+     * into calls to <code>onPress</code>.
+     */
     protected Shape hitzone;
 
     void setDevice(Device parent) {
         this.parent = parent;
     }
 
+    /**
+     * Notify this DeviceComponent, and thereby the containing window, that
+     * something has changed, and the screen should refresh.
+     */
     protected void repaint() {
         if (parent != null) {
             parent.repaint();
@@ -72,6 +85,13 @@ public abstract class DeviceComponent {
         }
     }
 
+    /**
+     * Called by the default implementation of {@link #checkPress(int, int)} if
+     * the mouse is within the {@link #hitzone}.
+     *
+     * @param x the x coordinate of the mouse, relative to the device.
+     * @param y the y coordinate of the mouse, relative to the device.
+     */
     protected void onPress(int x, int y) {
         // Do nothing by default.
     }

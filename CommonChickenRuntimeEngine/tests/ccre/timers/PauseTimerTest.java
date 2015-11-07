@@ -33,6 +33,7 @@ import ccre.testing.CountingEventOutput;
 import ccre.time.FakeTime;
 import ccre.time.Time;
 
+@SuppressWarnings("javadoc")
 public class PauseTimerTest {
 
     private static Time oldProvider;
@@ -222,7 +223,7 @@ public class PauseTimerTest {
             ceo.ifExpected = true;
             fake.forward(10);
             Thread.sleep(2);
-            ceo.check(); // flaky; 2 failures
+            ceo.check(); // flaky; 3 failures
         }
     }
 }

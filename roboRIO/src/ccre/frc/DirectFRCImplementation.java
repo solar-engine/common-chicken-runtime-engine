@@ -31,13 +31,13 @@ import java.nio.ByteBuffer;
 import java.util.Enumeration;
 import java.util.jar.Manifest;
 
+import ccre.channel.BooleanCell;
 import ccre.channel.BooleanInput;
 import ccre.channel.BooleanOutput;
-import ccre.channel.BooleanCell;
 import ccre.channel.DerivedBooleanInput;
 import ccre.channel.DerivedFloatInput;
-import ccre.channel.EventInput;
 import ccre.channel.EventCell;
+import ccre.channel.EventInput;
 import ccre.channel.FloatInput;
 import ccre.channel.FloatOutput;
 import ccre.channel.SerialIO;
@@ -390,7 +390,8 @@ public final class DirectFRCImplementation implements FRCImplementation {
 
     @Override
     public FloatInput makeCounter(int channelUp, int channelDown, EventInput resetWhen, EventInput updateOn, int mode) {
-        // unused happens to be -1, but this makes more sense than comparing with -1
+        // unused happens to be -1, but this makes more sense than comparing
+        // with -1
         if (channelUp == FRC.UNUSED && channelDown == FRC.UNUSED) {
             Logger.warning("Neither channelUp nor channelDown was provided to makeCounter.");
             return FloatInput.zero;
@@ -580,10 +581,6 @@ public final class DirectFRCImplementation implements FRCImplementation {
                 return DirectPDP.getVoltage();
             }
         };
-    }
-
-    public boolean isRoboRIO() {
-        return true;
     }
 
     @Override

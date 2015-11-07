@@ -29,7 +29,23 @@ import java.io.InputStreamReader;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 
+/**
+ * A class that takes care of rebuilding {@link DepTask} tasks for a project,
+ * based on the static methods available in its
+ * <code>deployment.Deployment</code> class.
+ *
+ * These tasks are put into the Eclipse external tools listing, where the user
+ * can select between them.
+ *
+ * @author skeggsc
+ */
 public class RebuildBuilders {
+    /**
+     * Rebuilds the {@link DepTask} tasks for the current project, unless it is
+     * TemplateRobot.
+     *
+     * @throws IOException
+     */
     public static void rebuild() throws IOException {
         if ("TemplateRobot".equals(DepProject.name())) {
             System.out.println("Not building launchers for TemplateRobot.");
@@ -50,6 +66,14 @@ public class RebuildBuilders {
         }
     }
 
+    /**
+     * Rebuilds the {@link DepTask} tasks for the current project, based on the
+     * static methods available in the deployment class <code>deployment</code>.
+     *
+     * @param deployment the deployment class that includes the deployment
+     * tasks.
+     * @throws IOException
+     */
     public static void rebuild(Class<?> deployment) throws IOException {
         for (Method m : deployment.getMethods()) {
             if (m.isAnnotationPresent(DepTask.class)) {
@@ -69,6 +93,20 @@ public class RebuildBuilders {
         }
     }
 
+    /**
+     * Rebuilds the specified parsed DepTask by adding a new External Tool
+     * launcher to Eclipse to run <code>methodName</code> on
+     * <code>deployment</code>, with a <code>displayName</code> and optionally
+     * forking if <code>fork</code>.
+     *
+     * @param deployment the deployment class that includes the deployment
+     * tasks.
+     * @param displayName the name to display the launcher as.
+     * @param methodName the method to invoke on the deployment class.
+     * @param fork if a new JVM should be forked to run the deployment task when
+     * it is launched.
+     * @throws IOException
+     */
     public static void rebuild(Class<?> deployment, String displayName, String methodName, boolean fork) throws IOException {
         InputStream resource = RebuildBuilders.class.getResourceAsStream("/ccre/deployment/invocation-template.xml");
         if (resource == null) {

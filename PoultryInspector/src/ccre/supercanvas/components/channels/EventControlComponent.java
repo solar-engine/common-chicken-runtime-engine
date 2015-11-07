@@ -23,9 +23,9 @@ import java.awt.FontMetrics;
 import java.awt.Graphics2D;
 import java.io.Serializable;
 
+import ccre.channel.EventCell;
 import ccre.channel.EventInput;
 import ccre.channel.EventOutput;
-import ccre.channel.EventCell;
 import ccre.rconf.RConf.Entry;
 import ccre.supercanvas.BaseChannelComponent;
 import ccre.supercanvas.Rendering;
@@ -195,6 +195,11 @@ public class EventControlComponent extends BaseChannelComponent<EventControlComp
         return rconfBase(field, data) == BASE_VALID;
     }
 
+    /**
+     * Provides an input that is fired when this button is pressed.
+     *
+     * @return the EventInput.
+     */
     public EventInput asInput() {
         return stat;
     }

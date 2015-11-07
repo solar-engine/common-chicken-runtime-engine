@@ -18,10 +18,34 @@
  */
 package ccre.channel;
 
+/**
+ * A utility class that lets users define derived dataflow channels based on
+ * other channels.
+ *
+ * <code>BooleanInput input = new DerivedBooleanInput(... some other inputs to watch ...) {<br>&nbsp;&nbsp;&nbsp;&nbsp;protected boolean apply() {<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return // some value<br>&nbsp;&nbsp;&nbsp;&nbsp;}<br>}</code>
+ *
+ * Any other inputs may be specified in the constructor, which should be the
+ * inputs that, when updated, might cause this to also update. When one of these
+ * updates, <code>apply()</code> is evaluated and, if the result has changed,
+ * the value of the BooleanInput is updated.
+ *
+ * In the case that one is polling something, the updating input could be a
+ * periodic timer, such that it checks at a consistent rate. In FRC, the default
+ * such timer is called {@link ccre.frc.FRC#sensorPeriodic}, but any EventInput
+ * could work.
+ *
+ * @author skeggsc
+ */
 public abstract class DerivedBooleanInput extends AbstractUpdatingInput implements BooleanInput {
 
     private boolean value = apply();
 
+    /**
+     * Creates a derived BooleanInput that may update when anything in
+     * <code>updates</code> is changed.
+     *
+     * @param updates the UpdatingInputs to monitor.
+     */
     public DerivedBooleanInput(UpdatingInput... updates) {
         DerivedUpdate.onUpdates(updates, () -> {
             boolean newvalue = apply();
@@ -36,5 +60,10 @@ public abstract class DerivedBooleanInput extends AbstractUpdatingInput implemen
         return value;
     }
 
+    /**
+     * Implement this to specify the value held by the derived BooleanInput.
+     *
+     * @return the present value for the BooleanInput.
+     */
     protected abstract boolean apply();
 }

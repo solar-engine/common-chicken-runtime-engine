@@ -38,7 +38,7 @@ public class BooleanViewDevice extends Device implements BooleanOutput, Disablea
     private boolean bypassDisabled;
 
     /**
-     * Create a new BooleanViewDevice with a label to describe the device.
+     * Creates a new BooleanViewDevice with a label to describe the device.
      *
      * @param label how to describe the device.
      */
@@ -49,11 +49,26 @@ public class BooleanViewDevice extends Device implements BooleanOutput, Disablea
         add(actuated);
     }
 
+    /**
+     * Creates a new BooleanViewDevice with a label to describe the device and a
+     * default value.
+     *
+     * @param label how to describe the device.
+     * @param enabledByDefault the default value to display.
+     */
     public BooleanViewDevice(String label, boolean enabledByDefault) {
         this(label);
         this.set(enabledByDefault);
     }
 
+    /**
+     * Sets this BooleanViewDevice to ignore whether the robot is in disabled
+     * mode: this is useful for outputs that work regardless of enablement. If
+     * this isn't called, then it is forced to false whenever the robot is
+     * disabled.
+     *
+     * @return this BooleanViewDevice, for method chaining purposes.
+     */
     public BooleanViewDevice setBypassDisabledMode() {
         notifyDisabled(false);
         bypassDisabled = true;
@@ -81,6 +96,12 @@ public class BooleanViewDevice extends Device implements BooleanOutput, Disablea
         }
     }
 
+    /**
+     * Provides a BooleanInput representing the current state of this
+     * BooleanViewDevice.
+     *
+     * @return the BooleanInput.
+     */
     public BooleanInput asInput() {
         return actuated.asInput();
     }

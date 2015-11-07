@@ -19,7 +19,6 @@
 package ccre.channel;
 
 import ccre.time.Time;
-import ccre.util.Utils;
 
 /**
  * An event input or source. This produces events when it fires. A user can
@@ -52,8 +51,10 @@ public interface EventInput extends UpdatingInput {
      * If the same listener is added multiple times, it has the same effect as
      * if it was added once.
      *
-     * @param listener the listener to add.
-     * @see #unsend(EventOutput)
+     * @param output the listener to add.
+     * @return an EventOutput that deregisters the registered EventOutput. DO
+     * NOT FIRE THIS RETURNED EVENT MORE THAN ONCE: UNDEFINED BEHAVIOR MAY
+     * RESULT.
      */
     public default EventOutput send(EventOutput output) {
         if (output == null) {
@@ -62,8 +63,17 @@ public interface EventInput extends UpdatingInput {
         return onUpdate(output);
     }
 
+    /**
+     * Provides an EventInput that fires when either this EventInput or
+     * <code>other</code> fires.
+     *
+     * @param other the other EventInput.
+     * @return the combined EventInput.
+     */
     public default EventInput or(EventInput other) {
-        Utils.checkNull(other);
+        if (other == null) {
+            throw new NullPointerException();
+        }
         EventInput original = this;
         return new EventInput() {
             @Override
@@ -73,28 +83,57 @@ public interface EventInput extends UpdatingInput {
         };
     }
 
-    public default EventInput and(BooleanInput condition) {
-        Utils.checkNull(condition);
+    /**
+     * Provides an EventInput that fires only when this EventInput fires and the
+     * current value of <code>allow</code> is true.
+     *
+     * @param allow if events should be allowed through.
+     * @return the restricted EventInput.
+     */
+    public default EventInput and(BooleanInput allow) {
+        if (allow == null) {
+            throw new NullPointerException();
+        }
         EventInput original = this;
         return new DerivedEventInput(original) {
             @Override
             protected boolean shouldProduce() {
-                return condition.get();
+                return allow.get();
             }
         };
     }
 
-    public default EventInput andNot(BooleanInput condition) {
-        Utils.checkNull(condition);
+    /**
+     * Provides an EventInput that fires only when this EventInput fires and the
+     * current value of <code>deny</code> is false.
+     *
+     * @param deny if events should be allowed through.
+     * @return the restricted EventInput.
+     */
+    public default EventInput andNot(BooleanInput deny) {
+        if (deny == null) {
+            throw new NullPointerException();
+        }
         EventInput original = this;
         return new DerivedEventInput(original) {
             @Override
             protected boolean shouldProduce() {
-                return !condition.get();
+                return !deny.get();
             }
         };
     }
 
+    /**
+     * Provides a debounced version of this EventInput, such that any events
+     * that occur within <code>minMillis</code> of the last event will be
+     * dropped.
+     *
+     * Only events that are propagated reset the timer: if an event is ignored,
+     * it does not extend the reactivation deadline.
+     *
+     * @param minMillis the minimum spacing between events.
+     * @return the debounced version of this EventInput.
+     */
     public default EventInput debounced(final long minMillis) {
         if (minMillis <= 0) {
             throw new IllegalArgumentException("debounced() parameter must be positive!");

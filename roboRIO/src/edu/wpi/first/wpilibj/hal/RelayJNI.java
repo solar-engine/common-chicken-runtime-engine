@@ -3,6 +3,7 @@ package edu.wpi.first.wpilibj.hal;
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
 
+@SuppressWarnings("javadoc")
 public class RelayJNI extends DIOJNI {
     public static native void setRelayForward(ByteBuffer digital_port_pointer, byte on, IntBuffer status);
 

@@ -20,6 +20,6 @@ public class Presentation04 implements FRCApplication {
         BooleanOutput solenoid = FRC.solenoid(3);
 
         EventInput button = FRC.joystick1.onPress(1);
-        EventOutput actuate = solenoid.eventSetTrue();
+        EventOutput actuate = solenoid.eventSet(true);
     }
 }

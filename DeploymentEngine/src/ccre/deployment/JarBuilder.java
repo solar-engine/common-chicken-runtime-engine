@@ -26,9 +26,24 @@ import java.util.jar.JarOutputStream;
 import java.util.jar.Manifest;
 import java.util.zip.ZipEntry;
 
+/**
+ * A helper class for putting together a Jar from its individual components.
+ *
+ * @author skeggsc
+ */
 public class JarBuilder {
 
+    /**
+     * A constant that means that a Jar should be preserved after JVM exit.
+     *
+     * @see Jar
+     */
     public static final boolean PRESERVE = true;
+    /**
+     * A constant that means that a Jar should be deleted after JVM exit.
+     *
+     * @see Jar
+     */
     public static final boolean DELETE = false;
     private static final String MANIFEST = "META-INF/MANIFEST.MF";
 
@@ -36,10 +51,27 @@ public class JarBuilder {
     private final JarOutputStream jout;
     private final boolean preserved;
 
+    /**
+     * Creates a new JarBuilder that optionally preserves the result. No
+     * manifest is specified.
+     *
+     * @param preserve if the generated Jar should be preserved.
+     * @throws IOException
+     * @see Jar for an explanation of preservation.
+     */
     public JarBuilder(boolean preserve) throws IOException {
         this(null, preserve);
     }
 
+    /**
+     * Creates a new JarBuilder that optionally preserves the result. A manifest
+     * is specified.
+     *
+     * @param mf the manifest to include in the Jar.
+     * @param preserve if the generated Jar should be preserved.
+     * @throws IOException
+     * @see Jar for an explanation of preservation.
+     */
     public JarBuilder(Manifest mf, boolean preserve) throws IOException {
         tempOut = File.createTempFile("jb-", ".jar");
         if (!preserve) {
@@ -53,10 +85,28 @@ public class JarBuilder {
         }
     }
 
+    /**
+     * Adds a class with the given dot-format name and with data specified by an
+     * input stream.
+     *
+     * @param elem the dot-format name of the class, such as
+     * <code>java.lang.Object</code>.
+     * @param is the InputStream that carries the class data for this class.
+     * @throws IOException
+     */
     public void addClass(String elem, InputStream is) throws IOException {
         addResource(elem.replace('.', '/') + ".class", is);
     }
 
+    /**
+     * Adds a resource with the given path and with data specified by an input
+     * stream.
+     *
+     * @param name the path of the resource.
+     * @param is the InputStream that carries the resource data for this
+     * resource.
+     * @throws IOException
+     */
     public void addResource(String name, InputStream is) throws IOException {
         if (is == null) {
             throw new NullPointerException();
@@ -74,6 +124,14 @@ public class JarBuilder {
         }
     }
 
+    /**
+     * Adds all of the classes and resources from <code>artifact</code>, and
+     * optionally the manifest.
+     *
+     * @param artifact the artifact to read data from.
+     * @param andManifest if the manifest should be taken from this artifact.
+     * @throws IOException
+     */
     public void addAll(Artifact artifact, boolean andManifest) throws IOException {
         for (String cn : artifact.listClassNames()) {
             addClass(cn, artifact.loadClassFile(cn));
@@ -86,6 +144,12 @@ public class JarBuilder {
         }
     }
 
+    /**
+     * Finalizes this Jar and converts it to a {@link Jar}.
+     *
+     * @return the built Jar.
+     * @throws IOException
+     */
     public Jar build() throws IOException {
         jout.close();
         return new Jar(tempOut, preserved);

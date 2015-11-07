@@ -77,6 +77,14 @@ public interface BooleanIO extends BooleanInput, BooleanOutput {
         return this;
     }
 
+    /**
+     * Compose a BooleanInput and a BooleanOutput into a single BooleanIO, which
+     * dispatches to the two implementations.
+     *
+     * @param input the input to dispatch to.
+     * @param output the output to dispatch to.
+     * @return the composed BooleanIO.
+     */
     public static BooleanIO compose(BooleanInput input, BooleanOutput output) {
         return new BooleanIO() {
             @Override

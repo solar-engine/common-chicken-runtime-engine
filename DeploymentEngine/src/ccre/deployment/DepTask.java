@@ -23,10 +23,29 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+/**
+ * An annotation that specifies that a static method on a main deployment class
+ * should be made available as an option to the user.
+ *
+ * @author skeggsc
+ */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)
 public @interface DepTask {
+    /**
+     * Returns the name that should be displayed for this task. If not
+     * specified, a name will be automatically generated based on the method
+     * name.
+     *
+     * @return the name for the task, or the empty string for the default.
+     */
     public String name() default "";
 
+    /**
+     * Returns whether or not this task should be run in a separate JVM from any
+     * host JVM (such as Eclipse.)
+     *
+     * @return if this task should run separately.
+     */
     public boolean fork() default false;
 }

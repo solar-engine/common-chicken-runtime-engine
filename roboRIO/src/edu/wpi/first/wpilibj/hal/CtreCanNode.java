@@ -8,6 +8,7 @@
 
 package edu.wpi.first.wpilibj.hal;
 
+@SuppressWarnings("javadoc")
 public class CtreCanNode {
     private long swigCPtr;
     protected boolean swigCMemOwn;

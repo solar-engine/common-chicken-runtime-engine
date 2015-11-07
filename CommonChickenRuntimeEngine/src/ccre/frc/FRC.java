@@ -101,7 +101,7 @@ public class FRC {
     /**
      * For unused channels for counters.
      */
-    public static final int UNUSED = -1; 
+    public static final int UNUSED = -1;
 
     /**
      * The FRCImplementation providing access to the robot.
@@ -795,7 +795,9 @@ public class FRC {
      * @see FRC#SEMIPERIOD_MODE
      * @see FRC#TWO_PULSE_MODE
      *
-     * @param channel The channel for the counter.
+     * @param upChannel the channel for the counter's side that counts up.
+     * @param downChannel the channel for the counter's side that counts down.
+     * @param mode the pulse tracking mode for the counter.
      * @param resetWhen If provided, the Counter's value will be reset when this
      * event is produced.
      * @param updateOn Updates the FloatInput when this event is produced.
@@ -814,7 +816,9 @@ public class FRC {
      * @see FRC#SEMIPERIOD_MODE
      * @see FRC#TWO_PULSE_MODE
      *
-     * @param channel The channel for the counter.
+     * @param upChannel the channel for the counter's side that counts up.
+     * @param downChannel the channel for the counter's side that counts down.
+     * @param mode the pulse tracking mode for the counter.
      * @param resetWhen If provided, the Counter's value will be reset when this
      * event is produced.
      * @return A FloatInput that represents the count of a counter
@@ -830,7 +834,8 @@ public class FRC {
      *
      * @see FRC#TWO_PULSE_MODE
      *
-     * @param channel The channel for the counter.
+     * @param upChannel the channel for the counter's side that counts up.
+     * @param downChannel the channel for the counter's side that counts down.
      * @param resetWhen If provided, the Counter's value will be reset when this
      * event is produced.
      * @param updateOn Updates the FloatInput when this event is produced.
@@ -846,7 +851,8 @@ public class FRC {
      *
      * @see FRC#TWO_PULSE_MODE
      *
-     * @param channel The channel for the counter.
+     * @param upChannel the channel for the counter's side that counts up.
+     * @param downChannel the channel for the counter's side that counts down.
      * @param resetWhen If provided, the Counter's value will be reset when this
      * event is produced.
      * @return A FloatInput that represents the count of a counter

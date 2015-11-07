@@ -30,6 +30,7 @@ import ccre.testing.CountingEventOutput;
 import ccre.testing.CountingFloatOutput;
 import ccre.util.Values;
 
+@SuppressWarnings("javadoc")
 public class FloatCellTest {
 
     private FloatCell cell;

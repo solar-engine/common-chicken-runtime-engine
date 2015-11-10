@@ -3,7 +3,7 @@ cd `dirname $0`
 echo "Tarring..."
 (cd Javadoc && tar -czf ../javadoc.tgz .)
 echo "Uploading..."
-scp -r javadoc.tgz cgscomwww.catlin.edu:ccre-doc.tgz
+scp -r javadoc.tgz cgscomwww.catlin.edu:ccre3-doc.tgz
 echo "Updating..."
-ssh cgscomwww.catlin.edu 'rm -r ccre-doc && mkdir ccre-doc && cd ccre-doc && tar -xzf ../ccre-doc.tgz && chmod -R 0755 .'
+ssh cgscomwww.catlin.edu 'rm -r ccre3-doc && mkdir ccre3-doc && cd ccre3-doc && tar -xzf ../ccre3-doc.tgz && chmod -R 0755 .'
 echo "Done!"

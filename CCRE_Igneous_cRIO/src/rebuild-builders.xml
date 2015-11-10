@@ -26,33 +26,13 @@
 	<!-- Specified in the builder configuration for this ANT builder. -->
 
 	<eclipse.convertPath resourcepath="/TemplateRobot" property="template.dir" />
+	<eclipse.convertPath resourcepath="/CCRE_Igneous_cRIO" property="crio.dir" />
 
 	<target name="upgrade">
-		<basename file="${rebuilder-target}" property="project.name" />
-		<script language="javascript">
-			<![CDATA[
-			if (javax.swing.JOptionPane.showConfirmDialog(null, "A project that you are trying to build (" + project.getProperty("project.name") + ") is set up for CCRE version 2, but you are using CCRE version 3.\nWould you like to upgrade the project automatically?\nIf you have any issues, please ask about them on the forum thread on Chief Delphi.", "CCRE Project Upgrade", javax.swing.JOptionPane.YES_NO_OPTION) != javax.swing.JOptionPane.YES_OPTION) {
-				throw new java.lang.Exception("Upgrade cancelled.");
-			}
-			var num = javax.swing.JOptionPane.showInputDialog("Enter your team number");
-			if (num == null) {
-				throw new java.lang.Exception("Upgrade cancelled.");
-			}
-			project.setProperty("team.number", num);
-			]]>
-		</script>
-		<echo>If you have any issues, please ask about them on the forum thread on Chief Delphi at http://www.chiefdelphi.com/forums/showthread.php?t=130813</echo>
-		<!-- TODO: do this next part without possibly mucking up our namespace -->
-		<!-- We do this to get igneous.main -->
-		<property file="${rebuilder-target}/src/main.properties" />
-		<copy file="${template.dir}/.externalToolBuilders/Target Rebuilder.launch" tofile="${rebuilder-target}/.externalToolBuilders/Target Rebuilder.launch" failonerror="true" overwrite="true" />
-		<copy file="${template.dir}/.classpath" tofile="${rebuilder-target}/.classpath" failonerror="true" overwrite="true" />
-		<property name="deployed" value="${rebuilder-target}/src/deployment/Deployment.java" />
-		<copy file="${template.dir}/src/deployment/Deployment.java" tofile="${deployed}" failonerror="true" overwrite="true" />
-		<replace file="${deployed}" token="robot.RobotTemplate.TEAM_NUMBER" value="${team.number}" />
-		<replace file="${deployed}" token="robot.RobotTemplate" value="${igneous.main}" />
-		<delete file="${rebuilder-target}/src/main.properties" />
-		<echo>Success!</echo>
+		<java classname="ccre.upgrade.Upgrade" classpath="${crio.dir}/bin">
+			<arg value="${rebuilder-target}"/>
+			<arg value="${template.dir}"/>
+		</java>
 	</target>
 
 </project>

@@ -41,7 +41,7 @@ public class CANTest implements FRCApplication {
         try {
             ExtendedMotor motor = FRC.jaguarCAN(0);
             FRC.joystick1.axis(2).send(motor.asMode(OutputControlMode.VOLTAGE_FIXED));
-            FRC.isTeleopMode().send(motor.asEnable());
+            FRC.inTeleopMode().send(motor.asEnable());
             motor.setInternalPID(1, 0.1f, 0.01f);
             Cluck.publish("CAN Jaguar Bus Fault", motor.getDiagnosticChannel(DiagnosticType.BUS_VOLTAGE_FAULT));
         } catch (ExtendedMotorFailureException e) {

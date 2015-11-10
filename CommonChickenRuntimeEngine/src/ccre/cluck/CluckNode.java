@@ -150,8 +150,7 @@ public class CluckNode implements Serializable {
         if (data == null) {
             throw new NullPointerException();
         }
-        String[] linksKeySet = links.keySet().toArray(new String[links.keySet().size()]);
-        for (String link : linksKeySet) {
+        for (String link : links.keySet().toArray(new String[links.keySet().size()])) {
             CluckLink cl = links.get(link);
             if (cl != null && cl != denyLink) {
                 try {

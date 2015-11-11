@@ -18,9 +18,10 @@
  */
 package ccre.log;
 
-import ccre.concurrency.ConcurrentDispatchArray;
-import ccre.workarounds.CallerInfo;
-import ccre.workarounds.ThrowablePrinter;
+import java.util.concurrent.CopyOnWriteArrayList;
+
+import ccre.util.CallerInfo;
+import ccre.util.Utils;
 
 /**
  * A class containing easy global methods for logging, as well as holding the
@@ -33,7 +34,7 @@ public class Logger {
     /**
      * The logging targets to write logs to.
      */
-    public static final ConcurrentDispatchArray<LoggingTarget> targets = new ConcurrentDispatchArray<LoggingTarget>();
+    public static final CopyOnWriteArrayList<LoggingTarget> targets = new CopyOnWriteArrayList<LoggingTarget>();
     private static boolean includeLineNumbers = true;
 
     /**
@@ -118,7 +119,7 @@ public class Logger {
 
     private static String prependCallerInfo(int index, String message) {
         if (includeLineNumbers && !message.startsWith("(") && !message.startsWith("[")) {
-            CallerInfo caller = ThrowablePrinter.getMethodCaller(index + 1);
+            CallerInfo caller = Utils.getMethodCaller(index + 1);
             if (caller != null && caller.getFileName() != null) {
                 if (caller.getLineNum() > 0) {
                     return "(" + caller.getFileName() + ":" + caller.getLineNum() + ") " + message;

@@ -23,9 +23,9 @@ import java.awt.FontMetrics;
 import java.awt.Graphics2D;
 import java.io.Serializable;
 
+import ccre.channel.EventCell;
 import ccre.channel.EventInput;
 import ccre.channel.EventOutput;
-import ccre.channel.EventStatus;
 import ccre.rconf.RConf.Entry;
 import ccre.supercanvas.BaseChannelComponent;
 import ccre.supercanvas.Rendering;
@@ -36,7 +36,7 @@ import ccre.supercanvas.SuperCanvasPanel;
  *
  * @author skeggsc
  */
-public class EventControlComponent extends BaseChannelComponent<EventControlComponent.View> implements EventInput {
+public class EventControlComponent extends BaseChannelComponent<EventControlComponent.View> {
 
     static enum View {
         ISOMETRIC_BUTTON, SQUARE_BUTTON, TEXTUAL
@@ -45,7 +45,8 @@ public class EventControlComponent extends BaseChannelComponent<EventControlComp
     private static final long serialVersionUID = 5604099540525088534L;
     private transient long countStart;
     private final EventInput alternateSource;
-    private final EventStatus stat = new EventStatus();
+    private final EventCell stat = new EventCell();
+    private EventOutput unsubscribe;
 
     /**
      * Create a new EventControlComponent with a EventOutput to control.
@@ -138,18 +139,8 @@ public class EventControlComponent extends BaseChannelComponent<EventControlComp
 
     @Override
     public boolean onInteract(int x, int y) {
-        stat.event();
+        stat.safeEvent();
         return true;
-    }
-
-    @Override
-    public void send(EventOutput listener) {
-        stat.send(listener);
-    }
-
-    @Override
-    public void unsend(EventOutput listener) {
-        stat.unsend(listener);
     }
 
     @Override
@@ -164,36 +155,52 @@ public class EventControlComponent extends BaseChannelComponent<EventControlComp
     protected void onChangePanel(SuperCanvasPanel panel) {
         boolean hasPanel = panel != null;
         if (alternateSource != null && hasPanel != isFakeSubscribed) {
+            if (unsubscribe != null) {
+                unsubscribe.safeEvent();
+                unsubscribe = null;
+            }
             if (hasPanel) {
-                alternateSource.send(fakeOut);
-            } else {
-                alternateSource.unsend(fakeOut);
+                unsubscribe = alternateSource.send(fakeOut);
             }
             isFakeSubscribed = hasPanel;
         }
     }
 
-    private final class FakeEventOutput implements EventOutput, Serializable {
+    private static final class FakeEventOutput implements EventOutput, Serializable {
         private static final long serialVersionUID = 1493349644760515921L;
 
+        @Override
         public void event() {
-            // Do nothing. This is just so that we can make the remote end send us data by subscribing.
+            // Do nothing. This is just so that we can make the remote end send
+            // us data by subscribing.
         }
     }
 
     private final class CountNotifier implements EventOutput, Serializable {
         private static final long serialVersionUID = 2028623211384850963L;
 
+        @Override
         public void event() {
             countStart = System.currentTimeMillis();
         }
     }
 
+    @Override
     public Entry[] queryRConf() throws InterruptedException {
         return rconfBase();
     }
 
+    @Override
     public boolean signalRConf(int field, byte[] data) throws InterruptedException {
         return rconfBase(field, data) == BASE_VALID;
+    }
+
+    /**
+     * Provides an input that is fired when this button is pressed.
+     *
+     * @return the EventInput.
+     */
+    public EventInput asInput() {
+        return stat;
     }
 }

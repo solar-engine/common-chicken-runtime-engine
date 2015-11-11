@@ -18,23 +18,22 @@
  */
 package ccre.instinct;
 
-import ccre.channel.BooleanInputPoll;
-import ccre.channel.EventInput;
-import ccre.channel.EventOutput;
+import ccre.channel.BooleanInput;
 import ccre.concurrency.ReporterThread;
 import ccre.log.Logger;
+import ccre.time.Time;
 
 /**
  * The base class for an Instinct (the simple autonomous subsystem) module.
  *
  * @author skeggsc
  */
-public abstract class InstinctModule extends InstinctBaseModule implements EventOutput {
+public abstract class InstinctModule extends InstinctBaseModule {
 
     /**
      * If the instinct module should currently be running.
      */
-    private BooleanInputPoll shouldBeRunning;
+    private BooleanInput shouldBeRunning;
     /**
      * The amount of time between condition checks for most things that auto is
      * waiting on. Must be positive. 20 milliseconds by default.
@@ -52,12 +51,12 @@ public abstract class InstinctModule extends InstinctBaseModule implements Event
     };
 
     /**
-     * Create a new InstinctModule with a BooleanInputPoll controlling when this
+     * Create a new InstinctModule with a BooleanInput controlling when this
      * module should run.
      *
      * @param shouldBeRunning The input to control the running of this module.
      */
-    public InstinctModule(BooleanInputPoll shouldBeRunning) {
+    public InstinctModule(BooleanInput shouldBeRunning) {
         if (shouldBeRunning == null) {
             throw new NullPointerException();
         }
@@ -68,7 +67,7 @@ public abstract class InstinctModule extends InstinctBaseModule implements Event
      * Create a new InstinctModule that needs to be registered before it will be
      * useful.
      *
-     * @see ccre.igneous.Igneous#registerAutonomous(InstinctModule)
+     * @see ccre.frc.FRC#registerAutonomous(InstinctModule)
      */
     public InstinctModule() {
         this.shouldBeRunning = null;
@@ -106,8 +105,8 @@ public abstract class InstinctModule extends InstinctBaseModule implements Event
                 } catch (InterruptedException ex) {
                 }
             }
-            try { // TODO: Is this needed any longer?
-                  // Get rid of any lingering interruptions.
+            try {// TODO: Is this needed any longer?
+                 // Get rid of any lingering interruptions.
                 waitCycle();
             } catch (InterruptedException ex) {
             }
@@ -145,13 +144,11 @@ public abstract class InstinctModule extends InstinctBaseModule implements Event
     }
 
     /**
-     * Sets this module to run when the specified BooleanInputPoll is true. You
-     * also need to fire the InstinctModule's event - likely with updateWhen().
+     * Sets this module to run when the specified BooleanInput is true.
      *
      * @param when When this should be running.
-     * @see #updateWhen(ccre.channel.EventInput)
      */
-    public void setShouldBeRunning(BooleanInputPoll when) {
+    public void setShouldBeRunning(BooleanInput when) {
         if (this.shouldBeRunning != null) {
             throw new IllegalStateException();
         }
@@ -164,31 +161,13 @@ public abstract class InstinctModule extends InstinctBaseModule implements Event
         }
     }
 
-    /**
-     * This no longer needs to be called, and is ignored.
-     *
-     * Sets this module to be updated (continue execution) when the specified
-     * event is produced.
-     *
-     * @param src The event to wait for to continue execution.
-     */
-    @Deprecated
-    public void updateWhen(EventInput src) {
-        Logger.severe("InstinctModule.updateWhen no longer needs to be called!");
-    }
-
     void waitCycle() throws InterruptedException {
-        Thread.sleep(autoCycleRate);
+        Time.sleep(autoCycleRate);
     }
 
     void ensureShouldBeRunning() throws AutonomousModeOverException {
         if (!shouldBeRunning.get()) {
             throw new AutonomousModeOverException();
         }
-    }
-
-    @Deprecated
-    public void event() {
-        Logger.warning("You no longer need to call InstinctModule.event()! Stop doing it.");
     }
 }

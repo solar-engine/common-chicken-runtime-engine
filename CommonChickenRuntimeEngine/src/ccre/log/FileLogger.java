@@ -25,9 +25,9 @@ import java.io.PrintStream;
 import java.util.Date;
 
 import ccre.channel.EventOutput;
-import ccre.ctrl.Ticker;
-import ccre.saver.StorageProvider;
-import ccre.workarounds.ThrowablePrinter;
+import ccre.storage.Storage;
+import ccre.time.Time;
+import ccre.timers.Ticker;
 
 /**
  * A logging tool that stores logging message in a file on the current computer
@@ -45,7 +45,7 @@ public class FileLogger implements LoggingTarget {
         try {
             int i = 0;
             while (true) {
-                InputStream oi = StorageProvider.openInput("log-" + i);
+                InputStream oi = Storage.openInput("log-" + i);
                 if (oi == null) {
                     break;
                 }
@@ -62,10 +62,6 @@ public class FileLogger implements LoggingTarget {
      * The PrintStream to log outputs to.
      */
     private final PrintStream pstream;
-    /**
-     * The time at which this logger was started.
-     */
-    private final long start;
 
     /**
      * Create a new FileLogger writing to the specified output file.
@@ -74,7 +70,7 @@ public class FileLogger implements LoggingTarget {
      * @throws IOException If an IO Exception occurs.
      */
     public FileLogger(String fname) throws IOException {
-        this(StorageProvider.openOutput(fname));
+        this(Storage.openOutput(fname));
     }
 
     /**
@@ -93,8 +89,8 @@ public class FileLogger implements LoggingTarget {
      */
     public FileLogger(final PrintStream pstream) {
         this.pstream = pstream;
-        start = System.currentTimeMillis();
-        pstream.println("Logging began at " + new Date(start) + " [" + start + "]");
+        long now = Time.currentTimeMillis();
+        pstream.println("Logging began at " + new Date(System.currentTimeMillis()) + " [" + now + "]");
         new Ticker(10000).send(new EventOutput() {
             public void event() {
                 synchronized (FileLogger.this) {
@@ -106,15 +102,15 @@ public class FileLogger implements LoggingTarget {
     }
 
     public synchronized void log(LogLevel level, String message, Throwable throwable) {
-        pstream.println("[" + (System.currentTimeMillis() - start) + " " + level + "] " + message);
+        pstream.println("[" + (Time.currentTimeMillis()) + " " + level + "] " + message);
         if (throwable != null) {
-            ThrowablePrinter.printThrowable(throwable, pstream);
+            throwable.printStackTrace(pstream);
         }
         pstream.flush();
     }
 
     public synchronized void log(LogLevel level, String message, String extended) {
-        pstream.println("[" + (System.currentTimeMillis() - start) + " " + level + "] " + message);
+        pstream.println("[" + (Time.currentTimeMillis()) + " " + level + "] " + message);
         if (extended != null) {
             int i = extended.length();
             while (i != 0 && extended.charAt(i - 1) <= 32) {

@@ -2,7 +2,7 @@
 
 <!--
 /*
- * Copyright 2014 Colby Skeggs
+ * Copyright 2015 Colby Skeggs
  * 
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  * 
@@ -21,72 +21,18 @@
  */
  -->
 
-<project name="FRC Deployment" default="generate-all">
+<project name="FRC Fake Deployment" default="upgrade">
 
 	<!-- Specified in the builder configuration for this ANT builder. -->
-	<eclipse.convertPath filesystempath="${rebuilder-target}"
-	                     property="rebuilder.dir" />
 
-	<condition property="should-generate">
-		<equals arg1="${rebuilder.dir}" arg2="/TemplateIgneousRobot" />
-	</condition>
+	<eclipse.convertPath resourcepath="/TemplateRobot" property="template.dir" />
+	<eclipse.convertPath resourcepath="/CCRE_Igneous_cRIO" property="crio.dir" />
 
-	<target name="generate-by-template" unless="should-generate">
-		<script language="javascript">
-			<![CDATA[
-			// Strip off the slash.
-			project.setNewProperty("rebuilder.name", project.getProperty("rebuilder.dir").substr(1));
-			]]>
-		</script>
-		<property name="target.file"
-		          value="${rebuilder-target}/launches/${rebuilder.name} ${outer-name}.launch" />
-		<copy verbose="false"
-		      file="invocation-template.xml"
-		      tofile="${target.file}"
-		      overwrite="true" />
-		<replace file="${target.file}"
-		         token="PROJECT_ROOT"
-		         value="${rebuilder.name}" />
-		<replace file="${target.file}"
-		         token="LAUNCH_ANT_TARGETS"
-		         value="${targets}" />
-	</target>
-
-	<target name="generate-all">
-		<echo message="Rebuilding targets..." />
-		<delete dir="${rebuilder-target}/launches" />
-		<antcall target="generate-by-template">
-			<param name="outer-name" value="Deploy for roboRIO" />
-			<param name="targets" value="deploy" />
-		</antcall>
-		<!-- <antcall target="generate-by-template">
-			<param name="outer-name" value="QuickDeploy for roboRIO" />
-			<param name="targets" value="quick-deploy" />
-		</antcall> -->
-		<antcall target="generate-by-template">
-			<param name="outer-name" value="Deploy and Debug for roboRIO" />
-			<param name="targets" value="debug-deploy" />
-		</antcall>
-		<antcall target="generate-by-template">
-			<param name="outer-name" value="Deploy for cRIO" />
-			<param name="targets" value="deploy-2014,run-2014" />
-		</antcall>
-		<antcall target="generate-by-template">
-			<param name="outer-name" value="Emulate for roboRIO" />
-			<param name="targets" value="emulate" />
-		</antcall>
-		<antcall target="generate-by-template">
-			<param name="outer-name" value="Emulate for cRIO" />
-			<param name="targets" value="emulate-2014" />
-		</antcall>
-		<antcall target="generate-by-template">
-			<param name="outer-name" value="Take cRIO Logs" />
-			<param name="targets" value="clear-logs-2014" />
-		</antcall>
-		<antcall target="generate-by-template">
-			<param name="outer-name" value="Take roboRIO Logs" />
-			<param name="targets" value="fetch-logs" />
-		</antcall>
+	<target name="upgrade">
+		<java classname="ccre.upgrade.Upgrade" classpath="${crio.dir}/bin">
+			<arg value="${rebuilder-target}"/>
+			<arg value="${template.dir}"/>
+		</java>
 	</target>
 
 </project>

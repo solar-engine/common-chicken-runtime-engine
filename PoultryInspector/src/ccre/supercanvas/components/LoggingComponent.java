@@ -37,7 +37,6 @@ import ccre.log.LoggingTarget;
 import ccre.supercanvas.DraggableBoxComponent;
 import ccre.supercanvas.Rendering;
 import ccre.util.LineCollectorOutputStream;
-import ccre.workarounds.ThrowablePrinter;
 
 /**
  * A component that displays a scrollable log of recentCCRE logging messages.
@@ -84,7 +83,7 @@ public class LoggingComponent extends DraggableBoxComponent {
             public synchronized void log(LogLevel level, String message, Throwable thr) {
                 if (thr != null) {
                     pstr.println("{" + level.message + "} " + message);
-                    ThrowablePrinter.printThrowable(thr, pstr);
+                    thr.printStackTrace(pstr);
                 } else {
                     pstr.println("[" + level.message + "] " + message);
                 }
@@ -213,8 +212,6 @@ public class LoggingComponent extends DraggableBoxComponent {
         } else if (frac > 1) {
             frac = 1;
         }
-        //g.setColor(scroll == 0 ? Color.GREEN : Color.BLACK);
-        //g.fillOval(centerX - halfWidth + 4, centerY - halfHeight + 8 + (int) ((2 * halfHeight - 24) * frac), 8, 8);
         Rendering.drawScrollbar(g, scroll != 0, centerX - halfWidth + 8, centerY - halfHeight + 12 + (int) ((2 * halfHeight - 24) * frac));
     }
 

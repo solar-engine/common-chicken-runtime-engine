@@ -19,13 +19,10 @@
 package ccre.ctrl;
 
 import ccre.channel.BooleanInput;
-import ccre.channel.BooleanInputPoll;
-import ccre.channel.BooleanOutput;
+import ccre.channel.DerivedBooleanInput;
+import ccre.channel.EventCell;
 import ccre.channel.EventInput;
 import ccre.channel.EventOutput;
-import ccre.channel.EventOutputRecoverable;
-import ccre.channel.EventStatus;
-import ccre.channel.FloatOutput;
 import ccre.log.LogLevel;
 import ccre.log.Logger;
 
@@ -42,12 +39,9 @@ import ccre.log.Logger;
  */
 public class StateMachine {
     private int currentState;
-    /**
-     * The number of states in this machine.
-     */
-    public final int numberOfStates;
-    private final EventStatus onExit = new EventStatus();
-    private final EventStatus onEnter = new EventStatus();
+    private final int numberOfStates;
+    private final EventCell onExit = new EventCell();
+    private final EventCell onEnter = new EventCell();
     private final String[] stateNames;
 
     /**
@@ -79,6 +73,13 @@ public class StateMachine {
         setState(defaultState);
     }
 
+    /**
+     * @return the number of states
+     */
+    public int getNumberOfStates() {
+        return numberOfStates;
+    }
+
     private static void checkNamesConsistency(String... names) {
         for (int i = 0; i < names.length; i++) {
             String name = names[i];
@@ -94,7 +95,7 @@ public class StateMachine {
     }
 
     private int indexOfName(String state) {
-        for (int i = 0; i < numberOfStates; i++) {
+        for (int i = 0; i < getNumberOfStates(); i++) {
             if (state.equals(stateNames[i])) {
                 return i;
             }
@@ -118,15 +119,15 @@ public class StateMachine {
      * names.
      */
     public void setState(int state) {
-        if (state < 0 || state >= numberOfStates) {
+        if (state < 0 || state >= getNumberOfStates()) {
             throw new IllegalArgumentException("Invalid state ID: " + state);
         }
         if (state == currentState) {
             return;
         }
-        onExit.produce();
+        onExit.safeEvent();
         currentState = state;
-        onEnter.produce();
+        onEnter.safeEvent();
     }
 
     /**
@@ -168,27 +169,14 @@ public class StateMachine {
      * @return the event that changes state.
      */
     public EventOutput getStateSetEvent(final int state) {
-        if (state < 0 || state >= numberOfStates) {
+        if (state < 0 || state >= getNumberOfStates()) {
             throw new IllegalArgumentException("Invalid state ID: " + state);
         }
-        return new EventOutputRecoverable() {
-            public void event() {
-                if (state == currentState) {
-                    return;
-                }
-                onExit.produce();
+        return () -> {
+            if (state != currentState) {
+                onExit.safeEvent();
                 currentState = state;
-                onEnter.produce();
-            }
-
-            public boolean eventWithRecovery() {
-                if (state == currentState) {
-                    return false;
-                }
-                boolean out = onExit.produceWithFailureRecovery();
-                currentState = state;
-                out |= onEnter.produceWithFailureRecovery();
-                return out;
+                onEnter.safeEvent();
             }
         };
     }
@@ -219,7 +207,7 @@ public class StateMachine {
      * @return the name of the indexed state.
      */
     public String getStateName(int state) {
-        if (state < 0 || state >= numberOfStates) {
+        if (state < 0 || state >= getNumberOfStates()) {
             throw new IllegalArgumentException("Invalid state ID: " + state);
         }
         return stateNames[state];
@@ -242,34 +230,10 @@ public class StateMachine {
      * @return if this machine is in that state.
      */
     public boolean isState(int state) {
-        return currentState == state;
-    }
-
-    /**
-     * Return a channel representing if the machine is in the named state.
-     *
-     * @param state the state to check.
-     * @return a channel for if this machine is in that state.
-     */
-    public BooleanInputPoll getIsState(String state) {
-        return getIsState(indexOfName(state));
-    }
-
-    /**
-     * Return a channel representing if the machine is in the indexed state.
-     *
-     * @param state the state to check, as an index in the list of state names.
-     * @return a channel for if this machine is in that state.
-     */
-    public BooleanInputPoll getIsState(final int state) {
         if (state < 0 || state >= numberOfStates) {
-            throw new IllegalArgumentException("Invalid state ID: " + state);
+            throw new IllegalArgumentException("State out of range: " + state);
         }
-        return new BooleanInputPoll() {
-            public boolean get() {
-                return currentState == state;
-            }
-        };
+        return currentState == state;
     }
 
     /**
@@ -278,8 +242,8 @@ public class StateMachine {
      * @param state the state to check.
      * @return an input for if this machine is in that state.
      */
-    public BooleanInput getIsStateDyn(String state) {
-        return getIsStateDyn(indexOfName(state));
+    public BooleanInput getIsState(String state) {
+        return getIsState(indexOfName(state));
     }
 
     /**
@@ -288,8 +252,16 @@ public class StateMachine {
      * @param state the state to check, as an index in the list of state names.
      * @return an input for if this machine is in that state.
      */
-    public BooleanInput getIsStateDyn(int state) {
-        return BooleanMixing.createDispatch(getIsState(state), onEnter);
+    public BooleanInput getIsState(int state) {
+        if (state < 0 || state >= getNumberOfStates()) {
+            throw new IllegalArgumentException("Invalid state ID: " + state);
+        }
+        return new DerivedBooleanInput(onEnter) {
+            @Override
+            protected boolean apply() {
+                return currentState == state;
+            }
+        };
     }
 
     /**
@@ -314,7 +286,7 @@ public class StateMachine {
      * @return the event to conditionally change the machine's state.
      */
     public EventOutput getStateTransitionEvent(int fromState, int toState) {
-        return EventMixing.filterEvent(getIsState(fromState), true, getStateSetEvent(toState));
+        return getStateSetEvent(toState).filter(getIsState(fromState));
     }
 
     /**
@@ -395,7 +367,7 @@ public class StateMachine {
      * @return the event input.
      */
     public EventInput onEnterState(int state) {
-        final EventStatus out = new EventStatus();
+        final EventCell out = new EventCell();
         onEnterState(state, out);
         return out;
     }
@@ -418,95 +390,7 @@ public class StateMachine {
      * @param output the event to fire.
      */
     public void onEnterState(int state, final EventOutput output) {
-        onEnter.send(EventMixing.filterEvent(getIsState(state), true, output));
-    }
-
-    /**
-     * Set output to value when the named state is entered.
-     *
-     * @param state the state to monitor.
-     * @param output the output to modify.
-     * @param value the value to set the output to.
-     */
-    public void setOnEnterState(String state, BooleanOutput output, boolean value) {
-        setOnEnterState(indexOfName(state), output, value);
-    }
-
-    /**
-     * Set output to value when the indexed state is entered.
-     *
-     * @param state the state to monitor, as an index in the list of state
-     * names.
-     * @param output the output to modify.
-     * @param value the value to set the output to.
-     */
-    public void setOnEnterState(int state, BooleanOutput output, boolean value) {
-        onEnterState(state, BooleanMixing.getSetEvent(output, value));
-    }
-
-    /**
-     * Set output to true when the named state is entered.
-     *
-     * @param state the state to monitor.
-     * @param output the output to modify.
-     */
-    public void setTrueOnEnterState(String state, BooleanOutput output) {
-        setTrueOnEnterState(indexOfName(state), output);
-    }
-
-    /**
-     * Set output to true when the indexed state is entered.
-     *
-     * @param state the state to monitor, as an index in the list of state
-     * names.
-     * @param output the output to modify.
-     */
-    public void setTrueOnEnterState(int state, BooleanOutput output) {
-        setOnEnterState(state, output, true);
-    }
-
-    /**
-     * Set output to false when the named state is entered.
-     *
-     * @param state the state to monitor.
-     * @param output the output to modify.
-     */
-    public void setFalseOnEnterState(String state, BooleanOutput output) {
-        setFalseOnEnterState(indexOfName(state), output);
-    }
-
-    /**
-     * Set output to false when the indexed state is entered.
-     *
-     * @param state the state to monitor, as an index in the list of state
-     * names.
-     * @param output the output to modify.
-     */
-    public void setFalseOnEnterState(int state, BooleanOutput output) {
-        setOnEnterState(state, output, false);
-    }
-
-    /**
-     * Set output to value when the named state is entered.
-     *
-     * @param state the state to monitor.
-     * @param output the output to modify.
-     * @param value the value to set the output to.
-     */
-    public void setOnEnterState(String state, FloatOutput output, float value) {
-        setOnEnterState(indexOfName(state), output, value);
-    }
-
-    /**
-     * Set output to value when the indexed state is entered.
-     *
-     * @param state the state to monitor, as an index in the list of state
-     * names.
-     * @param output the output to modify.
-     * @param value the value to set the output to.
-     */
-    public void setOnEnterState(int state, FloatOutput output, float value) {
-        onEnterState(state, FloatMixing.getSetEvent(output, value));
+        onEnter.send(output.filter(getIsState(state)));
     }
 
     /**
@@ -546,7 +430,7 @@ public class StateMachine {
      * @return the event input.
      */
     public EventInput onExitState(int state) {
-        final EventStatus out = new EventStatus();
+        final EventCell out = new EventCell();
         onExitState(state, out);
         return out;
     }
@@ -569,94 +453,6 @@ public class StateMachine {
      * @param output the event to fire.
      */
     public void onExitState(int state, final EventOutput output) {
-        onExit.send(EventMixing.filterEvent(getIsState(state), true, output));
-    }
-
-    /**
-     * Set output to value when the named state is exited.
-     *
-     * @param state the state to monitor.
-     * @param output the output to modify.
-     * @param value the value to set the output to.
-     */
-    public void setOnExitState(String state, BooleanOutput output, boolean value) {
-        setOnExitState(indexOfName(state), output, value);
-    }
-
-    /**
-     * Set output to value when the indexed state is exited.
-     *
-     * @param state the state to monitor, as an index in the list of state
-     * names.
-     * @param output the output to modify.
-     * @param value the value to set the output to.
-     */
-    public void setOnExitState(int state, BooleanOutput output, boolean value) {
-        onExitState(state, BooleanMixing.getSetEvent(output, value));
-    }
-
-    /**
-     * Set output to true when the named state is exited.
-     *
-     * @param state the state to monitor.
-     * @param output the output to modify.
-     */
-    public void setTrueOnExitState(String state, BooleanOutput output) {
-        setTrueOnExitState(indexOfName(state), output);
-    }
-
-    /**
-     * Set output to true when the indexed state is exited.
-     *
-     * @param state the state to monitor, as an index in the list of state
-     * names.
-     * @param output the output to modify.
-     */
-    public void setTrueOnExitState(int state, BooleanOutput output) {
-        setOnExitState(state, output, true);
-    }
-
-    /**
-     * Set output to false when the named state is exited.
-     *
-     * @param state the state to monitor.
-     * @param output the output to modify.
-     */
-    public void setFalseOnExitState(String state, BooleanOutput output) {
-        setFalseOnExitState(indexOfName(state), output);
-    }
-
-    /**
-     * Set output to false when the indexed state is exited.
-     *
-     * @param state the state to monitor, as an index in the list of state
-     * names.
-     * @param output the output to modify.
-     */
-    public void setFalseOnExitState(int state, BooleanOutput output) {
-        setOnExitState(state, output, false);
-    }
-
-    /**
-     * Set output to value when the named state is exited.
-     *
-     * @param state the state to monitor.
-     * @param output the output to modify.
-     * @param value the value to set the output to.
-     */
-    public void setOnExitState(String state, FloatOutput output, float value) {
-        setOnExitState(indexOfName(state), output, value);
-    }
-
-    /**
-     * Set output to value when the indexed state is exited.
-     *
-     * @param state the state to monitor, as an index in the list of state
-     * names.
-     * @param output the output to modify.
-     * @param value the value to set the output to.
-     */
-    public void setOnExitState(int state, FloatOutput output, float value) {
-        onExitState(state, FloatMixing.getSetEvent(output, value));
+        onExit.send(output.filter(getIsState(state)));
     }
 }

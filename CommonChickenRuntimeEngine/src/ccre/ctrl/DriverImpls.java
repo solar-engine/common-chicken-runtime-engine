@@ -20,10 +20,8 @@
  */
 package ccre.ctrl;
 
-import ccre.channel.EventInput;
-import ccre.channel.EventOutput;
+import ccre.channel.DerivedUpdate;
 import ccre.channel.FloatInput;
-import ccre.channel.FloatInputPoll;
 import ccre.channel.FloatOutput;
 
 /**
@@ -45,26 +43,12 @@ import ccre.channel.FloatOutput;
  *
  * Other types to come later.
  *
- * Types of implementations:
- *
- * Asynchronous: Requires FloatInputs for the inputs, and requires no event to
- * write through values. Not available for every type.
- *
- * Event: Can use FloatInputPoll, and returns an event that will update the
- * motors.
- *
- * Synchronous: Can use FloatInputPoll; when a given EventInput is fired, the
- * motors will update.
- *
- * Mixing contains many more generic methods to work with channels.
- *
- * @see Mixing
  * @author skeggsc
  */
 public class DriverImpls {
 
     /**
-     * Run tank drive on the given two FloatInputProducers and FloatOutputs.
+     * Run tank drive on the given two FloatInputs and FloatOutputs.
      *
      * @param leftIn the left control axis.
      * @param rightIn the right control axis.
@@ -72,87 +56,28 @@ public class DriverImpls {
      * @param rightOut the right motor.
      * @see DriverImpls
      */
-    public static void createAsynchTankDriver(FloatInput leftIn, FloatInput rightIn, FloatOutput leftOut, FloatOutput rightOut) {
+    public static void tankDrive(FloatInput leftIn, FloatInput rightIn, FloatOutput leftOut, FloatOutput rightOut) {
         leftIn.send(leftOut);
         rightIn.send(rightOut);
     }
 
     /**
-     * When the returned EventOutput is fired, run tank drive on the given two
-     * FloatInputPolls and FloatOutputs.
+     * Run extended tank drive on the given three FloatInputs and FloatOutputs.
      *
      * @param leftIn the left control axis.
      * @param rightIn the right control axis.
-     * @param leftOut the left motor.
-     * @param rightOut the right motor.
-     * @return the EventOutput that will update the motors.
-     * @see DriverImpls
-     */
-    public static EventOutput createTankDriverEvent(final FloatInputPoll leftIn, final FloatInputPoll rightIn, final FloatOutput leftOut, final FloatOutput rightOut) {
-        return new EventOutput() {
-            public void event() {
-                leftOut.set(leftIn.get());
-                rightOut.set(rightIn.get());
-            }
-        };
-    }
-
-    /**
-     * When the specified EventInput is fired, run tank drive on the given two
-     * FloatInputPolls and FloatOutputs.
-     *
-     * @param source when to update the motors.
-     * @param leftIn the left control axis.
-     * @param rightIn the right control axis.
+     * @param forward the forward control axis.
      * @param leftOut the left motor.
      * @param rightOut the right motor.
      * @see DriverImpls
      */
-    public static void createSynchTankDriver(EventInput source, FloatInputPoll leftIn, FloatInputPoll rightIn, FloatOutput leftOut, FloatOutput rightOut) {
-        source.send(createTankDriverEvent(leftIn, rightIn, leftOut, rightOut));
+    public static void extendedTankDrive(FloatInput leftIn, FloatInput rightIn, FloatInput forward, FloatOutput leftOut, FloatOutput rightOut) {
+        leftIn.plus(forward).send(leftOut);
+        rightIn.plus(forward).send(rightOut);
     }
 
     /**
-     * When the returned EventOutput is fired, run extended tank drive on the
-     * given three FloatInputPolls and FloatOutputs.
-     *
-     * @param leftIn the left control axis.
-     * @param rightIn the right control axis.
-     * @param allIn the forward control axis. will be added to both outputs.
-     * @param leftOut the left motor.
-     * @param rightOut the right motor.
-     * @return the EventOutput that will update the motors.
-     * @see DriverImpls
-     */
-    public static EventOutput createExtendedTankDriverEvent(final FloatInputPoll leftIn, final FloatInputPoll rightIn, final FloatInputPoll allIn, final FloatOutput leftOut, final FloatOutput rightOut) {
-        return new EventOutput() {
-            public void event() {
-                float ai = allIn.get();
-                leftOut.set(leftIn.get() + ai);
-                rightOut.set(rightIn.get() + ai);
-            }
-        };
-    }
-
-    /**
-     * When the specified EventInput is fired, run extended tank drive on the
-     * given three FloatInputPolls and FloatOutputs.
-     *
-     * @param source when to update the motors.
-     * @param leftIn the left control axis.
-     * @param rightIn the right control axis.
-     * @param allIn the forward control axis. will be added to both outputs.
-     * @param leftOut the left motor.
-     * @param rightOut the right motor.
-     * @see DriverImpls
-     */
-    public static void createExtendedSynchTankDriver(EventInput source, FloatInputPoll leftIn, FloatInputPoll rightIn, FloatInputPoll allIn, FloatOutput leftOut, FloatOutput rightOut) {
-        source.send(createExtendedTankDriverEvent(leftIn, rightIn, allIn, leftOut, rightOut));
-    }
-
-    /**
-     * Run single joystick drive on the given two FloatInputProducers and
-     * FloatOutputs.
+     * Run arcade drive on the given two FloatInputs and FloatOutputs.
      *
      * @param joystickXAxis the joystick's x-axis.
      * @param joystickYAxis the joystick's y-axis.
@@ -160,105 +85,26 @@ public class DriverImpls {
      * @param rightOut the right motor.
      * @see DriverImpls
      */
-    public static void createAsynchSingleJoystickDriver(final FloatInput joystickXAxis, final FloatInput joystickYAxis, final FloatOutput leftOut, final FloatOutput rightOut) {
-        joystickXAxis.send(new FloatOutput() {
-            public void set(final float xAxis) {
-                final float yAxis = joystickYAxis.get();
-                leftOut.set(yAxis + xAxis);
-                rightOut.set(yAxis - xAxis);
-            }
-        });
-
-        joystickYAxis.send(new FloatOutput() {
-            public void set(final float yAxis) {
-                final float xAxis = joystickXAxis.get();
-                leftOut.set(yAxis + xAxis);
-                rightOut.set(yAxis - xAxis);
-            }
-        });
+    public static void arcadeDrive(final FloatInput joystickXAxis, final FloatInput joystickYAxis, final FloatOutput leftOut, final FloatOutput rightOut) {
+        joystickYAxis.plus(joystickXAxis).send(leftOut);
+        joystickYAxis.minus(joystickXAxis).send(rightOut);
     }
 
     /**
-     * Run single joystick drive on the given two FloatInputProducers and
-     * FloatOutputs.
+     * Run arcade drive on the given Joystick.
      *
      * @param joystick the joystick.
      * @param leftOut the left motor.
      * @param rightOut the right motor.
      * @see DriverImpls
      */
-    public static void createAsynchSingleJoystickDriver(final IJoystick joystick, final FloatOutput leftOut, final FloatOutput rightOut) {
-        createAsynchSingleJoystickDriver(joystick.getXAxisSource(), joystick.getYAxisSource(), leftOut, rightOut);
-    }
-
-    /**
-     * When the returned EventInput is fired, run single joystick drive on the
-     * given two FloatInputPolls and FloatOutputs.
-     *
-     * @param joystickXAxis the joystick's x-axis.
-     * @param joystickYAxis the joystick's y-axis.
-     * @param leftOut the left motor.
-     * @param rightOut the right motor.
-     * @return the EventOutput that will update the motors.
-     * @see DriverImpls
-     */
-    public static EventOutput createSingleJoystickDriveEvent(final FloatInputPoll joystickXAxis, final FloatInputPoll joystickYAxis, final FloatOutput leftOut, final FloatOutput rightOut) {
-        return new EventOutput() {
-            public void event() {
-                final float xAxis = joystickXAxis.get();
-                final float yAxis = joystickYAxis.get();
-                leftOut.set(yAxis + xAxis);
-                rightOut.set(yAxis - xAxis);
-            }
-        };
-    }
-
-    /**
-     * When the returned EventInput is fired, run single joystick drive on the
-     * given joystick and two FloatOutputs.
-     *
-     * @param joystick the joystick.
-     * @param leftOut the left motor.
-     * @param rightOut the right motor.
-     * @return the EventOutput that will update the motors.
-     * @see DriverImpls
-     */
-    public static EventOutput createSingleJoystickDriveEvent(IJoystick joystick, FloatOutput leftOut, FloatOutput rightOut) {
-        return createSingleJoystickDriveEvent(joystick.getXChannel(), joystick.getYChannel(), leftOut, rightOut);
-    }
-
-    /**
-     * When the specified EventInput is fired, run single joystick drive on the
-     * given two FloatInputPolls and FloatOutputs.
-     *
-     * @param source when to update the motors.
-     * @param joystickXAxis the joystick's x-axis.
-     * @param joystickYAxis the joystick's y-axis.
-     * @param leftOut the left motor.
-     * @param rightOut the right motor.
-     * @see DriverImpls
-     */
-    public static void createSynchSingleJoystickDriver(EventInput source, final FloatInputPoll joystickXAxis, final FloatInputPoll joystickYAxis, FloatOutput leftOut, FloatOutput rightOut) {
-        source.send(createSingleJoystickDriveEvent(joystickXAxis, joystickYAxis, leftOut, rightOut));
-    }
-
-    /**
-     * When the specified EventInput is fired, run single joystick drive on the
-     * given joystick and two FloatOutputs.
-     *
-     * @param source when to update the motors.
-     * @param joystick the joystick.
-     * @param leftOut the left motor.
-     * @param rightOut the right motor.
-     * @see DriverImpls
-     */
-    public static void createSynchSingleJoystickDriver(EventInput source, final IJoystick joystick, FloatOutput leftOut, FloatOutput rightOut) {
-        createSynchSingleJoystickDriver(source, joystick.getXChannel(), joystick.getYChannel(), leftOut, rightOut);
+    public static void arcadeDrive(final Joystick joystick, final FloatOutput leftOut, final FloatOutput rightOut) {
+        arcadeDrive(joystick.axisX(), joystick.axisY(), leftOut, rightOut);
     }
 
     /**
      * When the returned EventInput is fired, run Mecanum drive on the given
-     * FloatInputPolls and FloatOutputs.
+     * FloatInputs and FloatOutputs.
      *
      * @param forward the forward movement axis.
      * @param strafe the strafing axis.
@@ -267,12 +113,13 @@ public class DriverImpls {
      * @param leftBackMotor the left back motor.
      * @param rightFrontMotor the right front motor.
      * @param rightBackMotor the right back motor.
-     * @return the EventOutput that will update the motors.
      * @see DriverImpls
      */
-    public static EventOutput createMecanumDriveEvent(final FloatInputPoll forward, final FloatInputPoll strafe, final FloatInputPoll rotate, final FloatOutput leftFrontMotor, final FloatOutput leftBackMotor, final FloatOutput rightFrontMotor, final FloatOutput rightBackMotor) {
-        return new EventOutput() {
-            public void event() {
+    public static void mecanumDrive(final FloatInput forward, final FloatInput strafe, final FloatInput rotate, final FloatOutput leftFrontMotor, final FloatOutput leftBackMotor, final FloatOutput rightFrontMotor, final FloatOutput rightBackMotor) {
+        // TODO: Optimize this?
+        new DerivedUpdate(forward, strafe, rotate) {
+            @Override
+            protected void update() {
                 float distanceY = forward.get();
                 float distanceX = strafe.get();
                 float rotationspeed = rotate.get();
@@ -287,9 +134,7 @@ public class DriverImpls {
                 double rightBack = sin + rotationspeed;
                 double leftBack = cos - rotationspeed;
                 double rightFront = cos + rotationspeed;
-                double normalize = Math.max(
-                        Math.max(Math.abs(leftFront), Math.abs(rightFront)),
-                        Math.max(Math.abs(leftBack), Math.abs(rightBack)));
+                double normalize = Math.max(Math.max(Math.abs(leftFront), Math.abs(rightFront)), Math.max(Math.abs(leftBack), Math.abs(rightBack)));
                 double mul;
                 if (normalize > 1) {
                     mul = 1 / normalize;
@@ -304,24 +149,6 @@ public class DriverImpls {
                 leftBackMotor.set((float) (leftBack * mul));
             }
         };
-    }
-
-    /**
-     * When the specified EventInput is fired, run Mecanum drive on the given
-     * FloatInputPolls and FloatOutputs.
-     *
-     * @param source when to update the motors.
-     * @param forward the forward movement axis.
-     * @param strafe the strafing axis.
-     * @param rotate the rotation axis.
-     * @param leftFrontMotor the left front motor.
-     * @param leftBackMotor the left back motor.
-     * @param rightFrontMotor the right front motor.
-     * @param rightBackMotor the right back motor.
-     * @see DriverImpls
-     */
-    public static void createSynchMecanumDriver(EventInput source, final FloatInputPoll forward, final FloatInputPoll strafe, final FloatInputPoll rotate, final FloatOutput leftFrontMotor, final FloatOutput leftBackMotor, final FloatOutput rightFrontMotor, final FloatOutput rightBackMotor) {
-        source.send(createMecanumDriveEvent(forward, strafe, rotate, leftFrontMotor, leftBackMotor, rightFrontMotor, rightBackMotor));
     }
 
     private DriverImpls() {

@@ -18,10 +18,13 @@
  */
 package ccre.ctrl;
 
-import ccre.channel.BooleanInputPoll;
+import ccre.channel.BooleanInput;
 import ccre.channel.BooleanOutput;
-import ccre.channel.FloatInputPoll;
+import ccre.channel.DerivedBooleanInput;
+import ccre.channel.EventInput;
+import ccre.channel.FloatInput;
 import ccre.channel.FloatOutput;
+import ccre.frc.FRC;
 
 /**
  * Sometimes there's more to control about a motor than just a power level, and
@@ -192,10 +195,22 @@ public abstract class ExtendedMotor {
      * Gets access to one of the status readouts from the ExtendedMotor.
      *
      * @param type the type of status to get access to.
-     * @return the FloatInputPoll representing this status readout, or null if
-     * it cannot be acquired.
+     * @return the FloatInput representing this status readout, or null if it
+     * cannot be acquired.
      */
-    public abstract FloatInputPoll asStatus(StatusType type);
+    public FloatInput asStatus(StatusType type) {
+        return asStatus(type, FRC.sensorPeriodic);
+    }
+
+    /**
+     * Gets access to one of the status readouts from the ExtendedMotor.
+     *
+     * @param type the type of status to get access to.
+     * @param updateOn when to update the sensor.
+     * @return the FloatInput representing this status readout, or null if it
+     * cannot be acquired.
+     */
+    public abstract FloatInput asStatus(StatusType type, EventInput updateOn);
 
     /**
      * Gets the current diagnostic value from the ExtendedMotor. This is usually
@@ -213,12 +228,25 @@ public abstract class ExtendedMotor {
      * @return a channel representing the diagnostic state, or null if it cannot
      * be acquired.
      */
-    public BooleanInputPoll getDiagnosticChannel(final DiagnosticType type) {
+    public BooleanInput getDiagnosticChannel(final DiagnosticType type) {
+        return getDiagnosticChannel(type, FRC.sensorPeriodic);
+    }
+
+    /**
+     * Gets a channel representing a boolean diagnostic channel.
+     *
+     * @param type the type of diagnostic to monitor.
+     * @param updateOn when to update the sensor.
+     * @return a channel representing the diagnostic state, or null if it cannot
+     * be acquired.
+     */
+    public BooleanInput getDiagnosticChannel(final DiagnosticType type, EventInput updateOn) {
         if (!type.isBooleanDiagnostic || !(getDiagnostics(type) instanceof Boolean)) {
             return null;
         }
-        return new BooleanInputPoll() {
-            public boolean get() {
+        return new DerivedBooleanInput(updateOn) { // TODO: fix this
+            @Override
+            protected boolean apply() {
                 Object out = getDiagnostics(type);
                 if (out instanceof Boolean) {
                     return (Boolean) out;
@@ -250,4 +278,43 @@ public abstract class ExtendedMotor {
      * @throws ExtendedMotorFailureException if the PID cannot be set.
      */
     public abstract void setInternalPID(float P, float I, float D) throws ExtendedMotorFailureException;
+
+    /**
+     * Opens the controller in a simple output mode:
+     * {@link OutputControlMode#GENERIC_FRACTIONAL}.
+     *
+     * @return the output representing the controller, which can be varied from
+     * -1.0 to +1.0 to control the speed.
+     * @throws ExtendedMotorFailureException if an error occurs while setting up
+     * the motor.
+     * @see #asMode(OutputControlMode) for how this works.
+     */
+    public FloatOutput simpleControl() throws ExtendedMotorFailureException {
+        FloatOutput output = asMode(OutputControlMode.GENERIC_FRACTIONAL);
+        if (output == null) {
+            throw new ExtendedMotorFailureException("GENERIC_FRACTIONAL mode not supported!");
+        }
+        return output;
+    }
+
+    /**
+     * Opens the controller in a simple output mode:
+     * {@link OutputControlMode#GENERIC_FRACTIONAL}, optionally reversed.
+     *
+     * @param reversed if the values sent to this motor should be negated. You
+     * can use {@link FRC#MOTOR_FORWARD} and {@link FRC#MOTOR_REVERSE} for
+     * clarity.
+     * @return the output representing the controller, which can be varied from
+     * -1.0 to +1.0 to control the speed.
+     * @throws ExtendedMotorFailureException if an error occurs while setting up
+     * the motor.
+     * @see #asMode(OutputControlMode) for how this works.
+     */
+    public FloatOutput simpleControl(boolean reversed) throws ExtendedMotorFailureException {
+        FloatOutput motor = simpleControl();
+        if (reversed != FRC.MOTOR_FORWARD) {
+            motor = motor.negate();
+        }
+        return motor;
+    }
 }

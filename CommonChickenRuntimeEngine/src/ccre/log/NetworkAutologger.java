@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2014 Colby Skeggs
+ * Copyright 2013-2015 Colby Skeggs
  *
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  *
@@ -18,13 +18,15 @@
  */
 package ccre.log;
 
+import java.util.HashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
+
 import ccre.channel.EventOutput;
 import ccre.cluck.Cluck;
+import ccre.cluck.CluckConstants;
 import ccre.cluck.CluckNode;
 import ccre.cluck.CluckPublisher;
 import ccre.cluck.CluckRemoteListener;
-import ccre.concurrency.ConcurrentDispatchArray;
-import ccre.util.CHashMap;
 import ccre.util.UniqueIds;
 
 /**
@@ -67,12 +69,12 @@ public final class NetworkAutologger implements LoggingTarget, CluckRemoteListen
     /**
      * The current list of remotes to send logging messages to.
      */
-    private final ConcurrentDispatchArray<String> remotes = new ConcurrentDispatchArray<String>();
+    private final CopyOnWriteArrayList<String> remotes = new CopyOnWriteArrayList<String>();
     /**
      * The current cache of subscribed LoggingTargets to send logging messages
      * to.
      */
-    private final CHashMap<String, LoggingTarget> targetCache = new CHashMap<String, LoggingTarget>();
+    private final HashMap<String, LoggingTarget> targetCache = new HashMap<String, LoggingTarget>();
     private final CluckNode node;
     private final String localpath, hereID;
 
@@ -93,20 +95,20 @@ public final class NetworkAutologger implements LoggingTarget, CluckRemoteListen
      */
     public void start() {
         final EventOutput searcher = CluckPublisher.setupSearching(node, this);
-        searcher.event();
-        node.subscribeToStructureNotifications("netwatch-" + hereID, new EventOutput() {
-            public void event() {
-                Logger.fine("[LOCAL] Rechecking logging...");
-                searcher.event();
-            }
+        searcher.safeEvent();
+        node.subscribeToStructureNotifications("netwatch-" + hereID, () -> {
+            Logger.fine("[LOCAL] Rechecking logging...");
+            searcher.event();
         });
     }
 
     public void log(LogLevel level, String message, Throwable throwable) {
-        if (message.contains("[NET]")) { // From the network, so don't broadcast.
+        // From the network, so don't broadcast.
+        if (message.contains("[NET]")) {
             return;
         }
-        if (message.contains("[LOCAL]")) { // Local messages should not be sent over the network.
+        // Local messages should not be sent over the network.
+        if (message.contains("[LOCAL]")) {
             return;
         }
         for (String cur : remotes) {
@@ -118,10 +120,12 @@ public final class NetworkAutologger implements LoggingTarget, CluckRemoteListen
     }
 
     public void log(LogLevel level, String message, String extended) {
-        if (message.contains("[NET]")) { // From the network, so don't broadcast.
+        // From the network, so don't broadcast.
+        if (message.contains("[NET]")) {
             return;
         }
-        if (message.contains("[LOCAL]")) { // Should not be sent over the network.
+        // Should not be sent over the network.
+        if (message.contains("[LOCAL]")) {
             return;
         }
         for (String cur : remotes) {
@@ -133,13 +137,13 @@ public final class NetworkAutologger implements LoggingTarget, CluckRemoteListen
     }
 
     public void handle(String remote, int remoteType) {
-        if (remoteType != CluckNode.RMT_LOGTARGET) {
+        if (remoteType != CluckConstants.RMT_LOGTARGET) {
             return;
         }
         if (remote.contains("auto-") && !localpath.equals(remote) && targetCache.get(remote) == null) {
-            targetCache.put(remote, CluckPublisher.subscribeLT(node, remote, LogLevel.FINEST));
+            targetCache.put(remote, CluckPublisher.subscribeLT(node, remote));
             Logger.config("[LOCAL] Loaded logger: " + remote);
         }
-        remotes.addIfNotFound(remote);
+        remotes.addIfAbsent(remote);
     }
 }

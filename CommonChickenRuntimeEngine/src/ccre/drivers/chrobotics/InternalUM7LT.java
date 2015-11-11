@@ -25,7 +25,7 @@ import ccre.channel.SerialIO;
 import ccre.drivers.ByteFiddling;
 import ccre.drivers.NMEA;
 import ccre.log.Logger;
-import ccre.util.CArrayUtils;
+import ccre.time.Time;
 
 /**
  * The low-level interface to the UM7-LT orientation sensor from CH Robotics,
@@ -115,7 +115,7 @@ public class InternalUM7LT { // default rate: 115200 baud.
      *
      * @see #lastUpdateId
      */
-    public long lastUpdateTime = System.currentTimeMillis();
+    public long lastUpdateTime = Time.currentTimeMillis();
     private final EventOutput onUpdate;
     private int correctBinaryPackets, correctNMEAPackets, incorrectPackets;
     private static boolean treatNMEAAsErroneous = true;
@@ -177,7 +177,8 @@ public class InternalUM7LT { // default rate: 115200 baud.
         while (count-- > 0) {
             int consumed = handlePacket(activeBuffer, from, to);
             if (consumed == 0) { // need more data
-                if (from != 0 && to >= activeBuffer.length - 64) { // nearing the end, or at the end - shift earlier.
+                // nearing the end, or at the end - shift earlier.
+                if (from != 0 && to >= activeBuffer.length - 64) {
                     System.arraycopy(activeBuffer, from, activeBuffer, 0, to - from);
                     to -= from;
                     from = 0;
@@ -202,7 +203,8 @@ public class InternalUM7LT { // default rate: 115200 baud.
         }
     }
 
-    // Returns the number of consumed bytes, or zero if packet needs more data to be valid.
+    // Returns the number of consumed bytes, or zero if packet needs more data
+    // to be valid.
     private int handlePacket(byte[] bytes, int from, int to) {
         // TODO: Check bounds on To.
         if (to - from < 6) { // no way for any valid packets to be ready
@@ -242,14 +244,15 @@ public class InternalUM7LT { // default rate: 115200 baud.
         }
     }
 
-    // Returns the number of consumed bytes, or zero if packet needs more data to be valid.
+    // Returns the number of consumed bytes, or zero if packet needs more data
+    // to be valid.
     private int handleBinary(byte[] bin, int from, int to) throws IOException {
         if (to - from < 7) {
             return 0;
         }
         from += 3; // 'snp' has already been checked
         byte packet_type = bin[from];
-        byte address = bin[from + 1];
+        int address = bin[from + 1] & 0xFF;
         boolean has_data = (packet_type & 0x80) != 0;
         boolean is_batch = (packet_type & 0x40) != 0;
         int batch_length = is_batch ? (packet_type & 0x3C) >> 2 : -1;
@@ -262,10 +265,7 @@ public class InternalUM7LT { // default rate: 115200 baud.
         checkChecksum(bin, from - 3, from + 4 + data_count * 4); // -3 for snp
         int[] data = new int[data_count];
         for (int i = 0; i < data_count; i++) {
-            data[i] = ((bin[from + 2 + 4 * i + 0] & 0xFF) << 24) |
-                    ((bin[from + 2 + 4 * i + 1] & 0xFF) << 16) |
-                    ((bin[from + 2 + 4 * i + 2] & 0xFF) << 8) |
-                    ((bin[from + 2 + 4 * i + 3] & 0xFF));
+            data[i] = ((bin[from + 2 + 4 * i + 0] & 0xFF) << 24) | ((bin[from + 2 + 4 * i + 1] & 0xFF) << 16) | ((bin[from + 2 + 4 * i + 2] & 0xFF) << 8) | ((bin[from + 2 + 4 * i + 3] & 0xFF));
         }
         if (address + data_count - 1 >= DREG_BASE && address < DREG_LAST) {
             int nextUpdateId = lastUpdateId + 1;
@@ -277,18 +277,19 @@ public class InternalUM7LT { // default rate: 115200 baud.
                 }
             }
             lastUpdateId = nextUpdateId;
-            lastUpdateTime = System.currentTimeMillis();
-            onUpdate.event();
-        } else if (address == (byte) 0xAA) {
+            lastUpdateTime = Time.currentTimeMillis();
+            onUpdate.safeEvent();
+        } else if (address == 0xAA) {
             Logger.info("UM7LT firmware revision: " + new String(new char[] { (char) ((data[0] >> 24) & 0xFF), (char) ((data[0] >> 16) & 0xFF), (char) ((data[0] >> 8) & 0xFF), (char) (data[0] & 0xFF) }));
-        } else if (address == (byte) 0xAD) {
+        } else if (address == 0xAD) {
             Logger.config("UM7LT gyro calibrating...");
-        } else if (address == (byte) 0xC) {
+        } else if (address == 0xC) {
             Logger.config("UM7LT gyro calibration updated.");
         } else if (address != 0) {
-            Logger.finest("UNHANDLED BINARY MESSAGE " + Integer.toHexString(address & 0xFF) + " " + CArrayUtils.asList(data) + " [" + is_hidden + ":" + is_command_failed + "]");
+            Logger.finest("UNHANDLED BINARY MESSAGE " + Integer.toHexString(address & 0xFF) + " [" + is_hidden + ":" + is_command_failed + "]");
         }
-        return 2 + 4 * data_count + 2 + 3; // two for checksum, three for the 'snp' that was stripped out. 
+        // two for checksum, three for the 'snp' that was stripped out.
+        return 2 + 4 * data_count + 2 + 3;
     }
 
     /**

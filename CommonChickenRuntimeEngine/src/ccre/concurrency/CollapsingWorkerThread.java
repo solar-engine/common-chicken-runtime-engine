@@ -18,8 +18,8 @@
  */
 package ccre.concurrency;
 
+import ccre.channel.BooleanCell;
 import ccre.channel.BooleanInput;
-import ccre.channel.BooleanStatus;
 import ccre.channel.EventInput;
 import ccre.channel.EventOutput;
 import ccre.log.Logger;
@@ -56,7 +56,7 @@ public abstract class CollapsingWorkerThread extends ReporterThread implements E
     /**
      * A BooleanStatus that represents if work is currently running.
      */
-    private BooleanStatus runningStatus;
+    private BooleanCell runningStatus;
     /**
      * Should this thread stop doing work now?
      */
@@ -132,7 +132,7 @@ public abstract class CollapsingWorkerThread extends ReporterThread implements E
      */
     public BooleanInput getRunningStatus() {
         if (runningStatus == null) {
-            runningStatus = new BooleanStatus();
+            runningStatus = new BooleanCell();
         }
         return runningStatus;
     }

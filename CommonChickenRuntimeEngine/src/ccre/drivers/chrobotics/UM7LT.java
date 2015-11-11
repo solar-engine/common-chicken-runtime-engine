@@ -20,16 +20,15 @@ package ccre.drivers.chrobotics;
 
 import java.io.IOException;
 
-import ccre.channel.BooleanStatus;
+import ccre.channel.BooleanCell;
+import ccre.channel.DerivedFloatInput;
+import ccre.channel.EventCell;
 import ccre.channel.EventInput;
 import ccre.channel.EventOutput;
-import ccre.channel.EventStatus;
 import ccre.channel.FloatInput;
-import ccre.channel.FloatInputPoll;
 import ccre.channel.SerialIO;
 import ccre.concurrency.CollapsingWorkerThread;
 import ccre.concurrency.ReporterThread;
-import ccre.ctrl.FloatMixing;
 import ccre.log.Logger;
 
 /**
@@ -43,13 +42,13 @@ import ccre.log.Logger;
 public class UM7LT {
     private final InternalUM7LT internal;
 
-    private final EventStatus eulerUpdateStatus = new EventStatus();
+    private final EventCell eulerUpdateStatus = new EventCell();
     /**
      * An event that fires whenever new data for the Euler angles becomes
      * available.
      */
     public final EventInput onEulerUpdate = eulerUpdateStatus;
-    private final EventStatus healthUpdateStatus = new EventStatus();
+    private final EventCell healthUpdateStatus = new EventCell();
     /**
      * An event that fires whenever new data for the Health sensor becomes
      * available.
@@ -58,7 +57,7 @@ public class UM7LT {
     /**
      * Whether or not faults should be automatically logged.
      */
-    public final BooleanStatus autoreportFaults = new BooleanStatus(true);
+    public final BooleanCell autoreportFaults = new BooleanCell(true);
 
     private final CollapsingWorkerThread worker = new CollapsingWorkerThread("UM7LT-dispatcher") {
 
@@ -70,7 +69,7 @@ public class UM7LT {
             int newEuler = internal.dregs[InternalUM7LT.DREG_EULER_TIME - InternalUM7LT.DREG_BASE];
             if (lastEuler != newEuler) {
                 lastEuler = newEuler;
-                eulerUpdateStatus.produce();
+                eulerUpdateStatus.safeEvent();
             }
             int newHealth = getHealth();
             if (lastHealth != newHealth) {
@@ -90,7 +89,7 @@ public class UM7LT {
                         Logger.fine("UM7LT GYRO: " + ((newHealth & 0x4) != 0 ? " FAULT" : "nominal"));
                     }
                 }
-                healthUpdateStatus.produce();
+                healthUpdateStatus.event();
             }
         }
     };
@@ -103,49 +102,56 @@ public class UM7LT {
     public UM7LT(SerialIO rs232) {
         internal = new InternalUM7LT(rs232, worker);
 
-        roll = FloatMixing.createDispatch(new FloatInputPoll() {
-            public float get() {
+        roll = new DerivedFloatInput(onEulerUpdate) {
+            @Override
+            protected float apply() {
                 return ((short) (internal.dregs[InternalUM7LT.DREG_EULER_PHI_THETA - InternalUM7LT.DREG_BASE] >> 16)) / InternalUM7LT.EULER_CONVERSION_DIVISOR;
             }
-        }, onEulerUpdate);
+        };
 
-        pitch = FloatMixing.createDispatch(new FloatInputPoll() {
-            public float get() {
+        pitch = new DerivedFloatInput(onEulerUpdate) {
+            @Override
+            protected float apply() {
                 return ((short) (internal.dregs[InternalUM7LT.DREG_EULER_PHI_THETA - InternalUM7LT.DREG_BASE])) / InternalUM7LT.EULER_CONVERSION_DIVISOR;
             }
-        }, onEulerUpdate);
+        };
 
-        yaw = FloatMixing.createDispatch(new FloatInputPoll() {
-            public float get() {
+        yaw = new DerivedFloatInput(onEulerUpdate) {
+            @Override
+            protected float apply() {
                 return ((short) (internal.dregs[InternalUM7LT.DREG_EULER_PSI - InternalUM7LT.DREG_BASE] >> 16)) / InternalUM7LT.EULER_CONVERSION_DIVISOR;
             }
-        }, onEulerUpdate);
+        };
 
         // These return numbers in degrees per second.
-        rollRate = FloatMixing.createDispatch(new FloatInputPoll() {
-            public float get() {
+        rollRate = new DerivedFloatInput(onEulerUpdate) {
+            @Override
+            protected float apply() {
                 return ((short) (internal.dregs[InternalUM7LT.DREG_EULER_PHI_THETA_DOT - InternalUM7LT.DREG_BASE] >> 16)) / InternalUM7LT.EULER_RATE_CONVERSION_DIVISOR;
             }
-        }, onEulerUpdate);
+        };
 
-        pitchRate = FloatMixing.createDispatch(new FloatInputPoll() {
-            public float get() {
+        pitchRate = new DerivedFloatInput(onEulerUpdate) {
+            @Override
+            protected float apply() {
                 return ((short) (internal.dregs[InternalUM7LT.DREG_EULER_PHI_THETA_DOT - InternalUM7LT.DREG_BASE])) / InternalUM7LT.EULER_RATE_CONVERSION_DIVISOR;
             }
-        }, onEulerUpdate);
+        };
 
-        yawRate = FloatMixing.createDispatch(new FloatInputPoll() {
-            public float get() {
+        yawRate = new DerivedFloatInput(onEulerUpdate) {
+            @Override
+            protected float apply() {
                 return ((short) (internal.dregs[InternalUM7LT.DREG_EULER_PSI_DOT - InternalUM7LT.DREG_BASE] >> 16)) / InternalUM7LT.EULER_RATE_CONVERSION_DIVISOR;
             }
-        }, onEulerUpdate);
+        };
 
         // This returns a time in seconds. (?)
-        eulerTime = FloatMixing.createDispatch(new FloatInputPoll() {
-            public float get() {
+        eulerTime = new DerivedFloatInput(onEulerUpdate) {
+            @Override
+            protected float apply() {
                 return Float.intBitsToFloat(internal.dregs[InternalUM7LT.DREG_EULER_TIME - InternalUM7LT.DREG_BASE]);
             }
-        }, onEulerUpdate);
+        };
     }
 
     private boolean started = false;

@@ -18,19 +18,11 @@
  */
 package ccre.ctrl.binding;
 
-import java.util.ConcurrentModificationException;
+import java.util.HashMap;
 
 import ccre.channel.BooleanInput;
-import ccre.channel.BooleanInputPoll;
-import ccre.channel.EventInput;
 import ccre.channel.FloatInput;
-import ccre.ctrl.BooleanMixing;
-import ccre.ctrl.FloatMixing;
-import ccre.ctrl.IJoystick;
-import ccre.ctrl.IJoystickWithPOV;
-import ccre.util.CArrayList;
-import ccre.util.CArrayUtils;
-import ccre.util.CHashMap;
+import ccre.ctrl.Joystick;
 
 /**
  * A ControlBindingDataSourceBuildable is an easy way to define a
@@ -43,63 +35,36 @@ import ccre.util.CHashMap;
  * @author skeggsc
  */
 public class ControlBindingDataSourceBuildable implements ControlBindingDataSource {
-    private final EventInput updateOn;
-    private final CHashMap<String, BooleanInput> booleans = new CHashMap<String, BooleanInput>();
-    private final CHashMap<String, FloatInput> floats = new CHashMap<String, FloatInput>();
+    private final HashMap<String, BooleanInput> booleans = new HashMap<String, BooleanInput>();
+    private final HashMap<String, FloatInput> floats = new HashMap<String, FloatInput>();
 
     /**
-     * Create a new ControlBindingDataSourceBuildable that updates when the
-     * specified event is produced.
-     *
-     * Since certain inputs will update when, and only when, updateOn is
-     * pressed, make sure that it always keeps firing.
-     *
-     * For example, you could use <code>Igneous.globalPeriodic</code>.
-     *
-     * @param updateOn when to update any InputPolls provided to this buildable.
-     */
-    public ControlBindingDataSourceBuildable(EventInput updateOn) {
-        if (updateOn == null) {
-            throw new NullPointerException();
-        }
-        this.updateOn = updateOn;
-    }
-
-    /**
-     * Add inputs for all the buttons and axes of a Joystick.
+     * Add inputs for all the buttons and axes of a Joystick, and its POV hat.
      *
      * @param name a name for the Joystick.
      * @param joy the Joystick.
-     * @param buttonCount how many buttons to include.
-     * @param axisCount how many axes to include.
+     * @param buttonCount the number of buttons.
+     * @param axisCount the number of axes.
+     * @see #addJoystick(String, Joystick, int, int)
      */
-    public void addJoystick(String name, IJoystick joy, int buttonCount, int axisCount) {
+    public void addJoystick(String name, Joystick joy, int buttonCount, int axisCount) {
         for (int i = 1; i <= buttonCount; i++) {
-            addButton(name + " BTN " + i, joy.getButtonChannel(i));
+            addButton(name + " BTN " + i, joy.button(i));
         }
         for (int i = 1; i <= axisCount; i++) {
-            addAxis(name + " AXIS " + i, joy.getAxisSource(i));
+            addAxis(name + " AXIS " + i, joy.axis(i));
         }
+        addButton(name + " POV UP", joy.isPOV(Joystick.POV_NORTH));
+        addButton(name + " POV DOWN", joy.isPOV(Joystick.POV_SOUTH));
+        addButton(name + " POV LEFT", joy.isPOV(Joystick.POV_WEST));
+        addButton(name + " POV RIGHT", joy.isPOV(Joystick.POV_EAST));
     }
 
     /**
-     * Add a BooleanInputPoll as a control input.
-     *
-     * The value will be polled whenever updateOn (from the constructor) is
-     * produced.
+     * Add a BooleanInput as a control input.
      *
      * @param name the name of the input.
-     * @param buttonChannel the BooleanInputPoll.
-     */
-    public void addButton(String name, BooleanInputPoll buttonChannel) {
-        addButton(name, BooleanMixing.createDispatch(buttonChannel, updateOn));
-    }
-
-    /**
-     * Add a BooleanInputPoll as a control input.
-     *
-     * @param name the name of the input.
-     * @param buttonChannel the BooleanInputPoll.
+     * @param buttonChannel the BooleanInput.
      */
     public void addButton(String name, BooleanInput buttonChannel) {
         if (booleans.containsKey(name)) {
@@ -113,12 +78,12 @@ public class ControlBindingDataSourceBuildable implements ControlBindingDataSour
      * of the axis.
      *
      * @param name the name for the axis.
-     * @param axisSource the FloatInput to add.
+     * @param axis the FloatInput to add.
      */
-    public void addAxis(String name, FloatInput axisSource) {
-        addAxisRaw(name, axisSource);
-        addButton(name + " AS BTN+", FloatMixing.floatIsAtLeast(axisSource, 0.8f));
-        addButton(name + " AS BTN-", FloatMixing.floatIsAtMost(axisSource, -0.8f));
+    public void addAxis(String name, FloatInput axis) {
+        addAxisRaw(name, axis);
+        addButton(name + " AS BTN+", axis.atLeast(0.8f));
+        addButton(name + " AS BTN-", axis.atMost(-0.8f));
     }
 
     /**
@@ -134,37 +99,8 @@ public class ControlBindingDataSourceBuildable implements ControlBindingDataSour
         floats.put(name, axisSource);
     }
 
-    /**
-     * Add inputs for all the buttons and axes of a Joystick, and its POV hat.
-     *
-     * @param name a name for the Joystick.
-     * @param joy the Joystick.
-     * @param buttonCount the number of buttons.
-     * @param axisCount the number of axes.
-     * @see #addJoystick(String, IJoystick, int, int)
-     */
-    public void addJoystick(String name, IJoystickWithPOV joy, int buttonCount, int axisCount) {
-        addJoystick(name, (IJoystick) joy, buttonCount, axisCount);
-        addPOVHandler(name, joy);
-    }
-
-    private void addPOVHandler(String name, IJoystickWithPOV joy) {
-        BooleanInput povPressed = joy.isPOVPressedSource(1);
-        FloatInput povAngle = joy.getPOVAngleSource(1);
-        addButton(name + " POV UP", BooleanMixing.andBooleans(FloatMixing.floatIsInRange(povAngle, -0.1f, 0.1f), povPressed));
-        addButton(name + " POV DOWN", BooleanMixing.andBooleans(FloatMixing.floatIsInRange(povAngle, 179.9f, 180.1f), povPressed));
-        addButton(name + " POV LEFT", BooleanMixing.andBooleans(FloatMixing.floatIsInRange(povAngle, 269.9f, 270.1f), povPressed));
-        addButton(name + " POV RIGHT", BooleanMixing.andBooleans(FloatMixing.floatIsInRange(povAngle, 89.9f, 90.1f), povPressed));
-    }
-
     public String[] listBooleans() {
-        String[] stra;
-        CArrayList<String> strs = CArrayUtils.collectIterable(booleans);
-        stra = new String[strs.size()];
-        if (strs.fillArray(stra) != 0) {
-            throw new ConcurrentModificationException();
-        }
-        return stra;
+        return booleans.keySet().toArray(new String[booleans.keySet().size()]);
     }
 
     public BooleanInput getBoolean(String name) {
@@ -172,13 +108,7 @@ public class ControlBindingDataSourceBuildable implements ControlBindingDataSour
     }
 
     public String[] listFloats() {
-        String[] stra;
-        CArrayList<String> strs = CArrayUtils.collectIterable(floats);
-        stra = new String[strs.size()];
-        if (strs.fillArray(stra) != 0) {
-            throw new ConcurrentModificationException();
-        }
-        return stra;
+        return floats.keySet().toArray(new String[floats.keySet().size()]);
     }
 
     public FloatInput getFloat(String name) {

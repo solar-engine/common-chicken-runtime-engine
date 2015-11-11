@@ -80,7 +80,8 @@ public class Beeper {
      * waiting for the effect to complete.
      */
     public static void main(String[] args) throws InterruptedException {
-        beep(args.length == 0 ? "corral" : args[0]); //ALARM, ANNOY, LOW, FASTALARM, SIREN, OOPS, AIMED, CORRAL;
+        // ALARM, ANNOY, LOW, FASTALARM, SIREN, OOPS, AIMED, CORRAL;
+        beep(args.length == 0 ? "corral" : args[0]);
         Thread.sleep(5000);
     }
 

@@ -20,9 +20,10 @@ package ccre.util;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.HashMap;
 
 import ccre.log.Logger;
-import ccre.saver.DefaultStorageSegment;
+import ccre.storage.StorageSegment;
 
 /**
  * Utilities for accessing the version of the CCRE.
@@ -41,14 +42,14 @@ public class Version {
      * @return the long-form version.
      */
     public static String getVersion() {
-        CHashMap<String, String> versions = new CHashMap<String, String>();
+        HashMap<String, String> versions = new HashMap<String, String>();
         InputStream props = Version.class.getResourceAsStream("/version.properties");
         if (props == null) {
             return "unknown version: no version.properties";
         }
         try {
             try {
-                DefaultStorageSegment.loadProperties(props, false, versions);
+                StorageSegment.loadProperties(props, false, versions);
             } catch (IOException e) {
                 Logger.warning("IOException while reading /version.properties", e);
                 return "unknown version: could not load";
@@ -79,10 +80,10 @@ public class Version {
      */
     public static String getShortVersion() {
         String version = getVersion();
-        String[] parts = Utils.split(version, '-');
+        String[] parts = version.split("-");
         if (parts.length >= 2 && "ccre".equals(parts[0]) && parts[1].startsWith("v")) {
-            if (parts.length >= 3 && !"0".equals(parts[2]) || version.contains("dirty")) {
-                return parts[1].substring(1) + "+M";
+            if (version.contains("-dev") || version.contains("-pre")) {
+                return parts[1].substring(1) + "+D";
             } else {
                 return parts[1].substring(1);
             }

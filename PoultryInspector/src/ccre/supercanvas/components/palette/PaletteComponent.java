@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 Colby Skeggs.
+ * Copyright 2014-2015 Colby Skeggs.
  *
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  *
@@ -116,6 +116,13 @@ public class PaletteComponent<T extends Iterable<? extends PaletteEntry>> extend
         }
     }
 
+    /**
+     * Called when the title bar is interacted with. Defaults to nothing. This
+     * could, for example, refresh the contents of the palette.
+     *
+     * @return true if the event was handled and should not be sent to any other
+     * components, and false otherwise.
+     */
     protected boolean onInteractWithTitleBar() {
         // Do nothing by default.
         return false;

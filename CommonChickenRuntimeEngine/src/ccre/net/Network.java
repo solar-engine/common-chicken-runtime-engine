@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2014 Colby Skeggs
+ * Copyright 2013-2015 Colby Skeggs
  *
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  *
@@ -19,9 +19,20 @@
 package ccre.net;
 
 import java.io.IOException;
+import java.net.ConnectException;
+import java.net.InetAddress;
+import java.net.InetSocketAddress;
+import java.net.NetworkInterface;
+import java.net.Socket;
+import java.net.SocketException;
+import java.net.SocketTimeoutException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Enumeration;
 
 import ccre.log.Logger;
-import ccre.util.CCollection;
 
 /**
  * The global Network handler. This contains a location to store the current
@@ -33,43 +44,6 @@ import ccre.util.CCollection;
 public class Network {
 
     /**
-     * The current network provider.
-     */
-    private static NetworkProvider prov = null;
-
-    static synchronized void setProvider(NetworkProvider pvdr) {
-        if (prov != null) {
-            throw new IllegalStateException("Provider already registered!");
-        }
-        prov = pvdr;
-    }
-
-    /**
-     * Return the current network provider, finding it if it doesn't exist. This
-     * will look for ccre.net.DefaultNetworkProvider by default, and throw an
-     * exception if it doesn't exist.
-     *
-     * @return the active network Provider.
-     */
-    public static synchronized NetworkProvider getProvider() {
-        if (prov == null) {
-            try {
-                prov = (NetworkProvider) Class.forName("ccre.net.DefaultNetworkProvider").newInstance();
-            } catch (InstantiationException ex) {
-                Logger.warning("Cannot start network provider!", ex);
-                throw new RuntimeException("Cannot load the default network provider. It was probably (purposefully) ignored during the build process.");
-            } catch (IllegalAccessException ex) {
-                Logger.warning("Cannot start network provider!", ex);
-                throw new RuntimeException("Cannot load the default network provider. It was probably (purposefully) ignored during the build process.");
-            } catch (ClassNotFoundException ex) {
-                Logger.warning("Cannot start network provider!", ex);
-                throw new RuntimeException("Cannot load the default network provider. It was probably (purposefully) ignored during the build process.");
-            }
-        }
-        return prov;
-    }
-
-    /**
      * Connect to the specified IP address and port, and return a ClientSocket
      * representing the connection.
      *
@@ -79,7 +53,32 @@ public class Network {
      * @throws IOException if an IO error occurs.
      */
     public static ClientSocket connect(String targetAddress, int port) throws IOException {
-        return getProvider().openClient(targetAddress, port);
+        Socket sock = new Socket();
+        boolean leaveOpen = false;
+        try {
+            InetSocketAddress ina = new InetSocketAddress(targetAddress, port);
+            try {
+                sock.connect(ina, 500);// TODO: What timeout should be used?
+                leaveOpen = true;
+                return new ClientSocket(sock);
+            } catch (SocketTimeoutException ex) {
+                // Smaller traceback.
+                throw new ConnectException("Timed out while connecting to " + ina);
+            } catch (ConnectException ctc) {
+                if (ctc.getMessage().startsWith("Connection timed out")) {
+                    // Smaller traceback.
+                    throw new ConnectException("Timed out while connecting to " + ina);
+                } else if (ctc.getMessage().startsWith("Connection refused")) {
+                    // Smaller traceback.
+                    throw new ConnectException("Remote server not available: " + ina);
+                }
+                throw ctc;
+            }
+        } finally {
+            if (!leaveOpen) {
+                sock.close();
+            }
+        }
     }
 
     /**
@@ -119,7 +118,7 @@ public class Network {
      * @throws IOException if an IO error occurs.
      */
     public static ServerSocket bind(int port) throws IOException {
-        return getProvider().openServer(port);
+        return new ServerSocket(new java.net.ServerSocket(port));
     }
 
     /**
@@ -127,32 +126,34 @@ public class Network {
      *
      * @return a collection of the IPv4 addresses of the current system.
      */
-    public static CCollection<String> listIPv4Addresses() {
-        return getProvider().listIPv4Addresses();
-    }
-
-    /**
-     * Gets a string representing the platform type for this system. This is
-     * used by CluckNode to create a node ID.
-     *
-     * @return The platform type string.
-     */
-    public static String getPlatformType() {
-        return getProvider().getPlatformType();
+    public static Collection<String> listIPv4Addresses() {
+        Enumeration<NetworkInterface> enm = null;
+        try {
+            enm = NetworkInterface.getNetworkInterfaces();
+        } catch (SocketException ex) {
+            Logger.severe("Could not enumerate IP addresses!", ex);
+        }
+        if (enm == null) {
+            return Collections.emptyList();
+        }
+        ArrayList<String> allAddresses = new ArrayList<String>();
+        while (enm.hasMoreElements()) {
+            NetworkInterface ni = enm.nextElement();
+            Enumeration<InetAddress> ins = ni.getInetAddresses();
+            while (ins.hasMoreElements()) {
+                InetAddress addr = ins.nextElement();
+                byte[] raw = addr.getAddress();
+                if (raw.length == 4) {
+                    allAddresses.add(addr.getHostAddress());
+                } else if (raw.length != 16) {
+                    Logger.warning("Found an address that's not 4 or 16 long: " + Arrays.toString(raw));
+                }
+            }
+        }
+        return allAddresses;
     }
 
     private Network() {
-    }
-
-    /**
-     * Checks if the specified exception was thrown due to a timeout while
-     * reading from a socket.
-     *
-     * @param ex the IO exception to check
-     * @return if the exception was thrown due to a timeout.
-     */
-    public static boolean isTimeoutException(IOException ex) {
-        return getProvider().isTimeoutException(ex);
     }
 
 }

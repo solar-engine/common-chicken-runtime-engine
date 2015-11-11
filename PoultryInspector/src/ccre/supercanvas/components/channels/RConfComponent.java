@@ -27,7 +27,6 @@ import javax.swing.JOptionPane;
 
 import ccre.channel.EventOutput;
 import ccre.concurrency.CollapsingWorkerThread;
-import ccre.ctrl.Ticker;
 import ccre.log.Logger;
 import ccre.rconf.RConf;
 import ccre.rconf.RConfable;
@@ -36,6 +35,8 @@ import ccre.supercanvas.Rendering;
 import ccre.supercanvas.SuperCanvasComponent;
 import ccre.supercanvas.SuperCanvasPanel;
 import ccre.supercanvas.components.palette.NetworkPaletteComponent;
+import ccre.timers.Ticker;
+import ccre.util.Utils;
 
 /**
  * A SuperCanvas-based component to allow interaction with RConf data.
@@ -55,7 +56,9 @@ public class RConfComponent extends DraggableBoxComponent {
             if (out == null) {
                 lastSignalSucceeded = false;
                 consecutiveUpdateFailures++;
-                setAutoRefreshDelay(autoRefreshDelay); // refresh it because the additional failures may have made it slower.
+                // refresh it because the additional failures may have made it
+                // slower.
+                setAutoRefreshDelay(autoRefreshDelay);
             } else {
                 lastSignalSucceeded = true;
                 entries = out;
@@ -98,7 +101,7 @@ public class RConfComponent extends DraggableBoxComponent {
             trigger();
         }
 
-        public boolean recentlySent(int field, int within) {
+        public synchronized boolean recentlySent(int field, int within) {
             return signalField == field && System.currentTimeMillis() - lastSent < within;
         }
     }
@@ -111,6 +114,9 @@ public class RConfComponent extends DraggableBoxComponent {
     private static final int SIGNAL_SUCCESS_FLASH_TIME = 500;
 
     private RConf.Entry[] entries = new RConf.Entry[0];
+    /**
+     * The RConfable accessed by this RConfComponent.
+     */
     protected final RConfable device;
 
     private boolean lastSignalSucceeded = false;
@@ -127,7 +133,7 @@ public class RConfComponent extends DraggableBoxComponent {
     private transient Ticker autoRefreshTicker = null;
 
     @Override
-    protected void onChangePanel(SuperCanvasPanel newPanel) {
+    protected synchronized void onChangePanel(SuperCanvasPanel newPanel) {
         if (newPanel == null) {
             if (signaler != null) {
                 signaler.terminate();
@@ -161,7 +167,7 @@ public class RConfComponent extends DraggableBoxComponent {
 
     private synchronized void setAutoRefreshDelay(Integer delay) {
         if (delay != null && delay < 10000) {
-            delay = (int) Math.min(Math.round(delay * Math.pow(2, consecutiveUpdateFailures / 5)), 10000);
+            delay = (int) Math.min(Math.round(delay * Math.pow(2, consecutiveUpdateFailures / 5f)), 10000);
         }
         if (delay != null && delay < 10) {
             delay = 10;
@@ -177,6 +183,7 @@ public class RConfComponent extends DraggableBoxComponent {
         if (delay != null) {
             autoRefreshTicker = new Ticker(delay);
             autoRefreshTicker.send(new EventOutput() {
+                @Override
                 public void event() {
                     if (getPanel() == null) {
                         setAutoRefreshDelay(null);
@@ -348,7 +355,7 @@ public class RConfComponent extends DraggableBoxComponent {
                         String oldString = e.parseTextual();
                         asked = JOptionPane.showInputDialog("Enter string", oldString == null ? "" : oldString);
                         if (asked != null) {
-                            payload = asked.getBytes();
+                            payload = Utils.getBytes(asked);
                         }
                         break;
                     case RConf.F_CLUCK_REF:

@@ -19,9 +19,11 @@
 package ccre.ctrl;
 
 import ccre.channel.BooleanOutput;
-import ccre.channel.FloatInputPoll;
+import ccre.channel.EventInput;
+import ccre.channel.FloatInput;
 import ccre.channel.FloatOutput;
 import ccre.log.Logger;
+import ccre.time.Time;
 
 /**
  * A fake implementation of ExtendedMotor that is suitable for use when
@@ -72,13 +74,9 @@ public class CommunicationFailureExtendedMotor extends ExtendedMotor implements 
     }
 
     @Override
-    public FloatInputPoll asStatus(StatusType type) {
+    public FloatInput asStatus(StatusType type, EventInput updateOn) {
         Logger.severe("Could not access status of Extended Motor: " + message);
-        return new FloatInputPoll() {
-            public float get() {
-                return 0f;
-            }
-        };
+        return FloatInput.zero;
     }
 
     @Override
@@ -105,7 +103,7 @@ public class CommunicationFailureExtendedMotor extends ExtendedMotor implements 
     private long nextWarning = 0;
 
     public void set(float value) {
-        long now = System.currentTimeMillis();
+        long now = Time.currentTimeMillis();
         if (now > nextWarning) {
             Logger.warning("Could not modify Extended Motor value - failed comms: " + message);
             nextWarning = now + 3000;

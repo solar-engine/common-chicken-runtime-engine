@@ -22,12 +22,14 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.HashMap;
 
+import ccre.cluck.CluckConstants;
 import ccre.cluck.CluckNode;
 import ccre.cluck.CluckSubscriber;
 import ccre.log.Logger;
-import ccre.util.CArrayList;
-import ccre.util.CHashMap;
+import ccre.time.Time;
 import ccre.util.UniqueIds;
 
 /**
@@ -44,8 +46,8 @@ public final class RPCManager implements Serializable {
      * subscribing to RemoteProcedures.
      */
     private final String localRPCBinding;
-    private final CHashMap<String, OutputStream> bindings = new CHashMap<String, OutputStream>();
-    private final CHashMap<String, Long> timeouts = new CHashMap<String, Long>();
+    private final HashMap<String, OutputStream> bindings = new HashMap<String, OutputStream>();
+    private final HashMap<String, Long> timeouts = new HashMap<String, Long>();
 
     /**
      * Create a new RPCManager for the specified node.
@@ -55,8 +57,8 @@ public final class RPCManager implements Serializable {
     public RPCManager(CluckNode node) {
         this.node = node;
         localRPCBinding = UniqueIds.global.nextHexId("rpc-endpoint");
-        final CHashMap<String, OutputStream> localBindings = this.bindings;
-        final CHashMap<String, Long> localTimeouts = this.timeouts;
+        final HashMap<String, OutputStream> localBindings = this.bindings;
+        final HashMap<String, Long> localTimeouts = this.timeouts;
         new CluckSubscriber(node) {
             @Override
             protected void receive(String source, byte[] data) {
@@ -64,8 +66,8 @@ public final class RPCManager implements Serializable {
             }
 
             @Override
-            protected void handleOther(String dest, String source, byte[] data) {
-                if (requireRMT(source, data, CluckNode.RMT_INVOKE_REPLY)) {
+            protected void receiveSideChannel(String dest, String source, byte[] data) {
+                if (requireRMT(source, data, CluckConstants.RMT_INVOKE_REPLY)) {
                     checkRPCTimeouts();
                     OutputStream stream;
                     synchronized (RPCManager.this) {
@@ -104,7 +106,7 @@ public final class RPCManager implements Serializable {
         new CluckSubscriber(node) {
             @Override
             protected void receive(final String source, byte[] data) {
-                if (requireRMT(source, data, CluckNode.RMT_INVOKE)) {
+                if (requireRMT(source, data, CluckConstants.RMT_INVOKE)) {
                     checkRPCTimeouts();
                     byte[] sdata = new byte[data.length - 1];
                     System.arraycopy(data, 1, sdata, 0, sdata.length);
@@ -120,14 +122,14 @@ public final class RPCManager implements Serializable {
                             node.transmit(source, name, toByteArray());
                         }
                     };
-                    baos.write(CluckNode.RMT_INVOKE_REPLY);
+                    baos.write(CluckConstants.RMT_INVOKE_REPLY);
                     proc.invoke(sdata, baos);
                 }
             }
 
             @Override
             protected void receiveBroadcast(String source, byte[] data) {
-                defaultBroadcastHandle(source, data, CluckNode.RMT_INVOKE);
+                defaultBroadcastHandle(source, data, CluckConstants.RMT_INVOKE);
             }
         }.attach(name);
     }
@@ -138,10 +140,10 @@ public final class RPCManager implements Serializable {
      * while for the timeout to happen.
      */
     void checkRPCTimeouts() {
-        long now = System.currentTimeMillis();
-        CArrayList<String> toRemove = new CArrayList<String>();
+        long now = Time.currentTimeMillis();
+        ArrayList<String> toRemove = new ArrayList<String>();
         synchronized (this) {
-            for (String key : timeouts) {
+            for (String key : timeouts.keySet()) {
                 long value = timeouts.get(key);
                 if (value < now) {
                     toRemove.add(key);
@@ -172,7 +174,7 @@ public final class RPCManager implements Serializable {
 
     private void putNewInvokeBinding(String path, String localname, long timeoutAfter, OutputStream out, byte[] toSend) {
         synchronized (this) {
-            timeouts.put(localname, System.currentTimeMillis() + timeoutAfter);
+            timeouts.put(localname, Time.currentTimeMillis() + timeoutAfter);
             bindings.put(localname, out);
         }
         node.transmit(path, localRPCBinding + "/" + localname, toSend);
@@ -193,7 +195,7 @@ public final class RPCManager implements Serializable {
             checkRPCTimeouts();
             String localname = UniqueIds.global.nextHexId(path);
             byte[] toSend = new byte[in.length + 1];
-            toSend[0] = CluckNode.RMT_INVOKE;
+            toSend[0] = CluckConstants.RMT_INVOKE;
             System.arraycopy(in, 0, toSend, 1, in.length);
             putNewInvokeBinding(path, localname, timeoutAfter, out, toSend);
         }

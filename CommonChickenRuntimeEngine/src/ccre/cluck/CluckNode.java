@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2014 Colby Skeggs
+ * Copyright 2013-2015 Colby Skeggs
  *
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  *
@@ -22,14 +22,11 @@ import java.io.IOException;
 import java.io.NotSerializableException;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
-import java.util.Iterator;
+import java.util.HashMap;
 
 import ccre.channel.EventOutput;
 import ccre.cluck.rpc.RPCManager;
 import ccre.log.Logger;
-import ccre.util.CArrayList;
-import ccre.util.CHashMap;
-import ccre.util.UniqueIds;
 
 /**
  * A CluckNode is the core hub of the Cluck networking system on a device. It
@@ -42,102 +39,11 @@ import ccre.util.UniqueIds;
 public class CluckNode implements Serializable {
 
     private static final long serialVersionUID = -5439319159206467512L;
-    /**
-     * The ID representing a PING message.
-     */
-    public static final byte RMT_PING = 0;
-    /**
-     * The ID representing an EventOutput firing message.
-     */
-    public static final byte RMT_EVENTOUTP = 1;
-    /**
-     * The ID representing an EventInput subscription message.
-     */
-    public static final byte RMT_EVENTINPUT = 2;
-    /**
-     * The ID representing an EventInput response message.
-     */
-    public static final byte RMT_EVENTINPUTRESP = 3;
-    /**
-     * The ID representing a logging message.
-     */
-    public static final byte RMT_LOGTARGET = 4;
-    /**
-     * The ID representing a BooleanInputProducer subscription message.
-     */
-    public static final byte RMT_BOOLPROD = 5;
-    /**
-     * The ID representing a BooleanInputProducer response message.
-     */
-    public static final byte RMT_BOOLPRODRESP = 6;
-    /**
-     * The ID representing a BooleanOutput write message.
-     */
-    public static final byte RMT_BOOLOUTP = 7;
-    /**
-     * The ID representing a FloatInputProducer subscription message.
-     */
-    public static final byte RMT_FLOATPROD = 8;
-    /**
-     * The ID representing a FloatInputProducer response message.
-     */
-    public static final byte RMT_FLOATPRODRESP = 9;
-    /**
-     * The ID representing a FloatOutput write message.
-     */
-    public static final byte RMT_FLOATOUTP = 10;
-    /**
-     * The ID representing an OutputStream write message.
-     */
-    public static final byte RMT_OUTSTREAM = 11;
-    /**
-     * The ID representing a network infrastructure modification notification.
-     */
-    public static final byte RMT_NOTIFY = 12;
-    /**
-     * The ID representing a remote procedure invocation.
-     */
-    public static final byte RMT_INVOKE = 13;
-    /**
-     * The ID representing a response to a remote procedure invocation.
-     */
-    public static final byte RMT_INVOKE_REPLY = 14;
-    /**
-     * The ID representing a notification that a link doesn't exist.
-     */
-    public static final byte RMT_NEGATIVE_ACK = 15;
-    /**
-     * The ID representing an EventInput unsubscription request.
-     */
-    public static final byte RMT_EVENTINPUT_UNSUB = 16;
-    /**
-     * The ID representing an BooleanInputProducer unsubscription request.
-     */
-    public static final byte RMT_BOOLPROD_UNSUB = 17;
-    /**
-     * The ID representing an FloatInputProducer unsubscription request.
-     */
-    public static final byte RMT_FLOATPROD_UNSUB = 18;
-    private static final String[] remoteNames = new String[] { "Ping", "EventOutput", "EventInput", "EventInputResponse", "LogTarget", "BooleanInput", "BooleanInputResponse", "BooleanOutput", "FloatInput", "FloatInputResponse", "FloatOutput", "OutputStream", "Notify", "RemoteProcedure", "RemoteProcedureReply", "NonexistenceNotification", "EventInputUnsubscription", "BooleanInputUnsubscription", "FloatInputUnsubscription" };
-
-    /**
-     * Convert an RMT ID to a string.
-     *
-     * @param type The RMT_* message ID.
-     * @return The version representing the name of the message type.
-     */
-    public static String rmtToString(int type) {
-        if (type >= 0 && type < remoteNames.length) {
-            return remoteNames[type];
-        } else {
-            return "Unknown #" + type;
-        }
-    }
 
     /**
      * A map of the current link names to the CluckLinks.
      */
-    public final CHashMap<String, CluckLink> links = new CHashMap<String, CluckLink>();
+    public final HashMap<String, CluckLink> links = new HashMap<String, CluckLink>();
     /**
      * The time when the last error message was printed about a link not
      * existing.
@@ -155,9 +61,12 @@ public class CluckNode implements Serializable {
     /**
      * Notify everyone on the network that the network structure has been
      * modified - for example, when a connection is opened or closed.
+     *
+     * A notification message is simply a message with an
+     * {@link CluckConstants#RMT_NOTIFY} header.
      */
     public void notifyNetworkModified() {
-        transmit("*", "#modsrc", new byte[] { RMT_NOTIFY });
+        transmit(CluckConstants.BROADCAST_DESTINATION, "#modsrc", new byte[] { CluckConstants.RMT_NOTIFY });
     }
 
     /**
@@ -188,11 +97,15 @@ public class CluckNode implements Serializable {
      * @param denyLink The link for broadcasts to not follow.
      */
     public void transmit(String target, String source, byte[] data, CluckLink denyLink) {
+        if (data == null) {
+            throw new NullPointerException();
+        }
+        // TODO: outlaw empty messages here.
         if (target == null) {
-            if (data.length == 0 || data[0] != RMT_NEGATIVE_ACK) {
+            if (data.length == 0 || data[0] != CluckConstants.RMT_NEGATIVE_ACK) {
                 Logger.warning("Received message addressed to unreceving node (source: " + source + ")");
             }
-        } else if ("*".equals(target)) {
+        } else if (CluckConstants.BROADCAST_DESTINATION.equals(target)) {
             broadcast(source, data, denyLink);
         } else {
             int slash = target.indexOf('/');
@@ -211,7 +124,7 @@ public class CluckNode implements Serializable {
                 try {
                     boolean shouldLive = link.send(indirect, source, data);
                     if (!shouldLive) {
-                        links.remove(direct); // Remove the link if it says that it's done.
+                        links.remove(direct);
                     }
                 } catch (Throwable ex) {
                     Logger.severe("Error while dispatching to Cluck link " + target, ex);
@@ -223,7 +136,9 @@ public class CluckNode implements Serializable {
     /**
      * Broadcast a message to all receiving nodes.
      *
-     * This is the same as <code>transmit("*", source, data, denyLink)</code>.
+     * This is the same as
+     * <code>transmit(CluckConstants.BROADCAST_DESTINATION, source, data, denyLink)</code>
+     * .
      *
      * @param source The source of the message.
      * @param data The contents of the message.
@@ -232,24 +147,38 @@ public class CluckNode implements Serializable {
      * ccre.cluck.CluckLink)
      */
     public void broadcast(String source, byte[] data, CluckLink denyLink) {
-        for (Iterator<String> linkIter = links.looseIterator(); linkIter.hasNext();) {
-            CluckLink cl = links.get(linkIter.next());
+        if (data == null) {
+            throw new NullPointerException();
+        }
+        for (String link : links.keySet().toArray(new String[links.keySet().size()])) {
+            CluckLink cl = links.get(link);
             if (cl != null && cl != denyLink) {
-                if (cl.send("*", source, data) == false) {
-                    linkIter.remove(); // Remove it if the link says that it's done.
+                try {
+                    boolean shouldLive = cl.send(CluckConstants.BROADCAST_DESTINATION, source, data);
+                    if (!shouldLive) {
+                        links.remove(link);
+                    }
+                } catch (Throwable ex) {
+                    Logger.severe("Error while broadcasting to Cluck link " + link, ex);
                 }
             }
         }
     }
 
     private void reportMissingLink(byte[] data, String source, String target, String direct) {
-        // Warnings about lost RMT_NEGATIVE_ACK messages or research messages are annoying, so don't send these,
-        // and don't warn about the same message path too quickly.
-        if ((data.length == 0 || data[0] != RMT_NEGATIVE_ACK) && !target.contains("/rsch-") && (!direct.equals(lastMissingLink) || System.currentTimeMillis() >= lastMissingLinkError + 1000)) {
-            lastMissingLink = direct;
-            lastMissingLinkError = System.currentTimeMillis();
-            Logger.warning("No link for " + target + "(" + direct + ") from " + source + "!");
-            transmit(source, target, new byte[] { RMT_NEGATIVE_ACK });
+        // Warnings about lost RMT_NEGATIVE_ACK messages or research messages
+        // are annoying, so don't send these, and don't warn about the same
+        // message path too quickly.
+
+        // We use System.currentTimeMillis() instead of Time.currentTimeMillis()
+        // because this is only to prevent message spam.
+        if ((data.length == 0 || data[0] != CluckConstants.RMT_NEGATIVE_ACK) && !target.contains("/rsch-")) {
+            if (!direct.equals(lastMissingLink) || System.currentTimeMillis() >= lastMissingLinkError + 1000) {
+                lastMissingLink = direct;
+                lastMissingLinkError = System.currentTimeMillis();
+                Logger.warning("No link for " + target + "(" + direct + ") from " + source + "!");
+            }
+            transmit(source, target, new byte[] { CluckConstants.RMT_NEGATIVE_ACK });
         }
     }
 
@@ -261,14 +190,18 @@ public class CluckNode implements Serializable {
      * @param listener The listener to notify.
      */
     public void subscribeToStructureNotifications(String localRecvName, final EventOutput listener) {
+        if (localRecvName == null || listener == null) {
+            throw new NullPointerException();
+        }
         new CluckSubscriber(this) {
             @Override
             protected void receive(String source, byte[] data) {
+                // Ignore it.
             }
 
             @Override
             protected void receiveBroadcast(String source, byte[] data) {
-                if (data.length == 1 && data[0] == CluckNode.RMT_NOTIFY) {
+                if (data.length == 1 && data[0] == CluckConstants.RMT_NOTIFY) {
                     listener.event();
                 }
             }
@@ -276,121 +209,22 @@ public class CluckNode implements Serializable {
     }
 
     /**
-     * Set up the specified CluckRemoteListener to start receiving updates about
-     * what remote nodes are broadcasting their availability.
-     *
-     * After this is set up, use cycleSearchRemotes to recheck for more remote
-     * nodes.
-     *
-     * @param localRecvName The local link name for the listener. Should be
-     * unique.
-     * @param listener The listener to notify with all found remotes.
-     * @see #cycleSearchRemotes(java.lang.String)
-     * @deprecated Use CluckPublisher.setupSearching instead.
-     */
-    @Deprecated
-    public void startSearchRemotes(String localRecvName, final CluckRemoteListener listener) {
-        new CluckSubscriber(this) {
-            @Override
-            protected void receive(String source, byte[] data) {
-                if (data.length == 2 && data[0] == RMT_PING) {
-                    listener.handle(source, data[1]);
-                }
-            }
-
-            @Override
-            protected void receiveBroadcast(String source, byte[] data) {
-            }
-        }.attach(localRecvName);
-        transmit("*", localRecvName, new byte[] { RMT_PING });
-    }
-
-    /**
-     * Recheck for remote nodes, as in startSearchRemotes.
-     *
-     * @param localRecv The local receiving address, which must be the same as
-     * the one passed to startSearchRemotes originally.
-     * @see #startSearchRemotes(java.lang.String,
-     * ccre.cluck.CluckRemoteListener)
-     * @deprecated Use CluckPublisher.setupSearching instead.
-     */
-    @Deprecated
-    public void cycleSearchRemotes(String localRecv) {
-        transmit("*", localRecv, new byte[] { RMT_PING });
-    }
-
-    /**
-     * Get a snapshot of the list of remote nodes of the specified remote type
-     * (or null for all types).
-     *
-     * @param remoteType The remote type to search for, or null for all types.
-     * @param timeout How long to wait for responses.
-     * @return The snapshot of remotes.
-     * @throws InterruptedException If the current thread is interrupted while
-     * searching for remotes.
-     * @deprecated Use CluckPublisher.setupSearching instead.
-     */
-    @Deprecated
-    public String[] searchRemotes(final Integer remoteType, int timeout) throws InterruptedException {
-        final CArrayList<String> discovered = new CArrayList<String>();
-        String localRecv = UniqueIds.global.nextHexId("rsch");
-        new CluckSubscriber(this) {
-            @Override
-            protected void receive(String source, byte[] data) {
-                if (data.length == 2 && data[0] == RMT_PING) {
-                    if (remoteType == null || remoteType == data[1]) {
-                        synchronized (discovered) {
-                            discovered.add(source);
-                        }
-                    }
-                }
-            }
-
-            @Override
-            protected void receiveBroadcast(String source, byte[] data) {
-            }
-        }.attach(localRecv);
-        try {
-            transmit("*", localRecv, new byte[] { RMT_PING });
-            Thread.sleep(timeout);
-        } finally {
-            links.remove(localRecv);
-        }
-        synchronized (discovered) {
-            Iterator<String> it = discovered.iterator();
-            String[] out = new String[discovered.size()];
-            int i = 0;
-            while (it.hasNext()) {
-                String str = it.next();
-                if (i >= out.length) {
-                    Logger.severe("Lost remote due to concurrent modification!");
-                    break;
-                }
-                out[i++] = str;
-            }
-            if (i < out.length) {
-                Logger.severe("Damaged remotes due to concurrent modification!");
-            }
-            return out;
-        }
-    }
-
-    /**
      * Get the name of the specified link.
      *
      * @param link The link to get the name for.
+     * @throws IllegalArgumentException if the link isn't directly attached.
      * @return The link name.
      */
-    public String getLinkName(CluckLink link) {
+    public String getLinkName(CluckLink link) throws IllegalArgumentException {
         if (link == null) {
             throw new NullPointerException();
         }
-        for (String key : links) {
+        for (String key : links.keySet()) {
             if (links.get(key) == link) {
                 return key;
             }
         }
-        throw new RuntimeException("No such link!");
+        throw new IllegalArgumentException("No such link!");
     }
 
     /**
@@ -401,8 +235,11 @@ public class CluckNode implements Serializable {
      * @throws IllegalStateException if the specified link name is already used.
      */
     public void addLink(CluckLink link, String linkName) throws IllegalStateException {
-        if (link == null) {
+        if (link == null || linkName == null) {
             throw new NullPointerException();
+        }
+        if (linkName.contains("/")) {
+            throw new IllegalArgumentException("Link name cannot contain slashes: " + linkName);
         }
         if (links.get(linkName) != null) {
             throw new IllegalStateException("Link name already used: " + linkName + " for " + links.get(linkName) + " not " + link);
@@ -411,12 +248,30 @@ public class CluckNode implements Serializable {
     }
 
     /**
-     * Remove the link attached to the specified link name.
+     * Checks if a link exists. If it is routable, it exists. If it is not
+     * routable, it probably (but not necessarily) doesn't exist - for example,
+     * there is the case of a link pointing to a remote object.
+     *
+     * @param linkName the link name to check.
+     * @return true if the link exists, and false otherwise.
+     */
+    public boolean hasLink(String linkName) {
+        if (linkName == null) {
+            throw new NullPointerException();
+        }
+        return links.containsKey(linkName);
+    }
+
+    /**
+     * Removes the link attached to the specified link name.
      *
      * @param linkName The link name to remove.
      * @return whether or not there had been a link to remove.
      */
     public boolean removeLink(String linkName) {
+        if (linkName == null) {
+            throw new NullPointerException();
+        }
         return links.remove(linkName) != null;
     }
 
@@ -428,8 +283,11 @@ public class CluckNode implements Serializable {
      * @param linkName The link name.
      */
     public void addOrReplaceLink(CluckLink link, String linkName) {
-        if (link == null) {
+        if (link == null || linkName == null) {
             throw new NullPointerException();
+        }
+        if (linkName.contains("/")) {
+            throw new IllegalArgumentException("Link name cannot contain slashes: " + linkName);
         }
         if (links.get(linkName) != null) {
             Logger.fine("Replaced current link on: " + linkName);

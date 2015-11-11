@@ -26,9 +26,9 @@ import java.awt.Rectangle;
 import java.awt.Shape;
 import java.io.Serializable;
 
+import ccre.channel.EventOutput;
 import ccre.channel.FloatInput;
 import ccre.channel.FloatOutput;
-import ccre.ctrl.FloatMixing;
 import ccre.log.Logger;
 import ccre.rconf.RConf;
 import ccre.rconf.RConf.Entry;
@@ -55,6 +55,7 @@ public class FloatControlComponent extends BaseChannelComponent<FloatControlComp
     private float minimum = -1.0f, maximum = 1.0f;
     private boolean hasSentInitial = false;
     private StringBuilder activeBuffer;
+    private EventOutput unsubscribe;
 
     /**
      * Create a new FloatControlComponent with a FloatOutput to control.
@@ -92,7 +93,7 @@ public class FloatControlComponent extends BaseChannelComponent<FloatControlComp
      * @param name the name of the output.
      */
     public FloatControlComponent(int cx, int cy, String name) {
-        this(cx, cy, name, FloatMixing.ignored);
+        this(cx, cy, name, FloatOutput.ignored);
     }
 
     @Override
@@ -192,8 +193,7 @@ public class FloatControlComponent extends BaseChannelComponent<FloatControlComp
     private int[] boundingBoxes;
 
     private boolean mouseInBox(int boxId, int mouseX, int mouseY) {
-        return boundingBoxes[boxId * 4 + 0] <= mouseX && mouseX < boundingBoxes[boxId * 4 + 1] &&
-                boundingBoxes[boxId * 4 + 2] <= mouseY && mouseY < boundingBoxes[boxId * 4 + 3];
+        return boundingBoxes[boxId * 4 + 0] <= mouseX && mouseX < boundingBoxes[boxId * 4 + 1] && boundingBoxes[boxId * 4 + 2] <= mouseY && mouseY < boundingBoxes[boxId * 4 + 3];
     }
 
     private void paintBox(Graphics g, FontMetrics fontMetrics, int mouseX, int mouseY, boolean isRight, int rowId) {
@@ -241,7 +241,7 @@ public class FloatControlComponent extends BaseChannelComponent<FloatControlComp
         if (!(requireDifferent && value == getDele() && hasSentInitial)) {
             lastSentValue = value;
             if (rawOut != null) {
-                rawOut.set(value);
+                rawOut.safeSet(value);
                 hasSentInitial = true;
             }
         }
@@ -255,8 +255,9 @@ public class FloatControlComponent extends BaseChannelComponent<FloatControlComp
         float value;
         switch (activeView) {
         case HORIZONTAL_POINTER:
-            value = (x - centerX - 1) / (float) (halfWidth * 2 / 3);
-            value = minimum + ((value + 1) / 2) * (maximum - minimum); // min to max, incl
+            value = (x - centerX - 1) / (halfWidth * 2 / 3f);
+            // min to max, inclusive
+            value = minimum + ((value + 1) / 2) * (maximum - minimum);
             value = Math.min(maximum, Math.max(minimum, value));
             if (-0.1 < value && value < 0.1) {
                 value = 0;
@@ -303,27 +304,33 @@ public class FloatControlComponent extends BaseChannelComponent<FloatControlComp
     protected void onChangePanel(SuperCanvasPanel panel) {
         boolean hasPanel = panel != null;
         if (alternateSource != null && hasPanel != isFakeSubscribed) {
+            if (unsubscribe != null) {
+                unsubscribe.safeEvent();
+                unsubscribe = null;
+            }
             if (hasPanel) {
-                alternateSource.send(fakeOut);
-            } else {
-                alternateSource.unsend(fakeOut);
+                unsubscribe = alternateSource.send(fakeOut);
             }
             isFakeSubscribed = hasPanel;
         }
     }
 
-    private final class FakeFloatOutput implements FloatOutput, Serializable {
+    private static final class FakeFloatOutput implements FloatOutput, Serializable {
         private static final long serialVersionUID = 8588017785288111886L;
 
+        @Override
         public void set(float f) {
-            // Do nothing. This is just so that we can make the remote end send us data by subscribing.
+            // Do nothing. This is just so that we can make the remote end send
+            // us data by subscribing.
         }
     }
 
+    @Override
     public Entry[] queryRConf() throws InterruptedException {
         return rconfBase(RConf.string("minimum"), RConf.fieldFloat(minimum), RConf.string("maximum"), RConf.fieldFloat(maximum));
     }
 
+    @Override
     public boolean signalRConf(int field, byte[] data) throws InterruptedException {
         switch (rconfBase(field, data)) {
         case 1:

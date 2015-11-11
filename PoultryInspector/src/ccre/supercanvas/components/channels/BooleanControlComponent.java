@@ -28,7 +28,7 @@ import java.io.Serializable;
 
 import ccre.channel.BooleanInput;
 import ccre.channel.BooleanOutput;
-import ccre.ctrl.BooleanMixing;
+import ccre.channel.EventOutput;
 import ccre.rconf.RConf.Entry;
 import ccre.supercanvas.BaseChannelComponent;
 import ccre.supercanvas.Rendering;
@@ -50,6 +50,7 @@ public class BooleanControlComponent extends BaseChannelComponent<BooleanControl
     private boolean lastSentValue;
     private final BooleanInput alternateSource;
     private final BooleanOutput rawOut;
+    private EventOutput unsubscribe;
 
     /**
      * Create a new BooleanControlComponent with a BooleanOutput to control.
@@ -71,7 +72,7 @@ public class BooleanControlComponent extends BaseChannelComponent<BooleanControl
      * @param name the name of the output.
      */
     public BooleanControlComponent(int cx, int cy, String name) {
-        this(cx, cy, name, BooleanMixing.ignored);
+        this(cx, cy, name, BooleanOutput.ignored);
     }
 
     /**
@@ -113,26 +114,24 @@ public class BooleanControlComponent extends BaseChannelComponent<BooleanControl
         boolean isPressed = getDele();
         switch (activeView) {
         case RED_GREEN_SWITCH:
-            AffineTransform origO = g.getTransform();
-            {
-                g.setColor(isPressed ? Color.GREEN.darker() : Color.RED.darker());
-                AffineTransform orig = g.getTransform();
-                g.rotate(isPressed ? 10 : -10, centerX + (isPressed ? 3 : -3), centerY + 10);
-                g.fillRect(centerX - 5, centerY + 5, 10, 45);
-                g.setTransform(orig);
-                g.setColor(Color.GRAY.darker().darker());
-                g.fillRect(centerX - 20, centerY + 10, 40, 20);
-            }
-            g.translate(-5, 2);
-            {
-                g.setColor(isPressed ? Color.GREEN : Color.RED);
-                AffineTransform orig = g.getTransform();
-                g.rotate(isPressed ? 10 : -10, centerX + (isPressed ? 3 : -3), centerY + 10);
-                g.fillRect(centerX - 5, centerY + 5, 10, 45);
-                g.setTransform(orig);
-                g.setColor(Color.GRAY.darker());
-                g.fillRect(centerX - 20, centerY + 10, 40, 20);
-            }
+            AffineTransform origO = g.getTransform(); {
+            g.setColor(isPressed ? Color.GREEN.darker() : Color.RED.darker());
+            AffineTransform orig = g.getTransform();
+            g.rotate(isPressed ? 10 : -10, centerX + (isPressed ? 3 : -3), centerY + 10);
+            g.fillRect(centerX - 5, centerY + 5, 10, 45);
+            g.setTransform(orig);
+            g.setColor(Color.GRAY.darker().darker());
+            g.fillRect(centerX - 20, centerY + 10, 40, 20);
+        }
+            g.translate(-5, 2); {
+            g.setColor(isPressed ? Color.GREEN : Color.RED);
+            AffineTransform orig = g.getTransform();
+            g.rotate(isPressed ? 10 : -10, centerX + (isPressed ? 3 : -3), centerY + 10);
+            g.fillRect(centerX - 5, centerY + 5, 10, 45);
+            g.setTransform(orig);
+            g.setColor(Color.GRAY.darker());
+            g.fillRect(centerX - 20, centerY + 10, 40, 20);
+        }
             g.setTransform(origO);
             break;
         case LINEAR_ON_OFF:
@@ -188,7 +187,7 @@ public class BooleanControlComponent extends BaseChannelComponent<BooleanControl
             return false;
         }
         if (rawOut != null) {
-            rawOut.set(lastSentValue);
+            rawOut.safeSet(lastSentValue);
         }
         return true;
     }
@@ -205,27 +204,33 @@ public class BooleanControlComponent extends BaseChannelComponent<BooleanControl
     protected void onChangePanel(SuperCanvasPanel panel) {
         boolean hasPanel = panel != null;
         if (alternateSource != null && hasPanel != isFakeSubscribed) {
+            if (unsubscribe != null) {
+                unsubscribe.safeEvent();
+                unsubscribe = null;
+            }
             if (hasPanel) {
-                alternateSource.send(fakeOut);
-            } else {
-                alternateSource.unsend(fakeOut);
+                unsubscribe = alternateSource.send(fakeOut);
             }
             isFakeSubscribed = hasPanel;
         }
     }
 
-    private final class FakeBooleanOutput implements BooleanOutput, Serializable {
+    private static final class FakeBooleanOutput implements BooleanOutput, Serializable {
         private static final long serialVersionUID = -5025143910878910655L;
 
+        @Override
         public void set(boolean b) {
-            // Do nothing. This is just so that we can make the remote end send us data by subscribing.
+            // Do nothing. This is just so that we can make the remote end send
+            // us data by subscribing.
         }
     }
 
+    @Override
     public Entry[] queryRConf() throws InterruptedException {
         return rconfBase();
     }
 
+    @Override
     public boolean signalRConf(int field, byte[] data) throws InterruptedException {
         return rconfBase(field, data) == BASE_VALID;
     }

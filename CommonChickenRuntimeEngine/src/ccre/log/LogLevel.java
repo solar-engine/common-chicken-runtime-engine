@@ -19,6 +19,8 @@
 package ccre.log;
 
 import java.io.Serializable;
+import java.util.Iterator;
+import java.util.NoSuchElementException;
 
 /**
  * Represents a Logging level. This represents how important/severe a logging
@@ -68,6 +70,26 @@ public class LogLevel implements Serializable {
     public static final LogLevel FINEST = new LogLevel(-9, "FINEST");
 
     private static final LogLevel[] levels = new LogLevel[] { FINEST, FINER, FINE, CONFIG, INFO, WARNING, SEVERE };
+    /**
+     * A read-only iterator that iterates over all of the logging levels, from
+     * FINEST to SEVERE, in that order.
+     */
+    public static final Iterable<LogLevel> allLevels = () -> new Iterator<LogLevel>() {
+        private int i = 0;
+
+        @Override
+        public boolean hasNext() {
+            return i < levels.length;
+        }
+
+        @Override
+        public LogLevel next() {
+            if (!hasNext()) {
+                throw new NoSuchElementException();
+            }
+            return levels[i++];
+        }
+    };
 
     /**
      * Get a LogLevel from its ID level. If it doesn't exist, a RuntimeException

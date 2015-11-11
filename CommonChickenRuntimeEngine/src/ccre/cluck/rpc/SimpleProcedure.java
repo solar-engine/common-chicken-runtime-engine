@@ -23,6 +23,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 
 import ccre.log.Logger;
+import ccre.time.Time;
 
 /**
  * A simple implementation of RemoteProcedure that takes care of returning
@@ -71,13 +72,13 @@ public abstract class SimpleProcedure implements RemoteProcedure {
         rp.invoke(in, out);
         if (!b[0]) {
             synchronized (invk) {
-                long endAt = System.currentTimeMillis() + timeout;
+                long endAt = Time.currentTimeMillis() + timeout;
                 while (!b[0]) {
-                    long now = System.currentTimeMillis();
+                    long now = Time.currentTimeMillis();
                     if (now >= endAt) {
                         break;
                     }
-                    invk.wait(endAt - now);
+                    Time.wait(invk, endAt - now);
                 }
             }
             if (!b[0]) {

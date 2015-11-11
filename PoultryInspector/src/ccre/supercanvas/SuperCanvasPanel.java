@@ -39,8 +39,8 @@ import javax.swing.JPanel;
 
 import ccre.channel.EventOutput;
 import ccre.cluck.Cluck;
-import ccre.ctrl.ExpirationTimer;
 import ccre.log.Logger;
+import ccre.timers.ExpirationTimer;
 
 /**
  * A base display panel used in tree-and-canvas panels. "SuperCanvas" means that

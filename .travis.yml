@@ -9,14 +9,16 @@ install:
 - sudo add-apt-repository ppa:git-core/ppa -y
 - sudo apt-get update
 - sudo apt-get install git -y
-script: cd ci && ./build-shell.sh
+script: cd ci && ./build-shell.sh && cd ..
 notifications:
   slack:
     secure: QHYkPTjA1v9Ml9Tr4Oc9GC/tQYxNNvf7uFKUZmpHhcH9zhlFwM8z4dXrNllYoq7R5sgQga9+bKr69zIwDOiFDQ/EQK6QNL7T66hKbpStuM+GqZ+PS+px/CpmiErpk7A8gvXAqBKLU82kswTxafjW0g8dlmbVEFctyykf3nOYQjY=
 deploy:
   provider: releases
+  skip_cleanup: true
   api_key:
     secure: eav0qCnVMp92Xi2KBICIF9Tfh4HRHqJsQk3zgJ6NLlfykIZ5NF8j1jtYs0o3Dq1W6vPvORdmgQynbptXjQUHWIKxIbwwQG4m8lpz4KXermBrrg72VF29S23BsMRozuYsHcqwQT/KIYVc/ZpBubMuWbRpxWDT0TgAIyaBCWiiW0I=
   file: PoultryInspector/PoultryInspector.jar
   on:
     repo: flamingchickens1540/common-chicken-runtime-engine
+    all_branches: true

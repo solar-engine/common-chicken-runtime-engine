@@ -20,5 +20,6 @@ deploy:
     secure: eav0qCnVMp92Xi2KBICIF9Tfh4HRHqJsQk3zgJ6NLlfykIZ5NF8j1jtYs0o3Dq1W6vPvORdmgQynbptXjQUHWIKxIbwwQG4m8lpz4KXermBrrg72VF29S23BsMRozuYsHcqwQT/KIYVc/ZpBubMuWbRpxWDT0TgAIyaBCWiiW0I=
   file: PoultryInspector/PoultryInspector.jar
   on:
+    tags: true
     repo: flamingchickens1540/common-chicken-runtime-engine
     all_branches: true

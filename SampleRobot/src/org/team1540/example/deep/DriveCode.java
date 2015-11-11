@@ -37,7 +37,7 @@ public class DriveCode implements RConfable {
     private final BooleanCell allowToRun = new BooleanCell(true),
             forceEnabled = new BooleanCell();
 
-    private final BooleanInput shouldBeRunning = allowToRun.and(FRC.isTeleopMode().or(forceEnabled));
+    private final BooleanInput shouldBeRunning = allowToRun.and(FRC.inTeleopMode().or(forceEnabled));
 
     public DriveCode() {
         DriverImpls.tankDrive(leftAxis, rightAxis, leftOut.filter(shouldBeRunning), rightOut.filter(shouldBeRunning));

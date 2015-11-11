@@ -1074,7 +1074,7 @@ In progress.
 
 @section{Javadoc Link}
 
-You can @link["http://cgscomwww.catlin.edu/~skeggsc/ccre-javadoc/"]{browse the Javadoc}. Disclaimer: until the official release of v3.0.0, this site might not get updated. We're working on it!
+You can @link["http://cgscomwww.catlin.edu/~skeggsc/ccre3/"]{browse the Javadoc}. Disclaimer: until the official release of v3.0.0, this site might not get updated. We're working on it!
 
 @section{Maintainer's guide}
 

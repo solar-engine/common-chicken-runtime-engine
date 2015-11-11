@@ -521,7 +521,7 @@ public class FRC {
     }
 
     /**
-     * Get a boolean input that checks if the robot is currently in autonomous,
+     * Gets a boolean input that checks if the robot is currently in autonomous,
      * as opposed to teleop and testing.
      *
      * @return the input.
@@ -531,7 +531,7 @@ public class FRC {
     }
 
     /**
-     * Get a boolean input that checks if the robot is currently in testing
+     * Gets a boolean input that checks if the robot is currently in testing
      * mode, as opposed to teleop and autonomous.
      *
      * @return the input.
@@ -541,12 +541,12 @@ public class FRC {
     }
 
     /**
-     * Get a boolean input that checks if the robot is currently in teleop mode,
+     * Gets a boolean input that checks if the robot is currently in teleop mode,
      * as opposed to testing and autonomous.
      *
      * @return the input.
      */
-    public static BooleanInput isTeleopMode() {
+    public static BooleanInput inTeleopMode() {
         return impl.getIsTest().or(impl.getIsAutonomous()).not();
     }
 

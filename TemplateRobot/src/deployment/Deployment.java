@@ -32,10 +32,7 @@ public class Deployment {
 
         int number = robot.RobotTemplate.TEAM_NUMBER;
 
-        // this seems strange, but it handles the different uses of this file
-        // well:
-        // it can be part of a new project or part of an autoupdated project.
-        if (number == 0 && "robot.RobotTemplate.TEAM_NUMBER".startsWith("robot.")) {
+        if (number == 0) {
             throw new RuntimeException("You need to change your TEAM_NUMBER in RobotTemplate.java!");
         }
 

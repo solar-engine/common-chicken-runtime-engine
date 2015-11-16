@@ -1,5 +1,6 @@
 #lang scribble/manual
 @require[pict]
+@require["proc.rkt"]
 
 @title{The Common Chicken Runtime Engine v3.0.0-pre1}
 
@@ -905,9 +906,71 @@ It's organized into the following sections:
 
 @table-of-contents{}
 
+@subsection{Documentation format}
+
+The following format is used when describing a constructor that can be called:
+
+@jnew[BooleanCell (boolean initial_value) "setup"]
+
+This constructor could be used, for example, as:
+
+@codeblock|{
+            BooleanCell cell = new BooleanCell(false);
+}|
+
+@jmethod[EventInput (BooleanInput onPress) "setup"]
+
+This method could be used, for example, as:
+
+@codeblock|{
+            BooleanInput button = /* ... some code goes here ... */;
+            EventInput press = button.onPress();
+}|
+
+@subsection{Flow versus Setup}
+
+There are two conditions in which CCRE code can run: flow mode and setup mode. When the robot first starts, it is running in setup mode while your code sets up its functionality. Once this finishes, the robot goes into flow mode and executes the control that has been set up.
+
+Every method in the CCRE is tagged as either flow or setup. For example, the documentation might say:
+
+@jmethod[void (BooleanOutput set) (boolean value) "flow"]
+
+for flow mode or perhaps
+
+@jmethod[EventInput (BooleanInput onPress) "setup"]
+
+for setup mode. Note the text that says "flow" or "setup".
+
+@margin-note{Flow mode versus setup mode is more about where you call a method from rather than exactly when it occurs, but in general you can understand them based on whether or not the robot is done setting up yet.}
+
+Except in very specific cases, your code should never call a setup method from flow mode, or a flow method from setup mode. The main exception is that sometimes you want to preinitialize the value of something, and so may call a flow method from setup mode in such cases.
+
 @subsection{Dataflow Channels}
 
 As touched on before, a channel represents the ability to communicate in some fashion with an implementation. Channels can either be inputs or outputs, and carry values that are either booleans, floats, or events.
+
+@subsubsection{Outputs}
+
+Outputs are, at a fundamental level, something with a state that can be changed, but not necessarily queried.
+
+@jmethod*[(void (BooleanOutput set) (boolean value))
+          (void (FloatOutput set) (float value))
+          (void (EventOutput event))
+          "flow"]
+
+You can call these methods to change the current state of the output. All control of outputs will at some level reduce to these methods.
+
+@java-format["new EventOutput eo;"]
+
+@subsubsection{Inputs}
+
+@jmethod*[(boolean (BooleanInput get))
+          (float (FloatInput get))
+          "flow"]
+
+For inputs that carry values
+
+@jnew[EventOutput (int x) (long y) "setup"]
 
 (Working on autodocs here.)
 

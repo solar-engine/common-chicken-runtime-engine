@@ -4,7 +4,7 @@ jdk:
 sudo: required
 dist: trusty
 before_install:
-- openssl aes-256-cbc -K $encrypted_a7233f0128dd_key -iv $encrypted_a7233f0128dd_iv -in ci/ssh-keys/travis-key.enc -out ci/ssh-keys/travis-key -d
+- if [ "$TRAVIS_PULL_REQUEST" != "false" ]; then openssl aes-256-cbc -K $encrypted_a7233f0128dd_key -iv $encrypted_a7233f0128dd_iv -in ci/ssh-keys/travis-key.enc -out ci/ssh-keys/travis-key -d; fi
 install:
 - sudo add-apt-repository ppa:git-core/ppa -y
 - sudo apt-get update

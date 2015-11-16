@@ -26,6 +26,57 @@ package ccre.channel;
 public interface FloatIO extends FloatInput, FloatOutput {
 
     /**
+     * Alias for set(get() + value).
+     * 
+     * @return the new value of this FloatIO
+     */
+    public default void accumulate(float value) {
+        set(get() + value);
+    }
+
+    /**
+     * Adds the value of <code>amount</code> to this FloatIO whenever the
+     * supplied EventInput fires. Calls
+     * {@link #accumulateWhen(EventInput, FloatInput)}.
+     */
+    public default void accumulateWhen(EventInput when, float amount) {
+        accumulateWhen(when, FloatInput.always(amount));
+    }
+
+    /**
+     * Adds the current value of <code>amount</code> to this FloatIO whenever
+     * the supplied EventInput fires. To override the behavior of
+     * <code>accumulateWhen</code>, override this method.
+     */
+    public default void accumulateWhen(EventInput when, FloatInput amount) {
+        when.send(eventAccumulate(amount));
+    }
+
+    /**
+     * Gets an EventOutput that, when fired, will add the value of
+     * <code>amount</code> to this FloatIO. Calls
+     * {@link #eventAccumulate(FloatInput)}.
+     * 
+     * @param amount the amount to add
+     * @return the EventOutput
+     */
+    public default EventOutput eventAccumulate(float amount) {
+        return eventAccumulate(FloatInput.always(amount));
+    }
+
+    /**
+     * Gets an EventOutput that, when fired, will add the current value of
+     * <code>amount</code> to this FloatIO. To override the behavior of
+     * <code>eventAccumulate</code>, override this method.
+     * 
+     * @param amount the amount to add
+     * @return the EventOutput
+     */
+    public default EventOutput eventAccumulate(FloatInput amount) {
+        return () -> accumulate(amount.get());
+    }
+
+    /**
      * Returns the output side of this FloatIO. This is equivalent to upcasting
      * to FloatOutput.
      *

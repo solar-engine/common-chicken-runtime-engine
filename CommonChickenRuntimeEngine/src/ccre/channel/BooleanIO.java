@@ -29,11 +29,12 @@ public interface BooleanIO extends BooleanInput, BooleanOutput {
      * When the specified event occurs, toggle the status.
      *
      * @param event When to toggle the status.
+     * @return an EventOuput that can be called to stop toggling on the firing of <code>event</code>
      * @see #eventToggle()
      * @see #toggle()
      */
-    public default void toggleWhen(EventInput event) {
-        event.send(eventToggle());
+    public default EventOutput toggleWhen(EventInput event) {
+        return event.send(eventToggle());
     }
 
     /**

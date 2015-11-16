@@ -38,18 +38,22 @@ public interface FloatIO extends FloatInput, FloatOutput {
      * Adds the value of <code>amount</code> to this FloatIO whenever the
      * supplied EventInput fires. Calls
      * {@link #accumulateWhen(EventInput, FloatInput)}.
+     * 
+     * @return an EventOutput that can be called to stop accumulating when <code>when</code> is fired
      */
-    public default void accumulateWhen(EventInput when, float amount) {
-        accumulateWhen(when, FloatInput.always(amount));
+    public default EventOutput accumulateWhen(EventInput when, float amount) {
+        return accumulateWhen(when, FloatInput.always(amount));
     }
 
     /**
      * Adds the current value of <code>amount</code> to this FloatIO whenever
      * the supplied EventInput fires. To override the behavior of
      * <code>accumulateWhen</code>, override this method.
+     * 
+     * @return an EventOutput that can be called to stop accumulating when <code>when</code> is fired
      */
-    public default void accumulateWhen(EventInput when, FloatInput amount) {
-        when.send(eventAccumulate(amount));
+    public default EventOutput accumulateWhen(EventInput when, FloatInput amount) {
+        return when.send(eventAccumulate(amount));
     }
 
     /**

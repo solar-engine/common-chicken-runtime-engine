@@ -86,7 +86,7 @@ Replace 0000 with your team number.
 
 Now press Project -> Build Project, and once it finishes, you're done!
 
-@margin-note{After the first time, rebuilding the project is taken care of for you.}
+@margin-note{After the first time, your project will be rebuilt every time you deploy the code to the robot.}
 
 @image["buildproject.png"]{Build Project}
 

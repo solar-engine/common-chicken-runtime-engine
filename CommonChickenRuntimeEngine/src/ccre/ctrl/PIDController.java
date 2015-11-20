@@ -18,6 +18,7 @@
  */
 package ccre.ctrl;
 
+import ccre.channel.CancelOutput;
 import ccre.channel.EventInput;
 import ccre.channel.EventOutput;
 import ccre.channel.FloatCell;
@@ -216,7 +217,7 @@ public class PIDController implements FloatInput, EventOutput {
     }
 
     @Override
-    public EventOutput onUpdate(EventOutput notify) {
+    public CancelOutput onUpdate(EventOutput notify) {
         return output.onUpdate(notify);
     }
 

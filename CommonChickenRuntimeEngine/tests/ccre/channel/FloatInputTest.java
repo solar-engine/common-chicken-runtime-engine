@@ -113,7 +113,7 @@ public class FloatInputTest {
         gotProperly = false;
         fi = new FloatInput() {
             @Override
-            public EventOutput onUpdate(EventOutput notify) {
+            public CancelOutput onUpdate(EventOutput notify) {
                 assertFalse(gotProperly);
                 cfo.check();// the earlier setup from outside this
                 for (float f : Values.interestingFloats) {
@@ -124,7 +124,7 @@ public class FloatInputTest {
                     cfo.check();
                 }
                 gotProperly = true;
-                return expected;
+                return expected::event;
             }
 
             @Override
@@ -369,13 +369,13 @@ public class FloatInputTest {
                     continue;
                 }
                 BooleanInput bi = fs.outsideRange(min, max);
-                EventOutput unbind = bi.send(bs);
+                CancelOutput unbind = bi.send(bs);
                 for (float test : Values.interestingFloats) {
                     fs.set(test);
                     assertEquals(test < min || test > max, bi.get());
                     assertEquals(test < min || test > max, bs.get());
                 }
-                unbind.event();
+                unbind.cancel();
             }
         }
     }
@@ -836,9 +836,9 @@ public class FloatInputTest {
         CountingEventOutput expected2 = new CountingEventOutput();
         fi = new FloatInput() {
             @Override
-            public EventOutput onUpdate(EventOutput notify) {
+            public CancelOutput onUpdate(EventOutput notify) {
                 expected.event();
-                return EventOutput.ignored;
+                return CancelOutput.nothing;
             }
 
             @Override

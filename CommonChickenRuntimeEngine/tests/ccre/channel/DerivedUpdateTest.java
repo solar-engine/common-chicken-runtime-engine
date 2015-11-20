@@ -34,7 +34,7 @@ public class DerivedUpdateTest {
         CountingEventOutput target = new CountingEventOutput();
         UpdatingInput vi1 = new UpdatingInput() {
             @Override
-            public EventOutput onUpdate(EventOutput notify) {
+            public CancelOutput onUpdate(EventOutput notify) {
                 target.ifExpected = true;
                 notify.event();
                 target.check();
@@ -44,7 +44,7 @@ public class DerivedUpdateTest {
         };
         UpdatingInput vi2 = new UpdatingInput() {
             @Override
-            public EventOutput onUpdate(EventOutput notify) {
+            public CancelOutput onUpdate(EventOutput notify) {
                 target.ifExpected = true;
                 notify.event();
                 target.check();

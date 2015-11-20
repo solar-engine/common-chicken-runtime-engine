@@ -49,7 +49,7 @@ public class BooleanInputTest {
         es = new EventCell();
         bi = new BooleanInput() {
             @Override
-            public EventOutput onUpdate(EventOutput notify) {
+            public CancelOutput onUpdate(EventOutput notify) {
                 return es.onUpdate(notify);
             }
 
@@ -98,7 +98,7 @@ public class BooleanInputTest {
         gotProperly = false;
         bi = new BooleanInput() {
             @Override
-            public EventOutput onUpdate(EventOutput notify) {
+            public CancelOutput onUpdate(EventOutput notify) {
                 assertFalse(gotProperly);
                 cbo.check();// the earlier setup from outside this
                 for (boolean b : new boolean[] { false, true }) {
@@ -109,7 +109,7 @@ public class BooleanInputTest {
                     cbo.check();
                 }
                 gotProperly = true;
-                return expected;
+                return expected::event;
             }
 
             @Override
@@ -141,7 +141,7 @@ public class BooleanInputTest {
     public void testNotRule1() {
         bi = new BooleanInput() {
             @Override
-            public EventOutput onUpdate(EventOutput notify) {
+            public CancelOutput onUpdate(EventOutput notify) {
                 fail();
                 return null;
             }
@@ -163,11 +163,11 @@ public class BooleanInputTest {
     public void testNotRule2() {
         bi = new BooleanInput() {
             @Override
-            public EventOutput onUpdate(EventOutput notify) {
+            public CancelOutput onUpdate(EventOutput notify) {
                 assertFalse(gotProperly);
                 assertEquals(expected, notify);
                 gotProperly = true;
-                return expected2;
+                return expected2::event;
             }
 
             @Override
@@ -189,11 +189,11 @@ public class BooleanInputTest {
     public void testNotNot() {
         bi = new BooleanInput() {
             @Override
-            public EventOutput onUpdate(EventOutput notify) {
+            public CancelOutput onUpdate(EventOutput notify) {
                 assertFalse(gotProperly);
                 assertEquals(expected, notify);
                 gotProperly = true;
-                return expected2;
+                return expected2::event;
             }
 
             @Override
@@ -559,7 +559,7 @@ public class BooleanInputTest {
         CountingEventOutput ceo = new CountingEventOutput();
         bi = new BooleanInput() {
             @Override
-            public EventOutput onUpdate(EventOutput notify) {
+            public CancelOutput onUpdate(EventOutput notify) {
                 assertFalse(gotProperly);
                 assertEquals(notify, ceo);
                 gotProperly = true;
@@ -581,9 +581,9 @@ public class BooleanInputTest {
     public void testSendError() {
         bi = new BooleanInput() {
             @Override
-            public EventOutput onUpdate(EventOutput notify) {
+            public CancelOutput onUpdate(EventOutput notify) {
                 expected.event();
-                return EventOutput.ignored;
+                return CancelOutput.nothing;
             }
 
             @Override

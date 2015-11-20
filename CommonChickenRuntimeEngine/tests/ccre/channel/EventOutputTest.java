@@ -177,14 +177,14 @@ public class EventOutputTest {
         gotProperly = false;
         assertEquals(ceo2, ceo.on(new EventInput() {
             @Override
-            public EventOutput send(EventOutput notify) {
+            public CancelOutput send(EventOutput notify) {
                 assertEquals(ceo, notify);
                 gotProperly = true;
-                return ceo2;
+                return ceo2::event;
             }
 
             @Override
-            public EventOutput onUpdate(EventOutput notify) {
+            public CancelOutput onUpdate(EventOutput notify) {
                 fail("supposed to go to send() directly!");
                 return null;
             }

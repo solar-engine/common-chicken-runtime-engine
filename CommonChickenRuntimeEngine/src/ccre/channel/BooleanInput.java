@@ -40,11 +40,11 @@ public interface BooleanInput extends UpdatingInput {
         }
 
         @Override
-        public EventOutput onUpdate(EventOutput notify) {
+        public CancelOutput onUpdate(EventOutput notify) {
             if (notify == null) {
                 throw new NullPointerException();
             }
-            return EventOutput.ignored;
+            return CancelOutput.nothing;
         }
     };
     /**
@@ -56,11 +56,11 @@ public interface BooleanInput extends UpdatingInput {
         }
 
         @Override
-        public EventOutput onUpdate(EventOutput notify) {
+        public CancelOutput onUpdate(EventOutput notify) {
             if (notify == null) {
                 throw new NullPointerException();
             }
-            return EventOutput.ignored;
+            return CancelOutput.nothing;
         }
     };
 
@@ -102,7 +102,7 @@ public interface BooleanInput extends UpdatingInput {
      * NOT FIRE THIS RETURNED EVENT MORE THAN ONCE: UNDEFINED BEHAVIOR MAY
      * RESULT.
      */
-    public default EventOutput send(BooleanOutput output) {
+    public default CancelOutput send(BooleanOutput output) {
         output.safeSet(get());
         return onUpdate(() -> output.set(get()));
     }
@@ -125,7 +125,7 @@ public interface BooleanInput extends UpdatingInput {
         BooleanInput original = this;
         return new BooleanInput() {
             @Override
-            public EventOutput onUpdate(EventOutput notify) {
+            public CancelOutput onUpdate(EventOutput notify) {
                 return original.onUpdate(notify);
             }
 

@@ -103,21 +103,21 @@ public class AbstractUpdatingInputTest {
             }
         };
         enabled = enabled3 = true;
-        EventOutput dereg = dui.onUpdate(ceo);
-        EventOutput dereg3 = dui.onUpdate(ceo3);
+        CancelOutput dereg = dui.onUpdate(ceo);
+        CancelOutput dereg3 = dui.onUpdate(ceo3);
         for (int i = 0; i < 10; i++) {
             ceo2.ifExpected = true;
             update.event();
             ceo2.check();
         }
-        dereg.event();
+        dereg.cancel();
         enabled = false;
         for (int i = 0; i < 10; i++) {
             ceo2.ifExpected = true;
             update.event();
             ceo2.check();
         }
-        dereg3.event();
+        dereg3.cancel();
         enabled3 = false;
         for (int i = 0; i < 10; i++) {
             ceo2.ifExpected = true;

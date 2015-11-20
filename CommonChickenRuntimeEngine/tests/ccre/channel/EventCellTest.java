@@ -98,22 +98,22 @@ public class EventCellTest {
         assertFalse(cell.hasListeners());
         cell.onUpdate(EventOutput.ignored);
         assertTrue(cell.hasListeners());
-        EventOutput unbind = cell.onUpdate(EventOutput.ignored);
+        CancelOutput unbind = cell.onUpdate(EventOutput.ignored);
         assertTrue(cell.hasListeners());
-        unbind.event();
+        unbind.cancel();
         assertTrue(cell.hasListeners());// should STILL have one left
     }
 
     @Test
     public void testHasConsumers() {
         assertFalse(cell.hasListeners());
-        EventOutput unbind1 = cell.onUpdate(EventOutput.ignored);
+        CancelOutput unbind1 = cell.onUpdate(EventOutput.ignored);
         assertTrue(cell.hasListeners());
-        EventOutput unbind2 = cell.onUpdate(EventOutput.ignored);
+        CancelOutput unbind2 = cell.onUpdate(EventOutput.ignored);
         assertTrue(cell.hasListeners());
-        unbind1.event();
+        unbind1.cancel();
         assertTrue(cell.hasListeners());// should STILL have one left
-        unbind2.event();
+        unbind2.cancel();
         assertFalse(cell.hasListeners());
     }
 
@@ -137,13 +137,13 @@ public class EventCellTest {
     public void testOnUpdateR() {
         CountingEventOutput ceo = new CountingEventOutput();
         for (int i = 0; i < 4; i++) {
-            EventOutput unbind = cell.onUpdate(ceo);
+            CancelOutput unbind = cell.onUpdate(ceo);
             for (int j = 0; j < 10; j++) {
                 ceo.ifExpected = true;
                 cell.event();
                 ceo.check();
             }
-            unbind.event();
+            unbind.cancel();
             for (int j = 0; j < 10; j++) {
                 cell.event();// expect no events after unbinding
             }
@@ -162,7 +162,7 @@ public class EventCellTest {
         for (int i = 0; i < cs.length; i++) {
             cs[i] = new CountingEventOutput();
         }
-        EventOutput[] unbinds = new EventOutput[cs.length];
+        CancelOutput[] unbinds = new CancelOutput[cs.length];
         for (int i = 0; i < cs.length; i++) {
             unbinds[i] = cell.onUpdate(cs[i]);
         }
@@ -176,7 +176,7 @@ public class EventCellTest {
             }
         }
         for (int i = 0; i < cs.length; i += 2) {
-            unbinds[i].event();
+            unbinds[i].cancel();
             unbinds[i] = null;
         }
         for (int r = 0; r < 5; r++) {
@@ -189,7 +189,7 @@ public class EventCellTest {
             }
         }
         for (int i = 1; i < cs.length; i += 2) {
-            unbinds[i].event();
+            unbinds[i].cancel();
             unbinds[i] = null;
         }
         cell.event();

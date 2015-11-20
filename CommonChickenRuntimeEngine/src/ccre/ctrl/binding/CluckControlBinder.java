@@ -20,8 +20,8 @@ package ccre.ctrl.binding;
 
 import java.util.HashMap;
 
+import ccre.channel.CancelOutput;
 import ccre.channel.EventInput;
-import ccre.channel.EventOutput;
 import ccre.cluck.Cluck;
 import ccre.log.Logger;
 import ccre.rconf.RConf;
@@ -45,8 +45,8 @@ public class CluckControlBinder implements RConfable {
     private final HashMap<String, String> boolLinkage = new HashMap<String, String>();
     private final HashMap<String, String> floatLinkage = new HashMap<String, String>();
 
-    private final HashMap<String, EventOutput> boolUnbinds = new HashMap<String, EventOutput>();
-    private final HashMap<String, EventOutput> floatUnbinds = new HashMap<String, EventOutput>();
+    private final HashMap<String, CancelOutput> boolUnbinds = new HashMap<String, CancelOutput>();
+    private final HashMap<String, CancelOutput> floatUnbinds = new HashMap<String, CancelOutput>();
 
     private final String name;
     private boolean dirty = false;
@@ -207,9 +207,9 @@ public class CluckControlBinder implements RConfable {
     }
 
     private void rebindBoolean(String sink, String source) {
-        EventOutput unbind = boolUnbinds.get(sink);
+        CancelOutput unbind = boolUnbinds.get(sink);
         if (unbind != null) {
-            unbind.safeEvent();
+            unbind.cancel();
         }
 
         if (source == null) {
@@ -223,9 +223,9 @@ public class CluckControlBinder implements RConfable {
     }
 
     private void rebindFloat(String sink, String source) {
-        EventOutput unbind = floatUnbinds.get(sink);
+        CancelOutput unbind = floatUnbinds.get(sink);
         if (unbind != null) {
-            unbind.safeEvent();
+            unbind.cancel();
         }
 
         if (source == null) {

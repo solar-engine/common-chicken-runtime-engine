@@ -224,7 +224,7 @@ When thinking about how a robot should react to stimuli, often the mental model 
 With traditional methods, you might think to implement that control system like this:
 
 @vl-append[20
- (cell "white true")
+ (cell "while true")
  (indent (cell "if red button is pressed") 40)
  (indent (cell "if key is turned") 80)
  (indent (cell "blow up the world") 120)
@@ -238,7 +238,7 @@ Yes, that can be fixed, but the code gets more complicated:
 
 @vl-append[20
  (cell "define variable was_button_pressed")
- (cell "white true")
+ (cell "while true")
  (indent (cell "if red button is pressed AND not was_button_pressed") 40)
  (indent (cell "if key is turned") 80)
  (indent (cell "blow up the world") 120)
@@ -318,11 +318,12 @@ With an Input, the users of the channel can request the present state of the cha
 @itemlist[@item{@bold{EventInput}: there is no associated value.
            Users to be notified when something happens - we call this the EventInput being either fired or produced.
 
+           @margin-note{You would want to use an Instinct module for autonomous code like this.}
            @jcode|{
              // when the match starts, start the robot driving forward
              match_start.send(start_driving_forward);
              }|
-           @margin-note{Don't actually use @jcode-inline{System.out.println} for any of these. You'll learn about Logging later, which is a better way to do this.}
+           @margin-note{Don't use @jcode-inline{System.out.println(x)} in the CCRE. Logging, which you'll learn later, works better.}
            @jcode|{
               // when the match ends, say so
               match_end.send(() -> System.out.println("Match has ended!"));
@@ -335,6 +336,7 @@ With an Input, the users of the channel can request the present state of the cha
             // as long as the light switch is flipped, turn on the light bulb
             light_switch.send(light_bulb);
            }|
+           @margin-note{Don't use @jcode-inline{System.out.println(x)} for this. Readouts for the user are best done through Cluck, which you'll learn later.}
            @jcode|{
             light_switch.send((is_flipped) ->
                 System.out.println("The light switch is flipped: " + is_flipped));
@@ -354,12 +356,13 @@ With an Input, the users of the channel can request the present state of the cha
              // control a motor with a joystick axis
              joystick_axis.send(motor);
              }|
+           @margin-note{See previous margin note about @jcode-inline{System.out.println(x)}}
            @jcode|{
             joystick_axis.send((current_position) ->
                 System.out.println("The current Joystick position: " + current_position));
             // report the new position of the Joystick whenever someone moves it
            }|
-           @margin-note{A number of these examples aren't the right way to do things. Keep reading.}
+           @margin-note{This could be done with something from the Remixing toolset, which we'll see later.}
            @jcode|{
             if (sewage_level.get() > 1000.0f) {
                 // open drainage valve
@@ -368,7 +371,7 @@ With an Input, the users of the channel can request the present state of the cha
 
 @subsection{Hardware}
 
-The CCRE contains an interface layer that lets you work with an FRC robot's hardware with these channels.
+The CCRE includes an API that provides access to an FRC robot's hardware via channels.
 
 For example:
 
@@ -389,9 +392,6 @@ So, correspondingly, all channels have a variety of built-in methods to help you
 
 The simplest example is probably @jcode-inline{send}, which works for all three varieties of channels:
 
-This connects the input to the output, so that @jcode-inline{y} is updated with the current value of @jcode-inline{x} both immediately and whenever @code{x} changes.
-In the case of events, @jcode-inline{send} causes the EventOutput to be fired whenever the EventInput is produced.
-
 @jcode|{
   // this also works if you replace Boolean with Event or Float in both places.
   BooleanInput x = /* ... */;
@@ -399,14 +399,19 @@ In the case of events, @jcode-inline{send} causes the EventOutput to be fired wh
   x.send(y);
   }|
 
-Another simple example is @jcode-inline{onPress}, which converts a BooleanInput into an EventInput (for when the BooleanInput changes to true):
+This connects the input to the output, so that @jcode-inline{y} is updated with the current value of @jcode-inline{x} both immediately and whenever @code{x} changes.
+In the case of events, @jcode-inline{send} causes the EventOutput to be fired whenever the EventInput is produced.
+
+Another simple example is @jcode-inline{onPress}:
 
 @jcode|{
   BooleanInput bumper = FRC.makeDigitalInput(3);
   bumper.onPress().send(stop_motors);
   }|
 
-Also useful is @jcode-inline{setWhen} (along with @jcode-inline{setFalseWhen} and @jcode-inline{setTrueWhen}, and the mirrors @jcode-inline{getSet*Event}):
+This creates an EventInput that fires when the BooleanInput becomes true.
+
+Also useful are @jcode-inline{setWhen} (along with @jcode-inline{setFalseWhen} and @jcode-inline{setTrueWhen}, and @jcode-inline{getSetEvent}):
 
 @jcode|{
   driving_forward.setTrueWhen(FRC.joystick1.onPress(2));
@@ -627,6 +632,8 @@ From the driver station's perspective, there is also Practice mode, which is use
 
 There's also the emergency stop mode, which is entered by pressing the spacebar (in practice) or the physical e-stop button (on the real field.) Once the robot enters emergency stop mode, it is disabled until the robot is physically turned off and on again.
 
+Note that the spacebar will cause an emergency stop regardless of whether or not the driver station is the current window. If you edit code on your driver station, make sure to disable the robot first. You don't want to emergency stop the robot whenever you type a space into your program.
+
 @subsubsection{Keyboard shortcuts}
 
 There are a few important keyboard shortcuts:
@@ -688,7 +695,7 @@ There are some important guidelines that you need to follow, even if you're work
 
 @itemlist[@item{Always wear safety glasses when working with a robot. You probably like having eyes.}
           @item{Before enabling a robot, always yell CLEAR and wait for people to step away from the robot. Yell CLEAR multiple times if necessary - but don't enable the robot if people could be hit by it.}
-          @item{When you first test an autonomous mode, the robot will probably move faster than you expect. Set you speeds low.}
+          @item{When you first test an autonomous mode, the robot will probably move faster than you expect. Set your speeds lower than you think you'll need to.}
           @item{Before enabling a robot, confirm that all of the Joysticks are free. Do not set any of them on seating surfaces.}
           @item{When enabling a robot, always hover your fingers over the enter (disable) key. This will work regardless of what application currently has focus.}
           @item{The first time you test a robot, or test any potentially dangerous behavior, place the robot "on blocks" - put bricks/wood blocks/something under the drive frame so that the wheels don't touch anything and can spin freely. This prevents it from running into anyone.}]
@@ -791,7 +798,8 @@ Encoders are bidirectional rotation sensors: every certain fraction of a rotatio
 The FPGA totals these ticks and provides you with a sum, which you can access from your code. These are provided as FloatInputs even though they are discrete.
 Unlike most sensors, these require @italic{two} digital input ports to function. There are specific APIs for working with encoders.
 
-Gear tooth sensors are a simplified form of encoders that don't tell you direction - only that motion is occurring. They only require a single digital input port and are easier to install, so they are sometimes used instead of encoders to 
+Gear tooth sensors are a simplified form of encoders that don't tell you direction - only that motion is occurring.
+They only require a single digital input port and are easier to install, so they are sometimes used instead of encoders when you only care about measuring speed or distance without direction.
 
 @subsubsection{Analog Inputs}
 

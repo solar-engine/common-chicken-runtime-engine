@@ -415,31 +415,72 @@ Also useful is @jcode-inline{setWhen} (along with @jcode-inline{setFalseWhen} an
 
 See @secref["remixing"] for more info.
 
-@subsection{Status cells}
+@subsection{Cells}
 
-**** TODO: explain Status cells in an easier way ****
+Unlike in normal Java, you don't use variables to store state in CCRE dataflow code.
+Instead, you use Cells, which are similar, but also act as Inputs and Outputs.
 
-Sometimes, you want to connect together methods that aren't easy to connect together. For example, you might have:
+For example:
+
+@jcode|{
+  BooleanCell cell = new BooleanCell();
+  // ...
+  cell.get(); // is false
+  // ...
+  cell.set(true);
+  // ...
+  cell.get(); // is true
+  // ...
+  cell.set(false);
+  // ...
+  cell.get(); // is false
+}|
+
+You can use this with dataflow:
+
+@jcode|{
+  BooleanCell cell = new BooleanCell();
+  some_boolean_input.send(cell);
+  cell.onPress().send(do_something);
+}|
+
+Cells exist for Events, Booleans, and Floats. For Events, rather than store a value, they simply propagate events:
+
+@jcode|{
+  EventCell cell = new EventCell();
+  cell.send(do_something);
+  cell.send(do_something_else);
+  x_happened.send(cell);
+  y_happened.send(cell);
+}|
+
+This example would cause @jcode-inline{do_something} and @jcode-inline{do_something_else} to be fired whenever @jcode-inline{x_happened} is produced or @jcode-inline{y_happened} is produced.
+
+Sometimes, you want to connect together methods that aren't easy to connect together. For example:
 
 @jcode|{
   send_some_data_to_an_output(???);
   do_something_based_on_an_input(???);
   }|
 
-How would you connect these? There's no implementation to provide either end. Luckily, the solution is easy: statuses!
+How would you connect these? There's no implementation to provide either end. Luckily, we can use Cells!
 
 @jcode|{
-   // this also works for EventStatus and FloatStatus, depending on what you're connecting.
-   BooleanStatus intermediate_channels = new BooleanStatus();
-   send_some_data_to_an_output(intermediate_channels);
-   do_something_based_on_an_input(intermediate_channels);
+   // this also works for EventCell and FloatCell, depending on what you're connecting.
+   BooleanCell intermediate_channel = new BooleanCell();
+   send_some_data_to_an_output(intermediate_channel);
+   do_something_based_on_an_input(intermediate_channel);
    }|
 
-How is this works is: they have an internal state (at least for BooleanStatuses and FloatStatuses) that can be modified when they are used as an output, and can be monitored and read when they are used as an input. In the case of EventStatuses, when the output side is fired, the input side is produced.
+You can also use them to connect far-away sections of your code.
 
-Because they have a persistent value, which is preserved over time, you can have persistent states that you can change.
-
-You can also use them as a named place to exchange data and control between different parts of a program.
+@jcode|{
+    BooleanCell some_shared_value = new BooleanCell();
+    // ... somewhere ...
+    some_input.send(some_shared_value);
+    // ... somewhere else ...
+    some_shared_value.send(some_output);
+}|
 
 @section{Review of advanced Java concepts}
 
@@ -520,7 +561,7 @@ You can now simply say:
      };
      }|
 
-Also, if you only have a single statement in the lambda, you can omit the @code|{{}}| and the semicolon around the statement:
+Also, if you only have a single statement in the lambda, you can omit the @code|{{}}|:
 
 @jcode|{
             EventOutput pet_fluffy = () -> {
@@ -939,9 +980,9 @@ for flow mode or perhaps
 
 @jmethod[EventInput (BooleanInput onPress) "setup"]
 
-for setup mode. Note the text that says "flow" or "setup".
+@margin-note{Flow mode versus setup mode is more about where you call a method from rather than exactly when it occurs, but in general you can understand the modes based on whether or not the robot is done setting up yet.}
 
-@margin-note{Flow mode versus setup mode is more about where you call a method from rather than exactly when it occurs, but in general you can understand them based on whether or not the robot is done setting up yet.}
+for setup mode. Note the text that says "flow" or "setup".
 
 Except in very specific cases, your code should never call a setup method from flow mode, or a flow method from setup mode. The main exception is that sometimes you want to preinitialize the value of something, and so may call a flow method from setup mode in such cases.
 
@@ -960,18 +1001,14 @@ Outputs are, at a fundamental level, something with a state that can be changed,
 
 You can call these methods to change the current state of the output. All control of outputs will at some level reduce to these methods.
 
-@jcode[#:box (list "setup" "flow block")]{
+@margin-note{The "flow block" annotation here specifies that the code in the block starting on that line is in flow mode.}
+@jcode[#:box (list "setup" "flow block" #f "setup" "flow block" #f "setup" "flow block")]{
   EventOutput eo = () -> {
       // do something
   };
-}
-@margin-note{The "flow block" annotation here specifies that the block starting on that line is in flow mode.}
-@jcode[#:box (list "setup" "flow block")]{
   BooleanOutput bo = (value) -> {
       // do something with value, a boolean
   };
-}
-@jcode[#:box (list "setup" "flow block")]{
   FloatOutput eo = (value) -> {
       // do something with value, a float
   };
@@ -989,17 +1026,13 @@ Please note that, most of the time, you shouldn't need to implement your own cha
 
 For many inputs, you can access the current value at any time with @jcode-inline{get()}. This calculates the current value at the time that you call @jcode-inline{get()}.
 
-@jcode[#:box (list "setup" "flow block")]{
+@jcode[#:box (list "setup" "flow block" #f "setup" "flow block" #f "setup" "flow block")]{
     event_input.send(() -> {
         // do something
     });
-}
-@jcode[#:box (list "setup" "flow block")]{
     boolean_input.send((value) -> {
         // do something with value, the new boolean value
     });
-}
-@jcode[#:box (list "setup" "flow block")]{
     float_input.send((value) -> {
         // do something with value, the new float value
     });
@@ -1007,19 +1040,119 @@ For many inputs, you can access the current value at any time with @jcode-inline
 
 More importantly, you can listen for changes on an input. This works for all inputs. You may notice that these contain a part suspiciously similar to defining outputs: this is because you subscribe to a value by telling an input to send all values to an output, which you can implement yourself.
 
-@jmethod*[(EventOutput (EventInput send) (EventOutput target))
-          (EventOutput (BooleanInput send) (BooleanOutput target))
-          (EventOutput (FloatInput send) (FloatOutput target))
+@jmethod*[(CancelOutput (EventInput send) (EventOutput target))
+          (CancelOutput (BooleanInput send) (BooleanOutput target))
+          (CancelOutput (FloatInput send) (FloatOutput target))
           "setup"]
 
 The @jcode-inline{send} family of methods are all used to connect an input to an output with the same type of data.
 So, whenever the value of the input changes (for a value-based input, like @jcode-inline{BooleanInput} or @jcode-inline{FloatInput}) or the input is produced (for @jcode-inline{EventInput}), then @jcode-inline{target} will received that value or event.
 
-The @jcode-inline{send} methods also return an @jcode-inline{EventOutput}. This allows you to unsubscribe from updates: it detaches
+See below (TODO: ADD REF) for @jcode-inline{CancelOutput}.
 
-WORKING ON THE LAST LINE HERE
+@jcode[#:box (list "setup" #f "flow block" #f #f "setup" #f "flow block" #f #f "setup" #f "flow block")]{
+    EventInput new_input = new DerivedEventInput(inputs) {
+        protected boolean shouldProduce() {
+            return /* true if an event should be produced right now */;
+        }
+    };
+    BooleanInput new_input = new DerivedBooleanInput(inputs) {
+        protected boolean apply() {
+            return /* value */;
+        }
+    };
+    FloatInput new_input = new DerivedFloatInput(inputs) {
+        protected float apply() {
+            return /* value */;
+        }
+    };
+}
 
-@subsubsection{Statuses}
+You can easily implement an input with the above code. You can replace @jcode-inline{/* value */} with the flow mode code to calculate the value of the input.
+
+@jcode-inline{apply()} will be called once when the input is created, and then exactly once for each time that one of @jcode-inline{inputs} is updated.
+The value provided by @jcode-inline{apply} will be returned by @jcode-inline{get}.
+
+Since the value only updates when one of @jcode-inline{inputs} updates, make sure that you don't access anything not included in that list.
+You can figure out most of what you need in that list by looking at the inputs you call @jcode-inline{get()} on.
+
+Please note that, most of the time, you shouldn't need to implement your own channels! Usually there is already an implementation for you. See @secref["remixing"].
+
+@jmethod*[(CancelOutput (EventInput onUpdate) (EventOutput target))
+          (CancelOutput (BooleanInput onUpdate) (EventOutput target))
+          (CancelOutput (FloatInput onUpdate) (EventOutput target))
+          "setup"]
+
+@margin-note{For EventInput, @jcode-inline{onUpdate} and @jcode-inline{send} are essentially identical.}
+The @jcode-inline{onUpdate} family of methods are similar to the @jcode-inline{send} family of methods, but instead of sending a value in the case of a @jcode-inline{BooleanInput} or a @jcode-inline{FloatInput}, they just notify @jcode-inline{target} when the value changes.
+
+See below (TODO: ADD REF) for @jcode-inline{CancelOutput}.
+
+@margin-note{Here, "setup block" means that the code in this block runs in setup mode.}
+@jcode[#:box (list "setup" #f "setup block" #f #f #f "setup" #f "setup block" #f #f #f #f "flow block" #f #f "setup" #f "setup block" #f #f #f #f "flow block")]{
+    EventInput input = new EventInput() {
+        public CancelOutput onUpdate(EventOutput target) {
+            // set up to tell target when this input changes
+            return /* a CancelOutput that cancels the connection */;
+        }
+    };
+    BooleanInput input = new BooleanInput() {
+        public CancelOutput onUpdate(EventOutput target) {
+            // set up to tell target when this input changes
+            return /* a CancelOutput that cancels the connection */;
+        }
+
+        public boolean get() {
+            return /* the current value */;
+        }
+    };
+    FloatInput input = new FloatInput() {
+        public CancelOutput onUpdate(EventOutput target) {
+            // set up to tell target when this input changes
+            return /* a CancelOutput that cancels the connection */;
+        }
+
+        public float get() {
+            return /* the current value */;
+        }
+    };
+}
+
+If you want more control over your inputs, you can implement them directly.
+You implement @jcode-inline{onUpdate} to specify when the input changes, and implement @jcode-inline{get} to specify the value.
+
+WARNING: You probably don't want to use this! It's hard to implement, and you might make a mistake.
+@jcode-inline{new DerivedEventInput} and friends, as detailed above (TODO: ADD REF) are better for almost all implementations.
+
+@subsubsection{CancelOutputs}
+
+The @jcode-inline{send} and @jcode-inline{onUpdate} methods also return an @jcode-inline{CancelOutput}. This allows you to cancel a send after it is sent. For example:
+
+@jcode{
+       CancelOutput cancellator = an_input.send(an_output);
+       // ... much later ...
+       cancellator.cancel();
+}
+
+@jmethod[void (CancelOutput cancel) "setup"]
+
+You call the @jcode-inline{cancel} method to cancel whatever the @jcode-inline{CancelOutput} represents.
+Note that although this class is similar to @jcode-inline{EventOutput}, it is used in the setup mode, rather than flow mode.
+
+@jcode[#:box (list "setup" "setup block")]{
+    CancelOutput cancellator = () -> {
+        // ... cancel whatever it is ...
+    };
+}
+
+You may need to implement a CancelOutput yourself, which can be done as shown here.
+Note, of course, that the body is a setup block, not a flow block.
+
+@jmethod[CancelOutput (CancelOutput combine) (CancelOutput other) "setup"]
+
+This combines the CancelOutput you call it on with another CancelOutput, so that the resulting CancelOutput cancels both of these CancelOutputs.
+
+@subsubsection{Channel Cells}
 
 In progress.
 

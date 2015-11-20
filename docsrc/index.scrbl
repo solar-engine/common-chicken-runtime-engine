@@ -10,7 +10,7 @@ project so that you can focus on the important parts of your code.
 
 Here's an example of a robot piloted with Arcade Drive:
 
-@codeblock|{
+@jcode|{
     DriverImpls.arcadeDrive(FRC.joystick1,
                             FRC.talon(1, FRC.MOTOR_FORWARD),
                             FRC.talon(2, FRC.MOTOR_REVERSE));
@@ -18,7 +18,7 @@ Here's an example of a robot piloted with Arcade Drive:
 
 Or, something more interesting: an example of a shifting drive train:
 
-@codeblock|{
+@jcode|{
     BooleanOutput shifter = FRC.makeSolenoid(2);
     shifter.setFalseWhen(FRC.startTele);
     shifter.setTrueWhen(FRC.joystick1.onPress(3));
@@ -94,14 +94,14 @@ Now press Project -> Build Project, and once it finishes, you're done!
 
 We'll start with something simple. You should see this code in your project:
 
-@codeblock|{
+@jcode|{
   @Override
   public void setupRobot() {
       // Robot setup code goes here.
   }
 }|
 
-Start by adding @codeblock|{
+Start by adding @jcode|{
     Logger.info("Hello, World!");
 }| to this method.
 
@@ -128,7 +128,7 @@ Of course, that's not particularly interesting, so let's move on to actual motor
 
 Let's set up a Talon speed controller and control it with the Y axis of a Joystick.
 
-@codeblock|{
+@jcode|{
   FloatOutput motor = FRC.talon(0, FRC.MOTOR_FORWARD);
   FloatInput yAxis = FRC.joystick1.axisY();
   yAxis.send(motor);
@@ -169,7 +169,7 @@ and figure out its port number and which kind of speed controller it uses.
 CAN motors are harder to deal with. Don't worry, we'll get to CAN motors later.}
 
 Once you know which kind of speed controller you're using (Talon, Victor, Jaguar), you may need to replace
-@code{talon} with @code{victor} or @code{jaguar}. You may also need to replace the @code{0}
+@jcode-inline{talon} with @jcode-inline{victor} or @jcode-inline{jaguar}. You may also need to replace the @jcode-inline{0}
 with the correct port number.
 
 Once you have the configuration correct, open the dropdown next to the External Tools button and select "MyFirstRobot Deploy."
@@ -268,7 +268,7 @@ The CCRE would express this as:
 
 Or, in practice:
 
-@codeblock|{
+@jcode|{
             red_button.onPress().and(key_input).send(blow_up_world);
       }|
 
@@ -296,21 +296,21 @@ With an Output, the users of the channel can send messages over the channel to t
            They simply represent the request that the implementor should cause a defined thing to happen.
            We call this "firing" the EventOutput.
 
-           @codeblock{start_driving_forward.event(); // start the robot driving forward}
+           @jcode{start_driving_forward.event(); // start the robot driving forward}
           }
           @item{@bold{BooleanOutput}: messages have an associated value of true or false.
            The message represents the request that the implementor change something to a state representable by a binary choice.
 
-           @codeblock{light_bulb.set(false); // turn off the light bulb}
-           @codeblock{light_bulb.set(true); // turn on the light bulb}
+           @jcode{light_bulb.set(false); // turn off the light bulb}
+           @jcode{light_bulb.set(true); // turn on the light bulb}
           }
           @item{@bold{FloatOutput}: messages have an associated real number value - often, but not always, in the range of -1.0 to 1.0.
            The message represents the request that the implementor change something to some potentially intermediate state.
 
-           @codeblock{motor.set(0.0f); // stop the motor}
-           @codeblock{motor.set(1.0f); // run the motor clockwise at full speed}
-           @codeblock{motor.set(-1.0f); // run the motor counterclockwise at full speed}
-           @codeblock{motor.set(0.6f); // run the motor clockwise at 60% speed}
+           @jcode{motor.set(0.0f); // stop the motor}
+           @jcode{motor.set(1.0f); // run the motor clockwise at full speed}
+           @jcode{motor.set(-1.0f); // run the motor counterclockwise at full speed}
+           @jcode{motor.set(0.6f); // run the motor clockwise at 60% speed}
            }]
 
 With an Input, the users of the channel can request the present state of the channel from the implementation (if any), and ask the implementation to tell them when the value represented by the input changes.
@@ -318,12 +318,12 @@ With an Input, the users of the channel can request the present state of the cha
 @itemlist[@item{@bold{EventInput}: there is no associated value.
            Users to be notified when something happens - we call this the EventInput being either fired or produced.
 
-           @codeblock|{
+           @jcode|{
              // when the match starts, start the robot driving forward
              match_start.send(start_driving_forward);
              }|
-           @margin-note{Don't actually use @code{System.out.println} for any of these. You'll learn about Logging later, which is a better way to do this.}
-           @codeblock|{
+           @margin-note{Don't actually use @jcode-inline{System.out.println} for any of these. You'll learn about Logging later, which is a better way to do this.}
+           @jcode|{
               // when the match ends, say so
               match_end.send(() -> System.out.println("Match has ended!"));
               }|
@@ -331,16 +331,16 @@ With an Input, the users of the channel can request the present state of the cha
           @item{@bold{BooleanInput}: the associated value is a boolean.
            Users can ask if the current state is true or false, and ask to be told when it changes.
 
-           @codeblock|{
+           @jcode|{
             // as long as the light switch is flipped, turn on the light bulb
             light_switch.send(light_bulb);
            }|
-           @codeblock|{
+           @jcode|{
             light_switch.send((is_flipped) ->
                 System.out.println("The light switch is flipped: " + is_flipped));
             // whenever the light switch position is changed, say so
            }|
-           @codeblock|{
+           @jcode|{
             if (light_switch.get()) {
                 // We're wasting power!
             } else {
@@ -350,17 +350,17 @@ With an Input, the users of the channel can request the present state of the cha
           @item{@bold{FloatInput}: the associated value is a real number value - often, but not always, in the range of -1.0 to 1.0.
            Users can ask for the current value, and ask to be told when it changes.
 
-           @codeblock|{
+           @jcode|{
              // control a motor with a joystick axis
              joystick_axis.send(motor);
              }|
-           @codeblock|{
+           @jcode|{
             joystick_axis.send((current_position) ->
                 System.out.println("The current Joystick position: " + current_position));
             // report the new position of the Joystick whenever someone moves it
            }|
            @margin-note{A number of these examples aren't the right way to do things. Keep reading.}
-           @codeblock|{
+           @jcode|{
             if (sewage_level.get() > 1000.0f) {
                 // open drainage valve
             }
@@ -372,7 +372,7 @@ The CCRE contains an interface layer that lets you work with an FRC robot's hard
 
 For example:
 
-@codeblock|{
+@jcode|{
             BooleanOutput led = FRC.makeDigitalOutput(7);
             FloatOutput test_motor = FRC.talon(3, FRC.MOTOR_FORWARD, 0.2f);
             EventInput start_match = FRC.startTele;
@@ -387,28 +387,28 @@ See @secref["hardware-access"] below for more info on robot hardware.
 It turns out that, often, you want to do similar things with your channels.
 So, correspondingly, all channels have a variety of built-in methods to help you on your journey!
 
-The simplest example is probably @code{send}, which works for all three varieties of channels:
+The simplest example is probably @jcode-inline{send}, which works for all three varieties of channels:
 
-This connects the input to the output, so that @code{y} is updated with the current value of @code{x} both immediately and whenever @code{x} changes.
-In the case of events, @code{send} causes the EventOutput to be fired whenever the EventInput is produced.
+This connects the input to the output, so that @jcode-inline{y} is updated with the current value of @jcode-inline{x} both immediately and whenever @code{x} changes.
+In the case of events, @jcode-inline{send} causes the EventOutput to be fired whenever the EventInput is produced.
 
-@codeblock|{
+@jcode|{
   // this also works if you replace Boolean with Event or Float in both places.
   BooleanInput x = /* ... */;
   BooleanOutput y = /* ... */;
   x.send(y);
   }|
 
-Another simple example is @code{onPress}, which converts a BooleanInput into an EventInput (for when the BooleanInput changes to true):
+Another simple example is @jcode-inline{onPress}, which converts a BooleanInput into an EventInput (for when the BooleanInput changes to true):
 
-@codeblock|{
+@jcode|{
   BooleanInput bumper = FRC.makeDigitalInput(3);
   bumper.onPress().send(stop_motors);
   }|
 
-Also useful is @code{setWhen} (along with @code{setFalseWhen} and @code{setTrueWhen}, and the mirrors @code{getSet*Event}):
+Also useful is @jcode-inline{setWhen} (along with @jcode-inline{setFalseWhen} and @jcode-inline{setTrueWhen}, and the mirrors @jcode-inline{getSet*Event}):
 
-@codeblock|{
+@jcode|{
   driving_forward.setTrueWhen(FRC.joystick1.onPress(2));
   stop_motors = driving_forward.getSetEvent(false);
   }|
@@ -421,14 +421,14 @@ See @secref["remixing"] for more info.
 
 Sometimes, you want to connect together methods that aren't easy to connect together. For example, you might have:
 
-@codeblock|{
+@jcode|{
   send_some_data_to_an_output(???);
   do_something_based_on_an_input(???);
   }|
 
 How would you connect these? There's no implementation to provide either end. Luckily, the solution is easy: statuses!
 
-@codeblock|{
+@jcode|{
    // this also works for EventStatus and FloatStatus, depending on what you're connecting.
    BooleanStatus intermediate_channels = new BooleanStatus();
    send_some_data_to_an_output(intermediate_channels);
@@ -449,7 +449,7 @@ There are a number of features of Java which are heavily used by the CCRE that y
 
 Sometimes you might want to implement an Output that does something unique, so you can't use anything built-in. You could put this somewhere else:
 
-@codeblock|{
+@jcode|{
   public class CatPettingEventOutput implements EventOutput {
     private final Cat cat_to_pet;
 
@@ -466,13 +466,13 @@ Sometimes you might want to implement an Output that does something unique, so y
 
 and later:
 
-@codeblock|{
+@jcode|{
   EventOutput pet_fluffy = new CatPettingEventOutput(fluffy);
     }|
 
 But then the class definition is far away from the actual use, and your code gets clogged up with all of your classes. Clearly, there has to be an easier way:
 
-@codeblock|{
+@jcode|{
      EventOutput pet_fluffy = new EventOutput() {
        public void event() {
          // pet fluffy
@@ -488,7 +488,7 @@ Let's go one step further. In Java 8, there's a new feature called Lambdas which
 
 Instead of these:
 
-@codeblock|{
+@jcode|{
      EventOutput pet_fluffy = new EventOutput() {
        public void event() {
          // pet fluffy
@@ -508,7 +508,7 @@ Instead of these:
 
 You can now simply say:
 
-@codeblock|{
+@jcode|{
      EventOutput pet_fluffy = () -> {
        // pet fluffy
      };
@@ -522,7 +522,7 @@ You can now simply say:
 
 Also, if you only have a single statement in the lambda, you can omit the @code|{{}}| and the semicolon around the statement:
 
-@codeblock|{
+@jcode|{
             EventOutput pet_fluffy = () -> {
               do_pet_fluffy();
             };
@@ -530,7 +530,7 @@ Also, if you only have a single statement in the lambda, you can omit the @code|
 
 can become:
 
-@codeblock|{
+@jcode|{
             EventOutput pet_fluffy = () -> do_pet_fluffy();
             }|
 
@@ -914,7 +914,7 @@ The following format is used when describing a constructor that can be called:
 
 This constructor could be used, for example, as:
 
-@codeblock|{
+@jcode|{
             BooleanCell cell = new BooleanCell(false);
 }|
 
@@ -922,7 +922,7 @@ This constructor could be used, for example, as:
 
 This method could be used, for example, as:
 
-@codeblock|{
+@jcode|{
             BooleanInput button = /* ... some code goes here ... */;
             EventInput press = button.onPress();
 }|
@@ -960,7 +960,26 @@ Outputs are, at a fundamental level, something with a state that can be changed,
 
 You can call these methods to change the current state of the output. All control of outputs will at some level reduce to these methods.
 
-@java-format["new EventOutput eo;"]
+@jcode[#:box (list "setup" "flow block")]{
+  EventOutput eo = () -> {
+      // do something
+  };
+}
+@margin-note{The "flow block" annotation here specifies that the block starting on that line is in flow mode.}
+@jcode[#:box (list "setup" "flow block")]{
+  BooleanOutput bo = (value) -> {
+      // do something with value, a boolean
+  };
+}
+@jcode[#:box (list "setup" "flow block")]{
+  FloatOutput eo = (value) -> {
+      // do something with value, a float
+  };
+}
+
+You can implement an output with the above code. You can replace @jcode-inline{// do something} with the flow mode code to execute when the output is controlled.
+
+Please note that, most of the time, you shouldn't need to implement your own channels! Usually there is already an implementation for you. See @secref["remixing"].
 
 @subsubsection{Inputs}
 
@@ -968,13 +987,37 @@ You can call these methods to change the current state of the output. All contro
           (float (FloatInput get))
           "flow"]
 
-For inputs that carry values
+For many inputs, you can access the current value at any time with @jcode-inline{get()}. This calculates the current value at the time that you call @jcode-inline{get()}.
 
-@jnew[EventOutput (int x) (long y) "setup"]
+@jcode[#:box (list "setup" "flow block")]{
+    event_input.send(() -> {
+        // do something
+    });
+}
+@jcode[#:box (list "setup" "flow block")]{
+    boolean_input.send((value) -> {
+        // do something with value, the new boolean value
+    });
+}
+@jcode[#:box (list "setup" "flow block")]{
+    float_input.send((value) -> {
+        // do something with value, the new float value
+    });
+}
 
-(Working on autodocs here.)
+More importantly, you can listen for changes on an input. This works for all inputs. You may notice that these contain a part suspiciously similar to defining outputs: this is because you subscribe to a value by telling an input to send all values to an output, which you can implement yourself.
 
-In progress.
+@jmethod*[(EventOutput (EventInput send) (EventOutput target))
+          (EventOutput (BooleanInput send) (BooleanOutput target))
+          (EventOutput (FloatInput send) (FloatOutput target))
+          "setup"]
+
+The @jcode-inline{send} family of methods are all used to connect an input to an output with the same type of data.
+So, whenever the value of the input changes (for a value-based input, like @jcode-inline{BooleanInput} or @jcode-inline{FloatInput}) or the input is produced (for @jcode-inline{EventInput}), then @jcode-inline{target} will received that value or event.
+
+The @jcode-inline{send} methods also return an @jcode-inline{EventOutput}. This allows you to unsubscribe from updates: it detaches
+
+WORKING ON THE LAST LINE HERE
 
 @subsubsection{Statuses}
 
@@ -1044,9 +1087,9 @@ In progress.
 
 How does this work behind the scenes?
 
-First, this goes through the DeploymentEngine, which dispatches to the @code{deploy()} DepTask in the default Deployment class:
+First, this goes through the DeploymentEngine, which dispatches to the @jcode-inline{deploy()} DepTask in the default Deployment class:
 
-@codeblock|{
+@jcode|{
     @DepTask
     public static void deploy() throws Exception {
         Artifact result = DepRoboRIO.buildProject(robotMain);

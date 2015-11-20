@@ -175,12 +175,13 @@ public class EventOutputTest {
     @Test
     public void testOn() {
         gotProperly = false;
-        assertEquals(ceo2, ceo.on(new EventInput() {
+        CancelOutput cex = ceo2::event;
+        assertEquals(cex, ceo.on(new EventInput() {
             @Override
             public CancelOutput send(EventOutput notify) {
                 assertEquals(ceo, notify);
                 gotProperly = true;
-                return ceo2::event;
+                return cex;
             }
 
             @Override

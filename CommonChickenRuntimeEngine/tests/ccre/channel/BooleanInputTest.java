@@ -96,6 +96,7 @@ public class BooleanInputTest {
     public void testSend() {
         final CountingBooleanOutput cbo = new CountingBooleanOutput();
         gotProperly = false;
+        CancelOutput cex = expected::event;
         bi = new BooleanInput() {
             @Override
             public CancelOutput onUpdate(EventOutput notify) {
@@ -109,7 +110,7 @@ public class BooleanInputTest {
                     cbo.check();
                 }
                 gotProperly = true;
-                return expected::event;
+                return cex;
             }
 
             @Override
@@ -125,7 +126,7 @@ public class BooleanInputTest {
             cbo.ifExpected = true;
             cbo.valueExpected = result = initial;
             assertFalse(gotProperly);
-            assertEquals(expected, bi.send(cbo));
+            assertEquals(cex, bi.send(cbo));
             assertTrue(gotProperly);
             gotProperly = false;
             cbo.check();// the real check is in onUpdateR above
@@ -161,13 +162,14 @@ public class BooleanInputTest {
 
     @Test
     public void testNotRule2() {
+        CancelOutput cex2 = expected2::event;
         bi = new BooleanInput() {
             @Override
             public CancelOutput onUpdate(EventOutput notify) {
                 assertFalse(gotProperly);
                 assertEquals(expected, notify);
                 gotProperly = true;
-                return expected2::event;
+                return cex2;
             }
 
             @Override
@@ -181,7 +183,7 @@ public class BooleanInputTest {
         bi2.onUpdate(expected);
         assertTrue(gotProperly);
         gotProperly = false;
-        assertEquals(expected2, bi2.onUpdate(expected));
+        assertEquals(cex2, bi2.onUpdate(expected));
         assertTrue(gotProperly);
     }
 

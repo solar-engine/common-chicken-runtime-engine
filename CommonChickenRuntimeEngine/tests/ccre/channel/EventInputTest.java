@@ -75,7 +75,7 @@ public class EventInputTest {
 
     @Test
     public void testNever() {
-        assertEquals(EventOutput.ignored, EventInput.never.onUpdate(() -> fail("should not be fired!")));
+        assertEquals(CancelOutput.nothing, EventInput.never.onUpdate(() -> fail("should not be fired!")));
     }
 
     @Test(expected = NullPointerException.class)
@@ -88,15 +88,16 @@ public class EventInputTest {
     @Test
     public void testSend() {
         gotProperly = false;
+        CancelOutput cc2 = ceo2::event;
         ei = new EventInput() {
             @Override
             public CancelOutput onUpdate(EventOutput notify) {
                 assertEquals(ceo, notify);
                 gotProperly = true;
-                return ceo2::event;
+                return cc2;
             }
         };
-        assertEquals(ceo2, ei.send(ceo));
+        assertEquals(cc2, ei.send(ceo));
         assertTrue(gotProperly);
     }
 

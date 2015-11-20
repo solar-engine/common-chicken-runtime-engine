@@ -108,9 +108,10 @@ public class FloatInputTest {
     private float result;
 
     @Test
-    public void testSendR() {
+    public void testSend() {
         CountingEventOutput expected = new CountingEventOutput();
         gotProperly = false;
+        CancelOutput cex = expected::event;
         fi = new FloatInput() {
             @Override
             public CancelOutput onUpdate(EventOutput notify) {
@@ -124,7 +125,7 @@ public class FloatInputTest {
                     cfo.check();
                 }
                 gotProperly = true;
-                return expected::event;
+                return cex;
             }
 
             @Override
@@ -140,7 +141,7 @@ public class FloatInputTest {
             cfo.ifExpected = true;
             cfo.valueExpected = result = initial;
             assertFalse(gotProperly);
-            assertEquals(expected, fi.send(cfo));
+            assertEquals(cex, fi.send(cfo));
             assertTrue(gotProperly);
             gotProperly = false;
             cfo.check();// the real check is in onUpdateR above

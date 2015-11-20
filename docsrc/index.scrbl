@@ -1321,7 +1321,7 @@ In progress.
 
 @subsection{Hardware access}
 
-The CCRE provides interfaces to the underlying hardware via WPILib's JNI layer, which attaches to the WPILib Hardware Abstraction Layer (in C++), which attaches to the NI ChipObject propriatary library, which attaches to the NiFPGA interface to the FPGA (field-programmable gate array) device that manages the communication between the higher-level code and the I/O ports.
+The CCRE provides interfaces to the underlying hardware via WPILib's JNI layer, which attaches to the WPILib Hardware Abstraction Layer (in C++), which attaches to the NI ChipObject proprietary library, which attaches to the NiFPGA interface to the FPGA (field-programmable gate array) device that manages the communication between the higher-level code and the I/O ports.
 
 In other words, here's how hardware access works (CCRE at the left - other systems also shown):
 

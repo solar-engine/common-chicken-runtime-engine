@@ -5,7 +5,7 @@
 (require "java-lexer.rkt")
 (require parser-tools/lex)
 
-(provide jnew jmethod jmethod* java-format jcode jcode-inline)
+(provide jnew jmethod jmethod* jfield java-format jcode jcode-inline)
 
 (define (java-lex x)
   (define in (open-input-string x))
@@ -44,13 +44,13 @@
                                      (not (equal? (symbol->string (token-value tok)) (string-upcase (symbol->string (token-value tok))))))))
                         (symbol str) ; so we're probably a type!
                         (varsym str))))] ; variable
-           [(INTEGER_LIT STRING_LIT FLOAT_LIT)
+           [(INTEGER_LIT STRING_LIT FLOAT_LIT) ; DOUBLE_LIT
             (element "RktVal" str)]
            [else (error "oops" tok)]
          ))
         ((symbol? tok)
          (case tok
-           [(O_PAREN C_PAREN O_BRACE C_BRACE SEMI_COLON PERIOD = + - * / % < > ! ? : COMMA AT)
+           [(O_PAREN C_PAREN O_BRACE C_BRACE SEMI_COLON PERIOD <= >= == != = + - * / % && & ^ OR < > ! ? : COMMA AT)
             (element "RktPn" str)]
            [(FALSE_LIT TRUE_LIT)
             (element "RktVal" str)]
@@ -112,10 +112,34 @@
 
 (define-syntax-rule (jnew name (type arg) ... marker)
   (def-constructor 'name '(type ...) '(arg ...) marker))
-(define-syntax-rule (jmethod ret (class method) (type arg) ... marker)
-  (def-method 'ret 'class 'method '(type ...) '(arg ...) marker))
-(define-syntax-rule (jmethod* (ret (class method) (type arg) ...) ... marker)
-  (def-box-p* (list (def-method-i 'ret 'class 'method '(type ...) '(arg ...)) ...) marker))
+(define-syntax jfield
+  (syntax-rules (static)
+    [(jfield ret static (class field) marker)
+     (def-box-p (def-field-i #t 'ret 'class 'field) marker)]
+    [(jfield ret (class field) marker)
+     (def-box-p (def-field-i #f 'ret 'class 'field) marker)]))
+(define-syntax jmethod
+  (syntax-rules (static)
+    [(jmethod args ... marker)
+     (def-box-p (jmethod-parse-i args ...) marker)]))
+(define-syntax jmethod-parse-i
+  (syntax-rules (static)
+    [(jmethod-parse-i ret static (class method) (type arg) ...)
+     (def-method-i #t #f 'ret 'class 'method '(type ...) '(arg ...))]
+    [(jmethod-parse-i ret static (class method) (type arg) ... #:vararg)
+     (def-method-i #t #t 'ret 'class 'method '(type ...) '(arg ...))]
+    [(jmethod-parse-i ret (class method) (type arg) ...)
+     (def-method-i #f #f 'ret 'class 'method '(type ...) '(arg ...))]
+    [(jmethod-parse-i ret (class method) (type arg) ... #:vararg)
+     (def-method-i #f #t 'ret 'class 'method '(type ...) '(arg ...))]
+    [(jmethod-parse-i ret (method) (type arg) ...)
+     (def-method-i #f #f 'ret #f 'method '(type ...) '(arg ...))]
+    [(jmethod-parse-i ret (method) (type arg) ... #:vararg)
+     (def-method-i #f #t 'ret #f 'method '(type ...) '(arg ...))]))
+(define-syntax jmethod*
+  (syntax-rules ()
+    [(jmethod* (args ...) ... marker)
+     (def-box-p* (list (jmethod-parse-i args ...) ...) marker)]))
 
 (define (def-box x)
   (def-box* (list x)))
@@ -150,6 +174,7 @@
 (define lpar (element "RktPn" "("))
 (define comma (element "RktPn" ","))
 (define dot (element "RktPn" "."))
+(define colon (element "RktPn" ":"))
 (define rpar (element "RktPn" ")"))
 (define (symbol x)
   (element "RktSym" (fsym x)))
@@ -171,18 +196,21 @@
                                 (list (symbol (symbol->string type)) space (varsym (symbol->string arg))))))
                      (list rpar))
     marker))
-(define (def-method-i ret class method types args)
+(define (def-method-i is-static is-vararg ret class method types args)
   (unless (= (length types) (length args))
-    (error "types and args length mismatch in def-method"))
-  (append (list (symbol ret) space (symbol class) dot (symboldef method) lpar)
+    (error "types and args length mismatch in def-method-i"))
+  (append (if is-static (list (symbol 'static) space) empty)
+          (list (symbol ret) space)
+          (if class (list (symbol class) dot) empty)
+          (list (symboldef method) lpar)
           (append*
            (for/list ((type types) (arg args) (i (length types)))
              (append (if (= i 0)
                          empty
                          (list comma space))
                      (list (symbol (symbol->string type)) space (varsym (symbol->string arg))))))
+          (if is-vararg (list (symbol '...)) empty)
           (list rpar)))
-(define (def-method ret class method types args marker)
-  (unless (= (length types) (length args))
-    (error "types and args length mismatch in def-method"))
-  (def-box-p (def-method-i ret class method types args) marker))
+(define (def-field-i is-static type class field)
+  (append (if is-static (list (symbol 'static) space) empty)
+          (list (symbol class) dot (symboldef field) space colon space (symbol type))))

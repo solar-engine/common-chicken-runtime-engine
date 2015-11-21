@@ -11,9 +11,9 @@ project so that you can focus on the important parts of your code.
 Here's an example of a robot piloted with Arcade Drive:
 
 @jcode|{
-    DriverImpls.arcadeDrive(FRC.joystick1,
-                            FRC.talon(1, FRC.MOTOR_FORWARD),
-                            FRC.talon(2, FRC.MOTOR_REVERSE));
+    Drive.arcade(FRC.joystick1,
+                 FRC.talon(1, FRC.MOTOR_FORWARD),
+                 FRC.talon(2, FRC.MOTOR_REVERSE));
 }|
 
 Or, something more interesting: an example of a shifting drive train:
@@ -342,12 +342,14 @@ With an Input, the users of the channel can request the present state of the cha
                 System.out.println("The light switch is flipped: " + is_flipped));
             // whenever the light switch position is changed, say so
            }|
+           @margin-note{You would probably want to use transforms for this.}
            @jcode|{
-            if (light_switch.get()) {
-                // We're wasting power!
-            } else {
-                // It's too dark in here!
-            }
+             // this runs once - you'd want it somewhere where it would run repeatedly.
+             if (light_switch.get()) {
+                 // We're wasting power!
+             } else {
+                 // It's too dark in here!
+             }
                }|}
           @item{@bold{FloatInput}: the associated value is a real number value - often, but not always, in the range of -1.0 to 1.0.
            Users can ask for the current value, and ask to be told when it changes.
@@ -362,8 +364,9 @@ With an Input, the users of the channel can request the present state of the cha
                 System.out.println("The current Joystick position: " + current_position));
             // report the new position of the Joystick whenever someone moves it
            }|
-           @margin-note{This could be done with something from the Remixing toolset, which we'll see later.}
+           @margin-note{This could be done with something from the transformation toolset, which we'll see later.}
            @jcode|{
+            // this runs once - you'd want it somewhere where it would run repeatedly.
             if (sewage_level.get() > 1000.0f) {
                 // open drainage valve
             }
@@ -385,7 +388,7 @@ For example:
 
 See @secref["hardware-access"] below for more info on robot hardware.
 
-@subsection{Remixing channels}
+@subsection{Transforming channels}
 
 It turns out that, often, you want to do similar things with your channels.
 So, correspondingly, all channels have a variety of built-in methods to help you on your journey!
@@ -418,7 +421,7 @@ Also useful are @jcode-inline{setWhen} (along with @jcode-inline{setFalseWhen} a
   stop_motors = driving_forward.getSetEvent(false);
   }|
 
-See @secref["remixing"] for more info.
+See @secref["transforms"] for more info.
 
 @subsection{Cells}
 
@@ -957,7 +960,7 @@ It's organized into the following sections:
 
 @subsection{Documentation format}
 
-The following format is used when describing a constructor that can be called:
+The following formats are used when describing constructors, methods, or fields:
 
 @jnew[BooleanCell (boolean initial_value) "setup"]
 
@@ -974,6 +977,24 @@ This method could be used, for example, as:
 @jcode|{
             BooleanInput button = /* ... some code goes here ... */;
             EventInput press = button.onPress();
+}|
+
+@jmethod[double static (Math sin) (double a) "setup"]
+
+This method could be used, for example, as:
+
+@jcode|{
+            float x = 10.0f;
+            double y = Math.sin(x);
+}|
+
+@jfield[EventOutput static (EventOutput ignored) "setup"]
+
+This field could be used, for example, as:
+
+@jcode|{
+        EventOutput output = EventOutput.ignored;
+        output.event();
 }|
 
 @subsection{Flow versus Setup}
@@ -1011,20 +1032,20 @@ You can call these methods to change the current state of the output. All contro
 
 @margin-note{The "flow block" annotation here specifies that the code in the block starting on that line is in flow mode.}
 @jcode[#:box (list "setup" "flow block" #f "setup" "flow block" #f "setup" "flow block")]{
-  EventOutput eo = () -> {
+  $EventOutput eo = () -> {
       // do something
   };
-  BooleanOutput bo = (value) -> {
+  $BooleanOutput bo = (value) -> {
       // do something with value, a boolean
   };
-  FloatOutput eo = (value) -> {
+  $FloatOutput eo = (value) -> {
       // do something with value, a float
   };
 }
 
 You can implement an output with the above code. You can replace @jcode-inline{// do something} with the flow mode code to execute when the output is controlled.
 
-Please note that, most of the time, you shouldn't need to implement your own channels! Usually there is already an implementation for you. See @secref["remixing"].
+Please note that, most of the time, you shouldn't need to implement your own channels! Usually there is already an implementation for you. See @secref["transforms"].
 
 @subsubsection{Inputs}
 
@@ -1059,17 +1080,17 @@ So, whenever the value of the input changes (for a value-based input, like @jcod
 See below (TODO: ADD REF) for @jcode-inline{CancelOutput}.
 
 @jcode[#:box (list "setup" #f "flow block" #f #f "setup" #f "flow block" #f #f "setup" #f "flow block")]{
-    EventInput new_input = new DerivedEventInput(inputs) {
+    EventInput new_input = new $DerivedEventInput(inputs) {
         protected boolean shouldProduce() {
             return /* true if an event should be produced right now */;
         }
     };
-    BooleanInput new_input = new DerivedBooleanInput(inputs) {
+    BooleanInput new_input = new $DerivedBooleanInput(inputs) {
         protected boolean apply() {
             return /* value */;
         }
     };
-    FloatInput new_input = new DerivedFloatInput(inputs) {
+    FloatInput new_input = new $DerivedFloatInput(inputs) {
         protected float apply() {
             return /* value */;
         }
@@ -1084,7 +1105,7 @@ The value provided by @jcode-inline{apply} will be returned by @jcode-inline{get
 Since the value only updates when one of @jcode-inline{inputs} updates, make sure that you don't access anything not included in that list.
 You can figure out most of what you need in that list by looking at the inputs you call @jcode-inline{get()} on.
 
-Please note that, most of the time, you shouldn't need to implement your own channels! Usually there is already an implementation for you. See @secref["remixing"].
+Please note that, most of the time, you shouldn't need to implement your own channels! Usually there is already an implementation for you. See @secref["transforms"].
 
 @jmethod*[(CancelOutput (EventInput onUpdate) (EventOutput target))
           (CancelOutput (BooleanInput onUpdate) (EventOutput target))
@@ -1098,13 +1119,13 @@ See below (TODO: ADD REF) for @jcode-inline{CancelOutput}.
 
 @margin-note{Here, "setup block" means that the code in this block runs in setup mode.}
 @jcode[#:box (list "setup" #f "setup block" #f #f #f "setup" #f "setup block" #f #f #f #f "flow block" #f #f "setup" #f "setup block" #f #f #f #f "flow block")]{
-    EventInput input = new EventInput() {
+    EventInput input = new $EventInput() {
         public CancelOutput onUpdate(EventOutput target) {
             // set up to tell target when this input changes
             return /* a CancelOutput that cancels the connection */;
         }
     };
-    BooleanInput input = new BooleanInput() {
+    BooleanInput input = new $BooleanInput() {
         public CancelOutput onUpdate(EventOutput target) {
             // set up to tell target when this input changes
             return /* a CancelOutput that cancels the connection */;
@@ -1114,7 +1135,7 @@ See below (TODO: ADD REF) for @jcode-inline{CancelOutput}.
             return /* the current value */;
         }
     };
-    FloatInput input = new FloatInput() {
+    FloatInput input = new $FloatInput() {
         public CancelOutput onUpdate(EventOutput target) {
             // set up to tell target when this input changes
             return /* a CancelOutput that cancels the connection */;
@@ -1148,7 +1169,7 @@ You call the @jcode-inline{cancel} method to cancel whatever the @jcode-inline{C
 Note that although this class is similar to @jcode-inline{EventOutput}, it is used in the setup mode, rather than flow mode.
 
 @jcode[#:box (list "setup" "setup block")]{
-    CancelOutput cancellator = () -> {
+    $CancelOutput cancellator = () -> {
         // ... cancel whatever it is ...
     };
 }
@@ -1162,23 +1183,1327 @@ This combines the CancelOutput you call it on with another CancelOutput, so that
 
 @subsubsection{Channel Cells}
 
-In progress.
+A Cell is the dataflow equivalent of a variable. In the case of a @jcode-inline{BooleanCell} or a @jcode-inline{FloatCell}, it simply holds a value that can be used as a BooleanOutput or FloatOutput (to modify the value) or as a BooleanInput or FloatInput (to read the value.) As a @jcode-inline{EventCell}, it simply propagates events through itself, and can be used as either an EventInput (to receive events) or EventOutput (to send events.)
 
-@subsubsection[#:tag "remixing"]{Remixing}
+The general idea of a channel that is both an Input and an Output is called an IO, for example @jcode-inline{BooleanIO} or @jcode-inline{EventIO}. All Cells are IOs.
 
-In progress. (TODO: make a note about mutability of channels, or rather the lack thereof.)
+@jmethod*[(EventOutput (EventIO asInput))
+          (BooleanOutput (BooleanIO asInput))
+          (FloatOutput (FloatIO asInput))
+          (EventOutput (EventIO asOutput))
+          (BooleanOutput (BooleanIO asOutput))
+          (FloatOutput (FloatIO asOutput))
+          "setup"]
+
+The @jcode-inline{asInput()} and @jcode-inline{asOutput()} methods allow you to use an IO as just an Input or just an Output. Calling @jcode-inline{x.asInput()} will simply return @jcode-inline{x}, but in a variable of a different type, so this is equivalent to casting.
+
+@jcode{
+       BooleanIO x = new BooleanCell();
+       x.asInput() == x == (BooleanInput) x;
+}
+
+However, sometimes you need to force which side you use the Cell or IO as, which is why this functionality is provided.
+While you can cast, usage of @jcode-inline{asInput()} and @jcode-inline{asOutput()} is checked at compile time, so any misuses will be found before you try to run your code.
+With casting, a mistake might not be found until you run code on your robot.
+
+@jmethod*[(EventIO static (EventIO compose) (EventInput input) (EventOutput output))
+          (BooleanIO static (BooleanIO compose) (BooleanInput input) (BooleanOutput output))
+          (FloatIO static (FloatIO compose) (FloatInput input) (FloatOutput output))
+          "setup"]
+
+Sometimes, you want to combine an input and output for the same thing into a single IO. You can simply use @jcode-inline{compose(input, output)} to do this.
+
+@jmethod[void (BooleanIO toggle) "flow"]
+
+You can use @jcode-inline{toggle()} to toggle the value of a @jcode-inline{BooleanIO}.
+
+@jcode{
+    BooleanIO something = /* ... */;
+    // ...
+    something.toggle();
+    // is equivalent to
+    something.set(!something.get());
+}
+
+@jmethod[EventOutput (BooleanIO eventToggle) "setup"]
+
+You can get an event that lets you toggle the value of a @jcode-inline{BooleanIO}, as if you had called @jcode-inline{toggle}.
+
+@jcode{
+    EventInput something_happened = /* ... */;
+    BooleanIO something_controllable = /* ... */;
+    something_happened.send(something_controllable.eventToggle();
+}
+
+This would toggle @jcode-inline{something_controllable} whenever @jcode-inline{something_happened}.
+
+@jmethod[void (BooleanIO toggleWhen) (EventInput when) "setup"]
+
+This tells the @jcode-inline{BooleanIO} to toggle itself whenever @jcode-inline{when} fires.
+
+@jcode{
+    EventInput something_happened = /* ... */;
+    BooleanIO something_controllable = /* ... */;
+    something_controllable.toggleWhen(something_happened);
+}
+
+@jnew[EventCell "setup"]
+
+This lets you create a new anonymous EventIO that simply passes events through itself.
+
+@jcode{
+    EventIO passthrough_event = new EventCell();
+    // ...
+    passthrough_event.send(some_output);
+    // ...
+    some_input.send(passthrough_event);
+}
+
+@jcode[#:box "setup"]{
+    new $EventCell(EventOutput... outputs)
+}
+
+This lets you create a new anonymous EventIO that simply passes events through itself.
+
+This sends any events that occur to all of the outputs in the constructor arguments, in addition to any other places.
+
+@jcode{
+    EventIO passthrough_event = new EventCell(a, b, c);
+    // is equivalent to
+    EventIO passthrough_event = new EventCell();
+    passthrough_event.send(a);
+    passthrough_event.send(b);
+    passthrough_event.send(c);
+}
+
+@jnew[BooleanCell "setup"]
+
+This lets you create a new anonymous BooleanIO that simply stores a value. The initial value is @jcode-inline{false}.
+
+@jcode{
+    BooleanCell some_value = new BooleanIO();
+    // ...
+    some_value.send(some_output);
+    // ...
+    some_input.send(some_value);
+}
+
+@jnew[BooleanCell (boolean default) "setup"]
+
+This lets you create a new anonymous BooleanIO that simply stores a value. The initial value is @jcode-inline{default}.
+
+@jcode{
+    BooleanCell some_value = new BooleanIO(true);
+    // ...
+    some_value.send(some_output);
+    // ...
+    some_input.send(some_value);
+}
+
+@jnew[BooleanCell (boolean default) "setup"]
+
+This lets you create a new anonymous BooleanIO that simply stores a value. The initial value is @jcode-inline{default}.
+
+@jcode{
+    BooleanCell some_value = new BooleanCell(true);
+    // ...
+    some_value.send(some_output);
+    // ...
+    some_input.send(some_value);
+}
+
+@jcode[#:box "setup"]{
+    new $BooleanCell(BooleanOutput... targets);
+}
+
+This lets you create a new anonymous BooleanIO that simply stores a value.
+
+This sends the value to all of the outputs in the constructor arguments, in addition to any other places.
+
+@jcode{
+    BooleanIO passthrough_value = new BooleanCell(a, b, c);
+    // is equivalent to
+    BooleanIO passthrough_value = new BooleanCell();
+    passthrough_value.send(a);
+    passthrough_value.send(b);
+    passthrough_value.send(c);
+}
+
+@jnew[FloatCell "setup"]
+
+This lets you create a new anonymous FloatIO that simply stores a value. The initial value is @jcode-inline{0}.
+
+@jcode{
+    FloatCell some_value = new FloatIO();
+    // ...
+    some_value.send(some_output);
+    // ...
+    some_input.send(some_value);
+}
+
+@jnew[FloatCell (float default) "setup"]
+
+This lets you create a new anonymous FloatIO that simply stores a value. The initial value is @jcode-inline{default}.
+
+@jcode{
+    FloatCell some_value = new FloatIO(3.2f);
+    // ...
+    some_value.send(some_output);
+    // ...
+    some_input.send(some_value);
+}
+
+@jnew[FloatCell (float default) "setup"]
+
+This lets you create a new anonymous FloatIO that simply stores a value. The initial value is @jcode-inline{default}.
+
+@jcode{
+    FloatCell some_value = new FloatCell(0);
+    // ...
+    some_value.send(some_output);
+    // ...
+    some_input.send(some_value);
+}
+
+@jcode[#:box "setup"]{
+    new $FloatCell(FloatOutput... targets);
+}
+
+This lets you create a new anonymous FloatIO that simply stores a value.
+
+This sends the value to all of the outputs in the constructor arguments, in addition to any other places.
+
+@jcode{
+    FloatIO passthrough_value = new FloatCell(a, b, c);
+    // is equivalent to
+    FloatIO passthrough_value = new FloatCell();
+    passthrough_value.send(a);
+    passthrough_value.send(b);
+    passthrough_value.send(c);
+}
+
+@subsection[#:tag "transforms"]{Dataflow Transformations}
+
+In practice, most ways that you might want to transform a channel are ways that someone else has also wanted to. For example, one might convert a BooleanInput to an EventInput for when the BooleanInput becomes true. This is very useful for checking button or sensor presses.
+
+Since these transformations appear repeatedly, the CCRE provides easy ways to perform these transformations.
+
+However, don't let the term "transformation" confuse you: when you call @jcode-inline{output.negate()}, for example, nothing changes about @jcode-inline{output}.
+Rather a new channel is returned by @jcode-inline{output.negate()}:
+
+@jcode{
+    FloatOutput negated_output = output.negate();
+}
+
+By "transformation", we usually mean a relationship between an existing channel and a newly-created channel, but sometimes we include things that aren't technically transformations but are similarly useful and related to channels.
+
+This section will explain various ways to transform a channel.
+
+@subsubsection{Transformations of EventOutputs}
+
+@jmethod[EventOutput (EventOutput combine) (EventOutput other) "setup"]
+
+This combines two @jcode-inline{EventOutput}s into a single @jcode-inline{EventOutput}, so that firing the result would fire both of the outputs.
+
+@jcode{
+    EventOutput merged = a.combine(b);
+    // then this would be equivalent:
+    merged.event();
+    // to this:
+    a.event();
+    b.event();
+}
+
+@jmethod*[(EventOutput (EventOutput filter) (BooleanInput allow))
+          (EventOutput (EventOutput filterNot) (BooleanInput deny))
+          "setup"]
+
+@jcode-inline{filter(allow)} filters an @jcode-inline{EventOutput} so that events are only propagated further when @jcode-inline{allow.get() == true}.
+
+@jcode-inline{filter(deny)} is similar, but events are only propagated when @jcode-inline{deny.get() == false}.
+
+@jcode{
+    EventOutput maybe_blow_up_world = blow_up_world.filter(has_authorization);
+    // then this would be equivalent:
+    maybe_blow_up_world.event();
+    // to this:
+    if (has_authorization.get()) {
+        blow_up_world.event();
+    }
+}
+
+@jmethod[EventOutput (EventOutput debounce) (long minimumMilliseconds) "setup"]
+
+Debouncing limits how often an event can occur, such that if an event occurs a short time after another event, it will be ignored. The debouncing time is given by @jcode-inline{minimumMilliseconds}, which is the minimum number of milliseconds after one event before another event can pass through.
+
+This is used to handle buttons, switches, or sensors that tend to "bounce" and trigger multiple times when you press them once.
+
+The timeout is relative to the last event that was passed through; events that are ignored do not delay the timeout. This way, if an event occurs repeatedly at a period smaller than @jcode-inline{minimumMilliseconds}, there will be about one event every @jcode-inline{minimumMilliseconds}.
+
+@jmethod[CancelOutput (EventOutput on) (EventInput when) "setup"]
+
+This is the same as @jcode-inline{send}, but in the opposite direction.
+
+@jcode{
+    EventInput a;
+    EventOutput b;
+    // these are equivalent:
+    a.send(b);
+    b.on(a);
+}
+
+@jfield[EventOutput static (EventOutput ignored) "setup"]
+
+This @jcode-inline{EventOutput} ignores all events sent to it.
+
+@jcode{
+    EventOutput.ignored.event();
+    // is equivalent to doing absolutely nothing.
+}
+
+@subsubsection{Transformations of EventInputs}
+
+@jmethod[EventInput (EventInput or) (EventInput other) "setup"]
+
+This is an @jcode-inline{EventInput} that is fired whenever either of the @jcode-inline{EventInput}s are fired.
+
+@jcode{
+    EventInput c = a.or(b);
+    // this is equivalent:
+    c.send(output);
+    // to:
+    a.send(output);
+    b.send(output);
+}
+
+@jmethod*[(EventInput (EventInput and) (BooleanInput allow))
+          (EventInput (EventInput andNot) (BooleanInput deny))
+          "setup"]
+
+This is an @jcode-inline{EventInput} limited to only firing when @jcode-inline{allow.get() == true} or @jcode-inline{deny.get() == false}, depending on which version you use.
+
+So, each time that the original @jcode-inline{EventInput} fires, @jcode-inline{allow} or @jcode-inline{deny} is polled, and if the value is the expected value, the result @jcode-inline{EventInput} fires.
+
+@jcode{
+    EventInput c = a.and(b);
+    // this is equivalent:
+    c.send(output);
+    // to:
+    a.send(output.filter(b));
+}
+
+@jmethod[EventInput (EventInput debounced) (long minimumMilliseconds) "setup"]
+
+Debouncing limits how often an event can occur, such that if an event occurs a short time after another event, it will be ignored. The debouncing time is given by @jcode-inline{minimumMilliseconds}, which is the minimum number of milliseconds after one event before another event can pass through.
+
+This is used to handle buttons, switches, or sensors that tend to "bounce" and trigger multiple times when you press them once.
+
+The timeout is relative to the last event that was passed through; events that are ignored do not delay the timeout. This way, if an event occurs repeatedly at a period smaller than @jcode-inline{minimumMilliseconds}, there will be about one event every @jcode-inline{minimumMilliseconds}.
+
+@jfield[EventInput static (EventInput never) "setup"]
+
+This is an EventInput that never occurs.
+
+@jcode{
+    EventInput.never.send(output);
+    // is equivalent to doing absolutely nothing!
+}
+
+@subsubsection{Transformations of BooleanOutputs}
+
+@jmethod[BooleanOutput (BooleanOutput invert) "setup"]
+
+This is an inverted version of the original @jcode-inline{BooleanOutput}.
+
+@jcode{
+    BooleanOutput inv = a.invert();
+    // so then this is equivalent
+    inv.set(false);
+    // to this:
+    a.set(true);
+}
+
+@jmethod[BooleanOutput (BooleanOutput combine) (BooleanOutput other) "setup"]
+
+This combines two @jcode-inline{BooleanOutput}s into a single @jcode-inline{BooleanOutput}, so that setting the result to a value would set both of the original outputs to that value.
+
+@jcode{
+    BooleanOutput merged = a.combine(b);
+    // then this would be equivalent:
+    merged.set(true);
+    // to this:
+    a.set(true);
+    b.set(true);
+}
+
+@jmethod[BooleanOutput (BooleanOutput limitUpdatesTo) (EventInput update) "setup"]
+
+This limits a @jcode-inline{BooleanOutput} such that changes in its value propagate when, and only when, @jcode-inline{update} is fired.
+
+@jcode{
+    EventCell b = new EventCell();
+    BooleanOutput c = a.limitUpdatesTo(b);
+    // ...
+    c.set(true); // does not modify a
+    b.event(); // until this point!
+}
+
+@jmethod*[(EventOutput (BooleanOutput eventSet) (boolean value))
+          (EventOutput (BooleanOutput eventSet) (BooleanInput value)) "setup"]
+
+This provides an @jcode-inline{EventOutput} that sets this @jcode-inline{BooleanOutput} to some value, either a constant value or a value fetched in the moment from a @jcode-inline{BooleanInput}.
+
+@jcode{
+    EventOutput o = a.eventSet(true);
+    // and then:
+    o.event();
+    // is equivalent to:
+    a.set(true);
+}
+
+With a @jcode-inline{BooleanInput} parameter:
+
+@jcode{
+    EventOutput o = a.eventSet(input);
+    // and then:
+    o.event();
+    // is equivalent to:
+    a.set(input.get());
+}
+
+@jmethod*[(void (BooleanOutput setWhen) (boolean value) (EventInput when))
+          (void (BooleanOutput setWhen) (BooleanInput value) (EventInput when))
+          (void (BooleanOutput setTrueWhen) (EventInput when))
+          (void (BooleanOutput setFalseWhen) (EventInput when))
+          "setup"]
+
+When @jcode-inline{when} fires, this @jcode-inline{BooleanOutput} will be set to @jcode-inline{value} or @jcode-inline{value.get()}, depending on type.
+
+In the case of @jcode-inline{setTrueWhen(when)} or @jcode-inline{setFalseWhen(when)}, the boolean given in the name takes the place of @jcode-inline{value}.
+
+@jcode{
+    EventCell event = new EventCell();
+    output.setWhen(true, event);
+    // and then:
+    event.event();
+    // is equivalent to:
+    output.set(true);
+}
+
+With a @jcode-inline{BooleanInput} parameter:
+
+@jcode{
+    EventCell event = new EventCell();
+    output.setWhen(input, event);
+    // and then:
+    event.event();
+    // is equivalent to:
+    output.set(input.get());
+}
+
+With a constant name:
+
+@jcode{
+    EventCell event = new EventCell();
+    output.setFalseWhen(event);
+    // and then:
+    event.event();
+    // is equivalent to:
+    output.set(false);
+}
+
+@jmethod[BooleanOutput static (BooleanOutput polarize) (EventOutput toFalse) (EventOutput toTrue) "setup"]
+
+This combines two @jcode-inline{EventOutput}s into a @jcode-inline{BooleanOutput}.
+When the value sent to the @jcode-inline{BooleanOutput} changes to @jcode-inline{true}, @jcode-inline{toTrue} will be fired, and when it changes to @jcode-inline{false}, @jcode-inline{toFalse} will be fired.
+
+@jcode{
+    BooleanOutput b = BooleanOutput.polarize(forFalse, forTrue);
+    // and then:
+    b.set(true);
+    // would be equivalent to:
+    forTrue.event();
+    // IF b was last set to false.
+}
+
+@jcode{
+    BooleanOutput b = BooleanOutput.polarize(forFalse, forTrue);
+    // ...
+    b.set(true);
+    // and then a subsequent
+    b.set(true);
+    // would be equivalent to doing nothing.
+}
+
+@jmethod*[(BooleanOutput (BooleanOutput filter) (BooleanInput allow))
+          (BooleanOutput (BooleanOutput filterNot) (BooleanInput deny)) "setup"]
+
+@jcode-inline{filter} filters a @jcode-inline{BooleanOutput} so that it only changes when @jcode-inline{allow.get() == true}.
+
+@jcode-inline{filterNot} filters a @jcode-inline{BooleanOutput} so that it only changes when @jcode-inline{deny.get() == false}.
+
+As long as @jcode-inline{allow.get() == true}, each change to the returned @jcode-inline{BooleanOutput} will modify the original @jcode-inline{BooleanOutput}.
+
+When @jcode-inline{allow} changes to @jcode-inline{false}, the current value is preserved.
+
+As long as @jcode-inline{allow.get() == false}, each change to the returned @jcode-inline{BooleanOutput} will be remembered, but not propagated.
+
+When @jcode-inline{allow} changes to @jcode-inline{true}, the last remembered value will be propagated.
+
+@jcode{
+    BooleanOutput filtered = original.filter(allow);
+    // ...
+    allow.set(true);
+    filtered.set(true); // equivalent to original.set(true);
+    filtered.set(false); // equivalent to original.set(false);
+    filtered.set(true); // equivalent to original.set(true);
+    allow.set(false);
+    filtered.set(false); // does nothing
+    filtered.set(true); // does nothing
+    filtered.set(false); // does nothing
+    allow.set(true); // now does original.set(false);
+}
+
+@jcode-inline{original.filterNot(deny)} is equivalent to @jcode-inline{original.filter(deny.not())}.
+
+@jfield[BooleanOutput static (BooleanOutput ignored) "setup"]
+
+This is a BooleanOutput that ignores all values sent to it.
+
+@jcode{
+    BooleanOutput.ignored.set(false);
+    // is equivalent to absolutely nothing!
+}
+
+@subsubsection{Transformations of BooleanInputs}
+
+@jfield[BooleanInput static (BooleanInput alwaysTrue) "setup"]
+
+A @jcode-inline{BooleanInput} that is always @jcode-inline{true} and never changes.
+
+@jfield[BooleanInput static (BooleanInput alwaysFalse) "setup"]
+
+A @jcode-inline{BooleanInput} that is always @jcode-inline{false} and never changes.
+
+@jmethod[BooleanInput static (BooleanInput always) (boolean value) "setup"]
+
+A @jcode-inline{BooleanInput} that is always @jcode-inline{value} and never changes.
+
+@jmethod[BooleanInput (BooleanInput not) "setup"]
+
+Provides a @jcode-inline{BooleanInput} that is always the inverse of the original @jcode-inline{BooleanInput}.
+
+This means that @jcode-inline{input.not().get() == !input.get()}.
+
+@jmethod[BooleanInput (BooleanInput and) (BooleanInput b) "setup"]
+
+Provides a @jcode-inline{BooleanInput} that is @jcode-inline{true} if and only if both @jcode-inline{BooleanInput}s are @jcode-inline{true}.
+
+This means that @jcode-inline{a.and(b).get() == (a.get() && b.get())}.
+
+@jmethod[BooleanInput (BooleanInput andNot) (BooleanInput b) "setup"]
+
+@jcode-inline{a.andNot(b)} is equivalent to @jcode-inline{a.and(b.not()}.
+
+@jmethod[BooleanInput (BooleanInput xor) (BooleanInput b) "setup"]
+
+Provides a @jcode-inline{BooleanInput} that is @jcode-inline{true} when one of the @jcode-inline{BooleanInput}s is @jcode-inline{true} and the other is @jcode-inline{false}.
+
+This means that @jcode-inline{a.and(b).get() == (a.get() ^ b.get())}.
+
+@jmethod[BooleanInput (BooleanInput or) (BooleanInput b) "setup"]
+
+Provides a @jcode-inline{BooleanInput} that is @jcode-inline{true} if either of the @jcode-inline{BooleanInput}s are @jcode-inline{true}.
+
+This means that @jcode-inline{a.and(b).get() == (a.get() || b.get())}.
+
+@jmethod[BooleanInput (BooleanInput orNot) (BooleanInput b) "setup"]
+
+@jcode-inline{a.orNot(b)} is equivalent to @jcode-inline{a.or(b.not())}.
+
+@jmethod*[(EventInput (BooleanInput onPress))
+          (EventInput (BooleanInput onRelease))
+          (EventInput (BooleanInput onChange)) "setup"]
+
+@jcode-inline{onPress} provides a @jcode-inline{EventInput} that is produced whenever this @jcode-inline{BooleanInput} changes from @jcode-inline{false} to @jcode-inline{true}.
+
+@jcode-inline{onRelease} is the same, but for when @jcode-inline{true} changes to @jcode-inline{false}.
+
+@jcode-inline{onChange} is similar, but happens whenever any change occurs.
+
+@jcode{
+    BooleanCell input = new BooleanCell(false);
+    EventInput press = input.onPress();
+    EventInput release = input.onRelease();
+    EventInput change = input.onChange();
+    // ...
+    input.set(true);  // press fires; change fires
+    input.set(false); // release fires; change fires
+    input.set(false);    // nothing happens
+    input.set(true);  // press fires; change fires
+    input.set(true);    // nothing happens
+    input.set(false); // release fires; change fires
+    input.set(true);  // press fires; change fires
+}
+
+@jmethod*[(FloatInput (BooleanInput toFloat) (float off) (float on))
+          (FloatInput (BooleanInput toFloat) (float off) (FloatInput on))
+          (FloatInput (BooleanInput toFloat) (FloatInput off) (float on))
+          (FloatInput (BooleanInput toFloat) (FloatInput off) (FloatInput on))
+          "setup"]
+
+@jcode-inline{toFloat} provides a @jcode-inline{FloatInput} with a value selected from one of two other @jcode-inline{float}s or @jcode-inline{FloatInput}s.
+
+@jcode{
+    BooleanCell input = new BooleanCell(false);
+    FloatInput converted = input.toFloat(0.0f, 0.75f);
+    // ...
+
+    // converted is 0.0
+    input.set(true);
+    // converted is 0.75
+    input.set(false);
+    // converted is 0.0
+}
+
+@jmethod*[(BooleanInput (BooleanInput filterUpdates) (BooleanInput allow))
+          (BooleanInput (BooleanInput filterUpdatesNot) (BooleanInput deny))
+          "setup"]
+
+@jcode-inline{filterUpdates} provides a @jcode-inline{BooleanInput} that follows the value of the original @jcode-inline{BooleanInput} while @jcode-inline{allow.get() == true}, and holds the last value while @jcode-inline{allow.get() == false}.
+
+@jcode-inline{a.filterUpdatesNot(b)} is equivalent to @jcode-inline{a.filterUpdates(b.not())}.
+
+@jcode{
+    BooleanCell unlocked = new BooleanCell();
+    BooleanInput lockable = original.filterUpdates(unlocked);
+    // ...
+    unlocked.set(true);
+
+    original.set(true);  // lockable is now true
+    original.set(false); // lockable is now false
+    original.set(true);  // lockable is now true
+    original.set(false); // lockable is now false
+    original.set(true);  // lockable is now true
+
+    unlocked.set(false); // lockable is still true
+
+    original.set(false); // lockable is still true
+    original.set(true);  // lockable is still true
+    original.set(false); // lockable is still true
+
+    unlocked.set(true);  // lockable is now false
+
+    original.set(true);  // lockable is now true
+    original.set(false); // lockable is now false
+
+    unlocked.set(false); // lockable is still false
+    original.set(true);  // lockable is still false
+}
+
+@subsubsection{Transformations of FloatOutputs}
+
+@jmethod[FloatOutput (FloatOutput negate) "setup"]
+
+This is an negated version of the original @jcode-inline{FloatOutput}.
+
+@jcode{
+    FloatOutput inv = a.negate();
+    // so then this is equivalent
+    inv.set(1.0f);
+    // to this:
+    a.set(-1.0f);
+}
+
+@jmethod[FloatOutput (FloatOutput combine) (FloatOutput other) "setup"]
+
+This combines two @jcode-inline{FloatOutput}s into a single @jcode-inline{FloatOutput}, so that setting the result to a value would set both of the original outputs to that value.
+
+@jcode{
+    FloatOutput merged = a.combine(b);
+    // then this would be equivalent:
+    merged.set(0.3f);
+    // to this:
+    a.set(0.3f);
+    b.set(0.3f);
+}
+
+@jmethod*[(EventOutput (FloatOutput eventSet) (float value))
+          (EventOutput (FloatOutput eventSet) (FloatInput value)) "setup"]
+
+This provides an @jcode-inline{EventOutput} that sets this @jcode-inline{FloatOutput} to some value, either a constant value or a value fetched in the moment from a @jcode-inline{FloatInput}.
+
+@jcode{
+    EventOutput o = a.eventSet(0.7f);
+    // and then:
+    o.event();
+    // is equivalent to:
+    a.set(0.7f);
+}
+
+With a @jcode-inline{FloatInput} parameter:
+
+@jcode{
+    EventOutput o = a.eventSet(input);
+    // and then:
+    o.event();
+    // is equivalent to:
+    a.set(input.get());
+}
+
+@jmethod*[(void (FloatOutput setWhen) (float value) (EventInput when))
+          (void (FloatOutput setWhen) (FloatInput value) (EventInput when))
+          "setup"]
+
+When @jcode-inline{when} fires, this @jcode-inline{FloatOutput} will be set to @jcode-inline{value} or @jcode-inline{value.get()}, depending on type.
+
+@jcode{
+    EventCell event = new EventCell();
+    output.setWhen(0.3f, event);
+    // and then:
+    event.event();
+    // is equivalent to:
+    output.set(0.3f);
+}
+
+With a @jcode-inline{FloatInput} parameter:
+
+@jcode{
+    EventCell event = new EventCell();
+    output.setWhen(input, event);
+    // and then:
+    event.event();
+    // is equivalent to:
+    output.set(input.get());
+}
+
+@jmethod[FloatOutput (FloatOutput outputDeadzone) (float deadzone) "setup"]
+
+Provides a @jcode-inline{FloatOutput} whose values go through a deadzone filter before reaching the original @jcode-inline{FloatOutput}.
+
+@margin-note{Usually, you want to apply deadzones on your inputs rather than outputs. See @jcode-inline{FloatInput.$deadzone} for the equivalent @jcode-inline{FloatInput} version of this method.}
+
+The idea of a deadzone is that it chops out values close to zero.
+
+Usually, a centered Joystick gives values of something like 0.047, not 0.000. You often want to interpret this as zero, because - for example - you usually might not want motors to move in this case.
+
+By using a deadzone of 0.1, any values from around -0.09999999 to around 0.09999999 are converted to exactly zero.
+
+@jmethod[FloatOutput (FloatOutput addRamping) (float limit) (EventInput updateWhen) "setup"]
+
+Adds a ramping layer on top of a @jcode-inline{FloatOutput}.
+
+The idea of ramping is that immediately changing from, for example, 0 feet per second to 16 feet per second can be very stressing on a robot's drivetrain - or other similar components. You usually want to "ramp up" to the desired speed, for example at four feet per second per second.
+
+You configure ramping with a maximum delta and an event to update ramping. The idea is that whenever @jcode-inline{updateWhen} is fired, the actual output is moved closer to the most recent target value. The maximum amount by which it can change is @jcode-inline{limit}.
+
+A recommended ramping setup, in absence of actual testing, is @jcode-inline{addRamping(0.1f, FRC.constantPeriodic)}. Since @jcode-inline{FRC.constantPeriodic} is a ten-millisecond loop, this means that it takes 100 milliseconds to go from stopped to full speed. You may need to tweak this lower or higher based on actual testing.
+
+@jmethod[FloatOutput (FloatOutput viaDerivative) "setup"]
+
+This provides a @jcode-inline{FloatOutput} such that the derivatives of the data sent to it are sent to the original @jcode-inline{FloatOutput}.
+
+@margin-note{You probably want to use @jcode-inline{FloatInput.$derivative} instead. It usually makes more sense.}
+
+For those of you who don't know calculus, this essentially converts a position to a speed. So you could send the total count of encoder ticks through @jcode-inline{viaDerivative} and you would get the encoder speed.
+
+@jcode{
+    FloatCell speed = new FloatCell();
+    encoder.send(speed.viaDerivative());
+}
+
+@bold{WARNING}: There is a bug in the implementation that is very hard to solve. Usually, a sensor position "wiggles" slightly due to measurement noise. However, if this doesn't happen, the derivative doesn't know when to update the speed, and the speed will perpetually be the last measured speed.
+It's hard to find a way to fix this, but we're working on it. There is a workaround:
+
+@jcode{
+    FloatCell speed = new FloatCell();
+    speed.viaDerivative().setWhen(encoder, FRC.sensorPeriodic);
+}
+
+@jmethod*[(FloatOutput (FloatOutput filter) (FloatInput allow))
+          (FloatOutput (FloatOutput filterNot) (FloatInput deny)) "setup"]
+
+@jcode-inline{filter} filters a @jcode-inline{FloatOutput} so that it only changes when @jcode-inline{allow.get() == true}.
+
+@jcode-inline{filterNot} filters a @jcode-inline{FloatOutput} so that it only changes when @jcode-inline{deny.get() == false}.
+
+As long as @jcode-inline{allow.get() == true}, each change to the returned @jcode-inline{FloatOutput} will modify the original @jcode-inline{FloatOutput}.
+
+When @jcode-inline{allow} changes to @jcode-inline{false}, the current value is preserved.
+
+As long as @jcode-inline{allow.get() == false}, each change to the returned @jcode-inline{FloatOutput} will be remembered, but not propagated.
+
+When @jcode-inline{allow} changes to @jcode-inline{true}, the last remembered value will be propagated.
+
+@jcode{
+    FloatOutput filtered = original.filter(allow);
+    // ...
+    allow.set(true);
+    filtered.set(0.3f); // equivalent to original.set(0.3f);
+    filtered.set(0.0f); // equivalent to original.set(0.0f);
+    filtered.set(0.6f); // equivalent to original.set(0.6f);
+    allow.set(false);
+    filtered.set(0.3f); // does nothing
+    filtered.set(0.0f); // does nothing
+    filtered.set(0.5f); // does nothing
+    allow.set(true); // now does original.set(0.5f);
+}
+
+@jcode-inline{original.filterNot(deny)} is equivalent to @jcode-inline{original.filter(deny.not())}.
+
+@jmethod*[(BooleanOutput (FloatOutput fromBoolean) (float off) (float on))
+          (BooleanOutput (FloatOutput fromBoolean) (float off) (FloatInput on))
+          (BooleanOutput (FloatOutput fromBoolean) (FloatInput off) (float on))
+          (BooleanOutput (FloatOutput fromBoolean) (FloatInput off) (FloatInput on))
+          "setup"]
+
+@jcode-inline{fromBoolean} provides a @jcode-inline{BooleanOutput} that controls a @jcode-inline{FloatOutput} with a value selected from one of two @jcode-inline{float}s or @jcode-inline{FloatInput}s.
+
+@jcode{
+    FloatCell output = new FloatCell(0.3f);
+    BooleanOutput converted = output.fromBoolean(0.0f, 0.75f);
+    // ...
+
+    // converted is 0.3
+    converted.set(true);
+    // converted is 0.75
+    converted.set(false);
+    // converted is 0.0
+    converted.set(true);
+    // converted is 0.75
+    converted.set(false);
+    // converted is 0.0
+}
+
+@jfield[FloatOutput static (FloatOutput ignored) "setup"]
+
+This is a FloatOutput that ignores all values sent to it.
+
+@jcode{
+    FloatOutput.ignored.set(1.0f);
+    // is equivalent to absolutely nothing!
+}
+
+@subsubsection{Transformations of FloatInputs}
+
+@jmethod[FloatInput static (FloatInput always) (float value) "setup"]
+
+Provides a @jcode-inline{FloatInput} that is always equal to @jcode-inline{value} and never changes.
+
+@jcode{
+    FloatInput i = FloatInput.always(17.0f);
+    // ...
+    i.get(); // 17.0f
+}
+
+@jfield[FloatInput static (FloatInput zero) "setup"]
+
+A @jcode-inline{FloatInput} that is always equal to zero. Equivalent to @jcode-inline{FloatInput.always(0)}.
+
+@jcode{
+    FloatInput i = FloatInput.zero;
+    // ...
+    i.get(); // 0.0f
+}
+
+@jmethod*[(FloatInput (FloatInput plus) (FloatInput other))
+          (FloatInput (FloatInput plus) (float other))
+          (FloatInput (FloatInput minus) (FloatInput other))
+          (FloatInput (FloatInput minus) (float other))
+          (FloatInput (FloatInput minusRev) (FloatInput other))
+          (FloatInput (FloatInput minusRev) (float other))
+          (FloatInput (FloatInput multipliedBy) (FloatInput other))
+          (FloatInput (FloatInput multipliedBy) (float other))
+          (FloatInput (FloatInput dividedBy) (FloatInput other))
+          (FloatInput (FloatInput dividedBy) (float other))
+          (FloatInput (FloatInput dividedByRev) (FloatInput other))
+          (FloatInput (FloatInput dividedByRev) (float other))
+          "setup"]
+
+These arithmetic methods allow you to perform arithmetic on the values of @jcode-inline{FloatInput}s.
+
+For example, @jcode-inline{a.plus(b)} has the value of @jcode-inline{a.get() + b.get()} or @jcode-inline{a.get() + b} depending on which version you use.
+
+The @jcode-inline{Rev} methods reverse the order of the operands. Since addition and multiplication are commutative, @jcode-inline{plusRev} and @jcode-inline{multipliedByRev} are unnecessary and do not exist.
+
+@jcode{
+    a.plus(b) // a + b
+    a.minus(b) // a - b
+    a.minusRev(b) // b - a
+    a.multipliedBy(b) // a * b
+    a.dividedBy(b) // a / b
+    a.dividedByRev(b) // b / a
+}
+
+An example:
+
+@jcode{
+    FloatInput real_drive_speed = original_drive_speed.multipliedBy(is_kid_mode.toFloat(0.5f, 1.0f));
+    // and then:
+    real_drive_speed.get()
+    // is either
+    original_drive_speed.get() * 1.0f
+    // or
+    original_drive_speed.get() * 0.5f
+}
+
+@jmethod*[(BooleanInput (FloatInput atLeast) (float minimum))
+          (BooleanInput (FloatInput atLeast) (FloatInput minimum))
+          (BooleanInput (FloatInput atMost) (float maximum))
+          (BooleanInput (FloatInput atMost) (FloatInput maximum))
+          (BooleanInput (FloatInput outsideRange) (float minimum) (float maximum))
+          (BooleanInput (FloatInput outsideRange) (float minimum) (FloatInput maximum))
+          (BooleanInput (FloatInput outsideRange) (FloatInput minimum) (float maximum))
+          (BooleanInput (FloatInput outsideRange) (FloatInput minimum) (FloatInput maximum))
+          (BooleanInput (FloatInput inRange) (float minimum) (float maximum))
+          (BooleanInput (FloatInput inRange) (float minimum) (FloatInput maximum))
+          (BooleanInput (FloatInput inRange) (FloatInput minimum) (float maximum))
+          (BooleanInput (FloatInput inRange) (FloatInput minimum) (FloatInput maximum))
+          "setup"]
+
+These comparison methods allow you to compare a channel against fixed or channel-based values.
+
+@jcode-inline{a.atLeast(b)} has the value of @jcode-inline{a.get() >= b}.
+@jcode-inline{a.atMost(b)} has the value of @jcode-inline{a.get() <= b}.
+@jcode-inline{a.outsideRange(b,c)} has the value of @jcode-inline{a.get() < b || a.get() > c}.
+@jcode-inline{a.inRange(b,c)} has the value of @jcode-inline{b <= a.get() && a.get() <= c}.
+
+@jcode{
+    BooleanInput low_on_pressure = pressure.atMost(40); // we want at least 40 psi of 120 max psi
+    // and then
+    low_on_pressure.get()
+    // is equivalent to:
+    pressure.get() <= 40
+}
+
+@jmethod[FloatInput (FloatInput negated) "setup"]
+
+Provides a @jcode-inline{FloatInput} that is the negated version of this @jcode-inline{FloatInput}.
+
+@jcode{
+    FloatInput negated = original.negated();
+    // and then:
+    negated.get()
+    // is equivalent to
+    -original.get()
+}
+
+@jmethod[EventInput (FloatInput onChange) "setup"]
+
+Provides an @jcode-inline{EventInput} that fires whenever this @jcode-inline{FloatInput} changes by any amount.
+
+@jcode{
+    FloatCell cell = new FloatCell(0);
+    EventInput change = cell.onChange();
+    // ...
+    cell.set(3.2f); // causes change to be produced
+    cell.set(3.2f); // nothing
+    cell.set(0.0f); // causes change to be produced
+}
+
+@jmethod[EventInput (FloatInput onChangeBy) (float magnitude) "setup"]
+
+Provides an @jcode-inline{EventInput} that fires whenever this @jcode-inline{FloatInput} changes by at least @jcode-inline{magnitude} from the last time that it changed.
+
+@jcode{
+    FloatCell cell = new FloatCell(0);
+    EventInput change = cell.onChangeBy(1.0f);
+    // ...
+    cell.set(1.1f); // change fires once
+    cell.set(30.0f); // change fires once
+    cell.set(29.9f); // no fire
+    cell.set(29.1f); // no fire
+    cell.set(29.0f); // change fires once (because it is exactly one less than 30.0f)
+    cell.set(29.9f); // no fire
+    cell.set(28.1f); // no fire
+    cell.set(27.9f); // change fires once
+}
+
+@jmethod[FloatInput (FloatInput deadzone) (float deadzone) "setup"]
+
+Provides a @jcode-inline{FloatInput} with the value of the original @jcode-inline{FloatInput}, but with a deadzone applied.
+
+The idea of a deadzone is that it chops out values close to zero.
+
+Usually, a centered Joystick gives values of something like 0.047, not 0.000. You often want to interpret this as zero, because - for example - you usually might not want motors to move in this case.
+
+By using a deadzone of 0.1, any values from around -0.09999999 to around 0.09999999 are converted to exactly zero.
+
+@jcode{
+    FloatInput deadzoned = original.deadzone(0.1f);
+    // ...
+    original.set(1.0f); // deadzoned is now 1.0f
+    original.set(0.1f); // deadzoned is now 0.1f
+    original.set(0.0999f); // deadzoned is now 0.0f
+    original.set(0.05f); // deadzoned is still 0.0f
+    original.set(0.0f); // deadzoned is still 0.0f
+    original.set(-0.05f); // deadzoned is now 0.0f
+    original.set(-0.0999f); // deadzoned is still 0.0f
+    original.set(-0.1f); // deadzoned is now -0.1f
+    original.set(-1.0f); // deadzoned is now -1.0f
+}
+
+@jmethod*[(FloatInput (FloatInput normalize) (float zeroV) (float oneV))
+          (FloatInput (FloatInput normalize) (float zeroV) (FloatInput oneV))
+          (FloatInput (FloatInput normalize) (FloatInput zeroV) (float oneV))
+          (FloatInput (FloatInput normalize) (FloatInput zeroV) (FloatInput oneV))
+          "setup"]
+
+Linearly maps from two configurable values to the range of zero to one. @jcode-inline{zeroV} becomes @jcode-inline{0.0f}, and @jcode-inline{oneV} becomes @jcode-inline{1}. @jcode-inline{(zeroV + oneV) / 2} would become @jcode-inline{0.5f}. This linear map extends through all of the real numbers: it is converted into simply an addition and a multiplication.
+
+You can specify two constant values, two values based on channels, or a combination of the two.
+
+If you had a pressure sensor that outputted 1.1 Volts for an empty tank, and 4.6 Volts for a full tank, you can map these to the range 0 to 1, and use them as a fraction.
+
+You could say:
+
+@jcode{
+    FloatInput sensor = /* ... */;
+    FloatInput pressureFraction = sensor.normalize(1.1f, 4.6f);
+    // pressureFraction would be 0 when the sensor's voltage is 1.1 volts,
+    // and it would be 1 when the sensor's voltage is 4.6 volts.
+    // if the sensor reported 4.8 volts, the fraction would be about 1.06.
+}
+
+@jmethod[FloatInput (FloatInput withRamping) (float limit) (EventInput updateWhen) "setup"]
+
+Adds a ramping layer on top of a @jcode-inline{FloatInput}.
+
+The idea of ramping is that immediately changing from, for example, 0 feet per second to 16 feet per second can be very stressing on a robot's drivetrain - or other similar components. You usually want to "ramp up" to the desired speed, for example at four feet per second per second.
+
+You configure ramping with a maximum delta and an event to update ramping. The idea is that whenever @jcode-inline{updateWhen} is fired, the actual output is moved closer to the most recent target value. The maximum amount by which it can change is @jcode-inline{limit}.
+
+A recommended ramping setup, in absence of actual testing, is @jcode-inline{withRamping(0.1f, FRC.constantPeriodic)}. Since @jcode-inline{FRC.constantPeriodic} is a ten-millisecond loop, this means that it takes 100 milliseconds to go from stopped to full speed. You may need to tweak this lower or higher based on actual testing.
+
+@jmethod[EventOutput (FloatInput createRampingEvent) (float limit) (FloatOutput target) "setup"]
+
+Provides an event that performs incremental ramping based on this @jcode-inline{FloatInput} and controlling @jcode-inline{target} as an output.
+
+The idea of ramping is that immediately changing from, for example, 0 feet per second to 16 feet per second can be very stressing on a robot's drivetrain - or other similar components. You usually want to "ramp up" to the desired speed, for example at four feet per second per second.
+
+You configure ramping with a maximum delta and an event to update ramping. The idea is that whenever the returned @jcode-inline{EventOutput} is fired, the actual output is moved closer to the most recent target value. The maximum amount by which it can change is @jcode-inline{limit}.
+
+It's usually easier to use @jcode-inline{FloatInput.withRamping} or @jcode-inline{FloatOutput.addRamping}, which are easier to use.
+
+@jmethod*[(FloatInput (FloatInput filterUpdates) (BooleanInput allow))
+          (FloatInput (FloatInput filterUpdatesNot) (BooleanInput deny))
+          "setup"]
+
+@jcode-inline{filterUpdates} provides a @jcode-inline{FloatInput} that follows the value of the original @jcode-inline{FloatInput} while @jcode-inline{allow.get() == true}, and holds the last value while @jcode-inline{allow.get() == false}.
+
+@jcode-inline{a.filterUpdatesNot(b)} is equivalent to @jcode-inline{a.filterUpdates(b.not())}.
+
+@jcode{
+    BooleanCell unlocked = new BooleanCell();
+    FloatInput lockable = original.filterUpdates(unlocked);
+    // ...
+    unlocked.set(true);
+
+    original.set(5.0f);  // lockable is now 5.0f
+    original.set(2.0f);  // lockable is now 2.0f
+    original.set(-1.2f); // lockable is now -1.2f
+
+    unlocked.set(false); // lockable is still -1.2f
+
+    original.set(-0.5f); // lockable is still -1.2f
+    original.set(6.1f);  // lockable is still -1.2f
+    original.set(3.1f);  // lockable is still -1.2f
+
+    unlocked.set(true);  // lockable is now false
+
+    original.set(0.3f);  // lockable is now 0.3f
+    original.set(0.8f);  // lockable is now 0.8f
+
+    unlocked.set(false); // lockable is still false
+    original.set(1.0f);  // lockable is still 0.8f
+}
 
 @subsection{Drive Code Implementations}
 
-In progress.
+Drive Code is the part of robot code that controls the drive base in response to the state of the driver's Joystick.
+
+There are three main types of drive code:
+
+@itemlist[@item{Tank Drive}
+          @item{Extended Tank Drive}
+          @item{Arcade Drive}
+          @item{Mecanum Drive}]
+
+@jmethod[void (Drive tank) (FloatInput leftIn) (FloatInput rightIn) (FloatOutput leftOut) (FloatOutput rightOut) "setup"]
+
+This sets up tank drive code for the given axes and motors.
+
+In Tank Drive, the driver has two Joysticks or axes, which can be moved forward and back to control the sides of the robot independently: the left axis controls the left side of the robot, and the right axis controls the right side of the robot.
+
+@jcode{
+    FloatInput left_axis = FRC.joystick1.axisY();
+    FloatInput right_axis = FRC.joystick2.axisY();
+    FloatOutput left_motor = FRC.talon(0, FRC.MOTOR_FORWARD);
+    FloatOutput right_motor = FRC.talon(1, FRC.MOTOR_REVERSE);
+    // and then the key:
+    Drive.tank(left_axis, right_axis, left_motor, right_motor);
+}
+
+This method is very simple, and is equivalent to:
+
+@jcode{
+    left_axis.send(left_motor);
+    right_axis.send(right_motor);
+}
+
+@jmethod[void (Drive extendedTank) (FloatInput leftIn) (FloatInput rightIn) (FloatInput forward) (FloatOutput leftOut) (FloatOutput rightOut) "setup"]
+
+This is similar to @jcode-inline{tankDrive}, but takes an additional @jcode-inline{forward} parameter that is added to the two axes, so that it can be used for exact movement forward and backward.
+
+It is equivalent to:
+
+@jcode{
+    left_axis.plus(forward).send(left_motor);
+    right_axis.plus(forward).send(right_motor);
+}
+
+@jmethod*[(void (Drive arcade) (FloatInput sideways) (FloatInput forward) (FloatOutput leftOut) (FloatOutput rightOut))
+          (void (Drive arcade) (Joystick joystick) (FloatOutput leftOut) (FloatOutput rightOut))
+          "setup"]
+
+This sets up two axes to control the robot with Arcade Drive.
+
+Arcade Drive is also known as single-joystick drive: it allows the robot to be controlled by being pushed in any direction. Forward for forward, backward for backward, left to turn left, and right to turn right. This is done based on one axis for left-right, and one axis for forward-backward. For some, it is the most intuitive control scheme.
+
+@jcode{
+    FloatInput sideways_axis = FRC.joystick1.axisX();
+    FloatInput forward_axis = FRC.joystick1.axisY();
+    FloatOutput left_motor = FRC.talon(0, FRC.MOTOR_FORWARD);
+    FloatOutput right_motor = FRC.talon(1, FRC.MOTOR_REVERSE);
+    Drive.arcade(sideways_axis, forward_axis, left_motor, right_motor);
+}
+
+The second form of this method is the same as the first, but it uses the X and Y axis from a single Joystick.
+
+@jcode{
+    Drive.arcade(FRC.joystick1, left_motor, right_motor);
+}
+
+This piece of drive code is fairly simple, and is equivalent to:
+
+@jcode{
+    forward.plus(sideways).send(leftOut);
+    forward.minus(sideways).send(rightOut);
+}
+
+@jmethod[void (Drive mecanum) (FloatInput forward) (FloatInput strafe) (FloatInput rotate)
+         (FloatOutput leftFrontMotor) (FloatOutput leftBackMotor) (FloatOutput rightFrontMotor) (FloatOutput rightBackMotor) "setup"]
+
+This sets up Mecanum Drive on four motors with channels to control forward-backward, left-right (strafe), and left-right (rotate.)
+
+Mecanum drive works with very special wheels (mecanum wheels) to allow the robot to maneuver itself in any direction - not just forward, backward, and rotating. The code to do so is complicated, but it's all included in this method.
+
+The @jcode-inline{forward} and @jcode-inline{strafe} channels control motion in the XY plane, and the @jcode-inline{rotate} channel controls rotation.
+
+@jcode{
+    FloatInput strafe_axis = FRC.joystick1.axisX();
+    FloatInput forward_axis = FRC.joystick1.axisY();
+    FloatInput rotate_axis = FRC.joystick2.axisX();
+    // ... motors ...
+    Drive.mecanum(forward_axis, strafe_axis, rotate_axis, left_front_motor, left_back_motor, right_front_motor, right_back_motor);
+}
 
 @subsection[#:tag "autonomous"]{Autonomous and Instinct Modules}
 
-In progress.
+In autonomous mode, your code tends to need behavior somewhat different from teleoperated code.
+While control of actuators usually still needs the same dataflow setup, the sequencing required for autonomous mode is not easy to implement with dataflow.
+
+Therefore, the CCRE provides an imperative autonomous mode system, using units of imperative code called @jcode-inline{InstinctModule}s.
+
+@margin-note{An "imperative block" is the same as a flow block, but can also use methods marked as "imperative" methods, which are methods that may pause execution.}
+
+@jcode[#:box (list "setup" #f #f "imperative block")]|{
+        FRC.registerAutonomous(new $InstinctModule() {
+            @Override
+            protected void autonomousMain() throws Throwable {
+                // Autonomous code goes here.
+            }
+        });
+}|
+
+This is the basic structure of your autonomous code, for when you only need a single sequence. Your imperative code goes in the internal block.
+The important difference about code here is that it is allowed to "block", or wait for an event to occur. Normal flow mode code cannot wait at all.
+To allow this to work, InstinctModule bodies run in separate threads.
+
+When autonomous mode ends, your code will get aborted by an @jcode-inline{AutonomousModeOverException} or an @jcode-inline{InterruptedException}. Do not attempt to handle these exceptions.
+
+An example of an autonomous mode:
+
+@jcode|{
+        FRC.registerAutonomous(new InstinctModule() {
+            @Override
+            protected void autonomousMain() throws Throwable {
+                leftMotor.set(0.5f);
+                rightMotor.set(0.5f);
+                waitForTime(5000); // milliseconds
+                leftMotor.set(0.0f);
+                rightMotor.set(0.0f);
+            }
+        });
+}|
+
+This example autonomous mode runs drive motors forward at half speed for five seconds.
+
+@subsubsection{Autonomous methods}
+
+There are a variety of methods available that let your code wait for various conditions. While these methods are waiting, the rest of your code (that is outside of this @jcode-inline{InstinctModule}) will continue normally.
+
+These methods can only be used from within an InstinctModule.
+
+@jmethod*[(void (waitForTime) (long milliseconds))
+          (void (waitForTime) (FloatInput seconds))
+          "imperative"]
+
+This method waits for @jcode-inline{milliseconds} milliseconds to elapse before continuing. Note that most waits, especially short waits, will be overapproximated: they will in practice wait slightly longer than you expect.
+
+The second form, which takes a @jcode-inline{FloatInput}, is approximately equivalent to @jcode-inline{waitForTime(seconds.get() * 1000)}. It exists entirely for convenience when using variable delays. Note that any changes to the value of the @jcode-inline{FloatInput} that occur while this method is waiting will be ignored.
+
+@jcode{
+    piston.set(true);
+    waitForTime(1000); // 1000 milliseconds = one second
+    piston.set(false);
+}
+
+This example autonomous mode will extend a piston for one second, and then retract it.
+
+@jmethod*[(void (waitUntil) (BooleanInput waitFor))
+          (boolean (waitUntil) (long timeout) (BooleanInput waitFor))
+          (void (waitUntilNot) (BooleanInput waitFor))
+          (boolean (waitUntilNot) (long timeout) (BooleanInput waitFor))
+          "imperative"]
+
+@jcode-inline{waitUntil} waits until @jcode-inline{BooleanInput}'s value is @jcode-inline{true}. It is not guaranteed to resume if the value changes to @jcode-inline{true} and very quick changes back to @jcode-inline{false}.
+
+The second form of @jcode-inline{waitUntil} is similar, but will also stop waiting once @jcode-inline{timeout} seconds have ellapsed. It will return @jcode-inline{true} if the condition became true, and @jcode-inline{false} if it timed out instead.
+
+@jcode-inline{waitUntilNot} is the inverse: it waits until a @jcode-inline{BooleanInput}'s value is @jcode-inline{false}.
+
+@jcode{
+    drive_motors.set(0.3f);
+    waitUntil(bumper_sensor);
+    drive_motors.set(0.0f);
+}
+
+Given that @jcode-inline{bumper_sensor} has been defined outside of the InstinctModule as a touch sensor on the robot, this example autonomous mode will drive forward until it hits something.
+
+@jmethod[void (waitForEvent) (EventInput source) "imperative"]
+
+This method waits for a specific event to fire. If the event fires before this method is called, it will be ignored.
+
+@jcode{
+    drive_motors.set(0.3f);
+    waitForEvent(stop_button);
+    drive_motors.set(0.0f);
+}
+
+@jmethod*[(int (waitUntilOneOf) (BooleanInput waitFor) #:vararg)
+          (int (waitUntilOneOf) (long timeout) (BooleanInput waitFor) #:vararg)
+          "imperative"]
+
+This method waits until one of a list of @jcode-inline{BooleanInput}s becomes @jcode-inline{true}.
+It also takes an optional timeout after which it will return regardless of the values of any of the @jcode-inline{BooleanInput}s.
+
+It returns the index of the @jcode-inline{BooleanInput} that became @jcode-inline{true}, starting at zero, or @jcode-inline{-1} on a timeout.
+
+@jcode{
+    switch (waitUntilOneOf(5000, left_bumper, right_bumper)) {
+    case -1: // timeout
+        // ...
+        break;
+    case 0: // left_bumper
+        // ...
+        break;
+    case 1: // right_bumper
+        // ...
+        break;
+    }
+}
+
+@jmethod*[(void (waitUntilAtLeast) (FloatInput waitFor) (float minimum))
+          (void (waitUntilAtMost) (FloatInput waitFor) (float maximum))
+          "imperative"]
+
+These methods wait for a @jcode-inline{FloatInput} to satisfy a particular comparison: either at least or at most some value.
+
+@jcode{
+    waitUntilAtLeast(air_pressure, 70.0f); // wait for at least 70 psi in tank
+}
+
+@subsubsection{A Dire Warning}
+
+Note, very specifically, that you cannot use setup mode methods inside an @jcode-inline{InstinctModule}! This means that the following is NOT ALLOWED:
+
+@jcode|{
+        FRC.registerAutonomous(new InstinctModule() {
+            @Override
+            protected void autonomousMain() throws Throwable {
+                // ...
+                // THIS IS NOT ALLOWED. DO NOT EVER DO THIS.
+                waitUntil(some_condition.not());
+                // ...
+            }
+        });
+}|
+
+You will have major issues if you attempt to do this. Instead, try this:
+
+@jcode|{
+        BooleanInput not_some_condition = some_condition.not();
+        FRC.registerAutonomous(new InstinctModule() {
+            @Override
+            protected void autonomousMain() throws Throwable {
+                // ...
+                // This is allowed.
+                waitUntil(not_some_condition);
+                // ...
+            }
+        });
+}|
+
+In this specific case, the following would be recommended instead:
+
+@jcode|{
+        FRC.registerAutonomous(new InstinctModule() {
+            @Override
+            protected void autonomousMain() throws Throwable {
+                // ...
+                // This is recommended.
+                waitUntilNot(some_condition);
+                // ...
+            }
+        });
+}|
+
+@subsubsection{Instinct Modules outside of Autonomous}
+
+You can also use InstinctModules in other contexts besides autonomous modes, because they can be useful for semi-automatic control of parts of a robot.
+
+@jcode[#:box (list "setup" #f #f "imperative block")]|{
+        BooleanCell run_this_instinct_module = new BooleanCell(false);
+        new $InstinctModule(run_this_instinct_module) {
+            @Override
+            protected void autonomousMain() throws Throwable {
+                // Automatic code goes here.
+            }
+        });
+}|
+
+You can pass any @jcode-inline{BooleanInput} you want to the constructor, and the module will run while that @jcode-inline{BooleanInput} is @jcode-inline{true}.
+
+@jmethod[void (InstinctModule setShouldBeRunning) (BooleanInput when) "setup"]
+
+Equivalently to the previous example, you can construct an @jcode-inline{InstinctModule} without any parameters and then call @jcode-inline{setShouldBeRunning} later with the same value.
+
+This means that @jcode-inline{FRC.registerAutonomous(module)} is actually just a call to @jcode-inline{module.setShouldBeRunning}!
 
 @subsubsection{Instinct MultiModules}
 
-In progress.
+TODO: complete this section.
 
 @subsection[#:tag "hardware-access"]{Hardware Access}
 

@@ -342,7 +342,7 @@ With an Input, the users of the channel can request the present state of the cha
                 System.out.println("The light switch is flipped: " + is_flipped));
             // whenever the light switch position is changed, say so
            }|
-           @margin-note{You would probably want to use remixing constructs for this.}
+           @margin-note{You would probably want to use transforms for this.}
            @jcode|{
              // this runs once - you'd want it somewhere where it would run repeatedly.
              if (light_switch.get()) {
@@ -364,7 +364,7 @@ With an Input, the users of the channel can request the present state of the cha
                 System.out.println("The current Joystick position: " + current_position));
             // report the new position of the Joystick whenever someone moves it
            }|
-           @margin-note{This could be done with something from the Remixing toolset, which we'll see later.}
+           @margin-note{This could be done with something from the transformation toolset, which we'll see later.}
            @jcode|{
             // this runs once - you'd want it somewhere where it would run repeatedly.
             if (sewage_level.get() > 1000.0f) {
@@ -388,7 +388,7 @@ For example:
 
 See @secref["hardware-access"] below for more info on robot hardware.
 
-@subsection{Remixing channels}
+@subsection{Transforming channels}
 
 It turns out that, often, you want to do similar things with your channels.
 So, correspondingly, all channels have a variety of built-in methods to help you on your journey!
@@ -421,7 +421,7 @@ Also useful are @jcode-inline{setWhen} (along with @jcode-inline{setFalseWhen} a
   stop_motors = driving_forward.getSetEvent(false);
   }|
 
-See @secref["remixing"] for more info.
+See @secref["transforms"] for more info.
 
 @subsection{Cells}
 
@@ -1027,7 +1027,7 @@ You can call these methods to change the current state of the output. All contro
 
 You can implement an output with the above code. You can replace @jcode-inline{// do something} with the flow mode code to execute when the output is controlled.
 
-Please note that, most of the time, you shouldn't need to implement your own channels! Usually there is already an implementation for you. See @secref["remixing"].
+Please note that, most of the time, you shouldn't need to implement your own channels! Usually there is already an implementation for you. See @secref["transforms"].
 
 @subsubsection{Inputs}
 
@@ -1087,7 +1087,7 @@ The value provided by @jcode-inline{apply} will be returned by @jcode-inline{get
 Since the value only updates when one of @jcode-inline{inputs} updates, make sure that you don't access anything not included in that list.
 You can figure out most of what you need in that list by looking at the inputs you call @jcode-inline{get()} on.
 
-Please note that, most of the time, you shouldn't need to implement your own channels! Usually there is already an implementation for you. See @secref["remixing"].
+Please note that, most of the time, you shouldn't need to implement your own channels! Usually there is already an implementation for you. See @secref["transforms"].
 
 @jmethod*[(CancelOutput (EventInput onUpdate) (EventOutput target))
           (CancelOutput (BooleanInput onUpdate) (EventOutput target))
@@ -1364,7 +1364,7 @@ This sends the value to all of the outputs in the constructor arguments, in addi
     passthrough_value.send(c);
 }
 
-@subsection[#:tag "remixing"]{Remixing}
+@subsection[#:tag "transforms"]{Dataflow Transformations}
 
 In practice, most ways that you might want to transform a channel are ways that someone else has also wanted to. For example, one might convert a BooleanInput to an EventInput for when the BooleanInput becomes true. This is very useful for checking button or sensor presses.
 
@@ -1377,13 +1377,36 @@ Rather a new channel is returned by @jcode-inline{output.negate()}:
     FloatOutput negated_output = output.negate();
 }
 
-By "transformation", we mean a relationship between an existing channel and a newly-created channel.
+By "transformation", we usually mean a relationship between an existing channel and a newly-created channel, but sometimes we include things that aren't technically transformations but are similarly useful and related to channels.
 
-This section will explain various ways to "remix" a channel (aka transform a channel.)
+This section will explain various ways to transform a channel.
 
-@subsubsection{Remixings}
+@subsubsection{Transformations of EventOutputs}
 
-In progress. (TODO: make a note about mutability of channels, or rather the lack thereof.)
+@jmethod[EventOutput (EventOutput combine) (EventOutput other) "setup"]
+
+This combines two @jcode-inline{EventOutput}s into a single @jcode-inline{EventOutput}, so that firing the result would fire both of the outputs.
+
+@jcode{
+    EventOutput merged = a.combine(b);
+    // this would be equivalent:
+    merged.event();
+    // to this:
+    a.event();
+    b.event();
+}
+
+@jmethod[EventOutput (EventOutput filter) (BooleanInput allow) "setup"]
+
+This filters an @jcode-inline{EventOutput} so that events are only propagated further when @jcode-inline{allow.get() == true}.
+
+@jcode{
+    Working on this documentation...
+}
+
+IN PROGRESS.
+
+ALSO MORE SECTIONS IN PROGRESS.
 
 @subsection{Drive Code Implementations}
 

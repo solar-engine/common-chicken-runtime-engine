@@ -342,12 +342,14 @@ With an Input, the users of the channel can request the present state of the cha
                 System.out.println("The light switch is flipped: " + is_flipped));
             // whenever the light switch position is changed, say so
            }|
+           @margin-note{You would probably want to use remixing constructs for this.}
            @jcode|{
-            if (light_switch.get()) {
-                // We're wasting power!
-            } else {
-                // It's too dark in here!
-            }
+             // this runs once - you'd want it somewhere where it would run repeatedly.
+             if (light_switch.get()) {
+                 // We're wasting power!
+             } else {
+                 // It's too dark in here!
+             }
                }|}
           @item{@bold{FloatInput}: the associated value is a real number value - often, but not always, in the range of -1.0 to 1.0.
            Users can ask for the current value, and ask to be told when it changes.
@@ -364,6 +366,7 @@ With an Input, the users of the channel can request the present state of the cha
            }|
            @margin-note{This could be done with something from the Remixing toolset, which we'll see later.}
            @jcode|{
+            // this runs once - you'd want it somewhere where it would run repeatedly.
             if (sewage_level.get() > 1000.0f) {
                 // open drainage valve
             }
@@ -1011,13 +1014,13 @@ You can call these methods to change the current state of the output. All contro
 
 @margin-note{The "flow block" annotation here specifies that the code in the block starting on that line is in flow mode.}
 @jcode[#:box (list "setup" "flow block" #f "setup" "flow block" #f "setup" "flow block")]{
-  EventOutput eo = () -> {
+  $EventOutput eo = () -> {
       // do something
   };
-  BooleanOutput bo = (value) -> {
+  $BooleanOutput bo = (value) -> {
       // do something with value, a boolean
   };
-  FloatOutput eo = (value) -> {
+  $FloatOutput eo = (value) -> {
       // do something with value, a float
   };
 }
@@ -1059,17 +1062,17 @@ So, whenever the value of the input changes (for a value-based input, like @jcod
 See below (TODO: ADD REF) for @jcode-inline{CancelOutput}.
 
 @jcode[#:box (list "setup" #f "flow block" #f #f "setup" #f "flow block" #f #f "setup" #f "flow block")]{
-    EventInput new_input = new DerivedEventInput(inputs) {
+    EventInput new_input = new $DerivedEventInput(inputs) {
         protected boolean shouldProduce() {
             return /* true if an event should be produced right now */;
         }
     };
-    BooleanInput new_input = new DerivedBooleanInput(inputs) {
+    BooleanInput new_input = new $DerivedBooleanInput(inputs) {
         protected boolean apply() {
             return /* value */;
         }
     };
-    FloatInput new_input = new DerivedFloatInput(inputs) {
+    FloatInput new_input = new $DerivedFloatInput(inputs) {
         protected float apply() {
             return /* value */;
         }
@@ -1098,13 +1101,13 @@ See below (TODO: ADD REF) for @jcode-inline{CancelOutput}.
 
 @margin-note{Here, "setup block" means that the code in this block runs in setup mode.}
 @jcode[#:box (list "setup" #f "setup block" #f #f #f "setup" #f "setup block" #f #f #f #f "flow block" #f #f "setup" #f "setup block" #f #f #f #f "flow block")]{
-    EventInput input = new EventInput() {
+    EventInput input = new $EventInput() {
         public CancelOutput onUpdate(EventOutput target) {
             // set up to tell target when this input changes
             return /* a CancelOutput that cancels the connection */;
         }
     };
-    BooleanInput input = new BooleanInput() {
+    BooleanInput input = new $BooleanInput() {
         public CancelOutput onUpdate(EventOutput target) {
             // set up to tell target when this input changes
             return /* a CancelOutput that cancels the connection */;
@@ -1114,7 +1117,7 @@ See below (TODO: ADD REF) for @jcode-inline{CancelOutput}.
             return /* the current value */;
         }
     };
-    FloatInput input = new FloatInput() {
+    FloatInput input = new $FloatInput() {
         public CancelOutput onUpdate(EventOutput target) {
             // set up to tell target when this input changes
             return /* a CancelOutput that cancels the connection */;
@@ -1148,7 +1151,7 @@ You call the @jcode-inline{cancel} method to cancel whatever the @jcode-inline{C
 Note that although this class is similar to @jcode-inline{EventOutput}, it is used in the setup mode, rather than flow mode.
 
 @jcode[#:box (list "setup" "setup block")]{
-    CancelOutput cancellator = () -> {
+    $CancelOutput cancellator = () -> {
         // ... cancel whatever it is ...
     };
 }
@@ -1162,9 +1165,223 @@ This combines the CancelOutput you call it on with another CancelOutput, so that
 
 @subsubsection{Channel Cells}
 
-In progress.
+A Cell is the dataflow equivalent of a variable. In the case of a @jcode-inline{BooleanCell} or a @jcode-inline{FloatCell}, it simply holds a value that can be used as a BooleanOutput or FloatOutput (to modify the value) or as a BooleanInput or FloatInput (to read the value.) As a @jcode-inline{EventCell}, it simply propagates events through itself, and can be used as either an EventInput (to receive events) or EventOutput (to send events.)
 
-@subsubsection[#:tag "remixing"]{Remixing}
+The general idea of a channel that is both an Input and an Output is called an IO, for example @jcode-inline{BooleanIO} or @jcode-inline{EventIO}. All Cells are IOs.
+
+@jmethod*[(EventOutput (EventIO asInput))
+          (BooleanOutput (BooleanIO asInput))
+          (FloatOutput (FloatIO asInput))
+          (EventOutput (EventIO asOutput))
+          (BooleanOutput (BooleanIO asOutput))
+          (FloatOutput (FloatIO asOutput))
+          "setup"]
+
+The @jcode-inline{asInput()} and @jcode-inline{asOutput()} methods allow you to use an IO as just an Input or just an Output. Calling @jcode-inline{x.asInput()} will simply return @jcode-inline{x}, but in a variable of a different type, so this is equivalent to casting.
+
+@jcode{
+       BooleanIO x = new BooleanCell();
+       x.asInput() == x == (BooleanInput) x;
+}
+
+However, sometimes you need to force which side you use the Cell or IO as, which is why this functionality is provided.
+While you can cast, usage of @jcode-inline{asInput()} and @jcode-inline{asOutput()} is checked at compile time, so any misuses will be found before you try to run your code.
+With casting, a mistake might not be found until you run code on your robot.
+
+@jmethod*[(EventIO static (EventIO compose) (EventInput input) (EventOutput output))
+          (BooleanIO static (BooleanIO compose) (BooleanInput input) (BooleanOutput output))
+          (FloatIO static (FloatIO compose) (FloatInput input) (FloatOutput output))
+          "setup"]
+
+Sometimes, you want to combine an input and output for the same thing into a single IO. You can simply use @jcode-inline{compose(input, output)} to do this.
+
+@jmethod[void (BooleanIO toggle) "flow"]
+
+You can use @jcode-inline{toggle()} to toggle the value of a @jcode-inline{BooleanIO}.
+
+@jcode{
+    BooleanIO something = /* ... */;
+    // ...
+    something.toggle();
+    // is equivalent to
+    something.set(!something.get());
+}
+
+@jmethod[EventOutput (BooleanIO eventToggle) "setup"]
+
+You can get an event that lets you toggle the value of a @jcode-inline{BooleanIO}, as if you had called @jcode-inline{toggle}.
+
+@jcode{
+    EventInput something_happened = /* ... */;
+    BooleanIO something_controllable = /* ... */;
+    something_happened.send(something_controllable.eventToggle();
+}
+
+This would toggle @jcode-inline{something_controllable} whenever @jcode-inline{something_happened}.
+
+@jmethod[void (BooleanIO toggleWhen) (EventInput when) "setup"]
+
+This tells the @jcode-inline{BooleanIO} to toggle itself whenever @jcode-inline{when} fires.
+
+@jcode{
+    EventInput something_happened = /* ... */;
+    BooleanIO something_controllable = /* ... */;
+    something_controllable.toggleWhen(something_happened);
+}
+
+@jnew[EventCell "setup"]
+
+This lets you create a new anonymous EventIO that simply passes events through itself.
+
+@jcode{
+    EventIO passthrough_event = new EventCell();
+    // ...
+    passthrough_event.send(some_output);
+    // ...
+    some_input.send(passthrough_event);
+}
+
+@jcode[#:box "setup"]{
+    new $EventCell(EventOutput... outputs)
+}
+
+This lets you create a new anonymous EventIO that simply passes events through itself.
+
+This sends any events that occur to all of the outputs in the constructor arguments, in addition to any other places.
+
+@jcode{
+    EventIO passthrough_event = new EventCell(a, b, c);
+    // is equivalent to
+    EventIO passthrough_event = new EventCell();
+    passthrough_event.send(a);
+    passthrough_event.send(b);
+    passthrough_event.send(c);
+}
+
+@jnew[BooleanCell "setup"]
+
+This lets you create a new anonymous BooleanIO that simply stores a value. The initial value is @jcode-inline{false}.
+
+@jcode{
+    BooleanCell some_value = new BooleanIO();
+    // ...
+    some_value.send(some_output);
+    // ...
+    some_input.send(some_value);
+}
+
+@jnew[BooleanCell (boolean default) "setup"]
+
+This lets you create a new anonymous BooleanIO that simply stores a value. The initial value is @jcode-inline{default}.
+
+@jcode{
+    BooleanCell some_value = new BooleanIO(true);
+    // ...
+    some_value.send(some_output);
+    // ...
+    some_input.send(some_value);
+}
+
+@jnew[BooleanCell (boolean default) "setup"]
+
+This lets you create a new anonymous BooleanIO that simply stores a value. The initial value is @jcode-inline{default}.
+
+@jcode{
+    BooleanCell some_value = new BooleanCell(true);
+    // ...
+    some_value.send(some_output);
+    // ...
+    some_input.send(some_value);
+}
+
+@jcode[#:box "setup"]{
+    new $BooleanCell(BooleanOutput... targets);
+}
+
+This lets you create a new anonymous BooleanIO that simply stores a value.
+
+This sends the value to all of the outputs in the constructor arguments, in addition to any other places.
+
+@jcode{
+    BooleanIO passthrough_value = new BooleanCell(a, b, c);
+    // is equivalent to
+    BooleanIO passthrough_value = new BooleanCell();
+    passthrough_value.send(a);
+    passthrough_value.send(b);
+    passthrough_value.send(c);
+}
+
+@jnew[FloatCell "setup"]
+
+This lets you create a new anonymous FloatIO that simply stores a value. The initial value is @jcode-inline{0}.
+
+@jcode{
+    FloatCell some_value = new FloatIO();
+    // ...
+    some_value.send(some_output);
+    // ...
+    some_input.send(some_value);
+}
+
+@jnew[FloatCell (float default) "setup"]
+
+This lets you create a new anonymous FloatIO that simply stores a value. The initial value is @jcode-inline{default}.
+
+@jcode{
+    FloatCell some_value = new FloatIO(3.2f);
+    // ...
+    some_value.send(some_output);
+    // ...
+    some_input.send(some_value);
+}
+
+@jnew[FloatCell (float default) "setup"]
+
+This lets you create a new anonymous FloatIO that simply stores a value. The initial value is @jcode-inline{default}.
+
+@jcode{
+    FloatCell some_value = new FloatCell(0);
+    // ...
+    some_value.send(some_output);
+    // ...
+    some_input.send(some_value);
+}
+
+@jcode[#:box "setup"]{
+    new $FloatCell(FloatOutput... targets);
+}
+
+This lets you create a new anonymous FloatIO that simply stores a value.
+
+This sends the value to all of the outputs in the constructor arguments, in addition to any other places.
+
+@jcode{
+    FloatIO passthrough_value = new FloatCell(a, b, c);
+    // is equivalent to
+    FloatIO passthrough_value = new FloatCell();
+    passthrough_value.send(a);
+    passthrough_value.send(b);
+    passthrough_value.send(c);
+}
+
+@subsection[#:tag "remixing"]{Remixing}
+
+In practice, most ways that you might want to transform a channel are ways that someone else has also wanted to. For example, one might convert a BooleanInput to an EventInput for when the BooleanInput becomes true. This is very useful for checking button or sensor presses.
+
+Since these transformations appear repeatedly, the CCRE provides easy ways to perform these transformations.
+
+However, don't let the term "transformation" confuse you: when you call @jcode-inline{output.negate()}, for example, nothing changes about @jcode-inline{output}.
+Rather a new channel is returned by @jcode-inline{output.negate()}:
+
+@jcode{
+    FloatOutput negated_output = output.negate();
+}
+
+By "transformation", we mean a relationship between an existing channel and a newly-created channel.
+
+This section will explain various ways to "remix" a channel (aka transform a channel.)
+
+@subsubsection{Remixings}
 
 In progress. (TODO: make a note about mutability of channels, or rather the lack thereof.)
 

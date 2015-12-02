@@ -139,7 +139,7 @@ public class PauseTimer extends AbstractUpdatingInput implements BooleanInput, E
      * @param trigger The EventOutput to trigger.
      */
     public void triggerAtEnd(EventOutput trigger) {
-        send(BooleanOutput.onChange(trigger, null));
+        send(BooleanOutput.polarize(trigger, null));
     }
 
     /**
@@ -148,7 +148,7 @@ public class PauseTimer extends AbstractUpdatingInput implements BooleanInput, E
      * @param trigger The EventOutput to trigger.
      */
     public void triggerAtStart(EventOutput trigger) {
-        send(BooleanOutput.onChange(null, trigger));
+        send(BooleanOutput.polarize(null, trigger));
     }
 
     /**
@@ -159,6 +159,6 @@ public class PauseTimer extends AbstractUpdatingInput implements BooleanInput, E
      * @param end The EventOutput to trigger when the timer ends.
      */
     public void triggerAtChanges(EventOutput start, EventOutput end) {
-        send(BooleanOutput.onChange(end, start));
+        send(BooleanOutput.polarize(end, start));
     }
 }

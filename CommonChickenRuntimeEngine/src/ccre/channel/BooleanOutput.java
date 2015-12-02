@@ -244,7 +244,7 @@ public interface BooleanOutput {
      * @param toTrue if the output becomes true.
      * @return the output that can trigger the events.
      */
-    public static BooleanOutput onChange(final EventOutput toFalse, final EventOutput toTrue) {
+    public static BooleanOutput polarize(final EventOutput toFalse, final EventOutput toTrue) {
         if (toFalse == null && toTrue == null) {
             throw new NullPointerException("Both toFalse and toTrue are null in onChange! You can only have at most one be null.");
         }

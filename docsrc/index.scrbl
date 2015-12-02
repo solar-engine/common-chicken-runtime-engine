@@ -960,7 +960,7 @@ It's organized into the following sections:
 
 @subsection{Documentation format}
 
-The following format is used when describing a constructor that can be called:
+The following formats are used when describing constructors, methods, or fields:
 
 @jnew[BooleanCell (boolean initial_value) "setup"]
 
@@ -977,6 +977,24 @@ This method could be used, for example, as:
 @jcode|{
             BooleanInput button = /* ... some code goes here ... */;
             EventInput press = button.onPress();
+}|
+
+@jmethod[double static (Math sin) (double a) "setup"]
+
+This method could be used, for example, as:
+
+@jcode|{
+            double x = 10.0;
+            double y = Math.sin(x);
+}|
+
+@jfield[EventOutput static (EventOutput ignored) "setup"]
+
+This field could be used, for example, as:
+
+@jcode|{
+        EventOutput output = EventOutput.ignored;
+        output.event();
 }|
 
 @subsection{Flow versus Setup}
@@ -1389,22 +1407,223 @@ This combines two @jcode-inline{EventOutput}s into a single @jcode-inline{EventO
 
 @jcode{
     EventOutput merged = a.combine(b);
-    // this would be equivalent:
+    // then this would be equivalent:
     merged.event();
     // to this:
     a.event();
     b.event();
 }
 
-@jmethod[EventOutput (EventOutput filter) (BooleanInput allow) "setup"]
+@jmethod*[(EventOutput (EventOutput filter) (BooleanInput allow))
+          (EventOutput (EventOutput filterNot) (BooleanInput deny))
+          "setup"]
 
-This filters an @jcode-inline{EventOutput} so that events are only propagated further when @jcode-inline{allow.get() == true}.
+@jcode-inline{filter(allow)} filters an @jcode-inline{EventOutput} so that events are only propagated further when @jcode-inline{allow.get() == true}.
+
+@jcode-inline{filter(deny)} is similar, but events are only propagated when @jcode-inline{deny.get() == false}.
 
 @jcode{
-    Working on this documentation...
+    EventOutput maybe_blow_up_world = blow_up_world.filter(has_authorization);
+    // then this would be equivalent:
+    maybe_blow_up_world.event();
+    // to this:
+    if (has_authorization.get()) {
+        blow_up_world.event();
+    }
 }
 
+@jmethod[EventOutput (EventOutput debounce) (long minimumMilliseconds) "setup"]
+
+Debouncing limits how often an event can occur, such that if an event occurs a short time after another event, it will be ignored. The debouncing time is given by @jcode-inline{minimumMilliseconds}, which is the minimum number of milliseconds after one event before another event can pass through.
+
+This is used to handle buttons, switches, or sensors that tend to "bounce" and trigger multiple times when you press them once.
+
+The timeout is relative to the last event that was passed through; events that are ignored do not delay the timeout. This way, if an event occurs repeatedly at a period smaller than @jcode-inline{minimumMilliseconds}, there will be about one event every @jcode-inline{minimumMilliseconds}.
+
+@jmethod[CancelOutput (EventOutput on) (EventInput when) "setup"]
+
+This is the same as @jcode-inline{send}, but in the opposite direction.
+
+@jcode{
+    EventInput a;
+    EventOutput b;
+    // these are equivalent:
+    a.send(b);
+    b.on(a);
+}
+
+@jfield[EventOutput static (EventOutput ignored) "setup"]
+
+This @jcode-inline{EventOutput} ignores all events sent to it.
+
+@jcode{
+    EventOutput.ignored.event();
+    // is equivalent to doing absolutely nothing.
+}
+
+@subsubsection{Transformations of EventInputs}
+
+@jmethod[EventInput (EventInput or) (EventInput other) "setup"]
+
+This is an @jcode-inline{EventInput} that is fired whenever either of the @jcode-inline{EventInput}s are fired.
+
+@jcode{
+    EventInput c = a.or(b);
+    // this is equivalent:
+    c.send(output);
+    // to:
+    a.send(output);
+    b.send(output);
+}
+
+@jmethod*[(EventInput (EventInput and) (BooleanInput allow))
+          (EventInput (EventInput andNot) (BooleanInput deny))
+          "setup"]
+
+This is an @jcode-inline{EventInput} limited to only firing when @jcode-inline{allow.get() == true} or @jcode-inline{deny.get() == false}, depending on which version you use.
+
+So, each time that the original @jcode-inline{EventInput} fires, @jcode-inline{allow} or @jcode-inline{deny} is polled, and if the value is the expected value, the result @jcode-inline{EventInput} fires.
+
+@jcode{
+    EventInput c = a.and(b);
+    // this is equivalent:
+    c.send(output);
+    // to:
+    a.send(output.filter(b));
+}
+
+@jmethod[EventInput (EventInput debounced) (long minimumMilliseconds) "setup"]
+
+Debouncing limits how often an event can occur, such that if an event occurs a short time after another event, it will be ignored. The debouncing time is given by @jcode-inline{minimumMilliseconds}, which is the minimum number of milliseconds after one event before another event can pass through.
+
+This is used to handle buttons, switches, or sensors that tend to "bounce" and trigger multiple times when you press them once.
+
+The timeout is relative to the last event that was passed through; events that are ignored do not delay the timeout. This way, if an event occurs repeatedly at a period smaller than @jcode-inline{minimumMilliseconds}, there will be about one event every @jcode-inline{minimumMilliseconds}.
+
+@jfield[EventInput static (EventInput never) "setup"]
+
+This is an EventInput that never occurs.
+
+@jcode{
+    EventInput.never.send(output);
+    // is equivalent to doing absolutely nothing!
+}
+
+@subsubsection{Transformations of BooleanOutputs}
+
 IN PROGRESS.
+
+@jmethod[BooleanOutput (BooleanOutput invert) "setup"]
+
+This is an inverted version of the originally @jcode-inline{BooleanOutput}.
+
+@jcode{
+    BooleanOutput inv = a.invert();
+    // so then this is equivalent
+    inv.set(false);
+    // to this:
+    a.set(true);
+}
+
+@jmethod[BooleanOutput (BooleanOutput combine) (BooleanOutput other) "setup"]
+
+This combines two @jcode-inline{BooleanOutput}s into a single @jcode-inline{BooleanOutput}, so that setting the result to a value would set both of the original outputs to that value.
+
+@jcode{
+    BooleanOutput merged = a.combine(b);
+    // then this would be equivalent:
+    merged.set(true);
+    // to this:
+    a.set(true);
+    b.set(true);
+}
+
+@jmethod[BooleanOutput (BooleanOutput limitUpdatesTo) (EventInput update) "setup"]
+
+This limits a @jcode-inline{BooleanOutput} such that changes in its value propagate when, and only when, @jcode-inline{update} is fired.
+
+@jcode{
+    EventCell b = new EventCell();
+    BooleanOutput c = a.limitUpdatesTo(b);
+    // ...
+    c.set(true); // does not modify a
+    b.event(); // until this point!
+}
+
+@jmethod*[(EventOutput (BooleanOutput eventSet) (boolean value))
+          (EventOutput (BooleanOutput eventSet) (BooleanInput value)) "setup"]
+
+This provides an @jcode-inline{EventOutput} that sets this @jcode-inline{BooleanOutput} to some value, either a constant value or a value fetched in the moment from a @jcode-inline{BooleanInput}.
+
+@jcode{
+    EventOutput o = a.eventSet(true);
+    // and then:
+    o.event();
+    // is equivalent to:
+    a.set(true);
+}
+
+With a @jcode-inline{BooleanInput} parameter:
+
+@jcode{
+    EventOutput o = a.eventSet(input);
+    // and then:
+    o.event();
+    // is equivalent to:
+    a.set(input.get());
+}
+
+@jmethod*[(void (BooleanOutput setWhen) (boolean value) (EventInput when))
+          (void (BooleanOutput setWhen) (BooleanInput value) (EventInput when))
+          (void (BooleanOutput setTrueWhen) (EventInput when))
+          (void (BooleanOutput setFalseWhen) (EventInput when))
+          "setup"]
+
+When @jcode-inline{when} fires, this @jcode-inline{BooleanOutput} will be set to @jcode-inline{value} or @jcode-inline{value.get()}, depending on type.
+
+In the case of @jcode-inline{setTrueWhen(when)} or @jcode-inline{setFalseWhen(when)}, the boolean given in the name takes the place of @jcode-inline{value}.
+
+@jcode{
+    EventCell event = new EventCell();
+    output.setWhen(true, event);
+    // and then:
+    event.event();
+    // is equivalent to:
+    output.set(true);
+}
+
+With a @jcode-inline{BooleanInput} parameter:
+
+@jcode{
+    EventCell event = new EventCell();
+    output.setWhen(input, event);
+    // and then:
+    event.event();
+    // is equivalent to:
+    output.set(input.get());
+}
+
+With a constant name:
+
+@jcode{
+    EventCell event = new EventCell();
+    output.setFalseWhen(event);
+    // and then:
+    event.event();
+    // is equivalent to:
+    output.set(false);
+}
+
+==== IN PROGRESS ====
+
+@jfield[BooleanOutput static (BooleanOutput ignored) "setup"]
+
+This is a BooleanOutput that ignores all values sent to it.
+
+@jcode{
+    BooleanOutput.ignored.event();
+    // is equivalent to absolutely nothing!
+}
 
 ALSO MORE SECTIONS IN PROGRESS.
 

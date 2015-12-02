@@ -5,7 +5,7 @@
 (require "java-lexer.rkt")
 (require parser-tools/lex)
 
-(provide jnew jmethod jmethod* java-format jcode jcode-inline)
+(provide jnew jmethod jmethod* jfield java-format jcode jcode-inline)
 
 (define (java-lex x)
   (define in (open-input-string x))
@@ -44,7 +44,7 @@
                                      (not (equal? (symbol->string (token-value tok)) (string-upcase (symbol->string (token-value tok))))))))
                         (symbol str) ; so we're probably a type!
                         (varsym str))))] ; variable
-           [(INTEGER_LIT STRING_LIT FLOAT_LIT)
+           [(INTEGER_LIT STRING_LIT FLOAT_LIT DOUBLE_LIT)
             (element "RktVal" str)]
            [else (error "oops" tok)]
          ))
@@ -112,6 +112,12 @@
 
 (define-syntax-rule (jnew name (type arg) ... marker)
   (def-constructor 'name '(type ...) '(arg ...) marker))
+(define-syntax jfield
+  (syntax-rules (static)
+    [(jfield ret static (class field) marker)
+     (def-box-p (def-field-i #t 'ret 'class 'field) marker)]
+    [(jfield ret (class field) marker)
+     (def-box-p (def-field-i #f 'ret 'class 'field) marker)]))
 (define-syntax jmethod
   (syntax-rules (static)
     [(jmethod args ... marker)
@@ -160,6 +166,7 @@
 (define lpar (element "RktPn" "("))
 (define comma (element "RktPn" ","))
 (define dot (element "RktPn" "."))
+(define colon (element "RktPn" ":"))
 (define rpar (element "RktPn" ")"))
 (define (symbol x)
   (element "RktSym" (fsym x)))
@@ -193,3 +200,6 @@
                          (list comma space))
                      (list (symbol (symbol->string type)) space (varsym (symbol->string arg))))))
           (list rpar)))
+(define (def-field-i is-static type class field)
+  (append (if is-static (list (symbol 'static) space) empty)
+          (list (symbol class) dot (symboldef field) space colon space (symbol type))))

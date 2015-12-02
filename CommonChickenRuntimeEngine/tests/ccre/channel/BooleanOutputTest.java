@@ -228,9 +228,9 @@ public class BooleanOutputTest {
     }
 
     @Test
-    public void testOnChange() {
+    public void testPolarize() {
         CountingEventOutput toFalse = new CountingEventOutput(), toTrue = new CountingEventOutput();
-        BooleanOutput bo = BooleanOutput.onChange(toFalse, toTrue);
+        BooleanOutput bo = BooleanOutput.polarize(toFalse, toTrue);
         boolean last = false;
         for (boolean b : Values.interestingBooleans) {
             (b ? toTrue : toFalse).ifExpected = (last != b);
@@ -242,9 +242,9 @@ public class BooleanOutputTest {
     }
 
     @Test
-    public void testOnChangeNullA() {
+    public void testPolarizeNullA() {
         CountingEventOutput toTrue = new CountingEventOutput();
-        BooleanOutput bo = BooleanOutput.onChange(null, toTrue);
+        BooleanOutput bo = BooleanOutput.polarize(null, toTrue);
         boolean last = false;
         for (boolean b : Values.interestingBooleans) {
             toTrue.ifExpected = b && !last;
@@ -255,9 +255,9 @@ public class BooleanOutputTest {
     }
 
     @Test
-    public void testOnChangeNullB() {
+    public void testPolarizeNullB() {
         CountingEventOutput toFalse = new CountingEventOutput();
-        BooleanOutput bo = BooleanOutput.onChange(toFalse, null);
+        BooleanOutput bo = BooleanOutput.polarize(toFalse, null);
         boolean last = false;
         for (boolean b : Values.interestingBooleans) {
             toFalse.ifExpected = !b && last;
@@ -268,8 +268,8 @@ public class BooleanOutputTest {
     }
 
     @Test(expected = NullPointerException.class)
-    public void testOnChangeNullAB() {
-        BooleanOutput.onChange(null, null);
+    public void testPolarizeNullAB() {
+        BooleanOutput.polarize(null, null);
     }
 
     @Test

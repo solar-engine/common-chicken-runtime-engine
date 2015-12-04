@@ -279,7 +279,7 @@ public interface BooleanOutput {
      * BooleanOutput is set to its last received value.
      *
      * @param allow when to allow changing of the result.
-     * @return the lockable version of this BooleanInput.
+     * @return the lockable version of this BooleanOutput.
      */
     public default BooleanOutput filter(BooleanInput allow) {
         BooleanOutput original = this;
@@ -314,7 +314,7 @@ public interface BooleanOutput {
      * BooleanOutput is set to its last received value.
      *
      * @param deny when to deny changing of the result.
-     * @return the lockable version of this BooleanInput.
+     * @return the lockable version of this BooleanOutput.
      */
     public default BooleanOutput filterNot(BooleanInput deny) {
         BooleanOutput original = this;

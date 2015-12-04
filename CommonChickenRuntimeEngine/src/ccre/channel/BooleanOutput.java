@@ -317,26 +317,6 @@ public interface BooleanOutput {
      * @return the lockable version of this BooleanOutput.
      */
     public default BooleanOutput filterNot(BooleanInput deny) {
-        BooleanOutput original = this;
-        return new BooleanOutput() {
-            private boolean lastValue, anyValue;
-
-            {
-                deny.onRelease().send(() -> {
-                    if (anyValue) {
-                        original.set(lastValue);
-                    }
-                });
-            }
-
-            @Override
-            public void set(boolean value) {
-                lastValue = value;
-                anyValue = true;
-                if (!deny.get()) {
-                    original.set(value);
-                }
-            }
-        };
+        return this.filter(deny.not());
     }
 }

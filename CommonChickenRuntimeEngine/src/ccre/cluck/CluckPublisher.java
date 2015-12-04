@@ -766,6 +766,7 @@ public class CluckPublisher {
         private final boolean canUnsubscribe;
 
         SubscribedFloatInput(CluckNode node, String path, boolean subscribeByDefault) {
+            super(Float.NaN);
             this.sent = subscribeByDefault;
             this.node = node;
             this.path = path;

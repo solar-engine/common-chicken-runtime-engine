@@ -285,27 +285,45 @@ public class FloatOutputTest {
     public void testFilter() {
         for (boolean not : new boolean[] { false, true }) {
             BooleanCell allowDeny = new BooleanCell();
-            FloatOutput fo = not ? cfo1.filterNot(allowDeny) : cfo1.filter(allowDeny);
+            FloatCell out = new FloatCell();
+            FloatOutput fo = not ? out.filterNot(allowDeny) : out.filter(allowDeny);
             int j = 0;
+            float expect = 0;
             for (int i = 0; i < 10; i++) {
                 for (float f : Values.interestingFloats) {
-                    allowDeny.set(((j % 19) < 10) ^ not);
-                    cfo1.ifExpected = allowDeny.get() ^ not;
-                    cfo1.valueExpected = f;
+                    boolean nvalue = ((j % 19) < 10) ^ not;
+                    if (allowDeny.get() == not && nvalue != not) {
+                        float f2 = Values.getRandomFloat();
+                        // switching to active: expect an update as necessary
+                        fo.set(f2);
+                        assertEquals(Float.floatToIntBits(expect), Float.floatToIntBits(out.get()));
+
+                        allowDeny.set(nvalue);
+                        expect = f2;
+
+                        assertEquals(Float.floatToIntBits(expect), Float.floatToIntBits(out.get()));
+                    } else {
+                        allowDeny.set(nvalue);
+                    }
+
                     fo.set(f);
-                    cfo1.check();
+                    if (allowDeny.get() ^ not) {
+                        expect = f;
+                    }
+                    assertEquals(Float.floatToIntBits(expect), Float.floatToIntBits(out.get()));
+
                     j++;
                 }
             }
         }
     }
 
-    @Test
+    @Test(expected = NullPointerException.class)
     public void testFilterNull() {
         cfo1.filter(null);
     }
 
-    @Test
+    @Test(expected = NullPointerException.class)
     public void testFilterNotNull() {
         cfo1.filterNot(null);
     }

@@ -53,6 +53,8 @@ public class CountingFloatOutput implements FloatOutput {
 
     private final boolean allowExtras;
 
+    private boolean anyUnexpected;
+
     /**
      * Creates a new CountingFloatOutput that doesn't allow values to be sent
      * multiple times.
@@ -74,15 +76,21 @@ public class CountingFloatOutput implements FloatOutput {
 
     public synchronized void set(float value) {
         if (!ifExpected && !allowExtras) {
-            throw new RuntimeException("Unexpected set!");
+            anyUnexpected = true;
+            throw new RuntimeException("Unexpected set of " + value +"!");
         }
         boolean correct = false;
         if (Float.isNaN(valueExpected)) {
             correct = Float.isNaN(value);
         } else if (!Float.isNaN(value)) {
-            correct = value == valueExpected || Math.abs(value - valueExpected) <= maxDelta;
+            if (maxDelta != 0) {
+                correct = value == valueExpected || Math.abs(value - valueExpected) <= maxDelta;
+            } else {
+                correct = Float.floatToIntBits(value) == Float.floatToIntBits(valueExpected);
+            }
         }
         if (!correct) {
+            anyUnexpected = true;
             throw new RuntimeException("Incorrect set: " + value + " instead of " + valueExpected);
         }
         ifExpected = false;
@@ -95,7 +103,11 @@ public class CountingFloatOutput implements FloatOutput {
      * @throws RuntimeException if a write did not occur.
      */
     public void check() throws RuntimeException {
+        if (anyUnexpected) {
+            throw new RuntimeException("Already failed earlier!");
+        }
         if (ifExpected) {
+            anyUnexpected = true;
             throw new RuntimeException("Did not get expected set of " + valueExpected + "!");
         }
     }

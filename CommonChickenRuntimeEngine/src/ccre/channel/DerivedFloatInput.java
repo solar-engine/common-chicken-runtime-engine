@@ -49,7 +49,7 @@ public abstract class DerivedFloatInput extends AbstractUpdatingInput implements
     public DerivedFloatInput(UpdatingInput... updates) {
         DerivedUpdate.onUpdates(updates, () -> {
             float newvalue = apply();
-            if (newvalue != value) {
+            if (Float.floatToIntBits(newvalue) != Float.floatToIntBits(value)) {
                 value = newvalue;
                 super.perform();
             }

@@ -44,13 +44,13 @@
                                      (not (equal? (symbol->string (token-value tok)) (string-upcase (symbol->string (token-value tok))))))))
                         (symbol str) ; so we're probably a type!
                         (varsym str))))] ; variable
-           [(INTEGER_LIT STRING_LIT FLOAT_LIT DOUBLE_LIT)
+           [(INTEGER_LIT STRING_LIT FLOAT_LIT) ; DOUBLE_LIT
             (element "RktVal" str)]
            [else (error "oops" tok)]
          ))
         ((symbol? tok)
          (case tok
-           [(O_PAREN C_PAREN O_BRACE C_BRACE SEMI_COLON PERIOD <= >= == != = + - * / % < > ! ? : COMMA AT)
+           [(O_PAREN C_PAREN O_BRACE C_BRACE SEMI_COLON PERIOD <= >= == != = + - * / % && & ^ OR < > ! ? : COMMA AT)
             (element "RktPn" str)]
            [(FALSE_LIT TRUE_LIT)
             (element "RktVal" str)]

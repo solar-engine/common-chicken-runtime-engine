@@ -7,9 +7,9 @@ project so that you can focus on the important parts of your code.
 
 Here's an example of a robot piloted with Tank Drive:
 
-    DriverImpls.arcadeDrive(FRC.joystick1,
-                            FRC.talon(1, FRC.MOTOR_FORWARD),
-                            FRC.talon(2, FRC.MOTOR_REVERSE));
+    Drive.arcade(FRC.joystick1,
+                 FRC.talon(1, FRC.MOTOR_FORWARD),
+                 FRC.talon(2, FRC.MOTOR_REVERSE));
 
 Or, something more interesting: an example of a shifting drive train:
 

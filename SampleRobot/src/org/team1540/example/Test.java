@@ -21,7 +21,7 @@ package org.team1540.example;
 import ccre.channel.BooleanOutput;
 import ccre.channel.FloatInput;
 import ccre.channel.FloatOutput;
-import ccre.ctrl.DriverImpls;
+import ccre.ctrl.Drive;
 import ccre.frc.FRC;
 import ccre.instinct.AutonomousModeOverException;
 import ccre.instinct.InstinctModule;
@@ -44,7 +44,7 @@ public class Test {
         FloatInput rightAxis = FRC.joystick1.axis(5);
         final FloatOutput leftOut = FRC.talon(2, FRC.MOTOR_FORWARD, 0.1f);
         final FloatOutput rightOut = FRC.talon(1, FRC.MOTOR_REVERSE, 0.1f);
-        DriverImpls.tankDrive(leftAxis, rightAxis, leftOut, rightOut);
+        Drive.tank(leftAxis, rightAxis, leftOut, rightOut);
         // Shifting
         BooleanOutput shifter = FRC.solenoid(2);
         shifter.setFalseWhen(FRC.startTele);

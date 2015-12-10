@@ -3,7 +3,7 @@ package org.team1540.firstfare2015;
 import ccre.channel.BooleanCell;
 import ccre.channel.BooleanOutput;
 import ccre.channel.FloatOutput;
-import ccre.ctrl.DriverImpls;
+import ccre.ctrl.Drive;
 import ccre.ctrl.Joystick;
 import ccre.frc.FRC;
 import ccre.frc.FRCApplication;
@@ -17,7 +17,7 @@ public class Presentation18 implements FRCApplication {
 
         Joystick drive = FRC.joystick1, copilot = FRC.joystick2;
 
-        DriverImpls.arcadeDrive(drive, leftMotors, rightMotors);
+        Drive.arcade(drive, leftMotors, rightMotors);
 
         BooleanOutput shifting = FRC.solenoid(0);
         shifting.setFalseWhen(FRC.startTele);

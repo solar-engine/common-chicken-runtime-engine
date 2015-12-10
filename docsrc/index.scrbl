@@ -11,9 +11,9 @@ project so that you can focus on the important parts of your code.
 Here's an example of a robot piloted with Arcade Drive:
 
 @jcode|{
-    DriverImpls.arcadeDrive(FRC.joystick1,
-                            FRC.talon(1, FRC.MOTOR_FORWARD),
-                            FRC.talon(2, FRC.MOTOR_REVERSE));
+    Drive.arcade(FRC.joystick1,
+                 FRC.talon(1, FRC.MOTOR_FORWARD),
+                 FRC.talon(2, FRC.MOTOR_REVERSE));
 }|
 
 Or, something more interesting: an example of a shifting drive train:
@@ -2291,7 +2291,7 @@ This piece of drive code is fairly simple, and is equivalent to:
     forward.minus(sideways).send(rightOut);
 }
 
-@jmethod[void (DriverImpls mecanumDrive) (FloatInput forward) (FloatInput strafe) (FloatInput rotate)
+@jmethod[void (Drive mecanum) (FloatInput forward) (FloatInput strafe) (FloatInput rotate)
          (FloatOutput leftFrontMotor) (FloatOutput leftBackMotor) (FloatOutput rightFrontMotor) (FloatOutput rightBackMotor) "setup"]
 
 This sets up Mecanum Drive on four motors with channels to control forward-backward, left-right (strafe), and left-right (rotate.)

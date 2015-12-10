@@ -521,7 +521,7 @@ public class FloatInputTest {
             ceo.check();
             for (float v : Values.lessInterestingFloats) {
                 // note: if onChangeBy(0), then everything should trigger this.
-                if (Math.abs(last - v) > Math.abs(d)) {
+                if (Math.abs(last - v) >= Math.abs(d) && last != v) {
                     last = v;
                     ceo.ifExpected = true;
                 } else {

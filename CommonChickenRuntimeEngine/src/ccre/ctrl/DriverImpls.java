@@ -85,7 +85,7 @@ public class DriverImpls {
      * @param rightOut the right motor.
      * @see DriverImpls
      */
-    public static void arcadeDrive(final FloatInput joystickXAxis, final FloatInput joystickYAxis, final FloatOutput leftOut, final FloatOutput rightOut) {
+    public static void arcadeDrive(FloatInput joystickXAxis, FloatInput joystickYAxis, FloatOutput leftOut, FloatOutput rightOut) {
         joystickYAxis.plus(joystickXAxis).send(leftOut);
         joystickYAxis.minus(joystickXAxis).send(rightOut);
     }
@@ -98,7 +98,7 @@ public class DriverImpls {
      * @param rightOut the right motor.
      * @see DriverImpls
      */
-    public static void arcadeDrive(final Joystick joystick, final FloatOutput leftOut, final FloatOutput rightOut) {
+    public static void arcadeDrive(Joystick joystick, FloatOutput leftOut, FloatOutput rightOut) {
         arcadeDrive(joystick.axisX(), joystick.axisY(), leftOut, rightOut);
     }
 

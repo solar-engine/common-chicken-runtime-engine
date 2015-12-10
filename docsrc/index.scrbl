@@ -2090,9 +2090,133 @@ Provides a @jcode-inline{FloatInput} that is the negated version of this @jcode-
 
 @jmethod[EventInput (FloatInput onChange) "setup"]
 
-Provides a @jcode-inline{EventInput} that fires whenever this @jcode-inline{FloatInput} changes by any amount.
+Provides an @jcode-inline{EventInput} that fires whenever this @jcode-inline{FloatInput} changes by any amount.
 
-=== IN PROGRESS ===
+@jcode{
+    FloatCell cell = new FloatCell(0);
+    EventInput change = cell.onChange();
+    // ...
+    cell.set(3.2f); // causes change to be produced
+    cell.set(3.2f); // nothing
+    cell.set(0.0f); // causes change to be produced
+}
+
+@jmethod[EventInput (FloatInput onChangeBy) (float magnitude) "setup"]
+
+Provides an @jcode-inline{EventInput} that fires whenever this @jcode-inline{FloatInput} changes by at least @jcode-inline{magnitude} from the last time that it changed.
+
+@jcode{
+    FloatCell cell = new FloatCell(0);
+    EventInput change = cell.onChangeBy(1.0f);
+    // ...
+    cell.set(1.1f); // change fires once
+    cell.set(30.0f); // change fires once
+    cell.set(29.9f); // no fire
+    cell.set(29.1f); // no fire
+    cell.set(29.0f); // change fires once (because it is exactly one less than 30.0f)
+    cell.set(29.9f); // no fire
+    cell.set(28.1f); // no fire
+    cell.set(27.9f); // change fires once
+}
+
+@jmethod[FloatInput (FloatInput deadzone) (float deadzone) "setup"]
+
+Provides a @jcode-inline{FloatInput} with the value of the original @jcode-inline{FloatInput}, but with a deadzone applied.
+
+The idea of a deadzone is that it chops out values close to zero.
+
+Usually, a centered Joystick gives values of something like 0.047, not 0.000. You often want to interpret this as zero, because - for example - you usually might not want motors to move in this case.
+
+By using a deadzone of 0.1, any values from around -0.09999999 to around 0.09999999 are converted to exactly zero.
+
+@jcode{
+    FloatInput deadzoned = original.deadzone(0.1f);
+    // ...
+    original.set(1.0f); // deadzoned is now 1.0f
+    original.set(0.1f); // deadzoned is now 0.1f
+    original.set(0.0999f); // deadzoned is now 0.0f
+    original.set(0.05f); // deadzoned is still 0.0f
+    original.set(0.0f); // deadzoned is still 0.0f
+    original.set(-0.05f); // deadzoned is now 0.0f
+    original.set(-0.0999f); // deadzoned is still 0.0f
+    original.set(-0.1f); // deadzoned is now -0.1f
+    original.set(-1.0f); // deadzoned is now -1.0f
+}
+
+@jmethod*[(FloatInput (FloatInput normalize) (float zeroV) (float oneV))
+          (FloatInput (FloatInput normalize) (float zeroV) (FloatInput oneV))
+          (FloatInput (FloatInput normalize) (FloatInput zeroV) (float oneV))
+          (FloatInput (FloatInput normalize) (FloatInput zeroV) (FloatInput oneV))
+          "setup"]
+
+Linearly maps from two configurable values to the range of zero to one. @jcode-inline{zeroV} becomes @jcode-inline{0.0f}, and @jcode-inline{oneV} becomes @jcode-inline{1}. @jcode-inline{(zeroV + oneV) / 2} would become @jcode-inline{0.5f}. This linear map extends through all of the real numbers: it is converted into simply an addition and a multiplication.
+
+You can specify two constant values, two values based on channels, or a combination of the two.
+
+If you had a pressure sensor that outputted 1.1 Volts for an empty tank, and 4.6 Volts for a full tank, you can map these to the range 0 to 1, and use them as a fraction.
+
+You could say:
+
+@jcode{
+    FloatInput sensor = /* ... */;
+    FloatInput pressureFraction = sensor.normalize(1.1f, 4.6f);
+    // pressureFraction would be 0 when the sensor's voltage is 1.1 volts,
+    // and it would be 1 when the sensor's voltage is 4.6 volts.
+    // if the sensor reported 4.8 volts, the fraction would be about 1.06.
+}
+
+@jmethod[FloatInput (FloatInput withRamping) (float limit) (EventInput updateWhen) "setup"]
+
+Adds a ramping layer on top of a @jcode-inline{FloatInput}.
+
+The idea of ramping is that immediately changing from, for example, 0 feet per second to 16 feet per second can be very stressing on a robot's drivetrain - or other similar components. You usually want to "ramp up" to the desired speed, for example at four feet per second per second.
+
+You configure ramping with a maximum delta and an event to update ramping. The idea is that whenever @jcode-inline{updateWhen} is fired, the actual output is moved closer to the most recent target value. The maximum amount by which it can change is @jcode-inline{limit}.
+
+A recommended ramping setup, in absence of actual testing, is @jcode-inline{withRamping(0.1f, FRC.constantPeriodic)}. Since @jcode-inline{FRC.constantPeriodic} is a ten-millisecond loop, this means that it takes 100 milliseconds to go from stopped to full speed. You may need to tweak this lower or higher based on actual testing.
+
+@jmethod[EventOutput (FloatInput createRampingEvent) (float limit) (FloatOutput target) "setup"]
+
+Provides an event that performs incremental ramping based on this @jcode-inline{FloatInput} and controlling @jcode-inline{target} as an output.
+
+The idea of ramping is that immediately changing from, for example, 0 feet per second to 16 feet per second can be very stressing on a robot's drivetrain - or other similar components. You usually want to "ramp up" to the desired speed, for example at four feet per second per second.
+
+You configure ramping with a maximum delta and an event to update ramping. The idea is that whenever the returned @jcode-inline{EventOutput} is fired, the actual output is moved closer to the most recent target value. The maximum amount by which it can change is @jcode-inline{limit}.
+
+It's usually easier to use @jcode-inline{FloatInput.withRamping} or @jcode-inline{FloatOutput.addRamping}, which are easier to use.
+
+@jmethod*[(FloatInput (FloatInput filterUpdates) (BooleanInput allow))
+          (FloatInput (FloatInput filterUpdatesNot) (BooleanInput deny))
+          "setup"]
+
+@jcode-inline{filterUpdates} provides a @jcode-inline{FloatInput} that follows the value of the original @jcode-inline{FloatInput} while @jcode-inline{allow.get() == true}, and holds the last value while @jcode-inline{allow.get() == false}.
+
+@jcode-inline{a.filterUpdatesNot(b)} is equivalent to @jcode-inline{a.filterUpdates(b.not())}.
+
+@jcode{
+    BooleanCell unlocked = new BooleanCell();
+    FloatInput lockable = original.filterUpdates(unlocked);
+    // ...
+    unlocked.set(true);
+
+    original.set(5.0f);  // lockable is now 5.0f
+    original.set(2.0f);  // lockable is now 2.0f
+    original.set(-1.2f); // lockable is now -1.2f
+
+    unlocked.set(false); // lockable is still -1.2f
+
+    original.set(-0.5f); // lockable is still -1.2f
+    original.set(6.1f);  // lockable is still -1.2f
+    original.set(3.1f);  // lockable is still -1.2f
+
+    unlocked.set(true);  // lockable is now false
+
+    original.set(0.3f);  // lockable is now 0.3f
+    original.set(0.8f);  // lockable is now 0.8f
+
+    unlocked.set(false); // lockable is still false
+    original.set(1.0f);  // lockable is still 0.8f
+}
 
 @subsection{Drive Code Implementations}
 

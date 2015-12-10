@@ -2220,7 +2220,93 @@ It's usually easier to use @jcode-inline{FloatInput.withRamping} or @jcode-inlin
 
 @subsection{Drive Code Implementations}
 
-In progress.
+Drive Code is the part of robot code that controls the drive base in response to the state of the driver's Joystick.
+
+There are three main types of drive code:
+
+@itemlist[@item{Tank Drive}
+          @item{Extended Tank Drive}
+          @item{Arcade Drive}
+          @item{Mecanum Drive}]
+
+@jmethod[void (Drive tank) (FloatInput leftIn) (FloatInput rightIn) (FloatOutput leftOut) (FloatOutput rightOut) "setup"]
+
+This sets up tank drive code for the given axes and motors.
+
+In Tank Drive, the driver has two Joysticks or axes, which can be moved forward and back to control the sides of the robot independently: the left axis controls the left side of the robot, and the right axis controls the right side of the robot.
+
+@jcode{
+    FloatInput left_axis = FRC.joystick1.axisY();
+    FloatInput right_axis = FRC.joystick2.axisY();
+    FloatOutput left_motor = FRC.talon(0, FRC.MOTOR_FORWARD);
+    FloatOutput right_motor = FRC.talon(1, FRC.MOTOR_REVERSE);
+    // and then the key:
+    Drive.tank(left_axis, right_axis, left_motor, right_motor);
+}
+
+This method is very simple, and is equivalent to:
+
+@jcode{
+    left_axis.send(left_motor);
+    right_axis.send(right_motor);
+}
+
+@jmethod[void (Drive extendedTank) (FloatInput leftIn) (FloatInput rightIn) (FloatInput forward) (FloatOutput leftOut) (FloatOutput rightOut) "setup"]
+
+This is similar to @jcode-inline{tankDrive}, but takes an additional @jcode-inline{forward} parameter that is added to the two axes, so that it can be used for exact movement forward and backward.
+
+It is equivalent to:
+
+@jcode{
+    left_axis.plus(forward).send(left_motor);
+    right_axis.plus(forward).send(right_motor);
+}
+
+@jmethod*[(void (Drive arcade) (FloatInput sideways) (FloatInput forward) (FloatOutput leftOut) (FloatOutput rightOut))
+          (void (Drive arcade) (Joystick joystick) (FloatOutput leftOut) (FloatOutput rightOut))
+          "setup"]
+
+This sets up two axes to control the robot with Arcade Drive.
+
+Arcade Drive is also known as single-joystick drive: it allows the robot to be controlled by being pushed in any direction. Forward for forward, backward for backward, left to turn left, and right to turn right. This is done based on one axis for left-right, and one axis for forward-backward. For some, it is the most intuitive control scheme.
+
+@jcode{
+    FloatInput sideways_axis = FRC.joystick1.axisX();
+    FloatInput forward_axis = FRC.joystick1.axisY();
+    FloatOutput left_motor = FRC.talon(0, FRC.MOTOR_FORWARD);
+    FloatOutput right_motor = FRC.talon(1, FRC.MOTOR_REVERSE);
+    Drive.arcade(sideways_axis, forward_axis, left_motor, right_motor);
+}
+
+The second form of this method is the same as the first, but it uses the X and Y axis from a single Joystick.
+
+@jcode{
+    Drive.arcade(FRC.joystick1, left_motor, right_motor);
+}
+
+This piece of drive code is fairly simple, and is equivalent to:
+
+@jcode{
+    forward.plus(sideways).send(leftOut);
+    forward.minus(sideways).send(rightOut);
+}
+
+@jmethod[void (DriverImpls mecanumDrive) (FloatInput forward) (FloatInput strafe) (FloatInput rotate)
+         (FloatOutput leftFrontMotor) (FloatOutput leftBackMotor) (FloatOutput rightFrontMotor) (FloatOutput rightBackMotor) "setup"]
+
+This sets up Mecanum Drive on four motors with channels to control forward-backward, left-right (strafe), and left-right (rotate.)
+
+Mecanum drive works with very special wheels (mecanum wheels) to allow the robot to maneuver itself in any direction - not just forward, backward, and rotating. The code to do so is complicated, but it's all included in this method.
+
+The @jcode-inline{forward} and @jcode-inline{strafe} channels control motion in the XY plane, and the @jcode-inline{rotate} channel controls rotation.
+
+@jcode{
+    FloatInput strafe_axis = FRC.joystick1.axisX();
+    FloatInput forward_axis = FRC.joystick1.axisY();
+    FloatInput rotate_axis = FRC.joystick2.axisX();
+    // ... motors ...
+    Drive.mecanum(forward_axis, strafe_axis, rotate_axis, left_front_motor, left_back_motor, right_front_motor, right_back_motor);
+}
 
 @subsection[#:tag "autonomous"]{Autonomous and Instinct Modules}
 

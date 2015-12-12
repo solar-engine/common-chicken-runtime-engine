@@ -78,7 +78,7 @@ public abstract class InstinctBaseModule {
     /**
      * Wait until the specified BooleanInput becomes false before returning.
      *
-     * @param waitFor The condition to wait until false.
+     * @param waitFor The condition to wait until not true.
      * @throws AutonomousModeOverException If the autonomous mode has ended.
      * @throws InterruptedException Possibly also if autonomous mode has ended.
      */

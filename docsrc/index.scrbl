@@ -2310,11 +2310,200 @@ The @jcode-inline{forward} and @jcode-inline{strafe} channels control motion in 
 
 @subsection[#:tag "autonomous"]{Autonomous and Instinct Modules}
 
-In progress.
+In autonomous mode, your code tends to need behavior somewhat different from teleoperated code.
+While control of actuators usually still needs the same dataflow setup, the sequencing required for autonomous mode is not easy to implement with dataflow.
+
+Therefore, the CCRE provides an imperative autonomous mode system, using units of imperative code called @jcode-inline{InstinctModule}s.
+
+@margin-note{An "imperative block" is the same as a flow block, but can also use methods marked as "imperative" methods, which are methods that may pause execution.}
+
+@jcode[#:box (list "setup" #f #f "imperative block")]|{
+        FRC.registerAutonomous(new $InstinctModule() {
+            @Override
+            protected void autonomousMain() throws Throwable {
+                // Autonomous code goes here.
+            }
+        });
+}|
+
+This is the basic structure of your autonomous code, for when you only need a single sequence. Your imperative code goes in the internal block.
+The important difference about code here is that it is allowed to "block", or wait for an event to occur. Normal flow mode code cannot wait at all.
+To allow this to work, InstinctModule bodies run in separate threads.
+
+When autonomous mode ends, your code will get aborted by an @jcode-inline{AutonomousModeOverException} or an @jcode-inline{InterruptedException}. Do not attempt to handle these exceptions.
+
+An example of an autonomous mode:
+
+@jcode|{
+        FRC.registerAutonomous(new InstinctModule() {
+            @Override
+            protected void autonomousMain() throws Throwable {
+                leftMotor.set(0.5f);
+                rightMotor.set(0.5f);
+                waitForTime(5000); // milliseconds
+                leftMotor.set(0.0f);
+                rightMotor.set(0.0f);
+            }
+        });
+}|
+
+This example autonomous mode runs drive motors forward at half speed for five seconds.
+
+@subsubsection{Autonomous methods}
+
+There are a variety of methods available that let your code wait for various conditions. While these methods are waiting, the rest of your code (that is outside of this @jcode-inline{InstinctModule}) will continue normally.
+
+These methods can only be used from within an InstinctModule.
+
+@jmethod*[(void (waitForTime) (long milliseconds))
+          (void (waitForTime) (FloatInput seconds))
+          "imperative"]
+
+This method waits for @jcode-inline{milliseconds} milliseconds to elapse before continuing. Note that most waits, especially short waits, will be overapproximated: they will in practice wait slightly longer than you expect.
+
+The second form, which takes a @jcode-inline{FloatInput}, is approximately equivalent to @jcode-inline{waitForTime(seconds.get() * 1000)}. It exists entirely for convenience when using variable delays. Note that any changes to the value of the @jcode-inline{FloatInput} that occur while this method is waiting will be ignored.
+
+@jcode{
+    piston.set(true);
+    waitForTime(1000); // 1000 milliseconds = one second
+    piston.set(false);
+}
+
+This example autonomous mode will extend a piston for one second, and then retract it.
+
+@jmethod*[(void (waitUntil) (BooleanInput waitFor))
+          (boolean (waitUntil) (long timeout) (BooleanInput waitFor))
+          (void (waitUntilNot) (BooleanInput waitFor))
+          (boolean (waitUntilNot) (long timeout) (BooleanInput waitFor))
+          "imperative"]
+
+@jcode-inline{waitUntil} waits until @jcode-inline{BooleanInput}'s value is @jcode-inline{true}. It is not guaranteed to resume if the value changes to @jcode-inline{true} and very quick changes back to @jcode-inline{false}.
+
+The second form of @jcode-inline{waitUntil} is similar, but will also stop waiting once @jcode-inline{timeout} seconds have ellapsed. It will return @jcode-inline{true} if the condition became true, and @jcode-inline{false} if it timed out instead.
+
+@jcode-inline{waitUntilNot} is the inverse: it waits until a @jcode-inline{BooleanInput}'s value is @jcode-inline{false}.
+
+@jcode{
+    drive_motors.set(0.3f);
+    waitUntil(bumper_sensor);
+    drive_motors.set(0.0f);
+}
+
+Given that @jcode-inline{bumper_sensor} has been defined outside of the InstinctModule as a touch sensor on the robot, this example autonomous mode will drive forward until it hits something.
+
+@jmethod[void (waitForEvent) (EventInput source) "imperative"]
+
+This method waits for a specific event to fire. If the event fires before this method is called, it will be ignored.
+
+@jcode{
+    drive_motors.set(0.3f);
+    waitForEvent(stop_button);
+    drive_motors.set(0.0f);
+}
+
+@jmethod*[(int (waitUntilOneOf) (BooleanInput waitFor) #:vararg)
+          (int (waitUntilOneOf) (long timeout) (BooleanInput waitFor) #:vararg)
+          "imperative"]
+
+This method waits until one of a list of @jcode-inline{BooleanInput}s becomes @jcode-inline{true}.
+It also takes an optional timeout after which it will return regardless of the values of any of the @jcode-inline{BooleanInput}s.
+
+It returns the index of the @jcode-inline{BooleanInput} that became @jcode-inline{true}, starting at zero, or @jcode-inline{-1} on a timeout.
+
+@jcode{
+    switch (waitUntilOneOf(5000, left_bumper, right_bumper)) {
+    case -1: // timeout
+        // ...
+        break;
+    case 0: // left_bumper
+        // ...
+        break;
+    case 1: // right_bumper
+        // ...
+        break;
+    }
+}
+
+@jmethod*[(void (waitUntilAtLeast) (FloatInput waitFor) (float minimum))
+          (void (waitUntilAtMost) (FloatInput waitFor) (float maximum))
+          "imperative"]
+
+These methods wait for a @jcode-inline{FloatInput} to satisfy a particular comparison: either at least or at most some value.
+
+@jcode{
+    waitUntilAtLeast(air_pressure, 70.0f); // wait for at least 70 psi in tank
+}
+
+@subsubsection{A Dire Warning}
+
+Note, very specifically, that you cannot use setup mode methods inside an @jcode-inline{InstinctModule}! This means that the following is NOT ALLOWED:
+
+@jcode|{
+        FRC.registerAutonomous(new InstinctModule() {
+            @Override
+            protected void autonomousMain() throws Throwable {
+                // ...
+                // THIS IS NOT ALLOWED. DO NOT EVER DO THIS.
+                waitUntil(some_condition.not());
+                // ...
+            }
+        });
+}|
+
+You will have major issues if you attempt to do this. Instead, try this:
+
+@jcode|{
+        BooleanInput not_some_condition = some_condition.not();
+        FRC.registerAutonomous(new InstinctModule() {
+            @Override
+            protected void autonomousMain() throws Throwable {
+                // ...
+                // This is allowed.
+                waitUntil(not_some_condition);
+                // ...
+            }
+        });
+}|
+
+In this specific case, the following would be recommended instead:
+
+@jcode|{
+        FRC.registerAutonomous(new InstinctModule() {
+            @Override
+            protected void autonomousMain() throws Throwable {
+                // ...
+                // This is recommended.
+                waitUntilNot(some_condition);
+                // ...
+            }
+        });
+}|
+
+@subsubsection{Instinct Modules outside of Autonomous}
+
+You can also use InstinctModules in other contexts besides autonomous modes, because they can be useful for semi-automatic control of parts of a robot.
+
+@jcode[#:box (list "setup" #f #f "imperative block")]|{
+        BooleanCell run_this_instinct_module = new BooleanCell(false);
+        new $InstinctModule(run_this_instinct_module) {
+            @Override
+            protected void autonomousMain() throws Throwable {
+                // Automatic code goes here.
+            }
+        });
+}|
+
+You can pass any @jcode-inline{BooleanInput} you want to the constructor, and the module will run while that @jcode-inline{BooleanInput} is @jcode-inline{true}.
+
+@jmethod[void (InstinctModule setShouldBeRunning) (BooleanInput when) "setup"]
+
+Equivalently to the previous example, you can construct an @jcode-inline{InstinctModule} without any parameters and then call @jcode-inline{setShouldBeRunning} later with the same value.
+
+This means that @jcode-inline{FRC.registerAutonomous(module)} is actually just a call to @jcode-inline{module.setShouldBeRunning}!
 
 @subsubsection{Instinct MultiModules}
 
-In progress.
+TODO: complete this section.
 
 @subsection[#:tag "hardware-access"]{Hardware Access}
 

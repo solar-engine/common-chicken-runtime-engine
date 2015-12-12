@@ -125,9 +125,17 @@
 (define-syntax jmethod-parse-i
   (syntax-rules (static)
     [(jmethod-parse-i ret static (class method) (type arg) ...)
-     (def-method-i #t 'ret 'class 'method '(type ...) '(arg ...))]
+     (def-method-i #t #f 'ret 'class 'method '(type ...) '(arg ...))]
+    [(jmethod-parse-i ret static (class method) (type arg) ... #:vararg)
+     (def-method-i #t #t 'ret 'class 'method '(type ...) '(arg ...))]
     [(jmethod-parse-i ret (class method) (type arg) ...)
-     (def-method-i #f 'ret 'class 'method '(type ...) '(arg ...))]))
+     (def-method-i #f #f 'ret 'class 'method '(type ...) '(arg ...))]
+    [(jmethod-parse-i ret (class method) (type arg) ... #:vararg)
+     (def-method-i #f #t 'ret 'class 'method '(type ...) '(arg ...))]
+    [(jmethod-parse-i ret (method) (type arg) ...)
+     (def-method-i #f #f 'ret #f 'method '(type ...) '(arg ...))]
+    [(jmethod-parse-i ret (method) (type arg) ... #:vararg)
+     (def-method-i #f #t 'ret #f 'method '(type ...) '(arg ...))]))
 (define-syntax jmethod*
   (syntax-rules ()
     [(jmethod* (args ...) ... marker)
@@ -188,17 +196,20 @@
                                 (list (symbol (symbol->string type)) space (varsym (symbol->string arg))))))
                      (list rpar))
     marker))
-(define (def-method-i is-static ret class method types args)
+(define (def-method-i is-static is-vararg ret class method types args)
   (unless (= (length types) (length args))
     (error "types and args length mismatch in def-method-i"))
   (append (if is-static (list (symbol 'static) space) empty)
-          (list (symbol ret) space (symbol class) dot (symboldef method) lpar)
+          (list (symbol ret) space)
+          (if class (list (symbol class) dot) empty)
+          (list (symboldef method) lpar)
           (append*
            (for/list ((type types) (arg args) (i (length types)))
              (append (if (= i 0)
                          empty
                          (list comma space))
                      (list (symbol (symbol->string type)) space (varsym (symbol->string arg))))))
+          (if is-vararg (list (symbol '...)) empty)
           (list rpar)))
 (define (def-field-i is-static type class field)
   (append (if is-static (list (symbol 'static) space) empty)

@@ -34,7 +34,7 @@ public class EventIOTest {
     public void setUp() throws Exception {
         io = new EventIO() {
             @Override
-            public EventOutput onUpdate(EventOutput notify) {
+            public CancelOutput onUpdate(EventOutput notify) {
                 fail();
                 return null;
             }

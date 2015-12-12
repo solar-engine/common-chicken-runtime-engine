@@ -19,6 +19,7 @@
 package ccre.instinct;
 
 import ccre.channel.BooleanInput;
+import ccre.channel.CancelOutput;
 import ccre.channel.EventInput;
 import ccre.channel.EventOutput;
 import ccre.channel.FloatInput;
@@ -109,7 +110,7 @@ public abstract class InstinctBaseModule {
                 }
             }
         };
-        EventOutput unbind = source.send(c);
+        CancelOutput unbind = source.send(c);
         try {
             synchronized (b) {
                 while (!b[0]) {
@@ -118,7 +119,7 @@ public abstract class InstinctBaseModule {
                 }
             }
         } finally {
-            unbind.safeEvent();
+            unbind.cancel();
         }
     }
 

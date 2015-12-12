@@ -27,7 +27,7 @@ import java.awt.Shape;
 import java.awt.Stroke;
 import java.awt.geom.AffineTransform;
 
-import ccre.channel.EventOutput;
+import ccre.channel.CancelOutput;
 import ccre.channel.FloatInput;
 import ccre.channel.FloatOutput;
 import ccre.log.Logger;
@@ -54,7 +54,7 @@ public class FloatDisplayComponent extends BaseChannelComponent<FloatDisplayComp
     private boolean subscribed;
     private final FloatInput inp;
     // TODO: collapse subscribed and unsubscribe? here and other places?
-    private EventOutput unsubscribe;
+    private CancelOutput unsubscribe;
 
     /**
      * Create a new FloatDisplayComponent with a FloatInput to read from.
@@ -196,7 +196,7 @@ public class FloatDisplayComponent extends BaseChannelComponent<FloatDisplayComp
         boolean hasPanel = panel != null;
         if (inp != null && hasPanel != subscribed) {
             if (unsubscribe != null) {
-                unsubscribe.safeEvent();
+                unsubscribe.cancel();
                 unsubscribe = null;
             }
             if (hasPanel) {

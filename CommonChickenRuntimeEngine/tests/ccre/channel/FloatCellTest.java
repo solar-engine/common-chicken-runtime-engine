@@ -106,17 +106,17 @@ public class FloatCellTest {
     public void testHasConsumers() {
         assertFalse(cell.hasListeners());
         for (int i = 0; i < 5; i++) {
-            EventOutput eo = cell.send(FloatOutput.ignored);
+            CancelOutput eo = cell.send(FloatOutput.ignored);
             assertTrue(cell.hasListeners());
-            eo.event();
+            eo.cancel();
             assertFalse(cell.hasListeners());
-            EventOutput eo1 = cell.send(FloatOutput.ignored);
+            CancelOutput eo1 = cell.send(FloatOutput.ignored);
             assertTrue(cell.hasListeners());
-            EventOutput eo2 = cell.send(FloatOutput.ignored);
+            CancelOutput eo2 = cell.send(FloatOutput.ignored);
             assertTrue(cell.hasListeners());
-            eo1.event();
+            eo1.cancel();
             assertTrue(cell.hasListeners());
-            eo2.event();
+            eo2.cancel();
             assertFalse(cell.hasListeners());
         }
     }
@@ -178,7 +178,7 @@ public class FloatCellTest {
     @Test
     public void testOnUpdateR() {
         CountingEventOutput ceo = new CountingEventOutput();
-        EventOutput unbind = cell.onUpdate(ceo);
+        CancelOutput unbind = cell.onUpdate(ceo);
         assertTrue(cell.hasListeners());
         for (float f : Values.interestingFloats) {
             ceo.ifExpected = true;
@@ -186,7 +186,7 @@ public class FloatCellTest {
             ceo.check();
         }
         assertTrue(cell.hasListeners());
-        unbind.event();
+        unbind.cancel();
         assertFalse(cell.hasListeners());
         for (float f : Values.interestingFloats) {
             cell.set(f);
@@ -198,24 +198,24 @@ public class FloatCellTest {
     @Test
     public void testOnUpdateAndOnUpdateR() {
         assertFalse(cell.hasListeners());
-        EventOutput unbind = cell.onUpdate(EventOutput.ignored);
+        CancelOutput unbind = cell.onUpdate(EventOutput.ignored);
         assertTrue(cell.hasListeners());
         cell.onUpdate(EventOutput.ignored);
         assertTrue(cell.hasListeners());
-        unbind.event();
+        unbind.cancel();
         assertTrue(cell.hasListeners());
     }
 
     @Test
     public void testOnUpdateRTwice() {
         assertFalse(cell.hasListeners());
-        EventOutput unbind1 = cell.onUpdate(EventOutput.ignored);
+        CancelOutput unbind1 = cell.onUpdate(EventOutput.ignored);
         assertTrue(cell.hasListeners());
-        EventOutput unbind2 = cell.onUpdate(EventOutput.ignored);
+        CancelOutput unbind2 = cell.onUpdate(EventOutput.ignored);
         assertTrue(cell.hasListeners());
-        unbind1.event();
+        unbind1.cancel();
         assertTrue(cell.hasListeners());
-        unbind2.event();
+        unbind2.cancel();
         assertFalse(cell.hasListeners());
     }
 

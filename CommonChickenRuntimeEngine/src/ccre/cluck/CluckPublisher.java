@@ -28,6 +28,7 @@ import ccre.channel.BooleanCell;
 import ccre.channel.BooleanIO;
 import ccre.channel.BooleanInput;
 import ccre.channel.BooleanOutput;
+import ccre.channel.CancelOutput;
 import ccre.channel.EventCell;
 import ccre.channel.EventIO;
 import ccre.channel.EventInput;
@@ -776,8 +777,8 @@ public class CluckPublisher {
         }
 
         @Override
-        public synchronized EventOutput onUpdate(EventOutput out) {
-            EventOutput base = super.onUpdate(out);
+        public synchronized CancelOutput onUpdate(EventOutput out) {
+            CancelOutput base = super.onUpdate(out);
             if (!sent) {
                 sent = true;
                 node.transmit(path, linkName, new byte[] { CluckConstants.RMT_FLOATINPUT });
@@ -869,8 +870,8 @@ public class CluckPublisher {
         }
 
         @Override
-        public synchronized EventOutput onUpdate(EventOutput cns) {
-            EventOutput base = super.onUpdate(cns);
+        public synchronized CancelOutput onUpdate(EventOutput cns) {
+            CancelOutput base = super.onUpdate(cns);
             if (!sent) {
                 sent = true;
                 node.transmit(path, linkName, new byte[] { CluckConstants.RMT_BOOLINPUT });
@@ -956,8 +957,8 @@ public class CluckPublisher {
         }
 
         @Override
-        public synchronized EventOutput onUpdate(EventOutput cns) {
-            EventOutput base = super.onUpdate(cns);
+        public synchronized CancelOutput onUpdate(EventOutput cns) {
+            CancelOutput base = super.onUpdate(cns);
             if (!sent) {
                 sent = true;
                 node.transmit(path, linkName, new byte[] { CluckConstants.RMT_EVENTINPUT });

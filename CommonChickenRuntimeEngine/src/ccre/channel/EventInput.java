@@ -36,11 +36,11 @@ public interface EventInput extends UpdatingInput {
      */
     public static EventInput never = new EventInput() {
         @Override
-        public EventOutput onUpdate(EventOutput notify) {
+        public CancelOutput onUpdate(EventOutput notify) {
             if (notify == null) {
                 throw new NullPointerException();
             }
-            return EventOutput.ignored;
+            return CancelOutput.nothing;
         }
     };
 
@@ -56,7 +56,7 @@ public interface EventInput extends UpdatingInput {
      * NOT FIRE THIS RETURNED EVENT MORE THAN ONCE: UNDEFINED BEHAVIOR MAY
      * RESULT.
      */
-    public default EventOutput send(EventOutput output) {
+    public default CancelOutput send(EventOutput output) {
         if (output == null) {
             throw new NullPointerException();
         }
@@ -77,7 +77,7 @@ public interface EventInput extends UpdatingInput {
         EventInput original = this;
         return new EventInput() {
             @Override
-            public EventOutput onUpdate(EventOutput notify) {
+            public CancelOutput onUpdate(EventOutput notify) {
                 return original.onUpdate(notify).combine(other.onUpdate(notify));
             }
         };

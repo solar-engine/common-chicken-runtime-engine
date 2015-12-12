@@ -32,6 +32,7 @@ import ccre.channel.FloatCell;
 import ccre.channel.FloatInput;
 import ccre.channel.FloatOutput;
 import ccre.log.LogLevel;
+import ccre.log.Logger;
 import ccre.log.LoggingTarget;
 import ccre.log.VerifyingLoggingTarget;
 import ccre.testing.CountingBooleanOutput;
@@ -217,7 +218,10 @@ public class CluckPublisherTest {
             CountingBooleanOutput cbo = new CountingBooleanOutput();
             BooleanCell bs = new BooleanCell();
             CluckPublisher.publish(node, name, bs.asInput());
+            cbo.ifExpected = true;
+            cbo.valueExpected = false;
             CluckPublisher.subscribeBI(node, name, false).send(cbo);
+            cbo.check();
             for (boolean b : Values.interestingBooleans) {
                 cbo.valueExpected = b;
                 cbo.ifExpected = b != bs.get();
@@ -309,16 +313,39 @@ public class CluckPublisherTest {
 
     @Test
     public void testFloatInput() {
-        for (int i = 0; i < 20; i++) {
+        for (float starting : Values.interestingFloats) {
             String name = Values.getRandomString();
-            if (name.contains("/") || node.hasLink(name)) {
-                i--;
-                continue;
+            while (name.contains("/") || node.hasLink(name)) {
+                name = Values.getRandomString();
             }
             CountingFloatOutput cfo = new CountingFloatOutput();
-            FloatCell fs = new FloatCell();
+            FloatCell fs = new FloatCell(starting);
             CluckPublisher.publish(node, name, fs.asInput());
-            CluckPublisher.subscribeFI(node, name, false).send(cfo);
+            cfo.ifExpected = true;
+            cfo.valueExpected = Float.NaN;
+            CluckPublisher.subscribeFI(node, name, false).send(new FloatOutput() {
+                private boolean first = true;
+
+                @Override
+                public void set(float v) {
+                    Logger.fine("Got: " + v);
+                    cfo.set(v);
+                    if (first) {
+                        first = false;
+                        cfo.check();
+                        // this is because the subscription will first send a
+                        // NaN and then update itself very quickly when the
+                        // response returns (which is almost immediately)
+                        cfo.ifExpected = !Float.isNaN(starting);
+                        cfo.valueExpected = starting;
+                    }
+                }
+            });
+            cfo.check();
+            cfo.valueExpected = 0;
+            cfo.ifExpected = Float.floatToIntBits(starting) != Float.floatToIntBits(0);
+            fs.set(0);
+            cfo.check();
             for (float f : Values.interestingFloats) {
                 cfo.valueExpected = f;
                 cfo.ifExpected = true;

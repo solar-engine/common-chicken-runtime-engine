@@ -23,6 +23,7 @@ import java.awt.FontMetrics;
 import java.awt.Graphics2D;
 import java.io.Serializable;
 
+import ccre.channel.CancelOutput;
 import ccre.channel.EventCell;
 import ccre.channel.EventInput;
 import ccre.channel.EventOutput;
@@ -46,7 +47,7 @@ public class EventControlComponent extends BaseChannelComponent<EventControlComp
     private transient long countStart;
     private final EventInput alternateSource;
     private final EventCell stat = new EventCell();
-    private EventOutput unsubscribe;
+    private CancelOutput unsubscribe;
 
     /**
      * Create a new EventControlComponent with a EventOutput to control.
@@ -156,7 +157,7 @@ public class EventControlComponent extends BaseChannelComponent<EventControlComp
         boolean hasPanel = panel != null;
         if (alternateSource != null && hasPanel != isFakeSubscribed) {
             if (unsubscribe != null) {
-                unsubscribe.safeEvent();
+                unsubscribe.cancel();
                 unsubscribe = null;
             }
             if (hasPanel) {

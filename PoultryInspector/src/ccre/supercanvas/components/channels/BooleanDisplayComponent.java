@@ -24,7 +24,7 @@ import java.awt.Graphics2D;
 
 import ccre.channel.BooleanInput;
 import ccre.channel.BooleanOutput;
-import ccre.channel.EventOutput;
+import ccre.channel.CancelOutput;
 import ccre.rconf.RConf;
 import ccre.rconf.RConf.Entry;
 import ccre.supercanvas.BaseChannelComponent;
@@ -47,7 +47,7 @@ public class BooleanDisplayComponent extends BaseChannelComponent<BooleanDisplay
     private boolean subscribed;
     private boolean inverted = false;
     private final BooleanInput inp;
-    private EventOutput unsubscribe;
+    private CancelOutput unsubscribe;
 
     /**
      * Create a new BooleanDisplayComponent with a BooleanInput to read from.
@@ -119,7 +119,7 @@ public class BooleanDisplayComponent extends BaseChannelComponent<BooleanDisplay
         boolean hasPanel = panel != null;
         if (inp != null && hasPanel != subscribed) {
             if (unsubscribe != null) {
-                unsubscribe.safeEvent();
+                unsubscribe.cancel();
                 unsubscribe = null;
             }
             if (hasPanel) {

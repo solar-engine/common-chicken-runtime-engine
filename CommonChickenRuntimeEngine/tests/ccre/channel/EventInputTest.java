@@ -75,7 +75,7 @@ public class EventInputTest {
 
     @Test
     public void testNever() {
-        assertEquals(EventOutput.ignored, EventInput.never.onUpdate(() -> fail("should not be fired!")));
+        assertEquals(CancelOutput.nothing, EventInput.never.onUpdate(() -> fail("should not be fired!")));
     }
 
     @Test(expected = NullPointerException.class)
@@ -88,21 +88,22 @@ public class EventInputTest {
     @Test
     public void testSend() {
         gotProperly = false;
+        CancelOutput cc2 = ceo2::event;
         ei = new EventInput() {
             @Override
-            public EventOutput onUpdate(EventOutput notify) {
+            public CancelOutput onUpdate(EventOutput notify) {
                 assertEquals(ceo, notify);
                 gotProperly = true;
-                return ceo2;
+                return cc2;
             }
         };
-        assertEquals(ceo2, ei.send(ceo));
+        assertEquals(cc2, ei.send(ceo));
         assertTrue(gotProperly);
     }
 
     @Test(expected = NullPointerException.class)
     public void testSendNull() {
-        ei = (notify) -> notify;
+        ei = (notify) -> CancelOutput.nothing;
         ei.send(null);
     }
 
@@ -119,7 +120,7 @@ public class EventInputTest {
 
     @Test(expected = NullPointerException.class)
     public void testOrNull() {
-        ei = (notify) -> notify;
+        ei = (notify) -> CancelOutput.nothing;
         ei.or(null);
     }
 
@@ -140,7 +141,7 @@ public class EventInputTest {
 
     @Test(expected = NullPointerException.class)
     public void testAndNull() {
-        ei = (notify) -> notify;
+        ei = (notify) -> CancelOutput.nothing;
         ei.and(null);
     }
 
@@ -161,7 +162,7 @@ public class EventInputTest {
 
     @Test(expected = NullPointerException.class)
     public void testAndNotNull() {
-        ei = (notify) -> notify;
+        ei = (notify) -> CancelOutput.nothing;
         ei.andNot(null);
     }
 
@@ -182,13 +183,13 @@ public class EventInputTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void testDebouncedNegative() {
-        ei = (notify) -> notify;
+        ei = (notify) -> CancelOutput.nothing;
         ei.debounced(-1);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testDebouncedZero() {
-        ei = (notify) -> notify;
+        ei = (notify) -> CancelOutput.nothing;
         ei.debounced(0);
     }
 

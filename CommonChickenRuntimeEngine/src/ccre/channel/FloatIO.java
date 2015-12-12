@@ -108,7 +108,7 @@ public interface FloatIO extends FloatInput, FloatOutput {
             }
 
             @Override
-            public EventOutput onUpdate(EventOutput notify) {
+            public CancelOutput onUpdate(EventOutput notify) {
                 return input.onUpdate(notify);
             }
 

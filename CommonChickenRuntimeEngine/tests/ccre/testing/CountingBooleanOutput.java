@@ -47,11 +47,15 @@ public class CountingBooleanOutput implements BooleanOutput {
      */
     public boolean ifExpected;
 
+    private boolean anyUnexpected;
+
     public synchronized void set(boolean value) {
         if (!ifExpected) {
+            anyUnexpected = true;
             throw new RuntimeException("Unexpected set!");
         }
         if (value != valueExpected) {
+            anyUnexpected = true;
             throw new RuntimeException("Incorrect set!");
         }
         ifExpected = false;
@@ -64,7 +68,11 @@ public class CountingBooleanOutput implements BooleanOutput {
      * @throws RuntimeException if a write did not occur.
      */
     public void check() throws RuntimeException {
+        if (anyUnexpected) {
+            throw new RuntimeException("Already failed earlier!");
+        }
         if (ifExpected) {
+            anyUnexpected = true;
             throw new RuntimeException("Did not get expected set!");
         }
     }

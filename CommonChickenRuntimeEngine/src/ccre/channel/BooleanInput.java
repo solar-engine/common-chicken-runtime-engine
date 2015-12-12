@@ -40,11 +40,11 @@ public interface BooleanInput extends UpdatingInput {
         }
 
         @Override
-        public EventOutput onUpdate(EventOutput notify) {
+        public CancelOutput onUpdate(EventOutput notify) {
             if (notify == null) {
                 throw new NullPointerException();
             }
-            return EventOutput.ignored;
+            return CancelOutput.nothing;
         }
     };
     /**
@@ -56,11 +56,11 @@ public interface BooleanInput extends UpdatingInput {
         }
 
         @Override
-        public EventOutput onUpdate(EventOutput notify) {
+        public CancelOutput onUpdate(EventOutput notify) {
             if (notify == null) {
                 throw new NullPointerException();
             }
-            return EventOutput.ignored;
+            return CancelOutput.nothing;
         }
     };
 
@@ -102,7 +102,7 @@ public interface BooleanInput extends UpdatingInput {
      * NOT FIRE THIS RETURNED EVENT MORE THAN ONCE: UNDEFINED BEHAVIOR MAY
      * RESULT.
      */
-    public default EventOutput send(BooleanOutput output) {
+    public default CancelOutput send(BooleanOutput output) {
         output.safeSet(get());
         return onUpdate(() -> output.set(get()));
     }
@@ -125,7 +125,7 @@ public interface BooleanInput extends UpdatingInput {
         BooleanInput original = this;
         return new BooleanInput() {
             @Override
-            public EventOutput onUpdate(EventOutput notify) {
+            public CancelOutput onUpdate(EventOutput notify) {
                 return original.onUpdate(notify);
             }
 
@@ -169,16 +169,7 @@ public interface BooleanInput extends UpdatingInput {
      * @return the combined BooleanInput.
      */
     public default BooleanInput andNot(final BooleanInput b) {
-        if (b == null) {
-            throw new NullPointerException();
-        }
-        final BooleanInput a = this;
-        return new DerivedBooleanInput(a, b) {
-            @Override
-            protected boolean apply() {
-                return a.get() && !b.get();
-            }
-        };
+        return this.and(b.not());
     }
 
     /**
@@ -229,16 +220,7 @@ public interface BooleanInput extends UpdatingInput {
      * @return the combined BooleanInput.
      */
     public default BooleanInput orNot(final BooleanInput b) {
-        if (b == null) {
-            throw new NullPointerException();
-        }
-        final BooleanInput a = this;
-        return new DerivedBooleanInput(a, b) {
-            @Override
-            protected boolean apply() {
-                return a.get() || !b.get();
-            }
-        };
+        return this.or(b.not());
     }
 
     /**
@@ -392,17 +374,6 @@ public interface BooleanInput extends UpdatingInput {
      * @return the lockable version of this BooleanInput.
      */
     public default BooleanInput filterUpdatesNot(BooleanInput deny) {
-        final BooleanInput original = this;
-        return new DerivedBooleanInput(this, deny) {
-            private boolean lastValue = original.get();
-
-            @Override
-            public boolean apply() {
-                if (!deny.get()) {
-                    lastValue = original.get();
-                }
-                return lastValue;
-            }
-        };
+        return this.filterUpdates(deny.not());
     }
 }

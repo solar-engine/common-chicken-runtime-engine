@@ -108,12 +108,13 @@ public class FloatInputTest {
     private float result;
 
     @Test
-    public void testSendR() {
+    public void testSend() {
         CountingEventOutput expected = new CountingEventOutput();
         gotProperly = false;
+        CancelOutput cex = expected::event;
         fi = new FloatInput() {
             @Override
-            public EventOutput onUpdate(EventOutput notify) {
+            public CancelOutput onUpdate(EventOutput notify) {
                 assertFalse(gotProperly);
                 cfo.check();// the earlier setup from outside this
                 for (float f : Values.interestingFloats) {
@@ -124,7 +125,7 @@ public class FloatInputTest {
                     cfo.check();
                 }
                 gotProperly = true;
-                return expected;
+                return cex;
             }
 
             @Override
@@ -140,7 +141,7 @@ public class FloatInputTest {
             cfo.ifExpected = true;
             cfo.valueExpected = result = initial;
             assertFalse(gotProperly);
-            assertEquals(expected, fi.send(cfo));
+            assertEquals(cex, fi.send(cfo));
             assertTrue(gotProperly);
             gotProperly = false;
             cfo.check();// the real check is in onUpdateR above
@@ -369,13 +370,13 @@ public class FloatInputTest {
                     continue;
                 }
                 BooleanInput bi = fs.outsideRange(min, max);
-                EventOutput unbind = bi.send(bs);
+                CancelOutput unbind = bi.send(bs);
                 for (float test : Values.interestingFloats) {
                     fs.set(test);
                     assertEquals(test < min || test > max, bi.get());
                     assertEquals(test < min || test > max, bs.get());
                 }
-                unbind.event();
+                unbind.cancel();
             }
         }
     }
@@ -520,7 +521,7 @@ public class FloatInputTest {
             ceo.check();
             for (float v : Values.lessInterestingFloats) {
                 // note: if onChangeBy(0), then everything should trigger this.
-                if (Math.abs(last - v) > Math.abs(d)) {
+                if (Math.abs(last - v) >= Math.abs(d) && last != v) {
                     last = v;
                     ceo.ifExpected = true;
                 } else {
@@ -836,9 +837,9 @@ public class FloatInputTest {
         CountingEventOutput expected2 = new CountingEventOutput();
         fi = new FloatInput() {
             @Override
-            public EventOutput onUpdate(EventOutput notify) {
+            public CancelOutput onUpdate(EventOutput notify) {
                 expected.event();
-                return EventOutput.ignored;
+                return CancelOutput.nothing;
             }
 
             @Override

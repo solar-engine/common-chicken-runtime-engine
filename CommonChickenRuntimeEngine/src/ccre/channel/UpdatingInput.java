@@ -44,5 +44,5 @@ public interface UpdatingInput {
      * NOT FIRE THIS RETURNED EVENT MORE THAN ONCE: UNDEFINED BEHAVIOR MAY
      * RESULT.
      */
-    public EventOutput onUpdate(EventOutput notify);
+    public CancelOutput onUpdate(EventOutput notify);
 }

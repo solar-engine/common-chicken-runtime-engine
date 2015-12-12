@@ -19,6 +19,7 @@
 package ccre.timers;
 
 import ccre.channel.AbstractUpdatingInput;
+import ccre.channel.CancelOutput;
 import ccre.channel.EventInput;
 import ccre.channel.EventOutput;
 import ccre.concurrency.ReporterThread;
@@ -148,7 +149,7 @@ public final class Ticker extends AbstractUpdatingInput implements EventInput {
     }
 
     @Override
-    public EventOutput onUpdate(EventOutput notify) {
+    public CancelOutput onUpdate(EventOutput notify) {
         if (isKilled) {
             throw new IllegalStateException("Terminated!");
         }

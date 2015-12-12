@@ -236,35 +236,54 @@ public interface FloatOutput {
     }
 
     /**
-     * Provides a filtered version of this FloatOutput such that values sent to
-     * it will be ignored when the value of <code>allow</code> is false.
+     * Provides a version of this FloatOutput that only propagates changes if
+     * <code>allow</code> is currently true.
      *
-     * @param allow if values should be allowed through.
-     * @return the filtered FloatOutput.
+     * When <code>allow</code> changes to false, the output is locked, and when
+     * <code>allow</code> changes to true, the output is unlocked and this
+     * BooleanOutput is set to its last received value.
+     *
+     * @param allow when to allow changing of the result.
+     * @return the lockable version of this FloatOutput.
      */
     public default FloatOutput filter(BooleanInput allow) {
         FloatOutput original = this;
-        return (value) -> {
-            if (allow.get()) {
-                original.set(value);
+        return new FloatOutput() {
+            private boolean anyValue;
+            private float lastValue;
+
+            {
+                allow.onPress().send(() -> {
+                    if (anyValue) {
+                        original.set(lastValue);
+                    }
+                });
+            }
+
+            @Override
+            public void set(float value) {
+                lastValue = value;
+                anyValue = true;
+                if (allow.get()) {
+                    original.set(value);
+                }
             }
         };
     }
 
     /**
-     * Provides a filtered version of this FloatOutput such that values sent to
-     * it will be ignored when the value of <code>deny</code> is true.
+     * Provides a version of this FloatOutput that only propagates changes if
+     * <code>deny</code> is currently false.
      *
-     * @param deny if values should be disallowed through.
-     * @return the filtered FloatOutput.
+     * When <code>deny</code> changes to true, the output is locked, and when
+     * <code>deny</code> changes to false, the output is unlocked and this
+     * BooleanOutput is set to its last received value.
+     *
+     * @param deny when to deny changing of the result.
+     * @return the lockable version of this FloatOutput.
      */
     public default FloatOutput filterNot(BooleanInput deny) {
-        FloatOutput original = this;
-        return (value) -> {
-            if (!deny.get()) {
-                original.set(value);
-            }
-        };
+        return this.filter(deny.not());
     }
 
     /**

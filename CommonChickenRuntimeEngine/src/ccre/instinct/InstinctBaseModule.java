@@ -94,6 +94,30 @@ public abstract class InstinctBaseModule {
     }
 
     /**
+     * Wait until the specified BooleanInput becomes false before returning, or
+     * for a timeout to elapse.
+     *
+     * @param timeout the maximum amount of time to wait, in milliseconds.
+     * @param waitFor the condition to wait until not true.
+     * @return true if the condition became false, or false if the timeout
+     * elapsed.
+     * @throws AutonomousModeOverException If the autonomous mode has ended.
+     * @throws InterruptedException Possibly also if autonomous mode has ended.
+     */
+    protected boolean waitUntilNot(long timeout, BooleanInput waitFor) throws AutonomousModeOverException, InterruptedException {
+        long doneAt = Time.currentTimeMillis() + timeout;
+        // TODO: make this dynamic
+        while (Time.currentTimeMillis() < doneAt) {
+            ensureShouldBeRunning();
+            if (!waitFor.get()) {
+                return true;
+            }
+            waitCycle();
+        }
+        return false;
+    }
+
+    /**
      * Wait until the specified EventInput is produced before returning.
      *
      * @param source The event to wait for.

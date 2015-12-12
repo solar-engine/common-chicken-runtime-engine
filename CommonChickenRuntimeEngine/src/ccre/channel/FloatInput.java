@@ -433,7 +433,7 @@ public interface FloatInput extends UpdatingInput {
 
             protected boolean shouldProduce() {
                 float value = get();
-                if (Math.abs(last - value) > deltaAbs) {
+                if (Math.abs(last - value) >= deltaAbs) {
                     last = value;
                     return true;
                 }

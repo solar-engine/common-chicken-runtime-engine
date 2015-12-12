@@ -45,7 +45,7 @@ import ccre.channel.FloatOutput;
  *
  * @author skeggsc
  */
-public class DriverImpls {
+public class Drive {
 
     /**
      * Run tank drive on the given two FloatInputs and FloatOutputs.
@@ -54,9 +54,9 @@ public class DriverImpls {
      * @param rightIn the right control axis.
      * @param leftOut the left motor.
      * @param rightOut the right motor.
-     * @see DriverImpls
+     * @see Drive
      */
-    public static void tankDrive(FloatInput leftIn, FloatInput rightIn, FloatOutput leftOut, FloatOutput rightOut) {
+    public static void tank(FloatInput leftIn, FloatInput rightIn, FloatOutput leftOut, FloatOutput rightOut) {
         leftIn.send(leftOut);
         rightIn.send(rightOut);
     }
@@ -69,9 +69,9 @@ public class DriverImpls {
      * @param forward the forward control axis.
      * @param leftOut the left motor.
      * @param rightOut the right motor.
-     * @see DriverImpls
+     * @see Drive
      */
-    public static void extendedTankDrive(FloatInput leftIn, FloatInput rightIn, FloatInput forward, FloatOutput leftOut, FloatOutput rightOut) {
+    public static void extendedTank(FloatInput leftIn, FloatInput rightIn, FloatInput forward, FloatOutput leftOut, FloatOutput rightOut) {
         leftIn.plus(forward).send(leftOut);
         rightIn.plus(forward).send(rightOut);
     }
@@ -83,9 +83,9 @@ public class DriverImpls {
      * @param joystickYAxis the joystick's y-axis.
      * @param leftOut the left motor.
      * @param rightOut the right motor.
-     * @see DriverImpls
+     * @see Drive
      */
-    public static void arcadeDrive(final FloatInput joystickXAxis, final FloatInput joystickYAxis, final FloatOutput leftOut, final FloatOutput rightOut) {
+    public static void arcade(FloatInput joystickXAxis, FloatInput joystickYAxis, FloatOutput leftOut, FloatOutput rightOut) {
         joystickYAxis.plus(joystickXAxis).send(leftOut);
         joystickYAxis.minus(joystickXAxis).send(rightOut);
     }
@@ -96,10 +96,10 @@ public class DriverImpls {
      * @param joystick the joystick.
      * @param leftOut the left motor.
      * @param rightOut the right motor.
-     * @see DriverImpls
+     * @see Drive
      */
-    public static void arcadeDrive(final Joystick joystick, final FloatOutput leftOut, final FloatOutput rightOut) {
-        arcadeDrive(joystick.axisX(), joystick.axisY(), leftOut, rightOut);
+    public static void arcade(Joystick joystick, FloatOutput leftOut, FloatOutput rightOut) {
+        arcade(joystick.axisX(), joystick.axisY(), leftOut, rightOut);
     }
 
     /**
@@ -113,9 +113,9 @@ public class DriverImpls {
      * @param leftBackMotor the left back motor.
      * @param rightFrontMotor the right front motor.
      * @param rightBackMotor the right back motor.
-     * @see DriverImpls
+     * @see Drive
      */
-    public static void mecanumDrive(final FloatInput forward, final FloatInput strafe, final FloatInput rotate, final FloatOutput leftFrontMotor, final FloatOutput leftBackMotor, final FloatOutput rightFrontMotor, final FloatOutput rightBackMotor) {
+    public static void mecanum(final FloatInput forward, final FloatInput strafe, final FloatInput rotate, final FloatOutput leftFrontMotor, final FloatOutput leftBackMotor, final FloatOutput rightFrontMotor, final FloatOutput rightBackMotor) {
         // TODO: Optimize this?
         new DerivedUpdate(forward, strafe, rotate) {
             @Override
@@ -151,6 +151,6 @@ public class DriverImpls {
         };
     }
 
-    private DriverImpls() {
+    private Drive() {
     }
 }

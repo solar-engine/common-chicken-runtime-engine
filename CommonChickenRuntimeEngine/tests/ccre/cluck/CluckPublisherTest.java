@@ -322,7 +322,7 @@ public class CluckPublisherTest {
             FloatCell fs = new FloatCell(starting);
             CluckPublisher.publish(node, name, fs.asInput());
             cfo.ifExpected = true;
-            cfo.valueExpected = 0.0f;
+            cfo.valueExpected = Float.NaN;
             CluckPublisher.subscribeFI(node, name, false).send(new FloatOutput() {
                 private boolean first = true;
 
@@ -336,7 +336,7 @@ public class CluckPublisherTest {
                         // this is because the subscription will first send a
                         // NaN and then update itself very quickly when the
                         // response returns (which is almost immediately)
-                        cfo.ifExpected = Float.floatToIntBits(starting) != Float.floatToIntBits(0);
+                        cfo.ifExpected = !Float.isNaN(starting);
                         cfo.valueExpected = starting;
                     }
                 }

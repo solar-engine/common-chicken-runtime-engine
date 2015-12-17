@@ -35,7 +35,7 @@ import ccre.tuning.TuningContext;
  *
  * @author skeggsc
  */
-public class InstinctMultiModule extends InstinctModule {
+public final class InstinctMultiModule extends InstinctModule {
 
     /**
      * The list of modes registered with this InstinctMultiModule.

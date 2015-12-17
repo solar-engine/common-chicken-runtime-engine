@@ -220,6 +220,18 @@ public class FRC {
     }
 
     /**
+     * Create a reference to a Jaguar speed controller on the specified PWM
+     * port, with a default ramping rate of 0.1, aka 200 milliseconds to ramp
+     * from stopped to full speed.
+     *
+     * @param id the motor port ID, from 1 to 10, inclusive.
+     * @return the output that will output to the specified motor.
+     */
+    public static FloatOutput jaguar(int id) {
+        return jaguar(id, false, 0.1f);
+    }
+
+    /**
      * Create a reference to a Victor speed controller on the specified PWM port
      * and motor reversal, with a specified ramping rate.
      *
@@ -261,6 +273,18 @@ public class FRC {
     }
 
     /**
+     * Create a reference to a Victor speed controller on the specified PWM
+     * port, with a default ramping rate of 0.1, aka 200 milliseconds to ramp
+     * from stopped to full speed.
+     *
+     * @param id the motor port ID, from 1 to 10, inclusive.
+     * @return the output that will output to the specified motor.
+     */
+    public static FloatOutput victor(int id) {
+        return victor(id, false, 0.1f);
+    }
+
+    /**
      * Create a reference to a Talon speed controller on the specified PWM port
      * and motor reversal, with a specified ramping rate.
      *
@@ -299,6 +323,18 @@ public class FRC {
      */
     public static FloatOutput talon(int id, boolean negate) {
         return talon(id, negate, 0.1f);
+    }
+
+    /**
+     * Create a reference to a Talon speed controller on the specified PWM port,
+     * with a default ramping rate of 0.1, aka 200 milliseconds to ramp from
+     * stopped to full speed.
+     *
+     * @param id the motor port ID, from 1 to 10, inclusive.
+     * @return the output that will output to the specified motor.
+     */
+    public static FloatOutput talon(int id) {
+        return talon(id, false, 0.1f);
     }
 
     /**
@@ -541,8 +577,8 @@ public class FRC {
     }
 
     /**
-     * Gets a boolean input that checks if the robot is currently in teleop mode,
-     * as opposed to testing and autonomous.
+     * Gets a boolean input that checks if the robot is currently in teleop
+     * mode, as opposed to testing and autonomous.
      *
      * @return the input.
      */

@@ -244,7 +244,7 @@ public interface BooleanOutput {
      * @param toTrue if the output becomes true.
      * @return the output that can trigger the events.
      */
-    public static BooleanOutput onChange(final EventOutput toFalse, final EventOutput toTrue) {
+    public static BooleanOutput polarize(final EventOutput toFalse, final EventOutput toTrue) {
         if (toFalse == null && toTrue == null) {
             throw new NullPointerException("Both toFalse and toTrue are null in onChange! You can only have at most one be null.");
         }
@@ -279,7 +279,7 @@ public interface BooleanOutput {
      * BooleanOutput is set to its last received value.
      *
      * @param allow when to allow changing of the result.
-     * @return the lockable version of this BooleanInput.
+     * @return the lockable version of this BooleanOutput.
      */
     public default BooleanOutput filter(BooleanInput allow) {
         BooleanOutput original = this;
@@ -314,29 +314,9 @@ public interface BooleanOutput {
      * BooleanOutput is set to its last received value.
      *
      * @param deny when to deny changing of the result.
-     * @return the lockable version of this BooleanInput.
+     * @return the lockable version of this BooleanOutput.
      */
     public default BooleanOutput filterNot(BooleanInput deny) {
-        BooleanOutput original = this;
-        return new BooleanOutput() {
-            private boolean lastValue, anyValue;
-
-            {
-                deny.onRelease().send(() -> {
-                    if (anyValue) {
-                        original.set(lastValue);
-                    }
-                });
-            }
-
-            @Override
-            public void set(boolean value) {
-                lastValue = value;
-                anyValue = true;
-                if (!deny.get()) {
-                    original.set(value);
-                }
-            }
-        };
+        return this.filter(deny.not());
     }
 }

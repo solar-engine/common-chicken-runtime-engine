@@ -57,9 +57,6 @@ public abstract class InstinctModule extends InstinctBaseModule {
      * @param shouldBeRunning The input to control the running of this module.
      */
     public InstinctModule(BooleanInput shouldBeRunning) {
-        if (shouldBeRunning == null) {
-            throw new NullPointerException();
-        }
         setShouldBeRunning(shouldBeRunning);
     }
 
@@ -156,7 +153,7 @@ public abstract class InstinctModule extends InstinctBaseModule {
             throw new NullPointerException();
         }
         shouldBeRunning = when;
-        if (!main.isAlive()) {
+        if (!main.isAlive()) { // TODO: do I really need to check if it's alive?
             main.start();
         }
     }

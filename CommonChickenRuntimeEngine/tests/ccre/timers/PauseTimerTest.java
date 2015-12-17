@@ -221,9 +221,10 @@ public class PauseTimerTest {
             fake.forward(990);
             Thread.sleep(2);
             ceo.ifExpected = true;
+            Thread.sleep(2);
             fake.forward(10);
             Thread.sleep(2);
-            ceo.check(); // flaky; 3 failures
+            ceo.check(); // flaky; 5 failures  maybe fixed by the Thread.sleep(2) three lines above.
         }
     }
 }

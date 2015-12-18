@@ -224,7 +224,8 @@ public class PauseTimerTest {
             Thread.sleep(2);
             fake.forward(10);
             Thread.sleep(2);
-            ceo.check(); // flaky; 5 failures  maybe fixed by the Thread.sleep(2) three lines above.
+            ceo.check(); // flaky; 5 failures.
+            // maybe fixed by the Thread.sleep(2) three lines above?
         }
     }
 }

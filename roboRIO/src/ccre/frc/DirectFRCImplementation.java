@@ -238,7 +238,8 @@ public final class DirectFRCImplementation implements FRCImplementation {
         boolean test = ((word >> 2) & 1) != 0;
         boolean eStop = ((word >> 3) & 1) != 0;
         boolean dsAttached = ((word >> 5) & 1) != 0;
-        if (!enabled || !dsAttached || eStop) { // TODO: does include eStop here cause any issues?
+        // TODO: does include eStop here cause any issues?
+        if (!enabled || !dsAttached || eStop) {
             return Mode.DISABLED;
         } else if (test) {
             return Mode.TEST;

@@ -147,24 +147,25 @@
   (tabular #:style 'boxed
            (map list xes)))
 (define (add-marker x marker)
-  (nested-flow
-   (style #f '())
-   (list
-    (nested-flow
-     (style "RBackgroundLabel" (list 'decorative 'command (alt-tag "div") (attributes '((class . "SIEHidden")))))
-     (list (nested-flow
-            (style "RBackgroundLabelInner" (list (alt-tag "div")))
-            (list (paragraph (style #f '(omitable)) marker)))))
-    x)))
+  (if (list? x)
+      (cons (add-marker (car x) marker) (cdr x))
+      (nested-flow
+       (style #f '())
+       (list
+        (nested-flow
+         (style "RBackgroundLabel" (list 'decorative 'command (alt-tag "div") (attributes '((class . "SIEHidden")))))
+         (list (nested-flow
+                (style "RBackgroundLabelInner" (list (alt-tag "div")))
+                (paragraph-nowrap marker))))
+        x))))
 (define (def-box-p elements marker)
-  (def-box
-    (add-marker (paragraph (style #f (list 'omitable)) elements)
-                marker)))
+  (def-box-p* (list elements) marker))
 (define (def-box-p* elementses marker)
   (def-box*
-    (for/list ((elements elementses))
-      (add-marker (paragraph (style #f (list 'omitable)) elements)
-                  marker))))
+    (append*
+     (for/list ((elements elementses))
+       (add-marker (paragraph-wrap elements (string-length marker))
+                   marker)))))
 (define (fsym x)
   (if (symbol? x) (symbol->string x) x))
 (define (keyword x)
@@ -184,6 +185,33 @@
   (element "RktCmt" (fsym x)))
 (define (symboldef x)
   (element 'bold (symbol x)))
+
+(define (paragraph-nowrap x)
+  (list (paragraph (style #f (list 'omitable)) x)))
+(define (paragraph-wrap x [first-line-omit-count 0])
+  (for/list ((line (possible-word-wrap x first-line-omit-count)))
+    (paragraph (style #f (list 'omitable)) line)))
+(define word-wrap-at 76) ; 76 chars maximum
+(define (word-length x)
+  (cond ((element? x) (word-length (element-content x)))
+        ((list? x) (apply + (map word-length x)))
+        ((string? x) (string-length x))
+        (else (error "Invalid word" x))))
+(define (possible-word-wrap xes [so-far 0] [is-first? #t]) ; returns (((car x) elem elem last-elem) (elem elem elem last-elem) (elem elem elem elem last-last-elem))
+  (if (empty? xes)
+      (list empty) ; TODO: hmm... this might have an edge case issue when it becomes the last line
+      (let* ((x (car xes))
+             (new-len (+ so-far (word-length x))))
+        (if (or is-first?
+                (<= new-len word-wrap-at))
+            (let ((immd (possible-word-wrap (cdr xes) new-len #f))) ; more words on this line
+              (cons (cons x (car immd))
+                    (cdr immd)))
+            (let ((immd (possible-word-wrap xes 4 #t))) ; another line
+              (cons empty
+                    (cons (cons (element 'hspace "    ") (car immd))
+                          (cdr immd))))))))
+
 (define (def-constructor name types args marker)
   (unless (= (length types) (length args))
     (error "types and args length mismatch in def-constructor"))

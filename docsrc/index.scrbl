@@ -178,7 +178,7 @@ Once you have the configuration correct, open the dropdown next to the External 
 
 Make sure that the output ends with @code{BUILD SUCCESSFUL}, and then you can connect your Driver Station to the robot, connect a Joystick, enable your robot, and move the motor by moving the Joystick!
 
-TODO: troubleshooting guide.
+@; TODO: troubleshooting guide.
 
 Congratulations! You now know how to use the basics of the CCRE!
 
@@ -474,7 +474,7 @@ Sometimes, you want to connect together methods that aren't easy to connect toge
 How would you connect these? There's no implementation to provide either end. Luckily, we can use Cells!
 
 @jcode|{
-   // this also works for EventCell and FloatCell, depending on what you're connecting.
+   // this also works for events and floats with EventCell and FloatCell.
    BooleanCell intermediate_channel = new BooleanCell();
    send_some_data_to_an_output(intermediate_channel);
    do_something_based_on_an_input(intermediate_channel);
@@ -696,12 +696,12 @@ Autonomous mode requires some different programming techniques to write well. Se
 
 There are some important guidelines that you need to follow, even if you're working on software:
 
-@itemlist[@item{Always wear safety glasses when working with a robot. You probably like having eyes.}
-          @item{Before enabling a robot, always yell CLEAR and wait for people to step away from the robot. Yell CLEAR multiple times if necessary - but don't enable the robot if people could be hit by it.}
-          @item{When you first test an autonomous mode, the robot will probably move faster than you expect. Set your speeds lower than you think you'll need to.}
+@itemlist[@item{Always wear @bold{safety glasses} when working on a robot. @bold{You probably like your eyes.}}
+          @item{Before enabling a robot, always yell CLEAR and wait for people to step away from the robot. Yell CLEAR multiple times if necessary - but @bold{don't enable the robot if people could be hit by it.}}
+          @item{When you first test an autonomous mode, @bold{the robot will probably move faster than you expect}. Set your speeds lower than you think you'll need to.}
           @item{Before enabling a robot, confirm that all of the Joysticks are free. Do not set any of them on seating surfaces.}
           @item{When enabling a robot, always hover your fingers over the enter (disable) key. This will work regardless of what application currently has focus.}
-          @item{The first time you test a robot, or test any potentially dangerous behavior, place the robot "on blocks" - put bricks/wood blocks/something under the drive frame so that the wheels don't touch anything and can spin freely. This prevents it from running into anyone.}]
+          @item{The first time you test a robot, or test @bold{any potentially dangerous behavior}, place the robot "on blocks" - put bricks/wood blocks/something under the drive frame so that the wheels don't touch anything and can spin freely. This prevents it from running into anyone.}]
 
 Remember that following safety procedures are the difference between getting work done and being in the hospital.
 
@@ -808,7 +808,7 @@ They only require a single digital input port and are easier to install, so they
 
 Analog inputs are in a dedicated section of the roboRIO. They provide a value in volts from the connected sensor. It is likely that you will need to scale this reading to something more useful to you.
 
-Often, analog sensors are linear: they have a point at which they are @italic{zero} and a point at which they are @italic{one}. (The normalize method - TODO add a link - is very useful for handling these.)
+Often, analog sensors are linear: they have a point at which they are @italic{zero} and a point at which they are @italic{one}. (The normalize method @;{ TODO add a link } is very useful for handling these.)
 
 A pressure sensor is a good example that measures the pressure of a robot's pneumatic system. A certain base voltage is produced for a pressure of 1 atm by the pressure sensor, and a certain amount more is produced for each psi above that.
 
@@ -830,7 +830,7 @@ Sensors can also be connected over some of the other data buses. (These are: RS2
 
 Currently, the CCRE contains a driver for the UM7LT, which is a heading sensor from CH Robotics that tells us the current orientation of the robot. Note, however, that it requires a lot of calibration to use.
 
-TODO: user guide to the UM7LT.
+@; TODO: user guide to the UM7LT.
 
 @subsection{WiFi and Networking}
 
@@ -858,13 +858,22 @@ For example, the IP address @code{192.168.1.1} is a valid local IP address. In t
 Within that range, certain addresses are reserved: (for this example, we use team 1540 addresses.)
 
 @codeblock|{
-10.15.40.0 is reserved (addresses ending in 0 usually are) - don't use it.
-10.15.40.1 is the IP address of the robot's wireless access point. This is usually a D-Link DAP-1522 Rev B wireless radio.
-10.15.40.2 used to be reserved for the cRIO. It can be used by the roboRIO if you wish.
-10.15.40.3 through 10.15.40.19: unused.
-10.15.40.20 through 10.15.40.199: assigned by the DHCP server on the roboRIO. (see below.)
-10.15.40.200 through 10.15.40.254: unused.
-10.15.40.255 is reserved (addresses ending in 255 usually are) - don't use it.
+10.15.40.0
+    Reserved, as it ends in 0. Don't use it.
+10.15.40.1
+    The robot's wireless access point.
+    This is usually a D-Link DAP-1522 Rev B wireless radio.
+10.15.40.2
+    Previously reserved for the cRIO.
+    It can be used by the roboRIO if you wish.
+10.15.40.3 - 10.15.40.19
+    Unused. Allocate static addresses from these.
+10.15.40.20 - 10.15.40.199
+    Assigned by the DHCP server on the roboRIO. (See below.)
+10.15.40.200 - 10.15.40.254
+    Unused. Allocate static addresses from these.
+10.15.40.255
+    Reserved, as it ends in 255. Don't use it.
   }|
 
 There are two primary ways for a computer to get an IP address: a statically-allocated address or a DHCP-allocated address.
@@ -884,7 +893,7 @@ In a competition, instead of laptops connecting directly to wireless APs, the wi
 This is mostly transparent, but has two major effects:
 
 @itemlist[@item{Most TCP and UDP ports are blocked! This means that you must limit your traffic to a fixed set of ports. See below.}
-          @item{The wireless radio is no longer in AP mode and doesn't host a DHCP server, which can cause problems connecting directly to the robot. (TODO: include solutions here.)}]
+          @item{The wireless radio is no longer in AP mode and doesn't host a DHCP server, which can cause problems connecting directly to the robot. @;{ (TODO: include solutions here.) }}]
 
 A listing of available ports, up to date as of the 2015 challenge:
 
@@ -954,7 +963,7 @@ This section is designed to provide a detailed guide on how to use just about ev
 
 It's organized into the following sections:
 
- ***** TODO: talk about wireless network names ! *****
+@; ***** TODO: talk about wireless network names ! *****
 
 @table-of-contents{}
 
@@ -1077,7 +1086,7 @@ More importantly, you can listen for changes on an input. This works for all inp
 The @jcode-inline{send} family of methods are all used to connect an input to an output with the same type of data.
 So, whenever the value of the input changes (for a value-based input, like @jcode-inline{BooleanInput} or @jcode-inline{FloatInput}) or the input is produced (for @jcode-inline{EventInput}), then @jcode-inline{target} will received that value or event.
 
-See below (TODO: ADD REF) for @jcode-inline{CancelOutput}.
+See below @;{ (TODO: ADD REF) } for @jcode-inline{CancelOutput}.
 
 @jcode[#:box (list "setup" #f "flow block" #f #f "setup" #f "flow block" #f #f "setup" #f "flow block")]{
     EventInput new_input = new $DerivedEventInput(inputs) {
@@ -1115,7 +1124,7 @@ Please note that, most of the time, you shouldn't need to implement your own cha
 @margin-note{For EventInput, @jcode-inline{onUpdate} and @jcode-inline{send} are essentially identical.}
 The @jcode-inline{onUpdate} family of methods are similar to the @jcode-inline{send} family of methods, but instead of sending a value in the case of a @jcode-inline{BooleanInput} or a @jcode-inline{FloatInput}, they just notify @jcode-inline{target} when the value changes.
 
-See below (TODO: ADD REF) for @jcode-inline{CancelOutput}.
+See below @;{ (TODO: ADD REF) } for @jcode-inline{CancelOutput}.
 
 @margin-note{Here, "setup block" means that the code in this block runs in setup mode.}
 @jcode[#:box (list "setup" #f "setup block" #f #f #f "setup" #f "setup block" #f #f #f #f "flow block" #f #f "setup" #f "setup block" #f #f #f #f "flow block")]{
@@ -1150,8 +1159,8 @@ See below (TODO: ADD REF) for @jcode-inline{CancelOutput}.
 If you want more control over your inputs, you can implement them directly.
 You implement @jcode-inline{onUpdate} to specify when the input changes, and implement @jcode-inline{get} to specify the value.
 
-WARNING: You probably don't want to use this! It's hard to implement, and you might make a mistake.
-@jcode-inline{new DerivedEventInput} and friends, as detailed above (TODO: ADD REF) are better for almost all implementations.
+@bold{WARNING}: You probably don't want to use this! It's hard to implement, and you might make a mistake.
+@jcode-inline{new DerivedEventInput} and friends, as detailed above @;{ (TODO: ADD REF) } are better for almost all implementations.
 
 @subsubsection{CancelOutputs}
 
@@ -1399,7 +1408,7 @@ By "transformation", we usually mean a relationship between an existing channel 
 
 This section will explain various ways to transform a channel.
 
-@subsubsection{Transformations of EventOutputs}
+@subsubsection{EventOutputs}
 
 @jmethod[EventOutput (EventOutput combine) (EventOutput other) "setup"]
 
@@ -1461,7 +1470,7 @@ This @jcode-inline{EventOutput} ignores all events sent to it.
     // is equivalent to doing absolutely nothing.
 }
 
-@subsubsection{Transformations of EventInputs}
+@subsubsection{EventInputs}
 
 @jmethod[EventInput (EventInput or) (EventInput other) "setup"]
 
@@ -1509,7 +1518,7 @@ This is an EventInput that never occurs.
     // is equivalent to doing absolutely nothing!
 }
 
-@subsubsection{Transformations of BooleanOutputs}
+@subsubsection{BooleanOutputs}
 
 @jmethod[BooleanOutput (BooleanOutput invert) "setup"]
 
@@ -1675,7 +1684,7 @@ This is a BooleanOutput that ignores all values sent to it.
     // is equivalent to absolutely nothing!
 }
 
-@subsubsection{Transformations of BooleanInputs}
+@subsubsection{BooleanInputs}
 
 @jfield[BooleanInput static (BooleanInput alwaysTrue) "setup"]
 
@@ -1801,7 +1810,7 @@ This means that @jcode-inline{a.and(b).get() == (a.get() || b.get())}.
     original.set(true);  // lockable is still false
 }
 
-@subsubsection{Transformations of FloatOutputs}
+@subsubsection{FloatOutputs}
 
 @jmethod[FloatOutput (FloatOutput negate) "setup"]
 
@@ -1984,7 +1993,7 @@ This is a FloatOutput that ignores all values sent to it.
     // is equivalent to absolutely nothing!
 }
 
-@subsubsection{Transformations of FloatInputs}
+@subsubsection{FloatInputs}
 
 @jmethod[FloatInput static (FloatInput always) (float value) "setup"]
 
@@ -2305,7 +2314,8 @@ The @jcode-inline{forward} and @jcode-inline{strafe} channels control motion in 
     FloatInput forward_axis = FRC.joystick1.axisY();
     FloatInput rotate_axis = FRC.joystick2.axisX();
     // ... motors ...
-    Drive.mecanum(forward_axis, strafe_axis, rotate_axis, left_front_motor, left_back_motor, right_front_motor, right_back_motor);
+    Drive.mecanum(forward_axis, strafe_axis, rotate_axis,
+        left_front_motor, left_back_motor, right_front_motor, right_back_motor);
 }
 
 @subsection[#:tag "autonomous"]{Autonomous and Instinct Modules}
@@ -2483,7 +2493,7 @@ In this specific case, the following would be recommended instead:
 
 You can also use InstinctModules in other contexts besides autonomous modes, because they can be useful for semi-automatic control of parts of a robot.
 
-@jcode[#:box (list "setup" #f #f "imperative block")]|{
+@jcode[#:box (list #f "setup" #f #f "imperative block")]|{
         BooleanCell run_this_instinct_module = new BooleanCell(false);
         new $InstinctModule(run_this_instinct_module) {
             @Override
@@ -2503,7 +2513,7 @@ This means that @jcode-inline{FRC.registerAutonomous(module)} is actually just a
 
 @subsubsection{Instinct MultiModules}
 
-TODO: complete this section.
+In progress.
 
 @subsection[#:tag "hardware-access"]{Hardware Access}
 
@@ -2577,7 +2587,7 @@ To be able to talk to your robot to change the code, your laptop needs to be on 
 
 @subsubsection{SSH}
 
-Sometimes, the robot breaks and you need to figure out what's going on. I'm not going to go into all of the details of this (TODO: go into all the details on this) but I'll overview how you start.
+Sometimes, the robot breaks and you need to figure out what's going on. I'm not going to go into all of the details of this @;{ (TODO: go into all the details on this) } but I'll overview how you start.
 
 You can connect to the roboRIO over SSH (aka Secure SHell) - you simply point your SSH client at roboRIO-NNNN.local (where NNNN is your team number) and enter the correct username and password.
 

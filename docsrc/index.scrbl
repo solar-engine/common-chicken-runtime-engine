@@ -2047,7 +2047,8 @@ The @jcode-inline{Rev} methods reverse the order of the operands. Since addition
 An example:
 
 @jcode{
-    FloatInput real_drive_speed = original_drive_speed.multipliedBy(is_kid_mode.toFloat(0.5f, 1.0f));
+    FloatInput real_drive_speed =
+        original_drive_speed.multipliedBy(is_kid_mode.toFloat(0.5f, 1.0f));
     // and then:
     real_drive_speed.get()
     // is either

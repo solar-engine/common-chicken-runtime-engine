@@ -24,6 +24,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import ccre.log.Logger;
 import ccre.testing.CountingEventOutput;
 import ccre.testing.CountingFloatOutput;
 import ccre.util.Values;
@@ -90,22 +91,30 @@ public class DerivedFloatInputTest {
 
     @Test
     public void testApplyChange() {
-        FloatCell v = new FloatCell();
-        FloatInput bi = new DerivedFloatInput(es) {
-            @Override
-            protected float apply() {
-                return v.get();
-            }
-        };
-        bi.send(cfo);
-        float last = v.get();
-        for (float f : Values.interestingFloats) {
-            v.set(f);
-            cfo.ifExpected = Float.floatToIntBits(f) != Float.floatToIntBits(last);
-            cfo.valueExpected = f;
-            es.event();
+        for (float initial : Values.interestingFloats) {
+            FloatCell v = new FloatCell(initial);
+            FloatInput bi = new DerivedFloatInput(es) {
+                @Override
+                protected float apply() {
+                    return v.get();
+                }
+            };
+            cfo.ifExpected = true;
+            cfo.valueExpected = initial;
+            bi.send(cfo);
             cfo.check();
-            last = f;
+            float last = v.get();
+            for (float f : Values.interestingFloats) {
+                v.set(f);
+                cfo.ifExpected = Float.floatToIntBits(f) != Float.floatToIntBits(last);
+                cfo.valueExpected = f;
+                if (f == 0.0 && f == 0.0) {
+                    Logger.fine("For: " + f + " / " + last);
+                }
+                es.event();
+                cfo.check();
+                last = f;
+            }
         }
     }
 }

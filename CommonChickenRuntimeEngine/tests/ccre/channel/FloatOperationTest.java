@@ -88,17 +88,17 @@ public class FloatOperationTest {
             FloatInput fi = FloatOperation.subtraction.of(sa.asInput(), b);
             cfo.ifExpected = true;
             cfo.valueExpected = FloatOperation.subtraction.of(sa.get(), b);
-            EventOutput unbind = fi.send(cfo);
+            CancelOutput unbind = fi.send(cfo);
             cfo.check();
             for (float a : Values.interestingFloats) {
                 float lastExpected = cfo.valueExpected;
                 cfo.valueExpected = FloatOperation.subtraction.of(a, b);
-                cfo.ifExpected = lastExpected != cfo.valueExpected;
+                cfo.ifExpected = Float.floatToIntBits(lastExpected) != Float.floatToIntBits(cfo.valueExpected);
                 sa.set(a);
                 cfo.check();
                 assertEquals(cfo.valueExpected, fi.get(), 0);
             }
-            unbind.event();
+            unbind.cancel();
         }
     }
 
@@ -113,17 +113,17 @@ public class FloatOperationTest {
             FloatInput fi = FloatOperation.subtraction.of(a, sb.asInput());
             cfo.ifExpected = true;
             cfo.valueExpected = FloatOperation.subtraction.of(a, sb.get());
-            EventOutput unbind = fi.send(cfo);
+            CancelOutput unbind = fi.send(cfo);
             cfo.check();
             for (float b : Values.interestingFloats) {
                 float lastExpected = cfo.valueExpected;
                 cfo.valueExpected = FloatOperation.subtraction.of(a, b);
-                cfo.ifExpected = (lastExpected != cfo.valueExpected);
+                cfo.ifExpected = Float.floatToIntBits(lastExpected) != Float.floatToIntBits(cfo.valueExpected);
                 sb.set(b);
                 cfo.check();
                 assertEquals(cfo.valueExpected, fi.get(), 0);
             }
-            unbind.event();
+            unbind.cancel();
         }
     }
 
@@ -142,13 +142,13 @@ public class FloatOperationTest {
         for (float a : Values.interestingFloats) {
             float lastExpected = cfo.valueExpected;
             cfo.valueExpected = FloatOperation.subtraction.of(a, sb.get());
-            cfo.ifExpected = (lastExpected != cfo.valueExpected);
+            cfo.ifExpected = Float.floatToIntBits(lastExpected) != Float.floatToIntBits(cfo.valueExpected);
             sa.set(a);
             cfo.check();
             for (float b : Values.interestingFloats) {
                 lastExpected = cfo.valueExpected;
                 cfo.valueExpected = FloatOperation.subtraction.of(a, b);
-                cfo.ifExpected = (lastExpected != cfo.valueExpected);
+                cfo.ifExpected = Float.floatToIntBits(lastExpected) != Float.floatToIntBits(cfo.valueExpected);
                 sb.set(b);
                 cfo.check();
                 assertEquals(cfo.valueExpected, fi.get(), 0);

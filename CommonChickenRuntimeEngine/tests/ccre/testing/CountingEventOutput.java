@@ -59,11 +59,12 @@ public class CountingEventOutput implements EventOutput {
      * @throws RuntimeException if an event did not occur.
      */
     public synchronized void check() throws RuntimeException {
-        if (ifExpected) {
-            throw new RuntimeException("Event did not occur");
-        }
         if (anyUnexpected) {
-            throw new RuntimeException("Unexpected event");
+            throw new RuntimeException("Already failed earlier!");
+        }
+        if (ifExpected) {
+            anyUnexpected = true;
+            throw new RuntimeException("Event did not occur");
         }
     }
 }

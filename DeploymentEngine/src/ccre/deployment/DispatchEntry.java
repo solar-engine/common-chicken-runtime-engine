@@ -47,8 +47,8 @@ public class DispatchEntry {
         if (args.length != 4) {
             throw new IllegalArgumentException("DispatchEntry expects four parameters: CCRE root, project root, class name, method name.");
         }
-        DepProject.setRoots(new File(args[1]), new File(args[0]));
         try {
+            DepProject.setRoots(new File(args[1]), new File(args[0]));
             Class.forName(args[2]).getMethod(args[3]).invoke(null);
         } catch (Throwable e) {
             if (e instanceof InvocationTargetException) {

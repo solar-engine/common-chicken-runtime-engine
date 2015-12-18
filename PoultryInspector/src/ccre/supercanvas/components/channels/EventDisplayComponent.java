@@ -22,6 +22,7 @@ import java.awt.Color;
 import java.awt.FontMetrics;
 import java.awt.Graphics2D;
 
+import ccre.channel.CancelOutput;
 import ccre.channel.EventInput;
 import ccre.channel.EventOutput;
 import ccre.rconf.RConf.Entry;
@@ -44,7 +45,7 @@ public class EventDisplayComponent extends BaseChannelComponent<EventDisplayComp
     private transient long countStart;
     private boolean subscribed;
     private final EventInput inp;
-    private EventOutput unsubscribe;
+    private CancelOutput unsubscribe;
 
     /**
      * Create a new EventDisplayComponent with a EventInput to read from.
@@ -109,7 +110,7 @@ public class EventDisplayComponent extends BaseChannelComponent<EventDisplayComp
         boolean hasPanel = panel != null;
         if (inp != null && hasPanel != subscribed) {
             if (unsubscribe != null) {
-                unsubscribe.safeEvent();
+                unsubscribe.cancel();
                 unsubscribe = null;
             }
             if (hasPanel) {

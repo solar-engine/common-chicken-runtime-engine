@@ -93,7 +93,7 @@ public interface BooleanIO extends BooleanInput, BooleanOutput {
             }
 
             @Override
-            public EventOutput onUpdate(EventOutput notify) {
+            public CancelOutput onUpdate(EventOutput notify) {
                 return input.onUpdate(notify);
             }
 

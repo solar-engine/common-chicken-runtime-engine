@@ -18,12 +18,36 @@
  */
 package ccre.channel;
 
+/**
+ * A once-off event that reverts some piece of dataflow set-up. For example,
+ * {@link EventInput#send(EventOutput)} returns a <code>CancelOutput</code> that
+ * cancels the connection created by the <code>send</code>.
+ *
+ * Each CancelOutput can only be cancelled once.
+ *
+ * @author skeggsc
+ */
 public interface CancelOutput {
+    /**
+     * A CancelOutput that cancels nothing.
+     */
     public static final CancelOutput nothing = () -> {
     };
 
+    /**
+     * Cancels this CancelOutput, which means something based on where it was
+     * acquired from.
+     */
     public void cancel();
 
+    /**
+     * Combines this CancelOutput with another CancelOutput, such that the
+     * combined CancelOutput, when cancelled, will cancel both of the original
+     * CancelOutputs.
+     *
+     * @param other the other CancelOutput to include
+     * @return the combined CancelOutput
+     */
     public default CancelOutput combine(CancelOutput other) {
         return () -> {
             cancel();

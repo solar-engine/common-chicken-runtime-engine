@@ -47,7 +47,7 @@ public class BooleanDisplayComponent extends BaseChannelComponent<BooleanDisplay
     private boolean subscribed;
     private boolean inverted = false;
     private final BooleanInput inp;
-    private CancelOutput unsubscribe;
+    private transient CancelOutput unsubscribe;
 
     /**
      * Create a new BooleanDisplayComponent with a BooleanInput to read from.

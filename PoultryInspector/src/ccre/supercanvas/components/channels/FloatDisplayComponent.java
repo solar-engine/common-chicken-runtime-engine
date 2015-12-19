@@ -54,7 +54,7 @@ public class FloatDisplayComponent extends BaseChannelComponent<FloatDisplayComp
     private boolean subscribed;
     private final FloatInput inp;
     // TODO: collapse subscribed and unsubscribe? here and other places?
-    private CancelOutput unsubscribe;
+    private transient CancelOutput unsubscribe;
 
     /**
      * Create a new FloatDisplayComponent with a FloatInput to read from.

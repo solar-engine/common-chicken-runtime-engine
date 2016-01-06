@@ -27,16 +27,19 @@ public interface FloatIO extends FloatInput, FloatOutput {
 
     /**
      * Alias for set(get() + value).
-     * 
-     * @return the new value of this FloatIO
+     *
+     * @param increment the amount to add
      */
-    public default void accumulate(float value) {
-        set(get() + value);
+    public default void accumulate(float increment) {
+        set(get() + increment);
     }
 
     /**
      * Adds the value of <code>amount</code> to this FloatIO whenever the
      * supplied EventInput fires.
+     *
+     * @param when when to add to the value
+     * @param amount the amount to add
      */
     public default void accumulateWhen(EventInput when, float amount) {
         when.send(eventAccumulate(amount));
@@ -44,7 +47,10 @@ public interface FloatIO extends FloatInput, FloatOutput {
 
     /**
      * Adds the current value of <code>amount</code> to this FloatIO whenever
-     * the supplied EventInput fires. 
+     * the supplied EventInput fires.
+     *
+     * @param when when to add to the value
+     * @param amount the amount to add
      */
     public default void accumulateWhen(EventInput when, FloatInput amount) {
         when.send(eventAccumulate(amount));
@@ -53,7 +59,7 @@ public interface FloatIO extends FloatInput, FloatOutput {
     /**
      * Gets an EventOutput that, when fired, will add the value of
      * <code>amount</code> to this FloatIO.
-     * 
+     *
      * @param amount the amount to add
      * @return the EventOutput
      */
@@ -64,7 +70,7 @@ public interface FloatIO extends FloatInput, FloatOutput {
     /**
      * Gets an EventOutput that, when fired, will add the current value of
      * <code>amount</code> to this FloatIO.
-     * 
+     *
      * @param amount the amount to add
      * @return the EventOutput
      */

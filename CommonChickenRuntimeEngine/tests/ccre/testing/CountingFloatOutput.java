@@ -77,7 +77,7 @@ public class CountingFloatOutput implements FloatOutput {
     public synchronized void set(float value) {
         if (!ifExpected && !allowExtras) {
             anyUnexpected = true;
-            throw new RuntimeException("Unexpected set of " + value +"!");
+            throw new RuntimeException("Unexpected set of " + value + "!");
         }
         boolean correct = false;
         if (Float.isNaN(valueExpected)) {

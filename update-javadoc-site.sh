@@ -1,5 +1,7 @@
 set -e
 cd `dirname $0`
+echo "Generating..."
+(cd CommonChickenRuntimeEngine && ant javadoc)
 echo "Tarring..."
 (cd Javadoc && tar -czf ../javadoc.tgz .)
 echo "Uploading..."

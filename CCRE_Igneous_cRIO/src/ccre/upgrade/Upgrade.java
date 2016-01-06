@@ -30,7 +30,18 @@ import java.util.Properties;
 
 import javax.swing.JOptionPane;
 
+/**
+ * A class that handles auto-upgrading of projects to CCRE v3 from CCRE v2.
+ *
+ * @author skeggsc
+ */
 public class Upgrade {
+    /**
+     * The main method of the Upgrade Java code.
+     *
+     * @param args
+     * @throws IOException
+     */
     public static void main(String[] args) throws IOException {
         System.out.println("If you have any issues, please ask about them on the forum thread on Chief Delphi at http://www.chiefdelphi.com/forums/showthread.php?t=130813");
 
@@ -132,9 +143,9 @@ public class Upgrade {
             "getIsTest", "inTestMode", "getIsAutonomous", "inAutonomousMode", "getIsTeleop", "inTeleopMode", "getIsDisabled", "robotDisabled",
 
             "makeTalonMotor", "talon", "makeVictorMotor", "victor", "makeJaguarMotor", "jaguar",
-            
+
             "makeEncoder", "encoder",
-            
+
             "import ccre.ctrl.Mixing;", "", "import ccre.ctrl.FloatMixing;", "", "import ccre.ctrl.EventMixing;", "", "import ccre.ctrl.BooleanMixing;", "",
 
             "makeCANTalon", "talonCAN", "makeCANJaguar", "jaguarCAN",
@@ -148,13 +159,13 @@ public class Upgrade {
             "FloatMixing.ignoredFloatOutput", "FloatOutput.ignored", "BooleanMixing.ignoredFloatOutput", "BooleanOutput.ignored", "EventMixing.ignored", "EventOutput.ignored",
 
             "BooleanStatus", "BooleanCell", "FloatStatus", "FloatCell", "EventStatus", "EventCell",
-            
+
             "asInvertedInput()", "not()",
-            
+
             "FRC.getPDPChannelCurrent", "FRC.channelCurrentPDP",
-            
+
             "getButtonSource", "onPress", "getButtonChannel", "button",
-            
+
             "getAxisSource", "axis", "getAxisChannel", "axis", "getXAxisSource", "axisX", "getYAxisSource", "axisY", "getXChannel", "axisX", "getYChannel", "axisY",
     };
 

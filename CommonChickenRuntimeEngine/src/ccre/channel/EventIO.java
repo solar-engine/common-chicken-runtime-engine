@@ -56,7 +56,7 @@ public interface EventIO extends EventInput, EventOutput {
     public static EventIO compose(EventInput input, EventOutput output) {
         return new EventIO() {
             @Override
-            public EventOutput onUpdate(EventOutput notify) {
+            public CancelOutput onUpdate(EventOutput notify) {
                 return input.onUpdate(notify);
             }
 

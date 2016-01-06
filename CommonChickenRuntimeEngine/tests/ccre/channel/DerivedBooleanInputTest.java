@@ -90,22 +90,27 @@ public class DerivedBooleanInputTest {
 
     @Test
     public void testApplyChange() {
-        BooleanCell v = new BooleanCell();
-        BooleanInput bi = new DerivedBooleanInput(es) {
-            @Override
-            protected boolean apply() {
-                return v.get();
-            }
-        };
-        bi.send(cbo);
-        boolean last = v.get();
-        for (boolean b : Values.interestingBooleans) {
-            v.set(b);
-            cbo.ifExpected = (b != last);
-            cbo.valueExpected = b;
-            es.event();
+        for (boolean initial : new boolean[] { false, true }) {
+            BooleanCell v = new BooleanCell(initial);
+            BooleanInput bi = new DerivedBooleanInput(es) {
+                @Override
+                protected boolean apply() {
+                    return v.get();
+                }
+            };
+            cbo.ifExpected = true;
+            cbo.valueExpected = initial;
+            bi.send(cbo);
             cbo.check();
-            last = b;
+            boolean last = v.get();
+            for (boolean b : Values.interestingBooleans) {
+                v.set(b);
+                cbo.ifExpected = (b != last);
+                cbo.valueExpected = b;
+                es.event();
+                cbo.check();
+                last = b;
+            }
         }
     }
 }

@@ -167,7 +167,7 @@ public interface EventOutput {
      * NOT FIRE THIS RETURNED EVENT MORE THAN ONCE: UNDEFINED BEHAVIOR MAY
      * RESULT.
      */
-    public default EventOutput on(EventInput when) {
+    public default CancelOutput on(EventInput when) {
         return when.send(this);
     }
 }

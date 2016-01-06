@@ -49,11 +49,11 @@ public interface FloatInput extends UpdatingInput {
             }
 
             @Override
-            public EventOutput onUpdate(EventOutput notify) {
+            public CancelOutput onUpdate(EventOutput notify) {
                 if (notify == null) {
                     throw new NullPointerException();
                 }
-                return EventOutput.ignored;
+                return CancelOutput.nothing;
             }
         };
     }
@@ -92,7 +92,7 @@ public interface FloatInput extends UpdatingInput {
      * NOT FIRE THIS RETURNED EVENT MORE THAN ONCE: UNDEFINED BEHAVIOR MAY
      * RESULT.
      */
-    public default EventOutput send(FloatOutput output) {
+    public default CancelOutput send(FloatOutput output) {
         output.safeSet(get());
         return onUpdate(() -> output.set(get()));
     }
@@ -433,7 +433,7 @@ public interface FloatInput extends UpdatingInput {
 
             protected boolean shouldProduce() {
                 float value = get();
-                if (Math.abs(last - value) > deltaAbs) {
+                if (Math.abs(last - value) >= deltaAbs) {
                     last = value;
                     return true;
                 }

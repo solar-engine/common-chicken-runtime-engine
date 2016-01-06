@@ -26,7 +26,7 @@ import java.awt.Rectangle;
 import java.awt.Shape;
 import java.io.Serializable;
 
-import ccre.channel.EventOutput;
+import ccre.channel.CancelOutput;
 import ccre.channel.FloatInput;
 import ccre.channel.FloatOutput;
 import ccre.log.Logger;
@@ -55,7 +55,7 @@ public class FloatControlComponent extends BaseChannelComponent<FloatControlComp
     private float minimum = -1.0f, maximum = 1.0f;
     private boolean hasSentInitial = false;
     private StringBuilder activeBuffer;
-    private EventOutput unsubscribe;
+    private CancelOutput unsubscribe;
 
     /**
      * Create a new FloatControlComponent with a FloatOutput to control.
@@ -305,7 +305,7 @@ public class FloatControlComponent extends BaseChannelComponent<FloatControlComp
         boolean hasPanel = panel != null;
         if (alternateSource != null && hasPanel != isFakeSubscribed) {
             if (unsubscribe != null) {
-                unsubscribe.safeEvent();
+                unsubscribe.cancel();
                 unsubscribe = null;
             }
             if (hasPanel) {

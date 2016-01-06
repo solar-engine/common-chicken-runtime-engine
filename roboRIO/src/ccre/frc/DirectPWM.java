@@ -162,9 +162,14 @@ class DirectPWM {
         } else {
             if (value == 0.0) {
                 rawValue = tctr[type];
+            } else if (value == Float.POSITIVE_INFINITY) {
+                rawValue = (int) (tmax[type] + 0.5);
+            } else if (value == Float.NEGATIVE_INFINITY) {
+                rawValue = (int) (tmin[type] + 0.5);
             } else if (value > 0.0) {
                 rawValue = (int) (value * ((double) (tmax[type] - tdbMax[type])) + tdbMax[type] + 0.5);
             } else {
+                // NaN will cause rawValue to be zero, which means disabled.
                 rawValue = (int) (value * ((double) (tdbMin[type] - tmin[type])) + tdbMin[type] + 0.5);
             }
         }

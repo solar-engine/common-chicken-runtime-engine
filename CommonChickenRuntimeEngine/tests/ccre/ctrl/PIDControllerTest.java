@@ -25,9 +25,9 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import ccre.channel.CancelOutput;
 import ccre.channel.EventCell;
 import ccre.channel.EventInput;
-import ccre.channel.EventOutput;
 import ccre.channel.FloatCell;
 import ccre.channel.FloatInput;
 import ccre.testing.CountingEventOutput;
@@ -268,11 +268,11 @@ public class PIDControllerTest {
     public void testOnUpdateR() {
         setpoint.set(1);
         CountingEventOutput ceo = new CountingEventOutput();
-        EventOutput unbind = pid.onUpdate(ceo);
+        CancelOutput unbind = pid.onUpdate(ceo);
         ceo.ifExpected = true;
         pid.update(1000);
         ceo.check();
-        unbind.event();
+        unbind.cancel();
         pid.update(1000);
     }
 

@@ -22,7 +22,7 @@ import ccre.channel.BooleanCell;
 import ccre.channel.BooleanInput;
 import ccre.channel.FloatInput;
 import ccre.channel.FloatOutput;
-import ccre.ctrl.DriverImpls;
+import ccre.ctrl.Drive;
 import ccre.frc.FRC;
 import ccre.rconf.RConf;
 import ccre.rconf.RConf.Entry;
@@ -40,7 +40,7 @@ public class DriveCode implements RConfable {
     private final BooleanInput shouldBeRunning = allowToRun.and(FRC.inTeleopMode().or(forceEnabled));
 
     public DriveCode() {
-        DriverImpls.tankDrive(leftAxis, rightAxis, leftOut.filter(shouldBeRunning), rightOut.filter(shouldBeRunning));
+        Drive.tank(leftAxis, rightAxis, leftOut.filter(shouldBeRunning), rightOut.filter(shouldBeRunning));
     }
 
     @Override

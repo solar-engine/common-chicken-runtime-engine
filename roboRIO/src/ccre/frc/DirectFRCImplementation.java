@@ -56,7 +56,6 @@ import ccre.util.Version;
 import edu.wpi.first.wpilibj.communication.FRCNetworkCommunicationsLibrary;
 import edu.wpi.first.wpilibj.communication.FRCNetworkCommunicationsLibrary.tInstances;
 import edu.wpi.first.wpilibj.communication.FRCNetworkCommunicationsLibrary.tResourceType;
-import edu.wpi.first.wpilibj.communication.HALControlWord;
 
 /**
  * The RoboRIO implementation of the FRCImplementation interface. Do not use
@@ -127,12 +126,12 @@ public final class DirectFRCImplementation implements FRCImplementation {
         activeMode = null;
 
         while (true) {
-            HALControlWord controlWord = FRCNetworkCommunicationsLibrary.HALGetControlWord();
-            onFMS = controlWord.getFMSAttached();
-            Mode newmode = calcMode(controlWord);
+            int word = FRCNetworkCommunicationsLibrary.NativeHALGetControlWord();
+            onFMS = ((word >> 4) & 1) != 0;
+            Mode newmode = calcMode(word);
             if (newmode != activeMode) {
                 activeMode = newmode;
-                activeMode.start(this, controlWord.getFMSAttached());
+                activeMode.start(this, onFMS);
             }
             if (DirectDriverStation.isNewControlData()) {
                 switch (activeMode) {
@@ -233,12 +232,18 @@ public final class DirectFRCImplementation implements FRCImplementation {
         }
     }
 
-    private Mode calcMode(HALControlWord controlWord) {
-        if (!controlWord.getEnabled() || !controlWord.getDSAttached()) {
+    private Mode calcMode(int word) {
+        boolean enabled = (word & 1) != 0;
+        boolean autonomous = ((word >> 1) & 1) != 0;
+        boolean test = ((word >> 2) & 1) != 0;
+        boolean eStop = ((word >> 3) & 1) != 0;
+        boolean dsAttached = ((word >> 5) & 1) != 0;
+        // TODO: does include eStop here cause any issues?
+        if (!enabled || !dsAttached || eStop) {
             return Mode.DISABLED;
-        } else if (controlWord.getTest()) {
+        } else if (test) {
             return Mode.TEST;
-        } else if (controlWord.getAutonomous()) {
+        } else if (autonomous) {
             return Mode.AUTONOMOUS;
         } else {
             return Mode.TELEOP;

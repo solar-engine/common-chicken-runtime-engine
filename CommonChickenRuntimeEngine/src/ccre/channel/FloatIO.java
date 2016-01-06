@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 Colby Skeggs
+ * Copyright 2015 Colby Skeggs, Jake Springer
  *
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  *
@@ -24,6 +24,59 @@ package ccre.channel;
  * @author skeggsc
  */
 public interface FloatIO extends FloatInput, FloatOutput {
+
+    /**
+     * Alias for set(get() + value).
+     *
+     * @param increment the amount to add
+     */
+    public default void accumulate(float increment) {
+        set(get() + increment);
+    }
+
+    /**
+     * Adds the value of <code>amount</code> to this FloatIO whenever the
+     * supplied EventInput fires.
+     *
+     * @param when when to add to the value
+     * @param amount the amount to add
+     */
+    public default void accumulateWhen(EventInput when, float amount) {
+        when.send(eventAccumulate(amount));
+    }
+
+    /**
+     * Adds the current value of <code>amount</code> to this FloatIO whenever
+     * the supplied EventInput fires.
+     *
+     * @param when when to add to the value
+     * @param amount the amount to add
+     */
+    public default void accumulateWhen(EventInput when, FloatInput amount) {
+        when.send(eventAccumulate(amount));
+    }
+
+    /**
+     * Gets an EventOutput that, when fired, will add the value of
+     * <code>amount</code> to this FloatIO.
+     *
+     * @param amount the amount to add
+     * @return the EventOutput
+     */
+    public default EventOutput eventAccumulate(float amount) {
+        return () -> accumulate(amount);
+    }
+
+    /**
+     * Gets an EventOutput that, when fired, will add the current value of
+     * <code>amount</code> to this FloatIO.
+     *
+     * @param amount the amount to add
+     * @return the EventOutput
+     */
+    public default EventOutput eventAccumulate(FloatInput amount) {
+        return () -> accumulate(amount.get());
+    }
 
     /**
      * Returns the output side of this FloatIO. This is equivalent to upcasting
@@ -61,7 +114,7 @@ public interface FloatIO extends FloatInput, FloatOutput {
             }
 
             @Override
-            public EventOutput onUpdate(EventOutput notify) {
+            public CancelOutput onUpdate(EventOutput notify) {
                 return input.onUpdate(notify);
             }
 

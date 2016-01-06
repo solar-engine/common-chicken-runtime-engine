@@ -41,7 +41,7 @@ public class BooleanIOTest {
             }
 
             @Override
-            public EventOutput onUpdate(EventOutput notify) {
+            public CancelOutput onUpdate(EventOutput notify) {
                 fail();
                 return null;
             }

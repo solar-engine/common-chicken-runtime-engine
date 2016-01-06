@@ -34,6 +34,7 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
+import ccre.channel.CancelOutput;
 import ccre.channel.EventOutput;
 import ccre.log.Logger;
 import ccre.time.FakeTime;
@@ -114,8 +115,8 @@ public class TickerTest {
         check(4);
     }
 
-    private EventOutput start(EventOutput eo) throws InterruptedException {
-        EventOutput unbind = ticker.send(eo);
+    private CancelOutput start(EventOutput eo) throws InterruptedException {
+        CancelOutput unbind = ticker.send(eo);
         Thread.sleep(5);
         return unbind;
     }
@@ -143,13 +144,13 @@ public class TickerTest {
 
     @Test
     public void testUnbind() throws InterruptedException {
-        EventOutput unbind = start(cb);
+        CancelOutput unbind = start(cb);
         for (int i = 0; i < 20; i++) {
             fake.forward(period);
         }
         check(20);
 
-        unbind.event();
+        unbind.cancel();
 
         fake.forward(period * 10);
 
@@ -164,7 +165,7 @@ public class TickerTest {
 
     @Test
     public void testRebind() throws InterruptedException {
-        start(cb).event();// bind and unbind
+        start(cb).cancel();// bind and unbind
         start(cb);// rebind
         for (int i = 0; i < 5; i++) {
             fake.forward(period);

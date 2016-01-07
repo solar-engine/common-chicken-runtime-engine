@@ -55,4 +55,34 @@
 		</exec>
 		<copy file="PoultryInspector.jar" tofile="PoultryInspector-${git-desc}.jar" />
 	</target>
+	
+	<property name="test-src.dir" value="tests" />
+	<property name="test-build.dir" value="test-build" />
+	<target name="test-main" depends="build-jar">
+		<fail unless="junit.dir">junit.dir must be set!</fail>
+		<fail unless="junit-output.dir">junit-output.dir must be set!</fail>
+		<path id="test.path">
+			<pathelement location="PoultryInspector.jar" />
+			<pathelement location="${junit.dir}/junit-4.12.jar" />
+			<pathelement location="${junit.dir}/hamcrest-core-1.3.jar" />
+		</path>
+
+		<delete dir="${test-build.dir}" />
+		<mkdir dir="${test-build.dir}" />
+		<javac destdir="${test-build.dir}" srcdir="${test-src.dir}" includeantruntime="false" classpathref="test.path" debug="true" />
+
+		<junit printsummary="true" fork="true" forkmode="once" timeout="60000" showoutput="false" logfailedtests="true" failureproperty="tests-failed">
+			<formatter type="plain" />
+			<classpath>
+				<pathelement location="${test-build.dir}" />
+				<path refid="test.path" />
+			</classpath>
+			<batchtest todir="${junit-output.dir}" haltonfailure="false">
+				<fileset dir="${test-src.dir}" includes="**/*Test.java" />
+			</batchtest>
+		</junit>
+	</target>
+	<target name="test" depends="test-main" if="tests-failed">
+		<fail>Tests failed!</fail>
+	</target>
 </project>

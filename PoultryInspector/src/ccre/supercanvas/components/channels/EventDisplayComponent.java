@@ -45,7 +45,7 @@ public class EventDisplayComponent extends BaseChannelComponent<EventDisplayComp
     private transient long countStart;
     private boolean subscribed;
     private final EventInput inp;
-    private CancelOutput unsubscribe;
+    private transient CancelOutput unsubscribe;
 
     /**
      * Create a new EventDisplayComponent with a EventInput to read from.

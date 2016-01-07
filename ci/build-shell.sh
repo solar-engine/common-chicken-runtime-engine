@@ -19,9 +19,19 @@ done
 
 echo Testing...
 
-cd $(dirname $HERE)/CommonChickenRuntimeEngine
 rm -rf $HERE/junit-output
 mkdir $HERE/junit-output
+
+cd $(dirname $HERE)/CommonChickenRuntimeEngine
+if ant test -Djunit.dir=$HERE -Djunit-output.dir=$HERE/junit-output
+then
+	echo "Success!"
+else
+	echo "Failure!"
+	exit 1
+fi
+
+cd $(dirname $HERE)/PoultryInspector
 if ant test -Djunit.dir=$HERE -Djunit-output.dir=$HERE/junit-output
 then
 	echo "Success!"

@@ -55,7 +55,7 @@ public class FloatControlComponent extends BaseChannelComponent<FloatControlComp
     private float minimum = -1.0f, maximum = 1.0f;
     private boolean hasSentInitial = false;
     private StringBuilder activeBuffer;
-    private CancelOutput unsubscribe;
+    private transient CancelOutput unsubscribe;
 
     /**
      * Create a new FloatControlComponent with a FloatOutput to control.

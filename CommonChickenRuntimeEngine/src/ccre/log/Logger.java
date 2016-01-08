@@ -58,7 +58,7 @@ public class Logger {
     }
 
     static {
-        targets.add(new StandardStreamLogger());
+        targets.add(new PrintStreamLogger(System.err));
     }
 
     /**

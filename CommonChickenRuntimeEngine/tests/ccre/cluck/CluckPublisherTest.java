@@ -328,7 +328,6 @@ public class CluckPublisherTest {
 
                 @Override
                 public void set(float v) {
-                    Logger.fine("Got: " + v);
                     cfo.set(v);
                     if (first) {
                         first = false;

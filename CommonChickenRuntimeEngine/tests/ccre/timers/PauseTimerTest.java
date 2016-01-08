@@ -218,6 +218,7 @@ public class PauseTimerTest {
         for (int i = 0; i < 10; i++) {
             // if something breaks internally, this loop will stop succeeding.
             pt.event();
+            Thread.sleep(2);
             fake.forward(990);
             Thread.sleep(2);
             ceo.ifExpected = true;
@@ -225,7 +226,6 @@ public class PauseTimerTest {
             fake.forward(10);
             Thread.sleep(2);
             ceo.check(); // flaky; 5 failures.
-            // maybe fixed by the Thread.sleep(2) three lines above?
         }
     }
 }

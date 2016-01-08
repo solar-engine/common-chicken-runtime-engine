@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2015 Colby Skeggs
+ * Copyright 2013-2016 Colby Skeggs
  *
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  *
@@ -55,7 +55,7 @@ public final class NetworkAutologger implements LoggingTarget, CluckRemoteListen
      * Register a new global NetworkAutologger with the logging manager. This
      * only occurs once - after that an warning will be logged again.
      */
-    public static void register() {
+    public static synchronized void register() {
         if (registered) {
             Logger.warning("Network autologger registered twice!");
             return;
@@ -90,6 +90,10 @@ public final class NetworkAutologger implements LoggingTarget, CluckRemoteListen
         CluckPublisher.publish(node, localpath, localLoggingTarget);
     }
 
+    public String getLocalPath() {
+        return localpath;
+    }
+
     /**
      * Start the Autologger - it will now start sending out logged messages.
      */
@@ -103,6 +107,9 @@ public final class NetworkAutologger implements LoggingTarget, CluckRemoteListen
     }
 
     public void log(LogLevel level, String message, Throwable throwable) {
+        if (level == null) {
+            throw new NullPointerException();
+        }
         // From the network, so don't broadcast.
         if (message.contains("[NET]")) {
             return;
@@ -120,6 +127,9 @@ public final class NetworkAutologger implements LoggingTarget, CluckRemoteListen
     }
 
     public void log(LogLevel level, String message, String extended) {
+        if (level == null) {
+            throw new NullPointerException();
+        }
         // From the network, so don't broadcast.
         if (message.contains("[NET]")) {
             return;
@@ -141,7 +151,9 @@ public final class NetworkAutologger implements LoggingTarget, CluckRemoteListen
             return;
         }
         if (remote.contains("auto-") && !localpath.equals(remote) && targetCache.get(remote) == null) {
-            targetCache.put(remote, CluckPublisher.subscribeLT(node, remote));
+            synchronized (targetCache) {
+                targetCache.put(remote, CluckPublisher.subscribeLT(node, remote));
+            }
             Logger.config("[LOCAL] Loaded logger: " + remote);
         }
         remotes.addIfAbsent(remote);

@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 Colby Skeggs
+ * Copyright 2015-2016 Colby Skeggs
  *
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  *
@@ -71,5 +71,23 @@ public class VerifyingLoggingTarget implements LoggingTarget {
     public void check() {
         assertFalse("Did not receive expected log.", ifExpected);
         assertFalse("Failed during individual log reception.", hasFailure);
+    }
+
+    public void configureString(LogLevel level, String message, String string) {
+        this.ifExpected = true;
+        this.isThrowableExpected = false;
+        this.throwableExpected = null;
+        this.levelExpected = level;
+        this.messageExpected = message;
+        this.stringExpected = string;
+    }
+
+    public void configureThrowable(LogLevel level, String message, Throwable thr) {
+        this.ifExpected = true;
+        this.isThrowableExpected = true;
+        this.throwableExpected = thr;
+        this.levelExpected = level;
+        this.messageExpected = message;
+        this.stringExpected = null;
     }
 }

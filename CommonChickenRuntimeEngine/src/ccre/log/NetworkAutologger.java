@@ -90,7 +90,9 @@ public final class NetworkAutologger implements LoggingTarget, CluckRemoteListen
         CluckPublisher.publish(node, localpath, localLoggingTarget);
     }
 
-    public String getLocalPath() {
+    // TODO: change from package-private to public
+    // (it was added in a bugfix release)
+    String getLocalPath() {
         return localpath;
     }
 

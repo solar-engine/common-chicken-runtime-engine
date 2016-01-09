@@ -18,16 +18,13 @@
  */
 package ccre.log;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertTrue;
 
-import org.junit.After;
 import org.junit.AfterClass;
-import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import junit.framework.AssertionFailedError;
-
+@SuppressWarnings("javadoc")
 public class VerifyingLoggerTest {
 
     @BeforeClass
@@ -42,7 +39,7 @@ public class VerifyingLoggerTest {
 
     @Test
     public void testString() {
-        VerifyingLogger.configure(LogLevel.FINEST, "hello world", null);
+        VerifyingLogger.configure(LogLevel.FINEST, "hello world");
         Logger.finest("hello world");
         VerifyingLogger.check();
     }
@@ -58,7 +55,7 @@ public class VerifyingLoggerTest {
     @Test
     public void testStringFailure() {
         boolean pass = false;
-        VerifyingLogger.configure(LogLevel.FINEST, "hello world", null);
+        VerifyingLogger.configure(LogLevel.FINEST, "hello world");
         try {
             VerifyingLogger.check();
         } catch (AssertionError ex) {
@@ -70,7 +67,7 @@ public class VerifyingLoggerTest {
     @Test
     public void testThrowableFailure() {
         boolean pass = false;
-        VerifyingLogger.configure(LogLevel.FINEST, "hello world", null);
+        VerifyingLogger.configure(LogLevel.FINEST, "hello world");
         try {
             VerifyingLogger.check();
         } catch (AssertionError ex) {

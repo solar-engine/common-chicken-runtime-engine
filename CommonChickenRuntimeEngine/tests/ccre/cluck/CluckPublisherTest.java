@@ -32,7 +32,6 @@ import ccre.channel.FloatCell;
 import ccre.channel.FloatInput;
 import ccre.channel.FloatOutput;
 import ccre.log.LogLevel;
-import ccre.log.Logger;
 import ccre.log.LoggingTarget;
 import ccre.log.VerifyingLoggingTarget;
 import ccre.testing.CountingBooleanOutput;

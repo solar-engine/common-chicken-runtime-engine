@@ -18,7 +18,7 @@
  */
 package ccre.log;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertTrue;
 
 import org.junit.After;
 import org.junit.Before;
@@ -30,6 +30,7 @@ import ccre.cluck.CluckPublisher;
 import ccre.util.Utils;
 import ccre.util.Values;
 
+@SuppressWarnings("javadoc")
 public class NetworkAutologgerTest {
 
     private NetworkAutologger logger;
@@ -42,10 +43,12 @@ public class NetworkAutologgerTest {
         this.logger = new NetworkAutologger(this.node);
         this.vlt = new VerifyingLoggingTarget();
         this.vlt2 = new VerifyingLoggingTarget();
+        VerifyingLogger.begin();
     }
 
     @After
     public void tearDown() throws Exception {
+        VerifyingLogger.checkAndEnd();
         this.node = null;
         this.logger = null;
         this.vlt = null;
@@ -60,7 +63,9 @@ public class NetworkAutologgerTest {
     @Test
     public void testLogSimple() {
         CluckPublisher.publish(node, "auto-example", vlt);
+        VerifyingLogger.configure(LogLevel.CONFIG, "[LOCAL] Loaded logger: auto-example");
         logger.handle("auto-example", CluckConstants.RMT_LOGTARGET);
+        VerifyingLogger.check();
         for (LogLevel level : LogLevel.allLevels) {
             for (String s : Values.getRandomStrings(10)) {
                 // all of these are configureString because it's all encoded as
@@ -109,7 +114,13 @@ public class NetworkAutologgerTest {
         logger.start();
         CluckPublisher.publish(node, "auto-example", vlt);
         CluckPublisher.publish(node, "example3", vlt2);
+        VerifyingLogger.configure(LogLevel.FINE, "[LOCAL] Rechecking logging...");
+        VerifyingLogger.get().onNext = () -> {
+            VerifyingLogger.check();
+            VerifyingLogger.configure(LogLevel.CONFIG, "[LOCAL] Loaded logger: auto-example");
+        };
         node.notifyNetworkModified();
+        VerifyingLogger.check();
         vlt.configureString(LogLevel.SEVERE, "some text", null);
         logger.log(LogLevel.SEVERE, "some text", (String) null);
         vlt.check();
@@ -123,7 +134,9 @@ public class NetworkAutologgerTest {
     public void testStartAfter() {
         CluckPublisher.publish(node, "auto-example", vlt);
         CluckPublisher.publish(node, "example3", vlt2);
+        VerifyingLogger.configure(LogLevel.CONFIG, "[LOCAL] Loaded logger: auto-example");
         logger.start();
+        VerifyingLogger.check();
         vlt.configureString(LogLevel.SEVERE, "some text", null);
         logger.log(LogLevel.SEVERE, "some text", (String) null);
         vlt.check();
@@ -138,7 +151,9 @@ public class NetworkAutologgerTest {
         CluckPublisher.publish(node, "auto-example", vlt);
         CluckPublisher.publish(node, "auto-example2", vlt2);
         CluckPublisher.publish(node, "example3", vlt2);
+        VerifyingLogger.configure(LogLevel.CONFIG, "[LOCAL] Loaded logger: auto-example");
         logger.handle("auto-example", CluckConstants.RMT_LOGTARGET);
+        VerifyingLogger.check();
         logger.handle("auto-example2", CluckConstants.RMT_BOOLINPUT);
         logger.handle("example3", CluckConstants.RMT_LOGTARGET);
         logger.handle(logger.getLocalPath(), CluckConstants.RMT_LOGTARGET);

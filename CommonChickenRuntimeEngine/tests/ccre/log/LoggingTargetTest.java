@@ -18,10 +18,9 @@
  */
 package ccre.log;
 
-import static org.junit.Assert.*;
-
 import org.junit.Test;
 
+@SuppressWarnings("javadoc")
 public class LoggingTargetTest {
 
     @Test

@@ -18,26 +18,22 @@
  */
 package ccre.log;
 
-import static org.junit.Assert.*;
-
 import org.junit.After;
-import org.junit.AfterClass;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 
 import ccre.util.Values;
 
+@SuppressWarnings("javadoc")
 public class LoggerTest {
-    @BeforeClass
-    public static void setUpBeforeClass() throws Exception {
+    @Before
+    public void setUp() throws Exception {
         VerifyingLogger.begin();
     }
 
-    @AfterClass
-    public static void tearDownAfterClass() throws Exception {
-        VerifyingLogger.check();
-        VerifyingLogger.end();
+    @After
+    public void tearDown() throws Exception {
+        VerifyingLogger.checkAndEnd();
     }
 
     @Test
@@ -65,7 +61,7 @@ public class LoggerTest {
     public void testLogLogLevelString() {
         for (LogLevel level : LogLevel.allLevels) {
             for (String message : Values.getRandomStrings(10)) {
-                VerifyingLogger.configure(level, message, null);
+                VerifyingLogger.configure(level, message);
                 Logger.log(level, message);
             }
         }
@@ -105,7 +101,7 @@ public class LoggerTest {
     @Test
     public void testSevereString() {
         for (String message : Values.getRandomStrings(10)) {
-            VerifyingLogger.configure(LogLevel.SEVERE, message, null);
+            VerifyingLogger.configure(LogLevel.SEVERE, message);
             Logger.severe(message);
         }
     }
@@ -113,7 +109,7 @@ public class LoggerTest {
     @Test
     public void testWarningString() {
         for (String message : Values.getRandomStrings(10)) {
-            VerifyingLogger.configure(LogLevel.WARNING, message, null);
+            VerifyingLogger.configure(LogLevel.WARNING, message);
             Logger.warning(message);
         }
     }
@@ -121,7 +117,7 @@ public class LoggerTest {
     @Test
     public void testInfoString() {
         for (String message : Values.getRandomStrings(10)) {
-            VerifyingLogger.configure(LogLevel.INFO, message, null);
+            VerifyingLogger.configure(LogLevel.INFO, message);
             Logger.info(message);
         }
     }
@@ -129,7 +125,7 @@ public class LoggerTest {
     @Test
     public void testConfigString() {
         for (String message : Values.getRandomStrings(10)) {
-            VerifyingLogger.configure(LogLevel.CONFIG, message, null);
+            VerifyingLogger.configure(LogLevel.CONFIG, message);
             Logger.config(message);
         }
     }
@@ -137,7 +133,7 @@ public class LoggerTest {
     @Test
     public void testFineString() {
         for (String message : Values.getRandomStrings(10)) {
-            VerifyingLogger.configure(LogLevel.FINE, message, null);
+            VerifyingLogger.configure(LogLevel.FINE, message);
             Logger.fine(message);
         }
     }
@@ -145,7 +141,7 @@ public class LoggerTest {
     @Test
     public void testFinerString() {
         for (String message : Values.getRandomStrings(10)) {
-            VerifyingLogger.configure(LogLevel.FINER, message, null);
+            VerifyingLogger.configure(LogLevel.FINER, message);
             Logger.finer(message);
         }
     }
@@ -153,7 +149,7 @@ public class LoggerTest {
     @Test
     public void testFinestString() {
         for (String message : Values.getRandomStrings(10)) {
-            VerifyingLogger.configure(LogLevel.FINEST, message, null);
+            VerifyingLogger.configure(LogLevel.FINEST, message);
             Logger.finest(message);
         }
     }

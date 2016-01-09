@@ -25,6 +25,7 @@ import java.util.Iterator;
 
 import org.junit.Test;
 
+@SuppressWarnings("javadoc")
 public class LogLevelTest {
 
     @Test

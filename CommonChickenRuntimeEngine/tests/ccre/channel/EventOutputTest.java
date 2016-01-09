@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 Colby Skeggs
+ * Copyright 2015-2016 Colby Skeggs
  *
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  *
@@ -32,6 +32,8 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import ccre.log.LogLevel;
+import ccre.log.VerifyingLogger;
 import ccre.testing.CountingEventOutput;
 import ccre.time.FakeTime;
 import ccre.time.Time;
@@ -40,8 +42,10 @@ import ccre.util.Values;
 @SuppressWarnings("javadoc")
 public class EventOutputTest {
 
+    private static final String ERROR_STRING = "safeEvent purposeful failure.";
+
     private final EventOutput evil = () -> {
-        throw new NoSuchElementException("safeEvent purposeful failure.");
+        throw new NoSuchElementException(ERROR_STRING);
     };
     private CountingEventOutput ceo, ceo2;
 
@@ -49,10 +53,12 @@ public class EventOutputTest {
     public void setUp() throws Exception {
         ceo = new CountingEventOutput();
         ceo2 = new CountingEventOutput();
+        VerifyingLogger.begin();
     }
 
     @After
     public void tearDown() throws Exception {
+        VerifyingLogger.checkAndEnd();
         ceo = ceo2 = null;
     }
 
@@ -200,7 +206,9 @@ public class EventOutputTest {
 
     @Test
     public void testSafeSet() {
+        VerifyingLogger.configure(LogLevel.SEVERE, "Error during event propagation", (t) -> t.getClass() == NoSuchElementException.class && ERROR_STRING.equals(t.getMessage()));
         evil.safeEvent();
+        VerifyingLogger.check();
     }
 
     @Test(expected = NoSuchElementException.class)
@@ -223,14 +231,18 @@ public class EventOutputTest {
     @Test
     public void testCombineWithError1Succeeds() {
         ceo.ifExpected = true;
+        VerifyingLogger.configure(LogLevel.SEVERE, "Error during event propagation", (t) -> t.getClass() == NoSuchElementException.class && ERROR_STRING.equals(t.getMessage()));
         ceo.combine(evil).safeEvent();
+        VerifyingLogger.check();
         ceo.check();
     }
 
     @Test
     public void testCombineWithError2Succeeds() {
         ceo.ifExpected = true;
+        VerifyingLogger.configure(LogLevel.SEVERE, "Error during event propagation", (t) -> t.getClass() == NoSuchElementException.class && ERROR_STRING.equals(t.getMessage()));
         evil.combine(ceo).safeEvent();
+        VerifyingLogger.check();
         ceo.check();
     }
 

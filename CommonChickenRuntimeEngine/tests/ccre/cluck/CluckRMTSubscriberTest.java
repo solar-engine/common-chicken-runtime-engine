@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 Colby Skeggs
+ * Copyright 2015-2016 Colby Skeggs
  *
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  *
@@ -26,6 +26,8 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import ccre.log.LogLevel;
+import ccre.log.VerifyingLogger;
 import ccre.testing.CountingEventOutput;
 
 @SuppressWarnings("javadoc")
@@ -40,10 +42,12 @@ public class CluckRMTSubscriberTest {
     public void setUp() throws Exception {
         node = new CluckNode();
         ceo = new CountingEventOutput();
+        VerifyingLogger.begin();
     }
 
     @After
     public void tearDown() throws Exception {
+        VerifyingLogger.checkAndEnd();
         ceo = null;
         node = null;
     }
@@ -214,7 +218,9 @@ public class CluckRMTSubscriberTest {
             }
         };
         ceo.ifExpected = true;
+        VerifyingLogger.configure(LogLevel.WARNING, "Received null message from source");
         rs.send(null, "source", new byte[] {});
+        VerifyingLogger.check();
         ceo.check();
     }
 
@@ -234,7 +240,9 @@ public class CluckRMTSubscriberTest {
             }
         };
         ceo.ifExpected = true;
+        VerifyingLogger.configure(LogLevel.WARNING, "Received too-short message from source");
         rs.send(null, "source", new byte[] { CluckConstants.RMT_INVOKE });
+        VerifyingLogger.check();
         ceo.check();
     }
 
@@ -254,7 +262,9 @@ public class CluckRMTSubscriberTest {
             }
         };
         ceo.ifExpected = true;
+        VerifyingLogger.configure(LogLevel.WARNING, "Received wrong RMT: EventInput from source (expected RemoteProcedure) addressed to null");
         rs.send(null, "source", new byte[] { CluckConstants.RMT_EVENTINPUT });
+        VerifyingLogger.check();
         ceo.check();
     }
 
@@ -274,7 +284,9 @@ public class CluckRMTSubscriberTest {
             }
         };
         ceo.ifExpected = true;
+        VerifyingLogger.configure(LogLevel.WARNING, "Received wrong RMT: EventInput from source (expected RemoteProcedure) addressed to null");
         rs.send(null, "source", new byte[] { CluckConstants.RMT_EVENTINPUT, 9, 0 });
+        VerifyingLogger.check();
         ceo.check();
     }
 
@@ -286,6 +298,8 @@ public class CluckRMTSubscriberTest {
                 fail();
             }
         };
+        VerifyingLogger.configure(LogLevel.WARNING, "Received wrong RMT: EventInput from source (expected RemoteProcedure) addressed to null");
         rs.send(null, "source", new byte[] { CluckConstants.RMT_EVENTINPUT });
+        VerifyingLogger.check();
     }
 }

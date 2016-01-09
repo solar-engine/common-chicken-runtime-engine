@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 Colby Skeggs
+ * Copyright 2015-2016 Colby Skeggs
  *
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  *
@@ -36,13 +36,16 @@ import org.junit.runners.Parameterized.Parameters;
 
 import ccre.channel.CancelOutput;
 import ccre.channel.EventOutput;
-import ccre.log.Logger;
+import ccre.log.LogLevel;
+import ccre.log.VerifyingLogger;
 import ccre.time.FakeTime;
 import ccre.time.Time;
 
 @SuppressWarnings("javadoc")
 @RunWith(Parameterized.class)
 public class TickerTest {
+
+    private static final String ERROR_STRING = "Ticker purposeful failure.";
 
     private static Time oldProvider;
     private static FakeTime fake;
@@ -74,6 +77,7 @@ public class TickerTest {
     public void setUp() {
         ticker = new Ticker(period, fixedRate);
         counter = 0;
+        VerifyingLogger.begin();
     }
 
     @Parameters
@@ -88,6 +92,7 @@ public class TickerTest {
 
     @After
     public void tearDown() {
+        VerifyingLogger.checkAndEnd();
         ticker.terminate();
         ticker = null;
     }
@@ -175,17 +180,22 @@ public class TickerTest {
 
     @Test
     public void testLoopAFewErrors() throws InterruptedException {
-        Logger.info("The following ticker main loop errors are purposeful.");
         start(() -> {
             synchronized (TickerTest.this) {
                 counter++;
                 if (counter < 6) {
-                    throw new RuntimeException("Ticker purposeful failure.");
+                    throw new RuntimeException(ERROR_STRING);
                 }
             }
         });
         for (int i = 0; i < 20; i++) {
+            if (i < 5) {
+                VerifyingLogger.configure(LogLevel.SEVERE, "Top-level failure in Ticker event", (t) -> t.getClass() == RuntimeException.class && ERROR_STRING.equals(t.getMessage()));
+            }
+            Thread.sleep(2);
             fake.forward(period);
+            Thread.sleep(2);
+            VerifyingLogger.check();
         }
         Thread.sleep(2);
         check(20);
@@ -193,17 +203,20 @@ public class TickerTest {
 
     @Test
     public void testLoopScatteredErrors() throws InterruptedException {
-        Logger.info("The following ticker main loop errors are purposeful.");
         start(() -> {
             synchronized (TickerTest.this) {
                 counter++;
                 if (counter % 10 == 0) {
-                    throw new RuntimeException("Ticker purposeful failure.");
+                    throw new RuntimeException(ERROR_STRING);
                 }
             }
         });
         for (int i = 0; i < 70; i++) {
+            if (i % 10 == 9) {
+                VerifyingLogger.configure(LogLevel.SEVERE, "Top-level failure in Ticker event", (t) -> t.getClass() == RuntimeException.class && ERROR_STRING.equals(t.getMessage()));
+            }
             fake.forward(period);
+            VerifyingLogger.check();
         }
         Thread.sleep(2);
         check(70);

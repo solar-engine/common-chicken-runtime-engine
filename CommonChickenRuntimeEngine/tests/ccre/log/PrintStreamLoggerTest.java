@@ -32,6 +32,7 @@ import ccre.testing.CountingStringOutput;
 import ccre.util.LineCollectorOutputStream;
 import ccre.util.Values;
 
+@SuppressWarnings("javadoc")
 public class PrintStreamLoggerTest {
 
     private PrintStreamLogger logger;
@@ -89,6 +90,9 @@ public class PrintStreamLoggerTest {
     public void testLogLogLevelStringThrowable() {
         CountingEventOutput ceo = new CountingEventOutput();
         Throwable thr = new Throwable() {
+            // because warnings
+            private static final long serialVersionUID = 1L;
+
             public void printStackTrace(PrintStream s) {
                 assertTrue(s == printStream);
                 ceo.event();

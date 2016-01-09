@@ -19,7 +19,9 @@
 package ccre.log;
 
 import java.util.Arrays;
+import java.util.function.Predicate;
 
+@SuppressWarnings("javadoc")
 public class VerifyingLogger {
 
     private static VerifyingLoggingTarget vlt;
@@ -30,15 +32,23 @@ public class VerifyingLogger {
         return vlt;
     }
 
-    public static void configure(LogLevel level, String message, Throwable thr) {
+    public static synchronized void configure(LogLevel level, String message) {
+        vlt.configureThrowable(level, message, (Throwable) null);
+    }
+
+    public static synchronized void configure(LogLevel level, String message, Throwable thr) {
         vlt.configureThrowable(level, message, thr);
     }
 
-    public static void configureExt(LogLevel level, String message, String str) {
+    public static synchronized void configure(LogLevel level, String message, Predicate<Throwable> pred) {
+        vlt.configureThrowable(level, message, pred);
+    }
+
+    public static synchronized void configureExt(LogLevel level, String message, String str) {
         vlt.configureString(level, message, str);
     }
     
-    public static void check() {
+    public static synchronized void check() {
         vlt.check();
     }
 
@@ -65,5 +75,13 @@ public class VerifyingLogger {
         Logger.removeTarget(vlt);
         Logger.targets.addAll(Arrays.asList(targets));
         vlt = null;
+    }
+
+    public static synchronized void checkAndEnd() {
+        try {
+            check();
+        } finally {
+            end();
+        }
     }
 }

@@ -216,7 +216,7 @@ public class CluckNodeTest {
                 vcls[i].ifExpected = true;
             }
             ceo.ifExpected = true;
-            VerifyingLogger.configure(LogLevel.SEVERE, "Error while broadcasting to Cluck link evil", (t) -> t.getClass() == RuntimeException.class && ERROR_MESSAGE.equals(t.getMessage()));
+            VerifyingLogger.configure(LogLevel.SEVERE, "[LOCAL] Error while broadcasting to Cluck link evil", (t) -> t.getClass() == RuntimeException.class && ERROR_MESSAGE.equals(t.getMessage()));
             node.broadcast(null, message, null);
             VerifyingLogger.check();
             // TODO: test logging
@@ -257,7 +257,7 @@ public class CluckNodeTest {
             vcl.ifExpected = i < 5;
             vcl.keepAlive = i < 4;
             if (i == 5) {
-                VerifyingLogger.configure(LogLevel.WARNING, "No link for example(example) from testy testy!");
+                VerifyingLogger.configure(LogLevel.WARNING, "[LOCAL] No link for example(example) from testy testy!");
             }
             node.transmit("example", "testy testy", message);
             VerifyingLogger.check();
@@ -273,7 +273,7 @@ public class CluckNodeTest {
                 throw new RuntimeException(ERROR_MESSAGE);
             }
         }, "evil");
-        VerifyingLogger.configure(LogLevel.SEVERE, "Error while dispatching to Cluck link evil", (t) -> t.getClass() == RuntimeException.class && ERROR_MESSAGE.equals(t.getMessage()));
+        VerifyingLogger.configure(LogLevel.SEVERE, "[LOCAL] Error while dispatching to Cluck link evil", (t) -> t.getClass() == RuntimeException.class && ERROR_MESSAGE.equals(t.getMessage()));
         node.transmit("evil", null, new byte[] { CluckConstants.RMT_NOTIFY });
         VerifyingLogger.check();
     }
@@ -311,7 +311,7 @@ public class CluckNodeTest {
     @Test
     public void testTransmitNAKNAK() {
         // makes sure that we don't get an infinite loop
-        VerifyingLogger.configure(LogLevel.WARNING, "No link for example(example) from example!");
+        VerifyingLogger.configure(LogLevel.WARNING, "[LOCAL] No link for example(example) from example!");
         node.transmit("example", "example", new byte[] { CluckConstants.RMT_NOTIFY });
         VerifyingLogger.check();
     }
@@ -326,7 +326,7 @@ public class CluckNodeTest {
         for (int i = 0; i < 10; i++) {
             nackTarget.ifExpected = true;
             if (i == 0) { // error deduplication
-                VerifyingLogger.configure(LogLevel.WARNING, "No link for example(example) from nacker!");
+                VerifyingLogger.configure(LogLevel.WARNING, "[LOCAL] No link for example(example) from nacker!");
             }
             node.transmit("example", "nacker", new byte[] { CluckConstants.RMT_NOTIFY });
             VerifyingLogger.check();
@@ -355,7 +355,7 @@ public class CluckNodeTest {
         for (int i = 0; i < 10; i++) {
             nackTarget.ifExpected = true;
             if (i == 0) { // error deduplication
-                VerifyingLogger.configure(LogLevel.WARNING, "No link for example/side-channel(example) from nacker/other-side-channel!");
+                VerifyingLogger.configure(LogLevel.WARNING, "[LOCAL] No link for example/side-channel(example) from nacker/other-side-channel!");
             }
             node.transmit("example/side-channel", "nacker/other-side-channel", new byte[] { CluckConstants.RMT_NOTIFY });
             VerifyingLogger.check();
@@ -585,7 +585,7 @@ public class CluckNodeTest {
         assertFalse(node.hasLink("test-1"));
 
         bounce.ifExpected = true;
-        VerifyingLogger.configure(LogLevel.WARNING, "No link for test-1(test-1) from bounce!");
+        VerifyingLogger.configure(LogLevel.WARNING, "[LOCAL] No link for test-1(test-1) from bounce!");
         node.transmit("test-1", "bounce", new byte[] { CluckConstants.RMT_NOTIFY });
         VerifyingLogger.check();
         bounce.check();

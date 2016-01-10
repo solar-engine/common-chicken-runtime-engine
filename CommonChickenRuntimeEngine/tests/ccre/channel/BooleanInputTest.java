@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 Colby Skeggs
+ * Copyright 2015-2016 Colby Skeggs
  *
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  *
@@ -29,12 +29,16 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import ccre.log.LogLevel;
+import ccre.log.VerifyingLogger;
 import ccre.testing.CountingBooleanOutput;
 import ccre.testing.CountingEventOutput;
 import ccre.util.Values;
 
 @SuppressWarnings("javadoc")
 public class BooleanInputTest {
+
+    private static final String ERROR_STRING = "Purposeful failure.";
 
     private CountingEventOutput expected, expected2;
 
@@ -58,10 +62,12 @@ public class BooleanInputTest {
                 return result;
             }
         };
+        VerifyingLogger.begin();
     }
 
     @After
     public void tearDown() throws Exception {
+        VerifyingLogger.checkAndEnd();
         bi = null;
         es = null;
         expected = null;
@@ -600,12 +606,14 @@ public class BooleanInputTest {
             public void set(boolean value) {
                 cbo.set(value);
                 // TODO: check logging.
-                throw new NoSuchElementException("Purposeful failure.");
+                throw new NoSuchElementException(ERROR_STRING);
             }
         };
         expected.ifExpected = expected2.ifExpected = cbo.ifExpected = true;
         cbo.valueExpected = true;
+        VerifyingLogger.configure(LogLevel.SEVERE, "Error during channel propagation", (t) -> t.getClass() == NoSuchElementException.class && ERROR_STRING.equals(t.getMessage()));
         bi.send(evil);
+        VerifyingLogger.check();
         expected.check();
         expected2.check();
         cbo.check();

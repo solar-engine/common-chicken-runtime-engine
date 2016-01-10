@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 Colby Skeggs
+ * Copyright 2016 Colby Skeggs
  *
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  *
@@ -29,6 +29,8 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import ccre.log.LogLevel;
+import ccre.log.VerifyingLogger;
 import ccre.testing.CountingEventOutput;
 import ccre.time.FakeTime;
 import ccre.time.Time;
@@ -59,10 +61,12 @@ public class PauseTimerTest {
     @Before
     public void setUp() throws Exception {
         pt = new PauseTimer(1000);
+        VerifyingLogger.begin();
     }
 
     @After
     public void tearDown() throws Exception {
+        VerifyingLogger.checkAndEnd();
         pt.terminate();
         pt = null;
     }
@@ -197,35 +201,41 @@ public class PauseTimerTest {
     @Test
     public void testStartError() {
         CountingEventOutput ceo = new CountingEventOutput();
+        RuntimeException rtex = new RuntimeException("Purposeful failure.");
         pt.triggerAtStart(() -> {
             ceo.event();
             // TODO: test logging
-            throw new RuntimeException("Purposeful failure.");
+            throw rtex;
         });
         ceo.ifExpected = true;
+        VerifyingLogger.configure(LogLevel.SEVERE, "Error in PauseTimer notification", rtex);
         pt.event();
+        VerifyingLogger.check();
         ceo.check();
     }
 
     @Test
     public void testEndError() throws InterruptedException {
         CountingEventOutput ceo = new CountingEventOutput();
+        RuntimeException rtex = new RuntimeException("Purposeful failure.");
         pt.triggerAtEnd(() -> {
             ceo.event();
             // TODO: test logging
-            throw new RuntimeException("Purposeful failure.");
+            throw rtex;
         });
         for (int i = 0; i < 10; i++) {
             // if something breaks internally, this loop will stop succeeding.
             pt.event();
+            Thread.sleep(2);
             fake.forward(990);
             Thread.sleep(2);
             ceo.ifExpected = true;
+            VerifyingLogger.configure(LogLevel.SEVERE, "Error in PauseTimer notification", rtex);
             Thread.sleep(2);
             fake.forward(10);
             Thread.sleep(2);
             ceo.check(); // flaky; 5 failures.
-            // maybe fixed by the Thread.sleep(2) three lines above?
+            VerifyingLogger.check();
         }
     }
 }

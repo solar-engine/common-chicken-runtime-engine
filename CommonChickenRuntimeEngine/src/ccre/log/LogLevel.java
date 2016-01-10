@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2015 Colby Skeggs
+ * Copyright 2013-2016 Colby Skeggs
  *
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  *
@@ -92,17 +92,19 @@ public class LogLevel implements Serializable {
     };
 
     /**
-     * Get a LogLevel from its ID level. If it doesn't exist, a RuntimeException
-     * is thrown. Should probably only be called on the result of toByte.
+     * Get a LogLevel from its ID level. This should probably only be called on
+     * the result of toByte. An IllegalArgumentException will be thrown for
+     * invalid IDs.
      *
      * @param id the ID of the LogLevel.
      * @return the LogLevel with this ID.
      * @see #id
      * @see #toByte(ccre.log.LogLevel)
+     * @throws IllegalArgumentException if the ID is invalid.
      */
     public static LogLevel fromByte(byte id) {
         if ((id + 9) % 3 != 0 || id < -9 || id > 9) {
-            throw new RuntimeException("Invalid LogLevel ID: " + id);
+            throw new IllegalArgumentException("Invalid LogLevel ID: " + id);
         }
         return levels[(id + 9) / 3];
     }
@@ -131,10 +133,8 @@ public class LogLevel implements Serializable {
     public final String message;
 
     private LogLevel(int id, String msg) {
+        // this means that id cannot be out of byte's range!
         this.id = (byte) id;
-        if (id != this.id) {
-            throw new IllegalArgumentException();
-        }
         message = msg;
     }
 

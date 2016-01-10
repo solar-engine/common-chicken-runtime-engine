@@ -1,5 +1,5 @@
 /*
- * Copyright 2013,2015 Colby Skeggs
+ * Copyright 2013,2015-2016 Colby Skeggs
  *
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  *
@@ -31,12 +31,18 @@ public interface LoggingTarget {
     public static final LoggingTarget ignored = new LoggingTarget() {
         @Override
         public void log(LogLevel level, String message, Throwable throwable) {
-            // NAH
+            if (level == null || message == null) {
+                throw new NullPointerException();
+            }
+            // nothing to do
         }
 
         @Override
         public void log(LogLevel level, String message, String extended) {
-            // NAH
+            if (level == null || message == null) {
+                throw new NullPointerException();
+            }
+            // nothing to do
         }
     };
 

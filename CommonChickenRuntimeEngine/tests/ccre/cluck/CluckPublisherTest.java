@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 Colby Skeggs
+ * Copyright 2015-2016 Colby Skeggs
  *
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  *
@@ -32,7 +32,6 @@ import ccre.channel.FloatCell;
 import ccre.channel.FloatInput;
 import ccre.channel.FloatOutput;
 import ccre.log.LogLevel;
-import ccre.log.Logger;
 import ccre.log.LoggingTarget;
 import ccre.log.VerifyingLoggingTarget;
 import ccre.testing.CountingBooleanOutput;
@@ -328,7 +327,6 @@ public class CluckPublisherTest {
 
                 @Override
                 public void set(float v) {
-                    Logger.fine("Got: " + v);
                     cfo.set(v);
                     if (first) {
                         first = false;

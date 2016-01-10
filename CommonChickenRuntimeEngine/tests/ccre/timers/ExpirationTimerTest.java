@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 Colby Skeggs
+ * Copyright 2016 Colby Skeggs
  *
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  *
@@ -113,7 +113,7 @@ public class ExpirationTimerTest {
         ceo.ifExpected = true;
         fake.forward(10);
         Thread.sleep(2);
-        ceo.check(); // FLAKY: failed 1 time
+        ceo.check(); // FLAKY: failed 2 times
         timer.feed();
         Thread.sleep(2);
         fake.forward(990);

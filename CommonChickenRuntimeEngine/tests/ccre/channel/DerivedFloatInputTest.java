@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 Colby Skeggs
+ * Copyright 2015-2016 Colby Skeggs
  *
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  *
@@ -24,7 +24,6 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import ccre.log.Logger;
 import ccre.testing.CountingEventOutput;
 import ccre.testing.CountingFloatOutput;
 import ccre.util.Values;
@@ -108,9 +107,6 @@ public class DerivedFloatInputTest {
                 v.set(f);
                 cfo.ifExpected = Float.floatToIntBits(f) != Float.floatToIntBits(last);
                 cfo.valueExpected = f;
-                if (f == 0.0 && f == 0.0) {
-                    Logger.fine("For: " + f + " / " + last);
-                }
                 es.event();
                 cfo.check();
                 last = f;

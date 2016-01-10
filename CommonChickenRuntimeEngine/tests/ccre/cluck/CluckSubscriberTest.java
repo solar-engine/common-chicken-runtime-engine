@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 Colby Skeggs
+ * Copyright 2015-2016 Colby Skeggs
  *
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  *
@@ -29,6 +29,8 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import ccre.log.LogLevel;
+import ccre.log.VerifyingLogger;
 import ccre.testing.CountingEventOutput;
 import ccre.util.Values;
 
@@ -42,10 +44,12 @@ public class CluckSubscriberTest {
     public void setUp() throws Exception {
         node = new CluckNode();
         ceo = new CountingEventOutput();
+        VerifyingLogger.begin();
     }
 
     @After
     public void tearDown() throws Exception {
+        VerifyingLogger.checkAndEnd();
         ceo = null;
         node = null;
     }
@@ -76,7 +80,9 @@ public class CluckSubscriberTest {
         };
         assertTrue(sub.send(null, null, new byte[] { CluckConstants.RMT_NOTIFY }));
         assertTrue(sub.send(CluckConstants.BROADCAST_DESTINATION, null, new byte[] { CluckConstants.RMT_NOTIFY }));
+        VerifyingLogger.configure(LogLevel.WARNING, "Unhandled side-channel message sent to null / side-channel from null!");
         assertTrue(sub.send("side-channel", null, new byte[] { CluckConstants.RMT_NOTIFY }));
+        VerifyingLogger.check();
     }
 
     @Test(expected = NullPointerException.class)
@@ -242,8 +248,9 @@ public class CluckSubscriberTest {
         };
         sub.attach("example-1");
         ceo.ifExpected = true;
-        // TODO: test logging
+        VerifyingLogger.configure(LogLevel.WARNING, "Received null message from bounce");
         sub.send(null, "bounce", new byte[] {});
+        VerifyingLogger.check();
         ceo.check();
     }
 
@@ -266,8 +273,9 @@ public class CluckSubscriberTest {
         };
         sub.attach("example-1");
         ceo.ifExpected = true;
-        // TODO: test logging
+        VerifyingLogger.configure(LogLevel.WARNING, "Received wrong RMT: RemoteProcedureReply from bounce (expected RemoteProcedure) addressed to example-1");
         sub.send(null, "bounce", new byte[] { CluckConstants.RMT_INVOKE_REPLY });
+        VerifyingLogger.check();
         ceo.check();
     }
 
@@ -290,8 +298,9 @@ public class CluckSubscriberTest {
         };
         sub.attach("example-1");
         ceo.ifExpected = true;
-        // TODO: test logging
+        VerifyingLogger.configure(LogLevel.WARNING, "Received wrong RMT: Ping from bounce (expected RemoteProcedure) addressed to example-1");
         sub.send(null, "bounce", new byte[] { CluckConstants.RMT_PING, CluckConstants.RMT_INVOKE });
+        VerifyingLogger.check();
         ceo.check();
     }
 
@@ -315,7 +324,9 @@ public class CluckSubscriberTest {
         sub.attach("example-1");
         ceo.ifExpected = true;
         // TODO: test logging
+        VerifyingLogger.configure(LogLevel.WARNING, "Received too-short message from bounce");
         sub.send(null, "bounce", new byte[] { CluckConstants.RMT_INVOKE });
+        VerifyingLogger.check();
         ceo.check();
     }
 

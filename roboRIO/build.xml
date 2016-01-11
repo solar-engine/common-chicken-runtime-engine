@@ -48,8 +48,7 @@
 		<jar destfile="roboRIO-lite.jar" update="false">
 			<fileset dir="${build.dir}" includes="**/*.class" />
 			<fileset dir="${src.dir}" includes="edu/wpi/first/wpilibj/binaries/*" />
-			<fileset dir="${build.dir}" includes="version.properties" />
-			<zipfileset src="../CommonChickenRuntimeEngine/CCRE.jar" includes="**/*.class" />
+			<zipfileset src="../CommonChickenRuntimeEngine/CCRE.jar" includes="**/*.class version.properties" />
 		</jar>
 	</target>
 </project>

@@ -320,12 +320,16 @@ public class DepRoboRIO {
      * @throws UnknownHostException if a roboRIO cannot be found.
      */
     public static DepRoboRIO discover(int team_number) throws UnknownHostException {
-        DepRoboRIO rio = byNameOrIP("roboRIO-" + team_number + ".local");
+        DepRoboRIO rio = byNameOrIP("roboRIO-" + team_number + "-FRC.local");
         if (rio == null) {
             rio = byNameOrIP("172.22.11.2");
         }
         if (rio == null) {
             rio = byNameOrIP("10." + (team_number / 100) + "." + (team_number % 100) + ".2");
+        }
+        if (rio == null) {
+            // 2015 mDNS name format
+            rio = byNameOrIP("roboRIO-" + team_number + ".local");
         }
         if (rio == null) {
             throw new UnknownHostException("Cannot reach roboRIO over mDNS, ethernet-over-USB, or via static 10." + (team_number / 100) + "." + (team_number % 100) + ".2 address.");

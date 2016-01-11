@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 Colby Skeggs
+ * Copyright 2015-2016 Colby Skeggs
  *
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  *
@@ -22,8 +22,6 @@
  */
 package ccre.frc;
 
-import java.nio.IntBuffer;
-
 import edu.wpi.first.wpilibj.hal.PDPJNI;
 
 class DirectPDP {
@@ -35,22 +33,14 @@ class DirectPDP {
         }
     }
 
-    public static float getCurrent(int channel) {
+    public static float getCurrent(int channel, int module) {
         checkChannel(channel);
-        IntBuffer status = Common.getCheckBuffer();
-        // errors are timeouts and invalid channel IDs.
         // TODO: avoid timeout errors
-        double current = PDPJNI.getPDPChannelCurrent((byte) channel, status);
-        Common.check(status);
-        return (float) current;
+        return (float) PDPJNI.getPDPChannelCurrent((byte) channel, module);
     }
 
-    public static float getVoltage() {
-        IntBuffer status = Common.getCheckBuffer();
-        // errors are timeouts.
+    public static float getVoltage(int module) {
         // TODO: avoid timeout errors
-        double voltage = PDPJNI.getPDPVoltage(status);
-        Common.check(status);
-        return (float) voltage;
+        return (float) PDPJNI.getPDPVoltage(module);
     }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 Colby Skeggs
+ * Copyright 2015-2016 Colby Skeggs
  *
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  *
@@ -22,47 +22,38 @@
  */
 package ccre.frc;
 
-import java.nio.ByteBuffer;
-import java.nio.IntBuffer;
-
 import edu.wpi.first.wpilibj.hal.SolenoidJNI;
 
 class DirectSolenoid {
     public static final int MODULE_COUNT = 63, PORT_COUNT = 8;
-    private static final ByteBuffer[][] ports = new ByteBuffer[MODULE_COUNT][PORT_COUNT];
+    private static final long[][] ports = new long[MODULE_COUNT][PORT_COUNT];
 
-    public static ByteBuffer init(int module, int channel) {
+    public static long init(int module, int channel) {
         if (module < 0 || module >= MODULE_COUNT || channel < 0 || channel >= PORT_COUNT) {
             throw new RuntimeException("Solenoid ID invalid: " + module + ":" + channel);
         }
 
-        if (ports[module][channel] == null) {
-            IntBuffer status = Common.getCheckBuffer();
-            ports[module][channel] = SolenoidJNI.initializeSolenoidPort(SolenoidJNI.getPortWithModule((byte) module, (byte) channel), status);
-            Common.check(status);
+        if (ports[module][channel] == 0) {
+            ports[module][channel] = SolenoidJNI.initializeSolenoidPort(SolenoidJNI.getPortWithModule((byte) module, (byte) channel));
         }
 
         return ports[module][channel];
     }
 
-    public static void set(ByteBuffer port, boolean value) {
-        if (port == null) {
+    public static void set(long port, boolean value) {
+        if (port == 0) {
             throw new NullPointerException();
         }
-        IntBuffer status = Common.getCheckBuffer();
         // uhh... no errors...
-        SolenoidJNI.setSolenoid(port, (byte) (value ? 1 : 0), status);
-        Common.check(status);
+        SolenoidJNI.setSolenoid(port, value);
     }
 
-    public static boolean isBlacklisted(ByteBuffer port, int channel) {
-        if (port == null) {
+    public static boolean isBlacklisted(long port, int channel) {
+        if (port == 0) {
             throw new NullPointerException();
         }
-        IntBuffer status = Common.getCheckBuffer();
         // TODO: handle timeout errors
-        int value = SolenoidJNI.getPCMSolenoidBlackList(port, status);
-        Common.check(status);
+        int value = SolenoidJNI.getPCMSolenoidBlackList(port);
         return (value & (1 << channel)) != 0;
     }
 }

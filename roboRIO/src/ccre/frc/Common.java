@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 Colby Skeggs
+ * Copyright 2015-2016 Colby Skeggs
  *
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  *
@@ -27,10 +27,6 @@ import java.nio.ByteOrder;
 import java.nio.IntBuffer;
 import java.nio.LongBuffer;
 
-import ccre.log.Logger;
-import ccre.util.Utils;
-import edu.wpi.first.wpilibj.hal.HALUtil;
-
 class Common {
 
     private static ThreadLocal<IntBuffer> directBuffer = new ThreadLocal<IntBuffer>() {
@@ -40,7 +36,7 @@ class Common {
         }
     };
 
-    public static IntBuffer getCheckBuffer() {
+    public static IntBuffer getSharedBuffer() {
         IntBuffer out = directBuffer.get();
         out.put(0, 0);
         return out;
@@ -56,16 +52,5 @@ class Common {
         ByteBuffer status = ByteBuffer.allocateDirect(8);
         status.order(ByteOrder.LITTLE_ENDIAN);
         return status.asLongBuffer();
-    }
-
-    public static void check(IntBuffer status) {
-        int s = status.get(0);
-        if (s < 0) {
-            String message = HALUtil.getHALErrorMessage(s);
-            throw new RuntimeException(message + " [" + s + "]");
-        } else if (s > 0) {
-            String message = HALUtil.getHALErrorMessage(s);
-            Logger.warning("HAL Warning: " + message + "[" + s + "] in " + Utils.getMethodCaller(1));
-        }
     }
 }

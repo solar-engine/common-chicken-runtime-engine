@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 Colby Skeggs
+ * Copyright 2015-2016 Colby Skeggs
  *
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  *
@@ -23,99 +23,66 @@
 package ccre.frc;
 
 import java.nio.ByteBuffer;
-import java.nio.IntBuffer;
 
 import edu.wpi.first.wpilibj.hal.SerialPortJNI;
 
 class DirectRS232 {
     public static final byte PORT_ONBOARD = 0, PORT_MXP = 1, PORT_USB = 2;
-    public static final byte PARITY_NONE = 0, PARITY_ODD = 1, PARITY_EVEN = 2,
-            PARITY_MARK = 3, PARITY_SPACE = 4;
-    public static final byte STOP_ONE = 10, STOP_ONE_POINT_FIVE = 15,
-            STOP_TWO = 20;
+    public static final byte PARITY_NONE = 0, PARITY_ODD = 1, PARITY_EVEN = 2, PARITY_MARK = 3, PARITY_SPACE = 4;
+    public static final byte STOP_ONE = 10, STOP_ONE_POINT_FIVE = 15, STOP_TWO = 20;
     public static final byte FLUSH_ON_ACCESS = 1, FLUSH_WHEN_FULL = 2;
 
     public static void init(byte port, int baudRate, int dataBits, byte parity, byte stopBits) {
-        IntBuffer status = Common.getCheckBuffer();
-        SerialPortJNI.serialInitializePort(port, status);
-        Common.check(status);
-        SerialPortJNI.serialSetBaudRate(port, baudRate, status);
-        Common.check(status);
-        SerialPortJNI.serialSetDataBits(port, (byte) dataBits, status);
-        Common.check(status);
-        SerialPortJNI.serialSetParity(port, parity, status);
-        Common.check(status);
-        SerialPortJNI.serialSetStopBits(port, stopBits, status);
-        Common.check(status);
+        SerialPortJNI.serialInitializePort(port);
+        SerialPortJNI.serialSetBaudRate(port, baudRate);
+        SerialPortJNI.serialSetDataBits(port, (byte) dataBits);
+        SerialPortJNI.serialSetParity(port, parity);
+        SerialPortJNI.serialSetStopBits(port, stopBits);
 
         // return data immediately
-        SerialPortJNI.serialSetReadBufferSize(port, 1, status);
-        Common.check(status);
-
-        SerialPortJNI.serialSetTimeout(port, 5.0f, status);
-        Common.check(status);
-
-        SerialPortJNI.serialSetWriteMode(port, FLUSH_ON_ACCESS, status);
-        Common.check(status);
-
-        SerialPortJNI.serialDisableTermination(port, status);
-        Common.check(status);
-
-        SerialPortJNI.serialSetWriteBufferSize(port, 1, status);
-        Common.check(status);
+        SerialPortJNI.serialSetReadBufferSize(port, 1);
+        SerialPortJNI.serialSetTimeout(port, 5.0f);
+        SerialPortJNI.serialSetWriteMode(port, FLUSH_ON_ACCESS);
+        SerialPortJNI.serialDisableTermination(port);
+        SerialPortJNI.serialSetWriteBufferSize(port, 1);
     }
 
     public static void setTermination(byte port, Character end) {
-        IntBuffer status = Common.getCheckBuffer();
         if (end == null) {
-            SerialPortJNI.serialDisableTermination(port, status);
+            SerialPortJNI.serialDisableTermination(port);
         } else {
-            SerialPortJNI.serialEnableTermination(port, end, status);
+            SerialPortJNI.serialEnableTermination(port, end);
         }
-        Common.check(status);
     }
 
     public static int getBytesReceived(byte port) {
-        IntBuffer status = Common.getCheckBuffer();
-        int bytes = SerialPortJNI.serialGetBytesRecieved(port, status);
-        Common.check(status);
-        return bytes;
+        return SerialPortJNI.serialGetBytesRecieved(port);
     }
 
     public static byte[] read(byte port, int len) {
-        IntBuffer status = Common.getCheckBuffer();
         ByteBuffer recv = ByteBuffer.allocateDirect(len);
-        int actuallyReceived = SerialPortJNI.serialRead(port, recv, len, status);
-        Common.check(status);
+        int actuallyReceived = SerialPortJNI.serialRead(port, recv, len);
+
         byte[] array = new byte[actuallyReceived];
         recv.get(array);
         return array;
     }
 
     public static void flush(byte port) {
-        IntBuffer status = Common.getCheckBuffer();
-        SerialPortJNI.serialFlush(port, status);
-        Common.check(status);
+        SerialPortJNI.serialFlush(port);
     }
 
     public static void setWriteBufferMode(byte port, byte mode) {
-        IntBuffer status = Common.getCheckBuffer();
-        SerialPortJNI.serialSetWriteMode(port, mode, status);
-        Common.check(status);
+        SerialPortJNI.serialSetWriteMode(port, mode);
     }
 
     public static int write(byte port, byte[] buffer, int count) {
-        IntBuffer status = Common.getCheckBuffer();
         ByteBuffer dataToSendBuffer = ByteBuffer.allocateDirect(count);
         dataToSendBuffer.put(buffer, 0, count);
-        int actual = SerialPortJNI.serialWrite(port, dataToSendBuffer, count, status);
-        Common.check(status);
-        return actual;
+        return SerialPortJNI.serialWrite(port, dataToSendBuffer, count);
     }
 
     public static void close(byte port) {
-        IntBuffer status = Common.getCheckBuffer();
-        SerialPortJNI.serialClose(port, status);
-        Common.check(status);
+        SerialPortJNI.serialClose(port);
     }
 }

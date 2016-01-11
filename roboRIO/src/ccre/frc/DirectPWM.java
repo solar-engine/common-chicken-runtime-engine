@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 Colby Skeggs
+ * Copyright 2015-2016 Colby Skeggs
  *
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  *
@@ -22,9 +22,6 @@
  */
 package ccre.frc;
 
-import java.nio.ByteBuffer;
-import java.nio.IntBuffer;
-
 import edu.wpi.first.wpilibj.hal.DIOJNI;
 import edu.wpi.first.wpilibj.hal.JNIWrapper;
 import edu.wpi.first.wpilibj.hal.PWMJNI;
@@ -37,7 +34,7 @@ class DirectPWM {
     public static final int TYPE_VICTOR = 2;
     public static final int TYPE_SERVO = 3;
     public static final int TYPE_NUM = 4;
-    private static final ByteBuffer[] pwms = new ByteBuffer[PWM_NUM];
+    private static final long[] pwms = new long[PWM_NUM];
     private static final int[] types = new int[PWM_NUM];
     private static final int[] tmax = new int[TYPE_NUM],
             tdbMax = new int[TYPE_NUM], tctr = new int[TYPE_NUM],
@@ -52,9 +49,8 @@ class DirectPWM {
             cdbMin = new double[] { 1.487, 1.454, 1.49, 0 },
             cmin = new double[] { 0.989, 0.697, 1.026, 0.6 };
 
-    private static synchronized void initConfig(IntBuffer status) {
-        double loopTime = DIOJNI.getLoopTiming(status) / (kSystemClockTicksPerMicrosecond * 1e3);
-        Common.check(status);
+    private static synchronized void initConfig() {
+        double loopTime = DIOJNI.getLoopTiming() / (kSystemClockTicksPerMicrosecond * 1e3);
 
         for (int i = 0; i < TYPE_NUM; i++) {
             tmax[i] = (int) ((cmax[i] - kDefaultPwmCenter) / loopTime + kDefaultPwmStepsDown - 1);
@@ -74,30 +70,23 @@ class DirectPWM {
             throw new RuntimeException("Invalid PWM type: " + type);
         }
 
-        if (pwms[channel] == null) {
-            IntBuffer status = Common.getCheckBuffer();
+        if (pwms[channel] == 0) {
+            long port = DIOJNI.initializeDigitalPort(JNIWrapper.getPort((byte) channel));
 
-            ByteBuffer port = DIOJNI.initializeDigitalPort(JNIWrapper.getPort((byte) channel), status);
-            Common.check(status);
-
-            if (!PWMJNI.allocatePWMChannel(port, status)) {
+            if (!PWMJNI.allocatePWMChannel(port)) {
                 throw new RuntimeException("PWM channel " + channel + " is already allocated");
             }
-            Common.check(status);
 
-            PWMJNI.setPWM(port, (short) 0, status);
-            Common.check(status);
+            PWMJNI.setPWM(port, (short) 0);
 
             if (!isConfigInit) {
-                initConfig(status);
+                initConfig();
             }
 
-            configureScaling(port, type == TYPE_SERVO ? 4 : type == TYPE_VICTOR ? 2 : 1, status);
+            configureScaling(port, type == TYPE_SERVO ? 4 : type == TYPE_VICTOR ? 2 : 1);
 
             if (type != TYPE_SERVO) {
-                PWMJNI.latchPWMZero(port, status);
-
-                Common.check(status);
+                PWMJNI.latchPWMZero(port);
             }
 
             pwms[channel] = port;
@@ -107,52 +96,42 @@ class DirectPWM {
         }
     }
 
-    private static void configureScaling(ByteBuffer port, int num, IntBuffer status) {
+    private static void configureScaling(long port, int num) {
         switch (num) {
         case 4: // more squelching
-            PWMJNI.setPWMPeriodScale(port, 3, status);
+            PWMJNI.setPWMPeriodScale(port, 3);
             break;
         case 2: // less squelching
-            PWMJNI.setPWMPeriodScale(port, 1, status);
+            PWMJNI.setPWMPeriodScale(port, 1);
             break;
         case 1: // no squelching
-            PWMJNI.setPWMPeriodScale(port, 0, status);
+            PWMJNI.setPWMPeriodScale(port, 0);
             break;
         default:
             throw new RuntimeException("Invalid scaling to configureScaling.");
         }
-
-        Common.check(status);
     }
 
     public static synchronized void freePWM(int channel) {
         if (channel < 0 || channel >= PWM_NUM) {
             throw new RuntimeException("PWM port out of range: " + channel);
         }
-        ByteBuffer port = pwms[channel];
-        if (port == null) {
+        long port = pwms[channel];
+        if (port == 0) {
             return; // already freed
         }
-        pwms[channel] = null;
-
-        IntBuffer status = Common.getCheckBuffer();
-
-        PWMJNI.setPWM(port, (short) 0, status);
-        Common.check(status);
-
-        PWMJNI.freePWMChannel(port, status);
-        Common.check(status);
-
-        DIOJNI.freeDIO(port, status);
-        Common.check(status);
+        pwms[channel] = 0;
+        PWMJNI.setPWM(port, (short) 0);
+        PWMJNI.freePWMChannel(port);
+        DIOJNI.freeDIO(port);
     }
 
     public static void set(int channel, float value) {
         if (channel < 0 || channel >= PWM_NUM) {
             throw new RuntimeException("PWM port out of range: " + channel);
         }
-        ByteBuffer port = pwms[channel];
-        if (port == null) {
+        long port = pwms[channel];
+        if (port == 0) {
             throw new RuntimeException("PWM port unallocated: " + channel);
         }
         int rawValue;
@@ -173,8 +152,7 @@ class DirectPWM {
                 rawValue = (int) (value * ((double) (tdbMin[type] - tmin[type])) + tdbMin[type] + 0.5);
             }
         }
-        IntBuffer status = Common.getCheckBuffer();
-        PWMJNI.setPWM(port, (short) rawValue, status); // just FPGA errors
-        Common.check(status);
+
+        PWMJNI.setPWM(port, (short) rawValue);
     }
 }

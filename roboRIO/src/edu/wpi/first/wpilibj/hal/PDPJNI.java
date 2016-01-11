@@ -1,22 +1,30 @@
-package edu.wpi.first.wpilibj.hal;
+// Certain modifications are Copyright 2016 Colby Skeggs
+/*----------------------------------------------------------------------------*/
+/* Copyright (c) FIRST 2016. All Rights Reserved.                             */
+/* Open Source Software - may be modified and shared by FRC teams. The code   */
+/* must be accompanied by the FIRST BSD license file in the root directory of */
+/* the project.                                                               */
+/*----------------------------------------------------------------------------*/
 
-import java.nio.IntBuffer;
+package edu.wpi.first.wpilibj.hal;
 
 @SuppressWarnings("javadoc")
 public class PDPJNI extends JNIWrapper {
-    public static native double getPDPTemperature(IntBuffer status);
+    public static native void initializePDP(int module);
 
-    public static native double getPDPVoltage(IntBuffer status);
+    public static native double getPDPTemperature(int module);
 
-    public static native double getPDPChannelCurrent(byte channel, IntBuffer status);
+    public static native double getPDPVoltage(int module);
 
-    public static native double getPDPTotalCurrent(IntBuffer status);
+    public static native double getPDPChannelCurrent(byte channel, int module);
 
-    public static native double getPDPTotalPower(IntBuffer status);
+    public static native double getPDPTotalCurrent(int module);
 
-    public static native double getPDPTotalEnergy(IntBuffer status);
+    public static native double getPDPTotalPower(int module);
 
-    public static native void resetPDPTotalEnergy(IntBuffer status);
+    public static native double getPDPTotalEnergy(int module);
 
-    public static native void clearPDPStickyFaults(IntBuffer status);
+    public static native void resetPDPTotalEnergy(int module);
+
+    public static native void clearPDPStickyFaults(int module);
 }

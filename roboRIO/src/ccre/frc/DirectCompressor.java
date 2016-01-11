@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 Colby Skeggs
+ * Copyright 2015-2016 Colby Skeggs
  *
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  *
@@ -22,45 +22,31 @@
  */
 package ccre.frc;
 
-import java.nio.ByteBuffer;
-import java.nio.IntBuffer;
-
 import edu.wpi.first.wpilibj.hal.CompressorJNI;
 
 class DirectCompressor {
-    public static ByteBuffer init(int pcmID) {
+    public static long init(int pcmID) {
         return CompressorJNI.initializeCompressor((byte) pcmID);
     }
 
-    public static void setClosedLoop(ByteBuffer pcm, boolean on) {
-        IntBuffer status = Common.getCheckBuffer();
+    public static void setClosedLoop(long pcm, boolean on) {
         // errors when not yet initialized, so should be fine since init will
         // always be called.
-        CompressorJNI.setClosedLoopControl(pcm, on, status);
-        Common.check(status);
+        CompressorJNI.setClosedLoopControl(pcm, on);
     }
 
-    public static boolean getPressureSwitch(ByteBuffer pcm) {
-        IntBuffer status = Common.getCheckBuffer();
+    public static boolean getPressureSwitch(long pcm) {
         // TODO: errors if timed out
-        boolean swt = CompressorJNI.getPressureSwitch(pcm, status);
-        Common.check(status);
-        return swt;
+        return CompressorJNI.getPressureSwitch(pcm);
     }
 
-    public static boolean getCompressorRunning(ByteBuffer pcm) {
-        IntBuffer status = Common.getCheckBuffer();
+    public static boolean getCompressorRunning(long pcm) {
         // TODO: errors if timed out.
-        boolean on = CompressorJNI.getCompressor(pcm, status);
-        Common.check(status);
-        return on;
+        return CompressorJNI.getCompressor(pcm);
     }
 
-    public static float getCompressorCurrent(ByteBuffer pcm) {
-        IntBuffer status = Common.getCheckBuffer();
+    public static float getCompressorCurrent(long pcm) {
         // TODO: errors if timed out
-        float current = CompressorJNI.getCompressorCurrent(pcm, status);
-        Common.check(status);
-        return current;
+        return CompressorJNI.getCompressorCurrent(pcm);
     }
 }

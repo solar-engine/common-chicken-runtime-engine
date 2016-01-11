@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 Colby Skeggs
+ * Copyright 2015-2016 Colby Skeggs
  * Copyright 2015 Jake Springer
  *
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
@@ -23,9 +23,6 @@
  */
 package ccre.frc;
 
-import java.nio.ByteBuffer;
-import java.nio.IntBuffer;
-
 import edu.wpi.first.wpilibj.hal.DIOJNI;
 import edu.wpi.first.wpilibj.hal.InterruptJNI;
 import edu.wpi.first.wpilibj.hal.JNIWrapper;
@@ -33,23 +30,17 @@ import edu.wpi.first.wpilibj.hal.JNIWrapper;
 class DirectDigital {
     public static final int DIGITAL_NUM = 26, INTERRUPT_NUM = 8;
 
-    static final byte WATCH_ASYNCHRONOUS = 0, WATCH_SYNCHRONOUS = 1;
-    static final byte TRIGGER_DIGITAL = 0, TRIGGER_ANALOG = 1;
+    static final boolean WATCH_ASYNCHRONOUS = false, WATCH_SYNCHRONOUS = true;
+    static final boolean TRIGGER_DIGITAL = false, TRIGGER_ANALOG = true;
 
     /**
      * Number of digital pins on a roboRIO.
      */
     static final int DIGITAL_PINS = 26;
 
-    static {
-        IntBuffer status = Common.getCheckBuffer();
-        InterruptJNI.initializeInterruptJVM(status);
-        Common.check(status);
-    }
-
-    private static final ByteBuffer[] digitals = new ByteBuffer[DIGITAL_NUM];
+    private static final long[] digitals = new long[DIGITAL_NUM];
     private static final boolean[] asInputs = new boolean[DIGITAL_NUM];
-    private static final ByteBuffer[] interrupts = new ByteBuffer[INTERRUPT_NUM];
+    private static final long[] interrupts = new long[INTERRUPT_NUM];
     private static final Integer[] interruptMap = new Integer[DIGITAL_NUM];
 
     public static synchronized void init(int channel, boolean asInput) {
@@ -57,12 +48,9 @@ class DirectDigital {
             throw new RuntimeException("Invalid digital port: " + channel);
         }
 
-        if (digitals[channel] == null) {
-            IntBuffer status = Common.getCheckBuffer();
-            ByteBuffer port = DIOJNI.initializeDigitalPort(JNIWrapper.getPort((byte) channel), status);
-            Common.check(status);
-            DIOJNI.allocateDIO(port, (byte) (asInput ? 1 : 0), status);
-            Common.check(status);
+        if (digitals[channel] == 0) {
+            long port = DIOJNI.initializeDigitalPort(JNIWrapper.getPort((byte) channel));
+            DIOJNI.allocateDIO(port, asInput);
             digitals[channel] = port;
             asInputs[channel] = asInput;
         } else if (asInputs[channel] != asInput) {
@@ -71,50 +59,42 @@ class DirectDigital {
     }
 
     public static synchronized void free(int channel) {
-        ByteBuffer port = digitals[channel];
-        if (port == null) {
+        long port = digitals[channel];
+        if (port == 0) {
             throw new RuntimeException("Unallocated digital port: " + channel);
         }
-        IntBuffer status = Common.getCheckBuffer();
-        DIOJNI.freeDIO(port, status);
-        Common.check(status);
+
+        DIOJNI.freeDIO(port);
     }
 
     public static void set(int channel, boolean value) {
-        ByteBuffer dig = digitals[channel];
-        if (dig == null) {
+        long dig = digitals[channel];
+        if (dig == 0) {
             throw new RuntimeException("Unallocated digital port: " + channel);
         }
         if (asInputs[channel]) {
             throw new RuntimeException("Digital port not opened for writing: " + channel);
         }
-        IntBuffer status = Common.getCheckBuffer();
-        DIOJNI.setDIO(dig, (short) (value ? 1 : 0), status); // just FPGA errors
-        Common.check(status);
+
+        DIOJNI.setDIO(dig, (short) (value ? 1 : 0));
     }
 
     public static boolean get(int channel) {
-        ByteBuffer dig = digitals[channel];
-        if (dig == null) {
+        long dig = digitals[channel];
+        if (dig == 0) {
             throw new RuntimeException("Unallocated digital port: " + channel);
         }
         if (!asInputs[channel]) {
             throw new RuntimeException("Digital port not opened for reading: " + channel);
         }
-        IntBuffer status = Common.getCheckBuffer();
-        boolean value = DIOJNI.getDIO(dig, status) != 0; // just FPGA errors
-        Common.check(status);
-        return value;
+        return DIOJNI.getDIO(dig);
     }
 
     private static synchronized int allocateInterrupt() {
         for (int i = 0; i < INTERRUPT_NUM; i++) {
-            if (interrupts[i] == null) {
-                IntBuffer status = Common.getCheckBuffer();
-                ByteBuffer intr = InterruptJNI.initializeInterrupts(i, WATCH_SYNCHRONOUS, status);
+            if (interrupts[i] == 0) {
                 // TODO: what if this fails? intr is leaked.
-                Common.check(status);
-                interrupts[i] = intr;
+                interrupts[i] = InterruptJNI.initializeInterrupts(i, WATCH_SYNCHRONOUS);
                 return i;
             }
         }
@@ -122,20 +102,16 @@ class DirectDigital {
     }
 
     public static synchronized void initInterruptsSynchronous(int id, boolean risingEdge, boolean fallingEdge) {
-        IntBuffer status = Common.getCheckBuffer();
-
         if (interruptMap[id] == null) {
             int intr = allocateInterrupt();
 
             byte module_id = 0;
-            InterruptJNI.requestInterrupts(interrupts[intr], module_id, id, TRIGGER_DIGITAL, status);
-            Common.check(status);
+            InterruptJNI.requestInterrupts(interrupts[intr], module_id, id, TRIGGER_DIGITAL);
 
             interruptMap[id] = intr;
         }
 
-        InterruptJNI.setInterruptUpSourceEdge(interrupts[interruptMap[id]], (byte) (risingEdge ? 1 : 0), (byte) (fallingEdge ? 1 : 0), status);
-        Common.check(status);
+        InterruptJNI.setInterruptUpSourceEdge(interrupts[interruptMap[id]], risingEdge, fallingEdge);
     }
 
     // returns if timed out
@@ -143,10 +119,8 @@ class DirectDigital {
         if (interruptMap[id] == null) {
             throw new RuntimeException("No interrupt allocated for digital input: " + id);
         }
-        IntBuffer status = Common.getCheckBuffer();
-        int irqs = InterruptJNI.waitForInterrupt(interrupts[interruptMap[id]], timeout, ignorePrevious, status);
-        Common.check(status);
-        return irqs == 0;
+
+        return InterruptJNI.waitForInterrupt(interrupts[interruptMap[id]], timeout, ignorePrevious) == 0;
     }
 
     /**
@@ -156,7 +130,7 @@ class DirectDigital {
      * @param channel the digital channel number to access, starting at 0.
      * @return the C pointer for this digital channel, or null if uninitialized.
      */
-    public static ByteBuffer getDigitalSource(int channel) {
+    public static long getDigitalSource(int channel) {
         return digitals[channel];
     }
 

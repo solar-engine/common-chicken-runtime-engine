@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 Colby Skeggs
+ * Copyright 2015-2016 Colby Skeggs
  *
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  *
@@ -22,7 +22,6 @@
  */
 package ccre.frc;
 
-import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
 import java.nio.LongBuffer;
 
@@ -32,102 +31,72 @@ import edu.wpi.first.wpilibj.hal.JNIWrapper;
 class DirectAnalog {
     public static final int ANALOG_NUM = 8;
 
-    private static final ByteBuffer[] analogs = new ByteBuffer[ANALOG_NUM];
+    private static final long[] analogs = new long[ANALOG_NUM];
 
-    public static synchronized ByteBuffer init(int channel) {
+    public static synchronized long init(int channel) {
         if (channel < 0 || channel >= ANALOG_NUM) {
             throw new RuntimeException("Analog channel: " + channel);
         }
 
-        if (analogs[channel] == null) {
-            IntBuffer status = Common.allocateInt();
-            analogs[channel] = AnalogJNI.initializeAnalogInputPort(JNIWrapper.getPort((byte) channel), status);
-            Common.check(status);
+        if (analogs[channel] == 0) {
+            analogs[channel] = AnalogJNI.initializeAnalogInputPort(JNIWrapper.getPort((byte) channel));
         }
 
         return analogs[channel];
     }
 
-    public static ByteBuffer initWithAccumulator(int channel) {
+    public static long initWithAccumulator(int channel) {
         if (channel != 0 && channel != 1) {
             throw new RuntimeException("Only Analog channels 0 and 1 have accumulators.");
         }
-        ByteBuffer analog = init(channel);
-        IntBuffer status = Common.allocateInt();
-        AnalogJNI.initAccumulator(analog, status);
-        Common.check(status);
+        long analog = init(channel);
+        AnalogJNI.initAccumulator(analog);
 
-        AnalogJNI.setAccumulatorDeadband(analog, 0, status);
-        Common.check(status);
+        AnalogJNI.setAccumulatorDeadband(analog, 0);
 
         return analog;
     }
 
-    public static void configure(ByteBuffer port, int averageBits, int oversampleBits) {
-        IntBuffer status = Common.getCheckBuffer();
-        AnalogJNI.setAnalogAverageBits(port, averageBits, status);
-        AnalogJNI.setAnalogOversampleBits(port, oversampleBits, status);
-        Common.check(status);
+    public static void configure(long port, int averageBits, int oversampleBits) {
+        AnalogJNI.setAnalogAverageBits(port, averageBits);
+        AnalogJNI.setAnalogOversampleBits(port, oversampleBits);
     }
 
-    public static float getAverageVoltage(ByteBuffer channel) {
-        IntBuffer status = Common.getCheckBuffer();
-        double out = AnalogJNI.getAnalogAverageVoltage(channel, status);
-        Common.check(status); // just FPGA and FRCComm-calibrate errors
-        return (float) out;
+    public static float getAverageVoltage(long channel) {
+        return (float) AnalogJNI.getAnalogAverageVoltage(channel);
     }
 
-    public static int getAverageValue(ByteBuffer channel) {
-        IntBuffer status = Common.getCheckBuffer();
-        int out = AnalogJNI.getAnalogAverageValue(channel, status);
-        Common.check(status); // just FPGA errors
-        return out;
+    public static int getAverageValue(long channel) {
+        return AnalogJNI.getAnalogAverageValue(channel);
     }
 
     public static void setGlobalSampleRate(double sampleRate) {
-        IntBuffer status = Common.getCheckBuffer();
-        AnalogJNI.setAnalogSampleRate(sampleRate, status);
-        Common.check(status);
+        AnalogJNI.setAnalogSampleRate(sampleRate);
     }
 
     public static double getGlobalSampleRate() {
-        IntBuffer status = Common.getCheckBuffer();
-        // only FPGA errors
-        double value = AnalogJNI.getAnalogSampleRate(status);
-        Common.check(status);
-        return value;
+        return AnalogJNI.getAnalogSampleRate();
     }
 
-    public static void resetAccumulator(ByteBuffer analog) {
-        IntBuffer status = Common.getCheckBuffer();
+    public static void resetAccumulator(long analog) {
         // FPGA errors or null accumulator, which should only be a concern if
         // the port is not 0 or 1. Not an issue.
-        AnalogJNI.resetAccumulator(analog, status);
+        AnalogJNI.resetAccumulator(analog);
         // if this fails with a NULL_PARAMETER, that's because the channel is
         // not an accumulator channel.
-        Common.check(status);
     }
 
-    public static long readAccumulatorValue(ByteBuffer analog, IntBuffer directCount) {
+    public static long readAccumulatorValue(long analog, IntBuffer directCount) {
         LongBuffer value = Common.allocateLong();
-        IntBuffer status = Common.getCheckBuffer();
-        // FPGA errors, null accumulator, or null pointer. Not an issue.
-        AnalogJNI.getAccumulatorOutput(analog, value, directCount, status);
-        Common.check(status);
+        AnalogJNI.getAccumulatorOutput(analog, value, directCount);
         return value.get(0);
     }
 
-    public static void setAccumulatorCenter(ByteBuffer analog, int center) {
-        IntBuffer status = Common.getCheckBuffer();
-        AnalogJNI.setAccumulatorCenter(analog, center, status);
-        Common.check(status);
+    public static void setAccumulatorCenter(long analog, int center) {
+        AnalogJNI.setAccumulatorCenter(analog, center);
     }
 
-    public static long getLSBWeight(ByteBuffer gyro) {
-        IntBuffer status = Common.getCheckBuffer();
-        // just FRCComm-calibrate errors
-        long value = AnalogJNI.getAnalogLSBWeight(gyro, status);
-        Common.check(status);
-        return value;
+    public static long getLSBWeight(long gyro) {
+        return AnalogJNI.getAnalogLSBWeight(gyro);
     }
 }

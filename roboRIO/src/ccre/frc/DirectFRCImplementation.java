@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2015 Colby Skeggs
+ * Copyright 2013-2016 Colby Skeggs
  * Copyright 2015 Jake Springer
  *
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
@@ -27,7 +27,6 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.URL;
-import java.nio.ByteBuffer;
 import java.util.Enumeration;
 import java.util.jar.Manifest;
 
@@ -127,7 +126,7 @@ public final class DirectFRCImplementation implements FRCImplementation {
 
         while (true) {
             int word = FRCNetworkCommunicationsLibrary.NativeHALGetControlWord();
-            onFMS = ((word >> 4) & 1) != 0;
+            onFMS = (word & FRCNetworkCommunicationsLibrary.HAL_FMS_ATTACHED) != 0;
             Mode newmode = calcMode(word);
             if (newmode != activeMode) {
                 activeMode = newmode;
@@ -163,7 +162,7 @@ public final class DirectFRCImplementation implements FRCImplementation {
     /**
      * Initialized by usePCMCompressor if needed.
      */
-    private ByteBuffer pcmCompressor;
+    private long pcmCompressor;
 
     private Mode activeMode = Mode.DISABLED;
 
@@ -233,12 +232,12 @@ public final class DirectFRCImplementation implements FRCImplementation {
     }
 
     private Mode calcMode(int word) {
-        boolean enabled = (word & 1) != 0;
-        boolean autonomous = ((word >> 1) & 1) != 0;
-        boolean test = ((word >> 2) & 1) != 0;
-        boolean eStop = ((word >> 3) & 1) != 0;
-        boolean dsAttached = ((word >> 5) & 1) != 0;
-        // TODO: does include eStop here cause any issues?
+        boolean enabled = (word & FRCNetworkCommunicationsLibrary.HAL_ENABLED) != 0;
+        boolean autonomous = (word & FRCNetworkCommunicationsLibrary.HAL_AUTONOMOUS) != 0;
+        boolean test = (word & FRCNetworkCommunicationsLibrary.HAL_TEST) != 0;
+        boolean eStop = (word & FRCNetworkCommunicationsLibrary.HAL_ESTOP) != 0;
+        boolean dsAttached = (word & FRCNetworkCommunicationsLibrary.HAL_DS_ATTACHED) != 0;
+        // TODO: does including eStop here cause any issues?
         if (!enabled || !dsAttached || eStop) {
             return Mode.DISABLED;
         } else if (test) {
@@ -268,7 +267,7 @@ public final class DirectFRCImplementation implements FRCImplementation {
 
     @Override
     public BooleanOutput makeSolenoid(int module, int id) {
-        final ByteBuffer port = DirectSolenoid.init(module, id);
+        final long port = DirectSolenoid.init(module, id);
         return value -> DirectSolenoid.set(port, value);
     }
 
@@ -280,7 +279,7 @@ public final class DirectFRCImplementation implements FRCImplementation {
 
     @Override
     public FloatInput makeAnalogInput(int id, EventInput updateOn) {
-        ByteBuffer port = DirectAnalog.init(id);
+        long port = DirectAnalog.init(id);
         return new DerivedFloatInput(updateOn) {
             @Override
             protected float apply() {
@@ -291,7 +290,7 @@ public final class DirectFRCImplementation implements FRCImplementation {
 
     @Override
     public FloatInput makeAnalogInput(int id, int averageBits, EventInput updateOn) {
-        ByteBuffer port = DirectAnalog.init(id);
+        long port = DirectAnalog.init(id);
         DirectAnalog.configure(port, averageBits, 0);// TODO: oversample bits
         return new DerivedFloatInput(updateOn) {
             @Override
@@ -381,7 +380,7 @@ public final class DirectFRCImplementation implements FRCImplementation {
 
     @Override
     public FloatInput makeEncoder(int channelA, int channelB, boolean reverse, EventInput resetWhen, EventInput updateOn) {
-        ByteBuffer encoder = DirectEncoder.init(channelA, channelB, reverse);
+        long encoder = DirectEncoder.init(channelA, channelB, reverse);
         if (resetWhen != null) {
             resetWhen.send(() -> DirectEncoder.reset(encoder));
         }
@@ -409,7 +408,7 @@ public final class DirectFRCImplementation implements FRCImplementation {
             throw new RuntimeException("Invalid down channel: " + channelDown);
         }
 
-        ByteBuffer counter = DirectCounter.init(channelUp, channelDown, mode);
+        long counter = DirectCounter.init(channelUp, channelDown, mode);
         if (resetWhen != null) {
             resetWhen.send(() -> {
                 DirectCounter.clearDownSource(counter);
@@ -426,19 +425,19 @@ public final class DirectFRCImplementation implements FRCImplementation {
 
     @Override
     public BooleanOutput makeRelayForwardOutput(int channel) {
-        ByteBuffer relay = DirectRelay.init(channel);
+        long relay = DirectRelay.init(channel);
         return (bln) -> DirectRelay.setForward(relay, bln);
     }
 
     @Override
     public BooleanOutput makeRelayReverseOutput(int channel) {
-        ByteBuffer relay = DirectRelay.init(channel);
+        long relay = DirectRelay.init(channel);
         return (bln) -> DirectRelay.setReverse(relay, bln);
     }
 
     @Override
     public FloatInput makeGyro(int port, double sensitivity, EventInput evt, EventInput updateOn) {
-        ByteBuffer gyro;
+        long gyro;
         try {
             gyro = DirectGyro.init(port);
         } catch (InterruptedException e) {
@@ -518,8 +517,8 @@ public final class DirectFRCImplementation implements FRCImplementation {
         return Mode.DISABLED.getDuring(this);
     }
 
-    private synchronized ByteBuffer getPCMCompressor() {
-        if (pcmCompressor == null) {
+    private synchronized long getPCMCompressor() {
+        if (pcmCompressor == 0) {
             // TODO: Provide all PCM ids
             pcmCompressor = DirectCompressor.init(0);
         }
@@ -573,7 +572,7 @@ public final class DirectFRCImplementation implements FRCImplementation {
         return new DerivedFloatInput(updateOn) {
             @Override
             protected float apply() {
-                return DirectPDP.getCurrent(channel);
+                return DirectPDP.getCurrent(channel, 0);
             }
         };
     }
@@ -583,7 +582,7 @@ public final class DirectFRCImplementation implements FRCImplementation {
         return new DerivedFloatInput(updateOn) {
             @Override
             protected float apply() {
-                return DirectPDP.getVoltage();
+                return DirectPDP.getVoltage(0);
             }
         };
     }

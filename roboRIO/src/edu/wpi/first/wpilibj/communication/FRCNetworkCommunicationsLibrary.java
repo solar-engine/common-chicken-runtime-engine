@@ -1,10 +1,14 @@
-// Modified from WPILib version
-// No license was specified, but the standard FIRST BSD was implied.
+// Modified from WPILib version:
+/*----------------------------------------------------------------------------*/
+/* Copyright (c) FIRST 2016. All Rights Reserved.                             */
+/* Open Source Software - may be modified and shared by FRC teams. The code   */
+/* must be accompanied by the FIRST BSD license file in the root directory of */
+/* the project.                                                               */
+/*----------------------------------------------------------------------------*/
 
 package edu.wpi.first.wpilibj.communication;
 
 import java.nio.ByteBuffer;
-import java.nio.IntBuffer;
 
 import edu.wpi.first.wpilibj.hal.JNIWrapper;
 
@@ -108,41 +112,9 @@ public class FRCNetworkCommunicationsLibrary extends JNIWrapper {
         public static final int kSmartDashboard_Instance = 1;
     };
 
-    public static final int kFRC_NetworkCommunication_DynamicType_DSEnhancedIO_Input = 17;
-
-    public static final int kFRC_NetworkCommunication_DynamicType_Kinect_Vertices1 = 21;
-
-    public static final int SYS_STATUS_DATA_SIZE = 44;
-
-    public static final int kFRC_NetworkCommunication_DynamicType_Kinect_Custom = 25;
-
-    public static final int kFRC_NetworkCommunication_DynamicType_Kinect_Vertices2 = 23;
-
-    public static final int kFRC_NetworkCommunication_DynamicType_Kinect_Header = 19;
-
-    public static final int kFRC_NetworkCommunication_DynamicType_Kinect_Joystick = 24;
-
-    public static final int IO_CONFIG_DATA_SIZE = 32;
-
-    public static final int kMaxModuleNumber = 2;
-
-    public static final int kFRC_NetworkCommunication_DynamicType_DSEnhancedIO_Output = 18;
-
-    public static final int kFRC_NetworkCommunication_DynamicType_Kinect_Extra2 = 22;
-
-    public static final int kFRC_NetworkCommunication_DynamicType_Kinect_Extra1 = 20;
-
-    public static final int USER_DS_LCD_DATA_SIZE = 128;
-
-    public static final int kUsageReporting_version = 1;
-
-    public static final int USER_STATUS_DATA_SIZE = (984 - 32 - 44);
-
-    public static native int report(int resource, byte instanceNumber, byte context, String feature);
-
     public static native int FRCNetworkCommunicationUsageReportingReport(byte resource, byte instanceNumber, byte context, String feature);
 
-    public static native void setNewDataSem(ByteBuffer mutexId);
+    public static native void setNewDataSem(long mutexId);
 
     public static native void FRCNetworkCommunicationObserveUserProgramStarting();
 
@@ -156,9 +128,11 @@ public class FRCNetworkCommunicationsLibrary extends JNIWrapper {
 
     public static native void FRCNetworkCommunicationReserve();
 
+    public static final int HAL_ENABLED = 1 << 0, HAL_AUTONOMOUS = 1 << 1, HAL_TEST = 1 << 2, HAL_ESTOP = 1 << 3, HAL_FMS_ATTACHED = 1 << 4, HAL_DS_ATTACHED = 1 << 5;
+
     public static native int NativeHALGetControlWord();
 
-    // Red1, Red2, Red3, Blue1, Blue2, Blue3, else null
+    // 0 = Red1, Red2, Red3, Blue1, Blue2, Blue3, else null
     public static native int NativeHALGetAllianceStation();
 
     public static int kMaxJoystickAxes = 12;
@@ -172,11 +146,19 @@ public class FRCNetworkCommunicationsLibrary extends JNIWrapper {
 
     public static native int HALSetJoystickOutputs(byte joystickNum, int outputs, short leftRumble, short rightRumble);
 
+    public static native int HALGetJoystickIsXbox(byte joystickNum);
+
+    public static native int HALGetJoystickType(byte joystickNum);
+
+    public static native String HALGetJoystickName(byte joystickNum);
+
+    public static native int HALGetJoystickAxisType(byte joystickNum, byte axis);
+
     public static native float HALGetMatchTime();
 
-    public static native boolean HALGetSystemActive(IntBuffer status);
+    public static native boolean HALGetSystemActive();
 
-    public static native boolean HALGetBrownedOut(IntBuffer status);
+    public static native boolean HALGetBrownedOut();
 
     public static native int HALSetErrorData(String error);
 }

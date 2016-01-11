@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2015 Colby Skeggs.
+ * Copyright 2014-2016 Colby Skeggs.
  *
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  *
@@ -42,8 +42,12 @@ public class CluckNetworkingComponent extends SuperCanvasComponent {
 
     private static final long serialVersionUID = 8969267415884377303L;
 
-    private static final String[] optionNames = new String[] { "roboRIO (default)", "Local (default)", "roboRIO (USB)", "roboRIO (non-FMS)", "roboRIO (alternate 1)", "roboRIO (alternate 2)", "Local (alternate 1)", "Local (alternate 2)", "Don't Connect" };
-    private static final String[] optionAddrs = new String[] { "roboRIO-$T$E$A$M.local:5800", "127.0.0.1:1540", "172.22.11.2:1540", "roboRIO-$T$E$A$M.local:1540", "roboRIO-$T$E$A$M.local:5805", "roboRIO-$T$E$A$M.local:1735", "127.0.0.1:80", "127.0.0.1:443", ":" };
+    /**
+     * The remote address that represents that no connection is wanted.
+     */
+    public static final String DO_NOT_CONNECT = ":";
+    private static final String[] optionNames = new String[] { "roboRIO (default)", "Local (default)", "roboRIO (2015)", "roboRIO (USB)", "roboRIO (non-FMS)", "roboRIO (alternate 1)", "roboRIO (alternate 2)", "Local (alternate 1)", "Local (alternate 2)", "Don't Connect" };
+    private static final String[] optionAddrs = new String[] { "roboRIO-$T$E$A$M-FRC.local:5800", "127.0.0.1:1540", "roboRIO-$T$E$A$M.local:5800", "172.22.11.2:1540", "roboRIO-$T$E$A$M-FRC.local:1540", "roboRIO-$T$E$A$M-FRC.local:5805", "roboRIO-$T$E$A$M-FRC.local:1735", "127.0.0.1:80", "127.0.0.1:443", DO_NOT_CONNECT };
 
     private final StringBuilder address = new StringBuilder(optionAddrs[0]);
     private boolean expanded = false;
@@ -53,7 +57,16 @@ public class CluckNetworkingComponent extends SuperCanvasComponent {
      * Create a new CluckNetworkingComponent.
      */
     public CluckNetworkingComponent() {
+    }
 
+    /**
+     * Create a new CluckNetworkingComponent with a specified remote address.
+     *
+     * @param address the default address.
+     */
+    public CluckNetworkingComponent(String address) {
+        this.address.setLength(0);
+        this.address.append(address);
     }
 
     private int firstMenuEntry = 0, menuEntryDelta = 1;
@@ -159,7 +172,7 @@ public class CluckNetworkingComponent extends SuperCanvasComponent {
     }
 
     private String calculateRemote() {
-        if (address.toString().equals(":")) { // don't connect
+        if (address.toString().equals(DO_NOT_CONNECT)) { // don't connect
             return null;
         }
         char T = '?', E = '?', A = '?', M = '?';

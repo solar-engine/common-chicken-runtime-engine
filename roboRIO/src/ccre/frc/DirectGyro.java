@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 Colby Skeggs
+ * Copyright 2015-2016 Colby Skeggs
  *
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  *
@@ -22,20 +22,19 @@
  */
 package ccre.frc;
 
-import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
 
 class DirectGyro {
-    private static final ByteBuffer[] gyros = new ByteBuffer[DirectAnalog.ANALOG_NUM];
+    private static final long[] gyros = new long[DirectAnalog.ANALOG_NUM];
     private static final double[] offsets = new double[DirectAnalog.ANALOG_NUM];
     private static final int AVERAGE_BITS = 0, OVERSAMPLE_BITS = 10;
 
-    public static ByteBuffer init(int channel) throws InterruptedException {
+    public static long init(int channel) throws InterruptedException {
         if (channel < 0 || channel >= DirectAnalog.ANALOG_NUM) {
             throw new RuntimeException("Invalid Gyro port: " + channel);
         }
-        if (gyros[channel] == null) {
-            ByteBuffer analog = DirectAnalog.initWithAccumulator(channel);
+        if (gyros[channel] == 0) {
+            long analog = DirectAnalog.initWithAccumulator(channel);
             DirectAnalog.configure(analog, AVERAGE_BITS, OVERSAMPLE_BITS);
             DirectAnalog.setGlobalSampleRate(50.0 * (1 << (AVERAGE_BITS + OVERSAMPLE_BITS)));
 
@@ -47,7 +46,7 @@ class DirectGyro {
 
             Thread.sleep(5000);
 
-            IntBuffer countB = Common.allocateInt();
+            IntBuffer countB = Common.getSharedBuffer();
             long value = DirectAnalog.readAccumulatorValue(analog, countB);
             int count = countB.get(0);
 
@@ -64,12 +63,12 @@ class DirectGyro {
         return gyros[channel];
     }
 
-    public static void reset(ByteBuffer gyro) {
+    public static void reset(long gyro) {
         DirectAnalog.resetAccumulator(gyro);
     }
 
-    public static float getAngle(ByteBuffer gyro, int channel, double voltsPerDegreePerSecond) {
-        IntBuffer countB = Common.allocateInt();
+    public static float getAngle(long gyro, int channel, double voltsPerDegreePerSecond) {
+        IntBuffer countB = Common.getSharedBuffer();
         long raw = DirectAnalog.readAccumulatorValue(gyro, countB);
         long count = countB.get(0);
 

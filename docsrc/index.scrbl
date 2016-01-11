@@ -2,7 +2,7 @@
 @require[pict]
 @require["proc.rkt"]
 
-@title{The Common Chicken Runtime Engine v3.0.0-pre1}
+@title{The Common Chicken Runtime Engine v3.1.0}
 
 The CCRE solves the problem of writing elegant and maintainable robot software
 by using a dataflow model and taking care of the infrastructure for your
@@ -54,7 +54,7 @@ Short version: import all of the projects from the CCRE repository into Eclipse 
 
 Long version:
 
-@itemlist[@item{Download the latest CCRE release either as a @hyperlink["https://github.com/flamingchickens1540/Common-Chicken-Runtime-Engine/archive/ccre-v3.0.0-pre1.tar.gz"]{tar.gz} or a @hyperlink["https://github.com/flamingchickens1540/Common-Chicken-Runtime-Engine/archive/ccre-v3.0.0-pre1.zip"]{zip} depending on your system. You can also @link["https://github.com/flamingchickens1540/Common-Chicken-Runtime-Engine/releases"]{see all downloads here}.}
+@itemlist[@item{Download the latest CCRE release either as a @hyperlink["https://github.com/flamingchickens1540/Common-Chicken-Runtime-Engine/archive/ccre-v3.1.0.tar.gz"]{tar.gz} or a @hyperlink["https://github.com/flamingchickens1540/Common-Chicken-Runtime-Engine/archive/ccre-v3.1.0.zip"]{zip} depending on your system. You can also @link["https://github.com/flamingchickens1540/Common-Chicken-Runtime-Engine/releases"]{see all downloads here}.}
           @item{Extract that archive into a directory of your choice.}
           @item{Open Eclipse and select a new workspace. (Selecting a new workspace is optional if this is your first installation of the CCRE.) @image["workspace.png"]{new workspace}}
           @item{Go to File -> Import... and select Existing Projects into Workspace. @image["import.png"]{importing}}
@@ -884,7 +884,7 @@ A static address is set manually on the computer.
 
 DHCP has advantages in terms of it being easier to configure on each computer... but it means that IP addresses can change over time, requires a running DHCP server, and other issues. A static address, by contrast, must be manually configured as to not conflict with any other address, but doesn't require as much infrastructure.
 
-With the old 2014 cRIO control system, everything used static addresses. Today, with the 2015 roboRIO control system, everything but the wireless AP uses DHCP (as provided BY the wireless AP.) To solve the issue of the DHCP addresses changing, the roboRIO uses mDNS, which is a version of DNS that allows computers on a local network to find each other based on local names. The roboRIO is usually @code{roboRIO-NNNN.local}. (For example, @code{roboRIO-1540.local}.)
+With the old 2014 cRIO control system, everything used static addresses. Today, with the 2015 roboRIO control system, everything but the wireless AP uses DHCP (as provided BY the wireless AP.) To solve the issue of the DHCP addresses changing, the roboRIO uses mDNS, which is a version of DNS that allows computers on a local network to find each other based on local names. The roboRIO is usually @code{roboRIO-NNNN-FRC.local}. (For example, @code{roboRIO-1540-FRC.local}.) In 2015, this was @code{roboRIO-NNNN.local}, but that was changed for 2016.
 
 @subsubsection{The FMS and port filtering}
 
@@ -2581,22 +2581,22 @@ First, this goes through the DeploymentEngine, which dispatches to the @jcode-in
     }
     }|
 
-@margin-note{To find the roboRIO, it checks @code{roboRIO-NNNN.local} (where NNNN is your team number), @code{172.22.11.2}, and @code{10.XX.YY.2} (where XXYY is your team number.)}
+@margin-note{To find the roboRIO, it checks @code{roboRIO-NNNN-FRC.local} (where NNNN is your team number), @code{172.22.11.2}, @code{10.XX.YY.2}, and @code{roboRIO-NNNN.local} (where XXYY is your team number.)}
 This builds your robot code, discovers the roboRIO based on your team number, grabs any old logfiles from the robot, deploys the new robot code to the robot, and restarts the running code.
 
-To be able to talk to your robot to change the code, your laptop needs to be on the same network as the robot, and you need to be able to connect to the robot. (Try running @code{ping roboRIO-NNNN.local} to see if it can be reached, if you're having any problems.)
+To be able to talk to your robot to change the code, your laptop needs to be on the same network as the robot, and you need to be able to connect to the robot. (Try running @code{ping roboRIO-NNNN-FRC.local} to see if it can be reached, if you're having any problems.)
 
 @subsubsection{SSH}
 
 Sometimes, the robot breaks and you need to figure out what's going on. I'm not going to go into all of the details of this @;{ (TODO: go into all the details on this) } but I'll overview how you start.
 
-You can connect to the roboRIO over SSH (aka Secure SHell) - you simply point your SSH client at roboRIO-NNNN.local (where NNNN is your team number) and enter the correct username and password.
+You can connect to the roboRIO over SSH (aka Secure SHell) - you simply point your SSH client at roboRIO-NNNN-FRC.local (where NNNN is your team number) and enter the correct username and password.
 
 On Linux or Mac OS X, you can do this from the command line with pre-installed tools:
 
 @margin-note{On Windows, you can use PuTTY.}
 @codeblock|{
- $ ssh admin@roboRIO-1540.local
+ $ ssh admin@roboRIO-1540-FRC.local
  Password:
  $ do stuff on the robot
 }|
@@ -2657,7 +2657,7 @@ In progress.
 
 @section{Javadoc Link}
 
-You can @link["http://cgscomwww.catlin.edu/~skeggsc/ccre3/"]{browse the Javadoc}. Disclaimer: until the official release of v3.0.0, this site might not get updated. We're working on it!
+You can @link["http://cgscomwww.catlin.edu/~skeggsc/ccre3/"]{browse the Javadoc}!
 
 @section{Maintainer's guide}
 

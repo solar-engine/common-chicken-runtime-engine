@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 Jake Springer
+ * Copyright 2015 Jake Springer, 2016 Colby Skeggs
  *
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  *
@@ -18,7 +18,6 @@
  */
 package ccre.frc;
 
-import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
 
 import edu.wpi.first.wpilibj.hal.CounterJNI;
@@ -26,14 +25,12 @@ import edu.wpi.first.wpilibj.hal.CounterJNI;
 // TODO: document all the Direct* classes.
 class DirectCounter {
 
-    public static final byte ANALOG_INPUT = 1;
-    public static final byte DIGITAL_INPUT = 0;
+    public static final boolean ANALOG_INPUT = true;
+    public static final boolean DIGITAL_INPUT = false;
 
-    public static ByteBuffer init(int channelUp, int channelDown, int mode) {
-        IntBuffer status = Common.getCheckBuffer();
-        IntBuffer index = Common.allocateInt();
-        ByteBuffer counter = CounterJNI.initializeCounter(mode, index, status);
-        Common.check(status);
+    public static long init(int channelUp, int channelDown, int mode) {
+        IntBuffer index = Common.getSharedBuffer();
+        long counter = CounterJNI.initializeCounter(mode, index);
 
         if (channelUp == FRC.UNUSED && channelDown == FRC.UNUSED) {
             throw new RuntimeException("At least one channel must be used.");
@@ -56,70 +53,49 @@ class DirectCounter {
         return counter;
     }
 
-    public static void free(ByteBuffer counter) {
-        IntBuffer status = Common.getCheckBuffer();
-        CounterJNI.freeCounter(counter, status);
-        Common.check(status);
+    public static void free(long counter) {
+        CounterJNI.freeCounter(counter);
     }
 
-    public static void setUpSource(ByteBuffer counter, int channel) {
-        IntBuffer status = Common.getCheckBuffer();
-        if (DirectDigital.getDigitalSource(channel) == null) {
+    public static void setUpSource(long counter, int channel) {
+        if (DirectDigital.getDigitalSource(channel) == 0) {
             throw new RuntimeException("Digital source has not been allocated yet");
         }
         if (!DirectDigital.isDigitalSourceInput(channel)) {
             throw new RuntimeException("Channel " + channel + " is a digital output when it needs to be a digital input");
         }
 
-        // the third argument is a c++ bool that represents if the counter
-        // source is an analog input
-        CounterJNI.setCounterUpSource(counter, channel, DIGITAL_INPUT, status);
-        Common.check(status);
+        CounterJNI.setCounterUpSource(counter, channel, DIGITAL_INPUT);
     }
 
-    public static void setDownSource(ByteBuffer counter, int channel) {
-        IntBuffer status = Common.getCheckBuffer();
-        if (DirectDigital.getDigitalSource(channel) == null) {
+    public static void setDownSource(long counter, int channel) {
+        if (DirectDigital.getDigitalSource(channel) == 0) {
             throw new RuntimeException("Digital source has not been allocated yet");
         }
         if (!DirectDigital.isDigitalSourceInput(channel)) {
             throw new RuntimeException("Channel " + channel + " is a digital output when it needs to be a digital input");
         }
 
-        // the third argument is a c++ bool that represents if the counter
-        // source is an analog input
-        CounterJNI.setCounterDownSource(counter, channel, DIGITAL_INPUT, status);
-        Common.check(status);
+        CounterJNI.setCounterDownSource(counter, channel, DIGITAL_INPUT);
     }
 
-    public static void clearUpSource(ByteBuffer counter) {
-        IntBuffer status = Common.getCheckBuffer();
-        CounterJNI.clearCounterUpSource(counter, status);
-        Common.check(status);
+    public static void clearUpSource(long counter) {
+        CounterJNI.clearCounterUpSource(counter);
     }
 
-    public static void clearDownSource(ByteBuffer counter) {
-        IntBuffer status = Common.getCheckBuffer();
-        CounterJNI.clearCounterDownSource(counter, status);
-        Common.check(status);
+    public static void clearDownSource(long counter) {
+        CounterJNI.clearCounterDownSource(counter);
     }
 
-    public static void setUpSourceEdge(ByteBuffer counter, boolean risingEdge, boolean fallingEdge) {
-        IntBuffer status = Common.getCheckBuffer();
-        CounterJNI.setCounterUpSourceEdge(counter, (byte) (risingEdge ? 1 : 0), (byte) (fallingEdge ? 1 : 0), status);
-        Common.check(status);
+    public static void setUpSourceEdge(long counter, boolean risingEdge, boolean fallingEdge) {
+        CounterJNI.setCounterUpSourceEdge(counter, risingEdge, fallingEdge);
     }
 
-    public static void setDownSourceEdge(ByteBuffer counter, boolean risingEdge, boolean fallingEdge) {
-        IntBuffer status = Common.getCheckBuffer();
-        CounterJNI.setCounterDownSourceEdge(counter, (byte) (risingEdge ? 1 : 0), (byte) (fallingEdge ? 1 : 0), status);
-        Common.check(status);
+    public static void setDownSourceEdge(long counter, boolean risingEdge, boolean fallingEdge) {
+        CounterJNI.setCounterDownSourceEdge(counter, risingEdge, fallingEdge);
     }
 
-    public static int get(ByteBuffer channel) {
-        IntBuffer status = Common.getCheckBuffer();
-        int value = CounterJNI.getCounter(channel, status);
-        Common.check(status);
-        return value;
+    public static int get(long channel) {
+        return CounterJNI.getCounter(channel);
     }
 }

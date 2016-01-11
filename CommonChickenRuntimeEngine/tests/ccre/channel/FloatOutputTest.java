@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 Colby Skeggs
+ * Copyright 2015-2016 Colby Skeggs
  *
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  *
@@ -33,6 +33,8 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import ccre.log.LogLevel;
+import ccre.log.VerifyingLogger;
 import ccre.testing.CountingFloatOutput;
 import ccre.time.FakeTime;
 import ccre.time.Time;
@@ -42,8 +44,10 @@ import ccre.util.Values;
 @SuppressWarnings("javadoc")
 public class FloatOutputTest {
 
+    private static final String ERROR_STRING = "safeSet purposeful failure.";
+
     private final FloatOutput evil = (v) -> {
-        throw new NoSuchElementException("safeSet purposeful failure.");
+        throw new NoSuchElementException(ERROR_STRING);
     };
     private CountingFloatOutput cfo1, cfo2;
     private FloatCell fs;
@@ -73,10 +77,12 @@ public class FloatOutputTest {
         fs = new FloatCell();
         cfo1 = new CountingFloatOutput();
         cfo2 = new CountingFloatOutput();
+        VerifyingLogger.begin();
     }
 
     @After
     public void tearDown() throws Exception {
+        VerifyingLogger.checkAndEnd();
         fs = null;
         cfo1 = null;
         cfo2 = null;
@@ -452,8 +458,12 @@ public class FloatOutputTest {
 
     @Test
     public void testSafeSet() {
+        VerifyingLogger.configure(LogLevel.SEVERE, "Error during channel propagation", (t) -> t.getClass() == NoSuchElementException.class && ERROR_STRING.equals(t.getMessage()));
         evil.safeSet(0);
+        VerifyingLogger.check();
+        VerifyingLogger.configure(LogLevel.SEVERE, "Error during channel propagation", (t) -> t.getClass() == NoSuchElementException.class && ERROR_STRING.equals(t.getMessage()));
         evil.safeSet(1);
+        VerifyingLogger.check();
     }
 
     @Test(expected = NoSuchElementException.class)
@@ -479,7 +489,9 @@ public class FloatOutputTest {
     public void testCombineWithError1Succeeds() {
         cfo1.ifExpected = true;
         cfo1.valueExpected = 1;
+        VerifyingLogger.configure(LogLevel.SEVERE, "Error during channel propagation", (t) -> t.getClass() == NoSuchElementException.class && ERROR_STRING.equals(t.getMessage()));
         cfo1.combine(evil).safeSet(1);
+        VerifyingLogger.check();
         cfo1.check();
     }
 
@@ -487,7 +499,9 @@ public class FloatOutputTest {
     public void testCombineWithError2Succeeds() {
         cfo1.ifExpected = true;
         cfo1.valueExpected = 1;
+        VerifyingLogger.configure(LogLevel.SEVERE, "Error during channel propagation", (t) -> t.getClass() == NoSuchElementException.class && ERROR_STRING.equals(t.getMessage()));
         evil.combine(cfo1).safeSet(1);
+        VerifyingLogger.check();
         cfo1.check();
     }
 

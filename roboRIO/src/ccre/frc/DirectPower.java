@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 Colby Skeggs
+ * Copyright 2015-2016 Colby Skeggs
  *
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  *
@@ -22,8 +22,6 @@
  */
 package ccre.frc;
 
-import java.nio.IntBuffer;
-
 import edu.wpi.first.wpilibj.hal.PowerJNI;
 
 class DirectPower {
@@ -34,79 +32,53 @@ class DirectPower {
     }
 
     public static float getBatteryVoltage() {
-        IntBuffer status = Common.getCheckBuffer();
         // just FPGA errors - maybe FPGA startup errors, but that's handled by
         // init().
-        float voltage = PowerJNI.getVinVoltage(status);
-        Common.check(status);
-        return voltage;
+        return PowerJNI.getVinVoltage();
     }
 
     public static float readChannelVoltage(int powerChannel) {
-        IntBuffer status = Common.getCheckBuffer();
-        float voltage;
         switch (powerChannel) {
         case FRC.POWER_CHANNEL_BATTERY:
-            voltage = PowerJNI.getVinVoltage(status);
-            break;
+            return PowerJNI.getVinVoltage();
         case FRC.POWER_CHANNEL_3V3:
-            voltage = PowerJNI.getUserVoltage3V3(status);
-            break;
+            return PowerJNI.getUserVoltage3V3();
         case FRC.POWER_CHANNEL_5V:
-            voltage = PowerJNI.getUserVoltage5V(status);
-            break;
+            return PowerJNI.getUserVoltage5V();
         case FRC.POWER_CHANNEL_6V:
-            voltage = PowerJNI.getUserVoltage6V(status);
-            break;
+            return PowerJNI.getUserVoltage6V();
         default:
             return -1;
         }
-        Common.check(status);
-        return voltage;
     }
 
     public static float readChannelCurrent(int powerChannel) {
-        IntBuffer status = Common.getCheckBuffer();
-        float current;
         switch (powerChannel) {
         case FRC.POWER_CHANNEL_BATTERY:
-            current = PowerJNI.getVinCurrent(status);
-            break;
+            return PowerJNI.getVinCurrent();
         case FRC.POWER_CHANNEL_3V3:
-            current = PowerJNI.getUserCurrent3V3(status);
-            break;
+            return PowerJNI.getUserCurrent3V3();
         case FRC.POWER_CHANNEL_5V:
-            current = PowerJNI.getUserCurrent5V(status);
-            break;
+            return PowerJNI.getUserCurrent5V();
         case FRC.POWER_CHANNEL_6V:
-            current = PowerJNI.getUserCurrent6V(status);
-            break;
+            return PowerJNI.getUserCurrent6V();
         default:
             return -1;
         }
-        Common.check(status);
-        return current;
     }
 
     public static boolean readChannelEnabled(int powerChannel) {
-        IntBuffer status = Common.getCheckBuffer();
-        boolean enabled;
         switch (powerChannel) {
         case FRC.POWER_CHANNEL_BATTERY:
             return true;
         case FRC.POWER_CHANNEL_3V3:
-            enabled = PowerJNI.getUserActive3V3(status);
-            break;
+            return PowerJNI.getUserActive3V3();
         case FRC.POWER_CHANNEL_5V:
-            enabled = PowerJNI.getUserActive5V(status);
-            break;
+            return PowerJNI.getUserActive5V();
         case FRC.POWER_CHANNEL_6V:
-            enabled = PowerJNI.getUserActive6V(status);
-            break;
+            return PowerJNI.getUserActive6V();
         default:
             return false;
         }
-        Common.check(status);
-        return enabled;
     }
 }

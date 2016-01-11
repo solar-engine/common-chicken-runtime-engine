@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 Colby Skeggs
+ * Copyright 2015-2016 Colby Skeggs
  *
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  *
@@ -34,6 +34,8 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import ccre.log.LogLevel;
+import ccre.log.VerifyingLogger;
 import ccre.testing.CountingEventOutput;
 import ccre.testing.CountingFloatOutput;
 import ccre.time.FakeTime;
@@ -43,6 +45,7 @@ import ccre.util.Values;
 @SuppressWarnings("javadoc")
 public class FloatInputTest {
 
+    private static final String ERROR_STRING = "Purposeful failure.";
     private CountingFloatOutput cfo;
     private FloatInput fi;
     private FloatCell fs, fs2;
@@ -57,10 +60,12 @@ public class FloatInputTest {
         oldProvider = Time.getTimeProvider();
         fake = new FakeTime();
         Time.setTimeProvider(fake);
+        VerifyingLogger.begin();
     }
 
     @AfterClass
     public static void tearDownClass() {
+        VerifyingLogger.checkAndEnd();
         assertNotNull(oldProvider);
         Time.setTimeProvider(oldProvider);
         oldProvider = null;
@@ -853,12 +858,14 @@ public class FloatInputTest {
             public void set(float value) {
                 cfo.set(value);
                 // TODO: check logging.
-                throw new NoSuchElementException("Purposeful failure.");
+                throw new NoSuchElementException(ERROR_STRING);
             }
         };
         expected.ifExpected = expected2.ifExpected = cfo.ifExpected = true;
         cfo.valueExpected = 3;
+        VerifyingLogger.configure(LogLevel.SEVERE, "Error during channel propagation", (t) -> t.getClass() == NoSuchElementException.class && ERROR_STRING.equals(t.getMessage()));
         fi.send(evil);
+        VerifyingLogger.check();
         expected.check();
         expected2.check();
         cfo.check();

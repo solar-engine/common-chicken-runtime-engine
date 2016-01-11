@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 Colby Skeggs
+ * Copyright 2015-2016 Colby Skeggs
  *
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  *
@@ -23,6 +23,8 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
+import java.util.function.Predicate;
+
 @SuppressWarnings("javadoc")
 public class VerifyingLoggingTarget implements LoggingTarget {
 
@@ -30,8 +32,9 @@ public class VerifyingLoggingTarget implements LoggingTarget {
     public LogLevel levelExpected = LogLevel.SEVERE;
     public String messageExpected = null;
     public boolean isThrowableExpected = false;
-    public Throwable throwableExpected = null;
+    public Predicate<Throwable> throwablePredicate = (t) -> t == null;
     public String stringExpected = null;
+    public Runnable onNext = null;
     private boolean hasFailure = false;
 
     @Override
@@ -43,12 +46,21 @@ public class VerifyingLoggingTarget implements LoggingTarget {
             assertTrue(isThrowableExpected);
             assertEquals(levelExpected, level);
             assertEquals(messageExpected, message);
-            assertEquals(throwableExpected, throwable);
+            assertTrue(throwablePredicate.test(throwable));
         } catch (Throwable thr) {
+            if (throwable != null) {
+                System.err.println("Exception on caught exception");
+                throwable.printStackTrace();
+            }
             hasFailure = true;
             throw thr;
         }
         ifExpected = false;
+        if (onNext != null) {
+            Runnable r = onNext;
+            onNext = null;
+            r.run();
+        }
     }
 
     @Override
@@ -71,5 +83,26 @@ public class VerifyingLoggingTarget implements LoggingTarget {
     public void check() {
         assertFalse("Did not receive expected log.", ifExpected);
         assertFalse("Failed during individual log reception.", hasFailure);
+    }
+
+    public void configureString(LogLevel level, String message, String string) {
+        this.ifExpected = true;
+        this.isThrowableExpected = false;
+        this.levelExpected = level;
+        this.messageExpected = message;
+        this.stringExpected = string;
+    }
+
+    public void configureThrowable(LogLevel level, String message, Throwable thr) {
+        configureThrowable(level, message, (t) -> t == thr);
+    }
+
+    public void configureThrowable(LogLevel level, String message, Predicate<Throwable> expectedThr) {
+        this.ifExpected = true;
+        this.isThrowableExpected = true;
+        this.throwablePredicate = expectedThr;
+        this.levelExpected = level;
+        this.messageExpected = message;
+        this.stringExpected = null;
     }
 }

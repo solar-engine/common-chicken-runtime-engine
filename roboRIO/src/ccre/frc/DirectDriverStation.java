@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 Colby Skeggs
+ * Copyright 2015-2016 Colby Skeggs
  *
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  *
@@ -53,11 +53,11 @@ class DirectDriverStation {
     private static final Object updateLock = new Object();
 
     private static void mainloop() {
-        ByteBuffer dataMutex = HALUtil.initializeMutexNormal();
-        ByteBuffer dataSemaphore = HALUtil.initializeMultiWait();
+        long dataMutex = HALUtil.initializeMutexNormal();
+        long dataSemaphore = HALUtil.initializeMultiWait();
         FRCNetworkCommunicationsLibrary.setNewDataSem(dataSemaphore);
         while (true) {
-            HALUtil.takeMultiWait(dataSemaphore, dataMutex, 0);
+            HALUtil.takeMultiWait(dataSemaphore, dataMutex);
 
             for (int stick = 0; stick < JOYSTICK_NUM; stick++) {
                 axes[stick] = FRCNetworkCommunicationsLibrary.HALGetJoystickAxes((byte) stick);

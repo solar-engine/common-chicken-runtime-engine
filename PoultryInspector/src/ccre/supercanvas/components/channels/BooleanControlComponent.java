@@ -50,7 +50,7 @@ public class BooleanControlComponent extends BaseChannelComponent<BooleanControl
     private boolean lastSentValue;
     private final BooleanInput alternateSource;
     private final BooleanOutput rawOut;
-    private CancelOutput unsubscribe;
+    private transient CancelOutput unsubscribe;
 
     /**
      * Create a new BooleanControlComponent with a BooleanOutput to control.

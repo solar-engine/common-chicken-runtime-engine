@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2015 Colby Skeggs
+ * Copyright 2013-2016 Colby Skeggs
  *
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  *
@@ -103,7 +103,7 @@ public class CluckNode implements Serializable {
         // TODO: outlaw empty messages here.
         if (target == null) {
             if (data.length == 0 || data[0] != CluckConstants.RMT_NEGATIVE_ACK) {
-                Logger.warning("Received message addressed to unreceving node (source: " + source + ")");
+                Logger.warning("[LOCAL] Received message addressed to unreceving node (source: " + source + ")");
             }
         } else if (CluckConstants.BROADCAST_DESTINATION.equals(target)) {
             broadcast(source, data, denyLink);
@@ -127,7 +127,7 @@ public class CluckNode implements Serializable {
                         links.remove(direct);
                     }
                 } catch (Throwable ex) {
-                    Logger.severe("Error while dispatching to Cluck link " + target, ex);
+                    Logger.severe("[LOCAL] Error while dispatching to Cluck link " + target, ex);
                 }
             }
         }
@@ -159,7 +159,7 @@ public class CluckNode implements Serializable {
                         links.remove(link);
                     }
                 } catch (Throwable ex) {
-                    Logger.severe("Error while broadcasting to Cluck link " + link, ex);
+                    Logger.severe("[LOCAL] Error while broadcasting to Cluck link " + link, ex);
                 }
             }
         }
@@ -176,7 +176,7 @@ public class CluckNode implements Serializable {
             if (!direct.equals(lastMissingLink) || System.currentTimeMillis() >= lastMissingLinkError + 1000) {
                 lastMissingLink = direct;
                 lastMissingLinkError = System.currentTimeMillis();
-                Logger.warning("No link for " + target + "(" + direct + ") from " + source + "!");
+                Logger.warning("[LOCAL] No link for " + target + "(" + direct + ") from " + source + "!");
             }
             transmit(source, target, new byte[] { CluckConstants.RMT_NEGATIVE_ACK });
         }

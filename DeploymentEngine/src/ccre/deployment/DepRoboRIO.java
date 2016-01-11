@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 Colby Skeggs.
+ * Copyright 2015-2016 Colby Skeggs.
  *
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  *
@@ -53,7 +53,7 @@ public class DepRoboRIO {
     /**
      * The expected image number for the roboRIO to have.
      */
-    public static final int EXPECTED_IMAGE = 23;
+    public static final int EXPECTED_IMAGE = 2016019;
     /**
      * Specifies that the THIN version of the roboRIO libraries should be used,
      * which does not include the DeploymentEngine or Emulator.
@@ -124,10 +124,15 @@ public class DepRoboRIO {
          * is thrown if not.
          *
          * @param expected_image the image number that is expected to be found.
+         * If it is less than 1000, 2015000 is added to match the new image
+         * number versioning scheme.
          * @throws IOException if something fails during attempts to verify.
          */
         public void verifyRIO(int expected_image) throws IOException {
-            int image = getRIOImage();
+            if (expected_image < 1000) {
+                expected_image += 2015000;
+            }
+            int image = getRIOImageAndYear();
             if (image != expected_image) {
                 throw new RuntimeException("Unsupported roboRIO image number! You need to have " + expected_image + " instead of " + image);
             }
@@ -207,7 +212,7 @@ public class DepRoboRIO {
         }
     }
 
-    private static final String VERSION_BEGIN = "FRC_roboRIO_2015_v";
+    private static final String VERSION_BEGIN = "FRC_roboRIO_";
     private static final String DEFAULT_USERNAME = "lvuser";
     private static final String DEFAULT_PASSWORD = "";
     private static final String DEFAULT_ADMIN_USERNAME = "admin";
@@ -401,14 +406,31 @@ public class DepRoboRIO {
     }
 
     /**
-     * Determines the image version installed on this roboRIO.
+     * Determines the image version installed on this roboRIO, excluding the
+     * year.
      *
      * @return the image number. For example, 23 for
      * <code>FRC_roboRIO_2015_v23</code>.
      * @throws IOException if the roboRIO's responses do not match the format
      * expectations.
+     * @deprecated the year is very important! do not use this otherwise.
      */
+    @Deprecated
     public int getRIOImage() throws IOException {
+        return getRIOImageAndYear() % 1000;
+    }
+
+    /**
+     * Determines the image version installed on this roboRIO, including the
+     * year.
+     *
+     * @return the image number. For example, 2015023 for
+     * <code>FRC_roboRIO_2015_v23</code>, or 2016019 for
+     * <code>FRC_roboRIO_2016_v19</code>.
+     * @throws IOException if the roboRIO's responses do not match the format
+     * expectations.
+     */
+    public int getRIOImageAndYear() throws IOException {
         URLConnection connection = new URL("http://" + ip.getHostAddress() + "/nisysapi/server").openConnection();
         connection.setDoInput(true);
         connection.setDoOutput(true);
@@ -447,11 +469,26 @@ public class DepRoboRIO {
         while (Character.isDigit(contents.charAt(end))) {
             end++;
         }
+        int year;
         try {
-            return Integer.parseInt(contents.substring(index, end));
+            year = Integer.parseInt(contents.substring(index, end));
         } catch (NumberFormatException ex) {
             throw new IOException("Could not parse roboRIO image version!", ex);
         }
+        if (contents.charAt(end) != '_' || contents.charAt(end + 1) != 'v') {
+            throw new IOException("Cannot find valid roboRIO image version response!");
+        }
+        index = end += 2;
+        while (Character.isDigit(contents.charAt(end))) {
+            end++;
+        }
+        int rev;
+        try {
+            rev = Integer.parseInt(contents.substring(index, end));
+        } catch (NumberFormatException ex) {
+            throw new IOException("Could not parse roboRIO image version!", ex);
+        }
+        return year * 1000 + rev; // for example, 2015_v19 becomes 2015019
     }
 
     /**

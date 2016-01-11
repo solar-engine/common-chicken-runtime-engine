@@ -157,7 +157,7 @@ public class DepRoboRIO {
             Logger.info("Primary deployment complete.");
 
             // prevent any text-busy issues
-            execCheck("rm /usr/local/frc/bin/netconsole-host");
+            adminshell.execCheck("rm -f /usr/local/frc/bin/netconsole-host");
             adminshell.sendBinResourceTo(DepRoboRIO.class, "/edu/wpi/first/wpilibj/binaries/netconsole-host", "/usr/local/frc/bin/", 0755);
             sendTextResourceTo(DepRoboRIO.class, "/edu/wpi/first/wpilibj/binaries/robotCommand", "/home/lvuser/", 0755);
             Logger.info("Download complete.");

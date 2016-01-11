@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2015 Colby Skeggs
+ * Copyright 2014-2016 Colby Skeggs
  *
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  *
@@ -27,6 +27,7 @@ import ccre.ctrl.ExtendedMotor;
 import ccre.ctrl.ExtendedMotorFailureException;
 import ccre.log.Logger;
 import ccre.time.Time;
+import edu.wpi.first.wpilibj.CANJaguar;
 
 /**
  * A CANJaguar ExtendedMotor interface for the roboRIO.
@@ -35,7 +36,7 @@ import ccre.time.Time;
  */
 public class ExtendedJaguarDirect extends ExtendedMotor implements FloatOutput {
 
-    private final CANJaguarMod jaguar;
+    private final CANJaguar jaguar;
     // null until something cares. This means that it's not enabled, but could
     // be automatically.
     private Boolean enableMode = null;
@@ -52,7 +53,7 @@ public class ExtendedJaguarDirect extends ExtendedMotor implements FloatOutput {
      */
     public ExtendedJaguarDirect(int deviceNumber) throws ExtendedMotorFailureException, InterruptedException {
         try {
-            jaguar = new CANJaguarMod(deviceNumber);
+            jaguar = new CANJaguar(deviceNumber);
             jaguar.setPercentMode();
         } catch (RuntimeException ex) {
             throw new ExtendedMotorFailureException("WPILib CANJaguar Failure: Create", ex);
@@ -75,11 +76,11 @@ public class ExtendedJaguarDirect extends ExtendedMotor implements FloatOutput {
         } catch (ExtendedMotorFailureException ex) {
             isBypassed = true;
             bypassUntil = Time.currentTimeMillis() + 3000;
-            Logger.warning("Motor control failed: CAN Jaguar " + jaguar.m_deviceNumber + ": bypassing for three seconds.", ex);
+            Logger.warning("Motor control failed: CAN Jaguar " + jaguar.getDeviceID() + ": bypassing for three seconds.", ex);
             try {
                 disable();
             } catch (ExtendedMotorFailureException e) {
-                Logger.warning("Could not bypass CAN Jaguar: " + jaguar.m_deviceNumber, e);
+                Logger.warning("Could not bypass CAN Jaguar: " + jaguar.getDeviceID(), e);
             }
             enableMode = null; // automatically re-enableable.
         }
@@ -138,7 +139,7 @@ public class ExtendedJaguarDirect extends ExtendedMotor implements FloatOutput {
                             disable();
                         }
                     } catch (ExtendedMotorFailureException ex) {
-                        Logger.warning("Motor control failed: CAN Jaguar " + jaguar.m_deviceNumber, ex);
+                        Logger.warning("Motor control failed: CAN Jaguar " + jaguar.getDeviceID(), ex);
                     }
                 }
             }
@@ -235,13 +236,13 @@ public class ExtendedJaguarDirect extends ExtendedMotor implements FloatOutput {
             case GENERIC_FAULT_MASK:
                 return (long) jaguar.getFaults();
             case BUS_VOLTAGE_FAULT:
-                return (jaguar.getFaults() & CANJaguarMod.kBusVoltageFault) != 0;
+                return (jaguar.getFaults() & CANJaguar.kBusVoltageFault) != 0;
             case CURRENT_FAULT:
-                return (jaguar.getFaults() & CANJaguarMod.kCurrentFault) != 0;
+                return (jaguar.getFaults() & CANJaguar.kCurrentFault) != 0;
             case GATE_DRIVER_FAULT:
-                return (jaguar.getFaults() & CANJaguarMod.kGateDriverFault) != 0;
+                return (jaguar.getFaults() & CANJaguar.kGateDriverFault) != 0;
             case TEMPERATURE_FAULT:
-                return (jaguar.getFaults() & CANJaguarMod.kTemperatureFault) != 0;
+                return (jaguar.getFaults() & CANJaguar.kTemperatureFault) != 0;
             case COMMS_FAULT:
                 return isBypassed;
             case ANY_FAULT:

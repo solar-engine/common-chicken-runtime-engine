@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2015 Colby Skeggs
+ * Copyright 2014-2016 Colby Skeggs
  *
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  *
@@ -27,6 +27,7 @@ import ccre.ctrl.ExtendedMotor;
 import ccre.ctrl.ExtendedMotorFailureException;
 import ccre.log.Logger;
 import ccre.time.Time;
+import edu.wpi.first.wpilibj.CANTalon;
 
 /**
  * A CANTalon ExtendedMotor interface for the roboRIO.
@@ -35,7 +36,7 @@ import ccre.time.Time;
  */
 public class ExtendedTalonDirect extends ExtendedMotor implements FloatOutput {
 
-    private final CANTalonMod talon;
+    private final CANTalon talon;
     // null until something cares. This means that it's not enabled, but could
     // be automatically.
     private Boolean enableMode = null;
@@ -51,8 +52,8 @@ public class ExtendedTalonDirect extends ExtendedMotor implements FloatOutput {
      */
     public ExtendedTalonDirect(int deviceNumber) throws ExtendedMotorFailureException {
         try {
-            talon = new CANTalonMod(deviceNumber);
-            talon.changeControlMode(CANTalonMod.ControlMode.PercentVbus);
+            talon = new CANTalon(deviceNumber);
+            talon.changeControlMode(CANTalon.TalonControlMode.PercentVbus);
         } catch (RuntimeException ex) {
             throw new ExtendedMotorFailureException("WPILib CANTalon Failure: Create", ex);
         }
@@ -74,11 +75,11 @@ public class ExtendedTalonDirect extends ExtendedMotor implements FloatOutput {
         } catch (ExtendedMotorFailureException ex) {
             isBypassed = true;
             bypassUntil = Time.currentTimeMillis() + 3000;
-            Logger.warning("Motor control failed: CAN Talon " + talon.m_deviceNumber + ": bypassing for three seconds.", ex);
+            Logger.warning("Motor control failed: CAN Talon " + talon.getDeviceID() + ": bypassing for three seconds.", ex);
             try {
                 disable();
             } catch (ExtendedMotorFailureException e) {
-                Logger.warning("Could not bypass CAN Talon: " + talon.m_deviceNumber, e);
+                Logger.warning("Could not bypass CAN Talon: " + talon.getDeviceID(), e);
             }
             enableMode = null; // automatically re-enableable.
         }
@@ -135,7 +136,7 @@ public class ExtendedTalonDirect extends ExtendedMotor implements FloatOutput {
                             disable();
                         }
                     } catch (ExtendedMotorFailureException ex) {
-                        Logger.warning("Motor control failed: CAN Talon " + talon.m_deviceNumber, ex);
+                        Logger.warning("Motor control failed: CAN Talon " + talon.getDeviceID(), ex);
                     }
                 }
             }
@@ -147,14 +148,14 @@ public class ExtendedTalonDirect extends ExtendedMotor implements FloatOutput {
         try {
             switch (mode) {
             case CURRENT_FIXED:
-                talon.changeControlMode(CANTalonMod.ControlMode.Current);
+                talon.changeControlMode(CANTalon.TalonControlMode.Current);
                 return this;
             case VOLTAGE_FIXED:
-                talon.changeControlMode(CANTalonMod.ControlMode.Voltage);
+                talon.changeControlMode(CANTalon.TalonControlMode.Voltage);
                 return this;
             case GENERIC_FRACTIONAL:
             case VOLTAGE_FRACTIONAL:
-                talon.changeControlMode(CANTalonMod.ControlMode.PercentVbus);
+                talon.changeControlMode(CANTalon.TalonControlMode.PercentVbus);
                 return this;
             // TODO: Support more modes.
             default:
@@ -208,7 +209,7 @@ public class ExtendedTalonDirect extends ExtendedMotor implements FloatOutput {
                         case OUTPUT_CURRENT:
                             return (float) talon.getOutputCurrent();
                         case TEMPERATURE:
-                            return (float) talon.getTemp();
+                            return (float) talon.getTemperature();
                         // TODO: Provide the rest of the options.
                         }
                     } catch (RuntimeException ex) {

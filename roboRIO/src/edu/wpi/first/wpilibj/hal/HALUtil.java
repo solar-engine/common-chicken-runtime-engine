@@ -1,7 +1,12 @@
-package edu.wpi.first.wpilibj.hal;
+// Certain modifications are Copyright 2016 Colby Skeggs
+/*----------------------------------------------------------------------------*/
+/* Copyright (c) FIRST 2016. All Rights Reserved.                             */
+/* Open Source Software - may be modified and shared by FRC teams. The code   */
+/* must be accompanied by the FIRST BSD license file in the root directory of */
+/* the project.                                                               */
+/*----------------------------------------------------------------------------*/
 
-import java.nio.ByteBuffer;
-import java.nio.IntBuffer;
+package edu.wpi.first.wpilibj.hal;
 
 @SuppressWarnings("javadoc")
 public class HALUtil extends JNIWrapper {
@@ -14,25 +19,25 @@ public class HALUtil extends JNIWrapper {
     public static final int NO_AVAILABLE_RESOURCES = -104;
     public static final int PARAMETER_OUT_OF_RANGE = -1028;
 
-    public static native ByteBuffer initializeMutexNormal();
+    public static native long initializeMutexNormal();
 
-    public static native void deleteMutex(ByteBuffer sem);
+    public static native void deleteMutex(long sem);
 
-    public static native byte takeMutex(ByteBuffer sem);
+    public static native void takeMutex(long sem);
 
-    public static native ByteBuffer initializeMultiWait();
+    public static native long initializeMultiWait();
 
-    public static native void deleteMultiWait(ByteBuffer sem);
+    public static native void deleteMultiWait(long sem);
 
-    public static native byte takeMultiWait(ByteBuffer sem, ByteBuffer m, int timeOut);
+    public static native void takeMultiWait(long sem, long m);
 
-    public static native short getFPGAVersion(IntBuffer status);
+    public static native short getFPGAVersion();
 
-    public static native int getFPGARevision(IntBuffer status);
+    public static native int getFPGARevision();
 
-    public static native long getFPGATime(IntBuffer status);
+    public static native long getFPGATime();
 
-    public static native boolean getFPGAButton(IntBuffer status);
+    public static native boolean getFPGAButton();
 
     public static native String getHALErrorMessage(int code);
 
@@ -43,5 +48,4 @@ public class HALUtil extends JNIWrapper {
     public static String getHALstrerror() {
         return getHALstrerror(getHALErrno());
     }
-
 }

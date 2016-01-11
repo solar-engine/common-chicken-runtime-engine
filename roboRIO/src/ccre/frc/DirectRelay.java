@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 Colby Skeggs
+ * Copyright 2015-2016 Colby Skeggs
  *
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  *
@@ -22,41 +22,29 @@
  */
 package ccre.frc;
 
-import java.nio.ByteBuffer;
-import java.nio.IntBuffer;
-
 import edu.wpi.first.wpilibj.hal.DIOJNI;
 import edu.wpi.first.wpilibj.hal.JNIWrapper;
 import edu.wpi.first.wpilibj.hal.RelayJNI;
 
 class DirectRelay {
     public static final int RELAY_NUM = 4;
-    private static final ByteBuffer[] relays = new ByteBuffer[RELAY_NUM];
+    private static final long[] relays = new long[RELAY_NUM];
 
-    public static ByteBuffer init(int channel) {
+    public static long init(int channel) {
         if (channel < 0 || channel >= RELAY_NUM) {
             throw new RuntimeException("Invalid relay port number: " + channel);
         }
-        if (relays[channel] == null) {
-            IntBuffer status = Common.getCheckBuffer();
-            ByteBuffer port = DIOJNI.initializeDigitalPort(JNIWrapper.getPort((byte) channel), status);
-            Common.check(status);
-            relays[channel] = port;
+        if (relays[channel] == 0) {
+            relays[channel] = DIOJNI.initializeDigitalPort(JNIWrapper.getPort((byte) channel));
         }
         return relays[channel];
     }
 
-    public static void setForward(ByteBuffer port, boolean active) {
-        IntBuffer status = Common.getCheckBuffer();
-        // just FPGA errors
-        RelayJNI.setRelayForward(port, (byte) (active ? 1 : 0), status);
-        Common.check(status);
+    public static void setForward(long port, boolean active) {
+        RelayJNI.setRelayForward(port, active);
     }
 
-    public static void setReverse(ByteBuffer port, boolean active) {
-        IntBuffer status = Common.getCheckBuffer();
-        // just FPGA errors
-        RelayJNI.setRelayReverse(port, (byte) (active ? 1 : 0), status);
-        Common.check(status);
+    public static void setReverse(long port, boolean active) {
+        RelayJNI.setRelayReverse(port, active);
     }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 Colby Skeggs.
+ * Copyright 2015-2016 Colby Skeggs.
  *
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  *
@@ -40,6 +40,7 @@ import ccre.supercanvas.components.palette.*;
 import ccre.supercanvas.components.pinned.*;
 import ccre.util.LineCollectorOutputStream;
 
+@SuppressWarnings("javadoc")
 public class SerializationIntegrationTest {
 
     @Test

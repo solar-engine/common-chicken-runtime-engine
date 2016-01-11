@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 Colby Skeggs
+ * Copyright 2015-2016 Colby Skeggs
  *
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  *
@@ -22,46 +22,37 @@
  */
 package ccre.frc;
 
-import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
 
 import edu.wpi.first.wpilibj.hal.EncoderJNI;
 
 class DirectEncoder {
-    public static ByteBuffer init(int channelA, int channelB, boolean reverse) {
+    public static long init(int channelA, int channelB, boolean reverse) {
         DirectDigital.init(channelA, true);
         DirectDigital.init(channelB, true);
-        IntBuffer status = Common.getCheckBuffer();
-        IntBuffer indexS = Common.allocateInt();
-        ByteBuffer encoder = EncoderJNI.initializeEncoder((byte) 0, channelA, (byte) 0, (byte) 0, channelB, (byte) 0, (byte) (reverse ? 1 : 0), indexS, status);
-        Common.check(status);
+
+        IntBuffer indexS = Common.getSharedBuffer();
+        long encoder = EncoderJNI.initializeEncoder((byte) 0, channelA, false, (byte) 0, channelB, false, reverse, indexS);
         indexS.get(0); // index number unused
         return encoder;
     }
 
-    public static void free(int channelA, int channelB, ByteBuffer port) {
+    public static void free(int channelA, int channelB, long port) {
         DirectDigital.free(channelA);
         DirectDigital.free(channelB);
 
-        IntBuffer status = Common.getCheckBuffer();
-        EncoderJNI.freeEncoder(port, status);
-        Common.check(status);
+        EncoderJNI.freeEncoder(port);
     }
 
-    public static void reset(ByteBuffer port) {
-        IntBuffer status = Common.getCheckBuffer();
-        EncoderJNI.resetEncoder(port, status); // just FPGA errors
-        Common.check(status);
+    public static void reset(long port) {
+        EncoderJNI.resetEncoder(port);
     }
 
-    public static int getRaw(ByteBuffer port) {
-        IntBuffer status = Common.getCheckBuffer();
-        int value = EncoderJNI.getEncoder(port, status); // just FPGA errors
-        Common.check(status);
-        return value;
+    public static int getRaw(long port) {
+        return EncoderJNI.getEncoder(port);
     }
 
-    public static float get(ByteBuffer port) {
+    public static float get(long port) {
         return getRaw(port) / 4f;
     }
 }

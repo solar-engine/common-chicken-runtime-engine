@@ -2,7 +2,7 @@
 @require[pict]
 @require["proc.rkt"]
 
-@title{The Common Chicken Runtime Engine v3.0.0}
+@title{The Common Chicken Runtime Engine v3.1.0}
 
 The CCRE solves the problem of writing elegant and maintainable robot software
 by using a dataflow model and taking care of the infrastructure for your
@@ -54,7 +54,7 @@ Short version: import all of the projects from the CCRE repository into Eclipse 
 
 Long version:
 
-@itemlist[@item{Download the latest CCRE release either as a @hyperlink["https://github.com/flamingchickens1540/Common-Chicken-Runtime-Engine/archive/ccre-v3.0.0.tar.gz"]{tar.gz} or a @hyperlink["https://github.com/flamingchickens1540/Common-Chicken-Runtime-Engine/archive/ccre-v3.0.0.zip"]{zip} depending on your system. You can also @link["https://github.com/flamingchickens1540/Common-Chicken-Runtime-Engine/releases"]{see all downloads here}.}
+@itemlist[@item{Download the latest CCRE release either as a @hyperlink["https://github.com/flamingchickens1540/Common-Chicken-Runtime-Engine/archive/ccre-v3.1.0.tar.gz"]{tar.gz} or a @hyperlink["https://github.com/flamingchickens1540/Common-Chicken-Runtime-Engine/archive/ccre-v3.1.0.zip"]{zip} depending on your system. You can also @link["https://github.com/flamingchickens1540/Common-Chicken-Runtime-Engine/releases"]{see all downloads here}.}
           @item{Extract that archive into a directory of your choice.}
           @item{Open Eclipse and select a new workspace. (Selecting a new workspace is optional if this is your first installation of the CCRE.) @image["workspace.png"]{new workspace}}
           @item{Go to File -> Import... and select Existing Projects into Workspace. @image["import.png"]{importing}}

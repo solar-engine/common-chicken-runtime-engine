@@ -51,7 +51,7 @@ public class VerifyingLoggerTest {
         Logger.finest("hello world", exp);
         VerifyingLogger.check();
     }
-    
+
     @Test
     public void testStringFailure() {
         boolean pass = false;
@@ -63,7 +63,7 @@ public class VerifyingLoggerTest {
         }
         assertTrue(pass);
     }
-    
+
     @Test
     public void testThrowableFailure() {
         boolean pass = false;

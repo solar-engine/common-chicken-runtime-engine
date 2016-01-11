@@ -129,6 +129,7 @@ public class FRCNetworkCommunicationsLibrary extends JNIWrapper {
     public static native void FRCNetworkCommunicationReserve();
 
     public static final int HAL_ENABLED = 1 << 0, HAL_AUTONOMOUS = 1 << 1, HAL_TEST = 1 << 2, HAL_ESTOP = 1 << 3, HAL_FMS_ATTACHED = 1 << 4, HAL_DS_ATTACHED = 1 << 5;
+
     public static native int NativeHALGetControlWord();
 
     // 0 = Red1, Red2, Red3, Blue1, Blue2, Blue3, else null

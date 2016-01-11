@@ -68,7 +68,7 @@ public class SerializationIntegrationTest {
             public boolean signalRConf(int field, byte[] data) throws InterruptedException {
                 return false;
             }
-            
+
             @Override
             public Entry[] queryRConf() throws InterruptedException {
                 return new Entry[0];

@@ -41,7 +41,7 @@ public class LogLevelTest {
         assertEquals(LogLevel.WARNING.id, 6);
         assertEquals(LogLevel.SEVERE.id, 9);
     }
-    
+
     @Test
     public void testLevels() {
         // loop through the bytes

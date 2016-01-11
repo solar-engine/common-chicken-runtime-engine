@@ -47,7 +47,7 @@ public class VerifyingLogger {
     public static synchronized void configureExt(LogLevel level, String message, String str) {
         vlt.configureString(level, message, str);
     }
-    
+
     public static synchronized void check() {
         vlt.check();
     }
@@ -71,7 +71,7 @@ public class VerifyingLogger {
             throw new IllegalStateException();
         }
         Logger.setShouldIncludeLineNumbers(oldLineNumbers);
-        
+
         Logger.removeTarget(vlt);
         Logger.targets.addAll(Arrays.asList(targets));
         vlt = null;

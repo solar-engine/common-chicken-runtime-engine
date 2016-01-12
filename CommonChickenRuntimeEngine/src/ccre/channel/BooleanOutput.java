@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2015 Colby Skeggs
+ * Copyright 2013-2016 Colby Skeggs
  *
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  *
@@ -36,6 +36,14 @@ public interface BooleanOutput {
         public void set(boolean newValue) {
             // Do nothing.
         }
+
+        // Important to the functioning of static BooleanOutput.combine
+        public BooleanOutput combine(BooleanOutput other) {
+            if (other == null) {
+                throw new NullPointerException();
+            }
+            return other;
+        };
     };
 
     /**
@@ -122,6 +130,30 @@ public interface BooleanOutput {
             }
             other.set(value);
         };
+    }
+
+    /**
+     * Combines any number of BooleanOutputs into a single BooleanOutput, such
+     * that when the returned BooleanOutput is set to a value, all of the
+     * BooleanOutputs are set to that value.
+     *
+     * If any error occurs during propagation of values to any BooleanOutput,
+     * the other outputs will still be modified. If multiple outputs throw
+     * exceptions, then one of them will be chosen arbitrarily and all of the
+     * others will be added as suppressed exceptions either to the thrown
+     * exception or to other suppressed expressions.
+     *
+     * @param outputs the BooleanOutputs to include.
+     * @return the combined version of the BooleanOutputs.
+     */
+    public static BooleanOutput combine(BooleanOutput... outputs) {
+        // This works without including 'ignored' in the actual data structure
+        // by having 'ignored' drop itself during combine.
+        BooleanOutput out = ignored;
+        for (BooleanOutput o : outputs) {
+            out = out.combine(o);
+        }
+        return out;
     }
 
     /**

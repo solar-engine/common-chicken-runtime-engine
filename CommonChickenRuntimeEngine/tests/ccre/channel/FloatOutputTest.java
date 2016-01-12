@@ -49,7 +49,7 @@ public class FloatOutputTest {
     private final FloatOutput evil = (v) -> {
         throw new NoSuchElementException(ERROR_STRING);
     };
-    private CountingFloatOutput cfo1, cfo2;
+    private CountingFloatOutput cfo, cfo2;
     private FloatCell fs;
 
     private static Time oldProvider;
@@ -75,7 +75,7 @@ public class FloatOutputTest {
     @Before
     public void setUp() throws Exception {
         fs = new FloatCell();
-        cfo1 = new CountingFloatOutput();
+        cfo = new CountingFloatOutput();
         cfo2 = new CountingFloatOutput();
         VerifyingLogger.begin();
     }
@@ -84,7 +84,7 @@ public class FloatOutputTest {
     public void tearDown() throws Exception {
         VerifyingLogger.checkAndEnd();
         fs = null;
-        cfo1 = null;
+        cfo = null;
         cfo2 = null;
     }
 
@@ -94,98 +94,155 @@ public class FloatOutputTest {
     }
 
     @Test
+    public void testIgnoredCombine() {
+        assertEquals(cfo, FloatOutput.ignored.combine(cfo));
+    }
+
+    @Test(expected = NullPointerException.class)
+    public void testIgnoredCombineNull() {
+        FloatOutput.ignored.combine((FloatOutput) null);
+    }
+
+    @Test
     public void testGetSetEventFloat() {
         for (float f : Values.interestingFloats) {
-            EventOutput setE = cfo1.eventSet(f);
-            cfo1.ifExpected = true;
-            cfo1.valueExpected = f;
+            EventOutput setE = cfo.eventSet(f);
+            cfo.ifExpected = true;
+            cfo.valueExpected = f;
             setE.event();
-            cfo1.check();
+            cfo.check();
         }
     }
 
     @Test
     public void testGetSetEventFloatInput() {
-        EventOutput setE = cfo1.eventSet(fs);
+        EventOutput setE = cfo.eventSet(fs);
         for (float f : Values.interestingFloats) {
             fs.set(f);
-            cfo1.ifExpected = true;
-            cfo1.valueExpected = f;
+            cfo.ifExpected = true;
+            cfo.valueExpected = f;
             setE.event();
-            cfo1.check();
+            cfo.check();
         }
     }
 
     @Test(expected = NullPointerException.class)
     public void testGetSetEventFloatInputNull() {
-        cfo1.eventSet(null);
+        cfo.eventSet(null);
     }
 
     @Test
     public void testSetWhenFloatEventInput() {
         for (float f : Values.interestingFloats) {
             EventCell es = new EventCell();
-            cfo1.setWhen(f, es);
-            cfo1.ifExpected = true;
-            cfo1.valueExpected = f;
+            cfo.setWhen(f, es);
+            cfo.ifExpected = true;
+            cfo.valueExpected = f;
             es.event();
-            cfo1.check();
+            cfo.check();
         }
     }
 
     @Test(expected = NullPointerException.class)
     public void testSetWhenFloatEventInputNull() {
-        cfo1.setWhen(0, null);
+        cfo.setWhen(0, null);
     }
 
     @Test
     public void testSetWhenFloatInputEventInput() {
         EventCell setE = new EventCell();
-        cfo1.setWhen(fs, setE);
+        cfo.setWhen(fs, setE);
         for (float f : Values.interestingFloats) {
             fs.set(f);
-            cfo1.ifExpected = true;
-            cfo1.valueExpected = f;
+            cfo.ifExpected = true;
+            cfo.valueExpected = f;
             setE.event();
-            cfo1.check();
+            cfo.check();
         }
     }
 
     @Test(expected = NullPointerException.class)
     public void testSetWhenFloatInputEventInputNullA() {
-        cfo1.setWhen(null, EventInput.never);
+        cfo.setWhen(null, EventInput.never);
     }
 
     @Test(expected = NullPointerException.class)
     public void testSetWhenFloatInputEventInputNullB() {
-        cfo1.setWhen(FloatInput.zero, null);
+        cfo.setWhen(FloatInput.zero, null);
     }
 
     @Test
     public void testCombine() {
-        FloatOutput combine = cfo1.combine(cfo2);
+        FloatOutput combine = cfo.combine(cfo2);
         for (float f : Values.interestingFloats) {
-            cfo1.ifExpected = cfo2.ifExpected = true;
-            cfo1.valueExpected = cfo2.valueExpected = f;
+            cfo.ifExpected = cfo2.ifExpected = true;
+            cfo.valueExpected = cfo2.valueExpected = f;
             combine.set(f);
-            cfo1.check();
+            cfo.check();
             cfo2.check();
         }
     }
 
     @Test(expected = NullPointerException.class)
     public void testCombineNull() {
-        cfo1.combine(null);
+        cfo.combine(null);
+    }
+
+    @Test
+    public void testStaticCombineSimplification() {
+        assertEquals(FloatOutput.combine(), FloatOutput.ignored);
+        assertEquals(FloatOutput.combine(new FloatOutput[] { cfo }), cfo);
+    }
+
+    @Test
+    public void testStaticCombine() {
+        for (int n = 0; n < 20; n++) {
+            CountingFloatOutput[] cfos = new CountingFloatOutput[n];
+            for (int i = 0; i < n; i++) {
+                cfos[i] = new CountingFloatOutput();
+            }
+            FloatOutput combined = FloatOutput.combine(cfos);
+            for (float f : Values.interestingFloats) {
+                for (int i = 0; i < n; i++) {
+                    cfos[i].ifExpected = true;
+                    cfos[i].valueExpected = f;
+                }
+                combined.set(f);
+                for (int i = 0; i < n; i++) {
+                    cfos[i].check();
+                }
+            }
+        }
+    }
+
+    @Test(expected = NullPointerException.class)
+    public void testStaticCombineNull() {
+        FloatOutput.combine((FloatOutput[]) null);
+    }
+
+    @Test(expected = NullPointerException.class)
+    public void testStaticCombineNullElem() {
+        FloatOutput.combine(new FloatOutput[] { null });
+    }
+
+    @Test(expected = NullPointerException.class)
+    public void testStaticCombineNullEarlierElem() {
+        FloatOutput.combine(null, cfo);
+    }
+
+    @Test(expected = NullPointerException.class)
+    public void testStaticCombineNullLaterElem() {
+        FloatOutput.combine(cfo, null);
     }
 
     @Test
     public void testNegate() {
-        FloatOutput neg = cfo1.negate();
+        FloatOutput neg = cfo.negate();
         for (float f : Values.interestingFloats) {
-            cfo1.ifExpected = true;
-            cfo1.valueExpected = -f;
+            cfo.ifExpected = true;
+            cfo.valueExpected = -f;
             neg.set(f);
-            cfo1.check();
+            cfo.check();
         }
     }
 
@@ -195,57 +252,57 @@ public class FloatOutputTest {
             if (!Float.isFinite(zone) || zone < 0) {
                 continue;
             }
-            FloatOutput fout = cfo1.outputDeadzone(zone);
+            FloatOutput fout = cfo.outputDeadzone(zone);
             for (float v : Values.lessInterestingFloats) {
                 if (Float.isNaN(v)) {
                     continue;
                 }
                 if (Math.abs(v) < Math.abs(zone)) {
-                    cfo1.valueExpected = 0;
+                    cfo.valueExpected = 0;
                 } else {
-                    cfo1.valueExpected = v;
+                    cfo.valueExpected = v;
                 }
-                cfo1.ifExpected = true;
+                cfo.ifExpected = true;
                 fout.set(v);
-                cfo1.check();
+                cfo.check();
             }
         }
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testOutputDeadzoneNaN() {
-        cfo1.outputDeadzone(Float.NaN);
+        cfo.outputDeadzone(Float.NaN);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testOutputDeadzoneNegative() {
-        cfo1.outputDeadzone(-1);
+        cfo.outputDeadzone(-1);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testOutputDeadzoneInfinity() {
-        cfo1.outputDeadzone(Float.POSITIVE_INFINITY);
+        cfo.outputDeadzone(Float.POSITIVE_INFINITY);
     }
 
     @Test
     public void testAddRamping() { // TODO: flesh this out a bit more
         EventCell update = new EventCell();
-        FloatOutput fo = cfo1.addRamping(0.2f, update);
+        FloatOutput fo = cfo.addRamping(0.2f, update);
         for (int i = 0; i < 5; i++) {
-            cfo1.ifExpected = true;
-            cfo1.valueExpected = 0;
+            cfo.ifExpected = true;
+            cfo.valueExpected = 0;
             update.event();
-            cfo1.check();
+            cfo.check();
         }
         float last = 0;
         for (float i = -5f; i < 5f; i++) {
             fo.set(i);
             int j = 0;
             while (true) {
-                cfo1.ifExpected = true;
-                last = cfo1.valueExpected = Utils.updateRamping(last, i, 0.2f);
+                cfo.ifExpected = true;
+                last = cfo.valueExpected = Utils.updateRamping(last, i, 0.2f);
                 update.event();
-                cfo1.check();
+                cfo.check();
                 if (last == i) {
                     break;
                 }
@@ -258,32 +315,32 @@ public class FloatOutputTest {
 
     @Test(expected = NullPointerException.class)
     public void testAddRampingNull() {
-        cfo1.addRamping(0.2f, null);
+        cfo.addRamping(0.2f, null);
     }
 
     @Test
     public void testViaDerivative() throws InterruptedException {
         Random rand = new Random(1);
-        FloatOutput fo = cfo1.viaDerivative();
+        FloatOutput fo = cfo.viaDerivative();
         float j = 0;
         for (float i = -10.0f; i <= 10.0f; i += 0.5f) {
-            cfo1.valueExpected = (i - j); // for subsequent times around the
+            cfo.valueExpected = (i - j); // for subsequent times around the
             // loop
             fo.set(i);
-            cfo1.check();
+            cfo.check();
             for (j = i; j <= i + 20.0f;) {
                 float delta = (rand.nextInt(30) + 1) / 10.0f;
                 long timeDelta = rand.nextInt(2000) + 1;
                 fake.forward(timeDelta);
                 j += delta;
-                cfo1.ifExpected = true;
-                cfo1.valueExpected = 1000 * delta / timeDelta;
-                cfo1.maxDelta = 0.00001f * Math.abs(cfo1.valueExpected);
+                cfo.ifExpected = true;
+                cfo.valueExpected = 1000 * delta / timeDelta;
+                cfo.maxDelta = 0.00001f * Math.abs(cfo.valueExpected);
                 fo.set(j);
-                cfo1.check();
+                cfo.check();
             }
             fake.forward(1000);
-            cfo1.ifExpected = true;
+            cfo.ifExpected = true;
         }
     }
 
@@ -326,12 +383,12 @@ public class FloatOutputTest {
 
     @Test(expected = NullPointerException.class)
     public void testFilterNull() {
-        cfo1.filter(null);
+        cfo.filter(null);
     }
 
     @Test(expected = NullPointerException.class)
     public void testFilterNotNull() {
-        cfo1.filterNot(null);
+        cfo.filterNot(null);
     }
 
     @Test
@@ -339,44 +396,44 @@ public class FloatOutputTest {
         FloatCell offV = new FloatCell();
         FloatCell onV = new FloatCell();
         Boolean lastSent = null;
-        BooleanOutput b1 = cfo1.fromBoolean(offV, onV);
+        BooleanOutput b1 = cfo.fromBoolean(offV, onV);
         for (float off : Values.interestingFloats) {
-            cfo1.ifExpected = (lastSent != null && !lastSent);
-            cfo1.valueExpected = off;
+            cfo.ifExpected = (lastSent != null && !lastSent);
+            cfo.valueExpected = off;
             offV.set(off);
-            cfo1.check();
+            cfo.check();
             for (float on : Values.interestingFloats) {
-                cfo1.ifExpected = (lastSent != null && lastSent);
-                cfo1.valueExpected = on;
+                cfo.ifExpected = (lastSent != null && lastSent);
+                cfo.valueExpected = on;
                 onV.set(on);
-                cfo1.check();
+                cfo.check();
                 for (boolean b : Values.interestingBooleans) {
-                    cfo1.valueExpected = b ? on : off;
+                    cfo.valueExpected = b ? on : off;
 
-                    cfo1.ifExpected = (lastSent == null || lastSent != b);
+                    cfo.ifExpected = (lastSent == null || lastSent != b);
                     b1.set(b);
-                    cfo1.check();
+                    cfo.check();
 
                     lastSent = b;
                 }
             }
             boolean b = Values.getRandomBoolean();
-            cfo1.ifExpected = (lastSent != null && lastSent != b);
-            cfo1.valueExpected = b ? onV.get() : off;
+            cfo.ifExpected = (lastSent != null && lastSent != b);
+            cfo.valueExpected = b ? onV.get() : off;
             b1.set(b);
-            cfo1.check();
+            cfo.check();
             lastSent = b;
         }
     }
 
     @Test(expected = NullPointerException.class)
     public void testFromBoolean1NullA() {
-        cfo1.fromBoolean(null, FloatInput.zero);
+        cfo.fromBoolean(null, FloatInput.zero);
     }
 
     @Test(expected = NullPointerException.class)
     public void testFromBoolean1NullB() {
-        cfo1.fromBoolean(FloatInput.zero, null);
+        cfo.fromBoolean(FloatInput.zero, null);
     }
 
     @Test
@@ -384,18 +441,18 @@ public class FloatOutputTest {
         for (float off : Values.interestingFloats) {
             Boolean lastSent = null;
             FloatCell onV = new FloatCell();
-            BooleanOutput b1 = cfo1.fromBoolean(off, onV);
+            BooleanOutput b1 = cfo.fromBoolean(off, onV);
             for (float on : Values.interestingFloats) {
-                cfo1.ifExpected = (lastSent != null && lastSent);
-                cfo1.valueExpected = on;
+                cfo.ifExpected = (lastSent != null && lastSent);
+                cfo.valueExpected = on;
                 onV.set(on);
-                cfo1.check();
+                cfo.check();
                 for (boolean b : Values.interestingBooleans) {
-                    cfo1.valueExpected = b ? on : off;
+                    cfo.valueExpected = b ? on : off;
 
-                    cfo1.ifExpected = (lastSent == null || lastSent != b);
+                    cfo.ifExpected = (lastSent == null || lastSent != b);
                     b1.set(b);
-                    cfo1.check();
+                    cfo.check();
 
                     lastSent = b;
                 }
@@ -405,7 +462,7 @@ public class FloatOutputTest {
 
     @Test(expected = NullPointerException.class)
     public void testFromBoolean2Null() {
-        cfo1.fromBoolean(0, null);
+        cfo.fromBoolean(0, null);
     }
 
     @Test
@@ -413,18 +470,18 @@ public class FloatOutputTest {
         for (float on : Values.interestingFloats) {
             Boolean lastSent = null;
             FloatCell offV = new FloatCell();
-            BooleanOutput b1 = cfo1.fromBoolean(offV, on);
+            BooleanOutput b1 = cfo.fromBoolean(offV, on);
             for (float off : Values.interestingFloats) {
-                cfo1.ifExpected = (lastSent != null && !lastSent);
-                cfo1.valueExpected = on;
+                cfo.ifExpected = (lastSent != null && !lastSent);
+                cfo.valueExpected = on;
                 offV.set(off);
-                cfo1.check();
+                cfo.check();
                 for (boolean b : Values.interestingBooleans) {
-                    cfo1.valueExpected = b ? on : off;
+                    cfo.valueExpected = b ? on : off;
 
-                    cfo1.ifExpected = (lastSent == null || lastSent != b);
+                    cfo.ifExpected = (lastSent == null || lastSent != b);
                     b1.set(b);
-                    cfo1.check();
+                    cfo.check();
 
                     lastSent = b;
                 }
@@ -434,7 +491,7 @@ public class FloatOutputTest {
 
     @Test(expected = NullPointerException.class)
     public void testFromBoolean3Null() {
-        cfo1.fromBoolean(null, 0);
+        cfo.fromBoolean(null, 0);
     }
 
     @Test
@@ -442,13 +499,13 @@ public class FloatOutputTest {
         for (float off : Values.interestingFloats) {
             for (float on : Values.interestingFloats) {
                 Boolean lastSent = null;
-                BooleanOutput b1 = cfo1.fromBoolean(off, on);
+                BooleanOutput b1 = cfo.fromBoolean(off, on);
                 for (boolean b : Values.interestingBooleans) {
-                    cfo1.valueExpected = b ? on : off;
+                    cfo.valueExpected = b ? on : off;
 
-                    cfo1.ifExpected = (lastSent == null || lastSent != b);
+                    cfo.ifExpected = (lastSent == null || lastSent != b);
                     b1.set(b);
-                    cfo1.check();
+                    cfo.check();
 
                     lastSent = b;
                 }
@@ -473,36 +530,36 @@ public class FloatOutputTest {
 
     @Test(expected = NoSuchElementException.class)
     public void testCombineWithError1CausesError() {
-        cfo1.ifExpected = true;
-        cfo1.valueExpected = 1.2f;
-        cfo1.combine(evil).set(1.2f);
+        cfo.ifExpected = true;
+        cfo.valueExpected = 1.2f;
+        cfo.combine(evil).set(1.2f);
     }
 
     @Test(expected = NoSuchElementException.class)
     public void testCombineWithError2CausesError() {
-        cfo1.ifExpected = true;
-        cfo1.valueExpected = 1;
-        evil.combine(cfo1).set(1);
+        cfo.ifExpected = true;
+        cfo.valueExpected = 1;
+        evil.combine(cfo).set(1);
     }
 
     @Test
     public void testCombineWithError1Succeeds() {
-        cfo1.ifExpected = true;
-        cfo1.valueExpected = 1;
+        cfo.ifExpected = true;
+        cfo.valueExpected = 1;
         VerifyingLogger.configure(LogLevel.SEVERE, "Error during channel propagation", (t) -> t.getClass() == NoSuchElementException.class && ERROR_STRING.equals(t.getMessage()));
-        cfo1.combine(evil).safeSet(1);
+        cfo.combine(evil).safeSet(1);
         VerifyingLogger.check();
-        cfo1.check();
+        cfo.check();
     }
 
     @Test
     public void testCombineWithError2Succeeds() {
-        cfo1.ifExpected = true;
-        cfo1.valueExpected = 1;
+        cfo.ifExpected = true;
+        cfo.valueExpected = 1;
         VerifyingLogger.configure(LogLevel.SEVERE, "Error during channel propagation", (t) -> t.getClass() == NoSuchElementException.class && ERROR_STRING.equals(t.getMessage()));
-        evil.combine(cfo1).safeSet(1);
+        evil.combine(cfo).safeSet(1);
         VerifyingLogger.check();
-        cfo1.check();
+        cfo.check();
     }
 
     @Test
@@ -516,5 +573,79 @@ public class FloatOutputTest {
             assertTrue(ex.getSuppressed()[0] instanceof NoSuchElementException);
         }
         assertTrue(errored);
+    }
+
+    @Test
+    public void testStaticCombineSingleError() {
+        for (int n = 1; n < 6; n++) {
+            CountingFloatOutput[] cfos = new CountingFloatOutput[n];
+            for (int i = 0; i < n; i++) {
+                cfos[i] = new CountingFloatOutput();
+            }
+            for (int bad = 0; bad < n; bad++) {
+                FloatOutput[] reals = new FloatOutput[n];
+                System.arraycopy(cfos, 0, reals, 0, n);
+                reals[bad] = evil;
+                FloatOutput combined = FloatOutput.combine(reals);
+                for (float f : Values.interestingFloats) {
+                    for (int i = 0; i < n; i++) {
+                        cfos[i].ifExpected = i != bad;
+                        cfos[i].valueExpected = f;
+                    }
+                    try {
+                        combined.set(f);
+                        fail();
+                    } catch (NoSuchElementException ex) {
+                        assertEquals(0, ex.getSuppressed().length);
+                    }
+                    for (int i = 0; i < n; i++) {
+                        cfos[i].check();
+                    }
+                }
+            }
+        }
+    }
+
+    @Test
+    public void testStaticCombineManyErrors() {
+        for (int n = 1; n < 6; n++) {
+            CountingFloatOutput[] cfos = new CountingFloatOutput[n];
+            for (int i = 0; i < n; i++) {
+                cfos[i] = new CountingFloatOutput();
+            }
+            for (int bad = 0; bad < 4 * n * n; bad++) {
+                boolean[] evils = new boolean[n];
+                int evil_count = 0;
+                FloatOutput[] reals = new FloatOutput[n];
+                System.arraycopy(cfos, 0, reals, 0, n);
+                for (int i = 0; i < n; i++) {
+                    evils[i] = Values.getRandomBoolean();
+                    if (evils[i]) {
+                        evil_count++;
+                        reals[i] = evil;
+                    }
+                }
+                FloatOutput combined = FloatOutput.combine(reals);
+                for (float f : Values.interestingFloats) {
+                    for (int i = 0; i < n; i++) {
+                        cfos[i].ifExpected = !evils[i];
+                        cfos[i].valueExpected = f;
+                    }
+                    try {
+                        combined.set(f);
+                        assertEquals(0, evil_count);
+                    } catch (NoSuchElementException ex) {
+                        Throwable[] suppressed = ex.getSuppressed();
+                        assertEquals(evil_count - 1, suppressed.length);
+                        for (int i = 0; i < suppressed.length; i++) {
+                            assertTrue(suppressed[i] instanceof NoSuchElementException);
+                        }
+                    }
+                    for (int i = 0; i < n; i++) {
+                        cfos[i].check();
+                    }
+                }
+            }
+        }
     }
 }

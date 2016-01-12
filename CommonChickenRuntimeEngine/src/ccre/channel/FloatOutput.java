@@ -399,4 +399,37 @@ public interface FloatOutput {
             }
         };
     }
+
+    /**
+     * Provides a FloatOutput that controls this FloatOutput by choosing between
+     * an unchanged and a negated version of the values sent to this
+     * FloatOutput.
+     *
+     * @param negate whether or not the output should be negated
+     * @return the possibly negated version of this FloatOutput
+     */
+    public default FloatOutput negateIf(BooleanInput negate) {
+        final FloatOutput aThis = this;
+        return new FloatOutput() {
+
+            private boolean anyValue;
+            private float lastValue;
+
+            {
+                negate.send((negate) -> {
+                    if (anyValue) {
+                        aThis.set(negate ? -lastValue : lastValue);
+                    }
+                });
+            }
+
+            @Override
+            public void set(float value) {
+                lastValue = value;
+                anyValue = true;
+                aThis.set(negate.get() ? -value : value);
+            }
+
+        };
+    }
 }

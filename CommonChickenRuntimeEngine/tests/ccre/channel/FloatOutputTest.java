@@ -648,4 +648,29 @@ public class FloatOutputTest {
             }
         }
     }
+
+    @Test
+    public void testNegateIf() {
+        for (boolean init : new boolean[] { false, true }) {
+            BooleanCell cond = new BooleanCell(init);
+            FloatOutput neg = cfo.negateIf(cond);
+            for (float v : Values.interestingFloats) {
+                cfo.ifExpected = true;
+                cfo.valueExpected = cond.get() ? -v : v;
+                neg.set(v);
+                cfo.check();
+                if (Values.getRandomBoolean()) {
+                    cfo.ifExpected = true;
+                    cfo.valueExpected = cond.get() ? v : -v;
+                    cond.toggle();
+                    cfo.check();
+                }
+            }
+        }
+    }
+
+    @Test(expected = NullPointerException.class)
+    public void testNegateIfNull() {
+        fs.negateIf(null);
+    }
 }

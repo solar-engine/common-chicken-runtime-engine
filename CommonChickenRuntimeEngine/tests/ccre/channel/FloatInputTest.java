@@ -149,7 +149,7 @@ public class FloatInputTest {
             assertEquals(cex, fi.send(cfo));
             assertTrue(gotProperly);
             gotProperly = false;
-            cfo.check();// the real check is in onUpdateR above
+            cfo.check(); // the real check is in onUpdate above
         }
     }
 
@@ -869,5 +869,25 @@ public class FloatInputTest {
         expected.check();
         expected2.check();
         cfo.check();
+    }
+
+    @Test
+    public void testNegatedIf() {
+        for (boolean init : new boolean[] { false, true }) {
+            BooleanCell cond = new BooleanCell(init);
+            FloatInput neg = fs.negatedIf(cond);
+            for (float v : Values.interestingFloats) {
+                fs.set(v);
+                assertEquals(v, cond.get() ? -neg.get() : neg.get(), 0);
+                if (Values.getRandomBoolean()) {
+                    cond.toggle();
+                }
+            }
+        }
+    }
+
+    @Test(expected = NullPointerException.class)
+    public void testNegatedIfNull() {
+        fs.negatedIf(null);
     }
 }

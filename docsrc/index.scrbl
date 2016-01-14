@@ -1801,6 +1801,26 @@ This means that @jcode-inline{a.and(b).get() == (a.get() || b.get())}.
     // converted is 0.0
 }
 
+@jmethod*[(BooleanInput (BooleanInput select) (boolean off) (boolean on))
+          (BooleanInput (BooleanInput select) (boolean off) (BooleanInput on))
+          (BooleanInput (BooleanInput select) (BooleanInput off) (boolean on))
+          (BooleanInput (BooleanInput select) (BooleanInput off) (BooleanInput on))
+          "setup"]
+
+@jcode-inline{select} provides a @jcode-inline{BooleanInput} with a value selected from one of two other @jcode-inline{boolean}s or @jcode-inline{BooleanInput}s.
+
+@jcode{
+    BooleanCell input = new BooleanCell(false);
+    BooleanInput converted = input.select(a, b);
+    // ...
+
+    // converted is a.get()
+    input.set(true);
+    // converted is b.get()
+    input.set(false);
+    // converted is a.get()
+}
+
 @jmethod*[(BooleanInput (BooleanInput filterUpdates) (BooleanInput allow))
           (BooleanInput (BooleanInput filterUpdatesNot) (BooleanInput deny))
           "setup"]

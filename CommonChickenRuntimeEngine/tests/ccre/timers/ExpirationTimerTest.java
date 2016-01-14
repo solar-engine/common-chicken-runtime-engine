@@ -482,6 +482,46 @@ public class ExpirationTimerTest {
     }
 
     @Test
+    public void testGetRunning_Write() throws InterruptedException {
+        BooleanOutput control = timer.getRunning();
+        CountingEventOutput ceo = new CountingEventOutput();
+        timer.schedule(1000, ceo);
+        CountingEventOutput ceo2 = new CountingEventOutput();
+        timer.schedule(1500, ceo2);
+        fake.forward(2000);
+        control.set(true);
+        Thread.sleep(2);
+        fake.forward(990);
+        ceo.ifExpected = true;
+        fake.forward(10);
+        Thread.sleep(2);
+        ceo.check();
+        fake.forward(490);
+        control.set(false);
+        Thread.sleep(2);
+        fake.forward(2000);
+        Thread.sleep(2);
+        ceo.check();
+        ceo2.check();
+    }
+
+    @Test
+    public void testGetRunning_Read() {
+        BooleanInput running = timer.getRunning();
+        for (int i = 0; i < 3; i++) {
+            assertFalse(running.get());
+            timer.start();
+            assertTrue(running.get());
+            timer.feed();
+            assertTrue(running.get());
+            timer.feed();
+            assertTrue(running.get());
+            timer.stop();
+            assertFalse(running.get());
+        }
+    }
+
+    @Test
     public void testGetRunningStatus() {
         BooleanInput running = timer.getRunningStatus();
         for (int i = 0; i < 3; i++) {

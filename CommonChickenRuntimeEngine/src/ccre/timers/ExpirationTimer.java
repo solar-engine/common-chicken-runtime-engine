@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2015 Colby Skeggs
+ * Copyright 2013-2016 Colby Skeggs
  *
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  *
@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 
 import ccre.channel.BooleanCell;
+import ccre.channel.BooleanIO;
 import ccre.channel.BooleanInput;
 import ccre.channel.BooleanOutput;
 import ccre.channel.EventCell;
@@ -318,6 +319,19 @@ public final class ExpirationTimer {
      */
     public void stopWhen(EventInput src) {
         src.send(getStopEvent());
+    }
+
+    /**
+     * Get a BooleanIO that represents whether or not this timer is running.
+     * This will start or stop the timer when the value is changed, and will
+     * appear to be the value representing the new state afterward. This will
+     * not throw an IllegalStateException if the timer is in the wrong state or
+     * log a warning.
+     *
+     * @return a BooleanIO to monitor and control the ExpirationTimer.
+     */
+    public BooleanIO getRunning() {
+        return BooleanIO.compose(getRunningStatus(), getRunningControl());
     }
 
     /**

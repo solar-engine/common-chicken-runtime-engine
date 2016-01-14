@@ -18,6 +18,8 @@
  */
 package ccre.testing;
 
+import static org.junit.Assert.*;
+
 /**
  * A class used to ensure that an output is only set to the correct value and in
  * the correct interval of time - and not anywhen else.
@@ -51,11 +53,11 @@ public class CountingStringOutput {
     public synchronized void set(String value) {
         if (valueExpected == null) {
             anyUnexpected = true;
-            throw new RuntimeException("Unexpected set!");
+            fail("Unexpected set of: " + value);
         }
         if (!valueExpected.equals(value)) {
             anyUnexpected = true;
-            throw new RuntimeException("Incorrect set: " + value + " rather than " + valueExpected);
+            fail("Incorrect set: " + value + " rather than " + valueExpected);
         }
         valueExpected = null;
     }
@@ -67,12 +69,10 @@ public class CountingStringOutput {
      * @throws RuntimeException if a write did not occur.
      */
     public void check() throws RuntimeException {
-        if (anyUnexpected) {
-            throw new RuntimeException("Already failed earlier!");
-        }
+        assertFalse("Already failed earlier!", anyUnexpected);
         if (valueExpected != null) {
             anyUnexpected = true;
-            throw new RuntimeException("Did not get expected set of: " + valueExpected);
+            fail("Did not get expected set of: " + valueExpected);
         }
     }
 }

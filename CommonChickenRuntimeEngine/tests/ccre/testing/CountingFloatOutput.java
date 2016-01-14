@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2015 Colby Skeggs
+ * Copyright 2014-2016 Colby Skeggs
  *
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  *
@@ -18,6 +18,7 @@
  */
 package ccre.testing;
 
+import static org.junit.Assert.*;
 import ccre.channel.FloatOutput;
 
 /**
@@ -77,7 +78,7 @@ public class CountingFloatOutput implements FloatOutput {
     public synchronized void set(float value) {
         if (!ifExpected && !allowExtras) {
             anyUnexpected = true;
-            throw new RuntimeException("Unexpected set of " + value + "!");
+            fail("Unexpected set of " + value + "!");
         }
         boolean correct = false;
         if (Float.isNaN(valueExpected)) {
@@ -91,7 +92,7 @@ public class CountingFloatOutput implements FloatOutput {
         }
         if (!correct) {
             anyUnexpected = true;
-            throw new RuntimeException("Incorrect set: " + value + " instead of " + valueExpected);
+            fail("Incorrect set: " + value + " instead of " + valueExpected);
         }
         ifExpected = false;
     }
@@ -103,12 +104,10 @@ public class CountingFloatOutput implements FloatOutput {
      * @throws RuntimeException if a write did not occur.
      */
     public void check() throws RuntimeException {
-        if (anyUnexpected) {
-            throw new RuntimeException("Already failed earlier!");
-        }
+        assertFalse("Already failed earlier!", anyUnexpected);
         if (ifExpected) {
             anyUnexpected = true;
-            throw new RuntimeException("Did not get expected set of " + valueExpected + "!");
+            fail("Did not get expected set of " + valueExpected + "!");
         }
     }
 }

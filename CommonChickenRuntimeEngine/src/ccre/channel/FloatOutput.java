@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2015 Colby Skeggs
+ * Copyright 2013-2016 Colby Skeggs
  *
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  *
@@ -39,6 +39,14 @@ public interface FloatOutput {
     FloatOutput ignored = new FloatOutput() {
         public void set(float newValue) {
         }
+
+        // Important to the functioning of static BooleanOutput.combine
+        public FloatOutput combine(FloatOutput other) {
+            if (other == null) {
+                throw new NullPointerException();
+            }
+            return other;
+        };
     };
 
     /**
@@ -160,6 +168,30 @@ public interface FloatOutput {
             }
             other.set(value);
         };
+    }
+
+    /**
+     * Combines any number of FloatOutputs into a single FloatOutput, such that
+     * when the returned FloatOutput is set to a value, all of the FloatOutputs
+     * are set to that value.
+     *
+     * If any error occurs during propagation of values to any FloatOutput, the
+     * other outputs will still be modified. If multiple outputs throw
+     * exceptions, then one of them will be chosen arbitrarily and all of the
+     * others will be added as suppressed exceptions either to the thrown
+     * exception or to other suppressed expressions.
+     *
+     * @param outputs the FloatOutputs to include.
+     * @return the combined version of the FloatOutputs.
+     */
+    public static FloatOutput combine(FloatOutput... outputs) {
+        // This works without including 'ignored' in the actual data structure
+        // by having 'ignored' drop itself during combine.
+        FloatOutput out = ignored;
+        for (FloatOutput o : outputs) {
+            out = out.combine(o);
+        }
+        return out;
     }
 
     /**
@@ -365,6 +397,39 @@ public interface FloatOutput {
             private void update() {
                 FloatOutput.this.set(lastValue ? on.get() : off.get());
             }
+        };
+    }
+
+    /**
+     * Provides a FloatOutput that controls this FloatOutput by choosing between
+     * an unchanged and a negated version of the values sent to this
+     * FloatOutput.
+     *
+     * @param negate whether or not the output should be negated
+     * @return the possibly negated version of this FloatOutput
+     */
+    public default FloatOutput negateIf(BooleanInput negate) {
+        final FloatOutput aThis = this;
+        return new FloatOutput() {
+
+            private boolean anyValue;
+            private float lastValue;
+
+            {
+                negate.send((negate) -> {
+                    if (anyValue) {
+                        aThis.set(negate ? -lastValue : lastValue);
+                    }
+                });
+            }
+
+            @Override
+            public void set(float value) {
+                lastValue = value;
+                anyValue = true;
+                aThis.set(negate.get() ? -value : value);
+            }
+
         };
     }
 }

@@ -135,7 +135,7 @@ public class BooleanInputTest {
             assertEquals(cex, bi.send(cbo));
             assertTrue(gotProperly);
             gotProperly = false;
-            cbo.check();// the real check is in onUpdateR above
+            cbo.check(); // the real check is in onUpdate above
         }
     }
 

@@ -18,8 +18,7 @@
  */
 package ccre.channel;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 import java.util.NoSuchElementException;
 import java.util.Random;
@@ -65,6 +64,16 @@ public class BooleanOutputTest {
     }
 
     @Test
+    public void testIgnoredCombine() {
+        assertEquals(cbo, BooleanOutput.ignored.combine(cbo));
+    }
+
+    @Test(expected = NullPointerException.class)
+    public void testIgnoredCombineNull() {
+        BooleanOutput.ignored.combine((BooleanOutput) null);
+    }
+
+    @Test
     public void testInvert() {
         BooleanOutput bo = cbo.invert();
         for (boolean b : Values.interestingBooleans) {
@@ -95,6 +104,53 @@ public class BooleanOutputTest {
     @Test(expected = NullPointerException.class)
     public void testCombineNull() {
         cbo.combine(null);
+    }
+
+    @Test
+    public void testStaticCombineSimplification() {
+        assertEquals(BooleanOutput.combine(), BooleanOutput.ignored);
+        assertEquals(BooleanOutput.combine(new BooleanOutput[] { cbo }), cbo);
+    }
+
+    @Test
+    public void testStaticCombine() {
+        for (int n = 0; n < 20; n++) {
+            CountingBooleanOutput[] cbos = new CountingBooleanOutput[n];
+            for (int i = 0; i < n; i++) {
+                cbos[i] = new CountingBooleanOutput();
+            }
+            BooleanOutput combined = BooleanOutput.combine(cbos);
+            for (int l = 0; l < 10; l++) {
+                for (int i = 0; i < n; i++) {
+                    cbos[i].ifExpected = true;
+                    cbos[i].valueExpected = l % 2 == 0;
+                }
+                combined.set(l % 2 == 0);
+                for (int i = 0; i < n; i++) {
+                    cbos[i].check();
+                }
+            }
+        }
+    }
+
+    @Test(expected = NullPointerException.class)
+    public void testStaticCombineNull() {
+        BooleanOutput.combine((BooleanOutput[]) null);
+    }
+
+    @Test(expected = NullPointerException.class)
+    public void testStaticCombineNullElem() {
+        BooleanOutput.combine(new BooleanOutput[] { null });
+    }
+
+    @Test(expected = NullPointerException.class)
+    public void testStaticCombineNullEarlierElem() {
+        BooleanOutput.combine(null, cbo);
+    }
+
+    @Test(expected = NullPointerException.class)
+    public void testStaticCombineNullLaterElem() {
+        BooleanOutput.combine(cbo, null);
     }
 
     @Test
@@ -385,5 +441,79 @@ public class BooleanOutputTest {
             assertTrue(ex.getSuppressed()[0] instanceof NoSuchElementException);
         }
         assertTrue(errored);
+    }
+
+    @Test
+    public void testStaticCombineSingleError() {
+        for (int n = 1; n < 6; n++) {
+            CountingBooleanOutput[] cbos = new CountingBooleanOutput[n];
+            for (int i = 0; i < n; i++) {
+                cbos[i] = new CountingBooleanOutput();
+            }
+            for (int bad = 0; bad < n; bad++) {
+                BooleanOutput[] reals = new BooleanOutput[n];
+                System.arraycopy(cbos, 0, reals, 0, n);
+                reals[bad] = evil;
+                BooleanOutput combined = BooleanOutput.combine(reals);
+                for (int l = 0; l < 10; l++) {
+                    for (int i = 0; i < n; i++) {
+                        cbos[i].ifExpected = i != bad;
+                        cbos[i].valueExpected = l % 2 == 0;
+                    }
+                    try {
+                        combined.set(l % 2 == 0);
+                        fail();
+                    } catch (NoSuchElementException ex) {
+                        assertEquals(0, ex.getSuppressed().length);
+                    }
+                    for (int i = 0; i < n; i++) {
+                        cbos[i].check();
+                    }
+                }
+            }
+        }
+    }
+
+    @Test
+    public void testStaticCombineManyErrors() {
+        for (int n = 1; n < 6; n++) {
+            CountingBooleanOutput[] cbos = new CountingBooleanOutput[n];
+            for (int i = 0; i < n; i++) {
+                cbos[i] = new CountingBooleanOutput();
+            }
+            for (int bad = 0; bad < 4 * n * n; bad++) {
+                boolean[] evils = new boolean[n];
+                int evil_count = 0;
+                BooleanOutput[] reals = new BooleanOutput[n];
+                System.arraycopy(cbos, 0, reals, 0, n);
+                for (int i = 0; i < n; i++) {
+                    evils[i] = Values.getRandomBoolean();
+                    if (evils[i]) {
+                        evil_count++;
+                        reals[i] = evil;
+                    }
+                }
+                BooleanOutput combined = BooleanOutput.combine(reals);
+                for (int l = 0; l < 10; l++) {
+                    for (int i = 0; i < n; i++) {
+                        cbos[i].ifExpected = !evils[i];
+                        cbos[i].valueExpected = l % 2 == 0;
+                    }
+                    try {
+                        combined.set(l % 2 == 0);
+                        assertEquals(0, evil_count);
+                    } catch (NoSuchElementException ex) {
+                        Throwable[] suppressed = ex.getSuppressed();
+                        assertEquals(evil_count - 1, suppressed.length);
+                        for (int i = 0; i < suppressed.length; i++) {
+                            assertTrue(suppressed[i] instanceof NoSuchElementException);
+                        }
+                    }
+                    for (int i = 0; i < n; i++) {
+                        cbos[i].check();
+                    }
+                }
+            }
+        }
     }
 }

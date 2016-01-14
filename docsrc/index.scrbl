@@ -1423,6 +1423,19 @@ This combines two @jcode-inline{EventOutput}s into a single @jcode-inline{EventO
     b.event();
 }
 
+@jmethod[EventOutput static (EventOutput combine) (EventOutput event) #:vararg "setup"]
+
+This combines a set of @jcode-inline{EventOutput}s into a single @jcode-inline{EventOutput}, so that firing the result would fire all of the outputs.
+
+@jcode{
+    EventOutput merged = EventOutput.combine(a, b);
+    // then this would be equivalent:
+    merged.event();
+    // to this:
+    a.event();
+    b.event();
+}
+
 @jmethod*[(EventOutput (EventOutput filter) (BooleanInput allow))
           (EventOutput (EventOutput filterNot) (BooleanInput deny))
           "setup"]
@@ -1538,6 +1551,19 @@ This combines two @jcode-inline{BooleanOutput}s into a single @jcode-inline{Bool
 
 @jcode{
     BooleanOutput merged = a.combine(b);
+    // then this would be equivalent:
+    merged.set(true);
+    // to this:
+    a.set(true);
+    b.set(true);
+}
+
+@jmethod[BooleanOutput static (BooleanOutput combine) (BooleanOutput output) #:vararg "setup"]
+
+This combines a set of @jcode-inline{BooleanOutput}s into a single @jcode-inline{BooleanOutput}, so that setting the result to a value would set all of the original outputs to that value.
+
+@jcode{
+    BooleanOutput merged = BooleanOutput.combine(a, b);
     // then this would be equivalent:
     merged.set(true);
     // to this:
@@ -1814,7 +1840,7 @@ This means that @jcode-inline{a.and(b).get() == (a.get() || b.get())}.
 
 @jmethod[FloatOutput (FloatOutput negate) "setup"]
 
-This is an negated version of the original @jcode-inline{FloatOutput}.
+This is a negated version of the original @jcode-inline{FloatOutput}.
 
 @jcode{
     FloatOutput inv = a.negate();
@@ -1824,12 +1850,40 @@ This is an negated version of the original @jcode-inline{FloatOutput}.
     a.set(-1.0f);
 }
 
+@jmethod[FloatOutput (FloatOutput negateIf) (BooleanInput negate) "setup"]
+
+This is either equivalent to the original @jcode-inline{FloatOutput} or a negated version of the original @jcode-inline{FloatOutput}.
+
+@jcode{
+    FloatOutput inv = a.negateIf(neg);
+    // so then this is equivalent
+    inv.set(1.0f);
+    // to this:
+    a.set(-1.0f);
+    // if neg.get() == true or
+    a.set(1.0f);
+    // if neg.get() == false
+}
+
 @jmethod[FloatOutput (FloatOutput combine) (FloatOutput other) "setup"]
 
 This combines two @jcode-inline{FloatOutput}s into a single @jcode-inline{FloatOutput}, so that setting the result to a value would set both of the original outputs to that value.
 
 @jcode{
     FloatOutput merged = a.combine(b);
+    // then this would be equivalent:
+    merged.set(0.3f);
+    // to this:
+    a.set(0.3f);
+    b.set(0.3f);
+}
+
+@jmethod[FloatOutput static (FloatOutput combine) (FloatOutput output) #:vararg "setup"]
+
+This combines a set of @jcode-inline{FloatOutput}s into a single @jcode-inline{FloatOutput}, so that setting the result to a value would set all of the original outputs to that value.
+
+@jcode{
+    FloatOutput merged = FloatOutput.combine(a, b);
     // then this would be equivalent:
     merged.set(0.3f);
     // to this:
@@ -2096,6 +2150,21 @@ Provides a @jcode-inline{FloatInput} that is the negated version of this @jcode-
     negated.get()
     // is equivalent to
     -original.get()
+}
+
+@jmethod[FloatInput (FloatInput negatedIf) (BooleanInput negate) "setup"]
+
+Provides a @jcode-inline{FloatInput} that is either equivalent to this @jcode-inline{FloatInput} or the negated version of this @jcode-inline{FloatInput}, based on the @jcode-inline{negate} argument.
+
+@jcode{
+    FloatInput negated = original.negatedIf(neg);
+    // and then:
+    negated.get()
+    // is equivalent to
+    -original.get()
+    // if neg.get() == true or
+    original.get()
+    // if neg.get() == false
 }
 
 @jmethod[EventInput (FloatInput onChange) "setup"]

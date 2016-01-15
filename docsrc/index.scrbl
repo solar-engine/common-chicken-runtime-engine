@@ -1483,6 +1483,22 @@ This @jcode-inline{EventOutput} ignores all events sent to it.
     // is equivalent to doing absolutely nothing.
 }
 
+@jmethod[EventIO (EventOutput cell) "setup"]
+
+@jcode-inline{cell} converts a @jcode-inline{EventOutput} into a @jcode-inline{EventIO}.
+
+This is equivalent to wrapping a new @jcode-inline{EventCell} around this @jcode-inline{EventOutput}, but can be more efficient in some cases, and is sometimes more concise.
+
+@jcode{
+    EventCell ec = new EventCell();
+    EventIO ec2 = ec.cell();
+    // then ec2 == ec
+
+    EventOutput eo = /* some normal output */;
+    EventIO ec3 = eo.cell();
+    // then ec3 is equivalent to new EventCell(eo)
+}
+
 @subsubsection{EventInputs}
 
 @jmethod[EventInput (EventInput or) (EventInput other) "setup"]
@@ -1708,6 +1724,22 @@ This is a BooleanOutput that ignores all values sent to it.
 @jcode{
     BooleanOutput.ignored.set(false);
     // is equivalent to absolutely nothing!
+}
+
+@jmethod[BooleanIO (BooleanOutput cell) (boolean default_value) "setup"]
+
+@jcode-inline{cell} converts a @jcode-inline{BooleanOutput} into a @jcode-inline{BooleanIO} and sets its initial value.
+
+This is equivalent to wrapping a new @jcode-inline{BooleanCell} around this @jcode-inline{BooleanOutput}, but can be more efficient in some cases, and is sometimes more concise.
+
+@jcode{
+    BooleanCell bc = new BooleanCell();
+    BooleanIO bc2 = c.cell(true);
+    // then bc2 == bc and bc is set to true
+
+    BooleanOutput bo = /* some normal output */;
+    BooleanIO bc3 = bo.cell(false);
+    // then bc3 is equivalent to new BooleanCell(bo)
 }
 
 @subsubsection{BooleanInputs}
@@ -2090,6 +2122,22 @@ This is a FloatOutput that ignores all values sent to it.
 @jcode{
     FloatOutput.ignored.set(1.0f);
     // is equivalent to absolutely nothing!
+}
+
+@jmethod[FloatIO (FloatOutput cell) (float default_value) "setup"]
+
+@jcode-inline{cell} converts a @jcode-inline{FloatOutput} into a @jcode-inline{FloatIO} and sets its initial value.
+
+This is equivalent to wrapping a new @jcode-inline{FloatCell} around this @jcode-inline{FloatOutput}, but can be more efficient in some cases, and is sometimes more concise.
+
+@jcode{
+    FloatCell fc = new FloatCell();
+    FloatIO fc2 = fc.cell(0.0f);
+    // then fc2 == fc and fc is set to 0.0f
+
+    FloatOutput fo = /* some normal output */;
+    FloatIO fc3 = fo.cell(0.0f);
+    // then fc3 is equivalent to new FloatCell(fo)
 }
 
 @subsubsection{FloatInputs}

@@ -386,4 +386,18 @@ public class EventOutputTest {
             }
         }
     }
+
+    @Test
+    public void testCell() {
+        EventOutput out = ceo::event;
+        EventIO eio = out.cell();
+        eio.send(ceo2);
+        for (int i = 0; i < 10; i++) {
+            ceo.ifExpected = true;
+            ceo2.ifExpected = true;
+            eio.event();
+            ceo2.check();
+            ceo.check();
+        }
+    }
 }

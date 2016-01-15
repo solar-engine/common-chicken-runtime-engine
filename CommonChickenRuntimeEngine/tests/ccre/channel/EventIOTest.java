@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 Colby Skeggs
+ * Copyright 2015-2016 Colby Skeggs
  *
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  *
@@ -18,6 +18,7 @@
  */
 package ccre.channel;
 
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
@@ -59,5 +60,10 @@ public class EventIOTest {
     @Test
     public void testAsInput() {
         assertEquals(io, io.asInput());
+    }
+
+    @Test
+    public void testCell() {
+        assertTrue(io.cell() == io);
     }
 }

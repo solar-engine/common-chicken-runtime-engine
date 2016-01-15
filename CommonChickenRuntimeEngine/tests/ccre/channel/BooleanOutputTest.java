@@ -516,4 +516,28 @@ public class BooleanOutputTest {
             }
         }
     }
+
+    @Test
+    public void testCell() {
+        for (boolean ob : Values.interestingBooleans) {
+            BooleanOutput out = cbo::set;
+            cbo.ifExpected = true;
+            cbo.valueExpected = ob;
+            BooleanIO bio = out.cell(ob);
+            cbo.check();
+            cbo2.ifExpected = true;
+            cbo2.valueExpected = ob;
+            bio.send(cbo2);
+            cbo2.check();
+            for (int i = 0; i < 20; i++) {
+                boolean b = Values.getRandomBoolean();
+                cbo.ifExpected = cbo2.ifExpected = bio.get() != b;
+                cbo.valueExpected = cbo2.valueExpected = b;
+                bio.set(b);
+                cbo2.check();
+                cbo.check();
+                assertEquals(b, bio.get());
+            }
+        }
+    }
 }

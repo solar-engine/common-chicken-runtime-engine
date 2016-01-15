@@ -673,4 +673,28 @@ public class FloatOutputTest {
     public void testNegateIfNull() {
         fs.negateIf(null);
     }
+
+    @Test
+    public void testCell() {
+        for (float of : Values.interestingFloats) {
+            FloatOutput out = cfo::set;
+            cfo.ifExpected = true;
+            cfo.valueExpected = of;
+            FloatIO fio = out.cell(of);
+            cfo.check();
+            cfo2.ifExpected = true;
+            cfo2.valueExpected = of;
+            fio.send(cfo2);
+            cfo2.check();
+            for (int i = 0; i < 20; i++) {
+                float f = Values.getRandomFloat();
+                cfo.ifExpected = cfo2.ifExpected = Float.floatToIntBits(fio.get()) != Float.floatToIntBits(f);
+                cfo.valueExpected = cfo2.valueExpected = f;
+                fio.set(f);
+                cfo2.check();
+                cfo.check();
+                assertEquals(f, fio.get(), 0);
+            }
+        }
+    }
 }

@@ -1483,6 +1483,22 @@ This @jcode-inline{EventOutput} ignores all events sent to it.
     // is equivalent to doing absolutely nothing.
 }
 
+@jmethod[EventIO (EventOutput cell) "setup"]
+
+@jcode-inline{cell} converts a @jcode-inline{EventOutput} into a @jcode-inline{EventIO}.
+
+This is equivalent to wrapping a new @jcode-inline{EventCell} around this @jcode-inline{EventOutput}, but can be more efficient in some cases, and is sometimes more concise.
+
+@jcode{
+    EventCell ec = new EventCell();
+    EventIO ec2 = ec.cell();
+    // then ec2 == ec
+
+    EventOutput eo = /* some normal output */;
+    EventIO ec3 = eo.cell();
+    // then ec3 is equivalent to new EventCell(eo)
+}
+
 @subsubsection{EventInputs}
 
 @jmethod[EventInput (EventInput or) (EventInput other) "setup"]
@@ -1708,6 +1724,22 @@ This is a BooleanOutput that ignores all values sent to it.
 @jcode{
     BooleanOutput.ignored.set(false);
     // is equivalent to absolutely nothing!
+}
+
+@jmethod[BooleanIO (BooleanOutput cell) (boolean default_value) "setup"]
+
+@jcode-inline{cell} converts a @jcode-inline{BooleanOutput} into a @jcode-inline{BooleanIO} and sets its initial value.
+
+This is equivalent to wrapping a new @jcode-inline{BooleanCell} around this @jcode-inline{BooleanOutput}, but can be more efficient in some cases, and is sometimes more concise.
+
+@jcode{
+    BooleanCell bc = new BooleanCell();
+    BooleanIO bc2 = c.cell(true);
+    // then bc2 == bc and bc is set to true
+
+    BooleanOutput bo = /* some normal output */;
+    BooleanIO bc3 = bo.cell(false);
+    // then bc3 is equivalent to new BooleanCell(bo)
 }
 
 @subsubsection{BooleanInputs}
@@ -2092,6 +2124,22 @@ This is a FloatOutput that ignores all values sent to it.
     // is equivalent to absolutely nothing!
 }
 
+@jmethod[FloatIO (FloatOutput cell) (float default_value) "setup"]
+
+@jcode-inline{cell} converts a @jcode-inline{FloatOutput} into a @jcode-inline{FloatIO} and sets its initial value.
+
+This is equivalent to wrapping a new @jcode-inline{FloatCell} around this @jcode-inline{FloatOutput}, but can be more efficient in some cases, and is sometimes more concise.
+
+@jcode{
+    FloatCell fc = new FloatCell();
+    FloatIO fc2 = fc.cell(0.0f);
+    // then fc2 == fc and fc is set to 0.0f
+
+    FloatOutput fo = /* some normal output */;
+    FloatIO fc3 = fo.cell(0.0f);
+    // then fc3 is equivalent to new FloatCell(fo)
+}
+
 @subsubsection{FloatInputs}
 
 @jmethod[FloatInput static (FloatInput always) (float value) "setup"]
@@ -2210,6 +2258,18 @@ Provides a @jcode-inline{FloatInput} that is either equivalent to this @jcode-in
     // if neg.get() == true or
     original.get()
     // if neg.get() == false
+}
+
+@jmethod[FloatInput (FloatInput absolute) "setup"]
+
+Provides a @jcode-inline{FloatInput} that is the absolute value version of this @jcode-inline{FloatInput}.
+
+@jcode{
+    FloatInput abs = original.absolute();
+    // and then:
+    abs.get()
+    // is equivalent to
+    Math.abs(original.get())
 }
 
 @jmethod[EventInput (FloatInput onChange) "setup"]
@@ -2625,6 +2685,23 @@ You can pass any @jcode-inline{BooleanInput} you want to the constructor, and th
 Equivalently to the previous example, you can construct an @jcode-inline{InstinctModule} without any parameters and then call @jcode-inline{setShouldBeRunning} later with the same value.
 
 This means that @jcode-inline{FRC.registerAutonomous(module)} is actually just a call to @jcode-inline{module.setShouldBeRunning}!
+
+@jmethod[BooleanIO (InstinctModule controlIO) "setup"]
+
+Besides @jcode-inline{setShouldBeRunning}, you can also use @jcode-inline{controlIO}, which provides you with a @jcode-inline{BooleanIO} representing whether the module should be running.
+
+Note that you cannot provide multiple sources of control to an InstinctModule, across all of the three ways.
+
+@jcode{
+    InstinctModule mod = new InstinctModule() { /* ... */ };
+    BooleanIO run = mod.controlIO;
+
+    run.set(true); // start the code; run.get() == true now
+    run.toggle(); // stop the code; run.get() == false now
+    run.toggle(); // start the code; run.get() == true now
+    run.set(true); // do nothing
+    run.set(false); // stop the code; run.get() == false now
+}
 
 @subsubsection{Instinct MultiModules}
 

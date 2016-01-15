@@ -496,6 +496,15 @@ public class FloatInputTest {
     }
 
     @Test
+    public void testAbsolute() {
+        FloatInput abs = fs.absolute();
+        for (float v : Values.interestingFloats) {
+            fs.set(v);
+            assertEquals(Math.abs(v), abs.get(), 0);
+        }
+    }
+
+    @Test
     public void testOnChange() {
         CountingEventOutput ceo = new CountingEventOutput();
         fs.onChange().send(ceo);

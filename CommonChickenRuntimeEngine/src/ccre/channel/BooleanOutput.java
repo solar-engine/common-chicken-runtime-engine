@@ -351,4 +351,19 @@ public interface BooleanOutput {
     public default BooleanOutput filterNot(BooleanInput deny) {
         return this.filter(deny.not());
     }
+
+    /**
+     * Returns a BooleanIO version of this value. If it is already a BooleanIO,
+     * it will be returned directly. If it is not, a new BooleanCell will be
+     * created around this BooleanOutput.
+     *
+     * @param default_value the initial value for the returned BooleanIO, which
+     * will also be sent to this BooleanOutput immediately
+     * @return a new IO
+     */
+    public default BooleanIO cell(boolean default_value) {
+        BooleanIO bio = new BooleanCell(default_value);
+        bio.send(this);
+        return bio;
+    }
 }

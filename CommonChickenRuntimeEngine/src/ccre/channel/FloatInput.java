@@ -698,5 +698,15 @@ public interface FloatInput extends UpdatingInput {
         return negate.toFloat(this, this.negated());
     }
 
+    /**
+     * Provides a FloatInput whose value is this FloatInput's value, but
+     * always positive, or in other words an absolute value.
+     *
+     * @return the absolute value version of this FloatInput.
+     */
+    public default FloatInput absolute() {
+        return FloatFilter.absolute.wrap(this);
+    }
+
     // TODO: integrals!
 }

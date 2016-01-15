@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2015 Colby Skeggs
+ * Copyright 2013-2016 Colby Skeggs
  *
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  *
@@ -29,12 +29,22 @@ import ccre.util.Utils;
 public abstract class FloatFilter {
 
     /**
-     * A FloatFilter that negates a value.
+     * A FloatFilter that negates the value.
      */
     public static final FloatFilter negate = new FloatFilter() {
         @Override
         public float filter(float input) {
             return -input;
+        }
+    };
+
+    /**
+     * A FloatFilter that makes values positive.
+     */
+    public static final FloatFilter absolute = new FloatFilter() {
+        @Override
+        public float filter(float input) {
+            return Math.abs(input);
         }
     };
 

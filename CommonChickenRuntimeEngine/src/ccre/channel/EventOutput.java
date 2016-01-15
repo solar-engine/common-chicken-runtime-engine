@@ -205,4 +205,15 @@ public interface EventOutput {
     public default CancelOutput on(EventInput when) {
         return when.send(this);
     }
+
+    /**
+     * Returns a EventIO version of this event. If it is already a EventIO, it
+     * will be returned directly. If it is not, a new EventCell will be created
+     * around this EventOutput.
+     *
+     * @return a new IO
+     */
+    public default EventIO cell() {
+        return new EventCell(this);
+    }
 }

@@ -432,4 +432,19 @@ public interface FloatOutput {
 
         };
     }
+
+    /**
+     * Returns a FloatIO version of this value. If it is already a FloatIO, it
+     * will be returned directly. If it is not, a new FloatCell will be created
+     * around this FloatOutput.
+     *
+     * @param default_value the initial value for the returned FloatIO, which
+     * will also be sent to this FloatOutput immediately
+     * @return a new IO
+     */
+    public default FloatIO cell(float default_value) {
+        FloatIO fio = new FloatCell(default_value);
+        fio.send(this);
+        return fio;
+    }
 }

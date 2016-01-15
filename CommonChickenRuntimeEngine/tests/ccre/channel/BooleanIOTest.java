@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 Colby Skeggs
+ * Copyright 2015-2016 Colby Skeggs
  *
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  *
@@ -19,11 +19,15 @@
 package ccre.channel;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+
+import ccre.testing.CountingBooleanOutput;
+import ccre.util.Values;
 
 @SuppressWarnings("javadoc")
 public class BooleanIOTest {
@@ -95,6 +99,22 @@ public class BooleanIOTest {
                 toggleEvent.event();
                 assertEquals(wanted, io.get());
             }
+        }
+    }
+
+    @Test
+    public void testCell() {
+        BooleanIO c = new BooleanCell();
+        CountingBooleanOutput cbo = new CountingBooleanOutput();
+        cbo.ifExpected = true;
+        cbo.valueExpected = false;
+        c.send(cbo);
+        cbo.check();
+        for (boolean b : Values.interestingBooleans) {
+            cbo.ifExpected = b != cbo.valueExpected;
+            cbo.valueExpected = b;
+            assertTrue(c.cell(b) == c);
+            cbo.check();
         }
     }
 }

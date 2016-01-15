@@ -2212,6 +2212,18 @@ Provides a @jcode-inline{FloatInput} that is either equivalent to this @jcode-in
     // if neg.get() == false
 }
 
+@jmethod[FloatInput (FloatInput absolute) "setup"]
+
+Provides a @jcode-inline{FloatInput} that is the absolute value version of this @jcode-inline{FloatInput}.
+
+@jcode{
+    FloatInput abs = original.absolute();
+    // and then:
+    abs.get()
+    // is equivalent to
+    Math.abs(original.get())
+}
+
 @jmethod[EventInput (FloatInput onChange) "setup"]
 
 Provides an @jcode-inline{EventInput} that fires whenever this @jcode-inline{FloatInput} changes by any amount.

@@ -29,12 +29,22 @@ import ccre.util.Utils;
 public abstract class FloatFilter {
 
     /**
-     * A FloatFilter that negates a value.
+     * A FloatFilter that negates the value.
      */
     public static final FloatFilter negate = new FloatFilter() {
         @Override
         public float filter(float input) {
             return -input;
+        }
+    };
+
+    /**
+     * A FloatFilter that makes values positive.
+     */
+    public static final FloatFilter absolute = new FloatFilter() {
+        @Override
+        public float filter(float input) {
+            return Math.abs(input);
         }
     };
 

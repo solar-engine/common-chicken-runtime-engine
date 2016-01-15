@@ -181,4 +181,12 @@ public class FloatFilterTest {
             assertEquals(f, FloatFilter.negate.filter(-f), 0);
         }
     }
+
+    @Test
+    public void testAbsolute() {
+        for (float f : Values.interestingFloats) {
+            assertEquals(Math.abs(f), FloatFilter.absolute.filter(f), 0);
+            assertEquals(Math.abs(f), FloatFilter.absolute.filter(-f), 0);
+        }
+    }
 }

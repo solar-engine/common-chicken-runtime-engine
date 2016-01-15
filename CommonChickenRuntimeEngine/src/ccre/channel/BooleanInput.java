@@ -239,6 +239,16 @@ public interface BooleanInput extends UpdatingInput {
     }
 
     /**
+     * Fires an EventOutput exactly once for each time that the BooleanInput
+     * changes from false to true.
+     *
+     * @param event the event to fire
+     */
+    public default void onPress(EventOutput event) {
+        onPress().send(event);
+    }
+
+    /**
      * Provides an EventInput that is produced exactly once for each time that
      * the BooleanInput changes from true to false.
      *
@@ -254,6 +264,16 @@ public interface BooleanInput extends UpdatingInput {
     }
 
     /**
+     * Fires an EventOutput exactly once for each time that the BooleanInput
+     * changes from true to false.
+     *
+     * @param event the event to fire
+     */
+    public default void onRelease(EventOutput event) {
+        onRelease().send(event);
+    }
+
+    /**
      * Provides an EventInput that is produced exactly once for each time that
      * the BooleanInput changes between true and false.
      *
@@ -266,6 +286,16 @@ public interface BooleanInput extends UpdatingInput {
                 return true;
             }
         };
+    }
+
+    /**
+     * Fires an EventOutput exactly once for each time that the BooleanInput
+     * changes between true and false.
+     *
+     * @param event the event to fire
+     */
+    public default void onChange(EventOutput event) {
+        onChange().send(event);
     }
 
     /**

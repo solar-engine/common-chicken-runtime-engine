@@ -338,7 +338,7 @@ public class BooleanInputTest {
         for (boolean b : new boolean[] { false, true }) {
             BooleanCell a = new BooleanCell(b);
             CountingEventOutput ceo = new CountingEventOutput();
-            a.onPress().send(ceo);
+            a.onPress(ceo);
             for (int i = 0; i < 5; i++) {
                 a.set(false);
                 ceo.ifExpected = true;
@@ -351,7 +351,7 @@ public class BooleanInputTest {
     @Test
     public void testOnPressNoRepeat() {
         CountingEventOutput ceo = new CountingEventOutput();
-        bi.onPress().send(ceo);
+        bi.onPress(ceo);
 
         for (int i = 0; i < 10; i++) {
             result = true;
@@ -380,7 +380,7 @@ public class BooleanInputTest {
         for (boolean b : new boolean[] { false, true }) {
             BooleanCell a = new BooleanCell(b);
             CountingEventOutput ceo = new CountingEventOutput();
-            a.onRelease().send(ceo);
+            a.onRelease(ceo);
             for (int i = 0; i < 5; i++) {
                 a.set(true);
                 ceo.ifExpected = true;
@@ -393,7 +393,7 @@ public class BooleanInputTest {
     @Test
     public void testOnReleaseNoRepeat() {
         CountingEventOutput ceo = new CountingEventOutput();
-        bi.onRelease().send(ceo);
+        bi.onRelease(ceo);
 
         for (int i = 0; i < 10; i++) {
             result = false;
@@ -420,7 +420,7 @@ public class BooleanInputTest {
     @Test
     public void testOnChange() {
         CountingEventOutput ceo = new CountingEventOutput();
-        bi.onChange().send(ceo);
+        bi.onChange(ceo);
 
         for (int i = 0; i < 10; i++) {
             result = true;

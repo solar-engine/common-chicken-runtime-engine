@@ -1774,11 +1774,36 @@ This means that @jcode-inline{a.and(b).get() == (a.get() || b.get())}.
     // ...
     input.set(true);  // press fires; change fires
     input.set(false); // release fires; change fires
-    input.set(false);    // nothing happens
+    input.set(false);   // nothing happens
     input.set(true);  // press fires; change fires
     input.set(true);    // nothing happens
     input.set(false); // release fires; change fires
     input.set(true);  // press fires; change fires
+}
+
+@jmethod*[(void (BooleanInput onPress) (EventOutput event))
+          (void (BooleanInput onRelease) (EventOutput event))
+          (void (BooleanInput onChange) (EventOutput event)) "setup"]
+
+@jcode-inline{onPress} fires @jcode-inline{event} whenever this @jcode-inline{BooleanInput} changes from @jcode-inline{false} to @jcode-inline{true}.
+
+@jcode-inline{onRelease} is the same, but for when @jcode-inline{true} changes to @jcode-inline{false}.
+
+@jcode-inline{onChange} is similar, but happens whenever any change occurs.
+
+@jcode{
+    BooleanCell input = new BooleanCell(false);
+    input.onPress(press);
+    input.onRelease(release);
+    input.onChange(change);
+    // ...
+    input.set(true);  // press is fired; change is fired
+    input.set(false); // release is fired; change is fired
+    input.set(false);   // nothing happens
+    input.set(true);  // press is fired; change is fired
+    input.set(true);    // nothing happens
+    input.set(false); // release is fired; change is fired
+    input.set(true);  // press is fired; change is fired
 }
 
 @jmethod*[(FloatInput (BooleanInput toFloat) (float off) (float on))
@@ -1799,6 +1824,26 @@ This means that @jcode-inline{a.and(b).get() == (a.get() || b.get())}.
     // converted is 0.75
     input.set(false);
     // converted is 0.0
+}
+
+@jmethod*[(BooleanInput (BooleanInput select) (boolean off) (boolean on))
+          (BooleanInput (BooleanInput select) (boolean off) (BooleanInput on))
+          (BooleanInput (BooleanInput select) (BooleanInput off) (boolean on))
+          (BooleanInput (BooleanInput select) (BooleanInput off) (BooleanInput on))
+          "setup"]
+
+@jcode-inline{select} provides a @jcode-inline{BooleanInput} with a value selected from one of two other @jcode-inline{boolean}s or @jcode-inline{BooleanInput}s.
+
+@jcode{
+    BooleanCell input = new BooleanCell(false);
+    BooleanInput converted = input.select(a, b);
+    // ...
+
+    // converted is a.get()
+    input.set(true);
+    // converted is b.get()
+    input.set(false);
+    // converted is a.get()
 }
 
 @jmethod*[(BooleanInput (BooleanInput filterUpdates) (BooleanInput allow))

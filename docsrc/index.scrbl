@@ -2686,6 +2686,23 @@ Equivalently to the previous example, you can construct an @jcode-inline{Instinc
 
 This means that @jcode-inline{FRC.registerAutonomous(module)} is actually just a call to @jcode-inline{module.setShouldBeRunning}!
 
+@jmethod[BooleanIO (InstinctModule controlIO) "setup"]
+
+Besides @jcode-inline{setShouldBeRunning}, you can also use @jcode-inline{controlIO}, which provides you with a @jcode-inline{BooleanIO} representing whether the module should be running.
+
+Note that you cannot provide multiple sources of control to an InstinctModule, across all of the three ways.
+
+@jcode{
+    InstinctModule mod = new InstinctModule() { /* ... */ };
+    BooleanIO run = mod.controlIO;
+
+    run.set(true); // start the code; run.get() == true now
+    run.toggle(); // stop the code; run.get() == false now
+    run.toggle(); // start the code; run.get() == true now
+    run.set(true); // do nothing
+    run.set(false); // stop the code; run.get() == false now
+}
+
 @subsubsection{Instinct MultiModules}
 
 In progress.

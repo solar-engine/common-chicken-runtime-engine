@@ -78,7 +78,7 @@ public final class DirectFRCImplementation implements FRCImplementation {
                 version.delete();
             }
             try (FileOutputStream output = new FileOutputStream(version)) {
-                output.write(("CCRE " + Version.getShortVersion() + ": 2015 Java 1.0.0").getBytes("UTF-8"));
+                output.write(("CCRE " + Version.getShortVersion() + " by Team 1540").getBytes("UTF-8"));
             }
         } catch (IOException ex) {
             Logger.warning("Could not write version file", ex);

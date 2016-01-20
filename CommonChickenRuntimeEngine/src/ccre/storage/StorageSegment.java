@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2015 Colby Skeggs
+ * Copyright 2013-2016 Colby Skeggs
  *
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  *
@@ -75,11 +75,11 @@ public final class StorageSegment {
         }
     }
 
-    StorageSegment(String name) {
-        if (name == null) {
+    StorageSegment(String unescaped_name) {
+        if (unescaped_name == null) {
             throw new NullPointerException("Storage names cannot be null");
         }
-        StringBuffer buf = new StringBuffer(name);
+        StringBuffer buf = new StringBuffer(unescaped_name);
         for (int i = buf.length() - 1; i >= 0; i--) {
             char c = buf.charAt(i);
             if (c == ' ') {

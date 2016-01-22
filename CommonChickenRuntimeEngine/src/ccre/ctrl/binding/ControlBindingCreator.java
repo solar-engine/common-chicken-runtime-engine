@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 Colby Skeggs
+ * Copyright 2015-2016 Colby Skeggs
  *
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  *
@@ -18,8 +18,12 @@
  */
 package ccre.ctrl.binding;
 
+import ccre.channel.BooleanCell;
+import ccre.channel.BooleanIO;
 import ccre.channel.BooleanInput;
 import ccre.channel.BooleanOutput;
+import ccre.channel.EventInput;
+import ccre.channel.EventOutput;
 import ccre.channel.FloatInput;
 import ccre.channel.FloatOutput;
 
@@ -64,4 +68,84 @@ public interface ControlBindingCreator {
      * @return a FloatInput controlled by the user
      */
     public FloatInput addFloat(String name);
+
+    /**
+     * Make the specified EventOutput controllable by the user under the
+     * specified name. (This will be mapped to a boolean button internally.)
+     *
+     * @param name the name of the control binding.
+     * @param output the output to let the user control.
+     */
+    public default void addEvent(String name, EventOutput output) {
+        addBoolean(name, BooleanOutput.polarize(null, output));
+    }
+
+    /**
+     * Provide an EventInput controllable by the user under the specified name.
+     * (This will be mapped to a boolean button internally.)
+     *
+     * @param name the name of the control binding.
+     * @return an EventInput controlled by the user
+     */
+    public default EventInput addEvent(String name) {
+        return addBoolean(name).onPress();
+    }
+
+    /**
+     * Make the specified BooleanIO controllable by the user under the specified
+     * three names by toggling and setting true and false. (This will be mapped
+     * to boolean button press events internally.)
+     *
+     * @param setTrue the binding name for setting true.
+     * @param setFalse the binding name for setting false.
+     * @param toggle the binding name for toggling.
+     * @param io the IO to let the user control.
+     */
+    public default void addToggleButton(String setTrue, String setFalse, String toggle, BooleanIO io) {
+        addEvent(setTrue, io.eventSet(true));
+        addEvent(setFalse, io.eventSet(false));
+        addEvent(toggle, io.eventToggle());
+    }
+
+    /**
+     * Make the specified BooleanIO controllable by the user under the specified
+     * name by toggling and setting true and false. (This will be mapped to
+     * three boolean button press events internally.)
+     *
+     * @param name the name of the control binding.
+     * @param io the IO to let the user control.
+     */
+    public default void addToggleButton(String name, BooleanIO io) {
+        addToggleButton(name + " Set", name + " Reset", name + " Toggle", io);
+    }
+
+    /**
+     * Provide a BooleanIO controllable by the user under the specified three
+     * names by toggling and setting true and false. (This will be mapped to
+     * three boolean button press events internally.)
+     *
+     * @param setTrue the binding name for setting true.
+     * @param setFalse the binding name for setting false.
+     * @param toggle the binding name for toggling.
+     * @return an EventInput controlled by the user
+     */
+    public default BooleanIO addToggleButton(String setTrue, String setFalse, String toggle) {
+        BooleanIO out = new BooleanCell();
+        addToggleButton(setTrue, setFalse, toggle, out);
+        return out;
+    }
+
+    /**
+     * Provide a BooleanIO controllable by the user under the specified name by
+     * toggling and setting true and false. (This will be mapped to three
+     * boolean button press events internally.)
+     *
+     * @param name the name of the control binding.
+     * @return an EventInput controlled by the user
+     */
+    public default BooleanIO addToggleButton(String name) {
+        BooleanIO out = new BooleanCell();
+        addToggleButton(name, out);
+        return out;
+    }
 }

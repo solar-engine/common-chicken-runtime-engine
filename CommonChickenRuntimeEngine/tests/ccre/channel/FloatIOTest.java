@@ -26,7 +26,6 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import ccre.testing.CountingBooleanOutput;
 import ccre.testing.CountingFloatOutput;
 import ccre.util.Values;
 

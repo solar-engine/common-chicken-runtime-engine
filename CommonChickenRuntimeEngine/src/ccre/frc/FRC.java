@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2015 Colby Skeggs
+ * Copyright 2014-2016 Colby Skeggs
  * Copyright 2015 Jake Springer
  *
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
@@ -583,7 +583,7 @@ public class FRC {
      * @return the input.
      */
     public static BooleanInput inTeleopMode() {
-        return impl.getIsTest().or(impl.getIsAutonomous()).not();
+        return impl.getIsTest().or(impl.getIsAutonomous()).not().andNot(impl.getIsDisabled());
     }
 
     /**

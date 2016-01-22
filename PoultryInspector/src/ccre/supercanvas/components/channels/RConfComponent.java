@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2015 Colby Skeggs.
+ * Copyright 2014-2016 Colby Skeggs.
  *
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  *
@@ -291,6 +291,9 @@ public class RConfComponent extends DraggableBoxComponent {
         int relY = y - centerY + halfHeight - 5;
         if (relY >= 20) {
             for (RConf.Entry e : entries) {
+                if (e.type == RConf.F_AUTO_REFRESH) {
+                    continue;
+                }
                 relY -= 20;
                 if (relY < 20) {
                     return e.type == RConf.F_BUTTON || e.type == RConf.F_CLUCK_REF;

@@ -5,6 +5,9 @@ import ccre.deployment.DepEmulator;
 import ccre.deployment.DepProject;
 import ccre.deployment.DepRoboRIO;
 import ccre.deployment.DepTask;
+import ccre.deployment.RebuildBuilders;
+import ccre.deployment.eggs.DepEgg;
+import ccre.deployment.eggs.ArtifactDeployer;
 import ccre.frc.FRCApplication;
 
 /**
@@ -52,5 +55,18 @@ public class Deployment {
     public static void emulate() throws Exception {
         Artifact result = DepRoboRIO.buildProject(robotMain);
         DepEmulator.emulate(result);
+    }
+    
+    @DepTask
+    public static void layEgg() throws Exception {
+    	Artifact result = DepRoboRIO.buildProject(robotMain);
+    	DepEgg.layEgg(result, new ArtifactDeployer() {
+            @Override
+            public void deployArtifact(Artifact artifact) throws Exception {
+                try (DepRoboRIO.RIOShell rshell = DepRoboRIO.discoverAndVerify(robot.RobotTemplate.TEAM_NUMBER)) {
+                    rshell.downloadAndStart(artifact);
+                }
+            }
+    	});
     }
 }

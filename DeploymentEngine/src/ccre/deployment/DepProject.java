@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 Colby Skeggs.
+ * Copyright 2015 Colby Skeggs, 2016 Alexander Mackworth.
  *
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  *
@@ -136,4 +136,13 @@ public class DepProject {
     public static String name() {
         return root().getName();
     }
+    
+    /**
+     * Locates the DeploymentEngine's own jar.
+     * @return the File representing the DeploymentEngine jar.
+     */
+    public static File getDepEngineJar() {
+        return new File(DepProject.ccreProject("DeploymentEngine"), "DepEngine.jar");
+    }
+
 }

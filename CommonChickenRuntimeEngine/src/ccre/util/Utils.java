@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2015 Colby Skeggs
+ * Copyright 2013-2015 Colby Skeggs, 2016 Alexander Mackworth
  *
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  *
@@ -23,6 +23,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintStream;
 import java.io.UnsupportedEncodingException;
+import java.util.List;
 
 /**
  * A class for utilities that don't fit anywhere else.
@@ -193,6 +194,25 @@ public class Utils {
         } catch (UnsupportedEncodingException e) {
             throw new AssertionError("UTF-8 is unknown", e);
         }
+    }
+
+    public static String joinStrings(List<String> strings, String separator) {
+        if (strings == null || separator == null) {
+            throw new NullPointerException();
+        }
+        if (strings.isEmpty()) {
+            return "";
+        }
+
+        StringBuilder builder = new StringBuilder(strings.get(0));
+        for (String element : strings.subList(1, strings.size())) {
+            if (element == null) {
+                throw new NullPointerException();
+            }
+            builder.append(separator);
+            builder.append(element);
+        }
+        return builder.toString();
     }
 
     /**

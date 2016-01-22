@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 Colby Skeggs
+ * Copyright 2015 Colby Skeggs, 2016 Alexander Mackworth
  *
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  *
@@ -18,18 +18,17 @@
  */
 package ccre.util;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Random;
 
 import org.junit.Test;
 
 @SuppressWarnings("javadoc")
 public class UtilsTest {
-
     private void checkBytesToFloatFor(float f) {
         int ibits = Float.floatToIntBits(f);
         byte[] d = new byte[] { (byte) (ibits >> 24), (byte) (ibits >> 16), (byte) (ibits >> 8), (byte) ibits };
@@ -169,4 +168,60 @@ public class UtilsTest {
     public void testNullToStringThrowable() {
         assertNull(Utils.toStringThrowable(null));
     }
+
+    @Test
+    public void testJoinStrings() {
+        // TODO: generate lists of different lengths
+        String separator = Values.getRandomString();
+        List<String> pathComponents = Arrays.asList(Values.getRandomString(), Values.getRandomString(), Values.getRandomString());
+        String result = Utils.joinStrings(pathComponents, separator);
+        assertEquals(pathComponents.get(0) + separator + pathComponents.get(1) + separator + pathComponents.get(2), result);
+    }
+
+    @Test(expected = NullPointerException.class)
+    public void testJoinStringsNullStrings() {
+        Utils.joinStrings(null, ",");
+    }
+
+    @Test(expected = NullPointerException.class)
+    public void testJoinStringsNullSeparator() {
+        List<String> pathComponents = Arrays.asList("beginning", "middle", "end");
+        Utils.joinStrings(pathComponents, null);
+    }
+
+    @Test(expected = NullPointerException.class)
+    public void testJoinStringsBothArgumentsNull() {
+        Utils.joinStrings(null, null);
+    }
+
+    @Test
+    public void testJoinStringsEmptyArguments() {
+        for (int i = 0; i < 10; i++) {
+            String separator = Values.getRandomString();
+            List<String> pathComponents = Arrays.asList(Values.getRandomString(), Values.getRandomString(), Values.getRandomString());
+            assertEquals(Utils.joinStrings(new ArrayList<String>(), separator), "");
+            assertEquals(Utils.joinStrings(pathComponents, ""), pathComponents.get(0) + pathComponents.get(1) + pathComponents.get(2));
+        }
+    }
+
+    @Test(expected = NullPointerException.class)
+    public void testJoinStringsAllNullElements() {
+        Utils.joinStrings(Arrays.asList(null, null), ",");
+    }
+
+    @Test(expected = NullPointerException.class)
+    public void testJoinStringsNullElementBeginning() {
+        Utils.joinStrings(Arrays.asList(null, "middle", "end"), ",");
+    }
+
+    @Test(expected = NullPointerException.class)
+    public void testJoinStringsNullElementMiddle() {
+        Utils.joinStrings(Arrays.asList("beginning", null, "end"), ",");
+    }
+
+    @Test(expected = NullPointerException.class)
+    public void testJoinStringsNullElementEnd() {
+        Utils.joinStrings(Arrays.asList("beginning", "middle", null), ",");
+    }
+
 }

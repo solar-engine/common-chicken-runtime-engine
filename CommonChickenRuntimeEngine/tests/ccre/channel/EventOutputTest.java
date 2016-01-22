@@ -90,6 +90,16 @@ public class EventOutputTest {
     }
 
     @Test
+    public void testIgnoredCombine() {
+        assertEquals(ceo, EventOutput.ignored.combine(ceo));
+    }
+
+    @Test(expected = NullPointerException.class)
+    public void testIgnoredCombineNull() {
+        EventOutput.ignored.combine((EventOutput) null);
+    }
+
+    @Test
     public void testEvent() {
         for (int i = 0; i < 10; i++) {
             ceo.ifExpected = true;
@@ -112,6 +122,52 @@ public class EventOutputTest {
     @Test(expected = NullPointerException.class)
     public void testCombineNull() {
         ceo.combine(null);
+    }
+
+    @Test
+    public void testStaticCombineSimplification() {
+        assertEquals(EventOutput.combine(), EventOutput.ignored);
+        assertEquals(EventOutput.combine(new EventOutput[] { ceo }), ceo);
+    }
+
+    @Test
+    public void testStaticCombine() {
+        for (int n = 0; n < 20; n++) {
+            CountingEventOutput[] ceos = new CountingEventOutput[n];
+            for (int i = 0; i < n; i++) {
+                ceos[i] = new CountingEventOutput();
+            }
+            EventOutput combined = EventOutput.combine(ceos);
+            for (int l = 0; l < 10; l++) {
+                for (int i = 0; i < n; i++) {
+                    ceos[i].ifExpected = true;
+                }
+                combined.event();
+                for (int i = 0; i < n; i++) {
+                    ceos[i].check();
+                }
+            }
+        }
+    }
+
+    @Test(expected = NullPointerException.class)
+    public void testStaticCombineNull() {
+        EventOutput.combine((EventOutput[]) null);
+    }
+
+    @Test(expected = NullPointerException.class)
+    public void testStaticCombineNullElem() {
+        EventOutput.combine(new EventOutput[] { null });
+    }
+
+    @Test(expected = NullPointerException.class)
+    public void testStaticCombineNullEarlierElem() {
+        EventOutput.combine(null, ceo);
+    }
+
+    @Test(expected = NullPointerException.class)
+    public void testStaticCombineNullLaterElem() {
+        EventOutput.combine(ceo, null);
     }
 
     @Test
@@ -257,5 +313,91 @@ public class EventOutputTest {
             assertTrue(ex.getSuppressed()[0] instanceof NoSuchElementException);
         }
         assertTrue(errored);
+    }
+
+    @Test
+    public void testStaticCombineSingleError() {
+        for (int n = 1; n < 6; n++) {
+            CountingEventOutput[] ceos = new CountingEventOutput[n];
+            for (int i = 0; i < n; i++) {
+                ceos[i] = new CountingEventOutput();
+            }
+            for (int bad = 0; bad < n; bad++) {
+                EventOutput[] reals = new EventOutput[n];
+                System.arraycopy(ceos, 0, reals, 0, n);
+                reals[bad] = evil;
+                EventOutput combined = EventOutput.combine(reals);
+                for (int l = 0; l < 10; l++) {
+                    for (int i = 0; i < n; i++) {
+                        ceos[i].ifExpected = i != bad;
+                    }
+                    try {
+                        combined.event();
+                        fail();
+                    } catch (NoSuchElementException ex) {
+                        assertEquals(0, ex.getSuppressed().length);
+                    }
+                    for (int i = 0; i < n; i++) {
+                        ceos[i].check();
+                    }
+                }
+            }
+        }
+    }
+
+    @Test
+    public void testStaticCombineManyErrors() {
+        for (int n = 1; n < 6; n++) {
+            CountingEventOutput[] ceos = new CountingEventOutput[n];
+            for (int i = 0; i < n; i++) {
+                ceos[i] = new CountingEventOutput();
+            }
+            for (int bad = 0; bad < 4 * n * n; bad++) {
+                boolean[] evils = new boolean[n];
+                int evil_count = 0;
+                EventOutput[] reals = new EventOutput[n];
+                System.arraycopy(ceos, 0, reals, 0, n);
+                for (int i = 0; i < n; i++) {
+                    evils[i] = Values.getRandomBoolean();
+                    if (evils[i]) {
+                        evil_count++;
+                        reals[i] = evil;
+                    }
+                }
+                EventOutput combined = EventOutput.combine(reals);
+                for (int l = 0; l < 10; l++) {
+                    for (int i = 0; i < n; i++) {
+                        ceos[i].ifExpected = !evils[i];
+                    }
+                    try {
+                        combined.event();
+                        assertEquals(0, evil_count);
+                    } catch (NoSuchElementException ex) {
+                        Throwable[] suppressed = ex.getSuppressed();
+                        assertEquals(evil_count - 1, suppressed.length);
+                        for (int i = 0; i < suppressed.length; i++) {
+                            assertTrue(suppressed[i] instanceof NoSuchElementException);
+                        }
+                    }
+                    for (int i = 0; i < n; i++) {
+                        ceos[i].check();
+                    }
+                }
+            }
+        }
+    }
+
+    @Test
+    public void testCell() {
+        EventOutput out = ceo::event;
+        EventIO eio = out.cell();
+        eio.send(ceo2);
+        for (int i = 0; i < 10; i++) {
+            ceo.ifExpected = true;
+            ceo2.ifExpected = true;
+            eio.event();
+            ceo2.check();
+            ceo.check();
+        }
     }
 }

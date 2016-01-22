@@ -5,6 +5,9 @@ import ccre.deployment.DepEmulator;
 import ccre.deployment.DepProject;
 import ccre.deployment.DepRoboRIO;
 import ccre.deployment.DepTask;
+import ccre.deployment.RebuildBuilders;
+import ccre.deployment.eggs.DepEgg;
+import ccre.deployment.eggs.ArtifactDeployer;
 import ccre.frc.FRCApplication;
 
 /**
@@ -52,5 +55,25 @@ public class Deployment {
     public static void emulate() throws Exception {
         Artifact result = DepRoboRIO.buildProject(robotMain);
         DepEmulator.emulate(result);
+    }
+
+    /**
+     * A deployment task that packages a snapshot of your code such that it can
+     * be deployed to the robot by anyone, even if they don't have the CCRE set
+     * up.
+     *
+     * @throws Exception
+     */
+    @DepTask
+    public static void layEgg() throws Exception {
+        Artifact result = DepRoboRIO.buildProject(robotMain);
+        DepEgg.layEgg(result, new ArtifactDeployer() {
+            @Override
+            public void deployArtifact(Artifact artifact) throws Exception {
+                try (DepRoboRIO.RIOShell rshell = DepRoboRIO.discoverAndVerify(robot.RobotTemplate.TEAM_NUMBER)) {
+                    rshell.downloadAndStart(artifact);
+                }
+            }
+        });
     }
 }

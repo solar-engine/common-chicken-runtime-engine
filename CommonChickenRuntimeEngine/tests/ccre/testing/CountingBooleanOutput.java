@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2015 Colby Skeggs
+ * Copyright 2014-2016 Colby Skeggs
  *
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  *
@@ -18,6 +18,7 @@
  */
 package ccre.testing;
 
+import static org.junit.Assert.*;
 import ccre.channel.BooleanOutput;
 
 /**
@@ -52,11 +53,11 @@ public class CountingBooleanOutput implements BooleanOutput {
     public synchronized void set(boolean value) {
         if (!ifExpected) {
             anyUnexpected = true;
-            throw new RuntimeException("Unexpected set!");
+            fail("Unexpected set: " + value);
         }
         if (value != valueExpected) {
             anyUnexpected = true;
-            throw new RuntimeException("Incorrect set!");
+            fail("Incorrect set: " + value + " instead of " + valueExpected);
         }
         ifExpected = false;
     }
@@ -68,12 +69,10 @@ public class CountingBooleanOutput implements BooleanOutput {
      * @throws RuntimeException if a write did not occur.
      */
     public void check() throws RuntimeException {
-        if (anyUnexpected) {
-            throw new RuntimeException("Already failed earlier!");
-        }
+        assertFalse("Already failed earlier!", anyUnexpected);
         if (ifExpected) {
             anyUnexpected = true;
-            throw new RuntimeException("Did not get expected set!");
+            fail("Did not get expected set of " + valueExpected + "!");
         }
     }
 }

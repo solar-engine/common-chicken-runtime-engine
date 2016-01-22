@@ -2,7 +2,7 @@
 @require[pict]
 @require["proc.rkt"]
 
-@title{The Common Chicken Runtime Engine v3.1.0}
+@title{The Common Chicken Runtime Engine v3.2.0}
 
 The CCRE solves the problem of writing elegant and maintainable robot software
 by using a dataflow model and taking care of the infrastructure for your
@@ -54,7 +54,7 @@ Short version: import all of the projects from the CCRE repository into Eclipse 
 
 Long version:
 
-@itemlist[@item{Download the latest CCRE release either as a @hyperlink["https://github.com/flamingchickens1540/Common-Chicken-Runtime-Engine/archive/ccre-v3.1.0.tar.gz"]{tar.gz} or a @hyperlink["https://github.com/flamingchickens1540/Common-Chicken-Runtime-Engine/archive/ccre-v3.1.0.zip"]{zip} depending on your system. You can also @link["https://github.com/flamingchickens1540/Common-Chicken-Runtime-Engine/releases"]{see all downloads here}.}
+@itemlist[@item{Download the latest CCRE release either as a @hyperlink["https://github.com/flamingchickens1540/Common-Chicken-Runtime-Engine/archive/ccre-v3.2.0.tar.gz"]{tar.gz} or a @hyperlink["https://github.com/flamingchickens1540/Common-Chicken-Runtime-Engine/archive/ccre-v3.2.0.zip"]{zip} depending on your system. You can also @link["https://github.com/flamingchickens1540/Common-Chicken-Runtime-Engine/releases"]{see all downloads here}.}
           @item{Extract that archive into a directory of your choice.}
           @item{Open Eclipse and select a new workspace. (Selecting a new workspace is optional if this is your first installation of the CCRE.) @image["workspace.png"]{new workspace}}
           @item{Go to File -> Import... and select Existing Projects into Workspace. @image["import.png"]{importing}}
@@ -1423,6 +1423,19 @@ This combines two @jcode-inline{EventOutput}s into a single @jcode-inline{EventO
     b.event();
 }
 
+@jmethod[EventOutput static (EventOutput combine) (EventOutput event) #:vararg "setup"]
+
+This combines a set of @jcode-inline{EventOutput}s into a single @jcode-inline{EventOutput}, so that firing the result would fire all of the outputs.
+
+@jcode{
+    EventOutput merged = EventOutput.combine(a, b);
+    // then this would be equivalent:
+    merged.event();
+    // to this:
+    a.event();
+    b.event();
+}
+
 @jmethod*[(EventOutput (EventOutput filter) (BooleanInput allow))
           (EventOutput (EventOutput filterNot) (BooleanInput deny))
           "setup"]
@@ -1468,6 +1481,22 @@ This @jcode-inline{EventOutput} ignores all events sent to it.
 @jcode{
     EventOutput.ignored.event();
     // is equivalent to doing absolutely nothing.
+}
+
+@jmethod[EventIO (EventOutput cell) "setup"]
+
+@jcode-inline{cell} converts a @jcode-inline{EventOutput} into a @jcode-inline{EventIO}.
+
+This is equivalent to wrapping a new @jcode-inline{EventCell} around this @jcode-inline{EventOutput}, but can be more efficient in some cases, and is sometimes more concise.
+
+@jcode{
+    EventCell ec = new EventCell();
+    EventIO ec2 = ec.cell();
+    // then ec2 == ec
+
+    EventOutput eo = /* some normal output */;
+    EventIO ec3 = eo.cell();
+    // then ec3 is equivalent to new EventCell(eo)
 }
 
 @subsubsection{EventInputs}
@@ -1538,6 +1567,19 @@ This combines two @jcode-inline{BooleanOutput}s into a single @jcode-inline{Bool
 
 @jcode{
     BooleanOutput merged = a.combine(b);
+    // then this would be equivalent:
+    merged.set(true);
+    // to this:
+    a.set(true);
+    b.set(true);
+}
+
+@jmethod[BooleanOutput static (BooleanOutput combine) (BooleanOutput output) #:vararg "setup"]
+
+This combines a set of @jcode-inline{BooleanOutput}s into a single @jcode-inline{BooleanOutput}, so that setting the result to a value would set all of the original outputs to that value.
+
+@jcode{
+    BooleanOutput merged = BooleanOutput.combine(a, b);
     // then this would be equivalent:
     merged.set(true);
     // to this:
@@ -1684,6 +1726,22 @@ This is a BooleanOutput that ignores all values sent to it.
     // is equivalent to absolutely nothing!
 }
 
+@jmethod[BooleanIO (BooleanOutput cell) (boolean default_value) "setup"]
+
+@jcode-inline{cell} converts a @jcode-inline{BooleanOutput} into a @jcode-inline{BooleanIO} and sets its initial value.
+
+This is equivalent to wrapping a new @jcode-inline{BooleanCell} around this @jcode-inline{BooleanOutput}, but can be more efficient in some cases, and is sometimes more concise.
+
+@jcode{
+    BooleanCell bc = new BooleanCell();
+    BooleanIO bc2 = c.cell(true);
+    // then bc2 == bc and bc is set to true
+
+    BooleanOutput bo = /* some normal output */;
+    BooleanIO bc3 = bo.cell(false);
+    // then bc3 is equivalent to new BooleanCell(bo)
+}
+
 @subsubsection{BooleanInputs}
 
 @jfield[BooleanInput static (BooleanInput alwaysTrue) "setup"]
@@ -1748,11 +1806,36 @@ This means that @jcode-inline{a.and(b).get() == (a.get() || b.get())}.
     // ...
     input.set(true);  // press fires; change fires
     input.set(false); // release fires; change fires
-    input.set(false);    // nothing happens
+    input.set(false);   // nothing happens
     input.set(true);  // press fires; change fires
     input.set(true);    // nothing happens
     input.set(false); // release fires; change fires
     input.set(true);  // press fires; change fires
+}
+
+@jmethod*[(void (BooleanInput onPress) (EventOutput event))
+          (void (BooleanInput onRelease) (EventOutput event))
+          (void (BooleanInput onChange) (EventOutput event)) "setup"]
+
+@jcode-inline{onPress} fires @jcode-inline{event} whenever this @jcode-inline{BooleanInput} changes from @jcode-inline{false} to @jcode-inline{true}.
+
+@jcode-inline{onRelease} is the same, but for when @jcode-inline{true} changes to @jcode-inline{false}.
+
+@jcode-inline{onChange} is similar, but happens whenever any change occurs.
+
+@jcode{
+    BooleanCell input = new BooleanCell(false);
+    input.onPress(press);
+    input.onRelease(release);
+    input.onChange(change);
+    // ...
+    input.set(true);  // press is fired; change is fired
+    input.set(false); // release is fired; change is fired
+    input.set(false);   // nothing happens
+    input.set(true);  // press is fired; change is fired
+    input.set(true);    // nothing happens
+    input.set(false); // release is fired; change is fired
+    input.set(true);  // press is fired; change is fired
 }
 
 @jmethod*[(FloatInput (BooleanInput toFloat) (float off) (float on))
@@ -1773,6 +1856,26 @@ This means that @jcode-inline{a.and(b).get() == (a.get() || b.get())}.
     // converted is 0.75
     input.set(false);
     // converted is 0.0
+}
+
+@jmethod*[(BooleanInput (BooleanInput select) (boolean off) (boolean on))
+          (BooleanInput (BooleanInput select) (boolean off) (BooleanInput on))
+          (BooleanInput (BooleanInput select) (BooleanInput off) (boolean on))
+          (BooleanInput (BooleanInput select) (BooleanInput off) (BooleanInput on))
+          "setup"]
+
+@jcode-inline{select} provides a @jcode-inline{BooleanInput} with a value selected from one of two other @jcode-inline{boolean}s or @jcode-inline{BooleanInput}s.
+
+@jcode{
+    BooleanCell input = new BooleanCell(false);
+    BooleanInput converted = input.select(a, b);
+    // ...
+
+    // converted is a.get()
+    input.set(true);
+    // converted is b.get()
+    input.set(false);
+    // converted is a.get()
 }
 
 @jmethod*[(BooleanInput (BooleanInput filterUpdates) (BooleanInput allow))
@@ -1814,7 +1917,7 @@ This means that @jcode-inline{a.and(b).get() == (a.get() || b.get())}.
 
 @jmethod[FloatOutput (FloatOutput negate) "setup"]
 
-This is an negated version of the original @jcode-inline{FloatOutput}.
+This is a negated version of the original @jcode-inline{FloatOutput}.
 
 @jcode{
     FloatOutput inv = a.negate();
@@ -1824,12 +1927,40 @@ This is an negated version of the original @jcode-inline{FloatOutput}.
     a.set(-1.0f);
 }
 
+@jmethod[FloatOutput (FloatOutput negateIf) (BooleanInput negate) "setup"]
+
+This is either equivalent to the original @jcode-inline{FloatOutput} or a negated version of the original @jcode-inline{FloatOutput}.
+
+@jcode{
+    FloatOutput inv = a.negateIf(neg);
+    // so then this is equivalent
+    inv.set(1.0f);
+    // to this:
+    a.set(-1.0f);
+    // if neg.get() == true or
+    a.set(1.0f);
+    // if neg.get() == false
+}
+
 @jmethod[FloatOutput (FloatOutput combine) (FloatOutput other) "setup"]
 
 This combines two @jcode-inline{FloatOutput}s into a single @jcode-inline{FloatOutput}, so that setting the result to a value would set both of the original outputs to that value.
 
 @jcode{
     FloatOutput merged = a.combine(b);
+    // then this would be equivalent:
+    merged.set(0.3f);
+    // to this:
+    a.set(0.3f);
+    b.set(0.3f);
+}
+
+@jmethod[FloatOutput static (FloatOutput combine) (FloatOutput output) #:vararg "setup"]
+
+This combines a set of @jcode-inline{FloatOutput}s into a single @jcode-inline{FloatOutput}, so that setting the result to a value would set all of the original outputs to that value.
+
+@jcode{
+    FloatOutput merged = FloatOutput.combine(a, b);
     // then this would be equivalent:
     merged.set(0.3f);
     // to this:
@@ -1993,6 +2124,22 @@ This is a FloatOutput that ignores all values sent to it.
     // is equivalent to absolutely nothing!
 }
 
+@jmethod[FloatIO (FloatOutput cell) (float default_value) "setup"]
+
+@jcode-inline{cell} converts a @jcode-inline{FloatOutput} into a @jcode-inline{FloatIO} and sets its initial value.
+
+This is equivalent to wrapping a new @jcode-inline{FloatCell} around this @jcode-inline{FloatOutput}, but can be more efficient in some cases, and is sometimes more concise.
+
+@jcode{
+    FloatCell fc = new FloatCell();
+    FloatIO fc2 = fc.cell(0.0f);
+    // then fc2 == fc and fc is set to 0.0f
+
+    FloatOutput fo = /* some normal output */;
+    FloatIO fc3 = fo.cell(0.0f);
+    // then fc3 is equivalent to new FloatCell(fo)
+}
+
 @subsubsection{FloatInputs}
 
 @jmethod[FloatInput static (FloatInput always) (float value) "setup"]
@@ -2096,6 +2243,33 @@ Provides a @jcode-inline{FloatInput} that is the negated version of this @jcode-
     negated.get()
     // is equivalent to
     -original.get()
+}
+
+@jmethod[FloatInput (FloatInput negatedIf) (BooleanInput negate) "setup"]
+
+Provides a @jcode-inline{FloatInput} that is either equivalent to this @jcode-inline{FloatInput} or the negated version of this @jcode-inline{FloatInput}, based on the @jcode-inline{negate} argument.
+
+@jcode{
+    FloatInput negated = original.negatedIf(neg);
+    // and then:
+    negated.get()
+    // is equivalent to
+    -original.get()
+    // if neg.get() == true or
+    original.get()
+    // if neg.get() == false
+}
+
+@jmethod[FloatInput (FloatInput absolute) "setup"]
+
+Provides a @jcode-inline{FloatInput} that is the absolute value version of this @jcode-inline{FloatInput}.
+
+@jcode{
+    FloatInput abs = original.absolute();
+    // and then:
+    abs.get()
+    // is equivalent to
+    Math.abs(original.get())
 }
 
 @jmethod[EventInput (FloatInput onChange) "setup"]
@@ -2511,6 +2685,23 @@ You can pass any @jcode-inline{BooleanInput} you want to the constructor, and th
 Equivalently to the previous example, you can construct an @jcode-inline{InstinctModule} without any parameters and then call @jcode-inline{setShouldBeRunning} later with the same value.
 
 This means that @jcode-inline{FRC.registerAutonomous(module)} is actually just a call to @jcode-inline{module.setShouldBeRunning}!
+
+@jmethod[BooleanIO (InstinctModule controlIO) "setup"]
+
+Besides @jcode-inline{setShouldBeRunning}, you can also use @jcode-inline{controlIO}, which provides you with a @jcode-inline{BooleanIO} representing whether the module should be running.
+
+Note that you cannot provide multiple sources of control to an InstinctModule, across all of the three ways.
+
+@jcode{
+    InstinctModule mod = new InstinctModule() { /* ... */ };
+    BooleanIO run = mod.controlIO;
+
+    run.set(true); // start the code; run.get() == true now
+    run.toggle(); // stop the code; run.get() == false now
+    run.toggle(); // start the code; run.get() == true now
+    run.set(true); // do nothing
+    run.set(false); // stop the code; run.get() == false now
+}
 
 @subsubsection{Instinct MultiModules}
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2015 Colby Skeggs
+ * Copyright 2013-2016 Colby Skeggs
  *
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  *
@@ -239,6 +239,16 @@ public interface BooleanInput extends UpdatingInput {
     }
 
     /**
+     * Fires an EventOutput exactly once for each time that the BooleanInput
+     * changes from false to true.
+     *
+     * @param event the event to fire
+     */
+    public default void onPress(EventOutput event) {
+        onPress().send(event);
+    }
+
+    /**
      * Provides an EventInput that is produced exactly once for each time that
      * the BooleanInput changes from true to false.
      *
@@ -254,6 +264,16 @@ public interface BooleanInput extends UpdatingInput {
     }
 
     /**
+     * Fires an EventOutput exactly once for each time that the BooleanInput
+     * changes from true to false.
+     *
+     * @param event the event to fire
+     */
+    public default void onRelease(EventOutput event) {
+        onRelease().send(event);
+    }
+
+    /**
      * Provides an EventInput that is produced exactly once for each time that
      * the BooleanInput changes between true and false.
      *
@@ -266,6 +286,16 @@ public interface BooleanInput extends UpdatingInput {
                 return true;
             }
         };
+    }
+
+    /**
+     * Fires an EventOutput exactly once for each time that the BooleanInput
+     * changes between true and false.
+     *
+     * @param event the event to fire
+     */
+    public default void onChange(EventOutput event) {
+        onChange().send(event);
     }
 
     /**
@@ -331,6 +361,94 @@ public interface BooleanInput extends UpdatingInput {
         return new DerivedFloatInput(this, off, on) {
             @Override
             protected float apply() {
+                return BooleanInput.this.get() ? on.get() : off.get();
+            }
+        };
+    }
+
+    /**
+     * Provides a BooleanInput whose value is selected from <code>off</code> and
+     * <code>on</code> based on the value of this BooleanInput.
+     *
+     * <code>BooleanInput.alwaysTrue.select(off, on)</code> is equivalent to
+     * <code>on</code> <code>BooleanInput.alwaysFalse.select(off, on)</code> is
+     * equivalent to <code>off</code>
+     *
+     * @param off the input used when this BooleanInput's value is false.
+     * @param on the input used when this BooleanInput's value is true.
+     * @return the BooleanInput based on this BooleanInput and the two
+     * arguments.
+     */
+    public default BooleanInput select(boolean off, boolean on) {
+        return new DerivedBooleanInput(this) {
+            @Override
+            protected boolean apply() {
+                return BooleanInput.this.get() ? on : off;
+            }
+        };
+    }
+
+    /**
+     * Provides a BooleanInput whose value is selected from <code>off</code> and
+     * <code>on</code> based on the value of this BooleanInput.
+     *
+     * <code>BooleanInput.alwaysTrue.select(off, on)</code> is equivalent to
+     * <code>on</code> <code>BooleanInput.alwaysFalse.select(off, on)</code> is
+     * equivalent to <code>off</code>
+     *
+     * @param off the input used when this BooleanInput's value is false.
+     * @param on the input used when this BooleanInput's value is true.
+     * @return the BooleanInput based on this BooleanInput and the two
+     * arguments.
+     */
+    public default BooleanInput select(boolean off, BooleanInput on) {
+        return new DerivedBooleanInput(this, on) {
+            @Override
+            protected boolean apply() {
+                return BooleanInput.this.get() ? on.get() : off;
+            }
+        };
+    }
+
+    /**
+     * Provides a BooleanInput whose value is selected from <code>off</code> and
+     * <code>on</code> based on the value of this BooleanInput.
+     *
+     * <code>BooleanInput.alwaysTrue.select(off, on)</code> is equivalent to
+     * <code>on</code> <code>BooleanInput.alwaysFalse.select(off, on)</code> is
+     * equivalent to <code>off</code>
+     *
+     * @param off the input used when this BooleanInput's value is false.
+     * @param on the input used when this BooleanInput's value is true.
+     * @return the BooleanInput based on this BooleanInput and the two
+     * arguments.
+     */
+    public default BooleanInput select(BooleanInput off, boolean on) {
+        return new DerivedBooleanInput(this, off) {
+            @Override
+            protected boolean apply() {
+                return BooleanInput.this.get() ? on : off.get();
+            }
+        };
+    }
+
+    /**
+     * Provides a BooleanInput whose value is selected from <code>off</code> and
+     * <code>on</code> based on the value of this BooleanInput.
+     *
+     * <code>BooleanInput.alwaysTrue.select(off, on)</code> is equivalent to
+     * <code>on</code> <code>BooleanInput.alwaysFalse.select(off, on)</code> is
+     * equivalent to <code>off</code>
+     *
+     * @param off the input used when this BooleanInput's value is false.
+     * @param on the input used when this BooleanInput's value is true.
+     * @return the BooleanInput based on this BooleanInput and the two
+     * arguments.
+     */
+    public default BooleanInput select(BooleanInput off, BooleanInput on) {
+        return new DerivedBooleanInput(this, off, on) {
+            @Override
+            protected boolean apply() {
                 return BooleanInput.this.get() ? on.get() : off.get();
             }
         };

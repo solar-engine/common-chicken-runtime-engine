@@ -133,7 +133,7 @@ class DirectDriverStation {
         }
         short[] jpovs = povs[joy];
         if (jpovs == null || pov >= jpovs.length) {
-            return 0;
+            return -1;
         }
         return jpovs[pov];
     }

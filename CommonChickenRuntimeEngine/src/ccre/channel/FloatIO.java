@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 Colby Skeggs, Jake Springer
+ * Copyright 2015-2016 Colby Skeggs, Jake Springer
  *
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  *
@@ -123,5 +123,11 @@ public interface FloatIO extends FloatInput, FloatOutput {
                 output.set(value);
             }
         };
+    }
+
+    @Override
+    public default FloatIO cell(float default_value) {
+        this.set(default_value); // replicate behavior of superclass
+        return this;
     }
 }

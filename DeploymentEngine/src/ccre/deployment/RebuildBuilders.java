@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 Colby Skeggs.
+ * Copyright 2015 Colby Skeggs, 2016 Alexander Mackworth.
  *
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  *
@@ -28,6 +28,10 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.util.Arrays;
+import java.util.List;
+
+import ccre.util.Utils;
 
 /**
  * A class that takes care of rebuilding {@link DepTask} tasks for a project,
@@ -85,9 +89,17 @@ public class RebuildBuilders {
                 }
                 DepTask annot = m.getAnnotation(DepTask.class);
                 String annotName = annot.name();
+                String fullName = m.getName();
+                // Split the name by capital letters. Weird regex magic here
+                List<String> words = Arrays.asList(fullName.split("(?<!^)(?=[A-Z])"));
                 if (annotName.isEmpty()) {
-                    annotName = Character.toUpperCase(m.getName().charAt(0)) + m.getName().substring(1);
+                    for (int i = 0; i < words.size(); i++) {
+                        String name = words.get(i);
+                        words.set(i, Character.toUpperCase(name.charAt(0)) + name.substring(1));
+                    }
+                    annotName = Utils.joinStrings(words, " ");
                 }
+
                 rebuild(deployment, annotName, m.getName(), annot.fork());
             }
         }

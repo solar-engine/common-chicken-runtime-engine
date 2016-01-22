@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 Colby Skeggs.
+ * Copyright 2015-2016 Colby Skeggs.
  *
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  *
@@ -86,7 +86,7 @@ public class Jar extends Artifact {
     }
 
     @Override
-    public void close() throws Exception {
+    public void close() throws IOException {
         jarfile.close();
     }
 

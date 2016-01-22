@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 Colby Skeggs
+ * Copyright 2015-2016 Colby Skeggs
  *
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  *
@@ -19,33 +19,72 @@
 package ccre.channel;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import ccre.testing.CountingFloatOutput;
+import ccre.util.Values;
+
 @SuppressWarnings("javadoc")
 public class FloatIOTest {
 
-    private FloatCell cell;
+    private FloatIO io;
 
     @Before
     public void setUp() throws Exception {
-        this.cell = new FloatCell();
+        this.io = new FloatIO() {
+            private float value;
+
+            @Override
+            public float get() {
+                return value;
+            }
+
+            @Override
+            public CancelOutput onUpdate(EventOutput notify) {
+                fail();
+                return null;
+            }
+
+            @Override
+            public void set(float value) {
+                this.value = value;
+            }
+        };
     }
 
     @After
     public void tearDown() throws Exception {
-        this.cell = null;
+        this.io = null;
     }
 
     @Test
     public void testAsOutput() {
-        assertEquals(cell, cell.asOutput());
+        assertEquals(io, io.asOutput());
     }
 
     @Test
     public void testAsInput() {
-        assertEquals(cell, cell.asInput());
+        assertEquals(io, io.asInput());
+    }
+
+    @Test
+    public void testCell() {
+        FloatIO c = new FloatCell();
+        CountingFloatOutput cfo = new CountingFloatOutput();
+        cfo.ifExpected = true;
+        cfo.valueExpected = c.get();
+        c.send(cfo);
+        cfo.check();
+        for (float b : Values.interestingFloats) {
+            cfo.ifExpected = Float.floatToIntBits(b) != Float.floatToIntBits(cfo.valueExpected);
+            cfo.valueExpected = b;
+            assertTrue(c.cell(b) == c);
+            cfo.check();
+        }
     }
 }

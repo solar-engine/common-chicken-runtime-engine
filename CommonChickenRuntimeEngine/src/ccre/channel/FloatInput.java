@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2015 Colby Skeggs
+ * Copyright 2013-2016 Colby Skeggs
  *
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  *
@@ -684,6 +684,28 @@ public interface FloatInput extends UpdatingInput {
                 return lastValue;
             }
         };
+    }
+
+    /**
+     * Provides a FloatInput that has the same value as this FloatInput, or its
+     * negation. If <code>negate</code> is true, it is negated, and if
+     * <code>negate</code> is false, it is not negated.
+     *
+     * @param negate whether or not the input should be negated
+     * @return the possibly negated version of this FloatInput
+     */
+    public default FloatInput negatedIf(BooleanInput negate) {
+        return negate.toFloat(this, this.negated());
+    }
+
+    /**
+     * Provides a FloatInput whose value is this FloatInput's value, but always
+     * positive, or in other words an absolute value.
+     *
+     * @return the absolute value version of this FloatInput.
+     */
+    public default FloatInput absolute() {
+        return FloatFilter.absolute.wrap(this);
     }
 
     // TODO: integrals!

@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2015 Colby Skeggs
+ * Copyright 2013-2016 Colby Skeggs
  *
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  *
@@ -18,6 +18,8 @@
  */
 package ccre.instinct;
 
+import ccre.channel.BooleanCell;
+import ccre.channel.BooleanIO;
 import ccre.channel.BooleanInput;
 import ccre.concurrency.ReporterThread;
 import ccre.log.Logger;
@@ -166,5 +168,17 @@ public abstract class InstinctModule extends InstinctBaseModule {
         if (!shouldBeRunning.get()) {
             throw new AutonomousModeOverException();
         }
+    }
+
+    /**
+     * Provides a BooleanIO that can be set to true or false to control whether
+     * or not this Instinct module is running.
+     *
+     * @return the BooleanIO that controls this module
+     */
+    public BooleanIO controlIO() {
+        BooleanCell bc = new BooleanCell();
+        setShouldBeRunning(bc);
+        return bc;
     }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 Colby Skeggs
+ * Copyright 2015-2016 Colby Skeggs
  *
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  *
@@ -179,6 +179,14 @@ public class FloatFilterTest {
         for (float f : Values.interestingFloats) {
             assertEquals(-f, FloatFilter.negate.filter(f), 0);
             assertEquals(f, FloatFilter.negate.filter(-f), 0);
+        }
+    }
+
+    @Test
+    public void testAbsolute() {
+        for (float f : Values.interestingFloats) {
+            assertEquals(Math.abs(f), FloatFilter.absolute.filter(f), 0);
+            assertEquals(Math.abs(f), FloatFilter.absolute.filter(-f), 0);
         }
     }
 }

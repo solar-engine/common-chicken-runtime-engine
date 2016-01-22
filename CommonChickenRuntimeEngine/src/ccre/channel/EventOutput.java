@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2015 Colby Skeggs
+ * Copyright 2013-2016 Colby Skeggs
  *
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  *
@@ -33,7 +33,19 @@ public interface EventOutput {
     /**
      * An EventOutput that, when fired, does absolutely nothing.
      */
-    public static final EventOutput ignored = () -> {
+    public static final EventOutput ignored = new EventOutput() {
+        @Override
+        public void event() {
+            // do nothing
+        }
+
+        // Important to the functioning of static EventOutput.combine
+        public EventOutput combine(EventOutput other) {
+            if (other == null) {
+                throw new NullPointerException();
+            }
+            return other;
+        };
     };
 
     /**
@@ -68,8 +80,8 @@ public interface EventOutput {
      * such that when the provided EventOutput is fired, both this EventOutput
      * and <code>other</code> are fired.
      *
-     * If any error occurs during propagation of changes to either EventOutput,
-     * the other target will still be fired. If both throw exceptions, then one
+     * If any error occurs during propagation of events to either EventOutput,
+     * the other output will still be fired. If both throw exceptions, then one
      * of the exceptions will be added as a suppressed exception to the other.
      *
      * @param other the other EventOutput to include.
@@ -93,6 +105,29 @@ public interface EventOutput {
             }
             other.event();
         };
+    }
+
+    /**
+     * Combines any number of EventOutputs into a single EventOutput, such that
+     * when the returned EventOutput is fired, all of the EventOutputs are
+     * fired.
+     *
+     * If any error occurs during propagation of events to any EventOutput, the
+     * other outputs will still be fired. If multiple outputs throw exceptions,
+     * then one of them will be chosen arbitrarily and all of the others will be
+     * added as suppressed exceptions.
+     *
+     * @param outputs the EventOutputs to include.
+     * @return the combined version of the EventOutputs.
+     */
+    public static EventOutput combine(EventOutput... outputs) {
+        // This works without including 'ignored' in the actual data structure
+        // by having 'ignored' drop itself during combine.
+        EventOutput o = ignored;
+        for (EventOutput eo : outputs) {
+            o = o.combine(eo);
+        }
+        return o;
     }
 
     /**
@@ -169,5 +204,16 @@ public interface EventOutput {
      */
     public default CancelOutput on(EventInput when) {
         return when.send(this);
+    }
+
+    /**
+     * Returns a EventIO version of this event. If it is already a EventIO, it
+     * will be returned directly. If it is not, a new EventCell will be created
+     * around this EventOutput.
+     *
+     * @return a new IO
+     */
+    public default EventIO cell() {
+        return new EventCell(this);
     }
 }

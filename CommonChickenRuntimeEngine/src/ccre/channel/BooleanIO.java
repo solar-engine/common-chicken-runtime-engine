@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 Colby Skeggs
+ * Copyright 2015-2016 Colby Skeggs
  *
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  *
@@ -102,5 +102,11 @@ public interface BooleanIO extends BooleanInput, BooleanOutput {
                 output.set(value);
             }
         };
+    }
+
+    @Override
+    public default BooleanIO cell(boolean default_value) {
+        this.set(default_value); // replicate behavior of superclass
+        return this;
     }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 Colby Skeggs.
+ * Copyright 2015 Colby Skeggs, 2016 Alexander Mackworth.
  *
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  *
@@ -19,6 +19,7 @@
 package ccre.deployment;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -45,6 +46,22 @@ public class JarBuilder {
      * @see Jar
      */
     public static final boolean DELETE = false;
+
+    /**
+     * A constant that means that the manifest should be taken from an Artifact
+     * when added to the builder.
+     *
+     * @see JarBuilder#addAll(Artifact, boolean)
+     */
+    public static final boolean KEEP_MANIFEST = true;
+    /**
+     * A constant that means that the manifest should not be taken from an
+     * Artifact when added to the builder.
+     *
+     * @see JarBuilder#addAll(Artifact, boolean)
+     */
+    public static final boolean DISCARD_MANIFEST = false;
+
     private static final String MANIFEST = "META-INF/MANIFEST.MF";
 
     private final File tempOut;
@@ -121,6 +138,19 @@ public class JarBuilder {
             jout.closeEntry();
         } finally {
             is.close();
+        }
+    }
+
+    /**
+     * Adds a resource with the given path and with data from a File.
+     *
+     * @param name the path of the resource.
+     * @param file the File that carries the resource data for this resource.
+     * @throws IOException
+     */
+    public void addResource(String name, File file) throws IOException {
+        try (FileInputStream is = new FileInputStream(file)) {
+            this.addResource(name, is);
         }
     }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 Colby Skeggs
+ * Copyright 2015-2016 Colby Skeggs
  *
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  *
@@ -18,6 +18,7 @@
  */
 package ccre.testing;
 
+import static org.junit.Assert.*;
 import ccre.channel.EventOutput;
 
 /**
@@ -48,7 +49,7 @@ public class CountingEventOutput implements EventOutput {
     public synchronized void event() {
         if (!ifExpected) {
             anyUnexpected = true;
-            throw new RuntimeException("Unexpected event");
+            fail("Unexpected event");
         }
         ifExpected = false;
     }
@@ -59,12 +60,10 @@ public class CountingEventOutput implements EventOutput {
      * @throws RuntimeException if an event did not occur.
      */
     public synchronized void check() throws RuntimeException {
-        if (anyUnexpected) {
-            throw new RuntimeException("Already failed earlier!");
-        }
+        assertFalse("Already failed earlier!", anyUnexpected);
         if (ifExpected) {
             anyUnexpected = true;
-            throw new RuntimeException("Event did not occur");
+            fail("Event did not occur");
         }
     }
 }

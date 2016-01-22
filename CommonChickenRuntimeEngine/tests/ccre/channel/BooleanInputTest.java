@@ -135,7 +135,7 @@ public class BooleanInputTest {
             assertEquals(cex, bi.send(cbo));
             assertTrue(gotProperly);
             gotProperly = false;
-            cbo.check();// the real check is in onUpdateR above
+            cbo.check(); // the real check is in onUpdate above
         }
     }
 
@@ -338,7 +338,7 @@ public class BooleanInputTest {
         for (boolean b : new boolean[] { false, true }) {
             BooleanCell a = new BooleanCell(b);
             CountingEventOutput ceo = new CountingEventOutput();
-            a.onPress().send(ceo);
+            a.onPress(ceo);
             for (int i = 0; i < 5; i++) {
                 a.set(false);
                 ceo.ifExpected = true;
@@ -351,7 +351,7 @@ public class BooleanInputTest {
     @Test
     public void testOnPressNoRepeat() {
         CountingEventOutput ceo = new CountingEventOutput();
-        bi.onPress().send(ceo);
+        bi.onPress(ceo);
 
         for (int i = 0; i < 10; i++) {
             result = true;
@@ -380,7 +380,7 @@ public class BooleanInputTest {
         for (boolean b : new boolean[] { false, true }) {
             BooleanCell a = new BooleanCell(b);
             CountingEventOutput ceo = new CountingEventOutput();
-            a.onRelease().send(ceo);
+            a.onRelease(ceo);
             for (int i = 0; i < 5; i++) {
                 a.set(true);
                 ceo.ifExpected = true;
@@ -393,7 +393,7 @@ public class BooleanInputTest {
     @Test
     public void testOnReleaseNoRepeat() {
         CountingEventOutput ceo = new CountingEventOutput();
-        bi.onRelease().send(ceo);
+        bi.onRelease(ceo);
 
         for (int i = 0; i < 10; i++) {
             result = false;
@@ -420,7 +420,7 @@ public class BooleanInputTest {
     @Test
     public void testOnChange() {
         CountingEventOutput ceo = new CountingEventOutput();
-        bi.onChange().send(ceo);
+        bi.onChange(ceo);
 
         for (int i = 0; i < 10; i++) {
             result = true;
@@ -560,6 +560,109 @@ public class BooleanInputTest {
     @Test(expected = NullPointerException.class)
     public void testToFloatFloatInputFloatInputNull() {
         bi.toFloat(null, null);
+    }
+
+    @Test
+    public void testSelectBooleanBoolean() {
+        for (boolean def1 : Values.interestingBooleans) {
+            for (boolean def2 : Values.interestingBooleans) {
+                BooleanCell bs = new BooleanCell();
+                BooleanCell out = new BooleanCell();
+                BooleanInput bi = bs.select(def2, def1);
+                bi.send(out);
+                assertEquals(def2, bi.get());
+                assertEquals(def2, out.get());
+                for (int i = 0; i < 30; i++) {
+                    bs.toggle();
+                    assertEquals(bs.get() ? def1 : def2, bi.get());
+                    assertEquals(bs.get() ? def1 : def2, out.get());
+                }
+            }
+        }
+    }
+
+    @Test
+    public void testSelectBooleanBooleanInput() {
+        for (boolean def : Values.interestingBooleans) {
+            BooleanCell bs = new BooleanCell();
+            BooleanCell out = new BooleanCell(), tru = new BooleanCell();
+            BooleanInput bi = bs.select(def, tru);
+            bi.send(out);
+            assertEquals(def, bi.get());
+            assertEquals(def, out.get());
+            for (int i = 0; i < 30; i++) {
+                tru.set(true);
+                bs.toggle();
+                assertEquals(bs.get() ? true : def, bi.get());
+                assertEquals(bs.get() ? true : def, out.get());
+                for (boolean b : Values.interestingBooleans) {
+                    tru.set(b);
+                    assertEquals(bs.get() ? b : def, bi.get());
+                    assertEquals(bs.get() ? b : def, out.get());
+                }
+            }
+        }
+    }
+
+    @Test(expected = NullPointerException.class)
+    public void testSelectBooleanBooleanInputNull() {
+        bi.select(false, null);
+    }
+
+    @Test
+    public void testSelectBooleanInputBoolean() {
+        for (boolean def : Values.interestingBooleans) {
+            BooleanCell bs = new BooleanCell();
+            BooleanCell out = new BooleanCell(), fals = new BooleanCell(false);
+            BooleanInput bi = bs.select(fals, def);
+            bi.send(out);
+            assertEquals(false, bi.get());
+            assertEquals(false, out.get());
+            for (int i = 0; i < 30; i++) {
+                fals.set(false);
+                bs.toggle();
+                assertEquals(bs.get() ? def : false, bi.get());
+                assertEquals(bs.get() ? def : false, out.get());
+                for (boolean b : Values.interestingBooleans) {
+                    fals.set(b);
+                    assertEquals(bs.get() ? def : b, bi.get());
+                    assertEquals(bs.get() ? def : b, out.get());
+                }
+            }
+        }
+    }
+
+    @Test(expected = NullPointerException.class)
+    public void testSelectBooleanInputBooleanNull() {
+        bi.select(null, true);
+    }
+
+    @Test
+    public void testSelectBooleanInputBooleanInput() {
+        BooleanCell bs = new BooleanCell();
+        BooleanCell out = new BooleanCell(), tru = new BooleanCell(), fals = new BooleanCell(false);
+        BooleanInput bi = bs.select(fals, tru);
+        bi.send(out);
+        assertEquals(false, bi.get());
+        assertEquals(false, out.get());
+        for (int i = 0; i < 30; i++) {
+            fals.set(true);
+            tru.set(false);
+            bs.toggle();
+            assertEquals(bs.get() ? tru.get() : fals.get(), bi.get());
+            assertEquals(bs.get() ? tru.get() : fals.get(), out.get());
+            BooleanCell var = i % 2 == 0 ? tru : fals;
+            for (boolean b : Values.interestingBooleans) {
+                var.set(b);// switch which one we vary each time outside
+                assertEquals(bs.get() ? tru.get() : fals.get(), bi.get());
+                assertEquals(bs.get() ? tru.get() : fals.get(), out.get());
+            }
+        }
+    }
+
+    @Test(expected = NullPointerException.class)
+    public void testSelectBooleanInputBooleanInputNull() {
+        bi.select(null, null);
     }
 
     @Test

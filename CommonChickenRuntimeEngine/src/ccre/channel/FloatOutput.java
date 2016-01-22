@@ -416,9 +416,9 @@ public interface FloatOutput {
             private float lastValue;
 
             {
-                negate.send((negate) -> {
+                negate.send((negate2) -> {
                     if (anyValue) {
-                        aThis.set(negate ? -lastValue : lastValue);
+                        aThis.set(negate2 ? -lastValue : lastValue);
                     }
                 });
             }

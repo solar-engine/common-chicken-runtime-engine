@@ -136,9 +136,10 @@ public class DepProject {
     public static String name() {
         return root().getName();
     }
-    
+
     /**
      * Locates the DeploymentEngine's own jar.
+     *
      * @return the File representing the DeploymentEngine jar.
      */
     public static File getDepEngineJar() {

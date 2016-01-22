@@ -90,7 +90,7 @@ public class RebuildBuilders {
                 DepTask annot = m.getAnnotation(DepTask.class);
                 String annotName = annot.name();
                 String fullName = m.getName();
-                // Split the name by capital letters. Weird regex magic here(???)
+                // Split the name by capital letters. Weird regex magic here
                 List<String> words = Arrays.asList(fullName.split("(?<!^)(?=[A-Z])"));
                 if (annotName.isEmpty()) {
                     for (int i = 0; i < words.size(); i++) {

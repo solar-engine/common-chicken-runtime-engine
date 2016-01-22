@@ -35,6 +35,11 @@ import ccre.deployment.Artifact;
 import ccre.deployment.Jar;
 import ccre.log.Logger;
 
+/**
+ * The main class invoked inside a CCRE Egg to deploy the Egg.
+ *
+ * @author amackworth
+ */
 public class EggHatcher {
     private final static String banner = "                       .-~-.\n" +
             "                     .'     '.\n" +
@@ -49,6 +54,13 @@ public class EggHatcher {
             "          `.     .' \\          .'\n" +
             "     jgs    `~~~`    '-.____.-'\n\n";
 
+    /**
+     * Deploys the egg contained by the current Jar, following the deployment
+     * action that was specified when the egg was created.
+     *
+     * @param args the program arguments, which are ignored.
+     * @throws Exception
+     */
     public static void main(String[] args) throws Exception {
         System.out.println(banner);
 
@@ -68,7 +80,7 @@ public class EggHatcher {
             } else {
                 parentEntries = Collections.list(ClassLoader.getSystemResources("META-INF/MANIFEST.MF")).size();
             }
-            
+
             ArrayList<URL> manifests = Collections.list(EggHatcher.class.getClassLoader().getResources("META-INF/MANIFEST.MF"));
             Manifest manifest = new Manifest(manifests.get(parentEntries).openStream());
 

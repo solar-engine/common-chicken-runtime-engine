@@ -21,12 +21,18 @@ package ccre.deployment.eggs;
 import ccre.deployment.Artifact;
 
 /**
- * An interface describing a task to be run upon the hatching of a CCRE Egg. In
- * general, should call DepEgg.deploy() or DepEgg.emulate().
- * 
+ * An interface describing a task to be run upon the hatching of a CCRE Egg,
+ * such as deploying code to the robot.
+ *
  * @see DepEgg
  * @author amackworth
  */
 public interface ArtifactDeployer {
+    /**
+     * Deploys the given artifact to the appropriate target.
+     *
+     * @param artifact the artifact to deploy
+     * @throws Throwable if anything goes wrong.
+     */
     public abstract void deployArtifact(Artifact artifact) throws Throwable;
 }

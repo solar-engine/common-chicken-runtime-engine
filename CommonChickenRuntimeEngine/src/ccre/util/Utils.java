@@ -196,6 +196,18 @@ public class Utils {
         }
     }
 
+    /**
+     * Join the strings in <code>strings</code> together in sequence with
+     * <code>separator</code> between them.
+     *
+     * For example, <code>["abc", "def", "hij"]</code> joined with
+     * <code>"EJ"</code> as the separator would yield
+     * <code>"abcEJdefEJhij"</code>.
+     *
+     * @param strings the strings to join together
+     * @param separator the separator to include
+     * @return the joined strings
+     */
     public static String joinStrings(List<String> strings, String separator) {
         if (strings == null || separator == null) {
             throw new NullPointerException();

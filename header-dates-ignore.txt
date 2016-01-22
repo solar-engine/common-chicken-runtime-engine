@@ -34,3 +34,6 @@ bf32df3010ace025c5c036a4326631dad62d1d4dd59ab47c48b195e2241684dd  ./roboRIO/src/
 3da931a7e649de8e12f710b3794ac443443a1094e31df0ea549350580ef0edd9  ./PoultryInspector/src/ccre/supercanvas/components/LoggingComponent.java
 821750e371a80041623db4f62994275a9243d174de6735807330f74406eb0176  ./roboRIO/src/edu/wpi/first/wpilibj/can/CANExceptionFactory.java
 9c074d2cb9afdf9da023e4ae0fc0a3720442315e6863786ca579d5d971f8ec10  ./roboRIO/src/ccre/frc/DirectCounter.java
+191920a66eb7355dc8c88b5c4b5af04b9bffc46226b27fd2fc492e70c44d08f8  ./DeploymentEngine/src/ccre/deployment/eggs/ArtifactDeployer.java
+3506dbdacd06678376c3adab729d9267c7cc98b0dbc8c37a6f621f405a3cdc62  ./DeploymentEngine/src/ccre/deployment/eggs/EggHatcher.java
+dcabfa57ef977538cf97eab647a506f439b98f5cc197c00dc73a1c0b50413173  ./DeploymentEngine/src/ccre/deployment/eggs/EggHatcher.java

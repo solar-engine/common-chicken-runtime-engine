@@ -145,7 +145,7 @@ public class JarBuilder {
      * Adds a resource with the given path and with data from a File.
      *
      * @param name the path of the resource.
-     * @param is the File that carries the resource data for this resource.
+     * @param file the File that carries the resource data for this resource.
      * @throws IOException
      */
     public void addResource(String name, File file) throws IOException {

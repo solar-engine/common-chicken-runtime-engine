@@ -699,8 +699,8 @@ public interface FloatInput extends UpdatingInput {
     }
 
     /**
-     * Provides a FloatInput whose value is this FloatInput's value, but
-     * always positive, or in other words an absolute value.
+     * Provides a FloatInput whose value is this FloatInput's value, but always
+     * positive, or in other words an absolute value.
      *
      * @return the absolute value version of this FloatInput.
      */

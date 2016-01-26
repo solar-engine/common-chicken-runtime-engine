@@ -470,6 +470,18 @@ public final class DirectFRCImplementation implements FRCImplementation {
         case TALON:
             DirectPWM.init(id, DirectPWM.TYPE_TALON);
             break;
+        case VICTORSP:
+            DirectPWM.init(id, DirectPWM.TYPE_VICTORSP);
+            break;
+        case SPARK:
+            DirectPWM.init(id, DirectPWM.TYPE_SPARK);
+            break;
+        case SD540:
+            DirectPWM.init(id, DirectPWM.TYPE_SD540);
+            break;
+        case TALONSRX:
+            DirectPWM.init(id, DirectPWM.TYPE_TALONSRX);
+            break;
         default:
             throw new IllegalArgumentException("Unknown motor type: " + type);
         }

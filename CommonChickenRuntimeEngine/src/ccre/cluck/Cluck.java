@@ -116,7 +116,7 @@ public final class Cluck {
      * @param name The name for the EventOutput.
      * @param consumer The EventOutput.
      */
-    public static void publish(String name, final EventOutput consumer) {
+    public static void publish(String name, EventOutput consumer) {
         CluckPublisher.publish(node, name, consumer);
     }
 
@@ -126,7 +126,7 @@ public final class Cluck {
      * @param path The path to subscribe to.
      * @return the EventOutput.
      */
-    public static EventOutput subscribeEO(final String path) {
+    public static EventOutput subscribeEO(String path) {
         return CluckPublisher.subscribeEO(node, path);
     }
 
@@ -136,7 +136,7 @@ public final class Cluck {
      * @param name The name for the EventInput.
      * @param source The EventInput.
      */
-    public static void publish(final String name, EventInput source) {
+    public static void publish(String name, EventInput source) {
         CluckPublisher.publish(node, name, source);
     }
 
@@ -146,7 +146,7 @@ public final class Cluck {
      * @param path The path to subscribe to.
      * @return the EventInput.
      */
-    public static EventInput subscribeEI(final String path) {
+    public static EventInput subscribeEI(String path) {
         return CluckPublisher.subscribeEI(node, path);
     }
 
@@ -156,7 +156,7 @@ public final class Cluck {
      * @param name The name for the LoggingTarget.
      * @param lt The LoggingTarget.
      */
-    public static void publish(String name, final LoggingTarget lt) {
+    public static void publish(String name, LoggingTarget lt) {
         CluckPublisher.publish(node, name, lt);
     }
 
@@ -167,7 +167,7 @@ public final class Cluck {
      * @param path The path to subscribe to.
      * @return the LoggingTarget.
      */
-    public static LoggingTarget subscribeLT(final String path) {
+    public static LoggingTarget subscribeLT(String path) {
         return CluckPublisher.subscribeLT(node, path);
     }
 
@@ -178,7 +178,7 @@ public final class Cluck {
      * @param name The name for the BooleanInput.
      * @param input The BooleanInput.
      */
-    public static void publish(final String name, final BooleanInput input) {
+    public static void publish(String name, BooleanInput input) {
         CluckPublisher.publish(node, name, input);
     }
 
@@ -191,7 +191,7 @@ public final class Cluck {
      * false, then readValue() won't work until you run addTarget().
      * @return the BooleanInput.
      */
-    public static BooleanInput subscribeBI(final String path, boolean shouldSubscribeByDefault) {
+    public static BooleanInput subscribeBI(String path, boolean shouldSubscribeByDefault) {
         return CluckPublisher.subscribeBI(node, path, shouldSubscribeByDefault);
     }
 
@@ -201,7 +201,7 @@ public final class Cluck {
      * @param name The name for the BooleanOutput.
      * @param output The BooleanOutput.
      */
-    public static void publish(String name, final BooleanOutput output) {
+    public static void publish(String name, BooleanOutput output) {
         CluckPublisher.publish(node, name, output);
     }
 
@@ -211,7 +211,7 @@ public final class Cluck {
      * @param path The path to subscribe to.
      * @return the BooleanOutput.
      */
-    public static BooleanOutput subscribeBO(final String path) {
+    public static BooleanOutput subscribeBO(String path) {
         return CluckPublisher.subscribeBO(node, path);
     }
 
@@ -222,7 +222,7 @@ public final class Cluck {
      * @param name The name for the FloatInput.
      * @param input The FloatInput.
      */
-    public static void publish(final String name, final FloatInput input) {
+    public static void publish(String name, FloatInput input) {
         CluckPublisher.publish(node, name, input);
     }
 
@@ -235,7 +235,7 @@ public final class Cluck {
      * then readValue() won't work until you run addTarget().
      * @return the FloatInput.
      */
-    public static FloatInput subscribeFI(final String path, boolean subscribeByDefault) {
+    public static FloatInput subscribeFI(String path, boolean subscribeByDefault) {
         return CluckPublisher.subscribeFI(node, path, subscribeByDefault);
     }
 
@@ -265,7 +265,7 @@ public final class Cluck {
      * @param path The path to subscribe to.
      * @return the FloatOutput.
      */
-    public static FloatOutput subscribeFO(final String path) {
+    public static FloatOutput subscribeFO(String path) {
         return CluckPublisher.subscribeFO(node, path);
     }
 
@@ -311,7 +311,7 @@ public final class Cluck {
      * @param name The name for the OutputStream.
      * @param out The OutputStream.
      */
-    public static void publish(String name, final OutputStream out) {
+    public static void publish(String name, OutputStream out) {
         CluckPublisher.publish(node, name, out);
     }
 
@@ -321,7 +321,7 @@ public final class Cluck {
      * @param path The path to subscribe to.
      * @return the OutputStream.
      */
-    public static OutputStream subscribeOS(final String path) {
+    public static OutputStream subscribeOS(String path) {
         return CluckPublisher.subscribeOS(node, path);
     }
 

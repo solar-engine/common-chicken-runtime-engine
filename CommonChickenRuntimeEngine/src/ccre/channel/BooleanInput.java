@@ -24,8 +24,6 @@ package ccre.channel;
  *
  * A BooleanInput also acts as an UpdatingInput that updates when the value
  * changes, and never updates when the value doesn't change.
- * 
- * TODO: Make sure that's actually true everywhere.
  *
  * @author skeggsc
  */

@@ -408,6 +408,9 @@ public final class DirectFRCImplementation implements FRCImplementation {
             throw new RuntimeException("Invalid down channel: " + channelDown);
         }
 
+        DirectDigital.init(channelUp, true);
+        DirectDigital.init(channelDown, true);
+
         long counter = DirectCounter.init(channelUp, channelDown, mode);
         if (resetWhen != null) {
             resetWhen.send(() -> {

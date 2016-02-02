@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2015 Colby Skeggs
+ * Copyright 2013-2016 Colby Skeggs
  *
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  *
@@ -20,13 +20,13 @@ package ccre.cluck;
 
 import java.io.OutputStream;
 
-import ccre.channel.BooleanCell;
+import ccre.channel.BooleanIO;
 import ccre.channel.BooleanInput;
 import ccre.channel.BooleanOutput;
-import ccre.channel.EventCell;
+import ccre.channel.EventIO;
 import ccre.channel.EventInput;
 import ccre.channel.EventOutput;
-import ccre.channel.FloatCell;
+import ccre.channel.FloatIO;
 import ccre.channel.FloatInput;
 import ccre.channel.FloatOutput;
 import ccre.cluck.tcp.CluckTCPClient;
@@ -277,7 +277,7 @@ public final class Cluck {
      * @param name The name for the FloatStatus.
      * @param stat The FloatStatus.
      */
-    public static void publish(final String name, final FloatCell stat) {
+    public static void publish(String name, FloatIO stat) {
         CluckPublisher.publish(node, name, stat);
     }
 
@@ -289,7 +289,7 @@ public final class Cluck {
      * @param name The name for the BooleanStatus.
      * @param stat The BooleanStatus to publish.
      */
-    public static void publish(final String name, BooleanCell stat) {
+    public static void publish(String name, BooleanIO stat) {
         CluckPublisher.publish(node, name, stat);
     }
 
@@ -301,7 +301,7 @@ public final class Cluck {
      * @param name The name for the EventStatus.
      * @param stat The EventStatus to publish.
      */
-    public static void publish(final String name, EventCell stat) {
+    public static void publish(String name, EventIO stat) {
         CluckPublisher.publish(node, name, stat);
     }
 

@@ -33,6 +33,9 @@ class DirectPDP {
         }
     }
 
+    // TODO: if multiple PDPs don't work, I've probably forgotten to update the
+    // WPILib binaries.
+
     public static float getCurrent(int channel, int module) {
         checkChannel(channel);
         // TODO: avoid timeout errors

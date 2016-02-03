@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2015 Colby Skeggs
+ * Copyright 2014-2016 Colby Skeggs
  * Copyright 2015 Jake Springer
  *
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
@@ -30,6 +30,7 @@ import ccre.ctrl.ExtendedMotor;
 import ccre.ctrl.Joystick;
 import ccre.ctrl.LoopbackSerialIO;
 import ccre.ctrl.binding.ControlBindingCreator;
+import ccre.drivers.ctre.talon.TalonExtendedMotor;
 import ccre.frc.devices.BooleanControlDevice;
 import ccre.frc.devices.BooleanViewDevice;
 import ccre.frc.devices.CANJaguarDevice;
@@ -151,7 +152,7 @@ public class DeviceBasedImplementation implements FRCImplementation {
     }
 
     @Override
-    public ExtendedMotor makeCANTalon(int deviceNumber) {
+    public TalonExtendedMotor makeCANTalon(int deviceNumber) {
         return new CANTalonDevice(deviceNumber, panel).addToMaster().getMotor();
     }
 

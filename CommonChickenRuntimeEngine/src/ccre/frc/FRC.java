@@ -32,6 +32,7 @@ import ccre.ctrl.binding.CluckControlBinder;
 import ccre.ctrl.binding.ControlBindingCreator;
 import ccre.ctrl.binding.ControlBindingDataSource;
 import ccre.ctrl.binding.ControlBindingDataSourceBuildable;
+import ccre.drivers.ctre.talon.TalonExtendedMotor;
 import ccre.instinct.InstinctModule;
 import ccre.log.Logger;
 import ccre.timers.Ticker;
@@ -372,7 +373,7 @@ public class FRC {
      * @param deviceNumber the device number to connect to.
      * @return the ExtendedMotor representing this output.
      */
-    public static ExtendedMotor talonCAN(int deviceNumber) {
+    public static TalonExtendedMotor talonCAN(int deviceNumber) {
         return impl.makeCANTalon(deviceNumber);
     }
 

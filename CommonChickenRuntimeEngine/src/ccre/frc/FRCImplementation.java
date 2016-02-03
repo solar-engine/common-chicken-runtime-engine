@@ -337,8 +337,14 @@ public interface FRCImplementation {
     public FloatInput getPCMCompressorCurrent(EventInput updateOn);
 
     /**
+     * @param updateOn when the PDP should be polled.
+     * @return the current draw of the entire PDP.
+     */
+    public FloatInput getPDPTotalCurrent(EventInput updateOn);
+
+    /**
      * @param channel the channel to monitor.
-     * @param updateOn when the PCM should be polled.
+     * @param updateOn when the PDP should be polled.
      * @return the current draw of the specified PDP channel.
      */
     public FloatInput getPDPChannelCurrent(int channel, EventInput updateOn);

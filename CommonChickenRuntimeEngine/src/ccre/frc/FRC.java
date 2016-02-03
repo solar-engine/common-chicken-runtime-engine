@@ -677,6 +677,25 @@ public class FRC {
     }
 
     /**
+     * Reads the current draw of the entire PDP.
+     *
+     * @return the current being used by the specified channel.
+     */
+    public static FloatInput totalCurrentPDP() {
+        return impl.getPDPTotalCurrent(sensorPeriodic);
+    }
+
+    /**
+     * Reads the current draw of the entire PDP.
+     *
+     * @param updateOn when to update the sensor value.
+     * @return the current being used by the specified channel.
+     */
+    public static FloatInput totalCurrentPDP(EventInput updateOn) {
+        return impl.getPDPTotalCurrent(updateOn);
+    }
+
+    /**
      * Reads the current draw of the specified PDP channel.
      *
      * @param channel the channel to monitor

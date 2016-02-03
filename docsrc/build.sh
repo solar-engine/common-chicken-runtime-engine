@@ -5,8 +5,7 @@ set -e
 # Scribble is a part of Racket.
 scribble index.scrbl
 
-# TODO: replace this with an actual git reference once I release the first version.
-BUILD=ccre-docs-v3.0.0-pre1
+BUILD=ccre-docs-dir
 
 rm -rf $BUILD
 mkdir $BUILD
@@ -17,7 +16,6 @@ cp *.html $BUILD
 cp *.css $BUILD
 cp *.js $BUILD
 
-tar -czf $BUILD.tgz $BUILD
 (cd $BUILD && tar -czf ../ccre-scr-doc.tgz .)
 
 if [ "$1" = "upload" ]; then

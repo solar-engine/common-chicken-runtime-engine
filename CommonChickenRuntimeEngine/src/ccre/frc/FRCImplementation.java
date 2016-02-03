@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2015 Colby Skeggs
+ * Copyright 2013-2016 Colby Skeggs
  * Copyright 2015 Jake Springer
  *
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
@@ -28,6 +28,7 @@ import ccre.channel.SerialIO;
 import ccre.ctrl.ExtendedMotor;
 import ccre.ctrl.Joystick;
 import ccre.ctrl.binding.ControlBindingCreator;
+import ccre.drivers.ctre.talon.TalonExtendedMotor;
 
 /**
  * This is an implementation for an FRC application. The reason for this is so
@@ -85,7 +86,7 @@ public interface FRCImplementation {
      * @param deviceNumber the Talon's CAN device number.
      * @return the ExtendedMotor for the Talon.
      */
-    public ExtendedMotor makeCANTalon(int deviceNumber);
+    public TalonExtendedMotor makeCANTalon(int deviceNumber);
 
     /**
      * Create a reference to a solenoid on the specified port and module.

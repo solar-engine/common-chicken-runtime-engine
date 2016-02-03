@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2015 Colby Skeggs
+ * Copyright 2014-2016 Colby Skeggs
  *
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  *
@@ -27,9 +27,11 @@ import ccre.channel.FloatInput;
 import ccre.channel.FloatOutput;
 import ccre.ctrl.ExtendedMotor;
 import ccre.ctrl.ExtendedMotorFailureException;
+import ccre.drivers.ctre.talon.TalonExtendedMotor;
 import ccre.frc.Device;
 import ccre.frc.DeviceGroup;
 import ccre.frc.DeviceListPanel;
+import ccre.log.Logger;
 
 /**
  * A virtual CANTalon, which will contain any statuses, diagnostics, or outputs
@@ -95,8 +97,11 @@ public class CANTalonDevice extends DeviceGroup implements Disableable {
      *
      * @return the ExtendedMotor of this CANTalon.
      */
-    public ExtendedMotor getMotor() {
-        return value;
+    public TalonExtendedMotor getMotor() {
+        // TODO: make this work right
+        Logger.severe("CAN Talons temporarily not implemented in emulator...");
+        throw new RuntimeException("CAN Talons temporarily not implemented in emulator...");
+        //return value;
     }
 
     private final ExtendedMotor value = new ExtendedMotor() {

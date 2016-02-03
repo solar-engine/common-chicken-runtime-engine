@@ -47,6 +47,7 @@ import ccre.ctrl.ExtendedMotor;
 import ccre.ctrl.ExtendedMotorFailureException;
 import ccre.ctrl.Joystick;
 import ccre.ctrl.binding.ControlBindingCreator;
+import ccre.drivers.ctre.talon.TalonExtendedMotor;
 import ccre.log.FileLogger;
 import ccre.log.Logger;
 import ccre.log.NetworkAutologger;
@@ -408,6 +409,9 @@ public final class DirectFRCImplementation implements FRCImplementation {
             throw new RuntimeException("Invalid down channel: " + channelDown);
         }
 
+        DirectDigital.init(channelUp, true);
+        DirectDigital.init(channelDown, true);
+
         long counter = DirectCounter.init(channelUp, channelDown, mode);
         if (resetWhen != null) {
             resetWhen.send(() -> {
@@ -635,13 +639,8 @@ public final class DirectFRCImplementation implements FRCImplementation {
     }
 
     @Override
-    public ExtendedMotor makeCANTalon(int deviceNumber) {
-        try {
-            return new ExtendedTalonDirect(deviceNumber);
-        } catch (ExtendedMotorFailureException e) {
-            Logger.severe("Could not connect to CAN Talon " + deviceNumber, e);
-            return new CommunicationFailureExtendedMotor("Could not connect to CAN Talon " + deviceNumber);
-        }
+    public TalonExtendedMotor makeCANTalon(int deviceNumber) {
+        return new ExtendedTalonDirect(deviceNumber);
     }
 
     @Override

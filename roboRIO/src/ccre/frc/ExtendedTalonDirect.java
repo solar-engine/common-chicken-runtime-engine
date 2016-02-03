@@ -40,13 +40,14 @@ import ccre.channel.FloatIO;
 import ccre.channel.FloatInput;
 import ccre.channel.FloatOutput;
 import ccre.concurrency.ReporterThread;
-import ccre.ctrl.ExtendedMotor;
 import ccre.ctrl.ExtendedMotorFailureException;
 import ccre.ctrl.Faultable;
 import ccre.drivers.ctre.talon.TalonSRX;
 import ccre.drivers.ctre.talon.TalonAnalog;
 import ccre.drivers.ctre.talon.TalonEncoder;
 import ccre.drivers.ctre.talon.TalonExtendedMotor;
+import ccre.drivers.ctre.talon.TalonFeedback;
+import ccre.drivers.ctre.talon.TalonGeneralConfig;
 import ccre.drivers.ctre.talon.TalonHardLimits;
 import ccre.drivers.ctre.talon.TalonPIDConfiguration;
 import ccre.drivers.ctre.talon.TalonPulseWidth;
@@ -56,6 +57,9 @@ import edu.wpi.first.wpilibj.hal.CanTalonJNI;
 
 class ExtendedTalonDirect extends TalonExtendedMotor {
 
+    private static final int PARAMETER_REQUEST_PERIOD_MILLIS = 9;
+    // based on the magic number in WPILib. Is this the best? WHO KNOWS
+    private static final int SOLICITED_SIGNAL_LATENCY_MILLIS = 4;
     // null until something cares. This means that it's not enabled, but could
     // be automatically.
     private Boolean enableMode = null;
@@ -147,7 +151,7 @@ class ExtendedTalonDirect extends TalonExtendedMotor {
         CanTalonJNI.RequestParam(handle, CanTalonJNI.param_t.eFirmVers.value);
 
         try {
-            Thread.sleep(4);
+            Thread.sleep(SOLICITED_SIGNAL_LATENCY_MILLIS);
         } catch (InterruptedException e1) {
             Thread.currentThread().interrupt();
         }
@@ -158,7 +162,7 @@ class ExtendedTalonDirect extends TalonExtendedMotor {
                 for (int value : values) {
                     CanTalonJNI.RequestParam(handle, value);
                     try {
-                        Thread.sleep(9);
+                        Thread.sleep(PARAMETER_REQUEST_PERIOD_MILLIS);
                     } catch (InterruptedException e) {
                         return;
                     }
@@ -701,184 +705,195 @@ class ExtendedTalonDirect extends TalonExtendedMotor {
     }
 
     @Override
-    public FloatInput getBusVoltage() {
-        return new DerivedFloatInput(updateTicker) {
+    public TalonFeedback modFeedback() {
+        return new TalonFeedback() {
             @Override
-            protected float apply() {
-                return (float) CanTalonJNI.GetBatteryV(handle);
+            public FloatInput getBusVoltage() {
+                return new DerivedFloatInput(updateTicker) {
+                    @Override
+                    protected float apply() {
+                        return (float) CanTalonJNI.GetBatteryV(handle);
+                    }
+                };
+            }
+
+            @Override
+            public FloatInput getOutputVoltage() {
+                return new DerivedFloatInput(updateTicker) {
+                    @Override
+                    protected float apply() {
+                        return (float) (CanTalonJNI.GetBatteryV(handle) * CanTalonJNI.GetAppliedThrottle(handle) / 1023);
+                    }
+                };
+            }
+
+            @Override
+            public FloatInput getOutputCurrent() {
+                return new DerivedFloatInput(updateTicker) {
+                    @Override
+                    protected float apply() {
+                        return (float) CanTalonJNI.GetCurrent(handle);
+                    }
+                };
+            }
+
+            @Override
+            public FloatIO getSensorPosition() {
+                return new DerivedFloatIO(updateTicker) {
+                    @Override
+                    protected float apply() {
+                        return nativeToRotations(feedback, CanTalonJNI.GetSensorPosition(handle));
+                    }
+
+                    @Override
+                    public void set(float value) {
+                        CanTalonJNI.SetSensorPosition(handle, rotationsToNative(feedback, value));
+                    }
+                };
+            }
+
+            @Override
+            public FloatInput getSensorVelocity() {
+                return new DerivedFloatInput(updateTicker) {
+                    @Override
+                    protected float apply() {
+                        return nativeToVelocity(feedback, CanTalonJNI.GetSensorVelocity(handle));
+                    }
+                };
+            }
+
+            @Override
+            public FloatInput getThrottle() {
+                return new DerivedFloatInput(updateTicker) {
+                    @Override
+                    protected float apply() {
+                        return CanTalonJNI.GetAppliedThrottle(handle) / 1023f;
+                    }
+                };
+            }
+
+            @Override
+            public FloatInput getClosedLoopError() {
+                return new DerivedFloatInput(updateTicker) {
+                    @Override
+                    protected float apply() {
+                        int raw = CanTalonJNI.GetCloseLoopErr(handle);
+                        switch (activation_mode) {
+                        case MODE_CURRENT:
+                            return raw / 1000f;
+                        case MODE_SPEED:
+                            return nativeToRotations(feedback, raw);
+                        case MODE_POSITION:
+                            return nativeToVelocity(feedback, raw);
+                        default:
+                            // TODO: what now?
+                            return raw;
+                        }
+                    }
+                };
+            }
+
+            @Override
+            public FloatInput getTemperature() {
+                return new DerivedFloatInput(updateTicker) {
+                    @Override
+                    protected float apply() {
+                        return (float) CanTalonJNI.GetTemp(handle);
+                    }
+                };
+            }
+
+            @Override
+            public long GetFirmwareVersion() {
+                return CanTalonJNI.GetParamResponseInt32(handle, CanTalonJNI.param_t.eFirmVers.value);
             }
         };
     }
 
     @Override
-    public FloatInput getOutputVoltage() {
-        return new DerivedFloatInput(updateTicker) {
+    public TalonGeneralConfig modGeneralConfig() {
+        return new TalonGeneralConfig() {
             @Override
-            protected float apply() {
-                return (float) (CanTalonJNI.GetBatteryV(handle) * CanTalonJNI.GetAppliedThrottle(handle) / 1023);
-            }
-        };
-    }
+            public BooleanIO getBrakeNotCoast() {
+                return new DerivedBooleanIO(updateTicker) {
+                    @Override
+                    protected boolean apply() {
+                        return CanTalonJNI.GetBrakeIsEnabled(handle) != 0;
+                    }
 
-    @Override
-    public FloatInput getOutputCurrent() {
-        return new DerivedFloatInput(updateTicker) {
-            @Override
-            protected float apply() {
-                return (float) CanTalonJNI.GetCurrent(handle);
-            }
-        };
-    }
-
-    @Override
-    public FloatIO getSensorPosition() {
-        return new DerivedFloatIO(updateTicker) {
-            @Override
-            protected float apply() {
-                return nativeToRotations(feedback, CanTalonJNI.GetSensorPosition(handle));
+                    @Override
+                    public void set(boolean brake) {
+                        // TODO: perhaps I should provide access to setting it
+                        // to zero?
+                        // Which might cancel an override?
+                        CanTalonJNI.SetOverrideBrakeType(handle, brake ? 2 : 1);
+                    }
+                };
             }
 
             @Override
-            public void set(float value) {
-                CanTalonJNI.SetSensorPosition(handle, rotationsToNative(feedback, value));
+            public void configureReversed(boolean flipSensor, boolean flipOutput) {
+                CanTalonJNI.SetRevFeedbackSensor(handle, flipSensor ? 1 : 0);
+                CanTalonJNI.SetRevMotDuringCloseLoopEn(handle, flipOutput ? 1 : 0);
             }
-        };
-    }
 
-    @Override
-    public FloatInput getSensorVelocity() {
-        return new DerivedFloatInput(updateTicker) {
             @Override
-            protected float apply() {
-                return nativeToVelocity(feedback, CanTalonJNI.GetSensorVelocity(handle));
-            }
-        };
-    }
-
-    @Override
-    public FloatInput getThrottle() {
-        return new DerivedFloatInput(updateTicker) {
-            @Override
-            protected float apply() {
-                return CanTalonJNI.GetAppliedThrottle(handle) / 1023f;
-            }
-        };
-    }
-
-    @Override
-    public FloatInput getClosedLoopError() {
-        return new DerivedFloatInput(updateTicker) {
-            @Override
-            protected float apply() {
-                int raw = CanTalonJNI.GetCloseLoopErr(handle);
+            public void configureAllowableClosedLoopError(float allowableError) {
+                int param = secondaryProfileActive.get() ? CanTalonJNI.param_t.eProfileParamSlot1_AllowableClosedLoopErr.value : CanTalonJNI.param_t.eProfileParamSlot0_AllowableClosedLoopErr.value;
                 switch (activation_mode) {
                 case MODE_CURRENT:
-                    return raw / 1000f;
+                    // takes amps
+                    CanTalonJNI.SetParam(handle, param, allowableError * 1000);
+                    break;
                 case MODE_SPEED:
-                    return nativeToRotations(feedback, raw);
+                    // takes RPM
+                    CanTalonJNI.SetParam(handle, param, rpmToNative(feedback, allowableError));
+                    break;
                 case MODE_POSITION:
-                    return nativeToVelocity(feedback, raw);
+                    // takes position
+                    CanTalonJNI.SetParam(handle, param, rotationsToNative(feedback, allowableError));
+                    break;
                 default:
                     // TODO: what now?
-                    return raw;
+                    CanTalonJNI.SetParam(handle, param, allowableError);
                 }
             }
-        };
-    }
 
-    @Override
-    public void configureReversed(boolean flipSensor, boolean flipOutput) {
-        CanTalonJNI.SetRevFeedbackSensor(handle, flipSensor ? 1 : 0);
-        CanTalonJNI.SetRevMotDuringCloseLoopEn(handle, flipOutput ? 1 : 0);
-    }
-
-    @Override
-    public void configureAllowableClosedLoopError(float allowableError) {
-        int param = secondaryProfileActive.get() ? CanTalonJNI.param_t.eProfileParamSlot1_AllowableClosedLoopErr.value : CanTalonJNI.param_t.eProfileParamSlot0_AllowableClosedLoopErr.value;
-        switch (activation_mode) {
-        case MODE_CURRENT:
-            // takes amps
-            CanTalonJNI.SetParam(handle, param, allowableError * 1000);
-            break;
-        case MODE_SPEED:
-            // takes RPM
-            CanTalonJNI.SetParam(handle, param, rpmToNative(feedback, allowableError));
-            break;
-        case MODE_POSITION:
-            // takes position
-            CanTalonJNI.SetParam(handle, param, rotationsToNative(feedback, allowableError));
-            break;
-        default:
-            // TODO: what now?
-            CanTalonJNI.SetParam(handle, param, allowableError);
-        }
-    }
-
-    @Override
-    public void configureGeneralFeedbackUpdateRate(int millisGeneral, int millisFeedback) {
-        CanTalonJNI.SetStatusFrameRate(handle, GENERAL_FRAME, millisGeneral);
-        CanTalonJNI.SetStatusFrameRate(handle, FEEDBACK_FRAME, millisFeedback);
-    }
-
-    @Override
-    public void configureMaximumOutputVoltage(float forwardVoltage, float reverseVoltage) {
-        forwardVoltage = Math.max(0, Math.min(12, forwardVoltage));
-        reverseVoltage = Math.max(-12, Math.min(0, reverseVoltage));
-        CanTalonJNI.SetParam(handle, CanTalonJNI.param_t.ePeakPosOutput.value, 1023 * forwardVoltage / 12);
-        CanTalonJNI.SetParam(handle, CanTalonJNI.param_t.ePeakNegOutput.value, 1023 * reverseVoltage / 12);
-    }
-
-    @Override
-    public void configureNominalOutputVoltage(float forwardVoltage, float reverseVoltage) {
-        forwardVoltage = Math.max(0, Math.min(12, forwardVoltage));
-        reverseVoltage = Math.max(-12, Math.min(0, reverseVoltage));
-        CanTalonJNI.SetParam(handle, CanTalonJNI.param_t.eNominalPosOutput.value, 1023 * forwardVoltage / 12);
-        CanTalonJNI.SetParam(handle, CanTalonJNI.param_t.eNominalNegOutput.value, 1023 * reverseVoltage / 12);
-    }
-
-    @Override
-    public FloatInput getTemperature() {
-        return new DerivedFloatInput(updateTicker) {
             @Override
-            protected float apply() {
-                return (float) CanTalonJNI.GetTemp(handle);
+            public void configureGeneralFeedbackUpdateRate(int millisGeneral, int millisFeedback) {
+                CanTalonJNI.SetStatusFrameRate(handle, GENERAL_FRAME, millisGeneral);
+                CanTalonJNI.SetStatusFrameRate(handle, FEEDBACK_FRAME, millisFeedback);
+            }
+
+            @Override
+            public void configureMaximumOutputVoltage(float forwardVoltage, float reverseVoltage) {
+                forwardVoltage = Math.max(0, Math.min(12, forwardVoltage));
+                reverseVoltage = Math.max(-12, Math.min(0, reverseVoltage));
+                CanTalonJNI.SetParam(handle, CanTalonJNI.param_t.ePeakPosOutput.value, 1023 * forwardVoltage / 12);
+                CanTalonJNI.SetParam(handle, CanTalonJNI.param_t.ePeakNegOutput.value, 1023 * reverseVoltage / 12);
+            }
+
+            @Override
+            public void configureNominalOutputVoltage(float forwardVoltage, float reverseVoltage) {
+                forwardVoltage = Math.max(0, Math.min(12, forwardVoltage));
+                reverseVoltage = Math.max(-12, Math.min(0, reverseVoltage));
+                CanTalonJNI.SetParam(handle, CanTalonJNI.param_t.eNominalPosOutput.value, 1023 * forwardVoltage / 12);
+                CanTalonJNI.SetParam(handle, CanTalonJNI.param_t.eNominalNegOutput.value, 1023 * reverseVoltage / 12);
+            }
+
+            @Override
+            public void activateFollowerMode(int talonID) {
+                disable();
+                activation_mode = MODE_FOLLOWER;
+                CanTalonJNI.SetDemand(handle, talonID);
+                enable();
             }
         };
-    }
-
-    @Override
-    public long GetFirmwareVersion() {
-        return CanTalonJNI.GetParamResponseInt32(handle, CanTalonJNI.param_t.eFirmVers.value);
     }
 
     @Override
     public int getDeviceID() {
         return deviceID;
-    }
-
-    @Override
-    public BooleanIO getBrakeNotCoast() {
-        return new DerivedBooleanIO(updateTicker) {
-            @Override
-            protected boolean apply() {
-                return CanTalonJNI.GetBrakeIsEnabled(handle) != 0;
-            }
-
-            @Override
-            public void set(boolean brake) {
-                // TODO: perhaps I should provide access to setting it to zero?
-                // Which might cancel an override?
-                CanTalonJNI.SetOverrideBrakeType(handle, brake ? 2 : 1);
-            }
-        };
-    }
-
-    @Override
-    public void activateFollowerMode(int talonID) {
-        disable();
-        activation_mode = MODE_FOLLOWER;
-        CanTalonJNI.SetDemand(handle, talonID);
-        enable();
     }
 
     @Override
@@ -992,13 +1007,13 @@ class ExtendedTalonDirect extends TalonExtendedMotor {
     public FloatInput asStatus(StatusType type, EventInput updateOn) {
         switch (type) {
         case BUS_VOLTAGE:
-            return getBusVoltage();
+            return modFeedback().getBusVoltage();
         case OUTPUT_CURRENT:
-            return getOutputCurrent();
+            return modFeedback().getOutputCurrent();
         case OUTPUT_VOLTAGE:
-            return getOutputVoltage();
+            return modFeedback().getOutputVoltage();
         case TEMPERATURE:
-            return getTemperature();
+            return modFeedback().getTemperature();
         default:
             return null;
         }
@@ -1086,10 +1101,5 @@ class ExtendedTalonDirect extends TalonExtendedMotor {
             return PULSE_WIDTH_TICKS;
         }
         return 1; // native units
-    }
-
-    @Override
-    public ExtendedMotor modMotor() {
-        return this;
     }
 }

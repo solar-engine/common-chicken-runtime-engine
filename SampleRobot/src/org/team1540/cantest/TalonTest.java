@@ -106,7 +106,7 @@ public class TalonTest implements FRCApplication {
             Cluck.publish("Soft Limit Threshold Reverse", ts.getReverseSoftLimit());
         }*/
         new Ticker(5000).send(() -> {
-            Logger.info("Firmware: " + motor.GetFirmwareVersion());
+            Logger.info("Firmware: " + motor.modFeedback().GetFirmwareVersion());
         });
         /*Cluck.publish("Motor Enable", motor.asEnable());
         FloatSink out = new FloatSink(motor.asMode(OutputControlMode.VOLTAGE_FRACTIONAL));

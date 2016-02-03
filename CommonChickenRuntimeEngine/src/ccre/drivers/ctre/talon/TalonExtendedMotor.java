@@ -27,5 +27,14 @@ import ccre.ctrl.ExtendedMotor;
  * @author skeggsc
  */
 public abstract class TalonExtendedMotor extends ExtendedMotor implements TalonSRX {
+    /**
+     * Provides the enablement state of this ExtendedMotor.
+     *
+     * @return a BooleanIO representing the enable state of the Talon.
+     */
     public abstract BooleanIO asEnable();
+
+    public TalonExtendedMotor modMotor() {
+        return this;
+    }
 }

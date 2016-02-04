@@ -571,6 +571,16 @@ public final class DirectFRCImplementation implements FRCImplementation {
     // TODO: Add the rest of the PCM and PDP accessors.
 
     @Override
+    public FloatInput getPDPTotalCurrent(EventInput updateOn) {
+        return new DerivedFloatInput(updateOn) {
+            @Override
+            protected float apply() {
+                return DirectPDP.getTotalCurrent(0);
+            }
+        };
+    }
+
+    @Override
     public FloatInput getPDPChannelCurrent(final int channel, EventInput updateOn) {
         DirectPDP.checkChannel(channel);
         return new DerivedFloatInput(updateOn) {

@@ -42,6 +42,10 @@ class DirectPDP {
         return (float) PDPJNI.getPDPChannelCurrent((byte) channel, module);
     }
 
+    public static float getTotalCurrent(int module) {
+        return (float) PDPJNI.getPDPTotalCurrent(module);
+    }
+
     public static float getVoltage(int module) {
         // TODO: avoid timeout errors
         return (float) PDPJNI.getPDPVoltage(module);

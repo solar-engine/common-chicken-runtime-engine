@@ -393,6 +393,11 @@ public class DeviceBasedImplementation implements FRCImplementation {
     }
 
     @Override
+    public FloatInput getPDPTotalCurrent(EventInput updateOn) {
+        return getAmperage("PDP Total", updateOn);
+    }
+
+    @Override
     public FloatInput getPDPVoltage(EventInput updateOn) {
         return panel.add(new FloatControlDevice("PDP Voltage (6.5V-12.5V)", 6.5f, 12.5f, 9.5f, 6.5f)).asInput();
     }

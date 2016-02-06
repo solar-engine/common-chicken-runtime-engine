@@ -40,6 +40,7 @@ import ccre.testing.CountingEventOutput;
 import ccre.testing.CountingFloatOutput;
 import ccre.time.FakeTime;
 import ccre.time.Time;
+import ccre.timers.Ticker;
 import ccre.util.Values;
 
 @SuppressWarnings("javadoc")
@@ -876,6 +877,46 @@ public class FloatInputTest {
                 assertEquals(1000 * delta / timeDelta, fi.get(), 0.00001f * (1000 * delta / timeDelta));
             }
             fake.forward(1000);
+        }
+    }
+
+    @Test
+    public void testDerivativeRepSlower() throws InterruptedException {
+        FloatInput fi = fs.derivative(20);
+        Ticker ti = new Ticker(21);
+        try {
+            fs.set(0.5f);
+            ti.send(fs.eventAccumulate(1));
+            for (int i = 0; i < 20; i++) {
+                fake.forward(20);
+                Thread.sleep(2);
+                assertEquals(0, fi.get(), 0);
+                fake.forward(1);
+                Thread.sleep(2);
+                assertEquals(1.0 / 0.001, fi.get(), 0);
+            }
+        } finally {
+            ti.terminate();
+        }
+    }
+
+    @Test
+    public void testDerivativeRepFaster() throws InterruptedException {
+        FloatInput fi = fs.derivative(20);
+        Ticker ti = new Ticker(18);
+        try {
+            ti.send(fs.eventAccumulate(1));
+            fake.forward(18);
+            Thread.sleep(2);
+            fake.forward(9);
+            Thread.sleep(2);
+            for (int i = 0; i < 20; i++) {
+                fake.forward(9);
+                Thread.sleep(2);
+                assertEquals(1.0f / 0.018f, fi.get(), 0);
+            }
+        } finally {
+            ti.terminate();
         }
     }
 

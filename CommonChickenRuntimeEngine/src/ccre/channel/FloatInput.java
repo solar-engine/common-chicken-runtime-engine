@@ -18,6 +18,7 @@
  */
 package ccre.channel;
 
+import ccre.timers.PauseTimer;
 import ccre.util.Utils;
 
 /**
@@ -679,6 +680,18 @@ public interface FloatInput extends UpdatingInput {
         FloatCell out = new FloatCell();
         FloatOutput deriv = out.viaDerivative();
         onUpdate(() -> deriv.set(get()));
+        return out;
+    }
+
+    public default FloatInput derivative(int millis) {
+        FloatCell out = new FloatCell();
+        FloatOutput deriv = out.viaDerivative();
+        PauseTimer t = new PauseTimer(millis);
+
+        EventOutput update = t.combine(deriv.eventSet(this));
+
+        t.triggerAtEnd(update);
+        onUpdate(update);
         return out;
     }
 

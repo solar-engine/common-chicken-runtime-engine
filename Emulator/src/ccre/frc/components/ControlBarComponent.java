@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2015 Colby Skeggs
+ * Copyright 2014-2016 Colby Skeggs
  *
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  *
@@ -25,6 +25,7 @@ import java.awt.Rectangle;
 
 import ccre.channel.FloatCell;
 import ccre.channel.FloatInput;
+import ccre.channel.FloatOutput;
 import ccre.frc.DeviceComponent;
 
 /**
@@ -32,7 +33,7 @@ import ccre.frc.DeviceComponent;
  *
  * @author skeggsc
  */
-public class ControlBarComponent extends DeviceComponent {
+public class ControlBarComponent extends DeviceComponent implements FloatOutput {
 
     private boolean dragging = false;
     private int maxWidth = 0; // zero means no maximum
@@ -133,5 +134,11 @@ public class ControlBarComponent extends DeviceComponent {
      */
     public FloatInput asInput() {
         return value;
+    }
+
+    @Override
+    public void set(float value) {
+        this.value.safeSet(value);
+        repaint();
     }
 }

@@ -29,6 +29,7 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import ccre.channel.FloatCell;
 import ccre.log.LogLevel;
 import ccre.log.VerifyingLogger;
 import ccre.testing.CountingEventOutput;
@@ -86,6 +87,11 @@ public class PauseTimerTest {
         new PauseTimer(1);
     }
 
+    @Test(expected = NullPointerException.class)
+    public void testPauseTimerNull() {
+        new PauseTimer(null);
+    }
+
     @Test
     public void testNoDefaultTrigger() throws InterruptedException {
         CountingEventOutput con = new CountingEventOutput();
@@ -106,6 +112,25 @@ public class PauseTimerTest {
         ceo.ifExpected = true;
         fake.forward(1000);
         ceo.check();
+    }
+
+    @Test
+    public void testTriggerVariance() throws InterruptedException {
+        CountingEventOutput coff = new CountingEventOutput();
+        FloatCell time = new FloatCell(1.0f);
+        pt = new PauseTimer(time);
+        pt.triggerAtEnd(coff);
+        for (int i = 10; i < 3000; i *= 2) {
+            time.set(i / 1000f);
+            pt.event();
+            Thread.sleep(2);
+            fake.forward(i - 5);
+            Thread.sleep(2);
+            coff.ifExpected = true;
+            fake.forward(5);
+            Thread.sleep(2);
+            coff.check();
+        }
     }
 
     @Test

@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2015 Colby Skeggs
+ * Copyright 2014-2016 Colby Skeggs
  *
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  *
@@ -64,6 +64,15 @@ public abstract class FloatOperation {
         @Override
         public float of(float dividend, float divisor) {
             return dividend / divisor;
+        }
+    };
+    /**
+     * An operation representing a remainder, aka modulation.
+     */
+    public static final FloatOperation modulation = new FloatOperation() {
+        @Override
+        public float of(float dividend, float divisor) {
+            return dividend % divisor;
         }
     };
 

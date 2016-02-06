@@ -228,6 +228,26 @@ public class FloatInputTest {
         fi.dividedByRev(null);
     }
 
+    @Test
+    public void testModuloFloatInput() {
+        tryEach(fs.modulo(fs2), FloatOperation.modulation.of(fs.asInput(), fs2.asInput()));
+    }
+
+    @Test(expected = NullPointerException.class)
+    public void testModuloNull() {
+        fi.modulo(null);
+    }
+
+    @Test
+    public void testModuloRevFloatInput() {
+        tryEach(fs.moduloRev(fs2), FloatOperation.modulation.of(fs2.asInput(), fs.asInput()));
+    }
+
+    @Test(expected = NullPointerException.class)
+    public void testModuloRevNull() {
+        fi.moduloRev(null);
+    }
+
     private void trySet(FloatInput fi, FloatInput fi2) {
         for (float f1 : Values.interestingFloats) {
             fs.set(f1);
@@ -274,6 +294,20 @@ public class FloatInputTest {
     public void testDividedByRevFloat() {
         for (float f2 : Values.interestingFloats) {
             trySet(fs.dividedByRev(f2), FloatOperation.division.of(f2, fs.asInput()));
+        }
+    }
+
+    @Test
+    public void testModuloFloat() {
+        for (float f2 : Values.interestingFloats) {
+            trySet(fs.modulo(f2), FloatOperation.modulation.of(fs.asInput(), f2));
+        }
+    }
+
+    @Test
+    public void testModuloRevFloat() {
+        for (float f2 : Values.interestingFloats) {
+            trySet(fs.moduloRev(f2), FloatOperation.modulation.of(f2, fs.asInput()));
         }
     }
 

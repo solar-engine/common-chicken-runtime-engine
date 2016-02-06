@@ -164,6 +164,28 @@ public interface FloatInput extends UpdatingInput {
     }
 
     /**
+     * Provides a FloatInput whose value is the value of this FloatInput divided
+     * by the value of <code>other</code>.
+     *
+     * @param other the other FloatInput to include.
+     * @return the combined FloatInput.
+     */
+    public default FloatInput modulo(FloatInput other) {
+        return FloatOperation.modulation.of(this, other);
+    }
+
+    /**
+     * Provides a FloatInput whose value is the value of <code>other</code>
+     * modulo the value of this FloatInput.
+     *
+     * @param other the other FloatInput to include.
+     * @return the combined FloatInput.
+     */
+    public default FloatInput moduloRev(FloatInput other) {
+        return FloatOperation.modulation.of(other, this);
+    }
+
+    /**
      * Provides a FloatInput whose value is the value of this FloatInput plus
      * <code>other</code>.
      *
@@ -227,6 +249,28 @@ public interface FloatInput extends UpdatingInput {
      */
     public default FloatInput dividedByRev(float other) {
         return FloatOperation.division.of(other, this);
+    }
+
+    /**
+     * Provides a FloatInput whose value is the value of this FloatInput modulo
+     * <code>other</code>.
+     *
+     * @param other the other value to include.
+     * @return the combined FloatInput.
+     */
+    public default FloatInput modulo(float other) {
+        return FloatOperation.modulation.of(this, other);
+    }
+
+    /**
+     * Provides a FloatInput whose value is <code>other</code> modulo the value
+     * of this FloatInput.
+     *
+     * @param other the other value to include.
+     * @return the combined FloatInput.
+     */
+    public default FloatInput moduloRev(float other) {
+        return FloatOperation.modulation.of(other, this);
     }
 
     /**

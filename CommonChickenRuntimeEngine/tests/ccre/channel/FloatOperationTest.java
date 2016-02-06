@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 Colby Skeggs
+ * Copyright 2015-2016 Colby Skeggs
  *
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  *
@@ -78,6 +78,15 @@ public class FloatOperationTest {
         for (float a : Values.interestingFloats) {
             for (float b : Values.interestingFloats) {
                 assertEquals(a / b, FloatOperation.division.of(a, b), 0);
+            }
+        }
+    }
+
+    @Test
+    public void testModulation() {
+        for (float a : Values.interestingFloats) {
+            for (float b : Values.interestingFloats) {
+                assertEquals(a % b, FloatOperation.modulation.of(a, b), 0);
             }
         }
     }

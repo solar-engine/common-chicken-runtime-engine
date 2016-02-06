@@ -282,6 +282,21 @@ class ExtendedTalonDirect extends TalonExtendedMotor {
                 return new DerivedFloatIO(updateTicker) {
                     @Override
                     protected float apply() {
+                        return nativeToRotations(FeedbackDevice.AnalogPot, CanTalonJNI.GetAnalogInWithOv(handle) & 0x3FF);
+                    }
+
+                    public void set(float f) {
+                        f = rotationsToNative(FeedbackDevice.AnalogPot, f);
+                        CanTalonJNI.SetParam(handle, CanTalonJNI.param_t.eAinPosition.value, f);
+                    }
+                };
+            }
+
+            @Override
+            public FloatIO getAnalogPositionEncoder() {
+                return new DerivedFloatIO(updateTicker) {
+                    @Override
+                    protected float apply() {
                         return nativeToRotations(FeedbackDevice.AnalogEncoder, CanTalonJNI.GetAnalogInWithOv(handle));
                     }
 

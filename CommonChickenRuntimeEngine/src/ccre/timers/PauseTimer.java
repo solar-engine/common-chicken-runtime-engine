@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2015 Colby Skeggs
+ * Copyright 2014-2016 Colby Skeggs
  *
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  *
@@ -22,6 +22,7 @@ import ccre.channel.AbstractUpdatingInput;
 import ccre.channel.BooleanInput;
 import ccre.channel.BooleanOutput;
 import ccre.channel.EventOutput;
+import ccre.channel.FloatInput;
 import ccre.concurrency.ReporterThread;
 import ccre.log.Logger;
 import ccre.time.Time;
@@ -39,7 +40,7 @@ import ccre.time.Time;
 public class PauseTimer extends AbstractUpdatingInput implements BooleanInput, EventOutput {
 
     private volatile long endAt;
-    private final long timeout;
+    private final FloatInput timeout;
     private final Object lock = new Object();
     private boolean isRunning = true;
     private final ReporterThread main = new ReporterThread("PauseTimer") {
@@ -77,6 +78,18 @@ public class PauseTimer extends AbstractUpdatingInput implements BooleanInput, E
         if (timeout <= 0) {
             throw new IllegalArgumentException("PauseTimer must have a positive timeout!");
         }
+        this.timeout = FloatInput.always(timeout / 1000f);
+    }
+
+    /**
+     * Create a new PauseTimer with the specified dynamic timeout in seconds.
+     *
+     * @param timeout The timeout for each time the timer is activated.
+     */
+    public PauseTimer(FloatInput timeout) {
+        if (timeout == null) {
+            throw new NullPointerException();
+        }
         this.timeout = timeout;
     }
 
@@ -95,7 +108,7 @@ public class PauseTimer extends AbstractUpdatingInput implements BooleanInput, E
      * Start the timer running.
      */
     public void event() {
-        setEndAt(Time.currentTimeMillis() + timeout);
+        setEndAt(Time.currentTimeMillis() + (long) (timeout.get() * 1000));
     }
 
     public boolean get() {

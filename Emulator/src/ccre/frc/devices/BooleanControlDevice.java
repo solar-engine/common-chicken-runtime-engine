@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2015 Colby Skeggs
+ * Copyright 2014-2016 Colby Skeggs
  *
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  *
@@ -18,6 +18,7 @@
  */
 package ccre.frc.devices;
 
+import ccre.channel.BooleanIO;
 import ccre.channel.BooleanInput;
 import ccre.channel.EventCell;
 import ccre.channel.EventInput;
@@ -74,5 +75,14 @@ public class BooleanControlDevice extends Device {
      */
     public BooleanInput asInput() {
         return actuated.asInput();
+    }
+
+    /**
+     * Access the BooleanIO side of this BooleanControlDevice.
+     *
+     * @return a boolean IO representing the current state of this device.
+     */
+    public BooleanIO asIO() {
+        return BooleanIO.compose(actuated.asInput(), actuated);
     }
 }

@@ -40,6 +40,7 @@ import ccre.testing.CountingEventOutput;
 import ccre.testing.CountingFloatOutput;
 import ccre.time.FakeTime;
 import ccre.time.Time;
+import ccre.timers.Ticker;
 import ccre.util.Values;
 
 @SuppressWarnings("javadoc")
@@ -228,6 +229,26 @@ public class FloatInputTest {
         fi.dividedByRev(null);
     }
 
+    @Test
+    public void testModuloFloatInput() {
+        tryEach(fs.modulo(fs2), FloatOperation.modulation.of(fs.asInput(), fs2.asInput()));
+    }
+
+    @Test(expected = NullPointerException.class)
+    public void testModuloNull() {
+        fi.modulo(null);
+    }
+
+    @Test
+    public void testModuloRevFloatInput() {
+        tryEach(fs.moduloRev(fs2), FloatOperation.modulation.of(fs2.asInput(), fs.asInput()));
+    }
+
+    @Test(expected = NullPointerException.class)
+    public void testModuloRevNull() {
+        fi.moduloRev(null);
+    }
+
     private void trySet(FloatInput fi, FloatInput fi2) {
         for (float f1 : Values.interestingFloats) {
             fs.set(f1);
@@ -274,6 +295,20 @@ public class FloatInputTest {
     public void testDividedByRevFloat() {
         for (float f2 : Values.interestingFloats) {
             trySet(fs.dividedByRev(f2), FloatOperation.division.of(f2, fs.asInput()));
+        }
+    }
+
+    @Test
+    public void testModuloFloat() {
+        for (float f2 : Values.interestingFloats) {
+            trySet(fs.modulo(f2), FloatOperation.modulation.of(fs.asInput(), f2));
+        }
+    }
+
+    @Test
+    public void testModuloRevFloat() {
+        for (float f2 : Values.interestingFloats) {
+            trySet(fs.moduloRev(f2), FloatOperation.modulation.of(f2, fs.asInput()));
         }
     }
 
@@ -842,6 +877,46 @@ public class FloatInputTest {
                 assertEquals(1000 * delta / timeDelta, fi.get(), 0.00001f * (1000 * delta / timeDelta));
             }
             fake.forward(1000);
+        }
+    }
+
+    @Test
+    public void testDerivativeRepSlower() throws InterruptedException {
+        FloatInput fi = fs.derivative(20);
+        Ticker ti = new Ticker(21);
+        try {
+            fs.set(0.5f);
+            ti.send(fs.eventAccumulate(1));
+            for (int i = 0; i < 20; i++) {
+                fake.forward(20);
+                Thread.sleep(2);
+                assertEquals(0, fi.get(), 0);
+                fake.forward(1);
+                Thread.sleep(2);
+                assertEquals(1.0 / 0.001, fi.get(), 0);
+            }
+        } finally {
+            ti.terminate();
+        }
+    }
+
+    @Test
+    public void testDerivativeRepFaster() throws InterruptedException {
+        FloatInput fi = fs.derivative(20);
+        Ticker ti = new Ticker(18);
+        try {
+            ti.send(fs.eventAccumulate(1));
+            fake.forward(18);
+            Thread.sleep(2);
+            fake.forward(9);
+            Thread.sleep(2);
+            for (int i = 0; i < 20; i++) {
+                fake.forward(9);
+                Thread.sleep(2);
+                assertEquals(1.0f / 0.018f, fi.get(), 0);
+            }
+        } finally {
+            ti.terminate();
         }
     }
 

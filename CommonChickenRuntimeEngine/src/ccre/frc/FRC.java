@@ -286,8 +286,8 @@ public class FRC {
     }
 
     /**
-     * Create a reference to a Talon speed controller on the specified PWM port
-     * and motor reversal, with a specified ramping rate.
+     * Create a reference to a Talon SR speed controller on the specified PWM
+     * port and motor reversal, with a specified ramping rate.
      *
      * If the ramping rate is zero, then no ramping is applied. Don't use this
      * if you don't know what you're doing! Otherwise, the ramping rate is the
@@ -311,8 +311,8 @@ public class FRC {
     }
 
     /**
-     * Create a reference to a Talon speed controller on the specified PWM port
-     * and motor reversal, with a default ramping rate of 0.1, aka 200
+     * Create a reference to a Talon SR speed controller on the specified PWM
+     * port and motor reversal, with a default ramping rate of 0.1, aka 200
      * milliseconds to ramp from stopped to full speed.
      *
      * @param id the motor port ID, from 1 to 10, inclusive.
@@ -327,15 +327,227 @@ public class FRC {
     }
 
     /**
-     * Create a reference to a Talon speed controller on the specified PWM port,
-     * with a default ramping rate of 0.1, aka 200 milliseconds to ramp from
-     * stopped to full speed.
+     * Create a reference to a Talon SR speed controller on the specified PWM
+     * port, with a default ramping rate of 0.1, aka 200 milliseconds to ramp
+     * from stopped to full speed.
      *
      * @param id the motor port ID, from 1 to 10, inclusive.
      * @return the output that will output to the specified motor.
      */
     public static FloatOutput talon(int id) {
         return talon(id, false, 0.1f);
+    }
+
+    /**
+     * Create a reference to a Talon SRX speed controller on the specified PWM
+     * port and motor reversal, with a specified ramping rate.
+     *
+     * If the ramping rate is zero, then no ramping is applied. Don't use this
+     * if you don't know what you're doing! Otherwise, the ramping rate is the
+     * maximum difference allowed per 10 milliseconds (constantPeriodic). (So a
+     * rate of 0.1f means that you need 200 milliseconds to go from -1.0 to
+     * 1.0.)
+     *
+     * @param id the motor port ID, from 1 to 10, inclusive.
+     * @param negate MOTOR_FORWARD if the motor direction should be unmodified,
+     * MOTOR_REVERSE if the motor direction should be reversed.
+     * @param ramping the ramping rate.
+     * @return the output that will output to the specified motor.
+     * @see #MOTOR_FORWARD
+     * @see #MOTOR_REVERSE
+     */
+    public static FloatOutput talonSRX(int id, boolean negate, float ramping) {
+        FloatOutput motor = impl.makeMotor(id, FRCImplementation.TALONSRX);
+        FloatOutput ramped = (negate ? motor.negate() : motor).addRamping(ramping, constantPeriodic);
+        ramped.setWhen(0.0f, startDisabled);
+        return ramped;
+    }
+
+    /**
+     * Create a reference to a Talon SRX speed controller on the specified PWM
+     * port and motor reversal, with a default ramping rate of 0.1, aka 200
+     * milliseconds to ramp from stopped to full speed.
+     *
+     * @param id the motor port ID, from 1 to 10, inclusive.
+     * @param negate MOTOR_FORWARD if the motor direction should be unmodified,
+     * MOTOR_REVERSE if the motor direction should be reversed.
+     * @return the output that will output to the specified motor.
+     * @see #MOTOR_FORWARD
+     * @see #MOTOR_REVERSE
+     */
+    public static FloatOutput talonSRX(int id, boolean negate) {
+        return talonSRX(id, negate, 0.1f);
+    }
+
+    /**
+     * Create a reference to a Talon SRX speed controller on the specified PWM
+     * port, with a default ramping rate of 0.1, aka 200 milliseconds to ramp
+     * from stopped to full speed.
+     *
+     * @param id the motor port ID, from 1 to 10, inclusive.
+     * @return the output that will output to the specified motor.
+     */
+    public static FloatOutput talonSRX(int id) {
+        return talonSRX(id, false, 0.1f);
+    }
+
+    /**
+     * Create a reference to a Victor SP speed controller on the specified PWM
+     * port and motor reversal, with a specified ramping rate.
+     *
+     * If the ramping rate is zero, then no ramping is applied. Don't use this
+     * if you don't know what you're doing! Otherwise, the ramping rate is the
+     * maximum difference allowed per 10 milliseconds (constantPeriodic). (So a
+     * rate of 0.1f means that you need 200 milliseconds to go from -1.0 to
+     * 1.0.)
+     *
+     * @param id the motor port ID, from 1 to 10, inclusive.
+     * @param negate MOTOR_FORWARD if the motor direction should be unmodified,
+     * MOTOR_REVERSE if the motor direction should be reversed.
+     * @param ramping the ramping rate.
+     * @return the output that will output to the specified motor.
+     * @see #MOTOR_FORWARD
+     * @see #MOTOR_REVERSE
+     */
+    public static FloatOutput victorSP(int id, boolean negate, float ramping) {
+        FloatOutput motor = impl.makeMotor(id, FRCImplementation.VICTORSP);
+        FloatOutput ramped = (negate ? motor.negate() : motor).addRamping(ramping, constantPeriodic);
+        ramped.setWhen(0.0f, startDisabled);
+        return ramped;
+    }
+
+    /**
+     * Create a reference to a Victor SP speed controller on the specified PWM
+     * port and motor reversal, with a default ramping rate of 0.1, aka 200
+     * milliseconds to ramp from stopped to full speed.
+     *
+     * @param id the motor port ID, from 1 to 10, inclusive.
+     * @param negate MOTOR_FORWARD if the motor direction should be unmodified,
+     * MOTOR_REVERSE if the motor direction should be reversed.
+     * @return the output that will output to the specified motor.
+     * @see #MOTOR_FORWARD
+     * @see #MOTOR_REVERSE
+     */
+    public static FloatOutput victorSP(int id, boolean negate) {
+        return victorSP(id, negate, 0.1f);
+    }
+
+    /**
+     * Create a reference to a Victor SP speed controller on the specified PWM
+     * port, with a default ramping rate of 0.1, aka 200 milliseconds to ramp
+     * from stopped to full speed.
+     *
+     * @param id the motor port ID, from 1 to 10, inclusive.
+     * @return the output that will output to the specified motor.
+     */
+    public static FloatOutput victorSP(int id) {
+        return victorSP(id, false, 0.1f);
+    }
+
+    /**
+     * Create a reference to a Spark speed controller on the specified PWM port
+     * and motor reversal, with a specified ramping rate.
+     *
+     * If the ramping rate is zero, then no ramping is applied. Don't use this
+     * if you don't know what you're doing! Otherwise, the ramping rate is the
+     * maximum difference allowed per 10 milliseconds (constantPeriodic). (So a
+     * rate of 0.1f means that you need 200 milliseconds to go from -1.0 to
+     * 1.0.)
+     *
+     * @param id the motor port ID, from 1 to 10, inclusive.
+     * @param negate MOTOR_FORWARD if the motor direction should be unmodified,
+     * MOTOR_REVERSE if the motor direction should be reversed.
+     * @param ramping the ramping rate.
+     * @return the output that will output to the specified motor.
+     * @see #MOTOR_FORWARD
+     * @see #MOTOR_REVERSE
+     */
+    public static FloatOutput spark(int id, boolean negate, float ramping) {
+        FloatOutput motor = impl.makeMotor(id, FRCImplementation.SPARK);
+        FloatOutput ramped = (negate ? motor.negate() : motor).addRamping(ramping, constantPeriodic);
+        ramped.setWhen(0.0f, startDisabled);
+        return ramped;
+    }
+
+    /**
+     * Create a reference to a Spark speed controller on the specified PWM port
+     * and motor reversal, with a default ramping rate of 0.1, aka 200
+     * milliseconds to ramp from stopped to full speed.
+     *
+     * @param id the motor port ID, from 1 to 10, inclusive.
+     * @param negate MOTOR_FORWARD if the motor direction should be unmodified,
+     * MOTOR_REVERSE if the motor direction should be reversed.
+     * @return the output that will output to the specified motor.
+     * @see #MOTOR_FORWARD
+     * @see #MOTOR_REVERSE
+     */
+    public static FloatOutput spark(int id, boolean negate) {
+        return spark(id, negate, 0.1f);
+    }
+
+    /**
+     * Create a reference to a Spark speed controller on the specified PWM port,
+     * with a default ramping rate of 0.1, aka 200 milliseconds to ramp from
+     * stopped to full speed.
+     *
+     * @param id the motor port ID, from 1 to 10, inclusive.
+     * @return the output that will output to the specified motor.
+     */
+    public static FloatOutput spark(int id) {
+        return spark(id, false, 0.1f);
+    }
+
+    /**
+     * Create a reference to a SD540 speed controller on the specified PWM port
+     * and motor reversal, with a specified ramping rate.
+     *
+     * If the ramping rate is zero, then no ramping is applied. Don't use this
+     * if you don't know what you're doing! Otherwise, the ramping rate is the
+     * maximum difference allowed per 10 milliseconds (constantPeriodic). (So a
+     * rate of 0.1f means that you need 200 milliseconds to go from -1.0 to
+     * 1.0.)
+     *
+     * @param id the motor port ID, from 1 to 10, inclusive.
+     * @param negate MOTOR_FORWARD if the motor direction should be unmodified,
+     * MOTOR_REVERSE if the motor direction should be reversed.
+     * @param ramping the ramping rate.
+     * @return the output that will output to the specified motor.
+     * @see #MOTOR_FORWARD
+     * @see #MOTOR_REVERSE
+     */
+    public static FloatOutput sd540(int id, boolean negate, float ramping) {
+        FloatOutput motor = impl.makeMotor(id, FRCImplementation.SD540);
+        FloatOutput ramped = (negate ? motor.negate() : motor).addRamping(ramping, constantPeriodic);
+        ramped.setWhen(0.0f, startDisabled);
+        return ramped;
+    }
+
+    /**
+     * Create a reference to a SD540 speed controller on the specified PWM port
+     * and motor reversal, with a default ramping rate of 0.1, aka 200
+     * milliseconds to ramp from stopped to full speed.
+     *
+     * @param id the motor port ID, from 1 to 10, inclusive.
+     * @param negate MOTOR_FORWARD if the motor direction should be unmodified,
+     * MOTOR_REVERSE if the motor direction should be reversed.
+     * @return the output that will output to the specified motor.
+     * @see #MOTOR_FORWARD
+     * @see #MOTOR_REVERSE
+     */
+    public static FloatOutput sd540(int id, boolean negate) {
+        return sd540(id, negate, 0.1f);
+    }
+
+    /**
+     * Create a reference to a SD540 speed controller on the specified PWM port,
+     * with a default ramping rate of 0.1, aka 200 milliseconds to ramp from
+     * stopped to full speed.
+     *
+     * @param id the motor port ID, from 1 to 10, inclusive.
+     * @return the output that will output to the specified motor.
+     */
+    public static FloatOutput sd540(int id) {
+        return sd540(id, false, 0.1f);
     }
 
     /**

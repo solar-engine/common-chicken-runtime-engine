@@ -33,7 +33,11 @@ class DirectPWM {
     public static final int TYPE_JAGUAR = 1;
     public static final int TYPE_VICTOR = 2;
     public static final int TYPE_SERVO = 3;
-    public static final int TYPE_NUM = 4;
+    public static final int TYPE_VICTORSP = 4;
+    public static final int TYPE_SPARK = 5;
+    public static final int TYPE_SD540 = 6;
+    public static final int TYPE_TALONSRX = 7;
+    public static final int TYPE_NUM = 8;
     private static final long[] pwms = new long[PWM_NUM];
     private static final int[] types = new int[PWM_NUM];
     private static final int[] tmax = new int[TYPE_NUM],
@@ -43,11 +47,12 @@ class DirectPWM {
     private static final int kSystemClockTicksPerMicrosecond = 40;
     private static final double kDefaultPwmCenter = 1.5;
     private static final int kDefaultPwmStepsDown = 1000;
-    private static final double[] cmax = new double[] { 2.037, 2.31, 2.027, 2.6 },
-            cdbMax = new double[] { 1.539, 1.55, 1.525, 0 },
-            cctr = new double[] { 1.513, 1.507, 1.507, 0 },
-            cdbMin = new double[] { 1.487, 1.454, 1.49, 0 },
-            cmin = new double[] { 0.989, 0.697, 1.026, 0.6 };
+    private static final double[] cmax = new double[] { 2.037, 2.31, 2.027, 2.6, 2.004, 2.003, 2.05, 2.004 },
+            cdbMax = new double[] { 1.539, 1.55, 1.525, 0, 1.52, 1.55, 1.55, 1.52 },
+            cctr = new double[] { 1.513, 1.507, 1.507, 0, 1.50, 1.50, 1.50, 1.50 },
+            cdbMin = new double[] { 1.487, 1.454, 1.49, 0, 1.48, 1.46, 1.44, 1.48 },
+            cmin = new double[] { 0.989, 0.697, 1.026, 0.6, 0.997, 0.999, 0.94, 0.997 };
+    private static final int[] scaling = new int[] { 1, 1, 2, 4, 1, 1, 1, 1 };
 
     private static synchronized void initConfig() {
         double loopTime = DIOJNI.getLoopTiming() / (kSystemClockTicksPerMicrosecond * 1e3);
@@ -83,7 +88,7 @@ class DirectPWM {
                 initConfig();
             }
 
-            configureScaling(port, type == TYPE_SERVO ? 4 : type == TYPE_VICTOR ? 2 : 1);
+            configureScaling(port, scaling[type]);
 
             if (type != TYPE_SERVO) {
                 PWMJNI.latchPWMZero(port);

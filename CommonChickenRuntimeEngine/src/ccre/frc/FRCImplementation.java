@@ -44,13 +44,29 @@ public interface FRCImplementation {
      */
     public static final int JAGUAR = 1;
     /**
-     * The ID for a Talon speed controller.
+     * The ID for a Talon SR speed controller.
      */
     public static final int TALON = 2;
     /**
      * The ID for a Victor speed controller.
      */
     public static final int VICTOR = 3;
+    /**
+     * The ID for a Victor SP speed controller.
+     */
+    public static final int VICTORSP = 4;
+    /**
+     * The ID for a Spark speed controller.
+     */
+    public static final int SPARK = 5;
+    /**
+     * The ID for a SD540 speed controller.
+     */
+    public static final int SD540 = 6;
+    /**
+     * The ID for a Talon SRX speed controller.
+     */
+    public static final int TALONSRX = 7;
 
     /**
      * Accesses a Joystick from the Driver Station.

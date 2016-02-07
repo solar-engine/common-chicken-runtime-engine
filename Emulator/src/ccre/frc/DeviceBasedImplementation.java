@@ -132,10 +132,22 @@ public class DeviceBasedImplementation implements FRCImplementation {
                 typename = "Jaguar";
                 break;
             case FRCImplementation.TALON:
-                typename = "Talon";
+                typename = "Talon SR";
                 break;
             case FRCImplementation.VICTOR:
                 typename = "Victor";
+                break;
+            case FRCImplementation.VICTORSP:
+                typename = "Victor SP";
+                break;
+            case FRCImplementation.SPARK:
+                typename = "Spark";
+                break;
+            case FRCImplementation.SD540:
+                typename = "SD540";
+                break;
+            case FRCImplementation.TALONSRX:
+                typename = "Talon SRX (PWM)";
                 break;
             default:
                 typename = "Unknown (%" + type + ")";

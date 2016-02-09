@@ -267,7 +267,7 @@ class ExtendedTalonDirect extends TalonExtendedMotor {
                 return new DerivedFloatInput(updateTicker) {
                     @Override
                     protected float apply() {
-                        return nativeToVelocity(FeedbackDevice.AnalogEncoder, CanTalonJNI.GetAnalogInVel(handle));
+                        return nativeToRPM(FeedbackDevice.AnalogEncoder, CanTalonJNI.GetAnalogInVel(handle));
                     }
                 };
             }
@@ -612,7 +612,7 @@ class ExtendedTalonDirect extends TalonExtendedMotor {
                 return new DerivedFloatInput(updateTicker) {
                     @Override
                     protected float apply() {
-                        return nativeToVelocity(FeedbackDevice.PulseWidth, CanTalonJNI.GetPulseWidthVelocity(handle));
+                        return nativeToRPM(FeedbackDevice.PulseWidth, CanTalonJNI.GetPulseWidthVelocity(handle));
                     }
                 };
             }
@@ -767,7 +767,7 @@ class ExtendedTalonDirect extends TalonExtendedMotor {
                 return new DerivedFloatInput(updateTicker) {
                     @Override
                     protected float apply() {
-                        return nativeToVelocity(feedback, CanTalonJNI.GetSensorVelocity(handle));
+                        return nativeToRPM(feedback, CanTalonJNI.GetSensorVelocity(handle));
                     }
                 };
             }
@@ -794,7 +794,7 @@ class ExtendedTalonDirect extends TalonExtendedMotor {
                         case MODE_SPEED:
                             return nativeToRotations(feedback, raw);
                         case MODE_POSITION:
-                            return nativeToVelocity(feedback, raw);
+                            return nativeToRPM(feedback, raw);
                         default:
                             // TODO: what now?
                             return raw;
@@ -1077,7 +1077,7 @@ class ExtendedTalonDirect extends TalonExtendedMotor {
         return nativePos / GetNativeUnitsPerRotationScalar(device);
     }
 
-    private float nativeToVelocity(FeedbackDevice device, int nativeVel) {
+    private float nativeToRPM(FeedbackDevice device, int nativeVel) {
         return nativeVel / (GetNativeUnitsPerRotationScalar(device) * MINUTES_PER_100_MILLIS);
     }
 

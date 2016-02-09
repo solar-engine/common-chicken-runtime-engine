@@ -19,6 +19,7 @@
 /SampleRobot/emulator-logs/
 /PoultryInspector/bin/
 /PoultryInspector/build/
+/PoultryInspector/test-build/
 /PoultryInspector/Dependencies.jar
 /PoultryInspector/PoultryInspector*.jar
 /PoultryInspector/log-*

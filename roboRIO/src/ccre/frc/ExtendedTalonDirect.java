@@ -379,7 +379,7 @@ class ExtendedTalonDirect extends TalonExtendedMotor {
                 return new DerivedFloatInput(updateTicker) {
                     @Override
                     protected float apply() {
-                        return rpmToNative(FeedbackDevice.QuadEncoder, CanTalonJNI.GetEncVel(handle));
+                        return nativeToRPM(FeedbackDevice.QuadEncoder, CanTalonJNI.GetEncVel(handle));
                     }
                 };
             }

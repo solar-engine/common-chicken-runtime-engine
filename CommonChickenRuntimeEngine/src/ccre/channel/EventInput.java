@@ -23,8 +23,6 @@ import ccre.time.Time;
 /**
  * An event input or source. This produces events when it fires. A user can
  * register listeners to be called when the EventInput fires.
- * ccre.event.EventStatus is a good implementation of this so that you don't
- * have to write your own listener management code.
  *
  * @see EventCell
  * @author skeggsc

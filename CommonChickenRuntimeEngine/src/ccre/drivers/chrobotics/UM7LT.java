@@ -42,18 +42,18 @@ import ccre.log.Logger;
 public class UM7LT {
     private final InternalUM7LT internal;
 
-    private final EventCell eulerUpdateStatus = new EventCell();
+    private final EventCell eulerUpdateCell = new EventCell();
     /**
      * An event that fires whenever new data for the Euler angles becomes
      * available.
      */
-    public final EventInput onEulerUpdate = eulerUpdateStatus;
-    private final EventCell healthUpdateStatus = new EventCell();
+    public final EventInput onEulerUpdate = eulerUpdateCell;
+    private final EventCell healthUpdateCell = new EventCell();
     /**
      * An event that fires whenever new data for the Health sensor becomes
      * available.
      */
-    public final EventInput onHealthUpdate = healthUpdateStatus;
+    public final EventInput onHealthUpdate = healthUpdateCell;
     /**
      * Whether or not faults should be automatically logged.
      */
@@ -69,7 +69,7 @@ public class UM7LT {
             int newEuler = internal.dregs[InternalUM7LT.DREG_EULER_TIME - InternalUM7LT.DREG_BASE];
             if (lastEuler != newEuler) {
                 lastEuler = newEuler;
-                eulerUpdateStatus.safeEvent();
+                eulerUpdateCell.safeEvent();
             }
             int newHealth = getHealth();
             if (lastHealth != newHealth) {
@@ -89,7 +89,7 @@ public class UM7LT {
                         Logger.fine("UM7LT GYRO: " + ((newHealth & 0x4) != 0 ? " FAULT" : "nominal"));
                     }
                 }
-                healthUpdateStatus.event();
+                healthUpdateCell.event();
             }
         }
     };
@@ -256,8 +256,7 @@ public class UM7LT {
     }
 
     /**
-     * Fetches the current statuses of faults and fills a fault structure with
-     * the status.
+     * Fetches the current faults and fills a fault structure with them.
      *
      * @param faults the fault structure to update.
      */

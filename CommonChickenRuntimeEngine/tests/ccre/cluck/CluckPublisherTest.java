@@ -452,44 +452,4 @@ public class CluckPublisherTest {
     public void testSubscribeLTNullB() {
         CluckPublisher.subscribeLT(node, null);
     }
-
-//    @Test
-//    public void testSetupSearching() {
-//        fail("Not yet implemented");
-//    }
-//
-//    @Test
-//    public void testPublishCluckNodeStringFloatStatus() {
-//        fail("Not yet implemented");
-//    }
-//
-//    @Test
-//    public void testPublishCluckNodeStringBooleanStatus() {
-//        fail("Not yet implemented");
-//    }
-//
-//    @Test
-//    public void testPublishCluckNodeStringEventStatus() {
-//        fail("Not yet implemented");
-//    }
-//
-//    @Test
-//    public void testPublishCluckNodeStringOutputStream() {
-//        fail("Not yet implemented");
-//    }
-//
-//    @Test
-//    public void testSubscribeOS() {
-//        fail("Not yet implemented");
-//    }
-//
-//    @Test
-//    public void testPublishRConf() {
-//        fail("Not yet implemented");
-//    }
-//
-//    @Test
-//    public void testSubscribeRConf() {
-//        fail("Not yet implemented");
-//    }
 }

@@ -29,7 +29,7 @@ public interface EventIO extends EventInput, EventOutput {
      * Returns the output side of this EventIO. This is equivalent to upcasting
      * to EventOutput.
      *
-     * @return this status, as an output.
+     * @return this io, as an output.
      */
     public default EventOutput asOutput() {
         return this;
@@ -39,7 +39,7 @@ public interface EventIO extends EventInput, EventOutput {
      * Returns the input side of this EventIO. This is equivalent to upcasting
      * to EventInput.
      *
-     * @return this status, as an input.
+     * @return this io, as an input.
      */
     public default EventInput asInput() {
         return this;

@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 Colby Skeggs
+ * Copyright 2015-2016 Colby Skeggs
  *
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  *
@@ -43,12 +43,12 @@ public class EventCellTest {
     }
 
     @Test
-    public void testEventStatus() {
+    public void testEventCell() {
         new EventCell().event();
     }
 
     @Test
-    public void testEventStatusEventOutput() {
+    public void testEventCellEventOutput() {
         CountingEventOutput ceo = new CountingEventOutput();
         cell = new EventCell(ceo);
         ceo.ifExpected = true;
@@ -57,12 +57,12 @@ public class EventCellTest {
     }
 
     @Test(expected = NullPointerException.class)
-    public void testEventStatusEventOutputNull() {
+    public void testEventCellEventOutputNull() {
         new EventCell((EventOutput) null);
     }
 
     @Test
-    public void testEventStatusEventOutputArray() {
+    public void testEventCellEventOutputArray() {
         CountingEventOutput c1 = new CountingEventOutput();
         CountingEventOutput c2 = new CountingEventOutput();
         cell = new EventCell(c1, c2);
@@ -74,12 +74,12 @@ public class EventCellTest {
     }
 
     @Test(expected = NullPointerException.class)
-    public void testEventStatusEventOutputArrayNull() {
+    public void testEventCellEventOutputArrayNull() {
         new EventCell((EventOutput[]) null);
     }
 
     @Test(expected = NullPointerException.class)
-    public void testEventStatusEventOutputArrayNulls() {
+    public void testEventCellEventOutputArrayNulls() {
         new EventCell(EventOutput.ignored, null);
     }
 

@@ -26,9 +26,9 @@ package ccre.channel;
 public interface BooleanIO extends BooleanInput, BooleanOutput {
 
     /**
-     * When the specified event occurs, toggle the status.
+     * When the specified event occurs, toggle the io.
      *
-     * @param event When to toggle the status.
+     * @param event When to toggle the io.
      * @see #eventToggle()
      * @see #toggle()
      */
@@ -61,7 +61,7 @@ public interface BooleanIO extends BooleanInput, BooleanOutput {
      * Returns the output side of this BooleanIO. This is equivalent to
      * upcasting to BooleanOutput.
      *
-     * @return this status, as an output.
+     * @return this io, as an output.
      */
     public default BooleanOutput asOutput() {
         return this;
@@ -71,7 +71,7 @@ public interface BooleanIO extends BooleanInput, BooleanOutput {
      * Returns the input side of this BooleanIO. This is equivalent to upcasting
      * to BooleanInput.
      *
-     * @return this status, as an input.
+     * @return this io, as an input.
      */
     public default BooleanInput asInput() {
         return this;

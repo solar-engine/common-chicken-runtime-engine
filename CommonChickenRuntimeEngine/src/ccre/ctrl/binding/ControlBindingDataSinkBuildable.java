@@ -72,9 +72,9 @@ public class ControlBindingDataSinkBuildable implements ControlBindingDataSink, 
     }
 
     public BooleanInput addBoolean(String name) {
-        BooleanCell status = new BooleanCell();
-        addBoolean(name, status.asOutput());
-        return status.asInput();
+        BooleanCell cell = new BooleanCell();
+        addBoolean(name, cell.asOutput());
+        return cell.asInput();
     }
 
     public void addFloat(String name, FloatOutput output) {
@@ -85,8 +85,8 @@ public class ControlBindingDataSinkBuildable implements ControlBindingDataSink, 
     }
 
     public FloatInput addFloat(String name) {
-        FloatCell status = new FloatCell();
-        addFloat(name, status.asOutput());
-        return status.asInput();
+        FloatCell cell = new FloatCell();
+        addFloat(name, cell.asOutput());
+        return cell.asInput();
     }
 }

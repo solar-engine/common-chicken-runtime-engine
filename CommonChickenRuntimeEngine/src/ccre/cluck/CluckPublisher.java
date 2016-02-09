@@ -397,8 +397,8 @@ public class CluckPublisher {
      * Publish a FloatIO on the network.
      *
      * @param node The node to publish on.
-     * @param name The name for the FloatStatus.
-     * @param stat The FloatStatus.
+     * @param name The name for the FloatIO.
+     * @param stat The FloatIO.
      */
     public static void publish(CluckNode node, String name, FloatIO stat) {
         publish(node, name + ".input", stat.asInput());
@@ -424,8 +424,8 @@ public class CluckPublisher {
      * Publish a BooleanIO on the network.
      *
      * @param node The node to publish on.
-     * @param name The name for the BooleanStatus.
-     * @param stat The BooleanStatus to publish.
+     * @param name The name for the BooleanIO.
+     * @param stat The BooleanIO to publish.
      */
     public static void publish(CluckNode node, String name, BooleanIO stat) {
         publish(node, name + ".input", stat.asInput());
@@ -448,13 +448,13 @@ public class CluckPublisher {
     }
 
     /**
-     * Publish an EventStatus on the network.
+     * Publish an EventIO on the network.
      *
      * No corresponding subscribe is provided yet.
      *
      * @param node The node to publish on.
-     * @param name The name for the EventStatus.
-     * @param stat The EventStatus to publish.
+     * @param name The name for the EventIO.
+     * @param stat The EventIO to publish.
      */
     public static void publish(CluckNode node, String name, EventIO stat) {
         publish(node, name + ".input", stat.asInput());

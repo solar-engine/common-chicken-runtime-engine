@@ -42,7 +42,6 @@ import ccre.channel.FloatOutput;
 import ccre.concurrency.ReporterThread;
 import ccre.ctrl.ExtendedMotorFailureException;
 import ccre.ctrl.Faultable;
-import ccre.drivers.ctre.talon.TalonSRX;
 import ccre.drivers.ctre.talon.TalonAnalog;
 import ccre.drivers.ctre.talon.TalonEncoder;
 import ccre.drivers.ctre.talon.TalonExtendedMotor;
@@ -57,7 +56,7 @@ import edu.wpi.first.wpilibj.hal.CanTalonJNI;
 
 class ExtendedTalonDirect extends TalonExtendedMotor {
 
-    private static final int PARAMETER_REQUEST_PERIOD_MILLIS = 9;
+    private static final int PARAMETER_REQUEST_PERIOD_MILLIS = 19;
     // based on the magic number in WPILib. Is this the best? WHO KNOWS
     private static final int SOLICITED_SIGNAL_LATENCY_MILLIS = 4;
     // null until something cares. This means that it's not enabled, but could
@@ -71,9 +70,9 @@ class ExtendedTalonDirect extends TalonExtendedMotor {
     private float potentiometerRotationsPerSweep;
     private int activation_mode = MODE_PERCENT;
     private FeedbackDevice feedback = FeedbackDevice.QuadEncoder;
-    private final Ticker updateTicker = new Ticker(5); // TODO: choose timing
+    private final Ticker updateTicker = new Ticker(1); // TODO: choose timing
                                                        // more purposefully
-    private final BooleanInput fault_under_voltage, fault_over_temperature, fault_hardware_failure;
+    private final Ticker slowerTicker = new Ticker(10);
 
     private static final int ANALOG_TICKS = 1024;
     private static final int PULSE_WIDTH_TICKS = 4096;
@@ -144,9 +143,6 @@ class ExtendedTalonDirect extends TalonExtendedMotor {
         this.secondaryProfileActive.send((secondary) -> {
             CanTalonJNI.SetProfileSlotSelect(handle, secondary ? 1 : 0);
         });
-        fault_under_voltage = faults.getIsFaulting(TalonSRX.Faults.UNDER_VOLTAGE);
-        fault_over_temperature = faults.getIsFaulting(TalonSRX.Faults.OVER_TEMPERATURE);
-        fault_hardware_failure = faults.getIsFaulting(TalonSRX.Faults.HARDWARE_FAILURE);
 
         CanTalonJNI.RequestParam(handle, CanTalonJNI.param_t.eFirmVers.value);
 
@@ -175,83 +171,82 @@ class ExtendedTalonDirect extends TalonExtendedMotor {
         CanTalonJNI.SetFeedbackDeviceSelect(handle, device.value);
     }
 
-    private final Faultable<Faults> faults = new Faultable<Faults>() {
-        // not actually sticky on the Talon, so fake it!
-        private boolean hardware_failure_sticky = false;
-
-        @Override
-        public BooleanInput getIsStickyFaulting(Faults fault) {
-            return new DerivedBooleanInput(updateTicker) {
-                protected boolean apply() {
-                    switch (fault) {
-                    case FORWARD_HARD_LIMIT:
-                        return CanTalonJNI.GetStckyFault_ForLim(handle) != 0;
-                    case FORWARD_SOFT_LIMIT:
-                        return CanTalonJNI.GetStckyFault_ForSoftLim(handle) != 0;
-                    case HARDWARE_FAILURE:
-                        if (!hardware_failure_sticky) {
-                            hardware_failure_sticky = CanTalonJNI.GetFault_HardwareFailure(handle) != 0;
-                        }
-                        return hardware_failure_sticky;
-                    case OVER_TEMPERATURE:
-                        return CanTalonJNI.GetStckyFault_OverTemp(handle) != 0;
-                    case REVERSE_HARD_LIMIT:
-                        return CanTalonJNI.GetStckyFault_RevLim(handle) != 0;
-                    case REVERSE_SOFT_LIMIT:
-                        return CanTalonJNI.GetStckyFault_RevSoftLim(handle) != 0;
-                    case UNDER_VOLTAGE:
-                        return CanTalonJNI.GetStckyFault_UnderVoltage(handle) != 0;
-                    default:
-                        // since DerivedBooleanInput calls apply()
-                        // immediately, this will always happen at the right
-                        // time.
-                        throw new IllegalArgumentException("Invalid fault: " + fault);
-                    }
-                }
-            };
-        }
-
-        @Override
-        public BooleanInput getIsFaulting(Faults fault) {
-            return new DerivedBooleanInput(updateTicker) {
-                protected boolean apply() {
-                    switch (fault) {
-                    case FORWARD_HARD_LIMIT:
-                        return CanTalonJNI.GetFault_ForLim(handle) != 0;
-                    case FORWARD_SOFT_LIMIT:
-                        return CanTalonJNI.GetFault_ForSoftLim(handle) != 0;
-                    case HARDWARE_FAILURE:
-                        return CanTalonJNI.GetFault_HardwareFailure(handle) != 0;
-                    case OVER_TEMPERATURE:
-                        return CanTalonJNI.GetFault_OverTemp(handle) != 0;
-                    case REVERSE_HARD_LIMIT:
-                        return CanTalonJNI.GetFault_RevLim(handle) != 0;
-                    case REVERSE_SOFT_LIMIT:
-                        return CanTalonJNI.GetFault_RevSoftLim(handle) != 0;
-                    case UNDER_VOLTAGE:
-                        return CanTalonJNI.GetFault_UnderVoltage(handle) != 0;
-                    default:
-                        // since DerivedBooleanInput calls apply()
-                        // immediately, this will always happen at the right
-                        // time.
-                        throw new IllegalArgumentException("Invalid fault: " + fault);
-                    }
-                }
-            };
-        }
-
-        @Override
-        public EventOutput getClearStickyFaults() {
-            return () -> {
-                hardware_failure_sticky = false;
-                CanTalonJNI.ClearStickyFaults(handle);
-            };
-        }
-    };
-
     @Override
     public Faultable<Faults> modFaults() {
-        return faults;
+        return new Faultable<Faults>() {
+            // not actually sticky on the Talon, so fake it!
+            private boolean hardware_failure_sticky = false;
+
+            @Override
+            public BooleanInput getIsStickyFaulting(Faults fault) {
+                return new DerivedBooleanInput(slowerTicker) {
+                    protected boolean apply() {
+                        switch (fault) {
+                        case FORWARD_HARD_LIMIT:
+                            return CanTalonJNI.GetStckyFault_ForLim(handle) != 0;
+                        case FORWARD_SOFT_LIMIT:
+                            return CanTalonJNI.GetStckyFault_ForSoftLim(handle) != 0;
+                        case HARDWARE_FAILURE:
+                            if (!hardware_failure_sticky) {
+                                hardware_failure_sticky = CanTalonJNI.GetFault_HardwareFailure(handle) != 0;
+                            }
+                            return hardware_failure_sticky;
+                        case OVER_TEMPERATURE:
+                            return CanTalonJNI.GetStckyFault_OverTemp(handle) != 0;
+                        case REVERSE_HARD_LIMIT:
+                            return CanTalonJNI.GetStckyFault_RevLim(handle) != 0;
+                        case REVERSE_SOFT_LIMIT:
+                            return CanTalonJNI.GetStckyFault_RevSoftLim(handle) != 0;
+                        case UNDER_VOLTAGE:
+                            return CanTalonJNI.GetStckyFault_UnderVoltage(handle) != 0;
+                        default:
+                            // since DerivedBooleanInput calls apply()
+                            // immediately, this will always happen at the right
+                            // time.
+                            throw new IllegalArgumentException("Invalid fault: " + fault);
+                        }
+                    }
+                };
+            }
+
+            @Override
+            public BooleanInput getIsFaulting(Faults fault) {
+                return new DerivedBooleanInput(slowerTicker) {
+                    protected boolean apply() {
+                        switch (fault) {
+                        // some of these reused below
+                        case FORWARD_HARD_LIMIT:
+                            return CanTalonJNI.GetFault_ForLim(handle) != 0;
+                        case FORWARD_SOFT_LIMIT:
+                            return CanTalonJNI.GetFault_ForSoftLim(handle) != 0;
+                        case HARDWARE_FAILURE:
+                            return CanTalonJNI.GetFault_HardwareFailure(handle) != 0;
+                        case OVER_TEMPERATURE:
+                            return CanTalonJNI.GetFault_OverTemp(handle) != 0;
+                        case REVERSE_HARD_LIMIT:
+                            return CanTalonJNI.GetFault_RevLim(handle) != 0;
+                        case REVERSE_SOFT_LIMIT:
+                            return CanTalonJNI.GetFault_RevSoftLim(handle) != 0;
+                        case UNDER_VOLTAGE:
+                            return CanTalonJNI.GetFault_UnderVoltage(handle) != 0;
+                        default:
+                            // since DerivedBooleanInput calls apply()
+                            // immediately, this will always happen at the right
+                            // time.
+                            throw new IllegalArgumentException("Invalid fault: " + fault);
+                        }
+                    }
+                };
+            }
+
+            @Override
+            public EventOutput getClearStickyFaults() {
+                return () -> {
+                    hardware_failure_sticky = false;
+                    CanTalonJNI.ClearStickyFaults(handle);
+                };
+            }
+        };
     }
 
     @Override
@@ -458,7 +453,7 @@ class ExtendedTalonDirect extends TalonExtendedMotor {
             // autosent
             @Override
             public FloatIO getP() {
-                return new DerivedFloatIO(updateTicker, secondaryProfileActive) {
+                return new DerivedFloatIO(slowerTicker, secondaryProfileActive) {
                     @Override
                     protected float apply() {
                         return (float) CanTalonJNI.GetPgain(handle, getProfileID());
@@ -473,7 +468,7 @@ class ExtendedTalonDirect extends TalonExtendedMotor {
 
             @Override
             public FloatIO getI() {
-                return new DerivedFloatIO(updateTicker, secondaryProfileActive) {
+                return new DerivedFloatIO(slowerTicker, secondaryProfileActive) {
                     @Override
                     protected float apply() {
                         return (float) CanTalonJNI.GetIgain(handle, getProfileID());
@@ -488,7 +483,7 @@ class ExtendedTalonDirect extends TalonExtendedMotor {
 
             @Override
             public FloatIO getD() {
-                return new DerivedFloatIO(updateTicker, secondaryProfileActive) {
+                return new DerivedFloatIO(slowerTicker, secondaryProfileActive) {
                     @Override
                     protected float apply() {
                         return (float) CanTalonJNI.GetDgain(handle, getProfileID());
@@ -503,7 +498,7 @@ class ExtendedTalonDirect extends TalonExtendedMotor {
 
             @Override
             public FloatIO getF() {
-                return new DerivedFloatIO(updateTicker, secondaryProfileActive) {
+                return new DerivedFloatIO(slowerTicker, secondaryProfileActive) {
                     @Override
                     protected float apply() {
                         return (float) CanTalonJNI.GetFgain(handle, getProfileID());
@@ -518,7 +513,7 @@ class ExtendedTalonDirect extends TalonExtendedMotor {
 
             @Override
             public FloatIO getIntegralBounds() {
-                return new DerivedFloatIO(updateTicker, secondaryProfileActive) {
+                return new DerivedFloatIO(slowerTicker, secondaryProfileActive) {
                     @Override
                     protected float apply() {
                         return (float) CanTalonJNI.GetIzone(handle, getProfileID());
@@ -533,7 +528,7 @@ class ExtendedTalonDirect extends TalonExtendedMotor {
 
             @Override
             public FloatIO getCloseLoopRampRate() {
-                return new DerivedFloatIO(updateTicker, secondaryProfileActive) {
+                return new DerivedFloatIO(slowerTicker, secondaryProfileActive) {
                     @Override
                     protected float apply() {
                         return CanTalonJNI.GetCloseLoopRampRate(handle, getProfileID()) * 12 * 1000 / 1023f;
@@ -548,7 +543,7 @@ class ExtendedTalonDirect extends TalonExtendedMotor {
 
             @Override
             public FloatIO getIAccum() {
-                return new DerivedFloatIO(updateTicker) {
+                return new DerivedFloatIO(slowerTicker) {
                     @Override
                     protected float apply() {
                         return CanTalonJNI.GetParamResponseInt32(handle, CanTalonJNI.param_t.ePidIaccum.value);
@@ -659,7 +654,7 @@ class ExtendedTalonDirect extends TalonExtendedMotor {
         return new TalonSoftLimits() {
             @Override
             public FloatIO getForwardSoftLimit() {
-                return new DerivedFloatIO(updateTicker) {
+                return new DerivedFloatIO(slowerTicker) {
                     @Override
                     protected float apply() {
                         return nativeToRotations(FeedbackDevice.PulseWidth, CanTalonJNI.GetParamResponseInt32(handle, CanTalonJNI.param_t.eProfileParamSoftLimitForThreshold.value));
@@ -674,7 +669,7 @@ class ExtendedTalonDirect extends TalonExtendedMotor {
 
             @Override
             public BooleanIO getEnableForwardSoftLimit() {
-                return new DerivedBooleanIO(updateTicker) {
+                return new DerivedBooleanIO(slowerTicker) {
                     @Override
                     public void set(boolean enable) {
                         CanTalonJNI.SetParam(handle, CanTalonJNI.param_t.eProfileParamSoftLimitForEnable.value, enable ? 1 : 0);
@@ -689,7 +684,7 @@ class ExtendedTalonDirect extends TalonExtendedMotor {
 
             @Override
             public FloatIO getReverseSoftLimit() {
-                return new DerivedFloatIO(updateTicker) {
+                return new DerivedFloatIO(slowerTicker) {
                     @Override
                     protected float apply() {
                         return nativeToRotations(FeedbackDevice.PulseWidth, CanTalonJNI.GetParamResponseInt32(handle, CanTalonJNI.param_t.eProfileParamSoftLimitRevThreshold.value));
@@ -704,7 +699,7 @@ class ExtendedTalonDirect extends TalonExtendedMotor {
 
             @Override
             public BooleanIO getEnableReverseSoftLimit() {
-                return new DerivedBooleanIO(updateTicker) {
+                return new DerivedBooleanIO(slowerTicker) {
                     @Override
                     public void set(boolean enable) {
                         CanTalonJNI.SetParam(handle, CanTalonJNI.param_t.eProfileParamSoftLimitRevEnable.value, enable ? 1 : 0);
@@ -830,7 +825,7 @@ class ExtendedTalonDirect extends TalonExtendedMotor {
         return new TalonGeneralConfig() {
             @Override
             public BooleanIO getBrakeNotCoast() {
-                return new DerivedBooleanIO(updateTicker) {
+                return new DerivedBooleanIO(slowerTicker) {
                     @Override
                     protected boolean apply() {
                         return CanTalonJNI.GetBrakeIsEnabled(handle) != 0;
@@ -1039,13 +1034,13 @@ class ExtendedTalonDirect extends TalonExtendedMotor {
         try {
             switch (type) {
             case ANY_FAULT:
-                return fault_under_voltage.get() || fault_over_temperature.get() || fault_hardware_failure.get();
+                return CanTalonJNI.GetFault_UnderVoltage(handle) != 0 || CanTalonJNI.GetFault_OverTemp(handle) != 0 || CanTalonJNI.GetFault_HardwareFailure(handle) != 0;
             case BUS_VOLTAGE_FAULT:
-                return fault_under_voltage.get();
+                return CanTalonJNI.GetFault_UnderVoltage(handle) != 0;
             case TEMPERATURE_FAULT:
-                return fault_over_temperature.get();
+                return CanTalonJNI.GetFault_OverTemp(handle) != 0;
             case HARDWARE_FAULT:
-                return fault_hardware_failure.get();
+                return CanTalonJNI.GetFault_HardwareFailure(handle) != 0;
             default:
                 return null;
             }

@@ -43,7 +43,7 @@ Support
 -------
 
 If you are having issues, please let us know. You can reach the primary
-developer at: robotics [at] colbyskeggs [dot] com
+developer at: robotics [at] celskeggs [dot] com
 
 License
 -------

@@ -8,7 +8,7 @@ fi
 for file in $(find -name '*.java')
 do
 	date=$(git log -n 1 --pretty=format:%ad --date=format:%Y -- $file)
-	author=$(git log -n 1 --pretty=format:%an -- $file)
+	author=$(git log -n 1 --pretty=format:%an -- $file | sed 's/Colby/Cel/')
 	commit=$(git log -n 1 --pretty=format:%H -- $file)
 	filesha=$(sha256sum $file)
 	headdata=$(head -n 2 -- $file | tail -n 1)

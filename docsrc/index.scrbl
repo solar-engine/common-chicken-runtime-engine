@@ -32,7 +32,7 @@ Or, something more interesting: an example of a shifting drive train:
     shifter.setFalseWhen(FRC.joystick1.onPress(1));
 }|
 
-@author{Colby Skeggs <robotics [at] colbyskeggs [dot] com>}
+@author{Cel Skeggs <robotics [at] celskeggs [dot] com>}
 
 Features:
 

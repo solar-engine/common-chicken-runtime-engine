@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2015 Colby Skeggs and Vincent Miller
+ * Copyright 2013-2015 Cel Skeggs and Vincent Miller
  *
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  *

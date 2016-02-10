@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2015 Colby Skeggs
+ * Copyright 2013-2015 Cel Skeggs
  * Copyright 2014 Alexander Mackworth (single joystick)
  * Copyright 2015 Aidan Smith (mecanum)
  *

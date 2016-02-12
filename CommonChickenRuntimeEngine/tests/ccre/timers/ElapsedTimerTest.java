@@ -67,7 +67,6 @@ public class ElapsedTimerTest {
     public void testElapsedTimer() throws InterruptedException {
         Random rand = new Random();
         timer.start();
-        assertTrue(timer.isRunning.get());
         long currentTime = timer.read();
         for (int i = 0; i < 100; i++) {
             System.out.println("fuck" + i);

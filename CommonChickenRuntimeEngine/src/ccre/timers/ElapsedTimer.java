@@ -27,10 +27,7 @@ import ccre.time.Time;
  * @author amackworth
  */
 public final class ElapsedTimer {
-    /**
-     * Is the timer currently running?
-     */
-    public final BooleanCell isRunning = new BooleanCell();
+    private final BooleanCell isRunning = new BooleanCell();
     private long startTime;
 
     /**

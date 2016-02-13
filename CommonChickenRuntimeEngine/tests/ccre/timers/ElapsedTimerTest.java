@@ -55,13 +55,13 @@ public class ElapsedTimerTest {
         Random rand = new Random();
         
         timer.start();
-        float currentTime = timer.elapsedTime().get();
+        float currentTime = timer.getElapsedTimeMillis().get();
         for (int i = 0; i < 100; i++) {
             int delay = rand.nextInt(10000);
             fake.forward(delay);
             Thread.sleep(2);
             currentTime += delay;
-            assertEquals(currentTime, timer.elapsedTime().get(), 0);
+            assertEquals(currentTime, timer.getElapsedTimeMillis().get(), 0);
         }
     }
     
@@ -76,6 +76,6 @@ public class ElapsedTimerTest {
 
         timer.start();
         fake.forward(firstDelay < secondDelay ? firstDelay : secondDelay);
-        assertEquals(0, timer.elapsedTime().get(), 0);
+        assertEquals(0, timer.getElapsedTimeMillis().get(), 0);
     }
 }

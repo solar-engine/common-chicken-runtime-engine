@@ -178,6 +178,11 @@ class ExtendedTalonDirect extends TalonExtendedMotor {
             private boolean hardware_failure_sticky = false;
 
             @Override
+            public Faults[] getPossibleFaults() {
+                return Faults.values();
+            }
+
+            @Override
             public BooleanInput getIsStickyFaulting(Faults fault) {
                 return new DerivedBooleanInput(slowerTicker) {
                     protected boolean apply() {

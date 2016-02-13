@@ -30,6 +30,13 @@ import ccre.channel.EventOutput;
  */
 public interface Faultable<Fault> {
     /**
+     * Lists the possible faults that can be queried on this Faultable.
+     *
+     * @return a newly-allocated array of possible faults.
+     */
+    public Fault[] getPossibleFaults();
+
+    /**
      * Returns a BooleanInput that is true when <code>fault</code> is currently
      * occurring. If a fault occurs for only a very short amount of time, the
      * BooleanInput might not update, depending on the details of the

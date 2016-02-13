@@ -131,6 +131,11 @@ public class CANTalonDevice extends KeyedSubDevice {
                 private HashMap<Faults, BooleanIO> sticky = new HashMap<>();
 
                 @Override
+                public Faults[] getPossibleFaults() {
+                    return Faults.values();
+                }
+
+                @Override
                 public BooleanInput getIsFaulting(Faults fault) {
                     return getBooleanInput("Fault " + fault.name());
                 }

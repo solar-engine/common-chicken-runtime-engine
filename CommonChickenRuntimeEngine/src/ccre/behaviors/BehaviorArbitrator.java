@@ -19,13 +19,16 @@
 package ccre.behaviors;
 
 import java.util.ArrayList;
-
 import ccre.channel.BooleanInput;
 import ccre.channel.DerivedBooleanInput;
 import ccre.channel.EventCell;
 import ccre.channel.EventInput;
+import ccre.channel.EventOutput;
 import ccre.channel.FloatInput;
 import ccre.cluck.Cluck;
+import ccre.discrete.DerivedDiscreteInput;
+import ccre.discrete.DiscreteInput;
+import ccre.discrete.DiscreteType;
 import ccre.rconf.RConf;
 import ccre.rconf.RConfable;
 
@@ -240,6 +243,67 @@ public class BehaviorArbitrator implements RConfable {
         behaviors.add(behavior);
         checkUpdate();
         return behavior;
+    }
+
+    /**
+     * Provides an EventInput that fires whenever the active behavior changes.
+     *
+     * @return the behavior change event.
+     */
+    public EventInput onBehaviorChange() {
+        return this.onActiveUpdate;
+    }
+
+    /**
+     * Fires <code>event</code> whenever the active behavior changes.
+     * 
+     * @param event the event to fire
+     */
+    public void onBehaviorChange(EventOutput event) {
+        this.onActiveUpdate.send(event);
+    }
+
+    private final DiscreteType<Behavior> discreteType = new DiscreteType<Behavior>() {
+        @Override
+        public Class<Behavior> getType() {
+            return Behavior.class;
+        }
+
+        @Override
+        public Behavior[] getOptions() {
+            Behavior[] bhs = new Behavior[behaviors.size() + 1];
+            System.arraycopy(behaviors.toArray(), 0, bhs, 1, bhs.length - 1);
+            return bhs;
+        }
+
+        @Override
+        public boolean isOption(Behavior e) {
+            return e == null || e.parent == BehaviorArbitrator.this;
+        }
+
+        @Override
+        public String toString(Behavior e) {
+            return e == null ? "none" : e.getName();
+        }
+
+        @Override
+        public Behavior getDefaultValue() {
+            return null;
+        }
+    };
+
+    /**
+     * Gets the current active behavior as a discrete input.
+     *
+     * @return the active behavior.
+     */
+    public DiscreteInput<Behavior> getActiveBehavior() {
+        return new DerivedDiscreteInput<Behavior>(discreteType, onActiveUpdate) {
+            @Override
+            protected Behavior apply() {
+                return active;
+            }
+        };
     }
 
     /**

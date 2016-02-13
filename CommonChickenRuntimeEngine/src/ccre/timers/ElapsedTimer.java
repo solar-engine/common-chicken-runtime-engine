@@ -74,9 +74,13 @@ public final class ElapsedTimer {
     private final ReporterThread main = new ReporterThread("ElapsedTimer") {
         @Override
         protected void threadBody() throws Throwable {
-            while (!terminated) {
-                cell.set(Time.currentTimeMillis() - startTime);
-                Time.sleep(period);
+            try {
+                while (!terminated) {
+                    cell.set(Time.currentTimeMillis() - startTime);
+                    Time.sleep(period);
+                }
+            } catch (InterruptedException e) {
+                return;
             }
         }
     };

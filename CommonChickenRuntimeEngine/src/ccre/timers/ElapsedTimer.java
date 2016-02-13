@@ -48,7 +48,7 @@ public final class ElapsedTimer {
      * updates.
      */
     public ElapsedTimer() {
-        this.period = 2;
+        this(10);
     }
 
     /**

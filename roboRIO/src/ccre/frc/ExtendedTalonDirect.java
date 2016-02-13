@@ -71,9 +71,7 @@ class ExtendedTalonDirect extends TalonExtendedMotor {
     private float potentiometerRotationsPerSweep;
     private int activation_mode = MODE_PERCENT;
     private FeedbackDevice feedback = FeedbackDevice.QuadEncoder;
-    private final Ticker updateTicker = new Ticker(1); // TODO: choose timing
-                                                       // more purposefully
-    private final Ticker slowerTicker = new Ticker(10);
+    private static final Ticker ticker = new Ticker(5);
 
     private static final int ANALOG_TICKS = 1024;
     private static final int PULSE_WIDTH_TICKS = 4096;
@@ -187,7 +185,7 @@ class ExtendedTalonDirect extends TalonExtendedMotor {
 
             @Override
             public BooleanInput getIsStickyFaulting(Faults fault) {
-                return new DerivedBooleanInput(slowerTicker) {
+                return new DerivedBooleanInput(ticker) {
                     protected boolean apply() {
                         switch (fault) {
                         case FORWARD_HARD_LIMIT:
@@ -219,7 +217,7 @@ class ExtendedTalonDirect extends TalonExtendedMotor {
 
             @Override
             public BooleanInput getIsFaulting(Faults fault) {
-                return new DerivedBooleanInput(slowerTicker) {
+                return new DerivedBooleanInput(ticker) {
                     protected boolean apply() {
                         switch (fault) {
                         // some of these reused below
@@ -272,7 +270,7 @@ class ExtendedTalonDirect extends TalonExtendedMotor {
 
             @Override
             public FloatInput getAnalogVelocity() {
-                return new DerivedFloatInput(updateTicker) {
+                return new DerivedFloatInput(ticker) {
                     @Override
                     protected float apply() {
                         return nativeToRPM(FeedbackDevice.AnalogEncoder, CanTalonJNI.GetAnalogInVel(handle));
@@ -282,7 +280,7 @@ class ExtendedTalonDirect extends TalonExtendedMotor {
 
             @Override
             public FloatIO getAnalogPosition() {
-                return new DerivedFloatIO(updateTicker) {
+                return new DerivedFloatIO(ticker) {
                     @Override
                     protected float apply() {
                         return nativeToRotations(FeedbackDevice.AnalogPot, CanTalonJNI.GetAnalogInWithOv(handle) & 0x3FF);
@@ -297,7 +295,7 @@ class ExtendedTalonDirect extends TalonExtendedMotor {
 
             @Override
             public FloatIO getAnalogPositionEncoder() {
-                return new DerivedFloatIO(updateTicker) {
+                return new DerivedFloatIO(ticker) {
                     @Override
                     protected float apply() {
                         return nativeToRotations(FeedbackDevice.AnalogEncoder, CanTalonJNI.GetAnalogInWithOv(handle));
@@ -344,7 +342,7 @@ class ExtendedTalonDirect extends TalonExtendedMotor {
 
             @Override
             public BooleanInput getQuadIndexPin() {
-                return new DerivedBooleanInput(updateTicker) {
+                return new DerivedBooleanInput(ticker) {
                     @Override
                     protected boolean apply() {
                         return CanTalonJNI.GetQuadIdxpin(handle) != 0;
@@ -354,7 +352,7 @@ class ExtendedTalonDirect extends TalonExtendedMotor {
 
             @Override
             public BooleanInput getQuadBPin() {
-                return new DerivedBooleanInput(updateTicker) {
+                return new DerivedBooleanInput(ticker) {
                     @Override
                     protected boolean apply() {
                         return CanTalonJNI.GetQuadBpin(handle) != 0;
@@ -364,7 +362,7 @@ class ExtendedTalonDirect extends TalonExtendedMotor {
 
             @Override
             public BooleanInput getQuadAPin() {
-                return new DerivedBooleanInput(updateTicker) {
+                return new DerivedBooleanInput(ticker) {
                     @Override
                     protected boolean apply() {
                         return CanTalonJNI.GetQuadApin(handle) != 0;
@@ -374,7 +372,7 @@ class ExtendedTalonDirect extends TalonExtendedMotor {
 
             @Override
             public FloatInput getNumberOfQuadIndexRises() {
-                return new DerivedFloatInput(updateTicker) {
+                return new DerivedFloatInput(ticker) {
                     @Override
                     protected float apply() {
                         return CanTalonJNI.GetEncIndexRiseEvents(handle);
@@ -384,7 +382,7 @@ class ExtendedTalonDirect extends TalonExtendedMotor {
 
             @Override
             public FloatInput getEncoderVelocity() {
-                return new DerivedFloatInput(updateTicker) {
+                return new DerivedFloatInput(ticker) {
                     @Override
                     protected float apply() {
                         return nativeToRPM(FeedbackDevice.QuadEncoder, CanTalonJNI.GetEncVel(handle));
@@ -394,7 +392,7 @@ class ExtendedTalonDirect extends TalonExtendedMotor {
 
             @Override
             public FloatIO getEncoderPosition() {
-                return new DerivedFloatIO(updateTicker) {
+                return new DerivedFloatIO(ticker) {
                     @Override
                     protected float apply() {
                         return nativeToRotations(FeedbackDevice.QuadEncoder, CanTalonJNI.GetEncPosition(handle));
@@ -427,7 +425,7 @@ class ExtendedTalonDirect extends TalonExtendedMotor {
         return new TalonHardLimits() {
             @Override
             public BooleanInput getIsReverseLimitSwitchClosed() {
-                return new DerivedBooleanInput(updateTicker) {
+                return new DerivedBooleanInput(ticker) {
                     @Override
                     protected boolean apply() {
                         return CanTalonJNI.GetLimitSwitchClosedRev(handle) == 0;
@@ -437,7 +435,7 @@ class ExtendedTalonDirect extends TalonExtendedMotor {
 
             @Override
             public BooleanInput getIsForwardLimitSwitchClosed() {
-                return new DerivedBooleanInput(updateTicker) {
+                return new DerivedBooleanInput(ticker) {
                     @Override
                     protected boolean apply() {
                         return CanTalonJNI.GetLimitSwitchClosedFor(handle) == 0;
@@ -461,7 +459,7 @@ class ExtendedTalonDirect extends TalonExtendedMotor {
             // autosent
             @Override
             public FloatIO getP() {
-                return new DerivedFloatIO(slowerTicker, secondaryProfileActive) {
+                return new DerivedFloatIO(ticker, secondaryProfileActive) {
                     @Override
                     protected float apply() {
                         return (float) CanTalonJNI.GetPgain(handle, getProfileID());
@@ -476,7 +474,7 @@ class ExtendedTalonDirect extends TalonExtendedMotor {
 
             @Override
             public FloatIO getI() {
-                return new DerivedFloatIO(slowerTicker, secondaryProfileActive) {
+                return new DerivedFloatIO(ticker, secondaryProfileActive) {
                     @Override
                     protected float apply() {
                         return (float) CanTalonJNI.GetIgain(handle, getProfileID());
@@ -491,7 +489,7 @@ class ExtendedTalonDirect extends TalonExtendedMotor {
 
             @Override
             public FloatIO getD() {
-                return new DerivedFloatIO(slowerTicker, secondaryProfileActive) {
+                return new DerivedFloatIO(ticker, secondaryProfileActive) {
                     @Override
                     protected float apply() {
                         return (float) CanTalonJNI.GetDgain(handle, getProfileID());
@@ -506,7 +504,7 @@ class ExtendedTalonDirect extends TalonExtendedMotor {
 
             @Override
             public FloatIO getF() {
-                return new DerivedFloatIO(slowerTicker, secondaryProfileActive) {
+                return new DerivedFloatIO(ticker, secondaryProfileActive) {
                     @Override
                     protected float apply() {
                         return (float) CanTalonJNI.GetFgain(handle, getProfileID());
@@ -521,7 +519,7 @@ class ExtendedTalonDirect extends TalonExtendedMotor {
 
             @Override
             public FloatIO getIntegralBounds() {
-                return new DerivedFloatIO(slowerTicker, secondaryProfileActive) {
+                return new DerivedFloatIO(ticker, secondaryProfileActive) {
                     @Override
                     protected float apply() {
                         return (float) CanTalonJNI.GetIzone(handle, getProfileID());
@@ -536,7 +534,7 @@ class ExtendedTalonDirect extends TalonExtendedMotor {
 
             @Override
             public FloatIO getCloseLoopRampRate() {
-                return new DerivedFloatIO(slowerTicker, secondaryProfileActive) {
+                return new DerivedFloatIO(ticker, secondaryProfileActive) {
                     @Override
                     protected float apply() {
                         return CanTalonJNI.GetCloseLoopRampRate(handle, getProfileID()) * 12 * 1000 / 1023f;
@@ -551,7 +549,7 @@ class ExtendedTalonDirect extends TalonExtendedMotor {
 
             @Override
             public FloatIO getIAccum() {
-                return new DerivedFloatIO(slowerTicker) {
+                return new DerivedFloatIO(ticker) {
                     @Override
                     protected float apply() {
                         return CanTalonJNI.GetParamResponseInt32(handle, CanTalonJNI.param_t.ePidIaccum.value);
@@ -602,7 +600,7 @@ class ExtendedTalonDirect extends TalonExtendedMotor {
 
             @Override
             public FloatIO getPulseWidthPosition() {
-                return new DerivedFloatIO(updateTicker) {
+                return new DerivedFloatIO(ticker) {
                     @Override
                     protected float apply() {
                         return nativeToRotations(FeedbackDevice.PulseWidth, CanTalonJNI.GetPulseWidthPosition(handle));
@@ -617,7 +615,7 @@ class ExtendedTalonDirect extends TalonExtendedMotor {
 
             @Override
             public FloatInput getPulseWidthVelocity() {
-                return new DerivedFloatInput(updateTicker) {
+                return new DerivedFloatInput(ticker) {
                     @Override
                     protected float apply() {
                         return nativeToRPM(FeedbackDevice.PulseWidth, CanTalonJNI.GetPulseWidthVelocity(handle));
@@ -627,7 +625,7 @@ class ExtendedTalonDirect extends TalonExtendedMotor {
 
             @Override
             public FloatInput getPulseWidthRiseToFallMicroseconds() {
-                return new DerivedFloatInput(updateTicker) {
+                return new DerivedFloatInput(ticker) {
                     @Override
                     protected float apply() {
                         return CanTalonJNI.GetPulseWidthRiseToFallUs(handle);
@@ -637,7 +635,7 @@ class ExtendedTalonDirect extends TalonExtendedMotor {
 
             @Override
             public FloatInput getPulseWidthRiseToRiseMicroseconds() {
-                return new DerivedFloatInput(updateTicker) {
+                return new DerivedFloatInput(ticker) {
                     @Override
                     protected float apply() {
                         return CanTalonJNI.GetPulseWidthRiseToRiseUs(handle);
@@ -647,7 +645,7 @@ class ExtendedTalonDirect extends TalonExtendedMotor {
 
             @Override
             public BooleanInput getPulseWidthOrCtreMagEncoderPresent() {
-                return new DerivedBooleanInput(updateTicker) {
+                return new DerivedBooleanInput(ticker) {
                     @Override
                     protected boolean apply() {
                         return CanTalonJNI.IsPulseWidthSensorPresent(handle) != 0;
@@ -662,7 +660,7 @@ class ExtendedTalonDirect extends TalonExtendedMotor {
         return new TalonSoftLimits() {
             @Override
             public FloatIO getForwardSoftLimit() {
-                return new DerivedFloatIO(slowerTicker) {
+                return new DerivedFloatIO(ticker) {
                     @Override
                     protected float apply() {
                         return nativeToRotations(FeedbackDevice.PulseWidth, CanTalonJNI.GetParamResponseInt32(handle, CanTalonJNI.param_t.eProfileParamSoftLimitForThreshold.value));
@@ -677,7 +675,7 @@ class ExtendedTalonDirect extends TalonExtendedMotor {
 
             @Override
             public BooleanIO getEnableForwardSoftLimit() {
-                return new DerivedBooleanIO(slowerTicker) {
+                return new DerivedBooleanIO(ticker) {
                     @Override
                     public void set(boolean enable) {
                         CanTalonJNI.SetParam(handle, CanTalonJNI.param_t.eProfileParamSoftLimitForEnable.value, enable ? 1 : 0);
@@ -692,7 +690,7 @@ class ExtendedTalonDirect extends TalonExtendedMotor {
 
             @Override
             public FloatIO getReverseSoftLimit() {
-                return new DerivedFloatIO(slowerTicker) {
+                return new DerivedFloatIO(ticker) {
                     @Override
                     protected float apply() {
                         return nativeToRotations(FeedbackDevice.PulseWidth, CanTalonJNI.GetParamResponseInt32(handle, CanTalonJNI.param_t.eProfileParamSoftLimitRevThreshold.value));
@@ -707,7 +705,7 @@ class ExtendedTalonDirect extends TalonExtendedMotor {
 
             @Override
             public BooleanIO getEnableReverseSoftLimit() {
-                return new DerivedBooleanIO(slowerTicker) {
+                return new DerivedBooleanIO(ticker) {
                     @Override
                     public void set(boolean enable) {
                         CanTalonJNI.SetParam(handle, CanTalonJNI.param_t.eProfileParamSoftLimitRevEnable.value, enable ? 1 : 0);
@@ -727,7 +725,7 @@ class ExtendedTalonDirect extends TalonExtendedMotor {
         return new TalonFeedback() {
             @Override
             public FloatInput getBusVoltage() {
-                return new DerivedFloatInput(updateTicker) {
+                return new DerivedFloatInput(ticker) {
                     @Override
                     protected float apply() {
                         return (float) CanTalonJNI.GetBatteryV(handle);
@@ -737,7 +735,7 @@ class ExtendedTalonDirect extends TalonExtendedMotor {
 
             @Override
             public FloatInput getOutputVoltage() {
-                return new DerivedFloatInput(updateTicker) {
+                return new DerivedFloatInput(ticker) {
                     @Override
                     protected float apply() {
                         return (float) (CanTalonJNI.GetBatteryV(handle) * CanTalonJNI.GetAppliedThrottle(handle) / 1023);
@@ -747,7 +745,7 @@ class ExtendedTalonDirect extends TalonExtendedMotor {
 
             @Override
             public FloatInput getOutputCurrent() {
-                return new DerivedFloatInput(updateTicker) {
+                return new DerivedFloatInput(ticker) {
                     @Override
                     protected float apply() {
                         return (float) CanTalonJNI.GetCurrent(handle);
@@ -757,7 +755,7 @@ class ExtendedTalonDirect extends TalonExtendedMotor {
 
             @Override
             public FloatIO getSensorPosition() {
-                return new DerivedFloatIO(updateTicker) {
+                return new DerivedFloatIO(ticker) {
                     @Override
                     protected float apply() {
                         return nativeToRotations(feedback, CanTalonJNI.GetSensorPosition(handle));
@@ -772,7 +770,7 @@ class ExtendedTalonDirect extends TalonExtendedMotor {
 
             @Override
             public FloatInput getSensorVelocity() {
-                return new DerivedFloatInput(updateTicker) {
+                return new DerivedFloatInput(ticker) {
                     @Override
                     protected float apply() {
                         return nativeToRPM(feedback, CanTalonJNI.GetSensorVelocity(handle));
@@ -782,7 +780,7 @@ class ExtendedTalonDirect extends TalonExtendedMotor {
 
             @Override
             public FloatInput getThrottle() {
-                return new DerivedFloatInput(updateTicker) {
+                return new DerivedFloatInput(ticker) {
                     @Override
                     protected float apply() {
                         return CanTalonJNI.GetAppliedThrottle(handle) / 1023f;
@@ -792,7 +790,7 @@ class ExtendedTalonDirect extends TalonExtendedMotor {
 
             @Override
             public FloatInput getClosedLoopError() {
-                return new DerivedFloatInput(updateTicker) {
+                return new DerivedFloatInput(ticker) {
                     @Override
                     protected float apply() {
                         int raw = CanTalonJNI.GetCloseLoopErr(handle);
@@ -813,7 +811,7 @@ class ExtendedTalonDirect extends TalonExtendedMotor {
 
             @Override
             public FloatInput getTemperature() {
-                return new DerivedFloatInput(updateTicker) {
+                return new DerivedFloatInput(ticker) {
                     @Override
                     protected float apply() {
                         return (float) CanTalonJNI.GetTemp(handle);
@@ -833,7 +831,7 @@ class ExtendedTalonDirect extends TalonExtendedMotor {
         return new TalonGeneralConfig() {
             @Override
             public BooleanIO getBrakeNotCoast() {
-                return new DerivedBooleanIO(slowerTicker) {
+                return new DerivedBooleanIO(ticker) {
                     @Override
                     protected boolean apply() {
                         return CanTalonJNI.GetBrakeIsEnabled(handle) != 0;

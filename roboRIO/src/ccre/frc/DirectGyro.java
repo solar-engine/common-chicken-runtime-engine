@@ -24,6 +24,8 @@ package ccre.frc;
 
 import java.nio.IntBuffer;
 
+import ccre.time.Time;
+
 class DirectGyro {
     private static final long[] gyros = new long[DirectAnalog.ANALOG_NUM];
     private static final double[] offsets = new double[DirectAnalog.ANALOG_NUM];
@@ -40,11 +42,11 @@ class DirectGyro {
 
             // TODO: Don't do it like this. This is just for WPILib
             // compatibility.
-            Thread.sleep(1000);
+            Time.sleep(1000);
 
             DirectAnalog.resetAccumulator(analog);
 
-            Thread.sleep(5000);
+            Time.sleep(5000);
 
             IntBuffer countB = Common.getSharedBuffer();
             long value = DirectAnalog.readAccumulatorValue(analog, countB);

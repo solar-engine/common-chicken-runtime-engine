@@ -51,6 +51,7 @@ import ccre.drivers.ctre.talon.TalonHardLimits;
 import ccre.drivers.ctre.talon.TalonPIDConfiguration;
 import ccre.drivers.ctre.talon.TalonPulseWidth;
 import ccre.drivers.ctre.talon.TalonSoftLimits;
+import ccre.time.Time;
 import ccre.timers.Ticker;
 import edu.wpi.first.wpilibj.hal.CanTalonJNI;
 
@@ -155,12 +156,14 @@ class ExtendedTalonDirect extends TalonExtendedMotor {
         new ReporterThread("CANTalonRequestor") {
             @Override
             protected void threadBody() throws Throwable {
-                for (int value : values) {
-                    CanTalonJNI.RequestParam(handle, value);
-                    try {
-                        Thread.sleep(PARAMETER_REQUEST_PERIOD_MILLIS);
-                    } catch (InterruptedException e) {
-                        return;
+                while (true) {
+                    for (int value : values) {
+                        CanTalonJNI.RequestParam(handle, value);
+                        try {
+                            Time.sleep(PARAMETER_REQUEST_PERIOD_MILLIS);
+                        } catch (InterruptedException e) {
+                            return;
+                        }
                     }
                 }
             }

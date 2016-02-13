@@ -52,20 +52,23 @@ public class ElapsedTimerTest {
     @Test
     public void testElapsedTimer() throws InterruptedException {
         ElapsedTimer timer = new ElapsedTimer(1);
-        Random rand = new Random();
-        
-        timer.start();
-        float currentTime = timer.getElapsedTimeMillis().get();
-        for (int i = 0; i < 100; i++) {
-            int delay = rand.nextInt(10000);
-            fake.forward(delay);
-            Thread.sleep(2);
-            currentTime += delay;
-            assertEquals(currentTime, timer.getElapsedTimeMillis().get(), 0);
+        try {
+            Random rand = new Random();
+
+            timer.start();
+            float currentTime = timer.getElapsedTimeMillis().get();
+            for (int i = 0; i < 100; i++) {
+                int delay = rand.nextInt(10000);
+                fake.forward(delay);
+                Thread.sleep(2);
+                currentTime += delay;
+                assertEquals(currentTime, timer.getElapsedTimeMillis().get(), 0);
+            }
+        } finally {
+            timer.terminate();
         }
-        timer.terminate();
     }
-    
+
     @Test
     public void testPeriodLargerThanDelay() throws InterruptedException {
         Random rand = new Random();
@@ -74,10 +77,13 @@ public class ElapsedTimerTest {
         int largerDelay = shorterDelay + rand.nextInt(100);
 
         ElapsedTimer timer = new ElapsedTimer(largerDelay);
-
-        timer.start();
-        fake.forward(shorterDelay);
-        assertEquals(0, timer.getElapsedTimeMillis().get(), 0);
-        timer.terminate();
+        try {
+            timer.start();
+            fake.forward(shorterDelay);
+            assertEquals(0, timer.getElapsedTimeMillis().get(), 0);
+            timer.terminate();
+        } finally {
+            timer.terminate();
+        }
     }
 }

@@ -63,6 +63,7 @@ public class ElapsedTimerTest {
             currentTime += delay;
             assertEquals(currentTime, timer.getElapsedTimeMillis().get(), 0);
         }
+        timer.terminate();
     }
     
     @Test
@@ -77,5 +78,6 @@ public class ElapsedTimerTest {
         timer.start();
         fake.forward(shorterDelay);
         assertEquals(0, timer.getElapsedTimeMillis().get(), 0);
+        timer.terminate();
     }
 }

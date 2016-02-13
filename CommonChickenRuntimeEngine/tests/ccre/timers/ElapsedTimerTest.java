@@ -69,13 +69,13 @@ public class ElapsedTimerTest {
     public void testPeriodLargerThanDelay() throws InterruptedException {
         Random rand = new Random();
 
-        int firstDelay = rand.nextInt(100);
-        int secondDelay = rand.nextInt(100);
+        int shorterDelay = rand.nextInt(100);
+        int largerDelay = shorterDelay + rand.nextInt(100);
 
-        ElapsedTimer timer = new ElapsedTimer(firstDelay > secondDelay ? firstDelay : secondDelay);
+        ElapsedTimer timer = new ElapsedTimer(largerDelay);
 
         timer.start();
-        fake.forward(firstDelay < secondDelay ? firstDelay : secondDelay);
+        fake.forward(shorterDelay);
         assertEquals(0, timer.getElapsedTimeMillis().get(), 0);
     }
 }

@@ -76,7 +76,7 @@ public final class ElapsedTimer {
         protected void threadBody() throws Throwable {
             try {
                 while (!terminated) {
-                    cell.set(Time.currentTimeMillis() - startTime);
+                    cell.safeSet(Time.currentTimeMillis() - startTime);
                     Time.sleep(period);
                 }
             } catch (InterruptedException e) {

@@ -96,7 +96,8 @@ public final class ElapsedTimer {
     }
 
     /**
-     * Terminate the update loop of the timer.
+     * Terminate the update loop of the timer. Note: don't use the timer after
+     * it's been terminated.
      */
     public synchronized void terminate() {
         terminated = true;

@@ -44,8 +44,8 @@ public final class ElapsedTimer {
     };
 
     /**
-     * Create a new timer, with a default sleep period of 2 milliseconds between
-     * updates.
+     * Create a new timer, with a default sleep period of 10 milliseconds
+     * between updates.
      */
     public ElapsedTimer() {
         this(10);

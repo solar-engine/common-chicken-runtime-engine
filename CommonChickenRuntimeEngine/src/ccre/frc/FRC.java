@@ -19,6 +19,8 @@
  */
 package ccre.frc;
 
+import java.io.IOException;
+
 import ccre.channel.BooleanInput;
 import ccre.channel.BooleanOutput;
 import ccre.channel.EventInput;
@@ -36,6 +38,7 @@ import ccre.discrete.DiscreteInput;
 import ccre.drivers.ctre.talon.TalonExtendedMotor;
 import ccre.instinct.InstinctModule;
 import ccre.log.Logger;
+import ccre.recording.Recorder;
 import ccre.timers.Ticker;
 
 /**
@@ -1346,5 +1349,24 @@ public class FRC {
             ds.addJoystick(names[i], impl.getJoystick(i + 1), 12, 6);
         }
         return ds;
+    }
+
+    private static Recorder rec;
+
+    public static synchronized Recorder getRecorder() {
+        if (rec == null) {
+            try {
+                rec = Recorder.open(true, 8); // TODO: configurable?
+            } catch (IOException e) {
+                throw new RuntimeException(e); // TODO: better error handling?
+            }
+            rec.recordEventInput(globalPeriodic, "FRC.globalPeriodic");
+            rec.recordEventInput(constantPeriodic, "FRC.constantPeriodic");
+            rec.recordEventInput(sensorPeriodic, "FRC.sensorPeriodic");
+            rec.recordDiscreteInput(getMode(), "Robot Mode");
+            rec.recordBooleanInput(isOnFMS(), "FRC.isOnFMS()");
+            rec.recordFloatInput(batteryVoltage(), "Battery Voltage");
+        }
+        return rec;
     }
 }

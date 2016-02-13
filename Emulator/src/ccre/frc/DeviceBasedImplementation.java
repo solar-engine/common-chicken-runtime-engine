@@ -30,6 +30,8 @@ import ccre.ctrl.ExtendedMotor;
 import ccre.ctrl.Joystick;
 import ccre.ctrl.LoopbackSerialIO;
 import ccre.ctrl.binding.ControlBindingCreator;
+import ccre.discrete.DerivedDiscreteInput;
+import ccre.discrete.DiscreteInput;
 import ccre.drivers.ctre.talon.TalonExtendedMotor;
 import ccre.frc.devices.BooleanControlDevice;
 import ccre.frc.devices.BooleanViewDevice;
@@ -240,17 +242,17 @@ public class DeviceBasedImplementation implements FRCImplementation {
 
     @Override
     public BooleanInput getIsDisabled() {
-        return mode.getIsMode(RobotModeDevice.RobotMode.DISABLED);
+        return mode.getIsMode(FRCMode.DISABLED);
     }
 
     @Override
     public BooleanInput getIsAutonomous() {
-        return mode.getIsMode(RobotModeDevice.RobotMode.AUTONOMOUS);
+        return mode.getIsMode(FRCMode.AUTONOMOUS);
     }
 
     @Override
     public BooleanInput getIsTest() {
-        return mode.getIsMode(RobotModeDevice.RobotMode.TESTING);
+        return mode.getIsMode(FRCMode.TEST);
     }
 
     private BooleanInput isFMS;
@@ -315,52 +317,52 @@ public class DeviceBasedImplementation implements FRCImplementation {
         return masterPeriodic;
     }
 
-    private EventInput getModeBecomes(RobotModeDevice.RobotMode target) {
+    private EventInput getModeBecomes(FRCMode target) {
         return mode.getIsMode(target).onPress();
     }
 
-    private EventInput getModeDuring(RobotModeDevice.RobotMode target) {
+    private EventInput getModeDuring(FRCMode target) {
         return masterPeriodic.and(mode.getIsMode(target));
     }
 
     @Override
     public EventInput getStartAuto() {
-        return getModeBecomes(RobotModeDevice.RobotMode.AUTONOMOUS);
+        return getModeBecomes(FRCMode.AUTONOMOUS);
     }
 
     @Override
     public EventInput getDuringAuto() {
-        return getModeDuring(RobotModeDevice.RobotMode.AUTONOMOUS);
+        return getModeDuring(FRCMode.AUTONOMOUS);
     }
 
     @Override
     public EventInput getStartTele() {
-        return getModeBecomes(RobotModeDevice.RobotMode.TELEOPERATED);
+        return getModeBecomes(FRCMode.TELEOP);
     }
 
     @Override
     public EventInput getDuringTele() {
-        return getModeDuring(RobotModeDevice.RobotMode.TELEOPERATED);
+        return getModeDuring(FRCMode.TELEOP);
     }
 
     @Override
     public EventInput getStartTest() {
-        return getModeBecomes(RobotModeDevice.RobotMode.TESTING);
+        return getModeBecomes(FRCMode.TEST);
     }
 
     @Override
     public EventInput getDuringTest() {
-        return getModeDuring(RobotModeDevice.RobotMode.TESTING);
+        return getModeDuring(FRCMode.TEST);
     }
 
     @Override
     public EventInput getStartDisabled() {
-        return getModeBecomes(RobotModeDevice.RobotMode.DISABLED);
+        return getModeBecomes(FRCMode.DISABLED);
     }
 
     @Override
     public EventInput getDuringDisabled() {
-        return getModeDuring(RobotModeDevice.RobotMode.DISABLED);
+        return getModeDuring(FRCMode.DISABLED);
     }
 
     private final BooleanViewDevice pcmCompressor = new BooleanViewDevice("PCM Compressor Closed-Loop Control", true);
@@ -519,5 +521,10 @@ public class DeviceBasedImplementation implements FRCImplementation {
     @Override
     public EventInput getOnInitComplete() {
         return onInitComplete;
+    }
+
+    @Override
+    public DiscreteInput<FRCMode> getMode() {
+        return mode.getMode();
     }
 }

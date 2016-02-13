@@ -47,6 +47,8 @@ import ccre.ctrl.ExtendedMotor;
 import ccre.ctrl.ExtendedMotorFailureException;
 import ccre.ctrl.Joystick;
 import ccre.ctrl.binding.ControlBindingCreator;
+import ccre.discrete.DerivedDiscreteInput;
+import ccre.discrete.DiscreteInput;
 import ccre.drivers.ctre.talon.TalonExtendedMotor;
 import ccre.log.FileLogger;
 import ccre.log.Logger;
@@ -200,13 +202,15 @@ public final class DirectFRCImplementation implements FRCImplementation {
     }
 
     private enum Mode {
-        DISABLED("disabled"), AUTONOMOUS("autonomous"), TELEOP("teleop"), TEST("test");
+        DISABLED("disabled", FRCMode.DISABLED), AUTONOMOUS("autonomous", FRCMode.AUTONOMOUS), TELEOP("teleop", FRCMode.TELEOP), TEST("test", FRCMode.TEST);
 
-        private Mode(String name) {
-            this.name = name;
-        }
-
+        public final FRCMode frcMode;
         public final String name;
+
+        private Mode(String name, FRCMode mode) {
+            this.name = name;
+            this.frcMode = mode;
+        }
 
         private EventCell getStart(DirectFRCImplementation impl) {
             return impl.startEvents[ordinal()];
@@ -709,5 +713,15 @@ public final class DirectFRCImplementation implements FRCImplementation {
     @Override
     public EventInput getOnInitComplete() {
         return onInitComplete;
+    }
+
+    @Override
+    public DiscreteInput<FRCMode> getMode() {
+        return new DerivedDiscreteInput<FRCMode>(FRCMode.discreteType, onChangeMode) {
+            @Override
+            protected FRCMode apply() {
+                return activeMode.frcMode;
+            }
+        };
     }
 }

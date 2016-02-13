@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2015 Cel Skeggs
+ * Copyright 2014-2016 Cel Skeggs
  *
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  *
@@ -20,7 +20,10 @@ package ccre.frc.devices;
 
 import ccre.channel.BooleanInput;
 import ccre.channel.DerivedBooleanInput;
+import ccre.discrete.DerivedDiscreteInput;
+import ccre.discrete.DiscreteInput;
 import ccre.frc.Device;
+import ccre.frc.FRCMode;
 import ccre.frc.components.BooleanTextComponent;
 import ccre.frc.components.SpacingComponent;
 import ccre.frc.components.TextComponent;
@@ -33,82 +36,48 @@ import ccre.frc.components.TextComponent;
  */
 public class RobotModeDevice extends Device {
 
-    /**
-     * An enum of the possible modes.
-     *
-     * @author skeggsc
-     */
-    public static enum RobotMode {
-        /**
-         * The DISABLED mode. Has a null selection name.
-         */
-        DISABLED(null),
-        /**
-         * The AUTONOMOUS mode. The selection name is AUTO.
-         */
-        AUTONOMOUS("AUTO"),
-        /**
-         * The TELEOPERATED mode. The selection name is TELE.
-         */
-        TELEOPERATED("TELE"),
-        /**
-         * The TESTING mode. The selection name is TEST.
-         */
-        TESTING("TEST");
-
-        /**
-         * The selection name, used for displaying a short name for the current
-         * selection.
-         *
-         * This is either null, "AUTO", "TELE", or "TEST".
-         */
-        public final String selectionName;
-
-        private RobotMode(String name) {
-            selectionName = name;
-        }
-    }
+    // null, "AUTO", "TELE", "TEST"
 
     private final BooleanTextComponent enabled = new BooleanTextComponent("DISABLED", "ENABLED").setEditable(true);
     private final BooleanTextComponent autoLight = new BooleanTextComponent("AUTO") {
         @Override
         public void onPress(int x, int y) {
-            setMode(RobotMode.AUTONOMOUS);
+            setMode(FRCMode.AUTONOMOUS);
         }
     };
     private final BooleanTextComponent teleLight = new BooleanTextComponent("TELE") {
         @Override
         public void onPress(int x, int y) {
-            setMode(RobotMode.TELEOPERATED);
+            setMode(FRCMode.TELEOP);
         }
     };
     private final BooleanTextComponent testLight = new BooleanTextComponent("TEST") {
         @Override
         public void onPress(int x, int y) {
-            setMode(RobotMode.TESTING);
+            setMode(FRCMode.TEST);
         }
     };
     // except for DISABLED
-    private RobotMode selectedMode = RobotMode.TELEOPERATED;
+    private FRCMode selectedMode = FRCMode.TELEOP;
 
-    private void setMode(RobotMode mode) {
+    private void setMode(FRCMode mode) {
         if (enabled.get()) {
             return;// Can't change mode while enabled.
         }
         this.selectedMode = mode;
-        autoLight.safeSet(mode == RobotMode.AUTONOMOUS);
-        teleLight.safeSet(mode == RobotMode.TELEOPERATED);
-        testLight.safeSet(mode == RobotMode.TESTING);
+        autoLight.safeSet(mode == FRCMode.AUTONOMOUS);
+        teleLight.safeSet(mode == FRCMode.TELEOP);
+        testLight.safeSet(mode == FRCMode.TEST);
     }
 
     /**
-     * Create a new RobotModeDevice.
+     * Create a new FRCModeDevice.
      */
     public RobotModeDevice() {
         add(new SpacingComponent(20));
         add(new TextComponent("Mode"));
         add(enabled);
-        setMode(RobotMode.TELEOPERATED);
+        setMode(FRCMode.TELEOP);
         add(autoLight);
         add(teleLight);
         add(testLight);
@@ -120,8 +89,8 @@ public class RobotModeDevice extends Device {
      * @param mode the mode to monitor.
      * @return the channel representing if the robot is in that mode.
      */
-    public BooleanInput getIsMode(final RobotMode mode) {
-        if (mode == RobotMode.DISABLED) {
+    public BooleanInput getIsMode(final FRCMode mode) {
+        if (mode == FRCMode.DISABLED) {
             return enabled.asInput().not();
         } else {
             return new DerivedBooleanInput(enabled.asInput()) {
@@ -144,5 +113,14 @@ public class RobotModeDevice extends Device {
      */
     public BooleanInput getIsEnabled() {
         return enabled.asInput();
+    }
+
+    public DiscreteInput<FRCMode> getMode() {
+        return new DerivedDiscreteInput<FRCMode>(FRCMode.discreteType, enabled.asInput()) {
+            @Override
+            protected FRCMode apply() {
+                return enabled.get() ? selectedMode : FRCMode.DISABLED;
+            }
+        };
     }
 }

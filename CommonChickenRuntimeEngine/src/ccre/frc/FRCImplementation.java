@@ -28,6 +28,7 @@ import ccre.channel.SerialIO;
 import ccre.ctrl.ExtendedMotor;
 import ccre.ctrl.Joystick;
 import ccre.ctrl.binding.ControlBindingCreator;
+import ccre.discrete.DiscreteInput;
 import ccre.drivers.ctre.talon.TalonExtendedMotor;
 
 /**
@@ -199,6 +200,8 @@ public interface FRCImplementation {
      * @return the input.
      */
     public BooleanInput getIsTest();
+
+    public DiscreteInput<FRCMode> getMode();
 
     /**
      * Get a boolean input that checks if the robot is currently connected to

@@ -32,6 +32,7 @@ import ccre.ctrl.binding.CluckControlBinder;
 import ccre.ctrl.binding.ControlBindingCreator;
 import ccre.ctrl.binding.ControlBindingDataSource;
 import ccre.ctrl.binding.ControlBindingDataSourceBuildable;
+import ccre.discrete.DiscreteInput;
 import ccre.drivers.ctre.talon.TalonExtendedMotor;
 import ccre.instinct.InstinctModule;
 import ccre.log.Logger;
@@ -797,6 +798,10 @@ public class FRC {
      */
     public static BooleanInput inTeleopMode() {
         return impl.getIsTest().or(impl.getIsAutonomous()).not().andNot(impl.getIsDisabled());
+    }
+
+    public static DiscreteInput<FRCMode> getMode() {
+        return impl.getMode();
     }
 
     /**

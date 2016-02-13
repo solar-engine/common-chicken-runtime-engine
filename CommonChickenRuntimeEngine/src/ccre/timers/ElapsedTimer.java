@@ -67,7 +67,7 @@ public final class ElapsedTimer {
      * 
      * @return the channel.
      */
-    public FloatInput elapsedTime() {
+    public FloatInput getElapsedTimeMillis() {
         return cell;
     }
 

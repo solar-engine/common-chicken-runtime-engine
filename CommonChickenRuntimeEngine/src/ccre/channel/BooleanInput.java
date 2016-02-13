@@ -96,7 +96,7 @@ public interface BooleanInput extends UpdatingInput {
      * if it was added once.
      *
      * @param output The boolean output to notify when the value changes.
-     * @return an EventOutput that deregisters the registered EventOutput. DO
+     * @return a CancelOutput that deregisters the registered EventOutput. DO
      * NOT FIRE THIS RETURNED EVENT MORE THAN ONCE: UNDEFINED BEHAVIOR MAY
      * RESULT.
      */

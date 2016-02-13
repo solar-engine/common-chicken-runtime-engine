@@ -33,7 +33,7 @@ import ccre.time.Time;
 public final class ElapsedTimer {
     private final int period;
     private final FloatCell cell = new FloatCell();
-    private boolean terminated = false;
+    private volatile boolean terminated = false;
     private long startTime;
 
     /**

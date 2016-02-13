@@ -18,48 +18,84 @@
  */
 package ccre.timers;
 
-import ccre.channel.BooleanCell;
+import ccre.channel.EventOutput;
+import ccre.channel.FloatCell;
+import ccre.channel.FloatInput;
+import ccre.concurrency.ReporterThread;
 import ccre.time.Time;
 
 /**
- * A timer that, when read, returns the amount of time since it was last reset.
+ * A timer that provides a channel that reads the amount of time since it was
+ * last reset.
  * 
  * @author amackworth
  */
 public final class ElapsedTimer {
-    private final BooleanCell isRunning = new BooleanCell();
+    private int period;
+    private final FloatCell cell = new FloatCell();
+    private boolean terminated = false;
     private long startTime;
 
     /**
-     * Starts the timer. Note: {@link #reset()} must be called first before a timer is started anew.
+     * When fired, resets the timer.
      */
-    public void start() {
-        if (isRunning.get()) {
-            throw new IllegalStateException("Timer is running!");
-        }
-
-        isRunning.safeSet(true);
+    public final EventOutput reset = () -> {
         startTime = Time.currentTimeMillis();
+    };
+
+    /**
+     * Create a new timer, with a default sleep period of 2 milliseconds between
+     * updates.
+     */
+    public ElapsedTimer() {
+        this.period = 2;
     }
 
     /**
-     * Reads how long the timer has been running.
+     * Creates a new timer with the specified period.
      * 
-     * @return the milliseconds passed since the timer was started.
+     * @param period the amount of time to sleep between updates, in
+     * milliseconds.
      */
-    public long read() {
-        if (!isRunning.get()) {
-            throw new IllegalStateException("Timer not running!");
-        }
-
-        return Time.currentTimeMillis() - startTime;
+    public ElapsedTimer(int period) {
+        this.period = period;
     }
 
     /**
-     * Stops and resets the timer.
+     * A channel that updates with the amount of time passed since the timer was
+     * reset, in milliseconds.
+     * 
+     * @return the channel.
      */
-    public void reset() {
-        isRunning.safeSet(false);
-        startTime = 0;
+    public FloatInput elapsedTime() {
+        return cell;
+    }
+
+    private final ReporterThread main = new ReporterThread("ElapsedTimer") {
+        @Override
+        protected void threadBody() throws Throwable {
+            while (!terminated) {
+                cell.set(Time.currentTimeMillis() - startTime);
+                Time.sleep(period);
+            }
+        }
+    };
+
+    /**
+     * Start running the timer.
+     */
+    public synchronized void start() {
+        terminated = false;
+        if (!main.isAlive()) {
+            main.start();
+        }
+    }
+
+    /**
+     * Terminate the update loop of the timer.
+     */
+    public synchronized void terminate() {
+        terminated = true;
+        main.interrupt();
     }
 }

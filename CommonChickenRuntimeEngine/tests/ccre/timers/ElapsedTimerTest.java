@@ -22,9 +22,7 @@ import static org.junit.Assert.*;
 
 import java.util.Random;
 
-import org.junit.After;
 import org.junit.AfterClass;
-import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -34,7 +32,6 @@ import ccre.time.Time;
 public class ElapsedTimerTest {
     private static Time oldProvider;
     private static FakeTime fake;
-    private ElapsedTimer timer;
 
     @BeforeClass
     public static void setUpClass() throws Exception {
@@ -52,39 +49,33 @@ public class ElapsedTimerTest {
         fake = null;
     }
 
-    @Before
-    public void setUp() throws Exception {
-        timer = new ElapsedTimer();
-    }
-
-    @After
-    public void tearDown() throws Exception {
-        timer.reset();
-        timer = null;
-    }
-
     @Test
     public void testElapsedTimer() throws InterruptedException {
+        ElapsedTimer timer = new ElapsedTimer(1);
         Random rand = new Random();
+        
         timer.start();
-        long currentTime = timer.read();
+        float currentTime = timer.elapsedTime().get();
         for (int i = 0; i < 100; i++) {
-            System.out.println("fuck" + i);
             int delay = rand.nextInt(10000);
             fake.forward(delay);
+            Thread.sleep(2);
             currentTime += delay;
-            assertEquals(timer.read(), currentTime);
+            assertEquals(currentTime, timer.elapsedTime().get(), 0);
         }
     }
     
-    @Test(expected = IllegalStateException.class)
-    public void testReadUnstartedTimer() {
-        timer.read();
-    }
-    
-    @Test(expected = IllegalStateException.class)
-    public void testStartingRunningTimer() {
+    @Test
+    public void testPeriodLargerThanDelay() throws InterruptedException {
+        Random rand = new Random();
+
+        int firstDelay = rand.nextInt(100);
+        int secondDelay = rand.nextInt(100);
+
+        ElapsedTimer timer = new ElapsedTimer(firstDelay > secondDelay ? firstDelay : secondDelay);
+
         timer.start();
-        timer.start();
+        fake.forward(firstDelay < secondDelay ? firstDelay : secondDelay);
+        assertEquals(0, timer.elapsedTime().get(), 0);
     }
 }

@@ -28,8 +28,6 @@ import ccre.util.Utils;
  * A FloatInput also acts as an UpdatingInput that updates when the value
  * changes, and never updates when the value doesn't change.
  *
- * TODO: Make sure that's actually true everywhere.
- *
  * By convention, most float inputs and outputs have states that range from
  * -1.0f to 1.0f.
  *

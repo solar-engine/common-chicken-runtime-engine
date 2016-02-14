@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 Cel Skeggs
+ * Copyright 2015-2016 Cel Skeggs
  *
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  *
@@ -20,9 +20,12 @@ package ccre.ctrl;
 
 import ccre.channel.BooleanInput;
 import ccre.channel.DerivedBooleanInput;
+import ccre.channel.DerivedFloatInput;
 import ccre.channel.EventCell;
 import ccre.channel.EventInput;
 import ccre.channel.EventOutput;
+import ccre.channel.FloatInput;
+import ccre.channel.UpdatingInput;
 import ccre.log.LogLevel;
 import ccre.log.Logger;
 
@@ -454,5 +457,35 @@ public class StateMachine {
      */
     public void onExitState(int state, final EventOutput output) {
         onExit.send(output.filter(getIsState(state)));
+    }
+
+    public BooleanInput selectByState(BooleanInput... inputs) {
+        if (inputs.length != numberOfStates) {
+            throw new IllegalArgumentException("Wrong number of states in call to selectByState!");
+        }
+        UpdatingInput[] ins = new UpdatingInput[inputs.length + 1];
+        System.arraycopy(inputs, 0, ins, 1, inputs.length);
+        ins[0] = this.onEnter;
+        return new DerivedBooleanInput(ins) {
+            @Override
+            protected boolean apply() {
+                return inputs[currentState].get();
+            }
+        };
+    }
+
+    public FloatInput selectByState(FloatInput... inputs) {
+        if (inputs.length != numberOfStates) {
+            throw new IllegalArgumentException("Wrong number of states in call to selectByState!");
+        }
+        UpdatingInput[] ins = new UpdatingInput[inputs.length + 1];
+        System.arraycopy(inputs, 0, ins, 1, inputs.length);
+        ins[0] = this.onEnter;
+        return new DerivedFloatInput(ins) {
+            @Override
+            protected float apply() {
+                return inputs[currentState].get();
+            }
+        };
     }
 }

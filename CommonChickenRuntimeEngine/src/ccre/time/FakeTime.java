@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 Cel Skeggs
+ * Copyright 2015-2016 Cel Skeggs
  *
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  *
@@ -19,6 +19,8 @@
 package ccre.time;
 
 import java.util.LinkedList;
+import java.util.concurrent.locks.Condition;
+import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * A "fake" implementation of time, in which the current time is controlled by
@@ -40,6 +42,18 @@ public class FakeTime extends Time {
     private int adds = 0;
     private final LinkedList<Object> otherSleepers = new LinkedList<>();
 
+    private static final class CondEntry {
+        public final Condition condition;
+        public final ReentrantLock lock;
+
+        public CondEntry(ReentrantLock lock, Condition cond) {
+            this.lock = lock;
+            this.condition = cond;
+        }
+    }
+
+    private final LinkedList<CondEntry> condSleepers = new LinkedList<>();
+
     /**
      * Fast-forward time by the specified number of milliseconds, including
      * waiting to attempt to synchronize threads.
@@ -60,8 +74,10 @@ public class FakeTime extends Time {
             this.notifyAll();
         }
         Object[] osl;
+        CondEntry[] cel;
         synchronized (this) {
             osl = otherSleepers.toArray();
+            cel = condSleepers.toArray(new CondEntry[condSleepers.size()]);
             adds = 0;
         }
         for (Object obj : osl) {
@@ -69,10 +85,18 @@ public class FakeTime extends Time {
                 obj.notifyAll();
             }
         }
+        for (CondEntry ce : cel) {
+            ce.lock.lock();
+            try {
+                ce.condition.signalAll();
+            } finally {
+                ce.lock.unlock();
+            }
+        }
         synchronized (this) {
             int i = 0;
             while (true) {
-                if (adds >= osl.length) {
+                if (adds >= osl.length + cel.length) {
                     if (debug) {
                         if (i != 1) {
                             System.out.println("Completed in " + i + "!");
@@ -164,20 +188,62 @@ public class FakeTime extends Time {
         }
     }
 
+    @Override
+    protected void awaitNanosOn(ReentrantLock rl, Condition update, long timeout) throws InterruptedException {
+        if (closing) {
+            throw new IllegalStateException("This FakeTime instance is shutting down! Don't try to wait on it!");
+        }
+        if (rl == null || update == null) {
+            throw new NullPointerException();
+        }
+        if (!rl.isHeldByCurrentThread()) {
+            throw new IllegalMonitorStateException("Thread does not hold lock for object!");
+        }
+        if (timeout <= 0) {
+            // not entirely sure about the behavior... just let it do its thing
+            update.awaitNanos(0);
+            return;
+        }
+        // READ THROUGH waitOn BEFORE THIS METHOD ... NOT REPEATING MYSELF!
+        CondEntry ent = new CondEntry(rl, update);
+        synchronized (this) {
+            condSleepers.add(ent);
+            adds++;
+        }
+        try {
+            update.awaitNanos(Time.NANOSECONDS_PER_SECOND);
+        } finally {
+            synchronized (this) {
+                condSleepers.remove(ent);
+            }
+        }
+    }
+
     private boolean closing = false;
 
     @Override
     protected void close() {
         Object[] others;
+        CondEntry[] ents;
         synchronized (this) {
             closing = true;
             others = otherSleepers.toArray();
             otherSleepers.clear();
+            ents = condSleepers.toArray(new CondEntry[condSleepers.size()]);
+            condSleepers.clear();
         }
         // wake up, everyone!
         for (Object o : others) {
             synchronized (o) {
                 o.notifyAll();
+            }
+        }
+        for (CondEntry ce : ents) {
+            ce.lock.lock();
+            try {
+                ce.condition.signalAll();
+            } finally {
+                ce.lock.unlock();
             }
         }
         synchronized (this) {

@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 Cel Skeggs
+ * Copyright 2015-2016 Cel Skeggs
  *
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  *
@@ -17,6 +17,9 @@
  * along with the CCRE.  If not, see <http://www.gnu.org/licenses/>.
  */
 package ccre.time;
+
+import java.util.concurrent.locks.Condition;
+import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * A "normal" implementation of time, which is tied to changes in
@@ -67,6 +70,11 @@ public final class NormalTime extends Time {
     @Override
     protected void waitOn(Object object, long timeout) throws InterruptedException {
         object.wait(timeout);
+    }
+
+    @Override
+    protected void awaitNanosOn(ReentrantLock rl, Condition update, long timeout) throws InterruptedException {
+        update.awaitNanos(timeout);
     }
 
     @Override

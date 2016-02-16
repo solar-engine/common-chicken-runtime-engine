@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 Cel Skeggs
+ * Copyright 2015-2016 Cel Skeggs
  *
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  *
@@ -17,6 +17,9 @@
  * along with the CCRE.  If not, see <http://www.gnu.org/licenses/>.
  */
 package ccre.time;
+
+import java.util.concurrent.locks.Condition;
+import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * An abstraction of time that allows multiple implementations to be used. For
@@ -155,6 +158,10 @@ public abstract class Time {
         time.waitOn(object, timeout);
     }
 
+    public static void awaitNanos(ReentrantLock rl, Condition update, long timeout) throws InterruptedException {
+        time.awaitNanosOn(rl, update, timeout);
+    }
+
     /**
      * Queries the current time based on an unspecified zero point. This is not
      * suitable for determining the time of day, but is suitable for tracking
@@ -203,6 +210,8 @@ public abstract class Time {
      * @throws InterruptedException if the thread is interrupted while waiting.
      */
     protected abstract void waitOn(Object object, long timeout) throws InterruptedException;
+
+    protected abstract void awaitNanosOn(ReentrantLock rl, Condition update, long timeout) throws InterruptedException;
 
     /**
      * This provider has been replaced; transition to the new one. For example,

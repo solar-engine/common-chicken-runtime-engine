@@ -64,4 +64,19 @@ public interface DiscreteOutput<E> {
             Logger.severe("Error during channel propagation", ex);
         }
     }
+
+    public static <E> DiscreteOutput<E> ignored(DiscreteType<E> type) {
+        return new DiscreteOutput<E>() {
+
+            @Override
+            public DiscreteType<E> getType() {
+                return type;
+            }
+
+            @Override
+            public void set(E value) {
+                // do nothing
+            }
+        };
+    }
 }

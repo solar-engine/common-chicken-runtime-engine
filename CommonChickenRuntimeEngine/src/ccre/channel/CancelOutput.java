@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 Cel Skeggs.
+ * Copyright 2015-2016 Cel Skeggs.
  *
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  *
@@ -31,7 +31,14 @@ public interface CancelOutput {
     /**
      * A CancelOutput that cancels nothing.
      */
-    public static final CancelOutput nothing = () -> {
+    public static final CancelOutput nothing = new CancelOutput() {
+        @Override
+        public void cancel() {
+        }
+
+        public CancelOutput combine(CancelOutput other) {
+            return other;
+        }
     };
 
     /**

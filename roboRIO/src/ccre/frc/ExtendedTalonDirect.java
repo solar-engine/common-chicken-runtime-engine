@@ -39,7 +39,6 @@ import ccre.channel.EventOutput;
 import ccre.channel.FloatIO;
 import ccre.channel.FloatInput;
 import ccre.channel.FloatOutput;
-import ccre.concurrency.ReporterThread;
 import ccre.ctrl.ExtendedMotorFailureException;
 import ccre.ctrl.Faultable;
 import ccre.drivers.ctre.talon.TalonAnalog;
@@ -51,15 +50,16 @@ import ccre.drivers.ctre.talon.TalonHardLimits;
 import ccre.drivers.ctre.talon.TalonPIDConfiguration;
 import ccre.drivers.ctre.talon.TalonPulseWidth;
 import ccre.drivers.ctre.talon.TalonSoftLimits;
+import ccre.scheduler.Scheduler;
 import ccre.time.Time;
 import ccre.timers.Ticker;
 import edu.wpi.first.wpilibj.hal.CanTalonJNI;
 
 class ExtendedTalonDirect extends TalonExtendedMotor {
 
-    private static final int PARAMETER_REQUEST_PERIOD_MILLIS = 19;
+    private static final long PARAMETER_REQUEST_PERIOD_MILLIS = 70;
     // based on the magic number in WPILib. Is this the best? WHO KNOWS
-    private static final int SOLICITED_SIGNAL_LATENCY_MILLIS = 4;
+    private static final int SOLICITED_SIGNAL_LATENCY_MILLIS = 6;
     // null until something cares. This means that it's not enabled, but could
     // be automatically.
     private Boolean enableMode = null;
@@ -151,21 +151,23 @@ class ExtendedTalonDirect extends TalonExtendedMotor {
             Thread.currentThread().interrupt();
         }
 
-        new ReporterThread("CANTalonRequestor") {
-            @Override
-            protected void threadBody() throws Throwable {
-                while (true) {
-                    for (int value : values) {
-                        CanTalonJNI.RequestParam(handle, value);
-                        try {
-                            Time.sleep(PARAMETER_REQUEST_PERIOD_MILLIS);
-                        } catch (InterruptedException e) {
-                            return;
-                        }
-                    }
+        // Request all of the parameters NOW so that we avoid "not received"
+        // errors
+        for (int value : values) {
+            CanTalonJNI.RequestParam(handle, value);
+        }
+
+        Scheduler.schedulePeriodicNanos("talon-individual", PARAMETER_REQUEST_PERIOD_MILLIS * Time.NANOSECONDS_PER_MILLISECOND, new EventOutput() {
+            private int index = 0;
+
+            public void event() {
+                int value = values[index++];
+                if (index >= values.length) {
+                    index = 0;
                 }
+                CanTalonJNI.RequestParam(handle, value);
             }
-        }.start();
+        });
     }
 
     private void setFeedbackDevice(FeedbackDevice device) {

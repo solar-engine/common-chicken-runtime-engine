@@ -36,6 +36,7 @@ import ccre.channel.BooleanOutput;
 import ccre.channel.EventCell;
 import ccre.channel.EventOutput;
 import ccre.channel.FloatCell;
+import ccre.scheduler.TestingSchedulerSecrets;
 import ccre.testing.CountingEventOutput;
 import ccre.time.FakeTime;
 import ccre.time.Time;
@@ -76,6 +77,7 @@ public class ExpirationTimerTest {
     public void tearDown() throws Exception {
         timer.terminate();
         timer = null;
+        TestingSchedulerSecrets.resetScheduler();
     }
 
     @Test

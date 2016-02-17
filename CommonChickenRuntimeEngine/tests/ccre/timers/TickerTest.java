@@ -38,6 +38,7 @@ import ccre.channel.CancelOutput;
 import ccre.channel.EventOutput;
 import ccre.log.LogLevel;
 import ccre.log.VerifyingLogger;
+import ccre.scheduler.TestingSchedulerSecrets;
 import ccre.time.FakeTime;
 import ccre.time.Time;
 
@@ -95,6 +96,7 @@ public class TickerTest {
         VerifyingLogger.checkAndEnd();
         ticker.terminate();
         ticker = null;
+        TestingSchedulerSecrets.resetScheduler();
     }
 
     @AfterClass
@@ -190,7 +192,7 @@ public class TickerTest {
         });
         for (int i = 0; i < 20; i++) {
             if (i < 5) {
-                VerifyingLogger.configure(LogLevel.SEVERE, "Top-level failure in Ticker event", (t) -> t.getClass() == RuntimeException.class && ERROR_STRING.equals(t.getMessage()));
+                VerifyingLogger.configure(LogLevel.SEVERE, "Top-level failure in scheduled event", (t) -> t.getClass() == RuntimeException.class && ERROR_STRING.equals(t.getMessage()));
             }
             Thread.sleep(2);
             fake.forward(period);
@@ -213,7 +215,7 @@ public class TickerTest {
         });
         for (int i = 0; i < 70; i++) {
             if (i % 10 == 9) {
-                VerifyingLogger.configure(LogLevel.SEVERE, "Top-level failure in Ticker event", (t) -> t.getClass() == RuntimeException.class && ERROR_STRING.equals(t.getMessage()));
+                VerifyingLogger.configure(LogLevel.SEVERE, "Top-level failure in scheduled event", (t) -> t.getClass() == RuntimeException.class && ERROR_STRING.equals(t.getMessage()));
             }
             fake.forward(period);
             VerifyingLogger.check();

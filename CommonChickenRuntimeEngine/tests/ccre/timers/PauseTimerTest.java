@@ -32,6 +32,7 @@ import org.junit.Test;
 import ccre.channel.FloatCell;
 import ccre.log.LogLevel;
 import ccre.log.VerifyingLogger;
+import ccre.scheduler.TestingSchedulerSecrets;
 import ccre.testing.CountingEventOutput;
 import ccre.time.FakeTime;
 import ccre.time.Time;
@@ -70,6 +71,7 @@ public class PauseTimerTest {
         VerifyingLogger.checkAndEnd();
         pt.terminate();
         pt = null;
+        TestingSchedulerSecrets.resetScheduler();
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -233,7 +235,7 @@ public class PauseTimerTest {
             throw rtex;
         });
         ceo.ifExpected = true;
-        VerifyingLogger.configure(LogLevel.SEVERE, "Error in PauseTimer notification", rtex);
+        VerifyingLogger.configure(LogLevel.SEVERE, "Failure while starting PauseTimer", rtex);
         pt.event();
         VerifyingLogger.check();
         ceo.check();
@@ -255,7 +257,7 @@ public class PauseTimerTest {
             fake.forward(990);
             Thread.sleep(2);
             ceo.ifExpected = true;
-            VerifyingLogger.configure(LogLevel.SEVERE, "Error in PauseTimer notification", rtex);
+            VerifyingLogger.configure(LogLevel.SEVERE, "Top-level failure in scheduled event", rtex);
             Thread.sleep(2);
             fake.forward(10);
             Thread.sleep(2);

@@ -25,6 +25,7 @@ import java.io.PrintStream;
 import java.util.Date;
 
 import ccre.channel.EventOutput;
+import ccre.scheduler.Scheduler;
 import ccre.storage.Storage;
 import ccre.time.Time;
 import ccre.timers.Ticker;
@@ -91,12 +92,10 @@ public class FileLogger implements LoggingTarget {
         this.pstream = pstream;
         long now = Time.currentTimeMillis();
         pstream.println("Logging began at " + new Date(System.currentTimeMillis()) + " [" + now + "]");
-        new Ticker("file-logger-flush", 10000, false).send(new EventOutput() {
-            public void event() {
-                synchronized (FileLogger.this) {
-                    pstream.println("Logging continues at " + new Date());
-                    pstream.flush();
-                }
+        Scheduler.schedulePeriodicNanos("file-logger-flush", 10 * Time.NANOSECONDS_PER_SECOND, () -> {
+            synchronized (FileLogger.this) {
+                pstream.println("Logging continues at " + new Date());
+                pstream.flush();
             }
         });
     }

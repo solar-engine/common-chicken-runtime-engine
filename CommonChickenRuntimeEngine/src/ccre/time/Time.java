@@ -36,32 +36,32 @@ public abstract class Time {
      * The number of milliseconds in a second. This is for use in code such that
      * fewer magic numbers are necessary.
      */
-    public static final int MILLISECONDS_PER_SECOND = 1000;
+    public static final long MILLISECONDS_PER_SECOND = 1000;
     /**
      * The number of microseconds in a second. This is for use in code such that
      * fewer magic numbers are necessary.
      */
-    public static final int MICROSECONDS_PER_SECOND = 1000000;
+    public static final long MICROSECONDS_PER_SECOND = 1000000;
     /**
      * The number of nanoseconds in a second. This is for use in code such that
      * fewer magic numbers are necessary.
      */
-    public static final int NANOSECONDS_PER_SECOND = 1000000000;
+    public static final long NANOSECONDS_PER_SECOND = 1000000000;
     /**
      * The number of microseconds in a millisecond. This is for use in code such
      * that fewer magic numbers are necessary.
      */
-    public static final int MICROSECONDS_PER_MILLISECOND = 1000;
+    public static final long MICROSECONDS_PER_MILLISECOND = 1000;
     /**
      * The number of nanoseconds in a millisecond. This is for use in code such
      * that fewer magic numbers are necessary.
      */
-    public static final int NANOSECONDS_PER_MILLISECOND = 1000000;
+    public static final long NANOSECONDS_PER_MILLISECOND = 1000000;
     /**
      * The number of nanoseconds in a microsecond. This is for use in code such
      * that fewer magic numbers are necessary.
      */
-    public static final int NANOSECONDS_PER_MICROSECOND = 1000;
+    public static final long NANOSECONDS_PER_MICROSECOND = 1000;
 
     /**
      * The current provider for time. This allows replacement as necessary, for

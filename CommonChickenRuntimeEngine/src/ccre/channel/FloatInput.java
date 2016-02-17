@@ -684,7 +684,7 @@ public interface FloatInput extends UpdatingInput {
     public default FloatInput derivative(int millis) {
         FloatCell out = new FloatCell();
         FloatOutput deriv = out.viaDerivative();
-        PauseTimer t = new PauseTimer(millis);
+        PauseTimer t = new PauseTimer("derivative", FloatInput.always(millis / 1000f));
 
         EventOutput update = t.combine(deriv.eventSet(this));
 

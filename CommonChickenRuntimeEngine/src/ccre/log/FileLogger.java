@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 Cel Skeggs
+ * Copyright 2014,2016 Cel Skeggs
  *
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  *
@@ -91,7 +91,7 @@ public class FileLogger implements LoggingTarget {
         this.pstream = pstream;
         long now = Time.currentTimeMillis();
         pstream.println("Logging began at " + new Date(System.currentTimeMillis()) + " [" + now + "]");
-        new Ticker(10000).send(new EventOutput() {
+        new Ticker("file-logger-flush", 10000, false).send(new EventOutput() {
             public void event() {
                 synchronized (FileLogger.this) {
                     pstream.println("Logging continues at " + new Date());

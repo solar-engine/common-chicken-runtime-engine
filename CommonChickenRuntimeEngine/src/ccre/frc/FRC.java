@@ -144,12 +144,12 @@ public class FRC {
     /**
      * Constant time periodic. Should pulse every 10 ms.
      */
-    public static final EventInput constantPeriodic = new Ticker(10);
+    public static final EventInput constantPeriodic = new Ticker("constantPeriodic", 10, false);
     /**
      * Constant time sensor update event. Should pulse every 20 ms. This should
      * be used when you want to poll an on-robot sensor.
      */
-    public static final EventInput sensorPeriodic = new Ticker(20);
+    public static final EventInput sensorPeriodic = new Ticker("sensorPeriodic", 20, false);
     /**
      * Produced when the robot enters autonomous mode.
      */
@@ -1027,7 +1027,7 @@ public class FRC {
      */
     public static void customCompressor(BooleanInput shouldDisable, int compressorRelayChannel) {
         // TODO: do this without an extra Ticker?
-        shouldDisable.send(relayForward(compressorRelayChannel).invert().limitUpdatesTo(new Ticker(500)));
+        shouldDisable.send(relayForward(compressorRelayChannel).invert().limitUpdatesTo(new Ticker("compressor", 500, false)));
     }
 
     /**

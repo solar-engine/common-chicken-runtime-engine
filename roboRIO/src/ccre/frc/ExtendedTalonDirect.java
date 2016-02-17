@@ -71,7 +71,7 @@ class ExtendedTalonDirect extends TalonExtendedMotor {
     private float potentiometerRotationsPerSweep;
     private int activation_mode = MODE_PERCENT;
     private FeedbackDevice feedback = FeedbackDevice.QuadEncoder;
-    private static final Ticker ticker = new Ticker(5);
+    private static final Ticker ticker = new Ticker("talon-update", 5, false);
 
     private static final int ANALOG_TICKS = 1024;
     private static final int PULSE_WIDTH_TICKS = 4096;

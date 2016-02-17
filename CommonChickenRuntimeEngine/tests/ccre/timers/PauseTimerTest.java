@@ -198,6 +198,7 @@ public class PauseTimerTest {
             assertTrue(pt.get());
         }
         fake.forward(10);
+        Thread.sleep(2);
         assertFalse(pt.get());
     }
 

@@ -339,7 +339,7 @@ public class CluckPublisherTest {
                     }
                 }
             });
-            cfo.check();
+            cfo.check(); // TODO: debug flakiness here
             cfo.valueExpected = 0;
             cfo.ifExpected = Float.floatToIntBits(starting) != Float.floatToIntBits(0);
             fs.set(0);

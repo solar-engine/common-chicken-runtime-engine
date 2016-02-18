@@ -27,8 +27,17 @@ import ccre.channel.BooleanOutput;
 import ccre.channel.EventOutput;
 import ccre.discrete.DiscreteOutput;
 import ccre.discrete.DiscreteType;
+import ccre.recording.Recorder;
 
 class RecordedRunLoop extends RunLoop {
+
+    public RecordedRunLoop(Recorder rec) {
+        awaiting = rec.createBooleanOutput("SCHED-AWAIT");
+        active = rec.createDiscreteOutput("SCHED-DISPATCH", tagType);
+    }
+
+    private final BooleanOutput awaiting;
+    private final DiscreteOutput<String> active;
     private final Set<String> tags = Collections.synchronizedSet(new HashSet<>(Arrays.asList((String) null)));
     private final DiscreteType<String> tagType = new DiscreteType<String>() {
         @Override
@@ -56,8 +65,6 @@ class RecordedRunLoop extends RunLoop {
             return null;
         }
     };
-    private final BooleanOutput awaiting = (Scheduler.recorder == null ? BooleanOutput.ignored : Scheduler.recorder.createBooleanOutput("SCHED-AWAIT"));
-    private final DiscreteOutput<String> active = Scheduler.recorder == null ? DiscreteOutput.ignored(tagType) : Scheduler.recorder.createDiscreteOutput("SCHED-DISPATCH", tagType);
 
     public void add(String tag, EventOutput event, long time) {
         tags.add(tag);
@@ -68,7 +75,7 @@ class RecordedRunLoop extends RunLoop {
     protected void reportAwaiting(boolean isAwaiting) {
         awaiting.set(isAwaiting);
     }
-    
+
     @Override
     protected void reportActive(String tag) {
         active.set(tag);

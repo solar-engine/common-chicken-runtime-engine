@@ -18,8 +18,6 @@
  */
 package ccre.scheduler;
 
-import java.lang.reflect.Field;
-
 import ccre.channel.CancelOutput;
 import ccre.channel.EventOutput;
 import ccre.recording.Recorder;
@@ -63,16 +61,5 @@ public class Scheduler {
         mainloop.terminate();
         mainloop = new FullLoop();
         mainloop.start();
-    }
-
-    static final Recorder recorder;
-
-    static {
-//        try {
-//            recorder = Recorder.open(true, 8);
-//        } catch (IOException e) {
-//            throw new RuntimeException(e);
-//        }
-        recorder = null;
     }
 }

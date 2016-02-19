@@ -199,7 +199,7 @@ public class PauseTimerTest {
         }
         fake.forward(10);
         Thread.sleep(2);
-        assertFalse(pt.get());
+        assertFalse(pt.get()); // flaky
     }
 
     private void startEvt() throws InterruptedException {

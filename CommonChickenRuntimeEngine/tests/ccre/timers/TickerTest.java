@@ -147,7 +147,7 @@ public class TickerTest {
         fake.forward(period * 20);
         // skipping time that fast doesn't work well with this version of Ticker
         // - that's what the option is for!
-        check(fixedRate ? 20 : 1);
+        check(fixedRate ? 20 : 1); // flaky
     }
 
     @Test

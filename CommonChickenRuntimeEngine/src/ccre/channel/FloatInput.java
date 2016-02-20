@@ -639,6 +639,23 @@ public interface FloatInput extends UpdatingInput {
     }
 
     /**
+     * Provides a version of this FloatInput with ramping applied.
+     *
+     * @param limit the maximum delta value per time when
+     * <code>updateWhen</code> is fired.
+     * @param updateWhen when the ramping should update.
+     * @return a ramped version of this FloatInput.
+     */
+    public default FloatInput withRamping(final FloatInput limit, EventInput updateWhen) {
+        if (updateWhen == null) {
+            throw new NullPointerException();
+        }
+        FloatCell temp = new FloatCell();
+        updateWhen.send(this.createRampingEvent(limit, temp));
+        return temp;
+    }
+    
+    /**
      * Provides an event that ramps the value of this FloatInput, and sends the
      * result of the ramping to <code>target</code>.
      *
@@ -658,6 +675,36 @@ public interface FloatInput extends UpdatingInput {
 
             public void event() {
                 last = Utils.updateRamping(last, get(), limit);
+                target.set(last);
+            }
+        };
+    }
+    
+    
+    /**
+     * Provides an event that ramps the value of this FloatInput, and sends the
+     * result of the ramping to <code>target</code>.
+     *
+     * @param limit the maximum delta value per time that the event is fired.
+     * @param target the output to control with this ramping.
+     * @return an event that continues ramping.
+     */
+    public default EventOutput createRampingEvent(final FloatInput limit, final FloatOutput target) {
+        if (target == null) {
+            throw new NullPointerException();
+        }
+        if (Float.isNaN(limit.get())) {
+            throw new IllegalArgumentException("Ramping rate cannot be NaN!");
+        }
+        return new EventOutput() {
+            private float last = get();
+
+            public void event() {
+            	if (Float.isNaN(limit.get())) {
+                    throw new IllegalArgumentException("Ramping rate cannot be NaN!");
+                }
+            	
+                last = Utils.updateRamping(last, get(), limit.get());
                 target.set(last);
             }
         };

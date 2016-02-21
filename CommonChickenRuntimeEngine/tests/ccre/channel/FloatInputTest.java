@@ -827,6 +827,48 @@ public class FloatInputTest {
     }
 
     @Test
+    public void testWithRampingInput() {
+        EventCell update = new EventCell();
+        FloatCell ramp = new FloatCell(Float.NaN);
+        FloatInput fi = fs.withRamping(ramp, update);
+        for (float f : Values.lessInterestingFloats) {
+            if (f <= 0) {
+                continue;
+            }
+            ramp.set(f);
+            for (float i = -25f * f; i < 25f * f; i++) {
+                float a = fi.get();
+                fs.set(i);
+                float b = fi.get();
+                assertEquals(a, b, 0);
+                int j = 0;
+                while (true) {
+                    float old = fi.get();
+                    update.event();
+                    float delta = Math.abs(fi.get() - old);
+                    if (fi.get() == i) {
+                        break;
+                    }
+                    assertEquals(delta, f, 0.000005f * f);
+                    if (++j >= 100) {
+                        fail("never reached target");
+                    }
+                }
+            }
+        }
+    }
+
+    @Test(expected = NullPointerException.class)
+    public void testWithRampingInputNullA() {
+        fi.withRamping(FloatInput.zero, null);
+    }
+
+    @Test(expected = NullPointerException.class)
+    public void testWithRampingInputNullB() {
+        fi.withRamping(null, EventInput.never);
+    }
+
+    @Test
     public void testCreateRampingEvent() {// TODO: perhaps flesh these tests out
                                           // a bit more?
         FloatCell fi = new FloatCell();
@@ -860,6 +902,48 @@ public class FloatInputTest {
     @Test(expected = IllegalArgumentException.class)
     public void testCreateRampingEventInvalid() {
         fi.createRampingEvent(Float.NaN, fs);
+    }
+
+    @Test
+    public void testCreateRampingEventInput() {
+        FloatCell fi = new FloatCell();
+        FloatCell ramp = new FloatCell(Float.NaN);
+        EventOutput update = fs.createRampingEvent(ramp, fi);
+        for (float f : Values.lessInterestingFloats) {
+            if (f <= 0) {
+                continue;
+            }
+            ramp.set(f);
+            for (float i = -25f * f; i < 25f * f; i++) {
+                float a = fi.get();
+                fs.set(i);
+                float b = fi.get();
+                assertEquals(a, b, 0);
+                int j = 0;
+                while (true) {
+                    float old = fi.get();
+                    update.event();
+                    float delta = Math.abs(fi.get() - old);
+                    if (fi.get() == i) {
+                        break;
+                    }
+                    assertEquals(delta, f, 0.000005f * f);
+                    if (++j >= 100) {
+                        fail("never reached target");
+                    }
+                }
+            }
+        }
+    }
+
+    @Test(expected = NullPointerException.class)
+    public void testCreateRampingEventInputNullA() {
+        fi.createRampingEvent(FloatInput.zero, null);
+    }
+
+    @Test(expected = NullPointerException.class)
+    public void testCreateRampingEventInputNullB() {
+        fi.createRampingEvent(null, FloatOutput.ignored);
     }
 
     @Test
@@ -913,7 +997,7 @@ public class FloatInputTest {
             for (int i = 0; i < 20; i++) {
                 fake.forward(9);
                 Thread.sleep(2);
-                assertEquals(1.0f / 0.018f, fi.get(), 0);
+                assertEquals(1.0f / 0.018f, fi.get(), 0); // TODO: flaky
             }
         } finally {
             ti.terminate();

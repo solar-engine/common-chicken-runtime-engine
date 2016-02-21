@@ -647,14 +647,14 @@ public interface FloatInput extends UpdatingInput {
      * @return a ramped version of this FloatInput.
      */
     public default FloatInput withRamping(final FloatInput limit, EventInput updateWhen) {
-        if (updateWhen == null) {
+        if (limit == null || updateWhen == null) {
             throw new NullPointerException();
         }
         FloatCell temp = new FloatCell();
         updateWhen.send(this.createRampingEvent(limit, temp));
         return temp;
     }
-    
+
     /**
      * Provides an event that ramps the value of this FloatInput, and sends the
      * result of the ramping to <code>target</code>.
@@ -663,21 +663,11 @@ public interface FloatInput extends UpdatingInput {
      * @param target the output to control with this ramping.
      * @return an event that continues ramping.
      */
-    public default EventOutput createRampingEvent(final float limit, final FloatOutput target) {
-        if (target == null) {
-            throw new NullPointerException();
-        }
+    public default EventOutput createRampingEvent(float limit, FloatOutput target) {
         if (Float.isNaN(limit)) {
             throw new IllegalArgumentException("Ramping rate cannot be NaN!");
         }
-        return new EventOutput() {
-            private float last = get();
-
-            public void event() {
-                last = Utils.updateRamping(last, get(), limit);
-                target.set(last);
-            }
-        };
+        return createRampingEvent(FloatInput.always(limit), target);
     }
     
     
@@ -690,21 +680,18 @@ public interface FloatInput extends UpdatingInput {
      * @return an event that continues ramping.
      */
     public default EventOutput createRampingEvent(final FloatInput limit, final FloatOutput target) {
-        if (target == null) {
+        if (target == null || limit == null) {
             throw new NullPointerException();
-        }
-        if (Float.isNaN(limit.get())) {
-            throw new IllegalArgumentException("Ramping rate cannot be NaN!");
         }
         return new EventOutput() {
             private float last = get();
 
             public void event() {
-            	if (Float.isNaN(limit.get())) {
-                    throw new IllegalArgumentException("Ramping rate cannot be NaN!");
+                if (Float.isNaN(last)) {
+                    last = get();
+                } else {
+                    last = Utils.updateRamping(last, get(), limit.get());
                 }
-            	
-                last = Utils.updateRamping(last, get(), limit.get());
                 target.set(last);
             }
         };

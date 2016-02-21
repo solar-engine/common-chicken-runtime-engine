@@ -74,44 +74,58 @@ class RunLoop extends ReporterThread {
     protected void threadBody() {
         try {
             queueLock.lockInterruptibly();
-            while (!terminated) {
-                // loop until we have something ready to run
-                Entry ent = queue.peek();
-                long now = Time.currentTimeNanos();
-                if (ent == null) {
-                    // just wait until we actually HAVE something
-                    reportAwaiting(true);
-                    update.await();
-                    reportAwaiting(false);
-                } else if (ent.time > now) {
-                    reportAwaiting(true);
-                    // dispatches to update.awaitNanos
-                    // except during unit tests when FakeTime takes precedence
-                    // and does things a bit differently
-                    Time.awaitNanos(queueLock, update, ent.time - now);
-                    reportAwaiting(false);
-                } else {
-                    ent = queue.remove();
-                    // unlock while we process an event, so that we don't block
-                    // any queue insertions.
-                    queueLock.unlock();
-                    reportActive(ent.tag);
+            try {
+                while (!terminated) {
+                    // loop until we have something ready to run
+                    Entry ent = queue.peek();
+                    long now = Time.currentTimeNanos();
+                    if (ent == null) {
+                        // just wait until we actually HAVE something
+                        reportAwaiting(true);
+                        // TODO: what are the guarantees if this throws an
+                        // exception?
+                        update.await();
+                        reportAwaiting(false);
+                    } else if (ent.time > now) {
+                        // not yet time to run
+                        reportAwaiting(true);
+                        // dispatches to update.awaitNanos
+                        // except during unit tests when FakeTime takes
+                        // precedence
+                        // and does things a bit differently
+                        Time.awaitNanos(queueLock, update, ent.time - now);
+                        // in the common case (not in unit testing), equivalent
+                        // to: update.awaitNanos(ent.time - now);
+                        reportAwaiting(false);
+                    } else {
+                        // ready to run an event!
+                        ent = queue.remove();
+                        // unlock while we process an event, so that we don't
+                        // block
+                        // any queue insertions.
+                        queueLock.unlock();
+                        reportActive(ent.tag);
 
-                    // extract target, then free
-                    EventOutput target = ent.target;
-                    ent.target = null; // avoid garbage linger
-                    pool.free(ent);
+                        // extract target, then free
+                        EventOutput target = ent.target;
+                        ent.target = null; // avoid garbage linger
+                        pool.free(ent);
 
-                    // actually run the event
-                    try {
-                        target.event();
-                    } catch (Throwable thr) {
-                        Logger.severe("Top-level failure in scheduled event", thr);
+                        // actually run the event
+                        try {
+                            target.event();
+                        } catch (Throwable thr) {
+                            Logger.severe("Top-level failure in scheduled event", thr);
+                        }
+
+                        // back into the monitor loop
+                        reportActive(null);
+                        queueLock.lockInterruptibly();
                     }
-
-                    // back into the monitor loop
-                    reportActive(null);
-                    queueLock.lockInterruptibly();
+                }
+            } finally {
+                if (queueLock.isHeldByCurrentThread()) {
+                    queueLock.unlock();
                 }
             }
         } catch (InterruptedException e) {
@@ -119,6 +133,10 @@ class RunLoop extends ReporterThread {
         }
     }
 
+    // TODO: These MUST never block! RecordedRunLoop might do it for a small
+    // amount of time while waiting for a queue to be unlocked, but that's it.
+    // Really, even that should be avoided, but as long as it's just a delay,
+    // it'll be okay from a correctness perspective.
     protected void reportAwaiting(boolean isAwaiting) {
         // to be overridden as necessary
     }

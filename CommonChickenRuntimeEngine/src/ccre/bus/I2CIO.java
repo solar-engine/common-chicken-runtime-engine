@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 Cel Skeggs
+ * Copyright 2016 Cel Skeggs
  *
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  *
@@ -16,15 +16,26 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with the CCRE.  If not, see <http://www.gnu.org/licenses/>.
  */
-package ccre.channel;
+package ccre.bus;
 
-/**
- * A combination of a SerialInput and a SerialOutput, as commonly seen in a
- * standard RS232 port, for example.
- *
- * WARNING: THIS INTERFACE IS SUBJECT TO NON-BACKWARDS-COMPATIBLE CHANGE.
- *
- * @author skeggsc
- */
-public interface SerialIO extends SerialInput, SerialOutput {
+import java.io.Closeable;
+import java.io.IOException;
+import java.nio.ByteBuffer;
+
+public interface I2CIO extends Closeable {
+    // implementation includes a device address
+
+    public boolean query();
+
+    public void transact(ByteBuffer send, int sendLen, ByteBuffer recv, int recvLen) throws IOException;
+
+    public void write(ByteBuffer send, int sendLen) throws IOException;
+
+    public void write(byte register, byte data) throws IOException;
+
+    public void read(byte register, ByteBuffer recv, int recvLen) throws IOException;
+
+    public byte read(byte register) throws IOException;
+
+    public void readOnly(ByteBuffer recv, int recvLen) throws IOException;
 }

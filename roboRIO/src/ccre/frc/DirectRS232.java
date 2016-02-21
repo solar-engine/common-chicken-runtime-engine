@@ -32,7 +32,10 @@ class DirectRS232 {
     public static final byte STOP_ONE = 10, STOP_ONE_POINT_FIVE = 15, STOP_TWO = 20;
     public static final byte FLUSH_ON_ACCESS = 1, FLUSH_WHEN_FULL = 2;
 
-    public static void init(byte port, int baudRate, int dataBits, byte parity, byte stopBits) {
+    public static void init(byte port, int baudRate, int dataBits, byte parity, byte stopBits, float timeout) {
+        if (port != PORT_ONBOARD && port != PORT_MXP && port != PORT_USB) {
+            throw new IllegalArgumentException("Invalid port to DirectRS232.init");
+        }
         SerialPortJNI.serialInitializePort(port);
         SerialPortJNI.serialSetBaudRate(port, baudRate);
         SerialPortJNI.serialSetDataBits(port, (byte) dataBits);
@@ -41,7 +44,7 @@ class DirectRS232 {
 
         // return data immediately
         SerialPortJNI.serialSetReadBufferSize(port, 1);
-        SerialPortJNI.serialSetTimeout(port, 5.0f);
+        SerialPortJNI.serialSetTimeout(port, timeout); // default: 5.0f
         SerialPortJNI.serialSetWriteMode(port, FLUSH_ON_ACCESS);
         SerialPortJNI.serialDisableTermination(port);
         SerialPortJNI.serialSetWriteBufferSize(port, 1);
@@ -70,6 +73,12 @@ class DirectRS232 {
 
     public static void flush(byte port) {
         SerialPortJNI.serialFlush(port);
+    }
+
+    public static void clear(byte port) {
+        // TODO: handle errors for SerialPortJNI in a way that converts them to
+        // IOExceptions
+        SerialPortJNI.serialClear(port);
     }
 
     public static void setWriteBufferMode(byte port, byte mode) {

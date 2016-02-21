@@ -20,13 +20,13 @@ package ccre.drivers.chrobotics;
 
 import java.io.IOException;
 
+import ccre.bus.RS232IO;
 import ccre.channel.BooleanCell;
 import ccre.channel.DerivedFloatInput;
 import ccre.channel.EventCell;
 import ccre.channel.EventInput;
 import ccre.channel.EventOutput;
 import ccre.channel.FloatInput;
-import ccre.channel.SerialIO;
 import ccre.concurrency.CollapsingWorkerThread;
 import ccre.concurrency.ReporterThread;
 import ccre.log.Logger;
@@ -99,7 +99,7 @@ public class UM7LT {
      *
      * @param rs232 the rs232 port to talk over.
      */
-    public UM7LT(SerialIO rs232) {
+    public UM7LT(RS232IO rs232) {
         internal = new InternalUM7LT(rs232, worker);
 
         roll = new DerivedFloatInput(onEulerUpdate) {

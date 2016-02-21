@@ -20,13 +20,16 @@
 package ccre.frc;
 
 import java.io.IOException;
-
+import ccre.bus.I2CBus;
+import ccre.bus.I2CIO;
+import ccre.bus.RS232Bus;
+import ccre.bus.RS232IO;
+import ccre.bus.SPIBus;
 import ccre.channel.BooleanInput;
 import ccre.channel.BooleanOutput;
 import ccre.channel.EventInput;
 import ccre.channel.FloatInput;
 import ccre.channel.FloatOutput;
-import ccre.channel.SerialIO;
 import ccre.ctrl.ExtendedMotor;
 import ccre.ctrl.ExtendedMotorFailureException;
 import ccre.ctrl.Joystick;
@@ -1221,8 +1224,12 @@ public class FRC {
      * (used for debugging and the emulator.)
      * @return a SerialIO interface to the port.
      */
-    public static SerialIO onboardRS232(int baudRate, String deviceName) {
-        return impl.makeRS232_Onboard(baudRate, deviceName);
+    public static RS232IO onboardRS232(int baudRate, String deviceName) {
+        return impl.makeRS232_Onboard(deviceName).open(baudRate);
+    }
+
+    public static RS232Bus onboardRS232(String deviceName) {
+        return impl.makeRS232_Onboard(deviceName);
     }
 
     /**
@@ -1233,8 +1240,12 @@ public class FRC {
      * (used for debugging and the emulator.)
      * @return a SerialIO interface to the port.
      */
-    public static SerialIO mxpRS232(int baudRate, String deviceName) {
-        return impl.makeRS232_MXP(baudRate, deviceName);
+    public static RS232IO mxpRS232(int baudRate, String deviceName) {
+        return impl.makeRS232_MXP(deviceName).open(baudRate);
+    }
+
+    public static RS232Bus mxpRS232(String deviceName) {
+        return impl.makeRS232_MXP(deviceName);
     }
 
     /**
@@ -1245,8 +1256,36 @@ public class FRC {
      * (used for debugging and the emulator.)
      * @return a SerialIO interface to the port.
      */
-    public static SerialIO usbRS232(int baudRate, String deviceName) {
-        return impl.makeRS232_USB(baudRate, deviceName);
+    public static RS232IO usbRS232(int baudRate, String deviceName) {
+        return impl.makeRS232_USB(deviceName).open(baudRate);
+    }
+
+    public static RS232Bus usbRS232(String deviceName) {
+        return impl.makeRS232_USB(deviceName);
+    }
+
+    public static I2CBus onboardI2C(String deviceName) {
+        return impl.makeI2C_Onboard(deviceName);
+    }
+
+    public static I2CIO onboardI2C(int deviceAddress, String deviceName) {
+        return impl.makeI2C_Onboard(deviceName).open(deviceAddress);
+    }
+
+    public static I2CBus mxpI2C(String deviceName) {
+        return impl.makeI2C_MXP(deviceName);
+    }
+
+    public static I2CIO mxpI2C(int deviceAddress, String deviceName) {
+        return impl.makeI2C_MXP(deviceName).open(deviceAddress);
+    }
+
+    public static SPIBus onboardSPI(int cs, String deviceName) {
+        return impl.makeSPI_Onboard(cs, deviceName);
+    }
+
+    public static SPIBus mxpSPI(String deviceName) {
+        return impl.makeSPI_MXP(deviceName);
     }
 
     FRC() {

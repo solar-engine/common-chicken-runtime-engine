@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 Cel Skeggs
+ * Copyright 2015-2016 Cel Skeggs
  *
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  *
@@ -16,28 +16,26 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with the CCRE.  If not, see <http://www.gnu.org/licenses/>.
  */
-package ccre.ctrl;
+package ccre.bus;
 
 import java.io.IOException;
 import java.io.OutputStream;
 
-import ccre.channel.SerialOutput;
-
 /**
- * Wraps a SerialOutput in an OutputStream so that it can be used with
+ * Wraps a RS232IO in an OutputStream so that it can be used with
  * infrastructure designed for OutputStreams.
  *
  * @author skeggsc
  */
-public class SerialOutputStream extends OutputStream {
-    private final SerialOutput output;
+public class RS232OutputStream extends OutputStream {
+    private final RS232IO output;
 
     /**
-     * Create a new SerialOutputStream wrapping the output.
+     * Create a new RS232IOStream wrapping the output.
      *
      * @param output the output to wrap.
      */
-    public SerialOutputStream(SerialOutput output) {
+    public RS232OutputStream(RS232IO output) {
         this.output = output;
     }
 

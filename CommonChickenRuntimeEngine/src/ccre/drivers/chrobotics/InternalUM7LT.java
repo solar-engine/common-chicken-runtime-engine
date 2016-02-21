@@ -20,8 +20,8 @@ package ccre.drivers.chrobotics;
 
 import java.io.IOException;
 
+import ccre.bus.RS232IO;
 import ccre.channel.EventOutput;
-import ccre.channel.SerialIO;
 import ccre.drivers.ByteFiddling;
 import ccre.drivers.NMEA;
 import ccre.log.Logger;
@@ -38,7 +38,7 @@ import ccre.time.Time;
  * @see ccre.drivers.chrobotics.UM7LT
  */
 public class InternalUM7LT { // default rate: 115200 baud.
-    private final SerialIO rs232;
+    private final RS232IO rs232;
     private final Object rs232lock = new Object();
     /**
      * The first register that is tracked by the dregs cache.
@@ -127,7 +127,7 @@ public class InternalUM7LT { // default rate: 115200 baud.
      * @param rs232 the RS232 port connected to the UM7LT.
      * @param onUpdate the output to update when the cached registers update.
      */
-    public InternalUM7LT(SerialIO rs232, EventOutput onUpdate) {
+    public InternalUM7LT(RS232IO rs232, EventOutput onUpdate) {
         if (onUpdate == null || rs232 == null) {
             throw new NullPointerException();
         }

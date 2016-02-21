@@ -30,6 +30,9 @@ import java.net.URL;
 import java.util.Enumeration;
 import java.util.jar.Manifest;
 
+import ccre.bus.I2CBus;
+import ccre.bus.RS232Bus;
+import ccre.bus.SPIBus;
 import ccre.channel.BooleanCell;
 import ccre.channel.BooleanInput;
 import ccre.channel.BooleanOutput;
@@ -39,7 +42,6 @@ import ccre.channel.EventCell;
 import ccre.channel.EventInput;
 import ccre.channel.FloatInput;
 import ccre.channel.FloatOutput;
-import ccre.channel.SerialIO;
 import ccre.cluck.Cluck;
 import ccre.concurrency.ReporterThread;
 import ccre.ctrl.CommunicationFailureExtendedMotor;
@@ -618,18 +620,38 @@ public final class DirectFRCImplementation implements FRCImplementation {
     }
 
     @Override
-    public SerialIO makeRS232_Onboard(int baudRate, String deviceName) {
-        return new SerialPortDirect(DirectRS232.PORT_ONBOARD, baudRate);
+    public RS232Bus makeRS232_Onboard(String deviceName) {
+        return (baudRate, parity, stopBits, timeout, dataBits) -> new RS232Direct(DirectRS232.PORT_ONBOARD, baudRate, parity, stopBits, timeout, dataBits);
     }
 
     @Override
-    public SerialIO makeRS232_MXP(int baudRate, String deviceName) {
-        return new SerialPortDirect(DirectRS232.PORT_MXP, baudRate);
+    public RS232Bus makeRS232_MXP(String deviceName) {
+        return (baudRate, parity, stopBits, timeout, dataBits) -> new RS232Direct(DirectRS232.PORT_MXP, baudRate, parity, stopBits, timeout, dataBits);
     }
 
     @Override
-    public SerialIO makeRS232_USB(int baudRate, String deviceName) {
-        return new SerialPortDirect(DirectRS232.PORT_USB, baudRate);
+    public RS232Bus makeRS232_USB(String deviceName) {
+        return (baudRate, parity, stopBits, timeout, dataBits) -> new RS232Direct(DirectRS232.PORT_USB, baudRate, parity, stopBits, timeout, dataBits);
+    }
+
+    @Override
+    public I2CBus makeI2C_Onboard(String deviceName) {
+        return (deviceAddress) -> new I2CPortDirect(DirectI2C.PORT_ONBOARD, deviceAddress);
+    }
+
+    @Override
+    public I2CBus makeI2C_MXP(String deviceName) {
+        return (deviceAddress) -> new I2CPortDirect(DirectI2C.PORT_MXP, deviceAddress);
+    }
+
+    @Override
+    public SPIBus makeSPI_Onboard(int cs, String deviceName) {
+        return (hertz, isMSB, dataOnFalling, clockActiveLow, chipSelectActiveLow) -> new SPIPortDirect(DirectSPI.portForCS(cs), hertz, isMSB, dataOnFalling, clockActiveLow, chipSelectActiveLow);
+    }
+
+    @Override
+    public SPIBus makeSPI_MXP(String deviceName) {
+        return (hertz, isMSB, dataOnFalling, clockActiveLow, chipSelectActiveLow) -> new SPIPortDirect(DirectSPI.PORT_MXP, hertz, isMSB, dataOnFalling, clockActiveLow, chipSelectActiveLow);
     }
 
     @Override

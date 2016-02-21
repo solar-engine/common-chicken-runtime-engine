@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 Cel Skeggs
+ * Copyright 2015-2016 Cel Skeggs
  *
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  *
@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with the CCRE.  If not, see <http://www.gnu.org/licenses/>.
  */
-package ccre.ctrl;
+package ccre.bus;
 
 import java.io.IOException;
 import java.io.InterruptedIOException;
@@ -25,7 +25,7 @@ import java.util.Arrays;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 
-import ccre.channel.SerialIO;
+import ccre.bus.RS232IO;
 import ccre.drivers.ByteFiddling;
 
 /**
@@ -33,7 +33,7 @@ import ccre.drivers.ByteFiddling;
  *
  * @author skeggsc
  */
-public class LoopbackSerialIO implements SerialIO {
+public class LoopbackRS232IO implements RS232IO {
 
     /**
      * Create a new connection that reads and writes from the specified queues.
@@ -41,7 +41,7 @@ public class LoopbackSerialIO implements SerialIO {
      * @param source the input for data to this port.
      * @param target the output of data from this port.
      */
-    public LoopbackSerialIO(BlockingQueue<byte[]> source, BlockingQueue<byte[]> target) {
+    public LoopbackRS232IO(BlockingQueue<byte[]> source, BlockingQueue<byte[]> target) {
         this.source = source;
         this.target = target;
     }
@@ -51,14 +51,14 @@ public class LoopbackSerialIO implements SerialIO {
      *
      * @param data the queue for both reading and writing data.
      */
-    public LoopbackSerialIO(BlockingQueue<byte[]> data) {
+    public LoopbackRS232IO(BlockingQueue<byte[]> data) {
         this.source = this.target = data;
     }
 
     /**
      * Create a new loopback connection for serial messages.
      */
-    public LoopbackSerialIO() {
+    public LoopbackRS232IO() {
         this(new ArrayBlockingQueue<byte[]>(16));
     }
 
@@ -91,11 +91,11 @@ public class LoopbackSerialIO implements SerialIO {
             try {
                 reading = canBlock && !closed ? source.take() : source.poll();
             } catch (InterruptedException e) {
-                throw new InterruptedIOException("interrupted during blocking LoopbackSerialIO read.");
+                throw new InterruptedIOException("interrupted during blocking LoopbackRS232IO read.");
             }
             if (reading == null) {
                 if (closed) {
-                    throw new IOException("LoopbackSerialIO closed.");
+                    throw new IOException("LoopbackRS232IO closed.");
                 }
                 return new byte[0];
             }
@@ -120,7 +120,7 @@ public class LoopbackSerialIO implements SerialIO {
 
     public synchronized void flush() throws IOException {
         if (closed) {
-            throw new IOException("LoopbackSerialIO closed.");
+            throw new IOException("LoopbackRS232IO closed.");
         }
         if (writing.position() > 0) {
             byte[] toQueue = new byte[writing.position()];
@@ -128,7 +128,7 @@ public class LoopbackSerialIO implements SerialIO {
             try {
                 target.put(toQueue);
             } catch (InterruptedException e) {
-                throw new InterruptedIOException("interrupted during blocking LoopbackSerialIO write.");
+                throw new InterruptedIOException("interrupted during blocking LoopbackRS232IO write.");
             }
             writing.clear();
         }
@@ -144,7 +144,7 @@ public class LoopbackSerialIO implements SerialIO {
 
     private int write(byte[] bytes, int from, int to, boolean partial) throws IOException {
         if (closed) {
-            throw new IOException("LoopbackSerialIO closed.");
+            throw new IOException("LoopbackRS232IO closed.");
         }
         if (to <= from) {
             return 0;
@@ -177,5 +177,17 @@ public class LoopbackSerialIO implements SerialIO {
     public void close() throws IOException {
         flush();
         closed = true;
+    }
+
+    @Override
+    public void resetSerial() throws IOException {
+        // TODO: something smarter?
+        source.clear();
+        target.clear();
+    }
+
+    @Override
+    public boolean hasAvailableBytes() throws IOException {
+        return !source.isEmpty();
     }
 }

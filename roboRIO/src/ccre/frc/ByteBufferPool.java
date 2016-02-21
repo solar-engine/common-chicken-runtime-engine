@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2016 Cel Skeggs
+ * Copyright 2016 Cel Skeggs
  *
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  *
@@ -16,33 +16,29 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with the CCRE.  If not, see <http://www.gnu.org/licenses/>.
  */
-package ccre.frc.devices;
+package ccre.frc;
 
-import ccre.frc.Device;
-import ccre.frc.components.SpacingComponent;
-import ccre.frc.components.TextComponent;
+import java.nio.ByteBuffer;
 
-/**
- * A device simply used before a list of other devices to give a title.
- *
- * @author skeggsc
- */
-public class HeadingDevice extends Device {
+class ByteBufferPool {
 
-    private final TextComponent text;
+    private final ThreadLocal<ByteBuffer> buf = new ThreadLocal<ByteBuffer>();
 
-    /**
-     * Create a new HeadingDevice with a fixed title.
-     *
-     * @param title the title to display.
-     */
-    public HeadingDevice(String title) {
-        add(new SpacingComponent(30));
-        text = new TextComponent(title);
-        add(text);
+    public ByteBuffer get(int capacity) {
+        ByteBuffer buf = this.buf.get();
+        if (buf == null || buf.capacity() < capacity) {
+            buf = ByteBuffer.allocateDirect(capacity);
+            this.buf.set(buf);
+        }
+        buf.clear();
+        return buf;
     }
 
-    public void setHeading(String title) {
-        text.setLabel(title);
+    public ByteBuffer getZeroed(int capacity) {
+        ByteBuffer buf = get(capacity);
+        for (int i = 0; i < buf.capacity(); i++) {
+            buf.put(i, (byte) 0);
+        }
+        return buf;
     }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2016 Cel Skeggs
+ * Copyright 2016 Cel Skeggs
  *
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  *
@@ -16,33 +16,9 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with the CCRE.  If not, see <http://www.gnu.org/licenses/>.
  */
-package ccre.frc.devices;
+package ccre.bus;
 
-import ccre.frc.Device;
-import ccre.frc.components.SpacingComponent;
-import ccre.frc.components.TextComponent;
+public interface I2CBus {
 
-/**
- * A device simply used before a list of other devices to give a title.
- *
- * @author skeggsc
- */
-public class HeadingDevice extends Device {
-
-    private final TextComponent text;
-
-    /**
-     * Create a new HeadingDevice with a fixed title.
-     *
-     * @param title the title to display.
-     */
-    public HeadingDevice(String title) {
-        add(new SpacingComponent(30));
-        text = new TextComponent(title);
-        add(text);
-    }
-
-    public void setHeading(String title) {
-        text.setLabel(title);
-    }
+    public I2CIO open(int device_address);
 }

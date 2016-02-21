@@ -19,12 +19,14 @@
  */
 package ccre.frc;
 
+import ccre.bus.I2CBus;
+import ccre.bus.RS232Bus;
+import ccre.bus.SPIBus;
 import ccre.channel.BooleanInput;
 import ccre.channel.BooleanOutput;
 import ccre.channel.EventInput;
 import ccre.channel.FloatInput;
 import ccre.channel.FloatOutput;
-import ccre.channel.SerialIO;
 import ccre.ctrl.ExtendedMotor;
 import ccre.ctrl.Joystick;
 import ccre.ctrl.binding.ControlBindingCreator;
@@ -375,28 +377,25 @@ public interface FRCImplementation {
     public FloatInput getPDPVoltage(EventInput updateOn);
 
     /**
-     * @param baudRate the baud rate of the port.
      * @param deviceName the name of the device the serial port is connected to
      * (used for debugging and the emulator.)
      * @return a SerialIO interface to the port.
      */
-    public SerialIO makeRS232_Onboard(int baudRate, String deviceName);
+    public RS232Bus makeRS232_Onboard(String deviceName);
 
     /**
-     * @param baudRate the baud rate of the port.
      * @param deviceName the name of the device the serial port is connected to
      * (used for debugging and the emulator.)
      * @return a SerialIO interface to the port.
      */
-    public SerialIO makeRS232_MXP(int baudRate, String deviceName);
+    public RS232Bus makeRS232_MXP(String deviceName);
 
     /**
-     * @param baudRate the baud rate of the port.
      * @param deviceName the name of the device the serial port is connected to
      * (used for debugging and the emulator.)
      * @return a SerialIO interface to the port.
      */
-    public SerialIO makeRS232_USB(int baudRate, String deviceName);
+    public RS232Bus makeRS232_USB(String deviceName);
 
     /**
      * @param powerChannel the power channel to monitor.
@@ -431,4 +430,12 @@ public interface FRCImplementation {
      * finished its initialization
      */
     public EventInput getOnInitComplete();
+
+    public I2CBus makeI2C_Onboard(String deviceName);
+
+    public I2CBus makeI2C_MXP(String deviceName);
+
+    public SPIBus makeSPI_Onboard(int cs, String deviceName);
+
+    public SPIBus makeSPI_MXP(String deviceName);
 }

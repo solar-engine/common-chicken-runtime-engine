@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 Cel Skeggs
+ * Copyright 2015-2016 Cel Skeggs
  *
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  *
@@ -20,15 +20,47 @@ package ccre.frc;
 
 import java.io.IOException;
 
-import ccre.channel.SerialIO;
+import ccre.bus.RS232IO;
+import ccre.bus.RS232Bus.Parity;
+import ccre.bus.RS232Bus.StopBits;
 
-final class SerialPortDirect implements SerialIO {
+final class RS232Direct implements RS232IO {
     private boolean closed;
     private final byte port;
 
-    SerialPortDirect(byte port, int baudRate) {
+    RS232Direct(byte port, int baudRate, Parity parity, StopBits stopBits, float timeout, int dataBits) {
         this.port = port;
-        DirectRS232.init(port, baudRate, 8, DirectRS232.PARITY_NONE, DirectRS232.STOP_ONE);
+        DirectRS232.init(port, baudRate, dataBits, parityToByte(parity), stopBitsToByte(stopBits), timeout);
+    }
+
+    private byte parityToByte(Parity parity) {
+        switch (parity) {
+        case PARITY_EVEN:
+            return DirectRS232.PARITY_EVEN;
+        case PARITY_MARK:
+            return DirectRS232.PARITY_MARK;
+        case PARITY_NONE:
+            return DirectRS232.PARITY_NONE;
+        case PARITY_ODD:
+            return DirectRS232.PARITY_ODD;
+        case PARITY_SPACE:
+            return DirectRS232.PARITY_SPACE;
+        default:
+            throw new IllegalArgumentException("Invalid parity: " + parity);
+        }
+    }
+
+    private byte stopBitsToByte(StopBits stopBits) {
+        switch (stopBits) {
+        case STOP_ONE:
+            return DirectRS232.STOP_ONE;
+        case STOP_ONE_POINT_FIVE:
+            return DirectRS232.STOP_ONE_POINT_FIVE;
+        case STOP_TWO:
+            return DirectRS232.STOP_TWO;
+        default:
+            throw new IllegalArgumentException("Invalid stop bits: " + stopBits);
+        }
     }
 
     public void setTermination(Character end) throws IOException {
@@ -65,6 +97,11 @@ final class SerialPortDirect implements SerialIO {
         } else {
             return DirectRS232.read(port, Math.min(ready, max));
         }
+    }
+
+    @Override
+    public boolean hasAvailableBytes() throws IOException {
+        return DirectRS232.getBytesReceived(port) > 0;
     }
 
     public byte[] readNonblocking(int max) throws IOException {
@@ -118,6 +155,14 @@ final class SerialPortDirect implements SerialIO {
             System.arraycopy(bytes, from, bytes, 0, to - from);
         }
         return DirectRS232.write(port, bytes, to - from);
+    }
+
+    @Override
+    public void resetSerial() throws IOException {
+        if (closed) {
+            throw new IOException("SerialIO closed.");
+        }
+        DirectRS232.clear(port);
     }
 
     public void close() throws IOException {

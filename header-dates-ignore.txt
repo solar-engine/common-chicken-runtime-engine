@@ -1,5 +1,4 @@
 f467a187984c77d42d201eed2374a8743c1b5a226088b86eb99ad88b5445ae1e  ./CommonChickenRuntimeEngine/src/ccre/net/ConnectionReceiverThread.java
-17b2e96a9a5bdf3d3dd97c3e986d1a5874893bc2275836a0cf9855da44074562  ./CommonChickenRuntimeEngine/src/ccre/drivers/chrobotics/UM7LT.java
 c797d5d0cab077f5849e36444df77aeb48739cffe118b766a48fe05365605b0a  ./CommonChickenRuntimeEngine/src/ccre/log/PrintStreamLogger.java
 69cbaef30d21725affa55f8dca905bdf2f66683df1974e577f7d2fd52b5c04d0  ./CommonChickenRuntimeEngine/src/ccre/log/FileLogger.java
 5d66d928a308ba917fc965ac20f4c4baff40f5d1ed2273be81d93a171ca67e6d  ./CommonChickenRuntimeEngine/src/ccre/tuning/TuningContext.java
@@ -33,3 +32,5 @@ dcabfa57ef977538cf97eab647a506f439b98f5cc197c00dc73a1c0b50413173  ./DeploymentEn
 12e226eeefbad6c369d6b22ba806a869b229daf7fd350650c54a998dd63e741a  ./SampleRobot/src/org/team1540/minimal/Minimal.java
 568346cc66b39a51b668955789945dae0b729c389c54606f7a2a8bf9d09d6e68  ./Emulator/src/ccre/frc/DeviceGroup.java
 821750e371a80041623db4f62994275a9243d174de6735807330f74406eb0176  ./roboRIO/src/edu/wpi/first/wpilibj/can/CANExceptionFactory.java
+ef4f2a87aead1a0fcba77e4a2306ddf785b29f7c372d3ac0ed2412e7a075746f  ./CommonChickenRuntimeEngine/src/ccre/drivers/chrobotics/InternalUM7LT.java
+8428dfcda9bb4e4359db1f60bd0d0799ff79081c033e0a79eeb1247182c7f93c  ./CommonChickenRuntimeEngine/src/ccre/drivers/chrobotics/UM7LT.java

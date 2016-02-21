@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 Cel Skeggs
+ * Copyright 2015-2016 Cel Skeggs
  *
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  *
@@ -16,12 +16,12 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with the CCRE.  If not, see <http://www.gnu.org/licenses/>.
  */
-package ccre.ctrl;
+package ccre.bus;
 
 import java.io.IOException;
 import java.io.InterruptedIOException;
 
-import ccre.channel.SerialIO;
+import ccre.bus.RS232IO;
 import ccre.log.Logger;
 
 /**
@@ -30,7 +30,7 @@ import ccre.log.Logger;
  *
  * @author skeggsc
  */
-public class DisconnectedSerialIO implements SerialIO {
+public class DisconnectedRS232IO implements RS232IO {
 
     private boolean closed = false;
 
@@ -41,21 +41,21 @@ public class DisconnectedSerialIO implements SerialIO {
 
     @Override
     public synchronized byte[] readBlocking(int max) throws IOException {
-        Logger.warning("Blocking read from DisconnectedSerialIO!");
+        Logger.warning("Blocking read from DisconnectedRS232IO!");
         while (!closed) {
             try {
                 this.wait();
             } catch (InterruptedException e) {
-                throw new InterruptedIOException("interrupted in DisconnectedSerialIO blocking read");
+                throw new InterruptedIOException("interrupted in DisconnectedRS232IO blocking read");
             }
         }
-        throw new IOException("DisconnectedSerialIO closed.");
+        throw new IOException("DisconnectedRS232IO closed.");
     }
 
     @Override
     public byte[] readNonblocking(int max) throws IOException {
         if (closed) {
-            throw new IOException("DisconnectedSerialIO closed.");
+            throw new IOException("DisconnectedRS232IO closed.");
         }
         return new byte[0];
     }
@@ -63,7 +63,7 @@ public class DisconnectedSerialIO implements SerialIO {
     @Override
     public void flush() throws IOException {
         if (closed) {
-            throw new IOException("DisconnectedSerialIO closed.");
+            throw new IOException("DisconnectedRS232IO closed.");
         }
         // do nothing.
     }
@@ -78,7 +78,7 @@ public class DisconnectedSerialIO implements SerialIO {
     @Override
     public void setFlushOnWrite(boolean flushOnWrite) throws IOException {
         if (closed) {
-            throw new IOException("DisconnectedSerialIO closed.");
+            throw new IOException("DisconnectedRS232IO closed.");
         }
         // don't care.
     }
@@ -86,7 +86,7 @@ public class DisconnectedSerialIO implements SerialIO {
     @Override
     public void writeFully(byte[] bytes, int from, int to) throws IOException {
         if (closed) {
-            throw new IOException("DisconnectedSerialIO closed.");
+            throw new IOException("DisconnectedRS232IO closed.");
         }
         // do nothing.
     }
@@ -94,8 +94,24 @@ public class DisconnectedSerialIO implements SerialIO {
     @Override
     public int writePartial(byte[] bytes, int from, int to) throws IOException {
         if (closed) {
-            throw new IOException("DisconnectedSerialIO closed.");
+            throw new IOException("DisconnectedRS232IO closed.");
         }
         return to - from;
+    }
+
+    @Override
+    public void resetSerial() throws IOException {
+        if (closed) {
+            throw new IOException("DisconnectedRS232IO closed.");
+        }
+        // do nothing
+    }
+
+    @Override
+    public boolean hasAvailableBytes() throws IOException {
+        if (closed) {
+            throw new IOException("DisconnectedRS232IO closed.");
+        }
+        return false;
     }
 }

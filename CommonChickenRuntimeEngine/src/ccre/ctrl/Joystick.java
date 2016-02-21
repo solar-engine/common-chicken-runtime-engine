@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2015 Cel Skeggs, Alexander Mackworth
+ * Copyright 2013-2016 Cel Skeggs, 2014 Alexander Mackworth
  *
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  *
@@ -21,6 +21,7 @@ package ccre.ctrl;
 import ccre.channel.BooleanInput;
 import ccre.channel.EventInput;
 import ccre.channel.FloatInput;
+import ccre.channel.FloatOutput;
 
 /**
  * A Joystick with axes and buttons.
@@ -111,6 +112,16 @@ public interface Joystick {
      * @return the FloatInput for the axis.
      */
     public FloatInput axis(int axis);
+
+    public FloatOutput rumble(boolean right);
+
+    public default FloatOutput rumbleLeft() {
+        return rumble(false);
+    }
+
+    public default FloatOutput rumbleRight() {
+        return rumble(true);
+    }
 
     /**
      * Provides a FloatInput representing the position of the X axis (axis

@@ -143,4 +143,8 @@ class DirectDriverStation {
             throw new RuntimeException("Invalid joystick port: " + joy);
         }
     }
+
+    public static void setStickRumble(int joy, float leftRumble, float rightRumble) {
+        FRCNetworkCommunicationsLibrary.HALSetJoystickOutputs((byte) joy, 0, (short) Math.max(0, Math.min(65535, (int) (65535 * leftRumble))), (short) Math.max(0, Math.min(65535, (int) (65535 * rightRumble))));
+    }
 }

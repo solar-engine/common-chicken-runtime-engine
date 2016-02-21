@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2015 Cel Skeggs
+ * Copyright 2014-2016 Cel Skeggs
  *
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  *
@@ -21,6 +21,7 @@ package ccre.frc.devices;
 import ccre.channel.BooleanInput;
 import ccre.channel.EventInput;
 import ccre.channel.FloatInput;
+import ccre.channel.FloatOutput;
 import ccre.ctrl.CombinationJoystickWithPOV;
 import ccre.ctrl.Joystick;
 import ccre.frc.Device;
@@ -70,6 +71,7 @@ public class JoystickDevice extends DeviceGroup {
     private final FloatControlDevice[] axes = new FloatControlDevice[6];
     private final BooleanControlDevice[] buttons = new BooleanControlDevice[14];
     private final BooleanControlDevice[] povAngles = new BooleanControlDevice[360];
+    private final FloatViewDevice[] rumbles = new FloatViewDevice[2];
 
     private boolean wasAddedToMaster = false;
     private final DeviceListPanel master;
@@ -172,6 +174,19 @@ public class JoystickDevice extends DeviceGroup {
                     addToMaster();
                 }
                 return povAngles[direction].asInput();
+            }
+
+            @Override
+            public FloatOutput rumble(boolean right) {
+                Logger.info("RUMBLE CREATE: " + right);
+                int index = right ? 1 : 0;
+                if (rumbles[index] == null) {
+                    rumbles[index] = new FloatViewDevice(right ? "Rumble Right" : "Rumble Left", 0, 1);
+                    rumbles[index].notifyDisabled(false);
+                    add(rumbles[index]);
+                    addToMaster();
+                }
+                return rumbles[index].combine((f) -> Logger.finest("Update: " + f));
             }
         });
     }

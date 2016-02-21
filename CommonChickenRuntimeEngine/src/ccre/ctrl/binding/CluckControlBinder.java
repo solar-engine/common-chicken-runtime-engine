@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 Cel Skeggs
+ * Copyright 2015-2016 Cel Skeggs
  *
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  *
@@ -22,6 +22,7 @@ import java.util.HashMap;
 
 import ccre.channel.CancelOutput;
 import ccre.channel.EventInput;
+import ccre.channel.FloatOutput;
 import ccre.cluck.Cluck;
 import ccre.log.Logger;
 import ccre.rconf.RConf;
@@ -44,6 +45,7 @@ public class CluckControlBinder implements RConfable {
     // From sink to source.
     private final HashMap<String, String> boolLinkage = new HashMap<String, String>();
     private final HashMap<String, String> floatLinkage = new HashMap<String, String>();
+    private final HashMap<String, Boolean> floatInverts = new HashMap<String, Boolean>();
 
     private final HashMap<String, CancelOutput> boolUnbinds = new HashMap<String, CancelOutput>();
     private final HashMap<String, CancelOutput> floatUnbinds = new HashMap<String, CancelOutput>();
@@ -155,7 +157,7 @@ public class CluckControlBinder implements RConfable {
             ents[n++] = RConf.title("Axes:");
             for (String sink : floatSinks) {
                 String source = floatLinkage.get(sink);
-                ents[n++] = RConf.button(sink + ": " + (source == null ? "unbound" : source));
+                ents[n++] = RConf.button(sink + ": " + (source == null ? "unbound" : source + (floatInverts.get(sink) ? " (inverted)" : "")));
             }
         }
         if (ents.length != n) {
@@ -197,7 +199,8 @@ public class CluckControlBinder implements RConfable {
             for (String sink : floatSinks) {
                 if (field == n++) {
                     String source = getActiveFloatSource();
-                    rebindFloat(sink, source);
+                    boolean invert = getFloatSourceNegative(source);
+                    rebindFloat(sink, source, invert);
                     dirty = true;
                     return true;
                 }
@@ -222,17 +225,20 @@ public class CluckControlBinder implements RConfable {
         }
     }
 
-    private void rebindFloat(String sink, String source) {
+    private void rebindFloat(String sink, String source, boolean invert) {
         CancelOutput unbind = floatUnbinds.get(sink);
         if (unbind != null) {
             unbind.cancel();
         }
 
         if (source == null) {
+            floatInverts.remove(sink);
             floatLinkage.remove(sink);
             floatUnbinds.remove(sink);
         } else {
-            unbind = sourceSet.getFloat(source).send(sinkSet.getFloat(sink));
+            FloatOutput o = sinkSet.getFloat(sink);
+            unbind = sourceSet.getFloat(source).send(invert ? o.negate() : o);
+            floatInverts.put(sink, invert);
             floatLinkage.put(sink, source);
             floatUnbinds.put(sink, unbind);
         }
@@ -266,6 +272,10 @@ public class CluckControlBinder implements RConfable {
         return found;
     }
 
+    private boolean getFloatSourceNegative(String source) {
+        return source == null ? false : sourceSet.getFloat(source).get() < 0;
+    }
+
     private void load() {
         Logger.config("Loading control bindings for " + this.name);
         for (String boolSink : sinkSet.listBooleans()) {
@@ -278,10 +288,11 @@ public class CluckControlBinder implements RConfable {
         }
         for (String floatSink : sinkSet.listFloats()) {
             String source = storage.getStringForKey("f" + floatSink);
+            boolean invert = Boolean.parseBoolean(storage.getStringForKey("!f" + floatSink));
             if (source != null && sourceSet.getFloat(source) == null) {
                 Logger.warning("Invalid control binding float source: " + source);
             } else {
-                rebindFloat(floatSink, source);
+                rebindFloat(floatSink, source, invert);
             }
         }
         Logger.config("Loaded " + (boolLinkage.size() + floatLinkage.size()) + " of " + (sinkSet.listBooleans().length + sinkSet.listFloats().length) + " control bindings for " + this.name);
@@ -294,6 +305,7 @@ public class CluckControlBinder implements RConfable {
         }
         for (String floatSink : sinkSet.listFloats()) {
             storage.setStringForKey("f" + floatSink, floatLinkage.get(floatSink));
+            storage.setStringForKey("!f" + floatSink, floatInverts.getOrDefault(floatSink, false).toString());
         }
         storage.flush();
         dirty = false;

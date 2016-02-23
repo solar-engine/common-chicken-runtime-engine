@@ -59,7 +59,7 @@ public class PoultryInspector {
         FileLogger.register();
 
         Supplier<SuperCanvasComponent> popup = (Supplier<SuperCanvasComponent> & Serializable) () -> {
-            return new TopLevelPaletteComponent(200, 200, LoggingComponent.class, NetworkPaletteComponent.class, ListPaletteComponent.class, FolderComponent.class, TrashComponent.class, TextComponent.class, TopLevelRConfComponent.class);
+            return new TopLevelPaletteComponent(200, 200, WebcamComponent.class, HighlightComponent.class, LoggingComponent.class, NetworkPaletteComponent.class, ListPaletteComponent.class, FolderComponent.class, TrashComponent.class, TextComponent.class, TopLevelRConfComponent.class);
         };
 
         SuperCanvasComponent[] components = new SuperCanvasComponent[] {

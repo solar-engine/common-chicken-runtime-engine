@@ -24,6 +24,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.util.function.Supplier;
+
 import org.junit.Test;
 
 import ccre.channel.BooleanCell;
@@ -84,7 +86,7 @@ public class SerializationIntegrationTest {
         canvas.add(new LoggingComponent(312, 300));
         canvas.add(new CluckNetworkingComponent(CluckNetworkingComponent.DO_NOT_CONNECT));
         canvas.add(new EditModeComponent());
-        canvas.add(new StartComponent());
+        canvas.add(new StartComponent(() -> null));
         canvas.add(new SaveLoadComponent(0, 0));
         canvas.add(new FolderComponent(30, 30));
         canvas.add(new TextComponent(100, 200, "Some Text"));
@@ -93,7 +95,7 @@ public class SerializationIntegrationTest {
         canvas.add(new ListPaletteComponent(400, 400));
         NetworkPaletteComponent npc;
         canvas.add(npc = new NetworkPaletteComponent(300, 400));
-        canvas.add(new TopLevelPaletteComponent(400, 300));
+        canvas.add(new TopLevelPaletteComponent(400, 300, LoggingComponent.class, NetworkPaletteComponent.class, ListPaletteComponent.class, FolderComponent.class, TrashComponent.class, TextComponent.class, TopLevelRConfComponent.class));
         int x = 0;
         for (String name : new String[] { "test-boolean", "test-float", "test-event", "test-boolean.input", "test-float.input", "test-event.input", "test-boolean.output", "test-float.output", "test-event.output", "test-logging", "test-output", "test-rconf", "test-rpc" }) {
             canvas.add(npc.getComponentFor(x, 300, name));

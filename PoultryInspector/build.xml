@@ -42,7 +42,7 @@
 	<target name="build-jar" depends="compile">
 		<jar destfile="PoultryInspector.jar" update="false">
 			<manifest>
-				<attribute name="Main-Class" value="ccre.supercanvas.SuperCanvasMain" />
+				<attribute name="Main-Class" value="ccre.poultryinspector.PoultryInspector" />
 			</manifest>
 			<fileset dir="${build.dir}" includes="**/*.class" />
 			<zipfileset src="Dependencies.jar" />

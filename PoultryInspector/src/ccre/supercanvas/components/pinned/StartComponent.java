@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2015 Cel Skeggs
+ * Copyright 2014-2016 Cel Skeggs
  *
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  *
@@ -21,6 +21,7 @@ package ccre.supercanvas.components.pinned;
 import java.awt.Color;
 import java.awt.FontMetrics;
 import java.awt.Graphics2D;
+import java.util.function.Supplier;
 
 import ccre.supercanvas.SuperCanvasComponent;
 import ccre.supercanvas.components.palette.TopLevelPaletteComponent;
@@ -34,12 +35,16 @@ import ccre.supercanvas.components.palette.TopLevelPaletteComponent;
 public class StartComponent extends SuperCanvasComponent {
 
     private static final long serialVersionUID = 5841953202431409373L;
+    private final Supplier<? extends SuperCanvasComponent> supplier;
+    private final Class<? extends SuperCanvasComponent> expected;
 
     /**
      * Create a new StartComponent.
      */
-    public StartComponent() {
+    public StartComponent(Supplier<? extends SuperCanvasComponent> supplier) {
         super(true);
+        this.expected = supplier.get().getClass();
+        this.supplier = supplier;
     }
 
     @Override
@@ -57,8 +62,8 @@ public class StartComponent extends SuperCanvasComponent {
 
     @Override
     public boolean onInteract(int x, int y) {
-        if (!getPanel().removeAll(TopLevelPaletteComponent.class)) {
-            getPanel().add(new TopLevelPaletteComponent(200, 200));
+        if (!getPanel().removeAll(expected)) {
+            getPanel().add(supplier.get());
         }
         return true;
     }

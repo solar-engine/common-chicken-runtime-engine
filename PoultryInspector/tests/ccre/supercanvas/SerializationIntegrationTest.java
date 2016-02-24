@@ -24,6 +24,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.io.Serializable;
+import java.util.function.Supplier;
 
 import org.junit.Test;
 
@@ -94,7 +96,7 @@ public class SerializationIntegrationTest {
         canvas.add(new LoggingComponent(312, 300));
         canvas.add(new CluckNetworkingComponent(CluckNetworkingComponent.DO_NOT_CONNECT));
         canvas.add(new EditModeComponent());
-        canvas.add(new StartComponent(() -> null));
+        canvas.add(new StartComponent((Supplier<? extends SuperCanvasComponent> & Serializable) () -> new ListPaletteComponent(300, 300)));
         canvas.add(new SaveLoadComponent(0, 0));
         canvas.add(new FolderComponent(30, 30));
         canvas.add(new TextComponent(100, 200, "Some Text"));

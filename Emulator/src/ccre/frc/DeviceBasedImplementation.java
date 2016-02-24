@@ -36,7 +36,6 @@ import ccre.channel.FloatOutput;
 import ccre.ctrl.ExtendedMotor;
 import ccre.ctrl.Joystick;
 import ccre.ctrl.binding.ControlBindingCreator;
-import ccre.discrete.DerivedDiscreteInput;
 import ccre.discrete.DiscreteInput;
 import ccre.drivers.ctre.talon.TalonExtendedMotor;
 import ccre.frc.devices.BooleanControlDevice;

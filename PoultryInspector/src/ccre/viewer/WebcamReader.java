@@ -26,12 +26,9 @@ import java.io.ByteArrayOutputStream;
 import java.io.Closeable;
 import java.io.EOFException;
 import java.io.IOException;
-import java.net.InetSocketAddress;
-import java.net.Socket;
 
 import javax.imageio.ImageIO;
 
-import ccre.log.Logger;
 import ccre.net.ClientSocket;
 import ccre.net.Network;
 

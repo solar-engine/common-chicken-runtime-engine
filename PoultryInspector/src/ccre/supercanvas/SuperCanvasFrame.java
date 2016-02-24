@@ -25,7 +25,6 @@ import java.util.function.Supplier;
 import javax.swing.JFrame;
 
 import ccre.log.Logger;
-import ccre.supercanvas.components.palette.TopLevelPaletteComponent;
 
 public class SuperCanvasFrame extends JFrame {
 

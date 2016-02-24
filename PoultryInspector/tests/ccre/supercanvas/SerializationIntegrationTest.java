@@ -24,7 +24,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.util.function.Supplier;
 
 import org.junit.Test;
 
@@ -35,11 +34,20 @@ import ccre.cluck.Cluck;
 import ccre.cluck.rpc.SimpleProcedure;
 import ccre.log.LogLevel;
 import ccre.log.LoggingTarget;
-import ccre.rconf.RConfable;
 import ccre.rconf.RConf.Entry;
-import ccre.supercanvas.components.*;
-import ccre.supercanvas.components.palette.*;
-import ccre.supercanvas.components.pinned.*;
+import ccre.rconf.RConfable;
+import ccre.supercanvas.components.FolderComponent;
+import ccre.supercanvas.components.LoggingComponent;
+import ccre.supercanvas.components.TextComponent;
+import ccre.supercanvas.components.TopLevelRConfComponent;
+import ccre.supercanvas.components.TrashComponent;
+import ccre.supercanvas.components.palette.ListPaletteComponent;
+import ccre.supercanvas.components.palette.NetworkPaletteComponent;
+import ccre.supercanvas.components.palette.TopLevelPaletteComponent;
+import ccre.supercanvas.components.pinned.CluckNetworkingComponent;
+import ccre.supercanvas.components.pinned.EditModeComponent;
+import ccre.supercanvas.components.pinned.SaveLoadComponent;
+import ccre.supercanvas.components.pinned.StartComponent;
 import ccre.util.LineCollectorOutputStream;
 
 @SuppressWarnings("javadoc")

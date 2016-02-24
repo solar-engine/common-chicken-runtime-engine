@@ -20,7 +20,6 @@ package ccre.scheduler;
 
 import ccre.channel.CancelOutput;
 import ccre.channel.EventOutput;
-import ccre.recording.Recorder;
 import ccre.time.Time;
 
 public class Scheduler {

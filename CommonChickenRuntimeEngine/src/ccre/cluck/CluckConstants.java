@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 Cel Skeggs
+ * Copyright 2015-2016 Cel Skeggs
  *
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  *
@@ -110,10 +110,14 @@ public class CluckConstants {
      */
     public static final byte RMT_LEGACY_FLOATINPUT_UNSUB = 18;
     /**
+     * The ID representing an InputStream subscribe message.
+     */
+    public static final byte RMT_INPUTSTREAM = 19;
+    /**
      * The total number of used RMTs.
      */
-    public static final byte COUNT_RMTS = 19;
-    private static final String[] remoteNames = new String[] { "Ping", "EventOutput", "EventInput", "EventInputResponse", "LogTarget", "BooleanInput", "BooleanInputResponse", "BooleanOutput", "FloatInput", "FloatInputResponse", "FloatOutput", "OutputStream", "Notify", "RemoteProcedure", "RemoteProcedureReply", "NonexistenceNotification", "LEGACY_EventInputUnsubscription", "LEGACY_BooleanInputUnsubscription", "LEGACY_FloatInputUnsubscription" };
+    public static final byte COUNT_RMTS = 20;
+    private static final String[] remoteNames = new String[] { "Ping", "EventOutput", "EventInput", "EventInputResponse", "LogTarget", "BooleanInput", "BooleanInputResponse", "BooleanOutput", "FloatInput", "FloatInputResponse", "FloatOutput", "OutputStream", "Notify", "RemoteProcedure", "RemoteProcedureReply", "NonexistenceNotification", "LEGACY_EventInputUnsubscription", "LEGACY_BooleanInputUnsubscription", "LEGACY_FloatInputUnsubscription", "InputStream" };
 
     /**
      * Convert an RMT ID to a string.

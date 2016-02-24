@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 Cel Skeggs
+ * Copyright 2015-2016 Cel Skeggs
  *
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  *
@@ -38,8 +38,8 @@ public class CluckConstantsTest {
 
     @Test
     public void testRmtToStringLast() {
-        assertEquals(CluckConstants.COUNT_RMTS - 1, CluckConstants.RMT_LEGACY_FLOATINPUT_UNSUB);
-        assertEquals(CluckConstants.rmtToString(CluckConstants.RMT_LEGACY_FLOATINPUT_UNSUB), "LEGACY_FloatInputUnsubscription");
+        assertEquals(CluckConstants.COUNT_RMTS - 1, CluckConstants.RMT_INPUTSTREAM);
+        assertEquals(CluckConstants.rmtToString(CluckConstants.RMT_INPUTSTREAM), "InputStream");
     }
 
     @Test

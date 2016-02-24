@@ -18,6 +18,9 @@
  */
 package ccre.cluck;
 
+import java.io.IOException;
+import java.io.OutputStream;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -39,6 +42,7 @@ import ccre.testing.CountingEventOutput;
 import ccre.testing.CountingFloatOutput;
 import ccre.util.Utils;
 import ccre.util.Values;
+import ccre.util.VerifyingOutputStream;
 
 @SuppressWarnings("javadoc")
 public class CluckPublisherTest {
@@ -451,5 +455,105 @@ public class CluckPublisherTest {
     @Test(expected = NullPointerException.class)
     public void testSubscribeLTNullB() {
         CluckPublisher.subscribeLT(node, null);
+    }
+
+    @Test
+    public void testOutputStream() throws IOException {
+        for (int i = 0; i < 20; i++) {
+            String name = Values.getRandomString();
+            if (name.contains("/") || node.hasLink(name)) {
+                i--;
+                continue;
+            }
+            VerifyingOutputStream vos = new VerifyingOutputStream();
+            CluckPublisher.publish(node, name, vos);
+            OutputStream proxy = CluckPublisher.subscribeOS(node, name);
+            for (byte[] bytes : Values.getRandomByteses(30, 0, 2000)) {
+                vos.bytesExpected = bytes;
+                vos.indexExpected = 0;
+                proxy.write(bytes);
+                vos.check();
+            }
+        }
+    }
+
+    @Test(expected = NullPointerException.class)
+    public void testOutputStreamNullA() {
+        CluckPublisher.publish(null, "hello", new VerifyingOutputStream());
+    }
+
+    @Test(expected = NullPointerException.class)
+    public void testOutputStreamNullB() {
+        CluckPublisher.publish(node, null, new VerifyingOutputStream());
+    }
+
+    @Test(expected = NullPointerException.class)
+    public void testOutputStreamNullC() {
+        CluckPublisher.publish(node, "hello", (OutputStream) null);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testOutputStreamWithSlash() {
+        CluckPublisher.publish(node, "hello/other", new VerifyingOutputStream());
+    }
+
+    @Test(expected = NullPointerException.class)
+    public void testSubscribeOSNullA() {
+        CluckPublisher.subscribeOS(null, "hello");
+    }
+
+    @Test(expected = NullPointerException.class)
+    public void testSubscribeOSNullB() {
+        CluckPublisher.subscribeOS(node, null);
+    }
+
+    @Test
+    public void testRevOutputStream() throws IOException {
+        for (int i = 0; i < 20; i++) {
+            String name = Values.getRandomString();
+            if (name.contains("/") || node.hasLink(name)) {
+                i--;
+                continue;
+            }
+            VerifyingOutputStream vos = new VerifyingOutputStream();
+            OutputStream proxy = CluckPublisher.publishOS(node, name);
+            CluckPublisher.subscribe(node, name, vos);
+            for (byte[] bytes : Values.getRandomByteses(30, 0, 2000)) {
+                vos.bytesExpected = bytes;
+                vos.indexExpected = 0;
+                proxy.write(bytes);
+                vos.check();
+            }
+        }
+    }
+
+    @Test(expected = NullPointerException.class)
+    public void testRevOutputStreamNullA() {
+        CluckPublisher.publishOS(null, "hello");
+    }
+
+    @Test(expected = NullPointerException.class)
+    public void testRevOutputStreamNullB() {
+        CluckPublisher.publishOS(node, null);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testRevOutputStreamWithSlash() {
+        CluckPublisher.publishOS(node, "hello/other");
+    }
+
+    @Test(expected = NullPointerException.class)
+    public void testRevSubscribeOSNullA() {
+        CluckPublisher.subscribe(null, "hello", new VerifyingOutputStream());
+    }
+
+    @Test(expected = NullPointerException.class)
+    public void testRevSubscribeOSNullB() {
+        CluckPublisher.subscribe(node, null, new VerifyingOutputStream());
+    }
+
+    @Test(expected = NullPointerException.class)
+    public void testRevSubscribeOSNullC() {
+        CluckPublisher.subscribe(node, "hello", (OutputStream) null);
     }
 }

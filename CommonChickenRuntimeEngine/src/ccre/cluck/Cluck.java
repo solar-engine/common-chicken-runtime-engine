@@ -326,6 +326,28 @@ public final class Cluck {
     }
 
     /**
+     * Publish an OutputStream from the network. This returns an OutputStream
+     * that goes to any OutputStreams subscribing to this.
+     *
+     * @param name The name for the OutputStream.
+     * @return the OutputStream that goes to the network.
+     */
+    public static OutputStream publishOS(String name) {
+        return CluckPublisher.publishOS(node, name);
+    }
+
+    /**
+     * Subscribe from an OutputStream on the network at the specified path. This
+     * asks the OutputStream at the named output to stream its data to us.
+     *
+     * @param path The path to subscribe to.
+     * @param output The OutputStream to write to.
+     */
+    public static void subscribe(String path, OutputStream output) {
+        CluckPublisher.subscribe(node, path, output);
+    }
+
+    /**
      * Subscribe to an RConfable device from the network at the specified path.
      *
      * @param path The path to subscribe to.

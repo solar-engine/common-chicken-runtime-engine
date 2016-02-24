@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2015 Cel Skeggs
+ * Copyright 2013-2016 Cel Skeggs
  *
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  *
@@ -480,6 +480,9 @@ public class CluckPublisher {
      * @param out The OutputStream.
      */
     public static void publish(final CluckNode node, String name, final OutputStream out) {
+        if (node == null || name == null || out == null) {
+            throw new NullPointerException();
+        }
         new CluckRMTSubscriber(node, CluckConstants.RMT_OUTSTREAM) {
             @Override
             protected void receiveValid(String source, byte[] data) {
@@ -502,7 +505,101 @@ public class CluckPublisher {
      * @return the OutputStream.
      */
     public static OutputStream subscribeOS(final CluckNode node, final String path) {
-        return new SubscribedObjectStream(node, path);
+        if (node == null || path == null) {
+            throw new NullPointerException();
+        }
+        return new SubscribedOutputStream(node, path);
+    }
+
+    /**
+     * Publish an OutputStream from the network. This returns an OutputStream
+     * that goes to any OutputStreams subscribing to this.
+     *
+     * @param node The node to publish on.
+     * @param name The name for the OutputStream.
+     * @return the OutputStream that goes to the network.
+     */
+    public static OutputStream publishOS(final CluckNode node, final String name) {
+        if (node == null || name == null) {
+            throw new NullPointerException();
+        }
+        final CopyOnWriteArrayList<String> remotes = new CopyOnWriteArrayList<String>();
+        new CluckSubscriber(node) {
+            @Override
+            protected void receive(String src, byte[] data) {
+                if (data.length != 0 && data[0] == CluckConstants.RMT_NEGATIVE_ACK) {
+                    if (remotes.remove(src)) {
+                        Logger.warning("Connection cancelled to " + src + " on " + name);
+                    } else {
+                        Logger.warning("Received cancellation to nonexistent " + src + " on " + name);
+                    }
+                } else if (requireRMT(src, data, CluckConstants.RMT_INPUTSTREAM) && !remotes.contains(src)) {
+                    remotes.add(src);
+                }
+            }
+
+            @Override
+            protected void receiveBroadcast(String source, byte[] data) {
+                defaultBroadcastHandle(source, data, CluckConstants.RMT_INPUTSTREAM);
+            }
+        }.attach(name);
+        return new OutputStream() {
+            @Override
+            public void write(int b) throws IOException {
+                for (String remote : remotes) {
+                    node.transmit(remote, name, new byte[] { CluckConstants.RMT_OUTSTREAM, (byte) b });
+                }
+            }
+
+            public void write(byte[] b, int off, int len) throws IOException {
+                if (len > 0) {
+                    byte[] bt = new byte[len + 1];
+                    bt[0] = CluckConstants.RMT_OUTSTREAM;
+                    System.arraycopy(b, off, bt, 1, len);
+                    for (String remote : remotes) {
+                        node.transmit(remote, name, bt);
+                    }
+                }
+            };
+        };
+    }
+
+    /**
+     * Subscribe from an OutputStream on the network at the specified path. This
+     * asks the OutputStream at the named output to stream its data to us.
+     *
+     * @param node The node to subscribe from.
+     * @param path The path to subscribe to.
+     * @param output The OutputStream to write to.
+     */
+    public static void subscribe(final CluckNode node, final String path, OutputStream output) {
+        if (node == null || path == null || output == null) {
+            throw new NullPointerException();
+        }
+        String linkName = UniqueIds.global.nextHexId("srcOS");
+        node.transmit(path, linkName, new byte[] { CluckConstants.RMT_INPUTSTREAM });
+
+        new CluckRMTSubscriber(node, CluckConstants.RMT_OUTSTREAM) {
+            @Override
+            protected void receiveValid(String src, byte[] data) {
+                if (!path.equals(src)) {
+                    Logger.warning("Bad source to " + linkName + ": " + src + " instead of " + path);
+                } else if (data.length > 1) {
+                    try {
+                        output.write(data, 1, data.length - 1);
+                    } catch (IOException ex) {
+                        Logger.warning("IO Exception during network transfer!", ex);
+                    }
+                }
+            }
+
+            @Override
+            protected void receiveBroadcast(String source, byte[] data) {
+                if (data.length == 1 && data[0] == CluckConstants.RMT_NOTIFY) {
+                    node.transmit(path, linkName, new byte[] { CluckConstants.RMT_INPUTSTREAM });
+                }
+            }
+        }.attach(linkName);
     }
 
     /**
@@ -1078,13 +1175,13 @@ public class CluckPublisher {
         }
     }
 
-    private static class SubscribedObjectStream extends OutputStream implements Serializable {
+    private static class SubscribedOutputStream extends OutputStream implements Serializable {
 
         private static final long serialVersionUID = -9002013295388072459L;
         private final CluckNode node;
         private final String path;
 
-        SubscribedObjectStream(CluckNode node, String path) {
+        SubscribedOutputStream(CluckNode node, String path) {
             this.node = node;
             this.path = path;
         }

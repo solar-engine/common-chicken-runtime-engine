@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 Cel Skeggs
+ * Copyright 2015-2016 Cel Skeggs
  *
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  *
@@ -18,6 +18,7 @@
  */
 package ccre.channel;
 
+import java.io.Serializable;
 import java.util.Iterator;
 import java.util.concurrent.CopyOnWriteArrayList;
 

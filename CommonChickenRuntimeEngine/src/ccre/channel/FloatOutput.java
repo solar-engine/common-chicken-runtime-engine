@@ -18,6 +18,8 @@
  */
 package ccre.channel;
 
+import java.io.Serializable;
+
 import ccre.log.Logger;
 import ccre.time.Time;
 
@@ -31,7 +33,7 @@ import ccre.time.Time;
  * @see FloatInput
  * @author skeggsc
  */
-public interface FloatOutput {
+public interface FloatOutput extends Serializable {
 
     /**
      * A FloatOutput that goes nowhere. All data sent here is ignored.

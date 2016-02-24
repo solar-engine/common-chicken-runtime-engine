@@ -18,6 +18,8 @@
  */
 package ccre.channel;
 
+import java.io.Serializable;
+
 import ccre.log.Logger;
 import ccre.time.Time;
 
@@ -28,7 +30,7 @@ import ccre.time.Time;
  *
  * @author skeggsc
  */
-public interface EventOutput {
+public interface EventOutput extends Serializable {
 
     /**
      * An EventOutput that, when fired, does absolutely nothing.

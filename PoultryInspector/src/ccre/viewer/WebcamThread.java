@@ -70,6 +70,7 @@ public class WebcamThread {
                     continue;
                 }
             }
+            boolean long_sleep = false;
             try {
                 try {
                     connectToWebcam();
@@ -84,11 +85,12 @@ public class WebcamThread {
                     error.accept(e.getMessage());
                 } catch (Exception e) {
                     Logger.warning("Webcam connection to " + address + " failed.", e);
+                    long_sleep = true;
                 }
             } finally {
                 output.accept(null);
             }
-            Thread.sleep(500);
+            Thread.sleep(long_sleep ? 500 : 50);
         }
     }
 

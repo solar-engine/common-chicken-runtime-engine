@@ -22,10 +22,15 @@ import java.awt.Color;
 import java.awt.FontMetrics;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
+import java.util.HashMap;
 import java.util.Objects;
 
+import ccre.channel.CancelOutput;
+import ccre.channel.EventCell;
+import ccre.cluck.Cluck;
 import ccre.supercanvas.DraggableBoxComponent;
 import ccre.supercanvas.SuperCanvasPanel;
+import ccre.util.LineCollectorOutputStream;
 
 public class WebcamComponent extends DraggableBoxComponent {
 
@@ -35,6 +40,42 @@ public class WebcamComponent extends DraggableBoxComponent {
     private transient BufferedImage image;
     private transient volatile String error = "Connecting...";
     private boolean flipH, flipV;
+    private String cluckLink;
+    private transient CancelOutput cluckCancel;
+
+    private static final class CluckEntry {
+        private final EventCell onChange = new EventCell();
+        private String address;
+
+        public CluckEntry(String linkName) {
+            Cluck.subscribe(linkName, new LineCollectorOutputStream() {
+                @Override
+                protected void collect(String param) {
+                    address = param;
+                    onChange.event();
+                }
+            });
+            // because this happens at runtime
+            Cluck.getNode().notifyNetworkModified();
+        }
+
+        public CancelOutput connect(WebcamComponent component) {
+            return onChange.send(() -> {
+                component.setAddress(address);
+            });
+        }
+    }
+
+    private static final HashMap<String, CluckEntry> ents = new HashMap<>();
+
+    private static synchronized CluckEntry getEntry(String name) {
+        CluckEntry ent = ents.get(name);
+        if (ent == null) {
+            ent = new CluckEntry(name);
+            ents.put(name, ent);
+        }
+        return ent;
+    }
 
     /**
      * Create a new WebcamComponent at the specified position.
@@ -57,6 +98,17 @@ public class WebcamComponent extends DraggableBoxComponent {
         SuperCanvasPanel panel = this.getPanel();
         if (panel != null) {
             panel.repaint();
+        }
+    }
+
+    private synchronized void setCluckLink(String link) {
+        if (this.cluckCancel != null) {
+            this.cluckCancel.cancel();
+            this.cluckCancel = null;
+        }
+        this.cluckLink = link;
+        if (link != null) {
+            this.cluckCancel = getEntry(link).connect(this);
         }
     }
 
@@ -94,7 +146,7 @@ public class WebcamComponent extends DraggableBoxComponent {
             g.drawImage(image, x0, y0, x0 + halfWidth * 2, y0 + halfHeight * 2, flipH ? image.getWidth() : 0, flipV ? image.getHeight() : 0, flipH ? 0 : image.getWidth(), flipV ? 0 : image.getHeight(), null);
         }
 
-        g.drawString(Objects.toString(this.address), x0 + 3, y0 + halfHeight * 2 - 3);
+        g.drawString(this.address + (this.cluckLink == null ? "" : " :" + this.cluckLink), x0 + 3, y0 + halfHeight * 2 - 3);
         if (getPanel().editing == addressField) {
             String text = this.addressField.toString() + "|";
             g.drawString(text, centerX - g.getFontMetrics().stringWidth(text) / 2, centerY);
@@ -106,7 +158,12 @@ public class WebcamComponent extends DraggableBoxComponent {
     @Override
     public void onPressedEnter() {
         if (getPanel().editing == addressField) {
-            setAddress(addressField.toString());
+            if (addressField.length() > 0 && addressField.charAt(0) == ':') {
+                setCluckLink(addressField.substring(1));
+            } else {
+                setCluckLink(null);
+                setAddress(addressField.toString());
+            }
             getPanel().editing = null;
         }
     }
@@ -124,9 +181,14 @@ public class WebcamComponent extends DraggableBoxComponent {
         }
         if (!used) {
             if (getPanel().editing == addressField) {
-                setAddress(addressField.toString());
-                getPanel().editing = null;
+                onPressedEnter();
             } else {
+                addressField.setLength(0);
+                if (cluckLink != null) {
+                    addressField.append(":").append(cluckLink);
+                } else if (address != null) {
+                    addressField.append(address);
+                }
                 getPanel().editing = addressField;
             }
         }
@@ -141,9 +203,14 @@ public class WebcamComponent extends DraggableBoxComponent {
     @Override
     protected synchronized void onChangePanel(SuperCanvasPanel panel) {
         if (webcam != null && panel == null) {
+            if (this.cluckCancel != null) {
+                this.cluckCancel.cancel();
+                this.cluckCancel = null;
+            }
             webcam.terminate();
             webcam = null;
         } else if (webcam == null && panel != null) {
+            setCluckLink(cluckLink);
             webcam = new WebcamThread(this::setImage, this::setError);
             webcam.setAddress(address);
         }

@@ -28,6 +28,7 @@ import ccre.supercanvas.DraggableBoxComponent;
 
 public class HighlightComponent extends DraggableBoxComponent {
 
+    private static final long serialVersionUID = 4742533819471453628L;
     private static final Color[] chain = new Color[] { Color.BLACK, Color.RED, Color.BLUE, Color.ORANGE, Color.CYAN, Color.MAGENTA, Color.DARK_GRAY, Color.GRAY, Color.GREEN, Color.PINK };
 
     private static Color nextColor(Color color) {

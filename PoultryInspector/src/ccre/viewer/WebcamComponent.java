@@ -23,7 +23,6 @@ import java.awt.FontMetrics;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.util.HashMap;
-import java.util.Objects;
 
 import ccre.channel.CancelOutput;
 import ccre.channel.EventCell;
@@ -34,6 +33,7 @@ import ccre.util.LineCollectorOutputStream;
 
 public class WebcamComponent extends DraggableBoxComponent {
 
+    private static final long serialVersionUID = 6555290483696874964L;
     private String address = null;
     private final StringBuilder addressField = new StringBuilder();
     private transient WebcamThread webcam;

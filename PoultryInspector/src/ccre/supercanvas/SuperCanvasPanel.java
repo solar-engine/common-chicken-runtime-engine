@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2015 Cel Skeggs
+ * Copyright 2014-2016 Cel Skeggs
  *
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  *
@@ -37,7 +37,6 @@ import java.util.ListIterator;
 
 import javax.swing.JPanel;
 
-import ccre.channel.EventOutput;
 import ccre.cluck.Cluck;
 import ccre.log.Logger;
 import ccre.timers.ExpirationTimer;
@@ -133,12 +132,7 @@ public final class SuperCanvasPanel extends JPanel {
         this.addMouseListener(listener);
         this.addMouseMotionListener(listener);
         painter = new ExpirationTimer();
-        painter.schedule(100, new EventOutput() {
-            @Override
-            public void event() {
-                repaint();
-            }
-        });
+        painter.schedule(100, () -> repaint());
         painter.start();
     }
 

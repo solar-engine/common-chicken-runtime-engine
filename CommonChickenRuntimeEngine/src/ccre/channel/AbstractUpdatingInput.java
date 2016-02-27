@@ -18,7 +18,6 @@
  */
 package ccre.channel;
 
-import java.io.Serializable;
 import java.util.Iterator;
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -30,6 +29,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
  */
 public abstract class AbstractUpdatingInput implements UpdatingInput {
 
+    private static final long serialVersionUID = 7753031053630836301L;
     /**
      * The list of consumers that will be notified when this UpdatingInput
      * updates.

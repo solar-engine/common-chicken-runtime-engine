@@ -120,7 +120,7 @@ public class CluckPublisher {
         if (node == null || path == null) {
             throw new NullPointerException();
         }
-        return new SubscribedEventOutput(node, path);
+        return () -> node.transmit(path, null, new byte[] { CluckConstants.RMT_EVENTOUTP });
     }
 
     /**
@@ -132,11 +132,9 @@ public class CluckPublisher {
      */
     public static void publish(final CluckNode node, final String name, EventInput input) {
         final CopyOnWriteArrayList<String> remotes = new CopyOnWriteArrayList<String>();
-        input.send(new EventOutput() {
-            public void event() {
-                for (String remote : remotes) {
-                    node.transmit(remote, name, new byte[] { CluckConstants.RMT_EVENTINPUTRESP });
-                }
+        input.send(() -> {
+            for (String remote : remotes) {
+                node.transmit(remote, name, new byte[] { CluckConstants.RMT_EVENTINPUTRESP });
             }
         });
         new CluckSubscriber(node) {
@@ -303,7 +301,7 @@ public class CluckPublisher {
         if (node == null || path == null) {
             throw new NullPointerException();
         }
-        return new SubscribedBooleanOutput(node, path);
+        return (b) -> node.transmit(path, null, new byte[] { CluckConstants.RMT_BOOLOUTP, b ? (byte) 1 : 0 });
     }
 
     /**
@@ -390,7 +388,10 @@ public class CluckPublisher {
         if (node == null || path == null) {
             throw new NullPointerException();
         }
-        return new SubscribedFloatOutput(node, path);
+        return (f) -> {
+            int iver = Float.floatToIntBits(f);
+            node.transmit(path, null, new byte[] { CluckConstants.RMT_FLOATOUTP, (byte) (iver >> 24), (byte) (iver >> 16), (byte) (iver >> 8), (byte) iver });
+        };
     }
 
     /**
@@ -766,7 +767,7 @@ public class CluckPublisher {
         }
     }
 
-    private static final class FloatInputPublishListener implements FloatOutput, Serializable {
+    private static final class FloatInputPublishListener implements FloatOutput {
         private static final long serialVersionUID = 1432024738866192130L;
         private final CopyOnWriteArrayList<String> remotes;
         private final String name;
@@ -786,7 +787,7 @@ public class CluckPublisher {
         }
     }
 
-    private static final class BooleanInputPublishListener implements BooleanOutput, Serializable {
+    private static final class BooleanInputPublishListener implements BooleanOutput {
         private static final long serialVersionUID = -7563622859541688219L;
         private final String name;
         private final CopyOnWriteArrayList<String> remotes;
@@ -1123,55 +1124,6 @@ public class CluckPublisher {
 
         public void attach() {
             this.attach(linkName);
-        }
-    }
-
-    private static class SubscribedEventOutput implements EventOutput, Serializable {
-
-        private static final long serialVersionUID = 5103577228341124318L;
-        private final CluckNode node;
-        private final String path;
-
-        SubscribedEventOutput(CluckNode node, String path) {
-            this.node = node;
-            this.path = path;
-        }
-
-        public void event() {
-            node.transmit(path, null, new byte[] { CluckConstants.RMT_EVENTOUTP });
-        }
-    }
-
-    private static class SubscribedBooleanOutput implements BooleanOutput, Serializable {
-
-        private static final long serialVersionUID = -4068385997161728204L;
-        private final CluckNode node;
-        private final String path;
-
-        SubscribedBooleanOutput(CluckNode node, String path) {
-            this.node = node;
-            this.path = path;
-        }
-
-        public void set(boolean b) {
-            node.transmit(path, null, new byte[] { CluckConstants.RMT_BOOLOUTP, b ? (byte) 1 : 0 });
-        }
-    }
-
-    private static class SubscribedFloatOutput implements FloatOutput, Serializable {
-
-        private static final long serialVersionUID = -4377296771561862860L;
-        private final CluckNode node;
-        private final String path;
-
-        SubscribedFloatOutput(CluckNode node, String path) {
-            this.node = node;
-            this.path = path;
-        }
-
-        public void set(float f) {
-            int iver = Float.floatToIntBits(f);
-            node.transmit(path, null, new byte[] { CluckConstants.RMT_FLOATOUTP, (byte) (iver >> 24), (byte) (iver >> 16), (byte) (iver >> 8), (byte) iver });
         }
     }
 

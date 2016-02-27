@@ -28,6 +28,8 @@ import ccre.log.Logger;
 
 public class SuperCanvasFrame extends JFrame {
 
+    private static final long serialVersionUID = -5519889225965621620L;
+
     public void start() {
         java.awt.EventQueue.invokeLater(() -> setVisible(true));
     }

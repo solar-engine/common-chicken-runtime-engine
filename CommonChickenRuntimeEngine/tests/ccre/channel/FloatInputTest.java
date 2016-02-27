@@ -20,8 +20,6 @@ package ccre.channel;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
@@ -36,10 +34,9 @@ import org.junit.Test;
 
 import ccre.log.LogLevel;
 import ccre.log.VerifyingLogger;
+import ccre.scheduler.VirtualTime;
 import ccre.testing.CountingEventOutput;
 import ccre.testing.CountingFloatOutput;
-import ccre.time.FakeTime;
-import ccre.time.Time;
 import ccre.timers.Ticker;
 import ccre.util.Values;
 
@@ -51,30 +48,20 @@ public class FloatInputTest {
     private FloatInput fi;
     private FloatCell fs, fs2;
 
-    private static Time oldProvider;
-    private static FakeTime fake;
-
-    // These two are for derivative testing.
     @BeforeClass
     public static void setUpClass() {
-        assertNull(oldProvider);
-        oldProvider = Time.getTimeProvider();
-        fake = new FakeTime();
-        Time.setTimeProvider(fake);
         VerifyingLogger.begin();
     }
 
     @AfterClass
     public static void tearDownClass() {
         VerifyingLogger.checkAndEnd();
-        assertNotNull(oldProvider);
-        Time.setTimeProvider(oldProvider);
-        oldProvider = null;
-        fake = null;
     }
 
     @Before
     public void setUp() throws Exception {
+        // For derivative testing.
+        VirtualTime.startFakeTime();
         cfo = new CountingFloatOutput();
         fi = FloatInput.always(7.3f);
         fs = new FloatCell();
@@ -86,6 +73,7 @@ public class FloatInputTest {
         cfo = null;
         fi = null;
         fs = fs2 = null;
+        VirtualTime.endFakeTime();
     }
 
     @Test
@@ -955,12 +943,12 @@ public class FloatInputTest {
             for (float j = i; j <= i + 20.0f;) {
                 float delta = (rand.nextInt(30) + 1) / 10.0f;
                 long timeDelta = rand.nextInt(2000) + 1;
-                fake.forward(timeDelta);
+                VirtualTime.forward(timeDelta);
                 j += delta;
                 fs.set(j);
                 assertEquals(1000 * delta / timeDelta, fi.get(), 0.00001f * (1000 * delta / timeDelta));
             }
-            fake.forward(1000);
+            VirtualTime.forward(1000);
         }
     }
 
@@ -972,11 +960,9 @@ public class FloatInputTest {
             fs.set(0.5f);
             ti.send(fs.eventAccumulate(1));
             for (int i = 0; i < 20; i++) {
-                fake.forward(20);
-                Thread.sleep(2);
+                VirtualTime.forward(20);
                 assertEquals(0, fi.get(), 0);
-                fake.forward(1);
-                Thread.sleep(2);
+                VirtualTime.forward(1);
                 assertEquals(1.0 / 0.001, fi.get(), 0);
             }
         } finally {
@@ -990,14 +976,11 @@ public class FloatInputTest {
         Ticker ti = new Ticker(18);
         try {
             ti.send(fs.eventAccumulate(1));
-            fake.forward(18);
-            Thread.sleep(2);
-            fake.forward(9);
-            Thread.sleep(2);
+            VirtualTime.forward(18);
+            VirtualTime.forward(9);
             for (int i = 0; i < 20; i++) {
-                fake.forward(9);
-                Thread.sleep(2);
-                assertEquals(1.0f / 0.018f, fi.get(), 0); // TODO: flaky
+                VirtualTime.forward(9);
+                assertEquals(1.0f / 0.018f, fi.get(), 0);
             }
         } finally {
             ti.terminate();

@@ -100,7 +100,15 @@ class FullLoop {
         }
     }
 
-    private final RunLoop rl = new RunLoop();
+    private final IRunLoop rl;
+
+    FullLoop(IRunLoop rl) {
+        this.rl = rl;
+    }
+
+    FullLoop() {
+        this.rl = new RunLoop();
+    }
 
     public void scheduleOnce(String tag, long timeAtNanos, EventOutput o) {
         rl.add(tag, o, timeAtNanos);

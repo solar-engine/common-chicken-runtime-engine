@@ -18,9 +18,6 @@
  */
 package ccre.time;
 
-import java.util.concurrent.locks.Condition;
-import java.util.concurrent.locks.ReentrantLock;
-
 /**
  * A "normal" implementation of time, which is tied to changes in
  * {@link System#currentTimeMillis()} and {@link System#nanoTime()}.
@@ -70,11 +67,6 @@ public final class NormalTime extends Time {
     @Override
     protected void waitOn(Object object, long timeout) throws InterruptedException {
         object.wait(timeout);
-    }
-
-    @Override
-    protected void awaitNanosOn(ReentrantLock rl, Condition update, long timeout) throws InterruptedException {
-        update.awaitNanos(timeout);
     }
 
     @Override

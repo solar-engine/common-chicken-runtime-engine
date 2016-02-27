@@ -20,14 +20,10 @@ package ccre.timers;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import org.junit.After;
-import org.junit.AfterClass;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 
 import ccre.channel.BooleanCell;
@@ -36,61 +32,38 @@ import ccre.channel.BooleanOutput;
 import ccre.channel.EventCell;
 import ccre.channel.EventOutput;
 import ccre.channel.FloatCell;
-import ccre.scheduler.TestingSchedulerSecrets;
+import ccre.scheduler.VirtualTime;
 import ccre.testing.CountingEventOutput;
-import ccre.time.FakeTime;
-import ccre.time.Time;
 
 @SuppressWarnings("javadoc")
 public class ExpirationTimerTest {
 
-    private static Time oldProvider;
-    private static FakeTime fake;
     private ExpirationTimer timer;
-
-    @BeforeClass
-    public static void setUpClass() {
-        assertNull(oldProvider);
-        oldProvider = Time.getTimeProvider();
-        fake = new FakeTime();
-        Time.setTimeProvider(fake);
-    }
-
-    @AfterClass
-    public static void tearDownClass() {
-        assertNotNull(oldProvider);
-        Time.setTimeProvider(oldProvider);
-        oldProvider = null;
-        fake = null;
-    }
 
     @Before
     public void setUp() throws Exception {
+        VirtualTime.startFakeTime();
         timer = new ExpirationTimer();
         timer.start();
-        Thread.sleep(2);
         timer.stop();
-        Thread.sleep(2);
     }
 
     @After
     public void tearDown() throws Exception {
         timer.terminate();
         timer = null;
-        TestingSchedulerSecrets.resetScheduler();
+        VirtualTime.endFakeTime();
     }
 
     @Test
     public void testSimple() throws InterruptedException {
         CountingEventOutput ceo = new CountingEventOutput();
         timer.schedule(1000, ceo);
-        fake.forward(2000);
-        Thread.sleep(2);
+        VirtualTime.forward(2000);
         timer.start();
-        fake.forward(990);
+        VirtualTime.forward(990);
         ceo.ifExpected = true;
-        fake.forward(10);
-        Thread.sleep(2);
+        VirtualTime.forward(10);
         ceo.check();
     }
 
@@ -109,25 +82,19 @@ public class ExpirationTimerTest {
     }
 
     private void tryFixedScheduling(CountingEventOutput ceo) throws InterruptedException {
-        fake.forward(1500);
+        VirtualTime.forward(1500);
         timer.start();
-        Thread.sleep(2);
-        fake.forward(990);
+        VirtualTime.forward(990);
         ceo.ifExpected = true;
-        fake.forward(10);
-        Thread.sleep(2);
-        ceo.check(); // FLAKY: failed 2 times
+        VirtualTime.forward(10);
+        ceo.check();
         timer.feed();
-        Thread.sleep(2);
-        fake.forward(990);
+        VirtualTime.forward(990);
         ceo.ifExpected = true;
-        fake.forward(10);
-        Thread.sleep(2);
+        VirtualTime.forward(10);
         ceo.check();
         timer.stop();
-        Thread.sleep(2);
-        fake.forward(1500);
-        Thread.sleep(2);
+        VirtualTime.forward(1500);
         ceo.check();
     }
 
@@ -148,32 +115,25 @@ public class ExpirationTimerTest {
     }
 
     private void tryVariableScheduling(CountingEventOutput ceo, FloatCell fs) throws InterruptedException {
-        fake.forward(1500);
+        VirtualTime.forward(1500);
         timer.start();
-        Thread.sleep(2);
         fs.set(0.5f);
-        fake.forward(990);
+        VirtualTime.forward(990);
         ceo.ifExpected = true;
-        fake.forward(10);
-        Thread.sleep(2);
+        VirtualTime.forward(10);
         ceo.check();
         timer.feed();
-        Thread.sleep(2);
         fs.set(1.5f);
-        fake.forward(490);
+        VirtualTime.forward(490);
         ceo.ifExpected = true;
-        fake.forward(10);
-        Thread.sleep(2);
+        VirtualTime.forward(10);
         ceo.check();
         timer.stop();
-        Thread.sleep(2);
-        fake.forward(1500);
+        VirtualTime.forward(1500);
         timer.start();
-        Thread.sleep(2);
-        fake.forward(1490);
+        VirtualTime.forward(1490);
         ceo.ifExpected = true;
-        fake.forward(10);
-        Thread.sleep(2);
+        VirtualTime.forward(10);
         ceo.check();
     }
 
@@ -250,24 +210,20 @@ public class ExpirationTimerTest {
         CountingEventOutput ceo2 = new CountingEventOutput();
         timer.schedule(1500, ceo2);
         timer.start();
-        Thread.sleep(2);
-        fake.forward(990);
+
+        VirtualTime.forward(990);
         ceo.ifExpected = true;
-        fake.forward(10);
-        Thread.sleep(2);
+        VirtualTime.forward(10);
         ceo.check();
-        fake.forward(490);
+        VirtualTime.forward(490);
         timer.feed();
-        Thread.sleep(2);
-        fake.forward(990);
+        VirtualTime.forward(990);
         ceo.ifExpected = true;
-        fake.forward(10);
-        Thread.sleep(2);
+        VirtualTime.forward(10);
         ceo.check();
-        fake.forward(490);
+        VirtualTime.forward(490);
         ceo2.ifExpected = true;
-        fake.forward(10);
-        Thread.sleep(2);
+        VirtualTime.forward(10);
         ceo.check();
         ceo2.check();
     }
@@ -279,17 +235,13 @@ public class ExpirationTimerTest {
         CountingEventOutput ceo2 = new CountingEventOutput();
         timer.schedule(1500, ceo2);
         timer.start();
-        Thread.sleep(2);
-        fake.forward(990);
+        VirtualTime.forward(990);
         ceo.ifExpected = true;
-        fake.forward(10);
-        Thread.sleep(2);
+        VirtualTime.forward(10);
         ceo.check();
-        fake.forward(490);
+        VirtualTime.forward(490);
         timer.stop();
-        Thread.sleep(2);
-        fake.forward(600);
-        Thread.sleep(2);
+        VirtualTime.forward(600);
         ceo.check();
         ceo2.check();
     }
@@ -310,18 +262,14 @@ public class ExpirationTimerTest {
     private void tryStartEvent(EventOutput start) throws InterruptedException {
         CountingEventOutput ceo = new CountingEventOutput();
         timer.schedule(1000, ceo);
-        fake.forward(1000);
+        VirtualTime.forward(1000);
         start.event();
-        Thread.sleep(2);
-        fake.forward(990);
+        VirtualTime.forward(990);
         start.event();// should be ignored
-        Thread.sleep(2);
         ceo.ifExpected = true;
-        fake.forward(10);
-        Thread.sleep(2);
+        VirtualTime.forward(10);
         ceo.check();
-        fake.forward(2000);
-        Thread.sleep(2);
+        VirtualTime.forward(2000);
         ceo.check();
     }
 
@@ -341,19 +289,15 @@ public class ExpirationTimerTest {
     private void tryStartOrFeedEvent(EventOutput startOrFeed) throws InterruptedException {
         CountingEventOutput ceo = new CountingEventOutput();
         timer.schedule(1000, ceo);
-        fake.forward(1000);
+        VirtualTime.forward(1000);
         startOrFeed.event();
-        Thread.sleep(2);
-        fake.forward(990);
+        VirtualTime.forward(990);
         startOrFeed.event();// should not be ignored
-        Thread.sleep(2);
-        fake.forward(990);
+        VirtualTime.forward(990);
         ceo.ifExpected = true;
-        fake.forward(10);
-        Thread.sleep(2);
+        VirtualTime.forward(10);
         ceo.check();
-        fake.forward(2000);
-        Thread.sleep(2);
+        VirtualTime.forward(2000);
         ceo.check();
     }
 
@@ -374,18 +318,13 @@ public class ExpirationTimerTest {
         CountingEventOutput ceo = new CountingEventOutput();
         timer.schedule(1000, ceo);
         timer.start();
-        Thread.sleep(2);
         ceo.ifExpected = true;
-        fake.forward(1000);
-        Thread.sleep(2);
+        VirtualTime.forward(1000);
         ceo.check(); // flaky; 1 failure
         timer.stop();
-        Thread.sleep(2);
         feed.event();
-        Thread.sleep(2);
-        fake.forward(2000);
+        VirtualTime.forward(2000);
         feed.event();
-        Thread.sleep(2);
         ceo.check();
     }
 
@@ -405,19 +344,15 @@ public class ExpirationTimerTest {
     private void tryFeedEventRunning(EventOutput feed) throws InterruptedException {
         CountingEventOutput ceo = new CountingEventOutput();
         timer.schedule(1000, ceo);
-        fake.forward(1000);
+        VirtualTime.forward(1000);
         timer.start();
-        Thread.sleep(2);
-        fake.forward(990);
+        VirtualTime.forward(990);
         feed.event();// should not be ignored
-        Thread.sleep(2);
-        fake.forward(990);
+        VirtualTime.forward(990);
         ceo.ifExpected = true;
-        fake.forward(10);
-        Thread.sleep(2);
+        VirtualTime.forward(10);
         ceo.check();
-        fake.forward(2000);
-        Thread.sleep(2);
+        VirtualTime.forward(2000);
         ceo.check();
     }
 
@@ -445,17 +380,13 @@ public class ExpirationTimerTest {
         CountingEventOutput ceo2 = new CountingEventOutput();
         timer.schedule(1500, ceo2);
         timer.start();
-        Thread.sleep(2);
-        fake.forward(990);
+        VirtualTime.forward(990);
         ceo.ifExpected = true;
-        fake.forward(10);
-        Thread.sleep(2);
+        VirtualTime.forward(10);
         ceo.check(); // NOTE: flaky here: 1 nonoccurrence.
-        fake.forward(490);
+        VirtualTime.forward(490);
         stop.event();
-        Thread.sleep(2);
-        fake.forward(600);
-        Thread.sleep(2);
+        VirtualTime.forward(600);
         ceo.check();
         ceo2.check();
     }
@@ -467,19 +398,15 @@ public class ExpirationTimerTest {
         timer.schedule(1000, ceo);
         CountingEventOutput ceo2 = new CountingEventOutput();
         timer.schedule(1500, ceo2);
-        fake.forward(2000);
+        VirtualTime.forward(2000);
         control.set(true);
-        Thread.sleep(2);
-        fake.forward(990);
+        VirtualTime.forward(990);
         ceo.ifExpected = true;
-        fake.forward(10);
-        Thread.sleep(2);
+        VirtualTime.forward(10);
         ceo.check();
-        fake.forward(490);
+        VirtualTime.forward(490);
         control.set(false);
-        Thread.sleep(2);
-        fake.forward(2000);
-        Thread.sleep(2);
+        VirtualTime.forward(2000);
         ceo.check();
         ceo2.check();
     }
@@ -497,19 +424,15 @@ public class ExpirationTimerTest {
         timer.schedule(1000, ceo);
         CountingEventOutput ceo2 = new CountingEventOutput();
         timer.schedule(1500, ceo2);
-        fake.forward(2000);
+        VirtualTime.forward(2000);
         run.set(true);
-        Thread.sleep(2);
-        fake.forward(990);
+        VirtualTime.forward(990);
         ceo.ifExpected = true;
-        fake.forward(10);
-        Thread.sleep(2);
+        VirtualTime.forward(10);
         ceo.check();
-        fake.forward(490);
+        VirtualTime.forward(490);
         run.set(false);
-        Thread.sleep(2);
-        fake.forward(2000);
-        Thread.sleep(2);
+        VirtualTime.forward(2000);
         ceo.check();
         ceo2.check();
     }
@@ -521,19 +444,15 @@ public class ExpirationTimerTest {
         timer.schedule(1000, ceo);
         CountingEventOutput ceo2 = new CountingEventOutput();
         timer.schedule(1500, ceo2);
-        fake.forward(2000);
+        VirtualTime.forward(2000);
         control.set(true);
-        Thread.sleep(2);
-        fake.forward(990);
+        VirtualTime.forward(990);
         ceo.ifExpected = true;
-        fake.forward(10);
-        Thread.sleep(2);
+        VirtualTime.forward(10);
         ceo.check();
-        fake.forward(490);
+        VirtualTime.forward(490);
         control.set(false);
-        Thread.sleep(2);
-        fake.forward(2000);
-        Thread.sleep(2);
+        VirtualTime.forward(2000);
         ceo.check();
         ceo2.check();
     }
@@ -587,7 +506,7 @@ public class ExpirationTimerTest {
 
     private void checkRunning(boolean running) throws InterruptedException {
         assertEquals(running, timer.isRunning());
-        fake.forward(100);
+        VirtualTime.forward(100);
         assertEquals(running, timer.isRunning());
     }
 }

@@ -19,62 +19,39 @@
 package ccre.timers;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
 
 import org.junit.After;
-import org.junit.AfterClass;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 
 import ccre.channel.EventCell;
 import ccre.channel.EventOutput;
 import ccre.log.LogLevel;
 import ccre.log.VerifyingLogger;
-import ccre.scheduler.TestingSchedulerSecrets;
+import ccre.scheduler.VirtualTime;
 import ccre.testing.CountingFloatOutput;
-import ccre.time.FakeTime;
-import ccre.time.Time;
 
 @SuppressWarnings("javadoc")
 public class StopwatchTimerTest {
 
     private static final String ERROR_STRING = "Stopwatch purposeful failure.";
 
-    private static Time oldProvider;
-    private static FakeTime fake;
     private StopwatchTimer stopwatch;
     private CountingFloatOutput cfo;
 
-    @BeforeClass
-    public static void setUpClass() {
-        assertNull(oldProvider);
-        oldProvider = Time.getTimeProvider();
-        fake = new FakeTime();
-        Time.setTimeProvider(fake);
-    }
-
     @Before
     public void setUp() {
-        cfo = new CountingFloatOutput();
         VerifyingLogger.begin();
+        VirtualTime.startFakeTime();
+        cfo = new CountingFloatOutput();
     }
 
     @After
     public void tearDown() {
-        VerifyingLogger.checkAndEnd();
         cfo = null;
         stopwatch = null;
-        TestingSchedulerSecrets.resetScheduler();
-    }
-
-    @AfterClass
-    public static void tearDownClass() {
-        assertNotNull(oldProvider);
-        Time.setTimeProvider(oldProvider);
-        oldProvider = null;
-        fake = null;
+        VirtualTime.endFakeTime();
+        VerifyingLogger.checkAndEnd();
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -92,8 +69,7 @@ public class StopwatchTimerTest {
         stopwatch = new StopwatchTimer();
         assertEquals(stopwatch.get(), 0, 0);
         for (int i = 1; i < 50; i++) {
-            Thread.sleep(1);
-            fake.forward(10);
+            VirtualTime.forward(10);
             assertEquals(i / 100.0, stopwatch.get(), 0.000001);
         }
     }
@@ -105,8 +81,7 @@ public class StopwatchTimerTest {
             stopwatch.reset();
             assertEquals(stopwatch.get(), 0, 0);
             for (int i = 1; i < 10; i++) {
-                Thread.sleep(1);
-                fake.forward(10);
+                VirtualTime.forward(10);
                 assertEquals(i / 100.0, stopwatch.get(), 0.000001);
             }
         }
@@ -120,8 +95,7 @@ public class StopwatchTimerTest {
             eo.event();
             assertEquals(stopwatch.get(), 0, 0);
             for (int i = 1; i < 10; i++) {
-                Thread.sleep(1);
-                fake.forward(10);
+                VirtualTime.forward(10);
                 assertEquals(i / 100.0, stopwatch.get(), 0.000001);
             }
         }
@@ -136,8 +110,7 @@ public class StopwatchTimerTest {
             ec.event();
             assertEquals(stopwatch.get(), 0, 0);
             for (int i = 1; i < 10; i++) {
-                Thread.sleep(1);
-                fake.forward(10);
+                VirtualTime.forward(10);
                 assertEquals(i / 100.0, stopwatch.get(), 0.000001);
             }
         }
@@ -151,12 +124,10 @@ public class StopwatchTimerTest {
         stopwatch.send(cfo);
         cfo.check();
         for (int i = 1; i < 50; i++) {
-            Thread.sleep(1);
-            fake.forward(9);
+            VirtualTime.forward(9);
             cfo.ifExpected = true;
             cfo.valueExpected = i / 100f;
-            Thread.sleep(1);
-            fake.forward(1);
+            VirtualTime.forward(1);
             cfo.check();
         }
     }
@@ -166,11 +137,9 @@ public class StopwatchTimerTest {
         stopwatch = new StopwatchTimer();
         assertEquals(stopwatch.get(), 0, 0);
         for (int i = 1; i < 50; i++) {
-            Thread.sleep(1);
-            fake.forward(9);
+            VirtualTime.forward(9);
             assertEquals((i - 1) / 100f, stopwatch.get(), 0);
-            Thread.sleep(1);
-            fake.forward(1);
+            VirtualTime.forward(1);
             assertEquals(i / 100f, stopwatch.get(), 0);
         }
     }
@@ -180,11 +149,9 @@ public class StopwatchTimerTest {
         stopwatch = new StopwatchTimer();
         assertEquals(stopwatch.get(), 0, 0);
         for (int i = 1; i < 40; i++) {
-            Thread.sleep(1);
-            fake.forward(9);
+            VirtualTime.forward(9);
             assertEquals((i - 1) * 15 / 1000f, stopwatch.get(), 0);
-            Thread.sleep(1);
-            fake.forward(6); // five ms too long
+            VirtualTime.forward(6); // five ms too long
             // so we expect the marks to be at multiples of 15 ms instead
             assertEquals(i * 15 / 1000f, stopwatch.get(), 0);
         }
@@ -196,10 +163,9 @@ public class StopwatchTimerTest {
             stopwatch = new StopwatchTimer(i);
             assertEquals(stopwatch.get(), 0, 0);
             for (int j = 1; j < 10; j++) {
-                fake.forward(i - 1);
+                VirtualTime.forward(i - 1);
                 assertEquals((j - 1) * i / 1000f, stopwatch.get(), 0);
-                Thread.sleep(1);
-                fake.forward(1);
+                VirtualTime.forward(1);
                 assertEquals(j * i / 1000f, stopwatch.get(), 0);
             }
             stopwatch = null;
@@ -224,8 +190,7 @@ public class StopwatchTimerTest {
             if (i < 5) {
                 VerifyingLogger.configure(LogLevel.SEVERE, "Top-level failure in scheduled event", (t) -> t.getClass() == RuntimeException.class && ERROR_STRING.equals(t.getMessage()));
             }
-            Thread.sleep(1);
-            fake.forward(10);
+            VirtualTime.forward(10);
             VerifyingLogger.check();
         }
     }

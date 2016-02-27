@@ -28,7 +28,7 @@ import ccre.log.Logger;
 import ccre.time.Time;
 import ccre.util.ThreadedAllocationPool;
 
-class RunLoop extends ReporterThread {
+class RunLoop extends ReporterThread implements IRunLoop {
 
     public RunLoop() {
         super("RunLoop");
@@ -59,6 +59,7 @@ class RunLoop extends ReporterThread {
     private final ThreadedAllocationPool<Entry> pool = new ThreadedAllocationPool<>(1024, Entry::new);
     private volatile boolean terminated;
 
+    @Override
     public void add(String tag, EventOutput event, long time) {
         Entry ent = pool.allocate().populate(tag, event, time);
         queueLock.lock();
@@ -89,13 +90,7 @@ class RunLoop extends ReporterThread {
                     } else if (ent.time > now) {
                         // not yet time to run
                         reportAwaiting(true);
-                        // dispatches to update.awaitNanos
-                        // except during unit tests when FakeTime takes
-                        // precedence
-                        // and does things a bit differently
-                        Time.awaitNanos(queueLock, update, ent.time - now);
-                        // in the common case (not in unit testing), equivalent
-                        // to: update.awaitNanos(ent.time - now);
+                        update.awaitNanos(ent.time - now);
                         reportAwaiting(false);
                     } else {
                         // ready to run an event!
@@ -145,6 +140,7 @@ class RunLoop extends ReporterThread {
         // to be overridden as necessary
     }
 
+    @Override
     public void terminate() {
         terminated = true;
         this.interrupt();

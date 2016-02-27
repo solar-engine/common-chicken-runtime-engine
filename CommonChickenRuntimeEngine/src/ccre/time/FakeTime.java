@@ -18,9 +18,10 @@
  */
 package ccre.time;
 
-import java.util.LinkedList;
-import java.util.concurrent.locks.Condition;
-import java.util.concurrent.locks.ReentrantLock;
+import java.util.PriorityQueue;
+
+import ccre.channel.EventOutput;
+import ccre.log.Logger;
 
 /**
  * A "fake" implementation of time, in which the current time is controlled by
@@ -36,23 +37,7 @@ import java.util.concurrent.locks.ReentrantLock;
  */
 public class FakeTime extends Time {
 
-    private static final boolean debug = false;
-
-    private long now = 0;
-    private int adds = 0;
-    private final LinkedList<Object> otherSleepers = new LinkedList<>();
-
-    private static final class CondEntry {
-        public final Condition condition;
-        public final ReentrantLock lock;
-
-        public CondEntry(ReentrantLock lock, Condition cond) {
-            this.lock = lock;
-            this.condition = cond;
-        }
-    }
-
-    private final LinkedList<CondEntry> condSleepers = new LinkedList<>();
+    private volatile long now = 0;
 
     /**
      * Fast-forward time by the specified number of milliseconds, including
@@ -73,45 +58,42 @@ public class FakeTime extends Time {
             now += millis;
             this.notifyAll();
         }
-        Object[] osl;
-        CondEntry[] cel;
-        synchronized (this) {
-            osl = otherSleepers.toArray();
-            cel = condSleepers.toArray(new CondEntry[condSleepers.size()]);
-            adds = 0;
-        }
-        for (Object obj : osl) {
-            synchronized (obj) {
-                obj.notifyAll();
+        while (true) {
+            Entry ent;
+            synchronized (this) {
+                if (queue.isEmpty() || queue.peek().time > nowNanos()) {
+                    break;
+                }
+                ent = queue.remove();
             }
-        }
-        for (CondEntry ce : cel) {
-            ce.lock.lock();
             try {
-                ce.condition.signalAll();
-            } finally {
-                ce.lock.unlock();
+                ent.target.event();
+            } catch (Throwable thr) {
+                Logger.severe("Top-level failure in scheduled event", thr);
             }
         }
-        synchronized (this) {
-            int i = 0;
-            while (true) {
-                if (adds >= osl.length + cel.length) {
-                    if (debug) {
-                        if (i != 1) {
-                            System.out.println("Completed in " + i + "!");
-                        }
-                    }
-                    break;
-                }
-                this.wait(1);
-                if (i++ >= 30) {
-                    if (debug) {
-                        System.out.println("Timed out!");
-                    }
-                    break;
-                }
-            }
+    }
+
+    private static class Entry implements Comparable<Entry> {
+        public final EventOutput target;
+        public final long time;
+
+        public Entry(EventOutput target, long time) {
+            this.target = target;
+            this.time = time;
+        }
+
+        @Override
+        public int compareTo(Entry o) {
+            return Long.compare(time, o.time);
+        }
+    }
+
+    private final PriorityQueue<Entry> queue = new PriorityQueue<>(1024);
+
+    void schedule(EventOutput event, long time) {
+        synchronized (FakeTime.this) {
+            queue.add(new Entry(event, time));
         }
     }
 
@@ -156,95 +138,21 @@ public class FakeTime extends Time {
         } else if (timeout < 0) {
             throw new IllegalArgumentException("Negative wait time!");
         }
-        // we ignore the actual timeout... we can't tell the difference between
-        // an actual notification and a time-update notification!
-        // so we just go with the spurious wakeups every time the time changes.
-        synchronized (this) {
-            otherSleepers.add(object);
-            adds++;
-        }
-        try {
-            // we only wait ONCE ... which means that we WILL have spurious
-            // wakeups! I _do_ hope that code using this can handle them like
-            // it's supposed to.
-
-            // there's no race condition here because the notifying have to
-            // synchronize with 'object' to be able to send our own
-            // notification, and THIS thread is holding it.
-            object.wait(1000);
-            // but there is a possible starvation condition, if a later object
-            // needs to be notified for the lock on this to be able to be
-            // release
-            // so we set a timeout on object, which should break the starvation
-            // possibilities... eventually. (but long enough away to be noticed
-            // by the user.)
-            // this would be a bigger issue if it could ever happen in
-            // production, so I'm leaving it for now.
-            // simply put: NEVER USE FakeTime IN A PRODUCTION SYSTEM!
-        } finally {
-            synchronized (this) {
-                otherSleepers.remove(object);
+        schedule(() -> {
+            synchronized (object) {
+                object.notifyAll();
             }
-        }
-    }
-
-    @Override
-    protected void awaitNanosOn(ReentrantLock rl, Condition update, long timeout) throws InterruptedException {
-        if (closing) {
-            throw new IllegalStateException("This FakeTime instance is shutting down! Don't try to wait on it!");
-        }
-        if (rl == null || update == null) {
-            throw new NullPointerException();
-        }
-        if (!rl.isHeldByCurrentThread()) {
-            throw new IllegalMonitorStateException("Thread does not hold lock for object!");
-        }
-        if (timeout <= 0) {
-            // not entirely sure about the behavior... just let it do its thing
-            update.awaitNanos(0);
-            return;
-        }
-        // READ THROUGH waitOn BEFORE THIS METHOD ... NOT REPEATING MYSELF!
-        CondEntry ent = new CondEntry(rl, update);
-        synchronized (this) {
-            condSleepers.add(ent);
-            adds++;
-        }
-        try {
-            update.awaitNanos(Time.NANOSECONDS_PER_SECOND);
-        } finally {
-            synchronized (this) {
-                condSleepers.remove(ent);
-            }
-        }
+        } , timeout);
+        // TODO: recomment this
+        object.wait(1000);
     }
 
     private boolean closing = false;
 
     @Override
     protected void close() {
-        Object[] others;
-        CondEntry[] ents;
         synchronized (this) {
             closing = true;
-            others = otherSleepers.toArray();
-            otherSleepers.clear();
-            ents = condSleepers.toArray(new CondEntry[condSleepers.size()]);
-            condSleepers.clear();
-        }
-        // wake up, everyone!
-        for (Object o : others) {
-            synchronized (o) {
-                o.notifyAll();
-            }
-        }
-        for (CondEntry ce : ents) {
-            ce.lock.lock();
-            try {
-                ce.condition.signalAll();
-            } finally {
-                ce.lock.unlock();
-            }
         }
         synchronized (this) {
             now = 0;

@@ -54,11 +54,11 @@ public class Scheduler {
         return mainloop.scheduleFixedRate(tag, Time.currentTimeNanos() + nanos, nanos, false, o);
     }
 
-    // only used in emulator
-    static synchronized void __UNSAFE_reset() throws ReflectiveOperationException {
+    // only used in unit tests
+    static synchronized void __UNSAFE_reset(IRunLoop loop) {
         // unsafe b/c it cancels anything currently scheduled and it's sketchy
         mainloop.terminate();
-        mainloop = new FullLoop();
+        mainloop = new FullLoop(loop);
         mainloop.start();
     }
 }

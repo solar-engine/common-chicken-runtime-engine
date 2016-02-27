@@ -19,49 +19,26 @@
 package ccre.timers;
 
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import org.junit.After;
-import org.junit.AfterClass;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 
 import ccre.channel.FloatCell;
 import ccre.log.LogLevel;
 import ccre.log.VerifyingLogger;
-import ccre.scheduler.TestingSchedulerSecrets;
+import ccre.scheduler.VirtualTime;
 import ccre.testing.CountingEventOutput;
-import ccre.time.FakeTime;
-import ccre.time.Time;
 
 @SuppressWarnings("javadoc")
 public class PauseTimerTest {
 
-    private static Time oldProvider;
-    private static FakeTime fake;
     private PauseTimer pt;
-
-    @BeforeClass
-    public static void setUpClass() {
-        assertNull(oldProvider);
-        oldProvider = Time.getTimeProvider();
-        fake = new FakeTime();
-        Time.setTimeProvider(fake);
-    }
-
-    @AfterClass
-    public static void tearDownClass() {
-        assertNotNull(oldProvider);
-        Time.setTimeProvider(oldProvider);
-        oldProvider = null;
-        fake = null;
-    }
 
     @Before
     public void setUp() throws Exception {
+        VirtualTime.startFakeTime();
         pt = new PauseTimer(1000);
         VerifyingLogger.begin();
     }
@@ -71,7 +48,7 @@ public class PauseTimerTest {
         VerifyingLogger.checkAndEnd();
         pt.terminate();
         pt = null;
-        TestingSchedulerSecrets.resetScheduler();
+        VirtualTime.endFakeTime();
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -99,9 +76,9 @@ public class PauseTimerTest {
         CountingEventOutput con = new CountingEventOutput();
         CountingEventOutput coff = new CountingEventOutput();
         pt.triggerAtChanges(con, coff);
-        fake.forward(700);
-        fake.forward(700);
-        fake.forward(700);
+        VirtualTime.forward(700);
+        VirtualTime.forward(700);
+        VirtualTime.forward(700);
         // if it ever fires here, then ceo will get annoyed
     }
 
@@ -109,10 +86,10 @@ public class PauseTimerTest {
     public void testEventAllAtOnce() throws InterruptedException {
         CountingEventOutput ceo = new CountingEventOutput();
         pt.onRelease().send(ceo);
-        fake.forward(2000);
+        VirtualTime.forward(2000);
         startEvt();
         ceo.ifExpected = true;
-        fake.forward(1000);
+        VirtualTime.forward(1000);
         ceo.check();
     }
 
@@ -125,12 +102,9 @@ public class PauseTimerTest {
         for (int i = 10; i < 3000; i *= 2) {
             time.set(i / 1000f);
             pt.event();
-            Thread.sleep(2);
-            fake.forward(i - 5);
-            Thread.sleep(2);
+            VirtualTime.forward(i - 5);
             coff.ifExpected = true;
-            fake.forward(5);
-            Thread.sleep(2);
+            VirtualTime.forward(5);
             coff.check();
         }
     }
@@ -140,9 +114,9 @@ public class PauseTimerTest {
         CountingEventOutput coff = new CountingEventOutput();
         pt.triggerAtEnd(coff);
         startEvt();
-        fake.forward(990);
+        VirtualTime.forward(990);
         coff.ifExpected = true;
-        fake.forward(10);
+        VirtualTime.forward(10);
         coff.check();
     }
 
@@ -153,7 +127,7 @@ public class PauseTimerTest {
         con.ifExpected = true;
         startEvt();
         con.check();
-        fake.forward(1000);
+        VirtualTime.forward(1000);
     }
 
     @Test
@@ -161,13 +135,13 @@ public class PauseTimerTest {
         CountingEventOutput con = new CountingEventOutput();
         CountingEventOutput coff = new CountingEventOutput();
         pt.triggerAtChanges(con, coff);
-        fake.forward(2000);
+        VirtualTime.forward(2000);
         con.ifExpected = true;
         startEvt();
         con.check();
-        fake.forward(990);
+        VirtualTime.forward(990);
         coff.ifExpected = true;
-        fake.forward(10);
+        VirtualTime.forward(10);
         coff.check();
     }
 
@@ -176,15 +150,15 @@ public class PauseTimerTest {
         CountingEventOutput con = new CountingEventOutput();
         CountingEventOutput coff = new CountingEventOutput();
         pt.triggerAtChanges(con, coff);
-        fake.forward(2000);
+        VirtualTime.forward(2000);
         con.ifExpected = true;
         startEvt();
         con.check();
-        fake.forward(500);
+        VirtualTime.forward(500);
         startEvt();
-        fake.forward(990);
+        VirtualTime.forward(990);
         coff.ifExpected = true;
-        fake.forward(10);
+        VirtualTime.forward(10);
         coff.check();
     }
 
@@ -194,17 +168,15 @@ public class PauseTimerTest {
         startEvt();
         assertTrue(pt.get());
         for (int i = 0; i < 11; i++) {
-            fake.forward(90);
+            VirtualTime.forward(90);
             assertTrue(pt.get());
         }
-        fake.forward(10);
-        Thread.sleep(2);
+        VirtualTime.forward(10);
         assertFalse(pt.get()); // flaky
     }
 
     private void startEvt() throws InterruptedException {
         pt.event();
-        Thread.sleep(2);
     }
 
     @Test
@@ -213,16 +185,16 @@ public class PauseTimerTest {
         startEvt();
         assertTrue(pt.get());
         for (int i = 0; i < 11; i++) {
-            fake.forward(90);
+            VirtualTime.forward(90);
             assertTrue(pt.get());
         }
         startEvt();
         assertTrue(pt.get());
         for (int i = 0; i < 11; i++) {
-            fake.forward(90);
+            VirtualTime.forward(90);
             assertTrue(pt.get());
         }
-        fake.forward(10);
+        VirtualTime.forward(10);
         assertFalse(pt.get());
     }
 
@@ -254,14 +226,10 @@ public class PauseTimerTest {
         for (int i = 0; i < 10; i++) {
             // if something breaks internally, this loop will stop succeeding.
             pt.event();
-            Thread.sleep(2);
-            fake.forward(990);
-            Thread.sleep(2);
+            VirtualTime.forward(990);
             ceo.ifExpected = true;
             VerifyingLogger.configure(LogLevel.SEVERE, "Top-level failure in scheduled event", rtex);
-            Thread.sleep(2);
-            fake.forward(10);
-            Thread.sleep(2);
+            VirtualTime.forward(10);
             ceo.check(); // flaky; 5 failures.
             VerifyingLogger.check();
         }

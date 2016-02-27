@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 Cel Skeggs
+ * Copyright 2016 Cel Skeggs.
  *
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  *
@@ -18,12 +18,14 @@
  */
 package ccre.scheduler;
 
-public class TestingSchedulerSecrets {
-    public static void resetScheduler() {
-        try {
-            Scheduler.__UNSAFE_reset();
-        } catch (ReflectiveOperationException e) {
-            throw new RuntimeException(e);
-        }
-    }
+import ccre.channel.EventOutput;
+
+interface IRunLoop {
+
+    void add(String tag, EventOutput event, long time);
+
+    void terminate();
+
+    void start();
+
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 Cel Skeggs.
+ * Copyright 2015-2016 Cel Skeggs.
  *
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  *
@@ -30,9 +30,8 @@ import ccre.channel.EventCell;
 import ccre.channel.EventInput;
 import ccre.channel.FloatCell;
 import ccre.channel.FloatInput;
+import ccre.scheduler.VirtualTime;
 import ccre.testing.CountingEventOutput;
-import ccre.time.FakeTime;
-import ccre.time.Time;
 
 @SuppressWarnings("javadoc")
 public class PIDControllerTest {
@@ -239,16 +238,14 @@ public class PIDControllerTest {
         pid.update(1000);
         pid.update(50);
         float result = pid.get();
-        FakeTime ft = new FakeTime();
-        Time old = Time.getTimeProvider();
-        Time.setTimeProvider(ft);
-        ft.forward(123429);
+        VirtualTime.startFakeTime();
+        VirtualTime.forward(123429);
         pid = new PIDController(input, setpoint, P, I, D);
         pid.event();
-        ft.forward(50);
+        VirtualTime.forward(50);
         pid.event();
         assertEquals(result, pid.get(), 0.000001);
-        Time.setTimeProvider(old);
+        VirtualTime.endFakeTime();
     }
 
     @Test

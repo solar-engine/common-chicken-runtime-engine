@@ -389,17 +389,17 @@ public class FloatInputTest {
     @Test
     public void testOutsideRangeFloatFloat() {
         BooleanCell bs = new BooleanCell();
-        for (float min : Values.interestingFloats) {
+        for (float min : Values.shorterInterestingFloats) {
             if (Float.isNaN(min)) {
                 continue;
             }
-            for (float max : Values.interestingFloats) {
+            for (float max : Values.shorterInterestingFloats) {
                 if (Float.isNaN(max)) {
                     continue;
                 }
                 BooleanInput bi = fs.outsideRange(min, max);
                 CancelOutput unbind = bi.send(bs);
-                for (float test : Values.interestingFloats) {
+                for (float test : Values.shorterInterestingFloats) {
                     fs.set(test);
                     assertEquals(test < min || test > max, bi.get());
                     assertEquals(test < min || test > max, bs.get());
@@ -450,18 +450,18 @@ public class FloatInputTest {
 
     @Test
     public void testInRangeFloatFloat() {
-        for (float min : Values.interestingFloats) {
+        for (float min : Values.shorterInterestingFloats) {
             if (Float.isNaN(min)) {
                 continue;
             }
-            for (float max : Values.interestingFloats) {
+            for (float max : Values.shorterInterestingFloats) {
                 if (Float.isNaN(max)) {
                     continue;
                 }
                 BooleanInput bi = fs.inRange(min, max);
                 BooleanCell bs = new BooleanCell();
                 bi.send(bs);
-                for (float test : Values.interestingFloats) {
+                for (float test : Values.shorterInterestingFloats) {
                     fs.set(test);
                     assertEquals(test >= min && test <= max, bi.get());
                     assertEquals(test >= min && test <= max, bs.get());
@@ -632,20 +632,20 @@ public class FloatInputTest {
     public void testNormalize() {
         FloatCell zs = new FloatCell(), os = new FloatCell();
         FloatInput fin1 = fs.normalize(zs, os);
-        for (float zero : Values.interestingFloats) {
+        for (float zero : Values.shorterInterestingFloats) {
             if (!Float.isFinite(zero)) {
                 continue;
             }
             zs.set(zero);
             FloatInput fin2 = fs.normalize(zero, os);
-            for (float one : Values.interestingFloats) {
+            for (float one : Values.shorterInterestingFloats) {
                 if (!Float.isFinite(one) || !Float.isFinite(one - zero) || zero == one) {
                     continue;
                 }
                 os.set(one);
                 FloatInput fin3 = fs.normalize(zs, one);
                 FloatInput fin4 = fs.normalize(zero, one);
-                for (float v : Values.interestingFloats) {
+                for (float v : Values.shorterInterestingFloats) {
                     fs.set(v);
                     assertEquals((v - zero) / (one - zero), fin1.get(), 0.0001f);
                     assertEquals((v - zero) / (one - zero), fin2.get(), 0.0001f);

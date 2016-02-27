@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 Cel Skeggs
+ * Copyright 2015-2016 Cel Skeggs
  *
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  *
@@ -133,16 +133,27 @@ public class Values {
      * A sequence of interesting floats for testing edge cases: things like
      * negative infinity, NaN, MAX_VALUE, -MAX_VALUE, 0, 1, -1, etc.
      *
+     * @see Values#shorterInterestingFloats
      * @see Values#lessInterestingFloats
      * @see Values#interestingBooleans
      */
-    public static final float[] interestingFloats = new float[] { Float.NEGATIVE_INFINITY, -Float.MAX_VALUE, -1024.7f, -32f, -6.3f, -1.1f, -1f, -0.7f, -0.5f, -0.3f, -0.1f, -0.001f, -Float.MIN_VALUE, -0.0f, +0.0f, Float.NaN, Float.MIN_VALUE, 0.001f, 0.1f, 0.3f, 0.5f, 0.7f, 1.0f, 1.1f, 6.3f, 32f, 1024.7f, Float.MAX_VALUE, Float.POSITIVE_INFINITY };
+    public static final float[] interestingFloats = new float[] { Float.NEGATIVE_INFINITY, -Float.MAX_VALUE, -1024.7f, -32f, -6.3f, -1.1f, -1f, -0.7f, -0.3f, -0.1f, -0.001f, -Float.MIN_VALUE, -0.0f, +0.0f, Float.NaN, Float.MIN_VALUE, 0.001f, 0.1f, 0.3f, 0.7f, 1.0f, 1.1f, 6.3f, 32f, 1024.7f, Float.MAX_VALUE, Float.POSITIVE_INFINITY };
+    /**
+     * A shorter sequence of interesting floats for testing edge cases: things
+     * like negative infinity, NaN, MAX_VALUE, -MAX_VALUE, 0, 1, -1, etc.
+     *
+     * @see Values#interestingFloats
+     * @see Values#lessInterestingFloats
+     * @see Values#interestingBooleans
+     */
+    public static final float[] shorterInterestingFloats = new float[] { Float.NEGATIVE_INFINITY, -Float.MAX_VALUE, -32f, -1.1f, -1f, -0.1f, -Float.MIN_VALUE, -0.0f, +0.0f, Float.NaN, Float.MIN_VALUE, 0.1f, 1.0f, 1.1f, 32f, Float.MAX_VALUE, Float.POSITIVE_INFINITY };
     /**
      * A sequence of slightly less interesting floats for testing edge cases:
      * this is like {@link #interestingFloats}, but with only finite values not
      * near MAX_VALUE in magnitude.
      *
      * @see Values#interestingFloats
+     * @see Values#shorterInterestingFloats
      */
     public static final float[] lessInterestingFloats = new float[] { -1024.7f, -32f, -6.3f, -1.1f, -1f, -0.7f, -0.5f, -0.3f, -0.1f, -0.001f, -Float.MIN_VALUE, 0, Float.NaN, Float.MIN_VALUE, 0.001f, 0.1f, 0.3f, 0.5f, 0.7f, 1.0f, 1.1f, 6.3f, 32f, 1024.7f };
 

@@ -389,7 +389,7 @@ public class CluckPublisherTest {
 
     @Test
     public void testLoggingTarget() {
-        for (int i = 0; i < 10; i++) {
+        for (int i = 0; i < 5; i++) {
             String name = Values.getRandomString();
             if (name.contains("/") || node.hasLink(name)) {
                 i--;

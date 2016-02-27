@@ -35,16 +35,19 @@ import ccre.supercanvas.components.palette.TopLevelPaletteComponent;
 public class StartComponent extends SuperCanvasComponent {
 
     private static final long serialVersionUID = 5841953202431409373L;
-    private final Supplier<? extends SuperCanvasComponent> supplier;
+    private final Supplier<? extends SuperCanvasComponent> popup;
     private final Class<? extends SuperCanvasComponent> expected;
 
     /**
      * Create a new StartComponent.
+     *
+     * @param popup an allocator (usually constructor) for new instances of
+     * the popup class
      */
-    public StartComponent(Supplier<? extends SuperCanvasComponent> supplier) {
+    public StartComponent(Supplier<? extends SuperCanvasComponent> popup) {
         super(true);
-        this.expected = supplier.get().getClass();
-        this.supplier = supplier;
+        this.expected = popup.get().getClass();
+        this.popup = popup;
     }
 
     @Override
@@ -63,7 +66,7 @@ public class StartComponent extends SuperCanvasComponent {
     @Override
     public boolean onInteract(int x, int y) {
         if (!getPanel().removeAll(expected)) {
-            getPanel().add(supplier.get());
+            getPanel().add(popup.get());
         }
         return true;
     }

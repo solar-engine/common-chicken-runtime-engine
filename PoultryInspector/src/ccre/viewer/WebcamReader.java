@@ -46,10 +46,8 @@ public class WebcamReader implements Closeable {
     private final BufferedOutputStream sink;
     private final ByteArrayOutputStream lineBuf = new ByteArrayOutputStream();
     private final String boundary;
-    private final int timeoutMillis;
 
     public WebcamReader(String address, int timeoutMillis) throws IOException {
-        this.timeoutMillis = timeoutMillis;
         //this.socket = new Socket();
         this.socket = Network.connectDynPort(address, 80);
         try {

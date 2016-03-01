@@ -62,11 +62,17 @@ public class PoultryInspector {
             return new TopLevelPaletteComponent(200, 200, WebcamComponent.class, HighlightComponent.class, LoggingComponent.class, NetworkPaletteComponent.class, ListPaletteComponent.class, FolderComponent.class, TrashComponent.class, TextComponent.class, TopLevelRConfComponent.class);
         };
 
+        Supplier<SuperCanvasComponent> popupNet = (Supplier<SuperCanvasComponent> & Serializable) () -> {
+            return new NetworkPaletteComponent(200, 200);
+        };
+
         SuperCanvasComponent[] components = new SuperCanvasComponent[] {
 
                 new LoggingComponent(312, 300), new CluckNetworkingComponent(),
 
-                new EditModeComponent(), new StartComponent(popup), new SaveLoadComponent(0, 0)
+                new EditModeComponent(), new StartComponent(popup, "PALETTE", 0), new StartComponent(popupNet, "NETWORK", 1),
+
+                new SaveLoadComponent(0, 0)
 
         };
 

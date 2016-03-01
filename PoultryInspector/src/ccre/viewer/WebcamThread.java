@@ -48,7 +48,7 @@ public class WebcamThread {
         };
         this.thread.start();
     }
-    
+
     public synchronized void setAddress(String address) {
         this.address = address;
         this.notifyAll();
@@ -84,6 +84,9 @@ public class WebcamThread {
                 } catch (ConnectException e) {
                     error.accept(e.getMessage());
                 } catch (Exception e) {
+                    // this is the case that actually logs anything, so it
+                    // should wait long enough to avoid log spam. other cases do
+                    // not log, and so only benefit from shorter waits.
                     Logger.warning("Webcam connection to " + address + " failed.", e);
                     long_sleep = true;
                 }

@@ -459,6 +459,38 @@ public class StateMachine {
         onExit.send(output.filter(getIsState(state)));
     }
 
+    /**
+     * Provides an EventInput dynamically selected from a set of EventInputs
+     * based on the current state. You must pass exactly one EventInput per
+     * state, in the order specified in the constructor.
+     *
+     * @param inputs the EventInputs to select from.
+     * @return the selected EventInput.
+     */
+    public EventInput selectByState(EventInput... inputs) {
+        if (inputs.length != numberOfStates) {
+            throw new IllegalArgumentException("Wrong number of states in call to selectByState!");
+        }
+        EventCell occur = new EventCell();
+        for (int i = 0; i < inputs.length; i++) {
+            final int state = i;
+            inputs[i].send(() -> {
+                if (currentState == state) {
+                    occur.event();
+                }
+            });
+        }
+        return occur;
+    }
+
+    /**
+     * Provides a BooleanInput dynamically selected from a set of BooleanInputs
+     * based on the current state. You must pass exactly one BooleanInput per
+     * state, in the order specified in the constructor.
+     *
+     * @param inputs the BooleanInputs to select from.
+     * @return the selected BooleanInput.
+     */
     public BooleanInput selectByState(BooleanInput... inputs) {
         if (inputs.length != numberOfStates) {
             throw new IllegalArgumentException("Wrong number of states in call to selectByState!");
@@ -474,6 +506,14 @@ public class StateMachine {
         };
     }
 
+    /**
+     * Provides an FloatInput dynamically selected from a set of FloatInputs
+     * based on the current state. You must pass exactly one FloatInput per
+     * state, in the order specified in the constructor.
+     *
+     * @param inputs the FloatInputs to select from.
+     * @return the selected FloatInput.
+     */
     public FloatInput selectByState(FloatInput... inputs) {
         if (inputs.length != numberOfStates) {
             throw new IllegalArgumentException("Wrong number of states in call to selectByState!");

@@ -701,12 +701,11 @@ public interface FloatInput extends UpdatingInput {
      * will only update when the current value of this FloatInput changes, and
      * will be based on the change and on the amount of time that it took.
      *
-     * WARNING: since this only updates when the value changes, it might not be
-     * suitable for all applications!
-     *
      * @return the derivative of this FloatInput.
+     * @deprecated since this only updates when the value changes, it will
+     * (almost) never actually reach zero!
      */
-    // TODO: find a solution to the limited-update issue.
+    @Deprecated
     public default FloatInput derivative() {
         FloatCell out = new FloatCell();
         FloatOutput deriv = out.viaDerivative();

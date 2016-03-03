@@ -21,7 +21,6 @@ package ccre.frc;
 
 import java.io.IOException;
 import ccre.bus.I2CBus;
-import ccre.bus.I2CIO;
 import ccre.bus.RS232Bus;
 import ccre.bus.RS232IO;
 import ccre.bus.SPIBus;
@@ -1304,18 +1303,26 @@ public class FRC {
         return impl.makeI2C_Onboard(deviceName);
     }
 
-    public static I2CIO onboardI2C(int deviceAddress, String deviceName) {
-        return impl.makeI2C_Onboard(deviceName).open(deviceAddress);
-    }
-
+    /**
+     * Gets a reference to the MXP's I2C port on the robot, without configuring
+     * it.
+     *
+     * @param deviceName the name of the device the serial port is connected to
+     * (used for debugging and the emulator.)
+     * @return a I2CBus interface to the port.
+     */
     public static I2CBus mxpI2C(String deviceName) {
         return impl.makeI2C_MXP(deviceName);
     }
 
-    public static I2CIO mxpI2C(int deviceAddress, String deviceName) {
-        return impl.makeI2C_MXP(deviceName).open(deviceAddress);
-    }
-
+    /**
+     * Opens the onboard SPI port on the robot, without configuring it.
+     *
+     * @param cs the chip select address of the port, from 1 to 4.
+     * @param deviceName the name of the device the serial port is connected to
+     * (used for debugging and the emulator.)
+     * @return a SPIBus interface to the port.
+     */
     public static SPIBus onboardSPI(int cs, String deviceName) {
         return impl.makeSPI_Onboard(cs, deviceName);
     }
@@ -1329,9 +1336,6 @@ public class FRC {
      */
     public static SPIBus mxpSPI(String deviceName) {
         return impl.makeSPI_MXP(deviceName);
-    }
-
-    FRC() {
     }
 
     /**
@@ -1456,5 +1460,8 @@ public class FRC {
             rec.recordFloatInput(batteryVoltage(), "Battery Voltage");
         }
         return rec;
+    }
+
+    private FRC() {
     }
 }

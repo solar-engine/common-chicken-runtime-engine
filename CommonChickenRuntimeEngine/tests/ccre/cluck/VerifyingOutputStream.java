@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with the CCRE.  If not, see <http://www.gnu.org/licenses/>.
  */
-package ccre.util;
+package ccre.cluck;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
@@ -27,7 +27,8 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Arrays;
 
-public final class VerifyingOutputStream extends OutputStream {
+// TODO: should be moved to ccre.util and documented.
+final class VerifyingOutputStream extends OutputStream {
 
     public boolean errored = false;
     public byte[] bytesExpected;

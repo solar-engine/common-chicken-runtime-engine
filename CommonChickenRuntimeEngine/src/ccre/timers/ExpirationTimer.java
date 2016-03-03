@@ -46,10 +46,19 @@ public final class ExpirationTimer {
 
     private final String tag;
 
+    /**
+     * Creates an ExpirationTimer.
+     */
     public ExpirationTimer() {
         this(Utils.getMethodCaller(1).toString());
     }
 
+    /**
+     * Creates an ExpirationTimer with a descriptive tag for the time that it
+     * consumes.
+     *
+     * @param tag the scheduling tag
+     */
     public ExpirationTimer(String tag) {
         this.tag = tag;
     }

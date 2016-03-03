@@ -20,7 +20,23 @@ package ccre.time;
 
 import ccre.channel.EventOutput;
 
+/**
+ * Provides an accessor to one of the package-private methods of FakeTime that
+ * we don't want to make available. Since this is in the <code>tests</code>
+ * folder, it's not part of the API and is not subject to backwards
+ * compatibility guarantees.
+ *
+ * @author skeggsc
+ */
 public class SharedTimeSecrets {
+    /**
+     * Schedules an event to occur when the specified {@link FakeTime} reaches
+     * the correct time. The time scale is based on {@link FakeTime#nowNanos()}.
+     *
+     * @param time the FakeTime instance.
+     * @param event the event to fire when the time changes.
+     * @param at the (fake) time at which to fire the event, in nanoseconds.
+     */
     public static void scheduleFakeLoop(FakeTime time, EventOutput event, long at) {
         time.schedule(event, at);
     }

@@ -20,6 +20,7 @@ package ccre.recording;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.Arrays;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.zip.GZIPOutputStream;
@@ -39,19 +40,62 @@ import ccre.discrete.DiscreteType;
 import ccre.log.Logger;
 import ccre.storage.Storage;
 
+/**
+ * A class that handles channel-based data recording to an arbitrary
+ * OutputStream.
+ *
+ * @author skeggsc
+ */
 public class Recorder {
+    /**
+     * The possible recording types.
+     *
+     * @author skeggsc
+     */
     public static enum RawType {
-        FLOAT, BOOLEAN, EVENT, OUTPUT_STREAM, DISCRETE
+        /**
+         * A float channel.
+         */
+        FLOAT,
+        /**
+         * A boolean channel.
+         */
+        BOOLEAN,
+        /**
+         * An event channel.
+         */
+        EVENT,
+        /**
+         * An OutputStream.
+         */
+        OUTPUT_STREAM,
+        /**
+         * A discrete channel.
+         */
+        DISCRETE
     }
 
     private final ChanneledRecorder rec;
     private final AtomicInteger next_channel = new AtomicInteger();
     private final AtomicBoolean closed = new AtomicBoolean(false);
 
+    /**
+     * Creates a new recorder writing to this OutputStream. Remember that
+     * writing to the stream will be synchronized, but still occur in a separate
+     * thread.
+     *
+     * @param stream the output stream.
+     * @throws IOException
+     */
     public Recorder(OutputStream stream) throws IOException {
         this.rec = new ChanneledRecorder(stream);
     }
 
+    /**
+     * Closes and shuts down this recorder.
+     *
+     * @throws InterruptedException
+     */
     public void close() throws InterruptedException {
         if (closed.compareAndSet(false, true)) {
             byte[] b = "\2ENDOFSTREAM".getBytes();
@@ -81,6 +125,12 @@ public class Recorder {
         rec.recordBytes(0, b, 0, b.length);
     }
 
+    /**
+     * Creates a float output logging to this recorder.
+     *
+     * @param name the channel name.
+     * @return the new float output.
+     */
     public FloatOutput createFloatOutput(String name) {
         int channel = initChannel(RawType.FLOAT, name);
         return (f) -> {
@@ -88,10 +138,22 @@ public class Recorder {
         };
     }
 
+    /**
+     * Records a float input.
+     *
+     * @param input the input to record.
+     * @param name the channel name.
+     */
     public void recordFloatInput(FloatInput input, String name) {
         input.send(createFloatOutput(name));
     }
 
+    /**
+     * Creates a boolean output logging to this recorder.
+     *
+     * @param name the channel name.
+     * @return the new boolean output.
+     */
     public BooleanOutput createBooleanOutput(String name) {
         int channel = initChannel(RawType.BOOLEAN, name);
         return (b) -> {
@@ -99,10 +161,23 @@ public class Recorder {
         };
     }
 
+    /**
+     * Records a boolean input.
+     *
+     * @param input the input to record.
+     * @param name the channel name.
+     */
     public void recordBooleanInput(BooleanInput input, String name) {
         input.send(createBooleanOutput(name));
     }
 
+    /**
+     * Creates a discrete output logging to this recorder.
+     *
+     * @param name the channel name.
+     * @param type the discrete output's type.
+     * @return the new discrete output.
+     */
     public <E> DiscreteOutput<E> createDiscreteOutput(String name, DiscreteType<E> type) {
         int channel = initChannel(RawType.DISCRETE, name);
         return new DiscreteOutput<E>() {
@@ -119,6 +194,22 @@ public class Recorder {
         };
     }
 
+    /**
+     * Records a discrete input.
+     *
+     * @param input the input to record.
+     * @param name the channel name.
+     */
+    public <E> void recordDiscreteInput(DiscreteInput<E> input, String name) {
+        input.send(createDiscreteOutput(name, input.getType()));
+    }
+
+    /**
+     * Creates an event output logging to this recorder.
+     *
+     * @param name the channel name.
+     * @return the new event output.
+     */
     public EventOutput createEventOutput(String name) {
         int channel = initChannel(RawType.EVENT, name);
         return () -> {
@@ -126,11 +217,23 @@ public class Recorder {
         };
     }
 
+    /**
+     * Records an event input.
+     *
+     * @param input the input to record.
+     * @param name the channel name.
+     */
     public void recordEventInput(EventInput input, String name) {
         input.send(createEventOutput(name));
     }
 
-    public OutputStream recordOutputStream(OutputStream out, String name) {
+    /**
+     * Creates an OutputStream logging to this recorder.
+     *
+     * @param name the channel name.
+     * @return the new OutputStream.
+     */
+    public OutputStream createOutputStream(String name) {
         int channel = initChannel(RawType.OUTPUT_STREAM, name);
         return new OutputStream() {
             private byte[] b = new byte[1]; // TODO: synchronization?
@@ -141,7 +244,6 @@ public class Recorder {
                 if (closed) {
                     throw new IOException("File closed");
                 }
-                out.write(b);
                 this.b[0] = (byte) b;
                 rec.recordBytes(channel, this.b, 0, 1);
             }
@@ -171,6 +273,12 @@ public class Recorder {
         };
     }
 
+    /**
+     * Records a Faultable.
+     *
+     * @param faults the faults to record.
+     * @param name the channel name.
+     */
     public <F> void recordFaultable(Faultable<F> faults, String name) {
         for (F f : faults.getPossibleFaults()) {
             recordBooleanInput(faults.getIsFaulting(f), name + ":" + f.toString());
@@ -178,37 +286,83 @@ public class Recorder {
         }
     }
 
+    /**
+     * Records and returns a float input.
+     *
+     * @param name the channel name.
+     * @param input the input to record.
+     * @return the same input.
+     */
     public FloatInput wrap(String name, FloatInput input) {
         recordFloatInput(input, name);
         return input;
     }
 
+    /**
+     * Records and returns a boolean input.
+     *
+     * @param name the channel name.
+     * @param input the input to record.
+     * @return the same input.
+     */
     public BooleanInput wrap(String name, BooleanInput input) {
         recordBooleanInput(input, name);
         return input;
     }
 
+    /**
+     * Records and returns an event input.
+     *
+     * @param name the channel name.
+     * @param input the input to record.
+     * @return the same input.
+     */
     public EventInput wrap(String name, EventInput input) {
         recordEventInput(input, name);
         return input;
     }
 
+    /**
+     * Wraps a float output so that it also records anything written.
+     *
+     * @param name the channel name.
+     * @param output the output to propagate to.
+     * @return the output that records and writes through.
+     */
     public FloatOutput wrap(String name, FloatOutput output) {
         return output.combine(createFloatOutput(name));
     }
 
+    /**
+     * Wraps a boolean output so that it also records anything written.
+     *
+     * @param name the channel name.
+     * @param output the output to propagate to.
+     * @return the output that records and writes through.
+     */
     public BooleanOutput wrap(String name, BooleanOutput output) {
         return output.combine(createBooleanOutput(name));
     }
 
+    /**
+     * Wraps an event output so that it also records anything written.
+     *
+     * @param name the channel name.
+     * @param output the output to propagate to.
+     * @return the output that records and writes through.
+     */
     public EventOutput wrap(String name, EventOutput output) {
         return output.combine(createEventOutput(name));
     }
 
-    public <E> void recordDiscreteInput(DiscreteInput<E> input, String name) {
-        input.send(createDiscreteOutput(name, input.getType()));
-    }
-
+    /**
+     * Wraps a ControlBindingCreator so that everything bound will also be
+     * recorded.
+     *
+     * @param cname the base name for the channels.
+     * @param cbc the original ControlBindingCreator.
+     * @return the wrapped ControlBindingCreator.
+     */
     public ControlBindingCreator wrap(String cname, ControlBindingCreator cbc) {
         return new ControlBindingCreator() {
             @Override
@@ -233,6 +387,12 @@ public class Recorder {
         };
     }
 
+    /**
+     * Records the state of a BehaviorArbitrator. The channel's name will be
+     * based on the arbitrator's name.
+     *
+     * @param behaviors the behaviors to record.
+     */
     public void recordBehaviors(BehaviorArbitrator behaviors) {
         recordDiscreteInput(behaviors.getActiveBehavior(), "Behaviors:" + behaviors.getName());
     }

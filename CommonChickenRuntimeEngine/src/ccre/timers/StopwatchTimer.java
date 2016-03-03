@@ -50,6 +50,13 @@ public final class StopwatchTimer extends AbstractUpdatingInput implements Float
         this(Utils.getMethodCaller(1).toString(), period);
     }
 
+    /**
+     * Creates a new timer with the specified period and a descriptive tag for
+     * the time that it consumes.
+     *
+     * @param tag the scheduler tag.
+     * @param period the interval of time between updates, in milliseconds.
+     */
     public StopwatchTimer(String tag, int period) {
         if (period <= 0) {
             throw new IllegalArgumentException();
@@ -61,15 +68,28 @@ public final class StopwatchTimer extends AbstractUpdatingInput implements Float
         reset();
     }
 
+    /**
+     * Resets the timer to zero.
+     */
     public void reset() {
         lastNanos = startNanos = Time.currentTimeNanos();
         perform();
     }
 
+    /**
+     * Provides an EventOutput that resets the timer to zero.
+     *
+     * @return the EventOutput.
+     */
     public EventOutput eventReset() {
         return this::reset;
     }
 
+    /**
+     * Resets the timer to zero whenever <code>when</code> fires.
+     *
+     * @param when when the timer should reset.
+     */
     public void resetWhen(EventInput when) {
         when.send(this.eventReset());
     }

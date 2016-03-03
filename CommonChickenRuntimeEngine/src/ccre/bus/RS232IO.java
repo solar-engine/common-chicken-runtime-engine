@@ -16,25 +16,36 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with the CCRE.  If not, see <http://www.gnu.org/licenses/>.
  */
-package ccre.bus; // TODO: move Serial* classes to ccre.bus
+package ccre.bus;
 
 import java.io.Closeable;
 import java.io.IOException;
 
 /**
- * A standard RS232 serial port.
+ * A standard RS232 serial port, after configuration.
  *
  * @author skeggsc
  */
 public interface RS232IO extends Closeable {
 
+    /**
+     * Resets the serial port to a known state, such as emptying all buffers.
+     *
+     * @throws IOException if the port cannot be reset.
+     */
     public void resetSerial() throws IOException;
 
+    /**
+     * Checks if there are any currently-available bytes.
+     *
+     * @return true if available, otherwise false
+     * @throws IOException if the available bytes cannot be queried.
+     */
     public boolean hasAvailableBytes() throws IOException;
 
     /**
-     * Set the termination character - read operations will be ended early where
-     * these characters are found.
+     * Sets the termination character - read operations will be ended early
+     * where these characters are found.
      *
      * @param end the character to end read operations on, or null to not end
      * early.
@@ -43,7 +54,7 @@ public interface RS232IO extends Closeable {
     public void setTermination(Character end) throws IOException;
 
     /**
-     * Read a byte array in a possibly-blocking manner, up to the given number
+     * Reads a byte array in a possibly-blocking manner, up to the given number
      * of bytes.
      *
      * @param max the maximum number of bytes to read.
@@ -53,7 +64,7 @@ public interface RS232IO extends Closeable {
     public byte[] readBlocking(int max) throws IOException;
 
     /**
-     * Read a byte array in a nonblocking manner, up to the given number of
+     * Reads a byte array in a nonblocking manner, up to the given number of
      * bytes.
      *
      * @param max the maxmimum number of bytes to read.
@@ -64,8 +75,8 @@ public interface RS232IO extends Closeable {
     public byte[] readNonblocking(int max) throws IOException;
 
     /**
-     * Flush any remaining output as far down to the hardware as possible. This
-     * will send any buffered data.
+     * Flushes any remaining output as far down to the hardware as possible.
+     * This will send any buffered data.
      *
      * @throws IOException if an error occurred while flushing.
      */
@@ -81,7 +92,7 @@ public interface RS232IO extends Closeable {
     public void setFlushOnWrite(boolean flushOnWrite) throws IOException;
 
     /**
-     * Write the entire byte section.
+     * Writes the entire byte section.
      *
      * @param bytes the byte array to write a section from.
      * @param from the start of the section.
@@ -91,7 +102,7 @@ public interface RS232IO extends Closeable {
     public void writeFully(byte[] bytes, int from, int to) throws IOException;
 
     /**
-     * Write an appropriately-sized chunk of the byte section, and return the
+     * Writes an appropriately-sized chunk of the byte section, and return the
      * number of bytes actually written.
      *
      * @param bytes the byte array to write a section from.
@@ -103,7 +114,7 @@ public interface RS232IO extends Closeable {
     public int writePartial(byte[] bytes, int from, int to) throws IOException;
 
     /**
-     * Close the serial port. It may not be used after this is invoked.
+     * Closes the serial port. It may not be used after this is invoked.
      *
      * @throws IOException if an error occurred while the port was being closed.
      */

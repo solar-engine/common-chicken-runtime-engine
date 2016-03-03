@@ -806,6 +806,11 @@ public class FRC {
         return impl.getIsTest().or(impl.getIsAutonomous()).not().andNot(impl.getIsDisabled());
     }
 
+    /**
+     * Gets the robot's control mode, as a DiscreteInput.
+     *
+     * @return the input for the mode.
+     */
     public static DiscreteInput<FRCMode> getMode() {
         return impl.getMode();
     }
@@ -1217,53 +1222,84 @@ public class FRC {
     }
 
     /**
-     * Open the onboard serial port of the robot.
+     * Opens and configures the onboard serial port on the robot.
      *
      * @param baudRate the baud rate of the port.
      * @param deviceName the name of the device the serial port is connected to
      * (used for debugging and the emulator.)
-     * @return a SerialIO interface to the port.
+     * @return a RS232IO interface to the port.
      */
     public static RS232IO onboardRS232(int baudRate, String deviceName) {
         return impl.makeRS232_Onboard(deviceName).open(baudRate);
     }
 
+    /**
+     * Gets a reference to the onboard serial port, without configuring it.
+     *
+     * @param deviceName the name of the device the serial port is connected to
+     * (used for debugging and the emulator.)
+     * @return a RS232Bus interface to the port.
+     */
     public static RS232Bus onboardRS232(String deviceName) {
         return impl.makeRS232_Onboard(deviceName);
     }
 
     /**
-     * Open the roboRIO's MXP-based serial port.
+     * Opens and configures the roboRIO's MXP-based serial port.
      *
      * @param baudRate the baud rate of the port.
      * @param deviceName the name of the device the serial port is connected to
      * (used for debugging and the emulator.)
-     * @return a SerialIO interface to the port.
+     * @return a RS232IO interface to the port.
      */
     public static RS232IO mxpRS232(int baudRate, String deviceName) {
         return impl.makeRS232_MXP(deviceName).open(baudRate);
     }
 
+    /**
+     * Gets a reference to the roboRIO's MXP-based serial port, without
+     * configuring it.
+     *
+     * @param deviceName the name of the device the serial port is connected to
+     * (used for debugging and the emulator.)
+     * @return a RS232Bus interface to the port.
+     */
     public static RS232Bus mxpRS232(String deviceName) {
         return impl.makeRS232_MXP(deviceName);
     }
 
     /**
-     * Open a USB-attached serial port on the roboRIO.
+     * Opens and configures the USB-attached serial port on the roboRIO.
      *
      * @param baudRate the baud rate of the port.
      * @param deviceName the name of the device the serial port is connected to
      * (used for debugging and the emulator.)
-     * @return a SerialIO interface to the port.
+     * @return a RS232IO interface to the port.
      */
     public static RS232IO usbRS232(int baudRate, String deviceName) {
         return impl.makeRS232_USB(deviceName).open(baudRate);
     }
 
+    /**
+     * Gets a reference to the USB-attached serial port on the roboRIO, without
+     * configuring it.
+     *
+     * @param deviceName the name of the device the serial port is connected to
+     * (used for debugging and the emulator.)
+     * @return a RS232Bus interface to the port.
+     */
     public static RS232Bus usbRS232(String deviceName) {
         return impl.makeRS232_USB(deviceName);
     }
 
+    /**
+     * Gets a reference to the onboard I2C port on the robot, without
+     * configuring it.
+     *
+     * @param deviceName the name of the device the serial port is connected to
+     * (used for debugging and the emulator.)
+     * @return a I2CBus interface to the port.
+     */
     public static I2CBus onboardI2C(String deviceName) {
         return impl.makeI2C_Onboard(deviceName);
     }
@@ -1284,6 +1320,13 @@ public class FRC {
         return impl.makeSPI_Onboard(cs, deviceName);
     }
 
+    /**
+     * Opens the MXP's SPI port on the robot, without configuring it.
+     *
+     * @param deviceName the name of the device the serial port is connected to
+     * (used for debugging and the emulator.)
+     * @return a SPIBus interface to the port.
+     */
     public static SPIBus mxpSPI(String deviceName) {
         return impl.makeSPI_MXP(deviceName);
     }
@@ -1392,6 +1435,12 @@ public class FRC {
 
     private static Recorder rec;
 
+    /**
+     * Gets or creates a recorder that includes recording for modes, period
+     * events, and battery voltage.
+     *
+     * @return the global recorder
+     */
     public static synchronized Recorder getRecorder() {
         if (rec == null) {
             try {

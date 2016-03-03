@@ -74,6 +74,13 @@ public class PauseTimer extends AbstractUpdatingInput implements BooleanInput, E
         this.timeout = timeout;
     }
 
+    /**
+     * Create a new PauseTimer with the specified dynamic timeout in seconds,
+     * and a descriptive tag for the time that it consumes.
+     *
+     * @param tag the scheduling tag
+     * @param timeout The timeout for each time the timer is activated.
+     */
     public PauseTimer(String tag, FloatInput timeout) {
         if (timeout == null) {
             throw new NullPointerException();

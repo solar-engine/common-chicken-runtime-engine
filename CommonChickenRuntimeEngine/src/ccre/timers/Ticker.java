@@ -42,7 +42,7 @@ public final class Ticker extends AbstractUpdatingInput implements EventInput {
     private final String tag;
 
     /**
-     * Create a new Ticker with the specified interval. The timer will start
+     * Creates a new Ticker with the specified interval. The timer will start
      * immediately, executing for the first time after the specified interval.
      *
      * This will not run at a fixed rate, as extra time taken for one cycle will
@@ -55,7 +55,7 @@ public final class Ticker extends AbstractUpdatingInput implements EventInput {
     }
 
     /**
-     * Create a new Ticker with the specified interval and fixed rate option.
+     * Creates a new Ticker with the specified interval and fixed rate option.
      * The timer will start immediately, executing for the first time after the
      * specified interval.
      *
@@ -75,6 +75,25 @@ public final class Ticker extends AbstractUpdatingInput implements EventInput {
         this(Utils.getMethodCaller(1).toString(), interval, fixedRate);
     }
 
+    /**
+     * Creates a new Ticker with the specified interval and fixed rate option,
+     * with a descriptive tag for the time that it consumes. The timer will
+     * start immediately, executing for the first time after the specified
+     * interval.
+     *
+     * If fixedRate is false, this will not run at a fixed rate, as extra time
+     * taken for one cycle will not be corrected for in the time between the
+     * cycles.
+     *
+     * If fixedRate is true, this will run at a fixed rate, as extra time taken
+     * for one cycle will be removed from the time before the subsequent cycle.
+     * This does mean that if a cycle takes too long, that produces of the event
+     * can bunch up and execute a number of times back-to-back.
+     *
+     * @param tag the scheduler tag.
+     * @param interval The desired interval, in milliseconds.
+     * @param fixedRate Should the rate be corrected?
+     */
     public Ticker(String tag, int interval, boolean fixedRate) {
         this.tag = tag;
         this.millisPeriodic = interval;

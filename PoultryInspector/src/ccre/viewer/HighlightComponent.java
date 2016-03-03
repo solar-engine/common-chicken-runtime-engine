@@ -26,6 +26,12 @@ import java.io.ObjectInputStream;
 
 import ccre.supercanvas.DraggableBoxComponent;
 
+/**
+ * A draggable rectangle that can be used to keep track of a specific position
+ * on the camera feed.
+ *
+ * @author skeggsc
+ */
 public class HighlightComponent extends DraggableBoxComponent {
 
     private static final long serialVersionUID = 4742533819471453628L;
@@ -180,7 +186,6 @@ public class HighlightComponent extends DraggableBoxComponent {
     }
 
     private static enum ResizeState {
-
         TRANSLATE, CORNER_BR, CORNER_UR, CORNER_BL, CORNER_UL
     }
 }

@@ -934,6 +934,7 @@ public class FloatInputTest {
         fi.createRampingEvent(null, FloatOutput.ignored);
     }
 
+    @SuppressWarnings("deprecation")
     @Test
     public void testDerivative() throws InterruptedException {
         Random rand = new Random(1);

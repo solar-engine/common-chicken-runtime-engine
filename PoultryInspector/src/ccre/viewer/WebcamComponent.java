@@ -31,6 +31,11 @@ import ccre.supercanvas.DraggableBoxComponent;
 import ccre.supercanvas.SuperCanvasPanel;
 import ccre.util.LineCollectorOutputStream;
 
+/**
+ * A webcam viewer component, either controlled locally or across the network by robot code.
+ *
+ * @author skeggsc
+ */
 public class WebcamComponent extends DraggableBoxComponent {
 
     private static final long serialVersionUID = 6555290483696874964L;

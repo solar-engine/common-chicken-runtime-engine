@@ -18,6 +18,21 @@
  */
 package ccre.bus;
 
+/**
+ * A standard SPI port, unconfigured.
+ *
+ * @author skeggsc
+ */
 public interface SPIBus {
+    /**
+     * Configures the SPI port and provides an open connection.
+     *
+     * @param hertz the baud rate of the connection.
+     * @param isMSB if the most significant bit (MSB) should be first.
+     * @param dataOnFalling if bits are sent and received on the falling edge.
+     * @param clockActiveLow if the clock is active when low.
+     * @param chipSelectActiveLow if the chip select pin is active when low.
+     * @return the configured SPI connection.
+     */
     public SPIIO configure(int hertz, boolean isMSB, boolean dataOnFalling, boolean clockActiveLow, boolean chipSelectActiveLow);
 }

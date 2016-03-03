@@ -18,7 +18,19 @@
  */
 package ccre.bus;
 
+/**
+ * A standard I2C bus port.
+ *
+ * @author skeggsc
+ */
 public interface I2CBus {
 
-    public I2CIO open(int device_address);
+    /**
+     * Opens and configures the I2C bus to talk to the device at
+     * <code>deviceAddress</code>.
+     *
+     * @param address the I2C address
+     * @return the opened I2C port
+     */
+    public I2CIO open(int address);
 }

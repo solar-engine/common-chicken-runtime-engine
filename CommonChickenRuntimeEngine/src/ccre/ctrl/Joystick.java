@@ -113,12 +113,38 @@ public interface Joystick {
      */
     public FloatInput axis(int axis);
 
+    /**
+     * Provides a FloatOutput representing the control over the selected
+     * rumbler. This is a value from 0.0 to 1.0, inclusive, where 0.0 means no
+     * rumble.
+     *
+     * @param right the rumble axis: true for right, and false for left.
+     * @return the FloatOutput for the rumbler
+     * @see #rumbleLeft()
+     * @see #rumbleRight()
+     */
     public FloatOutput rumble(boolean right);
 
+    /**
+     * Provides a FloatOutput representing the control over the left rumbler.
+     * This is a value from 0.0 to 1.0, inclusive, where 0.0 means no rumble.
+     *
+     * @return the FloatOutput for the rumbler
+     * @see #rumble(boolean)
+     * @see #rumbleRight()
+     */
     public default FloatOutput rumbleLeft() {
         return rumble(false);
     }
 
+    /**
+     * Provides a FloatOutput representing the control over the right rumbler.
+     * This is a value from 0.0 to 1.0, inclusive, where 0.0 means no rumble.
+     *
+     * @return the FloatOutput for the rumbler
+     * @see #rumble(boolean)
+     * @see #rumbleLeft()
+     */
     public default FloatOutput rumbleRight() {
         return rumble(true);
     }

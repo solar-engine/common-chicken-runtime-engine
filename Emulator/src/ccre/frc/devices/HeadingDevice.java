@@ -32,7 +32,7 @@ public class HeadingDevice extends Device {
     private final TextComponent text;
 
     /**
-     * Create a new HeadingDevice with a fixed title.
+     * Creates a new HeadingDevice with a fixed title.
      *
      * @param title the title to display.
      */
@@ -42,6 +42,11 @@ public class HeadingDevice extends Device {
         add(text);
     }
 
+    /**
+     * Changes the displayed heading.
+     *
+     * @param title the new displayed heading.
+     */
     public void setHeading(String title) {
         text.setLabel(title);
     }

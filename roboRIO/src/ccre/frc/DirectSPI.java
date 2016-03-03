@@ -23,7 +23,7 @@ import java.nio.ByteBuffer;
 
 import edu.wpi.first.wpilibj.hal.SPIJNI;
 
-public class DirectSPI {
+class DirectSPI {
     public static final byte PORT_CS0 = 0, PORT_CS1 = 1, PORT_CS2 = 2, PORT_CS3 = 3, PORT_MXP = 4;
 
     // TODO: one source says the maximum is 7 bytes... (docs in HAL) - should

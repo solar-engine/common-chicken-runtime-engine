@@ -24,7 +24,6 @@ import java.awt.Graphics2D;
 import java.util.function.Supplier;
 
 import ccre.supercanvas.SuperCanvasComponent;
-import ccre.supercanvas.components.palette.TopLevelPaletteComponent;
 
 /**
  * The "Start-Menu"-like component to allow opening and closing the top-level

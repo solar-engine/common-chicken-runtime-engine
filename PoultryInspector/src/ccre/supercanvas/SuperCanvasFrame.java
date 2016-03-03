@@ -26,22 +26,39 @@ import javax.swing.JFrame;
 
 import ccre.log.Logger;
 
+/**
+ * A complete super canvas window.
+ *
+ * @author skeggsc
+ */
 public class SuperCanvasFrame extends JFrame {
 
     private static final long serialVersionUID = -5519889225965621620L;
 
+    /**
+     * Opens the window.
+     */
     public void start() {
         java.awt.EventQueue.invokeLater(() -> setVisible(true));
     }
 
     private final SuperCanvasPanel canvas = new SuperCanvasPanel();
 
-    public SuperCanvasFrame(String name, Supplier<? extends SuperCanvasComponent> comp, SuperCanvasComponent... components) {
+    /**
+     * Creates a new SuperCanvasFrame, with a window title, a supplier for popup
+     * components that appear when the user presses shift, and an array of
+     * components that will appear by default.
+     *
+     * @param name the window title.
+     * @param popup a constructor for popup components.
+     * @param components the components to display initially.
+     */
+    public SuperCanvasFrame(String name, Supplier<? extends SuperCanvasComponent> popup, SuperCanvasComponent... components) {
         super(name);
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         this.setContentPane(canvas);
         this.setSize(640, 480);
-        Class<? extends SuperCanvasComponent> expected = comp.get().getClass();
+        Class<? extends SuperCanvasComponent> expected = popup.get().getClass();
         this.addKeyListener(new KeyAdapter() {
             @Override
             public void keyPressed(KeyEvent e) {
@@ -68,7 +85,7 @@ public class SuperCanvasFrame extends JFrame {
                         if (e.isControlDown()) {
                             canvas.editmode = !canvas.editmode;
                         } else if (!canvas.removeAll(expected)) {
-                            canvas.add(comp.get());
+                            canvas.add(popup.get());
                         }
                     }
                 } catch (Throwable thr) {
@@ -82,4 +99,3 @@ public class SuperCanvasFrame extends JFrame {
         canvas.start();
     }
 }
-    

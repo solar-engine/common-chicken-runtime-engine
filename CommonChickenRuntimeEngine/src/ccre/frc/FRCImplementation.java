@@ -203,6 +203,11 @@ public interface FRCImplementation {
      */
     public BooleanInput getIsTest();
 
+    /**
+     * Gets the robot control mode.
+     *
+     * @return the discrete input.
+     */
     public DiscreteInput<FRCMode> getMode();
 
     /**
@@ -379,23 +384,52 @@ public interface FRCImplementation {
     /**
      * @param deviceName the name of the device the serial port is connected to
      * (used for debugging and the emulator.)
-     * @return a SerialIO interface to the port.
+     * @return a RS232Bus interface to the port.
      */
     public RS232Bus makeRS232_Onboard(String deviceName);
 
     /**
      * @param deviceName the name of the device the serial port is connected to
      * (used for debugging and the emulator.)
-     * @return a SerialIO interface to the port.
+     * @return a RS232Bus interface to the port.
      */
     public RS232Bus makeRS232_MXP(String deviceName);
 
     /**
      * @param deviceName the name of the device the serial port is connected to
      * (used for debugging and the emulator.)
-     * @return a SerialIO interface to the port.
+     * @return a RS232Bus interface to the port.
      */
     public RS232Bus makeRS232_USB(String deviceName);
+
+    /**
+     * @param deviceName the name of the device the serial port is connected to
+     * (used for debugging and the emulator.)
+     * @return a I2CBus interface to the port.
+     */
+    public I2CBus makeI2C_Onboard(String deviceName);
+
+    /**
+     * @param deviceName the name of the device the serial port is connected to
+     * (used for debugging and the emulator.)
+     * @return a I2CBus interface to the port.
+     */
+    public I2CBus makeI2C_MXP(String deviceName);
+
+    /**
+     * @param cs the chip select
+     * @param deviceName the name of the device the serial port is connected to
+     * (used for debugging and the emulator.)
+     * @return a SPIBus interface to the port.
+     */
+    public SPIBus makeSPI_Onboard(int cs, String deviceName);
+
+    /**
+     * @param deviceName the name of the device the serial port is connected to
+     * (used for debugging and the emulator.)
+     * @return a SPIBus interface to the port.
+     */
+    public SPIBus makeSPI_MXP(String deviceName);
 
     /**
      * @param powerChannel the power channel to monitor.
@@ -430,12 +464,4 @@ public interface FRCImplementation {
      * finished its initialization
      */
     public EventInput getOnInitComplete();
-
-    public I2CBus makeI2C_Onboard(String deviceName);
-
-    public I2CBus makeI2C_MXP(String deviceName);
-
-    public SPIBus makeSPI_Onboard(int cs, String deviceName);
-
-    public SPIBus makeSPI_MXP(String deviceName);
 }

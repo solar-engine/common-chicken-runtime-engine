@@ -68,6 +68,11 @@ public final class TimelinePanel extends JPanel {
      */
     private int mouseX, mouseY;
 
+    /**
+     * Creates a new timeline display panel.
+     *
+     * @param timeline the timeline to display.
+     */
     public TimelinePanel(Timeline timeline) {
         this.timeline = timeline;
     }
@@ -160,7 +165,6 @@ public final class TimelinePanel extends JPanel {
         // Logger.finest("Tick evaluation: " + time_duration + " ~ " +
         // period_width + " / " + time_at_left + " - " + time_at_width);
         int next_tick_at_left_od = ((int) Math.ceil(time_at_left / time_duration));
-        int textHeight = g.getFontMetrics().getHeight();
         g.setColor(Color.YELLOW);
         for (int tick_od = next_tick_at_left_od - 1; tick_od * time_duration < time_at_width; tick_od++) {
             int position = (int) (tick_od * time_duration * (w / widthSeconds)) - relativeX;
@@ -169,9 +173,16 @@ public final class TimelinePanel extends JPanel {
         }
     }
 
-    private static final String[] units = new String[] { "us", "ms", "s" };
-
-    public static String toTimeString(long ticks) { // in 10 us units
+    /**
+     * Converts a time, in units of 10 microseconds, to a textual representation
+     * that includes units and displays at most three significant digits.
+     *
+     * @param ticks the number of ticks, in multiples of 10 microseconds.
+     * @return the string, either <code>xxx ys</code>, <code>xx.x ys</code>, or
+     * <code>x.xx ys</code>, where <code>x</code> and <code>y</code> are chosen
+     * by the code.
+     */
+    public static String toTimeString(long ticks) {
         // we want to display the three most significant digits
         // xxx ys, xx.x ys, x.xx ys
         ticks *= 10;
@@ -203,12 +214,21 @@ public final class TimelinePanel extends JPanel {
         }
     }
 
-    public static String toPowerString(int tick, int pow10) {
-        if (tick < 0) {
-            return "-" + toPowerString(-tick, pow10);
+    /**
+     * Converts a number into a string after multiplication by
+     * <code>Math.pow(10, pow10)</code>, but without any potential overflow
+     * errors.
+     *
+     * @param num the base number.
+     * @param pow10 the power of ten.
+     * @return the number converted to a string.
+     */
+    public static String toPowerString(int num, int pow10) {
+        if (num < 0) {
+            return "-" + toPowerString(-num, pow10);
         }
         // tick * 10^pow10
-        StringBuilder sb = new StringBuilder().append(tick);
+        StringBuilder sb = new StringBuilder().append(num);
         if (pow10 >= 0) {
             while (pow10-- > 0) {
                 sb.append('0');

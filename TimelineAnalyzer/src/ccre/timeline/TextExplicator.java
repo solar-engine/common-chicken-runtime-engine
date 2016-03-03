@@ -31,7 +31,20 @@ import ccre.recording.Replayer;
 import ccre.recording.Replayer.ReplayChannel;
 import ccre.recording.Replayer.ReplaySample;
 
+/**
+ * A simple class that just dumps out the contents of a recording.
+ *
+ * @author skeggsc
+ */
 public class TextExplicator {
+    /**
+     * The main method, which opens a JFileChooser to ask for the file to
+     * explicate.
+     *
+     * @param args ignored arguments.
+     * @throws IOException if the file cannot be opened and read fully, or if
+     * the stream is malformed.
+     */
     public static void main(String[] args) throws IOException {
         JFileChooser chooser = new JFileChooser("../SampleRobot/emulator-logs/");
 
@@ -44,6 +57,12 @@ public class TextExplicator {
         }
     }
 
+    /**
+     * Prints out the explication of a recording loaded from an InputStream.
+     *
+     * @param in the input stream to read from.
+     * @throws IOException if the stream is malformed.
+     */
     public static void explicate(InputStream in) throws IOException {
         List<ReplayChannel> decoded = new Replayer(in).decode();
         System.out.println("Explication: (" + decoded.size() + " channels)");

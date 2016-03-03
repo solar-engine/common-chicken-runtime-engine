@@ -20,9 +20,14 @@ package ccre.timeline;
 
 import java.awt.Color;
 
+/**
+ * Some common rendering utilities for the Timeline Inspector.
+ *
+ * @author skeggsc
+ */
 public class Renderer {
     /**
-     * Blend the specified colors using the specified fraction. 0 means all
+     * Blends the specified colors using the specified fraction. 0 means all
      * color A, 1 means all color B, 0.5 is half-and-half, etc.
      *
      * @param a The first color.
@@ -42,10 +47,20 @@ public class Renderer {
         float apart = 1 - bpart;
         return new Color(Math.round(a.getRed() * apart + b.getRed() * bpart), Math.round(a.getGreen() * apart + b.getGreen() * bpart), Math.round(a.getBlue() * apart + b.getBlue() * bpart), Math.round(a.getAlpha() * apart + b.getAlpha() * bpart));
     }
-    
+
     private static final Color[] chain = new Color[] { Color.BLACK, Color.RED, Color.BLUE, Color.ORANGE, Color.CYAN, Color.MAGENTA, Color.DARK_GRAY, Color.GRAY, Color.GREEN, Color.PINK };
 
+    /**
+     * Selects an indexed color from a known list of colors. After about 10
+     * colors, the colors will wrap around.
+     *
+     * @param index the color index, which wraps around.
+     * @return the chosen color.
+     */
     public static Color nthColor(int index) {
+        if (index < 0) {
+            throw new IllegalArgumentException();
+        }
         return chain[index % chain.length];
     }
 }

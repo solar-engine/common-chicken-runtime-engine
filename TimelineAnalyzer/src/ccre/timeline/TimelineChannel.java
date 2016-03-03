@@ -33,6 +33,11 @@ import ccre.recording.Replayer;
 import ccre.recording.Replayer.ReplaySample;
 import ccre.time.Time;
 
+/**
+ * A timeline channel.
+ *
+ * @author skeggsc
+ */
 public class TimelineChannel {
     private final Replayer.ReplayChannel rpc;
     private static final float TICKS_PER_SECOND = Time.MICROSECONDS_PER_SECOND / 10f;
@@ -41,6 +46,12 @@ public class TimelineChannel {
     private final WeakHashMap<byte[], String> outCache = new WeakHashMap<>();
     private float minFloat, maxFloat;
 
+    /**
+     * Creates a new TimelineChannel from a decoded channel.
+     *
+     * @param rpc the decoded channel.
+     * @param zero_stamp the timestamp for time zero.
+     */
     public TimelineChannel(Replayer.ReplayChannel rpc, long zero_stamp) {
         this.rpc = rpc;
         this.zero_stamp = zero_stamp;
@@ -72,14 +83,33 @@ public class TimelineChannel {
         }
     }
 
+    /**
+     * Returns the number of samples in the channel.
+     *
+     * @return the number of samples.
+     */
     public int count() {
         return rpc.samples.size();
     }
 
+    /**
+     * Determines the absolute time, in seconds, for a certain sample.
+     *
+     * @param i the sample index.
+     * @return the time, in seconds, based on the earliest sample from any
+     * channel.
+     */
     public float timeFor(int i) {
         return (rpc.samples.get(i).timestamp - zero_stamp) / TICKS_PER_SECOND;
     }
 
+    /**
+     * Determines the graph position that should be displayed for a certain
+     * sample.
+     *
+     * @param i the sample index.
+     * @return the graph position (y axis of the point) from -1.0 to +1.0
+     */
     public float valueFor(int i) {
         switch (rpc.type) {
         case BOOLEAN:
@@ -101,26 +131,50 @@ public class TimelineChannel {
         }
     }
 
+    /**
+     * Determines the absolute time of the earliest sample, or zero if there are
+     * no samples.
+     *
+     * @return the beginning of the channel, in seconds.
+     */
     public float beginAt() {
         return rpc.samples.isEmpty() ? 0 : (rpc.samples.get(0).timestamp - zero_stamp) / TICKS_PER_SECOND;
     }
 
+    /**
+     * Determines the absolute time of the last sample, or zero if there are no
+     * samples.
+     *
+     * @return the end of the channel, in seconds.
+     */
     public float endAt() {
         return rpc.samples.isEmpty() ? 0 : (rpc.samples.get(rpc.samples.size() - 1).timestamp - zero_stamp) / TICKS_PER_SECOND;
     }
 
-    public boolean isBoolean() {
-        return rpc.type == Recorder.RawType.BOOLEAN;
-    }
-
+    /**
+     * Determines if this is a channel containing float data.
+     *
+     * @return true if a float channel, otherwise false.
+     */
     public boolean isFloat() {
         return rpc.type == Recorder.RawType.FLOAT;
     }
 
+    /**
+     * Provides the human-readable (sort of) name for the channel.
+     *
+     * @return the name.
+     */
     public String name() {
         return rpc.name;
     }
 
+    /**
+     * Determines the string to display next to a particular sample.
+     *
+     * @param i the sample index.
+     * @return the text to display.
+     */
     public String stringFor(int i) {
         switch (rpc.type) {
         case BOOLEAN:
@@ -128,7 +182,7 @@ public class TimelineChannel {
         case FLOAT:
             return Float.toString(Float.intBitsToFloat((int) rpc.samples.get(i).value));
         case EVENT:
-            if (i < rpc.samples.size() - 1){
+            if (i < rpc.samples.size() - 1) {
                 long time_delta = rpc.samples.get(i + 1).timestamp - rpc.samples.get(i).timestamp;
                 return TimelinePanel.toTimeString(time_delta);
             }
@@ -145,6 +199,12 @@ public class TimelineChannel {
         }
     }
 
+    /**
+     * Determines the color to use to display the specified sample.
+     *
+     * @param i the sample index.
+     * @return the color to display.
+     */
     public Color colorFor(int i) {
         switch (rpc.type) {
         case BOOLEAN:
@@ -169,6 +229,14 @@ public class TimelineChannel {
         }
     }
 
+    /**
+     * Determines if the channel should have a connecting line between
+     * subsequent events to display the color.
+     *
+     * This will be true if the channel is a boolean channel or a discrete channel.
+     *
+     * @return true to draw a connecting line, false otherwise.
+     */
     public boolean hasContinuationChannel() {
         return rpc.type == Recorder.RawType.BOOLEAN || rpc.type == Recorder.RawType.DISCRETE;
     }

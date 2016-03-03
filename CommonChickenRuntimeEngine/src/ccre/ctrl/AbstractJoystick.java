@@ -155,5 +155,11 @@ public abstract class AbstractJoystick implements Joystick {
         };
     }
 
+    /**
+     * Changes the rumble level of the rumblers, if they exist.
+     *
+     * @param left a value from 0.0 to 1.0
+     * @param right a value from 0.0 to 1.0
+     */
     protected abstract void setRumble(float left, float right);
 }

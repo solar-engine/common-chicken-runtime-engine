@@ -21,19 +21,55 @@ package ccre.util;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.function.Supplier;
 
-public class ThreadedAllocationPool<E> {
+/**
+ * A thread-safe allocation pool with a maximum size that allocates additional
+ * objects on demand.
+ *
+ * @author skeggsc
+ * @param <E> the type of the allocated objects.
+ */
+public final class ThreadedAllocationPool<E> {
     private final ArrayBlockingQueue<E> queue;
     private final Supplier<E> constructor;
 
+    /**
+     * Creates a ThreadedAllocationPool. {@link Supplier#get()} will be called
+     * on <code>constructor</code> whenever a new instance is needed.
+     *
+     * The easy way to use this is to write
+     * <code>new ThreadedAllocationPool(1024, SomeClass::new)</code>, which will
+     * dispatch to the zero-argument constructor of <code>SomeClass</code>.
+     *
+     * @param size the maximum number of cached instances, not including
+     * instances currently handed out.
+     * @param constructor the constructor for the pool.
+     */
     public ThreadedAllocationPool(int size, Supplier<E> constructor) {
         this.queue = new ArrayBlockingQueue<>(size);
         this.constructor = constructor;
     }
 
+    /**
+     * Returns an instance back to the pool. Be certain that you do not use this
+     * instance afterward, because another thread could have taken it out.
+     *
+     * If the pool is full, the instance will be discarded.
+     *
+     * @param e the instance to return.
+     * @return true if the instance was actually used, false if it was
+     * discarded.
+     */
     public boolean free(E e) {
         return this.queue.offer(e);
     }
 
+    /**
+     * Acquires an instance. If an instance is available in the pool, it will be
+     * removed and returned. Otherwise, a new instance will be allocated and
+     * returned.
+     *
+     * @return the instance.
+     */
     public E allocate() {
         E ent = this.queue.poll();
         if (ent == null) {

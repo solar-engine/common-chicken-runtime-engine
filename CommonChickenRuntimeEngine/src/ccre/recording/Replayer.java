@@ -24,15 +24,38 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+/**
+ * A class that handles data replaying from an arbitrary InputStream, as an
+ * approximate mirror to {@link Recorder}.
+ *
+ * @author skeggsc
+ */
 public class Replayer {
     private final StreamDecoder decoder;
 
+    /**
+     * A decoded channel, including the name, recorded type, and all decoded
+     * samples.
+     *
+     * @author skeggsc
+     */
     public static final class ReplayChannel {
+        /**
+         * The name of the extracted channel. Note that channel names should not
+         * be expected to be consistent between different recordings or CCRE
+         * versions - they may change without warning.
+         */
         public final String name;
+        /**
+         * The type of this recording.
+         */
         public final Recorder.RawType type;
+        /**
+         * The list of samples.
+         */
         public final ArrayList<ReplaySample> samples = new ArrayList<>();
 
-        public ReplayChannel(String name, Recorder.RawType type) {
+        private ReplayChannel(String name, Recorder.RawType type) {
             this.name = name;
             this.type = type;
         }
@@ -55,18 +78,41 @@ public class Replayer {
         }
     }
 
+    /**
+     * A specific sample from a {@link ReplayChannel}.
+     *
+     * @author skeggsc
+     */
     public static final class ReplaySample {
+        /**
+         * The timestamp for when this sample was collected, in units of 10
+         * microseconds, from the time of the first recorded sample.
+         */
         public final long timestamp;
+        /**
+         * The value in this sample, not decoded.
+         */
         public final long value;
+        /**
+         * The data array included in this sample, if it's the right type for
+         * that. Possibly null if not.
+         */
         public final byte[] data;
 
-        public ReplaySample(RecordSnapshot snapshot) {
+        private ReplaySample(RecordSnapshot snapshot) {
             this.timestamp = snapshot.timestamp;
             this.value = snapshot.value;
             this.data = snapshot.data;
         }
     }
 
+    /**
+     * Creates a new Replayer from an input stream. The input stream will not be
+     * read from until you call {@link Replayer#decode()}.
+     *
+     * @param in the input stream.
+     * @throws IOException if the stream is malformed.
+     */
     public Replayer(InputStream in) throws IOException {
         decoder = new StreamDecoder(in);
     }
@@ -74,6 +120,13 @@ public class Replayer {
     private final HashMap<Integer, ReplayChannel> channels = new HashMap<>();
     private final ArrayList<ReplayChannel> allChannels = new ArrayList<>();
 
+    /**
+     * Decodes everything from the input stream, including sorting into
+     * channels.
+     *
+     * @return the list of extracted channels.
+     * @throws IOException if the stream is malformed.
+     */
     public List<ReplayChannel> decode() throws IOException {
         while (true) {
             RecordSnapshot snapshot = decoder.decode(this::extractType);

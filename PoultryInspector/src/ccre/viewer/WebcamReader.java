@@ -32,7 +32,7 @@ import javax.imageio.ImageIO;
 import ccre.net.ClientSocket;
 import ccre.net.Network;
 
-public class WebcamReader implements Closeable {
+class WebcamReader implements Closeable {
     // @formatter:off
     private static final String requestString =
             "GET /mjpg/video.mjpg HTTP/1.1\n" +

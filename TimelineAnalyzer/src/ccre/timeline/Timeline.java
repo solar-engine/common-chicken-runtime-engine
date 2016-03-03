@@ -23,10 +23,23 @@ import java.util.List;
 
 import ccre.recording.Replayer.ReplayChannel;
 
+/**
+ * A list of timeline channels loaded from a recorded.
+ *
+ * @author skeggsc
+ */
 public class Timeline {
 
+    /**
+     * The channels in this timeline.
+     */
     public final ArrayList<TimelineChannel> channels = new ArrayList<>();
 
+    /**
+     * Loads decoded channels into a displayable format.
+     *
+     * @param decode the decoded channels.
+     */
     public Timeline(List<ReplayChannel> decode) {
         long min_stamp = Long.MAX_VALUE;
         for (ReplayChannel rc : decode) {

@@ -115,6 +115,11 @@ public class RobotModeDevice extends Device {
         return enabled.asInput();
     }
 
+    /**
+     * Gets the mode as a discrete input, which will update as the mode changes.
+     *
+     * @return the discrete input for the robot control mode.
+     */
     public DiscreteInput<FRCMode> getMode() {
         return new DerivedDiscreteInput<FRCMode>(FRCMode.discreteType, enabled.asInput()) {
             @Override

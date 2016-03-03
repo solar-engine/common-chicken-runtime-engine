@@ -669,8 +669,7 @@ public interface FloatInput extends UpdatingInput {
         }
         return createRampingEvent(FloatInput.always(limit), target);
     }
-    
-    
+
     /**
      * Provides an event that ramps the value of this FloatInput, and sends the
      * result of the ramping to <code>target</code>.
@@ -715,6 +714,19 @@ public interface FloatInput extends UpdatingInput {
         return out;
     }
 
+    /**
+     * Provides the derivative of this FloatInput as another FloatInput. This
+     * will only update when the current value of this FloatInput changes, and
+     * will be based on the change and on the amount of time that it took.
+     *
+     * <code>millis</code> is the number of milliseconds after which to assume
+     * that the motors have stopped, if no value is received. This must be at
+     * least a bit longer than the update period of the speed sensor, so usually
+     * needs to be higher than 20 milliseconds. 25 milliseconds is a decent default.
+     *
+     * @param millis the assume-stopped delay.
+     * @return the derivative of this FloatInput.
+     */
     public default FloatInput derivative(int millis) {
         FloatCell out = new FloatCell();
         FloatOutput deriv = out.viaDerivative();

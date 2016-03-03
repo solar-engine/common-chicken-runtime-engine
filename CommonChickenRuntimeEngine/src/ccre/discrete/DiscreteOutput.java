@@ -65,9 +65,14 @@ public interface DiscreteOutput<E> {
         }
     }
 
+    /**
+     * Provides a discrete output for <code>type</code> that does nothing.
+     *
+     * @param type the discrete type
+     * @return the discrete output
+     */
     public static <E> DiscreteOutput<E> ignored(DiscreteType<E> type) {
         return new DiscreteOutput<E>() {
-
             @Override
             public DiscreteType<E> getType() {
                 return type;

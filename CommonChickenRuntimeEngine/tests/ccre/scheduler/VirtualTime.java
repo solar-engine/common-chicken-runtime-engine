@@ -26,10 +26,21 @@ import ccre.time.FakeTime;
 import ccre.time.SharedTimeSecrets;
 import ccre.time.Time;
 
+/**
+ * A class of utilities for virtualizing code that needs to be tested based on
+ * changes in time, so that tests don't have to actually wait for time to elapse
+ * or depend on unreliable OS scheduling.
+ *
+ * @author skeggsc
+ */
 public class VirtualTime {
     private static Time oldProvider;
     private static FakeTime fake;
 
+    /**
+     * Begin execution in fake time mode. MUST be paired with a call to
+     * {@link #endFakeTime()} at the end!
+     */
     public static synchronized void startFakeTime() {
         assertNull(oldProvider);
         oldProvider = Time.getTimeProvider();
@@ -54,6 +65,9 @@ public class VirtualTime {
         });
     }
 
+    /**
+     * Exit fake time mode. Returns the JVM to its normal state.
+     */
     public static synchronized void endFakeTime() {
         assertNotNull(oldProvider);
         Time.setTimeProvider(oldProvider);
@@ -61,7 +75,14 @@ public class VirtualTime {
         fake = null;
     }
 
-    public static void forward(long l) throws InterruptedException {
-        fake.forward(l);
+    /**
+     * Fast-forward through a certain number of milliseconds. Time will never
+     * move forward in virtualized mode except when this method is called.
+     *
+     * @param millis the number of milliseconds to forward by.
+     * @throws InterruptedException if the current thread is interrupted.
+     */
+    public static void forward(long millis) throws InterruptedException {
+        fake.forward(millis);
     }
 }

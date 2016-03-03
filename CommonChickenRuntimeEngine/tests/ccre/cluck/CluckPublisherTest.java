@@ -42,7 +42,6 @@ import ccre.testing.CountingEventOutput;
 import ccre.testing.CountingFloatOutput;
 import ccre.util.Utils;
 import ccre.util.Values;
-import ccre.util.VerifyingOutputStream;
 
 @SuppressWarnings("javadoc")
 public class CluckPublisherTest {

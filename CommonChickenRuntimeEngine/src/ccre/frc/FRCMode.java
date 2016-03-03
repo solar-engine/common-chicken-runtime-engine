@@ -20,9 +20,32 @@ package ccre.frc;
 
 import ccre.discrete.DiscreteType;
 
+/**
+ * An enumeration that represents the current robot mode.
+ *
+ * @author skeggsc
+ */
 public enum FRCMode {
-    DISABLED, AUTONOMOUS, TELEOP, TEST;
+    /**
+     * Disabled mode.
+     */
+    DISABLED,
+    /**
+     * Autonomous mode.
+     */
+    AUTONOMOUS,
+    /**
+     * Teleoperated mode.
+     */
+    TELEOP,
+    /**
+     * Test mode.
+     */
+    TEST;
 
+    /**
+     * The discrete type for this enum, which does not include null.
+     */
     public static final DiscreteType<FRCMode> discreteType = new DiscreteType<FRCMode>() {
         @Override
         public Class<FRCMode> getType() {

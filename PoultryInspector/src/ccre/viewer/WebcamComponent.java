@@ -32,7 +32,8 @@ import ccre.supercanvas.SuperCanvasPanel;
 import ccre.util.LineCollectorOutputStream;
 
 /**
- * A webcam viewer component, either controlled locally or across the network by robot code.
+ * A webcam viewer component, either controlled locally or across the network by
+ * robot code.
  *
  * @author skeggsc
  */

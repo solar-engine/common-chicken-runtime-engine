@@ -49,14 +49,16 @@ public interface TalonAnalog {
     public void useAnalogPotentiometer();
 
     /**
-     * Provides the analog sensor position, regardless of the active sensor, in potentiometer mode.
+     * Provides the analog sensor position, regardless of the active sensor, in
+     * potentiometer mode.
      *
      * @return a FloatIO representing the analog sensor position.
      */
     public FloatIO getAnalogPosition(); // 0.0 to 1.0
 
     /**
-     * Provides the analog sensor position, regardless of the active sensor, in encoder mode.
+     * Provides the analog sensor position, regardless of the active sensor, in
+     * encoder mode.
      *
      * @return a FloatIO representing the analog sensor position.
      */

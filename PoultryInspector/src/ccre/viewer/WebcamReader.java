@@ -48,7 +48,6 @@ class WebcamReader implements Closeable {
     private final String boundary;
 
     public WebcamReader(String address, int timeoutMillis) throws IOException {
-        //this.socket = new Socket();
         this.socket = Network.connectDynPort(address, 80);
         try {
             socket.setSocketTimeout(timeoutMillis);
@@ -128,7 +127,7 @@ class WebcamReader implements Closeable {
         byte[] bytes = readExact(contentLength);
         return ImageIO.read(new ByteArrayInputStream(bytes));
     }
-    
+
     private byte[] readExact(int bytes) throws IOException {
         byte[] out = new byte[bytes];
         int index = 0;

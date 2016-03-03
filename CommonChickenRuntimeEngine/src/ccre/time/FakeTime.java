@@ -142,7 +142,7 @@ public class FakeTime extends Time {
             synchronized (object) {
                 object.notifyAll();
             }
-        } , timeout);
+        }, timeout);
         // TODO: recomment this
         object.wait(1000);
     }

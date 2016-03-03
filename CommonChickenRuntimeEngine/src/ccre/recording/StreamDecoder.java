@@ -153,7 +153,7 @@ class StreamDecoder {
         lastTimestamp += readTimeDeltaWithPrefetchedByte(b0);
         rs.timestamp = lastTimestamp;
         rs.channel = readChannelNumber();
-        Byte b = channelNumberToSnapshotType.apply(rs.channel);;
+        Byte b = channelNumberToSnapshotType.apply(rs.channel);
         if (b == null) {
             throw new IOException("Uninitialized channel: " + rs.channel);
         }

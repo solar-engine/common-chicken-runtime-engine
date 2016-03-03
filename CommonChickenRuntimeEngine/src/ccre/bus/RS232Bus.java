@@ -82,8 +82,8 @@ public interface RS232Bus {
     }
 
     /**
-     * Configures the RS232 port, with 8 bits per byte, a timeout of 5
-     * seconds, and one stop bit.
+     * Configures the RS232 port, with 8 bits per byte, a timeout of 5 seconds,
+     * and one stop bit.
      *
      * @param baudRate the baud rate.
      * @param parity the parity bit setting.
@@ -94,8 +94,8 @@ public interface RS232Bus {
     }
 
     /**
-     * Configures the RS232 port, with 8 bits per byte, a timeout of 5
-     * seconds, one stop bit, and no parity bits.
+     * Configures the RS232 port, with 8 bits per byte, a timeout of 5 seconds,
+     * one stop bit, and no parity bits.
      *
      * @param baudRate the baud rate.
      * @return the configured RS232 port.

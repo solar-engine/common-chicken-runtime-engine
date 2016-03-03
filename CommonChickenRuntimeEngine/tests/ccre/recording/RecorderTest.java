@@ -141,7 +141,7 @@ public class RecorderTest {
             assertArrayEquals(Arrays.copyOf(is, i), Recorder.listUsedNumbers());
         }
     }
-    
+
     @Test
     public void testOpenStreamOverstuffed() throws IOException {
         testOpenStreamUnderstuffed();

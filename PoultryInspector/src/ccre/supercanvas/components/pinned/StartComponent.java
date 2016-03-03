@@ -42,8 +42,8 @@ public class StartComponent extends SuperCanvasComponent {
     /**
      * Create a new StartComponent.
      *
-     * @param popup an allocator (usually constructor) for new instances of
-     * the popup class
+     * @param popup an allocator (usually constructor) for new instances of the
+     * popup class
      * @param name the name to display
      * @param index the index, starting from the bottom of the screen
      */

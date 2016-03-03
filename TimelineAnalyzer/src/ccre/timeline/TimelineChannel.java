@@ -233,7 +233,8 @@ public class TimelineChannel {
      * Determines if the channel should have a connecting line between
      * subsequent events to display the color.
      *
-     * This will be true if the channel is a boolean channel or a discrete channel.
+     * This will be true if the channel is a boolean channel or a discrete
+     * channel.
      *
      * @return true to draw a connecting line, false otherwise.
      */

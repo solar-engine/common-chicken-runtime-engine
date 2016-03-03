@@ -22,8 +22,8 @@ import java.io.IOException;
 import java.io.OutputStream;
 
 /**
- * Wraps a RS232IO in an OutputStream so that it can be used with
- * infrastructure designed for OutputStreams.
+ * Wraps a RS232IO in an OutputStream so that it can be used with infrastructure
+ * designed for OutputStreams.
  *
  * @author skeggsc
  */

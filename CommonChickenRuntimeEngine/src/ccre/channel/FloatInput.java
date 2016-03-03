@@ -721,7 +721,8 @@ public interface FloatInput extends UpdatingInput {
      * <code>millis</code> is the number of milliseconds after which to assume
      * that the motors have stopped, if no value is received. This must be at
      * least a bit longer than the update period of the speed sensor, so usually
-     * needs to be higher than 20 milliseconds. 25 milliseconds is a decent default.
+     * needs to be higher than 20 milliseconds. 25 milliseconds is a decent
+     * default.
      *
      * @param millis the assume-stopped delay.
      * @return the derivative of this FloatInput.

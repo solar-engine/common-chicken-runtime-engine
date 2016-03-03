@@ -120,6 +120,17 @@ public class Values {
     }
 
     /**
+     * Generates a random integer, no less than zero and smaller than
+     * <code>bound</code>.
+     *
+     * @param bound the upper bound, exclusive.
+     * @return the random boolean.
+     */
+    public static int getRandomInt(int bound) {
+        return random.nextInt(bound);
+    }
+
+    /**
      * Generates a random float. May include numbers like NaN, infinity,
      * MAX_VALUE, or 0.
      *

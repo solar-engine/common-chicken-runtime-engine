@@ -397,47 +397,88 @@ public class Recorder {
         recordDiscreteInput(behaviors.getActiveBehavior(), "Behaviors:" + behaviors.getName());
     }
 
-    public static Recorder open(boolean compressed, int circular_buffer_size) throws IOException {
-        if (circular_buffer_size < 1) {
-            throw new IllegalArgumentException("Must have at least one slot in circular buffer!");
-        }
-        circular_buffer_size += 1; // because one empty slot
-        boolean[] buffer = new boolean[circular_buffer_size];
-        int next_empty = -1;
-        for (int i = 0; i < circular_buffer_size; i++) {
-            buffer[i] = Storage.exists("rec-" + i) || Storage.exists("rec-" + i + ".gz");
-            if (!buffer[i] && next_empty == -1) {
-                next_empty = i;
+    static int[] listUsedNumbers() {
+        String[] files = Storage.list();
+        int[] found = new int[files.length];
+        int j = 0;
+        for (int i = 0; i < files.length; i++) {
+            String filename = files[i];
+            if (filename.startsWith("rec-")) {
+                try {
+                    if (filename.endsWith(".gz")) {
+                        found[j] = Integer.parseInt(filename.substring(4, filename.length() - 3));
+                        j++;
+                    } else {
+                        found[j] = Integer.parseInt(filename.substring(4));
+                        j++;
+                    }
+                } catch (NumberFormatException ex) {
+                    // not the right kind of file; skip forward
+                }
             }
         }
-        if (next_empty == -1) {
-            next_empty = 0;
+        found = Arrays.copyOf(found, j); // compact
+        Arrays.sort(found);
+        return found;
+    }
+
+    static OutputStream openStream(boolean compressed, int maximum_records) throws IOException {
+        if (maximum_records < 1) {
+            throw new IllegalArgumentException("Must have at least one slot in record buffer!");
         }
-        int to_delete = (next_empty + circular_buffer_size - 1) % circular_buffer_size;
-        if (buffer[to_delete]) {
-            Logger.config("Wiping old buffer entry: rec-" + to_delete);
-            if (Storage.exists("rec-" + to_delete)) {
-                Storage.delete("rec-" + to_delete);
-            }
-            if (Storage.exists("rec-" + to_delete + ".gz")) {
-                Storage.delete("rec-" + to_delete + ".gz");
+        int[] used = listUsedNumbers();
+        if (used.length >= maximum_records) {
+            int to_remove = 1 + used.length - maximum_records;
+            // wipe out old entries in the buffer
+            for (int i = 0; i < to_remove; i++) {
+                String thisName = "rec-" + used[i];
+                if (Storage.exists(thisName)) {
+                    Storage.delete(thisName);
+                } else {
+                    Storage.delete(thisName + ".gz");
+                }
             }
         }
-        OutputStream out;
+        int next_id = used.length == 0 ? 0 : used[used.length - 1] + 1;
+        String next_name = "rec-" + next_id;
         if (compressed) {
-            out = new GZIPOutputStream(Storage.openOutput("rec-" + next_empty + ".gz"));
+            Logger.config("Opening recorder output at rec-" + next_name + ".gz (compressed)");
+            return new GZIPOutputStream(Storage.openOutput(next_name + ".gz"));
         } else {
-            out = Storage.openOutput("rec-" + next_empty);
+            Logger.config("Opening recorder output at rec-" + next_name + " (uncompressed)");
+            return Storage.openOutput(next_name);
         }
-        Logger.config("Opened recorder output at rec-" + next_empty + (compressed ? ".gz (compressed)" : " (uncompressed)"));
-        Recorder rc = new Recorder(out);
-        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-            try {
-                rc.close();
-            } catch (Exception e) {
-                e.printStackTrace();
+    }
+
+    /**
+     * Opens a recorder from the limited buffer. This will delete old records,
+     * and have at most <code>maximum_records</code> recordings at any time.
+     *
+     * The recorder will be automatically closed when the JVM shuts down.
+     *
+     * @param compressed if the recording should be compressed
+     * @param maximum_recordings the maximum number of recordings
+     * @return the opened recorder
+     * @throws IOException
+     */
+    public static Recorder open(boolean compressed, int maximum_recordings) throws IOException {
+        OutputStream out = openStream(compressed, maximum_recordings);
+        boolean success = false;
+        try {
+            Recorder rc = new Recorder(out);
+            Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+                try {
+                    rc.close();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }, "Shutdown-Recorder"));
+            success = true;
+            return rc;
+        } finally {
+            if (!success) {
+                out.close();
             }
-        } , "Shutdown-Recorder"));
-        return rc;
+        }
     }
 }

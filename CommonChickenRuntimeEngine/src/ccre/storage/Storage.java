@@ -99,6 +99,15 @@ public class Storage {
     }
 
     /**
+     * Lists the files and directories that exist in the storage directory.
+     *
+     * @return an array of the discovered files and directories.
+     */
+    public static String[] list() {
+        return basedir.list();
+    }
+
+    /**
      * Deletes a file from the storage directory.
      *
      * @param name the filename

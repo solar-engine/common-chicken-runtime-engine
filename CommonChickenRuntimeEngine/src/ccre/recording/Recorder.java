@@ -85,16 +85,16 @@ public class Recorder {
      * thread.
      *
      * @param stream the output stream.
-     * @throws IOException
+     * @throws IOException if the output stream fails.
      */
     public Recorder(OutputStream stream) throws IOException {
         this.rec = new ChanneledRecorder(stream);
     }
 
     /**
-     * Closes and shuts down this recorder.
+     * Closes and shuts down this recorder, and waits for the operation to complete.
      *
-     * @throws InterruptedException
+     * @throws InterruptedException if the thread is interrupted while waiting for the recorder to close.
      */
     public void close() throws InterruptedException {
         if (closed.compareAndSet(false, true)) {
@@ -174,6 +174,7 @@ public class Recorder {
     /**
      * Creates a discrete output logging to this recorder.
      *
+     * @param <E> the discrete element type.
      * @param name the channel name.
      * @param type the discrete output's type.
      * @return the new discrete output.
@@ -197,6 +198,7 @@ public class Recorder {
     /**
      * Records a discrete input.
      *
+     * @param <E> the discrete element type.
      * @param input the input to record.
      * @param name the channel name.
      */
@@ -276,6 +278,7 @@ public class Recorder {
     /**
      * Records a Faultable.
      *
+     * @param <F> the faultable fault type.
      * @param faults the faults to record.
      * @param name the channel name.
      */
@@ -459,7 +462,7 @@ public class Recorder {
      * @param compressed if the recording should be compressed
      * @param maximum_recordings the maximum number of recordings
      * @return the opened recorder
-     * @throws IOException
+     * @throws IOException if the recording cannot be set up.
      */
     public static Recorder open(boolean compressed, int maximum_recordings) throws IOException {
         OutputStream out = openStream(compressed, maximum_recordings);

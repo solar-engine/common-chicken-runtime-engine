@@ -270,6 +270,7 @@ public final class SuperCanvasPanel extends JPanel {
     /**
      * Get the first of any components of the specified component type.
      *
+     * @param <T> the type of the expected component.
      * @param componentType the type of component to find.
      * @return the component, if found, otherwise null.
      */

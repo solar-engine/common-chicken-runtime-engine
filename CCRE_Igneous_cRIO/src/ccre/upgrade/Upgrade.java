@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 Cel Skeggs
+ * Copyright 2015-2016 Cel Skeggs
  *
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  *
@@ -39,8 +39,8 @@ public class Upgrade {
     /**
      * The main method of the Upgrade Java code.
      *
-     * @param args
-     * @throws IOException
+     * @param args the arguments, as passed by the ant build file
+     * @throws IOException if the upgrade cannot be completed for invocation reasons.
      */
     public static void main(String[] args) throws IOException {
         System.out.println("If you have any issues, please ask about them on the forum thread on Chief Delphi at http://www.chiefdelphi.com/forums/showthread.php?t=130813");

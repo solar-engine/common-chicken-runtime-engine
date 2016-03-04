@@ -28,7 +28,7 @@ import ccre.channel.UpdatingInput;
  * A utility class that lets users define derived dataflow channels based on
  * other channels.
  *
- * <code>DiscreteInput<E> input = new DerivedDiscreteInput<E>(... some other inputs to watch ...) {<br>&nbsp;&nbsp;&nbsp;&nbsp;protected E apply() {<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return // some value<br>&nbsp;&nbsp;&nbsp;&nbsp;}<br>}</code>
+ * <code>DiscreteInput&lt;E&gt; input = new DerivedDiscreteInput&lt;E&gt;(... some other inputs to watch ...) {<br>&nbsp;&nbsp;&nbsp;&nbsp;protected E apply() {<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return // some value<br>&nbsp;&nbsp;&nbsp;&nbsp;}<br>}</code>
  *
  * Any other inputs may be specified in the constructor, which should be the
  * inputs that, when updated, might cause this to also update. When one of these

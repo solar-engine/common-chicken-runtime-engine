@@ -73,7 +73,7 @@ public class JarBuilder {
      * manifest is specified.
      *
      * @param preserve if the generated Jar should be preserved.
-     * @throws IOException
+     * @throws IOException if the new temporary Jar cannot be created.
      * @see Jar for an explanation of preservation.
      */
     public JarBuilder(boolean preserve) throws IOException {
@@ -86,7 +86,7 @@ public class JarBuilder {
      *
      * @param mf the manifest to include in the Jar.
      * @param preserve if the generated Jar should be preserved.
-     * @throws IOException
+     * @throws IOException if the new temporary Jar cannot be created.
      * @see Jar for an explanation of preservation.
      */
     public JarBuilder(Manifest mf, boolean preserve) throws IOException {
@@ -109,7 +109,7 @@ public class JarBuilder {
      * @param elem the dot-format name of the class, such as
      * <code>java.lang.Object</code>.
      * @param is the InputStream that carries the class data for this class.
-     * @throws IOException
+     * @throws IOException if the InputStream fails, or if the Jar output fails.
      */
     public void addClass(String elem, InputStream is) throws IOException {
         addResource(elem.replace('.', '/') + ".class", is);
@@ -122,7 +122,7 @@ public class JarBuilder {
      * @param name the path of the resource.
      * @param is the InputStream that carries the resource data for this
      * resource.
-     * @throws IOException
+     * @throws IOException if the InputStream fails, or if the Jar output fails.
      */
     public void addResource(String name, InputStream is) throws IOException {
         if (is == null) {
@@ -146,7 +146,8 @@ public class JarBuilder {
      *
      * @param name the path of the resource.
      * @param file the File that carries the resource data for this resource.
-     * @throws IOException
+     * @throws IOException if the file reading fails, or if the Jar output
+     * fails.
      */
     public void addResource(String name, File file) throws IOException {
         try (FileInputStream is = new FileInputStream(file)) {
@@ -160,7 +161,7 @@ public class JarBuilder {
      *
      * @param artifact the artifact to read data from.
      * @param andManifest if the manifest should be taken from this artifact.
-     * @throws IOException
+     * @throws IOException if the reading fails, or if the Jar output fails.
      */
     public void addAll(Artifact artifact, boolean andManifest) throws IOException {
         for (String cn : artifact.listClassNames()) {
@@ -178,7 +179,7 @@ public class JarBuilder {
      * Finalizes this Jar and converts it to a {@link Jar}.
      *
      * @return the built Jar.
-     * @throws IOException
+     * @throws IOException if the Jar cannot be converted properly.
      */
     public Jar build() throws IOException {
         jout.close();

@@ -55,6 +55,7 @@ public interface DiscreteIO<E> extends DiscreteInput<E>, DiscreteOutput<E> {
      * Compose a BooleanInput and a BooleanOutput into a single BooleanIO, which
      * dispatches to the two implementations.
      *
+     * @param <E> the type of the discrete element.
      * @param input the input to dispatch to.
      * @param output the output to dispatch to.
      * @return the composed BooleanIO.

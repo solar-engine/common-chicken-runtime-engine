@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2015 Cel Skeggs
+ * Copyright 2013-2016 Cel Skeggs
  *
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  *
@@ -60,6 +60,12 @@ public abstract class CluckSubscriber implements CluckLink {
      * A default implementation of {@link #send(String, String, byte[])} that
      * automatically sorts messages into direct messages (to null), broadcast
      * messages (to *), and side-channel messages (to a subpath.)
+     *
+     * @param dest the destination address, usually expected to be null or the
+     * broadcast address.
+     * @param source the source address.
+     * @param data the data.
+     * @return always true - never detach.
      *
      * @see #receive(String, byte[])
      * @see #receiveBroadcast(String, byte[])

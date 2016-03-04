@@ -68,6 +68,7 @@ public interface DiscreteOutput<E> {
     /**
      * Provides a discrete output for <code>type</code> that does nothing.
      *
+     * @param <E> the discrete element type
      * @param type the discrete type
      * @return the discrete output
      */

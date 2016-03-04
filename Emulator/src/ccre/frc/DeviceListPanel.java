@@ -97,6 +97,7 @@ public final class DeviceListPanel extends JPanel implements Iterable<Device> {
     /**
      * Add the specified device to this panel.
      *
+     * @param <E> the type of the added device.
      * @param comp The device to add.
      * @return the added device.
      */

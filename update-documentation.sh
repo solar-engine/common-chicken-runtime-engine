@@ -9,6 +9,6 @@ fi
 echo "This might take a bit."
 
 ./update-javadoc-site.sh || exit 1
-./build.sh upload || exit 1
+(cd docsrc && ./build.sh upload) || exit 1
 
 echo "Done!"

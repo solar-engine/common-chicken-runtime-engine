@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2016 Colby Skeggs
+ * Copyright 2013-2016 Cel Skeggs
  *
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  *
@@ -18,6 +18,7 @@
  */
 package ccre.channel;
 
+import ccre.timers.PauseTimer;
 import ccre.util.Utils;
 
 /**
@@ -26,8 +27,6 @@ import ccre.util.Utils;
  *
  * A FloatInput also acts as an UpdatingInput that updates when the value
  * changes, and never updates when the value doesn't change.
- *
- * TODO: Make sure that's actually true everywhere.
  *
  * By convention, most float inputs and outputs have states that range from
  * -1.0f to 1.0f.
@@ -88,7 +87,7 @@ public interface FloatInput extends UpdatingInput {
      * if it was added once.
      *
      * @param output The float output to notify when the value changes.
-     * @return an EventOutput that deregisters the registered EventOutput. DO
+     * @return a CancelOutput that deregisters the registered EventOutput. DO
      * NOT FIRE THIS RETURNED EVENT MORE THAN ONCE: UNDEFINED BEHAVIOR MAY
      * RESULT.
      */
@@ -164,6 +163,28 @@ public interface FloatInput extends UpdatingInput {
     }
 
     /**
+     * Provides a FloatInput whose value is the value of this FloatInput divided
+     * by the value of <code>other</code>.
+     *
+     * @param other the other FloatInput to include.
+     * @return the combined FloatInput.
+     */
+    public default FloatInput modulo(FloatInput other) {
+        return FloatOperation.modulation.of(this, other);
+    }
+
+    /**
+     * Provides a FloatInput whose value is the value of <code>other</code>
+     * modulo the value of this FloatInput.
+     *
+     * @param other the other FloatInput to include.
+     * @return the combined FloatInput.
+     */
+    public default FloatInput moduloRev(FloatInput other) {
+        return FloatOperation.modulation.of(other, this);
+    }
+
+    /**
      * Provides a FloatInput whose value is the value of this FloatInput plus
      * <code>other</code>.
      *
@@ -227,6 +248,28 @@ public interface FloatInput extends UpdatingInput {
      */
     public default FloatInput dividedByRev(float other) {
         return FloatOperation.division.of(other, this);
+    }
+
+    /**
+     * Provides a FloatInput whose value is the value of this FloatInput modulo
+     * <code>other</code>.
+     *
+     * @param other the other value to include.
+     * @return the combined FloatInput.
+     */
+    public default FloatInput modulo(float other) {
+        return FloatOperation.modulation.of(this, other);
+    }
+
+    /**
+     * Provides a FloatInput whose value is <code>other</code> modulo the value
+     * of this FloatInput.
+     *
+     * @param other the other value to include.
+     * @return the combined FloatInput.
+     */
+    public default FloatInput moduloRev(float other) {
+        return FloatOperation.modulation.of(other, this);
     }
 
     /**
@@ -596,6 +639,23 @@ public interface FloatInput extends UpdatingInput {
     }
 
     /**
+     * Provides a version of this FloatInput with ramping applied.
+     *
+     * @param limit the maximum delta value per time when
+     * <code>updateWhen</code> is fired.
+     * @param updateWhen when the ramping should update.
+     * @return a ramped version of this FloatInput.
+     */
+    public default FloatInput withRamping(final FloatInput limit, EventInput updateWhen) {
+        if (limit == null || updateWhen == null) {
+            throw new NullPointerException();
+        }
+        FloatCell temp = new FloatCell();
+        updateWhen.send(this.createRampingEvent(limit, temp));
+        return temp;
+    }
+
+    /**
      * Provides an event that ramps the value of this FloatInput, and sends the
      * result of the ramping to <code>target</code>.
      *
@@ -603,18 +663,34 @@ public interface FloatInput extends UpdatingInput {
      * @param target the output to control with this ramping.
      * @return an event that continues ramping.
      */
-    public default EventOutput createRampingEvent(final float limit, final FloatOutput target) {
-        if (target == null) {
-            throw new NullPointerException();
-        }
+    public default EventOutput createRampingEvent(float limit, FloatOutput target) {
         if (Float.isNaN(limit)) {
             throw new IllegalArgumentException("Ramping rate cannot be NaN!");
+        }
+        return createRampingEvent(FloatInput.always(limit), target);
+    }
+
+    /**
+     * Provides an event that ramps the value of this FloatInput, and sends the
+     * result of the ramping to <code>target</code>.
+     *
+     * @param limit the maximum delta value per time that the event is fired.
+     * @param target the output to control with this ramping.
+     * @return an event that continues ramping.
+     */
+    public default EventOutput createRampingEvent(final FloatInput limit, final FloatOutput target) {
+        if (target == null || limit == null) {
+            throw new NullPointerException();
         }
         return new EventOutput() {
             private float last = get();
 
             public void event() {
-                last = Utils.updateRamping(last, get(), limit);
+                if (Float.isNaN(last)) {
+                    last = get();
+                } else {
+                    last = Utils.updateRamping(last, get(), limit.get());
+                }
                 target.set(last);
             }
         };
@@ -625,16 +701,41 @@ public interface FloatInput extends UpdatingInput {
      * will only update when the current value of this FloatInput changes, and
      * will be based on the change and on the amount of time that it took.
      *
-     * WARNING: since this only updates when the value changes, it might not be
-     * suitable for all applications!
-     *
      * @return the derivative of this FloatInput.
+     * @deprecated since this only updates when the value changes, it will
+     * (almost) never actually reach zero!
      */
-    // TODO: find a solution to the limited-update issue.
+    @Deprecated
     public default FloatInput derivative() {
         FloatCell out = new FloatCell();
         FloatOutput deriv = out.viaDerivative();
         onUpdate(() -> deriv.set(get()));
+        return out;
+    }
+
+    /**
+     * Provides the derivative of this FloatInput as another FloatInput. This
+     * will only update when the current value of this FloatInput changes, and
+     * will be based on the change and on the amount of time that it took.
+     *
+     * <code>millis</code> is the number of milliseconds after which to assume
+     * that the motors have stopped, if no value is received. This must be at
+     * least a bit longer than the update period of the speed sensor, so usually
+     * needs to be higher than 20 milliseconds. 25 milliseconds is a decent
+     * default.
+     *
+     * @param millis the assume-stopped delay.
+     * @return the derivative of this FloatInput.
+     */
+    public default FloatInput derivative(int millis) {
+        FloatCell out = new FloatCell();
+        FloatOutput deriv = out.viaDerivative();
+        PauseTimer t = new PauseTimer("derivative", FloatInput.always(millis / 1000f));
+
+        EventOutput update = t.combine(deriv.eventSet(this));
+
+        t.triggerAtEnd(update);
+        onUpdate(update);
         return out;
     }
 

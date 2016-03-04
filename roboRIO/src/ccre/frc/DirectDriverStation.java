@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2016 Colby Skeggs
+ * Copyright 2015-2016 Cel Skeggs
  *
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  *
@@ -142,5 +142,9 @@ class DirectDriverStation {
         if (joy < 0 || joy >= JOYSTICK_NUM) {
             throw new RuntimeException("Invalid joystick port: " + joy);
         }
+    }
+
+    public static void setStickRumble(int joy, float leftRumble, float rightRumble) {
+        FRCNetworkCommunicationsLibrary.HALSetJoystickOutputs((byte) joy, 0, (short) Math.max(0, Math.min(65535, (int) (65535 * leftRumble))), (short) Math.max(0, Math.min(65535, (int) (65535 * rightRumble))));
     }
 }

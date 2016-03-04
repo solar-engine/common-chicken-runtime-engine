@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2015 Colby Skeggs.
+ * Copyright 2013-2016 Cel Skeggs
  *
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  *
@@ -20,53 +20,45 @@ package ccre.supercanvas;
 
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import java.util.function.Supplier;
 
 import javax.swing.JFrame;
 
-import ccre.log.FileLogger;
 import ccre.log.Logger;
-import ccre.log.NetworkAutologger;
-import ccre.net.TrafficCounting;
-import ccre.supercanvas.components.LoggingComponent;
-import ccre.supercanvas.components.palette.TopLevelPaletteComponent;
-import ccre.supercanvas.components.pinned.CluckNetworkingComponent;
-import ccre.supercanvas.components.pinned.EditModeComponent;
-import ccre.supercanvas.components.pinned.SaveLoadComponent;
-import ccre.supercanvas.components.pinned.StartComponent;
 
 /**
- * The launcher for the SuperCanvas system.
+ * A complete super canvas window.
  *
  * @author skeggsc
  */
-public class SuperCanvasMain extends JFrame {
+public class SuperCanvasFrame extends JFrame {
+
+    private static final long serialVersionUID = -5519889225965621620L;
 
     /**
-     * The main method of the Poultry Inspector.
-     *
-     * @param args the unused program arguments.
+     * Opens the window.
      */
-    public static void main(String args[]) {
-        TrafficCounting.setCountingEnabled(true);
-        NetworkAutologger.register();
-        FileLogger.register();
-        java.awt.EventQueue.invokeLater(new Runnable() {
-            @Override
-            public void run() {
-                new SuperCanvasMain().setVisible(true);
-            }
-        });
+    public void start() {
+        java.awt.EventQueue.invokeLater(() -> setVisible(true));
     }
-
-    private static final long serialVersionUID = -4924276427803831926L;
 
     private final SuperCanvasPanel canvas = new SuperCanvasPanel();
 
-    private SuperCanvasMain() {
-        super("Poultry Inspector");
+    /**
+     * Creates a new SuperCanvasFrame, with a window title, a supplier for popup
+     * components that appear when the user presses shift, and an array of
+     * components that will appear by default.
+     *
+     * @param name the window title.
+     * @param popup a constructor for popup components.
+     * @param components the components to display initially.
+     */
+    public SuperCanvasFrame(String name, Supplier<? extends SuperCanvasComponent> popup, SuperCanvasComponent... components) {
+        super(name);
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         this.setContentPane(canvas);
         this.setSize(640, 480);
+        Class<? extends SuperCanvasComponent> expected = popup.get().getClass();
         this.addKeyListener(new KeyAdapter() {
             @Override
             public void keyPressed(KeyEvent e) {
@@ -92,8 +84,8 @@ public class SuperCanvasMain extends JFrame {
                     } else if (e.getKeyCode() == KeyEvent.VK_SHIFT) {
                         if (e.isControlDown()) {
                             canvas.editmode = !canvas.editmode;
-                        } else if (!canvas.removeAll(TopLevelPaletteComponent.class)) {
-                            canvas.add(new TopLevelPaletteComponent(200, 200));
+                        } else if (!canvas.removeAll(expected)) {
+                            canvas.add(popup.get());
                         }
                     }
                 } catch (Throwable thr) {
@@ -101,11 +93,9 @@ public class SuperCanvasMain extends JFrame {
                 }
             }
         });
-        canvas.add(new LoggingComponent(312, 300));
-        canvas.add(new CluckNetworkingComponent());
-        canvas.add(new EditModeComponent());
-        canvas.add(new StartComponent());
-        canvas.add(new SaveLoadComponent(0, 0));
+        for (SuperCanvasComponent component : components) {
+            canvas.add(component);
+        }
         canvas.start();
     }
 }

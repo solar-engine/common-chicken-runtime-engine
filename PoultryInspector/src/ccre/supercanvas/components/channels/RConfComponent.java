@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2016 Colby Skeggs.
+ * Copyright 2014-2016 Cel Skeggs
  *
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  *
@@ -25,7 +25,6 @@ import java.util.Objects;
 
 import javax.swing.JOptionPane;
 
-import ccre.channel.EventOutput;
 import ccre.concurrency.CollapsingWorkerThread;
 import ccre.log.Logger;
 import ccre.rconf.RConf;
@@ -45,6 +44,7 @@ import ccre.util.Utils;
  */
 public class RConfComponent extends DraggableBoxComponent {
 
+    @SuppressWarnings("serial")
     private final class UpdatingWorker extends CollapsingWorkerThread {
         private UpdatingWorker() {
             super("RConf-Updater");
@@ -68,6 +68,7 @@ public class RConfComponent extends DraggableBoxComponent {
         }
     }
 
+    @SuppressWarnings("serial")
     private final class SignalingWorker extends CollapsingWorkerThread {
         private SignalingWorker() {
             super("RConf-Signaler");
@@ -182,14 +183,11 @@ public class RConfComponent extends DraggableBoxComponent {
         }
         if (delay != null) {
             autoRefreshTicker = new Ticker(delay);
-            autoRefreshTicker.send(new EventOutput() {
-                @Override
-                public void event() {
-                    if (getPanel() == null) {
-                        setAutoRefreshDelay(null);
-                    } else {
-                        getUpdater().trigger();
-                    }
+            autoRefreshTicker.send(() -> {
+                if (getPanel() == null) {
+                    setAutoRefreshDelay(null);
+                } else {
+                    getUpdater().trigger();
                 }
             });
         }

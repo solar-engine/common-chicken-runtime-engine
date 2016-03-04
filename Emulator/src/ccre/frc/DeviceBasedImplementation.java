@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2015 Colby Skeggs
+ * Copyright 2014-2016 Cel Skeggs
  * Copyright 2015 Jake Springer
  *
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
@@ -19,17 +19,25 @@
  */
 package ccre.frc;
 
+import java.io.IOException;
+
+import ccre.bus.DisconnectedI2CIO;
+import ccre.bus.DisconnectedRS232IO;
+import ccre.bus.DisconnectedSPIIO;
+import ccre.bus.I2CBus;
+import ccre.bus.LoopbackRS232IO;
+import ccre.bus.RS232Bus;
+import ccre.bus.SPIBus;
 import ccre.channel.BooleanInput;
 import ccre.channel.BooleanOutput;
 import ccre.channel.EventInput;
 import ccre.channel.FloatInput;
 import ccre.channel.FloatOutput;
-import ccre.channel.SerialIO;
-import ccre.ctrl.DisconnectedSerialIO;
 import ccre.ctrl.ExtendedMotor;
 import ccre.ctrl.Joystick;
-import ccre.ctrl.LoopbackSerialIO;
 import ccre.ctrl.binding.ControlBindingCreator;
+import ccre.discrete.DiscreteInput;
+import ccre.drivers.ctre.talon.TalonExtendedMotor;
 import ccre.frc.devices.BooleanControlDevice;
 import ccre.frc.devices.BooleanViewDevice;
 import ccre.frc.devices.CANJaguarDevice;
@@ -131,10 +139,22 @@ public class DeviceBasedImplementation implements FRCImplementation {
                 typename = "Jaguar";
                 break;
             case FRCImplementation.TALON:
-                typename = "Talon";
+                typename = "Talon SR";
                 break;
             case FRCImplementation.VICTOR:
                 typename = "Victor";
+                break;
+            case FRCImplementation.VICTORSP:
+                typename = "Victor SP";
+                break;
+            case FRCImplementation.SPARK:
+                typename = "Spark";
+                break;
+            case FRCImplementation.SD540:
+                typename = "SD540";
+                break;
+            case FRCImplementation.TALONSRX:
+                typename = "Talon SRX (PWM)";
                 break;
             default:
                 typename = "Unknown (%" + type + ")";
@@ -151,7 +171,7 @@ public class DeviceBasedImplementation implements FRCImplementation {
     }
 
     @Override
-    public ExtendedMotor makeCANTalon(int deviceNumber) {
+    public TalonExtendedMotor makeCANTalon(int deviceNumber) {
         return new CANTalonDevice(deviceNumber, panel).addToMaster().getMotor();
     }
 
@@ -227,17 +247,17 @@ public class DeviceBasedImplementation implements FRCImplementation {
 
     @Override
     public BooleanInput getIsDisabled() {
-        return mode.getIsMode(RobotModeDevice.RobotMode.DISABLED);
+        return mode.getIsMode(FRCMode.DISABLED);
     }
 
     @Override
     public BooleanInput getIsAutonomous() {
-        return mode.getIsMode(RobotModeDevice.RobotMode.AUTONOMOUS);
+        return mode.getIsMode(FRCMode.AUTONOMOUS);
     }
 
     @Override
     public BooleanInput getIsTest() {
-        return mode.getIsMode(RobotModeDevice.RobotMode.TESTING);
+        return mode.getIsMode(FRCMode.TEST);
     }
 
     private BooleanInput isFMS;
@@ -302,52 +322,52 @@ public class DeviceBasedImplementation implements FRCImplementation {
         return masterPeriodic;
     }
 
-    private EventInput getModeBecomes(RobotModeDevice.RobotMode target) {
+    private EventInput getModeBecomes(FRCMode target) {
         return mode.getIsMode(target).onPress();
     }
 
-    private EventInput getModeDuring(RobotModeDevice.RobotMode target) {
+    private EventInput getModeDuring(FRCMode target) {
         return masterPeriodic.and(mode.getIsMode(target));
     }
 
     @Override
     public EventInput getStartAuto() {
-        return getModeBecomes(RobotModeDevice.RobotMode.AUTONOMOUS);
+        return getModeBecomes(FRCMode.AUTONOMOUS);
     }
 
     @Override
     public EventInput getDuringAuto() {
-        return getModeDuring(RobotModeDevice.RobotMode.AUTONOMOUS);
+        return getModeDuring(FRCMode.AUTONOMOUS);
     }
 
     @Override
     public EventInput getStartTele() {
-        return getModeBecomes(RobotModeDevice.RobotMode.TELEOPERATED);
+        return getModeBecomes(FRCMode.TELEOP);
     }
 
     @Override
     public EventInput getDuringTele() {
-        return getModeDuring(RobotModeDevice.RobotMode.TELEOPERATED);
+        return getModeDuring(FRCMode.TELEOP);
     }
 
     @Override
     public EventInput getStartTest() {
-        return getModeBecomes(RobotModeDevice.RobotMode.TESTING);
+        return getModeBecomes(FRCMode.TEST);
     }
 
     @Override
     public EventInput getDuringTest() {
-        return getModeDuring(RobotModeDevice.RobotMode.TESTING);
+        return getModeDuring(FRCMode.TEST);
     }
 
     @Override
     public EventInput getStartDisabled() {
-        return getModeBecomes(RobotModeDevice.RobotMode.DISABLED);
+        return getModeBecomes(FRCMode.DISABLED);
     }
 
     @Override
     public EventInput getDuringDisabled() {
-        return getModeDuring(RobotModeDevice.RobotMode.DISABLED);
+        return getModeDuring(FRCMode.DISABLED);
     }
 
     private final BooleanViewDevice pcmCompressor = new BooleanViewDevice("PCM Compressor Closed-Loop Control", true);
@@ -392,34 +412,108 @@ public class DeviceBasedImplementation implements FRCImplementation {
     }
 
     @Override
+    public FloatInput getPDPTotalCurrent(EventInput updateOn) {
+        return getAmperage("PDP Total", updateOn);
+    }
+
+    @Override
     public FloatInput getPDPVoltage(EventInput updateOn) {
         return panel.add(new FloatControlDevice("PDP Voltage (6.5V-12.5V)", 6.5f, 12.5f, 9.5f, 6.5f)).asInput();
     }
 
     @Override
-    public SerialIO makeRS232_Onboard(int baudRate, String deviceName) {
-        return makeRS232("RS232 Onboard: " + baudRate, deviceName);
+    public RS232Bus makeRS232_Onboard(String deviceName) {
+        return makeRS232("RS232 Onboard", deviceName);
     }
 
     @Override
-    public SerialIO makeRS232_MXP(int baudRate, String deviceName) {
-        return makeRS232("RS232 MXP: " + baudRate, deviceName);
+    public RS232Bus makeRS232_MXP(String deviceName) {
+        return makeRS232("RS232 MXP", deviceName);
     }
 
     @Override
-    public SerialIO makeRS232_USB(int baudRate, String deviceName) {
-        return makeRS232("RS232 USB: " + baudRate, deviceName);
+    public RS232Bus makeRS232_USB(String deviceName) {
+        return makeRS232("RS232 USB", deviceName);
     }
 
-    private SerialIO makeRS232(String display, String deviceName) {
-        if ("loopback".equals(deviceName)) {
-            panel.add(new HeadingDevice(display + ": Loopback"));
-            return new LoopbackSerialIO();
-        } else {
-            panel.add(new HeadingDevice(display + ": Disconnected"));
-            Logger.warning("Unrecognized serial device name '" + deviceName + "' on " + display + " - not emulating anything.");
-            return new DisconnectedSerialIO();
-        }
+    private RS232Bus makeRS232(String display, String deviceName) {
+        HeadingDevice device = new HeadingDevice(display + ": Unqueried");
+        panel.add(device);
+        return (baudRate, parity, stopBits, timeout, dataBits) -> {
+            String display1 = display + ": " + baudRate + "/" + parity + "/" + stopBits + "/" + timeout + "/" + dataBits;
+            if ("loopback".equals(deviceName)) {
+                device.setHeading(display1 + ": Loopback");
+                return new LoopbackRS232IO() {
+                    public void close() throws IOException {
+                        super.close();
+                        device.setHeading(display + ": Unqueried");
+                    }
+                };
+            } else {
+                device.setHeading(display1 + ": Disconnected");
+                Logger.warning("Unrecognized serial device name '" + deviceName + "' on " + display1 + " - not emulating anything.");
+                return new DisconnectedRS232IO() {
+                    public void close() throws IOException {
+                        super.close();
+                        device.setHeading(display + ": Unqueried");
+                    }
+                };
+            }
+        };
+    }
+
+    @Override
+    public I2CBus makeI2C_Onboard(String deviceName) {
+        return makeI2C("I2C Onboard", deviceName);
+    }
+
+    @Override
+    public I2CBus makeI2C_MXP(String deviceName) {
+        return makeI2C("I2C MXP", deviceName);
+    }
+
+    private I2CBus makeI2C(String display, String deviceName) {
+        HeadingDevice device = new HeadingDevice(display + ": Unqueried");
+        panel.add(device);
+        return (deviceAddress) -> {
+            String display1 = display + " dev " + deviceAddress;
+            // TODO: have more options for deviceName.
+            device.setHeading(display1 + ": Disconnected");
+            Logger.warning("Unrecognized I2C device name '" + deviceName + "' on " + display1 + " - not emulating anything.");
+            return new DisconnectedI2CIO() {
+                public void close() throws IOException {
+                    super.close();
+                    device.setHeading(display + ": Unqueried");
+                }
+            };
+        };
+    }
+
+    @Override
+    public SPIBus makeSPI_Onboard(int cs, String deviceName) {
+        return makeSPI("SPI Onboard CS=" + cs, deviceName);
+    }
+
+    @Override
+    public SPIBus makeSPI_MXP(String deviceName) {
+        return makeSPI("SPI MXP", deviceName);
+    }
+
+    private SPIBus makeSPI(String display, String deviceName) {
+        HeadingDevice device = new HeadingDevice(display + ": Unqueried");
+        panel.add(device);
+        return (hertz, isMSB, dataOnFalling, clockActiveLow, chipSelectActiveLow) -> {
+            String display1 = display + " " + hertz + "/" + (isMSB ? "MSB" : "LSB") + "/" + (dataOnFalling ? "Falling" : "Rising") + "/" + (clockActiveLow ? "CAL" : "CAH") + "/" + (chipSelectActiveLow ? "CSAL" : "CSAH");
+            // TODO: have more options for deviceName.
+            device.setHeading(display1 + ": Disconnected");
+            Logger.warning("Unrecognized SPI device name '" + deviceName + "' on " + display1 + " - not emulating anything.");
+            return new DisconnectedSPIIO() {
+                public void close() throws IOException {
+                    super.close();
+                    device.setHeading(display + ": Unqueried");
+                }
+            };
+        };
     }
 
     @Override
@@ -501,5 +595,10 @@ public class DeviceBasedImplementation implements FRCImplementation {
     @Override
     public EventInput getOnInitComplete() {
         return onInitComplete;
+    }
+
+    @Override
+    public DiscreteInput<FRCMode> getMode() {
+        return mode.getMode();
     }
 }

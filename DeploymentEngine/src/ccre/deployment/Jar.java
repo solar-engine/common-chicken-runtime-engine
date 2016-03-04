@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2016 Colby Skeggs.
+ * Copyright 2015-2016 Cel Skeggs
  *
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  *
@@ -50,7 +50,7 @@ public class Jar extends Artifact {
      * Wraps the Jar in the specified file.
      *
      * @param jar the file to wrap.
-     * @throws IOException
+     * @throws IOException if the jar cannot be opened or is malformed.
      */
     public Jar(File jar) throws IOException {
         this.jarfile = new JarFile(jar);

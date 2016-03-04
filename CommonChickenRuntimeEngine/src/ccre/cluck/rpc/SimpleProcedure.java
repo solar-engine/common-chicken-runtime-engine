@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 Colby Skeggs
+ * Copyright 2014 Cel Skeggs
  *
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  *

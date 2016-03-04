@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2016 Colby Skeggs.
+ * Copyright 2015-2016 Cel Skeggs
  *
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  *
@@ -24,6 +24,9 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.io.Serializable;
+import java.util.function.Supplier;
+
 import org.junit.Test;
 
 import ccre.channel.BooleanCell;
@@ -33,11 +36,20 @@ import ccre.cluck.Cluck;
 import ccre.cluck.rpc.SimpleProcedure;
 import ccre.log.LogLevel;
 import ccre.log.LoggingTarget;
-import ccre.rconf.RConfable;
 import ccre.rconf.RConf.Entry;
-import ccre.supercanvas.components.*;
-import ccre.supercanvas.components.palette.*;
-import ccre.supercanvas.components.pinned.*;
+import ccre.rconf.RConfable;
+import ccre.supercanvas.components.FolderComponent;
+import ccre.supercanvas.components.LoggingComponent;
+import ccre.supercanvas.components.TextComponent;
+import ccre.supercanvas.components.TopLevelRConfComponent;
+import ccre.supercanvas.components.TrashComponent;
+import ccre.supercanvas.components.palette.ListPaletteComponent;
+import ccre.supercanvas.components.palette.NetworkPaletteComponent;
+import ccre.supercanvas.components.palette.TopLevelPaletteComponent;
+import ccre.supercanvas.components.pinned.CluckNetworkingComponent;
+import ccre.supercanvas.components.pinned.EditModeComponent;
+import ccre.supercanvas.components.pinned.SaveLoadComponent;
+import ccre.supercanvas.components.pinned.StartComponent;
 import ccre.util.LineCollectorOutputStream;
 
 @SuppressWarnings("javadoc")
@@ -84,7 +96,7 @@ public class SerializationIntegrationTest {
         canvas.add(new LoggingComponent(312, 300));
         canvas.add(new CluckNetworkingComponent(CluckNetworkingComponent.DO_NOT_CONNECT));
         canvas.add(new EditModeComponent());
-        canvas.add(new StartComponent());
+        canvas.add(new StartComponent((Supplier<? extends SuperCanvasComponent> & Serializable) () -> new ListPaletteComponent(300, 300), "PALETTE", 0));
         canvas.add(new SaveLoadComponent(0, 0));
         canvas.add(new FolderComponent(30, 30));
         canvas.add(new TextComponent(100, 200, "Some Text"));
@@ -93,7 +105,7 @@ public class SerializationIntegrationTest {
         canvas.add(new ListPaletteComponent(400, 400));
         NetworkPaletteComponent npc;
         canvas.add(npc = new NetworkPaletteComponent(300, 400));
-        canvas.add(new TopLevelPaletteComponent(400, 300));
+        canvas.add(new TopLevelPaletteComponent(400, 300, LoggingComponent.class, NetworkPaletteComponent.class, ListPaletteComponent.class, FolderComponent.class, TrashComponent.class, TextComponent.class, TopLevelRConfComponent.class));
         int x = 0;
         for (String name : new String[] { "test-boolean", "test-float", "test-event", "test-boolean.input", "test-float.input", "test-event.input", "test-boolean.output", "test-float.output", "test-event.output", "test-logging", "test-output", "test-rconf", "test-rpc" }) {
             canvas.add(npc.getComponentFor(x, 300, name));

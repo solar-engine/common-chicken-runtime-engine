@@ -10,6 +10,7 @@ import ccre.channel.FloatOutput;
 import ccre.cluck.Cluck;
 import ccre.ctrl.binding.ControlBindingCreator;
 import ccre.frc.FRC;
+import ccre.recording.Recorder;
 
 public class DriveCode {
     private static final ControlBindingCreator controls = FRC.controlBinding();
@@ -19,7 +20,8 @@ public class DriveCode {
     private static final BehaviorArbitrator driveControl = new BehaviorArbitrator("Drive Base").publish();
     private static final ArbitratedFloat leftMotors = driveControl.addFloat(), rightMotors = driveControl.addFloat();
 
-    public static void setup() {
+    public static void setup(Recorder rc) {
+        rc.recordBehaviors(driveControl);
         driveCode();
         pitMode();
         currentFault();

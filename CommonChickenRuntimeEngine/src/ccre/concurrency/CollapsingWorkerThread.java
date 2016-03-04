@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2015 Colby Skeggs
+ * Copyright 2013-2016 Cel Skeggs
  *
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  *
@@ -54,9 +54,9 @@ public abstract class CollapsingWorkerThread extends ReporterThread implements E
      */
     private final Object lockObject = new Object();
     /**
-     * A BooleanStatus that represents if work is currently running.
+     * A BooleanCell that represents if work is currently running.
      */
-    private BooleanCell runningStatus;
+    private final BooleanCell runningCell = new BooleanCell();
     /**
      * Should this thread stop doing work now?
      */
@@ -131,10 +131,7 @@ public abstract class CollapsingWorkerThread extends ReporterThread implements E
      * @return a BooleanInput reflecting if work is happening.
      */
     public BooleanInput getRunningStatus() {
-        if (runningStatus == null) {
-            runningStatus = new BooleanCell();
-        }
-        return runningStatus;
+        return runningCell;
     }
 
     /**
@@ -162,15 +159,11 @@ public abstract class CollapsingWorkerThread extends ReporterThread implements E
                 needsToRun = false;
             }
             try {
-                if (runningStatus != null) {
-                    runningStatus.set(true);
-                    try {
-                        doWork();
-                    } finally {
-                        runningStatus.set(false);
-                    }
-                } else {
+                runningCell.set(true);
+                try {
                     doWork();
+                } finally {
+                    runningCell.set(false);
                 }
             } catch (Throwable t) {
                 Logger.severe("Uncaught exception in worker thread: " + this.getName(), t);

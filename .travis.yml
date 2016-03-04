@@ -1,15 +1,17 @@
 language: java
 jdk:
 - oraclejdk8
-sudo: required
-dist: trusty
+sudo: false
+addons:
+  apt:
+    sources:
+    - git-core
+    packages:
+    - git
 before_install:
 - echo "Travis PR =" $TRAVIS_PULL_REQUEST
 - if [ "$TRAVIS_PULL_REQUEST" = "false" ]; then openssl aes-256-cbc -K $encrypted_a7233f0128dd_key -iv $encrypted_a7233f0128dd_iv -in ci/ssh-keys/travis-key.enc -out ci/ssh-keys/travis-key -d; echo "Decoded."; fi
-install:
-- sudo add-apt-repository ppa:git-core/ppa -y
-- sudo apt-get update
-- sudo apt-get install git -y
+install: true
 script: cd ci && ./build-shell.sh && cd ..
 notifications:
   slack:

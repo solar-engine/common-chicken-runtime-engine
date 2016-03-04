@@ -1,4 +1,4 @@
-// Certain modifications are Copyright 2016 Colby Skeggs
+// Certain modifications are Copyright 2016 Cel Skeggs
 /*----------------------------------------------------------------------------*/
 /* Copyright (c) FIRST 2016. All Rights Reserved.                             */
 /* Open Source Software - may be modified and shared by FRC teams. The code   */

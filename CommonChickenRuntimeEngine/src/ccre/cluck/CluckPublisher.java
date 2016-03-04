@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2015 Colby Skeggs
+ * Copyright 2013-2016 Cel Skeggs
  *
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  *
@@ -120,7 +120,7 @@ public class CluckPublisher {
         if (node == null || path == null) {
             throw new NullPointerException();
         }
-        return new SubscribedEventOutput(node, path);
+        return () -> node.transmit(path, null, new byte[] { CluckConstants.RMT_EVENTOUTP });
     }
 
     /**
@@ -132,11 +132,9 @@ public class CluckPublisher {
      */
     public static void publish(final CluckNode node, final String name, EventInput input) {
         final CopyOnWriteArrayList<String> remotes = new CopyOnWriteArrayList<String>();
-        input.send(new EventOutput() {
-            public void event() {
-                for (String remote : remotes) {
-                    node.transmit(remote, name, new byte[] { CluckConstants.RMT_EVENTINPUTRESP });
-                }
+        input.send(() -> {
+            for (String remote : remotes) {
+                node.transmit(remote, name, new byte[] { CluckConstants.RMT_EVENTINPUTRESP });
             }
         });
         new CluckSubscriber(node) {
@@ -303,7 +301,7 @@ public class CluckPublisher {
         if (node == null || path == null) {
             throw new NullPointerException();
         }
-        return new SubscribedBooleanOutput(node, path);
+        return (b) -> node.transmit(path, null, new byte[] { CluckConstants.RMT_BOOLOUTP, b ? (byte) 1 : 0 });
     }
 
     /**
@@ -390,15 +388,18 @@ public class CluckPublisher {
         if (node == null || path == null) {
             throw new NullPointerException();
         }
-        return new SubscribedFloatOutput(node, path);
+        return (f) -> {
+            int iver = Float.floatToIntBits(f);
+            node.transmit(path, null, new byte[] { CluckConstants.RMT_FLOATOUTP, (byte) (iver >> 24), (byte) (iver >> 16), (byte) (iver >> 8), (byte) iver });
+        };
     }
 
     /**
      * Publish a FloatIO on the network.
      *
      * @param node The node to publish on.
-     * @param name The name for the FloatStatus.
-     * @param stat The FloatStatus.
+     * @param name The name for the FloatIO.
+     * @param stat The FloatIO.
      */
     public static void publish(CluckNode node, String name, FloatIO stat) {
         publish(node, name + ".input", stat.asInput());
@@ -424,8 +425,8 @@ public class CluckPublisher {
      * Publish a BooleanIO on the network.
      *
      * @param node The node to publish on.
-     * @param name The name for the BooleanStatus.
-     * @param stat The BooleanStatus to publish.
+     * @param name The name for the BooleanIO.
+     * @param stat The BooleanIO to publish.
      */
     public static void publish(CluckNode node, String name, BooleanIO stat) {
         publish(node, name + ".input", stat.asInput());
@@ -448,13 +449,13 @@ public class CluckPublisher {
     }
 
     /**
-     * Publish an EventStatus on the network.
+     * Publish an EventIO on the network.
      *
      * No corresponding subscribe is provided yet.
      *
      * @param node The node to publish on.
-     * @param name The name for the EventStatus.
-     * @param stat The EventStatus to publish.
+     * @param name The name for the EventIO.
+     * @param stat The EventIO to publish.
      */
     public static void publish(CluckNode node, String name, EventIO stat) {
         publish(node, name + ".input", stat.asInput());
@@ -480,6 +481,9 @@ public class CluckPublisher {
      * @param out The OutputStream.
      */
     public static void publish(final CluckNode node, String name, final OutputStream out) {
+        if (node == null || name == null || out == null) {
+            throw new NullPointerException();
+        }
         new CluckRMTSubscriber(node, CluckConstants.RMT_OUTSTREAM) {
             @Override
             protected void receiveValid(String source, byte[] data) {
@@ -502,7 +506,101 @@ public class CluckPublisher {
      * @return the OutputStream.
      */
     public static OutputStream subscribeOS(final CluckNode node, final String path) {
-        return new SubscribedObjectStream(node, path);
+        if (node == null || path == null) {
+            throw new NullPointerException();
+        }
+        return new SubscribedOutputStream(node, path);
+    }
+
+    /**
+     * Publish an OutputStream from the network. This returns an OutputStream
+     * that goes to any OutputStreams subscribing to this.
+     *
+     * @param node The node to publish on.
+     * @param name The name for the OutputStream.
+     * @return the OutputStream that goes to the network.
+     */
+    public static OutputStream publishOS(final CluckNode node, final String name) {
+        if (node == null || name == null) {
+            throw new NullPointerException();
+        }
+        final CopyOnWriteArrayList<String> remotes = new CopyOnWriteArrayList<String>();
+        new CluckSubscriber(node) {
+            @Override
+            protected void receive(String src, byte[] data) {
+                if (data.length != 0 && data[0] == CluckConstants.RMT_NEGATIVE_ACK) {
+                    if (remotes.remove(src)) {
+                        Logger.warning("Connection cancelled to " + src + " on " + name);
+                    } else {
+                        Logger.warning("Received cancellation to nonexistent " + src + " on " + name);
+                    }
+                } else if (requireRMT(src, data, CluckConstants.RMT_INPUTSTREAM) && !remotes.contains(src)) {
+                    remotes.add(src);
+                }
+            }
+
+            @Override
+            protected void receiveBroadcast(String source, byte[] data) {
+                defaultBroadcastHandle(source, data, CluckConstants.RMT_INPUTSTREAM);
+            }
+        }.attach(name);
+        return new OutputStream() {
+            @Override
+            public void write(int b) throws IOException {
+                for (String remote : remotes) {
+                    node.transmit(remote, name, new byte[] { CluckConstants.RMT_OUTSTREAM, (byte) b });
+                }
+            }
+
+            public void write(byte[] b, int off, int len) throws IOException {
+                if (len > 0) {
+                    byte[] bt = new byte[len + 1];
+                    bt[0] = CluckConstants.RMT_OUTSTREAM;
+                    System.arraycopy(b, off, bt, 1, len);
+                    for (String remote : remotes) {
+                        node.transmit(remote, name, bt);
+                    }
+                }
+            };
+        };
+    }
+
+    /**
+     * Subscribe from an OutputStream on the network at the specified path. This
+     * asks the OutputStream at the named output to stream its data to us.
+     *
+     * @param node The node to subscribe from.
+     * @param path The path to subscribe to.
+     * @param output The OutputStream to write to.
+     */
+    public static void subscribe(final CluckNode node, final String path, OutputStream output) {
+        if (node == null || path == null || output == null) {
+            throw new NullPointerException();
+        }
+        String linkName = UniqueIds.global.nextHexId("srcOS");
+        node.transmit(path, linkName, new byte[] { CluckConstants.RMT_INPUTSTREAM });
+
+        new CluckRMTSubscriber(node, CluckConstants.RMT_OUTSTREAM) {
+            @Override
+            protected void receiveValid(String src, byte[] data) {
+                if (!path.equals(src)) {
+                    Logger.warning("Bad source to " + linkName + ": " + src + " instead of " + path);
+                } else if (data.length > 1) {
+                    try {
+                        output.write(data, 1, data.length - 1);
+                    } catch (IOException ex) {
+                        Logger.warning("IO Exception during network transfer!", ex);
+                    }
+                }
+            }
+
+            @Override
+            protected void receiveBroadcast(String source, byte[] data) {
+                if (data.length == 1 && data[0] == CluckConstants.RMT_NOTIFY) {
+                    node.transmit(path, linkName, new byte[] { CluckConstants.RMT_INPUTSTREAM });
+                }
+            }
+        }.attach(linkName);
     }
 
     /**
@@ -669,7 +767,7 @@ public class CluckPublisher {
         }
     }
 
-    private static final class FloatInputPublishListener implements FloatOutput, Serializable {
+    private static final class FloatInputPublishListener implements FloatOutput {
         private static final long serialVersionUID = 1432024738866192130L;
         private final CopyOnWriteArrayList<String> remotes;
         private final String name;
@@ -689,7 +787,7 @@ public class CluckPublisher {
         }
     }
 
-    private static final class BooleanInputPublishListener implements BooleanOutput, Serializable {
+    private static final class BooleanInputPublishListener implements BooleanOutput {
         private static final long serialVersionUID = -7563622859541688219L;
         private final String name;
         private final CopyOnWriteArrayList<String> remotes;
@@ -1029,62 +1127,13 @@ public class CluckPublisher {
         }
     }
 
-    private static class SubscribedEventOutput implements EventOutput, Serializable {
-
-        private static final long serialVersionUID = 5103577228341124318L;
-        private final CluckNode node;
-        private final String path;
-
-        SubscribedEventOutput(CluckNode node, String path) {
-            this.node = node;
-            this.path = path;
-        }
-
-        public void event() {
-            node.transmit(path, null, new byte[] { CluckConstants.RMT_EVENTOUTP });
-        }
-    }
-
-    private static class SubscribedBooleanOutput implements BooleanOutput, Serializable {
-
-        private static final long serialVersionUID = -4068385997161728204L;
-        private final CluckNode node;
-        private final String path;
-
-        SubscribedBooleanOutput(CluckNode node, String path) {
-            this.node = node;
-            this.path = path;
-        }
-
-        public void set(boolean b) {
-            node.transmit(path, null, new byte[] { CluckConstants.RMT_BOOLOUTP, b ? (byte) 1 : 0 });
-        }
-    }
-
-    private static class SubscribedFloatOutput implements FloatOutput, Serializable {
-
-        private static final long serialVersionUID = -4377296771561862860L;
-        private final CluckNode node;
-        private final String path;
-
-        SubscribedFloatOutput(CluckNode node, String path) {
-            this.node = node;
-            this.path = path;
-        }
-
-        public void set(float f) {
-            int iver = Float.floatToIntBits(f);
-            node.transmit(path, null, new byte[] { CluckConstants.RMT_FLOATOUTP, (byte) (iver >> 24), (byte) (iver >> 16), (byte) (iver >> 8), (byte) iver });
-        }
-    }
-
-    private static class SubscribedObjectStream extends OutputStream implements Serializable {
+    private static class SubscribedOutputStream extends OutputStream implements Serializable {
 
         private static final long serialVersionUID = -9002013295388072459L;
         private final CluckNode node;
         private final String path;
 
-        SubscribedObjectStream(CluckNode node, String path) {
+        SubscribedOutputStream(CluckNode node, String path) {
             this.node = node;
             this.path = path;
         }

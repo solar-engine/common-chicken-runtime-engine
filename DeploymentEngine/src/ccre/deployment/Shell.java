@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 Colby Skeggs.
+ * Copyright 2015 Cel Skeggs.
  *
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  *
@@ -111,7 +111,7 @@ public class Shell implements AutoCloseable {
      *
      * @param sourcePath the path on the remote end to receive a file from.
      * @return the InputStream reading from that file.
-     * @throws IOException
+     * @throws IOException if the file cannot be received.
      */
     public InputStream receiveFile(String sourcePath) throws IOException {
         SCPFileTransfer transfer = client.newSCPFileTransfer();
@@ -127,7 +127,7 @@ public class Shell implements AutoCloseable {
      *
      * @param localFile the local file to upload.
      * @param remotePath the file or directory to upload the file to.
-     * @throws IOException
+     * @throws IOException if the file cannot be sent.
      */
     public void sendFileTo(File localFile, String remotePath) throws IOException {
         SCPFileTransfer transfer = client.newSCPFileTransfer();
@@ -143,7 +143,7 @@ public class Shell implements AutoCloseable {
      * @param remotePath the file or directory to upload the file to.
      * @param permissions the permissions for the file to have on the remote
      * end.
-     * @throws IOException
+     * @throws IOException if the file cannot be sent.
      */
     public void sendFileTo(InputStream stream, String name, String remotePath, int permissions) throws IOException {
         if (stream == null) {
@@ -187,7 +187,7 @@ public class Shell implements AutoCloseable {
      * @param resource the resource name.
      * @param remotePath the remote path to upload the file to.
      * @param permissions the permissions for the file to have.
-     * @throws IOException
+     * @throws IOException if the file cannot be sent.
      */
     public void sendBinResourceTo(Class<?> clazz, String resource, String remotePath, int permissions) throws IOException {
         try (InputStream resin = clazz.getResourceAsStream(resource)) {
@@ -207,7 +207,7 @@ public class Shell implements AutoCloseable {
      * @param resource the resource name.
      * @param remotePath the remote path to upload the file to.
      * @param permissions the permissions for the file to have.
-     * @throws IOException
+     * @throws IOException if the file cannot be sent.
      */
     public void sendTextResourceTo(Class<?> clazz, String resource, String remotePath, int permissions) throws IOException {
         try (InputStream resin = clazz.getResourceAsStream(resource)) {

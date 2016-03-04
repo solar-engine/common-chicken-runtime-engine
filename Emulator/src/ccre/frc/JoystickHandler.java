@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 Colby Skeggs
+ * Copyright 2015-2016 Cel Skeggs
  *
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  *
@@ -187,6 +187,11 @@ public class JoystickHandler {
                     }
                     int angle = (int) ((ctrl.pov.getPollData() * 360 + 270) % 360);
                     return direction == angle;
+                }
+
+                @Override
+                protected void setRumble(float left, float right) {
+                    // TODO: rumble in emulator
                 }
             };
         }

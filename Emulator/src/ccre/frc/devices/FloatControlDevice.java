@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2015 Colby Skeggs
+ * Copyright 2014-2016 Cel Skeggs
  *
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  *
@@ -18,6 +18,7 @@
  */
 package ccre.frc.devices;
 
+import ccre.channel.FloatIO;
 import ccre.channel.FloatInput;
 import ccre.frc.Device;
 import ccre.frc.components.ControlBarComponent;
@@ -74,5 +75,14 @@ public class FloatControlDevice extends Device {
      */
     public FloatInput asInput() {
         return value.asInput();
+    }
+
+    /**
+     * Provides access to this FloatControlDevice as a FloatIO.
+     *
+     * @return the FloatIO representing the value of this device.
+     */
+    public FloatIO asIO() {
+        return FloatIO.compose(value.asInput(), value);
     }
 }

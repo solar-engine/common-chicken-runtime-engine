@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 Colby Skeggs
+ * Copyright 2015-2016 Cel Skeggs
  *
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  *
@@ -19,20 +19,15 @@
 package ccre.channel;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import org.junit.After;
-import org.junit.AfterClass;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 
+import ccre.scheduler.VirtualTime;
 import ccre.testing.CountingEventOutput;
-import ccre.time.FakeTime;
-import ccre.time.Time;
 import ccre.util.Values;
 
 @SuppressWarnings("javadoc")
@@ -40,28 +35,11 @@ public class EventInputTest {
 
     private EventInput ei;
     private CountingEventOutput ceo, ceo2;
-    private static Time oldProvider;
-    private static FakeTime fake;
-
-    // These two are for 'debounced' testing.
-    @BeforeClass
-    public static void setUpClass() {
-        assertNull(oldProvider);
-        oldProvider = Time.getTimeProvider();
-        fake = new FakeTime();
-        Time.setTimeProvider(fake);
-    }
-
-    @AfterClass
-    public static void tearDownClass() {
-        assertNotNull(oldProvider);
-        Time.setTimeProvider(oldProvider);
-        oldProvider = null;
-        fake = null;
-    }
 
     @Before
     public void setUp() throws Exception {
+        // For 'debounced' testing.
+        VirtualTime.startFakeTime();
         ceo = new CountingEventOutput();
         ceo2 = new CountingEventOutput();
     }
@@ -71,6 +49,7 @@ public class EventInputTest {
         ei = null;
         ceo = null;
         ceo2 = null;
+        VirtualTime.endFakeTime();
     }
 
     @Test
@@ -176,7 +155,7 @@ public class EventInputTest {
             db.event();
             ceo.check();
             if (i % 3 == 2) {
-                fake.forward(millis / 2);
+                VirtualTime.forward(millis / 2);
             }
         }
     }

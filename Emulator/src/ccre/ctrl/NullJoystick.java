@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 Colby Skeggs
+ * Copyright 2015-2016 Cel Skeggs
  *
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  *
@@ -20,6 +20,7 @@ package ccre.ctrl;
 
 import ccre.channel.BooleanInput;
 import ccre.channel.FloatInput;
+import ccre.channel.FloatOutput;
 
 /**
  * A Joystick that has nothing pressed and all axes as zero.
@@ -43,4 +44,8 @@ public class NullJoystick implements Joystick {
         return BooleanInput.alwaysFalse;
     }
 
+    @Override
+    public FloatOutput rumble(boolean right) {
+        return FloatOutput.ignored;
+    }
 }

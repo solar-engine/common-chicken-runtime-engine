@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2016 Colby Skeggs
+ * Copyright 2015-2016 Cel Skeggs
  *
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  *
@@ -18,17 +18,13 @@
  */
 package ccre.timers;
 
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
 import static org.junit.Assert.fail;
 
 import java.util.ArrayList;
 import java.util.Collection;
 
 import org.junit.After;
-import org.junit.AfterClass;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
@@ -38,8 +34,7 @@ import ccre.channel.CancelOutput;
 import ccre.channel.EventOutput;
 import ccre.log.LogLevel;
 import ccre.log.VerifyingLogger;
-import ccre.time.FakeTime;
-import ccre.time.Time;
+import ccre.scheduler.VirtualTime;
 
 @SuppressWarnings("javadoc")
 @RunWith(Parameterized.class)
@@ -47,8 +42,6 @@ public class TickerTest {
 
     private static final String ERROR_STRING = "Ticker purposeful failure.";
 
-    private static Time oldProvider;
-    private static FakeTime fake;
     private Ticker ticker;
     private final int period;
     private final boolean fixedRate;
@@ -65,16 +58,9 @@ public class TickerTest {
         this.fixedRate = fixedRate;
     }
 
-    @BeforeClass
-    public static void setUpClass() {
-        assertNull(oldProvider);
-        oldProvider = Time.getTimeProvider();
-        fake = new FakeTime();
-        Time.setTimeProvider(fake);
-    }
-
     @Before
     public void setUp() {
+        VirtualTime.startFakeTime();
         ticker = new Ticker(period, fixedRate);
         counter = 0;
         VerifyingLogger.begin();
@@ -95,14 +81,7 @@ public class TickerTest {
         VerifyingLogger.checkAndEnd();
         ticker.terminate();
         ticker = null;
-    }
-
-    @AfterClass
-    public static void tearDownClass() {
-        assertNotNull(oldProvider);
-        Time.setTimeProvider(oldProvider);
-        oldProvider = null;
-        fake = null;
+        VirtualTime.endFakeTime();
     }
 
     private synchronized void check(int ctr) throws InterruptedException {
@@ -115,15 +94,13 @@ public class TickerTest {
     public void testCounting() throws InterruptedException {
         start(cb);
         for (int i = 0; i < 4; i++) {
-            fake.forward(period);
+            VirtualTime.forward(period);
         }
         check(4);
     }
 
     private CancelOutput start(EventOutput eo) throws InterruptedException {
-        CancelOutput unbind = ticker.send(eo);
-        Thread.sleep(5);
-        return unbind;
+        return ticker.send(eo);
     }
 
     @Test
@@ -131,8 +108,8 @@ public class TickerTest {
         if (period > 1) {
             start(cb);
             for (int i = 0; i < 15; i++) {
-                fake.forward(period / 2);
-                fake.forward(period - (period / 2));
+                VirtualTime.forward(period / 2);
+                VirtualTime.forward(period - (period / 2));
             }
             check(15);
         }
@@ -141,28 +118,28 @@ public class TickerTest {
     @Test
     public void testFastCounting() throws InterruptedException {
         start(cb);
-        fake.forward(period * 20);
+        VirtualTime.forward(period * 20);
         // skipping time that fast doesn't work well with this version of Ticker
         // - that's what the option is for!
-        check(fixedRate ? 20 : 1);
+        check(fixedRate ? 20 : 1); // flaky
     }
 
     @Test
     public void testUnbind() throws InterruptedException {
         CancelOutput unbind = start(cb);
         for (int i = 0; i < 20; i++) {
-            fake.forward(period);
+            VirtualTime.forward(period);
         }
         check(20);
 
         unbind.cancel();
 
-        fake.forward(period * 10);
+        VirtualTime.forward(period * 10);
 
         check(20);// nothing more
 
         for (int i = 0; i < 5; i++) {
-            fake.forward(period);
+            VirtualTime.forward(period);
         }
 
         check(20);// nothing more
@@ -173,7 +150,7 @@ public class TickerTest {
         start(cb).cancel();// bind and unbind
         start(cb);// rebind
         for (int i = 0; i < 5; i++) {
-            fake.forward(period);
+            VirtualTime.forward(period);
         }
         check(5);
     }
@@ -190,14 +167,11 @@ public class TickerTest {
         });
         for (int i = 0; i < 20; i++) {
             if (i < 5) {
-                VerifyingLogger.configure(LogLevel.SEVERE, "Top-level failure in Ticker event", (t) -> t.getClass() == RuntimeException.class && ERROR_STRING.equals(t.getMessage()));
+                VerifyingLogger.configure(LogLevel.SEVERE, "Top-level failure in scheduled event", (t) -> t.getClass() == RuntimeException.class && ERROR_STRING.equals(t.getMessage()));
             }
-            Thread.sleep(2);
-            fake.forward(period);
-            Thread.sleep(2);
+            VirtualTime.forward(period);
             VerifyingLogger.check();
         }
-        Thread.sleep(2);
         check(20);
     }
 
@@ -213,12 +187,11 @@ public class TickerTest {
         });
         for (int i = 0; i < 70; i++) {
             if (i % 10 == 9) {
-                VerifyingLogger.configure(LogLevel.SEVERE, "Top-level failure in Ticker event", (t) -> t.getClass() == RuntimeException.class && ERROR_STRING.equals(t.getMessage()));
+                VerifyingLogger.configure(LogLevel.SEVERE, "Top-level failure in scheduled event", (t) -> t.getClass() == RuntimeException.class && ERROR_STRING.equals(t.getMessage()));
             }
-            fake.forward(period);
+            VirtualTime.forward(period);
             VerifyingLogger.check();
         }
-        Thread.sleep(2);
         check(70);
     }
 }

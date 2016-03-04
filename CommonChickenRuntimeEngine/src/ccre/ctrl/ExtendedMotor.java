@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2015 Colby Skeggs
+ * Copyright 2014-2016 Cel Skeggs
  *
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  *
@@ -79,9 +79,13 @@ public abstract class ExtendedMotor {
          */
         TEMPERATURE_FAULT(true),
         /**
-         * A boolean fault based on bus voltage.
+         * A boolean fault based on low bus voltage.
          */
         BUS_VOLTAGE_FAULT(true),
+        /**
+         * A boolean fault based on a hardware issue.
+         */
+        HARDWARE_FAULT(true),
         /**
          * A boolean fault based on the gate driver.
          */
@@ -120,15 +124,25 @@ public abstract class ExtendedMotor {
          */
         VOLTAGE_FRACTIONAL,
         /**
-         * A voltage-based fixed output. This takes a voltage to attempt to
-         * produce.
+         * A voltage-based fixed output. This takes a voltage (in Volts) to
+         * attempt to produce.
          */
         VOLTAGE_FIXED,
         /**
-         * A current-based fixed output. This takes a current to attempt to
-         * produce.
+         * A current-based fixed output. This takes a current (in Amps) to
+         * attempt to produce.
          */
-        CURRENT_FIXED
+        CURRENT_FIXED,
+        /**
+         * A position-based fixed output. This takes a position, in the target
+         * units, to attempt to match.
+         */
+        POSITION_FIXED,
+        /**
+         * A speed-based fixed output. This takes a speed, in the target units,
+         * to attempt to match.
+         */
+        SPEED_FIXED,
     }
 
     /**
@@ -294,6 +308,7 @@ public abstract class ExtendedMotor {
         if (output == null) {
             throw new ExtendedMotorFailureException("GENERIC_FRACTIONAL mode not supported!");
         }
+        this.enable();
         return output;
     }
 

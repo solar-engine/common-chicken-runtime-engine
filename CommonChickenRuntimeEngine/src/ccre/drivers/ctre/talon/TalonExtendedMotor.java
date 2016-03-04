@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 Colby Skeggs
+ * Copyright 2016 Cel Skeggs
  *
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  *
@@ -16,15 +16,25 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with the CCRE.  If not, see <http://www.gnu.org/licenses/>.
  */
-package ccre.channel;
+package ccre.drivers.ctre.talon;
+
+import ccre.channel.BooleanIO;
+import ccre.ctrl.ExtendedMotor;
 
 /**
- * A combination of a SerialInput and a SerialOutput, as commonly seen in a
- * standard RS232 port, for example.
- *
- * WARNING: THIS INTERFACE IS SUBJECT TO NON-BACKWARDS-COMPATIBLE CHANGE.
+ * An ExtendedMotor that also provides a full Talon SRX interface.
  *
  * @author skeggsc
  */
-public interface SerialIO extends SerialInput, SerialOutput {
+public abstract class TalonExtendedMotor extends ExtendedMotor implements TalonSRX {
+    /**
+     * Provides the enablement state of this ExtendedMotor.
+     *
+     * @return a BooleanIO representing the enable state of the Talon.
+     */
+    public abstract BooleanIO asEnable();
+
+    public TalonExtendedMotor modMotor() {
+        return this;
+    }
 }

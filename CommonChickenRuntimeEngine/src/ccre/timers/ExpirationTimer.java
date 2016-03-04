@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2016 Colby Skeggs
+ * Copyright 2013-2016 Cel Skeggs
  *
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  *
@@ -19,18 +19,18 @@
 package ccre.timers;
 
 import java.util.ArrayList;
-import java.util.Collections;
-
 import ccre.channel.BooleanCell;
 import ccre.channel.BooleanIO;
 import ccre.channel.BooleanInput;
 import ccre.channel.BooleanOutput;
+import ccre.channel.CancelOutput;
 import ccre.channel.EventCell;
 import ccre.channel.EventInput;
 import ccre.channel.EventOutput;
 import ccre.channel.FloatInput;
-import ccre.concurrency.ReporterThread;
+import ccre.scheduler.Scheduler;
 import ccre.time.Time;
+import ccre.util.Utils;
 
 /**
  * An ExpirationTimer acts sort of like an alarm clock. You can schedule a
@@ -44,32 +44,31 @@ import ccre.time.Time;
  */
 public final class ExpirationTimer {
 
+    private final String tag;
+
     /**
-     * The list of tasks, sorted in order with the first task (shortest delay)
-     * first.
+     * Creates an ExpirationTimer.
+     */
+    public ExpirationTimer() {
+        this(Utils.getMethodCaller(1).toString());
+    }
+
+    /**
+     * Creates an ExpirationTimer with a descriptive tag for the time that it
+     * consumes.
+     *
+     * @param tag the scheduling tag
+     */
+    public ExpirationTimer(String tag) {
+        this.tag = tag;
+    }
+
+    /**
+     * The list of tasks, in an arbitrary order.
      */
     private final ArrayList<Task> tasks = new ArrayList<Task>();
-    /**
-     * Is this timer running?
-     */
     private final BooleanCell isStarted = new BooleanCell();
-    /**
-     * When did this timer get started? Delays get computer from this point.
-     */
-    private long startedAt;
-    /**
-     * The main thread of the Expiration Timer.
-     */
-    private final ReporterThread main = new ReporterThread("ExpirationTimer") {
-        @Override
-        protected void threadBody() throws Throwable {
-            body();
-        }
-    };
-    /**
-     * Whether or not this thread has been told to terminate.
-     */
-    private boolean terminated = false;
+    private CancelOutput cancel;
 
     /**
      * Schedule an EventOutput to be triggered at a specific delay.
@@ -79,10 +78,7 @@ public final class ExpirationTimer {
      * @throws IllegalStateException if the timer is already running.
      */
     public synchronized void schedule(long delay, EventOutput cnsm) throws IllegalStateException {
-        if (isStarted.get()) {
-            throw new IllegalStateException("Timer is running!");
-        }
-        tasks.add(new Task(delay, cnsm));
+        schedule(FloatInput.always(delay / 1000f), cnsm);
     }
 
     /**
@@ -135,9 +131,6 @@ public final class ExpirationTimer {
             throw new IllegalStateException("Timer is running!");
         }
         isStarted.safeSet(true);
-        if (!main.isAlive()) {
-            main.start();
-        }
         feed();
     }
 
@@ -152,51 +145,6 @@ public final class ExpirationTimer {
         }
     }
 
-    private synchronized void recalculateTasks() {
-        for (Task t : tasks) {
-            t.recalculate();
-        }
-        Collections.sort(tasks);
-    }
-
-    private synchronized void runTasks(long startAt) throws InterruptedException {
-        for (Task t : tasks) {
-            long rel = startAt + t.delay - Time.currentTimeMillis();
-            while (rel > 0) {
-                Time.wait(this, rel);
-                rel = startAt + t.delay - Time.currentTimeMillis();
-            }
-            t.cnsm.safeEvent();
-        }
-    }
-
-    private synchronized void body() {
-        while (!terminated) {
-            try {
-                while (!isStarted.get()) {
-                    this.wait();
-                }
-                if (terminated) {
-                    break;
-                }
-                recalculateTasks();
-                long startAt = startedAt;
-                runTasks(startAt);
-                // Once finished, wait to stop before restarting.
-                while (isStarted.get() && !terminated && startAt == startedAt) {
-                    try {
-                        this.wait();
-                    } catch (InterruptedException e) {
-                        // this is actually the expected way of notifying this
-                        // thread
-                    }
-                }
-            } catch (InterruptedException ex) {
-                // this is actually the expected way of notifying this thread
-            }
-        }
-    }
-
     /**
      * Reset the timer. This will act as if the timer had just been started, in
      * terms of which events are fired when.
@@ -207,8 +155,15 @@ public final class ExpirationTimer {
         if (!isStarted.get()) {
             throw new IllegalStateException("Timer is not running!");
         }
-        startedAt = Time.currentTimeMillis();
-        main.interrupt();
+        if (cancel != null) {
+            cancel.cancel();
+            cancel = null;
+        }
+        cancel = CancelOutput.nothing;
+        long base = Time.currentTimeNanos();
+        for (Task t : tasks) {
+            cancel = cancel.combine(Scheduler.scheduleCancellableAt(this.tag, base + t.getDelayNanos(), t.cnsm));
+        }
     }
 
     /**
@@ -221,8 +176,11 @@ public final class ExpirationTimer {
         if (!isStarted.get()) {
             throw new IllegalStateException("Timer is not running!");
         }
+        if (cancel != null) {
+            cancel.cancel();
+            cancel = null;
+        }
         isStarted.safeSet(false);
-        main.interrupt();
     }
 
     /**
@@ -393,12 +351,8 @@ public final class ExpirationTimer {
     /**
      * A task that is scheduled for a specific delay after the timer starts.
      */
-    private static class Task implements Comparable<Task> {
+    private static class Task {
 
-        /**
-         * The delay before the event is fired.
-         */
-        public long delay;
         /**
          * The event to fire.
          */
@@ -409,19 +363,6 @@ public final class ExpirationTimer {
         public final FloatInput tuning;
 
         /**
-         * Create a new task with a hard-coded delay.
-         *
-         * @param delay The delay after which the task is fired, in
-         * milliseconds.
-         * @param cnsm The EventOutput fired by this Task.
-         */
-        Task(long delay, EventOutput cnsm) {
-            this.delay = delay;
-            this.cnsm = cnsm;
-            this.tuning = null;
-        }
-
-        /**
          * Create a new task with a tunable delay.
          *
          * @param delay The delay after which the task is fired, in seconds.
@@ -430,27 +371,10 @@ public final class ExpirationTimer {
         Task(FloatInput delay, EventOutput cnsm) {
             this.cnsm = cnsm;
             this.tuning = delay;
-            recalculate();
         }
 
-        public void recalculate() {
-            if (tuning != null) {
-                this.delay = (long) (tuning.get() * 1000);
-            }
-        }
-
-        public int compareTo(Task o) {
-            return Long.compare(delay, o.delay);
-        }
-
-        @Override
-        public boolean equals(Object obj) {
-            return obj instanceof Task && delay == ((Task) obj).delay;
-        }
-
-        @Override
-        public int hashCode() {
-            return (int) (delay ^ (delay >> 32));
+        long getDelayNanos() {
+            return (long) (tuning.get() * Time.NANOSECONDS_PER_SECOND);
         }
     }
 
@@ -458,10 +382,8 @@ public final class ExpirationTimer {
      * End the ExpirationTimer's thread as soon as possible.
      */
     public synchronized void terminate() {
-        terminated = true;
         if (isRunning()) {
             stop();
         }
-        main.interrupt();
     }
 }

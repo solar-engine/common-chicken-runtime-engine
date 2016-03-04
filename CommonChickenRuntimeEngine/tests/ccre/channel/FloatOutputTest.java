@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2016 Colby Skeggs
+ * Copyright 2015-2016 Cel Skeggs
  *
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  *
@@ -19,8 +19,6 @@
 package ccre.channel;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
@@ -28,16 +26,13 @@ import java.util.NoSuchElementException;
 import java.util.Random;
 
 import org.junit.After;
-import org.junit.AfterClass;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 
 import ccre.log.LogLevel;
 import ccre.log.VerifyingLogger;
+import ccre.scheduler.VirtualTime;
 import ccre.testing.CountingFloatOutput;
-import ccre.time.FakeTime;
-import ccre.time.Time;
 import ccre.util.Utils;
 import ccre.util.Values;
 
@@ -52,28 +47,10 @@ public class FloatOutputTest {
     private CountingFloatOutput cfo, cfo2;
     private FloatCell fs;
 
-    private static Time oldProvider;
-    private static FakeTime fake;
-
-    // These two are for derivative testing.
-    @BeforeClass
-    public static void setUpClass() {
-        assertNull(oldProvider);
-        oldProvider = Time.getTimeProvider();
-        fake = new FakeTime();
-        Time.setTimeProvider(fake);
-    }
-
-    @AfterClass
-    public static void tearDownClass() {
-        assertNotNull(oldProvider);
-        Time.setTimeProvider(oldProvider);
-        oldProvider = null;
-        fake = null;
-    }
-
     @Before
     public void setUp() throws Exception {
+        // For derivative testing
+        VirtualTime.startFakeTime();
         fs = new FloatCell();
         cfo = new CountingFloatOutput();
         cfo2 = new CountingFloatOutput();
@@ -86,6 +63,7 @@ public class FloatOutputTest {
         fs = null;
         cfo = null;
         cfo2 = null;
+        VirtualTime.endFakeTime();
     }
 
     @Test
@@ -331,7 +309,7 @@ public class FloatOutputTest {
             for (j = i; j <= i + 20.0f;) {
                 float delta = (rand.nextInt(30) + 1) / 10.0f;
                 long timeDelta = rand.nextInt(2000) + 1;
-                fake.forward(timeDelta);
+                VirtualTime.forward(timeDelta);
                 j += delta;
                 cfo.ifExpected = true;
                 cfo.valueExpected = 1000 * delta / timeDelta;
@@ -339,7 +317,7 @@ public class FloatOutputTest {
                 fo.set(j);
                 cfo.check();
             }
-            fake.forward(1000);
+            VirtualTime.forward(1000);
             cfo.ifExpected = true;
         }
     }

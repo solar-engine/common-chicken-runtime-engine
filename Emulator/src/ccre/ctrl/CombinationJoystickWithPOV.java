@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 Colby Skeggs
+ * Copyright 2015-2016 Cel Skeggs
  *
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  *
@@ -20,6 +20,7 @@ package ccre.ctrl;
 
 import ccre.channel.BooleanInput;
 import ccre.channel.FloatInput;
+import ccre.channel.FloatOutput;
 
 /**
  * A combination of two Joysticks into a single virtual Joystick. Buttons are
@@ -53,5 +54,10 @@ public class CombinationJoystickWithPOV implements Joystick {
     @Override
     public BooleanInput isPOV(int direction) {
         return alpha.isPOV(direction).xor(beta.isPOV(direction));
+    }
+
+    @Override
+    public FloatOutput rumble(boolean right) {
+        return alpha.rumble(right).combine(beta.rumble(right));
     }
 }

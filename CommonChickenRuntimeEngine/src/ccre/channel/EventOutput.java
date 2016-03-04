@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2016 Colby Skeggs
+ * Copyright 2013-2016 Cel Skeggs
  *
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  *
@@ -18,6 +18,8 @@
  */
 package ccre.channel;
 
+import java.io.Serializable;
+
 import ccre.log.Logger;
 import ccre.time.Time;
 
@@ -28,7 +30,7 @@ import ccre.time.Time;
  *
  * @author skeggsc
  */
-public interface EventOutput {
+public interface EventOutput extends Serializable {
 
     /**
      * An EventOutput that, when fired, does absolutely nothing.

@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 Colby Skeggs
+ * Copyright 2015-2016 Cel Skeggs
  *
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  *
@@ -46,14 +46,14 @@ public class FloatCellTest {
     }
 
     @Test
-    public void testFloatStatusFloat() {
+    public void testFloatCellFloat() {
         for (float f : Values.interestingFloats) {
             assertEquals(f, new FloatCell(f).get(), 0);
         }
     }
 
     @Test
-    public void testFloatStatusFloatOutput() {
+    public void testFloatCellFloatOutput() {
         CountingFloatOutput cfo = new CountingFloatOutput();
         cfo.ifExpected = true;
         cfo.valueExpected = 0;
@@ -69,12 +69,12 @@ public class FloatCellTest {
     }
 
     @Test(expected = NullPointerException.class)
-    public void testFloatStatusFloatOutputNull() {
+    public void testFloatCellFloatOutputNull() {
         new FloatCell((FloatOutput) null);
     }
 
     @Test
-    public void testFloatStatusFloatOutputArray() {
+    public void testFloatCellFloatOutputArray() {
         CountingFloatOutput cfo1 = new CountingFloatOutput();
         CountingFloatOutput cfo2 = new CountingFloatOutput();
         cfo1.ifExpected = cfo2.ifExpected = true;
@@ -93,12 +93,12 @@ public class FloatCellTest {
     }
 
     @Test(expected = NullPointerException.class)
-    public void testFloatStatusFloatOutputArrayNull() {
+    public void testFloatCellFloatOutputArrayNull() {
         new FloatCell((FloatOutput[]) null);
     }
 
     @Test(expected = NullPointerException.class)
-    public void testFloatStatusFloatOutputArrayNulls() {
+    public void testFloatCellFloatOutputArrayNulls() {
         new FloatCell(FloatOutput.ignored, null);
     }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2016 Colby Skeggs
+ * Copyright 2013-2016 Cel Skeggs
  * Copyright 2015 Jake Springer
  *
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
@@ -30,6 +30,9 @@ import java.net.URL;
 import java.util.Enumeration;
 import java.util.jar.Manifest;
 
+import ccre.bus.I2CBus;
+import ccre.bus.RS232Bus;
+import ccre.bus.SPIBus;
 import ccre.channel.BooleanCell;
 import ccre.channel.BooleanInput;
 import ccre.channel.BooleanOutput;
@@ -39,7 +42,6 @@ import ccre.channel.EventCell;
 import ccre.channel.EventInput;
 import ccre.channel.FloatInput;
 import ccre.channel.FloatOutput;
-import ccre.channel.SerialIO;
 import ccre.cluck.Cluck;
 import ccre.concurrency.ReporterThread;
 import ccre.ctrl.CommunicationFailureExtendedMotor;
@@ -47,6 +49,9 @@ import ccre.ctrl.ExtendedMotor;
 import ccre.ctrl.ExtendedMotorFailureException;
 import ccre.ctrl.Joystick;
 import ccre.ctrl.binding.ControlBindingCreator;
+import ccre.discrete.DerivedDiscreteInput;
+import ccre.discrete.DiscreteInput;
+import ccre.drivers.ctre.talon.TalonExtendedMotor;
 import ccre.log.FileLogger;
 import ccre.log.Logger;
 import ccre.log.NetworkAutologger;
@@ -199,13 +204,15 @@ public final class DirectFRCImplementation implements FRCImplementation {
     }
 
     private enum Mode {
-        DISABLED("disabled"), AUTONOMOUS("autonomous"), TELEOP("teleop"), TEST("test");
+        DISABLED("disabled", FRCMode.DISABLED), AUTONOMOUS("autonomous", FRCMode.AUTONOMOUS), TELEOP("teleop", FRCMode.TELEOP), TEST("test", FRCMode.TEST);
 
-        private Mode(String name) {
-            this.name = name;
-        }
-
+        public final FRCMode frcMode;
         public final String name;
+
+        private Mode(String name, FRCMode mode) {
+            this.name = name;
+            this.frcMode = mode;
+        }
 
         private EventCell getStart(DirectFRCImplementation impl) {
             return impl.startEvents[ordinal()];
@@ -408,6 +415,9 @@ public final class DirectFRCImplementation implements FRCImplementation {
             throw new RuntimeException("Invalid down channel: " + channelDown);
         }
 
+        DirectDigital.init(channelUp, true);
+        DirectDigital.init(channelDown, true);
+
         long counter = DirectCounter.init(channelUp, channelDown, mode);
         if (resetWhen != null) {
             resetWhen.send(() -> {
@@ -465,6 +475,18 @@ public final class DirectFRCImplementation implements FRCImplementation {
             break;
         case TALON:
             DirectPWM.init(id, DirectPWM.TYPE_TALON);
+            break;
+        case VICTORSP:
+            DirectPWM.init(id, DirectPWM.TYPE_VICTORSP);
+            break;
+        case SPARK:
+            DirectPWM.init(id, DirectPWM.TYPE_SPARK);
+            break;
+        case SD540:
+            DirectPWM.init(id, DirectPWM.TYPE_SD540);
+            break;
+        case TALONSRX:
+            DirectPWM.init(id, DirectPWM.TYPE_TALONSRX);
             break;
         default:
             throw new IllegalArgumentException("Unknown motor type: " + type);
@@ -567,6 +589,16 @@ public final class DirectFRCImplementation implements FRCImplementation {
     // TODO: Add the rest of the PCM and PDP accessors.
 
     @Override
+    public FloatInput getPDPTotalCurrent(EventInput updateOn) {
+        return new DerivedFloatInput(updateOn) {
+            @Override
+            protected float apply() {
+                return DirectPDP.getTotalCurrent(0);
+            }
+        };
+    }
+
+    @Override
     public FloatInput getPDPChannelCurrent(final int channel, EventInput updateOn) {
         DirectPDP.checkChannel(channel);
         return new DerivedFloatInput(updateOn) {
@@ -588,18 +620,38 @@ public final class DirectFRCImplementation implements FRCImplementation {
     }
 
     @Override
-    public SerialIO makeRS232_Onboard(int baudRate, String deviceName) {
-        return new SerialPortDirect(DirectRS232.PORT_ONBOARD, baudRate);
+    public RS232Bus makeRS232_Onboard(String deviceName) {
+        return (baudRate, parity, stopBits, timeout, dataBits) -> new RS232Direct(DirectRS232.PORT_ONBOARD, baudRate, parity, stopBits, timeout, dataBits);
     }
 
     @Override
-    public SerialIO makeRS232_MXP(int baudRate, String deviceName) {
-        return new SerialPortDirect(DirectRS232.PORT_MXP, baudRate);
+    public RS232Bus makeRS232_MXP(String deviceName) {
+        return (baudRate, parity, stopBits, timeout, dataBits) -> new RS232Direct(DirectRS232.PORT_MXP, baudRate, parity, stopBits, timeout, dataBits);
     }
 
     @Override
-    public SerialIO makeRS232_USB(int baudRate, String deviceName) {
-        return new SerialPortDirect(DirectRS232.PORT_USB, baudRate);
+    public RS232Bus makeRS232_USB(String deviceName) {
+        return (baudRate, parity, stopBits, timeout, dataBits) -> new RS232Direct(DirectRS232.PORT_USB, baudRate, parity, stopBits, timeout, dataBits);
+    }
+
+    @Override
+    public I2CBus makeI2C_Onboard(String deviceName) {
+        return (deviceAddress) -> new I2CPortDirect(DirectI2C.PORT_ONBOARD, deviceAddress);
+    }
+
+    @Override
+    public I2CBus makeI2C_MXP(String deviceName) {
+        return (deviceAddress) -> new I2CPortDirect(DirectI2C.PORT_MXP, deviceAddress);
+    }
+
+    @Override
+    public SPIBus makeSPI_Onboard(int cs, String deviceName) {
+        return (hertz, isMSB, dataOnFalling, clockActiveLow, chipSelectActiveLow) -> new SPIPortDirect(DirectSPI.portForCS(cs), hertz, isMSB, dataOnFalling, clockActiveLow, chipSelectActiveLow);
+    }
+
+    @Override
+    public SPIBus makeSPI_MXP(String deviceName) {
+        return (hertz, isMSB, dataOnFalling, clockActiveLow, chipSelectActiveLow) -> new SPIPortDirect(DirectSPI.PORT_MXP, hertz, isMSB, dataOnFalling, clockActiveLow, chipSelectActiveLow);
     }
 
     @Override
@@ -635,13 +687,8 @@ public final class DirectFRCImplementation implements FRCImplementation {
     }
 
     @Override
-    public ExtendedMotor makeCANTalon(int deviceNumber) {
-        try {
-            return new ExtendedTalonDirect(deviceNumber);
-        } catch (ExtendedMotorFailureException e) {
-            Logger.severe("Could not connect to CAN Talon " + deviceNumber, e);
-            return new CommunicationFailureExtendedMotor("Could not connect to CAN Talon " + deviceNumber);
-        }
+    public TalonExtendedMotor makeCANTalon(int deviceNumber) {
+        return new ExtendedTalonDirect(deviceNumber);
     }
 
     @Override
@@ -688,5 +735,15 @@ public final class DirectFRCImplementation implements FRCImplementation {
     @Override
     public EventInput getOnInitComplete() {
         return onInitComplete;
+    }
+
+    @Override
+    public DiscreteInput<FRCMode> getMode() {
+        return new DerivedDiscreteInput<FRCMode>(FRCMode.discreteType, onChangeMode) {
+            @Override
+            protected FRCMode apply() {
+                return activeMode.frcMode;
+            }
+        };
     }
 }

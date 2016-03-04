@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 Colby Skeggs
+ * Copyright 2015-2016 Cel Skeggs
  *
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  *
@@ -47,13 +47,13 @@ public class BooleanCellTest {
     }
 
     @Test
-    public void testBooleanStatusBoolean() {
+    public void testBooleanCellBoolean() {
         assertFalse(new BooleanCell(false).get());
         assertTrue(new BooleanCell(true).get());
     }
 
     @Test
-    public void testBooleanStatusBooleanOutput() {
+    public void testBooleanCellBooleanOutput() {
         CountingBooleanOutput cbo = new CountingBooleanOutput();
         cbo.ifExpected = true;
         cbo.valueExpected = false;
@@ -73,12 +73,12 @@ public class BooleanCellTest {
     }
 
     @Test(expected = NullPointerException.class)
-    public void testBooleanStatusBooleanOutputNull() {
+    public void testBooleanCellBooleanOutputNull() {
         new BooleanCell((BooleanOutput) null);
     }
 
     @Test
-    public void testBooleanStatusBooleanOutputArray() {
+    public void testBooleanCellBooleanOutputArray() {
         CountingBooleanOutput c1 = new CountingBooleanOutput();
         CountingBooleanOutput c2 = new CountingBooleanOutput();
         c1.ifExpected = c2.ifExpected = true;
@@ -101,12 +101,12 @@ public class BooleanCellTest {
     }
 
     @Test(expected = NullPointerException.class)
-    public void testBooleanStatusBooleanOutputArrayNull() {
+    public void testBooleanCellBooleanOutputArrayNull() {
         new BooleanCell((BooleanOutput[]) null);
     }
 
     @Test(expected = NullPointerException.class)
-    public void testBooleanStatusBooleanOutputArrayNulls() {
+    public void testBooleanCellBooleanOutputArrayNulls() {
         new BooleanCell(BooleanOutput.ignored, null);
     }
 

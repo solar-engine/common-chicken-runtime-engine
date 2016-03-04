@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 Colby Skeggs
+ * Copyright 2015-2016 Cel Skeggs
  *
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  *
@@ -20,9 +20,12 @@ package ccre.ctrl;
 
 import ccre.channel.BooleanInput;
 import ccre.channel.DerivedBooleanInput;
+import ccre.channel.DerivedFloatInput;
 import ccre.channel.EventCell;
 import ccre.channel.EventInput;
 import ccre.channel.EventOutput;
+import ccre.channel.FloatInput;
+import ccre.channel.UpdatingInput;
 import ccre.log.LogLevel;
 import ccre.log.Logger;
 
@@ -454,5 +457,75 @@ public class StateMachine {
      */
     public void onExitState(int state, final EventOutput output) {
         onExit.send(output.filter(getIsState(state)));
+    }
+
+    /**
+     * Provides an EventInput dynamically selected from a set of EventInputs
+     * based on the current state. You must pass exactly one EventInput per
+     * state, in the order specified in the constructor.
+     *
+     * @param inputs the EventInputs to select from.
+     * @return the selected EventInput.
+     */
+    public EventInput selectByState(EventInput... inputs) {
+        if (inputs.length != numberOfStates) {
+            throw new IllegalArgumentException("Wrong number of states in call to selectByState!");
+        }
+        EventCell occur = new EventCell();
+        for (int i = 0; i < inputs.length; i++) {
+            final int state = i;
+            inputs[i].send(() -> {
+                if (currentState == state) {
+                    occur.event();
+                }
+            });
+        }
+        return occur;
+    }
+
+    /**
+     * Provides a BooleanInput dynamically selected from a set of BooleanInputs
+     * based on the current state. You must pass exactly one BooleanInput per
+     * state, in the order specified in the constructor.
+     *
+     * @param inputs the BooleanInputs to select from.
+     * @return the selected BooleanInput.
+     */
+    public BooleanInput selectByState(BooleanInput... inputs) {
+        if (inputs.length != numberOfStates) {
+            throw new IllegalArgumentException("Wrong number of states in call to selectByState!");
+        }
+        UpdatingInput[] ins = new UpdatingInput[inputs.length + 1];
+        System.arraycopy(inputs, 0, ins, 1, inputs.length);
+        ins[0] = this.onEnter;
+        return new DerivedBooleanInput(ins) {
+            @Override
+            protected boolean apply() {
+                return inputs[currentState].get();
+            }
+        };
+    }
+
+    /**
+     * Provides an FloatInput dynamically selected from a set of FloatInputs
+     * based on the current state. You must pass exactly one FloatInput per
+     * state, in the order specified in the constructor.
+     *
+     * @param inputs the FloatInputs to select from.
+     * @return the selected FloatInput.
+     */
+    public FloatInput selectByState(FloatInput... inputs) {
+        if (inputs.length != numberOfStates) {
+            throw new IllegalArgumentException("Wrong number of states in call to selectByState!");
+        }
+        UpdatingInput[] ins = new UpdatingInput[inputs.length + 1];
+        System.arraycopy(inputs, 0, ins, 1, inputs.length);
+        ins[0] = this.onEnter;
+        return new DerivedFloatInput(ins) {
+            @Override
+            protected float apply() {
+                return inputs[currentState].get();
+            }
+        };
     }
 }

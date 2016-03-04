@@ -1,5 +1,6 @@
 /*
- * Copyright 2013-2015 Colby Skeggs and Vincent Miller
+ * Copyright 2013-2016 Cel Skeggs
+ * Copyright 2013 Vincent Miller
  *
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  *
@@ -22,9 +23,10 @@ import ccre.channel.AbstractUpdatingInput;
 import ccre.channel.CancelOutput;
 import ccre.channel.EventInput;
 import ccre.channel.EventOutput;
-import ccre.concurrency.ReporterThread;
 import ccre.log.Logger;
+import ccre.scheduler.Scheduler;
 import ccre.time.Time;
+import ccre.util.Utils;
 
 /**
  * An EventInput that will fire the event in all its consumers at a specified
@@ -34,12 +36,13 @@ import ccre.time.Time;
  */
 public final class Ticker extends AbstractUpdatingInput implements EventInput {
 
-    private final ReporterThread main;
-    private boolean isKilled = false;
-    private final Object lock = new Object();
+    private CancelOutput terminate;
+    private final boolean fixedRate;
+    private final int millisPeriodic;
+    private final String tag;
 
     /**
-     * Create a new Ticker with the specified interval. The timer will start
+     * Creates a new Ticker with the specified interval. The timer will start
      * immediately, executing for the first time after the specified interval.
      *
      * This will not run at a fixed rate, as extra time taken for one cycle will
@@ -48,11 +51,11 @@ public final class Ticker extends AbstractUpdatingInput implements EventInput {
      * @param interval The desired interval, in milliseconds.
      */
     public Ticker(int interval) {
-        this(interval, false);
+        this(Utils.getMethodCaller(1).toString(), interval, false);
     }
 
     /**
-     * Create a new Ticker with the specified interval and fixed rate option.
+     * Creates a new Ticker with the specified interval and fixed rate option.
      * The timer will start immediately, executing for the first time after the
      * specified interval.
      *
@@ -68,105 +71,66 @@ public final class Ticker extends AbstractUpdatingInput implements EventInput {
      * @param interval The desired interval, in milliseconds.
      * @param fixedRate Should the rate be corrected?
      */
-    public Ticker(final int interval, final boolean fixedRate) {
-        this.main = new MainTickerThread((fixedRate ? "FixedTicker-" : "Ticker-") + interval, fixedRate, interval);
+    public Ticker(int interval, boolean fixedRate) {
+        this(Utils.getMethodCaller(1).toString(), interval, fixedRate);
+    }
+
+    /**
+     * Creates a new Ticker with the specified interval and fixed rate option,
+     * with a descriptive tag for the time that it consumes. The timer will
+     * start immediately, executing for the first time after the specified
+     * interval.
+     *
+     * If fixedRate is false, this will not run at a fixed rate, as extra time
+     * taken for one cycle will not be corrected for in the time between the
+     * cycles.
+     *
+     * If fixedRate is true, this will run at a fixed rate, as extra time taken
+     * for one cycle will be removed from the time before the subsequent cycle.
+     * This does mean that if a cycle takes too long, that produces of the event
+     * can bunch up and execute a number of times back-to-back.
+     *
+     * @param tag the scheduler tag.
+     * @param interval The desired interval, in milliseconds.
+     * @param fixedRate Should the rate be corrected?
+     */
+    public Ticker(String tag, int interval, boolean fixedRate) {
+        this.tag = tag;
+        this.millisPeriodic = interval;
+        this.fixedRate = fixedRate;
     }
 
     /**
      * Destroys this Ticker. It won't function after this.
      */
-    public void terminate() {
-        isKilled = true;
+    public synchronized void terminate() {
+        if (this.terminate != null) {
+            this.terminate.cancel();
+            this.terminate = CancelOutput.nothing;
+        }
         this.__UNSAFE_clearListeners();
-        synchronized (lock) {
-            lock.notifyAll();
-        }
-    }
-
-    private class MainTickerThread extends ReporterThread {
-
-        private final boolean fixedRate;
-        private final int interval;
-
-        MainTickerThread(String name, boolean fixedRate, int interval) {
-            super(name);
-            this.fixedRate = fixedRate;
-            this.interval = interval;
-        }
-
-        @Override
-        protected void threadBody() throws InterruptedException {
-            if (fixedRate) {
-                long next = Time.currentTimeMillis() + interval;
-                synchronized (lock) {
-                    lock.notifyAll(); // tell the main thread that we've started
-                }
-                while (true) {
-                    synchronized (lock) {
-                        if (isKilled) {
-                            break;
-                        }
-                        long rem = next - Time.currentTimeMillis();
-                        if (rem > 0) {
-                            Time.wait(lock, rem);
-                            continue;
-                        }
-                        if (isKilled) {
-                            break;
-                        }
-                    }
-                    try {
-                        perform();
-                    } catch (Throwable thr) {
-                        Logger.severe("Top-level failure in Ticker event", thr);
-                    }
-                    next += interval;
-                }
-            } else {
-                long lastTime = Time.currentTimeMillis();
-                synchronized (lock) {
-                    lock.notifyAll(); // tell the main thread that we've started
-                }
-                while (true) {
-                    long doneAt = lastTime + interval;
-                    synchronized (lock) {
-                        while (!isKilled && Time.currentTimeMillis() < doneAt) {
-                            Time.wait(lock, interval);
-                        }
-                        if (isKilled) {
-                            break;
-                        }
-                    }
-                    try {
-                        perform();
-                    } catch (Throwable thr) {
-                        Logger.severe("Top-level failure in Ticker event", thr);
-                    }
-                    lastTime = Time.currentTimeMillis();
-                }
-            }
-        }
     }
 
     @Override
     public CancelOutput onUpdate(EventOutput notify) {
-        if (isKilled) {
-            throw new IllegalStateException("Terminated!");
+        if (terminate == CancelOutput.nothing) {
+            throw new IllegalStateException("Already terminated!");
         }
-        if (!main.isAlive()) {
-            start();
-        }
-        return super.onUpdate(notify);
-    }
-
-    private void start() {
-        synchronized (lock) {
-            main.start();
-            try {
-                lock.wait();
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
+        if (terminate == null) {
+            synchronized (this) {
+                if (terminate == null) {
+                    try {
+                        if (fixedRate) {
+                            this.terminate = Scheduler.scheduleFixedRateNanos(this.tag, this.millisPeriodic * (long) Time.NANOSECONDS_PER_MILLISECOND, this::perform);
+                        } else {
+                            this.terminate = Scheduler.schedulePeriodicNanos(this.tag, this.millisPeriodic * (long) Time.NANOSECONDS_PER_MILLISECOND, this::perform);
+                        }
+                    } catch (Throwable thr) {
+                        Logger.severe("Could not start Ticker!", thr);
+                    }
+                }
             }
         }
+        return super.onUpdate(notify);
     }
 }

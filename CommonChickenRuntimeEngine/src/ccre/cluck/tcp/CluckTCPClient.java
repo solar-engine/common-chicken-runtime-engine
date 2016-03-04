@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2015 Colby Skeggs
+ * Copyright 2013-2015 Cel Skeggs
  *
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  *
@@ -276,7 +276,7 @@ public class CluckTCPClient extends ReporterThread {
      * @param socket the socket for the connection, to be able to set timeouts.
      * @param deny the established CluckLink returned by
      * {@link #doStart(DataInputStream, DataOutputStream, ClientSocket)}.
-     * @throws IOException
+     * @throws IOException if the connection is malformed or fails.
      */
     protected void doMain(DataInputStream din, DataOutputStream dout, ClientSocket socket, CluckLink deny) throws IOException {
         CluckProtocol.handleRecv(din, linkName, node, deny);

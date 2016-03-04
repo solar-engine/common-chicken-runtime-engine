@@ -2,7 +2,7 @@
 
 <!--
 /*
- * Copyright 2014-2015 Colby Skeggs
+ * Copyright 2014-2015 Cel Skeggs
  * 
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  * 
@@ -68,6 +68,6 @@
 		<fail>Tests failed!</fail>
 	</target>
 	<target name="javadoc">
-		<javadoc access="public" author="true" classpath="." destdir="../Javadoc" nodeprecated="false" nodeprecatedlist="false" noindex="false" nonavbar="false" notree="false" source="1.8" sourcepath="${src.dir}" splitindex="true" use="true" version="true" />
+		<javadoc access="public" author="true" classpath="." destdir="../Javadoc" nodeprecated="false" nodeprecatedlist="false" noindex="false" nonavbar="false" notree="false" source="1.8" sourcepath="${src.dir}" splitindex="true" use="true" version="true" failonerror="true" />
 	</target>
 </project>

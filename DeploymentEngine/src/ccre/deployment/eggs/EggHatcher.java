@@ -59,7 +59,7 @@ public class EggHatcher {
      * action that was specified when the egg was created.
      *
      * @param args the program arguments, which are ignored.
-     * @throws Exception
+     * @throws Exception if the egg cannot be hatched.
      */
     public static void main(String[] args) throws Exception {
         System.out.println(banner);

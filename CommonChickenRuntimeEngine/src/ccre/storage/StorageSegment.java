@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2016 Colby Skeggs
+ * Copyright 2013-2016 Cel Skeggs
  *
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  *
@@ -26,9 +26,7 @@ import java.io.PrintStream;
 import java.util.HashMap;
 
 import ccre.channel.BooleanCell;
-import ccre.channel.BooleanOutput;
 import ccre.channel.FloatCell;
-import ccre.channel.FloatOutput;
 import ccre.log.Logger;
 import ccre.util.UniqueIds;
 
@@ -208,7 +206,10 @@ public final class StorageSegment {
                 Logger.warning("Invalid float value: '" + vraw + "'!", ex);
             }
         }
-        holder.send(new SegmentFloatSaver(key, default_key, originalValue));
+        holder.send((value) -> {
+            setStringForKey(key, Float.toString(value));
+            setStringForKey(default_key, Float.toString(originalValue));
+        });
     }
 
     /**
@@ -246,40 +247,9 @@ public final class StorageSegment {
                 Logger.warning("Invalid boolean value: '" + vraw + "'!", ex);
             }
         }
-        holder.send(new SegmentBooleanSaver(key, default_key, originalValue));
-    }
-
-    private class SegmentFloatSaver implements FloatOutput {
-
-        private final String key, default_key;
-        private final float originalValue;
-
-        SegmentFloatSaver(String key, String dkey, float originalValue) {
-            this.key = key;
-            this.default_key = dkey;
-            this.originalValue = originalValue;
-        }
-
-        public void set(float value) {
-            setStringForKey(key, Float.toString(value));
-            setStringForKey(default_key, Float.toString(originalValue));
-        }
-    }
-
-    private class SegmentBooleanSaver implements BooleanOutput {
-
-        private final String key, default_key;
-        private final boolean originalValue;
-
-        SegmentBooleanSaver(String key, String dkey, boolean originalValue) {
-            this.key = key;
-            this.default_key = dkey;
-            this.originalValue = originalValue;
-        }
-
-        public void set(boolean value) {
+        holder.send((value) -> {
             setStringForKey(key, Boolean.toString(value));
             setStringForKey(default_key, Boolean.toString(originalValue));
-        }
+        });
     }
 }

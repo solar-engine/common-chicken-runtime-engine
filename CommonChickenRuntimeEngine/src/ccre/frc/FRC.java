@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2016 Colby Skeggs
+ * Copyright 2014-2016 Cel Skeggs
  * Copyright 2015 Jake Springer
  *
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
@@ -19,12 +19,16 @@
  */
 package ccre.frc;
 
+import java.io.IOException;
+import ccre.bus.I2CBus;
+import ccre.bus.RS232Bus;
+import ccre.bus.RS232IO;
+import ccre.bus.SPIBus;
 import ccre.channel.BooleanInput;
 import ccre.channel.BooleanOutput;
 import ccre.channel.EventInput;
 import ccre.channel.FloatInput;
 import ccre.channel.FloatOutput;
-import ccre.channel.SerialIO;
 import ccre.ctrl.ExtendedMotor;
 import ccre.ctrl.ExtendedMotorFailureException;
 import ccre.ctrl.Joystick;
@@ -32,8 +36,11 @@ import ccre.ctrl.binding.CluckControlBinder;
 import ccre.ctrl.binding.ControlBindingCreator;
 import ccre.ctrl.binding.ControlBindingDataSource;
 import ccre.ctrl.binding.ControlBindingDataSourceBuildable;
+import ccre.discrete.DiscreteInput;
+import ccre.drivers.ctre.talon.TalonExtendedMotor;
 import ccre.instinct.InstinctModule;
 import ccre.log.Logger;
+import ccre.recording.Recorder;
 import ccre.timers.Ticker;
 
 /**
@@ -139,12 +146,12 @@ public class FRC {
     /**
      * Constant time periodic. Should pulse every 10 ms.
      */
-    public static final EventInput constantPeriodic = new Ticker(10);
+    public static final EventInput constantPeriodic = new Ticker("constantPeriodic", 10, false);
     /**
      * Constant time sensor update event. Should pulse every 20 ms. This should
      * be used when you want to poll an on-robot sensor.
      */
-    public static final EventInput sensorPeriodic = new Ticker(20);
+    public static final EventInput sensorPeriodic = new Ticker("sensorPeriodic", 20, false);
     /**
      * Produced when the robot enters autonomous mode.
      */
@@ -285,8 +292,8 @@ public class FRC {
     }
 
     /**
-     * Create a reference to a Talon speed controller on the specified PWM port
-     * and motor reversal, with a specified ramping rate.
+     * Create a reference to a Talon SR speed controller on the specified PWM
+     * port and motor reversal, with a specified ramping rate.
      *
      * If the ramping rate is zero, then no ramping is applied. Don't use this
      * if you don't know what you're doing! Otherwise, the ramping rate is the
@@ -310,8 +317,8 @@ public class FRC {
     }
 
     /**
-     * Create a reference to a Talon speed controller on the specified PWM port
-     * and motor reversal, with a default ramping rate of 0.1, aka 200
+     * Create a reference to a Talon SR speed controller on the specified PWM
+     * port and motor reversal, with a default ramping rate of 0.1, aka 200
      * milliseconds to ramp from stopped to full speed.
      *
      * @param id the motor port ID, from 1 to 10, inclusive.
@@ -326,15 +333,227 @@ public class FRC {
     }
 
     /**
-     * Create a reference to a Talon speed controller on the specified PWM port,
-     * with a default ramping rate of 0.1, aka 200 milliseconds to ramp from
-     * stopped to full speed.
+     * Create a reference to a Talon SR speed controller on the specified PWM
+     * port, with a default ramping rate of 0.1, aka 200 milliseconds to ramp
+     * from stopped to full speed.
      *
      * @param id the motor port ID, from 1 to 10, inclusive.
      * @return the output that will output to the specified motor.
      */
     public static FloatOutput talon(int id) {
         return talon(id, false, 0.1f);
+    }
+
+    /**
+     * Create a reference to a Talon SRX speed controller on the specified PWM
+     * port and motor reversal, with a specified ramping rate.
+     *
+     * If the ramping rate is zero, then no ramping is applied. Don't use this
+     * if you don't know what you're doing! Otherwise, the ramping rate is the
+     * maximum difference allowed per 10 milliseconds (constantPeriodic). (So a
+     * rate of 0.1f means that you need 200 milliseconds to go from -1.0 to
+     * 1.0.)
+     *
+     * @param id the motor port ID, from 1 to 10, inclusive.
+     * @param negate MOTOR_FORWARD if the motor direction should be unmodified,
+     * MOTOR_REVERSE if the motor direction should be reversed.
+     * @param ramping the ramping rate.
+     * @return the output that will output to the specified motor.
+     * @see #MOTOR_FORWARD
+     * @see #MOTOR_REVERSE
+     */
+    public static FloatOutput talonSRX(int id, boolean negate, float ramping) {
+        FloatOutput motor = impl.makeMotor(id, FRCImplementation.TALONSRX);
+        FloatOutput ramped = (negate ? motor.negate() : motor).addRamping(ramping, constantPeriodic);
+        ramped.setWhen(0.0f, startDisabled);
+        return ramped;
+    }
+
+    /**
+     * Create a reference to a Talon SRX speed controller on the specified PWM
+     * port and motor reversal, with a default ramping rate of 0.1, aka 200
+     * milliseconds to ramp from stopped to full speed.
+     *
+     * @param id the motor port ID, from 1 to 10, inclusive.
+     * @param negate MOTOR_FORWARD if the motor direction should be unmodified,
+     * MOTOR_REVERSE if the motor direction should be reversed.
+     * @return the output that will output to the specified motor.
+     * @see #MOTOR_FORWARD
+     * @see #MOTOR_REVERSE
+     */
+    public static FloatOutput talonSRX(int id, boolean negate) {
+        return talonSRX(id, negate, 0.1f);
+    }
+
+    /**
+     * Create a reference to a Talon SRX speed controller on the specified PWM
+     * port, with a default ramping rate of 0.1, aka 200 milliseconds to ramp
+     * from stopped to full speed.
+     *
+     * @param id the motor port ID, from 1 to 10, inclusive.
+     * @return the output that will output to the specified motor.
+     */
+    public static FloatOutput talonSRX(int id) {
+        return talonSRX(id, false, 0.1f);
+    }
+
+    /**
+     * Create a reference to a Victor SP speed controller on the specified PWM
+     * port and motor reversal, with a specified ramping rate.
+     *
+     * If the ramping rate is zero, then no ramping is applied. Don't use this
+     * if you don't know what you're doing! Otherwise, the ramping rate is the
+     * maximum difference allowed per 10 milliseconds (constantPeriodic). (So a
+     * rate of 0.1f means that you need 200 milliseconds to go from -1.0 to
+     * 1.0.)
+     *
+     * @param id the motor port ID, from 1 to 10, inclusive.
+     * @param negate MOTOR_FORWARD if the motor direction should be unmodified,
+     * MOTOR_REVERSE if the motor direction should be reversed.
+     * @param ramping the ramping rate.
+     * @return the output that will output to the specified motor.
+     * @see #MOTOR_FORWARD
+     * @see #MOTOR_REVERSE
+     */
+    public static FloatOutput victorSP(int id, boolean negate, float ramping) {
+        FloatOutput motor = impl.makeMotor(id, FRCImplementation.VICTORSP);
+        FloatOutput ramped = (negate ? motor.negate() : motor).addRamping(ramping, constantPeriodic);
+        ramped.setWhen(0.0f, startDisabled);
+        return ramped;
+    }
+
+    /**
+     * Create a reference to a Victor SP speed controller on the specified PWM
+     * port and motor reversal, with a default ramping rate of 0.1, aka 200
+     * milliseconds to ramp from stopped to full speed.
+     *
+     * @param id the motor port ID, from 1 to 10, inclusive.
+     * @param negate MOTOR_FORWARD if the motor direction should be unmodified,
+     * MOTOR_REVERSE if the motor direction should be reversed.
+     * @return the output that will output to the specified motor.
+     * @see #MOTOR_FORWARD
+     * @see #MOTOR_REVERSE
+     */
+    public static FloatOutput victorSP(int id, boolean negate) {
+        return victorSP(id, negate, 0.1f);
+    }
+
+    /**
+     * Create a reference to a Victor SP speed controller on the specified PWM
+     * port, with a default ramping rate of 0.1, aka 200 milliseconds to ramp
+     * from stopped to full speed.
+     *
+     * @param id the motor port ID, from 1 to 10, inclusive.
+     * @return the output that will output to the specified motor.
+     */
+    public static FloatOutput victorSP(int id) {
+        return victorSP(id, false, 0.1f);
+    }
+
+    /**
+     * Create a reference to a Spark speed controller on the specified PWM port
+     * and motor reversal, with a specified ramping rate.
+     *
+     * If the ramping rate is zero, then no ramping is applied. Don't use this
+     * if you don't know what you're doing! Otherwise, the ramping rate is the
+     * maximum difference allowed per 10 milliseconds (constantPeriodic). (So a
+     * rate of 0.1f means that you need 200 milliseconds to go from -1.0 to
+     * 1.0.)
+     *
+     * @param id the motor port ID, from 1 to 10, inclusive.
+     * @param negate MOTOR_FORWARD if the motor direction should be unmodified,
+     * MOTOR_REVERSE if the motor direction should be reversed.
+     * @param ramping the ramping rate.
+     * @return the output that will output to the specified motor.
+     * @see #MOTOR_FORWARD
+     * @see #MOTOR_REVERSE
+     */
+    public static FloatOutput spark(int id, boolean negate, float ramping) {
+        FloatOutput motor = impl.makeMotor(id, FRCImplementation.SPARK);
+        FloatOutput ramped = (negate ? motor.negate() : motor).addRamping(ramping, constantPeriodic);
+        ramped.setWhen(0.0f, startDisabled);
+        return ramped;
+    }
+
+    /**
+     * Create a reference to a Spark speed controller on the specified PWM port
+     * and motor reversal, with a default ramping rate of 0.1, aka 200
+     * milliseconds to ramp from stopped to full speed.
+     *
+     * @param id the motor port ID, from 1 to 10, inclusive.
+     * @param negate MOTOR_FORWARD if the motor direction should be unmodified,
+     * MOTOR_REVERSE if the motor direction should be reversed.
+     * @return the output that will output to the specified motor.
+     * @see #MOTOR_FORWARD
+     * @see #MOTOR_REVERSE
+     */
+    public static FloatOutput spark(int id, boolean negate) {
+        return spark(id, negate, 0.1f);
+    }
+
+    /**
+     * Create a reference to a Spark speed controller on the specified PWM port,
+     * with a default ramping rate of 0.1, aka 200 milliseconds to ramp from
+     * stopped to full speed.
+     *
+     * @param id the motor port ID, from 1 to 10, inclusive.
+     * @return the output that will output to the specified motor.
+     */
+    public static FloatOutput spark(int id) {
+        return spark(id, false, 0.1f);
+    }
+
+    /**
+     * Create a reference to a SD540 speed controller on the specified PWM port
+     * and motor reversal, with a specified ramping rate.
+     *
+     * If the ramping rate is zero, then no ramping is applied. Don't use this
+     * if you don't know what you're doing! Otherwise, the ramping rate is the
+     * maximum difference allowed per 10 milliseconds (constantPeriodic). (So a
+     * rate of 0.1f means that you need 200 milliseconds to go from -1.0 to
+     * 1.0.)
+     *
+     * @param id the motor port ID, from 1 to 10, inclusive.
+     * @param negate MOTOR_FORWARD if the motor direction should be unmodified,
+     * MOTOR_REVERSE if the motor direction should be reversed.
+     * @param ramping the ramping rate.
+     * @return the output that will output to the specified motor.
+     * @see #MOTOR_FORWARD
+     * @see #MOTOR_REVERSE
+     */
+    public static FloatOutput sd540(int id, boolean negate, float ramping) {
+        FloatOutput motor = impl.makeMotor(id, FRCImplementation.SD540);
+        FloatOutput ramped = (negate ? motor.negate() : motor).addRamping(ramping, constantPeriodic);
+        ramped.setWhen(0.0f, startDisabled);
+        return ramped;
+    }
+
+    /**
+     * Create a reference to a SD540 speed controller on the specified PWM port
+     * and motor reversal, with a default ramping rate of 0.1, aka 200
+     * milliseconds to ramp from stopped to full speed.
+     *
+     * @param id the motor port ID, from 1 to 10, inclusive.
+     * @param negate MOTOR_FORWARD if the motor direction should be unmodified,
+     * MOTOR_REVERSE if the motor direction should be reversed.
+     * @return the output that will output to the specified motor.
+     * @see #MOTOR_FORWARD
+     * @see #MOTOR_REVERSE
+     */
+    public static FloatOutput sd540(int id, boolean negate) {
+        return sd540(id, negate, 0.1f);
+    }
+
+    /**
+     * Create a reference to a SD540 speed controller on the specified PWM port,
+     * with a default ramping rate of 0.1, aka 200 milliseconds to ramp from
+     * stopped to full speed.
+     *
+     * @param id the motor port ID, from 1 to 10, inclusive.
+     * @return the output that will output to the specified motor.
+     */
+    public static FloatOutput sd540(int id) {
+        return sd540(id, false, 0.1f);
     }
 
     /**
@@ -372,7 +591,7 @@ public class FRC {
      * @param deviceNumber the device number to connect to.
      * @return the ExtendedMotor representing this output.
      */
-    public static ExtendedMotor talonCAN(int deviceNumber) {
+    public static TalonExtendedMotor talonCAN(int deviceNumber) {
         return impl.makeCANTalon(deviceNumber);
     }
 
@@ -587,6 +806,15 @@ public class FRC {
     }
 
     /**
+     * Gets the robot's control mode, as a DiscreteInput.
+     *
+     * @return the input for the mode.
+     */
+    public static DiscreteInput<FRCMode> getMode() {
+        return impl.getMode();
+    }
+
+    /**
      * Get a boolean input that checks if the robot is currently connected to
      * the FMS, as opposed to being off the playing field.
      *
@@ -673,6 +901,25 @@ public class FRC {
      */
     public static FloatInput compressorCurrentPCM(EventInput updateOn) {
         return impl.getPCMCompressorCurrent(updateOn);
+    }
+
+    /**
+     * Reads the current draw of the entire PDP.
+     *
+     * @return the current being used by the specified channel.
+     */
+    public static FloatInput totalCurrentPDP() {
+        return impl.getPDPTotalCurrent(sensorPeriodic);
+    }
+
+    /**
+     * Reads the current draw of the entire PDP.
+     *
+     * @param updateOn when to update the sensor value.
+     * @return the current being used by the specified channel.
+     */
+    public static FloatInput totalCurrentPDP(EventInput updateOn) {
+        return impl.getPDPTotalCurrent(updateOn);
     }
 
     /**
@@ -787,7 +1034,7 @@ public class FRC {
      */
     public static void customCompressor(BooleanInput shouldDisable, int compressorRelayChannel) {
         // TODO: do this without an extra Ticker?
-        shouldDisable.send(relayForward(compressorRelayChannel).invert().limitUpdatesTo(new Ticker(500)));
+        shouldDisable.send(relayForward(compressorRelayChannel).invert().limitUpdatesTo(new Ticker("compressor", 500, false)));
     }
 
     /**
@@ -974,42 +1221,121 @@ public class FRC {
     }
 
     /**
-     * Open the onboard serial port of the robot.
+     * Opens and configures the onboard serial port on the robot.
      *
      * @param baudRate the baud rate of the port.
      * @param deviceName the name of the device the serial port is connected to
      * (used for debugging and the emulator.)
-     * @return a SerialIO interface to the port.
+     * @return a RS232IO interface to the port.
      */
-    public static SerialIO onboardRS232(int baudRate, String deviceName) {
-        return impl.makeRS232_Onboard(baudRate, deviceName);
+    public static RS232IO onboardRS232(int baudRate, String deviceName) {
+        return impl.makeRS232_Onboard(deviceName).open(baudRate);
     }
 
     /**
-     * Open the roboRIO's MXP-based serial port.
+     * Gets a reference to the onboard serial port, without configuring it.
      *
-     * @param baudRate the baud rate of the port.
      * @param deviceName the name of the device the serial port is connected to
      * (used for debugging and the emulator.)
-     * @return a SerialIO interface to the port.
+     * @return a RS232Bus interface to the port.
      */
-    public static SerialIO mxpRS232(int baudRate, String deviceName) {
-        return impl.makeRS232_MXP(baudRate, deviceName);
+    public static RS232Bus onboardRS232(String deviceName) {
+        return impl.makeRS232_Onboard(deviceName);
     }
 
     /**
-     * Open a USB-attached serial port on the roboRIO.
+     * Opens and configures the roboRIO's MXP-based serial port.
      *
      * @param baudRate the baud rate of the port.
      * @param deviceName the name of the device the serial port is connected to
      * (used for debugging and the emulator.)
-     * @return a SerialIO interface to the port.
+     * @return a RS232IO interface to the port.
      */
-    public static SerialIO usbRS232(int baudRate, String deviceName) {
-        return impl.makeRS232_USB(baudRate, deviceName);
+    public static RS232IO mxpRS232(int baudRate, String deviceName) {
+        return impl.makeRS232_MXP(deviceName).open(baudRate);
     }
 
-    FRC() {
+    /**
+     * Gets a reference to the roboRIO's MXP-based serial port, without
+     * configuring it.
+     *
+     * @param deviceName the name of the device the serial port is connected to
+     * (used for debugging and the emulator.)
+     * @return a RS232Bus interface to the port.
+     */
+    public static RS232Bus mxpRS232(String deviceName) {
+        return impl.makeRS232_MXP(deviceName);
+    }
+
+    /**
+     * Opens and configures the USB-attached serial port on the roboRIO.
+     *
+     * @param baudRate the baud rate of the port.
+     * @param deviceName the name of the device the serial port is connected to
+     * (used for debugging and the emulator.)
+     * @return a RS232IO interface to the port.
+     */
+    public static RS232IO usbRS232(int baudRate, String deviceName) {
+        return impl.makeRS232_USB(deviceName).open(baudRate);
+    }
+
+    /**
+     * Gets a reference to the USB-attached serial port on the roboRIO, without
+     * configuring it.
+     *
+     * @param deviceName the name of the device the serial port is connected to
+     * (used for debugging and the emulator.)
+     * @return a RS232Bus interface to the port.
+     */
+    public static RS232Bus usbRS232(String deviceName) {
+        return impl.makeRS232_USB(deviceName);
+    }
+
+    /**
+     * Gets a reference to the onboard I2C port on the robot, without
+     * configuring it.
+     *
+     * @param deviceName the name of the device the serial port is connected to
+     * (used for debugging and the emulator.)
+     * @return a I2CBus interface to the port.
+     */
+    public static I2CBus onboardI2C(String deviceName) {
+        return impl.makeI2C_Onboard(deviceName);
+    }
+
+    /**
+     * Gets a reference to the MXP's I2C port on the robot, without configuring
+     * it.
+     *
+     * @param deviceName the name of the device the serial port is connected to
+     * (used for debugging and the emulator.)
+     * @return a I2CBus interface to the port.
+     */
+    public static I2CBus mxpI2C(String deviceName) {
+        return impl.makeI2C_MXP(deviceName);
+    }
+
+    /**
+     * Opens the onboard SPI port on the robot, without configuring it.
+     *
+     * @param cs the chip select address of the port, from 1 to 4.
+     * @param deviceName the name of the device the serial port is connected to
+     * (used for debugging and the emulator.)
+     * @return a SPIBus interface to the port.
+     */
+    public static SPIBus onboardSPI(int cs, String deviceName) {
+        return impl.makeSPI_Onboard(cs, deviceName);
+    }
+
+    /**
+     * Opens the MXP's SPI port on the robot, without configuring it.
+     *
+     * @param deviceName the name of the device the serial port is connected to
+     * (used for debugging and the emulator.)
+     * @return a SPIBus interface to the port.
+     */
+    public static SPIBus mxpSPI(String deviceName) {
+        return impl.makeSPI_MXP(deviceName);
     }
 
     /**
@@ -1109,5 +1435,33 @@ public class FRC {
             ds.addJoystick(names[i], impl.getJoystick(i + 1), 12, 6);
         }
         return ds;
+    }
+
+    private static Recorder rec;
+
+    /**
+     * Gets or creates a recorder that includes recording for modes, period
+     * events, and battery voltage.
+     *
+     * @return the global recorder
+     */
+    public static synchronized Recorder getRecorder() {
+        if (rec == null) {
+            try {
+                rec = Recorder.open(true, 8); // TODO: configurable?
+            } catch (IOException e) {
+                throw new RuntimeException(e); // TODO: better error handling?
+            }
+            rec.recordEventInput(globalPeriodic, "FRC.globalPeriodic");
+            rec.recordEventInput(constantPeriodic, "FRC.constantPeriodic");
+            rec.recordEventInput(sensorPeriodic, "FRC.sensorPeriodic");
+            rec.recordDiscreteInput(getMode(), "Robot Mode");
+            rec.recordBooleanInput(isOnFMS(), "FRC.isOnFMS()");
+            rec.recordFloatInput(batteryVoltage(), "Battery Voltage");
+        }
+        return rec;
+    }
+
+    private FRC() {
     }
 }

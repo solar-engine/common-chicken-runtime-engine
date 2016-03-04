@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2015 Colby Skeggs
+ * Copyright 2014-2016 Cel Skeggs
  *
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  *
@@ -21,7 +21,9 @@ package ccre.frc.devices;
 import ccre.channel.EventInput;
 import ccre.channel.EventOutput;
 import ccre.channel.FloatCell;
+import ccre.channel.FloatIO;
 import ccre.channel.FloatInput;
+import ccre.channel.FloatOutput;
 import ccre.frc.Device;
 import ccre.frc.components.BooleanTextComponent;
 import ccre.frc.components.SpacingComponent;
@@ -35,7 +37,7 @@ import ccre.timers.Ticker;
  *
  * @author skeggsc
  */
-public class SpinDevice extends Device {
+public class SpinDevice extends Device implements FloatOutput {
 
     private FloatCell ticks = new FloatCell();
     private int velocity = 0;
@@ -60,12 +62,7 @@ public class SpinDevice extends Device {
         add(new SpacingComponent(20));
         add(new TextComponent(title));
         if (resetWhen != null) {
-            resetWhen.send(new EventOutput() {
-                @Override
-                public void event() {
-                    setTicks(0);
-                }
-            });
+            resetWhen.send(this.eventSet(0));
         }
         add(isVelocityMode);
         add(new TextComponent("-") {
@@ -141,11 +138,20 @@ public class SpinDevice extends Device {
         return ticks;
     }
 
-    private void addTicks(int ticks) {
-        setTicks(this.ticks.get() + ticks);
+    /**
+     * Provides an IO that represents the current value on this SpinDevice.
+     *
+     * @return the FloatIO representing the value on this SpinDevice.
+     */
+    public FloatIO asIO() {
+        return FloatIO.compose(ticks, this);
     }
 
-    private void setTicks(float ticks) {
+    private void addTicks(int ticks) {
+        set(this.ticks.get() + ticks);
+    }
+
+    public void set(float ticks) {
         this.ticks.safeSet(ticks);
         positionView.setLabel(String.valueOf(ticks));
     }

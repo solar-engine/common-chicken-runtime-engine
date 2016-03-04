@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2015 Colby Skeggs.
+ * Copyright 2014-2015 Cel Skeggs.
  *
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  *
@@ -45,7 +45,7 @@ public class DeviceListMain {
      *
      * @param jarFile the program Jar.
      * @param storageDir the storage directory for logs, etc.
-     * @throws Exception
+     * @throws Exception if the emulator cannot be started
      */
     public static void startEmulator(File jarFile, File storageDir) throws Exception {
         if (!jarFile.isFile()) {

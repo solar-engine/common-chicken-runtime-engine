@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2016 Colby Skeggs, Jake Springer
+ * Copyright 2015-2016 Cel Skeggs, Jake Springer
  *
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  *
@@ -82,7 +82,7 @@ public interface FloatIO extends FloatInput, FloatOutput {
      * Returns the output side of this FloatIO. This is equivalent to upcasting
      * to FloatOutput.
      *
-     * @return this status, as an output.
+     * @return this io, as an output.
      */
     public default FloatOutput asOutput() {
         return this;
@@ -92,7 +92,7 @@ public interface FloatIO extends FloatInput, FloatOutput {
      * Returns the input side of this FloatIO. This is equivalent to upcasting
      * to FloatInput.
      *
-     * @return this status, as an input.
+     * @return this io, as an input.
      */
     public default FloatInput asInput() {
         return this;

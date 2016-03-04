@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2016 Colby Skeggs
+ * Copyright 2015-2016 Cel Skeggs
  *
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  *
@@ -19,24 +19,19 @@
 package ccre.channel;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.util.NoSuchElementException;
 
 import org.junit.After;
-import org.junit.AfterClass;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 
 import ccre.log.LogLevel;
 import ccre.log.VerifyingLogger;
+import ccre.scheduler.VirtualTime;
 import ccre.testing.CountingEventOutput;
-import ccre.time.FakeTime;
-import ccre.time.Time;
 import ccre.util.Values;
 
 @SuppressWarnings("javadoc")
@@ -54,32 +49,15 @@ public class EventOutputTest {
         ceo = new CountingEventOutput();
         ceo2 = new CountingEventOutput();
         VerifyingLogger.begin();
+        // for 'debounce' testing
+        VirtualTime.startFakeTime();
     }
 
     @After
     public void tearDown() throws Exception {
+        VirtualTime.endFakeTime();
         VerifyingLogger.checkAndEnd();
         ceo = ceo2 = null;
-    }
-
-    private static Time oldProvider;
-    private static FakeTime fake;
-
-    // These two are for 'debounce' testing.
-    @BeforeClass
-    public static void setUpClass() {
-        assertNull(oldProvider);
-        oldProvider = Time.getTimeProvider();
-        fake = new FakeTime();
-        Time.setTimeProvider(fake);
-    }
-
-    @AfterClass
-    public static void tearDownClass() {
-        assertNotNull(oldProvider);
-        Time.setTimeProvider(oldProvider);
-        oldProvider = null;
-        fake = null;
     }
 
     @Test
@@ -217,7 +195,7 @@ public class EventOutputTest {
             db.event();
             ceo.check();
             if (i % 3 == 2) {
-                fake.forward(millis / 2);
+                VirtualTime.forward(millis / 2);
             }
         }
     }

@@ -8,7 +8,7 @@ fi
 for file in $(find -name '*.java')
 do
 	date=$(git log -n 1 --pretty=format:%ad --date=format:%Y -- $file)
-	author=$(git log -n 1 --pretty=format:%an -- $file)
+	author=$(git log -n 1 --pretty=format:%an -- $file | sed 's/Colby/Cel/')
 	commit=$(git log -n 1 --pretty=format:%H -- $file)
 	filesha=$(sha256sum $file)
 	headdata=$(head -n 2 -- $file | tail -n 1)
@@ -24,71 +24,77 @@ do
 				# don't check: we can't see the parent commit from here
 				true
 			else
-				FAIL="false"
-				if echo "$headdata" | grep -q "$author" -
+				if [ "81395e30eaaa50287a3d920c631f294183e16f65" = "$commit" ]
 				then
-					# found
+					# don't check: this was a name change commit that touched far too many things
 					true
 				else
-					echo
-					echo "Uncredited author: $headdata"
-					FAIL="true"
-				fi
-				if echo "$headdata" | grep -qE "[-, ]$date " -
-				then
-					# found
-					true
-				else
-					echo
-					echo "Old date: $headdata"
-					FAIL="true"
-				fi
-				while $FAIL
-				do
-					echo
-					echo "$date $author <$commit $file>"
-					echo
-
-					if $VERIFY
+					FAIL="false"
+					if echo "$headdata" | grep -q "$author" -
 					then
-						echo "Failed."
-						exit 1
-					fi
-
-					read -e -p "(b)lame/ne(w) blame/(a)uthor blame/(e)dit/(i)gnore/e(x)it/(n)ext/(!)...> " cmd
-
-					cmdc="${cmd:0:1}"
-					if [ "$cmdc" = "b" ]
-					then
-						git blame -- $file
-					elif [ "$cmdc" = "w" ]
-					then
-						git blame -- $file | grep "$date"
-					elif [ "$cmdc" = "a" ]
-					then
-						git blame -- $file | grep "$author"
-					elif [ "$cmdc" = "e" ]
-					then
-						nano $file
-					elif [ "$cmdc" = "i" ]
-					then
-						echo "$filesha" >>header-dates-ignore.txt
-						echo "There are now $(wc -l header-dates-ignore.txt | cut -d ' ' -f 1) ignored entries."
-						FAIL="false"
-					elif [ "$cmdc" = "x" ]
-					then
-						exit 1
-					elif [ "$cmdc" = "n" ]
-					then
-						FAIL="false"
-					elif [ "$cmdc" = "!" ]
-					then
-						${cmd:1}
-						echo "Exit code: $?"
+						# found
+						true
 					else
-						echo "unknown command '$cmdc'"
+						echo
+						echo "Uncredited author: $headdata"
+						FAIL="true"
 					fi
-				done
+					if echo "$headdata" | grep -qE "[-, ]$date " -
+					then
+						# found
+						true
+					else
+						echo
+						echo "Old date: $headdata"
+						FAIL="true"
+					fi
+					while $FAIL
+					do
+						echo
+						echo "$date $author <$commit $file>"
+						echo
+
+						if $VERIFY
+						then
+							echo "Failed."
+							exit 1
+						fi
+
+						read -e -p "(b)lame/ne(w) blame/(a)uthor blame/(e)dit/(i)gnore/e(x)it/(n)ext/(!)...> " cmd
+
+						cmdc="${cmd:0:1}"
+						if [ "$cmdc" = "b" ]
+						then
+							git blame -- $file
+						elif [ "$cmdc" = "w" ]
+						then
+							git blame -- $file | grep "$date"
+						elif [ "$cmdc" = "a" ]
+						then
+							git blame -- $file | grep "$author"
+						elif [ "$cmdc" = "e" ]
+						then
+							nano $file
+						elif [ "$cmdc" = "i" ]
+						then
+							echo "$filesha" >>header-dates-ignore.txt
+							echo "There are now $(wc -l header-dates-ignore.txt | cut -d ' ' -f 1) ignored entries."
+							FAIL="false"
+						elif [ "$cmdc" = "x" ]
+						then
+							exit 1
+						elif [ "$cmdc" = "n" ]
+						then
+							FAIL="false"
+						elif [ "$cmdc" = "!" ]
+						then
+							${cmd:1}
+							echo "Exit code: $?"
+						else
+							echo "unknown command '$cmdc'"
+						fi
+					done
+				fi
 			fi
 		fi
 	fi

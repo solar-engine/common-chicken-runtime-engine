@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 Colby Skeggs
+ * Copyright 2014,2016 Cel Skeggs
  *
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  *
@@ -24,10 +24,9 @@ import java.io.OutputStream;
 import java.io.PrintStream;
 import java.util.Date;
 
-import ccre.channel.EventOutput;
+import ccre.scheduler.Scheduler;
 import ccre.storage.Storage;
 import ccre.time.Time;
-import ccre.timers.Ticker;
 
 /**
  * A logging tool that stores logging message in a file on the current computer
@@ -91,12 +90,10 @@ public class FileLogger implements LoggingTarget {
         this.pstream = pstream;
         long now = Time.currentTimeMillis();
         pstream.println("Logging began at " + new Date(System.currentTimeMillis()) + " [" + now + "]");
-        new Ticker(10000).send(new EventOutput() {
-            public void event() {
-                synchronized (FileLogger.this) {
-                    pstream.println("Logging continues at " + new Date());
-                    pstream.flush();
-                }
+        Scheduler.schedulePeriodicNanos("file-logger-flush", 10 * Time.NANOSECONDS_PER_SECOND, () -> {
+            synchronized (FileLogger.this) {
+                pstream.println("Logging continues at " + new Date());
+                pstream.flush();
             }
         });
     }

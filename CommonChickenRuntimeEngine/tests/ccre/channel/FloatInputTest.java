@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2016 Colby Skeggs
+ * Copyright 2015-2016 Cel Skeggs
  *
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  *
@@ -20,8 +20,6 @@ package ccre.channel;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
@@ -36,10 +34,10 @@ import org.junit.Test;
 
 import ccre.log.LogLevel;
 import ccre.log.VerifyingLogger;
+import ccre.scheduler.VirtualTime;
 import ccre.testing.CountingEventOutput;
 import ccre.testing.CountingFloatOutput;
-import ccre.time.FakeTime;
-import ccre.time.Time;
+import ccre.timers.Ticker;
 import ccre.util.Values;
 
 @SuppressWarnings("javadoc")
@@ -50,30 +48,20 @@ public class FloatInputTest {
     private FloatInput fi;
     private FloatCell fs, fs2;
 
-    private static Time oldProvider;
-    private static FakeTime fake;
-
-    // These two are for derivative testing.
     @BeforeClass
     public static void setUpClass() {
-        assertNull(oldProvider);
-        oldProvider = Time.getTimeProvider();
-        fake = new FakeTime();
-        Time.setTimeProvider(fake);
         VerifyingLogger.begin();
     }
 
     @AfterClass
     public static void tearDownClass() {
         VerifyingLogger.checkAndEnd();
-        assertNotNull(oldProvider);
-        Time.setTimeProvider(oldProvider);
-        oldProvider = null;
-        fake = null;
     }
 
     @Before
     public void setUp() throws Exception {
+        // For derivative testing.
+        VirtualTime.startFakeTime();
         cfo = new CountingFloatOutput();
         fi = FloatInput.always(7.3f);
         fs = new FloatCell();
@@ -85,6 +73,7 @@ public class FloatInputTest {
         cfo = null;
         fi = null;
         fs = fs2 = null;
+        VirtualTime.endFakeTime();
     }
 
     @Test
@@ -228,6 +217,26 @@ public class FloatInputTest {
         fi.dividedByRev(null);
     }
 
+    @Test
+    public void testModuloFloatInput() {
+        tryEach(fs.modulo(fs2), FloatOperation.modulation.of(fs.asInput(), fs2.asInput()));
+    }
+
+    @Test(expected = NullPointerException.class)
+    public void testModuloNull() {
+        fi.modulo(null);
+    }
+
+    @Test
+    public void testModuloRevFloatInput() {
+        tryEach(fs.moduloRev(fs2), FloatOperation.modulation.of(fs2.asInput(), fs.asInput()));
+    }
+
+    @Test(expected = NullPointerException.class)
+    public void testModuloRevNull() {
+        fi.moduloRev(null);
+    }
+
     private void trySet(FloatInput fi, FloatInput fi2) {
         for (float f1 : Values.interestingFloats) {
             fs.set(f1);
@@ -274,6 +283,20 @@ public class FloatInputTest {
     public void testDividedByRevFloat() {
         for (float f2 : Values.interestingFloats) {
             trySet(fs.dividedByRev(f2), FloatOperation.division.of(f2, fs.asInput()));
+        }
+    }
+
+    @Test
+    public void testModuloFloat() {
+        for (float f2 : Values.interestingFloats) {
+            trySet(fs.modulo(f2), FloatOperation.modulation.of(fs.asInput(), f2));
+        }
+    }
+
+    @Test
+    public void testModuloRevFloat() {
+        for (float f2 : Values.interestingFloats) {
+            trySet(fs.moduloRev(f2), FloatOperation.modulation.of(f2, fs.asInput()));
         }
     }
 
@@ -366,17 +389,17 @@ public class FloatInputTest {
     @Test
     public void testOutsideRangeFloatFloat() {
         BooleanCell bs = new BooleanCell();
-        for (float min : Values.interestingFloats) {
+        for (float min : Values.shorterInterestingFloats) {
             if (Float.isNaN(min)) {
                 continue;
             }
-            for (float max : Values.interestingFloats) {
+            for (float max : Values.shorterInterestingFloats) {
                 if (Float.isNaN(max)) {
                     continue;
                 }
                 BooleanInput bi = fs.outsideRange(min, max);
                 CancelOutput unbind = bi.send(bs);
-                for (float test : Values.interestingFloats) {
+                for (float test : Values.shorterInterestingFloats) {
                     fs.set(test);
                     assertEquals(test < min || test > max, bi.get());
                     assertEquals(test < min || test > max, bs.get());
@@ -427,18 +450,18 @@ public class FloatInputTest {
 
     @Test
     public void testInRangeFloatFloat() {
-        for (float min : Values.interestingFloats) {
+        for (float min : Values.shorterInterestingFloats) {
             if (Float.isNaN(min)) {
                 continue;
             }
-            for (float max : Values.interestingFloats) {
+            for (float max : Values.shorterInterestingFloats) {
                 if (Float.isNaN(max)) {
                     continue;
                 }
                 BooleanInput bi = fs.inRange(min, max);
                 BooleanCell bs = new BooleanCell();
                 bi.send(bs);
-                for (float test : Values.interestingFloats) {
+                for (float test : Values.shorterInterestingFloats) {
                     fs.set(test);
                     assertEquals(test >= min && test <= max, bi.get());
                     assertEquals(test >= min && test <= max, bs.get());
@@ -609,20 +632,20 @@ public class FloatInputTest {
     public void testNormalize() {
         FloatCell zs = new FloatCell(), os = new FloatCell();
         FloatInput fin1 = fs.normalize(zs, os);
-        for (float zero : Values.interestingFloats) {
+        for (float zero : Values.shorterInterestingFloats) {
             if (!Float.isFinite(zero)) {
                 continue;
             }
             zs.set(zero);
             FloatInput fin2 = fs.normalize(zero, os);
-            for (float one : Values.interestingFloats) {
+            for (float one : Values.shorterInterestingFloats) {
                 if (!Float.isFinite(one) || !Float.isFinite(one - zero) || zero == one) {
                     continue;
                 }
                 os.set(one);
                 FloatInput fin3 = fs.normalize(zs, one);
                 FloatInput fin4 = fs.normalize(zero, one);
-                for (float v : Values.interestingFloats) {
+                for (float v : Values.shorterInterestingFloats) {
                     fs.set(v);
                     assertEquals((v - zero) / (one - zero), fin1.get(), 0.0001f);
                     assertEquals((v - zero) / (one - zero), fin2.get(), 0.0001f);
@@ -792,6 +815,48 @@ public class FloatInputTest {
     }
 
     @Test
+    public void testWithRampingInput() {
+        EventCell update = new EventCell();
+        FloatCell ramp = new FloatCell(Float.NaN);
+        FloatInput fi = fs.withRamping(ramp, update);
+        for (float f : Values.lessInterestingFloats) {
+            if (f <= 0) {
+                continue;
+            }
+            ramp.set(f);
+            for (float i = -25f * f; i < 25f * f; i++) {
+                float a = fi.get();
+                fs.set(i);
+                float b = fi.get();
+                assertEquals(a, b, 0);
+                int j = 0;
+                while (true) {
+                    float old = fi.get();
+                    update.event();
+                    float delta = Math.abs(fi.get() - old);
+                    if (fi.get() == i) {
+                        break;
+                    }
+                    assertEquals(delta, f, 0.000005f * f);
+                    if (++j >= 100) {
+                        fail("never reached target");
+                    }
+                }
+            }
+        }
+    }
+
+    @Test(expected = NullPointerException.class)
+    public void testWithRampingInputNullA() {
+        fi.withRamping(FloatInput.zero, null);
+    }
+
+    @Test(expected = NullPointerException.class)
+    public void testWithRampingInputNullB() {
+        fi.withRamping(null, EventInput.never);
+    }
+
+    @Test
     public void testCreateRampingEvent() {// TODO: perhaps flesh these tests out
                                           // a bit more?
         FloatCell fi = new FloatCell();
@@ -828,6 +893,49 @@ public class FloatInputTest {
     }
 
     @Test
+    public void testCreateRampingEventInput() {
+        FloatCell fi = new FloatCell();
+        FloatCell ramp = new FloatCell(Float.NaN);
+        EventOutput update = fs.createRampingEvent(ramp, fi);
+        for (float f : Values.lessInterestingFloats) {
+            if (f <= 0) {
+                continue;
+            }
+            ramp.set(f);
+            for (float i = -25f * f; i < 25f * f; i++) {
+                float a = fi.get();
+                fs.set(i);
+                float b = fi.get();
+                assertEquals(a, b, 0);
+                int j = 0;
+                while (true) {
+                    float old = fi.get();
+                    update.event();
+                    float delta = Math.abs(fi.get() - old);
+                    if (fi.get() == i) {
+                        break;
+                    }
+                    assertEquals(delta, f, 0.000005f * f);
+                    if (++j >= 100) {
+                        fail("never reached target");
+                    }
+                }
+            }
+        }
+    }
+
+    @Test(expected = NullPointerException.class)
+    public void testCreateRampingEventInputNullA() {
+        fi.createRampingEvent(FloatInput.zero, null);
+    }
+
+    @Test(expected = NullPointerException.class)
+    public void testCreateRampingEventInputNullB() {
+        fi.createRampingEvent(null, FloatOutput.ignored);
+    }
+
+    @SuppressWarnings("deprecation")
+    @Test
     public void testDerivative() throws InterruptedException {
         Random rand = new Random(1);
         FloatInput fi = fs.derivative();
@@ -836,12 +944,47 @@ public class FloatInputTest {
             for (float j = i; j <= i + 20.0f;) {
                 float delta = (rand.nextInt(30) + 1) / 10.0f;
                 long timeDelta = rand.nextInt(2000) + 1;
-                fake.forward(timeDelta);
+                VirtualTime.forward(timeDelta);
                 j += delta;
                 fs.set(j);
                 assertEquals(1000 * delta / timeDelta, fi.get(), 0.00001f * (1000 * delta / timeDelta));
             }
-            fake.forward(1000);
+            VirtualTime.forward(1000);
+        }
+    }
+
+    @Test
+    public void testDerivativeRepSlower() throws InterruptedException {
+        FloatInput fi = fs.derivative(20);
+        Ticker ti = new Ticker(21);
+        try {
+            fs.set(0.5f);
+            ti.send(fs.eventAccumulate(1));
+            for (int i = 0; i < 20; i++) {
+                VirtualTime.forward(20);
+                assertEquals(0, fi.get(), 0);
+                VirtualTime.forward(1);
+                assertEquals(1.0 / 0.001, fi.get(), 0);
+            }
+        } finally {
+            ti.terminate();
+        }
+    }
+
+    @Test
+    public void testDerivativeRepFaster() throws InterruptedException {
+        FloatInput fi = fs.derivative(20);
+        Ticker ti = new Ticker(18);
+        try {
+            ti.send(fs.eventAccumulate(1));
+            VirtualTime.forward(18);
+            VirtualTime.forward(9);
+            for (int i = 0; i < 20; i++) {
+                VirtualTime.forward(9);
+                assertEquals(1.0f / 0.018f, fi.get(), 0);
+            }
+        } finally {
+            ti.terminate();
         }
     }
 

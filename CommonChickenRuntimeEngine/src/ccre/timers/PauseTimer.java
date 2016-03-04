@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2015 Colby Skeggs
+ * Copyright 2014-2016 Cel Skeggs
  *
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  *
@@ -21,10 +21,13 @@ package ccre.timers;
 import ccre.channel.AbstractUpdatingInput;
 import ccre.channel.BooleanInput;
 import ccre.channel.BooleanOutput;
+import ccre.channel.CancelOutput;
 import ccre.channel.EventOutput;
-import ccre.concurrency.ReporterThread;
+import ccre.channel.FloatInput;
 import ccre.log.Logger;
+import ccre.scheduler.Scheduler;
 import ccre.time.Time;
+import ccre.util.Utils;
 
 /**
  * A PauseTimer has a boolean state for running or not, which is readable but
@@ -38,35 +41,12 @@ import ccre.time.Time;
  */
 public class PauseTimer extends AbstractUpdatingInput implements BooleanInput, EventOutput {
 
-    private volatile long endAt;
-    private final long timeout;
-    private final Object lock = new Object();
-    private boolean isRunning = true;
-    private final ReporterThread main = new ReporterThread("PauseTimer") {
-        @Override
-        protected void threadBody() throws InterruptedException {
-            synchronized (lock) {
-                lock.notifyAll();
-            }
-            while (true) {
-                synchronized (lock) {
-                    while (isRunning && endAt == 0) {
-                        lock.wait();
-                    }
-                    if (!isRunning) {
-                        break;
-                    }
-                }
-                long now;
-                while ((now = Time.currentTimeMillis()) < endAt) {
-                    synchronized (lock) {
-                        Time.wait(lock, endAt - now);
-                    }
-                }
-                setEndAt(0);
-            }
-        }
-    };
+    private final String tag;
+
+    private final Object cancelLock = new Object();
+    // null if not running; value if running
+    private volatile CancelOutput cancel = null;
+    private final FloatInput timeout;
 
     /**
      * Create a new PauseTimer with the specified timeout in milliseconds.
@@ -77,6 +57,35 @@ public class PauseTimer extends AbstractUpdatingInput implements BooleanInput, E
         if (timeout <= 0) {
             throw new IllegalArgumentException("PauseTimer must have a positive timeout!");
         }
+        this.tag = Utils.getMethodCaller(1).toString();
+        this.timeout = FloatInput.always(timeout / 1000f);
+    }
+
+    /**
+     * Create a new PauseTimer with the specified dynamic timeout in seconds.
+     *
+     * @param timeout The timeout for each time the timer is activated.
+     */
+    public PauseTimer(FloatInput timeout) {
+        if (timeout == null) {
+            throw new NullPointerException();
+        }
+        this.tag = Utils.getMethodCaller(1).toString();
+        this.timeout = timeout;
+    }
+
+    /**
+     * Create a new PauseTimer with the specified dynamic timeout in seconds,
+     * and a descriptive tag for the time that it consumes.
+     *
+     * @param tag the scheduling tag
+     * @param timeout The timeout for each time the timer is activated.
+     */
+    public PauseTimer(String tag, FloatInput timeout) {
+        if (timeout == null) {
+            throw new NullPointerException();
+        }
+        this.tag = tag;
         this.timeout = timeout;
     }
 
@@ -85,52 +94,36 @@ public class PauseTimer extends AbstractUpdatingInput implements BooleanInput, E
      * - do not attempt to use it.
      */
     public void terminate() {
-        isRunning = false;
-        synchronized (lock) {
-            lock.notifyAll();
-        }
+        // nothing necessary since the scheduler rewrite
     }
+
+    private final EventOutput end = () -> {
+        synchronized (cancelLock) {
+            cancel = null;
+        }
+        perform();
+    };
 
     /**
      * Start the timer running.
      */
     public void event() {
-        setEndAt(Time.currentTimeMillis() + timeout);
-    }
-
-    public boolean get() {
-        return endAt != 0;
-    }
-
-    private void setEndAt(long endAt) {
-        long old;
-        synchronized (lock) {
-            old = this.endAt;
-            this.endAt = endAt;
-            lock.notifyAll();
-        }
-        boolean enabling = endAt != 0;
-        if (enabling && !main.isAlive()) {
-            synchronized (lock) {
-                // if this fails, it means that the internal thread exited due
-                // to an exception
-                main.start();
-                try {
-                    lock.wait();
-                } catch (InterruptedException e) {
-                    Thread.currentThread().interrupt();
-                }
+        synchronized (cancelLock) {
+            if (cancel != null) {
+                cancel.cancel();
+                cancel = null;
             }
-        }
-        boolean disabled = old == 0;
-        if (disabled == !enabling) {
-            return;
+            cancel = Scheduler.scheduleCancellableNanos(this.tag, (long) (timeout.get() * Time.NANOSECONDS_PER_SECOND), end);
         }
         try {
             perform();
         } catch (Throwable thr) {
-            Logger.severe("Error in PauseTimer notification", thr);
+            Logger.severe("Failure while starting PauseTimer", thr);
         }
+    }
+
+    public boolean get() {
+        return cancel != null;
     }
 
     /**

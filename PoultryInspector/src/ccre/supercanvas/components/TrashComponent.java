@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 Colby Skeggs.
+ * Copyright 2014,2016 Cel Skeggs.
  *
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  *
@@ -51,7 +51,6 @@ public class TrashComponent extends DraggableBoxComponent {
     public boolean onReceiveDrop(int x, int y, SuperCanvasComponent activeEntity) {
         if (activeEntity.onDelete(false)) {
             getPanel().remove(activeEntity);
-            Logger.fine("Deleted component: " + activeEntity);
         } else {
             Logger.warning("Component deletion disallowed: " + activeEntity);
         }

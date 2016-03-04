@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2015 Colby Skeggs
+ * Copyright 2014-2016 Cel Skeggs
  *
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  *
@@ -29,13 +29,25 @@ import ccre.frc.components.TextComponent;
  */
 public class HeadingDevice extends Device {
 
+    private final TextComponent text;
+
     /**
-     * Create a new HeadingDevice with a fixed title.
+     * Creates a new HeadingDevice with a fixed title.
      *
      * @param title the title to display.
      */
     public HeadingDevice(String title) {
         add(new SpacingComponent(30));
-        add(new TextComponent(title));
+        text = new TextComponent(title);
+        add(text);
+    }
+
+    /**
+     * Changes the displayed heading.
+     *
+     * @param title the new displayed heading.
+     */
+    public void setHeading(String title) {
+        text.setLabel(title);
     }
 }

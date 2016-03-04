@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 Colby Skeggs
+ * Copyright 2015-2016 Cel Skeggs
  *
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  *
@@ -29,6 +29,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
  */
 public abstract class AbstractUpdatingInput implements UpdatingInput {
 
+    private static final long serialVersionUID = 7753031053630836301L;
     /**
      * The list of consumers that will be notified when this UpdatingInput
      * updates.

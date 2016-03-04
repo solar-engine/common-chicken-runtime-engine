@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2015 Colby Skeggs
+ * Copyright 2013-2016 Cel Skeggs
  *
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  *
@@ -23,7 +23,6 @@ import java.io.Serializable;
 /**
  * A virtual node that is both a BooleanOutput and a BooleanInput. You can
  * modify its value, read its value, and subscribe to changes in its value.
- * BooleanStatus also provides a number of useful helper functions.
  *
  * @author skeggsc
  */
@@ -34,13 +33,13 @@ public class BooleanCell extends AbstractUpdatingInput implements Serializable, 
     private boolean value;
 
     /**
-     * Create a new BooleanStatus with the value of false.
+     * Create a new BooleanCell with the value of false.
      */
     public BooleanCell() {
     }
 
     /**
-     * Create a new BooleanStatus with a specified value.
+     * Create a new BooleanCell with a specified value.
      *
      * @param default_ The default value.
      */
@@ -49,10 +48,10 @@ public class BooleanCell extends AbstractUpdatingInput implements Serializable, 
     }
 
     /**
-     * Create a new BooleanStatus with the value of false that automatically
+     * Create a new BooleanCell with the value of false that automatically
      * updates all of the specified BooleanOutputs with the current state of
-     * this BooleanStatus. This is the same as creating a new BooleanStatus and
-     * then adding all of the BooleanOutputs as targets.
+     * this BooleanCell. This is the same as creating a new BooleanCell and then
+     * adding all of the BooleanOutputs as targets.
      *
      * @see BooleanCell#send(ccre.channel.BooleanOutput)
      * @param targets The BooleanOutputs to automatically update.

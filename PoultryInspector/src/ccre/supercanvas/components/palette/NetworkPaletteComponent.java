@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2015 Colby Skeggs.
+ * Copyright 2014-2016 Cel Skeggs.
  *
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  *
@@ -273,5 +273,13 @@ public class NetworkPaletteComponent extends PaletteComponent<Collection<Network
             }
         }
         return null;
+    }
+
+    @Override
+    public boolean onReceiveDrop(int x, int y, final SuperCanvasComponent activeComponent) {
+        if (activeComponent.onDelete(false)) {
+            getPanel().remove(activeComponent);
+        }
+        return true;
     }
 }

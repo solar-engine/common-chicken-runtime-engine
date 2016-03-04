@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2015 Colby Skeggs
+ * Copyright 2014-2015 Cel Skeggs
  *
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  *
@@ -35,6 +35,7 @@ public class DeviceGroup extends Device implements Iterable<Device> {
     /**
      * Add a device to this group.
      *
+     * @param <D> the type of the added device.
      * @param device the device to add.
      * @return the device that was just added, for method chaining.
      */

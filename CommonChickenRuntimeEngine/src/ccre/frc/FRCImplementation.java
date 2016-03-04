@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2015 Colby Skeggs
+ * Copyright 2013-2016 Cel Skeggs
  * Copyright 2015 Jake Springer
  *
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
@@ -19,15 +19,19 @@
  */
 package ccre.frc;
 
+import ccre.bus.I2CBus;
+import ccre.bus.RS232Bus;
+import ccre.bus.SPIBus;
 import ccre.channel.BooleanInput;
 import ccre.channel.BooleanOutput;
 import ccre.channel.EventInput;
 import ccre.channel.FloatInput;
 import ccre.channel.FloatOutput;
-import ccre.channel.SerialIO;
 import ccre.ctrl.ExtendedMotor;
 import ccre.ctrl.Joystick;
 import ccre.ctrl.binding.ControlBindingCreator;
+import ccre.discrete.DiscreteInput;
+import ccre.drivers.ctre.talon.TalonExtendedMotor;
 
 /**
  * This is an implementation for an FRC application. The reason for this is so
@@ -43,13 +47,29 @@ public interface FRCImplementation {
      */
     public static final int JAGUAR = 1;
     /**
-     * The ID for a Talon speed controller.
+     * The ID for a Talon SR speed controller.
      */
     public static final int TALON = 2;
     /**
      * The ID for a Victor speed controller.
      */
     public static final int VICTOR = 3;
+    /**
+     * The ID for a Victor SP speed controller.
+     */
+    public static final int VICTORSP = 4;
+    /**
+     * The ID for a Spark speed controller.
+     */
+    public static final int SPARK = 5;
+    /**
+     * The ID for a SD540 speed controller.
+     */
+    public static final int SD540 = 6;
+    /**
+     * The ID for a Talon SRX speed controller.
+     */
+    public static final int TALONSRX = 7;
 
     /**
      * Accesses a Joystick from the Driver Station.
@@ -85,7 +105,7 @@ public interface FRCImplementation {
      * @param deviceNumber the Talon's CAN device number.
      * @return the ExtendedMotor for the Talon.
      */
-    public ExtendedMotor makeCANTalon(int deviceNumber);
+    public TalonExtendedMotor makeCANTalon(int deviceNumber);
 
     /**
      * Create a reference to a solenoid on the specified port and module.
@@ -182,6 +202,13 @@ public interface FRCImplementation {
      * @return the input.
      */
     public BooleanInput getIsTest();
+
+    /**
+     * Gets the robot control mode.
+     *
+     * @return the discrete input.
+     */
+    public DiscreteInput<FRCMode> getMode();
 
     /**
      * Get a boolean input that checks if the robot is currently connected to
@@ -336,8 +363,14 @@ public interface FRCImplementation {
     public FloatInput getPCMCompressorCurrent(EventInput updateOn);
 
     /**
+     * @param updateOn when the PDP should be polled.
+     * @return the current draw of the entire PDP.
+     */
+    public FloatInput getPDPTotalCurrent(EventInput updateOn);
+
+    /**
      * @param channel the channel to monitor.
-     * @param updateOn when the PCM should be polled.
+     * @param updateOn when the PDP should be polled.
      * @return the current draw of the specified PDP channel.
      */
     public FloatInput getPDPChannelCurrent(int channel, EventInput updateOn);
@@ -349,28 +382,54 @@ public interface FRCImplementation {
     public FloatInput getPDPVoltage(EventInput updateOn);
 
     /**
-     * @param baudRate the baud rate of the port.
      * @param deviceName the name of the device the serial port is connected to
      * (used for debugging and the emulator.)
-     * @return a SerialIO interface to the port.
+     * @return a RS232Bus interface to the port.
      */
-    public SerialIO makeRS232_Onboard(int baudRate, String deviceName);
+    public RS232Bus makeRS232_Onboard(String deviceName);
 
     /**
-     * @param baudRate the baud rate of the port.
      * @param deviceName the name of the device the serial port is connected to
      * (used for debugging and the emulator.)
-     * @return a SerialIO interface to the port.
+     * @return a RS232Bus interface to the port.
      */
-    public SerialIO makeRS232_MXP(int baudRate, String deviceName);
+    public RS232Bus makeRS232_MXP(String deviceName);
 
     /**
-     * @param baudRate the baud rate of the port.
      * @param deviceName the name of the device the serial port is connected to
      * (used for debugging and the emulator.)
-     * @return a SerialIO interface to the port.
+     * @return a RS232Bus interface to the port.
      */
-    public SerialIO makeRS232_USB(int baudRate, String deviceName);
+    public RS232Bus makeRS232_USB(String deviceName);
+
+    /**
+     * @param deviceName the name of the device the serial port is connected to
+     * (used for debugging and the emulator.)
+     * @return a I2CBus interface to the port.
+     */
+    public I2CBus makeI2C_Onboard(String deviceName);
+
+    /**
+     * @param deviceName the name of the device the serial port is connected to
+     * (used for debugging and the emulator.)
+     * @return a I2CBus interface to the port.
+     */
+    public I2CBus makeI2C_MXP(String deviceName);
+
+    /**
+     * @param cs the chip select
+     * @param deviceName the name of the device the serial port is connected to
+     * (used for debugging and the emulator.)
+     * @return a SPIBus interface to the port.
+     */
+    public SPIBus makeSPI_Onboard(int cs, String deviceName);
+
+    /**
+     * @param deviceName the name of the device the serial port is connected to
+     * (used for debugging and the emulator.)
+     * @return a SPIBus interface to the port.
+     */
+    public SPIBus makeSPI_MXP(String deviceName);
 
     /**
      * @param powerChannel the power channel to monitor.

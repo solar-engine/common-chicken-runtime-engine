@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2015 Colby Skeggs.
+ * Copyright 2014-2016 Cel Skeggs
  *
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  *
@@ -20,14 +20,8 @@ package ccre.supercanvas.components.palette;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
-import java.util.Collections;
 
 import ccre.supercanvas.SuperCanvasComponent;
-import ccre.supercanvas.components.FolderComponent;
-import ccre.supercanvas.components.LoggingComponent;
-import ccre.supercanvas.components.TextComponent;
-import ccre.supercanvas.components.TopLevelRConfComponent;
-import ccre.supercanvas.components.TrashComponent;
 
 /**
  * A top-level palette, which means that it contains important components that
@@ -38,28 +32,25 @@ import ccre.supercanvas.components.TrashComponent;
 public class TopLevelPaletteComponent extends PaletteComponent<Iterable<PaletteEntry>> {
 
     private static final long serialVersionUID = -1847428594657030363L;
-    private static final Iterable<PaletteEntry> topLevel;
 
-    static {
-        ArrayList<PaletteEntry> local = new ArrayList<PaletteEntry>();
-        local.add(new AllocationPaletteEntry(LoggingComponent.class));
-        local.add(new AllocationPaletteEntry(NetworkPaletteComponent.class));
-        local.add(new AllocationPaletteEntry(ListPaletteComponent.class));
-        local.add(new AllocationPaletteEntry(FolderComponent.class));
-        local.add(new AllocationPaletteEntry(TrashComponent.class));
-        local.add(new AllocationPaletteEntry(TextComponent.class));
-        local.add(new AllocationPaletteEntry(TopLevelRConfComponent.class));
-        topLevel = Collections.unmodifiableCollection(local);
+    private static Iterable<PaletteEntry> wrapAll(Class<? extends SuperCanvasComponent>[] classes) {
+        ArrayList<PaletteEntry> local = new ArrayList<>();
+        for (Class<? extends SuperCanvasComponent> class_ : classes) {
+            local.add(new AllocationPaletteEntry(class_));
+        }
+        return local;
     }
 
     /**
-     * Create a new TopLevelPaletteComponent.
+     * Creates a new TopLevelPaletteComponent.
      *
      * @param x the X-coordinate.
      * @param y the Y-coordinate.
+     * @param classes the SuperCanvasComponent classes to include.
      */
-    public TopLevelPaletteComponent(int x, int y) {
-        super(x, y, topLevel);
+    @SafeVarargs
+    public TopLevelPaletteComponent(int x, int y, Class<? extends SuperCanvasComponent>... classes) {
+        super(x, y, wrapAll(classes));
     }
 
     private static class AllocationPaletteEntry implements PaletteEntry {

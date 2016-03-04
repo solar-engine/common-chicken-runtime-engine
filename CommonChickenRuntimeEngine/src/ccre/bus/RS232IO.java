@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 Colby Skeggs
+ * Copyright 2015-2016 Cel Skeggs
  *
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  *
@@ -16,22 +16,67 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with the CCRE.  If not, see <http://www.gnu.org/licenses/>.
  */
-package ccre.channel;
+package ccre.bus;
 
+import java.io.Closeable;
 import java.io.IOException;
 
 /**
- * An interface to write to a generic serial output. Usually RS232.
- *
- * WARNING: THIS INTERFACE IS SUBJECT TO NON-BACKWARDS-COMPATIBLE CHANGE.
+ * A standard RS232 serial port, after configuration.
  *
  * @author skeggsc
  */
-public interface SerialOutput {
+public interface RS232IO extends Closeable {
 
     /**
-     * Flush any remaining output as far down to the hardware as possible. This
-     * will send any buffered data.
+     * Resets the serial port to a known state, such as emptying all buffers.
+     *
+     * @throws IOException if the port cannot be reset.
+     */
+    public void resetSerial() throws IOException;
+
+    /**
+     * Checks if there are any currently-available bytes.
+     *
+     * @return true if available, otherwise false
+     * @throws IOException if the available bytes cannot be queried.
+     */
+    public boolean hasAvailableBytes() throws IOException;
+
+    /**
+     * Sets the termination character - read operations will be ended early
+     * where these characters are found.
+     *
+     * @param end the character to end read operations on, or null to not end
+     * early.
+     * @throws IOException if the termination cannot be set.
+     */
+    public void setTermination(Character end) throws IOException;
+
+    /**
+     * Reads a byte array in a possibly-blocking manner, up to the given number
+     * of bytes.
+     *
+     * @param max the maximum number of bytes to read.
+     * @return the read bytes.
+     * @throws IOException if an error occurs while reading the bytes.
+     */
+    public byte[] readBlocking(int max) throws IOException;
+
+    /**
+     * Reads a byte array in a nonblocking manner, up to the given number of
+     * bytes.
+     *
+     * @param max the maxmimum number of bytes to read.
+     * @return the read bytes. this could be zero bytes, if none were promptly
+     * available!
+     * @throws IOException if an error occurs while reading the bytes.
+     */
+    public byte[] readNonblocking(int max) throws IOException;
+
+    /**
+     * Flushes any remaining output as far down to the hardware as possible.
+     * This will send any buffered data.
      *
      * @throws IOException if an error occurred while flushing.
      */
@@ -47,7 +92,7 @@ public interface SerialOutput {
     public void setFlushOnWrite(boolean flushOnWrite) throws IOException;
 
     /**
-     * Write the entire byte section.
+     * Writes the entire byte section.
      *
      * @param bytes the byte array to write a section from.
      * @param from the start of the section.
@@ -57,7 +102,7 @@ public interface SerialOutput {
     public void writeFully(byte[] bytes, int from, int to) throws IOException;
 
     /**
-     * Write an appropriately-sized chunk of the byte section, and return the
+     * Writes an appropriately-sized chunk of the byte section, and return the
      * number of bytes actually written.
      *
      * @param bytes the byte array to write a section from.
@@ -69,7 +114,7 @@ public interface SerialOutput {
     public int writePartial(byte[] bytes, int from, int to) throws IOException;
 
     /**
-     * Close the serial port. It may not be used after this is invoked.
+     * Closes the serial port. It may not be used after this is invoked.
      *
      * @throws IOException if an error occurred while the port was being closed.
      */

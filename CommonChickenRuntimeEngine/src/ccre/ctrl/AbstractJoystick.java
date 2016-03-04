@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 Colby Skeggs
+ * Copyright 2015-2016 Cel Skeggs
  *
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  *
@@ -25,6 +25,7 @@ import ccre.channel.DerivedBooleanInput;
 import ccre.channel.DerivedFloatInput;
 import ccre.channel.EventInput;
 import ccre.channel.FloatInput;
+import ccre.channel.FloatOutput;
 
 /**
  * An abstract Joystick implementation, that allows one to convert a poll-based
@@ -55,6 +56,7 @@ public abstract class AbstractJoystick implements Joystick {
     private final HashMap<Integer, BooleanInput> buttons = new HashMap<>();
     private final HashMap<Integer, FloatInput> floats = new HashMap<>();
     private final HashMap<Integer, BooleanInput> povs = new HashMap<>();
+    private float rumbleStateLeft, rumbleStateRight;
 
     @Override
     public BooleanInput button(int btn) {
@@ -140,4 +142,24 @@ public abstract class AbstractJoystick implements Joystick {
      * false otherwise.
      */
     protected abstract boolean getPOV(int direction);
+
+    @Override
+    public FloatOutput rumble(boolean right) {
+        return (value) -> {
+            if (right) {
+                rumbleStateRight = value;
+            } else {
+                rumbleStateLeft = value;
+            }
+            setRumble(rumbleStateLeft, rumbleStateRight);
+        };
+    }
+
+    /**
+     * Changes the rumble level of the rumblers, if they exist.
+     *
+     * @param left a value from 0.0 to 1.0
+     * @param right a value from 0.0 to 1.0
+     */
+    protected abstract void setRumble(float left, float right);
 }

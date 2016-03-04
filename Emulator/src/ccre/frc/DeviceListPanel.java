@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2015 Colby Skeggs
+ * Copyright 2014-2015 Cel Skeggs
  *
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  *
@@ -97,6 +97,7 @@ public final class DeviceListPanel extends JPanel implements Iterable<Device> {
     /**
      * Add the specified device to this panel.
      *
+     * @param <E> the type of the added device.
      * @param comp The device to add.
      * @return the added device.
      */

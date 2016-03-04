@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2015 Colby Skeggs, Alexander Mackworth
+ * Copyright 2013-2016 Cel Skeggs, 2014 Alexander Mackworth
  *
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  *
@@ -21,6 +21,7 @@ package ccre.ctrl;
 import ccre.channel.BooleanInput;
 import ccre.channel.EventInput;
 import ccre.channel.FloatInput;
+import ccre.channel.FloatOutput;
 
 /**
  * A Joystick with axes and buttons.
@@ -111,6 +112,42 @@ public interface Joystick {
      * @return the FloatInput for the axis.
      */
     public FloatInput axis(int axis);
+
+    /**
+     * Provides a FloatOutput representing the control over the selected
+     * rumbler. This is a value from 0.0 to 1.0, inclusive, where 0.0 means no
+     * rumble.
+     *
+     * @param right the rumble axis: true for right, and false for left.
+     * @return the FloatOutput for the rumbler
+     * @see #rumbleLeft()
+     * @see #rumbleRight()
+     */
+    public FloatOutput rumble(boolean right);
+
+    /**
+     * Provides a FloatOutput representing the control over the left rumbler.
+     * This is a value from 0.0 to 1.0, inclusive, where 0.0 means no rumble.
+     *
+     * @return the FloatOutput for the rumbler
+     * @see #rumble(boolean)
+     * @see #rumbleRight()
+     */
+    public default FloatOutput rumbleLeft() {
+        return rumble(false);
+    }
+
+    /**
+     * Provides a FloatOutput representing the control over the right rumbler.
+     * This is a value from 0.0 to 1.0, inclusive, where 0.0 means no rumble.
+     *
+     * @return the FloatOutput for the rumbler
+     * @see #rumble(boolean)
+     * @see #rumbleLeft()
+     */
+    public default FloatOutput rumbleRight() {
+        return rumble(true);
+    }
 
     /**
      * Provides a FloatInput representing the position of the X axis (axis

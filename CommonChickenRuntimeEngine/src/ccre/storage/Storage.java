@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2015 Colby Skeggs
+ * Copyright 2013-2016 Cel Skeggs
  *
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  *
@@ -25,6 +25,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.file.Files;
 
 /**
  * The holder for the current storage provider, and the superclass for any
@@ -85,5 +86,34 @@ public class Storage {
      */
     public static StorageSegment openStorage(String name) {
         return new StorageSegment(name);
+    }
+
+    /**
+     * Checks if a file exists in the storage directory.
+     *
+     * @param name the filename
+     * @return true if the file exists, and false otherwise
+     */
+    public static boolean exists(String name) {
+        return new File(basedir, name).exists();
+    }
+
+    /**
+     * Lists the files and directories that exist in the storage directory.
+     *
+     * @return an array of the discovered files and directories.
+     */
+    public static String[] list() {
+        return basedir.list();
+    }
+
+    /**
+     * Deletes a file from the storage directory.
+     *
+     * @param name the filename
+     * @throws IOException if the file does not exist or cannot be deleted.
+     */
+    public static void delete(String name) throws IOException {
+        Files.delete(new File(basedir, name).toPath());
     }
 }

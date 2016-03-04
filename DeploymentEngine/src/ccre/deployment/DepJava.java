@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 Colby Skeggs.
+ * Copyright 2015 Cel Skeggs.
  *
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  *
@@ -53,7 +53,7 @@ public class DepJava {
      * @param classpath the folders containing the classes that can be linked to
      * from the compiled code.
      * @return the generated Artifact of the compiled classes.
-     * @throws IOException
+     * @throws IOException if something around finding source files or storing created files fails.
      */
     public static Artifact build(File folder, File... classpath) throws IOException {
         JavaCompiler javac = ToolProvider.getSystemJavaCompiler();

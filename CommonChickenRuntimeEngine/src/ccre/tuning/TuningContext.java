@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2015 Colby Skeggs
+ * Copyright 2013-2015 Cel Skeggs
  *
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  *
@@ -108,12 +108,12 @@ public final class TuningContext {
     }
 
     /**
-     * Get a FloatStatus with the specified name and default value. This will be
+     * Get a FloatCell with the specified name and default value. This will be
      * tunable over the network and saved on the roboRIO once flush() is called.
      *
      * @param name the name of the tunable value.
      * @param default_ the default value.
-     * @return the FloatStatus representing the current value.
+     * @return the FloatCell representing the current value.
      */
     public FloatCell getFloat(String name, float default_) {
         FloatCell out = new FloatCell(default_);
@@ -123,13 +123,12 @@ public final class TuningContext {
     }
 
     /**
-     * Get a BooleanStatus with the specified name and default value. This will
-     * be tunable over the network and saved on the roboRIO once flush() is
-     * called.
+     * Get a BooleanCell with the specified name and default value. This will be
+     * tunable over the network and saved on the roboRIO once flush() is called.
      *
      * @param name the name of the tunable value.
      * @param default_ the default value.
-     * @return the BooleanStatus representing the current value.
+     * @return the BooleanCell representing the current value.
      */
     public BooleanCell getBoolean(String name, boolean default_) {
         BooleanCell out = new BooleanCell(default_);

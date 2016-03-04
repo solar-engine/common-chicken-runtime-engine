@@ -27,7 +27,7 @@ public class Deployment {
      * A deployment task that downloads your robot code to a roboRIO found based
      * on your team number.
      *
-     * @throws Exception
+     * @throws Exception if the deployment cannot be completed
      */
     @DepTask
     public static void deploy() throws Exception {
@@ -49,7 +49,7 @@ public class Deployment {
     /**
      * A deployment task that runs your robot code in the CCRE's emulator.
      *
-     * @throws Exception
+     * @throws Exception if the emulation cannot occur
      */
     @DepTask(fork = true)
     public static void emulate() throws Exception {
@@ -62,7 +62,7 @@ public class Deployment {
      * be deployed to the robot by anyone, even if they don't have the CCRE set
      * up.
      *
-     * @throws Exception
+     * @throws Exception if the egg cannot be laid
      */
     @DepTask
     public static void layEgg() throws Exception {

@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 Colby Skeggs
+ * Copyright 2016 Cel Skeggs
  *
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  *
@@ -18,13 +18,15 @@
  */
 package ccre.channel;
 
+import java.io.Serializable;
+
 /**
  * A representation of something that can update and might want to tell
  * listeners about this fact.
  *
  * @author skeggsc
  */
-public interface UpdatingInput {
+public interface UpdatingInput extends Serializable {
 
     /**
      * Register the specified listener. Once this is called, then whenever the

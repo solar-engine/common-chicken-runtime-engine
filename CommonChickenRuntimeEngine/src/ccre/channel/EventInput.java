@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2015 Colby Skeggs
+ * Copyright 2013-2016 Cel Skeggs
  *
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  *
@@ -23,8 +23,6 @@ import ccre.time.Time;
 /**
  * An event input or source. This produces events when it fires. A user can
  * register listeners to be called when the EventInput fires.
- * ccre.event.EventStatus is a good implementation of this so that you don't
- * have to write your own listener management code.
  *
  * @see EventCell
  * @author skeggsc
@@ -52,7 +50,7 @@ public interface EventInput extends UpdatingInput {
      * if it was added once.
      *
      * @param output the listener to add.
-     * @return an EventOutput that deregisters the registered EventOutput. DO
+     * @return a CancelOutput that deregisters the registered EventOutput. DO
      * NOT FIRE THIS RETURNED EVENT MORE THAN ONCE: UNDEFINED BEHAVIOR MAY
      * RESULT.
      */

@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2016 Colby Skeggs
+ * Copyright 2013-2016 Cel Skeggs
  *
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  *
@@ -18,6 +18,8 @@
  */
 package ccre.channel;
 
+import java.io.Serializable;
+
 import ccre.log.Logger;
 
 /**
@@ -27,7 +29,7 @@ import ccre.log.Logger;
  * @see BooleanInput
  * @author skeggsc
  */
-public interface BooleanOutput {
+public interface BooleanOutput extends Serializable {
 
     /**
      * A BooleanOutput that goes nowhere. All data sent here is ignored.

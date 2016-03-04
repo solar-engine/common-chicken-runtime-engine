@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2016 Colby Skeggs
+ * Copyright 2015-2016 Cel Skeggs
  *
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  *
@@ -17,6 +17,9 @@
  * along with the CCRE.  If not, see <http://www.gnu.org/licenses/>.
  */
 package ccre.cluck;
+
+import java.io.IOException;
+import java.io.OutputStream;
 
 import org.junit.After;
 import org.junit.Before;
@@ -339,7 +342,7 @@ public class CluckPublisherTest {
                     }
                 }
             });
-            cfo.check();
+            cfo.check(); // TODO: debug flakiness here
             cfo.valueExpected = 0;
             cfo.ifExpected = Float.floatToIntBits(starting) != Float.floatToIntBits(0);
             fs.set(0);
@@ -385,7 +388,7 @@ public class CluckPublisherTest {
 
     @Test
     public void testLoggingTarget() {
-        for (int i = 0; i < 10; i++) {
+        for (int i = 0; i < 5; i++) {
             String name = Values.getRandomString();
             if (name.contains("/") || node.hasLink(name)) {
                 i--;
@@ -453,43 +456,103 @@ public class CluckPublisherTest {
         CluckPublisher.subscribeLT(node, null);
     }
 
-//    @Test
-//    public void testSetupSearching() {
-//        fail("Not yet implemented");
-//    }
-//
-//    @Test
-//    public void testPublishCluckNodeStringFloatStatus() {
-//        fail("Not yet implemented");
-//    }
-//
-//    @Test
-//    public void testPublishCluckNodeStringBooleanStatus() {
-//        fail("Not yet implemented");
-//    }
-//
-//    @Test
-//    public void testPublishCluckNodeStringEventStatus() {
-//        fail("Not yet implemented");
-//    }
-//
-//    @Test
-//    public void testPublishCluckNodeStringOutputStream() {
-//        fail("Not yet implemented");
-//    }
-//
-//    @Test
-//    public void testSubscribeOS() {
-//        fail("Not yet implemented");
-//    }
-//
-//    @Test
-//    public void testPublishRConf() {
-//        fail("Not yet implemented");
-//    }
-//
-//    @Test
-//    public void testSubscribeRConf() {
-//        fail("Not yet implemented");
-//    }
+    @Test
+    public void testOutputStream() throws IOException {
+        for (int i = 0; i < 20; i++) {
+            String name = Values.getRandomString();
+            if (name.contains("/") || node.hasLink(name)) {
+                i--;
+                continue;
+            }
+            VerifyingOutputStream vos = new VerifyingOutputStream();
+            CluckPublisher.publish(node, name, vos);
+            OutputStream proxy = CluckPublisher.subscribeOS(node, name);
+            for (byte[] bytes : Values.getRandomByteses(30, 0, 2000)) {
+                vos.bytesExpected = bytes;
+                vos.indexExpected = 0;
+                proxy.write(bytes);
+                vos.check();
+            }
+        }
+    }
+
+    @Test(expected = NullPointerException.class)
+    public void testOutputStreamNullA() {
+        CluckPublisher.publish(null, "hello", new VerifyingOutputStream());
+    }
+
+    @Test(expected = NullPointerException.class)
+    public void testOutputStreamNullB() {
+        CluckPublisher.publish(node, null, new VerifyingOutputStream());
+    }
+
+    @Test(expected = NullPointerException.class)
+    public void testOutputStreamNullC() {
+        CluckPublisher.publish(node, "hello", (OutputStream) null);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testOutputStreamWithSlash() {
+        CluckPublisher.publish(node, "hello/other", new VerifyingOutputStream());
+    }
+
+    @Test(expected = NullPointerException.class)
+    public void testSubscribeOSNullA() {
+        CluckPublisher.subscribeOS(null, "hello");
+    }
+
+    @Test(expected = NullPointerException.class)
+    public void testSubscribeOSNullB() {
+        CluckPublisher.subscribeOS(node, null);
+    }
+
+    @Test
+    public void testRevOutputStream() throws IOException {
+        for (int i = 0; i < 20; i++) {
+            String name = Values.getRandomString();
+            if (name.contains("/") || node.hasLink(name)) {
+                i--;
+                continue;
+            }
+            VerifyingOutputStream vos = new VerifyingOutputStream();
+            OutputStream proxy = CluckPublisher.publishOS(node, name);
+            CluckPublisher.subscribe(node, name, vos);
+            for (byte[] bytes : Values.getRandomByteses(30, 0, 2000)) {
+                vos.bytesExpected = bytes;
+                vos.indexExpected = 0;
+                proxy.write(bytes);
+                vos.check();
+            }
+        }
+    }
+
+    @Test(expected = NullPointerException.class)
+    public void testRevOutputStreamNullA() {
+        CluckPublisher.publishOS(null, "hello");
+    }
+
+    @Test(expected = NullPointerException.class)
+    public void testRevOutputStreamNullB() {
+        CluckPublisher.publishOS(node, null);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testRevOutputStreamWithSlash() {
+        CluckPublisher.publishOS(node, "hello/other");
+    }
+
+    @Test(expected = NullPointerException.class)
+    public void testRevSubscribeOSNullA() {
+        CluckPublisher.subscribe(null, "hello", new VerifyingOutputStream());
+    }
+
+    @Test(expected = NullPointerException.class)
+    public void testRevSubscribeOSNullB() {
+        CluckPublisher.subscribe(node, null, new VerifyingOutputStream());
+    }
+
+    @Test(expected = NullPointerException.class)
+    public void testRevSubscribeOSNullC() {
+        CluckPublisher.subscribe(node, "hello", (OutputStream) null);
+    }
 }

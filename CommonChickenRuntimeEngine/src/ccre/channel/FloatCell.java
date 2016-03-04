@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2015 Colby Skeggs
+ * Copyright 2013-2016 Cel Skeggs
  *
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  *
@@ -22,8 +22,7 @@ import java.io.Serializable;
 
 /**
  * A virtual node that is both a FloatOutput and a FloatInput. You can modify
- * its value, read its value, and subscribe to changes in its value. FloatStatus
- * also provides a number of useful helper functions.
+ * its value, read its value, and subscribe to changes in its value.
  *
  * By convention, most float inputs and outputs have states that range from
  * -1.0f to 1.0f.
@@ -37,7 +36,7 @@ public class FloatCell extends AbstractUpdatingInput implements FloatIO, Seriali
     private float value = 0;
 
     /**
-     * Create a new FloatStatus with the specified default value.
+     * Create a new FloatCell with the specified default value.
      *
      * @param value The default value.
      */
@@ -46,9 +45,9 @@ public class FloatCell extends AbstractUpdatingInput implements FloatIO, Seriali
     }
 
     /**
-     * Create a new FloatStatus that automatically updates all of the specified
-     * FloatOutputs with the current state of this FloatStatus. This is the same
-     * as creating a new FloatStatus and then adding all of the FloatOutputs as
+     * Create a new FloatCell that automatically updates all of the specified
+     * FloatOutputs with the current state of this FloatCell. This is the same
+     * as creating a new FloatCell and then adding all of the FloatOutputs as
      * targets.
      *
      * The default value is zero.

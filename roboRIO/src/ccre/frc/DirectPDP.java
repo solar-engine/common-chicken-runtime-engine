@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2016 Colby Skeggs
+ * Copyright 2015-2016 Cel Skeggs
  *
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  *
@@ -33,10 +33,17 @@ class DirectPDP {
         }
     }
 
+    // TODO: if multiple PDPs don't work, I've probably forgotten to update the
+    // WPILib binaries.
+
     public static float getCurrent(int channel, int module) {
         checkChannel(channel);
         // TODO: avoid timeout errors
         return (float) PDPJNI.getPDPChannelCurrent((byte) channel, module);
+    }
+
+    public static float getTotalCurrent(int module) {
+        return (float) PDPJNI.getPDPTotalCurrent(module);
     }
 
     public static float getVoltage(int module) {

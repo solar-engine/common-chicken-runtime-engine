@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 Colby Skeggs
+ * Copyright 2015-2016 Cel Skeggs
  *
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  *
@@ -18,7 +18,10 @@
  */
 package ccre.time;
 
-import java.util.LinkedList;
+import java.util.PriorityQueue;
+
+import ccre.channel.EventOutput;
+import ccre.log.Logger;
 
 /**
  * A "fake" implementation of time, in which the current time is controlled by
@@ -34,11 +37,7 @@ import java.util.LinkedList;
  */
 public class FakeTime extends Time {
 
-    private static final boolean debug = false;
-
-    private long now = 0;
-    private int adds = 0;
-    private final LinkedList<Object> otherSleepers = new LinkedList<>();
+    private volatile long now = 0;
 
     /**
      * Fast-forward time by the specified number of milliseconds, including
@@ -59,35 +58,42 @@ public class FakeTime extends Time {
             now += millis;
             this.notifyAll();
         }
-        Object[] osl;
-        synchronized (this) {
-            osl = otherSleepers.toArray();
-            adds = 0;
-        }
-        for (Object obj : osl) {
-            synchronized (obj) {
-                obj.notifyAll();
-            }
-        }
-        synchronized (this) {
-            int i = 0;
-            while (true) {
-                if (adds >= osl.length) {
-                    if (debug) {
-                        if (i != 1) {
-                            System.out.println("Completed in " + i + "!");
-                        }
-                    }
+        while (true) {
+            Entry ent;
+            synchronized (this) {
+                if (queue.isEmpty() || queue.peek().time > nowNanos()) {
                     break;
                 }
-                this.wait(1);
-                if (i++ >= 30) {
-                    if (debug) {
-                        System.out.println("Timed out!");
-                    }
-                    break;
-                }
+                ent = queue.remove();
             }
+            try {
+                ent.target.event();
+            } catch (Throwable thr) {
+                Logger.severe("Top-level failure in scheduled event", thr);
+            }
+        }
+    }
+
+    private static class Entry implements Comparable<Entry> {
+        public final EventOutput target;
+        public final long time;
+
+        public Entry(EventOutput target, long time) {
+            this.target = target;
+            this.time = time;
+        }
+
+        @Override
+        public int compareTo(Entry o) {
+            return Long.compare(time, o.time);
+        }
+    }
+
+    private final PriorityQueue<Entry> queue = new PriorityQueue<>(1024);
+
+    void schedule(EventOutput event, long time) {
+        synchronized (FakeTime.this) {
+            queue.add(new Entry(event, time));
         }
     }
 
@@ -132,53 +138,21 @@ public class FakeTime extends Time {
         } else if (timeout < 0) {
             throw new IllegalArgumentException("Negative wait time!");
         }
-        // we ignore the actual timeout... we can't tell the difference between
-        // an actual notification and a time-update notification!
-        // so we just go with the spurious wakeups every time the time changes.
-        synchronized (this) {
-            otherSleepers.add(object);
-            adds++;
-        }
-        try {
-            // we only wait ONCE ... which means that we WILL have spurious
-            // wakeups! I _do_ hope that code using this can handle them like
-            // it's supposed to.
-
-            // there's no race condition here because the notifying have to
-            // synchronize with 'object' to be able to send our own
-            // notification, and THIS thread is holding it.
-            object.wait(1000);
-            // but there is a possible starvation condition, if a later object
-            // needs to be notified for the lock on this to be able to be
-            // release
-            // so we set a timeout on object, which should break the starvation
-            // possibilities... eventually. (but long enough away to be noticed
-            // by the user.)
-            // this would be a bigger issue if it could ever happen in
-            // production, so I'm leaving it for now.
-            // simply put: NEVER USE FakeTime IN A PRODUCTION SYSTEM!
-        } finally {
-            synchronized (this) {
-                otherSleepers.remove(object);
+        schedule(() -> {
+            synchronized (object) {
+                object.notifyAll();
             }
-        }
+        }, timeout);
+        // TODO: recomment this
+        object.wait(1000);
     }
 
     private boolean closing = false;
 
     @Override
     protected void close() {
-        Object[] others;
         synchronized (this) {
             closing = true;
-            others = otherSleepers.toArray();
-            otherSleepers.clear();
-        }
-        // wake up, everyone!
-        for (Object o : others) {
-            synchronized (o) {
-                o.notifyAll();
-            }
         }
         synchronized (this) {
             now = 0;

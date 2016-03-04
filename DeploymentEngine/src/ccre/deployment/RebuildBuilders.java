@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 Colby Skeggs, 2016 Alexander Mackworth.
+ * Copyright 2015 Cel Skeggs, 2016 Alexander Mackworth.
  *
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  *
@@ -48,7 +48,7 @@ public class RebuildBuilders {
      * Rebuilds the {@link DepTask} tasks for the current project, unless it is
      * TemplateRobot.
      *
-     * @throws IOException
+     * @throws IOException if the builders cannot be rebuilt.
      */
     public static void rebuild() throws IOException {
         if ("TemplateRobot".equals(DepProject.name())) {
@@ -76,7 +76,7 @@ public class RebuildBuilders {
      *
      * @param deployment the deployment class that includes the deployment
      * tasks.
-     * @throws IOException
+     * @throws IOException if the builders cannot be rebuilt.
      */
     public static void rebuild(Class<?> deployment) throws IOException {
         for (Method m : deployment.getMethods()) {
@@ -117,7 +117,7 @@ public class RebuildBuilders {
      * @param methodName the method to invoke on the deployment class.
      * @param fork if a new JVM should be forked to run the deployment task when
      * it is launched.
-     * @throws IOException
+     * @throws IOException if the builders cannot be rebuilt.
      */
     public static void rebuild(Class<?> deployment, String displayName, String methodName, boolean fork) throws IOException {
         InputStream resource = RebuildBuilders.class.getResourceAsStream("/ccre/deployment/invocation-template.xml");

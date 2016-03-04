@@ -12,6 +12,7 @@
 /Emulator/Emulator.jar
 /SampleRobot/bin/
 /SampleRobot/dist/
+/SampleRobot/eggs/
 /SampleRobot/build/
 /SampleRobot/build-2014/
 /SampleRobot/launches/
@@ -19,6 +20,7 @@
 /SampleRobot/emulator-logs/
 /PoultryInspector/bin/
 /PoultryInspector/build/
+/PoultryInspector/test-build/
 /PoultryInspector/Dependencies.jar
 /PoultryInspector/PoultryInspector*.jar
 /PoultryInspector/log-*

@@ -22,6 +22,7 @@ import java.awt.image.BufferedImage;
 import java.io.EOFException;
 import java.io.IOException;
 import java.net.ConnectException;
+import java.net.NoRouteToHostException;
 import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
 import java.util.function.Consumer;
@@ -77,6 +78,8 @@ class WebcamThread {
                     error.accept("Stopped.");
                 } catch (EOFException e) {
                     error.accept("Ended.");
+                } catch (NoRouteToHostException e) {
+                    error.accept("No route to host.");
                 } catch (SocketTimeoutException e) {
                     error.accept("Timed out.");
                 } catch (UnknownHostException e) {

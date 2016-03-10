@@ -39,6 +39,7 @@ import ccre.util.LineCollectorOutputStream;
  */
 public class WebcamComponent extends DraggableBoxComponent {
 
+    private static final int FIXED_WIDTH = 640;
     private static final long serialVersionUID = 6555290483696874964L;
     private String address = null;
     private final StringBuilder addressField = new StringBuilder();
@@ -91,15 +92,15 @@ public class WebcamComponent extends DraggableBoxComponent {
      */
     public WebcamComponent(int cx, int cy) {
         super(cx, cy);
-        halfWidth = 100;
-        halfHeight = 100;
+        halfWidth = FIXED_WIDTH / 2;
+        halfHeight = halfWidth * 3 / 4;
     }
 
     private synchronized void setImage(BufferedImage image) {
         this.image = image;
         if (image != null) {
-            this.halfWidth = image.getWidth() / 2;
-            this.halfHeight = image.getHeight() / 2;
+            this.halfWidth = FIXED_WIDTH / 2;
+            this.halfHeight = (int) (((float) image.getHeight() / image.getWidth()) * halfWidth);
         }
         SuperCanvasPanel panel = this.getPanel();
         if (panel != null) {

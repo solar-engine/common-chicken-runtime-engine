@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 Cel Skeggs.
+ * Copyright 2014,2016 Cel Skeggs.
  *
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  *
@@ -56,7 +56,7 @@ public class SaveLoadComponent extends SuperCanvasComponent {
      * @param y the Y-coordinate.
      */
     public SaveLoadComponent(int x, int y) {
-        super(true);
+        super(0, true);
         this.x = x;
         this.y = y;
     }

@@ -48,7 +48,7 @@ public class StartComponent extends SuperCanvasComponent {
      * @param index the index, starting from the bottom of the screen
      */
     public StartComponent(Supplier<? extends SuperCanvasComponent> popup, String name, int index) {
-        super(true);
+        super(0, true);
         this.name = name;
         this.index = index;
         this.expected = popup.get().getClass();

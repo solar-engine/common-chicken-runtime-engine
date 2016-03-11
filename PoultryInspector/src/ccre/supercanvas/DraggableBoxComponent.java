@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 Cel Skeggs.
+ * Copyright 2014,2016 Cel Skeggs.
  *
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  *
@@ -62,8 +62,8 @@ public abstract class DraggableBoxComponent extends SuperCanvasComponent {
      * @param cy The Y-coordinate.
      * @param hideInOperateMode if this should be invisible during OPERATE mode.
      */
-    public DraggableBoxComponent(int cx, int cy, boolean hideInOperateMode) {
-        super(hideInOperateMode);
+    public DraggableBoxComponent(int cx, int cy, int zIndex, boolean hideInOperateMode) {
+        super(zIndex, hideInOperateMode);
         centerX = cx;
         centerY = cy;
     }

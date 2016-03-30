@@ -22,6 +22,7 @@ import java.io.Serializable;
 
 import ccre.log.Logger;
 import ccre.time.Time;
+import ccre.verifier.FlowPhase;
 
 /**
  * An event output or consumer. This can be fired (or produced or triggered or
@@ -58,6 +59,7 @@ public interface EventOutput extends Serializable {
      *
      * @see #safeEvent() for a version that catches any errors that occur.
      */
+    @FlowPhase
     public void event();
 
     /**

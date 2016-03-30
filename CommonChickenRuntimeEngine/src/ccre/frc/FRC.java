@@ -1457,7 +1457,11 @@ public class FRC {
             rec.recordEventInput(sensorPeriodic, "FRC.sensorPeriodic");
             rec.recordDiscreteInput(getMode(), "Robot Mode");
             rec.recordBooleanInput(isOnFMS(), "FRC.isOnFMS()");
-            rec.recordFloatInput(batteryVoltage(), "Battery Voltage");
+            FloatOutput voltage = rec.createFloatOutput("Battery Voltage");
+            // make sure it covers the entire range
+            voltage.set(13f);
+            voltage.set(0);
+            batteryVoltage().send(voltage);
         }
         return rec;
     }

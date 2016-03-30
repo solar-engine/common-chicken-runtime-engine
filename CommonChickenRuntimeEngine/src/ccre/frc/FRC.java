@@ -1462,6 +1462,10 @@ public class FRC {
         return rec;
     }
 
+    public static String getUniqueIdentifier() {
+        return impl.getUniqueIdentifier();
+    }
+
     private FRC() {
     }
 }

@@ -464,4 +464,6 @@ public interface FRCImplementation {
      * finished its initialization
      */
     public EventInput getOnInitComplete();
+
+    public String getUniqueIdentifier();
 }

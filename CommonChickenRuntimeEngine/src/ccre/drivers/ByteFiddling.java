@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 Cel Skeggs
+ * Copyright 2015-2016 Cel Skeggs
  *
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  *
@@ -251,6 +251,17 @@ public class ByteFiddling {
     }
 
     private static final char[] hex = new char[] { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F' };
+
+    public static String toHex(byte b) {
+        return new String(new char[] { toHexNibble((b >> 4) & 0xF), toHexNibble(b & 0xF) });
+    }
+
+    public static char toHexNibble(int i) {
+        if (i < 0 || i >= 16) {
+            throw new IllegalArgumentException("Not a valid hex nibble!");
+        }
+        return hex[i];
+    }
 
     /**
      * Converts four little-endian bytes from data into an integer.

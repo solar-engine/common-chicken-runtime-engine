@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2015 Cel Skeggs
+ * Copyright 2013-2016 Cel Skeggs
  *
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  *
@@ -230,7 +230,7 @@ public class CluckProtocol {
                         size = queue.size();
                     }
                     Thread.yield();
-                    if (size > 75) {
+                    if (size > 1000) {
                         Logger.warning("[LOCAL] Queue too long: " + size + " for " + dest + " at " + System.currentTimeMillis());
                     }
                 } finally {

@@ -348,19 +348,8 @@ public class DepRoboRIO {
         InetAddress inaddr;
         try {
             inaddr = InetAddress.getByName(ip);
-        } catch (UnknownHostException e) {
-            return null;
-        }
-        try {
-            if (!inaddr.isReachable(1000)) {
-                try {
-                    try (Socket sock = new Socket()) {
-                        sock.connect(new InetSocketAddress(inaddr, 22), 1000);
-                    }
-                } catch (IOException e) {
-                    return null;
-                }
-                // otherwise, we were able to connect... so assume we're good!
+            try (Socket sock = new Socket()) {
+                sock.connect(new InetSocketAddress(inaddr, 22), 500);
             }
         } catch (IOException e) {
             return null;

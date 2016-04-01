@@ -445,10 +445,10 @@ public class Recorder {
         int next_id = used.length == 0 ? 0 : used[used.length - 1] + 1;
         String next_name = "rec-" + next_id;
         if (compressed) {
-            Logger.config("Opening recorder output at rec-" + next_name + ".gz (compressed)");
+            Logger.config("Opening recorder output at " + next_name + ".gz (compressed)");
             return new GZIPOutputStream(Storage.openOutput(next_name + ".gz"));
         } else {
-            Logger.config("Opening recorder output at rec-" + next_name + " (uncompressed)");
+            Logger.config("Opening recorder output at " + next_name + " (uncompressed)");
             return Storage.openOutput(next_name);
         }
     }

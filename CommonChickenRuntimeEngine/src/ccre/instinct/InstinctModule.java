@@ -179,4 +179,8 @@ public abstract class InstinctModule extends InstinctBaseModule {
         setShouldBeRunning(bc);
         return bc;
     }
+
+    public void abortMode() {
+        main.interrupt();
+    }
 }

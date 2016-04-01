@@ -104,10 +104,8 @@ public abstract class InstinctModule extends InstinctBaseModule {
                 } catch (InterruptedException ex) {
                 }
             }
-            try {// TODO: Is this needed any longer?
-                 // Get rid of any lingering interruptions.
-                waitCycle();
-            } catch (InterruptedException ex) {
+            if (Thread.interrupted()) {
+                // got rid of interrupt
             }
             try {
                 try {

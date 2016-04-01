@@ -284,4 +284,26 @@ public class ByteFiddling {
     public static int asInt32BE(byte[] data, int from) {
         return ((data[from] & 0xFF) << 24) | ((data[from + 1] & 0xFF) << 16) | ((data[from + 2] & 0xFF) << 8) | (data[from + 3] & 0xFF);
     }
+
+    /**
+     * Converts two little-endian bytes from data into an unsigned integer.
+     *
+     * @param data the data to extract the bytes from
+     * @param from the index of the first byte
+     * @return the extracted integer.
+     */
+    public static int asInt16LE(byte[] data, int from) {
+        return (data[from] & 0xFF) | ((data[from + 1] & 0xFF) << 8);
+    }
+
+    /**
+     * Converts two big-endian bytes from data into an unsigned integer.
+     *
+     * @param data the data to extract the bytes from
+     * @param from the index of the first byte
+     * @return the extracted integer.
+     */
+    public static int asInt16BE(byte[] data, int from) {
+        return ((data[from] & 0xFF) << 8) | (data[from + 1] & 0xFF);
+    }
 }

@@ -418,7 +418,7 @@ public class CluckPublisher {
      * @return the FloatIO.
      */
     public static FloatIO subscribeFIO(CluckNode node, String path, boolean subscribeByDefault) {
-        return FloatIO.compose(subscribeFI(node, path, subscribeByDefault), subscribeFO(node, path));
+        return FloatIO.compose(subscribeFI(node, path + ".input", subscribeByDefault), subscribeFO(node, path + ".output"));
     }
 
     /**
@@ -445,13 +445,11 @@ public class CluckPublisher {
      * @return the BooleanIO.
      */
     public static BooleanIO subscribeBIO(CluckNode node, String path, boolean subscribeByDefault) {
-        return BooleanIO.compose(subscribeBI(node, path, subscribeByDefault), subscribeBO(node, path));
+        return BooleanIO.compose(subscribeBI(node, path + ".input", subscribeByDefault), subscribeBO(node, path + ".output"));
     }
 
     /**
      * Publish an EventIO on the network.
-     *
-     * No corresponding subscribe is provided yet.
      *
      * @param node The node to publish on.
      * @param name The name for the EventIO.
@@ -470,7 +468,7 @@ public class CluckPublisher {
      * @return the EventIO.
      */
     public static EventIO subscribeEIO(CluckNode node, String path) {
-        return EventIO.compose(subscribeEI(node, path), subscribeEO(node, path));
+        return EventIO.compose(subscribeEI(node, path + ".input"), subscribeEO(node, path + ".output"));
     }
 
     /**

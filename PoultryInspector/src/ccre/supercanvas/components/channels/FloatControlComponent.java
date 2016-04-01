@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2015 Cel Skeggs.
+ * Copyright 2014-2016 Cel Skeggs.
  *
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  *
@@ -294,7 +294,7 @@ public class FloatControlComponent extends BaseChannelComponent<FloatControlComp
 
     @Override
     protected void setDefaultView() {
-        activeView = View.HORIZONTAL_POINTER;
+        activeView = View.TEXTUAL;
     }
 
     private final FloatOutput fakeOut = new FakeFloatOutput();

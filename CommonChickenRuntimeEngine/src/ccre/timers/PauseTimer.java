@@ -108,17 +108,21 @@ public class PauseTimer extends AbstractUpdatingInput implements BooleanInput, E
      * Start the timer running.
      */
     public void event() {
+        boolean raise = true;
         synchronized (cancelLock) {
             if (cancel != null) {
                 cancel.cancel();
                 cancel = null;
+                raise = false;
             }
             cancel = Scheduler.scheduleCancellableNanos(this.tag, (long) (timeout.get() * Time.NANOSECONDS_PER_SECOND), end);
         }
-        try {
-            perform();
-        } catch (Throwable thr) {
-            Logger.severe("Failure while starting PauseTimer", thr);
+        if (raise) {
+            try {
+                perform();
+            } catch (Throwable thr) {
+                Logger.severe("Failure while starting PauseTimer", thr);
+            }
         }
     }
 

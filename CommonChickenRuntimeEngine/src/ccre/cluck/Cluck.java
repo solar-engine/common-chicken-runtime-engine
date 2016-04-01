@@ -151,6 +151,16 @@ public final class Cluck {
     }
 
     /**
+     * Subscribe to an EventIO from the network at the specified path.
+     *
+     * @param path The path to subscribe to.
+     * @return the EventIO.
+     */
+    public static EventIO subscribeEIO(String path) {
+        return CluckPublisher.subscribeEIO(node, path);
+    }
+
+    /**
      * Publish a LoggingTarget on the network.
      *
      * @param name The name for the LoggingTarget.
@@ -196,6 +206,19 @@ public final class Cluck {
     }
 
     /**
+     * Subscribe to a BooleanIO from the network at the specified path.
+     *
+     * @param path The path to subscribe to.
+     * @param shouldSubscribeByDefault Should this request the value from the
+     * remote by default, as opposed to waiting until this is needed. If this is
+     * false, then readValue() won't work until you run addTarget().
+     * @return the BooleanIO.
+     */
+    public static BooleanIO subscribeBIO(String path, boolean shouldSubscribeByDefault) {
+        return CluckPublisher.subscribeBIO(node, path, shouldSubscribeByDefault);
+    }
+
+    /**
      * Publish a BooleanOutput on the network.
      *
      * @param name The name for the BooleanOutput.
@@ -237,6 +260,19 @@ public final class Cluck {
      */
     public static FloatInput subscribeFI(String path, boolean subscribeByDefault) {
         return CluckPublisher.subscribeFI(node, path, subscribeByDefault);
+    }
+
+    /**
+     * Subscribe to a FloatIO from the network at the specified path.
+     *
+     * @param path The path to subscribe to.
+     * @param subscribeByDefault Should this request the value from the remote
+     * by default, as opposed to waiting until this is needed. If this is false,
+     * then readValue() won't work until you run addTarget().
+     * @return the FloatIO.
+     */
+    public static FloatIO subscribeFIO(String path, boolean subscribeByDefault) {
+        return CluckPublisher.subscribeFIO(node, path, subscribeByDefault);
     }
 
     /**

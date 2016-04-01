@@ -48,3 +48,4 @@
 /docsrc/ccre-docs-*
 /docsrc/*~
 /ci/junit-output
+/TimelineAnalyzer/TimelineInspector.jar

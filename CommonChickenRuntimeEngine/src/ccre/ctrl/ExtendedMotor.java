@@ -312,6 +312,14 @@ public abstract class ExtendedMotor {
         return output;
     }
 
+    public FloatOutput simpleControlSafe() {
+        try {
+            return simpleControl();
+        } catch (ExtendedMotorFailureException e) {
+            throw new RuntimeException("Could not control Extended Motor", e);
+        }
+    }
+
     /**
      * Opens the controller in a simple output mode:
      * {@link OutputControlMode#GENERIC_FRACTIONAL}, optionally reversed.
@@ -331,5 +339,13 @@ public abstract class ExtendedMotor {
             motor = motor.negate();
         }
         return motor;
+    }
+
+    public FloatOutput simpleControlSafe(boolean reversed) {
+        try {
+            return simpleControl(reversed);
+        } catch (ExtendedMotorFailureException e) {
+            throw new RuntimeException("Could not control Extended Motor", e);
+        }
     }
 }

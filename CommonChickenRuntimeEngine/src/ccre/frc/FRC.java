@@ -604,9 +604,25 @@ public class FRC {
      * MOTOR_REVERSE if the motor direction should be reversed.
      * @return the output that will output to the specified motor.
      * @throws ExtendedMotorFailureException if control cannot be established.
+     * @deprecated Use {@link #talonCANControl(int, boolean)} instead, which
+     * doesn't throw ExtendedMotorFailureException
      */
+    @Deprecated
     public static FloatOutput talonSimpleCAN(int deviceNumber, boolean negate) throws ExtendedMotorFailureException {
         return talonCAN(deviceNumber).simpleControl(negate);
+    }
+
+    /**
+     * Create a reference to a CAN Talon speed controller with the specified CAN
+     * device number. This may, of course, fail, if the Talon cannot be found.
+     *
+     * @param deviceNumber the device number to connect to.
+     * @param negate MOTOR_FORWARD if the motor direction should be unmodified,
+     * MOTOR_REVERSE if the motor direction should be reversed.
+     * @return the output that will output to the specified motor.
+     */
+    public static FloatOutput talonCANControl(int deviceNumber, boolean negate) {
+        return talonCAN(deviceNumber).simpleControlSafe(negate);
     }
 
     /**

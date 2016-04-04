@@ -19,7 +19,6 @@
 package ccre.frc.devices;
 
 import ccre.channel.EventInput;
-import ccre.channel.EventOutput;
 import ccre.channel.FloatCell;
 import ccre.channel.FloatIO;
 import ccre.channel.FloatInput;
@@ -103,22 +102,7 @@ public class SpinDevice extends Device implements FloatOutput {
             }
         });
 
-        new Ticker(100).send(new EventOutput() {
-            private int partials = 0;
-
-            @Override
-            public void event() {
-                partials += velocity;
-                while (partials >= 10) {
-                    partials -= 10;
-                    addTicks(1);
-                }
-                while (partials <= -10) {
-                    partials += 10;
-                    addTicks(-1);
-                }
-            }
-        });
+        new Ticker(10, true).send(() -> addTicks(velocity));
     }
 
     private void pressButton(int i) {
@@ -147,7 +131,7 @@ public class SpinDevice extends Device implements FloatOutput {
         return FloatIO.compose(ticks, this);
     }
 
-    private void addTicks(int ticks) {
+    private void addTicks(float ticks) {
         set(this.ticks.get() + ticks);
     }
 

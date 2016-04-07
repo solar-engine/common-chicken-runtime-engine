@@ -39,6 +39,10 @@ class ByteArrayDataInput implements DataInput {
         this(bytes, 0, bytes.length);
     }
 
+    public boolean isEOF() {
+        return index >= length;
+    }
+
     @Override
     public void readFully(byte[] b, int off, int len) throws EOFException {
         if (off < 0 || len < 0 || off + len > b.length) {

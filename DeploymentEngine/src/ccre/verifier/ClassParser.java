@@ -18,16 +18,15 @@
  */
 package ccre.verifier;
 
-import java.io.DataInput;
 import java.io.DataInputStream;
 import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Objects;
 
 import ccre.drivers.ByteFiddling;
-import ccre.verifier.ClassParser.MethodInfo;
-import ccre.verifier.ClassParser.TypeInfo;
 
 class ClassParser extends DataInputStream {
 
@@ -82,9 +81,18 @@ class ClassParser extends DataInputStream {
         // bytes (when Utf8)
         public String bytes;
 
+        @Override
+        public String toString() {
+            return "[" + tag + "] " + alpha + " " + beta + ": " + u64 + " " + bytes;
+        }
+
         public String asClass() throws ClassFormatException {
             this.requireTag(CONSTANT_Class);
-            return this.getConst(this.alpha).asUTF8();
+            String class_name = this.getConst(this.alpha).asUTF8();
+            if (class_name.indexOf('.') != -1) {
+                throw new ClassFormatException("Binary class name should not include dots!");
+            }
+            return class_name.replace('/', '.');
         }
 
         public String asUTF8() throws ClassFormatException {
@@ -99,10 +107,19 @@ class ClassParser extends DataInputStream {
             return pool[i];
         }
 
-        private void requireTag(int tag) throws ClassFormatException {
+        public void requireTag(int tag) throws ClassFormatException {
             if (this.tag != tag) {
                 throw new ClassFormatException("Expected a tag of " + tag + " but got " + this.tag + "!");
             }
+        }
+
+        public void requireTagOf(int... tags) throws ClassFormatException {
+            for (int tag : tags) {
+                if (tag == this.tag) {
+                    return; // success
+                }
+            }
+            throw new ClassFormatException("Expected a tag in " + Arrays.toString(tags) + " but got " + this.tag + "!");
         }
     }
 
@@ -123,41 +140,72 @@ class ClassParser extends DataInputStream {
         // calculated from descriptor
         public TypeInfo[] parameters;
         public TypeInfo returnType;
+        public byte[] code;
+        public ExceptionHandlerInfo[] handlers;
+        public int[] linenumtable;
 
-        public void fillOutDescriptor() throws ClassFormatException {
-            if (descriptor.charAt(0) != '(') {
-                throw new ClassFormatException("Invalid method descriptor: missing opening paren");
-            }
-            int close = descriptor.indexOf(')');
-            if (close == -1) {
-                throw new ClassFormatException("Invalid method descriptor: missing closing paren");
-            }
-            if (descriptor.indexOf('(', 1) != -1 || descriptor.indexOf(')', close + 1) != -1) {
-                throw new ClassFormatException("Invalid method descriptor: too many parens");
-            }
-            ArrayList<TypeInfo> list = new ArrayList<>();
-            for (int i = 1; i < close;) {
-                i += parseTypeDescriptor(descriptor.substring(i, close), list);
-            }
-            parameters = list.toArray(new TypeInfo[list.size()]);
-            String ret = descriptor.substring(close + 1);
-            if (ret.isEmpty()) {
-                throw new ClassFormatException("Invalid method descriptor: no return type");
-            }
-            if (ret.charAt(0) == 'V') {
-                if (ret.length() > 1) {
-                    throw new ClassFormatException("Invalid method descriptor: return type has garbage at the end");
+        @Override
+        public String toString() {
+            return declaringClass + "." + name + descriptor;
+        }
+
+        public void fillOutContents() throws ClassFormatException {
+            parameters = parseMethodDescriptorArguments(descriptor);
+            returnType = parseMethodDescriptorReturnType(descriptor);
+            byte[] attr = getAttribute("Code");
+            code = null;
+            handlers = null;
+            if (attr != null) {
+                try {
+                    ByteArrayDataInput din = new ByteArrayDataInput(attr);
+                    // ignore max_stack and max_locals
+                    din.readUnsignedShort();
+                    din.readUnsignedShort();
+                    byte[] code = new byte[din.readInt()];
+                    din.readFully(code);
+                    ExceptionHandlerInfo[] handlers = new ExceptionHandlerInfo[din.readUnsignedShort()];
+                    for (int i = 0; i < handlers.length; i++) {
+                        ExceptionHandlerInfo info = new ExceptionHandlerInfo();
+                        info.start_pc = din.readUnsignedShort();
+                        info.end_pc = din.readUnsignedShort();
+                        info.handler_pc = din.readUnsignedShort();
+                        int cti = din.readUnsignedShort();
+                        info.catch_type = cti == 0 ? null : this.declaringClass.getConst(cti).asClass();
+                        handlers[i] = info;
+                    }
+                    AttributeInfo[] info = new AttributeInfo[din.readUnsignedShort()];
+                    for (int i = 0; i < info.length; i++) {
+                        info[i] = new AttributeInfo();
+                        info[i].name = this.declaringClass.getConst(din.readUnsignedShort()).asUTF8();
+                        info[i].bytes = new byte[din.readInt()];
+                        din.readFully(info[i].bytes);
+                    }
+                    if (!din.isEOF()) {
+                        throw new ClassFormatException("Junk found at end of Code attribute!");
+                    }
+                    int[] linenumtable = null;
+                    for (AttributeInfo in : info) {
+                        if (in.name.equals("LineNumberTable")) {
+                            if (in.bytes.length < 2) {
+                                throw new ClassFormatException("Incorrectly-sized LineNumberTable!");
+                            }
+                            int line_number_table_length = ByteFiddling.asInt16BE(in.bytes, 0);
+                            if (in.bytes.length - 2 != line_number_table_length * 4) {
+                                throw new ClassFormatException("Incorrectly-sized LineNumberTable!");
+                            }
+                            linenumtable = new int[line_number_table_length * 2];
+                            for (int i = 0; i < linenumtable.length; i++) {
+                                linenumtable[i] = ByteFiddling.asInt16BE(in.bytes, 2 + i * 2);
+                            }
+                            break;
+                        }
+                    }
+                    this.code = code;
+                    this.handlers = handlers;
+                    this.linenumtable = linenumtable;
+                } catch (EOFException ex) {
+                    throw new ClassFormatException("Code parser reached the end of the code attribute!", ex);
                 }
-                returnType = TypeInfo.VOID;
-            } else {
-                list.clear();
-                if (parseTypeDescriptor(ret, list) != ret.length()) {
-                    throw new ClassFormatException("Invalid method descriptor: return type has garbage at the end");
-                }
-                if (list.size() != 1) {
-                    throw new RuntimeException("Oops... that really shouldn't have happened.");
-                }
-                returnType = list.get(0);
             }
         }
 
@@ -240,24 +288,19 @@ class ClassParser extends DataInputStream {
             }
         }
 
-        public byte[] getCode() throws ClassFormatException {
-            byte[] attr = getAttribute("Code");
-            // TODO: actually parse exception handlers, because they're highly relevant
-            if (attr == null) {
-                return null;
+        public int getLineNumberFor(int bytecode_index) {
+            if (linenumtable == null) {
+                return 0;
             }
-            try {
-                ByteArrayDataInput din = new ByteArrayDataInput(attr);
-                // ignore max_stack and max_locals
-                din.readUnsignedShort();
-                din.readUnsignedShort();
-                byte[] code = new byte[din.readInt()];
-                din.readFully(code);
-                // and ignore the rest. since we're reading from a byte array, this doesn't cause any problems.
-                return code;
-            } catch (EOFException ex) {
-                throw new ClassFormatException("Code parser reached the end of the code attribute!", ex);
+            int found_from = -1, line_number = 0;
+            for (int i = 0; i < linenumtable.length; i += 2) {
+                int start_pc = linenumtable[i], line_no = linenumtable[i + 1];
+                if (bytecode_index >= start_pc && start_pc > found_from) {
+                    found_from = start_pc;
+                    line_number = line_no;
+                }
             }
+            return line_number;
         }
     }
 
@@ -292,6 +335,72 @@ class ClassParser extends DataInputStream {
         public boolean isArray() {
             return element != null;
         }
+
+        @Override
+        public String toString() {
+            return "[type " + name + "]";
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(name, isClass, element);
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (obj instanceof TypeInfo) {
+                TypeInfo ti = (TypeInfo) obj;
+                return Objects.equals(name, ti.name) && isClass == ti.isClass && Objects.equals(element, ti.element);
+            } else {
+                return false;
+            }
+        }
+    }
+
+    private static int scanMethodDescriptor(String descriptor) throws ClassFormatException {
+        if (descriptor.charAt(0) != '(') {
+            throw new ClassFormatException("Invalid method descriptor: missing opening paren");
+        }
+        int close = descriptor.indexOf(')');
+        if (close == -1) {
+            throw new ClassFormatException("Invalid method descriptor: missing closing paren");
+        }
+        if (descriptor.indexOf('(', 1) != -1 || descriptor.indexOf(')', close + 1) != -1) {
+            throw new ClassFormatException("Invalid method descriptor: too many parens");
+        }
+        return close;
+    }
+
+    public static TypeInfo parseMethodDescriptorReturnType(String descriptor) throws ClassFormatException {
+        int close = scanMethodDescriptor(descriptor);
+        String ret = descriptor.substring(close + 1);
+        if (ret.isEmpty()) {
+            throw new ClassFormatException("Invalid method descriptor: no return type");
+        }
+        if (ret.charAt(0) == 'V') {
+            if (ret.length() > 1) {
+                throw new ClassFormatException("Invalid method descriptor: return type has garbage at the end");
+            }
+            return TypeInfo.VOID;
+        } else {
+            ArrayList<TypeInfo> list = new ArrayList<>();
+            if (parseTypeDescriptor(ret, list) != ret.length()) {
+                throw new ClassFormatException("Invalid method descriptor: return type has garbage at the end");
+            }
+            if (list.size() != 1) {
+                throw new RuntimeException("Oops... that really shouldn't have happened.");
+            }
+            return list.get(0);
+        }
+    }
+
+    public static TypeInfo[] parseMethodDescriptorArguments(String descriptor) throws ClassFormatException {
+        int close = scanMethodDescriptor(descriptor);
+        ArrayList<TypeInfo> list = new ArrayList<>();
+        for (int i = 1; i < close;) {
+            i += parseTypeDescriptor(descriptor.substring(i, close), list);
+        }
+        return list.toArray(new TypeInfo[list.size()]);
     }
 
     private static TypeInfo parseFieldDescriptor(String descriptor) throws ClassFormatException {
@@ -339,7 +448,10 @@ class ClassParser extends DataInputStream {
             return prev + 1;
         case 'L':
             int last = descriptor.indexOf(';');
-            out.add(TypeInfo.getClassFor(descriptor.substring(1, last)));
+            if (descriptor.indexOf('.') != -1) {
+                throw new ClassFormatException("Did not expect dots in type descriptor.");
+            }
+            out.add(TypeInfo.getClassFor(descriptor.substring(1, last).replace('/', '.')));
             return last + 1;
         default:
             throw new ClassFormatException("Invalid type descriptor: invalid descriptor header " + descriptor.charAt(0));
@@ -349,6 +461,11 @@ class ClassParser extends DataInputStream {
     public static class AttributeInfo {
         public String name;
         public byte[] bytes;
+    }
+
+    public static class ExceptionHandlerInfo {
+        public int start_pc, end_pc, handler_pc;
+        public String catch_type;
     }
 
     public static class ClassFile {
@@ -369,9 +486,22 @@ class ClassParser extends DataInputStream {
             return constant_pool[i];
         }
 
-        public MethodInfo getDeclaredMethod(String name, TypeInfo[] parameters) {
-            // TODO Auto-generated method stub
+        public String getSourceFile() throws ClassFormatException {
+            for (AttributeInfo info : attributes) {
+                if (info.name.equals("SourceFile")) {
+                    if (info.bytes.length < 2) {
+                        throw new ClassFormatException("SourceFile attribute is too short!");
+                    }
+                    int sourcefile_index = ByteFiddling.asInt16BE(info.bytes, 0);
+                    return this.getConst(sourcefile_index).asUTF8();
+                }
+            }
             return null;
+        }
+
+        @Override
+        public String toString() {
+            return "[class " + this_class + "]";
         }
     }
 
@@ -434,7 +564,7 @@ class ClassParser extends DataInputStream {
         info.name = readConstant(file).asUTF8();
         info.descriptor = readConstant(file).asUTF8();
         info.attributes = readAttributes(file);
-        info.fillOutDescriptor();
+        info.fillOutContents();
         return info;
     }
 
@@ -490,6 +620,9 @@ class ClassParser extends DataInputStream {
         for (int i = 1; i < info.length; i++) {
             info[i] = readConstantPoolEntry();
             info[i].pool = info;
+            if (info[i].tag == CONSTANT_Long || info[i].tag == CONSTANT_Double) {
+                i++; // double-wide
+            }
         }
         return info;
     }
@@ -534,24 +667,6 @@ class ClassParser extends DataInputStream {
             throw new ClassFormatException("Constant pool type not understood: " + info.tag);
         }
         return info;
-    }
-
-    public static class ClassFormatException extends IOException {
-        public ClassFormatException() {
-            super();
-        }
-
-        public ClassFormatException(String message) {
-            super(message);
-        }
-
-        public ClassFormatException(Throwable thr) {
-            super(thr);
-        }
-
-        public ClassFormatException(String message, Throwable thr) {
-            super(message, thr);
-        }
     }
 
     public static ClassFile parse(InputStream input) throws IOException {

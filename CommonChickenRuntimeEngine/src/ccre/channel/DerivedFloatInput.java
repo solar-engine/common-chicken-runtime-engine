@@ -56,6 +56,7 @@ public abstract class DerivedFloatInput extends AbstractUpdatingInput implements
         });
     }
 
+    @Override
     public final float get() {
         return value;
     }

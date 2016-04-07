@@ -135,6 +135,7 @@ public class CluckControlBinder implements RConfable {
         Cluck.publishRConf(name, this);
     }
 
+    @Override
     public Entry[] queryRConf() throws InterruptedException {
         String[] boolSinks = sinkSet.listBooleans();
         String[] floatSinks = sinkSet.listFloats();
@@ -166,6 +167,7 @@ public class CluckControlBinder implements RConfable {
         return ents;
     }
 
+    @Override
     public boolean signalRConf(int field, byte[] data) throws InterruptedException {
         if (field == 3 && dirty) {
             save();

@@ -88,6 +88,7 @@ public abstract class SimpleProcedure implements RemoteProcedure {
         return out.toByteArray();
     }
 
+    @Override
     public final void invoke(byte[] in, OutputStream out) {
         try {
             out.write(invoke(in));

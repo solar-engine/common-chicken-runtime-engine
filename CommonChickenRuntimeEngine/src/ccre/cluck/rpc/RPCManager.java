@@ -191,6 +191,7 @@ public final class RPCManager implements Serializable {
             this.timeoutAfter = timeoutAfter;
         }
 
+        @Override
         public void invoke(byte[] in, OutputStream out) {
             checkRPCTimeouts();
             String localname = UniqueIds.global.nextHexId(path);

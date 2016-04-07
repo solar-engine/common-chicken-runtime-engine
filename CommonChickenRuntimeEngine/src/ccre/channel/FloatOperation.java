@@ -180,6 +180,7 @@ public abstract class FloatOperation {
                 });
             }
 
+            @Override
             public void set(float value) {
                 lastValue = value;
                 anyValue = true;
@@ -227,6 +228,7 @@ public abstract class FloatOperation {
                 });
             }
 
+            @Override
             public void set(float value) {
                 lastValue = value;
                 anyValue = true;

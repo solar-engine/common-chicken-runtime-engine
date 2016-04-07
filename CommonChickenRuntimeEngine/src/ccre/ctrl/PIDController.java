@@ -168,6 +168,7 @@ public class PIDController implements FloatInput, EventOutput {
     /**
      * Update the PID controller.
      */
+    @Override
     public void event() {
         long time = Time.currentTimeMillis();
         long timeDelta = time - previousTime;
@@ -212,6 +213,7 @@ public class PIDController implements FloatInput, EventOutput {
         }
     }
 
+    @Override
     public float get() {
         return output.get();
     }

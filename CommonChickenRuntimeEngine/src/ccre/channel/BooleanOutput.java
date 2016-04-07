@@ -35,11 +35,13 @@ public interface BooleanOutput extends Serializable {
      * A BooleanOutput that goes nowhere. All data sent here is ignored.
      */
     BooleanOutput ignored = new BooleanOutput() {
+        @Override
         public void set(boolean newValue) {
             // Do nothing.
         }
 
         // Important to the functioning of static BooleanOutput.combine
+        @Override
         public BooleanOutput combine(BooleanOutput other) {
             if (other == null) {
                 throw new NullPointerException();
@@ -285,6 +287,7 @@ public interface BooleanOutput extends Serializable {
         return new BooleanOutput() {
             private boolean last;
 
+            @Override
             public void set(boolean value) {
                 if (value == last) {
                     return;

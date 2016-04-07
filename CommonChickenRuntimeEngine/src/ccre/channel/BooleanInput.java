@@ -36,6 +36,7 @@ public interface BooleanInput extends UpdatingInput {
      * A BooleanInput that is always false.
      */
     public static BooleanInput alwaysFalse = new BooleanInput() {
+        @Override
         public boolean get() {
             return false;
         }
@@ -52,6 +53,7 @@ public interface BooleanInput extends UpdatingInput {
      * A BooleanInput that is always true.
      */
     public static BooleanInput alwaysTrue = new BooleanInput() {
+        @Override
         public boolean get() {
             return true;
         }

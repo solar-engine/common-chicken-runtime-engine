@@ -39,10 +39,12 @@ public interface FloatOutput extends Serializable {
      * A FloatOutput that goes nowhere. All data sent here is ignored.
      */
     FloatOutput ignored = new FloatOutput() {
+        @Override
         public void set(float newValue) {
         }
 
         // Important to the functioning of static BooleanOutput.combine
+        @Override
         public FloatOutput combine(FloatOutput other) {
             if (other == null) {
                 throw new NullPointerException();
@@ -251,6 +253,7 @@ public interface FloatOutput extends Serializable {
             private long lastUpdateNanos = UNINITIALIZED;
             private float lastValue = Float.NaN;
 
+            @Override
             public synchronized void set(float value) {
                 long timeNanos = Time.currentTimeNanos();
                 if (lastUpdateNanos == UNINITIALIZED) {

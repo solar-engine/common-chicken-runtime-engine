@@ -43,6 +43,7 @@ public interface EventOutput extends Serializable {
         }
 
         // Important to the functioning of static EventOutput.combine
+        @Override
         public EventOutput combine(EventOutput other) {
             if (other == null) {
                 throw new NullPointerException();
@@ -185,6 +186,7 @@ public interface EventOutput extends Serializable {
         return new EventOutput() {
             private long nextFire = 0;
 
+            @Override
             public synchronized void event() {
                 long now = Time.currentTimeMillis();
                 if (now < nextFire) {

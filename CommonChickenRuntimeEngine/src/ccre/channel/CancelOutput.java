@@ -36,6 +36,7 @@ public interface CancelOutput {
         public void cancel() {
         }
 
+        @Override
         public CancelOutput combine(CancelOutput other) {
             return other;
         }

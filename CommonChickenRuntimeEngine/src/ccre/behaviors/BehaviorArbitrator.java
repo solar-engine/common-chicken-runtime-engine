@@ -315,6 +315,7 @@ public class BehaviorArbitrator implements RConfable {
         return name;
     }
 
+    @Override
     public String toString() {
         return "[BehaviorArbitrator " + name + "]";
     }

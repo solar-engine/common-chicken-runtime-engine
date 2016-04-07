@@ -118,5 +118,6 @@ public interface RS232IO extends Closeable {
      *
      * @throws IOException if an error occurred while the port was being closed.
      */
+    @Override
     public void close() throws IOException;
 }

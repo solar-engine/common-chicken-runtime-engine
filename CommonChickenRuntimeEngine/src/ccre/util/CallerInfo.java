@@ -90,6 +90,7 @@ public class CallerInfo {
      *
      * @return the generated string.
      */
+    @Override
     public String toString() {
         return className + "." + (methodName == null ? "<unknown>" : methodName) + "(" + (fileName == null ? "<unknown>" : fileName) + ":" + (lineNum == -1 ? "?" : lineNum) + ")";
     }

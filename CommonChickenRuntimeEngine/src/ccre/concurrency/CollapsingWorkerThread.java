@@ -94,6 +94,7 @@ public abstract class CollapsingWorkerThread extends ReporterThread implements E
      *
      * @see #trigger()
      */
+    @Override
     public void event() {
         trigger();
     }

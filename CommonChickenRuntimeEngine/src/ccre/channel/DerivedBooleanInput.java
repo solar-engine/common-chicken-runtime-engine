@@ -56,6 +56,7 @@ public abstract class DerivedBooleanInput extends AbstractUpdatingInput implemen
         });
     }
 
+    @Override
     public final boolean get() {
         return value;
     }

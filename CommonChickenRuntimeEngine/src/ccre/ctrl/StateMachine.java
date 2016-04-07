@@ -328,6 +328,7 @@ public class StateMachine {
      */
     public void autologTransitions(final LogLevel level, final String prefix) {
         onEnter.send(new EventOutput() {
+            @Override
             public void event() {
                 Logger.log(level, prefix + getStateName());
             }

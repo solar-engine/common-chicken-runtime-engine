@@ -550,6 +550,7 @@ public class CluckPublisher {
                 }
             }
 
+            @Override
             public void write(byte[] b, int off, int len) throws IOException {
                 if (len > 0) {
                     byte[] bt = new byte[len + 1];
@@ -610,6 +611,7 @@ public class CluckPublisher {
      */
     public static void publishRConf(CluckNode node, String name, final RConfable device) {
         node.getRPCManager().publish(name + "-rpcq", new RemoteProcedure() {
+            @Override
             public void invoke(byte[] in, OutputStream out) {
                 try {
                     RConf.Entry[] data;
@@ -645,6 +647,7 @@ public class CluckPublisher {
             }
         });
         node.getRPCManager().publish(name + "-rpcs", new RemoteProcedure() {
+            @Override
             public void invoke(byte[] in, OutputStream out) {
                 try {
                     if (in.length < 2) {
@@ -711,6 +714,7 @@ public class CluckPublisher {
             this.signal = signal;
         }
 
+        @Override
         public boolean signalRConf(int field, byte[] data) throws InterruptedException {
             byte[] ndata = new byte[data.length + 2];
             if (field != (field & 0xFFFF)) {
@@ -729,6 +733,7 @@ public class CluckPublisher {
             return true;
         }
 
+        @Override
         public Entry[] queryRConf() throws InterruptedException {
             byte[] data = SimpleProcedure.invoke(query, new byte[0], timeout);
             if (data == SimpleProcedure.TIMED_OUT) {
@@ -777,6 +782,7 @@ public class CluckPublisher {
             this.node = node;
         }
 
+        @Override
         public void set(float value) {
             for (String remote : remotes) {
                 int iver = Float.floatToIntBits(value);
@@ -797,6 +803,7 @@ public class CluckPublisher {
             this.node = node;
         }
 
+        @Override
         public void set(boolean value) {
             for (String remote : remotes) {
                 node.transmit(remote, name, new byte[] { CluckConstants.RMT_BOOLINPUTRESP, value ? (byte) 1 : 0 });
@@ -815,10 +822,12 @@ public class CluckPublisher {
             this.path = path;
         }
 
+        @Override
         public void log(LogLevel level, String message, Throwable throwable) {
             log(level, message, Utils.toStringThrowable(throwable));
         }
 
+        @Override
         public void log(LogLevel level, String message, String extended) {
             try {
                 byte[] msg = message.getBytes("UTF-8");

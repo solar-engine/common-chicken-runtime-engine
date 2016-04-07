@@ -71,6 +71,7 @@ public abstract class DerivedDiscreteInput<E> extends AbstractUpdatingInput impl
         return type;
     }
 
+    @Override
     public final E get() {
         return value;
     }

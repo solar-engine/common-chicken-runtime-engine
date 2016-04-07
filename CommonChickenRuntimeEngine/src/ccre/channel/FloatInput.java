@@ -43,6 +43,7 @@ public interface FloatInput extends UpdatingInput {
      */
     public static FloatInput always(final float value) {
         return new FloatInput() {
+            @Override
             public float get() {
                 return value;
             }
@@ -401,6 +402,7 @@ public interface FloatInput extends UpdatingInput {
             throw new IllegalArgumentException("Cannot have NaN boundary in inRange!");
         }
         return new DerivedBooleanInput(this) {
+            @Override
             public boolean apply() {
                 float val = FloatInput.this.get();
                 return val >= minimum && val <= maximum;
@@ -421,6 +423,7 @@ public interface FloatInput extends UpdatingInput {
      */
     public default BooleanInput inRange(final FloatInput minimum, final FloatInput maximum) {
         return new DerivedBooleanInput(this, minimum, maximum) {
+            @Override
             public boolean apply() {
                 float val = FloatInput.this.get();
                 return val >= minimum.get() && val <= maximum.get();
@@ -474,6 +477,7 @@ public interface FloatInput extends UpdatingInput {
         return new DerivedEventInput(this) {
             float last = get();
 
+            @Override
             protected boolean shouldProduce() {
                 float value = get();
                 if (Math.abs(last - value) >= deltaAbs) {
@@ -523,6 +527,7 @@ public interface FloatInput extends UpdatingInput {
         }
         FloatInput original = this;
         return new DerivedFloatInput(original) {
+            @Override
             protected float apply() {
                 return (original.get() - zeroV) / range;
             }
@@ -550,6 +555,7 @@ public interface FloatInput extends UpdatingInput {
         }
         FloatInput original = this;
         return new DerivedFloatInput(original, oneV) {
+            @Override
             protected float apply() {
                 float deltaN = oneV.get() - zeroV;
                 if (deltaN == 0) {
@@ -582,6 +588,7 @@ public interface FloatInput extends UpdatingInput {
         }
         FloatInput original = this;
         return new DerivedFloatInput(original, zeroV) {
+            @Override
             protected float apply() {
                 float zeroN = zeroV.get(), deltaN = oneV - zeroN;
                 if (deltaN == 0) {
@@ -610,6 +617,7 @@ public interface FloatInput extends UpdatingInput {
         }
         FloatInput original = this;
         return new DerivedFloatInput(original, zeroV, oneV) {
+            @Override
             protected float apply() {
                 float zeroN = zeroV.get(), deltaN = oneV.get() - zeroN;
                 if (deltaN == 0) {
@@ -685,6 +693,7 @@ public interface FloatInput extends UpdatingInput {
         return new EventOutput() {
             private float last = get();
 
+            @Override
             public void event() {
                 if (Float.isNaN(last)) {
                     last = get();

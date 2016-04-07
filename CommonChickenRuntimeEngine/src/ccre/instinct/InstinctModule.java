@@ -158,10 +158,13 @@ public abstract class InstinctModule extends InstinctBaseModule {
         }
     }
 
+    @Override
     void waitCycle() throws InterruptedException {
+        // TODO: inline this?
         Time.sleep(autoCycleRate);
     }
 
+    @Override
     void ensureShouldBeRunning() throws AutonomousModeOverException {
         if (!shouldBeRunning.get()) {
             throw new AutonomousModeOverException();

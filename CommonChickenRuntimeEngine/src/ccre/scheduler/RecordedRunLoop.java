@@ -66,6 +66,7 @@ class RecordedRunLoop extends RunLoop {
         }
     };
 
+    @Override
     public void add(String tag, EventOutput event, long time) {
         tags.add(tag);
         super.add(tag, event, time);

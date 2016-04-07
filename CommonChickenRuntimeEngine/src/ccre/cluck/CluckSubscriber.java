@@ -71,6 +71,7 @@ public abstract class CluckSubscriber implements CluckLink {
      * @see #receiveBroadcast(String, byte[])
      * @see #receiveSideChannel(String, String, byte[])
      */
+    @Override
     public final boolean send(String dest, String source, byte[] data) {
         if (dest == null) {
             receive(source, data);

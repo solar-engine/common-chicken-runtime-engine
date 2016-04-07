@@ -121,6 +121,7 @@ public final class InstinctMultiModule extends InstinctModule {
      */
     public void publishDefaultControls(boolean showIndividualModes, boolean showCycleChooser) {
         CluckPublisher.publish(context.getNode(), "Autonomous Mode Check", new EventOutput() {
+            @Override
             public void event() {
                 Logger.info("Current autonomous mode: " + mode.getModeName());
             }
@@ -128,6 +129,7 @@ public final class InstinctMultiModule extends InstinctModule {
         if (showIndividualModes) {
             for (final InstinctModeModule curmode : modes) {
                 CluckPublisher.publish(context.getNode(), "Autonomous Mode: " + curmode.getModeName(), new EventOutput() {
+                    @Override
                     public void event() {
                         setActiveMode(curmode);
                         Logger.info("New autonomous mode: " + mode.getModeName());
@@ -137,6 +139,7 @@ public final class InstinctMultiModule extends InstinctModule {
         }
         if (showCycleChooser) {
             CluckPublisher.publish(context.getNode(), "Autonomous Mode Next", new EventOutput() {
+                @Override
                 public void event() {
                     boolean wasLast = (mode == modes.get(modes.size() - 1));
                     for (InstinctModeModule m : modes) {
@@ -155,6 +158,7 @@ public final class InstinctMultiModule extends InstinctModule {
                 }
             });
             CluckPublisher.publish(context.getNode(), "Autonomous Mode Previous", new EventOutput() {
+                @Override
                 public void event() {
                     InstinctModeModule last = modes.get(modes.size() - 1);
                     for (InstinctModeModule m : modes) {
@@ -180,6 +184,7 @@ public final class InstinctMultiModule extends InstinctModule {
      */
     public void publishRConfControls() {
         CluckPublisher.publishRConf(context.getNode(), "Autonomous Mode Selector", new RConfable() {
+            @Override
             public Entry[] queryRConf() throws InterruptedException {
                 Entry[] outs = new Entry[2 + modes.size()];
                 outs[0] = RConf.title("Select Autonomous Mode");
@@ -191,6 +196,7 @@ public final class InstinctMultiModule extends InstinctModule {
                 return outs;
             }
 
+            @Override
             public boolean signalRConf(int field, byte[] data) throws InterruptedException {
                 if (field >= 1 && field <= modes.size()) {
                     setActiveMode(modes.get(field - 1));

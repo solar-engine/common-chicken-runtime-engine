@@ -119,6 +119,7 @@ public final class CluckNullLink implements CluckLink {
         return this;
     }
 
+    @Override
     public boolean send(String rest, String source, byte[] data) {
         if (paired == null) {
             return true;

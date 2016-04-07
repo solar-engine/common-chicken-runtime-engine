@@ -107,6 +107,7 @@ public class PauseTimer extends AbstractUpdatingInput implements BooleanInput, E
     /**
      * Start the timer running.
      */
+    @Override
     public void event() {
         boolean raise = true;
         synchronized (cancelLock) {
@@ -126,6 +127,7 @@ public class PauseTimer extends AbstractUpdatingInput implements BooleanInput, E
         }
     }
 
+    @Override
     public boolean get() {
         return cancel != null;
     }

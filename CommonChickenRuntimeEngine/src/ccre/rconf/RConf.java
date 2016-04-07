@@ -171,6 +171,7 @@ public class RConf {
             return contents.length >= 4 ? (((contents[0] & 0xFF) << 24) | ((contents[1] & 0xFF) << 16) | ((contents[2] & 0xFF) << 8) | (contents[3] & 0xFF)) : null;
         }
 
+        @Override
         public String toString() {
             switch (type) {
             case F_TITLE:

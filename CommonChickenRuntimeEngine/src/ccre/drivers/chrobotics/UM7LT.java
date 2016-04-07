@@ -190,6 +190,7 @@ public class UM7LT {
      * Start zeroing the Gyro.
      */
     public final EventOutput zeroGyro = new EventOutput() {
+        @Override
         public void event() {
             try {
                 zeroGyro();

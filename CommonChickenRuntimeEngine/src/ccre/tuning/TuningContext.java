@@ -153,6 +153,7 @@ public final class TuningContext {
      */
     public EventOutput getFlushEvent() {
         return new EventOutput() {
+            @Override
             public void event() {
                 flush();
             }

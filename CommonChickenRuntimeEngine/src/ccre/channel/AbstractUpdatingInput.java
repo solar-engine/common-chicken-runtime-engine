@@ -21,6 +21,8 @@ package ccre.channel;
 import java.util.Iterator;
 import java.util.concurrent.CopyOnWriteArrayList;
 
+import ccre.verifier.FlowPhase;
+
 /**
  * An UpdatingInput that simplifies updating sending to simply calling
  * {@link #perform()}.
@@ -40,6 +42,7 @@ public abstract class AbstractUpdatingInput implements UpdatingInput {
      * Tell all of the listeners that whatever this UpdatingInput represents has
      * updated.
      */
+    @FlowPhase
     protected final void perform() {
         for (Iterator<EventOutput> iterator = consumers.iterator(); iterator.hasNext();) {
             EventOutput output = iterator.next();

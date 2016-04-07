@@ -21,6 +21,8 @@ package ccre.channel;
 import java.io.Serializable;
 
 import ccre.log.Logger;
+import ccre.verifier.FlowPhase;
+import ccre.verifier.SetupPhase;
 
 /**
  * A BooleanOutput is an interface for anything that can be turned on or off. It
@@ -60,6 +62,7 @@ public interface BooleanOutput extends Serializable {
      * @param value the new value to send to this output.
      * @see #safeSet(boolean) for a version that catches any errors that occur.
      */
+    @FlowPhase
     public void set(boolean value);
 
     /**
@@ -73,6 +76,7 @@ public interface BooleanOutput extends Serializable {
      * @param value the new value to send to this output.
      * @see #set(boolean) for a version that throws any errors that occur.
      */
+    @FlowPhase
     public default void safeSet(boolean value) {
         try {
             set(value);
@@ -87,6 +91,7 @@ public interface BooleanOutput extends Serializable {
      *
      * @return the inverted version of this BooleanOutput.
      */
+    @SetupPhase
     public default BooleanOutput invert() {
         BooleanOutput original = this;
         return new BooleanOutput() {

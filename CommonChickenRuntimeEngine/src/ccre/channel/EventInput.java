@@ -19,6 +19,7 @@
 package ccre.channel;
 
 import ccre.time.Time;
+import ccre.verifier.SetupPhase;
 
 /**
  * An event input or source. This produces events when it fires. A user can
@@ -54,6 +55,7 @@ public interface EventInput extends UpdatingInput {
      * NOT FIRE THIS RETURNED EVENT MORE THAN ONCE: UNDEFINED BEHAVIOR MAY
      * RESULT.
      */
+    @SetupPhase
     public default CancelOutput send(EventOutput output) {
         if (output == null) {
             throw new NullPointerException();

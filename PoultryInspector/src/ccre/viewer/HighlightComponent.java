@@ -24,7 +24,14 @@ import java.awt.Graphics2D;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 
+import ccre.channel.CancelOutput;
+import ccre.channel.DerivedFloatInput;
+import ccre.channel.EventOutput;
+import ccre.channel.FloatInput;
+import ccre.cluck.Cluck;
+import ccre.frc.FRC;
 import ccre.supercanvas.DraggableBoxComponent;
+import ccre.timers.Ticker;
 
 /**
  * A draggable rectangle that can be used to keep track of a specific position
@@ -60,6 +67,19 @@ public class HighlightComponent extends DraggableBoxComponent {
         halfWidth = 100;
         halfHeight = 50;
         resizeState = ResizeState.TRANSLATE;
+        Ticker periodic = new Ticker(20);
+
+        Cluck.publish("Box Center X", new DerivedFloatInput(periodic) {
+            public float apply() {
+                return centerX;
+            }
+        });
+        
+        Cluck.publish("Box Center Y", new DerivedFloatInput(periodic) {
+            public float apply() {
+                return centerY;
+            }
+        });
     }
 
     private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {

@@ -59,8 +59,6 @@ public class CluckPublisher {
     // TODO: publishR? For detachable publishes?
     // TODO: reorder the members of this class?
 
-    private static long lastReportedRemoteLoggingError = 0;
-
     /**
      * Start a search process on the specified network. This will tell the
      * listener each time a new remote is discovered, and the EventOutput
@@ -854,6 +852,8 @@ public class CluckPublisher {
         public void log(LogLevel level, String message, Throwable throwable) {
             log(level, message, Utils.toStringThrowable(throwable));
         }
+
+        private static long lastReportedRemoteLoggingError = 0;
 
         @Override
         public void log(LogLevel level, String message, String extended) {

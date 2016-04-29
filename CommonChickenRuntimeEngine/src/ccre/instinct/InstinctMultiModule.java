@@ -28,6 +28,7 @@ import ccre.rconf.RConf;
 import ccre.rconf.RConf.Entry;
 import ccre.rconf.RConfable;
 import ccre.tuning.TuningContext;
+import ccre.verifier.FlowPhase;
 
 /**
  * An easy way to have multiple autonomous modes. Simply register a series of
@@ -83,6 +84,7 @@ public final class InstinctMultiModule extends InstinctModule {
      * @throws IllegalArgumentException if the specified mode does not exist in
      * this MultiModule.
      */
+    @FlowPhase
     public void setActiveMode(InstinctModeModule mode) throws IllegalArgumentException {
         if (!modes.contains(mode)) {
             throw new IllegalArgumentException("The specified mode does not exist: " + mode.getModeName() + " in " + modes);

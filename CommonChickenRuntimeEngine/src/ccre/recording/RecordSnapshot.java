@@ -18,6 +18,8 @@
  */
 package ccre.recording;
 
+import ccre.verifier.FlowPhase;
+
 final class RecordSnapshot implements Comparable<RecordSnapshot> {
     public static final byte T_NULL = 0, T_BYTE = 1, T_SHORT = 2, T_INT = 3, T_LONG = 4, T_VARINT = 5, T_BYTES = 6;
     public long timestamp; // in ticks of 10 us
@@ -25,6 +27,10 @@ final class RecordSnapshot implements Comparable<RecordSnapshot> {
     public byte type;
     public long value;
     public byte[] data;
+
+    @FlowPhase
+    public RecordSnapshot() {
+    }
 
     @Override
     public int compareTo(RecordSnapshot o) {

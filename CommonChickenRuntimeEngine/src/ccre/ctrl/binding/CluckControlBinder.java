@@ -30,6 +30,7 @@ import ccre.rconf.RConf.Entry;
 import ccre.rconf.RConfable;
 import ccre.storage.Storage;
 import ccre.storage.StorageSegment;
+import ccre.verifier.SetupPhase;
 
 /**
  * A CluckControlBinder connects together a ControlBindingDataSource (such as a
@@ -91,6 +92,7 @@ public class CluckControlBinder implements RConfable {
      * @return the ControlBindingCreator that a program can use to provide its
      * controls that it wants bound.
      */
+    @SetupPhase
     public static ControlBindingCreator makeCreator(String name, ControlBindingDataSource source, EventInput load) {
         ControlBindingDataSinkBuildable sink = new ControlBindingDataSinkBuildable();
         final CluckControlBinder binder = new CluckControlBinder(name, source, sink);
@@ -115,6 +117,7 @@ public class CluckControlBinder implements RConfable {
      *
      * @see #publish(String)
      */
+    @SetupPhase
     public void publish() {
         publish(name + " Control Bindings");
     }
@@ -131,6 +134,7 @@ public class CluckControlBinder implements RConfable {
      *
      * @param name the link name for this RConf interface.
      */
+    @SetupPhase
     public void publish(String name) {
         Cluck.publishRConf(name, this);
     }
@@ -211,6 +215,7 @@ public class CluckControlBinder implements RConfable {
         return false;
     }
 
+    @SetupPhase
     private void rebindBoolean(String sink, String source) {
         CancelOutput unbind = boolUnbinds.get(sink);
         if (unbind != null) {
@@ -227,6 +232,7 @@ public class CluckControlBinder implements RConfable {
         }
     }
 
+    @SetupPhase
     private void rebindFloat(String sink, String source, boolean invert) {
         CancelOutput unbind = floatUnbinds.get(sink);
         if (unbind != null) {
@@ -246,6 +252,7 @@ public class CluckControlBinder implements RConfable {
         }
     }
 
+    @SetupPhase
     private String getActiveBoolSource() {
         String found = null;
         for (String bin : sourceSet.listBooleans()) {
@@ -260,6 +267,7 @@ public class CluckControlBinder implements RConfable {
         return found;
     }
 
+    @SetupPhase
     private String getActiveFloatSource() {
         String found = null;
         for (String fin : sourceSet.listFloats()) {
@@ -274,10 +282,12 @@ public class CluckControlBinder implements RConfable {
         return found;
     }
 
+    @SetupPhase
     private boolean getFloatSourceNegative(String source) {
         return source == null ? false : sourceSet.getFloat(source).get() < 0;
     }
 
+    @SetupPhase
     private void load() {
         Logger.config("Loading control bindings for " + this.name);
         for (String boolSink : sinkSet.listBooleans()) {
@@ -301,6 +311,7 @@ public class CluckControlBinder implements RConfable {
         dirty = false;
     }
 
+    @SetupPhase
     private void save() {
         for (String boolSink : sinkSet.listBooleans()) {
             storage.setStringForKey("z" + boolSink, boolLinkage.get(boolSink));

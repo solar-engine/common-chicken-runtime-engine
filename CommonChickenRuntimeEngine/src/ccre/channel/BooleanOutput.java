@@ -121,6 +121,7 @@ public interface BooleanOutput extends Serializable {
      * @param other the BooleanOutput to combine this BooleanOutput with.
      * @return the combined BooleanOutput.
      */
+    @SetupPhase
     public default BooleanOutput combine(BooleanOutput other) {
         if (other == null) {
             throw new NullPointerException();
@@ -155,6 +156,7 @@ public interface BooleanOutput extends Serializable {
      * @param outputs the BooleanOutputs to include.
      * @return the combined version of the BooleanOutputs.
      */
+    @SetupPhase
     public static BooleanOutput combine(BooleanOutput... outputs) {
         // This works without including 'ignored' in the actual data structure
         // by having 'ignored' drop itself during combine.
@@ -179,6 +181,7 @@ public interface BooleanOutput extends Serializable {
      * @param update when to pass values through.
      * @return the update-limited version of this BooleanOutput.
      */
+    @SetupPhase
     public default BooleanOutput limitUpdatesTo(EventInput update) {
         if (update == null) {
             throw new NullPointerException();
@@ -210,6 +213,7 @@ public interface BooleanOutput extends Serializable {
      * @param value the value to set this BooleanOutput to.
      * @return the EventOutput that modifies this BooleanOutput.
      */
+    @SetupPhase
     public default EventOutput eventSet(boolean value) {
         if (value) {
             return () -> set(true);
@@ -225,6 +229,7 @@ public interface BooleanOutput extends Serializable {
      * @param value the input to set this BooleanOutput to.
      * @return the EventOutput that modifies this BooleanOutput.
      */
+    @SetupPhase
     public default EventOutput eventSet(BooleanInput value) {
         if (value == null) {
             throw new NullPointerException();
@@ -239,6 +244,7 @@ public interface BooleanOutput extends Serializable {
      * @param value the value to set this BooleanOutput to.
      * @param when when to modify this BooleanOutput.
      */
+    @SetupPhase
     public default void setWhen(boolean value, EventInput when) {
         when.send(this.eventSet(value));
     }
@@ -250,6 +256,7 @@ public interface BooleanOutput extends Serializable {
      * @param value the input to set this BooleanOutput to.
      * @param when when to modify this BooleanOutput.
      */
+    @SetupPhase
     public default void setWhen(BooleanInput value, EventInput when) {
         when.send(this.eventSet(value));
     }
@@ -259,6 +266,7 @@ public interface BooleanOutput extends Serializable {
      *
      * @param when when to modify this BooleanOutput.
      */
+    @SetupPhase
     public default void setTrueWhen(EventInput when) {
         setWhen(true, when);
     }
@@ -268,6 +276,7 @@ public interface BooleanOutput extends Serializable {
      *
      * @param when when to modify this BooleanOutput.
      */
+    @SetupPhase
     public default void setFalseWhen(EventInput when) {
         setWhen(false, when);
     }
@@ -285,6 +294,7 @@ public interface BooleanOutput extends Serializable {
      * @param toTrue if the output becomes true.
      * @return the output that can trigger the events.
      */
+    @SetupPhase
     public static BooleanOutput polarize(final EventOutput toFalse, final EventOutput toTrue) {
         if (toFalse == null && toTrue == null) {
             throw new NullPointerException("Both toFalse and toTrue are null in onChange! You can only have at most one be null.");
@@ -323,6 +333,7 @@ public interface BooleanOutput extends Serializable {
      * @param allow when to allow changing of the result.
      * @return the lockable version of this BooleanOutput.
      */
+    @SetupPhase
     public default BooleanOutput filter(BooleanInput allow) {
         BooleanOutput original = this;
         return new BooleanOutput() {
@@ -358,6 +369,7 @@ public interface BooleanOutput extends Serializable {
      * @param deny when to deny changing of the result.
      * @return the lockable version of this BooleanOutput.
      */
+    @SetupPhase
     public default BooleanOutput filterNot(BooleanInput deny) {
         return this.filter(deny.not());
     }
@@ -371,6 +383,7 @@ public interface BooleanOutput extends Serializable {
      * will also be sent to this BooleanOutput immediately
      * @return a new IO
      */
+    @SetupPhase
     public default BooleanIO cell(boolean default_value) {
         BooleanIO bio = new BooleanCell(default_value);
         bio.send(this);

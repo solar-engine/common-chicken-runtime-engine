@@ -31,6 +31,7 @@ import ccre.discrete.DiscreteInput;
 import ccre.discrete.DiscreteType;
 import ccre.rconf.RConf;
 import ccre.rconf.RConfable;
+import ccre.verifier.SetupPhase;
 
 /**
  * A Behavior Arbitrator has a prioritized list of behavior states, which it
@@ -297,6 +298,7 @@ public class BehaviorArbitrator implements RConfable {
      *
      * @return the active behavior.
      */
+    @SetupPhase
     public DiscreteInput<Behavior> getActiveBehavior() {
         return new DerivedDiscreteInput<Behavior>(discreteType, onActiveUpdate) {
             @Override

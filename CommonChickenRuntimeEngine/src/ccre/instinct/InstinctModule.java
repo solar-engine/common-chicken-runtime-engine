@@ -24,6 +24,7 @@ import ccre.channel.BooleanInput;
 import ccre.concurrency.ReporterThread;
 import ccre.log.Logger;
 import ccre.time.Time;
+import ccre.verifier.SetupPhase;
 
 /**
  * The base class for an Instinct (the simple autonomous subsystem) module.
@@ -145,6 +146,7 @@ public abstract class InstinctModule extends InstinctBaseModule {
      *
      * @param when When this should be running.
      */
+    @SetupPhase
     public void setShouldBeRunning(BooleanInput when) {
         if (this.shouldBeRunning != null) {
             throw new IllegalStateException();

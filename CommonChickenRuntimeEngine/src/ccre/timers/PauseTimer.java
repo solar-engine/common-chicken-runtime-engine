@@ -28,6 +28,7 @@ import ccre.log.Logger;
 import ccre.scheduler.Scheduler;
 import ccre.time.Time;
 import ccre.util.Utils;
+import ccre.verifier.SetupPhase;
 
 /**
  * A PauseTimer has a boolean state for running or not, which is readable but
@@ -137,6 +138,7 @@ public class PauseTimer extends AbstractUpdatingInput implements BooleanInput, E
      *
      * @param trigger The EventOutput to trigger.
      */
+    @SetupPhase
     public void triggerAtEnd(EventOutput trigger) {
         send(BooleanOutput.polarize(trigger, null));
     }
@@ -146,6 +148,7 @@ public class PauseTimer extends AbstractUpdatingInput implements BooleanInput, E
      *
      * @param trigger The EventOutput to trigger.
      */
+    @SetupPhase
     public void triggerAtStart(EventOutput trigger) {
         send(BooleanOutput.polarize(null, trigger));
     }
@@ -157,6 +160,7 @@ public class PauseTimer extends AbstractUpdatingInput implements BooleanInput, E
      * @param start The EventOutput to trigger when the timer starts.
      * @param end The EventOutput to trigger when the timer ends.
      */
+    @SetupPhase
     public void triggerAtChanges(EventOutput start, EventOutput end) {
         send(BooleanOutput.polarize(end, start));
     }

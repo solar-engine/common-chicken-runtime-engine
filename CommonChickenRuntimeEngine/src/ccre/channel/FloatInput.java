@@ -20,6 +20,8 @@ package ccre.channel;
 
 import ccre.timers.PauseTimer;
 import ccre.util.Utils;
+import ccre.verifier.FlowPhase;
+import ccre.verifier.SetupPhase;
 
 /**
  * A FloatInput is a way to get the current state of a float input, and to
@@ -41,6 +43,7 @@ public interface FloatInput extends UpdatingInput {
      * @param value the value to always have.
      * @return the FloatInput representing that value.
      */
+    @SetupPhase
     public static FloatInput always(final float value) {
         return new FloatInput() {
             @Override
@@ -72,6 +75,7 @@ public interface FloatInput extends UpdatingInput {
      *
      * @return The current value.
      */
+    @FlowPhase
     public float get();
 
     /**
@@ -92,6 +96,7 @@ public interface FloatInput extends UpdatingInput {
      * NOT FIRE THIS RETURNED EVENT MORE THAN ONCE: UNDEFINED BEHAVIOR MAY
      * RESULT.
      */
+    @SetupPhase
     public default CancelOutput send(FloatOutput output) {
         output.safeSet(get());
         return onUpdate(() -> output.set(get()));
@@ -104,6 +109,7 @@ public interface FloatInput extends UpdatingInput {
      * @param other the other FloatInput to include.
      * @return the combined FloatInput.
      */
+    @SetupPhase
     public default FloatInput plus(FloatInput other) {
         return FloatOperation.addition.of(this, other);
     }
@@ -115,6 +121,7 @@ public interface FloatInput extends UpdatingInput {
      * @param other the other FloatInput to include.
      * @return the combined FloatInput.
      */
+    @SetupPhase
     public default FloatInput minus(FloatInput other) {
         return FloatOperation.subtraction.of(this, other);
     }
@@ -126,6 +133,7 @@ public interface FloatInput extends UpdatingInput {
      * @param other the other FloatInput to include.
      * @return the combined FloatInput.
      */
+    @SetupPhase
     public default FloatInput minusRev(FloatInput other) {
         return FloatOperation.subtraction.of(other, this);
     }
@@ -137,6 +145,7 @@ public interface FloatInput extends UpdatingInput {
      * @param other the other FloatInput to include.
      * @return the combined FloatInput.
      */
+    @SetupPhase
     public default FloatInput multipliedBy(FloatInput other) {
         return FloatOperation.multiplication.of(this, other);
     }
@@ -148,6 +157,7 @@ public interface FloatInput extends UpdatingInput {
      * @param other the other FloatInput to include.
      * @return the combined FloatInput.
      */
+    @SetupPhase
     public default FloatInput dividedBy(FloatInput other) {
         return FloatOperation.division.of(this, other);
     }
@@ -159,6 +169,7 @@ public interface FloatInput extends UpdatingInput {
      * @param other the other FloatInput to include.
      * @return the combined FloatInput.
      */
+    @SetupPhase
     public default FloatInput dividedByRev(FloatInput other) {
         return FloatOperation.division.of(other, this);
     }
@@ -170,6 +181,7 @@ public interface FloatInput extends UpdatingInput {
      * @param other the other FloatInput to include.
      * @return the combined FloatInput.
      */
+    @SetupPhase
     public default FloatInput modulo(FloatInput other) {
         return FloatOperation.modulation.of(this, other);
     }
@@ -181,6 +193,7 @@ public interface FloatInput extends UpdatingInput {
      * @param other the other FloatInput to include.
      * @return the combined FloatInput.
      */
+    @SetupPhase
     public default FloatInput moduloRev(FloatInput other) {
         return FloatOperation.modulation.of(other, this);
     }
@@ -192,6 +205,7 @@ public interface FloatInput extends UpdatingInput {
      * @param other the other value to include.
      * @return the combined FloatInput.
      */
+    @SetupPhase
     public default FloatInput plus(float other) {
         return FloatOperation.addition.of(this, other);
     }
@@ -203,6 +217,7 @@ public interface FloatInput extends UpdatingInput {
      * @param other the other value to include.
      * @return the combined FloatInput.
      */
+    @SetupPhase
     public default FloatInput minus(float other) {
         return FloatOperation.subtraction.of(this, other);
     }
@@ -214,6 +229,7 @@ public interface FloatInput extends UpdatingInput {
      * @param other the other value to include.
      * @return the combined FloatInput.
      */
+    @SetupPhase
     public default FloatInput minusRev(float other) {
         return FloatOperation.subtraction.of(other, this);
     }
@@ -236,6 +252,7 @@ public interface FloatInput extends UpdatingInput {
      * @param other the other value to include.
      * @return the combined FloatInput.
      */
+    @SetupPhase
     public default FloatInput dividedBy(float other) {
         return FloatOperation.division.of(this, other);
     }
@@ -247,6 +264,7 @@ public interface FloatInput extends UpdatingInput {
      * @param other the other value to include.
      * @return the combined FloatInput.
      */
+    @SetupPhase
     public default FloatInput dividedByRev(float other) {
         return FloatOperation.division.of(other, this);
     }
@@ -258,6 +276,7 @@ public interface FloatInput extends UpdatingInput {
      * @param other the other value to include.
      * @return the combined FloatInput.
      */
+    @SetupPhase
     public default FloatInput modulo(float other) {
         return FloatOperation.modulation.of(this, other);
     }
@@ -269,6 +288,7 @@ public interface FloatInput extends UpdatingInput {
      * @param other the other value to include.
      * @return the combined FloatInput.
      */
+    @SetupPhase
     public default FloatInput moduloRev(float other) {
         return FloatOperation.modulation.of(other, this);
     }
@@ -280,6 +300,7 @@ public interface FloatInput extends UpdatingInput {
      * @param minimum the lower bound.
      * @return the comparison result as a BooleanInput.
      */
+    @SetupPhase
     public default BooleanInput atLeast(float minimum) {
         if (Float.isNaN(minimum)) {
             throw new IllegalArgumentException("Cannot have NaN boundary in atLeast!");
@@ -299,6 +320,7 @@ public interface FloatInput extends UpdatingInput {
      * @param minimum the lower bound.
      * @return the comparison result as a BooleanInput.
      */
+    @SetupPhase
     public default BooleanInput atLeast(FloatInput minimum) {
         return new DerivedBooleanInput(this, minimum) {
             @Override
@@ -315,6 +337,7 @@ public interface FloatInput extends UpdatingInput {
      * @param maximum the upper bound.
      * @return the comparison result as a BooleanInput.
      */
+    @SetupPhase
     public default BooleanInput atMost(final float maximum) {
         if (Float.isNaN(maximum)) {
             throw new IllegalArgumentException("Cannot have NaN boundary in atMost!");
@@ -334,6 +357,7 @@ public interface FloatInput extends UpdatingInput {
      * @param maximum the upper bound.
      * @return the comparison result as a BooleanInput.
      */
+    @SetupPhase
     public default BooleanInput atMost(final FloatInput maximum) {
         return new DerivedBooleanInput(this, maximum) {
             @Override
@@ -353,6 +377,7 @@ public interface FloatInput extends UpdatingInput {
      * @param maximum the upper bound.
      * @return the comparison result as a BooleanInput.
      */
+    @SetupPhase
     public default BooleanInput outsideRange(final float minimum, final float maximum) {
         if (Float.isNaN(minimum) || Float.isNaN(maximum)) {
             throw new IllegalArgumentException("Cannot have NaN boundary in outsideRange!");
@@ -377,6 +402,7 @@ public interface FloatInput extends UpdatingInput {
      * @param maximum the upper bound.
      * @return the comparison result as a BooleanInput.
      */
+    @SetupPhase
     public default BooleanInput outsideRange(final FloatInput minimum, final FloatInput maximum) {
         return new DerivedBooleanInput(this) {
             @Override
@@ -397,6 +423,7 @@ public interface FloatInput extends UpdatingInput {
      * @param maximum the upper bound.
      * @return the comparison result as a BooleanInput.
      */
+    @SetupPhase
     public default BooleanInput inRange(final float minimum, final float maximum) {
         if (Float.isNaN(minimum) || Float.isNaN(maximum)) {
             throw new IllegalArgumentException("Cannot have NaN boundary in inRange!");
@@ -421,6 +448,7 @@ public interface FloatInput extends UpdatingInput {
      * @param maximum the upper bound.
      * @return the comparison result as a BooleanInput.
      */
+    @SetupPhase
     public default BooleanInput inRange(final FloatInput minimum, final FloatInput maximum) {
         return new DerivedBooleanInput(this, minimum, maximum) {
             @Override
@@ -437,6 +465,7 @@ public interface FloatInput extends UpdatingInput {
      *
      * @return the negated version of this FloatInput.
      */
+    @SetupPhase
     public default FloatInput negated() {
         return FloatFilter.negate.wrap(this);
     }
@@ -447,6 +476,7 @@ public interface FloatInput extends UpdatingInput {
      *
      * @return the derived EventInput.
      */
+    @SetupPhase
     public default EventInput onChange() {
         return new DerivedEventInput(this) {
             @Override
@@ -469,6 +499,7 @@ public interface FloatInput extends UpdatingInput {
      * @throws IllegalArgumentException if magnitude is negative, infinite, or
      * NaN.
      */
+    @SetupPhase
     public default EventInput onChangeBy(float magnitude) throws IllegalArgumentException {
         if (!Float.isFinite(magnitude) || magnitude < 0) {
             throw new IllegalArgumentException("delta must be nonnegative and finite, but was: " + magnitude);
@@ -497,6 +528,7 @@ public interface FloatInput extends UpdatingInput {
      * @param deadzone the size of the deadzone to apply.
      * @return the deadzoned version of this FloatInput.
      */
+    @SetupPhase
     public default FloatInput deadzone(float deadzone) {
         return FloatFilter.deadzone(deadzone).wrap(this);
     }
@@ -514,6 +546,7 @@ public interface FloatInput extends UpdatingInput {
      * or NaN, or they are the same, or are far apart enough that their
      * difference is infinite or NaN.
      */
+    @SetupPhase
     public default FloatInput normalize(float zeroV, float oneV) throws IllegalArgumentException {
         if (!Float.isFinite(zeroV) || !Float.isFinite(oneV)) {
             throw new IllegalArgumentException("Infinite or NaN bound to normalize: " + zeroV + ", " + oneV);
@@ -546,6 +579,7 @@ public interface FloatInput extends UpdatingInput {
      * @return the translated and scaled version of this FloatInput.
      * @throws IllegalArgumentException if zeroV is infinite or NaN.
      */
+    @SetupPhase
     public default FloatInput normalize(final float zeroV, final FloatInput oneV) {
         if (oneV == null) {
             throw new NullPointerException();
@@ -579,6 +613,7 @@ public interface FloatInput extends UpdatingInput {
      * @return the translated and scaled version of this FloatInput.
      * @throws IllegalArgumentException if oneV is infinite or NaN.
      */
+    @SetupPhase
     public default FloatInput normalize(final FloatInput zeroV, final float oneV) {
         if (zeroV == null) {
             throw new NullPointerException();
@@ -611,6 +646,7 @@ public interface FloatInput extends UpdatingInput {
      * @param oneV the input for the value that should be converted to one.
      * @return the translated and scaled version of this FloatInput.
      */
+    @SetupPhase
     public default FloatInput normalize(final FloatInput zeroV, final FloatInput oneV) {
         if (zeroV == null || oneV == null) {
             throw new NullPointerException();
@@ -637,6 +673,7 @@ public interface FloatInput extends UpdatingInput {
      * @param updateWhen when the ramping should update.
      * @return a ramped version of this FloatInput.
      */
+    @SetupPhase
     public default FloatInput withRamping(final float limit, EventInput updateWhen) {
         if (updateWhen == null) {
             throw new NullPointerException();
@@ -654,6 +691,7 @@ public interface FloatInput extends UpdatingInput {
      * @param updateWhen when the ramping should update.
      * @return a ramped version of this FloatInput.
      */
+    @SetupPhase
     public default FloatInput withRamping(final FloatInput limit, EventInput updateWhen) {
         if (limit == null || updateWhen == null) {
             throw new NullPointerException();
@@ -671,6 +709,7 @@ public interface FloatInput extends UpdatingInput {
      * @param target the output to control with this ramping.
      * @return an event that continues ramping.
      */
+    @SetupPhase
     public default EventOutput createRampingEvent(float limit, FloatOutput target) {
         if (Float.isNaN(limit)) {
             throw new IllegalArgumentException("Ramping rate cannot be NaN!");
@@ -686,6 +725,7 @@ public interface FloatInput extends UpdatingInput {
      * @param target the output to control with this ramping.
      * @return an event that continues ramping.
      */
+    @SetupPhase
     public default EventOutput createRampingEvent(final FloatInput limit, final FloatOutput target) {
         if (target == null || limit == null) {
             throw new NullPointerException();
@@ -715,6 +755,7 @@ public interface FloatInput extends UpdatingInput {
      * (almost) never actually reach zero!
      */
     @Deprecated
+    @SetupPhase
     public default FloatInput derivative() {
         FloatCell out = new FloatCell();
         FloatOutput deriv = out.viaDerivative();
@@ -736,6 +777,7 @@ public interface FloatInput extends UpdatingInput {
      * @param millis the assume-stopped delay.
      * @return the derivative of this FloatInput.
      */
+    @SetupPhase
     public default FloatInput derivative(int millis) {
         FloatCell out = new FloatCell();
         FloatOutput deriv = out.viaDerivative();
@@ -757,6 +799,7 @@ public interface FloatInput extends UpdatingInput {
      * @param allow when updating should be allowed.
      * @return the lockable version of this FloatInput.
      */
+    @SetupPhase
     public default FloatInput filterUpdates(BooleanInput allow) {
         final FloatInput original = this;
         return new DerivedFloatInput(this, allow) {
@@ -781,6 +824,7 @@ public interface FloatInput extends UpdatingInput {
      * @param deny when updating should be disallowed.
      * @return the lockable version of this FloatInput.
      */
+    @SetupPhase
     public default FloatInput filterUpdatesNot(BooleanInput deny) {
         final FloatInput original = this;
         return new DerivedFloatInput(this, deny) {
@@ -804,6 +848,7 @@ public interface FloatInput extends UpdatingInput {
      * @param negate whether or not the input should be negated
      * @return the possibly negated version of this FloatInput
      */
+    @SetupPhase
     public default FloatInput negatedIf(BooleanInput negate) {
         return negate.toFloat(this, this.negated());
     }
@@ -814,6 +859,7 @@ public interface FloatInput extends UpdatingInput {
      *
      * @return the absolute value version of this FloatInput.
      */
+    @SetupPhase
     public default FloatInput absolute() {
         return FloatFilter.absolute.wrap(this);
     }

@@ -18,6 +18,8 @@
  */
 package ccre.cluck;
 
+import ccre.verifier.FlowPhase;
+
 /**
  * A link over which Cluck messages can be sent. This might be a link to a
  * remote CluckNode, or an attached object that can have messages sent to it.
@@ -44,5 +46,6 @@ public interface CluckLink {
      * @return true if more messages should be delivered, false if this should
      * be detached from the CluckNode.
      */
+    @FlowPhase
     public boolean send(String dest, String source, byte[] data);
 }

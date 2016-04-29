@@ -21,6 +21,8 @@ package ccre.scheduler;
 import ccre.channel.CancelOutput;
 import ccre.channel.EventOutput;
 import ccre.time.Time;
+import ccre.verifier.FlowPhase;
+import ccre.verifier.SetupPhase;
 
 class FullLoop {
     private final class FixedRateEvent extends CancellableScheduleEntry {
@@ -37,6 +39,7 @@ class FullLoop {
             this.skippable = skippable;
         }
 
+        @FlowPhase
         public void schedule() {
             // purposeful comparison order to avoid overflow errors
             if (this.skippable && this.nextScheduleAtNanos - Time.currentTimeNanos() < 0) {
@@ -66,6 +69,7 @@ class FullLoop {
             this.periodNanos = periodNanos;
         }
 
+        @FlowPhase
         public void schedule() {
             scheduleOnce(tag, Time.currentTimeNanos() + this.periodNanos, this);
         }
@@ -83,6 +87,7 @@ class FullLoop {
         final EventOutput o;
         volatile boolean cancel;
 
+        @FlowPhase
         public CancellableScheduleEntry(EventOutput o) {
             this.o = o;
         }
@@ -95,6 +100,7 @@ class FullLoop {
         }
 
         @Override
+        @FlowPhase
         public void cancel() {
             this.cancel = true;
         }
@@ -110,32 +116,38 @@ class FullLoop {
         this.rl = new RunLoop();
     }
 
+    @FlowPhase
     public void scheduleOnce(String tag, long timeAtNanos, EventOutput o) {
         rl.add(tag, o, timeAtNanos);
     }
 
+    @FlowPhase
     public CancelOutput scheduleCancellableOnce(String tag, long timeAtNanos, EventOutput o) {
         CancellableScheduleEntry event = new CancellableScheduleEntry(o);
         scheduleOnce(tag, timeAtNanos, event);
         return event;
     }
 
+    @SetupPhase
     public CancelOutput scheduleFixedRate(String tag, long firstAtNanos, long periodNanos, boolean skippable, EventOutput o) {
         FixedRateEvent event = new FixedRateEvent(tag, firstAtNanos, periodNanos, skippable, o);
         event.schedule();
         return event;
     }
 
+    @SetupPhase
     public CancelOutput scheduleVariableRate(String tag, long periodNanos, EventOutput o) {
         VariableRateEvent event = new VariableRateEvent(tag, periodNanos, o);
         event.schedule();
         return event;
     }
 
+    @SetupPhase
     public void start() {
         rl.start();
     }
 
+    @SetupPhase
     public void terminate() {
         rl.terminate();
     }

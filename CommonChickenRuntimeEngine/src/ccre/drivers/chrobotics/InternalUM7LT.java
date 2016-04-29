@@ -26,6 +26,7 @@ import ccre.drivers.ByteFiddling;
 import ccre.drivers.NMEA;
 import ccre.log.Logger;
 import ccre.time.Time;
+import ccre.verifier.FlowPhase;
 
 /**
  * The low-level interface to the UM7-LT orientation sensor from CH Robotics,
@@ -297,6 +298,7 @@ public class InternalUM7LT { // default rate: 115200 baud.
      *
      * @throws IOException if the command could not be sent.
      */
+    @FlowPhase
     public void zeroGyros() throws IOException {
         doReadOperation((byte) 0xAD);
     }
@@ -308,6 +310,7 @@ public class InternalUM7LT { // default rate: 115200 baud.
      *
      * @throws IOException if the command could not be sent.
      */
+    @FlowPhase
     public void doReadOperation(byte address) throws IOException {
         sendWithChecksum(new byte[] { 's', 'n', 'p', 0x00, address, 0, 0 });
     }
@@ -369,6 +372,7 @@ public class InternalUM7LT { // default rate: 115200 baud.
         sendWithChecksum(out); // the last two unset bytes are checksum bytes.
     }
 
+    @FlowPhase
     private void sendWithChecksum(byte[] data) throws IOException {
         synchronized (rs232lock) {
             rs232.writeFully(addChecksum(data), 0, data.length);
@@ -383,6 +387,7 @@ public class InternalUM7LT { // default rate: 115200 baud.
         return total;
     }
 
+    @FlowPhase
     private byte[] addChecksum(byte[] data) {
         int total = checksumTotal(data, 0, data.length - 2);
         data[data.length - 2] = (byte) (total >> 8);

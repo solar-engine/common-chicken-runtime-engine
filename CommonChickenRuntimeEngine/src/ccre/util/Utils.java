@@ -25,6 +25,10 @@ import java.io.PrintStream;
 import java.io.UnsupportedEncodingException;
 import java.util.List;
 
+import ccre.verifier.FlowPhase;
+import ccre.verifier.IgnoredPhase;
+import ccre.verifier.SetupPhase;
+
 /**
  * A class for utilities that don't fit anywhere else.
  *
@@ -42,6 +46,7 @@ public class Utils {
      * @param deadzone the deadzone size
      * @return the deadzoned version of the value
      */
+    @FlowPhase
     public static float deadzone(float value, float deadzone) {
         return Math.abs(value) >= deadzone ? value : Float.isNaN(value) ? Float.NaN : 0.0f;
     }
@@ -62,6 +67,7 @@ public class Utils {
      * @param limit The acceleration limit.
      * @return The new value from the ramping cycle
      */
+    @FlowPhase
     public static float updateRamping(float previous, float target, float limit) {
         float reallimit;
         if (limit <= 0) {
@@ -90,6 +96,7 @@ public class Utils {
      * @param offset The offset in the array of the most significant byte.
      * @return The integer extracted from the array.
      */
+    @IgnoredPhase
     public static int bytesToInt(byte[] array, int offset) {
         int highWord = ((array[offset] & 0xff) << 24) | ((array[offset + 1] & 0xff) << 16);
         int lowWord = ((array[offset + 2] & 0xff) << 8) | (array[offset + 3] & 0xff);
@@ -106,6 +113,7 @@ public class Utils {
      * intermediate integer.
      * @return The float extracted from the array.
      */
+    @IgnoredPhase
     public static float bytesToFloat(byte[] array, int offset) {
         return Float.intBitsToFloat(Utils.bytesToInt(array, offset));
     }
@@ -124,6 +132,7 @@ public class Utils {
      * @return the String version of the throwable, including the traceback, or
      * null if the throwable was null.
      */
+    @FlowPhase
     public static String toStringThrowable(Throwable thr) {
         if (thr == null) {
             return null;
@@ -146,6 +155,7 @@ public class Utils {
      * @param index which frame to report.
      * @return a CallerInfo for the specified caller, or null.
      */
+    @IgnoredPhase
     public static CallerInfo getMethodCaller(int index) {
         int traceIndex = index + 1;
         StackTraceElement[] trace = new Throwable().getStackTrace();
@@ -167,6 +177,7 @@ public class Utils {
      * @param string the string to convert.
      * @return the UTF-8 bytes for <code>string</code>.
      */
+    @IgnoredPhase
     public static byte[] getBytes(String string) {
         try {
             return string.getBytes("UTF-8");
@@ -188,6 +199,7 @@ public class Utils {
      * @param count the number of bytes to process.
      * @return the UTF-8 bytes for <code>string</code>.
      */
+    @IgnoredPhase
     public static String fromBytes(byte[] data, int offset, int count) {
         try {
             return new String(data, offset, count, "UTF-8");

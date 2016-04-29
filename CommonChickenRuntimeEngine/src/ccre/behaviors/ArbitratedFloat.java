@@ -24,6 +24,7 @@ import ccre.channel.CancelOutput;
 import ccre.channel.EventOutput;
 import ccre.channel.FloatCell;
 import ccre.channel.FloatInput;
+import ccre.verifier.FlowPhase;
 
 /**
  * A float channel that can be overridden for specific behaviors of a behavior
@@ -48,6 +49,7 @@ public final class ArbitratedFloat implements FloatInput {
         behaviorChain.onActiveUpdate.send(this::update);
     }
 
+    @FlowPhase
     synchronized void update() {
         cancellator.cancel();
         FloatInput input = activation.get(this.behaviorChain.active);

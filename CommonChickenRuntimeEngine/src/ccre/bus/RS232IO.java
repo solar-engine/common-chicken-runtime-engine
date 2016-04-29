@@ -21,6 +21,9 @@ package ccre.bus;
 import java.io.Closeable;
 import java.io.IOException;
 
+import ccre.verifier.FlowPhase;
+import ccre.verifier.SetupPhase;
+
 /**
  * A standard RS232 serial port, after configuration.
  *
@@ -33,6 +36,7 @@ public interface RS232IO extends Closeable {
      *
      * @throws IOException if the port cannot be reset.
      */
+    @FlowPhase
     public void resetSerial() throws IOException;
 
     /**
@@ -41,6 +45,7 @@ public interface RS232IO extends Closeable {
      * @return true if available, otherwise false
      * @throws IOException if the available bytes cannot be queried.
      */
+    @FlowPhase
     public boolean hasAvailableBytes() throws IOException;
 
     /**
@@ -51,6 +56,7 @@ public interface RS232IO extends Closeable {
      * early.
      * @throws IOException if the termination cannot be set.
      */
+    @SetupPhase
     public void setTermination(Character end) throws IOException;
 
     /**
@@ -61,6 +67,7 @@ public interface RS232IO extends Closeable {
      * @return the read bytes.
      * @throws IOException if an error occurs while reading the bytes.
      */
+    @FlowPhase
     public byte[] readBlocking(int max) throws IOException;
 
     /**
@@ -72,6 +79,7 @@ public interface RS232IO extends Closeable {
      * available!
      * @throws IOException if an error occurs while reading the bytes.
      */
+    @FlowPhase
     public byte[] readNonblocking(int max) throws IOException;
 
     /**
@@ -80,6 +88,7 @@ public interface RS232IO extends Closeable {
      *
      * @throws IOException if an error occurred while flushing.
      */
+    @FlowPhase
     public void flush() throws IOException;
 
     /**
@@ -89,6 +98,7 @@ public interface RS232IO extends Closeable {
      * @param flushOnWrite if data should be flushed immediately.
      * @throws IOException if an error occurred while changing the setting.
      */
+    @SetupPhase
     public void setFlushOnWrite(boolean flushOnWrite) throws IOException;
 
     /**
@@ -99,6 +109,7 @@ public interface RS232IO extends Closeable {
      * @param to the end of the section.
      * @throws IOException if an error occurred while writing the data.
      */
+    @FlowPhase
     public void writeFully(byte[] bytes, int from, int to) throws IOException;
 
     /**
@@ -111,6 +122,7 @@ public interface RS232IO extends Closeable {
      * @return the number of bytes actually written.
      * @throws IOException if an error occurred while writing the data.
      */
+    @FlowPhase
     public int writePartial(byte[] bytes, int from, int to) throws IOException;
 
     /**

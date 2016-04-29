@@ -28,6 +28,9 @@ import ccre.log.Logger;
 import ccre.storage.Storage;
 import ccre.storage.StorageSegment;
 import ccre.util.UniqueIds;
+import ccre.verifier.FlowPhase;
+import ccre.verifier.SetupPhase;
+import ccre.verifier.SuppressPhaseWarnings;
 
 /**
  * A TuningContext represents a context in which variables can be saved and
@@ -140,6 +143,7 @@ public final class TuningContext {
     /**
      * Flush the StorageSegment - save the current value.
      */
+    @SetupPhase
     public void flush() {
         segment.flush();
         Logger.info("Flushed storage segment " + segment.getName());
@@ -151,9 +155,12 @@ public final class TuningContext {
      * @return the EventOutput that will flush this object.
      * @see #flush()
      */
+    @SetupPhase
     public EventOutput getFlushEvent() {
         return new EventOutput() {
             @Override
+            @SuppressPhaseWarnings // TODO: rather than ignoring this issue,
+                                   // have a worker thread take care of it.
             public void event() {
                 flush();
             }

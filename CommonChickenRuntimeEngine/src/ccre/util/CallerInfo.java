@@ -18,6 +18,8 @@
  */
 package ccre.util;
 
+import ccre.verifier.IgnoredPhase;
+
 /**
  * A class representing information about the caller of a method. This is
  * converted into by the appropriate local platform.
@@ -43,6 +45,7 @@ public class CallerInfo {
      * unspecified.)
      * @throws IllegalArgumentException if className is null.
      */
+    @IgnoredPhase
     public CallerInfo(String className, String methodName, String fileName, int lineNum) {
         if (className == null) {
             throw new IllegalArgumentException();

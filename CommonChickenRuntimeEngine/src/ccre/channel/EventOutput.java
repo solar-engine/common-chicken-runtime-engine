@@ -23,6 +23,7 @@ import java.io.Serializable;
 import ccre.log.Logger;
 import ccre.time.Time;
 import ccre.verifier.FlowPhase;
+import ccre.verifier.SetupPhase;
 
 /**
  * An event output or consumer. This can be fired (or produced or triggered or
@@ -72,6 +73,7 @@ public interface EventOutput extends Serializable {
      *
      * @see #event() for a version that throws any errors that occur.
      */
+    @FlowPhase
     public default void safeEvent() {
         try {
             event();
@@ -92,6 +94,7 @@ public interface EventOutput extends Serializable {
      * @param other the other EventOutput to include.
      * @return the combined version of the EventOutputs.
      */
+    @SetupPhase
     public default EventOutput combine(EventOutput other) {
         if (other == null) {
             throw new NullPointerException();
@@ -125,6 +128,7 @@ public interface EventOutput extends Serializable {
      * @param outputs the EventOutputs to include.
      * @return the combined version of the EventOutputs.
      */
+    @SetupPhase
     public static EventOutput combine(EventOutput... outputs) {
         // This works without including 'ignored' in the actual data structure
         // by having 'ignored' drop itself during combine.
@@ -143,6 +147,7 @@ public interface EventOutput extends Serializable {
      * EventOutput.
      * @return the lockable version of this EventOutput.
      */
+    @SetupPhase
     public default EventOutput filter(BooleanInput allow) {
         if (allow == null) {
             throw new NullPointerException();
@@ -163,6 +168,7 @@ public interface EventOutput extends Serializable {
      * EventOutput.
      * @return the lockable version of this EventOutput.
      */
+    @SetupPhase
     public default EventOutput filterNot(BooleanInput deny) {
         return this.filter(deny.not());
     }
@@ -178,6 +184,7 @@ public interface EventOutput extends Serializable {
      * @param minMillis the minimum amount of time between events.
      * @return the debounced version of this EventOutput.
      */
+    @SetupPhase
     public default EventOutput debounce(final long minMillis) {
         if (minMillis <= 0) {
             throw new IllegalArgumentException("debounce() parameter must be positive!");
@@ -208,6 +215,7 @@ public interface EventOutput extends Serializable {
      * NOT FIRE THIS RETURNED EVENT MORE THAN ONCE: UNDEFINED BEHAVIOR MAY
      * RESULT.
      */
+    @SetupPhase
     public default CancelOutput on(EventInput when) {
         return when.send(this);
     }
@@ -219,6 +227,7 @@ public interface EventOutput extends Serializable {
      *
      * @return a new IO
      */
+    @SetupPhase
     public default EventIO cell() {
         return new EventCell(this);
     }

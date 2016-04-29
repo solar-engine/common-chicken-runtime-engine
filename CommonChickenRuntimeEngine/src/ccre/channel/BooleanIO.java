@@ -18,6 +18,9 @@
  */
 package ccre.channel;
 
+import ccre.verifier.FlowPhase;
+import ccre.verifier.SetupPhase;
+
 /**
  * A BooleanIO is both a BooleanInput and a BooleanOutput.
  * 
@@ -32,6 +35,7 @@ public interface BooleanIO extends BooleanInput, BooleanOutput {
      * @see #eventToggle()
      * @see #toggle()
      */
+    @SetupPhase
     public default void toggleWhen(EventInput event) {
         event.send(eventToggle());
     }
@@ -43,6 +47,7 @@ public interface BooleanIO extends BooleanInput, BooleanOutput {
      * @see #toggleWhen(ccre.channel.EventInput)
      * @see #toggle()
      */
+    @SetupPhase
     public default EventOutput eventToggle() {
         return this::toggle;
     }
@@ -53,6 +58,7 @@ public interface BooleanIO extends BooleanInput, BooleanOutput {
      * @see #toggleWhen(EventInput)
      * @see #eventToggle()
      */
+    @FlowPhase
     public default void toggle() {
         set(!get());
     }
@@ -63,6 +69,7 @@ public interface BooleanIO extends BooleanInput, BooleanOutput {
      *
      * @return this io, as an output.
      */
+    @SetupPhase
     public default BooleanOutput asOutput() {
         return this;
     }
@@ -73,6 +80,7 @@ public interface BooleanIO extends BooleanInput, BooleanOutput {
      *
      * @return this io, as an input.
      */
+    @SetupPhase
     public default BooleanInput asInput() {
         return this;
     }
@@ -85,6 +93,7 @@ public interface BooleanIO extends BooleanInput, BooleanOutput {
      * @param output the output to dispatch to.
      * @return the composed BooleanIO.
      */
+    @SetupPhase
     public static BooleanIO compose(BooleanInput input, BooleanOutput output) {
         return new BooleanIO() {
             @Override
@@ -105,6 +114,7 @@ public interface BooleanIO extends BooleanInput, BooleanOutput {
     }
 
     @Override
+    @SetupPhase
     public default BooleanIO cell(boolean default_value) {
         this.set(default_value); // replicate behavior of superclass
         return this;

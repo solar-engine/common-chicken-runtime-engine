@@ -47,6 +47,7 @@ import ccre.rconf.RConf.Entry;
 import ccre.rconf.RConfable;
 import ccre.util.UniqueIds;
 import ccre.util.Utils;
+import ccre.verifier.SetupPhase;
 
 /**
  * A file that handles publishing and subscribing of basic channels.
@@ -73,6 +74,7 @@ public class CluckPublisher {
      * @param listener the listener to tell about new nodes.
      * @return the EventOutput that rechecks the network.
      */
+    @SetupPhase
     public static EventOutput setupSearching(final CluckNode node, final CluckRemoteListener listener) {
         final String local = UniqueIds.global.nextHexId("search-");
         new CluckSubscriber(node) {
@@ -97,6 +99,7 @@ public class CluckPublisher {
      * @param name The name for the EventOutput.
      * @param consumer The EventOutput.
      */
+    @SetupPhase
     public static void publish(final CluckNode node, String name, final EventOutput consumer) {
         if (consumer == null) {
             throw new NullPointerException();
@@ -116,6 +119,7 @@ public class CluckPublisher {
      * @param path The path to subscribe to.
      * @return the EventOutput.
      */
+    @SetupPhase
     public static EventOutput subscribeEO(final CluckNode node, final String path) {
         if (node == null || path == null) {
             throw new NullPointerException();
@@ -130,6 +134,7 @@ public class CluckPublisher {
      * @param name The name for the EventInput.
      * @param input The EventInput.
      */
+    @SetupPhase
     public static void publish(final CluckNode node, final String name, EventInput input) {
         final CopyOnWriteArrayList<String> remotes = new CopyOnWriteArrayList<String>();
         input.send(() -> {
@@ -165,6 +170,7 @@ public class CluckPublisher {
      * @param path The path to subscribe to.
      * @return the EventInput.
      */
+    @SetupPhase
     public static EventInput subscribeEI(final CluckNode node, final String path) {
         if (node == null || path == null) {
             throw new NullPointerException();
@@ -181,6 +187,7 @@ public class CluckPublisher {
      * @param name The name for the LoggingTarget.
      * @param lt The LoggingTarget.
      */
+    @SetupPhase
     public static void publish(final CluckNode node, String name, final LoggingTarget lt) {
         if (lt == null) {
             throw new NullPointerException();
@@ -212,6 +219,7 @@ public class CluckPublisher {
      * @param path The path to subscribe to.
      * @return the LoggingTarget.
      */
+    @SetupPhase
     public static LoggingTarget subscribeLT(final CluckNode node, final String path) {
         if (node == null || path == null) {
             throw new NullPointerException();
@@ -227,6 +235,7 @@ public class CluckPublisher {
      * @param name The name for the BooleanInput.
      * @param input The BooleanInput.
      */
+    @SetupPhase
     public static void publish(final CluckNode node, final String name, final BooleanInput input) {
         final CopyOnWriteArrayList<String> remotes = new CopyOnWriteArrayList<String>();
         input.send(new BooleanInputPublishListener(name, remotes, node));
@@ -262,6 +271,7 @@ public class CluckPublisher {
      * then readValue() won't work until you run addTarget().
      * @return the BooleanInput.
      */
+    @SetupPhase
     public static BooleanInput subscribeBI(CluckNode node, String path, boolean subscribeByDefault) {
         if (node == null || path == null) {
             throw new NullPointerException();
@@ -278,6 +288,7 @@ public class CluckPublisher {
      * @param name The name for the BooleanOutput.
      * @param output The BooleanOutput.
      */
+    @SetupPhase
     public static void publish(final CluckNode node, String name, final BooleanOutput output) {
         if (output == null) {
             throw new NullPointerException();
@@ -297,6 +308,7 @@ public class CluckPublisher {
      * @param path The path to subscribe to.
      * @return the BooleanOutput.
      */
+    @SetupPhase
     public static BooleanOutput subscribeBO(final CluckNode node, final String path) {
         if (node == null || path == null) {
             throw new NullPointerException();
@@ -312,6 +324,7 @@ public class CluckPublisher {
      * @param name The name for the FloatInput.
      * @param input The FloatInput.
      */
+    @SetupPhase
     public static void publish(final CluckNode node, final String name, final FloatInput input) {
         final CopyOnWriteArrayList<String> remotes = new CopyOnWriteArrayList<String>();
         input.send(new FloatInputPublishListener(remotes, name, node));
@@ -349,6 +362,7 @@ public class CluckPublisher {
      * <code>onUpdate</code>.
      * @return the FloatInput.
      */
+    @SetupPhase
     public static FloatInput subscribeFI(final CluckNode node, final String path, final boolean subscribeByDefault) {
         if (node == null || path == null) {
             throw new NullPointerException();
@@ -365,6 +379,7 @@ public class CluckPublisher {
      * @param name The name for the FloatOutput.
      * @param out The FloatOutput.
      */
+    @SetupPhase
     public static void publish(final CluckNode node, String name, final FloatOutput out) {
         if (out == null) {
             throw new NullPointerException();
@@ -384,6 +399,7 @@ public class CluckPublisher {
      * @param path The path to subscribe to.
      * @return the FloatOutput.
      */
+    @SetupPhase
     public static FloatOutput subscribeFO(CluckNode node, String path) {
         if (node == null || path == null) {
             throw new NullPointerException();
@@ -401,6 +417,7 @@ public class CluckPublisher {
      * @param name The name for the FloatIO.
      * @param stat The FloatIO.
      */
+    @SetupPhase
     public static void publish(CluckNode node, String name, FloatIO stat) {
         publish(node, name + ".input", stat.asInput());
         publish(node, name + ".output", stat.asOutput());
@@ -417,6 +434,7 @@ public class CluckPublisher {
      * <code>onUpdate</code>.
      * @return the FloatIO.
      */
+    @SetupPhase
     public static FloatIO subscribeFIO(CluckNode node, String path, boolean subscribeByDefault) {
         return FloatIO.compose(subscribeFI(node, path + ".input", subscribeByDefault), subscribeFO(node, path + ".output"));
     }
@@ -428,6 +446,7 @@ public class CluckPublisher {
      * @param name The name for the BooleanIO.
      * @param stat The BooleanIO to publish.
      */
+    @SetupPhase
     public static void publish(CluckNode node, String name, BooleanIO stat) {
         publish(node, name + ".input", stat.asInput());
         publish(node, name + ".output", stat.asOutput());
@@ -444,6 +463,7 @@ public class CluckPublisher {
      * <code>onUpdate</code>.
      * @return the BooleanIO.
      */
+    @SetupPhase
     public static BooleanIO subscribeBIO(CluckNode node, String path, boolean subscribeByDefault) {
         return BooleanIO.compose(subscribeBI(node, path + ".input", subscribeByDefault), subscribeBO(node, path + ".output"));
     }
@@ -455,6 +475,7 @@ public class CluckPublisher {
      * @param name The name for the EventIO.
      * @param stat The EventIO to publish.
      */
+    @SetupPhase
     public static void publish(CluckNode node, String name, EventIO stat) {
         publish(node, name + ".input", stat.asInput());
         publish(node, name + ".output", stat.asOutput());
@@ -467,6 +488,7 @@ public class CluckPublisher {
      * @param path The path to subscribe to.
      * @return the EventIO.
      */
+    @SetupPhase
     public static EventIO subscribeEIO(CluckNode node, String path) {
         return EventIO.compose(subscribeEI(node, path + ".input"), subscribeEO(node, path + ".output"));
     }
@@ -478,6 +500,7 @@ public class CluckPublisher {
      * @param name The name for the OutputStream.
      * @param out The OutputStream.
      */
+    @SetupPhase
     public static void publish(final CluckNode node, String name, final OutputStream out) {
         if (node == null || name == null || out == null) {
             throw new NullPointerException();
@@ -503,6 +526,7 @@ public class CluckPublisher {
      * @param path The path to subscribe to.
      * @return the OutputStream.
      */
+    @SetupPhase
     public static OutputStream subscribeOS(final CluckNode node, final String path) {
         if (node == null || path == null) {
             throw new NullPointerException();
@@ -518,6 +542,7 @@ public class CluckPublisher {
      * @param name The name for the OutputStream.
      * @return the OutputStream that goes to the network.
      */
+    @SetupPhase
     public static OutputStream publishOS(final CluckNode node, final String name) {
         if (node == null || name == null) {
             throw new NullPointerException();
@@ -572,6 +597,7 @@ public class CluckPublisher {
      * @param path The path to subscribe to.
      * @param output The OutputStream to write to.
      */
+    @SetupPhase
     public static void subscribe(final CluckNode node, final String path, OutputStream output) {
         if (node == null || path == null || output == null) {
             throw new NullPointerException();
@@ -609,6 +635,7 @@ public class CluckPublisher {
      * @param name The name for the RConfable.
      * @param device The RConfable.
      */
+    @SetupPhase
     public static void publishRConf(CluckNode node, String name, final RConfable device) {
         node.getRPCManager().publish(name + "-rpcq", new RemoteProcedure() {
             @Override
@@ -693,6 +720,7 @@ public class CluckPublisher {
      * @param timeout The maximum wait time for the RPC calls.
      * @return the RConfable.
      */
+    @SetupPhase
     public static RConfable subscribeRConf(CluckNode node, String path, final int timeout) {
         final RemoteProcedure query = node.getRPCManager().subscribe(path + "-rpcq", timeout);
         final RemoteProcedure signal = node.getRPCManager().subscribe(path + "-rpcs", timeout);
@@ -909,6 +937,7 @@ public class CluckPublisher {
             new FloatInputReceiver(node, this, path).attach();
         }
 
+        @SetupPhase
         private void generateLinkName() {
             linkName = UniqueIds.global.nextHexId("srcFI");
         }
@@ -949,6 +978,7 @@ public class CluckPublisher {
             }
         }
 
+        @SetupPhase
         public void attach() {
             attach(linkName);
         }
@@ -1002,6 +1032,7 @@ public class CluckPublisher {
             new BooleanInputReceiver(node, this, path).attach();
         }
 
+        @SetupPhase
         private void generateLinkName() {
             linkName = UniqueIds.global.nextHexId("srcBI");
         }
@@ -1042,6 +1073,7 @@ public class CluckPublisher {
             }
         }
 
+        @SetupPhase
         public void attach() {
             attach(linkName);
         }
@@ -1089,6 +1121,7 @@ public class CluckPublisher {
             new EventInputReceiver(node, this, path).attach();
         }
 
+        @SetupPhase
         private void generateLinkName() {
             this.linkName = UniqueIds.global.nextHexId("srcES");
         }
@@ -1129,6 +1162,7 @@ public class CluckPublisher {
             }
         }
 
+        @SetupPhase
         public void attach() {
             this.attach(linkName);
         }

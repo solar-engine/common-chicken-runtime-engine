@@ -18,6 +18,8 @@
  */
 package ccre.channel;
 
+import ccre.verifier.FlowPhase;
+
 /**
  * A utility class that lets users define derived dataflow channels based on
  * other channels.
@@ -66,5 +68,6 @@ public abstract class DerivedBooleanInput extends AbstractUpdatingInput implemen
      *
      * @return the present value for the BooleanInput.
      */
+    @FlowPhase
     protected abstract boolean apply();
 }

@@ -24,6 +24,7 @@ import ccre.channel.EventOutput;
 import ccre.channel.FloatCell;
 import ccre.channel.FloatInput;
 import ccre.time.Time;
+import ccre.verifier.FlowPhase;
 
 /**
  * A generic PID Controller for use in CCRE applications. Supports online tuning
@@ -183,6 +184,7 @@ public class PIDController implements FloatInput, EventOutput {
      * @param timeDelta the time delta
      * @throws IllegalArgumentException if timeDelta is negative
      */
+    @FlowPhase
     public void update(long timeDelta) throws IllegalArgumentException {
         float error = setpoint.get() - input.get();
         if (Float.isNaN(error) || Float.isInfinite(error)) {

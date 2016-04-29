@@ -32,6 +32,7 @@ import ccre.cluck.CluckNode;
 import ccre.concurrency.ReporterThread;
 import ccre.log.Logger;
 import ccre.net.ClientSocket;
+import ccre.verifier.FlowPhase;
 
 /**
  * A static utility class for handling various encodings of Cluck packets.
@@ -274,6 +275,7 @@ public class CluckProtocol {
          * @param dst The destination of the message.
          * @param data The contents of the message.
          */
+        @FlowPhase
         SendableEntry(String src, String dst, byte[] data) {
             super();
             this.src = src;

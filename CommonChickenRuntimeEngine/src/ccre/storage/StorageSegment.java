@@ -29,6 +29,8 @@ import ccre.channel.BooleanCell;
 import ccre.channel.FloatCell;
 import ccre.log.Logger;
 import ccre.util.UniqueIds;
+import ccre.verifier.FlowPhase;
+import ccre.verifier.SetupPhase;
 
 /**
  * A storage segment - a place to store various pieces of data. A StorageSegment
@@ -49,6 +51,7 @@ public final class StorageSegment {
      * @param target the map to put the loaded keys into.
      * @throws IOException if reading from the input fails for some reason.
      */
+    @SetupPhase
     public static void loadProperties(InputStream input, boolean keepInvalidLines, HashMap<String, String> target) throws IOException {
         BufferedReader din = new BufferedReader(new InputStreamReader(input));
         try {
@@ -111,6 +114,7 @@ public final class StorageSegment {
      * @param key the key to look up.
      * @return the String contained there, or null if the key doesn't exist.
      */
+    @SetupPhase
     public synchronized String getStringForKey(String key) {
         return data.get(key);
     }
@@ -121,6 +125,7 @@ public final class StorageSegment {
      * @param key the key to put the String under.
      * @param value the String to store under this key.
      */
+    @FlowPhase
     public synchronized void setStringForKey(String key, String value) {
         if (value == null) {
             data.remove(key);
@@ -135,6 +140,7 @@ public final class StorageSegment {
      * disk (or somewhere else, depending on the provider). If this is not
      * called, data might not be saved!
      */
+    @SetupPhase
     public synchronized void flush() {
         if (modified) {
             try {
@@ -185,6 +191,7 @@ public final class StorageSegment {
      * @param name the name to save the holder under.
      * @param holder the holder to save.
      */
+    @SetupPhase
     public void attachFloatHolder(String name, final FloatCell holder) {
         final String key = "float_holder_" + name, default_key = "float_holder_default_" + name;
         final float originalValue = holder.get();
@@ -227,6 +234,7 @@ public final class StorageSegment {
      * @param name the name to save the holder under.
      * @param holder the holder to save.
      */
+    @SetupPhase
     public void attachBooleanHolder(String name, final BooleanCell holder) {
         final String key = "boolean_holder_" + name, default_key = "boolean_holder_default_" + name;
         final boolean originalValue = holder.get();

@@ -23,6 +23,7 @@ import ccre.channel.BooleanInput;
 import ccre.channel.EventInput;
 import ccre.channel.EventOutput;
 import ccre.log.Logger;
+import ccre.verifier.FlowPhase;
 
 /**
  * A worker thread that will allow other threads to trigger a predefined action
@@ -114,6 +115,7 @@ public abstract class CollapsingWorkerThread extends ReporterThread implements E
     /**
      * Trigger the work. When possible, the thread will run its doWork method.
      */
+    @FlowPhase
     public void trigger() {
         synchronized (lockObject) {
             needsToRun = true;

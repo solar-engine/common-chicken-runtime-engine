@@ -212,7 +212,7 @@ public final class Cluck {
      * @param path The path to subscribe to.
      * @param shouldSubscribeByDefault Should this request the value from the
      * remote by default, as opposed to waiting until this is needed. If this is
-     * false, then readValue() won't work until you run addTarget().
+     * false, then get() won't work until you call send().
      * @return the BooleanInput.
      */
     @SetupPhase
@@ -226,7 +226,7 @@ public final class Cluck {
      * @param path The path to subscribe to.
      * @param shouldSubscribeByDefault Should this request the value from the
      * remote by default, as opposed to waiting until this is needed. If this is
-     * false, then readValue() won't work until you run addTarget().
+     * false, then get() won't work until you call send().
      * @return the BooleanIO.
      */
     @SetupPhase
@@ -274,7 +274,7 @@ public final class Cluck {
      * @param path The path to subscribe to.
      * @param subscribeByDefault Should this request the value from the remote
      * by default, as opposed to waiting until this is needed. If this is false,
-     * then readValue() won't work until you run addTarget().
+     * then get() won't work until you call send().
      * @return the FloatInput.
      */
     @SetupPhase
@@ -288,7 +288,7 @@ public final class Cluck {
      * @param path The path to subscribe to.
      * @param subscribeByDefault Should this request the value from the remote
      * by default, as opposed to waiting until this is needed. If this is false,
-     * then readValue() won't work until you run addTarget().
+     * then get() won't work until you call send().
      * @return the FloatIO.
      */
     @SetupPhase

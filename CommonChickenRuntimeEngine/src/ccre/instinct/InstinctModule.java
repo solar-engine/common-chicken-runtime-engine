@@ -52,6 +52,9 @@ public abstract class InstinctModule extends InstinctBaseModule {
             instinctBody();
         }
     };
+    {
+        main.setPriority(Thread.MAX_PRIORITY - 1);
+    }
 
     /**
      * Create a new InstinctModule with a BooleanInput controlling when this

@@ -119,11 +119,8 @@ public abstract class CollapsingWorkerThread extends ReporterThread implements E
     public void trigger() {
         synchronized (lockObject) {
             needsToRun = true;
-            if (!isAlive()) {
-                start();
-            } else {
-                lockObject.notifyAll();
-            }
+            startIfNotAlive();
+            lockObject.notifyAll();
         }
     }
 

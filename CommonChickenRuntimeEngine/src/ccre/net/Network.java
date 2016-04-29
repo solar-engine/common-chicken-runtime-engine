@@ -34,7 +34,6 @@ import java.util.Enumeration;
 
 import ccre.log.Logger;
 import ccre.verifier.FlowPhase;
-import ccre.verifier.SetupPhase;
 
 /**
  * The global Network handler. This contains a location to store the current

@@ -33,7 +33,6 @@ import ccre.time.Time;
 import ccre.util.UniqueIds;
 import ccre.verifier.FlowPhase;
 import ccre.verifier.SetupPhase;
-import ccre.verifier.SuppressPhaseWarnings;
 
 /**
  * A manager for the RPC subsystem in Cluck.

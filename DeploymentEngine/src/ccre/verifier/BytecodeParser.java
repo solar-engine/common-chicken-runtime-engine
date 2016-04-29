@@ -23,7 +23,6 @@ import java.util.Collection;
 import java.util.function.Consumer;
 
 import ccre.drivers.ByteFiddling;
-import ccre.log.Logger;
 import ccre.verifier.ClassParser.CPInfo;
 import ccre.verifier.ClassParser.ClassFile;
 import ccre.verifier.ClassParser.ExceptionHandlerInfo;

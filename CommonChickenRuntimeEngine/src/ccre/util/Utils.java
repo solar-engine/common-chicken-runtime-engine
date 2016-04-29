@@ -27,7 +27,6 @@ import java.util.List;
 
 import ccre.verifier.FlowPhase;
 import ccre.verifier.IgnoredPhase;
-import ccre.verifier.SetupPhase;
 
 /**
  * A class for utilities that don't fit anywhere else.

@@ -27,7 +27,6 @@ import java.util.Arrays;
 import java.util.Objects;
 
 import ccre.drivers.ByteFiddling;
-import ccre.log.Logger;
 import ccre.verifier.BytecodeParser.ReferenceInfo;
 
 class ClassParser extends DataInputStream {

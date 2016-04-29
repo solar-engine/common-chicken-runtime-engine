@@ -23,7 +23,6 @@ import ccre.cluck.Cluck;
 import ccre.log.Logger;
 import ccre.log.NetworkAutologger;
 import ccre.net.Network;
-import ccre.verifier.SuppressPhaseWarnings;
 
 /**
  * A simple standalone cluck server for testing.

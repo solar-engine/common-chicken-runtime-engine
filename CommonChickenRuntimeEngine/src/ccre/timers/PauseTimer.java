@@ -21,7 +21,6 @@ package ccre.timers;
 import ccre.channel.AbstractUpdatingInput;
 import ccre.channel.BooleanInput;
 import ccre.channel.BooleanOutput;
-import ccre.channel.CancelOutput;
 import ccre.channel.EventOutput;
 import ccre.channel.FloatInput;
 import ccre.log.Logger;

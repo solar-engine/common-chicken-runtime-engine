@@ -23,7 +23,6 @@ import java.io.InterruptedIOException;
 import ccre.log.Logger;
 import ccre.util.UniqueIds;
 import ccre.verifier.FlowPhase;
-import ccre.verifier.SetupPhase;
 import ccre.verifier.SuppressPhaseWarnings;
 
 /**

@@ -25,7 +25,7 @@ import ccre.verifier.FlowPhase;
 import ccre.verifier.SetupPhase;
 
 class FullLoop {
-    private final class FixedRateEvent extends CancellableScheduleEntry {
+    private final class FixedRateEvent extends CancellableScheduleEntry implements CancelOutput {
         private long nextScheduleAtNanos;
         private final long periodNanos;
         private final boolean skippable;
@@ -59,7 +59,7 @@ class FullLoop {
         }
     }
 
-    private final class VariableRateEvent extends CancellableScheduleEntry {
+    private final class VariableRateEvent extends CancellableScheduleEntry implements CancelOutput {
         private final long periodNanos;
         private final String tag;
 
@@ -83,7 +83,7 @@ class FullLoop {
         }
     }
 
-    private class CancellableScheduleEntry implements EventOutput, CancelOutput {
+    private class CancellableScheduleEntry implements EventOutput {
         final EventOutput o;
         volatile boolean cancel;
 
@@ -99,7 +99,6 @@ class FullLoop {
             }
         }
 
-        @Override
         @FlowPhase
         public void cancel() {
             this.cancel = true;
@@ -122,10 +121,10 @@ class FullLoop {
     }
 
     @FlowPhase
-    public CancelOutput scheduleCancellableOnce(String tag, long timeAtNanos, EventOutput o) {
+    public EventOutput scheduleCancellableOnce(String tag, long timeAtNanos, EventOutput o) {
         CancellableScheduleEntry event = new CancellableScheduleEntry(o);
         scheduleOnce(tag, timeAtNanos, event);
-        return event;
+        return event::cancel;
     }
 
     @SetupPhase

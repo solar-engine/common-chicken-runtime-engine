@@ -46,7 +46,7 @@ public class PauseTimer extends AbstractUpdatingInput implements BooleanInput, E
 
     private final Object cancelLock = new Object();
     // null if not running; value if running
-    private volatile CancelOutput cancel = null;
+    private volatile EventOutput cancel = null;
     private final FloatInput timeout;
 
     /**
@@ -113,11 +113,11 @@ public class PauseTimer extends AbstractUpdatingInput implements BooleanInput, E
         boolean raise = true;
         synchronized (cancelLock) {
             if (cancel != null) {
-                cancel.cancel();
+                cancel.event();
                 cancel = null;
                 raise = false;
             }
-            cancel = Scheduler.scheduleCancellableNanos(this.tag, (long) (timeout.get() * Time.NANOSECONDS_PER_SECOND), end);
+            cancel = Scheduler.scheduleInterruptibleNanos(this.tag, (long) (timeout.get() * Time.NANOSECONDS_PER_SECOND), end);
         }
         if (raise) {
             try {

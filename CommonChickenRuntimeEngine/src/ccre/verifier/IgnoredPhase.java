@@ -26,5 +26,5 @@ import java.lang.annotation.Target;
 // TODO: is field a good choice?
 @Target({ ElementType.METHOD, ElementType.CONSTRUCTOR })
 @Retention(RetentionPolicy.CLASS)
-public @interface FlowPhase {
+public @interface IgnoredPhase {
 }

@@ -27,6 +27,8 @@ import java.util.Arrays;
 import java.util.Objects;
 
 import ccre.drivers.ByteFiddling;
+import ccre.log.Logger;
+import ccre.verifier.BytecodeParser.ReferenceInfo;
 
 class ClassParser extends DataInputStream {
 
@@ -302,6 +304,36 @@ class ClassParser extends DataInputStream {
             }
             return line_number;
         }
+
+        public boolean isGetter() {
+            // TODO: do this better?
+            // Look for: aload_0, getfield, *return (except just return)
+            if (this.code == null) {
+                return false;
+            } else if (this.code.length == 4) {
+                return (this.code[0] & 0xFF) == 0xB2 && (this.code[3] & 0xFF) >= 0xAC && (this.code[3] & 0xFF) <= 0xB0;
+            } else if (this.code.length == 5) {
+                return (this.code[0] & 0xFF) == 0x2A && (this.code[1] & 0xFF) == 0xB4 && (this.code[4] & 0xFF) >= 0xAC && (this.code[4] & 0xFF) <= 0xB0;
+            } else {
+                return false;
+            }
+        }
+
+        public boolean isSolitary() throws ClassFormatException {
+            return this.code != null && new BytecodeParser(this).getReferenceCount() == 0;
+        }
+
+        public ReferenceInfo getOneRef() throws ClassFormatException {
+            BytecodeParser bytecode = new BytecodeParser(this);
+            if (this.code == null || bytecode.getReferenceCount() != 1) {
+                return null;
+            }
+            ReferenceInfo[] ri = bytecode.getReferences();
+            if (ri.length == 1) {
+                return ri[0];
+            }
+            return null;
+        }
     }
 
     public static class TypeInfo {
@@ -403,7 +435,7 @@ class ClassParser extends DataInputStream {
         return list.toArray(new TypeInfo[list.size()]);
     }
 
-    private static TypeInfo parseFieldDescriptor(String descriptor) throws ClassFormatException {
+    public static TypeInfo parseFieldDescriptor(String descriptor) throws ClassFormatException {
         ArrayList<TypeInfo> arr = new ArrayList<>(); // not a good way to do it
                                                      // TODO: refactor
         if (parseTypeDescriptor(descriptor, arr) != descriptor.length()) {
@@ -515,8 +547,8 @@ class ClassParser extends DataInputStream {
         file.constant_pool = readConstantPool();
         file.access = readUnsignedShort();
         file.this_class = readConstant(file).asClass();
-        CPInfo constant = readConstant(file);
-        file.super_class = constant == null ? null : constant.asClass();
+        int superIndex = readUnsignedShort();
+        file.super_class = superIndex == 0 ? null : file.getConst(superIndex).asClass();
         file.interfaces = readInterfaces(file);
         file.fields = readFields(file);
         file.methods = readMethods(file);

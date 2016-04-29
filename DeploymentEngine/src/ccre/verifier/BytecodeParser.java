@@ -23,6 +23,7 @@ import java.util.Collection;
 import java.util.function.Consumer;
 
 import ccre.drivers.ByteFiddling;
+import ccre.log.Logger;
 import ccre.verifier.ClassParser.CPInfo;
 import ccre.verifier.ClassParser.ClassFile;
 import ccre.verifier.ClassParser.ExceptionHandlerInfo;
@@ -55,7 +56,7 @@ public class BytecodeParser {
             }
         }
         for (int i = 0; i < blocks.size(); i++) {
-            scanFromBlock(i, (i2) -> {
+            scanFromBlock(blocks.get(i), (i2) -> {
                 if (!blocks.contains(i2)) {
                     blocks.add(i2);
                 }
@@ -198,7 +199,7 @@ public class BytecodeParser {
                         break;
                     }
                     default:
-                        throw new ClassFormatException("Invalid opcode in bytecode: " + op);
+                        throw new ClassFormatException("Invalid opcode in bytecode: " + op + " at " + opcode_offset + " in " + this.method);
                     }
                 }
             }
@@ -221,6 +222,16 @@ public class BytecodeParser {
         }
     }
 
+    public int getReferenceCount() throws ClassFormatException {
+        int out = 0;
+        // TODO: clean this up
+        ArrayList<ReferenceInfo> outa = new ArrayList<>();
+        for (int block : block_begins) {
+            out += this.getBlockReferences(block, outa);
+        }
+        return out + outa.size();
+    }
+
     public ReferenceInfo[] getReferences() throws ClassFormatException {
         ArrayList<ReferenceInfo> out = new ArrayList<>();
         for (int block : block_begins) {
@@ -229,7 +240,9 @@ public class BytecodeParser {
         return out.toArray(new ReferenceInfo[out.size()]);
     }
 
-    private void getBlockReferences(int i, Collection<ReferenceInfo> references) throws ClassFormatException {
+    // returns count of other references
+    private int getBlockReferences(int i, Collection<ReferenceInfo> references) throws ClassFormatException {
+        int other_refs = 0;
         try {
             while (true) {
                 int original_offset = i;
@@ -254,10 +267,11 @@ public class BytecodeParser {
                     i += 2;
                 } else if (op >= 0xAC && op <= 0xB1) {
                     // method return instructions
-                    return; // no more code in this block
+                    return other_refs; // no more code in this block
                 } else if (op >= 0xB2 && op <= 0xB5) {
                     // field access instructions
                     i += 2;
+                    other_refs++;
                 } else if (op == 0xB6) {
                     int indexbyte1 = code[i++] & 0xFF;
                     int indexbyte2 = code[i++] & 0xFF;
@@ -308,22 +322,28 @@ public class BytecodeParser {
                     switch (op) {
                     case 0x10: // bipush
                     case 0x12: // ldc
+                        i++;
+                        break;
                     case 0xBC: // newarray
                         i++;
+                        other_refs++;
                         break;
                     case 0x11: // sipush
                     case 0x13: // ldc_w
                     case 0x14: // ldc2_w
                     case 0x84: // iinc
+                        i += 2;
+                        break;
                     case 0xBB: // new
                     case 0xBD: // anewarray
                         i += 2;
+                        other_refs++;
                         break;
                     case 0xA9: // ret
                         // this is a jsr ret, which returns to after the jsr,
                         // which we've already looked at
                         i++;
-                        return; // no more code in this block
+                        return other_refs; // no more code in this block
                     case 0xAA: { // tableswitch
                         while (i % 4 != 0) {
                             i++;
@@ -347,7 +367,7 @@ public class BytecodeParser {
                     case 0xA7: // goto
                     case 0xBF: // athrow
                         // no arguments; end block because throw
-                        return;
+                        return other_refs;
                     case 0xC4: { // wide
                         op = code[i++] & 0xFF;
                         if ((op >= 0x15 && op <= 0x19) || (op >= 0x36 && op <= 0x3A) || op == 0xA9) {
@@ -364,10 +384,11 @@ public class BytecodeParser {
                     }
                     case 0xC5: // multianewarray
                         i += 3;
+                        other_refs++;
                         break;
                     case 0xC8: // goto_w
                         i += 4;
-                        return;
+                        return other_refs;
                     case 0xC9: { // jsr_w
                         i += 4;
                         break;

@@ -24,7 +24,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 // TODO: is field a good choice?
-@Target({ ElementType.METHOD })
+@Target({ ElementType.METHOD, ElementType.CONSTRUCTOR })
 @Retention(RetentionPolicy.CLASS)
 public @interface ImperativePhase {
 }

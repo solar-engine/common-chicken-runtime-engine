@@ -20,15 +20,19 @@ package ccre.verifier;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.NoSuchFileException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 
 import ccre.deployment.Artifact;
 import ccre.deployment.Jar;
 import ccre.log.Logger;
+import ccre.storage.StorageSegment;
 import ccre.verifier.BytecodeParser.ReferenceInfo;
 import ccre.verifier.ClassParser.CPInfo;
 import ccre.verifier.ClassParser.ClassFile;
@@ -36,6 +40,19 @@ import ccre.verifier.ClassParser.MethodInfo;
 import ccre.verifier.ClassParser.TypeInfo;
 
 public class PhaseVerifier {
+    private static final HashMap<String, Phase> externals = new HashMap<>();
+    static {
+        try (InputStream phin = PhaseVerifier.class.getResourceAsStream("java_phases.properties")) {
+            HashMap<String, String> loaded = new HashMap<>();
+            StorageSegment.loadProperties(phin, false, loaded);
+            for (Map.Entry<String, String> ent : loaded.entrySet()) {
+                externals.put(ent.getKey(), Phase.valueOf(ent.getValue().toUpperCase()));
+            }
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     public static void main(String[] args) throws Exception {
         PhaseVerifier.verify(new Jar(new File("../CommonChickenRuntimeEngine/CCRE.jar")));
     }
@@ -62,38 +79,68 @@ public class PhaseVerifier {
             return known.get(method);
         }
         Phase phase = getDeclaredPhase(method);
-        MethodInfo[] superMethods = getMethodSuperMatches(method, true);
-        // TODO: handle the case of external overridden target
-        if (superMethods.length == 0 && method.isAnnotationPresent(Override.class.getName())) {
-            warn(method.declaringClass.getSourceFile(), method.getLineNumberFor(0) - 1, "@Override method does not actually override superclass method");
-        }
-        for (MethodInfo superMethod : superMethods) {
-            Phase superPhase = getPhase(superMethod);
-            if (superPhase == null) {
-                continue;
+        if (!"<init>".equals(method.name)) {
+            MethodInfo[] superMethods = getMethodSuperMatches(method);
+            // TODO: handle the case of external overridden target
+            if (superMethods.length == 0 && method.isAnnotationPresent(Override.class.getName())) {
+                warn(method.declaringClass.getSourceFile(), method.getLineNumberFor(0) - 1, "@Override method does not actually override superclass method");
             }
-            if (phase == null) {
-                phase = superPhase;
-            } else if (phase != superPhase) {
-                warn(method.declaringClass.getSourceFile(), method.getLineNumberFor(0) - 1, "Mismatched phase between method and overridden method");
-                // TODO: update output phase
+            for (MethodInfo superMethod : superMethods) {
+                Phase superPhase = getPhase(superMethod);
+                if (superPhase == null) {
+                    continue;
+                }
+                if (phase == null) {
+                    phase = superPhase;
+                } else if (phase != superPhase && phase != Phase.IGNORED) {
+                    warn(method.declaringClass.getSourceFile(), method.getLineNumberFor(0) - 1, "Mismatched phase between method and overridden method: " + method + " overrides " + superMethod);
+                    // TODO: update output phase
+                }
+            }
+        }
+        if (phase == null) {
+            for (MethodInfo mi : method.declaringClass.methods) {
+                if ((mi.access & ClassParser.ACC_BRIDGE) != 0 && mi.name.equals(method.name) && mi.parameters.length == method.parameters.length) {
+                    BytecodeParser bcp = new BytecodeParser(mi);
+                    ReferenceInfo[] refs = bcp.getReferences();
+                    if (refs.length == 1) {
+                        ReferenceInfo ri = refs[0];
+                        MethodInfo target = getMethodRef(mi, ri.target);
+                        if (target == method) {
+                            phase = getPhase(mi);
+                            break;
+                        }
+                    }
+                }
+            }
+            if (phase == null && method.isSolitary()) {
+                phase = Phase.IGNORED;
+            }
+            if (phase == null && (method.access & ClassParser.ACC_SYNTHETIC) != 0 && method.name.startsWith("access$")) {
+                ReferenceInfo ref = method.getOneRef();
+                if (ref != null) {
+                    MethodInfo target = getMethodRef(method, ref.target);
+                    if (target != method) {
+                        phase = getPhase(target);
+                    }
+                }
             }
         }
         known.put(method, phase);
         return phase;
     }
 
-    private MethodInfo[] getMethodSuperMatches(MethodInfo m, boolean ignoreIfExternal) throws ClassNotFoundException {
-        ClassFile c = getSuperClass(m.declaringClass, ignoreIfExternal);
+    private MethodInfo[] getMethodSuperMatches(MethodInfo m) throws ClassNotFoundException {
+        ClassFile c = getSuperClass(m.declaringClass);
         ArrayList<MethodInfo> mis = new ArrayList<>();
         while (c != null) {
             MethodInfo info = getDeclaredMethod(c, m.name, m.parameters);
             if (info != null) {
                 mis.add(info);
             }
-            c = getSuperClass(c, ignoreIfExternal);
+            c = getSuperClass(c);
         }
-        for (ClassFile ci : getAllSuperInterfaces(m.declaringClass, true)) {
+        for (ClassFile ci : getAllSuperInterfaces(m.declaringClass)) {
             MethodInfo info = this.getDeclaredMethod(ci, m.name, m.parameters);
             if (info != null) {
                 mis.add(info);
@@ -102,8 +149,8 @@ public class PhaseVerifier {
         return mis.toArray(new MethodInfo[mis.size()]);
     }
 
-    private ClassFile getSuperClass(ClassFile c, boolean ignoreIfExternal) throws ClassNotFoundException {
-        return c.super_class == null ? null : loadClass(c.super_class, ignoreIfExternal);
+    private ClassFile getSuperClass(ClassFile c) throws ClassNotFoundException {
+        return c.super_class == null ? null : loadClass(c.super_class);
     }
 
     private MethodInfo getProvidedMethod(ClassFile clas, String name, TypeInfo[] parameters) throws ClassNotFoundException {
@@ -113,9 +160,9 @@ public class PhaseVerifier {
             if (info != null) {
                 return info;
             }
-            c = getSuperClass(c, true);
+            c = getSuperClass(c);
         }
-        for (ClassFile ci : getAllSuperInterfaces(clas, true)) {
+        for (ClassFile ci : getAllSuperInterfaces(clas)) {
             MethodInfo info = this.getDeclaredMethod(ci, name, parameters);
             if (info != null) {
                 return info;
@@ -124,34 +171,32 @@ public class PhaseVerifier {
         return null;
     }
 
-    private ClassFile[] getAllSuperInterfaces(ClassFile c, boolean ignoreIfExternal) throws ClassNotFoundException {
+    private ClassFile[] getAllSuperInterfaces(ClassFile c) throws ClassNotFoundException {
         HashSet<ClassFile> cf = new HashSet<>();
-        enumerateAllSuperInterfaces(c, cf, ignoreIfExternal);
+        enumerateAllSuperInterfaces(c, cf);
         cf.remove(c);
         return cf.toArray(new ClassFile[cf.size()]);
     }
 
-    private void enumerateAllSuperInterfaces(ClassFile c, Collection<ClassFile> cf, boolean ignoreIfExternal) throws ClassNotFoundException {
+    private void enumerateAllSuperInterfaces(ClassFile c, Collection<ClassFile> cf) throws ClassNotFoundException {
         if (c == null) {
             throw new NullPointerException();
         }
         if (cf.add(c)) {
-            ClassFile superClass = getSuperClass(c, ignoreIfExternal);
-            if (superClass != null) { // if external, don't need to enumerate
-                enumerateAllSuperInterfaces(superClass, cf, ignoreIfExternal);
+            ClassFile superClass = getSuperClass(c);
+            if (superClass != null) {
+                enumerateAllSuperInterfaces(superClass, cf);
             }
-            for (ClassFile ci : getSuperInterfaces(c, ignoreIfExternal)) {
-                if (ci != null) { // if external, don't need to enumerate
-                    enumerateAllSuperInterfaces(ci, cf, ignoreIfExternal);
-                }
+            for (ClassFile ci : getSuperInterfaces(c)) {
+                enumerateAllSuperInterfaces(ci, cf);
             }
         }
     }
 
-    private ClassFile[] getSuperInterfaces(ClassFile c, boolean ignoreIfExternal) throws ClassNotFoundException {
+    private ClassFile[] getSuperInterfaces(ClassFile c) throws ClassNotFoundException {
         ClassFile[] cf = new ClassFile[c.interfaces.length];
         for (int i = 0; i < cf.length; i++) {
-            cf[i] = loadClass(c.interfaces[i], ignoreIfExternal);
+            cf[i] = loadClass(c.interfaces[i]);
         }
         return cf;
     }
@@ -174,11 +219,8 @@ public class PhaseVerifier {
         } else if (sub.isArray()) {
             return sup.isClass && sup.name.equals("java/lang/Object");
         } else if (sup.isClass && sub.isClass) {
-            ClassFile superClass = loadClass(sup.name, false);
-            // It's okay to ignore external classes - they shouldn't depend on
-            // our classes, so there's no way for the superclass to be found in
-            // there, if we could load it.
-            ClassFile subSuper = getSuperClass(loadClass(sub.name, false), true);
+            ClassFile superClass = loadClass(sup.name);
+            ClassFile subSuper = getSuperClass(loadClass(sub.name));
             return subSuper != null && isSuperOrSameClassOf(superClass, subSuper);
         } else {
             return false;
@@ -189,37 +231,37 @@ public class PhaseVerifier {
         if (sup.equals(sub)) {
             return true;
         } else {
-            // It's okay to ignore external classes - they shouldn't depend on
-            // our classes, so there's no way for the superclass to be found in
-            // there, if we could load it.
-            ClassFile superClass = getSuperClass(sub, true);
+            ClassFile superClass = getSuperClass(sub);
             return superClass != null && isSuperOrSameClassOf(sup, superClass);
         }
     }
 
-    private ClassFile loadClass(String class_, boolean nullForExternal) throws ClassNotFoundException {
+    private ClassFile loadClass(String class_) throws ClassNotFoundException {
         if (class_.indexOf('/') != -1) {
             throw new IllegalArgumentException("Class names cannot contain slashes!");
         }
         if (loaded.containsKey(class_)) {
-            ClassFile cf = loaded.get(class_);
-            if (cf == null && !(nullForExternal && isNameExternal(class_))) {
-                throw new ClassNotFoundException("Could not load class: " + class_);
-            }
-            return cf;
+            return loaded.get(class_);
         } else {
             ClassFile cf;
             try {
-                cf = ClassParser.parse(artifact.loadClassFile(class_));
+                InputStream art = null;
+                try {
+                    art = artifact.loadClassFile(class_);
+                } catch (NoSuchFileException e1) {
+                    if (isNameExternal(class_)) {
+                        art = Object.class.getResourceAsStream("/" + class_.replace('.', '/') + ".class");
+                    }
+                    if (art == null) {
+                        throw e1;
+                    }
+                }
+                cf = ClassParser.parse(art);
                 if (!cf.this_class.equals(class_)) {
                     throw new ClassNotFoundException("Could not load class due to mismatched names!");
                 }
             } catch (IOException e) {
-                if (nullForExternal && isNameExternal(class_)) {
-                    cf = null;
-                } else {
-                    throw new ClassNotFoundException("Could not load class: " + class_, e);
-                }
+                throw new ClassNotFoundException("Could not load class: " + class_, e);
             }
             loaded.put(class_, cf);
             return cf;
@@ -233,7 +275,7 @@ public class PhaseVerifier {
         return class_.startsWith("java.");
     }
 
-    private Phase getDeclaredPhase(MethodInfo m) throws ClassFormatException {
+    private Phase getDeclaredPhase(MethodInfo m) throws ClassFormatException, ClassNotFoundException {
         if (m == null) {
             throw new NullPointerException();
         }
@@ -247,6 +289,7 @@ public class PhaseVerifier {
                 }
             }
         }
+        boolean fromInit = false;
         if (m.name.equals("<clinit>")) {
             if (found != null) {
                 throw new ClassFormatException("Expected no annotations on static initializers.");
@@ -254,13 +297,40 @@ public class PhaseVerifier {
             found = Phase.SETUP;
         } else if (m.name.equals("<init>")) {
             if (found == null) {
-                found = Phase.SETUP;
+                found = isException(m.declaringClass) ? Phase.IGNORED : Phase.SETUP;
+                fromInit = true;
             }
-            if (found != Phase.SETUP) {
-                warn(m.declaringClass.getSourceFile(), m.getLineNumberFor(0) - 1, "Initializer declared with non-SETUP phase");
+        } else if (m.isGetter() && found == null) {
+            found = Phase.IGNORED;
+        } else if ((m.declaringClass.access & ClassParser.ACC_ENUM) != 0 && m.name.equals("values") && m.parameters.length == 0) {
+            if (found == null) {
+                found = Phase.IGNORED;
+            } else {
+                warn(m.declaringClass.getSourceFile(), m.getLineNumberFor(0) - 1, "Enum values() declared with a phase");
+            }
+        }
+        if (isNameExternal(m.declaringClass.this_class)) {
+            Phase a = externals.get(m.declaringClass.this_class + "." + m.name + "(" + m.parameters.length + ")");
+            Phase b = externals.get(m.declaringClass.this_class + "." + m.name);
+            Phase c = externals.get(m.declaringClass.this_class + ".*");
+            Phase look = (a != null ? a : b != null ? b : c);
+            if (look != null) {
+                if (found == null) {
+                    found = look;
+                } else if (found != look) {
+                    if (fromInit) {
+                        found = look;
+                    } else {
+                        warn(m.declaringClass.getSourceFile(), m.getLineNumberFor(0) - 1, "Attempt to declare external phase override on " + m);
+                    }
+                }
             }
         }
         return found;
+    }
+
+    private boolean isException(ClassFile cls) throws ClassNotFoundException {
+        return cls.this_class.equals("java.lang.Throwable") || (cls.super_class != null && isException(getSuperClass(cls)));
     }
 
     private int verifyAll() throws ClassNotFoundException, ClassFormatException {
@@ -272,7 +342,7 @@ public class PhaseVerifier {
     }
 
     private void verify(String className) throws ClassNotFoundException, ClassFormatException {
-        verify(loadClass(className, false));
+        verify(loadClass(className));
     }
 
     private void verify(ClassFile cls) throws ClassNotFoundException, ClassFormatException {
@@ -285,15 +355,24 @@ public class PhaseVerifier {
         if (m == null) {
             throw new NullPointerException();
         }
+        if (m.isAnnotationPresent(SuppressPhaseWarnings.class.getName())) {
+            return;
+        }
         Phase p = getPhase(m);
         if (p == null) {
             // warn("No phase declared on method: " + m);
         } else {
             for (RefInfo target : enumerateReferences(m)) {
+                // TODO: handle the case where this is actually an unrelated
+                // construction of the superclass
+                if ("<init>".equals(m.name) && "<init>".equals(target.callee.name) && target.callee.declaringClass == getSuperClass(m.declaringClass)) {
+                    // don't worry about superclass constructors.
+                    continue;
+                }
                 Phase tp = getPhase(target.callee);
                 if (tp == null) {
-                    warn(target.callerFile, target.callerLine, "Call to unphased method " + target.callee.declaringClass.this_class + "." + target.callee.name);
-                } else if (tp != p) {
+                    warn(target.callerFile, target.callerLine, "Call to unphased method " + target.callee.declaringClass.this_class + "." + target.callee.name + " from " + m.name + m.descriptor);
+                } else if (!tp.allowedFrom(p)) {
                     warn(target.callerFile, target.callerLine, "Out-of-phase call from " + p + " to " + tp);
                 }
             }
@@ -322,27 +401,29 @@ public class PhaseVerifier {
                 // IGNORE THE METHOD BODIES - THEY SHOULD BE VERIFIED.
                 continue;
             }
-            cp.requireTagOf(ClassParser.CONSTANT_Methodref, ClassParser.CONSTANT_InterfaceMethodref);
-            String class_name = m.declaringClass.getConst(cp.alpha).asClass();
-            CPInfo name_and_type = m.declaringClass.getConst(cp.beta);
-            name_and_type.requireTag(ClassParser.CONSTANT_NameAndType);
-            String name = m.declaringClass.getConst(name_and_type.alpha).asUTF8();
-            String descriptor = m.declaringClass.getConst(name_and_type.beta).asUTF8();
-            ClassFile loadClass = this.loadClass(class_name, true);
-            if (loadClass == null) {
-                continue; // external
-            }
-            MethodInfo referencedMethod = this.getProvidedMethod(loadClass, name, ClassParser.parseMethodDescriptorArguments(descriptor));
-            if (referencedMethod == null) {
-                throw new ClassFormatException("Cannot resolve reference to " + class_name + "." + name + descriptor + " in " + m);
-            }
             RefInfo rfi = new RefInfo();
             rfi.callerFile = ri.getSourceFile();
             rfi.callerLine = ri.getLineNumber();
-            rfi.callee = referencedMethod;
+            rfi.callee = getMethodRef(m, cp);
             refs.add(rfi);
         }
         return refs.toArray(new RefInfo[refs.size()]);
+    }
+
+    private MethodInfo getMethodRef(MethodInfo m, CPInfo cp) throws ClassFormatException, ClassNotFoundException {
+        MethodInfo referencedMethod;
+        cp.requireTagOf(ClassParser.CONSTANT_Methodref, ClassParser.CONSTANT_InterfaceMethodref);
+        String class_name = m.declaringClass.getConst(cp.alpha).asClass();
+        CPInfo name_and_type = m.declaringClass.getConst(cp.beta);
+        name_and_type.requireTag(ClassParser.CONSTANT_NameAndType);
+        String name = m.declaringClass.getConst(name_and_type.alpha).asUTF8();
+        String descriptor = m.declaringClass.getConst(name_and_type.beta).asUTF8();
+        ClassFile file = class_name.startsWith("[") ? loadClass("java.lang.Object") : loadClass(class_name);
+        referencedMethod = this.getProvidedMethod(file, name, ClassParser.parseMethodDescriptorArguments(descriptor));
+        if (referencedMethod == null) {
+            throw new ClassFormatException("Cannot resolve reference to " + class_name + "." + name + descriptor + " in " + m);
+        }
+        return referencedMethod;
     }
 
     private void warn(String file, int line, String string) {

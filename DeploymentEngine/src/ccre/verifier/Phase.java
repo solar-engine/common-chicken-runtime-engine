@@ -21,11 +21,30 @@ package ccre.verifier;
 import java.lang.annotation.Annotation;
 
 enum Phase {
-    SETUP(SetupPhase.class), FLOW(FlowPhase.class), IMPERATIVE(ImperativePhase.class);
+    SETUP(SetupPhase.class) {
+    },
+    FLOW(FlowPhase.class) {
+        @Override
+        public boolean allowedFrom(Phase from) {
+            return from == this || from == SETUP || from == IMPERATIVE;
+        }
+    },
+    IMPERATIVE(ImperativePhase.class) {
+    },
+    IGNORED(IgnoredPhase.class) {
+        @Override
+        public boolean allowedFrom(Phase from) {
+            return true;
+        }
+    };
 
     public final Class<? extends Annotation> annot;
 
     private Phase(Class<? extends Annotation> annot) {
         this.annot = annot;
+    }
+
+    public boolean allowedFrom(Phase from) {
+        return this == from;
     }
 }

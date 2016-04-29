@@ -55,6 +55,10 @@ class WebcamThread {
         this.notifyAll();
     }
 
+    public String getAddress() {
+        return address;
+    }
+
     public void terminate() {
         Logger.finest("Terminating webcam connection to " + address + ".");
         terminate = true;

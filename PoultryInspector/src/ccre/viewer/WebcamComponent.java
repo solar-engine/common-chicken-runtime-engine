@@ -68,6 +68,9 @@ public class WebcamComponent extends DraggableBoxComponent {
 
         public CancelOutput connect(WebcamComponent component) {
             return onChange.send(() -> {
+                if (address.equals(component.getAddress())) {
+                    return;
+                }
                 component.setAddress(address);
             });
         }
@@ -117,6 +120,10 @@ public class WebcamComponent extends DraggableBoxComponent {
         if (link != null) {
             this.cluckCancel = getEntry(link).connect(this);
         }
+    }
+
+    private String getAddress() {
+        return this.webcam == null ? null : this.webcam.getAddress();
     }
 
     private synchronized void setAddress(String address) {

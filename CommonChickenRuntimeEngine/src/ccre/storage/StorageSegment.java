@@ -80,7 +80,7 @@ public final class StorageSegment {
         if (unescaped_name == null) {
             throw new NullPointerException("Storage names cannot be null");
         }
-        StringBuffer buf = new StringBuffer(unescaped_name);
+        StringBuilder buf = new StringBuilder(unescaped_name);
         for (int i = buf.length() - 1; i >= 0; i--) {
             char c = buf.charAt(i);
             if (c == ' ') {

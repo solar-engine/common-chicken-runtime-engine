@@ -19,6 +19,7 @@
 package ccre.bus;
 
 import java.io.Closeable;
+import java.io.Flushable;
 import java.io.IOException;
 
 import ccre.verifier.FlowPhase;
@@ -29,7 +30,7 @@ import ccre.verifier.SetupPhase;
  *
  * @author skeggsc
  */
-public interface RS232IO extends Closeable {
+public interface RS232IO extends Closeable, Flushable {
 
     /**
      * Resets the serial port to a known state, such as emptying all buffers.
@@ -88,6 +89,7 @@ public interface RS232IO extends Closeable {
      *
      * @throws IOException if an error occurred while flushing.
      */
+    @Override
     @FlowPhase
     public void flush() throws IOException;
 

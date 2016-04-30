@@ -19,6 +19,7 @@
 package ccre.verifier;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.NoSuchFileException;
@@ -61,13 +62,15 @@ public class PhaseVerifier {
     private final HashMap<MethodInfo, Phase> known = new HashMap<>();
     private final HashMap<String, ClassFile> loaded = new HashMap<>();
     private int warnings;
+    private final Artifact[] deps;
 
-    private PhaseVerifier(Artifact artifact) {
+    private PhaseVerifier(Artifact artifact, Artifact[] deps) {
         this.artifact = artifact;
+        this.deps = deps;
     }
 
-    public static void verify(Artifact artifact) throws ClassNotFoundException, ClassFormatException {
-        int warnings = new PhaseVerifier(artifact).verifyAll();
+    public static void verify(Artifact target, Artifact... deps) {
+        int warnings = new PhaseVerifier(target, deps).verifyAll();
         Logger.warning("Found " + warnings + " warnings during phase verification.");
     }
 
@@ -236,6 +239,21 @@ public class PhaseVerifier {
         }
     }
 
+    private InputStream loadClassFile(String class_) throws IOException {
+        try {
+            return artifact.loadClassFile(class_);
+        } catch (IOException e) {
+            for (Artifact art : deps) {
+                try {
+                    return art.loadClassFile(class_);
+                } catch (IOException ex) {
+                    // continue
+                }
+            }
+            throw e;
+        }
+    }
+
     private ClassFile loadClass(String class_) throws ClassNotFoundException {
         if (class_.indexOf('/') != -1) {
             throw new IllegalArgumentException("Class names cannot contain slashes!");
@@ -247,8 +265,8 @@ public class PhaseVerifier {
             try {
                 InputStream art = null;
                 try {
-                    art = artifact.loadClassFile(class_);
-                } catch (NoSuchFileException e1) {
+                    art = loadClassFile(class_);
+                } catch (FileNotFoundException | NoSuchFileException e1) {
                     if (isNameExternal(class_)) {
                         art = Object.class.getResourceAsStream("/" + class_.replace('.', '/') + ".class");
                     }
@@ -333,10 +351,14 @@ public class PhaseVerifier {
         return cls.this_class.equals("java.lang.Throwable") || (cls.super_class != null && isException(getSuperClass(cls)));
     }
 
-    private int verifyAll() throws ClassNotFoundException, ClassFormatException {
+    private int verifyAll() {
         warnings = 0;
         for (String className : artifact.listClassNames()) {
-            verify(className);
+            try {
+                verify(className);
+            } catch (ClassNotFoundException | ClassFormatException e) {
+                Logger.severe("Could not phase-verify class: " + className + ": " + e.getMessage());
+            }
         }
         return warnings;
     }

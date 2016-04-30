@@ -25,6 +25,7 @@ import ccre.channel.FloatCell;
 import ccre.channel.FloatInput;
 import ccre.time.Time;
 import ccre.verifier.FlowPhase;
+import ccre.verifier.SetupPhase;
 
 /**
  * A generic PID Controller for use in CCRE applications. Supports online tuning
@@ -73,6 +74,7 @@ public class PIDController implements FloatInput, EventOutput {
      * @return the PID controller, which is also an input representing the
      * current value.
      */
+    @SetupPhase
     public static PIDController createFixed(EventInput trigger, FloatInput input, FloatInput setpoint, float p, float i, float d) {
         PIDController ctrl = new PIDController(input, setpoint, FloatInput.always(p), FloatInput.always(i), FloatInput.always(d));
         ctrl.updateWhen(trigger);
@@ -104,6 +106,7 @@ public class PIDController implements FloatInput, EventOutput {
      *
      * @param maximumAbsolute the maximum absolute value.
      */
+    @SetupPhase
     public void setOutputBounds(float maximumAbsolute) {
         setOutputBounds(FloatInput.always(maximumAbsolute));
     }
@@ -113,6 +116,7 @@ public class PIDController implements FloatInput, EventOutput {
      *
      * @param maximumAbsolute the maximum absolute value.
      */
+    @SetupPhase
     public void setOutputBounds(FloatInput maximumAbsolute) {
         maxAbsOutput = maximumAbsolute;
     }
@@ -122,6 +126,7 @@ public class PIDController implements FloatInput, EventOutput {
      *
      * @param maximumAbsolute the maximum absolute value.
      */
+    @SetupPhase
     public void setIntegralBounds(float maximumAbsolute) {
         setIntegralBounds(FloatInput.always(maximumAbsolute));
     }
@@ -131,6 +136,7 @@ public class PIDController implements FloatInput, EventOutput {
      *
      * @param maximumAbsolute the maximum absolute value.
      */
+    @SetupPhase
     public void setIntegralBounds(FloatInput maximumAbsolute) {
         maxAbsIntegral = maximumAbsolute;
     }
@@ -142,6 +148,7 @@ public class PIDController implements FloatInput, EventOutput {
      *
      * @param delta the new maximum time delta, in seconds.
      */
+    @SetupPhase
     public void setMaximumTimeDelta(float delta) {
         setMaximumTimeDelta(FloatInput.always(delta));
     }
@@ -153,6 +160,7 @@ public class PIDController implements FloatInput, EventOutput {
      *
      * @param delta the new maximum time delta, in seconds.
      */
+    @SetupPhase
     public void setMaximumTimeDelta(FloatInput delta) {
         this.maximumTimeDelta = delta;
     }
@@ -162,6 +170,7 @@ public class PIDController implements FloatInput, EventOutput {
      *
      * @param when the event to trigger the controller with.
      */
+    @SetupPhase
     public void updateWhen(EventInput when) {
         when.send(this);
     }
@@ -231,10 +240,12 @@ public class PIDController implements FloatInput, EventOutput {
      *
      * @return the previous error
      */
+    @FlowPhase
     public float getPreviousError() {
         return previousError;
     }
 
+    @FlowPhase
     public void reset() {
         integralTotal.set(0);
     }

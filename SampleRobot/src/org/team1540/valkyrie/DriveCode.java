@@ -11,6 +11,7 @@ import ccre.cluck.Cluck;
 import ccre.ctrl.binding.ControlBindingCreator;
 import ccre.frc.FRC;
 import ccre.recording.Recorder;
+import ccre.verifier.SetupPhase;
 
 public class DriveCode {
     private static final ControlBindingCreator controls = FRC.controlBinding();
@@ -20,6 +21,7 @@ public class DriveCode {
     private static final BehaviorArbitrator driveControl = new BehaviorArbitrator("Drive Base").publish();
     private static final ArbitratedFloat leftMotors = driveControl.addFloat(), rightMotors = driveControl.addFloat();
 
+    @SetupPhase
     public static void setup(Recorder rc) {
         rc.recordBehaviors(driveControl);
         driveCode();
@@ -30,6 +32,7 @@ public class DriveCode {
         rightMotors.send(FloatOutput.combine(FRC.talon(1, FRC.MOTOR_REVERSE), FRC.talon(2, FRC.MOTOR_REVERSE), FRC.talon(3, FRC.MOTOR_REVERSE)));
     }
 
+    @SetupPhase
     private static void driveCode() {
         Behavior defaultBehavior = driveControl.addBehavior("Teleop", FRC.inTeleopMode());
         BooleanInput shifted = controls.addToggleButton("Drive Shift Low", "Drive Shift High", "Drive Shift Toggle");
@@ -39,6 +42,7 @@ public class DriveCode {
         rightMotors.attach(defaultBehavior, controls.addFloat("Drive Right").multipliedBy(shiftMul).plus(triggerTerm));
     }
 
+    @SetupPhase
     private static void pitMode() {
         BooleanCell pitMode = new BooleanCell();
         Cluck.publish("(PIT) Pit Mode", pitMode);
@@ -49,6 +53,7 @@ public class DriveCode {
         rightMotors.attach(pitBehavior, FloatInput.zero);
     }
 
+    @SetupPhase
     private static void currentFault() {
         Behavior disableBehavior = driveControl.addBehavior("Current Fault", disableMotorsForCurrentFault);
         leftMotors.attach(disableBehavior, FloatInput.zero);

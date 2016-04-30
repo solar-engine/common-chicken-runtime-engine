@@ -31,6 +31,7 @@ import ccre.discrete.DiscreteInput;
 import ccre.discrete.DiscreteType;
 import ccre.rconf.RConf;
 import ccre.rconf.RConfable;
+import ccre.verifier.FlowPhase;
 import ccre.verifier.SetupPhase;
 
 /**
@@ -80,11 +81,13 @@ public class BehaviorArbitrator implements RConfable {
      *
      * @return this instance, for method chaining.
      */
+    @SetupPhase
     public BehaviorArbitrator publish() {
         Cluck.publishRConf(this.name + " Behavior", this);
         return this;
     }
 
+    @FlowPhase
     private synchronized void checkUpdate() {
         Behavior target = null;
         for (Behavior b : behaviors) {
@@ -95,6 +98,7 @@ public class BehaviorArbitrator implements RConfable {
         setActiveBehavior(target);
     }
 
+    @FlowPhase
     private synchronized void setActiveBehavior(Behavior behavior) {
         if (active == behavior) {
             return;
@@ -111,6 +115,7 @@ public class BehaviorArbitrator implements RConfable {
      * @return the arbitrated Float channel
      * @see #addFloat()
      */
+    @SetupPhase
     public ArbitratedFloat addFloat(FloatInput base) {
         if (base == null) {
             throw new NullPointerException();
@@ -127,6 +132,7 @@ public class BehaviorArbitrator implements RConfable {
      * @return the arbitrated Float channel
      * @see #addFloat(FloatInput)
      */
+    @SetupPhase
     public ArbitratedFloat addFloat() {
         return addFloat(FloatInput.zero);
     }
@@ -139,6 +145,7 @@ public class BehaviorArbitrator implements RConfable {
      * @return the arbitrated Boolean channel
      * @see #addBoolean()
      */
+    @SetupPhase
     public ArbitratedBoolean addBoolean(BooleanInput base) {
         if (base == null) {
             throw new NullPointerException();
@@ -155,6 +162,7 @@ public class BehaviorArbitrator implements RConfable {
      * @return the arbitrated Boolean channel
      * @see #addBoolean(BooleanInput)
      */
+    @SetupPhase
     public ArbitratedBoolean addBoolean() {
         return addBoolean(BooleanInput.alwaysFalse);
     }
@@ -167,6 +175,7 @@ public class BehaviorArbitrator implements RConfable {
      * @return the arbitrated Event channel
      * @see #addEvent()
      */
+    @SetupPhase
     public ArbitratedEvent addEvent(EventInput base) {
         if (base == null) {
             throw new NullPointerException();
@@ -183,6 +192,7 @@ public class BehaviorArbitrator implements RConfable {
      * @return the arbitrated Event channel
      * @see #addEvent(EventInput)
      */
+    @SetupPhase
     public ArbitratedEvent addEvent() {
         return addEvent(EventInput.never);
     }
@@ -193,6 +203,7 @@ public class BehaviorArbitrator implements RConfable {
      *
      * @return a BooleanInput
      */
+    @SetupPhase
     public BooleanInput getIsInactive() {
         return new DerivedBooleanInput(onActiveUpdateCell) {
             @Override
@@ -210,6 +221,7 @@ public class BehaviorArbitrator implements RConfable {
      * @param behavior the behavior to monitor
      * @return a BooleanInput
      */
+    @SetupPhase
     public BooleanInput getIsActive(Behavior behavior) {
         if (behavior == null) {
             throw new NullPointerException();
@@ -235,6 +247,7 @@ public class BehaviorArbitrator implements RConfable {
      * @param request when this behavior should be trying to activate.
      * @return the created Behavior.
      */
+    @SetupPhase
     public Behavior addBehavior(String name, BooleanInput request) {
         if (name == null || request == null) {
             throw new NullPointerException();
@@ -251,6 +264,7 @@ public class BehaviorArbitrator implements RConfable {
      *
      * @return the behavior change event.
      */
+    @SetupPhase
     public EventInput onBehaviorChange() {
         return this.onActiveUpdate;
     }
@@ -260,6 +274,7 @@ public class BehaviorArbitrator implements RConfable {
      * 
      * @param event the event to fire
      */
+    @SetupPhase
     public void onBehaviorChange(EventOutput event) {
         this.onActiveUpdate.send(event);
     }

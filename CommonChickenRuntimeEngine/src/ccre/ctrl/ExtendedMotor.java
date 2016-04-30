@@ -302,6 +302,7 @@ public abstract class ExtendedMotor {
      * @param D the derivative factor in the tuning.
      * @throws ExtendedMotorFailureException if the PID cannot be set.
      */
+    @FlowPhase
     public abstract void setInternalPID(float P, float I, float D) throws ExtendedMotorFailureException;
 
     /**

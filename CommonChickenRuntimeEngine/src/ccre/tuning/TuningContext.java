@@ -117,6 +117,7 @@ public final class TuningContext {
      * @param default_ the default value.
      * @return the FloatCell representing the current value.
      */
+    @SetupPhase
     public FloatCell getFloat(String name, float default_) {
         FloatCell out = new FloatCell(default_);
         segment.attachFloatHolder(name, out);
@@ -132,6 +133,7 @@ public final class TuningContext {
      * @param default_ the default value.
      * @return the BooleanCell representing the current value.
      */
+    @SetupPhase
     public BooleanCell getBoolean(String name, boolean default_) {
         BooleanCell out = new BooleanCell(default_);
         segment.attachBooleanHolder(name, out);
@@ -174,6 +176,7 @@ public final class TuningContext {
      * by "Save Tuning for ".)
      * @return This TuningContext. Returned for method chaining purposes.
      */
+    @SetupPhase
     public TuningContext publishSavingEvent(String name) {
         CluckPublisher.publish(node, "Save Tuning for " + name, getFlushEvent());
         return this;
@@ -187,6 +190,7 @@ public final class TuningContext {
      *
      * @return This TuningContext. Returned for method chaining purposes.
      */
+    @SetupPhase
     public TuningContext publishSavingEvent() {
         String name = segment.getName();
         return publishSavingEvent(name == null ? UniqueIds.global.nextHexId("anonymous") : name);

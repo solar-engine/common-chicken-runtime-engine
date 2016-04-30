@@ -241,6 +241,7 @@ public interface FloatInput extends UpdatingInput {
      * @param other the other value to include.
      * @return the combined FloatInput.
      */
+    @SetupPhase
     public default FloatInput multipliedBy(float other) {
         return FloatOperation.multiplication.of(this, other);
     }

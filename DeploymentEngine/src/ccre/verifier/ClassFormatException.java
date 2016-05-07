@@ -20,7 +20,9 @@ package ccre.verifier;
 
 import java.io.IOException;
 
-public class ClassFormatException extends IOException {
+class ClassFormatException extends IOException {
+    private static final long serialVersionUID = -1706180584928300363L;
+
     public ClassFormatException() {
         super();
     }

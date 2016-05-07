@@ -28,7 +28,7 @@ import ccre.verifier.ClassParser.ClassFile;
 import ccre.verifier.ClassParser.ExceptionHandlerInfo;
 import ccre.verifier.ClassParser.MethodInfo;
 
-public class BytecodeParser {
+class BytecodeParser {
     private final byte[] code;
     private final ExceptionHandlerInfo[] handlers;
     private final int[] block_begins;

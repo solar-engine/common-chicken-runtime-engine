@@ -40,7 +40,6 @@ import java.util.jar.Manifest;
 
 import ccre.frc.FRCApplication;
 import ccre.log.Logger;
-import ccre.verifier.PhaseVerifier;
 
 /**
  * A collection of utilities for building and downloading code for the roboRIO.

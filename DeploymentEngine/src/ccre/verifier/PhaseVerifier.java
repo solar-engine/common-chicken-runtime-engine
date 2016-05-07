@@ -18,7 +18,6 @@
  */
 package ccre.verifier;
 
-import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -31,7 +30,6 @@ import java.util.HashSet;
 import java.util.Map;
 
 import ccre.deployment.Artifact;
-import ccre.deployment.Jar;
 import ccre.log.Logger;
 import ccre.storage.StorageSegment;
 import ccre.verifier.BytecodeParser.ReferenceInfo;
@@ -60,9 +58,9 @@ public class PhaseVerifier {
         }
     }
 
-    public static void main(String[] args) throws Exception {
-        PhaseVerifier.verify(new Jar(new File("../CommonChickenRuntimeEngine/CCRE.jar")));
-    }
+//    public static void main(String[] args) throws Exception {
+//        PhaseVerifier.verify(new Jar(new File("../CommonChickenRuntimeEngine/CCRE.jar")));
+//    }
 
     private final Artifact artifact;
     private final HashMap<MethodInfo, Phase> known = new HashMap<>();

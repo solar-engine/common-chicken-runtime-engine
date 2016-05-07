@@ -253,7 +253,7 @@ class ClassParser extends DataInputStream {
             int num_element_value_pairs = din.readUnsignedShort();
             for (int j = 0; j < num_element_value_pairs; j++) {
                 String element_name = declaringClass.getConst(din.readUnsignedShort()).asUTF8();
-                // discard element_name
+                element_name.hashCode(); // discard element_name
                 discardElementValue(din);
             }
             return type;

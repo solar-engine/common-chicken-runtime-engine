@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 Cel Skeggs.
+ * Copyright 2015-2016 Cel Skeggs.
  *
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  *
@@ -147,4 +147,6 @@ public abstract class Artifact implements AutoCloseable {
         }
         return jb.build();
     }
+
+    public abstract void close() throws IOException;
 }

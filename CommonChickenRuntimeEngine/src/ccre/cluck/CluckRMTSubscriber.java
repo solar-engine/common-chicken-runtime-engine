@@ -18,6 +18,8 @@
  */
 package ccre.cluck;
 
+import ccre.verifier.FlowPhase;
+
 /**
  * A wrapper around CluckSubscriber to handle its common use scenario.
  *
@@ -72,6 +74,7 @@ public abstract class CluckRMTSubscriber extends CluckSubscriber {
      * @param source the source from which the message originated.
      * @param data the data contained in the message, including header.
      */
+    @FlowPhase
     protected abstract void receiveValid(String source, byte[] data);
 
     /**
@@ -80,6 +83,7 @@ public abstract class CluckRMTSubscriber extends CluckSubscriber {
      * @param source the source from which the message originated.
      * @param data the data contained in the message, including header.
      */
+    @FlowPhase
     protected void receiveInvalid(String source, byte[] data) {
         // Do nothing by default.
     }

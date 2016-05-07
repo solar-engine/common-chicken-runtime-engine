@@ -18,6 +18,8 @@
  */
 package ccre.frc;
 
+import ccre.verifier.SetupPhase;
+
 /**
  * A class that holds the current FRCImplementation. This is done because the
  * implementation variable must be available before the FRC class is
@@ -32,6 +34,7 @@ public class FRCImplementationHolder {
     /**
      * @return the implementation
      */
+    @SetupPhase
     public static FRCImplementation getImplementation() {
         if (impl == null) {
             throw new RuntimeException("No FRC implementation! Are you on an FRC platform? There should be a registered implementation before ccre.frc.FRC is initialized, or this error will occur.");
@@ -42,6 +45,7 @@ public class FRCImplementationHolder {
     /**
      * @param implementation the implementation to set
      */
+    @SetupPhase
     public static void setImplementation(FRCImplementation implementation) {
         impl = implementation;
     }

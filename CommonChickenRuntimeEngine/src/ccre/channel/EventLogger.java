@@ -61,6 +61,7 @@ public final class EventLogger implements EventOutput {
         this.message = message;
     }
 
+    @Override
     public void event() {
         Logger.log(level, message);
     }

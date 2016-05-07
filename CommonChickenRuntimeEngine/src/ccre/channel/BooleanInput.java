@@ -18,6 +18,9 @@
  */
 package ccre.channel;
 
+import ccre.verifier.FlowPhase;
+import ccre.verifier.SetupPhase;
+
 /**
  * A BooleanInput is a way to get the current state of a boolean input, and to
  * subscribe to notifications of changes in the boolean input's value.
@@ -33,6 +36,7 @@ public interface BooleanInput extends UpdatingInput {
      * A BooleanInput that is always false.
      */
     public static BooleanInput alwaysFalse = new BooleanInput() {
+        @Override
         public boolean get() {
             return false;
         }
@@ -49,6 +53,7 @@ public interface BooleanInput extends UpdatingInput {
      * A BooleanInput that is always true.
      */
     public static BooleanInput alwaysTrue = new BooleanInput() {
+        @Override
         public boolean get() {
             return true;
         }
@@ -71,6 +76,7 @@ public interface BooleanInput extends UpdatingInput {
      * @param b the value that the input should always hold.
      * @return the BooleanInput.
      */
+    @SetupPhase
     public static BooleanInput always(boolean b) {
         return b ? alwaysTrue : alwaysFalse;
     }
@@ -80,6 +86,7 @@ public interface BooleanInput extends UpdatingInput {
      *
      * @return The current value.
      */
+    @FlowPhase
     public boolean get();
 
     /**
@@ -100,6 +107,7 @@ public interface BooleanInput extends UpdatingInput {
      * NOT FIRE THIS RETURNED EVENT MORE THAN ONCE: UNDEFINED BEHAVIOR MAY
      * RESULT.
      */
+    @SetupPhase
     public default CancelOutput send(BooleanOutput output) {
         output.safeSet(get());
         return onUpdate(() -> output.set(get()));
@@ -119,6 +127,7 @@ public interface BooleanInput extends UpdatingInput {
      *
      * @return the inverted version.
      */
+    @SetupPhase
     public default BooleanInput not() {
         BooleanInput original = this;
         return new BooleanInput() {
@@ -146,6 +155,7 @@ public interface BooleanInput extends UpdatingInput {
      * @param b the other BooleanInput.
      * @return the combined BooleanInput.
      */
+    @SetupPhase
     public default BooleanInput and(final BooleanInput b) {
         if (b == null) {
             throw new NullPointerException();
@@ -166,6 +176,7 @@ public interface BooleanInput extends UpdatingInput {
      * @param b the other BooleanInput.
      * @return the combined BooleanInput.
      */
+    @SetupPhase
     public default BooleanInput andNot(final BooleanInput b) {
         return this.and(b.not());
     }
@@ -177,6 +188,7 @@ public interface BooleanInput extends UpdatingInput {
      * @param b the other BooleanInput.
      * @return the combined BooleanInput.
      */
+    @SetupPhase
     public default BooleanInput xor(final BooleanInput b) {
         if (b == null) {
             throw new NullPointerException();
@@ -197,6 +209,7 @@ public interface BooleanInput extends UpdatingInput {
      * @param b the other BooleanInput.
      * @return the combined BooleanInput.
      */
+    @SetupPhase
     public default BooleanInput or(final BooleanInput b) {
         if (b == null) {
             throw new NullPointerException();
@@ -217,6 +230,7 @@ public interface BooleanInput extends UpdatingInput {
      * @param b the other BooleanInput.
      * @return the combined BooleanInput.
      */
+    @SetupPhase
     public default BooleanInput orNot(final BooleanInput b) {
         return this.or(b.not());
     }
@@ -227,6 +241,7 @@ public interface BooleanInput extends UpdatingInput {
      *
      * @return the event that occurs when the value changes to true.
      */
+    @SetupPhase
     public default EventInput onPress() {
         return new DerivedEventInput(this) {
             @Override
@@ -242,6 +257,7 @@ public interface BooleanInput extends UpdatingInput {
      *
      * @param event the event to fire
      */
+    @SetupPhase
     public default void onPress(EventOutput event) {
         onPress().send(event);
     }
@@ -252,6 +268,7 @@ public interface BooleanInput extends UpdatingInput {
      *
      * @return the event that occurs when the value changes to false.
      */
+    @SetupPhase
     public default EventInput onRelease() {
         return new DerivedEventInput(this) {
             @Override
@@ -267,6 +284,7 @@ public interface BooleanInput extends UpdatingInput {
      *
      * @param event the event to fire
      */
+    @SetupPhase
     public default void onRelease(EventOutput event) {
         onRelease().send(event);
     }
@@ -277,6 +295,7 @@ public interface BooleanInput extends UpdatingInput {
      *
      * @return the event that occurs when the value changes.
      */
+    @SetupPhase
     public default EventInput onChange() {
         return new DerivedEventInput(this) {
             @Override
@@ -292,6 +311,7 @@ public interface BooleanInput extends UpdatingInput {
      *
      * @param event the event to fire
      */
+    @SetupPhase
     public default void onChange(EventOutput event) {
         onChange().send(event);
     }
@@ -304,6 +324,7 @@ public interface BooleanInput extends UpdatingInput {
      * @param on the value used when the BooleanInput's value is true.
      * @return the FloatInput based on this BooleanInput.
      */
+    @SetupPhase
     public default FloatInput toFloat(final float off, final float on) {
         return new DerivedFloatInput(this) {
             @Override
@@ -321,6 +342,7 @@ public interface BooleanInput extends UpdatingInput {
      * @param on the input used when the BooleanInput's value is true.
      * @return the FloatInput based on this BooleanInput.
      */
+    @SetupPhase
     public default FloatInput toFloat(float off, FloatInput on) {
         return new DerivedFloatInput(this, on) {
             @Override
@@ -338,6 +360,7 @@ public interface BooleanInput extends UpdatingInput {
      * @param on the value used when the BooleanInput's value is true.
      * @return the FloatInput based on this BooleanInput.
      */
+    @SetupPhase
     public default FloatInput toFloat(FloatInput off, float on) {
         return new DerivedFloatInput(this, off) {
             @Override
@@ -355,6 +378,7 @@ public interface BooleanInput extends UpdatingInput {
      * @param on the input used when the BooleanInput's value is true.
      * @return the FloatInput based on this BooleanInput.
      */
+    @SetupPhase
     public default FloatInput toFloat(FloatInput off, FloatInput on) {
         return new DerivedFloatInput(this, off, on) {
             @Override
@@ -377,6 +401,7 @@ public interface BooleanInput extends UpdatingInput {
      * @return the BooleanInput based on this BooleanInput and the two
      * arguments.
      */
+    @SetupPhase
     public default BooleanInput select(boolean off, boolean on) {
         return new DerivedBooleanInput(this) {
             @Override
@@ -399,6 +424,7 @@ public interface BooleanInput extends UpdatingInput {
      * @return the BooleanInput based on this BooleanInput and the two
      * arguments.
      */
+    @SetupPhase
     public default BooleanInput select(boolean off, BooleanInput on) {
         return new DerivedBooleanInput(this, on) {
             @Override
@@ -421,6 +447,7 @@ public interface BooleanInput extends UpdatingInput {
      * @return the BooleanInput based on this BooleanInput and the two
      * arguments.
      */
+    @SetupPhase
     public default BooleanInput select(BooleanInput off, boolean on) {
         return new DerivedBooleanInput(this, off) {
             @Override
@@ -443,6 +470,7 @@ public interface BooleanInput extends UpdatingInput {
      * @return the BooleanInput based on this BooleanInput and the two
      * arguments.
      */
+    @SetupPhase
     public default BooleanInput select(BooleanInput off, BooleanInput on) {
         return new DerivedBooleanInput(this, off, on) {
             @Override
@@ -463,6 +491,7 @@ public interface BooleanInput extends UpdatingInput {
      * @param allow when to allow changing of the result.
      * @return the lockable version of this BooleanInput.
      */
+    @SetupPhase
     public default BooleanInput filterUpdates(BooleanInput allow) {
         final BooleanInput original = this;
         return new DerivedBooleanInput(this, allow) {
@@ -489,6 +518,7 @@ public interface BooleanInput extends UpdatingInput {
      * @param deny when to deny changing of the result.
      * @return the lockable version of this BooleanInput.
      */
+    @SetupPhase
     public default BooleanInput filterUpdatesNot(BooleanInput deny) {
         return this.filterUpdates(deny.not());
     }

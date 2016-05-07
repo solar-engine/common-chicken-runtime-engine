@@ -24,6 +24,7 @@ import java.io.OutputStream;
 
 import ccre.log.Logger;
 import ccre.time.Time;
+import ccre.verifier.SetupPhase;
 
 /**
  * A simple implementation of RemoteProcedure that takes care of returning
@@ -57,6 +58,7 @@ public abstract class SimpleProcedure implements RemoteProcedure {
      * interrupted while waiting for a response.
      * @see #TIMED_OUT
      */
+    @SetupPhase
     public static byte[] invoke(RemoteProcedure rp, byte[] in, int timeout) throws InterruptedException {
         final boolean[] b = new boolean[1];
         final Object invk = new Object();
@@ -88,6 +90,7 @@ public abstract class SimpleProcedure implements RemoteProcedure {
         return out.toByteArray();
     }
 
+    @Override
     public final void invoke(byte[] in, OutputStream out) {
         try {
             out.write(invoke(in));
@@ -104,5 +107,6 @@ public abstract class SimpleProcedure implements RemoteProcedure {
      * @param in The inputs to the procedure.
      * @return The results from the procedure.
      */
+    @SetupPhase
     protected abstract byte[] invoke(byte[] in);
 }

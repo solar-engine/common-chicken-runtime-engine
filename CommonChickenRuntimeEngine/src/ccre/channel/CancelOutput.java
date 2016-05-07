@@ -18,6 +18,8 @@
  */
 package ccre.channel;
 
+import ccre.verifier.SetupPhase;
+
 /**
  * A once-off event that reverts some piece of dataflow set-up. For example,
  * {@link EventInput#send(EventOutput)} returns a <code>CancelOutput</code> that
@@ -36,6 +38,7 @@ public interface CancelOutput {
         public void cancel() {
         }
 
+        @Override
         public CancelOutput combine(CancelOutput other) {
             return other;
         }
@@ -45,6 +48,7 @@ public interface CancelOutput {
      * Cancels this CancelOutput, which means something based on where it was
      * acquired from.
      */
+    @SetupPhase
     public void cancel();
 
     /**
@@ -55,6 +59,7 @@ public interface CancelOutput {
      * @param other the other CancelOutput to include
      * @return the combined CancelOutput
      */
+    @SetupPhase
     public default CancelOutput combine(CancelOutput other) {
         return () -> {
             cancel();

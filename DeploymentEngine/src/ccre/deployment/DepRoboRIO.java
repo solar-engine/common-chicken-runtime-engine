@@ -40,6 +40,7 @@ import java.util.jar.Manifest;
 
 import ccre.frc.FRCApplication;
 import ccre.log.Logger;
+import ccre.verifier.PhaseVerifier;
 
 /**
  * A collection of utilities for building and downloading code for the roboRIO.
@@ -498,6 +499,10 @@ public class DepRoboRIO {
         // the Deployment class won't build.
         // TODO: could there be a better solution for this?
         Artifact newcode = DepJava.build(source, DepRoboRIO.getJarFile(LIBS_THICK));
+        // TODO: re-enable this verifier
+//        try (Jar jar = DepRoboRIO.getJar(LIBS_THICK)) {
+//            PhaseVerifier.verify(newcode, jar);
+//        }
         return DepJar.combine(DepRoboRIO.manifest(main), JarBuilder.DELETE, newcode, DepRoboRIO.getJar(LIBS_THIN));
     }
 

@@ -18,6 +18,9 @@
  */
 package ccre.channel;
 
+import ccre.verifier.FlowPhase;
+import ccre.verifier.SetupPhase;
+
 /**
  * A FloatOperation provides a generic operation that takes two Float values as
  * inputs.
@@ -85,6 +88,7 @@ public abstract class FloatOperation {
      * @param b the second operand to the operation.
      * @return the result of the operation applied to these operands.
      */
+    @FlowPhase
     public abstract float of(float a, float b);
 
     /**
@@ -96,6 +100,7 @@ public abstract class FloatOperation {
      * @return a channel representing the result of the operation applied to
      * these operands.
      */
+    @SetupPhase
     public FloatInput of(float a, FloatInput b) {
         return new DerivedFloatInput(b) {
             @Override
@@ -114,6 +119,7 @@ public abstract class FloatOperation {
      * @return a channel representing the result of the operation applied to
      * these operands.
      */
+    @SetupPhase
     public FloatInput of(FloatInput a, float b) {
         return new DerivedFloatInput(a) {
             @Override
@@ -132,6 +138,7 @@ public abstract class FloatOperation {
      * @return a channel representing the result of the operation applied to
      * these operands.
      */
+    @SetupPhase
     public FloatInput of(FloatInput a, FloatInput b) {
         return new DerivedFloatInput(a, b) {
             @Override
@@ -149,6 +156,7 @@ public abstract class FloatOperation {
      * @param b the second operand to the operation.
      * @return a channel representing the first operand to the operation.
      */
+    @SetupPhase
     public FloatOutput of(final FloatOutput out, final float b) {
         if (out == null) {
             throw new NullPointerException();
@@ -164,6 +172,7 @@ public abstract class FloatOperation {
      * @param b a channel representing the second operand to the operation.
      * @return a channel representing the first operand to the operation.
      */
+    @SetupPhase
     public FloatOutput of(final FloatOutput out, final FloatInput b) {
         if (out == null || b == null) {
             throw new NullPointerException();
@@ -180,6 +189,7 @@ public abstract class FloatOperation {
                 });
             }
 
+            @Override
             public void set(float value) {
                 lastValue = value;
                 anyValue = true;
@@ -196,6 +206,7 @@ public abstract class FloatOperation {
      * @param out a channel representing the output of the operation.
      * @return a channel representing the second operand to the operation.
      */
+    @SetupPhase
     public FloatOutput of(final float a, final FloatOutput out) {
         if (out == null) {
             throw new NullPointerException();
@@ -211,6 +222,7 @@ public abstract class FloatOperation {
      * @param out a channel representing the output of the operation.
      * @return a channel representing the second operand to the operation.
      */
+    @SetupPhase
     public FloatOutput of(final FloatInput a, final FloatOutput out) {
         if (a == null || out == null) {
             throw new NullPointerException();
@@ -227,6 +239,7 @@ public abstract class FloatOperation {
                 });
             }
 
+            @Override
             public void set(float value) {
                 lastValue = value;
                 anyValue = true;

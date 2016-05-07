@@ -21,6 +21,8 @@ package ccre.util;
 import java.io.IOException;
 import java.io.OutputStream;
 
+import ccre.verifier.FlowPhase;
+
 /**
  * Collects each line sent on this OutputStream and sends them to a single
  * collector. Does not properly decode strings! Only works with ASCII.
@@ -54,5 +56,6 @@ public abstract class LineCollectorOutputStream extends OutputStream {
      *
      * @param param The received line.
      */
+    @FlowPhase
     protected abstract void collect(String param);
 }

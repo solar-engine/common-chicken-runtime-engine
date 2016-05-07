@@ -19,6 +19,8 @@
 package ccre.channel;
 
 import ccre.util.Utils;
+import ccre.verifier.FlowPhase;
+import ccre.verifier.SetupPhase;
 
 /**
  * A FloatFilter is a stateless transformer that can be wrapped around any
@@ -54,6 +56,7 @@ public abstract class FloatFilter {
      * @param input The input to filter.
      * @return The filtered value.
      */
+    @FlowPhase
     public abstract float filter(float input);
 
     /**
@@ -63,6 +66,7 @@ public abstract class FloatFilter {
      * @param input The input to filter.
      * @return the filtered input.
      */
+    @SetupPhase
     public FloatInput wrap(final FloatInput input) {
         if (input == null) {
             throw new NullPointerException();
@@ -79,6 +83,7 @@ public abstract class FloatFilter {
      * @param output the output to write filtered values to.
      * @return the output to write values to in order to filter them.
      */
+    @SetupPhase
     public FloatOutput wrap(final FloatOutput output) {
         if (output == null) {
             throw new NullPointerException();
@@ -95,6 +100,7 @@ public abstract class FloatFilter {
      * @return The filter representing this deadzone size.
      * @see ccre.util.Utils#deadzone(float, float)
      */
+    @SetupPhase
     public static FloatFilter deadzone(final float deadzone) {
         if (!Float.isFinite(deadzone) || deadzone < 0) {
             throw new IllegalArgumentException("deadzones cannot be NaN, infinite, or less than or equal to zero!");
@@ -120,6 +126,7 @@ public abstract class FloatFilter {
      * @return The filter representing the specified limit.
      * @throws IllegalArgumentException if maximum is less than minimum
      */
+    @SetupPhase
     public static FloatFilter limit(final float minimum, final float maximum) throws IllegalArgumentException {
         if (maximum < minimum) {
             throw new IllegalArgumentException("Maximum is smaller than minimum!");

@@ -33,6 +33,7 @@ import java.util.Collections;
 import java.util.Enumeration;
 
 import ccre.log.Logger;
+import ccre.verifier.FlowPhase;
 
 /**
  * The global Network handler. This contains a location to store the current
@@ -126,6 +127,7 @@ public class Network {
      *
      * @return a collection of the IPv4 addresses of the current system.
      */
+    @FlowPhase
     public static Collection<String> listIPv4Addresses() {
         Enumeration<NetworkInterface> enm = null;
         try {

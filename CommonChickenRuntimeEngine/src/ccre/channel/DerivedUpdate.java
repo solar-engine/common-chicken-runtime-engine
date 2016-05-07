@@ -18,6 +18,8 @@
  */
 package ccre.channel;
 
+import ccre.verifier.SetupPhase;
+
 /**
  * Provides a way to do something when an input changes. Override
  * {@link #update()} for the action to perform, and pass the inputs to watch to
@@ -50,6 +52,7 @@ public abstract class DerivedUpdate {
      * @param output the output to fire
      * @param inputs the inputs to monitor
      */
+    @SetupPhase
     public static void onUpdates(UpdatingInput[] inputs, EventOutput output) {
         if (inputs.length == 0) {
             throw new IllegalArgumentException("Must be at least one update source!");

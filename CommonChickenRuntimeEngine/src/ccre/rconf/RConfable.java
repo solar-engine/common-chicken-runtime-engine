@@ -18,6 +18,8 @@
  */
 package ccre.rconf;
 
+import ccre.verifier.SetupPhase;
+
 /**
  * An RConfable is a network endpoint that can be accessed remotely by an RConf
  * client.
@@ -36,6 +38,7 @@ public interface RConfable {
      * @throws InterruptedException if the thread was interrupted while waiting
      * for a response.
      */
+    @SetupPhase
     public RConf.Entry[] queryRConf() throws InterruptedException;
 
     /**
@@ -54,5 +57,6 @@ public interface RConfable {
      * @throws InterruptedException if the thread was interrupted while waiting
      * for the request to complete.
      */
+    @SetupPhase
     public boolean signalRConf(int field, byte[] data) throws InterruptedException;
 }

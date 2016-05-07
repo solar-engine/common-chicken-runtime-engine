@@ -25,6 +25,8 @@ import ccre.channel.EventInput;
 import ccre.channel.FloatInput;
 import ccre.channel.FloatOutput;
 import ccre.frc.FRC;
+import ccre.verifier.FlowPhase;
+import ccre.verifier.SetupPhase;
 
 /**
  * Sometimes there's more to control about a motor than just a power level, and
@@ -175,6 +177,7 @@ public abstract class ExtendedMotor {
      *
      * @throws ExtendedMotorFailureException if the output cannot be enabled.
      */
+    @FlowPhase
     public abstract void enable() throws ExtendedMotorFailureException;
 
     /**
@@ -182,6 +185,7 @@ public abstract class ExtendedMotor {
      *
      * @throws ExtendedMotorFailureException if the output cannot be disabled.
      */
+    @FlowPhase
     public abstract void disable() throws ExtendedMotorFailureException;
 
     /**
@@ -190,6 +194,7 @@ public abstract class ExtendedMotor {
      *
      * @return a BooleanOutput controlling whether this controller is enabled.
      */
+    @SetupPhase
     public abstract BooleanOutput asEnable();
 
     /**
@@ -203,6 +208,7 @@ public abstract class ExtendedMotor {
      * @throws ExtendedMotorFailureException if an error occurs while opening
      * the output with this mode.
      */
+    @SetupPhase
     public abstract FloatOutput asMode(OutputControlMode mode) throws ExtendedMotorFailureException;
 
     /**
@@ -212,6 +218,7 @@ public abstract class ExtendedMotor {
      * @return the FloatInput representing this status readout, or null if it
      * cannot be acquired.
      */
+    @SetupPhase
     public FloatInput asStatus(StatusType type) {
         return asStatus(type, FRC.sensorPeriodic);
     }
@@ -224,6 +231,7 @@ public abstract class ExtendedMotor {
      * @return the FloatInput representing this status readout, or null if it
      * cannot be acquired.
      */
+    @SetupPhase
     public abstract FloatInput asStatus(StatusType type, EventInput updateOn);
 
     /**
@@ -233,6 +241,7 @@ public abstract class ExtendedMotor {
      * @param type the type of diagnostic to read.
      * @return the current diagnostic value.
      */
+    @FlowPhase
     public abstract Object getDiagnostics(DiagnosticType type);
 
     /**
@@ -242,6 +251,7 @@ public abstract class ExtendedMotor {
      * @return a channel representing the diagnostic state, or null if it cannot
      * be acquired.
      */
+    @SetupPhase
     public BooleanInput getDiagnosticChannel(final DiagnosticType type) {
         return getDiagnosticChannel(type, FRC.sensorPeriodic);
     }
@@ -254,6 +264,7 @@ public abstract class ExtendedMotor {
      * @return a channel representing the diagnostic state, or null if it cannot
      * be acquired.
      */
+    @SetupPhase
     public BooleanInput getDiagnosticChannel(final DiagnosticType type, EventInput updateOn) {
         if (!type.isBooleanDiagnostic || !(getDiagnostics(type) instanceof Boolean)) {
             return null;
@@ -291,6 +302,7 @@ public abstract class ExtendedMotor {
      * @param D the derivative factor in the tuning.
      * @throws ExtendedMotorFailureException if the PID cannot be set.
      */
+    @FlowPhase
     public abstract void setInternalPID(float P, float I, float D) throws ExtendedMotorFailureException;
 
     /**
@@ -303,6 +315,7 @@ public abstract class ExtendedMotor {
      * the motor.
      * @see #asMode(OutputControlMode) for how this works.
      */
+    @SetupPhase
     public FloatOutput simpleControl() throws ExtendedMotorFailureException {
         FloatOutput output = asMode(OutputControlMode.GENERIC_FRACTIONAL);
         if (output == null) {
@@ -312,6 +325,7 @@ public abstract class ExtendedMotor {
         return output;
     }
 
+    @SetupPhase
     public FloatOutput simpleControlSafe() {
         try {
             return simpleControl();
@@ -333,6 +347,7 @@ public abstract class ExtendedMotor {
      * the motor.
      * @see #asMode(OutputControlMode) for how this works.
      */
+    @SetupPhase
     public FloatOutput simpleControl(boolean reversed) throws ExtendedMotorFailureException {
         FloatOutput motor = simpleControl();
         if (reversed != FRC.MOTOR_FORWARD) {
@@ -341,6 +356,7 @@ public abstract class ExtendedMotor {
         return motor;
     }
 
+    @SetupPhase
     public FloatOutput simpleControlSafe(boolean reversed) {
         try {
             return simpleControl(reversed);

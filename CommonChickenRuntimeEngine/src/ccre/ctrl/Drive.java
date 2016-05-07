@@ -23,6 +23,7 @@ package ccre.ctrl;
 import ccre.channel.DerivedUpdate;
 import ccre.channel.FloatInput;
 import ccre.channel.FloatOutput;
+import ccre.verifier.SetupPhase;
 
 /**
  * Contains various presets for driving the robot.
@@ -56,6 +57,7 @@ public class Drive {
      * @param rightOut the right motor.
      * @see Drive
      */
+    @SetupPhase
     public static void tank(FloatInput leftIn, FloatInput rightIn, FloatOutput leftOut, FloatOutput rightOut) {
         leftIn.send(leftOut);
         rightIn.send(rightOut);
@@ -71,6 +73,7 @@ public class Drive {
      * @param rightOut the right motor.
      * @see Drive
      */
+    @SetupPhase
     public static void extendedTank(FloatInput leftIn, FloatInput rightIn, FloatInput forward, FloatOutput leftOut, FloatOutput rightOut) {
         leftIn.plus(forward).send(leftOut);
         rightIn.plus(forward).send(rightOut);
@@ -85,6 +88,7 @@ public class Drive {
      * @param rightOut the right motor.
      * @see Drive
      */
+    @SetupPhase
     public static void arcade(FloatInput joystickXAxis, FloatInput joystickYAxis, FloatOutput leftOut, FloatOutput rightOut) {
         joystickYAxis.plus(joystickXAxis).send(leftOut);
         joystickYAxis.minus(joystickXAxis).send(rightOut);
@@ -98,6 +102,7 @@ public class Drive {
      * @param rightOut the right motor.
      * @see Drive
      */
+    @SetupPhase
     public static void arcade(Joystick joystick, FloatOutput leftOut, FloatOutput rightOut) {
         arcade(joystick.axisX(), joystick.axisY(), leftOut, rightOut);
     }
@@ -115,6 +120,7 @@ public class Drive {
      * @param rightBackMotor the right back motor.
      * @see Drive
      */
+    @SetupPhase
     public static void mecanum(final FloatInput forward, final FloatInput strafe, final FloatInput rotate, final FloatOutput leftFrontMotor, final FloatOutput leftBackMotor, final FloatOutput rightFrontMotor, final FloatOutput rightBackMotor) {
         // TODO: Optimize this?
         new DerivedUpdate(forward, strafe, rotate) {

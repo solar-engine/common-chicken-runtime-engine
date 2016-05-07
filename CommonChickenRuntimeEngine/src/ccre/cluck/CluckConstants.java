@@ -18,6 +18,8 @@
  */
 package ccre.cluck;
 
+import ccre.verifier.FlowPhase;
+
 /**
  * A class containing the "RMT" types for Cluck - the possible meanings of the
  * very first byte in a Cluck message. Also contains other constants.
@@ -125,6 +127,7 @@ public class CluckConstants {
      * @param type The RMT_* message ID.
      * @return The version representing the name of the message type.
      */
+    @FlowPhase
     public static String rmtToString(int type) {
         if (type >= 0 && type < remoteNames.length) {
             return remoteNames[type];

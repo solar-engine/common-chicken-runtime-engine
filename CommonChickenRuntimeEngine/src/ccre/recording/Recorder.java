@@ -39,6 +39,7 @@ import ccre.discrete.DiscreteOutput;
 import ccre.discrete.DiscreteType;
 import ccre.log.Logger;
 import ccre.storage.Storage;
+import ccre.verifier.SetupPhase;
 
 /**
  * A class that handles channel-based data recording to an arbitrary
@@ -92,10 +93,13 @@ public class Recorder {
     }
 
     /**
-     * Closes and shuts down this recorder, and waits for the operation to complete.
+     * Closes and shuts down this recorder, and waits for the operation to
+     * complete.
      *
-     * @throws InterruptedException if the thread is interrupted while waiting for the recorder to close.
+     * @throws InterruptedException if the thread is interrupted while waiting
+     * for the recorder to close.
      */
+    @SetupPhase
     public void close() throws InterruptedException {
         if (closed.compareAndSet(false, true)) {
             byte[] b = "\2ENDOFSTREAM".getBytes();
@@ -104,6 +108,7 @@ public class Recorder {
         }
     }
 
+    @SetupPhase
     private int initChannel(RawType rawtype, String name) {
         if (closed.get()) {
             throw new IllegalStateException("Recorder is closed!");
@@ -117,6 +122,7 @@ public class Recorder {
         return channel_number;
     }
 
+    @SetupPhase
     private void freeChannel(int channel_number) {
         if (closed.get()) {
             return; // don't bother
@@ -131,6 +137,7 @@ public class Recorder {
      * @param name the channel name.
      * @return the new float output.
      */
+    @SetupPhase
     public FloatOutput createFloatOutput(String name) {
         int channel = initChannel(RawType.FLOAT, name);
         return (f) -> {
@@ -144,6 +151,7 @@ public class Recorder {
      * @param input the input to record.
      * @param name the channel name.
      */
+    @SetupPhase
     public void recordFloatInput(FloatInput input, String name) {
         input.send(createFloatOutput(name));
     }
@@ -154,6 +162,7 @@ public class Recorder {
      * @param name the channel name.
      * @return the new boolean output.
      */
+    @SetupPhase
     public BooleanOutput createBooleanOutput(String name) {
         int channel = initChannel(RawType.BOOLEAN, name);
         return (b) -> {
@@ -167,6 +176,7 @@ public class Recorder {
      * @param input the input to record.
      * @param name the channel name.
      */
+    @SetupPhase
     public void recordBooleanInput(BooleanInput input, String name) {
         input.send(createBooleanOutput(name));
     }
@@ -179,6 +189,7 @@ public class Recorder {
      * @param type the discrete output's type.
      * @return the new discrete output.
      */
+    @SetupPhase
     public <E> DiscreteOutput<E> createDiscreteOutput(String name, DiscreteType<E> type) {
         int channel = initChannel(RawType.DISCRETE, name);
         return new DiscreteOutput<E>() {
@@ -202,6 +213,7 @@ public class Recorder {
      * @param input the input to record.
      * @param name the channel name.
      */
+    @SetupPhase
     public <E> void recordDiscreteInput(DiscreteInput<E> input, String name) {
         input.send(createDiscreteOutput(name, input.getType()));
     }
@@ -212,6 +224,7 @@ public class Recorder {
      * @param name the channel name.
      * @return the new event output.
      */
+    @SetupPhase
     public EventOutput createEventOutput(String name) {
         int channel = initChannel(RawType.EVENT, name);
         return () -> {
@@ -225,6 +238,7 @@ public class Recorder {
      * @param input the input to record.
      * @param name the channel name.
      */
+    @SetupPhase
     public void recordEventInput(EventInput input, String name) {
         input.send(createEventOutput(name));
     }
@@ -235,6 +249,7 @@ public class Recorder {
      * @param name the channel name.
      * @return the new OutputStream.
      */
+    @SetupPhase
     public OutputStream createOutputStream(String name) {
         int channel = initChannel(RawType.OUTPUT_STREAM, name);
         return new OutputStream() {
@@ -282,6 +297,7 @@ public class Recorder {
      * @param faults the faults to record.
      * @param name the channel name.
      */
+    @SetupPhase
     public <F> void recordFaultable(Faultable<F> faults, String name) {
         for (F f : faults.getPossibleFaults()) {
             recordBooleanInput(faults.getIsFaulting(f), name + ":" + f.toString());
@@ -296,6 +312,7 @@ public class Recorder {
      * @param input the input to record.
      * @return the same input.
      */
+    @SetupPhase
     public FloatInput wrap(String name, FloatInput input) {
         recordFloatInput(input, name);
         return input;
@@ -308,6 +325,7 @@ public class Recorder {
      * @param input the input to record.
      * @return the same input.
      */
+    @SetupPhase
     public BooleanInput wrap(String name, BooleanInput input) {
         recordBooleanInput(input, name);
         return input;
@@ -320,6 +338,7 @@ public class Recorder {
      * @param input the input to record.
      * @return the same input.
      */
+    @SetupPhase
     public EventInput wrap(String name, EventInput input) {
         recordEventInput(input, name);
         return input;
@@ -332,6 +351,7 @@ public class Recorder {
      * @param output the output to propagate to.
      * @return the output that records and writes through.
      */
+    @SetupPhase
     public FloatOutput wrap(String name, FloatOutput output) {
         return output.combine(createFloatOutput(name));
     }
@@ -343,6 +363,7 @@ public class Recorder {
      * @param output the output to propagate to.
      * @return the output that records and writes through.
      */
+    @SetupPhase
     public BooleanOutput wrap(String name, BooleanOutput output) {
         return output.combine(createBooleanOutput(name));
     }
@@ -354,6 +375,7 @@ public class Recorder {
      * @param output the output to propagate to.
      * @return the output that records and writes through.
      */
+    @SetupPhase
     public EventOutput wrap(String name, EventOutput output) {
         return output.combine(createEventOutput(name));
     }
@@ -366,6 +388,7 @@ public class Recorder {
      * @param cbc the original ControlBindingCreator.
      * @return the wrapped ControlBindingCreator.
      */
+    @SetupPhase
     public ControlBindingCreator wrap(String cname, ControlBindingCreator cbc) {
         return new ControlBindingCreator() {
             @Override
@@ -396,10 +419,12 @@ public class Recorder {
      *
      * @param behaviors the behaviors to record.
      */
+    @SetupPhase
     public void recordBehaviors(BehaviorArbitrator behaviors) {
         recordDiscreteInput(behaviors.getActiveBehavior(), "Behaviors:" + behaviors.getName());
     }
 
+    @SetupPhase
     static int[] listUsedNumbers() {
         String[] files = Storage.list();
         int[] found = new int[files.length];
@@ -425,6 +450,7 @@ public class Recorder {
         return found;
     }
 
+    @SetupPhase
     static OutputStream openStream(boolean compressed, int maximum_records) throws IOException {
         if (maximum_records < 1) {
             throw new IllegalArgumentException("Must have at least one slot in record buffer!");
@@ -445,10 +471,10 @@ public class Recorder {
         int next_id = used.length == 0 ? 0 : used[used.length - 1] + 1;
         String next_name = "rec-" + next_id;
         if (compressed) {
-            Logger.config("Opening recorder output at rec-" + next_name + ".gz (compressed)");
+            Logger.config("Opening recorder output at " + next_name + ".gz (compressed)");
             return new GZIPOutputStream(Storage.openOutput(next_name + ".gz"));
         } else {
-            Logger.config("Opening recorder output at rec-" + next_name + " (uncompressed)");
+            Logger.config("Opening recorder output at " + next_name + " (uncompressed)");
             return Storage.openOutput(next_name);
         }
     }
@@ -464,6 +490,7 @@ public class Recorder {
      * @return the opened recorder
      * @throws IOException if the recording cannot be set up.
      */
+    @SetupPhase
     public static Recorder open(boolean compressed, int maximum_recordings) throws IOException {
         OutputStream out = openStream(compressed, maximum_recordings);
         boolean success = false;

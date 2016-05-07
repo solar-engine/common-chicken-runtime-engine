@@ -18,6 +18,8 @@
  */
 package ccre.channel;
 
+import ccre.verifier.SetupPhase;
+
 /**
  * A EventIO is both a EventInput and a EventOutput.
  * 
@@ -31,6 +33,7 @@ public interface EventIO extends EventInput, EventOutput {
      *
      * @return this io, as an output.
      */
+    @SetupPhase
     public default EventOutput asOutput() {
         return this;
     }
@@ -41,6 +44,7 @@ public interface EventIO extends EventInput, EventOutput {
      *
      * @return this io, as an input.
      */
+    @SetupPhase
     public default EventInput asInput() {
         return this;
     }
@@ -53,6 +57,7 @@ public interface EventIO extends EventInput, EventOutput {
      * @param output the output to dispatch to.
      * @return the composed EventIO.
      */
+    @SetupPhase
     public static EventIO compose(EventInput input, EventOutput output) {
         return new EventIO() {
             @Override
@@ -68,6 +73,7 @@ public interface EventIO extends EventInput, EventOutput {
     }
 
     @Override
+    @SetupPhase
     public default EventIO cell() {
         return this;
     }

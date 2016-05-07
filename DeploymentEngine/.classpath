@@ -11,6 +11,5 @@
 	<classpathentry exported="true" kind="lib" path="libs/slf4j-api-1.7.12.jar"/>
 	<classpathentry exported="true" kind="lib" path="libs/slf4j-simple-1.7.12.jar"/>
 	<classpathentry exported="true" kind="lib" path="libs/bcprov-jdk15on-152.jar"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/Emulator"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

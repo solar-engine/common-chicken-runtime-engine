@@ -23,7 +23,6 @@ import ccre.channel.BooleanCell;
 import ccre.channel.BooleanIO;
 import ccre.channel.BooleanInput;
 import ccre.channel.BooleanOutput;
-import ccre.channel.CancelOutput;
 import ccre.channel.EventCell;
 import ccre.channel.EventInput;
 import ccre.channel.EventOutput;
@@ -68,7 +67,7 @@ public final class ExpirationTimer {
      */
     private final ArrayList<Task> tasks = new ArrayList<Task>();
     private final BooleanCell isStarted = new BooleanCell();
-    private CancelOutput cancel;
+    private EventOutput cancel;
 
     /**
      * Schedule an EventOutput to be triggered at a specific delay.
@@ -156,13 +155,13 @@ public final class ExpirationTimer {
             throw new IllegalStateException("Timer is not running!");
         }
         if (cancel != null) {
-            cancel.cancel();
+            cancel.event();
             cancel = null;
         }
-        cancel = CancelOutput.nothing;
+        cancel = EventOutput.ignored;
         long base = Time.currentTimeNanos();
         for (Task t : tasks) {
-            cancel = cancel.combine(Scheduler.scheduleCancellableAt(this.tag, base + t.getDelayNanos(), t.cnsm));
+            cancel = cancel.combine(Scheduler.scheduleInterruptibleAt(this.tag, base + t.getDelayNanos(), t.cnsm));
         }
     }
 
@@ -177,7 +176,7 @@ public final class ExpirationTimer {
             throw new IllegalStateException("Timer is not running!");
         }
         if (cancel != null) {
-            cancel.cancel();
+            cancel.event();
             cancel = null;
         }
         isStarted.safeSet(false);

@@ -98,6 +98,7 @@ public class FileLogger implements LoggingTarget {
         });
     }
 
+    @Override
     public synchronized void log(LogLevel level, String message, Throwable throwable) {
         pstream.println("[" + (Time.currentTimeMillis()) + " " + level + "] " + message);
         if (throwable != null) {
@@ -106,6 +107,7 @@ public class FileLogger implements LoggingTarget {
         pstream.flush();
     }
 
+    @Override
     public synchronized void log(LogLevel level, String message, String extended) {
         pstream.println("[" + (Time.currentTimeMillis()) + " " + level + "] " + message);
         if (extended != null) {

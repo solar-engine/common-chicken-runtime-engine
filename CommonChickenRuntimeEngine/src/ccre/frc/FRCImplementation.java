@@ -32,6 +32,7 @@ import ccre.ctrl.Joystick;
 import ccre.ctrl.binding.ControlBindingCreator;
 import ccre.discrete.DiscreteInput;
 import ccre.drivers.ctre.talon.TalonExtendedMotor;
+import ccre.verifier.SetupPhase;
 
 /**
  * This is an implementation for an FRC application. The reason for this is so
@@ -77,6 +78,7 @@ public interface FRCImplementation {
      * @param id the Joystick number (1-4)
      * @return the associated joystick on the driver station.
      */
+    @SetupPhase
     public Joystick getJoystick(int id);
 
     /**
@@ -296,46 +298,55 @@ public interface FRCImplementation {
      * @return an event that is produced during every mode if the driver station
      * is attached.
      */
+    @SetupPhase
     public EventInput getGlobalPeriodic();
 
     /**
      * @return an event that is produced when the robot enters autonomous mode.
      */
+    @SetupPhase
     public EventInput getStartAuto();
 
     /**
      * @return an event that is produced during autonomous mode.
      */
+    @SetupPhase
     public EventInput getDuringAuto();
 
     /**
      * @return an event that is produced when the robot enters teleop mode.
      */
+    @SetupPhase
     public EventInput getStartTele();
 
     /**
      * @return an event that is produced during teleop mode.
      */
+    @SetupPhase
     public EventInput getDuringTele();
 
     /**
      * @return an event that is produced when the robot enters testing mode.
      */
+    @SetupPhase
     public EventInput getStartTest();
 
     /**
      * @return an event that is produced during testing mode.
      */
+    @SetupPhase
     public EventInput getDuringTest();
 
     /**
      * @return an event that is produced when the robot enters disabled mode.
      */
+    @SetupPhase
     public EventInput getStartDisabled();
 
     /**
      * @return an event that is produced while the robot is disabled.
      */
+    @SetupPhase
     public EventInput getDuringDisabled();
 
     /**
@@ -464,4 +475,9 @@ public interface FRCImplementation {
      * finished its initialization
      */
     public EventInput getOnInitComplete();
+
+    /**
+     * @return the roboRIO's unique identifier.
+     */
+    public String getUniqueIdentifier();
 }

@@ -42,6 +42,7 @@ import ccre.instinct.InstinctModule;
 import ccre.log.Logger;
 import ccre.recording.Recorder;
 import ccre.timers.Ticker;
+import ccre.verifier.SetupPhase;
 
 /**
  * The main class to access the I/O on a roboRIO.
@@ -203,6 +204,7 @@ public class FRC {
      * @see #MOTOR_FORWARD
      * @see #MOTOR_REVERSE
      */
+    @SetupPhase
     public static FloatOutput jaguar(int id, boolean negate, float ramping) {
         FloatOutput motor = impl.makeMotor(id, FRCImplementation.JAGUAR);
         FloatOutput ramped = (negate ? motor.negate() : motor).addRamping(ramping, constantPeriodic);
@@ -222,6 +224,7 @@ public class FRC {
      * @see #MOTOR_FORWARD
      * @see #MOTOR_REVERSE
      */
+    @SetupPhase
     public static FloatOutput jaguar(int id, boolean negate) {
         return jaguar(id, negate, 0.1f);
     }
@@ -234,6 +237,7 @@ public class FRC {
      * @param id the motor port ID, from 1 to 10, inclusive.
      * @return the output that will output to the specified motor.
      */
+    @SetupPhase
     public static FloatOutput jaguar(int id) {
         return jaguar(id, false, 0.1f);
     }
@@ -256,6 +260,7 @@ public class FRC {
      * @see #MOTOR_FORWARD
      * @see #MOTOR_REVERSE
      */
+    @SetupPhase
     public static FloatOutput victor(int id, boolean negate, float ramping) {
         FloatOutput motor = impl.makeMotor(id, FRCImplementation.VICTOR);
         FloatOutput ramped = (negate ? motor.negate() : motor).addRamping(ramping, constantPeriodic);
@@ -275,6 +280,7 @@ public class FRC {
      * @see #MOTOR_FORWARD
      * @see #MOTOR_REVERSE
      */
+    @SetupPhase
     public static FloatOutput victor(int id, boolean negate) {
         return victor(id, negate, 0.1f);
     }
@@ -287,6 +293,7 @@ public class FRC {
      * @param id the motor port ID, from 1 to 10, inclusive.
      * @return the output that will output to the specified motor.
      */
+    @SetupPhase
     public static FloatOutput victor(int id) {
         return victor(id, false, 0.1f);
     }
@@ -309,6 +316,7 @@ public class FRC {
      * @see #MOTOR_FORWARD
      * @see #MOTOR_REVERSE
      */
+    @SetupPhase
     public static FloatOutput talon(int id, boolean negate, float ramping) {
         FloatOutput motor = impl.makeMotor(id, FRCImplementation.TALON);
         FloatOutput ramped = (negate ? motor.negate() : motor).addRamping(ramping, constantPeriodic);
@@ -328,6 +336,7 @@ public class FRC {
      * @see #MOTOR_FORWARD
      * @see #MOTOR_REVERSE
      */
+    @SetupPhase
     public static FloatOutput talon(int id, boolean negate) {
         return talon(id, negate, 0.1f);
     }
@@ -340,6 +349,7 @@ public class FRC {
      * @param id the motor port ID, from 1 to 10, inclusive.
      * @return the output that will output to the specified motor.
      */
+    @SetupPhase
     public static FloatOutput talon(int id) {
         return talon(id, false, 0.1f);
     }
@@ -362,6 +372,7 @@ public class FRC {
      * @see #MOTOR_FORWARD
      * @see #MOTOR_REVERSE
      */
+    @SetupPhase
     public static FloatOutput talonSRX(int id, boolean negate, float ramping) {
         FloatOutput motor = impl.makeMotor(id, FRCImplementation.TALONSRX);
         FloatOutput ramped = (negate ? motor.negate() : motor).addRamping(ramping, constantPeriodic);
@@ -381,6 +392,7 @@ public class FRC {
      * @see #MOTOR_FORWARD
      * @see #MOTOR_REVERSE
      */
+    @SetupPhase
     public static FloatOutput talonSRX(int id, boolean negate) {
         return talonSRX(id, negate, 0.1f);
     }
@@ -393,6 +405,7 @@ public class FRC {
      * @param id the motor port ID, from 1 to 10, inclusive.
      * @return the output that will output to the specified motor.
      */
+    @SetupPhase
     public static FloatOutput talonSRX(int id) {
         return talonSRX(id, false, 0.1f);
     }
@@ -415,6 +428,7 @@ public class FRC {
      * @see #MOTOR_FORWARD
      * @see #MOTOR_REVERSE
      */
+    @SetupPhase
     public static FloatOutput victorSP(int id, boolean negate, float ramping) {
         FloatOutput motor = impl.makeMotor(id, FRCImplementation.VICTORSP);
         FloatOutput ramped = (negate ? motor.negate() : motor).addRamping(ramping, constantPeriodic);
@@ -434,6 +448,7 @@ public class FRC {
      * @see #MOTOR_FORWARD
      * @see #MOTOR_REVERSE
      */
+    @SetupPhase
     public static FloatOutput victorSP(int id, boolean negate) {
         return victorSP(id, negate, 0.1f);
     }
@@ -446,6 +461,7 @@ public class FRC {
      * @param id the motor port ID, from 1 to 10, inclusive.
      * @return the output that will output to the specified motor.
      */
+    @SetupPhase
     public static FloatOutput victorSP(int id) {
         return victorSP(id, false, 0.1f);
     }
@@ -468,6 +484,7 @@ public class FRC {
      * @see #MOTOR_FORWARD
      * @see #MOTOR_REVERSE
      */
+    @SetupPhase
     public static FloatOutput spark(int id, boolean negate, float ramping) {
         FloatOutput motor = impl.makeMotor(id, FRCImplementation.SPARK);
         FloatOutput ramped = (negate ? motor.negate() : motor).addRamping(ramping, constantPeriodic);
@@ -487,6 +504,7 @@ public class FRC {
      * @see #MOTOR_FORWARD
      * @see #MOTOR_REVERSE
      */
+    @SetupPhase
     public static FloatOutput spark(int id, boolean negate) {
         return spark(id, negate, 0.1f);
     }
@@ -499,6 +517,7 @@ public class FRC {
      * @param id the motor port ID, from 1 to 10, inclusive.
      * @return the output that will output to the specified motor.
      */
+    @SetupPhase
     public static FloatOutput spark(int id) {
         return spark(id, false, 0.1f);
     }
@@ -521,6 +540,7 @@ public class FRC {
      * @see #MOTOR_FORWARD
      * @see #MOTOR_REVERSE
      */
+    @SetupPhase
     public static FloatOutput sd540(int id, boolean negate, float ramping) {
         FloatOutput motor = impl.makeMotor(id, FRCImplementation.SD540);
         FloatOutput ramped = (negate ? motor.negate() : motor).addRamping(ramping, constantPeriodic);
@@ -540,6 +560,7 @@ public class FRC {
      * @see #MOTOR_FORWARD
      * @see #MOTOR_REVERSE
      */
+    @SetupPhase
     public static FloatOutput sd540(int id, boolean negate) {
         return sd540(id, negate, 0.1f);
     }
@@ -552,6 +573,7 @@ public class FRC {
      * @param id the motor port ID, from 1 to 10, inclusive.
      * @return the output that will output to the specified motor.
      */
+    @SetupPhase
     public static FloatOutput sd540(int id) {
         return sd540(id, false, 0.1f);
     }
@@ -564,6 +586,7 @@ public class FRC {
      * @param deviceNumber the device number to connect to.
      * @return the ExtendedMotor representing this output.
      */
+    @SetupPhase
     public static ExtendedMotor jaguarCAN(int deviceNumber) {
         Logger.warning("The CCRE CAN Jaguar functionality is NOT yet complete and is UNTESTED! Use with your own risk.");
         return impl.makeCANJaguar(deviceNumber);
@@ -580,6 +603,7 @@ public class FRC {
      * @return the output that will output to the specified motor.
      * @throws ExtendedMotorFailureException if control cannot be established.
      */
+    @SetupPhase
     public static FloatOutput jaguarSimpleCAN(int deviceNumber, boolean negate) throws ExtendedMotorFailureException {
         return jaguarCAN(deviceNumber).simpleControl(negate);
     }
@@ -591,6 +615,7 @@ public class FRC {
      * @param deviceNumber the device number to connect to.
      * @return the ExtendedMotor representing this output.
      */
+    @SetupPhase
     public static TalonExtendedMotor talonCAN(int deviceNumber) {
         return impl.makeCANTalon(deviceNumber);
     }
@@ -604,9 +629,27 @@ public class FRC {
      * MOTOR_REVERSE if the motor direction should be reversed.
      * @return the output that will output to the specified motor.
      * @throws ExtendedMotorFailureException if control cannot be established.
+     * @deprecated Use {@link #talonCANControl(int, boolean)} instead, which
+     * doesn't throw ExtendedMotorFailureException
      */
+    @Deprecated
+    @SetupPhase
     public static FloatOutput talonSimpleCAN(int deviceNumber, boolean negate) throws ExtendedMotorFailureException {
         return talonCAN(deviceNumber).simpleControl(negate);
+    }
+
+    /**
+     * Create a reference to a CAN Talon speed controller with the specified CAN
+     * device number. This may, of course, fail, if the Talon cannot be found.
+     *
+     * @param deviceNumber the device number to connect to.
+     * @param negate MOTOR_FORWARD if the motor direction should be unmodified,
+     * MOTOR_REVERSE if the motor direction should be reversed.
+     * @return the output that will output to the specified motor.
+     */
+    @SetupPhase
+    public static FloatOutput talonCANControl(int deviceNumber, boolean negate) {
+        return talonCAN(deviceNumber).simpleControlSafe(negate);
     }
 
     /**
@@ -616,6 +659,7 @@ public class FRC {
      * @param id the port of the solenoid.
      * @return the output that will control the solenoid.
      */
+    @SetupPhase
     public static BooleanOutput solenoid(int id) {
         return impl.makeSolenoid(0, id);
     }
@@ -627,6 +671,7 @@ public class FRC {
      * @param id the port of the solenoid.
      * @return the output that will control the solenoid.
      */
+    @SetupPhase
     public static BooleanOutput solenoid(int module, int id) {
         return impl.makeSolenoid(module, id);
     }
@@ -637,6 +682,7 @@ public class FRC {
      * @param id the port of the digital output.
      * @return the output that will control the digital output.
      */
+    @SetupPhase
     public static BooleanOutput digitalOutput(int id) {
         return impl.makeDigitalOutput(id);
     }
@@ -647,6 +693,7 @@ public class FRC {
      *
      * @return The current battery voltage.
      */
+    @SetupPhase
     public static FloatInput batteryVoltage() {
         return impl.getBatteryVoltage(sensorPeriodic);
     }
@@ -658,6 +705,7 @@ public class FRC {
      * @param updateOn when to update the sensor value.
      * @return The current battery voltage.
      */
+    @SetupPhase
     public static FloatInput batteryVoltage(EventInput updateOn) {
         return impl.getBatteryVoltage(updateOn);
     }
@@ -668,6 +716,7 @@ public class FRC {
      * @param id the port number.
      * @return the analog input, reporting in voltage.
      */
+    @SetupPhase
     public static FloatInput analogInput(int id) {
         return impl.makeAnalogInput(id, sensorPeriodic);
     }
@@ -679,6 +728,7 @@ public class FRC {
      * @param updateOn when to update the sensor value.
      * @return the analog input, reporting in voltage.
      */
+    @SetupPhase
     public static FloatInput analogInput(int id, EventInput updateOn) {
         return impl.makeAnalogInput(id, updateOn);
     }
@@ -691,6 +741,7 @@ public class FRC {
      * @param averageBits the number of averaging bits.
      * @return the analog input, reporting in voltage.
      */
+    @SetupPhase
     public static FloatInput analogInput(int id, int averageBits) {
         return impl.makeAnalogInput(id, averageBits, sensorPeriodic);
     }
@@ -704,6 +755,7 @@ public class FRC {
      * @param updateOn when to update the sensor value.
      * @return the analog input, reporting in voltage.
      */
+    @SetupPhase
     public static FloatInput analogInput(int id, int averageBits, EventInput updateOn) {
         return impl.makeAnalogInput(id, averageBits, updateOn);
     }
@@ -714,6 +766,7 @@ public class FRC {
      * @param id the port number.
      * @return the digital input.
      */
+    @SetupPhase
     public static BooleanInput digitalInput(int id) {
         return impl.makeDigitalInput(id, sensorPeriodic);
     }
@@ -725,6 +778,7 @@ public class FRC {
      * @param updateOn when to update the sensor value.
      * @return the digital input.
      */
+    @SetupPhase
     public static BooleanInput digitalInput(int id, EventInput updateOn) {
         return impl.makeDigitalInput(id, updateOn);
     }
@@ -738,6 +792,7 @@ public class FRC {
      * @param id the port number.
      * @return the digital input.
      */
+    @SetupPhase
     public static BooleanInput digitalInputByInterrupt(int id) {
         return impl.makeDigitalInputByInterrupt(id);
     }
@@ -753,6 +808,7 @@ public class FRC {
      * servo's maximum position.
      * @return the FloatOutput that controls the servo.
      */
+    @SetupPhase
     public static FloatOutput servo(int id, float minInput, float maxInput) {
         return impl.makeServo(id, minInput, maxInput);
     }
@@ -762,6 +818,7 @@ public class FRC {
      *
      * @return the input.
      */
+    @SetupPhase
     public static BooleanInput robotDisabled() {
         return impl.getIsDisabled();
     }
@@ -771,6 +828,7 @@ public class FRC {
      *
      * @return the input.
      */
+    @SetupPhase
     public static BooleanInput robotEnabled() {
         return impl.getIsDisabled().not();
     }
@@ -781,6 +839,7 @@ public class FRC {
      *
      * @return the input.
      */
+    @SetupPhase
     public static BooleanInput inAutonomousMode() {
         return impl.getIsAutonomous();
     }
@@ -791,6 +850,7 @@ public class FRC {
      *
      * @return the input.
      */
+    @SetupPhase
     public static BooleanInput inTestMode() {
         return impl.getIsTest();
     }
@@ -801,6 +861,7 @@ public class FRC {
      *
      * @return the input.
      */
+    @SetupPhase
     public static BooleanInput inTeleopMode() {
         return impl.getIsTest().or(impl.getIsAutonomous()).not().andNot(impl.getIsDisabled());
     }
@@ -810,6 +871,7 @@ public class FRC {
      *
      * @return the input for the mode.
      */
+    @SetupPhase
     public static DiscreteInput<FRCMode> getMode() {
         return impl.getMode();
     }
@@ -820,6 +882,7 @@ public class FRC {
      *
      * @return the input.
      */
+    @SetupPhase
     public static BooleanInput isOnFMS() {
         return impl.getIsFMS();
     }
@@ -832,6 +895,7 @@ public class FRC {
      * input.
      * @param compressorRelayChannel the channel of the compressor's relay.
      */
+    @SetupPhase
     public static void compressor(int pressureSwitchChannel, int compressorRelayChannel) {
         customCompressor(digitalInput(pressureSwitchChannel), compressorRelayChannel);
     }
@@ -842,6 +906,7 @@ public class FRC {
      *
      * @return a BooleanOutput that can turn closed loop control on and off.
      */
+    @SetupPhase
     public static BooleanOutput compressorPCM() {
         return impl.usePCMCompressor();
     }
@@ -851,6 +916,7 @@ public class FRC {
      *
      * @return the pressure switch status.
      */
+    @SetupPhase
     public static BooleanInput pressureSwitchPCM() {
         return impl.getPCMPressureSwitch(sensorPeriodic);
     }
@@ -861,6 +927,7 @@ public class FRC {
      * @param updateOn when to update the sensor value.
      * @return the pressure switch status.
      */
+    @SetupPhase
     public static BooleanInput pressureSwitchPCM(EventInput updateOn) {
         return impl.getPCMPressureSwitch(updateOn);
     }
@@ -870,6 +937,7 @@ public class FRC {
      *
      * @return the compressor enable output.
      */
+    @SetupPhase
     public static BooleanInput compressorRunningPCM() {
         return impl.getPCMCompressorRunning(sensorPeriodic);
     }
@@ -880,6 +948,7 @@ public class FRC {
      * @param updateOn when to update the sensor value.
      * @return the compressor enable output.
      */
+    @SetupPhase
     public static BooleanInput compressorRunningPCM(EventInput updateOn) {
         return impl.getPCMCompressorRunning(updateOn);
     }
@@ -889,6 +958,7 @@ public class FRC {
      *
      * @return the current being used by the compressor.
      */
+    @SetupPhase
     public static FloatInput compressorCurrentPCM() {
         return impl.getPCMCompressorCurrent(sensorPeriodic);
     }
@@ -899,6 +969,7 @@ public class FRC {
      * @param updateOn when to update the sensor value.
      * @return the current being used by the compressor.
      */
+    @SetupPhase
     public static FloatInput compressorCurrentPCM(EventInput updateOn) {
         return impl.getPCMCompressorCurrent(updateOn);
     }
@@ -908,6 +979,7 @@ public class FRC {
      *
      * @return the current being used by the specified channel.
      */
+    @SetupPhase
     public static FloatInput totalCurrentPDP() {
         return impl.getPDPTotalCurrent(sensorPeriodic);
     }
@@ -918,6 +990,7 @@ public class FRC {
      * @param updateOn when to update the sensor value.
      * @return the current being used by the specified channel.
      */
+    @SetupPhase
     public static FloatInput totalCurrentPDP(EventInput updateOn) {
         return impl.getPDPTotalCurrent(updateOn);
     }
@@ -928,6 +1001,7 @@ public class FRC {
      * @param channel the channel to monitor
      * @return the current being used by the specified channel.
      */
+    @SetupPhase
     public static FloatInput channelCurrentPDP(int channel) {
         return impl.getPDPChannelCurrent(channel, sensorPeriodic);
     }
@@ -939,6 +1013,7 @@ public class FRC {
      * @param updateOn when to update the sensor value.
      * @return the current being used by the specified channel.
      */
+    @SetupPhase
     public static FloatInput channelCurrentPDP(int channel, EventInput updateOn) {
         return impl.getPDPChannelCurrent(channel, updateOn);
     }
@@ -948,6 +1023,7 @@ public class FRC {
      *
      * @return the voltage being measured by the PDP.
      */
+    @SetupPhase
     public static FloatInput voltagePDP() {
         return impl.getPDPVoltage(sensorPeriodic);
     }
@@ -958,6 +1034,7 @@ public class FRC {
      * @param updateOn when to update the sensor value.
      * @return the voltage being measured by the PDP.
      */
+    @SetupPhase
     public static FloatInput voltagePDP(EventInput updateOn) {
         return impl.getPDPVoltage(updateOn);
     }
@@ -968,6 +1045,7 @@ public class FRC {
      * @param powerChannel the power channel to read from.
      * @return the voltage being measured.
      */
+    @SetupPhase
     public static FloatInput voltageChannel(int powerChannel) {
         return impl.getChannelVoltage(powerChannel, sensorPeriodic);
     }
@@ -979,6 +1057,7 @@ public class FRC {
      * @param updateOn when to update the sensor value.
      * @return the voltage being measured.
      */
+    @SetupPhase
     public static FloatInput voltageChannel(int powerChannel, EventInput updateOn) {
         return impl.getChannelVoltage(powerChannel, updateOn);
     }
@@ -989,6 +1068,7 @@ public class FRC {
      * @param powerChannel the power channel to read from.
      * @return the current being measured.
      */
+    @SetupPhase
     public static FloatInput currentChannel(int powerChannel) {
         return impl.getChannelCurrent(powerChannel, sensorPeriodic);
     }
@@ -1000,6 +1080,7 @@ public class FRC {
      * @param updateOn when to update the sensor value.
      * @return the current being measured.
      */
+    @SetupPhase
     public static FloatInput currentChannel(int powerChannel, EventInput updateOn) {
         return impl.getChannelCurrent(powerChannel, updateOn);
     }
@@ -1010,6 +1091,7 @@ public class FRC {
      * @param powerChannel the power channel to read from.
      * @return if the channel is enabled.
      */
+    @SetupPhase
     public static BooleanInput enabledChannel(int powerChannel) {
         return impl.getChannelEnabled(powerChannel, sensorPeriodic);
     }
@@ -1021,6 +1103,7 @@ public class FRC {
      * @param updateOn when to update the sensor value.
      * @return if the channel is enabled.
      */
+    @SetupPhase
     public static BooleanInput enabledChannel(int powerChannel, EventInput updateOn) {
         return impl.getChannelEnabled(powerChannel, updateOn);
     }
@@ -1032,6 +1115,7 @@ public class FRC {
      * @param shouldDisable should the compressor be turned off.
      * @param compressorRelayChannel the channel of the compressor's relay.
      */
+    @SetupPhase
     public static void customCompressor(BooleanInput shouldDisable, int compressorRelayChannel) {
         // TODO: do this without an extra Ticker?
         shouldDisable.send(relayForward(compressorRelayChannel).invert().limitUpdatesTo(new Ticker("compressor", 500, false)));
@@ -1048,6 +1132,7 @@ public class FRC {
      * event is produced.
      * @return the Encoder, reporting encoder ticks.
      */
+    @SetupPhase
     public static FloatInput encoder(int aChannel, int bChannel, boolean reverse, EventInput resetWhen) {
         return impl.makeEncoder(aChannel, bChannel, reverse, resetWhen, sensorPeriodic);
     }
@@ -1064,6 +1149,7 @@ public class FRC {
      * @param updateOn when to update the sensor value.
      * @return A FloatInput that represents the count of an encoder
      */
+    @SetupPhase
     public static FloatInput encoder(int aChannel, int bChannel, boolean reverse, EventInput resetWhen, EventInput updateOn) {
         // TODO: check arguments; similar issue to Gyro
         return impl.makeEncoder(aChannel, bChannel, reverse, resetWhen, updateOn);
@@ -1086,6 +1172,7 @@ public class FRC {
      * @param updateOn Updates the FloatInput when this event is produced.
      * @return A FloatInput that represents the count of a counter
      */
+    @SetupPhase
     public static FloatInput counter(int upChannel, int downChannel, int mode, EventInput resetWhen, EventInput updateOn) {
         return impl.makeCounter(upChannel, downChannel, resetWhen, updateOn, mode);
     }
@@ -1106,6 +1193,7 @@ public class FRC {
      * event is produced.
      * @return A FloatInput that represents the count of a counter
      */
+    @SetupPhase
     public static FloatInput counter(int upChannel, int downChannel, int mode, EventInput resetWhen) {
         return impl.makeCounter(upChannel, downChannel, resetWhen, sensorPeriodic, mode);
     }
@@ -1124,6 +1212,7 @@ public class FRC {
      * @param updateOn Updates the FloatInput when this event is produced.
      * @return A FloatInput that represents the count of a counter
      */
+    @SetupPhase
     public static FloatInput counter(int upChannel, int downChannel, EventInput resetWhen, EventInput updateOn) {
         return impl.makeCounter(upChannel, downChannel, resetWhen, updateOn, TWO_PULSE_MODE);
     }
@@ -1140,6 +1229,7 @@ public class FRC {
      * event is produced.
      * @return A FloatInput that represents the count of a counter
      */
+    @SetupPhase
     public static FloatInput counter(int upChannel, int downChannel, EventInput resetWhen) {
         return impl.makeCounter(upChannel, downChannel, resetWhen, sensorPeriodic, TWO_PULSE_MODE);
     }
@@ -1151,6 +1241,7 @@ public class FRC {
      * @param channel The relay channel.
      * @return the output that will modify the forward side of the channel.
      */
+    @SetupPhase
     public static BooleanOutput relayForward(int channel) {
         return impl.makeRelayForwardOutput(channel);
     }
@@ -1162,6 +1253,7 @@ public class FRC {
      * @param channel The relay channel.
      * @return the output that will modify the reverse side of the channel.
      */
+    @SetupPhase
     public static BooleanOutput relayReverse(int channel) {
         return impl.makeRelayReverseOutput(channel);
     }
@@ -1182,6 +1274,7 @@ public class FRC {
      * @param evt When to reset the Gyro.
      * @return The reference to the Gyro's current value.
      */
+    @SetupPhase
     public static FloatInput gyro(int port, double sensitivity, EventInput evt) {
         return impl.makeGyro(port, sensitivity, evt, sensorPeriodic);
     }
@@ -1203,6 +1296,7 @@ public class FRC {
      * @param updateOn when to update the sensor value.
      * @return The reference to the Gyro's current value.
      */
+    @SetupPhase
     public static FloatInput gyro(int port, double sensitivity, EventInput evt, EventInput updateOn) {
         // TODO: Figure out if anything should change about makeGyro's arguments
         // now that I got rid of the no-event versions due to argument list
@@ -1216,6 +1310,7 @@ public class FRC {
      *
      * @param module the InstinctModule to register.
      */
+    @SetupPhase
     public static void registerAutonomous(InstinctModule module) {
         module.setShouldBeRunning(robotEnabled().and(inAutonomousMode()));
     }
@@ -1228,6 +1323,7 @@ public class FRC {
      * (used for debugging and the emulator.)
      * @return a RS232IO interface to the port.
      */
+    @SetupPhase
     public static RS232IO onboardRS232(int baudRate, String deviceName) {
         return impl.makeRS232_Onboard(deviceName).open(baudRate);
     }
@@ -1239,6 +1335,7 @@ public class FRC {
      * (used for debugging and the emulator.)
      * @return a RS232Bus interface to the port.
      */
+    @SetupPhase
     public static RS232Bus onboardRS232(String deviceName) {
         return impl.makeRS232_Onboard(deviceName);
     }
@@ -1251,6 +1348,7 @@ public class FRC {
      * (used for debugging and the emulator.)
      * @return a RS232IO interface to the port.
      */
+    @SetupPhase
     public static RS232IO mxpRS232(int baudRate, String deviceName) {
         return impl.makeRS232_MXP(deviceName).open(baudRate);
     }
@@ -1263,6 +1361,7 @@ public class FRC {
      * (used for debugging and the emulator.)
      * @return a RS232Bus interface to the port.
      */
+    @SetupPhase
     public static RS232Bus mxpRS232(String deviceName) {
         return impl.makeRS232_MXP(deviceName);
     }
@@ -1275,6 +1374,7 @@ public class FRC {
      * (used for debugging and the emulator.)
      * @return a RS232IO interface to the port.
      */
+    @SetupPhase
     public static RS232IO usbRS232(int baudRate, String deviceName) {
         return impl.makeRS232_USB(deviceName).open(baudRate);
     }
@@ -1287,6 +1387,7 @@ public class FRC {
      * (used for debugging and the emulator.)
      * @return a RS232Bus interface to the port.
      */
+    @SetupPhase
     public static RS232Bus usbRS232(String deviceName) {
         return impl.makeRS232_USB(deviceName);
     }
@@ -1299,6 +1400,7 @@ public class FRC {
      * (used for debugging and the emulator.)
      * @return a I2CBus interface to the port.
      */
+    @SetupPhase
     public static I2CBus onboardI2C(String deviceName) {
         return impl.makeI2C_Onboard(deviceName);
     }
@@ -1311,6 +1413,7 @@ public class FRC {
      * (used for debugging and the emulator.)
      * @return a I2CBus interface to the port.
      */
+    @SetupPhase
     public static I2CBus mxpI2C(String deviceName) {
         return impl.makeI2C_MXP(deviceName);
     }
@@ -1323,6 +1426,7 @@ public class FRC {
      * (used for debugging and the emulator.)
      * @return a SPIBus interface to the port.
      */
+    @SetupPhase
     public static SPIBus onboardSPI(int cs, String deviceName) {
         return impl.makeSPI_Onboard(cs, deviceName);
     }
@@ -1334,6 +1438,7 @@ public class FRC {
      * (used for debugging and the emulator.)
      * @return a SPIBus interface to the port.
      */
+    @SetupPhase
     public static SPIBus mxpSPI(String deviceName) {
         return impl.makeSPI_MXP(deviceName);
     }
@@ -1353,6 +1458,7 @@ public class FRC {
      * @return the ControlBindingCreator that you can make your controls
      * available over.
      */
+    @SetupPhase
     public static ControlBindingCreator controlBinding(String name, boolean bypassEmulation) {
         if (!bypassEmulation) {
             ControlBindingCreator out = impl.tryMakeControlBindingCreator(name);
@@ -1378,6 +1484,7 @@ public class FRC {
      * @see #controlBinding(String, boolean) if you want to choose whether or
      * not the emulator emulates control bindings directly.
      */
+    @SetupPhase
     public static ControlBindingCreator controlBinding(String name) {
         return controlBinding(name, false);
     }
@@ -1397,6 +1504,7 @@ public class FRC {
      * @see #controlBinding(String) if you want to change the name of the
      * module.
      */
+    @SetupPhase
     public static ControlBindingCreator controlBinding() {
         if (creator == null) {
             creator = controlBinding("Robot");
@@ -1414,6 +1522,7 @@ public class FRC {
      * names, or use a different number of Joysticks.
      * @see #controlBinding(String) if you just want to bind controls.
      */
+    @SetupPhase
     public static synchronized ControlBindingDataSource controlBindingSource() {
         if (builtControlSource == null) {
             builtControlSource = controlBindingSource("Joystick 1", "Joystick 2", "Joystick 3", "Joystick 4", "Joystick 5", "Joystick 6");
@@ -1429,6 +1538,7 @@ public class FRC {
      * @param names the names of the Joysticks to attach to, in order.
      * @return the generated control binding source.
      */
+    @SetupPhase
     public static ControlBindingDataSource controlBindingSource(String... names) {
         ControlBindingDataSourceBuildable ds = new ControlBindingDataSourceBuildable();
         for (int i = 0; i < names.length; i++) {
@@ -1445,6 +1555,7 @@ public class FRC {
      *
      * @return the global recorder
      */
+    @SetupPhase
     public static synchronized Recorder getRecorder() {
         if (rec == null) {
             try {
@@ -1457,9 +1568,24 @@ public class FRC {
             rec.recordEventInput(sensorPeriodic, "FRC.sensorPeriodic");
             rec.recordDiscreteInput(getMode(), "Robot Mode");
             rec.recordBooleanInput(isOnFMS(), "FRC.isOnFMS()");
-            rec.recordFloatInput(batteryVoltage(), "Battery Voltage");
+            FloatOutput voltage = rec.createFloatOutput("Battery Voltage");
+            // make sure it covers the entire range
+            voltage.set(13f);
+            voltage.set(0);
+            batteryVoltage().send(voltage);
         }
         return rec;
+    }
+
+    /**
+     * Calculates a unique identifier for this particular roboRIO, which is
+     * based on a data source like the MAC address.
+     *
+     * @return the roboRIO's unique identifier.
+     */
+    @SetupPhase
+    public static String getUniqueIdentifier() {
+        return impl.getUniqueIdentifier();
     }
 
     private FRC() {

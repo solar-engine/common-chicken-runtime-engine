@@ -960,64 +960,64 @@ class ExtendedTalonDirect extends TalonExtendedMotor {
     }
 
     private void changeMode(int mode) throws ExtendedMotorFailureException {
-        boolean enabled = enableMode == null ? false : enableMode;
-        if (enabled) {
-            disable();
-        }
-        activation_mode = mode;
-        if (mode == MODE_PERCENT) {
-            CanTalonJNI.Set(handle, 0);
-        } else {
-            CanTalonJNI.SetDemand(handle, 0);
-        }
-        if (enabled) {
-            enable();
+        try {
+            boolean enabled = enableMode == null ? false : enableMode;
+            if (enabled) {
+                disable();
+            }
+            activation_mode = mode;
+            if (mode == MODE_PERCENT) {
+                CanTalonJNI.Set(handle, 0);
+            } else {
+                CanTalonJNI.SetDemand(handle, 0);
+            }
+            if (enabled) {
+                enable();
+            }
+        } catch (RuntimeException ex) {
+            throw new ExtendedMotorFailureException("WPILib CANTalon Failure: Set Mode", ex);
         }
     }
 
     @Override
     public FloatOutput asMode(OutputControlMode mode) throws ExtendedMotorFailureException {
-        try {
-            switch (mode) {
-            case CURRENT_FIXED:
-                changeMode(MODE_CURRENT);
-                return (f) -> {
-                    // convert to milliamps
-                    CanTalonJNI.SetDemand(handle, (int) (f * 1000));
-                    potentiallyEnable();
-                };
-            case VOLTAGE_FIXED:
-                changeMode(MODE_VOLTAGE);
-                return (f) -> {
-                    // convert to volts, in 8.8 fixed point real
-                    CanTalonJNI.SetDemand(handle, (int) (f * 256));
-                    potentiallyEnable();
-                };
-            case GENERIC_FRACTIONAL:
-            case VOLTAGE_FRACTIONAL:
-                changeMode(MODE_PERCENT);
-                return (f) -> {
-                    CanTalonJNI.Set(handle, f);
-                    potentiallyEnable();
-                };
-            case POSITION_FIXED:
-                changeMode(MODE_POSITION);
-                return (f) -> {
-                    CanTalonJNI.SetDemand(handle, rotationsToNative(feedback, f));
-                    potentiallyEnable();
-                };
-            case SPEED_FIXED:
-                changeMode(MODE_SPEED);
-                return (f) -> {
-                    CanTalonJNI.SetDemand(handle, rpmToNative(feedback, f));
-                    potentiallyEnable();
-                };
-            // TODO: Support motion profiles.
-            default:
-                return null;
-            }
-        } catch (RuntimeException ex) {
-            throw new ExtendedMotorFailureException("WPILib CANTalon Failure: Set Mode", ex);
+        switch (mode) {
+        case CURRENT_FIXED:
+            changeMode(MODE_CURRENT);
+            return (f) -> {
+                // convert to milliamps
+                CanTalonJNI.SetDemand(handle, (int) (f * 1000));
+                potentiallyEnable();
+            };
+        case VOLTAGE_FIXED:
+            changeMode(MODE_VOLTAGE);
+            return (f) -> {
+                // convert to volts, in 8.8 fixed point real
+                CanTalonJNI.SetDemand(handle, (int) (f * 256));
+                potentiallyEnable();
+            };
+        case GENERIC_FRACTIONAL:
+        case VOLTAGE_FRACTIONAL:
+            changeMode(MODE_PERCENT);
+            return (f) -> {
+                CanTalonJNI.Set(handle, f);
+                potentiallyEnable();
+            };
+        case POSITION_FIXED:
+            changeMode(MODE_POSITION);
+            return (f) -> {
+                CanTalonJNI.SetDemand(handle, rotationsToNative(feedback, f));
+                potentiallyEnable();
+            };
+        case SPEED_FIXED:
+            changeMode(MODE_SPEED);
+            return (f) -> {
+                CanTalonJNI.SetDemand(handle, rpmToNative(feedback, f));
+                potentiallyEnable();
+            };
+        // TODO: Support motion profiles.
+        default:
+            return null;
         }
     }
 

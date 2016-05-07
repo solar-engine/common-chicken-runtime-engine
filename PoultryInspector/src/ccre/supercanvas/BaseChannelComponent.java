@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2015 Cel Skeggs.
+ * Copyright 2014-2016 Cel Skeggs.
  *
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  *
@@ -73,6 +73,7 @@ public abstract class BaseChannelComponent<View extends Enum<View>> extends Drag
             g.drawString(name, centerX - halfWidth + 5, centerY - halfHeight + 1 + g.getFontMetrics().getAscent());
             g.setColor(new Color(128, 128, 128, 128));
             g.fillOval(centerX - halfWidth + 2, centerY + halfHeight - 10, 8, 8);
+            g.fillOval(centerX - halfWidth + 11, centerY + halfHeight - 10, 8, 8);
             g.setColor(new Color(255, 0, 0, 128));
             g.fillOval(centerX + halfWidth - 10, centerY + halfHeight - 10, 8, 8);
         }
@@ -90,6 +91,10 @@ public abstract class BaseChannelComponent<View extends Enum<View>> extends Drag
         if (getPanel().editmode && centerY + halfHeight - 10 <= y && y <= centerY + halfHeight - 2) {
             if (centerX - halfWidth + 2 <= x && x <= centerX - halfWidth + 10) {
                 getPanel().add(new RConfComponent(x, y, "display config", this));
+                return true;
+            } else if (centerX - halfWidth + 11 <= x && x <= centerX - halfWidth + 19) {
+                View[] csts = activeView.getDeclaringClass().getEnumConstants();
+                activeView = csts[(activeView.ordinal() + 1) % csts.length];
                 return true;
             } else if (centerX + halfWidth - 10 <= x && x <= centerX + halfWidth - 2) {
                 if (this.onDelete(false)) {

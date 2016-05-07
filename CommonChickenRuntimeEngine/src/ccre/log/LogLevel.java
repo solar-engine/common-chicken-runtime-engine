@@ -22,6 +22,8 @@ import java.io.Serializable;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
+import ccre.verifier.FlowPhase;
+
 /**
  * Represents a Logging level. This represents how important/severe a logging
  * message is. The levels are, in order of descending severity: severe, warning,
@@ -102,6 +104,7 @@ public class LogLevel implements Serializable {
      * @see #toByte(ccre.log.LogLevel)
      * @throws IllegalArgumentException if the ID is invalid.
      */
+    @FlowPhase
     public static LogLevel fromByte(byte id) {
         if ((id + 9) % 3 != 0 || id < -9 || id > 9) {
             throw new IllegalArgumentException("Invalid LogLevel ID: " + id);

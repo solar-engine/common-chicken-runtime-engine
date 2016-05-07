@@ -20,6 +20,7 @@ package ccre.cluck.any;
 
 import ccre.cluck.CluckLink;
 import ccre.cluck.CluckNode;
+import ccre.verifier.FlowPhase;
 
 /**
  * A CluckNullLink is a link between two CluckNodes on the same computer, and an
@@ -119,6 +120,7 @@ public final class CluckNullLink implements CluckLink {
         return this;
     }
 
+    @Override
     public boolean send(String rest, String source, byte[] data) {
         if (paired == null) {
             return true;
@@ -127,6 +129,7 @@ public final class CluckNullLink implements CluckLink {
         return true;
     }
 
+    @FlowPhase
     private void pairTransmit(String rest, String source, byte[] data) {
         // Prepend link name
         if (linkName == null) {

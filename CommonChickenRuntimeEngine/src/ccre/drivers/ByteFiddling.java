@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 Cel Skeggs
+ * Copyright 2015-2016 Cel Skeggs
  *
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  *
@@ -28,7 +28,7 @@ import ccre.log.Logger;
 public class ByteFiddling {
 
     /**
-     * Find the first index of the byte b in the byte range, or -1 if it cannot
+     * Finds the first index of the byte b in the byte range, or -1 if it cannot
      * be found in that range.
      *
      * @param bytes the byte array.
@@ -61,7 +61,7 @@ public class ByteFiddling {
     }
 
     /**
-     * Parse the ASCII characters in the byte array into an integer.
+     * Parses the ASCII characters in the byte array into an integer.
      *
      * @param bytes the characters to parse.
      * @return the integer, or null if it cannot be parsed.
@@ -71,7 +71,7 @@ public class ByteFiddling {
     }
 
     /**
-     * Parse the ASCII characters in the byte section into an integer.
+     * Parses the ASCII characters in the byte section into an integer.
      *
      * @param bytes the byte array to parse.
      * @param from the start of the byte section.
@@ -131,7 +131,8 @@ public class ByteFiddling {
     }
 
     /**
-     * Split the byte section into multiple byte arrays with b as the delimiter.
+     * Splits the byte section into multiple byte arrays with b as the
+     * delimiter.
      *
      * Will always return 1 + n byte arrays, where n is the number of instances
      * of the byte in the byte section.
@@ -174,7 +175,7 @@ public class ByteFiddling {
     }
 
     /**
-     * Parse the ASCII characters in the byte array into a double.
+     * Parses the ASCII characters in the byte array into a double.
      *
      * @param bytes the byte array to parse.
      * @return the double, or null if it cannot be parsed.
@@ -184,7 +185,7 @@ public class ByteFiddling {
     }
 
     /**
-     * Parse the ASCII characters in the byte section into a double.
+     * Parses the ASCII characters in the byte section into a double.
      *
      * @param bytes the byte array to parse.
      * @param from the start of the byte section.
@@ -210,7 +211,7 @@ public class ByteFiddling {
     }
 
     /**
-     * Parse the ASCII characters in the byte section into a string.
+     * Parses the ASCII characters in the byte section into a string.
      *
      * @param bytes the byte array to parse.
      * @param from the start of the byte section.
@@ -226,7 +227,7 @@ public class ByteFiddling {
     }
 
     /**
-     * Encode the byte section into a hexadecimal string.
+     * Encodes the byte section into a hexadecimal string.
      *
      * @param bytes the byte array to encode.
      * @param from the start of the byte section.
@@ -253,6 +254,29 @@ public class ByteFiddling {
     private static final char[] hex = new char[] { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F' };
 
     /**
+     * Encodes a byte into a two-character hexadecimal string.
+     *
+     * @param b the byte to encode.
+     * @return the hexadecimal version.
+     */
+    public static String toHex(byte b) {
+        return new String(new char[] { toHexNibble((b >> 4) & 0xF), toHexNibble(b & 0xF) });
+    }
+
+    /**
+     * Encodes a nibble into a hexadecimal character.
+     *
+     * @param i the nibble to encode.
+     * @return the hexadecimal version.
+     */
+    public static char toHexNibble(int i) {
+        if (i < 0 || i >= 16) {
+            throw new IllegalArgumentException("Not a valid hex nibble!");
+        }
+        return hex[i];
+    }
+
+    /**
      * Converts four little-endian bytes from data into an integer.
      *
      * @param data the data to extract the bytes from
@@ -272,5 +296,27 @@ public class ByteFiddling {
      */
     public static int asInt32BE(byte[] data, int from) {
         return ((data[from] & 0xFF) << 24) | ((data[from + 1] & 0xFF) << 16) | ((data[from + 2] & 0xFF) << 8) | (data[from + 3] & 0xFF);
+    }
+
+    /**
+     * Converts two little-endian bytes from data into an unsigned integer.
+     *
+     * @param data the data to extract the bytes from
+     * @param from the index of the first byte
+     * @return the extracted integer.
+     */
+    public static int asInt16LE(byte[] data, int from) {
+        return (data[from] & 0xFF) | ((data[from + 1] & 0xFF) << 8);
+    }
+
+    /**
+     * Converts two big-endian bytes from data into an unsigned integer.
+     *
+     * @param data the data to extract the bytes from
+     * @param from the index of the first byte
+     * @return the extracted integer.
+     */
+    public static int asInt16BE(byte[] data, int from) {
+        return ((data[from] & 0xFF) << 8) | (data[from + 1] & 0xFF);
     }
 }

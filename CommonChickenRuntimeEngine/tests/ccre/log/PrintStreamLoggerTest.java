@@ -93,6 +93,7 @@ public class PrintStreamLoggerTest {
             // because warnings
             private static final long serialVersionUID = 1L;
 
+            @Override
             public void printStackTrace(PrintStream s) {
                 assertTrue(s == printStream);
                 ceo.event();

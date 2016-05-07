@@ -19,6 +19,7 @@
 package ccre.channel;
 
 import ccre.time.Time;
+import ccre.verifier.SetupPhase;
 
 /**
  * An event input or source. This produces events when it fires. A user can
@@ -54,6 +55,7 @@ public interface EventInput extends UpdatingInput {
      * NOT FIRE THIS RETURNED EVENT MORE THAN ONCE: UNDEFINED BEHAVIOR MAY
      * RESULT.
      */
+    @SetupPhase
     public default CancelOutput send(EventOutput output) {
         if (output == null) {
             throw new NullPointerException();
@@ -68,6 +70,7 @@ public interface EventInput extends UpdatingInput {
      * @param other the other EventInput.
      * @return the combined EventInput.
      */
+    @SetupPhase
     public default EventInput or(EventInput other) {
         if (other == null) {
             throw new NullPointerException();
@@ -88,6 +91,7 @@ public interface EventInput extends UpdatingInput {
      * @param allow if events should be allowed through.
      * @return the restricted EventInput.
      */
+    @SetupPhase
     public default EventInput and(BooleanInput allow) {
         if (allow == null) {
             throw new NullPointerException();
@@ -108,6 +112,7 @@ public interface EventInput extends UpdatingInput {
      * @param deny if events should be allowed through.
      * @return the restricted EventInput.
      */
+    @SetupPhase
     public default EventInput andNot(BooleanInput deny) {
         if (deny == null) {
             throw new NullPointerException();
@@ -132,6 +137,7 @@ public interface EventInput extends UpdatingInput {
      * @param minMillis the minimum spacing between events.
      * @return the debounced version of this EventInput.
      */
+    @SetupPhase
     public default EventInput debounced(final long minMillis) {
         if (minMillis <= 0) {
             throw new IllegalArgumentException("debounced() parameter must be positive!");

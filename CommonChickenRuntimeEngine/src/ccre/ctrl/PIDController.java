@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2015 Cel Skeggs.
+ * Copyright 2014-2016 Cel Skeggs.
  *
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  *
@@ -24,6 +24,8 @@ import ccre.channel.EventOutput;
 import ccre.channel.FloatCell;
 import ccre.channel.FloatInput;
 import ccre.time.Time;
+import ccre.verifier.FlowPhase;
+import ccre.verifier.SetupPhase;
 
 /**
  * A generic PID Controller for use in CCRE applications. Supports online tuning
@@ -60,7 +62,7 @@ public class PIDController implements FloatInput, EventOutput {
     private FloatInput maximumTimeDelta = FloatInput.always(0.1f); // 100ms.
 
     /**
-     * Create a simple fixed PID controller. It's very much possible to have
+     * Creates a simple fixed PID controller. It's very much possible to have
      * more control - just instantiate the class directly.
      *
      * @param trigger when to update.
@@ -72,6 +74,7 @@ public class PIDController implements FloatInput, EventOutput {
      * @return the PID controller, which is also an input representing the
      * current value.
      */
+    @SetupPhase
     public static PIDController createFixed(EventInput trigger, FloatInput input, FloatInput setpoint, float p, float i, float d) {
         PIDController ctrl = new PIDController(input, setpoint, FloatInput.always(p), FloatInput.always(i), FloatInput.always(d));
         ctrl.updateWhen(trigger);
@@ -79,7 +82,7 @@ public class PIDController implements FloatInput, EventOutput {
     }
 
     /**
-     * Create a new PIDController with the specified sources for its tuning.
+     * Creates a new PIDController with the specified sources for its tuning.
      *
      * @param input the input source for the PID controller.
      * @param setpoint the setpoint source for the PID controller.
@@ -99,75 +102,83 @@ public class PIDController implements FloatInput, EventOutput {
     }
 
     /**
-     * Restrict the PID output to the specified magnitude.
+     * Restricts the PID output to the specified magnitude.
      *
      * @param maximumAbsolute the maximum absolute value.
      */
+    @SetupPhase
     public void setOutputBounds(float maximumAbsolute) {
         setOutputBounds(FloatInput.always(maximumAbsolute));
     }
 
     /**
-     * Restrict the PID output to the specified magnitude.
+     * Restricts the PID output to the specified magnitude.
      *
      * @param maximumAbsolute the maximum absolute value.
      */
+    @SetupPhase
     public void setOutputBounds(FloatInput maximumAbsolute) {
         maxAbsOutput = maximumAbsolute;
     }
 
     /**
-     * Restrict the current integral sum to the specified magnitude.
+     * Restricts the current integral sum to the specified magnitude.
      *
      * @param maximumAbsolute the maximum absolute value.
      */
+    @SetupPhase
     public void setIntegralBounds(float maximumAbsolute) {
         setIntegralBounds(FloatInput.always(maximumAbsolute));
     }
 
     /**
-     * Restrict the current integral sum to the specified magnitude.
+     * Restricts the current integral sum to the specified magnitude.
      *
      * @param maximumAbsolute the maximum absolute value.
      */
+    @SetupPhase
     public void setIntegralBounds(FloatInput maximumAbsolute) {
         maxAbsIntegral = maximumAbsolute;
     }
 
     /**
-     * Set the maximum time delta: if two execution of the PIDController differ
+     * Sets the maximum time delta: if two execution of the PIDController differ
      * by more than the maximum time delta, the controller will pretend it only
      * differed by the maximum time delta.
      *
      * @param delta the new maximum time delta, in seconds.
      */
+    @SetupPhase
     public void setMaximumTimeDelta(float delta) {
         setMaximumTimeDelta(FloatInput.always(delta));
     }
 
     /**
-     * Set the maximum time delta: if two execution of the PIDController differ
+     * Sets the maximum time delta: if two execution of the PIDController differ
      * by more than the maximum time delta, the controller will pretend it only
      * differed by the maximum time delta.
      *
      * @param delta the new maximum time delta, in seconds.
      */
+    @SetupPhase
     public void setMaximumTimeDelta(FloatInput delta) {
         this.maximumTimeDelta = delta;
     }
 
     /**
-     * Update the PID controller on the specified event's occurrence.
+     * Updates the PID controller on the specified event's occurrence.
      *
      * @param when the event to trigger the controller with.
      */
+    @SetupPhase
     public void updateWhen(EventInput when) {
         when.send(this);
     }
 
     /**
-     * Update the PID controller.
+     * Updates the PID controller.
      */
+    @Override
     public void event() {
         long time = Time.currentTimeMillis();
         long timeDelta = time - previousTime;
@@ -176,12 +187,13 @@ public class PIDController implements FloatInput, EventOutput {
     }
 
     /**
-     * Update the PID controller, giving it a custom time delta in milliseconds
+     * Updates the PID controller, giving it a custom time delta in milliseconds
      * instead of letting it measure the delta itself.
      *
      * @param timeDelta the time delta
      * @throws IllegalArgumentException if timeDelta is negative
      */
+    @FlowPhase
     public void update(long timeDelta) throws IllegalArgumentException {
         float error = setpoint.get() - input.get();
         if (Float.isNaN(error) || Float.isInfinite(error)) {
@@ -212,6 +224,7 @@ public class PIDController implements FloatInput, EventOutput {
         }
     }
 
+    @Override
     public float get() {
         return output.get();
     }
@@ -222,12 +235,21 @@ public class PIDController implements FloatInput, EventOutput {
     }
 
     /**
-     * Get the error that was received on the last call, which is used to
+     * Gets the error that was received on the last call, which is used to
      * calculate the D component.
      *
      * @return the previous error
      */
+    @FlowPhase
     public float getPreviousError() {
         return previousError;
+    }
+
+    /**
+     * Sets the integral accumulator to zero.
+     */
+    @FlowPhase
+    public void reset() {
+        integralTotal.set(0);
     }
 }

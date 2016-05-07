@@ -47,6 +47,7 @@ public final class Behavior {
         return name;
     }
 
+    @Override
     public String toString() {
         return "[Behavior " + parent.getName() + "." + name + "]";
     }

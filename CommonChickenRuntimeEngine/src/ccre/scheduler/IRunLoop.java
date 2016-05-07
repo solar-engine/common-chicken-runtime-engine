@@ -19,13 +19,18 @@
 package ccre.scheduler;
 
 import ccre.channel.EventOutput;
+import ccre.verifier.FlowPhase;
+import ccre.verifier.SetupPhase;
 
 interface IRunLoop {
 
+    @FlowPhase
     void add(String tag, EventOutput event, long time);
 
+    @SetupPhase
     void terminate();
 
+    @SetupPhase
     void start();
 
 }

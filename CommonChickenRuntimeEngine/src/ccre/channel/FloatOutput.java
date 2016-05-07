@@ -22,6 +22,8 @@ import java.io.Serializable;
 
 import ccre.log.Logger;
 import ccre.time.Time;
+import ccre.verifier.FlowPhase;
+import ccre.verifier.SetupPhase;
 
 /**
  * A FloatOutput is an interface for anything that can be set to an analog
@@ -39,10 +41,12 @@ public interface FloatOutput extends Serializable {
      * A FloatOutput that goes nowhere. All data sent here is ignored.
      */
     FloatOutput ignored = new FloatOutput() {
+        @Override
         public void set(float newValue) {
         }
 
         // Important to the functioning of static BooleanOutput.combine
+        @Override
         public FloatOutput combine(FloatOutput other) {
             if (other == null) {
                 throw new NullPointerException();
@@ -63,6 +67,7 @@ public interface FloatOutput extends Serializable {
      * @param value the new value to send to this output.
      * @see #safeSet(float) for a version that catches any errors that occur.
      */
+    @FlowPhase
     public void set(float value);
 
     /**
@@ -78,6 +83,7 @@ public interface FloatOutput extends Serializable {
      * @param value the new value to send to this output.
      * @see #set(float) for a version that throws any errors that occur.
      */
+    @FlowPhase
     public default void safeSet(float value) {
         try {
             set(value);
@@ -93,6 +99,7 @@ public interface FloatOutput extends Serializable {
      * @param value the value to use.
      * @return an event that sets the value.
      */
+    @SetupPhase
     public default EventOutput eventSet(float value) {
         return () -> set(value);
     }
@@ -104,6 +111,7 @@ public interface FloatOutput extends Serializable {
      * @param value the input to read the new value from.
      * @return an event that sets the value.
      */
+    @SetupPhase
     public default EventOutput eventSet(FloatInput value) {
         if (value == null) {
             throw new NullPointerException();
@@ -118,6 +126,7 @@ public interface FloatOutput extends Serializable {
      * @param value the value to set.
      * @param when when to set the value.
      */
+    @SetupPhase
     public default void setWhen(float value, EventInput when) {
         if (when == null) {
             throw new NullPointerException();
@@ -132,6 +141,7 @@ public interface FloatOutput extends Serializable {
      * @param value the input to read the new value from.
      * @param when when to set the value.
      */
+    @SetupPhase
     public default void setWhen(FloatInput value, EventInput when) {
         if (value == null || when == null) {
             throw new NullPointerException();
@@ -152,6 +162,7 @@ public interface FloatOutput extends Serializable {
      * @param other the EventOutput to combine this EventOutput with.
      * @return the combined EventOutput.
      */
+    @SetupPhase
     public default FloatOutput combine(FloatOutput other) {
         if (other == null) {
             throw new NullPointerException();
@@ -186,6 +197,7 @@ public interface FloatOutput extends Serializable {
      * @param outputs the FloatOutputs to include.
      * @return the combined version of the FloatOutputs.
      */
+    @SetupPhase
     public static FloatOutput combine(FloatOutput... outputs) {
         // This works without including 'ignored' in the actual data structure
         // by having 'ignored' drop itself during combine.
@@ -202,6 +214,7 @@ public interface FloatOutput extends Serializable {
      *
      * @return the negated version of this FloatOutput.
      */
+    @SetupPhase
     public default FloatOutput negate() {
         return FloatFilter.negate.wrap(this);
     }
@@ -214,6 +227,7 @@ public interface FloatOutput extends Serializable {
      * @param deadzone the size of the deadzone to apply.
      * @return the deadzoned version of this FloatOutput.
      */
+    @SetupPhase
     public default FloatOutput outputDeadzone(float deadzone) {
         return FloatFilter.deadzone(deadzone).wrap(this);
     }
@@ -226,6 +240,7 @@ public interface FloatOutput extends Serializable {
      * @param updateWhen when the ramping should update.
      * @return a ramped version of this FloatOutput.
      */
+    @SetupPhase
     public default FloatOutput addRamping(final float limit, EventInput updateWhen) {
         if (updateWhen == null) {
             throw new NullPointerException();
@@ -243,6 +258,7 @@ public interface FloatOutput extends Serializable {
      *
      * @return the FloatOutput to take the derivative of.
      */
+    @SetupPhase
     public default FloatOutput viaDerivative() {
         FloatOutput original = this;
         return new FloatOutput() {
@@ -251,6 +267,7 @@ public interface FloatOutput extends Serializable {
             private long lastUpdateNanos = UNINITIALIZED;
             private float lastValue = Float.NaN;
 
+            @Override
             public synchronized void set(float value) {
                 long timeNanos = Time.currentTimeNanos();
                 if (lastUpdateNanos == UNINITIALIZED) {
@@ -280,6 +297,7 @@ public interface FloatOutput extends Serializable {
      * @param allow when to allow changing of the result.
      * @return the lockable version of this FloatOutput.
      */
+    @SetupPhase
     public default FloatOutput filter(BooleanInput allow) {
         FloatOutput original = this;
         return new FloatOutput() {
@@ -316,6 +334,7 @@ public interface FloatOutput extends Serializable {
      * @param deny when to deny changing of the result.
      * @return the lockable version of this FloatOutput.
      */
+    @SetupPhase
     public default FloatOutput filterNot(BooleanInput deny) {
         return this.filter(deny.not());
     }
@@ -329,6 +348,7 @@ public interface FloatOutput extends Serializable {
      * @param on the value for this FloatOutput when the BooleanOutput is true.
      * @return the BooleanOutput that controls this FloatOutput.
      */
+    @SetupPhase
     public default BooleanOutput fromBoolean(final float off, final float on) {
         return fromBoolean(FloatInput.always(off), FloatInput.always(on));
     }
@@ -343,6 +363,7 @@ public interface FloatOutput extends Serializable {
      * BooleanOutput is true.
      * @return the BooleanOutput that controls this FloatOutput.
      */
+    @SetupPhase
     public default BooleanOutput fromBoolean(float off, FloatInput on) {
         return fromBoolean(FloatInput.always(off), on);
     }
@@ -356,6 +377,7 @@ public interface FloatOutput extends Serializable {
      * @param on the value for this FloatOutput when the BooleanOutput is true.
      * @return the BooleanOutput that controls this FloatOutput.
      */
+    @SetupPhase
     public default BooleanOutput fromBoolean(FloatInput off, float on) {
         return fromBoolean(off, FloatInput.always(on));
     }
@@ -370,6 +392,7 @@ public interface FloatOutput extends Serializable {
      * BooleanOutput is true.
      * @return the BooleanOutput that controls this FloatOutput.
      */
+    @SetupPhase
     public default BooleanOutput fromBoolean(FloatInput off, FloatInput on) {
         return new BooleanOutput() {
             private boolean lastValue, anyValue = false;
@@ -396,6 +419,7 @@ public interface FloatOutput extends Serializable {
                 }
             }
 
+            @FlowPhase
             private void update() {
                 FloatOutput.this.set(lastValue ? on.get() : off.get());
             }
@@ -410,6 +434,7 @@ public interface FloatOutput extends Serializable {
      * @param negate whether or not the output should be negated
      * @return the possibly negated version of this FloatOutput
      */
+    @SetupPhase
     public default FloatOutput negateIf(BooleanInput negate) {
         final FloatOutput aThis = this;
         return new FloatOutput() {
@@ -444,6 +469,7 @@ public interface FloatOutput extends Serializable {
      * will also be sent to this FloatOutput immediately
      * @return a new IO
      */
+    @SetupPhase
     public default FloatIO cell(float default_value) {
         FloatIO fio = new FloatCell(default_value);
         fio.send(this);

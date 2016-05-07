@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2015 Cel Skeggs
+ * Copyright 2013-2016 Cel Skeggs
  *
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  *
@@ -18,41 +18,29 @@
  */
 package org.team1540.example;
 
-import ccre.channel.BooleanOutput;
-import ccre.channel.FloatInput;
-import ccre.channel.FloatOutput;
-import ccre.ctrl.Drive;
-import ccre.frc.FRC;
-import ccre.instinct.AutonomousModeOverException;
-import ccre.instinct.InstinctModule;
+import ccre.channel.*;
+import ccre.ctrl.*;
+import ccre.frc.*;
+import ccre.instinct.*;
 
 /**
  * A slightly-more-complex Test program. This handles driving, shifting, the
  * compressor, and autonomous.
- *
- * @author skeggsc
  */
-public class Test {
-
-    /**
-     * Set up the test robot. This includes tank drive, high gear/low gear, a
-     * compressor, and a simple autonomous.
-     */
+public class Test implements FRCApplication {
     public void setupRobot() {
-        // Driving
         FloatInput leftAxis = FRC.joystick1.axis(2);
         FloatInput rightAxis = FRC.joystick1.axis(5);
-        final FloatOutput leftOut = FRC.talon(2, FRC.MOTOR_FORWARD, 0.1f);
-        final FloatOutput rightOut = FRC.talon(1, FRC.MOTOR_REVERSE, 0.1f);
+        FloatOutput leftOut = FRC.talon(2, FRC.MOTOR_FORWARD);
+        FloatOutput rightOut = FRC.talon(1, FRC.MOTOR_REVERSE);
+
         Drive.tank(leftAxis, rightAxis, leftOut, rightOut);
-        // Shifting
+
         BooleanOutput shifter = FRC.solenoid(2);
         shifter.setFalseWhen(FRC.startTele);
         shifter.setTrueWhen(FRC.joystick1.onPress(3));
         shifter.setFalseWhen(FRC.joystick1.onPress(1));
-        // Compressor
-        FRC.compressor(1, 1);
-        // Autonomous
+
         FRC.registerAutonomous(new InstinctModule() {
             @Override
             protected void autonomousMain() throws AutonomousModeOverException, InterruptedException {

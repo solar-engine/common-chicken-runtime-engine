@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 Cel Skeggs.
+ * Copyright 2014,2016 Cel Skeggs.
  *
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  *
@@ -45,7 +45,7 @@ public class FolderComponent extends DraggableBoxComponent {
      * @param cy The Y-coordinate.
      */
     public FolderComponent(int cx, int cy) {
-        super(cx, cy, true);
+        super(cx, cy, 0, true);
     }
 
     @Override

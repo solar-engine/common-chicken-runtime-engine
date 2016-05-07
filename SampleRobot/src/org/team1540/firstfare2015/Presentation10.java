@@ -10,7 +10,7 @@ public class Presentation10 implements FRCApplication {
 
     public void setupRobot() throws ExtendedMotorFailureException {
         // With CAN:
-        FloatOutput motorA = FRC.talonSimpleCAN(0, FRC.MOTOR_FORWARD);
+        FloatOutput motorA = FRC.talonCANControl(0, FRC.MOTOR_FORWARD);
         // Without CAN:
         FloatOutput motorB = FRC.talon(0, FRC.MOTOR_FORWARD);
 

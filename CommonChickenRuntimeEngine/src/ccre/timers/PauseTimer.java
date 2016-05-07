@@ -21,13 +21,13 @@ package ccre.timers;
 import ccre.channel.AbstractUpdatingInput;
 import ccre.channel.BooleanInput;
 import ccre.channel.BooleanOutput;
-import ccre.channel.CancelOutput;
 import ccre.channel.EventOutput;
 import ccre.channel.FloatInput;
 import ccre.log.Logger;
 import ccre.scheduler.Scheduler;
 import ccre.time.Time;
 import ccre.util.Utils;
+import ccre.verifier.SetupPhase;
 
 /**
  * A PauseTimer has a boolean state for running or not, which is readable but
@@ -45,7 +45,7 @@ public class PauseTimer extends AbstractUpdatingInput implements BooleanInput, E
 
     private final Object cancelLock = new Object();
     // null if not running; value if running
-    private volatile CancelOutput cancel = null;
+    private volatile EventOutput cancel = null;
     private final FloatInput timeout;
 
     /**
@@ -107,21 +107,27 @@ public class PauseTimer extends AbstractUpdatingInput implements BooleanInput, E
     /**
      * Start the timer running.
      */
+    @Override
     public void event() {
+        boolean raise = true;
         synchronized (cancelLock) {
             if (cancel != null) {
-                cancel.cancel();
+                cancel.event();
                 cancel = null;
+                raise = false;
             }
-            cancel = Scheduler.scheduleCancellableNanos(this.tag, (long) (timeout.get() * Time.NANOSECONDS_PER_SECOND), end);
+            cancel = Scheduler.scheduleInterruptibleNanos(this.tag, (long) (timeout.get() * Time.NANOSECONDS_PER_SECOND), end);
         }
-        try {
-            perform();
-        } catch (Throwable thr) {
-            Logger.severe("Failure while starting PauseTimer", thr);
+        if (raise) {
+            try {
+                perform();
+            } catch (Throwable thr) {
+                Logger.severe("Failure while starting PauseTimer", thr);
+            }
         }
     }
 
+    @Override
     public boolean get() {
         return cancel != null;
     }
@@ -131,6 +137,7 @@ public class PauseTimer extends AbstractUpdatingInput implements BooleanInput, E
      *
      * @param trigger The EventOutput to trigger.
      */
+    @SetupPhase
     public void triggerAtEnd(EventOutput trigger) {
         send(BooleanOutput.polarize(trigger, null));
     }
@@ -140,6 +147,7 @@ public class PauseTimer extends AbstractUpdatingInput implements BooleanInput, E
      *
      * @param trigger The EventOutput to trigger.
      */
+    @SetupPhase
     public void triggerAtStart(EventOutput trigger) {
         send(BooleanOutput.polarize(null, trigger));
     }
@@ -151,6 +159,7 @@ public class PauseTimer extends AbstractUpdatingInput implements BooleanInput, E
      * @param start The EventOutput to trigger when the timer starts.
      * @param end The EventOutput to trigger when the timer ends.
      */
+    @SetupPhase
     public void triggerAtChanges(EventOutput start, EventOutput end) {
         send(BooleanOutput.polarize(end, start));
     }

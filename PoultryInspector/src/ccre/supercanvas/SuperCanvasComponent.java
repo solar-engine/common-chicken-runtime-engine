@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 Cel Skeggs.
+ * Copyright 2014,2016 Cel Skeggs.
  *
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  *
@@ -36,6 +36,7 @@ public abstract class SuperCanvasComponent implements Serializable {
      * If true, don't show this component in operate mode.
      */
     public final boolean hideInOperateMode;
+    final int zIndex;
 
     private transient SuperCanvasPanel panel;
 
@@ -44,16 +45,19 @@ public abstract class SuperCanvasComponent implements Serializable {
      * canvas is in EDIT mode or OPERATE mode.
      */
     public SuperCanvasComponent() {
+        zIndex = 0;
         hideInOperateMode = false;
     }
 
     /**
      * Create a new SuperCanvasComponent.
      *
+     * @param zIndex the Z-index (ordering index) of this component.
      * @param hideInOperateMode if the component should be hidden when the
      * canvas is in OPERATE mode.
      */
-    public SuperCanvasComponent(boolean hideInOperateMode) {
+    public SuperCanvasComponent(int zIndex, boolean hideInOperateMode) {
+        this.zIndex = zIndex;
         this.hideInOperateMode = hideInOperateMode;
     }
 

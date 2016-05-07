@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2015 Cel Skeggs.
+ * Copyright 2014-2016 Cel Skeggs.
  *
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  *
@@ -54,7 +54,7 @@ public class PaletteComponent<T extends Iterable<? extends PaletteEntry>> extend
      * @param entries The iterable of entries to include on the list.
      */
     public PaletteComponent(int cx, int cy, T entries) {
-        super(cx, cy, true);
+        super(cx, cy, 0, true);
         this.entries = entries;
     }
 

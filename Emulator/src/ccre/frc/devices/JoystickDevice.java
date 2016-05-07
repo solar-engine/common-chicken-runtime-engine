@@ -178,7 +178,6 @@ public class JoystickDevice extends DeviceGroup {
 
             @Override
             public FloatOutput rumble(boolean right) {
-                Logger.info("RUMBLE CREATE: " + right);
                 int index = right ? 1 : 0;
                 if (rumbles[index] == null) {
                     rumbles[index] = new FloatViewDevice(right ? "Rumble Right" : "Rumble Left", 0, 1);
@@ -186,7 +185,7 @@ public class JoystickDevice extends DeviceGroup {
                     add(rumbles[index]);
                     addToMaster();
                 }
-                return rumbles[index].combine((f) -> Logger.finest("Update: " + f));
+                return rumbles[index];
             }
         });
     }

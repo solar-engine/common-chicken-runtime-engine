@@ -34,7 +34,7 @@ cbb5f9c62def6fddd18c36a3a69fd35937c7d9bacd90d3dae54c085ae65587aa  ./CommonChicke
 191920a66eb7355dc8c88b5c4b5af04b9bffc46226b27fd2fc492e70c44d08f8  ./DeploymentEngine/src/ccre/deployment/eggs/ArtifactDeployer.java
 52dacca70f836ba930ec74bf5f3ed9ed1b43c59a92e4763a84e948d42a84d3b9  ./DeploymentEngine/src/ccre/deployment/eggs/EggHatcher.java
 8038db7ea954fdc818f13809b50147c8886ea3f6dc2069c0d27dd9cbbb512429  ./DeploymentEngine/src/ccre/deployment/Shell.java
-2aa4ab15ae58fb0f55de5d697d548dd1e13e7a59767ff4c516642a775797e58d  ./DeploymentEngine/src/ccre/deployment/DepJava.java
+a501c185bc7e516d4cdbe56913100af26e3b927aed5b7a2fb0ec065ded9c0e7e  ./DeploymentEngine/src/ccre/deployment/DepJava.java
 53ecce87c6352b3f2d21e4fede41a57471a2ed93c03457277b1dc95c93bb2459  ./Emulator/src/ccre/frc/DeviceGroup.java
 906ab38b984aafdb2d9c704d61a208531562a04bad2d4d62153e3d638aa6db74  ./Emulator/src/ccre/frc/DeviceListPanel.java
 821750e371a80041623db4f62994275a9243d174de6735807330f74406eb0176  ./roboRIO/src/edu/wpi/first/wpilibj/can/CANExceptionFactory.java

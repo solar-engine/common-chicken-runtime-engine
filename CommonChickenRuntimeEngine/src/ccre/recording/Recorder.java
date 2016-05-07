@@ -93,9 +93,11 @@ public class Recorder {
     }
 
     /**
-     * Closes and shuts down this recorder, and waits for the operation to complete.
+     * Closes and shuts down this recorder, and waits for the operation to
+     * complete.
      *
-     * @throws InterruptedException if the thread is interrupted while waiting for the recorder to close.
+     * @throws InterruptedException if the thread is interrupted while waiting
+     * for the recorder to close.
      */
     @SetupPhase
     public void close() throws InterruptedException {

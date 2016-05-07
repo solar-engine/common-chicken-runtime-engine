@@ -476,5 +476,8 @@ public interface FRCImplementation {
      */
     public EventInput getOnInitComplete();
 
+    /**
+     * @return the roboRIO's unique identifier.
+     */
     public String getUniqueIdentifier();
 }

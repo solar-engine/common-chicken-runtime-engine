@@ -47,6 +47,11 @@ public class DepEmulator {
         classLoader.loadClass("ccre.frc.DeviceListMain").getMethod("emulate", String.class, File.class).invoke(null, mainClass, storageDir);
     }
 
+    /**
+     * Returns the File contain the Jar for the emulator.
+     *
+     * @return the Jar's path.
+     */
     public static File getEmulatorJar() {
         return new File(DepProject.ccreProject("Emulator"), "Emulator.jar");
     }

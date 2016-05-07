@@ -23,7 +23,15 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-// TODO: is field a good choice?
+/**
+ * A phase annotation that declares which phase a method or constructor may be
+ * used in. Flow phase is the phase of robot code that is actively running and
+ * is expected to run an extremely large number of times. Allocation should be
+ * avoided here, and any memory leaks could prove catastrophic. As well,
+ * sleeping or waiting of any form could be problematic.
+ *
+ * @author skeggsc
+ */
 @Target({ ElementType.METHOD, ElementType.CONSTRUCTOR })
 @Retention(RetentionPolicy.CLASS)
 public @interface FlowPhase {

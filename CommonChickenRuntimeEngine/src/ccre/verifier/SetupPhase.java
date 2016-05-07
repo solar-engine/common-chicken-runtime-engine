@@ -23,7 +23,17 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-// TODO: is field a good choice?
+/**
+ * A phase annotation that declares which phase a method or constructor may be
+ * used in. setup phase is the phase of robot code that sets up and/or
+ * configures the robot's execution. It is expected to run a small, finite
+ * numbers of times, though it can be triggered by explicit user actions at
+ * runtime. Allocation and minor memory leaks are not an issue in this mode.
+ * Sleeping or waiting are slightly discouraged, but not particularly
+ * problematic.
+ *
+ * @author skeggsc
+ */
 @Target({ ElementType.METHOD, ElementType.CONSTRUCTOR })
 @Retention(RetentionPolicy.CLASS)
 public @interface SetupPhase {

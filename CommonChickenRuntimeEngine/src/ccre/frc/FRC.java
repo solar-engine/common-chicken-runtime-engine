@@ -1577,6 +1577,12 @@ public class FRC {
         return rec;
     }
 
+    /**
+     * Calculates a unique identifier for this particular roboRIO, which is
+     * based on a data source like the MAC address.
+     *
+     * @return the roboRIO's unique identifier.
+     */
     @SetupPhase
     public static String getUniqueIdentifier() {
         return impl.getUniqueIdentifier();

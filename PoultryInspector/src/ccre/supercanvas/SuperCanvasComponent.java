@@ -52,6 +52,7 @@ public abstract class SuperCanvasComponent implements Serializable {
     /**
      * Create a new SuperCanvasComponent.
      *
+     * @param zIndex the Z-index (ordering index) of this component.
      * @param hideInOperateMode if the component should be hidden when the
      * canvas is in OPERATE mode.
      */

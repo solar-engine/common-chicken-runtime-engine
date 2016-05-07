@@ -23,6 +23,12 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+/**
+ * An annotation used by the phase verifier. This suppresses phase-related
+ * warnings from being displayed in this method or constructor.
+ *
+ * @author skeggsc
+ */
 @Target({ ElementType.METHOD, ElementType.CONSTRUCTOR })
 @Retention(RetentionPolicy.CLASS)
 public @interface SuppressPhaseWarnings {

@@ -170,6 +170,7 @@ public abstract class InstinctModule extends InstinctBaseModule {
     }
 
     @Override
+    // TODO: ensure that this always gets used?
     void ensureShouldBeRunning() throws AutonomousModeOverException {
         if (!shouldBeRunning.get()) {
             throw new AutonomousModeOverException();
@@ -188,6 +189,9 @@ public abstract class InstinctModule extends InstinctBaseModule {
         return bc;
     }
 
+    /**
+     * Cancels this autonomous mode as soon as possible.
+     */
     public void abortMode() {
         main.interrupt();
     }

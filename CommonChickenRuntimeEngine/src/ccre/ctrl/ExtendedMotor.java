@@ -325,6 +325,15 @@ public abstract class ExtendedMotor {
         return output;
     }
 
+    /**
+     * Opens the controller in a simple output mode:
+     * {@link OutputControlMode#GENERIC_FRACTIONAL}. If it cannot be opened in
+     * this mode, a {@link RuntimeException} will be thrown.
+     *
+     * @return the output representing the controller, which can be varied from
+     * -1.0 to +1.0 to control the speed.
+     * @see #asMode(OutputControlMode) for how this works.
+     */
     @SetupPhase
     public FloatOutput simpleControlSafe() {
         try {
@@ -356,6 +365,18 @@ public abstract class ExtendedMotor {
         return motor;
     }
 
+    /**
+     * Opens the controller in a simple output mode:
+     * {@link OutputControlMode#GENERIC_FRACTIONAL}, optionally reversed. If it
+     * cannot be opened in this mode, a {@link RuntimeException} will be thrown.
+     *
+     * @param reversed if the values sent to this motor should be negated. You
+     * can use {@link FRC#MOTOR_FORWARD} and {@link FRC#MOTOR_REVERSE} for
+     * clarity.
+     * @return the output representing the controller, which can be varied from
+     * -1.0 to +1.0 to control the speed.
+     * @see #asMode(OutputControlMode) for how this works.
+     */
     @SetupPhase
     public FloatOutput simpleControlSafe(boolean reversed) {
         try {

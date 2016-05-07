@@ -23,7 +23,14 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-// TODO: is field a good choice?
+/**
+ * A phase annotation that declares which phase a method or constructor may be
+ * used in. Ignored phase is used when a method doesn't have an affinity for any
+ * particular phase, and should be allowed for any caller. For example,
+ * converting an object to a string.
+ *
+ * @author skeggsc
+ */
 @Target({ ElementType.METHOD, ElementType.CONSTRUCTOR })
 @Retention(RetentionPolicy.CLASS)
 public @interface IgnoredPhase {

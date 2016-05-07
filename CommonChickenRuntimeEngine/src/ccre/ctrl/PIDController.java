@@ -62,7 +62,7 @@ public class PIDController implements FloatInput, EventOutput {
     private FloatInput maximumTimeDelta = FloatInput.always(0.1f); // 100ms.
 
     /**
-     * Create a simple fixed PID controller. It's very much possible to have
+     * Creates a simple fixed PID controller. It's very much possible to have
      * more control - just instantiate the class directly.
      *
      * @param trigger when to update.
@@ -82,7 +82,7 @@ public class PIDController implements FloatInput, EventOutput {
     }
 
     /**
-     * Create a new PIDController with the specified sources for its tuning.
+     * Creates a new PIDController with the specified sources for its tuning.
      *
      * @param input the input source for the PID controller.
      * @param setpoint the setpoint source for the PID controller.
@@ -102,7 +102,7 @@ public class PIDController implements FloatInput, EventOutput {
     }
 
     /**
-     * Restrict the PID output to the specified magnitude.
+     * Restricts the PID output to the specified magnitude.
      *
      * @param maximumAbsolute the maximum absolute value.
      */
@@ -112,7 +112,7 @@ public class PIDController implements FloatInput, EventOutput {
     }
 
     /**
-     * Restrict the PID output to the specified magnitude.
+     * Restricts the PID output to the specified magnitude.
      *
      * @param maximumAbsolute the maximum absolute value.
      */
@@ -122,7 +122,7 @@ public class PIDController implements FloatInput, EventOutput {
     }
 
     /**
-     * Restrict the current integral sum to the specified magnitude.
+     * Restricts the current integral sum to the specified magnitude.
      *
      * @param maximumAbsolute the maximum absolute value.
      */
@@ -132,7 +132,7 @@ public class PIDController implements FloatInput, EventOutput {
     }
 
     /**
-     * Restrict the current integral sum to the specified magnitude.
+     * Restricts the current integral sum to the specified magnitude.
      *
      * @param maximumAbsolute the maximum absolute value.
      */
@@ -142,7 +142,7 @@ public class PIDController implements FloatInput, EventOutput {
     }
 
     /**
-     * Set the maximum time delta: if two execution of the PIDController differ
+     * Sets the maximum time delta: if two execution of the PIDController differ
      * by more than the maximum time delta, the controller will pretend it only
      * differed by the maximum time delta.
      *
@@ -154,7 +154,7 @@ public class PIDController implements FloatInput, EventOutput {
     }
 
     /**
-     * Set the maximum time delta: if two execution of the PIDController differ
+     * Sets the maximum time delta: if two execution of the PIDController differ
      * by more than the maximum time delta, the controller will pretend it only
      * differed by the maximum time delta.
      *
@@ -166,7 +166,7 @@ public class PIDController implements FloatInput, EventOutput {
     }
 
     /**
-     * Update the PID controller on the specified event's occurrence.
+     * Updates the PID controller on the specified event's occurrence.
      *
      * @param when the event to trigger the controller with.
      */
@@ -176,7 +176,7 @@ public class PIDController implements FloatInput, EventOutput {
     }
 
     /**
-     * Update the PID controller.
+     * Updates the PID controller.
      */
     @Override
     public void event() {
@@ -187,7 +187,7 @@ public class PIDController implements FloatInput, EventOutput {
     }
 
     /**
-     * Update the PID controller, giving it a custom time delta in milliseconds
+     * Updates the PID controller, giving it a custom time delta in milliseconds
      * instead of letting it measure the delta itself.
      *
      * @param timeDelta the time delta
@@ -235,7 +235,7 @@ public class PIDController implements FloatInput, EventOutput {
     }
 
     /**
-     * Get the error that was received on the last call, which is used to
+     * Gets the error that was received on the last call, which is used to
      * calculate the D component.
      *
      * @return the previous error
@@ -245,6 +245,9 @@ public class PIDController implements FloatInput, EventOutput {
         return previousError;
     }
 
+    /**
+     * Sets the integral accumulator to zero.
+     */
     @FlowPhase
     public void reset() {
         integralTotal.set(0);

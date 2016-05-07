@@ -60,6 +60,7 @@ public abstract class DraggableBoxComponent extends SuperCanvasComponent {
      *
      * @param cx The X-coordinate.
      * @param cy The Y-coordinate.
+     * @param zIndex the Z-index (ordering index) of this component.
      * @param hideInOperateMode if this should be invisible during OPERATE mode.
      */
     public DraggableBoxComponent(int cx, int cy, int zIndex, boolean hideInOperateMode) {

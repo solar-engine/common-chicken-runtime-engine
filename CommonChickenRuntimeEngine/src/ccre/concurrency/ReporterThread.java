@@ -81,10 +81,17 @@ public abstract class ReporterThread extends Thread {
         }
     }
 
+    /**
+     * Starts this thread if it is not already running.
+     *
+     * @return true if the thread was started, or false if it was already
+     * running.
+     * @throws IllegalThreadStateException if the thread had died.
+     */
     @FlowPhase
     @SuppressPhaseWarnings // because it occurs at most once per thread, it's
                            // okay to run start() in flow mode
-    public boolean startIfNotAlive() {
+    public boolean startIfNotAlive() throws IllegalThreadStateException {
         if (isAlive()) {
             return false;
         }

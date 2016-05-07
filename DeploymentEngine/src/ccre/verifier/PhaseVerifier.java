@@ -40,6 +40,12 @@ import ccre.verifier.ClassParser.ClassFile;
 import ccre.verifier.ClassParser.MethodInfo;
 import ccre.verifier.ClassParser.TypeInfo;
 
+/**
+ * A tool that can verify that a chunk of code does not include any phase
+ * mismatches that could lead to obscure robot code issues.
+ *
+ * @author skeggsc
+ */
 public class PhaseVerifier {
     private static final HashMap<String, Phase> externals = new HashMap<>();
     static {
@@ -69,6 +75,13 @@ public class PhaseVerifier {
         this.deps = deps;
     }
 
+    /**
+     * Verifies that all classes in <code>target</code> are properly phased.
+     * Warnings will be logged for every mistake.
+     *
+     * @param target the classes to verify.
+     * @param deps all possible non-built-in dependencies of the classes.
+     */
     public static void verify(Artifact target, Artifact... deps) {
         int warnings = new PhaseVerifier(target, deps).verifyAll();
         Logger.warning("Found " + warnings + " warnings during phase verification.");

@@ -26,6 +26,7 @@ import ccre.channel.DerivedFloatInput;
 import ccre.channel.EventInput;
 import ccre.channel.FloatInput;
 import ccre.channel.FloatOutput;
+import ccre.verifier.FlowPhase;
 
 /**
  * An abstract Joystick implementation, that allows one to convert a poll-based
@@ -84,6 +85,7 @@ public abstract class AbstractJoystick implements Joystick {
      * <code>buttonCount</code>, inclusive.
      * @return true if the button is currently pressed, or false if it is not.
      */
+    @FlowPhase
     protected abstract boolean getButton(int btn);
 
     @Override
@@ -112,6 +114,7 @@ public abstract class AbstractJoystick implements Joystick {
      * <code>axisCount</code>, inclusive.
      * @return the axis's current position, from -1.0 to +1.0.
      */
+    @FlowPhase
     protected abstract float getAxis(int axis);
 
     @Override
@@ -141,6 +144,7 @@ public abstract class AbstractJoystick implements Joystick {
      * @return true if the POV hat is currently pointing in this direction, or
      * false otherwise.
      */
+    @FlowPhase
     protected abstract boolean getPOV(int direction);
 
     @Override
@@ -161,5 +165,6 @@ public abstract class AbstractJoystick implements Joystick {
      * @param left a value from 0.0 to 1.0
      * @param right a value from 0.0 to 1.0
      */
+    @FlowPhase
     protected abstract void setRumble(float left, float right);
 }

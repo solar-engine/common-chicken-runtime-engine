@@ -22,6 +22,7 @@ import java.util.HashMap;
 
 import ccre.channel.CancelOutput;
 import ccre.channel.EventOutput;
+import ccre.verifier.FlowPhase;
 import ccre.channel.BooleanCell;
 import ccre.channel.BooleanInput;
 
@@ -48,6 +49,7 @@ public final class ArbitratedBoolean implements BooleanInput {
         behaviorChain.onActiveUpdate.send(this::update);
     }
 
+    @FlowPhase
     synchronized void update() {
         cancellator.cancel();
         BooleanInput input = activation.get(this.behaviorChain.active);

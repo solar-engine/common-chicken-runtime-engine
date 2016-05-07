@@ -22,6 +22,7 @@ import ccre.cluck.Cluck;
 import ccre.ctrl.Joystick;
 import ccre.frc.FRC;
 import ccre.frc.FRCApplication;
+import ccre.verifier.SetupPhase;
 
 /**
  * An example program that just publishes all of the Joystick data.
@@ -41,6 +42,7 @@ public class Joysticks implements FRCApplication {
         publishJoystick(4, FRC.joystick4);
     }
 
+    @SetupPhase
     private void publishJoystick(int id, Joystick joy) {
         for (int axis = 1; axis <= 6; axis++) {
             Cluck.publish("Joystick " + id + " Axis " + axis, joy.axis(axis));

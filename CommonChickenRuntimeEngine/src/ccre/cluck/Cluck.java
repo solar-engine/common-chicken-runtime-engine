@@ -33,6 +33,7 @@ import ccre.cluck.tcp.CluckTCPClient;
 import ccre.cluck.tcp.CluckTCPServer;
 import ccre.log.LoggingTarget;
 import ccre.rconf.RConfable;
+import ccre.verifier.SetupPhase;
 
 /**
  * A storage location for the current CluckNode, CluckTCPServer, and
@@ -56,6 +57,7 @@ public final class Cluck {
      *
      * @return The global CluckNode.
      */
+    @SetupPhase
     public static synchronized CluckNode getNode() {
         return node;
     }
@@ -65,6 +67,7 @@ public final class Cluck {
      *
      * @return The global CluckTCPClient.
      */
+    @SetupPhase
     public static synchronized CluckTCPClient getClient() {
         return client;
     }
@@ -74,6 +77,7 @@ public final class Cluck {
      *
      * @return the server that was set up.
      */
+    @SetupPhase
     public static synchronized CluckTCPServer setupServer() {
         CluckTCPServer server = new CluckTCPServer(node);
         server.start();
@@ -86,6 +90,7 @@ public final class Cluck {
      * @param port the port number to listen on
      * @return the server that was set up.
      */
+    @SetupPhase
     public static synchronized CluckTCPServer setupServer(int port) {
         CluckTCPServer server = new CluckTCPServer(node, port);
         server.start();
@@ -102,6 +107,7 @@ public final class Cluck {
      * @param hintedRemoteName The hint for what the remote server should call
      * this.
      */
+    @SetupPhase
     public static synchronized void setupClient(String remote, String linkName, String hintedRemoteName) {
         if (client != null) {
             throw new IllegalStateException("Client already set up!");
@@ -116,6 +122,7 @@ public final class Cluck {
      * @param name The name for the EventOutput.
      * @param consumer The EventOutput.
      */
+    @SetupPhase
     public static void publish(String name, EventOutput consumer) {
         CluckPublisher.publish(node, name, consumer);
     }
@@ -126,6 +133,7 @@ public final class Cluck {
      * @param path The path to subscribe to.
      * @return the EventOutput.
      */
+    @SetupPhase
     public static EventOutput subscribeEO(String path) {
         return CluckPublisher.subscribeEO(node, path);
     }
@@ -136,6 +144,7 @@ public final class Cluck {
      * @param name The name for the EventInput.
      * @param source The EventInput.
      */
+    @SetupPhase
     public static void publish(String name, EventInput source) {
         CluckPublisher.publish(node, name, source);
     }
@@ -146,8 +155,20 @@ public final class Cluck {
      * @param path The path to subscribe to.
      * @return the EventInput.
      */
+    @SetupPhase
     public static EventInput subscribeEI(String path) {
         return CluckPublisher.subscribeEI(node, path);
+    }
+
+    /**
+     * Subscribe to an EventIO from the network at the specified path.
+     *
+     * @param path The path to subscribe to.
+     * @return the EventIO.
+     */
+    @SetupPhase
+    public static EventIO subscribeEIO(String path) {
+        return CluckPublisher.subscribeEIO(node, path);
     }
 
     /**
@@ -156,6 +177,7 @@ public final class Cluck {
      * @param name The name for the LoggingTarget.
      * @param lt The LoggingTarget.
      */
+    @SetupPhase
     public static void publish(String name, LoggingTarget lt) {
         CluckPublisher.publish(node, name, lt);
     }
@@ -167,6 +189,7 @@ public final class Cluck {
      * @param path The path to subscribe to.
      * @return the LoggingTarget.
      */
+    @SetupPhase
     public static LoggingTarget subscribeLT(String path) {
         return CluckPublisher.subscribeLT(node, path);
     }
@@ -178,6 +201,7 @@ public final class Cluck {
      * @param name The name for the BooleanInput.
      * @param input The BooleanInput.
      */
+    @SetupPhase
     public static void publish(String name, BooleanInput input) {
         CluckPublisher.publish(node, name, input);
     }
@@ -188,11 +212,26 @@ public final class Cluck {
      * @param path The path to subscribe to.
      * @param shouldSubscribeByDefault Should this request the value from the
      * remote by default, as opposed to waiting until this is needed. If this is
-     * false, then readValue() won't work until you run addTarget().
+     * false, then get() won't work until you call send().
      * @return the BooleanInput.
      */
+    @SetupPhase
     public static BooleanInput subscribeBI(String path, boolean shouldSubscribeByDefault) {
         return CluckPublisher.subscribeBI(node, path, shouldSubscribeByDefault);
+    }
+
+    /**
+     * Subscribe to a BooleanIO from the network at the specified path.
+     *
+     * @param path The path to subscribe to.
+     * @param shouldSubscribeByDefault Should this request the value from the
+     * remote by default, as opposed to waiting until this is needed. If this is
+     * false, then get() won't work until you call send().
+     * @return the BooleanIO.
+     */
+    @SetupPhase
+    public static BooleanIO subscribeBIO(String path, boolean shouldSubscribeByDefault) {
+        return CluckPublisher.subscribeBIO(node, path, shouldSubscribeByDefault);
     }
 
     /**
@@ -201,6 +240,7 @@ public final class Cluck {
      * @param name The name for the BooleanOutput.
      * @param output The BooleanOutput.
      */
+    @SetupPhase
     public static void publish(String name, BooleanOutput output) {
         CluckPublisher.publish(node, name, output);
     }
@@ -211,6 +251,7 @@ public final class Cluck {
      * @param path The path to subscribe to.
      * @return the BooleanOutput.
      */
+    @SetupPhase
     public static BooleanOutput subscribeBO(String path) {
         return CluckPublisher.subscribeBO(node, path);
     }
@@ -222,6 +263,7 @@ public final class Cluck {
      * @param name The name for the FloatInput.
      * @param input The FloatInput.
      */
+    @SetupPhase
     public static void publish(String name, FloatInput input) {
         CluckPublisher.publish(node, name, input);
     }
@@ -232,11 +274,26 @@ public final class Cluck {
      * @param path The path to subscribe to.
      * @param subscribeByDefault Should this request the value from the remote
      * by default, as opposed to waiting until this is needed. If this is false,
-     * then readValue() won't work until you run addTarget().
+     * then get() won't work until you call send().
      * @return the FloatInput.
      */
+    @SetupPhase
     public static FloatInput subscribeFI(String path, boolean subscribeByDefault) {
         return CluckPublisher.subscribeFI(node, path, subscribeByDefault);
+    }
+
+    /**
+     * Subscribe to a FloatIO from the network at the specified path.
+     *
+     * @param path The path to subscribe to.
+     * @param subscribeByDefault Should this request the value from the remote
+     * by default, as opposed to waiting until this is needed. If this is false,
+     * then get() won't work until you call send().
+     * @return the FloatIO.
+     */
+    @SetupPhase
+    public static FloatIO subscribeFIO(String path, boolean subscribeByDefault) {
+        return CluckPublisher.subscribeFIO(node, path, subscribeByDefault);
     }
 
     /**
@@ -245,6 +302,7 @@ public final class Cluck {
      * @param name The name for the FloatOutput.
      * @param out The FloatOutput.
      */
+    @SetupPhase
     public static void publish(String name, FloatOutput out) {
         CluckPublisher.publish(node, name, out);
     }
@@ -255,6 +313,7 @@ public final class Cluck {
      * @param name The name for the RConfable.
      * @param device The RConfable.
      */
+    @SetupPhase
     public static void publishRConf(String name, RConfable device) {
         CluckPublisher.publishRConf(node, name, device);
     }
@@ -265,6 +324,7 @@ public final class Cluck {
      * @param path The path to subscribe to.
      * @return the FloatOutput.
      */
+    @SetupPhase
     public static FloatOutput subscribeFO(String path) {
         return CluckPublisher.subscribeFO(node, path);
     }
@@ -277,6 +337,7 @@ public final class Cluck {
      * @param name The name for the FloatIO.
      * @param stat The FloatIO.
      */
+    @SetupPhase
     public static void publish(String name, FloatIO stat) {
         CluckPublisher.publish(node, name, stat);
     }
@@ -289,6 +350,7 @@ public final class Cluck {
      * @param name The name for the BooleanIO.
      * @param stat The BooleanIO to publish.
      */
+    @SetupPhase
     public static void publish(String name, BooleanIO stat) {
         CluckPublisher.publish(node, name, stat);
     }
@@ -301,6 +363,7 @@ public final class Cluck {
      * @param name The name for the EventIO.
      * @param stat The EventIO to publish.
      */
+    @SetupPhase
     public static void publish(String name, EventIO stat) {
         CluckPublisher.publish(node, name, stat);
     }
@@ -311,6 +374,7 @@ public final class Cluck {
      * @param name The name for the OutputStream.
      * @param out The OutputStream.
      */
+    @SetupPhase
     public static void publish(String name, OutputStream out) {
         CluckPublisher.publish(node, name, out);
     }
@@ -321,6 +385,7 @@ public final class Cluck {
      * @param path The path to subscribe to.
      * @return the OutputStream.
      */
+    @SetupPhase
     public static OutputStream subscribeOS(String path) {
         return CluckPublisher.subscribeOS(node, path);
     }
@@ -332,6 +397,7 @@ public final class Cluck {
      * @param name The name for the OutputStream.
      * @return the OutputStream that goes to the network.
      */
+    @SetupPhase
     public static OutputStream publishOS(String name) {
         return CluckPublisher.publishOS(node, name);
     }
@@ -343,6 +409,7 @@ public final class Cluck {
      * @param path The path to subscribe to.
      * @param output The OutputStream to write to.
      */
+    @SetupPhase
     public static void subscribe(String path, OutputStream output) {
         CluckPublisher.subscribe(node, path, output);
     }
@@ -354,6 +421,7 @@ public final class Cluck {
      * @param timeout The maximum wait time for the RPC calls.
      * @return the RConfable.
      */
+    @SetupPhase
     public static RConfable subscribeRConf(String path, int timeout) {
         return CluckPublisher.subscribeRConf(node, path, timeout);
     }

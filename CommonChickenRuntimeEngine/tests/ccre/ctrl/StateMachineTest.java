@@ -733,21 +733,25 @@ public class StateMachineTest {
 
         final int[] totalEntriesExits = new int[4];
         turnstile.onEnterState("LOCKED").send(new EventOutput() {
+            @Override
             public void event() {
                 totalEntriesExits[0]++;
             }
         });
         turnstile.onEnterState("UNLOCKED").send(new EventOutput() {
+            @Override
             public void event() {
                 totalEntriesExits[1]++;
             }
         });
         turnstile.onExitState("LOCKED").send(new EventOutput() {
+            @Override
             public void event() {
                 totalEntriesExits[2]++;
             }
         });
         turnstile.onExitState("UNLOCKED").send(new EventOutput() {
+            @Override
             public void event() {
                 totalEntriesExits[3]++;
             }
@@ -822,21 +826,25 @@ public class StateMachineTest {
         final int[] changes = new int[4];
 
         gandalf.onStateEnter(new EventOutput() {
+            @Override
             public void event() {
                 changes[0]++;
             }
         });
         gandalf.onStateExit(new EventOutput() {
+            @Override
             public void event() {
                 changes[1]++;
             }
         });
         gandalf.getStateEnterEvent().send(new EventOutput() {
+            @Override
             public void event() {
                 changes[2]++;
             }
         });
         gandalf.getStateExitEvent().send(new EventOutput() {
+            @Override
             public void event() {
                 changes[3]++;
             }

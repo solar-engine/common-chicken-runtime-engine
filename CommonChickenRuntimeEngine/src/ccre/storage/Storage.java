@@ -27,6 +27,8 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.file.Files;
 
+import ccre.verifier.SetupPhase;
+
 /**
  * The holder for the current storage provider, and the superclass for any
  * storage providers.
@@ -42,6 +44,7 @@ public class Storage {
      *
      * @param basedir the directory to store CCRE data in.
      */
+    @SetupPhase
     public static void setBaseDir(File basedir) {
         // implicitly checks for null
         if (!basedir.exists() || !basedir.isDirectory()) {
@@ -57,6 +60,7 @@ public class Storage {
      * @return The output stream to that file.
      * @throws java.io.IOException If an error occurs while opening an output.
      */
+    @SetupPhase
     public static OutputStream openOutput(String name) throws IOException {
         return new FileOutputStream(new File(basedir, name));
     }
@@ -70,6 +74,7 @@ public class Storage {
      * @throws java.io.IOException If an error occurs while opening the file
      * besides the file not existing.
      */
+    @SetupPhase
     public static InputStream openInput(String name) throws IOException {
         try {
             return new FileInputStream(new File(basedir, name));
@@ -84,6 +89,7 @@ public class Storage {
      * @param name the name of the storage segment.
      * @return the StorageSegment that has been opened.
      */
+    @SetupPhase
     public static StorageSegment openStorage(String name) {
         return new StorageSegment(name);
     }
@@ -94,6 +100,7 @@ public class Storage {
      * @param name the filename
      * @return true if the file exists, and false otherwise
      */
+    @SetupPhase
     public static boolean exists(String name) {
         return new File(basedir, name).exists();
     }
@@ -103,6 +110,7 @@ public class Storage {
      *
      * @return an array of the discovered files and directories.
      */
+    @SetupPhase
     public static String[] list() {
         return basedir.list();
     }
@@ -113,6 +121,7 @@ public class Storage {
      * @param name the filename
      * @throws IOException if the file does not exist or cannot be deleted.
      */
+    @SetupPhase
     public static void delete(String name) throws IOException {
         Files.delete(new File(basedir, name).toPath());
     }

@@ -20,6 +20,7 @@
 package ccre.frc;
 
 import java.io.IOException;
+import java.util.Random;
 
 import ccre.bus.DisconnectedI2CIO;
 import ccre.bus.DisconnectedRS232IO;
@@ -600,5 +601,11 @@ public class DeviceBasedImplementation implements FRCImplementation {
     @Override
     public DiscreteInput<FRCMode> getMode() {
         return mode.getMode();
+    }
+
+    @Override
+    public String getUniqueIdentifier() {
+        Logger.warning("On emulator; falling back to random ID");
+        return "unknown-" + Integer.toHexString(new Random().nextInt());
     }
 }

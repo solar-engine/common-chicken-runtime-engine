@@ -21,6 +21,8 @@ package ccre.scheduler;
 import ccre.channel.CancelOutput;
 import ccre.channel.EventOutput;
 import ccre.time.Time;
+import ccre.verifier.FlowPhase;
+import ccre.verifier.SetupPhase;
 
 /**
  * The main interface to the CCRE's scheduling thread. You can use this to
@@ -67,6 +69,7 @@ public class Scheduler {
      * event at.
      * @param o the event to fire.
      */
+    @FlowPhase
     public static void scheduleNanos(String tag, long nanos, EventOutput o) {
         mainloop.scheduleOnce(tag, Time.currentTimeNanos() + nanos, o);
     }
@@ -79,6 +82,7 @@ public class Scheduler {
      * @param nanoAt the time at which to run the event.
      * @param o the event to fire.
      */
+    @FlowPhase
     public static void scheduleAt(String tag, long nanoAt, EventOutput o) {
         mainloop.scheduleOnce(tag, nanoAt, o);
     }
@@ -98,7 +102,29 @@ public class Scheduler {
      * @param o the event to fire.
      * @return the {@link CancelOutput} that can cancel the event.
      */
+    @FlowPhase
+    @Deprecated
     public static CancelOutput scheduleCancellableNanos(String tag, long nanos, EventOutput o) {
+        return mainloop.scheduleCancellableOnce(tag, Time.currentTimeNanos() + nanos, o)::event;
+    }
+
+    /**
+     * Schedule an event to occur at a certain number of nanoseconds in the
+     * future. The current time for the purpose of the target time is chosen at
+     * an unspecified point during the execution of this method, usually as
+     * early as possible.
+     *
+     * The event can be interrupted before it occurs by firing the returned
+     * {@link EventOutput}.
+     *
+     * @param tag the scheduler tag.
+     * @param nanos the number of nanoseconds in the future to schedule this
+     * event at.
+     * @param o the event to fire.
+     * @return the {@link EventOutput} that can interrupt the event.
+     */
+    @FlowPhase
+    public static EventOutput scheduleInterruptibleNanos(String tag, long nanos, EventOutput o) {
         return mainloop.scheduleCancellableOnce(tag, Time.currentTimeNanos() + nanos, o);
     }
 
@@ -114,7 +140,26 @@ public class Scheduler {
      * @param o the event to fire.
      * @return the {@link CancelOutput} that can cancel the event.
      */
+    @Deprecated
+    @FlowPhase
     public static CancelOutput scheduleCancellableAt(String tag, long nanoAt, EventOutput o) {
+        return mainloop.scheduleCancellableOnce(tag, nanoAt, o)::event;
+    }
+
+    /**
+     * Schedule an event to occur at a certain nanosecond index, based on
+     * {@link Time#currentTimeNanos()}.
+     *
+     * The event can be interrupted before it occurs by firing the returned
+     * {@link EventOutput}.
+     *
+     * @param tag the scheduler tag.
+     * @param nanoAt the time at which to run the event.
+     * @param o the event to fire.
+     * @return the {@link EventOutput} that can interrupt the event.
+     */
+    @FlowPhase
+    public static EventOutput scheduleInterruptibleAt(String tag, long nanoAt, EventOutput o) {
         return mainloop.scheduleCancellableOnce(tag, nanoAt, o);
     }
 
@@ -134,6 +179,7 @@ public class Scheduler {
      * @param o the event to fire.
      * @return the {@link CancelOutput} that can cancel the event.
      */
+    @SetupPhase
     public static CancelOutput schedulePeriodicNanos(String tag, long nanos, EventOutput o) {
         return mainloop.scheduleVariableRate(tag, nanos, o);
     }
@@ -153,6 +199,7 @@ public class Scheduler {
      * @param o the event to fire.
      * @return the {@link CancelOutput} that can cancel the event.
      */
+    @SetupPhase
     public static CancelOutput scheduleFixedRateNanos(String tag, long nanos, EventOutput o) {
         return mainloop.scheduleFixedRate(tag, Time.currentTimeNanos() + nanos, nanos, false, o);
     }

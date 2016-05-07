@@ -26,8 +26,11 @@ package ccre.frc;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.net.NetworkInterface;
+import java.net.SocketException;
 import java.net.URL;
 import java.util.Enumeration;
+import java.util.Random;
 import java.util.jar.Manifest;
 
 import ccre.bus.I2CBus;
@@ -51,6 +54,7 @@ import ccre.ctrl.Joystick;
 import ccre.ctrl.binding.ControlBindingCreator;
 import ccre.discrete.DerivedDiscreteInput;
 import ccre.discrete.DiscreteInput;
+import ccre.drivers.ByteFiddling;
 import ccre.drivers.ctre.talon.TalonExtendedMotor;
 import ccre.log.FileLogger;
 import ccre.log.Logger;
@@ -745,5 +749,20 @@ public final class DirectFRCImplementation implements FRCImplementation {
                 return activeMode.frcMode;
             }
         };
+    }
+
+    @Override
+    public String getUniqueIdentifier() {
+        try {
+            byte[] mac = NetworkInterface.getByName("eth0").getHardwareAddress();
+            StringBuilder sb = new StringBuilder(ByteFiddling.toHex(mac[0]));
+            for (int i = 1; i < mac.length; i++) {
+                sb.append(':').append(ByteFiddling.toHex(mac[i]));
+            }
+            return sb.toString();
+        } catch (SocketException e) {
+            Logger.warning("Could not find unique identifier; falling back to random ID", e);
+            return "unknown-" + Integer.toHexString(new Random().nextInt());
+        }
     }
 }

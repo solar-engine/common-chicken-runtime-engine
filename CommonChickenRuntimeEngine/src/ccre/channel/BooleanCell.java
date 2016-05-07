@@ -62,6 +62,7 @@ public class BooleanCell extends AbstractUpdatingInput implements Serializable, 
         }
     }
 
+    @Override
     public final synchronized void set(boolean value) {
         if (this.value != value) {
             this.value = value;
@@ -69,6 +70,7 @@ public class BooleanCell extends AbstractUpdatingInput implements Serializable, 
         }
     }
 
+    @Override
     public final synchronized boolean get() {
         return value;
     }

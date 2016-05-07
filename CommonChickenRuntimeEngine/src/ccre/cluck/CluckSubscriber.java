@@ -19,6 +19,8 @@
 package ccre.cluck;
 
 import ccre.log.Logger;
+import ccre.verifier.FlowPhase;
+import ccre.verifier.SetupPhase;
 
 /**
  * A helper class for objects shared on a CluckNode, by providing lots of basic
@@ -71,6 +73,7 @@ public abstract class CluckSubscriber implements CluckLink {
      * @see #receiveBroadcast(String, byte[])
      * @see #receiveSideChannel(String, String, byte[])
      */
+    @Override
     public final boolean send(String dest, String source, byte[] data) {
         if (dest == null) {
             receive(source, data);
@@ -88,6 +91,7 @@ public abstract class CluckSubscriber implements CluckLink {
      *
      * @param name The name to attach with.
      */
+    @SetupPhase
     public final void attach(String name) {
         if (name == null) {
             throw new NullPointerException();
@@ -107,6 +111,7 @@ public abstract class CluckSubscriber implements CluckLink {
      * @param source The source path.
      * @param data The message data.
      */
+    @FlowPhase
     protected void receiveSideChannel(String dest, String source, byte[] data) {
         Logger.warning("Unhandled side-channel message sent to " + linkName + " / " + dest + " from " + source + "!");
     }
@@ -121,6 +126,7 @@ public abstract class CluckSubscriber implements CluckLink {
      * @param rmt The remote type of this subscriber.
      * @return If this message should be handled as the given remote type.
      */
+    @FlowPhase
     protected boolean requireRMT(String source, byte[] data, byte rmt) {
         return requireRMT(source, data, rmt, 1);
     }
@@ -137,6 +143,7 @@ public abstract class CluckSubscriber implements CluckLink {
      * @param minLength The minimum length of the remote.
      * @return If this message should be handled as the given remote type.
      */
+    @FlowPhase
     protected boolean requireRMT(String source, byte[] data, byte rmt, int minLength) {
         if (data.length == 0) {
             Logger.warning("Received null message from " + source);
@@ -162,6 +169,7 @@ public abstract class CluckSubscriber implements CluckLink {
      * @param data The message data.
      * @param rmt The remote type of this subscriber.
      */
+    @FlowPhase
     protected void defaultBroadcastHandle(String source, byte[] data, byte rmt) {
         if (data.length == 1 && data[0] == CluckConstants.RMT_PING) {
             node.transmit(source, linkName, new byte[] { CluckConstants.RMT_PING, rmt });
@@ -175,6 +183,7 @@ public abstract class CluckSubscriber implements CluckLink {
      * @param source The source path.
      * @param data The message data.
      */
+    @FlowPhase
     protected abstract void receive(String source, byte[] data);
 
     /**
@@ -184,5 +193,6 @@ public abstract class CluckSubscriber implements CluckLink {
      * @param source The source path.
      * @param data The message data.
      */
+    @FlowPhase
     protected abstract void receiveBroadcast(String source, byte[] data);
 }

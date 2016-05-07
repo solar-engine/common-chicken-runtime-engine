@@ -61,10 +61,12 @@ public class FloatCell extends AbstractUpdatingInput implements FloatIO, Seriali
         }
     }
 
+    @Override
     public final synchronized float get() {
         return value;
     }
 
+    @Override
     public final synchronized void set(float newValue) {
         if (Float.floatToIntBits(value) != Float.floatToIntBits(newValue)) {
             value = newValue;

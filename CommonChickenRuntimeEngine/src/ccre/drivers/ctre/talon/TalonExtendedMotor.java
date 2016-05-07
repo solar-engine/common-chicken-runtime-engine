@@ -32,8 +32,10 @@ public abstract class TalonExtendedMotor extends ExtendedMotor implements TalonS
      *
      * @return a BooleanIO representing the enable state of the Talon.
      */
+    @Override
     public abstract BooleanIO asEnable();
 
+    @Override
     public TalonExtendedMotor modMotor() {
         return this;
     }

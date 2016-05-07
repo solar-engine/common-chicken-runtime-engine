@@ -18,6 +18,8 @@
  */
 package ccre.frc;
 
+import ccre.verifier.SetupPhase;
+
 /**
  * The core Application class for FRC. Implement this in order to write an
  * application to run on the robot. Use the FRC class to access hardware.
@@ -32,5 +34,6 @@ public interface FRCApplication {
      *
      * @throws Throwable if something fails during setup.
      */
+    @SetupPhase
     public void setupRobot() throws Throwable;
 }

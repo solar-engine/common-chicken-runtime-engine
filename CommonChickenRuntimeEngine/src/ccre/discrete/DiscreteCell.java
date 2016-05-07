@@ -89,6 +89,7 @@ public class DiscreteCell<E> extends AbstractUpdatingInput implements Serializab
         }
     }
 
+    @Override
     public final synchronized void set(E value) {
         if (!Objects.equals(this.value, value)) {
             this.value = value;
@@ -96,6 +97,7 @@ public class DiscreteCell<E> extends AbstractUpdatingInput implements Serializab
         }
     }
 
+    @Override
     public final synchronized E get() {
         return value;
     }

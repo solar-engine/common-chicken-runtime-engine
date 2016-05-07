@@ -21,6 +21,8 @@ package ccre.rconf;
 import java.io.Serializable;
 
 import ccre.util.Utils;
+import ccre.verifier.IgnoredPhase;
+import ccre.verifier.SetupPhase;
 
 /**
  * The RConf subsystem's utility class.
@@ -118,6 +120,7 @@ public class RConf {
          * @throws IllegalStateException if the type of this entry is not
          * supposed to contain text.
          */
+        @IgnoredPhase
         public String parseTextual() throws IllegalStateException {
             if (type != F_TITLE && type != F_STRING && type != F_BUTTON && type != F_CLUCK_REF) {
                 throw new IllegalStateException("Invalid type of Entry in parseTextual: " + type);
@@ -132,6 +135,7 @@ public class RConf {
          * @throws IllegalStateException if the type of this entry is not
          * supposed to contain a boolean.
          */
+        @IgnoredPhase
         public Boolean parseBoolean() {
             if (type != F_BOOLEAN) {
                 throw new IllegalStateException("Invalid type of Entry in parseBoolean: " + type);
@@ -146,6 +150,7 @@ public class RConf {
          * @throws IllegalStateException if the type of this entry is not
          * supposed to contain a integer.
          */
+        @IgnoredPhase
         public Integer parseInteger() {
             if (type != F_INTEGER && type != F_AUTO_REFRESH) {
                 throw new IllegalStateException("Invalid type of Entry in parseInteger: " + type);
@@ -160,6 +165,7 @@ public class RConf {
          * @throws IllegalStateException if the type of this entry is not
          * supposed to contain a float.
          */
+        @IgnoredPhase
         public Float parseFloat() {
             if (type != F_FLOAT) {
                 throw new IllegalStateException("Invalid type of Entry in parseFloat: " + type);
@@ -167,10 +173,12 @@ public class RConf {
             return Float.intBitsToFloat(getAsInteger());
         }
 
+        @IgnoredPhase
         private Integer getAsInteger() {
             return contents.length >= 4 ? (((contents[0] & 0xFF) << 24) | ((contents[1] & 0xFF) << 16) | ((contents[2] & 0xFF) << 8) | (contents[3] & 0xFF)) : null;
         }
 
+        @Override
         public String toString() {
             switch (type) {
             case F_TITLE:
@@ -209,6 +217,7 @@ public class RConf {
      * @param title the title information.
      * @return the new RConf entry.
      */
+    @SetupPhase
     public static Entry title(String title) {
         return new Entry(F_TITLE, Utils.getBytes(title));
     }
@@ -219,6 +228,7 @@ public class RConf {
      * @param data the textual information.
      * @return the new RConf entry.
      */
+    @SetupPhase
     public static Entry string(String data) {
         return new Entry(F_STRING, Utils.getBytes(data));
     }
@@ -229,6 +239,7 @@ public class RConf {
      * @param label the button label.
      * @return the new RConf entry.
      */
+    @SetupPhase
     public static Entry button(String label) {
         return new Entry(F_BUTTON, Utils.getBytes(label));
     }
@@ -240,6 +251,7 @@ public class RConf {
      * @param ref the relative path.
      * @return the new RConf entry.
      */
+    @SetupPhase
     public static Entry cluckRef(String ref) {
         return new Entry(F_CLUCK_REF, Utils.getBytes(ref));
     }
@@ -250,6 +262,7 @@ public class RConf {
      * @param integer the integer content.
      * @return the new RConf entry.
      */
+    @SetupPhase
     public static Entry fieldInteger(int integer) {
         return new Entry(F_INTEGER, integerAsBytes(integer));
     }
@@ -260,10 +273,12 @@ public class RConf {
      * @param f the float content.
      * @return the new RConf entry.
      */
+    @SetupPhase
     public static Entry fieldFloat(float f) {
         return new Entry(F_FLOAT, integerAsBytes(Float.floatToIntBits(f)));
     }
 
+    @IgnoredPhase
     private static byte[] integerAsBytes(int b) {
         return new byte[] { (byte) (b >> 24), (byte) (b >> 16), (byte) (b >> 8), (byte) b };
     }
@@ -274,6 +289,7 @@ public class RConf {
      * @param bool the boolean value.
      * @return the new RConf entry.
      */
+    @SetupPhase
     public static Entry fieldBoolean(boolean bool) {
         return new Entry(F_BOOLEAN, bool ? (byte) 1 : (byte) 0);
     }
@@ -284,6 +300,7 @@ public class RConf {
      * @param timeout the timeout, in milliseconds.
      * @return the new RConf entry.
      */
+    @SetupPhase
     public static Entry autoRefresh(int timeout) {
         return new Entry(F_AUTO_REFRESH, integerAsBytes(timeout));
     }
@@ -294,6 +311,7 @@ public class RConf {
      * @param data the four bytes of data to convert.
      * @return the resulting float.
      */
+    @IgnoredPhase
     public static float bytesToFloat(byte[] data) {
         return Float.intBitsToFloat(((data[0] & 0xFF) << 24) | ((data[1] & 0xFF) << 16) | ((data[2] & 0xFF) << 8) | (data[3] & 0xFF));
     }

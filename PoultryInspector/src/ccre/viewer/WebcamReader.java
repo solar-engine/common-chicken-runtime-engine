@@ -112,6 +112,15 @@ class WebcamReader implements Closeable {
         }
     }
 
+    private byte[] bytes;
+
+    private byte[] getByteArray(int size) {
+        if (bytes == null || bytes.length < size) {
+            bytes = new byte[size + (size >> 1)];
+        }
+        return bytes;
+    }
+
     public BufferedImage readNext() throws IOException {
         readThroughBoundary();
         String contentLengthString = readHeaderFromHeaders("Content-Length");
@@ -124,12 +133,12 @@ class WebcamReader implements Closeable {
         if (contentLength < 1 || contentLength > 200000) {
             throw new IOException("Invalid content length: " + contentLength);
         }
-        byte[] bytes = readExact(contentLength);
-        return ImageIO.read(new ByteArrayInputStream(bytes));
+        byte[] bytes = getByteArray(contentLength);
+        readExact(bytes, contentLength);
+        return ImageIO.read(new ByteArrayInputStream(bytes, 0, contentLength));
     }
 
-    private byte[] readExact(int bytes) throws IOException {
-        byte[] out = new byte[bytes];
+    private void readExact(byte[] out, int bytes) throws IOException {
         int index = 0;
         while (index < out.length) {
             int read = source.read(out, index, out.length - index);
@@ -138,7 +147,6 @@ class WebcamReader implements Closeable {
             }
             index += read;
         }
-        return out;
     }
 
     private void readThroughBoundary() throws IOException {

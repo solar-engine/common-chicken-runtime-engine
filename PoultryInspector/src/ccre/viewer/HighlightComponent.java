@@ -56,7 +56,7 @@ public class HighlightComponent extends DraggableBoxComponent {
      * @param cy the Y-coordinate.
      */
     public HighlightComponent(int cx, int cy) {
-        super(cx, cy);
+        super(cx, cy, 1, false);
         halfWidth = 100;
         halfHeight = 50;
         resizeState = ResizeState.TRANSLATE;

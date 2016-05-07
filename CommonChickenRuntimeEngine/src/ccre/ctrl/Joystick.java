@@ -22,6 +22,7 @@ import ccre.channel.BooleanInput;
 import ccre.channel.EventInput;
 import ccre.channel.FloatInput;
 import ccre.channel.FloatOutput;
+import ccre.verifier.SetupPhase;
 
 /**
  * A Joystick with axes and buttons.
@@ -79,6 +80,7 @@ public interface Joystick {
      * @param btn the button number to check, indexed starting at one.
      * @return the EventInput for when the button is pressed.
      */
+    @SetupPhase
     public default EventInput onPress(int btn) {
         return button(btn).onPress();
     }
@@ -90,6 +92,7 @@ public interface Joystick {
      * @param btn the button number to check, indexed starting at one.
      * @return the EventInput for when the button is released.
      */
+    @SetupPhase
     public default EventInput onRelease(int btn) {
         return button(btn).onRelease();
     }
@@ -101,6 +104,7 @@ public interface Joystick {
      * @param btn the button number to check, indexed starting at one.
      * @return the BooleanInput for the button.
      */
+    @SetupPhase
     public BooleanInput button(int btn);
 
     /**
@@ -111,6 +115,7 @@ public interface Joystick {
      * @param axis the axis number to check, indexed starting at one.
      * @return the FloatInput for the axis.
      */
+    @SetupPhase
     public FloatInput axis(int axis);
 
     /**
@@ -123,6 +128,7 @@ public interface Joystick {
      * @see #rumbleLeft()
      * @see #rumbleRight()
      */
+    @SetupPhase
     public FloatOutput rumble(boolean right);
 
     /**
@@ -133,6 +139,7 @@ public interface Joystick {
      * @see #rumble(boolean)
      * @see #rumbleRight()
      */
+    @SetupPhase
     public default FloatOutput rumbleLeft() {
         return rumble(false);
     }
@@ -145,6 +152,7 @@ public interface Joystick {
      * @see #rumble(boolean)
      * @see #rumbleLeft()
      */
+    @SetupPhase
     public default FloatOutput rumbleRight() {
         return rumble(true);
     }
@@ -156,6 +164,7 @@ public interface Joystick {
      *
      * @return the FloatInput for the X axis.
      */
+    @SetupPhase
     public default FloatInput axisX() {
         return axis(1);
     }
@@ -167,6 +176,7 @@ public interface Joystick {
      *
      * @return the FloatInput for the Y axis.
      */
+    @SetupPhase
     public default FloatInput axisY() {
         return axis(2);
     }
@@ -183,6 +193,7 @@ public interface Joystick {
      * @return the BooleanInput representing whether the POV is being pushed in
      * the specified direction.
      */
+    @SetupPhase
     public BooleanInput isPOV(int direction);
 
     /**
@@ -198,6 +209,7 @@ public interface Joystick {
      * @return the EventInput for when the POV starts being pushed in
      * <code>direction</code>.
      */
+    @SetupPhase
     public default EventInput onPressPOV(int direction) {
         return isPOV(direction).onPress();
     }
@@ -215,6 +227,7 @@ public interface Joystick {
      * @return the EventInput for when the POV stops being pushed in
      * <code>direction</code>.
      */
+    @SetupPhase
     public default EventInput onReleasePOV(int direction) {
         return isPOV(direction).onRelease();
     }

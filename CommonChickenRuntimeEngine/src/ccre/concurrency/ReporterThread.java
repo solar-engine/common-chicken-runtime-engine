@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2014 Cel Skeggs
+ * Copyright 2013-2016 Cel Skeggs
  *
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  *
@@ -22,6 +22,8 @@ import java.io.InterruptedIOException;
 
 import ccre.log.Logger;
 import ccre.util.UniqueIds;
+import ccre.verifier.FlowPhase;
+import ccre.verifier.SuppressPhaseWarnings;
 
 /**
  * A nice wrapper for the builtin Thread. Provides a system to prevent execution
@@ -77,6 +79,17 @@ public abstract class ReporterThread extends Thread {
         } catch (Throwable thr) {
             Logger.severe("Abrupt termination of Thread " + this.getName(), thr);
         }
+    }
+
+    @FlowPhase
+    @SuppressPhaseWarnings // because it occurs at most once per thread, it's
+                           // okay to run start() in flow mode
+    public boolean startIfNotAlive() {
+        if (isAlive()) {
+            return false;
+        }
+        start();
+        return true;
     }
 
     /**

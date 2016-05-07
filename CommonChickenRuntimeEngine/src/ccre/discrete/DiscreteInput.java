@@ -20,6 +20,8 @@ package ccre.discrete;
 
 import ccre.channel.CancelOutput;
 import ccre.channel.UpdatingInput;
+import ccre.verifier.FlowPhase;
+import ccre.verifier.SetupPhase;
 
 /**
  * A DiscreteInput is a way to get the current state of a discrete input, and to
@@ -40,6 +42,7 @@ public interface DiscreteInput<E> extends UpdatingInput {
      *
      * @return the type, as a DiscreteType instance.
      */
+    @SetupPhase // TODO: maybe ignored phase?
     public DiscreteType<E> getType();
 
     /**
@@ -47,6 +50,7 @@ public interface DiscreteInput<E> extends UpdatingInput {
      *
      * @return The current value.
      */
+    @FlowPhase
     public E get();
 
     /**
@@ -64,6 +68,7 @@ public interface DiscreteInput<E> extends UpdatingInput {
      * NOT FIRE THIS RETURNED EVENT MORE THAN ONCE: UNDEFINED BEHAVIOR MAY
      * RESULT.
      */
+    @SetupPhase
     public default CancelOutput send(DiscreteOutput<E> output) {
         if (!output.getType().equals(this.getType())) {
             throw new IllegalArgumentException("Not a compatible discrete type!");

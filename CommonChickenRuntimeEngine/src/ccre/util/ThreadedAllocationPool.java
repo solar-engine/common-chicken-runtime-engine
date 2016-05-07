@@ -21,6 +21,8 @@ package ccre.util;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.function.Supplier;
 
+import ccre.verifier.FlowPhase;
+
 /**
  * A thread-safe allocation pool with a maximum size that allocates additional
  * objects on demand.
@@ -59,6 +61,7 @@ public final class ThreadedAllocationPool<E> {
      * @return true if the instance was actually used, false if it was
      * discarded.
      */
+    @FlowPhase
     public boolean free(E e) {
         return this.queue.offer(e);
     }
@@ -70,6 +73,7 @@ public final class ThreadedAllocationPool<E> {
      *
      * @return the instance.
      */
+    @FlowPhase
     public E allocate() {
         E ent = this.queue.poll();
         if (ent == null) {

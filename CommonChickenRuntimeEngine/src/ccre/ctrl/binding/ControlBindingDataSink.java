@@ -20,6 +20,7 @@ package ccre.ctrl.binding;
 
 import ccre.channel.BooleanOutput;
 import ccre.channel.FloatOutput;
+import ccre.verifier.SetupPhase;
 
 /**
  * An interface to a module that provides a named set of boolean and float
@@ -39,6 +40,7 @@ public interface ControlBindingDataSink {
      *
      * @return a list of the names of the boolean outputs.
      */
+    @SetupPhase
     public String[] listBooleans();
 
     /**
@@ -47,6 +49,7 @@ public interface ControlBindingDataSink {
      * @param name the name of the boolean output.
      * @return the discovered output.
      */
+    @SetupPhase
     public BooleanOutput getBoolean(String name);
 
     /**
@@ -54,6 +57,7 @@ public interface ControlBindingDataSink {
      *
      * @return a list of the names of the float outputs.
      */
+    @SetupPhase
     public String[] listFloats();
 
     /**
@@ -62,5 +66,6 @@ public interface ControlBindingDataSink {
      * @param name the name of the float output.
      * @return the discovered output.
      */
+    @SetupPhase
     public FloatOutput getFloat(String name);
 }

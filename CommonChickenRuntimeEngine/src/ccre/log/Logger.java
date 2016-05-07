@@ -22,6 +22,8 @@ import java.util.concurrent.CopyOnWriteArrayList;
 
 import ccre.util.CallerInfo;
 import ccre.util.Utils;
+import ccre.verifier.FlowPhase;
+import ccre.verifier.SetupPhase;
 
 /**
  * A class containing easy global methods for logging, as well as holding the
@@ -66,6 +68,7 @@ public class Logger {
      *
      * @param lt The target to add.
      */
+    @SetupPhase
     public static synchronized void addTarget(LoggingTarget lt) {
         targets.add(lt);
     }
@@ -75,6 +78,7 @@ public class Logger {
      *
      * @param lt The target to remove.
      */
+    @SetupPhase
     public static synchronized void removeTarget(LoggingTarget lt) {
         targets.remove(lt);
     }
@@ -86,10 +90,12 @@ public class Logger {
      * @param message the message to log.
      * @param thr the Throwable to log
      */
+    @FlowPhase
     public static void log(LogLevel level, String message, Throwable thr) {
         logInternal(level, message, thr);
     }
 
+    @FlowPhase
     private static void logInternal(LogLevel level, String message, Throwable thr) {
         if (level == null || message == null) {
             throw new NullPointerException();
@@ -107,6 +113,7 @@ public class Logger {
      * @param message the message to log.
      * @param extended the extended message to log
      */
+    @FlowPhase
     public static void logExt(LogLevel level, String message, String extended) {
         if (level == null || message == null) {
             throw new NullPointerException();
@@ -117,6 +124,7 @@ public class Logger {
         }
     }
 
+    @FlowPhase
     private static String prependCallerInfo(int index, String message) {
         if (includeLineNumbers && !message.startsWith("(") && !message.startsWith("[")) {
             CallerInfo caller = Utils.getMethodCaller(index + 1);
@@ -137,6 +145,7 @@ public class Logger {
      * @param level the level to log at.
      * @param message the message to log.
      */
+    @FlowPhase
     public static void log(LogLevel level, String message) {
         logInternal(level, message, null);
     }
@@ -146,6 +155,7 @@ public class Logger {
      *
      * @param message the message to log.
      */
+    @FlowPhase
     public static void severe(String message) {
         log(LogLevel.SEVERE, message);
     }
@@ -155,6 +165,7 @@ public class Logger {
      *
      * @param message the message to log.
      */
+    @FlowPhase
     public static void warning(String message) {
         log(LogLevel.WARNING, message);
     }
@@ -164,6 +175,7 @@ public class Logger {
      *
      * @param message the message to log.
      */
+    @FlowPhase
     public static void info(String message) {
         log(LogLevel.INFO, message);
     }
@@ -173,6 +185,7 @@ public class Logger {
      *
      * @param message the message to log.
      */
+    @FlowPhase
     public static void config(String message) {
         log(LogLevel.CONFIG, message);
     }
@@ -182,6 +195,7 @@ public class Logger {
      *
      * @param message the message to log.
      */
+    @FlowPhase
     public static void fine(String message) {
         log(LogLevel.FINE, message);
     }
@@ -191,6 +205,7 @@ public class Logger {
      *
      * @param message the message to log.
      */
+    @FlowPhase
     public static void finer(String message) {
         log(LogLevel.FINER, message);
     }
@@ -200,6 +215,7 @@ public class Logger {
      *
      * @param message the message to log.
      */
+    @FlowPhase
     public static void finest(String message) {
         log(LogLevel.FINEST, message);
     }
@@ -210,6 +226,7 @@ public class Logger {
      * @param message the message to log.
      * @param thr The exception to include in the log.
      */
+    @FlowPhase
     public static void severe(String message, Throwable thr) {
         logInternal(LogLevel.SEVERE, message, thr);
     }
@@ -220,6 +237,7 @@ public class Logger {
      * @param message the message to log.
      * @param thr The exception to include in the log.
      */
+    @FlowPhase
     public static void warning(String message, Throwable thr) {
         logInternal(LogLevel.WARNING, message, thr);
     }
@@ -230,6 +248,7 @@ public class Logger {
      * @param message the message to log.
      * @param thr The exception to include in the log.
      */
+    @FlowPhase
     public static void info(String message, Throwable thr) {
         logInternal(LogLevel.INFO, message, thr);
     }
@@ -240,6 +259,7 @@ public class Logger {
      * @param message the message to log.
      * @param thr The exception to include in the log.
      */
+    @FlowPhase
     public static void config(String message, Throwable thr) {
         logInternal(LogLevel.CONFIG, message, thr);
     }
@@ -250,6 +270,7 @@ public class Logger {
      * @param message the message to log.
      * @param thr The exception to include in the log.
      */
+    @FlowPhase
     public static void fine(String message, Throwable thr) {
         logInternal(LogLevel.FINE, message, thr);
     }
@@ -260,6 +281,7 @@ public class Logger {
      * @param message the message to log.
      * @param thr The exception to include in the log.
      */
+    @FlowPhase
     public static void finer(String message, Throwable thr) {
         logInternal(LogLevel.FINER, message, thr);
     }
@@ -270,6 +292,7 @@ public class Logger {
      * @param message the message to log.
      * @param thr The exception to include in the log.
      */
+    @FlowPhase
     public static void finest(String message, Throwable thr) {
         logInternal(LogLevel.FINEST, message, thr);
     }

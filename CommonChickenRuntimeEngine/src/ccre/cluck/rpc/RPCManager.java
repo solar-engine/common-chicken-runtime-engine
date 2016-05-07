@@ -31,6 +31,8 @@ import ccre.cluck.CluckSubscriber;
 import ccre.log.Logger;
 import ccre.time.Time;
 import ccre.util.UniqueIds;
+import ccre.verifier.FlowPhase;
+import ccre.verifier.SetupPhase;
 
 /**
  * A manager for the RPC subsystem in Cluck.
@@ -102,6 +104,7 @@ public final class RPCManager implements Serializable {
      * @param name The name for the RemoteProcedure.
      * @param proc The RemoteProcedure.
      */
+    @SetupPhase
     public void publish(final String name, final RemoteProcedure proc) {
         new CluckSubscriber(node) {
             @Override
@@ -139,7 +142,9 @@ public final class RPCManager implements Serializable {
      * have. This is only called when another RPC event occurs, so it may take a
      * while for the timeout to happen.
      */
+    @FlowPhase
     void checkRPCTimeouts() {
+        // TODO: use scheduler rather than this hacky thing
         long now = Time.currentTimeMillis();
         ArrayList<String> toRemove = new ArrayList<String>();
         synchronized (this) {
@@ -168,10 +173,12 @@ public final class RPCManager implements Serializable {
      * due to timeout.
      * @return the RemoteProcedure.
      */
+    @SetupPhase
     public RemoteProcedure subscribe(final String path, final int timeoutAfter) {
         return new SubscribedProcedure(path, timeoutAfter);
     }
 
+    @SetupPhase
     private void putNewInvokeBinding(String path, String localname, long timeoutAfter, OutputStream out, byte[] toSend) {
         synchronized (this) {
             timeouts.put(localname, Time.currentTimeMillis() + timeoutAfter);
@@ -191,6 +198,7 @@ public final class RPCManager implements Serializable {
             this.timeoutAfter = timeoutAfter;
         }
 
+        @Override
         public void invoke(byte[] in, OutputStream out) {
             checkRPCTimeouts();
             String localname = UniqueIds.global.nextHexId(path);

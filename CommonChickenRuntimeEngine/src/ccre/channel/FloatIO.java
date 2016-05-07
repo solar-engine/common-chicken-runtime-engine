@@ -18,6 +18,9 @@
  */
 package ccre.channel;
 
+import ccre.verifier.FlowPhase;
+import ccre.verifier.SetupPhase;
+
 /**
  * A FloatIO is both a FloatInput and a FloatOutput.
  * 
@@ -30,6 +33,7 @@ public interface FloatIO extends FloatInput, FloatOutput {
      *
      * @param increment the amount to add
      */
+    @FlowPhase
     public default void accumulate(float increment) {
         set(get() + increment);
     }
@@ -41,6 +45,7 @@ public interface FloatIO extends FloatInput, FloatOutput {
      * @param when when to add to the value
      * @param amount the amount to add
      */
+    @SetupPhase
     public default void accumulateWhen(EventInput when, float amount) {
         when.send(eventAccumulate(amount));
     }
@@ -52,6 +57,7 @@ public interface FloatIO extends FloatInput, FloatOutput {
      * @param when when to add to the value
      * @param amount the amount to add
      */
+    @SetupPhase
     public default void accumulateWhen(EventInput when, FloatInput amount) {
         when.send(eventAccumulate(amount));
     }
@@ -63,6 +69,7 @@ public interface FloatIO extends FloatInput, FloatOutput {
      * @param amount the amount to add
      * @return the EventOutput
      */
+    @SetupPhase
     public default EventOutput eventAccumulate(float amount) {
         return () -> accumulate(amount);
     }
@@ -74,6 +81,7 @@ public interface FloatIO extends FloatInput, FloatOutput {
      * @param amount the amount to add
      * @return the EventOutput
      */
+    @SetupPhase
     public default EventOutput eventAccumulate(FloatInput amount) {
         return () -> accumulate(amount.get());
     }
@@ -84,6 +92,7 @@ public interface FloatIO extends FloatInput, FloatOutput {
      *
      * @return this io, as an output.
      */
+    @SetupPhase
     public default FloatOutput asOutput() {
         return this;
     }
@@ -94,6 +103,7 @@ public interface FloatIO extends FloatInput, FloatOutput {
      *
      * @return this io, as an input.
      */
+    @SetupPhase
     public default FloatInput asInput() {
         return this;
     }
@@ -106,6 +116,7 @@ public interface FloatIO extends FloatInput, FloatOutput {
      * @param output the output to dispatch to.
      * @return the composed FloatIO.
      */
+    @SetupPhase
     public static FloatIO compose(FloatInput input, FloatOutput output) {
         return new FloatIO() {
             @Override
@@ -126,6 +137,7 @@ public interface FloatIO extends FloatInput, FloatOutput {
     }
 
     @Override
+    @SetupPhase
     public default FloatIO cell(float default_value) {
         this.set(default_value); // replicate behavior of superclass
         return this;

@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 Cel Skeggs.
+ * Copyright 2014,2016 Cel Skeggs.
  *
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  *
@@ -30,6 +30,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 
 import javax.swing.JFileChooser;
+import javax.swing.JOptionPane;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
 import ccre.log.Logger;
@@ -56,7 +57,7 @@ public class SaveLoadComponent extends SuperCanvasComponent {
      * @param y the Y-coordinate.
      */
     public SaveLoadComponent(int x, int y) {
-        super(true);
+        super(0, true);
         this.x = x;
         this.y = y;
     }
@@ -114,13 +115,17 @@ public class SaveLoadComponent extends SuperCanvasComponent {
             if (!file.getName().contains(".") && chooser.getFileFilter() instanceof FileNameExtensionFilter) {
                 file = new File(file.getParentFile(), file.getName() + "." + ((FileNameExtensionFilter) chooser.getFileFilter()).getExtensions()[0]);
             }
-            ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(file));
-            try {
-                getPanel().save(out);
-            } finally {
-                out.close();
+            if (!file.exists() || JOptionPane.showConfirmDialog(getPanel(), "Are you certain that you want to overwrite " + file.getName() + "?", "Are you sure?", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
+                ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(file));
+                try {
+                    getPanel().save(out);
+                } finally {
+                    out.close();
+                }
+                Logger.info("Saved as " + file + ".");
+            } else {
+                Logger.info("Cancelled by user.");
             }
-            Logger.info("Saved as " + file + ".");
         } else {
             Logger.info("Cancelled by user.");
         }

@@ -20,6 +20,8 @@ package ccre.channel;
 
 import java.io.Serializable;
 
+import ccre.verifier.SetupPhase;
+
 /**
  * A representation of something that can update and might want to tell
  * listeners about this fact.
@@ -46,5 +48,6 @@ public interface UpdatingInput extends Serializable {
      * NOT FIRE THIS RETURNED EVENT MORE THAN ONCE: UNDEFINED BEHAVIOR MAY
      * RESULT.
      */
+    @SetupPhase
     public CancelOutput onUpdate(EventOutput notify);
 }

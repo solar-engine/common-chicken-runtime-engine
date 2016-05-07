@@ -25,6 +25,8 @@ import ccre.channel.FloatInput;
 import ccre.scheduler.Scheduler;
 import ccre.time.Time;
 import ccre.util.Utils;
+import ccre.verifier.FlowPhase;
+import ccre.verifier.SetupPhase;
 
 /**
  * A timer that reports the amount of time since the last reset.
@@ -71,6 +73,7 @@ public final class StopwatchTimer extends AbstractUpdatingInput implements Float
     /**
      * Resets the timer to zero.
      */
+    @FlowPhase
     public void reset() {
         lastNanos = startNanos = Time.currentTimeNanos();
         perform();
@@ -81,6 +84,7 @@ public final class StopwatchTimer extends AbstractUpdatingInput implements Float
      *
      * @return the EventOutput.
      */
+    @SetupPhase
     public EventOutput eventReset() {
         return this::reset;
     }
@@ -90,6 +94,7 @@ public final class StopwatchTimer extends AbstractUpdatingInput implements Float
      *
      * @param when when the timer should reset.
      */
+    @SetupPhase
     public void resetWhen(EventInput when) {
         when.send(this.eventReset());
     }

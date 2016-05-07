@@ -19,6 +19,8 @@
 package ccre.discrete;
 
 import ccre.log.Logger;
+import ccre.verifier.FlowPhase;
+import ccre.verifier.SetupPhase;
 
 /**
  * A DiscreteOutput is an interface for anything that can be set to a value
@@ -34,6 +36,7 @@ public interface DiscreteOutput<E> {
      *
      * @return the type, as a DiscreteType instance.
      */
+    @SetupPhase // TODO: maybe ignored phase?
     public DiscreteType<E> getType();
 
     /**
@@ -45,6 +48,7 @@ public interface DiscreteOutput<E> {
      * @param value the new value to send to this output.
      * @see #safeSet(Object) for a version that catches any errors that occur.
      */
+    @FlowPhase
     public void set(E value);
 
     /**
@@ -57,6 +61,7 @@ public interface DiscreteOutput<E> {
      * @param value the new value to send to this output.
      * @see #set(Object) for a version that throws any errors that occur.
      */
+    @FlowPhase
     public default void safeSet(E value) {
         try {
             set(value);
@@ -72,6 +77,7 @@ public interface DiscreteOutput<E> {
      * @param type the discrete type
      * @return the discrete output
      */
+    @SetupPhase
     public static <E> DiscreteOutput<E> ignored(DiscreteType<E> type) {
         return new DiscreteOutput<E>() {
             @Override

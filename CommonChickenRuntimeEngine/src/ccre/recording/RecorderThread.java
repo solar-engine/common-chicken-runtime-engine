@@ -26,6 +26,8 @@ import java.util.concurrent.PriorityBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
 import ccre.concurrency.ReporterThread;
+import ccre.verifier.FlowPhase;
+import ccre.verifier.SetupPhase;
 
 class RecorderThread {
     private static final RecordSnapshot SENTINEL = new RecordSnapshot();
@@ -71,16 +73,19 @@ class RecorderThread {
     private final ArrayBlockingQueue<RecordSnapshot> pool = new ArrayBlockingQueue<>(64);
     private final PriorityBlockingQueue<RecordSnapshot> queue = new PriorityBlockingQueue<>();
 
+    @FlowPhase
     private RecordSnapshot getOrAllocateSnapshot() {
         RecordSnapshot rs = pool.poll();
         return rs == null ? new RecordSnapshot() : rs;
     }
 
+    @SetupPhase
     public void close() throws InterruptedException {
         queue.add(SENTINEL);
         terminated.await();
     }
 
+    @FlowPhase
     public void record(long timestamp, int channel, byte type, long value) {
         RecordSnapshot rs = getOrAllocateSnapshot();
         rs.timestamp = timestamp;
@@ -91,6 +96,7 @@ class RecorderThread {
         queue.add(rs);
     }
 
+    @FlowPhase
     public void record(long timestamp, int channel, byte[] data) {
         RecordSnapshot rs = getOrAllocateSnapshot();
         rs.timestamp = timestamp;
@@ -100,6 +106,7 @@ class RecorderThread {
         queue.add(rs);
     }
 
+    @SetupPhase
     public void start() {
         thread.start();
     }

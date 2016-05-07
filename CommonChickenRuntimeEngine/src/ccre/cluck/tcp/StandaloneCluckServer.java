@@ -40,6 +40,7 @@ public class StandaloneCluckServer {
         final long time = System.currentTimeMillis();
         NetworkAutologger.register();
         Cluck.publish("status-report", new EventOutput() {
+            @Override
             public void event() {
                 StringBuilder b = new StringBuilder("Standalone server online on [");
                 for (String addr : Network.listIPv4Addresses()) {

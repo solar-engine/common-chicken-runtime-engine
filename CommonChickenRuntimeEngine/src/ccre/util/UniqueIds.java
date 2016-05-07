@@ -18,6 +18,8 @@
  */
 package ccre.util;
 
+import ccre.verifier.SetupPhase;
+
 /**
  * A generator that generates Unique Identifiers for use in other CCRE
  * subsystems.
@@ -41,6 +43,7 @@ public class UniqueIds {
      *
      * @return The unique identifier.
      */
+    @SetupPhase
     public synchronized int nextId() {
         return nextId++;
     }
@@ -50,6 +53,7 @@ public class UniqueIds {
      *
      * @return The unique identifier.
      */
+    @SetupPhase
     public String nextHexId() {
         return Integer.toHexString(nextId());
     }
@@ -61,6 +65,7 @@ public class UniqueIds {
      * @param prefix A prefix to go before the number.
      * @return The unique identifier.
      */
+    @SetupPhase
     public String nextHexId(String prefix) {
         return prefix + "-" + Integer.toHexString(nextId());
     }

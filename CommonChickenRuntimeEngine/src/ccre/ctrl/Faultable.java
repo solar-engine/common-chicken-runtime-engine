@@ -20,6 +20,7 @@ package ccre.ctrl;
 
 import ccre.channel.BooleanInput;
 import ccre.channel.EventOutput;
+import ccre.verifier.SetupPhase;
 
 /**
  * A device that can report one of a set of faults as currently occurring, or as
@@ -34,6 +35,7 @@ public interface Faultable<Fault> {
      *
      * @return a newly-allocated array of possible faults.
      */
+    @SetupPhase
     public Fault[] getPossibleFaults();
 
     /**
@@ -45,6 +47,7 @@ public interface Faultable<Fault> {
      * @param fault the fault to query
      * @return the fault state input
      */
+    @SetupPhase
     public BooleanInput getIsFaulting(Fault fault);
 
     /**
@@ -58,6 +61,7 @@ public interface Faultable<Fault> {
      * @param fault the fault to query
      * @return the fault state input
      */
+    @SetupPhase
     public BooleanInput getIsStickyFaulting(Fault fault);
 
     /**
@@ -66,5 +70,6 @@ public interface Faultable<Fault> {
      *
      * @return the EventOutput
      */
+    @SetupPhase
     public EventOutput getClearStickyFaults();
 }

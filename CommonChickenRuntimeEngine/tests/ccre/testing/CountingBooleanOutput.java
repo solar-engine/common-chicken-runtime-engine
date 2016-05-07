@@ -50,6 +50,7 @@ public class CountingBooleanOutput implements BooleanOutput {
 
     private boolean anyUnexpected;
 
+    @Override
     public synchronized void set(boolean value) {
         if (!ifExpected) {
             anyUnexpected = true;

@@ -26,6 +26,7 @@ import ccre.channel.EventInput;
 import ccre.channel.EventOutput;
 import ccre.channel.FloatInput;
 import ccre.channel.FloatOutput;
+import ccre.verifier.SetupPhase;
 
 /**
  * A ControlBindingCreator is an abstract mechanism by which a program or module
@@ -42,6 +43,7 @@ public interface ControlBindingCreator {
      * @param name the name of the control binding.
      * @param output the output to let the user control.
      */
+    @SetupPhase
     public void addBoolean(String name, BooleanOutput output);
 
     /**
@@ -50,6 +52,7 @@ public interface ControlBindingCreator {
      * @param name the name of the control binding.
      * @return a BooleanInput controlled by the user
      */
+    @SetupPhase
     public BooleanInput addBoolean(String name);
 
     /**
@@ -59,6 +62,7 @@ public interface ControlBindingCreator {
      * @param name the name of the control binding.
      * @param output the output to let the user control.
      */
+    @SetupPhase
     public void addFloat(String name, FloatOutput output);
 
     /**
@@ -67,6 +71,7 @@ public interface ControlBindingCreator {
      * @param name the name of the control binding.
      * @return a FloatInput controlled by the user
      */
+    @SetupPhase
     public FloatInput addFloat(String name);
 
     /**
@@ -76,6 +81,7 @@ public interface ControlBindingCreator {
      * @param name the name of the control binding.
      * @param output the output to let the user control.
      */
+    @SetupPhase
     public default void addEvent(String name, EventOutput output) {
         addBoolean(name, BooleanOutput.polarize(null, output));
     }
@@ -87,6 +93,7 @@ public interface ControlBindingCreator {
      * @param name the name of the control binding.
      * @return an EventInput controlled by the user
      */
+    @SetupPhase
     public default EventInput addEvent(String name) {
         return addBoolean(name).onPress();
     }
@@ -101,6 +108,7 @@ public interface ControlBindingCreator {
      * @param toggle the binding name for toggling.
      * @param io the IO to let the user control.
      */
+    @SetupPhase
     public default void addToggleButton(String setTrue, String setFalse, String toggle, BooleanIO io) {
         addEvent(setTrue, io.eventSet(true));
         addEvent(setFalse, io.eventSet(false));
@@ -115,6 +123,7 @@ public interface ControlBindingCreator {
      * @param name the name of the control binding.
      * @param io the IO to let the user control.
      */
+    @SetupPhase
     public default void addToggleButton(String name, BooleanIO io) {
         addToggleButton(name + " Set", name + " Reset", name + " Toggle", io);
     }
@@ -129,6 +138,7 @@ public interface ControlBindingCreator {
      * @param toggle the binding name for toggling.
      * @return an EventInput controlled by the user
      */
+    @SetupPhase
     public default BooleanIO addToggleButton(String setTrue, String setFalse, String toggle) {
         BooleanIO out = new BooleanCell();
         addToggleButton(setTrue, setFalse, toggle, out);
@@ -143,6 +153,7 @@ public interface ControlBindingCreator {
      * @param name the name of the control binding.
      * @return an EventInput controlled by the user
      */
+    @SetupPhase
     public default BooleanIO addToggleButton(String name) {
         BooleanIO out = new BooleanCell();
         addToggleButton(name, out);

@@ -23,6 +23,7 @@ import java.util.Objects;
 import ccre.channel.AbstractUpdatingInput;
 import ccre.channel.DerivedUpdate;
 import ccre.channel.UpdatingInput;
+import ccre.verifier.FlowPhase;
 
 /**
  * A utility class that lets users define derived dataflow channels based on
@@ -71,6 +72,7 @@ public abstract class DerivedDiscreteInput<E> extends AbstractUpdatingInput impl
         return type;
     }
 
+    @Override
     public final E get() {
         return value;
     }
@@ -80,5 +82,6 @@ public abstract class DerivedDiscreteInput<E> extends AbstractUpdatingInput impl
      *
      * @return the present value for the DiscreteInput.
      */
+    @FlowPhase
     protected abstract E apply();
 }

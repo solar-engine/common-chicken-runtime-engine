@@ -22,6 +22,7 @@ import java.util.PriorityQueue;
 
 import ccre.channel.EventOutput;
 import ccre.log.Logger;
+import ccre.verifier.FlowPhase;
 
 /**
  * A "fake" implementation of time, in which the current time is controlled by
@@ -78,6 +79,7 @@ public class FakeTime extends Time {
         public final EventOutput target;
         public final long time;
 
+        @FlowPhase
         public Entry(EventOutput target, long time) {
             this.target = target;
             this.time = time;
@@ -91,6 +93,7 @@ public class FakeTime extends Time {
 
     private final PriorityQueue<Entry> queue = new PriorityQueue<>(1024);
 
+    @FlowPhase
     void schedule(EventOutput event, long time) {
         synchronized (FakeTime.this) {
             queue.add(new Entry(event, time));

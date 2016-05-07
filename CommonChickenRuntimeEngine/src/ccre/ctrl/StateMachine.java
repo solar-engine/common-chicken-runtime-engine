@@ -28,6 +28,9 @@ import ccre.channel.FloatInput;
 import ccre.channel.UpdatingInput;
 import ccre.log.LogLevel;
 import ccre.log.Logger;
+import ccre.verifier.FlowPhase;
+import ccre.verifier.IgnoredPhase;
+import ccre.verifier.SetupPhase;
 
 /**
  * A finite-state machine. This has a number of named, predefined states, which
@@ -83,6 +86,7 @@ public class StateMachine {
         return numberOfStates;
     }
 
+    @SetupPhase
     private static void checkNamesConsistency(String... names) {
         for (int i = 0; i < names.length; i++) {
             String name = names[i];
@@ -97,6 +101,7 @@ public class StateMachine {
         }
     }
 
+    @IgnoredPhase
     private int indexOfName(String state) {
         for (int i = 0; i < getNumberOfStates(); i++) {
             if (state.equals(stateNames[i])) {
@@ -111,6 +116,7 @@ public class StateMachine {
      *
      * @param state the state to change to.
      */
+    @FlowPhase
     public void setState(String state) {
         setState(indexOfName(state));
     }
@@ -121,6 +127,7 @@ public class StateMachine {
      * @param state the state to change to, as an index in the list of state
      * names.
      */
+    @FlowPhase
     public void setState(int state) {
         if (state < 0 || state >= getNumberOfStates()) {
             throw new IllegalArgumentException("Invalid state ID: " + state);
@@ -198,6 +205,7 @@ public class StateMachine {
      *
      * @return the name of the current state.
      */
+    @FlowPhase
     public String getStateName() {
         return stateNames[currentState];
     }
@@ -328,6 +336,7 @@ public class StateMachine {
      */
     public void autologTransitions(final LogLevel level, final String prefix) {
         onEnter.send(new EventOutput() {
+            @Override
             public void event() {
                 Logger.log(level, prefix + getStateName());
             }

@@ -75,6 +75,7 @@ public class CountingFloatOutput implements FloatOutput {
         this.allowExtras = allowExtras;
     }
 
+    @Override
     public synchronized void set(float value) {
         if (!ifExpected && !allowExtras) {
             anyUnexpected = true;

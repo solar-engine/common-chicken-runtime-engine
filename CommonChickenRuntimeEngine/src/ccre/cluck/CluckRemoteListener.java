@@ -18,6 +18,8 @@
  */
 package ccre.cluck;
 
+import ccre.verifier.SetupPhase;
+
 /**
  * A listener that is told about objects on the network as they are discovered.
  *
@@ -33,5 +35,6 @@ public interface CluckRemoteListener {
      * @param remote The remote path.
      * @param remoteType The remote type.
      */
+    @SetupPhase
     public void handle(String remote, int remoteType);
 }

@@ -99,18 +99,22 @@ public class ControlBindingDataSourceBuildable implements ControlBindingDataSour
         floats.put(name, axisSource);
     }
 
+    @Override
     public String[] listBooleans() {
         return booleans.keySet().toArray(new String[booleans.keySet().size()]);
     }
 
+    @Override
     public BooleanInput getBoolean(String name) {
         return booleans.get(name);
     }
 
+    @Override
     public String[] listFloats() {
         return floats.keySet().toArray(new String[floats.keySet().size()]);
     }
 
+    @Override
     public FloatInput getFloat(String name) {
         return floats.get(name);
     }

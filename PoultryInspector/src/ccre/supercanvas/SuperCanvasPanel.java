@@ -30,6 +30,8 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
@@ -92,6 +94,7 @@ public final class SuperCanvasPanel extends JPanel {
     public synchronized void add(SuperCanvasComponent comp) {
         comp.setPanel(this);
         components.add(comp);
+        sortComponents();
         repaint();
     }
 
@@ -103,8 +106,18 @@ public final class SuperCanvasPanel extends JPanel {
     public synchronized void raise(SuperCanvasComponent comp) {
         if (components.remove(comp)) {
             components.add(comp);
+            sortComponents();
             repaint();
         }
+    }
+
+    private void sortComponents() {
+        Collections.sort(components, new Comparator<SuperCanvasComponent>() {
+            @Override
+            public int compare(SuperCanvasComponent o1, SuperCanvasComponent o2) {
+                return Integer.compare(o1.zIndex, o2.zIndex);
+            }
+        });
     }
 
     /**

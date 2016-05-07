@@ -27,6 +27,8 @@ import ccre.concurrency.ReporterThread;
 import ccre.log.Logger;
 import ccre.time.Time;
 import ccre.util.ThreadedAllocationPool;
+import ccre.verifier.FlowPhase;
+import ccre.verifier.SuppressPhaseWarnings;
 
 class RunLoop extends ReporterThread implements IRunLoop {
 
@@ -45,6 +47,7 @@ class RunLoop extends ReporterThread implements IRunLoop {
             return Long.compare(time, o.time);
         }
 
+        @FlowPhase
         public Entry populate(String tag, EventOutput target, long time) {
             this.tag = tag;
             this.time = time;
@@ -60,6 +63,7 @@ class RunLoop extends ReporterThread implements IRunLoop {
     private volatile boolean terminated;
 
     @Override
+    @SuppressPhaseWarnings // deadlock issues demonstrated to be absent
     public void add(String tag, EventOutput event, long time) {
         Entry ent = pool.allocate().populate(tag, event, time);
         queueLock.lock();
@@ -132,10 +136,12 @@ class RunLoop extends ReporterThread implements IRunLoop {
     // amount of time while waiting for a queue to be unlocked, but that's it.
     // Really, even that should be avoided, but as long as it's just a delay,
     // it'll be okay from a correctness perspective.
+    @FlowPhase
     protected void reportAwaiting(boolean isAwaiting) {
         // to be overridden as necessary
     }
 
+    @FlowPhase
     protected void reportActive(String tag) {
         // to be overridden as necessary
     }

@@ -61,6 +61,7 @@ public class CommunicationFailureExtendedMotor extends ExtendedMotor implements 
     @Override
     public BooleanOutput asEnable() {
         return new BooleanOutput() {
+            @Override
             public void set(boolean value) {
                 Logger.warning("Motor control (enable/disable) failed: " + message);
             }
@@ -102,6 +103,7 @@ public class CommunicationFailureExtendedMotor extends ExtendedMotor implements 
 
     private long nextWarning = 0;
 
+    @Override
     public void set(float value) {
         long now = Time.currentTimeMillis();
         if (now > nextWarning) {

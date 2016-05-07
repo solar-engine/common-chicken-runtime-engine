@@ -18,6 +18,8 @@
  */
 package ccre.discrete;
 
+import ccre.verifier.IgnoredPhase;
+
 /**
  * A representation of the type of a discrete input or output.
  *
@@ -31,6 +33,7 @@ public interface DiscreteType<E> {
      *
      * @return the class for <code>E</code>
      */
+    @IgnoredPhase
     public Class<E> getType();
 
     /**
@@ -38,6 +41,7 @@ public interface DiscreteType<E> {
      *
      * @return an array of all of the possibilities.
      */
+    @IgnoredPhase
     public E[] getOptions();
 
     /**
@@ -48,6 +52,7 @@ public interface DiscreteType<E> {
      * @return true if <code>value</code> is a valid instance, and false
      * otherwise
      */
+    @IgnoredPhase
     public boolean isOption(E value);
 
     /**
@@ -58,6 +63,7 @@ public interface DiscreteType<E> {
      * @return the string expression, which may be different from
      * <code>value.toString()</code>
      */
+    @IgnoredPhase
     public String toString(E value);
 
     /**
@@ -66,5 +72,6 @@ public interface DiscreteType<E> {
      *
      * @return the default value.
      */
+    @IgnoredPhase
     public E getDefaultValue();
 }

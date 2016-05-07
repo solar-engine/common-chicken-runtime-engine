@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 Cel Skeggs.
+ * Copyright 2015-2016 Cel Skeggs.
  *
  * This file is part of the CCRE, the Common Chicken Runtime Engine.
  *
@@ -51,7 +51,7 @@ public class Folder extends Artifact {
     }
 
     @Override
-    public void close() throws Exception {
+    public void close() throws IOException {
         // nothing to do
     }
 

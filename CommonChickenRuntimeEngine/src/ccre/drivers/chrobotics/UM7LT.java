@@ -30,6 +30,7 @@ import ccre.channel.FloatInput;
 import ccre.concurrency.CollapsingWorkerThread;
 import ccre.concurrency.ReporterThread;
 import ccre.log.Logger;
+import ccre.verifier.FlowPhase;
 
 /**
  * The high-level interface to the UM7-LT orientation sensor from CH Robotics,
@@ -190,6 +191,7 @@ public class UM7LT {
      * Start zeroing the Gyro.
      */
     public final EventOutput zeroGyro = new EventOutput() {
+        @Override
         public void event() {
             try {
                 zeroGyro();
@@ -204,6 +206,7 @@ public class UM7LT {
      *
      * @throws IOException if the command could not be sent.
      */
+    @FlowPhase
     public void zeroGyro() throws IOException {
         internal.zeroGyros();
     }

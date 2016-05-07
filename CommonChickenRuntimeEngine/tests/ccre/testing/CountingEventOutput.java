@@ -46,6 +46,7 @@ public class CountingEventOutput implements EventOutput {
 
     private boolean anyUnexpected;
 
+    @Override
     public synchronized void event() {
         if (!ifExpected) {
             anyUnexpected = true;

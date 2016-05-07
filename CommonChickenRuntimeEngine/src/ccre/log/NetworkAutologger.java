@@ -42,10 +42,12 @@ public final class NetworkAutologger implements LoggingTarget, CluckRemoteListen
      */
     private static volatile boolean registered = false;
     private static final LoggingTarget localLoggingTarget = new LoggingTarget() {
+        @Override
         public void log(LogLevel level, String message, Throwable throwable) {
             Logger.log(level, "[NET] " + message, throwable);
         }
 
+        @Override
         public void log(LogLevel level, String message, String extended) {
             Logger.logExt(level, "[NET] " + message, extended);
         }
@@ -108,6 +110,7 @@ public final class NetworkAutologger implements LoggingTarget, CluckRemoteListen
         });
     }
 
+    @Override
     public void log(LogLevel level, String message, Throwable throwable) {
         if (level == null) {
             throw new NullPointerException();
@@ -128,6 +131,7 @@ public final class NetworkAutologger implements LoggingTarget, CluckRemoteListen
         }
     }
 
+    @Override
     public void log(LogLevel level, String message, String extended) {
         if (level == null) {
             throw new NullPointerException();
@@ -148,6 +152,7 @@ public final class NetworkAutologger implements LoggingTarget, CluckRemoteListen
         }
     }
 
+    @Override
     public void handle(String remote, int remoteType) {
         if (remoteType != CluckConstants.RMT_LOGTARGET) {
             return;

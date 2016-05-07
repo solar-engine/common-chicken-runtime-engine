@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<project default="jar">
+    <property name="dir.buildfile" value="."/>
+    <target name="jar">
+        <jar destfile="${dir.buildfile}/TimelineInspector.jar" filesetmanifest="mergewithoutmain">
+            <manifest>
+                <attribute name="Main-Class" value="ccre.timeline.TimelineMain"/>
+                <attribute name="Class-Path" value="."/>
+            </manifest>
+            <fileset dir="${dir.buildfile}/bin"/>
+            <fileset dir="../CommonChickenRuntimeEngine/bin"/>
+        </jar>
+    </target>
+</project>

@@ -18,6 +18,10 @@
  */
 package ccre.time;
 
+import ccre.verifier.FlowPhase;
+import ccre.verifier.ImperativePhase;
+import ccre.verifier.SetupPhase;
+
 /**
  * An abstraction of time that allows multiple implementations to be used. For
  * example, time can be faked during execution of JUnit tests.
@@ -74,6 +78,7 @@ public abstract class Time {
      * @param time the new time provider.
      */
     // TODO: not thread safe - does this need to be?
+    @SetupPhase
     public static void setTimeProvider(Time time) {
         if (time == null) {
             throw new NullPointerException();
@@ -104,6 +109,7 @@ public abstract class Time {
      *
      * @return the current time, in milliseconds.
      */
+    @FlowPhase
     public static long currentTimeMillis() {
         return time.nowMillis();
     }
@@ -117,6 +123,7 @@ public abstract class Time {
      *
      * @return the current time, in nanoseconds.
      */
+    @FlowPhase
     public static long currentTimeNanos() {
         return time.nowNanos();
     }
@@ -133,6 +140,7 @@ public abstract class Time {
      * @param millis how long to sleep for.
      * @throws InterruptedException if the thread is interrupted while sleeping.
      */
+    @ImperativePhase
     public static void sleep(long millis) throws InterruptedException {
         time.sleepFor(millis);
     }
@@ -151,6 +159,7 @@ public abstract class Time {
      * @param timeout how long to sleep for, in milliseconds.
      * @throws InterruptedException if the thread is interrupted while waiting.
      */
+    @ImperativePhase
     public static void wait(Object object, long timeout) throws InterruptedException {
         time.waitOn(object, timeout);
     }
@@ -162,6 +171,7 @@ public abstract class Time {
      *
      * @return the current time, in milliseconds.
      */
+    @FlowPhase
     protected abstract long nowMillis();
 
     /**
@@ -171,6 +181,7 @@ public abstract class Time {
      *
      * @return the current time, in nanoseconds.
      */
+    @FlowPhase
     protected abstract long nowNanos();
 
     /**
@@ -185,6 +196,7 @@ public abstract class Time {
      * @param millis how long to sleep for.
      * @throws InterruptedException if the thread is interrupted while sleeping.
      */
+    @ImperativePhase
     protected abstract void sleepFor(long millis) throws InterruptedException;
 
     /**
@@ -202,11 +214,13 @@ public abstract class Time {
      * @param timeout how long to sleep for, in milliseconds.
      * @throws InterruptedException if the thread is interrupted while waiting.
      */
+    @ImperativePhase
     protected abstract void waitOn(Object object, long timeout) throws InterruptedException;
 
     /**
      * This provider has been replaced; transition to the new one. For example,
      * one might wake up any current sleepers.
      */
+    @SetupPhase
     protected abstract void close();
 }

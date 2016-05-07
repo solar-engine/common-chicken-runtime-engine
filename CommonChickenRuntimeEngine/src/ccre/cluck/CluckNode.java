@@ -27,6 +27,8 @@ import java.util.HashMap;
 import ccre.channel.EventOutput;
 import ccre.cluck.rpc.RPCManager;
 import ccre.log.Logger;
+import ccre.verifier.FlowPhase;
+import ccre.verifier.SetupPhase;
 
 /**
  * A CluckNode is the core hub of the Cluck networking system on a device. It
@@ -79,6 +81,7 @@ public class CluckNode implements Serializable {
      * @param source The source path.
      * @param data The message data to transmit.
      */
+    @FlowPhase
     public void transmit(String target, String source, byte[] data) {
         transmit(target, source, data, null);
     }
@@ -96,6 +99,7 @@ public class CluckNode implements Serializable {
      * @param data The message data to transmit.
      * @param denyLink The link for broadcasts to not follow.
      */
+    @FlowPhase
     public void transmit(String target, String source, byte[] data, CluckLink denyLink) {
         if (data == null) {
             throw new NullPointerException();
@@ -146,6 +150,7 @@ public class CluckNode implements Serializable {
      * @see #transmit(java.lang.String, java.lang.String, byte[],
      * ccre.cluck.CluckLink)
      */
+    @FlowPhase
     public void broadcast(String source, byte[] data, CluckLink denyLink) {
         if (data == null) {
             throw new NullPointerException();
@@ -165,6 +170,7 @@ public class CluckNode implements Serializable {
         }
     }
 
+    @FlowPhase
     private void reportMissingLink(byte[] data, String source, String target, String direct) {
         // Warnings about lost RMT_NEGATIVE_ACK messages or research messages
         // are annoying, so don't send these, and don't warn about the same
@@ -215,6 +221,7 @@ public class CluckNode implements Serializable {
      * @throws IllegalArgumentException if the link isn't directly attached.
      * @return The link name.
      */
+    @FlowPhase
     public String getLinkName(CluckLink link) throws IllegalArgumentException {
         if (link == null) {
             throw new NullPointerException();
@@ -234,6 +241,7 @@ public class CluckNode implements Serializable {
      * @param linkName The link name.
      * @throws IllegalStateException if the specified link name is already used.
      */
+    @SetupPhase
     public void addLink(CluckLink link, String linkName) throws IllegalStateException {
         if (link == null || linkName == null) {
             throw new NullPointerException();
@@ -268,6 +276,7 @@ public class CluckNode implements Serializable {
      * @param linkName The link name to remove.
      * @return whether or not there had been a link to remove.
      */
+    @SetupPhase
     public boolean removeLink(String linkName) {
         if (linkName == null) {
             throw new NullPointerException();
@@ -282,6 +291,7 @@ public class CluckNode implements Serializable {
      * @param link The link.
      * @param linkName The link name.
      */
+    @SetupPhase
     public void addOrReplaceLink(CluckLink link, String linkName) {
         if (link == null || linkName == null) {
             throw new NullPointerException();
@@ -301,6 +311,7 @@ public class CluckNode implements Serializable {
      * @return The RPCManager for this node.
      * @see ccre.cluck.rpc.RPCManager
      */
+    @SetupPhase
     public synchronized RPCManager getRPCManager() {
         if (rpcManager == null) {
             rpcManager = new RPCManager(this);

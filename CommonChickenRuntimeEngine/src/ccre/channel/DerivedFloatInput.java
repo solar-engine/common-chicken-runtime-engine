@@ -18,6 +18,8 @@
  */
 package ccre.channel;
 
+import ccre.verifier.FlowPhase;
+
 /**
  * A utility class that lets users define derived dataflow channels based on
  * other channels.
@@ -56,6 +58,7 @@ public abstract class DerivedFloatInput extends AbstractUpdatingInput implements
         });
     }
 
+    @Override
     public final float get() {
         return value;
     }
@@ -65,5 +68,6 @@ public abstract class DerivedFloatInput extends AbstractUpdatingInput implements
      *
      * @return the present value for the FloatInput.
      */
+    @FlowPhase
     protected abstract float apply();
 }

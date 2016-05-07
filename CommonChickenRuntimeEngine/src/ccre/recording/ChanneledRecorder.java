@@ -22,6 +22,9 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Arrays;
 
+import ccre.verifier.FlowPhase;
+import ccre.verifier.SetupPhase;
+
 class ChanneledRecorder {
     private final RecorderThread rthread;
     private volatile boolean closed;
@@ -31,16 +34,19 @@ class ChanneledRecorder {
         rthread.start();
     }
 
+    @SetupPhase
     public void close() throws InterruptedException {
         closed = true;
         rthread.close();
     }
 
+    @FlowPhase
     private long getTimestamp() {
         // convert to multiples of 10 us
         return System.nanoTime() / 10000;
     }
 
+    @FlowPhase
     public void recordNull(int channel) {
         if (closed) {
             return; // throw it away
@@ -48,6 +54,7 @@ class ChanneledRecorder {
         rthread.record(getTimestamp(), channel, RecordSnapshot.T_NULL, 0);
     }
 
+    @FlowPhase
     public void recordByte(int channel, byte b) {
         if (closed) {
             return; // throw it away
@@ -55,6 +62,7 @@ class ChanneledRecorder {
         rthread.record(getTimestamp(), channel, RecordSnapshot.T_BYTE, b);
     }
 
+    @FlowPhase
     public void recordShort(int channel, short s) {
         if (closed) {
             return; // throw it away
@@ -62,6 +70,7 @@ class ChanneledRecorder {
         rthread.record(getTimestamp(), channel, RecordSnapshot.T_SHORT, s);
     }
 
+    @FlowPhase
     public void recordInt(int channel, int i) {
         if (closed) {
             return; // throw it away
@@ -69,6 +78,7 @@ class ChanneledRecorder {
         rthread.record(getTimestamp(), channel, RecordSnapshot.T_INT, i);
     }
 
+    @FlowPhase
     public void recordLong(int channel, long l) {
         if (closed) {
             return; // throw it away
@@ -76,6 +86,7 @@ class ChanneledRecorder {
         rthread.record(getTimestamp(), channel, RecordSnapshot.T_LONG, l);
     }
 
+    @FlowPhase
     public void recordVarInt(int channel, long l) {
         if (closed) {
             return; // throw it away
@@ -83,6 +94,7 @@ class ChanneledRecorder {
         rthread.record(getTimestamp(), channel, RecordSnapshot.T_VARINT, l);
     }
 
+    @FlowPhase
     public void recordBytes(int channel, byte[] bytes, int offset, int length) {
         if (closed) {
             return; // throw it away
@@ -90,10 +102,12 @@ class ChanneledRecorder {
         rthread.record(getTimestamp(), channel, Arrays.copyOfRange(bytes, offset, offset + length));
     }
 
+    @FlowPhase
     public void recordBytes(int channel, byte[] bytes) {
         recordBytes(channel, bytes, 0, bytes.length);
     }
 
+    @FlowPhase
     public void recordString(int channel, String string) {
         recordBytes(channel, string.getBytes());
     }

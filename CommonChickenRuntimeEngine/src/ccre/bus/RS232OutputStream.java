@@ -44,14 +44,17 @@ public class RS232OutputStream extends OutputStream {
         output.writeFully(new byte[] { (byte) b }, 0, 1);
     }
 
+    @Override
     public void write(byte b[], int off, int len) throws IOException {
         output.writeFully(b, off, off + len);
     }
 
+    @Override
     public void flush() throws IOException {
         output.flush();
     }
 
+    @Override
     public void close() throws IOException {
         output.close();
     }

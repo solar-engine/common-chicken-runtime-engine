@@ -22,6 +22,7 @@ import java.util.HashMap;
 
 import ccre.channel.CancelOutput;
 import ccre.channel.EventOutput;
+import ccre.verifier.FlowPhase;
 import ccre.channel.EventCell;
 import ccre.channel.EventInput;
 
@@ -48,6 +49,7 @@ public final class ArbitratedEvent implements EventInput {
         behaviorChain.onActiveUpdate.send(this::update);
     }
 
+    @FlowPhase
     synchronized void update() {
         cancellator.cancel();
         EventInput input = activation.get(this.behaviorChain.active);

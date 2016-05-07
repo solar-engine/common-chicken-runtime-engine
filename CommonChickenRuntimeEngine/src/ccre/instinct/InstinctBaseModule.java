@@ -127,6 +127,7 @@ public abstract class InstinctBaseModule {
     protected void waitForEvent(EventInput source) throws AutonomousModeOverException, InterruptedException {
         final boolean[] b = new boolean[1];
         EventOutput c = new EventOutput() {
+            @Override
             public void event() {
                 synchronized (b) {
                     b[0] = true;

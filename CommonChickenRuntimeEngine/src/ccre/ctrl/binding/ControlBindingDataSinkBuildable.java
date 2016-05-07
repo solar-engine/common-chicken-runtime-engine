@@ -48,22 +48,27 @@ public class ControlBindingDataSinkBuildable implements ControlBindingDataSink, 
     private final HashMap<String, BooleanOutput> booleans = new HashMap<String, BooleanOutput>();
     private final HashMap<String, FloatOutput> floats = new HashMap<String, FloatOutput>();
 
+    @Override
     public String[] listBooleans() {
         return booleans.keySet().toArray(new String[booleans.keySet().size()]);
     }
 
+    @Override
     public BooleanOutput getBoolean(String name) {
         return booleans.get(name);
     }
 
+    @Override
     public String[] listFloats() {
         return floats.keySet().toArray(new String[floats.keySet().size()]);
     }
 
+    @Override
     public FloatOutput getFloat(String name) {
         return floats.get(name);
     }
 
+    @Override
     public void addBoolean(String name, BooleanOutput output) {
         if (booleans.containsKey(name)) {
             throw new IllegalArgumentException("Boolean sink already registered: '" + name + "'");
@@ -71,12 +76,14 @@ public class ControlBindingDataSinkBuildable implements ControlBindingDataSink, 
         booleans.put(name, output);
     }
 
+    @Override
     public BooleanInput addBoolean(String name) {
         BooleanCell cell = new BooleanCell();
         addBoolean(name, cell.asOutput());
         return cell.asInput();
     }
 
+    @Override
     public void addFloat(String name, FloatOutput output) {
         if (floats.containsKey(name)) {
             throw new IllegalArgumentException("Float sink already registered: '" + name + "'");
@@ -84,6 +91,7 @@ public class ControlBindingDataSinkBuildable implements ControlBindingDataSink, 
         floats.put(name, output);
     }
 
+    @Override
     public FloatInput addFloat(String name) {
         FloatCell cell = new FloatCell();
         addFloat(name, cell.asOutput());

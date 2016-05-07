@@ -21,9 +21,11 @@ package ccre.scheduler;
 import ccre.channel.CancelOutput;
 import ccre.channel.EventOutput;
 import ccre.time.Time;
+import ccre.verifier.FlowPhase;
+import ccre.verifier.SetupPhase;
 
 class FullLoop {
-    private final class FixedRateEvent extends CancellableScheduleEntry {
+    private final class FixedRateEvent extends CancellableScheduleEntry implements CancelOutput {
         private long nextScheduleAtNanos;
         private final long periodNanos;
         private final boolean skippable;
@@ -37,6 +39,7 @@ class FullLoop {
             this.skippable = skippable;
         }
 
+        @FlowPhase
         public void schedule() {
             // purposeful comparison order to avoid overflow errors
             if (this.skippable && this.nextScheduleAtNanos - Time.currentTimeNanos() < 0) {
@@ -56,7 +59,7 @@ class FullLoop {
         }
     }
 
-    private final class VariableRateEvent extends CancellableScheduleEntry {
+    private final class VariableRateEvent extends CancellableScheduleEntry implements CancelOutput {
         private final long periodNanos;
         private final String tag;
 
@@ -66,6 +69,7 @@ class FullLoop {
             this.periodNanos = periodNanos;
         }
 
+        @FlowPhase
         public void schedule() {
             scheduleOnce(tag, Time.currentTimeNanos() + this.periodNanos, this);
         }
@@ -79,10 +83,11 @@ class FullLoop {
         }
     }
 
-    private class CancellableScheduleEntry implements EventOutput, CancelOutput {
+    private class CancellableScheduleEntry implements EventOutput {
         final EventOutput o;
         volatile boolean cancel;
 
+        @FlowPhase
         public CancellableScheduleEntry(EventOutput o) {
             this.o = o;
         }
@@ -94,7 +99,7 @@ class FullLoop {
             }
         }
 
-        @Override
+        @FlowPhase
         public void cancel() {
             this.cancel = true;
         }
@@ -110,32 +115,38 @@ class FullLoop {
         this.rl = new RunLoop();
     }
 
+    @FlowPhase
     public void scheduleOnce(String tag, long timeAtNanos, EventOutput o) {
         rl.add(tag, o, timeAtNanos);
     }
 
-    public CancelOutput scheduleCancellableOnce(String tag, long timeAtNanos, EventOutput o) {
+    @FlowPhase
+    public EventOutput scheduleCancellableOnce(String tag, long timeAtNanos, EventOutput o) {
         CancellableScheduleEntry event = new CancellableScheduleEntry(o);
         scheduleOnce(tag, timeAtNanos, event);
-        return event;
+        return event::cancel;
     }
 
+    @SetupPhase
     public CancelOutput scheduleFixedRate(String tag, long firstAtNanos, long periodNanos, boolean skippable, EventOutput o) {
         FixedRateEvent event = new FixedRateEvent(tag, firstAtNanos, periodNanos, skippable, o);
         event.schedule();
         return event;
     }
 
+    @SetupPhase
     public CancelOutput scheduleVariableRate(String tag, long periodNanos, EventOutput o) {
         VariableRateEvent event = new VariableRateEvent(tag, periodNanos, o);
         event.schedule();
         return event;
     }
 
+    @SetupPhase
     public void start() {
         rl.start();
     }
 
+    @SetupPhase
     public void terminate() {
         rl.terminate();
     }

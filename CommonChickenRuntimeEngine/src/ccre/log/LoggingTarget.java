@@ -18,6 +18,8 @@
  */
 package ccre.log;
 
+import ccre.verifier.FlowPhase;
+
 /**
  * A target that can receive logging messages.
  *
@@ -54,6 +56,7 @@ public interface LoggingTarget {
      * @param message the message to log.
      * @param throwable the optional throwable to log.
      */
+    @FlowPhase
     public void log(LogLevel level, String message, Throwable throwable);
 
     /**
@@ -65,5 +68,6 @@ public interface LoggingTarget {
      * @param message the message to log.
      * @param extended the optional extended message to log.
      */
+    @FlowPhase
     public void log(LogLevel level, String message, String extended);
 }

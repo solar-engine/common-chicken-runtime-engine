@@ -20,6 +20,7 @@ package ccre.ctrl.binding;
 
 import ccre.channel.BooleanInput;
 import ccre.channel.FloatInput;
+import ccre.verifier.SetupPhase;
 
 /**
  * A ControlBindingDataSource is an interface to a named set of boolean and
@@ -35,6 +36,7 @@ public interface ControlBindingDataSource {
      *
      * @return an array of names of inputs.
      */
+    @SetupPhase
     public String[] listBooleans();
 
     /**
@@ -43,6 +45,7 @@ public interface ControlBindingDataSource {
      * @param name the input's name.
      * @return the input.
      */
+    @SetupPhase
     public BooleanInput getBoolean(String name);
 
     /**
@@ -50,6 +53,7 @@ public interface ControlBindingDataSource {
      *
      * @return an array of names of inputs.
      */
+    @SetupPhase
     public String[] listFloats();
 
     /**
@@ -58,5 +62,6 @@ public interface ControlBindingDataSource {
      * @param name the input's name.
      * @return the input.
      */
+    @SetupPhase
     public FloatInput getFloat(String name);
 }

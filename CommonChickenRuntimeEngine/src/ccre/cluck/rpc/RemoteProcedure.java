@@ -20,6 +20,8 @@ package ccre.cluck.rpc;
 
 import java.io.OutputStream;
 
+import ccre.verifier.SetupPhase;
+
 /**
  * A procedure that can be published over Cluck to allow for calling it across
  * the network.
@@ -45,5 +47,6 @@ public interface RemoteProcedure {
      * @param out Results from the procedure. Send the result by closing this
      * stream.
      */
+    @SetupPhase
     public void invoke(byte[] in, OutputStream out);
 }

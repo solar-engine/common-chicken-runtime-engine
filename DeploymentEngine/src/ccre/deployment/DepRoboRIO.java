@@ -217,7 +217,8 @@ public class DepRoboRIO {
     private static final String DEFAULT_PASSWORD = "";
     private static final String DEFAULT_ADMIN_USERNAME = "admin";
     private static final String DEFAULT_ADMIN_PASSWORD = "";
-
+    private static final int FALLBACK_HOST = 19;
+    
     /**
      * Finds the path to the roboRIO compiled Jar file, either the thick or thin
      * version depending on whether {@link #LIBS_THICK} or {@link #LIBS_THIN} is
@@ -320,19 +321,20 @@ public class DepRoboRIO {
      * @throws UnknownHostException if a roboRIO cannot be found.
      */
     public static DepRoboRIO discover(int team_number) throws UnknownHostException {
+        String fallbackIP = "10." + (team_number / 100) + "." + (team_number % 100) + "." + FALLBACK_HOST;
         DepRoboRIO rio = byNameOrIP("roboRIO-" + team_number + "-FRC.local");
         if (rio == null) {
-            rio = byNameOrIP("172.22.11.2");
+            rio = byNameOrIP("172.22.11." + FALLBACK_HOST);
         }
         if (rio == null) {
-            rio = byNameOrIP("10." + (team_number / 100) + "." + (team_number % 100) + ".2");
+            rio = byNameOrIP(fallbackIP);
         }
         if (rio == null) {
             // 2015 mDNS name format
             rio = byNameOrIP("roboRIO-" + team_number + ".local");
         }
         if (rio == null) {
-            throw new UnknownHostException("Cannot reach roboRIO over mDNS, ethernet-over-USB, or via static 10." + (team_number / 100) + "." + (team_number % 100) + ".2 address.");
+            throw new UnknownHostException("Cannot reach roboRIO over mDNS, ethernet-over-USB, or via static " + fallbackIP + " address.");
         }
         return rio;
     }

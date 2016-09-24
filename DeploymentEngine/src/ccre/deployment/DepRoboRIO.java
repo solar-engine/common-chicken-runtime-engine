@@ -217,7 +217,7 @@ public class DepRoboRIO {
     private static final String DEFAULT_PASSWORD = "";
     private static final String DEFAULT_ADMIN_USERNAME = "admin";
     private static final String DEFAULT_ADMIN_PASSWORD = "";
-    private static final int FALLBACK_HOST = 2;
+    private static final int FALLBACK_HOST = 19;
     
     /**
      * Finds the path to the roboRIO compiled Jar file, either the thick or thin
